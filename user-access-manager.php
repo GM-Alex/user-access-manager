@@ -1128,11 +1128,6 @@ if (!class_exists("UserAccessManager"))
 			
 			return $page;
 		}
-		
-		function show_categoriey($category)
-		{
-			
-		}
 	
 		function redirect_user()
 		{
@@ -1324,9 +1319,6 @@ if (isset($userAccessManager))
 		
 	if($uamOptions['hide_post'] == 'true')
 		add_filter('the_posts', array(&$userAccessManager, 'show_post'), 1);
-		
-	if($uamOptions['hide_categories'] == 'true')
-		add_filter('the_posts', array(&$userAccessManager, 'show_category'), 1);
 }
 
 ?>
