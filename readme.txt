@@ -1,12 +1,10 @@
 === User Access Manager ===
-Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
-Author URI: http://www.gm-alex.de/
+Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: user access manager, access, member area, user management, private, privacy, admin
 Requires at least: 2.6
 Tested up to: 2.6
 Stable tag: 0.6
-Contributors: GM_Alex
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -25,7 +23,7 @@ Feature list
 * Recursive locking of posts/pages
 * Limited access to uploaded files
 
-For a German description visit my page at [GMAlex](http://www.gm-alex.de/ "GMAlex - deviant design and development"). If you have any problem or suggestions please [contact me](mailto:alexanderschneider85@googlemail.com).
+For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem or suggestions please [contact me](mailto:alexanderschneider85@googlemail.com).
 
 
 == Installation ==
