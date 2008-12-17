@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: user access manager, access, member area, user management, private, privacy, admin
 Requires at least: 2.6
 Tested up to: 2.6
-Stable tag: 0.6
+Stable tag: 0.61
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -33,7 +33,18 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 1. Enjoy
 
 
-== Frequently Asked Questions ==
+== Contributors/Changelog ==
+
+Many users of the plugin gave feedback and contributed their ideas. They are
+referenced in the [changelog](http://blog.jodies.de/archiv/2004/11/13/recent-comments/2/#changelog):
+
+
+    Version Date       Changes
+    0.61   2008/12/17 Fix: Wrong file id in Media Library.
+
+    0.6   2007/12/14  First release.
+
+
 
 
 
