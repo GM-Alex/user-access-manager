@@ -41,5 +41,5 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/ "GMAle
 
 == Screenshots ==
 
-1. usergroup.(png|jpg|jpeg|gif). The group manger
+1. The group manger.
 
