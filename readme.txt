@@ -6,7 +6,7 @@ Tags: user access manager, access, member area, user management, private, privac
 Requires at least: 2.6
 Tested up to: 2.6
 Stable tag: 0.6
-Contributors: -
+Contributors: GM_Alex
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -37,13 +37,7 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/ "GMAle
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
 
-An answer to that question.
-
-= What about foo bar? =
-
-Answer to foo bar dilemma.
 
 == Screenshots ==
 
