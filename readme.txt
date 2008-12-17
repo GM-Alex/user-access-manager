@@ -39,10 +39,10 @@ Many users of the plugin gave feedback and contributed their ideas. They are
 referenced in the [changelog](http://blog.jodies.de/archiv/2004/11/13/recent-comments/2/#changelog):
 
 
-    Version Date       Changes
-    0.61   2008/12/17 Fix: Wrong file id in Media Library.
+    Version	Date      	Changes
+    0.61	2008/12/17	Fix: Wrong file id in Media Library.
 
-    0.6   2007/12/14  First release.
+    0.6		2007/12/14	First release.
 
 
 
