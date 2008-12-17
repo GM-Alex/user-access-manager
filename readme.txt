@@ -35,7 +35,10 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 
 == Contributors/Changelog ==
 
+Here you found the changes in each version.
+
     Version	Date      	Changes
+    
     0.61	2008/12/17	Fix: Wrong file id in Media Library.
 
     0.6		2007/12/14	First release.
