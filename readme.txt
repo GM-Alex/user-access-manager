@@ -35,10 +35,6 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 
 == Contributors/Changelog ==
 
-Many users of the plugin gave feedback and contributed their ideas. They are
-referenced in the [changelog](http://blog.jodies.de/archiv/2004/11/13/recent-comments/2/#changelog):
-
-
     Version	Date      	Changes
     0.61	2008/12/17	Fix: Wrong file id in Media Library.
 
