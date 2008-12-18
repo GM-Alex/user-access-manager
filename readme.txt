@@ -10,7 +10,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 == Description ==
 
-With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now the post/page is only accessible for the specified group. This plugin is useful if you need a member area or a private section at your blog.
+With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible for the specified group. This plugin is useful if you need a member area or a private section at your blog.
 
 Feature list
 
