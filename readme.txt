@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: user access manager, access, member area, user management, private, privacy, admin
 Requires at least: 2.6
 Tested up to: 2.6
-Stable tag: 0.61
+Stable tag: 0.62
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -38,6 +38,8 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version	Date      	Changes
+    
+    0.62	2008/12/18	Fix: Fatal error: Only variables can be passed by reference
     
     0.61	2008/12/17	Fix: Wrong file id in Media Library.
 
