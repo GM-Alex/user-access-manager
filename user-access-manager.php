@@ -494,7 +494,7 @@ if (!class_exists("UserAccessManager"))
 											while($cur_post->post_parent != 0)
 											{
 												$deepness++;
-												$cur_parent_id = $cur_post->post_parent	
+												$cur_parent_id = $cur_post->post_parent;
 												$cur_post = & get_post($cur_parent_id);
 											}
 										}
