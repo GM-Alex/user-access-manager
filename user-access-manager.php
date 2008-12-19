@@ -494,7 +494,7 @@ if (!class_exists("UserAccessManager"))
 											while($cur_post->post_parent != 0)
 											{
 												$deepness++;	
-												$cur_post = get_post($cur_id = $cur_post->post_parent);
+												$cur_post = & get_post($cur_id = $cur_post->post_parent);
 											}
 										}
 									?>
@@ -690,7 +690,7 @@ if (!class_exists("UserAccessManager"))
 												{
 													foreach($posts as $post)
 													{
-														$cur_post = get_post($cur_id = $post['post_id']);
+														$cur_post = & get_post($cur_id = $post['post_id']);
 														if($cur_post->post_type == 'post')
 															echo "- ".$cur_post->post_title."<br />";
 													}
@@ -703,7 +703,7 @@ if (!class_exists("UserAccessManager"))
 												{
 													foreach($posts as $post)
 													{
-														$cur_post = get_post($cur_id = $post['post_id']);
+														$cur_post = & get_post($cur_id = $post['post_id']);
 														if($cur_post->post_type == 'page')
 															echo "- ".$cur_post->post_title."<br />";
 													}
@@ -1003,7 +1003,7 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb, $current_user;
 			
-			$cur_post = get_post($cur_id = $post_id);			
+			$cur_post =  & get_post($cur_id = $post_id);			
 			
 			$uamOptions = $this->getAdminOptions();
 			
@@ -1018,7 +1018,7 @@ if (!class_exists("UserAccessManager"))
 					if($restricted_access)
 						break;
 					else
-						$cur_post = get_post($cur_id = $cur_post->post_parent);
+						$cur_post = & get_post($cur_id = $cur_post->post_parent);
 				}
 			}
 			elseif($uamOptions['lock_recursive'] == 'false')
@@ -1074,7 +1074,7 @@ if (!class_exists("UserAccessManager"))
 		
 		function show_title($title = '')
 		{
-			$cur_post = get_post($cur_id = null);
+			$cur_post = & get_post($cur_id = null);
 			
 			$uamOptions = $this->getAdminOptions();
 			
@@ -1176,7 +1176,7 @@ if (!class_exists("UserAccessManager"))
 			}
 			elseif(isset($_GET['getfile']))
 			{
-				$cur_post = get_post($cur_id = $_GET['getfile']);
+				$cur_post = & get_post($cur_id = $_GET['getfile']);
 				
 				if ($cur_post->post_type == 'attachment' && $this->check_access($cur_post->ID))
 				{
@@ -1250,8 +1250,8 @@ if (!class_exists("UserAccessManager"))
 		
 		function get_file($URL, $ID)
 		{
-			$cur_post = get_post($cur_id = $ID);
-			$cur_parent = get_post($parent_id = $cur_post->post_parent);
+			$cur_post = & get_post($cur_id = $ID);
+			$cur_parent = & get_post($parent_id = $cur_post->post_parent);
 			if(strpos($cur_parent->guid, "?"))
 				$char = "&";
 			else
