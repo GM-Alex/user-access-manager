@@ -39,7 +39,7 @@ Here you found the changes in each version.
 
     Version	Date      	Changes
     
-    0.62	2008/12/18	Fix: Fatal error: Only variables can be passed by reference
+    0.62	2008/12/18	Fix: Fatal error: Only variables can be passed by reference. Thanks to David Thompson
     
     0.61	2008/12/17	Fix: Wrong file id in Media Library.
 
