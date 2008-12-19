@@ -493,8 +493,9 @@ if (!class_exists("UserAccessManager"))
 											$cur_id = $post->ID;
 											while($cur_post->post_parent != 0)
 											{
-												$deepness++;	
-												$cur_post = & get_post($cur_id = $cur_post->post_parent);
+												$deepness++;
+												$cur_parent_id = $cur_post->post_parent	
+												$cur_post = & get_post($cur_parent_id);
 											}
 										}
 									?>
@@ -690,7 +691,8 @@ if (!class_exists("UserAccessManager"))
 												{
 													foreach($posts as $post)
 													{
-														$cur_post = & get_post($cur_id = $post['post_id']);
+														$cur_id = $post['post_id'];
+														$cur_post = & get_post($cur_id);
 														if($cur_post->post_type == 'post')
 															echo "- ".$cur_post->post_title."<br />";
 													}
@@ -703,7 +705,8 @@ if (!class_exists("UserAccessManager"))
 												{
 													foreach($posts as $post)
 													{
-														$cur_post = & get_post($cur_id = $post['post_id']);
+														$cur_id = $post['post_id'];
+														$cur_post = & get_post($cur_id);
 														if($cur_post->post_type == 'page')
 															echo "- ".$cur_post->post_title."<br />";
 													}
@@ -1003,7 +1006,8 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb, $current_user;
 			
-			$cur_post =  & get_post($cur_id = $post_id);			
+			$cur_id = $post_id;
+			$cur_post =  & get_post($cur_id);			
 			
 			$uamOptions = $this->getAdminOptions();
 			
@@ -1016,9 +1020,14 @@ if (!class_exists("UserAccessManager"))
 																FROM ".DB_ACCESSGROUP_TO_POST."
 																WHERE post_id = ".$cur_post->ID, ARRAY_A);
 					if($restricted_access)
+					{
 						break;
+					}
 					else
-						$cur_post = & get_post($cur_id = $cur_post->post_parent);
+					{
+						$cur_id = $cur_post->post_parent; 					
+						$cur_post = & get_post($cur_id);
+					}
 				}
 			}
 			elseif($uamOptions['lock_recursive'] == 'false')
@@ -1074,7 +1083,8 @@ if (!class_exists("UserAccessManager"))
 		
 		function show_title($title = '')
 		{
-			$cur_post = & get_post($cur_id = null);
+			$cur_id = null;
+			$cur_post = & get_post($cur_id);
 			
 			$uamOptions = $this->getAdminOptions();
 			
@@ -1176,7 +1186,8 @@ if (!class_exists("UserAccessManager"))
 			}
 			elseif(isset($_GET['getfile']))
 			{
-				$cur_post = & get_post($cur_id = $_GET['getfile']);
+				$cur_id = $_GET['getfile'];
+				$cur_post = & get_post($cur_id);
 				
 				if ($cur_post->post_type == 'attachment' && $this->check_access($cur_post->ID))
 				{
@@ -1250,8 +1261,10 @@ if (!class_exists("UserAccessManager"))
 		
 		function get_file($URL, $ID)
 		{
-			$cur_post = & get_post($cur_id = $ID);
-			$cur_parent = & get_post($parent_id = $cur_post->post_parent);
+			$cur_id = $ID;
+			$cur_post = & get_post($cur_id);
+			$parent_id = $cur_post->post_parent;
+			$cur_parent = & get_post($parent_id);
 			if(strpos($cur_parent->guid, "?"))
 				$char = "&";
 			else
