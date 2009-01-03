@@ -1,0 +1,12 @@
+Index: wp-admin/edit-category-form.php
+===================================================================
+--- wp-admin/edit-category-form.php	2008-12-09 10:07:36.000000000 +0100
++++ wp-admin/edit-category-form.php	2008-12-29 12:21:54.000000000 +0100
+@@ -70,6 +70,7 @@
+             <?php _e('The description is not prominent by default, however some themes may show it.'); ?></td>
+ 		</tr>
+ 	</table>
++<?php do_action('edit_category_edit_form_before_button', $category); ?>
+ <p class="submit"><input type="submit" class="button-primary" name="submit" value="<?php _e('Update Category'); ?>" /></p>
+ <?php do_action('edit_category_form', $category); ?>
+ </form>
