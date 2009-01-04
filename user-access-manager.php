@@ -327,7 +327,7 @@ if (!class_exists("UserAccessManager"))
 			    }
 			    
 			    // make .htpasswd
-			    $htpasswd_txt .= "$user:".md5($passwort)."\n";
+			    $htpasswd_txt .= "$user:".md5($password)."\n";
 				
 				// save file
 				$htpasswd= fopen($url.".htpasswd", "w");
