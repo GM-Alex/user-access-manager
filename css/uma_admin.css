@@ -1,0 +1,21 @@
+.uam_icon {
+	margin-left: 4px;
+}
+
+.uam_post_hint {
+	text-align: center;
+	position:absolute;
+	visibility:hidden;
+	z-index:1000;
+	background-color:#FFF !important;
+	color:#000 !important;
+	padding:6px !important;
+	border: solid #000 2px !important;
+	font-size: 12px !important;
+	margin-left: 6px;
+	min-width: 200px;
+}
+
+.uam_post_hint p{
+	display: block;
+}
