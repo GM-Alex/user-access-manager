@@ -1,0 +1,13 @@
+Index: wp-admin/categories.php
+===================================================================
+--- wp-admin/categories.php	2008-12-04 22:57:56.000000000 +0100
++++ wp-admin/categories.php	2008-12-29 12:21:36.000000000 +0100
+@@ -276,7 +276,7 @@
+ 	<textarea name="category_description" id="category_description" rows="5" cols="40"></textarea>
+     <p><?php _e('The description is not prominent by default, however some themes may show it.'); ?></p>
+ </div>
+-
++<?php do_action('edit_category_add_form_before_button', $category); ?>
+ <p class="submit"><input type="submit" class="button" name="submit" value="<?php _e('Add Category'); ?>" /></p>
+ <?php do_action('edit_category_form', $category); ?>
+ </form></div>

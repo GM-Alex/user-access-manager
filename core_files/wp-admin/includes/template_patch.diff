@@ -1,0 +1,30 @@
+Index: wp-admin/includes/template.php
+===================================================================
+--- wp-admin/includes/template.php	2008-12-10 23:22:30.000000000 +0100
++++ wp-admin/includes/template.php	2009-01-02 14:32:54.000000000 +0100
+@@ -181,7 +181,13 @@
+ 			case 'posts':
+ 				$attributes = 'class="posts column-posts num"' . $style;
+ 				$output .= "<td $attributes>$posts_count</td>\n";
++				break;
++			default:
++				$output .= "<td $attributes>";
++				$output .= apply_filters('manage_categories_custom_column', $column_name, $qe_data->term_id);
++				$output .= "</td>";
+ 		}
++
+ 	}
+ 	$output .= '</tr>';
+ 
+@@ -1867,6 +1873,11 @@
+ 					$r .= 0;
+ 				}
+ 				$r .= "</td>";
++				break;
++			default:
++				$r .= "<td $attributes>";
++				$r .= apply_filters('manage_users_custom_column', $column_name, $user_object->ID);
++				$r .= "</td>";
+ 		}
+ 	}
+ 	$r .= '</tr>';
