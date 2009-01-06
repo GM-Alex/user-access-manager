@@ -3,7 +3,7 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.7 Beta
+Version: 0.7
 Author: Alexander Schneider
 Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will not overwrite the '.htaccess'.</em>
  
@@ -1056,6 +1056,11 @@ if (!class_exists("UserAccessManager"))
 			return $post_usergroups;
 		}
 		
+		function add_admin_css()
+		{
+			echo "<link rel='stylesheet' href='".UAM_URLPATH."css/uma_admin.css' type='text/css' media='all' />";
+		}
+		
 		function add_post_columns_header($defaults)
 		{
     		$defaults['access'] = __('Access');
@@ -1069,20 +1074,21 @@ if (!class_exists("UserAccessManager"))
 		    	$usergroups = $this->get_usergroups_for_post($id);
 		    	if($usergroups)
 		    	{
+		    		echo "<ul>";
 		    		foreach($usergroups as $usergroup)
 		    		{
-		    			$output = "- ".$usergroup->name. "";
-		    			$output .= " (Set by: ";
+		    			$output = "<li>".$usergroup->name. "";
+		    			$output .= "<ul>Set by: ";
 		    			
 		    			if($usergroup->itself)
-		    				$output .= "itself, ";
+		    				$output .= "<li>itself</li>";
 		    			
 		    			if($usergroup->posts)
 		    			{
 		    				foreach($usergroup->posts as $cur_id)
 		    				{
 		    					$cur_post = & get_post($cur_id);
-		    					$output .= "$cur_post->post_title [$cur_post->post_type], ";
+		    					$output .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
 		    				}
 		    			}
 		    			
@@ -1091,15 +1097,16 @@ if (!class_exists("UserAccessManager"))
 		    				foreach($usergroup->categories as $cur_id)
 		    				{
 		    					$cur_category = & get_category($cur_id);
-		    					$output .= "$cur_category->name [category], ";
+		    					$output .= "<li>$cur_category->name [category]</li>";
 		    				}
 		    			}
 						
 		    			$output = substr($output, 0, -2);
 		    			
-		    			$output .= ")<br />";
+		    			$output .= "</li>";
 		    			echo $output;
 		    		}
+		    		echo "</ul>";
 		    	}
 		    	else
 				{ 
@@ -1730,6 +1737,18 @@ if (!class_exists("UserAccessManager"))
 			return $categories;
 		}
 		
+		function show_title($title, $post = null)
+		{
+			if(!$this->check_access($post->ID) && $post != null)
+			{
+				if($post->post_type == "post")
+					$title = $uamOptions['post_title'];
+				elseif($post->post_type == "page")
+					$title = $uamOptions['page_title'];
+			}
+			return $title;
+		}
+		
 		function show_next_previous_post($sql)
 		{
 			$uamOptions = $this->getAdminOptions();
@@ -1930,6 +1949,7 @@ if (!function_exists("UserAccessManager_AP")) {
    		add_action('profile_update', array(&$userAccessManager, 'save_userdata'), 9);
    		add_action('delete_user', array(&$userAccessManager, 'remove_userdata'), 9);
    		
+   		add_action('admin_head', array(&$userAccessManager, 'add_admin_css'), 9);
    		//add_action('edit_category_add_form_before_button', array(&$userAccessManager, 'show_cat_add_form'), 9);
    		add_action('edit_category_edit_form_before_button', array(&$userAccessManager, 'show_cat_edit_form'), 9);
    		//add_action('created_term', array(&$userAccessManager, 'save_categorydata'), 9);
@@ -1973,6 +1993,8 @@ if (isset($userAccessManager))
 	add_filter('get_terms', array(&$userAccessManager, 'show_category'), 1);
 	add_filter('get_next_post_where', array(&$userAccessManager, 'show_next_previous_post'), 1);
 	add_filter('get_previous_post_where', array(&$userAccessManager, 'show_next_previous_post'), 1);
+	add_filter('get_previous_post_where', array(&$userAccessManager, 'show_next_previous_post'), 1);
+	add_filter('the_title', array(&$userAccessManager, 'show_title'), 1, 2);
 }
 
 ?>
