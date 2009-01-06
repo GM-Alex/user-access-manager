@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: user access manager, access, member area, user management, private, privacy, admin
 Requires at least: 2.7
 Tested up to: 2.7
-Stable tag: 0.62
+Stable tag: 0.7 Beta
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -12,7 +12,9 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible for the specified group. This plugin is useful if you need a member area or a private section at your blog.
 
-Note: At this release you have to replace some core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>).
+<b><red>Important:</red></b> This release is a beta release. If you want to help me or test the new version use this one. But I think it's much better than version 0.62. Please report me bugs if you found any.
+
+<b>Note:</b> At this release you have to replace some core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>).
 
 <h5>Feature list</h5>
 * User groups
