@@ -43,6 +43,7 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 == Contributors/Changelog ==
 
     Version	Date      	Changes
+    
     0.7		2000/01/05	Fix: Problems with media at posts
     					Fix: Many other small fixes
     					Only support up to Wordpress 2.7
