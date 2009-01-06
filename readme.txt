@@ -40,7 +40,7 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 1. Enjoy
 
 
-== Contributors/Changelog ==
+== Changelog ==
 
     Version	Date      	Changes
     
