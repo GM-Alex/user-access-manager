@@ -16,7 +16,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 <strong>Note:</strong> At this release you have to replace some core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>).
 
-<h4>Feature list</h4>
+<em>Feature list</em>
 * User groups
 * Set access by user groups
 * Set access by post categories
