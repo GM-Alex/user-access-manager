@@ -1457,7 +1457,7 @@ if (!class_exists("UserAccessManager"))
 					{
 						$restricted_access_by_cat = $wpdb->get_results("	SELECT *
 																			FROM ".DB_ACCESSGROUP_TO_CATEGORY."
-																			WHERE category_id = ".$cur_category->term_id, ARRAY_A);
+																			WHERE category_id = ".$cur_id, ARRAY_A);
 						if($restricted_access_by_cat)
 							$restricted_by_categories[] = $cur_category->term_id;
 						
@@ -1972,7 +1972,8 @@ if (isset($userAccessManager))
 	$uamOptions = $userAccessManager->getAdminOptions();
 	
 	//install
-	register_activation_hook(__FILE__, array(&$userAccessManager, 'install'));
+	if(function_exists('register_activation_hook'))
+		register_activation_hook(__FILE__, array(&$userAccessManager, 'install'));
 	if(function_exists('register_uninstall_hook'))
 		register_uninstall_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
 	elseif(function_exists('register_deactivation_hook'))
