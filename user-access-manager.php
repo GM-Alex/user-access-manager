@@ -1932,82 +1932,94 @@ if (!class_exists("UserAccessManager"))
 			$accessgroups = $wpdb->get_results("SELECT *
 												FROM ".DB_ACCESSGROUP."
 												ORDER BY groupname", ARRAY_A);
-					
-			?>
-			<table class="form-table">
-				<tbody>
-					<tr>
-						<th>
-							<label for="description"><?php _e(TXT_SET_UP_USERGROUPS, "UserAccessManager"); ?></label>
-						</th>
-						<td>
-							<?php
-							if($accessgroups)
-							{
-								$recursive_set = $this->get_usergroups_for_post($cat_id);
-							
-								foreach($accessgroups as $accessgroup)
+
+			if($_GET['action'] == 'edit')
+			{
+				?>
+				<table class="form-table">
+					<tbody>
+						<tr>
+							<th>
+								<label for="description"><?php _e(TXT_SET_UP_USERGROUPS, "UserAccessManager"); ?></label>
+							</th>
+							<td>
+								<?php
+								if($accessgroups)
 								{
-									$checked = $wpdb->get_results("	SELECT *
-																	FROM ".DB_ACCESSGROUP_TO_CATEGORY."
-																	WHERE category_id = ".$cat_id."
-																		AND group_id = ".$accessgroup['ID'], ARRAY_A)
-									
-									//$set_recursive = $recursive_set[$accessgroup['groupname']];
-												?>
-									<p style="margin:6px 0;">
-										<label for="uam_accesssgroup-<?php echo $accessgroup['ID'];?>" class="selectit" >
-											<input type="checkbox" id="uam_accesssgroup-<?php echo $accessgroup['ID'];?>" <?php if($checked){ echo 'checked="checked"'; } ?> value="<?php echo $accessgroup['ID']; ?>" name="accessgroups[]"/>
-											<?php echo $accessgroup['groupname']; ?>					
-										</label>
-										<?php
-										$group_info_html = $this->get_usergroup_info_html($accessgroup['ID']);
-							
-										echo $group_info_html->link;
+									$recursive_set = $this->get_usergroups_for_post($cat_id);
+								
+									foreach($accessgroups as $accessgroup)
+									{
+										$checked = $wpdb->get_results("	SELECT *
+																		FROM ".DB_ACCESSGROUP_TO_CATEGORY."
+																		WHERE category_id = ".$cat_id."
+																			AND group_id = ".$accessgroup['ID'], ARRAY_A)
 										
-										if($set_recursive->posts || $set_recursive->categories)
-											echo '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
-										
-										echo $group_info_html->content;
-										
-										if($set_recursive->posts || $set_recursive->categories)
-										{
-											$recursive_info = '<ul class="uam_group_lock_info"><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
-											if($set_recursive->posts)
-					    					{
-					    						foreach($set_recursive->posts as $cur_id)
-					    						{
-					    							$cur_post = & get_post($cur_id);
-					    							$recursive_info .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
-					    						}
-					    					}
-					    			
-					    					if($set_recursive->categories)
-					    					{
-					    						foreach($set_recursive->categories as $cur_id)
-					    						{
-					    							$cur_category = & get_category($cur_id);
-					    							$recursive_info .= "<li>$cur_category->name [".TXT_CATEGORY."]</li>";
-					    						}
-					    					}
-											$recursive_info .= "</ul>";
-											echo $recursive_info;
-										}
-									echo "</p>";	
+										//$set_recursive = $recursive_set[$accessgroup['groupname']];
+													?>
+										<p style="margin:6px 0;">
+											<label for="uam_accesssgroup-<?php echo $accessgroup['ID'];?>" class="selectit" >
+												<input type="checkbox" id="uam_accesssgroup-<?php echo $accessgroup['ID'];?>" <?php if($checked){ echo 'checked="checked"'; } ?> value="<?php echo $accessgroup['ID']; ?>" name="accessgroups[]"/>
+												<?php echo $accessgroup['groupname']; ?>					
+											</label>
+											<?php
+											$group_info_html = $this->get_usergroup_info_html($accessgroup['ID']);
+								
+											echo $group_info_html->link;
+											
+											if($set_recursive->posts || $set_recursive->categories)
+												echo '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
+											
+											echo $group_info_html->content;
+											
+											if($set_recursive->posts || $set_recursive->categories)
+											{
+												$recursive_info = '<ul class="uam_group_lock_info"><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
+												if($set_recursive->posts)
+						    					{
+						    						foreach($set_recursive->posts as $cur_id)
+						    						{
+						    							$cur_post = & get_post($cur_id);
+						    							$recursive_info .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
+						    						}
+						    					}
+						    			
+						    					if($set_recursive->categories)
+						    					{
+						    						foreach($set_recursive->categories as $cur_id)
+						    						{
+						    							$cur_category = & get_category($cur_id);
+						    							$recursive_info .= "<li>$cur_category->name [".TXT_CATEGORY."]</li>";
+						    						}
+						    					}
+												$recursive_info .= "</ul>";
+												echo $recursive_info;
+											}
+										echo "</p>";	
+									}
 								}
-							}
-							else
-							{
-								echo "<a href='admin.php?page=uam_usergroup'>";
-								_e(TXT_CREATE_GROUP_FIRST, "UserAccessManager");
-								echo "</a>";
-							}
-							?>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+								else
+								{
+									echo "<a href='admin.php?page=uam_usergroup'>";
+									_e(TXT_CREATE_GROUP_FIRST, "UserAccessManager");
+									echo "</a>";
+								}
+								?>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<style type="text/css">
+					.submit {
+						display: none;
+						position: absolute;
+					}
+				</style>
+				<p class="submit" style="display:block;">
+					<input class="button-primary" type="submit" value="Update Category" name="submit"/>
+				</p>
 			<?php
+			}
 		}
 		
 		function add_styles()
@@ -2563,7 +2575,7 @@ if (class_exists("UserAccessManager"))
 if (!function_exists("UserAccessManager_AP")) {
 	function UserAccessManager_AP()
 	{
-		global $userAccessManager;
+		global $userAccessManager, $wp_version;
 		
 		$userAccessManager->atAdminPanel = true;
 		
@@ -2596,21 +2608,29 @@ if (!function_exists("UserAccessManager_AP")) {
    		add_action('profile_update', array(&$userAccessManager, 'save_userdata'));
    		add_action('delete_user', array(&$userAccessManager, 'remove_userdata'));
    		
-   		add_action('wp_print_scripts', array(&$userAccessManager, 'add_scripts') );
-		add_action('wp_print_styles', array(&$userAccessManager, 'add_styles') );
-   		//add_action('edit_category_add_form_before_button', array(&$userAccessManager, 'show_cat_add_form'), 9);
-   		add_action('edit_category_edit_form_before_button', array(&$userAccessManager, 'show_cat_edit_form'));
-   		//add_action('created_term', array(&$userAccessManager, 'save_categorydata'), 9);
+   		add_action('edit_category_form', array(&$userAccessManager, 'show_cat_edit_form'));
    		add_action('edit_category', array(&$userAccessManager, 'save_categorydata'));
    		add_action('delete_category', array(&$userAccessManager, 'remove_categorydata'));
+   		
+   		add_action('wp_print_scripts', array(&$userAccessManager, 'add_scripts') );
+		add_action('wp_print_styles', array(&$userAccessManager, 'add_styles') );
+   		
    		
    		//Admin filters
 		add_filter('manage_posts_columns', array(&$userAccessManager, 'add_post_columns_header'));
 		add_filter('manage_pages_columns', array(&$userAccessManager, 'add_post_columns_header'));
-		add_filter('manage_users_columns', array(&$userAccessManager, 'add_user_columns_header'), 10);
-		add_filter('manage_users_custom_column', array(&$userAccessManager, 'add_user_column'), 10, 2);
-		add_filter('manage_categories_columns', array(&$userAccessManager, 'add_category_columns_header'));
-		add_filter('manage_categories_custom_column', array(&$userAccessManager, 'add_category_column'), 10, 2);
+		
+		if($wp_version >= 2.7)
+		{
+			add_filter('manage_users_columns', array(&$userAccessManager, 'add_user_columns_header'), 10);
+			add_filter('manage_users_custom_column', array(&$userAccessManager, 'add_user_column'), 10, 2);
+			add_filter('manage_categories_columns', array(&$userAccessManager, 'add_category_columns_header'));
+			add_filter('manage_categories_custom_column', array(&$userAccessManager, 'add_category_column'), 10, 2);
+			
+			//add_action('edit_category_add_form_before_button', array(&$userAccessManager, 'show_cat_add_form'), 9);
+   			//add_action('created_term', array(&$userAccessManager, 'save_categorydata'), 9);
+   			
+		}
 	}	
 }
 
