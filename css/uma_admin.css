@@ -60,3 +60,11 @@
 	left:-14px;
 	position: relative;
 }
+
+.uam_group_stuff li{
+	cursor:pointer;
+}
+
+.uam_group_stuff ul {
+	margin: 0 0 0 16px;
+}
