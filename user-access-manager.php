@@ -34,7 +34,7 @@ define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix.'uam_accessgroup_to_category'
 define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix.'uam_accessgroup_to_role');
 
 //PATH
-define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/' );//define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' );
+define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/');//define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' );
 
 //###Lang###
 
@@ -52,17 +52,17 @@ if (!class_exists("UserAccessManager"))
 		
 		function init()
 		{
-			load_plugin_textdomain('user-access-manager', UAM_URLPATH);
+			echo load_plugin_textdomain('user-access-manager', 'wp-content/plugins/user-access-manager');
 			
 			//---Lang Settings---
-			define('TXT_SETTINGS', __('Settings'));
+			define('TXT_SETTINGS', __('Settings', 'user-access-manager'));
 			
 			define('TXT_POST_SETTING', __('Post settings', 'user-access-manager'));
 			define('TXT_POST_SETTING_DESC', __('Set up the behaviour of locked posts', 'user-access-manager'));
 			define('TXT_POST_TITLE', __('Post title', 'user-access-manager'));
 			define('TXT_POST_TITLE_DESC', __('Displayed text as post title if user has no access', 'user-access-manager'));
 			define('TXT_DISPLAY_POST_TITLE', __('Hide post titel', 'user-access-manager'));
-			define('TXT_DISPLAY_POST_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_POST_TITLE.'" if user has no access.', 'user-access-manager'));
+			define('TXT_DISPLAY_POST_TITLE_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_TITLE));
 			define('TXT_POST_CONTENT', __('Post content', 'user-access-manager'));
 			define('TXT_POST_CONTENT_DESC', __('Content displayed if user has no access', 'user-access-manager'));
 			define('TXT_HIDE_POST', __('Hide complete posts', 'user-access-manager'));
@@ -70,14 +70,14 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_POST_COMMENT_CONTENT', __('Post commtent text', 'user-access-manager'));
 			define('TXT_POST_COMMENT_CONTENT_DESC', __('Displayed text as post comment text if user has no access', 'user-access-manager'));
 			define('TXT_DISPLAY_POST_COMMENT', __('Hide post comments', 'user-access-manager'));
-			define('TXT_DISPLAY_POST_COMMENT_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_POST_COMMENT_CONTENT.'" if user has no access.', 'user-access-manager'));
+			define('TXT_DISPLAY_POST_COMMENT_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_COMMENT_CONTENT) );
 			
 			define('TXT_PAGE_SETTING', __('Page settings', 'user-access-manager'));
 			define('TXT_PAGE_SETTING_DESC', __('Set up the behaviour of locked pages', 'user-access-manager'));
 			define('TXT_PAGE_TITLE', __('Page title', 'user-access-manager'));
 			define('TXT_PAGE_TITLE_DESC', __('Displayed text as page title if user has no access', 'user-access-manager'));
 			define('TXT_DISPLAY_PAGE_TITLE', __('Hide page titel', 'user-access-manager'));
-			define('TXT_DISPLAY_PAGE_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_PAGE_TITLE.'" if user has no access.', 'user-access-manager'));
+			define('TXT_DISPLAY_PAGE_TITLE_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_TITLE));
 			define('TXT_PAGE_CONTENT', __('Page content', 'user-access-manager'));
 			define('TXT_PAGE_CONTENT_DESC', __('Content displayed if user has no access', 'user-access-manager'));
 			define('TXT_HIDE_PAGE', __('Hide complete pages', 'user-access-manager'));
@@ -106,7 +106,7 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
-			define('TXT_BLOG_ADMIN_HINT_DESC', __('Selecting "Yes" will show the defined text at "'.TXT_BLOG_ADMIN_HINT_TEXT.'" behinde th post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'));
+			define('TXT_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behinde th post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_BLOG_ADMIN_HINT_TEXT));
 			define('TXT_CORE_MOD', __('Core modifications installed?', 'user-access-manager'));
 			define('TXT_CORE_MOD_DESC', __('If you installed the core modifications activated this option.', 'user-access-manager'));
 			
