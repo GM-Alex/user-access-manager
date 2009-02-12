@@ -3,7 +3,7 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.7
+Version: 0.7.0.1
 Author: Alexander Schneider
 Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will not overwrite the '.htaccess'.</em>
  
@@ -793,12 +793,12 @@ if (!class_exists("UserAccessManager"))
 					            	<?php echo TXT_GROUP_NAME_DESC; ?></td>
 					            	
 								</tr>
-								<tr class="form-field form-required">
+								<tr  class="form-field form-required">
 									<th valign="top" scope="row"><?php echo TXT_GROUP_DESC; ?></th>
 									<td><input type="text" aria-required="true" size="40" value="" id="access_group_description" name="access_group_description"/><br/>
 					            	<?php echo TXT_GROUP_DESC_DESC; ?></td>
 					            </tr>
-					             <tr class="form-field form-required">
+					             <tr>
 					            	<th valign="top" scope="row"><?php echo TXT_GROUP_ROLE; ?></th>
 									<td>
 										<ul>
@@ -822,7 +822,7 @@ if (!class_exists("UserAccessManager"))
 	   								 	</ul>
    								 	</td>
    								</tr>
-   								<tr class="form-field form-required">
+   								<tr>
    									<?php 
    										$args = array('numberposts' => -1);  
    										$posts = get_posts($args); 
@@ -855,7 +855,7 @@ if (!class_exists("UserAccessManager"))
 										?>
 									</td>
 					           	</tr>
-   								<tr class="form-field form-required">
+   								<tr>
    									<?php 
    										$posts = get_pages('sort_column=menu_order');
    									?>
@@ -914,7 +914,7 @@ if (!class_exists("UserAccessManager"))
 										?>
 									</td>
 					            </tr>
-					            <tr class="form-field form-required">
+					            <tr>
 					            	<?php 
 					            		$categories = get_categories();
 					            	?>
@@ -958,11 +958,12 @@ if (!class_exists("UserAccessManager"))
 												}
 											}
 											
-											print_elements();
+											$callFkt = "print_elements";
+											echo $callFkt();
 										?>
 									</td>
 					            </tr>
-					            <tr class="form-field form-required">
+					            <tr>
 					            	<?php 
 					            		$users = $wpdb->get_results("	SELECT ID
 																		FROM $wpdb->users
@@ -1364,7 +1365,7 @@ if (!class_exists("UserAccessManager"))
 									<td><input type="text" aria-required="true" size="40" value="<?php echo $accessgroup["groupdesc"];?>" id="access_group_description" name="access_group_description"/><br/>
 					            	<?php echo TXT_GROUP_DESC_DESC; ?></td>
 					            </tr>
-					            <tr class="form-field form-required">
+					            <tr>
 					            	<th valign="top" scope="row"><?php echo TXT_GROUP_ROLE; ?></th>
 									<td>
 										<ul>
@@ -1388,7 +1389,7 @@ if (!class_exists("UserAccessManager"))
 	   								 	</ul>
    								 	</td>
    								</tr>
-   								<tr class="form-field form-required">
+   								<tr>
    									<?php 
    										$args = array('numberposts' => -1);  
    										$posts = get_posts($args); 
@@ -1421,7 +1422,7 @@ if (!class_exists("UserAccessManager"))
 										?>
 									</td>
 					           	</tr>
-   								<tr class="form-field form-required">
+   								<tr>
    									<?php 
    										$posts = get_pages('sort_column=menu_order');
    									?>
@@ -1480,7 +1481,7 @@ if (!class_exists("UserAccessManager"))
 										?>
 									</td>
 					            </tr>
-					            <tr class="form-field form-required">
+					            <tr>
 					            	<?php 
 					            		$categories = get_categories();
 					            	?>
@@ -1524,11 +1525,12 @@ if (!class_exists("UserAccessManager"))
 												}
 											}
 											
-											print_elements();
+											$callFkt = "print_elements";
+											echo $callFkt();
 										?>
 									</td>
 					            </tr>
-					            <tr class="form-field form-required">
+					            <tr>
 					            	<?php 
 					            		$users = $wpdb->get_results("	SELECT ID
 																		FROM $wpdb->users
