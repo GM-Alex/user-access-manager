@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 2.7
 Tested up to: 2.7
-Stable tag: 0.7 Beta
+Stable tag: 0.7
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -12,7 +12,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible for the specified group. This plugin is useful if you need a member area or a private section at your blog.
 
-<strong>Note</strong>: At this release you have to replace some core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>).
+<strong>Note</strong>: At this release you can replace on core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>). <strong>This core modification is not needed and only optional, but it gives you more comfort.</strong>
 
 <em>Feature list</em>
 
@@ -21,6 +21,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 * Set access by post categories
 * User-defined post/page title (if no access)
 * User-defined post/page text (if no access)
+* User-defined comment text (if no access)
 * Hide complete post/page
 * Hide pages in navigation
 * Redirecting users to other pages (if no access)
@@ -33,8 +34,8 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 
 == Installation ==
  
-1. Upload the full directory into your wp-content/plugins directory
-1. Replace the following files in the wp-admin dir with the files at 'core_files' or use the patches: 'categories.php', 'edit-category-form.php', 'includes/template.php'
+1. Upload the full directory, with the folder, into your wp-content/plugins directory
+1. Replace the following files in the wp-admin dir with the files at 'core_files' or use the patches: 'includes/template.php'
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Enjoy
 
@@ -43,19 +44,23 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 
 Here you found the changes in each version.
 
-    Version	Date      	Changes
+    Version		Date      	Changes
     
-    0.7		2000/01/05	Fix: Problems with media at posts
-    					Fix: Many other small fixes
-    					Only support up to Wordpress 2.7
-    					Better integration
+    0.7			2009/02/13	Fix: All known Bugs of the beta
+    						Add ajax for more comfort
+    						Add language support
     
-    0.62	2008/12/18	Fix: Fatal error: Only variables can 
-    					be passed by reference. Thanks to David Thompson
+    0.7 Beta	2009/01/05	Fix: Problems with media at posts
+    						Fix: Many other small fixes
+    						Only support up to Wordpress 2.7
+    						Better integration
     
-    0.61	2008/12/17	Fix: Wrong file id in Media Library.
+    0.62		2008/12/18	Fix: Fatal error: Only variables can 
+    						be passed by reference. Thanks to David Thompson
+    
+    0.61		2008/12/17	Fix: Wrong file id in Media Library.
 
-    0.6		2007/12/14	First release.
+    0.6			2007/12/14	First release.
 
 
 

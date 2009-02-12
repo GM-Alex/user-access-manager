@@ -106,7 +106,7 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
-			define('TXT_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behinde th post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_BLOG_ADMIN_HINT_TEXT));
+			define('TXT_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_BLOG_ADMIN_HINT_TEXT));
 			define('TXT_CORE_MOD', __('Core modifications installed?', 'user-access-manager'));
 			define('TXT_CORE_MOD_DESC', __('If you installed the core modifications activated this option.', 'user-access-manager'));
 			
@@ -827,7 +827,7 @@ if (!class_exists("UserAccessManager"))
    										$args = array('numberposts' => -1);  
    										$posts = get_posts($args); 
    									?>
-									<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>expand</a>)</label>"; }?></th>
+									<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; }?></th>
 									<td>
 										<?php
 											echo "<strong>".count($posts)." ".TXT_POSTS."</strong>";
@@ -859,7 +859,7 @@ if (!class_exists("UserAccessManager"))
    									<?php 
    										$posts = get_pages('sort_column=menu_order');
    									?>
-									<th valign="top" scope="row"><?php echo TXT_PAGES; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>expand</a>)</label>"; } ?></th>
+									<th valign="top" scope="row"><?php echo TXT_PAGES; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
 									<td>
 										<?php
 											echo "<strong>".count($posts)." ".TXT_PAGES."</strong>";
@@ -918,7 +918,7 @@ if (!class_exists("UserAccessManager"))
 					            	<?php 
 					            		$categories = get_categories();
 					            	?>
-									<th valign="top" scope="row"><?php echo TXT_CATEGORY;  if(count($categories) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>expand</a>)</label>"; } ?></th>
+									<th valign="top" scope="row"><?php echo TXT_CATEGORY;  if(count($categories) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
 									<td>
 										<?php 
 											echo "<strong>".count($categories)." ".TXT_CATEGORY."</strong>";
@@ -1393,7 +1393,7 @@ if (!class_exists("UserAccessManager"))
    										$args = array('numberposts' => -1);  
    										$posts = get_posts($args); 
    									?>
-									<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>expand</a>)</label>"; }?></th>
+									<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; }?></th>
 									<td>
 										<?php
 											echo "<strong>".count($posts)." ".TXT_POSTS."</strong>";
