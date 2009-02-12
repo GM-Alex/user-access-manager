@@ -38,123 +38,6 @@ define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix.'uam_accessgroup_to_role');
 define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/' );
 //###Lang###
 
-//---Lang Settings---
-define('TXT_SETTINGS', __('Settings'));
-
-define('TXT_POST_SETTING', __('Post settings'));
-define('TXT_POST_SETTING_DESC', __('Set up the behaviour of locked posts'));
-define('TXT_POST_TITLE', __('Post title'));
-define('TXT_POST_TITLE_DESC', __('Displayed text as post title if user has no access'));
-define('TXT_DISPLAY_POST_TITLE', __('Hide post titel'));
-define('TXT_DISPLAY_POST_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_POST_TITLE.'" if user has no access.'));
-define('TXT_POST_CONTENT', __('Post content'));
-define('TXT_POST_CONTENT_DESC', __('Content displayed if user has no access'));
-define('TXT_HIDE_POST', __('Hide complete posts'));
-define('TXT_HIDE_POST_DESC', __('Selecting "Yes" will hide posts if the user has no access.'));
-define('TXT_POST_COMMENT_CONTENT', __('Post commtent text'));
-define('TXT_POST_COMMENT_CONTENT_DESC', __('Displayed text as post comment text if user has no access'));
-define('TXT_DISPLAY_POST_COMMENT', __('Hide post comments'));
-define('TXT_DISPLAY_POST_COMMENT_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_POST_COMMENT_CONTENT.'" if user has no access.'));
-
-define('TXT_PAGE_SETTING', __('Page settings'));
-define('TXT_PAGE_SETTING_DESC', __('Set up the behaviour of locked pages'));
-define('TXT_PAGE_TITLE', __('Page title'));
-define('TXT_PAGE_TITLE_DESC', __('Displayed text as page title if user has no access'));
-define('TXT_DISPLAY_PAGE_TITLE', __('Hide page titel'));
-define('TXT_DISPLAY_PAGE_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_PAGE_TITLE.'" if user has no access.'));
-define('TXT_PAGE_CONTENT', __('Page content'));
-define('TXT_PAGE_CONTENT_DESC', __('Content displayed if user has no access'));
-define('TXT_HIDE_PAGE', __('Hide complete pages'));
-define('TXT_HIDE_PAGE_DESC', __('Selecting "Yes" will hide pages if the user has no access. Pages will also hide in the navigation.'));
-
-define('TXT_FILE_SETTING', __('File settings'));
-define('TXT_FILE_SETTING_DESC', __('Set up the behaviour of files'));
-define('TXT_LOCK_FILE', __('Lock files'));
-define('TXT_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files.'));
-define('TXT_DOWNLOAD_FILE_TYPE', __('Locked file types'));
-define('TXT_DOWNLOAD_FILE_TYPE_DESC', __('Type in file types which you will lock if the post/page is locked. <b>Note:</b> If you use images, vids or something else in your posts which are directly shown there and not for download do not type these types in here, because this types will not work anymore.'));
-define('TXT_DOWNLOAD_TYPE', __('Download type'));
-define('TXT_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".'));
-define('TXT_NORMAL', __('Normal'));
-define('TXT_FOPEN', __('fopen'));
-
-define('TXT_OTHER_SETTING', __('Other settings'));
-define('TXT_OTHER_SETTING_DESC', __('Here you will find all other settings'));
-define('TXT_REDIRECT', __('Redirect user'));
-define('TXT_REDIRECT_DESC', __('Setup what happen if a user visit a post/page with no access.'));
-define('TXT_REDIRECT_TO_BOLG', __('To blog startpage'));
-define('TXT_REDIRECT_TO_PAGE', __('Custom page: '));
-define('TXT_REDIRECT_TO_URL', __('Custom URL: '));
-define('TXT_LOCK_RECURSIVE', __('Lock recursive'));
-define('TXT_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page.'));
-define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text'));
-define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.'));
-define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts'));
-define('TXT_BLOG_ADMIN_HINT_DESC', __('Selecting "Yes" will show the defined text at "'.TXT_BLOG_ADMIN_HINT_TEXT.'" behinde th post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.'));
-define('TXT_CORE_MOD', __('Core modifications installed?'));
-define('TXT_CORE_MOD_DESC', __('If you installed the core modifications activated this option.'));
-
-define('TXT_YES', __('Yes'));
-define('TXT_NO', __('No'));
-
-define('TXT_UPDATE_SETTING', __('Update settings'));
-define('TXT_UPDATE_SETTINGS', __('Settings updated.'));
-
-//---Access groups---
-
-define('TXT_MANAGE_GROUP', __('Manage user access groups'));
-define('TXT_GROUP_ROLE', __('Role affiliation'));
-define('TXT_NAME', __('Name'));
-define('TXT_DESCRIPTION', __('Description'));
-define('TXT_POSTS', __('Posts'));
-define('TXT_PAGES', __('Pages'));
-define('TXT_CATEGORY', __('Categories'));
-define('TXT_USERS', __('Users'));
-define('TXT_DELETE', __('Delete'));
-define('TXT_UPDATE_GROUP', __('Update group'));
-define('TXT_ADD', __('Add'));
-define('TXT_ADD_GROUP', __('Add access group'));
-define('TXT_GROUP_NAME', __('Access group name'));
-define('TXT_GROUP_NAME_DESC', __('The name is used to identify the access user group.'));
-define('TXT_GROUP_DESC', __('Access group description'));
-define('TXT_GROUP_DESC_DESC', __('The description of the group.'));
-define('TXT_GROUP_ADDED', __('Group was added successfully.'));
-define('TXT_DEL_GROUP', __('Group(s) was deleted successfully.'));
-define('TXT_NONE', __('none')); 
-define('TXT_ACCESS_GROUP_EDIT_SUC', __('Access group edit successfully.'));
-
-//---Misc---
-define('TXT_FULL_ACCESS', __('Full access'));
-define('TXT_FULL_ACCESS_ADMIN', __('Full access (Administrator)'));
-define('TXT_NO_GROUP', __('No group'));
-define('TXT_SET_ACCESS', __('Set access'));
-
-define('TXT_DATE', __('Date'));
-define('TXT_TITLE', __('Title'));
-define('TXT_GROUP_ACCESS', __('Group access'));
-define('TXT_FULL_ACCESS', __('Full access'));
-define('TXT_USERNAME', __('Username'));
-
-define('TXT_MAIL', __('E-mail'));
-define('TXT_ACCESS', __('Access'));
-define('TXT_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.'));
-
-define('TXT_SET_POST_ACCESS', __('Set post access'));
-define('TXT_SET_PAGE_ACCESS', __('Set page access'));
-define('TXT_GROUPS', __('Access Groups'));
-define('TXT_CREATE_GROUP_FIRST', __('Please create a access group first.'));
-define('TXT_SET_USER_ACCESS', __('Set user access'));
-
-define('TXT_SET_UP_USERGROUPS', __('Set up usergroups'));
-
-define('TXT_ITSELF', __('itself'));
-define('TXT_INFO', __('Info'));
-define('TXT_GROUP_INFO', __('Group infos'));
-define('TXT_GROUP_LOCK_INFO', __('Locked by'));
-define('TXT_IS_ADMIN', __('User is Admin. Full access.'));
-define('TXT_EXPAND', __('expand'));
-define('TXT_EXPAND_ALL', __('expand all'));
-
 if (!class_exists("UserAccessManager"))
 {
 	class UserAccessManager
@@ -169,7 +52,125 @@ if (!class_exists("UserAccessManager"))
 		
 		function init()
 		{
-			$this->getAdminOptions();
+			//load_plugin_textdomain(user-access-manager, WP_CONTENT_URL);
+			load_plugin_textdomain('user-access-manager', WP_CONTENT_URL);
+			
+			//---Lang Settings---
+			define('TXT_SETTINGS', __('Settings'));
+			
+			define('TXT_POST_SETTING', __('Post settings'));
+			define('TXT_POST_SETTING_DESC', __('Set up the behaviour of locked posts'));
+			define('TXT_POST_TITLE', __('Post title'));
+			define('TXT_POST_TITLE_DESC', __('Displayed text as post title if user has no access'));
+			define('TXT_DISPLAY_POST_TITLE', __('Hide post titel'));
+			define('TXT_DISPLAY_POST_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_POST_TITLE.'" if user has no access.'));
+			define('TXT_POST_CONTENT', __('Post content'));
+			define('TXT_POST_CONTENT_DESC', __('Content displayed if user has no access'));
+			define('TXT_HIDE_POST', __('Hide complete posts'));
+			define('TXT_HIDE_POST_DESC', __('Selecting "Yes" will hide posts if the user has no access.'));
+			define('TXT_POST_COMMENT_CONTENT', __('Post commtent text'));
+			define('TXT_POST_COMMENT_CONTENT_DESC', __('Displayed text as post comment text if user has no access'));
+			define('TXT_DISPLAY_POST_COMMENT', __('Hide post comments'));
+			define('TXT_DISPLAY_POST_COMMENT_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_POST_COMMENT_CONTENT.'" if user has no access.'));
+			
+			define('TXT_PAGE_SETTING', __('Page settings'));
+			define('TXT_PAGE_SETTING_DESC', __('Set up the behaviour of locked pages'));
+			define('TXT_PAGE_TITLE', __('Page title'));
+			define('TXT_PAGE_TITLE_DESC', __('Displayed text as page title if user has no access'));
+			define('TXT_DISPLAY_PAGE_TITLE', __('Hide page titel'));
+			define('TXT_DISPLAY_PAGE_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_PAGE_TITLE.'" if user has no access.'));
+			define('TXT_PAGE_CONTENT', __('Page content'));
+			define('TXT_PAGE_CONTENT_DESC', __('Content displayed if user has no access'));
+			define('TXT_HIDE_PAGE', __('Hide complete pages'));
+			define('TXT_HIDE_PAGE_DESC', __('Selecting "Yes" will hide pages if the user has no access. Pages will also hide in the navigation.'));
+			
+			define('TXT_FILE_SETTING', __('File settings'));
+			define('TXT_FILE_SETTING_DESC', __('Set up the behaviour of files'));
+			define('TXT_LOCK_FILE', __('Lock files'));
+			define('TXT_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files.'));
+			define('TXT_DOWNLOAD_FILE_TYPE', __('Locked file types'));
+			define('TXT_DOWNLOAD_FILE_TYPE_DESC', __('Type in file types which you will lock if the post/page is locked. <b>Note:</b> If you use images, vids or something else in your posts which are directly shown there and not for download do not type these types in here, because this types will not work anymore.'));
+			define('TXT_DOWNLOAD_TYPE', __('Download type'));
+			define('TXT_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".'));
+			define('TXT_NORMAL', __('Normal'));
+			define('TXT_FOPEN', __('fopen'));
+			
+			define('TXT_OTHER_SETTING', __('Other settings'));
+			define('TXT_OTHER_SETTING_DESC', __('Here you will find all other settings'));
+			define('TXT_REDIRECT', __('Redirect user'));
+			define('TXT_REDIRECT_DESC', __('Setup what happen if a user visit a post/page with no access.'));
+			define('TXT_REDIRECT_TO_BOLG', __('To blog startpage'));
+			define('TXT_REDIRECT_TO_PAGE', __('Custom page: '));
+			define('TXT_REDIRECT_TO_URL', __('Custom URL: '));
+			define('TXT_LOCK_RECURSIVE', __('Lock recursive'));
+			define('TXT_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page.'));
+			define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text'));
+			define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.'));
+			define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts'));
+			define('TXT_BLOG_ADMIN_HINT_DESC', __('Selecting "Yes" will show the defined text at "'.TXT_BLOG_ADMIN_HINT_TEXT.'" behinde th post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.'));
+			define('TXT_CORE_MOD', __('Core modifications installed?'));
+			define('TXT_CORE_MOD_DESC', __('If you installed the core modifications activated this option.'));
+			
+			define('TXT_YES', __('Yes'));
+			define('TXT_NO', __('No'));
+			
+			define('TXT_UPDATE_SETTING', __('Update settings'));
+			define('TXT_UPDATE_SETTINGS', __('Settings updated.'));
+			
+			//---Access groups---
+			
+			define('TXT_MANAGE_GROUP', __('Manage user access groups'));
+			define('TXT_GROUP_ROLE', __('Role affiliation'));
+			define('TXT_NAME', __('Name'));
+			define('TXT_DESCRIPTION', __('Description'));
+			define('TXT_POSTS', __('Posts'));
+			define('TXT_PAGES', __('Pages'));
+			define('TXT_CATEGORY', __('Categories'));
+			define('TXT_USERS', __('Users'));
+			define('TXT_DELETE', __('Delete'));
+			define('TXT_UPDATE_GROUP', __('Update group'));
+			define('TXT_ADD', __('Add'));
+			define('TXT_ADD_GROUP', __('Add access group'));
+			define('TXT_GROUP_NAME', __('Access group name'));
+			define('TXT_GROUP_NAME_DESC', __('The name is used to identify the access user group.'));
+			define('TXT_GROUP_DESC', __('Access group description'));
+			define('TXT_GROUP_DESC_DESC', __('The description of the group.'));
+			define('TXT_GROUP_ADDED', __('Group was added successfully.'));
+			define('TXT_DEL_GROUP', __('Group(s) was deleted successfully.'));
+			define('TXT_NONE', __('none')); 
+			define('TXT_ACCESS_GROUP_EDIT_SUC', __('Access group edit successfully.'));
+			
+			//---Misc---
+			define('TXT_FULL_ACCESS', __('Full access'));
+			define('TXT_FULL_ACCESS_ADMIN', __('Full access (Administrator)'));
+			define('TXT_NO_GROUP', __('No group'));
+			define('TXT_SET_ACCESS', __('Set access'));
+			
+			define('TXT_DATE', __('Date'));
+			define('TXT_TITLE', __('Title'));
+			define('TXT_GROUP_ACCESS', __('Group access'));
+			define('TXT_FULL_ACCESS', __('Full access'));
+			define('TXT_USERNAME', __('Username'));
+			
+			define('TXT_MAIL', __('E-mail'));
+			define('TXT_ACCESS', __('Access'));
+			define('TXT_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.'));
+			
+			define('TXT_SET_POST_ACCESS', __('Set post access'));
+			define('TXT_SET_PAGE_ACCESS', __('Set page access'));
+			define('TXT_GROUPS', __('Access Groups'));
+			define('TXT_CREATE_GROUP_FIRST', __('Please create a access group first.'));
+			define('TXT_SET_USER_ACCESS', __('Set user access'));
+			
+			define('TXT_SET_UP_USERGROUPS', __('Set up usergroups'));
+			
+			define('TXT_ITSELF', __('itself'));
+			define('TXT_INFO', __('Info'));
+			define('TXT_GROUP_INFO', __('Group infos'));
+			define('TXT_GROUP_LOCK_INFO', __('Locked by'));
+			define('TXT_IS_ADMIN', __('User is Admin. Full access.'));
+			define('TXT_EXPAND', __('expand'));
+			define('TXT_EXPAND_ALL', __('expand all'));
 		}
 		
 		function install()
@@ -2789,7 +2790,7 @@ if (!function_exists("UserAccessManager_AP")) {
    		}
    		
    		//Admin actions
-   		add_action('manage_posts_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
+  		add_action('manage_posts_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
    		add_action('manage_pages_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
    		add_action('save_post', array(&$userAccessManager, 'save_postdata'));
    		add_action('delete_post', array(&$userAccessManager, 'remove_postdata'));
@@ -2827,7 +2828,8 @@ if (!function_exists("UserAccessManager_AP")) {
 
 //Actions and Filters	
 if (isset($userAccessManager))
-{	
+{
+	add_action('init', array(&$userAccessManager, 'init'));	
 	$uamOptions = $userAccessManager->getAdminOptions();
 	
 	//install
