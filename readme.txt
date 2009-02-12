@@ -47,7 +47,7 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    0.7			2009/02/13	Fix: All known Bugs of the beta
+    0.7			2009/02/12	Fix: All known Bugs of the beta
     						Add ajax for more comfort
     						Add language support
     
