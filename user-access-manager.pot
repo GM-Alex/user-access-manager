@@ -1,0 +1,430 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Alexander Schneider
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
+"POT-Creation-Date: 2009-02-12 15:46+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: user-access-manager.php:58
+msgid "Settings"
+msgstr ""
+
+#: user-access-manager.php:60
+msgid "Post settings"
+msgstr ""
+
+#: user-access-manager.php:61
+msgid "Set up the behaviour of locked posts"
+msgstr ""
+
+#: user-access-manager.php:62
+msgid "Post title"
+msgstr ""
+
+#: user-access-manager.php:63
+msgid "Displayed text as post title if user has no access"
+msgstr ""
+
+#: user-access-manager.php:64
+msgid "Hide post titel"
+msgstr ""
+
+#: user-access-manager.php:65 user-access-manager.php:73
+#: user-access-manager.php:80
+#, php-format
+msgid ""
+"Selecting \"Yes\" will show the text which is defined at \"%s\" if user has "
+"no access."
+msgstr ""
+
+#: user-access-manager.php:66
+msgid "Post content"
+msgstr ""
+
+#: user-access-manager.php:67 user-access-manager.php:82
+msgid "Content displayed if user has no access"
+msgstr ""
+
+#: user-access-manager.php:68
+msgid "Hide complete posts"
+msgstr ""
+
+#: user-access-manager.php:69
+msgid "Selecting \"Yes\" will hide posts if the user has no access."
+msgstr ""
+
+#: user-access-manager.php:70
+msgid "Post commtent text"
+msgstr ""
+
+#: user-access-manager.php:71
+msgid "Displayed text as post comment text if user has no access"
+msgstr ""
+
+#: user-access-manager.php:72
+msgid "Hide post comments"
+msgstr ""
+
+#: user-access-manager.php:75
+msgid "Page settings"
+msgstr ""
+
+#: user-access-manager.php:76
+msgid "Set up the behaviour of locked pages"
+msgstr ""
+
+#: user-access-manager.php:77
+msgid "Page title"
+msgstr ""
+
+#: user-access-manager.php:78
+msgid "Displayed text as page title if user has no access"
+msgstr ""
+
+#: user-access-manager.php:79
+msgid "Hide page titel"
+msgstr ""
+
+#: user-access-manager.php:81
+msgid "Page content"
+msgstr ""
+
+#: user-access-manager.php:83
+msgid "Hide complete pages"
+msgstr ""
+
+#: user-access-manager.php:84
+msgid ""
+"Selecting \"Yes\" will hide pages if the user has no access. Pages will also "
+"hide in the navigation."
+msgstr ""
+
+#: user-access-manager.php:86
+msgid "File settings"
+msgstr ""
+
+#: user-access-manager.php:87
+msgid "Set up the behaviour of files"
+msgstr ""
+
+#: user-access-manager.php:88
+msgid "Lock files"
+msgstr ""
+
+#: user-access-manager.php:89
+msgid ""
+"If you select \"Yes\" all files will locked by a .htaccess file and only "
+"users with access can download files."
+msgstr ""
+
+#: user-access-manager.php:90
+msgid "Locked file types"
+msgstr ""
+
+#: user-access-manager.php:91
+msgid ""
+"Type in file types which you will lock if the post/page is locked. <b>Note:</"
+"b> If you use images, vids or something else in your posts which are "
+"directly shown there and not for download do not type these types in here, "
+"because this types will not work anymore."
+msgstr ""
+
+#: user-access-manager.php:92
+msgid "Download type"
+msgstr ""
+
+#: user-access-manager.php:93
+msgid ""
+"Selecting the type for downloading. <strong>Note:</strong> For using fopen "
+"you need \"safe_mode = off\"."
+msgstr ""
+
+#: user-access-manager.php:94
+msgid "Normal"
+msgstr ""
+
+#: user-access-manager.php:95
+msgid "fopen"
+msgstr ""
+
+#: user-access-manager.php:97
+msgid "Other settings"
+msgstr ""
+
+#: user-access-manager.php:98
+msgid "Here you will find all other settings"
+msgstr ""
+
+#: user-access-manager.php:99
+msgid "Redirect user"
+msgstr ""
+
+#: user-access-manager.php:100
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr ""
+
+#: user-access-manager.php:101
+msgid "To blog startpage"
+msgstr ""
+
+#: user-access-manager.php:102
+msgid "Custom page: "
+msgstr ""
+
+#: user-access-manager.php:103
+msgid "Custom URL: "
+msgstr ""
+
+#: user-access-manager.php:104
+msgid "Lock recursive"
+msgstr ""
+
+#: user-access-manager.php:105
+msgid ""
+"Selecting \"Yes\" will lock all child posts/pages of a post/page if a user "
+"has no access to the parent page."
+msgstr ""
+
+#: user-access-manager.php:106
+msgid "Admin hint text"
+msgstr ""
+
+#: user-access-manager.php:107
+msgid "The text which will shown behinde the post/page."
+msgstr ""
+
+#: user-access-manager.php:108
+msgid "Show admin hint at Posts"
+msgstr ""
+
+#: user-access-manager.php:109
+#, php-format
+msgid ""
+"Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page "
+"to an logged in admin to show him which posts/pages are locked if he visits "
+"his blog."
+msgstr ""
+
+#: user-access-manager.php:110
+msgid "Core modifications installed?"
+msgstr ""
+
+#: user-access-manager.php:111
+msgid "If you installed the core modifications activated this option."
+msgstr ""
+
+#: user-access-manager.php:113
+msgid "Yes"
+msgstr ""
+
+#: user-access-manager.php:114
+msgid "No"
+msgstr ""
+
+#: user-access-manager.php:116
+msgid "Update settings"
+msgstr ""
+
+#: user-access-manager.php:117
+msgid "Settings updated."
+msgstr ""
+
+#: user-access-manager.php:121
+msgid "Manage user access groups"
+msgstr ""
+
+#: user-access-manager.php:122
+msgid "Role affiliation"
+msgstr ""
+
+#: user-access-manager.php:123
+msgid "Name"
+msgstr ""
+
+#: user-access-manager.php:124
+msgid "Description"
+msgstr ""
+
+#: user-access-manager.php:125
+msgid "Posts"
+msgstr ""
+
+#: user-access-manager.php:126
+msgid "Pages"
+msgstr ""
+
+#: user-access-manager.php:127
+msgid "Categories"
+msgstr ""
+
+#: user-access-manager.php:128
+msgid "Users"
+msgstr ""
+
+#: user-access-manager.php:129
+msgid "Delete"
+msgstr ""
+
+#: user-access-manager.php:130
+msgid "Update group"
+msgstr ""
+
+#: user-access-manager.php:131
+msgid "Add"
+msgstr ""
+
+#: user-access-manager.php:132
+msgid "Add access group"
+msgstr ""
+
+#: user-access-manager.php:133
+msgid "Access group name"
+msgstr ""
+
+#: user-access-manager.php:134
+msgid "The name is used to identify the access user group."
+msgstr ""
+
+#: user-access-manager.php:135
+msgid "Access group description"
+msgstr ""
+
+#: user-access-manager.php:136
+msgid "The description of the group."
+msgstr ""
+
+#: user-access-manager.php:137
+msgid "Group was added successfully."
+msgstr ""
+
+#: user-access-manager.php:138
+msgid "Group(s) was deleted successfully."
+msgstr ""
+
+#: user-access-manager.php:139
+msgid "none"
+msgstr ""
+
+#: user-access-manager.php:140
+msgid "Access group edit successfully."
+msgstr ""
+
+#: user-access-manager.php:143 user-access-manager.php:151
+msgid "Full access"
+msgstr ""
+
+#: user-access-manager.php:144
+msgid "Full access (Administrator)"
+msgstr ""
+
+#: user-access-manager.php:145
+msgid "No group"
+msgstr ""
+
+#: user-access-manager.php:146
+msgid "Set access"
+msgstr ""
+
+#: user-access-manager.php:150
+msgid "Group access"
+msgstr ""
+
+#: user-access-manager.php:155 user-access-manager.php:1805
+#: user-access-manager.php:1950 user-access-manager.php:2083
+msgid "Access"
+msgstr ""
+
+#: user-access-manager.php:156
+msgid ""
+"<strong>Note:</strong> An administrator has allways access to all posts/"
+"pages."
+msgstr ""
+
+#: user-access-manager.php:158
+msgid "Set post access"
+msgstr ""
+
+#: user-access-manager.php:159
+msgid "Set page access"
+msgstr ""
+
+#: user-access-manager.php:160
+msgid "Access Groups"
+msgstr ""
+
+#: user-access-manager.php:161
+msgid "Please create a access group first."
+msgstr ""
+
+#: user-access-manager.php:162
+msgid "Set user access"
+msgstr ""
+
+#: user-access-manager.php:164
+msgid "Set up usergroups"
+msgstr ""
+
+#: user-access-manager.php:166
+msgid "itself"
+msgstr ""
+
+#: user-access-manager.php:167
+msgid "Info"
+msgstr ""
+
+#: user-access-manager.php:168
+msgid "Group infos"
+msgstr ""
+
+#: user-access-manager.php:169
+msgid "Locked by"
+msgstr ""
+
+#: user-access-manager.php:170
+msgid "User is Admin. Full access."
+msgstr ""
+
+#: user-access-manager.php:171
+msgid "expand"
+msgstr ""
+
+#: user-access-manager.php:172
+msgid "expand all"
+msgstr ""
+
+#. Plugin Name of an extension
+msgid "User Access Manager"
+msgstr ""
+
+#. Plugin URI of an extension
+msgid "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+msgstr ""
+
+#. Description of an extension
+msgid ""
+"Manage the access to your posts and pages. <strong>Note:</strong> <em>If you "
+"activate the plugin your upload dir will protect by a '.htaccess' with a "
+"random password and all old downloads insert in a previous post/page will not "
+"work anymore. You have to update your posts/pages. If you use already a "
+"'.htaccess' file to protect your files the plugin will not overwrite the "
+"'.htaccess'.</em>"
+msgstr ""
+
+#. Author of an extension
+msgid "Alexander Schneider"
+msgstr ""
+
+#. Author URI of an extension
+msgid "http://www.gm-alex.de/"
+msgstr ""

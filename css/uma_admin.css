@@ -1,0 +1,70 @@
+.uam_info_link {
+	cursor: pointer;
+}
+
+.uam_info_content {
+	font-size: 11px;
+	list-style: disc;
+	padding: 0;
+	position: relative;
+	left:14px;
+}
+
+.uam_info_content li{
+	padding: 0;
+	margin: 0;
+}
+
+
+.column-uam_access ul {
+	font-size: 11px;
+	list-style: disc;
+	padding: 0 0 0 12px;
+}
+
+.column-uam_access ul li{
+	padding: 0;
+	margin: 0;
+}
+
+.uam_group_info_link, .uam_group_lock_info_link, .uma_user_access_group {
+	cursor: pointer;
+}
+
+.uam_group_info, .uam_group_lock_info {
+	font-size: 11px;
+	list-style: disc;
+	padding: 0 0 0 40px;
+	position:relative;
+	top:-6px;
+}
+
+.uam_group_info ul, .uam_group_lock_info ul {
+	display: block;
+	font-size: 11px;
+	list-style: disc;
+	padding: 0;
+	left:14px;
+	position:relative;
+}
+
+.uam_group_info li, .uam_group_lock_info li, .uam_group_info ul li {
+	padding: 0;
+	margin: 0;
+}
+
+.uam_group_info_head, .uam_group_lock_info_head {
+	list-style: none;
+	font-size:6px;
+	font-weight:bold;
+	left:-14px;
+	position: relative;
+}
+
+.uam_group_stuff li{
+	cursor:pointer;
+}
+
+.uam_group_stuff ul {
+	margin: 0 0 0 16px;
+}
