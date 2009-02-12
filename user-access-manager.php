@@ -39,118 +39,121 @@ define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/' );
 //###Lang###
 
 //---Lang Settings---
-define('TXT_SETTINGS', 'Settings');
+define('TXT_SETTINGS', __('Settings'));
 
-define('TXT_POST_SETTING', 'Post settings');
-define('TXT_POST_SETTING_DESC', 'Set up the behaviour of locked posts');
-define('TXT_POST_TITLE', 'Post title');
-define('TXT_POST_TITLE_DESC', 'Displayed text as post title if user has no access');
-define('TXT_DISPLAY_POST_TITLE', 'Hide post titel');
-define('TXT_DISPLAY_POST_TITLE_DESC', 'Selecting "Yes" will show the text which is defined at "'.TXT_POST_TITLE.'" if user has no access.');
-define('TXT_POST_CONTENT', 'Post content');
-define('TXT_POST_CONTENT_DESC', 'Content displayed if user has no access');
-define('TXT_HIDE_POST', 'Hide complete posts');
-define('TXT_HIDE_POST_DESC', 'Selecting "Yes" will hide posts if the user has no access.');
-define('TXT_POST_COMMENT_CONTENT', 'Post commtent text');
-define('TXT_POST_COMMENT_CONTENT_DESC', 'Displayed text as post comment text if user has no access');
-define('TXT_DISPLAY_POST_COMMENT', 'Hide post comments');
-define('TXT_DISPLAY_POST_COMMENT_DESC', 'Selecting "Yes" will show the text which is defined at "'.TXT_POST_COMMENT_CONTENT.'" if user has no access.');
+define('TXT_POST_SETTING', __('Post settings'));
+define('TXT_POST_SETTING_DESC', __('Set up the behaviour of locked posts'));
+define('TXT_POST_TITLE', __('Post title'));
+define('TXT_POST_TITLE_DESC', __('Displayed text as post title if user has no access'));
+define('TXT_DISPLAY_POST_TITLE', __('Hide post titel'));
+define('TXT_DISPLAY_POST_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_POST_TITLE.'" if user has no access.'));
+define('TXT_POST_CONTENT', __('Post content'));
+define('TXT_POST_CONTENT_DESC', __('Content displayed if user has no access'));
+define('TXT_HIDE_POST', __('Hide complete posts'));
+define('TXT_HIDE_POST_DESC', __('Selecting "Yes" will hide posts if the user has no access.'));
+define('TXT_POST_COMMENT_CONTENT', __('Post commtent text'));
+define('TXT_POST_COMMENT_CONTENT_DESC', __('Displayed text as post comment text if user has no access'));
+define('TXT_DISPLAY_POST_COMMENT', __('Hide post comments'));
+define('TXT_DISPLAY_POST_COMMENT_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_POST_COMMENT_CONTENT.'" if user has no access.'));
 
-define('TXT_PAGE_SETTING', 'Page settings');
-define('TXT_PAGE_SETTING_DESC', 'Set up the behaviour of locked pages');
-define('TXT_PAGE_TITLE', 'Page title');
-define('TXT_PAGE_TITLE_DESC', 'Displayed text as page title if user has no access');
-define('TXT_DISPLAY_PAGE_TITLE', 'Hide page titel');
-define('TXT_DISPLAY_PAGE_TITLE_DESC', 'Selecting "Yes" will show the text which is defined at "'.TXT_PAGE_TITLE.'" if user has no access.');
-define('TXT_PAGE_CONTENT', 'Page content');
-define('TXT_PAGE_CONTENT_DESC', 'Content displayed if user has no access');
-define('TXT_HIDE_PAGE', 'Hide complete pages');
-define('TXT_HIDE_PAGE_DESC', 'Selecting "Yes" will hide pages if the user has no access. Pages will also hide in the navigation.');
+define('TXT_PAGE_SETTING', __('Page settings'));
+define('TXT_PAGE_SETTING_DESC', __('Set up the behaviour of locked pages'));
+define('TXT_PAGE_TITLE', __('Page title'));
+define('TXT_PAGE_TITLE_DESC', __('Displayed text as page title if user has no access'));
+define('TXT_DISPLAY_PAGE_TITLE', __('Hide page titel'));
+define('TXT_DISPLAY_PAGE_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "'.TXT_PAGE_TITLE.'" if user has no access.'));
+define('TXT_PAGE_CONTENT', __('Page content'));
+define('TXT_PAGE_CONTENT_DESC', __('Content displayed if user has no access'));
+define('TXT_HIDE_PAGE', __('Hide complete pages'));
+define('TXT_HIDE_PAGE_DESC', __('Selecting "Yes" will hide pages if the user has no access. Pages will also hide in the navigation.'));
 
-define('TXT_FILE_SETTING', 'File settings');
-define('TXT_FILE_SETTING_DESC', 'Set up the behaviour of files');
-define('TXT_LOCK_FILE', 'Lock files');
-define('TXT_LOCK_FILE_DESC', 'If you select "Yes" all files will locked by a .htaccess file and only users with access can download files.');
-define('TXT_DOWNLOAD_FILE_TYPE', 'Locked file types');
-define('TXT_DOWNLOAD_FILE_TYPE_DESC', 'Type in file types which you will lock if the post/page is locked. <b>Note:</b> If you use images, vids or something else in your posts which are directly shown there and not for download do not type these types in here, because this types will not work anymore.');
-define('TXT_DOWNLOAD_TYPE', 'Download type');
-define('TXT_DOWNLOAD_TYPE_DESC', 'Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".');
-define('TXT_NORMAL', 'Normal');
-define('TXT_FOPEN', 'fopen');
+define('TXT_FILE_SETTING', __('File settings'));
+define('TXT_FILE_SETTING_DESC', __('Set up the behaviour of files'));
+define('TXT_LOCK_FILE', __('Lock files'));
+define('TXT_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files.'));
+define('TXT_DOWNLOAD_FILE_TYPE', __('Locked file types'));
+define('TXT_DOWNLOAD_FILE_TYPE_DESC', __('Type in file types which you will lock if the post/page is locked. <b>Note:</b> If you use images, vids or something else in your posts which are directly shown there and not for download do not type these types in here, because this types will not work anymore.'));
+define('TXT_DOWNLOAD_TYPE', __('Download type'));
+define('TXT_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".'));
+define('TXT_NORMAL', __('Normal'));
+define('TXT_FOPEN', __('fopen'));
 
-define('TXT_OTHER_SETTING', 'Other settings');
-define('TXT_OTHER_SETTING_DESC', 'Here you will find all other settings');
-define('TXT_REDIRECT', 'Redirect user');
-define('TXT_REDIRECT_DESC', 'Setup what happen if a user visit a post/page with no access.');
-define('TXT_REDIRECT_TO_BOLG', 'To blog startpage');
-define('TXT_REDIRECT_TO_PAGE', 'Custom page: ');
-define('TXT_REDIRECT_TO_URL', 'Custom URL: ');
-define('TXT_LOCK_RECURSIVE', 'Lock recursive');
-define('TXT_LOCK_RECURSIVE_DESC', 'Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page.');
-define('TXT_BLOG_ADMIN_HINT_TEXT', 'Admin hint text');
-define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', 'The text which will shown behinde the post/page.');
-define('TXT_BLOG_ADMIN_HINT', 'Show admin hint at Posts');
-define('TXT_BLOG_ADMIN_HINT_DESC', 'Selecting "Yes" will show the defined text at "'.TXT_BLOG_ADMIN_HINT_TEXT.'" behinde th post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.');
+define('TXT_OTHER_SETTING', __('Other settings'));
+define('TXT_OTHER_SETTING_DESC', __('Here you will find all other settings'));
+define('TXT_REDIRECT', __('Redirect user'));
+define('TXT_REDIRECT_DESC', __('Setup what happen if a user visit a post/page with no access.'));
+define('TXT_REDIRECT_TO_BOLG', __('To blog startpage'));
+define('TXT_REDIRECT_TO_PAGE', __('Custom page: '));
+define('TXT_REDIRECT_TO_URL', __('Custom URL: '));
+define('TXT_LOCK_RECURSIVE', __('Lock recursive'));
+define('TXT_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page.'));
+define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text'));
+define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.'));
+define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts'));
+define('TXT_BLOG_ADMIN_HINT_DESC', __('Selecting "Yes" will show the defined text at "'.TXT_BLOG_ADMIN_HINT_TEXT.'" behinde th post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.'));
+define('TXT_CORE_MOD', __('Core modifications installed?'));
+define('TXT_CORE_MOD_DESC', __('If you installed the core modifications activated this option.'));
 
-define('TXT_YES', 'Yes');
-define('TXT_NO', 'No');
+define('TXT_YES', __('Yes'));
+define('TXT_NO', __('No'));
 
-define('TXT_UPDATE_SETTING', 'Update settings');
-define('TXT_UPDATE_SETTINGS', 'Settings updated.');
+define('TXT_UPDATE_SETTING', __('Update settings'));
+define('TXT_UPDATE_SETTINGS', __('Settings updated.'));
 
 //---Access groups---
 
-define('TXT_MANAGE_GROUP', 'Manage user access groups');
-define('TXT_GROUP_ROLE', 'Role affiliation');
-define('TXT_NAME', 'Name');
-define('TXT_DESCRIPTION', 'Description');
-define('TXT_POSTS', 'Posts');
-define('TXT_PAGES', 'Pages');
-define('TXT_CATEGORY', 'Categories');
-define('TXT_USERS', 'Users');
-define('TXT_DELETE', 'Delete');
-define('TXT_UPDATE_GROUP', 'Update group');
-define('TXT_ADD', 'Add');
-define('TXT_ADD_GROUP', 'Add access group');
-define('TXT_GROUP_NAME', 'Access group name');
-define('TXT_GROUP_NAME_DESC', 'The name is used to identify the access user group.');
-define('TXT_GROUP_DESC', 'Access group description');
-define('TXT_GROUP_DESC_DESC', 'The description of the group.');
-define('TXT_GROUP_ADDED', 'Group was added successfully.');
-define('TXT_DEL_GROUP', 'Group(s) was deleted successfully.');
-define('TXT_NONE', 'none'); 
+define('TXT_MANAGE_GROUP', __('Manage user access groups'));
+define('TXT_GROUP_ROLE', __('Role affiliation'));
+define('TXT_NAME', __('Name'));
+define('TXT_DESCRIPTION', __('Description'));
+define('TXT_POSTS', __('Posts'));
+define('TXT_PAGES', __('Pages'));
+define('TXT_CATEGORY', __('Categories'));
+define('TXT_USERS', __('Users'));
+define('TXT_DELETE', __('Delete'));
+define('TXT_UPDATE_GROUP', __('Update group'));
+define('TXT_ADD', __('Add'));
+define('TXT_ADD_GROUP', __('Add access group'));
+define('TXT_GROUP_NAME', __('Access group name'));
+define('TXT_GROUP_NAME_DESC', __('The name is used to identify the access user group.'));
+define('TXT_GROUP_DESC', __('Access group description'));
+define('TXT_GROUP_DESC_DESC', __('The description of the group.'));
+define('TXT_GROUP_ADDED', __('Group was added successfully.'));
+define('TXT_DEL_GROUP', __('Group(s) was deleted successfully.'));
+define('TXT_NONE', __('none')); 
+define('TXT_ACCESS_GROUP_EDIT_SUC', __('Access group edit successfully.'));
 
 //---Misc---
-define('TXT_FULL_ACCESS', 'Full access');
-define('TXT_FULL_ACCESS_ADMIN', 'Full access (Administrator)');
-define('TXT_NO_GROUP', 'No group');
-define('TXT_SET_ACCESS', 'Set access');
+define('TXT_FULL_ACCESS', __('Full access'));
+define('TXT_FULL_ACCESS_ADMIN', __('Full access (Administrator)'));
+define('TXT_NO_GROUP', __('No group'));
+define('TXT_SET_ACCESS', __('Set access'));
 
-define('TXT_DATE', 'Date');
-define('TXT_TITLE', 'Title');
-define('TXT_GROUP_ACCESS', 'Group access');
-define('TXT_FULL_ACCESS', 'Full access');
-define('TXT_USERNAME', 'Username');
+define('TXT_DATE', __('Date'));
+define('TXT_TITLE', __('Title'));
+define('TXT_GROUP_ACCESS', __('Group access'));
+define('TXT_FULL_ACCESS', __('Full access'));
+define('TXT_USERNAME', __('Username'));
 
-define('TXT_MAIL', 'E-mail');
-define('TXT_ACCESS', 'Access');
-define('TXT_ADMIN_HINT', '<strong>Note:</strong> An administrator has allways access to all posts/pages.');
+define('TXT_MAIL', __('E-mail'));
+define('TXT_ACCESS', __('Access'));
+define('TXT_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.'));
 
-define('TXT_SET_POST_ACCESS', 'Set post access');
-define('TXT_SET_PAGE_ACCESS', 'Set page access');
-define('TXT_GROUPS', 'Access Groups');
-define('TXT_CREATE_GROUP_FIRST', 'Please create a access group first.');
-define('TXT_SET_USER_ACCESS', 'Set user access');
+define('TXT_SET_POST_ACCESS', __('Set post access'));
+define('TXT_SET_PAGE_ACCESS', __('Set page access'));
+define('TXT_GROUPS', __('Access Groups'));
+define('TXT_CREATE_GROUP_FIRST', __('Please create a access group first.'));
+define('TXT_SET_USER_ACCESS', __('Set user access'));
 
-define('TXT_SET_UP_USERGROUPS', 'Set up usergroups');
+define('TXT_SET_UP_USERGROUPS', __('Set up usergroups'));
 
-define('TXT_ITSELF', 'itself');
-define('TXT_INFO', 'Info');
-define('TXT_GROUP_INFO', 'Group infos');
-define('TXT_GROUP_LOCK_INFO', 'Locked by');
-define('TXT_IS_ADMIN', 'User is Admin. Full access.');
-define('TXT_EXPAND', 'expand');
-define('TXT_EXPAND_ALL', 'expand all');
+define('TXT_ITSELF', __('itself'));
+define('TXT_INFO', __('Info'));
+define('TXT_GROUP_INFO', __('Group infos'));
+define('TXT_GROUP_LOCK_INFO', __('Locked by'));
+define('TXT_IS_ADMIN', __('User is Admin. Full access.'));
+define('TXT_EXPAND', __('expand'));
+define('TXT_EXPAND_ALL', __('expand all'));
 
 if (!class_exists("UserAccessManager"))
 {
@@ -380,7 +383,8 @@ if (!class_exists("UserAccessManager"))
 										'download_type' => 'fopen',
 										'locked_file_types' => 'zip,rar,tar,gz,bz2',
 										'blog_admin_hint' => 'true',
-										'blog_admin_hint_text' => '[L]');
+										'blog_admin_hint_text' => '[L]',
+										'core_mod' => 'false');
 			
 			$uamOptions = get_option($this->adminOptionsName);
 			if (!empty($uamOptions)) {
@@ -464,6 +468,10 @@ if (!class_exists("UserAccessManager"))
 				{
 					$uamOptions['blog_admin_hint_text'] = $_POST['uam_blog_admin_hint_text'];
 				}
+				if (isset($_POST['uam_core_mod']))
+				{
+					$uamOptions['core_mod'] = $_POST['uam_core_mod'];
+				}
 				if (isset($_POST['uam_lock_file']))
 				{
 					if($_POST['uam_lock_file'] == 'false')
@@ -500,7 +508,7 @@ if (!class_exists("UserAccessManager"))
 					$this->create_htpasswd(true);
 				}
 				?>
-					<div class="updated"><p><strong><?php _e(TXT_UPDATE_SETTINGS, "UserAccessManager");?></strong></p></div>
+					<div class="updated"><p><strong><?php echo TXT_UPDATE_SETTINGS; ?></strong></p></div>
 				<?php
 			} 
 			
@@ -559,7 +567,7 @@ if (!class_exists("UserAccessManager"))
 					}
 				}
 				?>
-					<div class="updated"><p><strong><?php _e(TXT_GROUP_ADDED, "UserAccessManager");?></strong></p></div> 
+					<div class="updated"><p><strong><?php echo TXT_GROUP_ADDED; ?></strong></p></div> 
 				<?php
 			}
 			
@@ -577,7 +585,7 @@ if (!class_exists("UserAccessManager"))
 						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_ROLE." WHERE group_id = $del_id LIMIT 1");
 					}
 					?>
-						<div class="updated"><p><strong><?php _e(TXT_DEL_GROUP, "UserAccessManager");?></strong></p></div> 
+						<div class="updated"><p><strong><?php echo TXT_DEL_GROUP; ?></strong></p></div> 
 					<?php
 				}
 			}
@@ -641,7 +649,7 @@ if (!class_exists("UserAccessManager"))
 					}
 				}
 				?>
-					<div class="updated"><p><strong><?php _e("Access group edit successfully.", "UserAccessManager");?></strong></p></div> 
+					<div class="updated"><p><strong><?php echo TXT_ACCESS_GROUP_EDIT_SUC; ?></strong></p></div> 
 				<?php
 			}
 			
@@ -654,10 +662,10 @@ if (!class_exists("UserAccessManager"))
 				<div class=wrap>
 					<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 						<input type="hidden" value="delgroup" name="action"/>
-						<h2><?php _e(TXT_MANAGE_GROUP, "UserAccessManager"); ?></h2>
+						<h2><?php echo TXT_MANAGE_GROUP; ?></h2>
 						<div class="tablenav">
 							<div class="alignleft">
-								<input type="submit" class="button-secondary delete" name="deleteit" value="<?php _e(TXT_DELETE, "UserAccessManager"); ?>"/>
+								<input type="submit" class="button-secondary delete" name="deleteit" value="<?php echo TXT_DELETE; ?>"/>
 							</div>
 							<br class="clear"/>
 						</div>
@@ -666,12 +674,12 @@ if (!class_exists("UserAccessManager"))
 							<thead>
 								<tr class="thead">
 									<th scope="col"></th>
-									<th scope="col"><?php _e(TXT_NAME, "UserAccessManager"); ?></th>
-									<th scope="col"><?php _e(TXT_DESCRIPTION, "UserAccessManager"); ?></th>
-									<th scope="col"><?php _e(TXT_POSTS, "UserAccessManager"); ?></th>
-									<th scope="col"><?php _e(TXT_PAGES, "UserAccessManager"); ?></th>
-									<th scope="col"><?php _e(TXT_CATEGORY, "UserAccessManager"); ?></th>
-									<th scope="col"><?php _e(TXT_USERS, "UserAccessManager"); ?></th>
+									<th scope="col"><?php echo TXT_NAME; ?></th>
+									<th scope="col"><?php echo TXT_DESCRIPTION; ?></th>
+									<th scope="col"><?php echo TXT_POSTS; ?></th>
+									<th scope="col"><?php echo TXT_PAGES; ?></th>
+									<th scope="col"><?php echo TXT_CATEGORY; ?></th>
+									<th scope="col"><?php echo TXT_USERS; ?></th>
 									<th></th>
 								</tr>
 							</thead>
@@ -696,12 +704,12 @@ if (!class_exists("UserAccessManager"))
 													{
 															$expandcontent .= "<li>".$post->post_title."</li>";
 													}
-													_e("<a class='uam_info_link'>".count($group_info->posts)." ".TXT_POSTS."</a>", "UserAccessManager");
+													echo "<a class='uam_info_link'>".count($group_info->posts)." ".TXT_POSTS."</a>";;
 													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
 												}
 												else
 												{
-													_e(TXT_NONE, "UserAccessManager");
+													echo TXT_NONE;
 												}
 												?>
 											</td>
@@ -714,12 +722,12 @@ if (!class_exists("UserAccessManager"))
 													{
 														$expandcontent .= "<li>".$page->post_title."</li>";
 													}
-													_e("<a class='uam_info_link'>".count($group_info->pages)." ".TXT_PAGES."</a>", "UserAccessManager");
+													echo "<a class='uam_info_link'>".count($group_info->pages)." ".TXT_PAGES."</a>";
 													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
 												}
 												else
 												{
-													_e(TXT_NONE, "UserAccessManager");
+													echo TXT_NONE;
 												}
 												?>
 											</td>
@@ -732,12 +740,12 @@ if (!class_exists("UserAccessManager"))
 													{
 														$expandcontent .= "<li>".$categorie->cat_name."</li>";
 													}
-													_e("<a class='uam_info_link'>".count($group_info->categories)." ".TXT_CATEGORY."</a>", "UserAccessManager");
+													echo "<a class='uam_info_link'>".count($group_info->categories)." ".TXT_CATEGORY."</a>";
 													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
 												}
 												else
 												{
-													_e(TXT_NONE, "UserAccessManager");
+													echo TXT_NONE;
 												}
 												?>
 											</td>
@@ -750,12 +758,12 @@ if (!class_exists("UserAccessManager"))
 													{
 														$expandcontent .= "<li>".$user->nickname."</li>";
 													}
-													_e("<a class='uam_info_link'>".count($group_info->users)." ".TXT_USERS."</a>", "UserAccessManager");
+													echo "<a class='uam_info_link'>".count($group_info->users)." ".TXT_USERS."</a>";
 													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
 												}
 												else
 												{
-													_e(TXT_NONE, "UserAccessManager");
+													echo TXT_NONE;
 												}
 												?>
 											</td>
@@ -772,372 +780,26 @@ if (!class_exists("UserAccessManager"))
 					</form>
 				</div>
 				<div class="wrap">
-					<h2><?php _e(TXT_ADD_GROUP, "UserAccessManager"); ?></h2>
+					<h2><?php echo TXT_ADD_GROUP; ?></h2>
 					<div id="ajax-response"/>
 					<form class="add:the-list: validate" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post" id="addgroup" name="addgroup">
 						<input type="hidden" value="addgroup" name="action"/>
-						<table class="form-table">
-							<tbody>
-								<tr class="form-field form-required">
-									<th valign="top" scope="row"><label for="group_name"><?php _e(TXT_GROUP_NAME, "UserAccessManager"); ?>e</label></th>
-									<td><input type="text" aria-required="true" size="40" value="" id="access_group_name" name="access_group_name"/><br/>
-					            	<?php _e(TXT_GROUP_NAME_DESC, "UserAccessManager"); ?></td>
-					            	
-								</tr>
-								<tr class="form-field form-required">
-									<th valign="top" scope="row"><label for="group_name"><?php _e(TXT_GROUP_DESC, "UserAccessManager"); ?></label></th>
-									<td><input type="text" aria-required="true" size="40" value="" id="access_group_description" name="access_group_description"/><br/>
-					            	<?php _e(TXT_GROUP_DESC_DESC, "UserAccessManager"); ?></td>
-					            </tr>
-					            <tr class="form-field form-required">
-					            	<th valign="top" scope="row"><label for="group_role"><?php _e(TXT_GROUP_ROLE, "UserAccessManager"); ?></label></th>
-									<td>
-						            	<?php
-						               	global $wp_roles;
-	   		
-	   									foreach($wp_roles->role_names as $role => $name)
-										{
-											?>
-											<label class="selectit">
-												<input type="checkbox" value="<?php echo $role; ?>" name="roles[]"/>
-													<?php echo $role ?>
-											</label><br />
-											<?php 
-										}
-	   								 	?>
-   								 	</td>
-   								 </tr>
-							</tbody>
-						</table>
-						<p class="submit"><input type="submit" value="<?php _e(TXT_ADD, "UserAccessManager"); ?>" name="submit" class="button"/></p>
-					</form>
-				</div>
-				<?php
-			}
-			elseif($cur_admin_page == 'uam_settings' AND !$action)
-			{
-				?>
-				<div class=wrap>
-					<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
-						<h2><?php _e(TXT_SETTINGS, "UserAccessManager"); ?></h2>
-						<h3><?php _e(TXT_POST_SETTING, "UserAccessManager"); ?></h3>
-						<p><?php _e(TXT_POST_SETTING_DESC, "UserAccessManager"); ?></p>
-						<table class="form-table">
-							<tbody>
-								<tr valign="top">
-									<th scope="row">
-										<?php _e(TXT_HIDE_POST, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_hide_post_yes">
-											<input type="radio" id="uam_hide_post_yes" class="uam_hide_post" name="uam_hide_post" value="true" <?php if ($uamOptions['hide_post'] == "true") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_YES, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_hide_post_no">
-											<input type="radio" id="uam_hide_post_no" class="uam_hide_post" name="uam_hide_post" value="false" <?php if ($uamOptions['hide_post'] == "false") { _e('checked="checked"', "UserAccessManager"); }?>/>
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_HIDE_POST_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<table class="form-table" id="uam_post_settings">
-							<tbody>
-								<tr valign="top">
-									<th scope="row">
-										<?php _e(TXT_DISPLAY_POST_TITLE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_hide_post_title_yes">
-											<input type="radio" id="uam_hide_post_title_yes" name="uam_hide_post_title" value="true" <?php if ($uamOptions['hide_post_title'] == "true") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_YES, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_hide_post_title_no">
-											<input type="radio" id="uam_hide_post_title_no" name="uam_hide_post_title" value="false" <?php if ($uamOptions['hide_post_title'] == "false") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_DISPLAY_POST_TITLE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr valign="top">
-									<th scope="row">
-										<?php _e(TXT_POST_TITLE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<input name="uam_post_title" value="<?php _e($uamOptions['post_title'], 'UserAccessManager') ?>" />
-										<br />
-										<?php _e(TXT_POST_TITLE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr valign="top">
-									<th scope="row">
-										<?php _e(TXT_POST_CONTENT, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<textarea name="uam_post_content" style="width: 80%; height: 100px;"><?php _e(apply_filters('format_to_edit',$uamOptions['post_content']), 'UserAccessManager') ?></textarea>
-										<br />
-										<?php _e(TXT_POST_CONTENT_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr valign="top">
-									<th scope="row">
-										<?php _e(TXT_DISPLAY_POST_COMMENT, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_hide_post_comment_yes">
-											<input type="radio" name="uam_hide_post_comment" value="true" <?php if ($uamOptions['hide_post_comment'] == "true") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_YES, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_hide_post_comment_no">
-											<input type="radio"name="uam_hide_post_comment" value="false" <?php if ($uamOptions['hide_post_comment'] == "false") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_DISPLAY_POST_COMMENT_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr valign="top">
-									<th scope="row">
-										<?php _e(TXT_POST_COMMENT_CONTENT, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<input name="uam_post_comment_content" value="<?php _e($uamOptions['post_comment_content'], 'UserAccessManager') ?>" />
-										<br />
-										<?php _e(TXT_POST_COMMENT_CONTENT_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<h3><?php _e(TXT_PAGE_SETTING, "UserAccessManager"); ?></h3>
-						<p><?php _e(TXT_PAGE_SETTING_DESC, "UserAccessManager"); ?></p>
-						<table class="form-table">
-							<tbody>
-								<tr>
-									<th>
-										<?php _e(TXT_HIDE_PAGE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_hide_page_yes">
-											<input type="radio" id="uam_hide_page_yes" class="uam_hide_page" name="uam_hide_page" value="true" <?php if ($uamOptions['hide_page'] == "true") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_YES, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_hide_page_no">
-											<input type="radio" id="uam_hide_page_no" class="uam_hide_page" name="uam_hide_page" value="false" <?php if ($uamOptions['hide_page'] == "false") { _e('checked="checked"', "UserAccessManager"); }?>/>
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_HIDE_PAGE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<table class="form-table" id="uam_page_settings">
-							<tbody>
-								<tr valign="top">
-									<th scope="row">
-										<?php _e(TXT_DISPLAY_PAGE_TITLE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_hide_page_title_yes">
-											<input type="radio" id="uam_hide_page_title_yes" name="uam_hide_page_title" value="true" <?php if ($uamOptions['hide_page_title'] == "true") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_YES, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_hide_page_title_no">
-											<input type="radio" id="uam_hide_page_title_no" name="uam_hide_page_title" value="false" <?php if ($uamOptions['hide_page_title'] == "false") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_DISPLAY_PAGE_TITLE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr>
-									<th>
-										<?php _e(TXT_PAGE_TITLE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<input name="uam_page_title" value="<?php _e($uamOptions['page_title'], 'UserAccessManager') ?>" />
-										<br />
-										<?php _e(TXT_PAGE_TITLE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr>
-									<th>
-										<?php _e(TXT_PAGE_CONTENT, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<textarea name="uam_page_content" style="width: 80%; height: 100px;"><?php _e(apply_filters('format_to_edit',$uamOptions['page_content']), 'UserAccessManager') ?></textarea>
-										<br />
-										<?php _e(TXT_PAGE_CONTENT_DESC, "UserAccessManager"); ?>									
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<h3><?php _e(TXT_FILE_SETTING, "UserAccessManager"); ?></h3>
-						<p><?php _e(TXT_FILE_SETTING_DESC, "UserAccessManager"); ?></p>
-						<table class="form-table">
-							<tbody>
-								<tr>
-									<th>
-										<?php _e(TXT_LOCK_FILE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_lock_file_yes">
-											<input type="radio" id="uam_lock_file_yes" class="uam_lock_file" name="uam_lock_file" value="true" <?php if ($uamOptions['lock_file'] == "true") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_YES, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_lock_file_no">
-											<input type="radio" id="uam_lock_file_no" class="uam_lock_file" name="uam_lock_file" value="false" <?php if ($uamOptions['lock_file'] == "false") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_LOCK_FILE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<table class="form-table" id="uam_file_settings">
-							<tbody>
-								<tr>
-									<th>
-										<?php _e(TXT_DOWNLOAD_FILE_TYPE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<input name="uam_locked_file_types" value="<?php _e($uamOptions['locked_file_types'], 'UserAccessManager') ?>" />
-										<br />
-										<?php _e(TXT_DOWNLOAD_FILE_TYPE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr>
-									<th>
-										<?php _e(TXT_DOWNLOAD_TYPE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_download_type_normal">
-											<input type="radio" id="uam_download_type_normal" name="uam_download_type" value="normal" <?php if ($uamOptions['download_type'] == "normal") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_NORMAL, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_download_type_fopen">
-											<input type="radio" id="uam_download_type_fopen" name="uam_download_type" value="fopen" <?php if ($uamOptions['download_type'] == "fopen") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_FOPEN, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_DOWNLOAD_TYPE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<h3><?php _e(TXT_OTHER_SETTING, "UserAccessManager"); ?></h3>
-						<p><?php _e(TXT_OTHER_SETTING_DESC, "UserAccessManager"); ?></p>
-						<table class="form-table">
-							<tbody>
-								<tr>
-									<th>
-										<?php _e(TXT_REDIRECT, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_redirect_no">
-											<input type="radio" id="uam_redirect_no" name="uam_redirect" value="false" <?php if ($uamOptions['redirect'] == "false") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_redirect_blog">
-											<input type="radio" id="uam_redirect_blog" name="uam_redirect" value="blog" <?php if ($uamOptions['redirect'] == "blog") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_REDIRECT_TO_BOLG, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_redirect_custom_page">
-											<input type="radio" id="uam_redirect_custom_p" name="uam_redirect" value="custom_page" <?php if ($uamOptions['redirect'] == "custom_page") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_REDIRECT_TO_PAGE, "UserAccessManager"); ?> 
-										</label><input name="uam_redirect_custom_page" value="<?php _e($uamOptions['redirect_custom_page'], 'UserAccessManager') ?>" />&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_redirect_custom_url">
-											<input type="radio" id="uam_redirect_custom_u" name="uam_redirect" value="custom_url" <?php if ($uamOptions['redirect'] == "custom_url") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_REDIRECT_TO_URL, "UserAccessManager"); ?> 
-										</label><input name="uam_redirect_custom_url" value="<?php _e($uamOptions['redirect_custom_url'], 'UserAccessManager') ?>" />
-										<br />
-										<?php _e(TXT_REDIRECT_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr>
-									<th>
-										<?php _e(TXT_LOCK_RECURSIVE, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_lock_recursive_yes">
-											<input type="radio" id="uam_lock_recursive_yes" name="uam_lock_recursive" value="true" <?php if ($uamOptions['lock_recursive'] == "true") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_YES, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_lock_recursive_no">
-											<input type="radio" id="uam_lock_recursive_no" name="uam_lock_recursive" value="false" <?php if ($uamOptions['lock_recursive'] == "false") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_LOCK_RECURSIVE_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr>
-									<th>
-										<?php _e(TXT_BLOG_ADMIN_HINT, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<label for="uam_blog_admin_hint_yes">
-											<input type="radio" id="uam_blog_admin_hint_yes" name="uam_blog_admin_hint" value="true" <?php if ($uamOptions['blog_admin_hint'] == "true") { _e('checked="checked"', "UserAccessManager"); }?> />
-											<?php _e(TXT_YES, "UserAccessManager"); ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_blog_admin_hint_no">
-											<input type="radio" id="uam_blog_admin_hint_no" name="uam_blog_admin_hint" value="false" <?php if ($uamOptions['blog_admin_hint'] == "false") { _e('checked="checked"', "UserAccessManager"); }?>/> 
-											<?php _e(TXT_NO, "UserAccessManager"); ?>
-										</label>
-										<br />
-										<?php _e(TXT_BLOG_ADMIN_HINT_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-								<tr>
-									<th>
-										<?php _e(TXT_BLOG_ADMIN_HINT_TEXT, "UserAccessManager"); ?>
-									</th>
-									<td>
-										<input name="uam_blog_admin_hint_text" value="<?php _e($uamOptions['blog_admin_hint_text'], 'UserAccessManager') ?>" />
-										<br />
-										<?php _e(TXT_BLOG_ADMIN_HINT_TEXT_DESC, "UserAccessManager"); ?>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="submit">
-							<input type="submit" name="update_uam_settings" value="<?php _e(TXT_UPDATE_SETTING, 'UserAccessManager') ?>" />
-						</div>
-					</form>
-				</div>
-				<?php
-			}
-			elseif($action == 'edit_group')
-			{
-				$group_id = $_GET['id'];
-				$accessgroup = $wpdb->get_row("	SELECT *
-												FROM ".DB_ACCESSGROUP."
-												WHERE ID = ".$group_id."
-												LIMIT 1", ARRAY_A);
-				?>
-				<div class=wrap>
-					<form method="post" action="<?php echo reset(explode("?", $_SERVER["REQUEST_URI"]))."?page=".$_GET['page']; ?>">
-						<input type="hidden" value="update_group" name="action"/>
-						<input type="hidden" value="<?php echo $group_id; ?>" name="access_group_id"/>
 						<input type="hidden" value="<?php echo $uamOptions['lock_recursive']; ?>" name="uam_lock_recursive" id="uam_set_lock_recursive"/>
 						<table class="form-table">
 							<tbody>
 								<tr class="form-field form-required">
-									<th valign="top" scope="row"><label for="group_name"><?php _e(TXT_GROUP_NAME, "UserAccessManager"); ?></label></th>
-									<td><input type="text" aria-required="true" size="40" value="<?php echo $accessgroup["groupname"];?>" id="access_group_name" name="access_group_name"/><br/>
-					            	<?php _e(TXT_GROUP_NAME_DESC, "UserAccessManager"); ?></td>
+									<th valign="top" scope="row"><?php echo TXT_GROUP_NAME; ?></th>
+									<td><input type="text" aria-required="true" size="40" value="" id="access_group_name" name="access_group_name"/><br/>
+					            	<?php echo TXT_GROUP_NAME_DESC; ?></td>
+					            	
 								</tr>
 								<tr class="form-field form-required">
-									<th valign="top" scope="row"><label for="group_name"><?php _e(TXT_GROUP_DESC, "UserAccessManager"); ?></label></th>
-									<td><input type="text" aria-required="true" size="40" value="<?php echo $accessgroup["groupdesc"];?>" id="access_group_description" name="access_group_description"/><br/>
-					            	<?php _e(TXT_GROUP_DESC_DESC, "UserAccessManager"); ?></td>
+									<th valign="top" scope="row"><?php echo TXT_GROUP_DESC; ?></th>
+									<td><input type="text" aria-required="true" size="40" value="" id="access_group_description" name="access_group_description"/><br/>
+					            	<?php echo TXT_GROUP_DESC_DESC; ?></td>
 					            </tr>
-					            <tr class="form-field form-required">
-					            	<th valign="top" scope="row"><label for="group_role"><?php _e(TXT_GROUP_ROLE, "UserAccessManager"); ?></label></th>
+					             <tr class="form-field form-required">
+					            	<th valign="top" scope="row"><?php echo TXT_GROUP_ROLE; ?></th>
 									<td>
 										<ul>
 						            	<?php
@@ -1165,7 +827,7 @@ if (!class_exists("UserAccessManager"))
    										$args = array('numberposts' => -1);  
    										$posts = get_posts($args); 
    									?>
-									<th valign="top" scope="row"><label for="group_name"><?php _e(TXT_POSTS, "UserAccessManager"); if(count($posts) > 0){ echo " (<a class='selectit uam_group_stuff_link'>expand</a>)"; }?></label></th>
+									<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>expand</a>)</label>"; }?></th>
 									<td>
 										<?php
 											echo "<strong>".count($posts)." ".TXT_POSTS."</strong>";
@@ -1197,7 +859,7 @@ if (!class_exists("UserAccessManager"))
    									<?php 
    										$posts = get_pages('sort_column=menu_order');
    									?>
-									<th valign="top" scope="row"><label for="group_name"><?php _e(TXT_PAGES, "UserAccessManager"); if(count($posts) > 0){ echo " (<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)"; } ?></label></th>
+									<th valign="top" scope="row"><?php echo TXT_PAGES; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>expand</a>)</label>"; } ?></th>
 									<td>
 										<?php
 											echo "<strong>".count($posts)." ".TXT_PAGES."</strong>";
@@ -1256,7 +918,7 @@ if (!class_exists("UserAccessManager"))
 					            	<?php 
 					            		$categories = get_categories();
 					            	?>
-									<th valign="top" scope="row"><label for="group_name"><?php _e(TXT_CATEGORY, "UserAccessManager");  if(count($categories) > 0){ echo " (<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)"; } ?></label></th>
+									<th valign="top" scope="row"><?php echo TXT_CATEGORY;  if(count($categories) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>expand</a>)</label>"; } ?></th>
 									<td>
 										<?php 
 											echo "<strong>".count($categories)." ".TXT_CATEGORY."</strong>";
@@ -1273,7 +935,7 @@ if (!class_exists("UserAccessManager"))
 													if($category == 0)
 														echo "<ul class='uam_group_stuff'>";
 													else
-														echo "<ul class='uam_group_stuff_child'>";
+														echo "<ul>";
 														
 													foreach($categories as $cat)
 													{
@@ -1306,7 +968,7 @@ if (!class_exists("UserAccessManager"))
 																		FROM $wpdb->users
 																		ORDER BY ID", ARRAY_A);
 					            	?>
-									<th valign="top" scope="row"><label for="group_name"><?php _e(TXT_USERS, "UserAccessManager");  if(count($users) > 0){ echo " (<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)"; } ?></label></th>
+									<th valign="top" scope="row"><?php echo TXT_USERS;  if(count($users) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
 									<td>
 										<?php
 											echo "<strong>".count($users)." ".TXT_USERS."</strong>";
@@ -1349,7 +1011,573 @@ if (!class_exists("UserAccessManager"))
 					            </tr>
 							</tbody>
 						</table>
-						<p class="submit"><input type="submit" value="<?php _e(TXT_UPDATE_GROUP, "UserAccessManager"); ?>" name="submit" class="button"/></p>
+						<p class="submit"><input type="submit" value="<?php echo TXT_ADD; ?>" name="submit" class="button"/></p>
+					</form>
+				</div>
+				<?php
+			}
+			elseif($cur_admin_page == 'uam_settings' AND !$action)
+			{
+				?>
+				<div class=wrap>
+					<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+						<h2><?php echo TXT_SETTINGS; ?></h2>
+						<h3><?php echo TXT_POST_SETTING; ?></h3>
+						<p><?php echo TXT_POST_SETTING_DESC; ?></p>
+						<table class="form-table">
+							<tbody>
+								<tr valign="top">
+									<th scope="row">
+										<?php echo TXT_HIDE_POST; ?>
+									</th>
+									<td>
+										<label for="uam_hide_post_yes">
+											<input type="radio" id="uam_hide_post_yes" class="uam_hide_post" name="uam_hide_post" value="true" <?php if ($uamOptions['hide_post'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_hide_post_no">
+											<input type="radio" id="uam_hide_post_no" class="uam_hide_post" name="uam_hide_post" value="false" <?php if ($uamOptions['hide_post'] == "false") { echo 'checked="checked"'; }?>/>
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_HIDE_POST_DESC; ?>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<table class="form-table" id="uam_post_settings">
+							<tbody>
+								<tr valign="top">
+									<th scope="row">
+										<?php echo TXT_DISPLAY_POST_TITLE; ?>
+									</th>
+									<td>
+										<label for="uam_hide_post_title_yes">
+											<input type="radio" id="uam_hide_post_title_yes" name="uam_hide_post_title" value="true" <?php if ($uamOptions['hide_post_title'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_hide_post_title_no">
+											<input type="radio" id="uam_hide_post_title_no" name="uam_hide_post_title" value="false" <?php if ($uamOptions['hide_post_title'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_DISPLAY_POST_TITLE_DESC; ?>
+									</td>
+								</tr>
+								<tr valign="top">
+									<th scope="row">
+										<?php echo TXT_POST_TITLE; ?>
+									</th>
+									<td>
+										<input name="uam_post_title" value="<?php echo $uamOptions['post_title']; ?>" />
+										<br />
+										<?php echo TXT_POST_TITLE_DESC; ?>
+									</td>
+								</tr>
+								<tr valign="top">
+									<th scope="row">
+										<?php echo TXT_POST_CONTENT; ?>
+									</th>
+									<td>
+										<textarea name="uam_post_content" style="width: 80%; height: 100px;"><?php echo apply_filters('format_to_edit',$uamOptions['post_content']); ?></textarea>
+										<br />
+										<?php echo TXT_POST_CONTENT_DESC; ?>
+									</td>
+								</tr>
+								<tr valign="top">
+									<th scope="row">
+										<?php echo TXT_DISPLAY_POST_COMMENT; ?>
+									</th>
+									<td>
+										<label for="uam_hide_post_comment_yes">
+											<input type="radio" name="uam_hide_post_comment" value="true" <?php if ($uamOptions['hide_post_comment'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_hide_post_comment_no">
+											<input type="radio"name="uam_hide_post_comment" value="false" <?php if ($uamOptions['hide_post_comment'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_DISPLAY_POST_COMMENT_DESC; ?>
+									</td>
+								</tr>
+								<tr valign="top">
+									<th scope="row">
+										<?php echo TXT_POST_COMMENT_CONTENT; ?>
+									</th>
+									<td>
+										<input name="uam_post_comment_content" value="<?php echo $uamOptions['post_comment_content']; ?>" />
+										<br />
+										<?php echo TXT_POST_COMMENT_CONTENT_DESC; ?>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<h3><?php echo TXT_PAGE_SETTING; ?></h3>
+						<p><?php echo TXT_PAGE_SETTING_DESC; ?></p>
+						<table class="form-table">
+							<tbody>
+								<tr>
+									<th>
+										<?php echo TXT_HIDE_PAGE; ?>
+									</th>
+									<td>
+										<label for="uam_hide_page_yes">
+											<input type="radio" id="uam_hide_page_yes" class="uam_hide_page" name="uam_hide_page" value="true" <?php if ($uamOptions['hide_page'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_hide_page_no">
+											<input type="radio" id="uam_hide_page_no" class="uam_hide_page" name="uam_hide_page" value="false" <?php if ($uamOptions['hide_page'] == "false") { echo 'checked="checked"'; }?>/>
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_HIDE_PAGE_DESC; ?>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<table class="form-table" id="uam_page_settings">
+							<tbody>
+								<tr valign="top">
+									<th scope="row">
+										<?php echo TXT_DISPLAY_PAGE_TITLE; ?>
+									</th>
+									<td>
+										<label for="uam_hide_page_title_yes">
+											<input type="radio" id="uam_hide_page_title_yes" name="uam_hide_page_title" value="true" <?php if ($uamOptions['hide_page_title'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_hide_page_title_no">
+											<input type="radio" id="uam_hide_page_title_no" name="uam_hide_page_title" value="false" <?php if ($uamOptions['hide_page_title'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_DISPLAY_PAGE_TITLE_DESC; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>
+										<?php echo TXT_PAGE_TITLE; ?>
+									</th>
+									<td>
+										<input name="uam_page_title" value="<?php echo $uamOptions['page_title']; ?>" />
+										<br />
+										<?php echo TXT_PAGE_TITLE_DESC; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>
+										<?php echo TXT_PAGE_CONTENT; ?>
+									</th>
+									<td>
+										<textarea name="uam_page_content" style="width: 80%; height: 100px;"><?php echo apply_filters('format_to_edit',$uamOptions['page_content']); ?></textarea>
+										<br />
+										<?php echo TXT_PAGE_CONTENT_DESC; ?>									
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<h3><?php echo TXT_FILE_SETTING; ?></h3>
+						<p><?php echo TXT_FILE_SETTING_DESC; ?></p>
+						<table class="form-table">
+							<tbody>
+								<tr>
+									<th>
+										<?php echo TXT_LOCK_FILE; ?>
+									</th>
+									<td>
+										<label for="uam_lock_file_yes">
+											<input type="radio" id="uam_lock_file_yes" class="uam_lock_file" name="uam_lock_file" value="true" <?php if ($uamOptions['lock_file'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_lock_file_no">
+											<input type="radio" id="uam_lock_file_no" class="uam_lock_file" name="uam_lock_file" value="false" <?php if ($uamOptions['lock_file'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_LOCK_FILE_DESC; ?>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<table class="form-table" id="uam_file_settings">
+							<tbody>
+								<tr>
+									<th>
+										<?php echo TXT_DOWNLOAD_FILE_TYPE; ?>
+									</th>
+									<td>
+										<input name="uam_locked_file_types" value="<?php echo $uamOptions['locked_file_types']; ?>" />
+										<br />
+										<?php echo TXT_DOWNLOAD_FILE_TYPE_DESC; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>
+										<?php echo TXT_DOWNLOAD_TYPE; ?>
+									</th>
+									<td>
+										<label for="uam_download_type_normal">
+											<input type="radio" id="uam_download_type_normal" name="uam_download_type" value="normal" <?php if ($uamOptions['download_type'] == "normal") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_NORMAL; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_download_type_fopen">
+											<input type="radio" id="uam_download_type_fopen" name="uam_download_type" value="fopen" <?php if ($uamOptions['download_type'] == "fopen") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_FOPEN; ?>
+										</label>
+										<br />
+										<?php echo TXT_DOWNLOAD_TYPE_DESC; ?>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<h3><?php echo TXT_OTHER_SETTING; ?></h3>
+						<p><?php echo TXT_OTHER_SETTING_DESC; ?></p>
+						<table class="form-table">
+							<tbody>
+								<tr>
+									<th>
+										<?php echo TXT_REDIRECT; ?>
+									</th>
+									<td>
+										<label for="uam_redirect_no">
+											<input type="radio" id="uam_redirect_no" name="uam_redirect" value="false" <?php if ($uamOptions['redirect'] == "false") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_NO; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_redirect_blog">
+											<input type="radio" id="uam_redirect_blog" name="uam_redirect" value="blog" <?php if ($uamOptions['redirect'] == "blog") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_REDIRECT_TO_BOLG; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_redirect_custom_page">
+											<input type="radio" id="uam_redirect_custom_p" name="uam_redirect" value="custom_page" <?php if ($uamOptions['redirect'] == "custom_page") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_REDIRECT_TO_PAGE; ?> 
+										</label><input name="uam_redirect_custom_page" value="<?php echo $uamOptions['redirect_custom_page']; ?>" />&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_redirect_custom_url">
+											<input type="radio" id="uam_redirect_custom_u" name="uam_redirect" value="custom_url" <?php if ($uamOptions['redirect'] == "custom_url") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_REDIRECT_TO_URL; ?> 
+										</label><input name="uam_redirect_custom_url" value="<?php echo $uamOptions['redirect_custom_url']; ?>" />
+										<br />
+										<?php echo TXT_REDIRECT_DESC; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>
+										<?php echo TXT_LOCK_RECURSIVE; ?>
+									</th>
+									<td>
+										<label for="uam_lock_recursive_yes">
+											<input type="radio" id="uam_lock_recursive_yes" name="uam_lock_recursive" value="true" <?php if ($uamOptions['lock_recursive'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_lock_recursive_no">
+											<input type="radio" id="uam_lock_recursive_no" name="uam_lock_recursive" value="false" <?php if ($uamOptions['lock_recursive'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_LOCK_RECURSIVE_DESC; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>
+										<?php echo TXT_BLOG_ADMIN_HINT; ?>
+									</th>
+									<td>
+										<label for="uam_blog_admin_hint_yes">
+											<input type="radio" id="uam_blog_admin_hint_yes" name="uam_blog_admin_hint" value="true" <?php if ($uamOptions['blog_admin_hint'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_blog_admin_hint_no">
+											<input type="radio" id="uam_blog_admin_hint_no" name="uam_blog_admin_hint" value="false" <?php if ($uamOptions['blog_admin_hint'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_BLOG_ADMIN_HINT_DESC; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>
+										<?php echo TXT_BLOG_ADMIN_HINT_TEXT; ?>
+									</th>
+									<td>
+										<input name="uam_blog_admin_hint_text" value="<?php echo $uamOptions['blog_admin_hint_text']; ?>" />
+										<br />
+										<?php echo TXT_BLOG_ADMIN_HINT_TEXT_DESC; ?>
+									</td>
+								</tr>
+								<?php 
+								global $wp_version;
+								
+								if($wp_version < 2.8)
+								{
+								?>
+								<tr>
+									<th>
+										<?php echo TXT_CORE_MOD; ?>
+									</th>
+									<td>
+										<label for="uam_core_mod_yes">
+											<input type="radio" id="uam_core_mod_yes" name="uam_core_mod" value="true" <?php if ($uamOptions['core_mod'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_core_mod_no">
+											<input type="radio" id="uam_core_mod_no" name="uam_core_mod" value="false" <?php if ($uamOptions['core_mod'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_CORE_MOD_DESC; ?>
+									</td>
+								</tr>
+								<?php 
+								}
+								?>
+							</tbody>
+						</table>
+						<div class="submit">
+							<input type="submit" name="update_uam_settings" value="<?php echo TXT_UPDATE_SETTING; ?>" />
+						</div>
+					</form>
+				</div>
+				<?php
+			}
+			elseif($action == 'edit_group')
+			{
+				$group_id = $_GET['id'];
+				$accessgroup = $wpdb->get_row("	SELECT *
+												FROM ".DB_ACCESSGROUP."
+												WHERE ID = ".$group_id."
+												LIMIT 1", ARRAY_A);
+				?>
+				<div class=wrap>
+					<form method="post" action="<?php echo reset(explode("?", $_SERVER["REQUEST_URI"]))."?page=".$_GET['page']; ?>">
+						<input type="hidden" value="update_group" name="action"/>
+						<input type="hidden" value="<?php echo $group_id; ?>" name="access_group_id"/>
+						<input type="hidden" value="<?php echo $uamOptions['lock_recursive']; ?>" name="uam_lock_recursive" id="uam_set_lock_recursive"/>
+						<table class="form-table">
+							<tbody>
+								<tr class="form-field form-required">
+									<th valign="top" scope="row"><?php echo TXT_GROUP_NAME; ?></th>
+									<td><input type="text" aria-required="true" size="40" value="<?php echo $accessgroup["groupname"];?>" id="access_group_name" name="access_group_name"/><br/>
+					            	<?php echo TXT_GROUP_NAME_DESC; ?></td>
+								</tr>
+								<tr class="form-field form-required">
+									<th valign="top" scope="row"><?php echo TXT_GROUP_DESC; ?></th>
+									<td><input type="text" aria-required="true" size="40" value="<?php echo $accessgroup["groupdesc"];?>" id="access_group_description" name="access_group_description"/><br/>
+					            	<?php echo TXT_GROUP_DESC_DESC; ?></td>
+					            </tr>
+					            <tr class="form-field form-required">
+					            	<th valign="top" scope="row"><?php echo TXT_GROUP_ROLE; ?></th>
+									<td>
+										<ul>
+						            	<?php
+						               	global $wp_roles;
+	   		
+	   									foreach($wp_roles->role_names as $role => $name)
+										{
+											$checked = $wpdb->get_results("	SELECT *
+																			FROM ".DB_ACCESSGROUP_TO_ROLE."
+																			WHERE role_name = '".$role."'
+																				AND group_id = ".$group_id, ARRAY_A)
+											?>
+											<li class="selectit">
+												<input id="role-<?php echo $role; ?>" type="checkbox" <?php if($checked){ echo 'checked="checked"'; } ?>value="<?php echo $role; ?>" name="roles[]"/>
+												<label for="role-<?php echo $role; ?>"><?php echo $role ?></label>
+											</li>
+											<?php 
+										}
+	   								 	?>
+	   								 	</ul>
+   								 	</td>
+   								</tr>
+   								<tr class="form-field form-required">
+   									<?php 
+   										$args = array('numberposts' => -1);  
+   										$posts = get_posts($args); 
+   									?>
+									<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>expand</a>)</label>"; }?></th>
+									<td>
+										<?php
+											echo "<strong>".count($posts)." ".TXT_POSTS."</strong>";
+											if($posts)
+											{
+												echo "<ul class='uam_group_stuff'>";
+												foreach($posts as $post)
+												{
+													$checked = $wpdb->get_results("	SELECT *
+																					FROM ".DB_ACCESSGROUP_TO_POST."
+																					WHERE post_id = ".$post->ID."
+																						AND group_id = ".$group_id, ARRAY_A);
+													?>
+													<li class="selectit">
+														<input id="post-<?php echo $post->ID; ?>" type="checkbox" value="<?php echo $post->ID; if($checked){ echo 'checked="checked"'; } ?>" name="post[]"/>
+														<label for="post-<?php echo $post->ID; ?>"><strong><?php echo $post->post_title; ?></strong> - <?php echo $post->post_date; ?></label>
+														<?php
+														
+													?>
+													</li>
+												<?php
+												}
+												echo "</ul>";
+											}
+										?>
+									</td>
+					           	</tr>
+   								<tr class="form-field form-required">
+   									<?php 
+   										$posts = get_pages('sort_column=menu_order');
+   									?>
+									<th valign="top" scope="row"><?php echo TXT_PAGES; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
+									<td>
+										<?php
+											echo "<strong>".count($posts)." ".TXT_PAGES."</strong>";
+											if($posts)
+											{
+												echo "<ul class='uam_group_stuff'>";
+												$deepness = 0;
+												
+												foreach($posts as $post)
+												{
+													$old_deepness = $deepness;
+													$deepness = 0;
+													
+													if($post->post_parent != 0)
+													{
+														$cur_post = $post;
+														$cur_id = $post->ID;
+														while($cur_post->post_parent != 0)
+														{
+															$deepness++;
+															$cur_parent_id = $cur_post->post_parent;
+															$cur_post = & get_post($cur_parent_id);
+														}
+													}
+														
+													if($old_deepness > $deepness)
+													{
+														$count = abs($old_deepness - $deepness);
+														for($i = 0; $i < $count; $i++)
+															echo "</ul>";
+													}
+													elseif($old_deepness < $deepness)
+													{
+														$count = abs($old_deepness - $deepness);
+														for($i = 0; $i < $count; $i++)
+															echo "<ul class='uam_group_stuff_child'>";
+													}
+													
+													$checked = $wpdb->get_results("	SELECT *
+																					FROM ".DB_ACCESSGROUP_TO_POST."
+																					WHERE post_id = ".$post->ID."
+																						AND group_id = ".$group_id, ARRAY_A);
+												?>
+													<li class="selectit">
+														<input id="post-<?php echo $post->ID; ?>" type="checkbox" value="<?php echo $post->ID; if($checked){ echo 'checked="checked"'; } ?>"  name="page[]"/>
+														<label for="post-<?php echo $post->ID; ?>"><strong><?php echo $post->post_title; ?></strong> - <?php echo $post->post_date; ?></label>
+													</li>
+												<?php
+												}
+												echo "</ul>";
+											}
+										?>
+									</td>
+					            </tr>
+					            <tr class="form-field form-required">
+					            	<?php 
+					            		$categories = get_categories();
+					            	?>
+									<th valign="top" scope="row"><?php echo TXT_CATEGORY;  if(count($categories) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
+									<td>
+										<?php 
+											echo "<strong>".count($categories)." ".TXT_CATEGORY."</strong>";
+												
+											function print_elements($category = 0, $deepness = 0)
+											{
+												global $wpdb;
+									
+												$args = array('child_of' => $category);
+												$categories = get_categories($args);
+												
+												if($categories)
+												{
+													if($category == 0)
+														echo "<ul class='uam_group_stuff'>";
+													else
+														echo "<ul>";
+														
+													foreach($categories as $cat)
+													{
+														if($cat->parent == $category)
+														{
+															$checked = $wpdb->get_results("	SELECT *
+																							FROM ".DB_ACCESSGROUP_TO_CATEGORY."
+																							WHERE category_id = ".$cat->term_id."
+																								AND group_id = ".$group_id, ARRAY_A);
+															?>
+															<li class="selectit">
+																<input id="category-<?php echo $cat->term_id; ?>" type="checkbox" name="category[]" value="<?php echo $cat->term_id; if($checked){ echo 'checked="checked"'; } ?>"  />
+																<label for="category-<?php echo $cat->term_id; ?>"><strong><?php echo $cat->cat_name; ?></strong></label>
+															</li>
+															<?php
+															print_elements($cat->term_id, $deepness++);
+														}
+													}
+													echo "</ul>";
+												}
+											}
+											
+											print_elements();
+										?>
+									</td>
+					            </tr>
+					            <tr class="form-field form-required">
+					            	<?php 
+					            		$users = $wpdb->get_results("	SELECT ID
+																		FROM $wpdb->users
+																		ORDER BY ID", ARRAY_A);
+					            	?>
+									<th valign="top" scope="row"><?php echo TXT_USERS;  if(count($users) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
+									<td>
+										<?php
+											echo "<strong>".count($users)." ".TXT_USERS."</strong>";
+											if($users)
+											{
+												echo "<ul class='uam_group_stuff'>";
+												foreach($users as $user)
+												{
+													$cur_user = get_userdata($user['ID']);
+													$checked = $wpdb->get_results("	SELECT *
+																						FROM ".DB_ACCESSGROUP_TO_USER."
+																						WHERE user_id = ".$cur_user->ID."
+																							AND group_id = ".$group_id, ARRAY_A);
+													?>
+														<li class="selectit">
+															<?php 
+																if($cur_user->{$wpdb->prefix."capabilities"}['administrator'] != 1)
+																{
+																		?>
+																		<input id="user-<?php echo $cur_user->ID; ?>" type="checkbox" value="<?php echo $cur_user->ID; if($checked){ echo 'checked="checked"'; } ?>" name="user[]"/>
+																		<label for="user-<?php echo $cur_user->ID; ?>"><strong><?php echo $cur_user->nickname; ?></strong> - <?php echo $cur_user->user_firstname." ".$cur_user->user_lastname; ?>
+																		<?php
+																}
+																else
+																{
+																	?>
+																		<strong><?php echo $cur_user->nickname; ?></strong> - <?php echo $cur_user->user_firstname." ".$cur_user->user_lastname; ?>
+																	<?php
+																	echo "(".TXT_IS_ADMIN.")";
+																}
+															?>
+															
+						   								</li>
+													<?php
+												}
+												echo "</ul>";
+											}
+										?>
+									</td>
+					            </tr>
+							</tbody>
+						</table>
+						<p class="submit"><input type="submit" value="<?php echo TXT_UPDATE_GROUP; ?>" name="submit" class="button"/></p>
 					</form>
 				</div>
 				<?php
@@ -1493,13 +1721,18 @@ if (!class_exists("UserAccessManager"))
 			return $info;
 		}
 		
-		function get_usergroup_info_html($group_id)
+		function get_usergroup_info_html($group_id, $style = null)
 		{
 			$link = '<a class="uam_group_info_link">('.TXT_INFO.')</a>';
 							
 			$group_info = $this->get_usergroup_info($group_id);
 
-			$content = "<ul class='uam_group_info'><li class='uam_group_info_head'>".TXT_GROUP_INFO.":</li>";
+			$content = "<ul class='uam_group_info'";
+			
+			if(style != null)
+				$content .= " style='".$style."' ";
+				
+			$content .= "><li class='uam_group_info_head'>".TXT_GROUP_INFO.":</li>";
 
 			if($group_info->posts)
 			{
@@ -1616,7 +1849,7 @@ if (!class_exists("UserAccessManager"))
 		    	}
 		    	else
 				{ 
-					_e(TXT_FULL_ACCESS, "UserAccessManager");
+					echo TXT_FULL_ACCESS;
 				}
 		    }
 		}
@@ -1687,7 +1920,7 @@ if (!class_exists("UserAccessManager"))
 			else
 			{
 				echo "<p><a href='admin.php?page=uam_usergroup'>";
-				_e(TXT_CREATE_GROUP_FIRST, "UserAccessManager");
+				echo TXT_CREATE_GROUP_FIRST;
 				echo "</a></p>";
 			}
 		}
@@ -1732,10 +1965,12 @@ if (!class_exists("UserAccessManager"))
 																					
 				if($usergroups)
 				{
+					$content .= "<ul>";
 					foreach($usergroups as $usergroup)
 					{
-						$content .= $usergroup['groupname']."<br />";
+						$content .= "<li>".$usergroup['groupname']."</li>";
 					}
+					$content .= "</ul>";
 				}
 				else
 				{ 
@@ -1760,12 +1995,12 @@ if (!class_exists("UserAccessManager"))
 													ORDER BY groupname", ARRAY_A);
 					
 				?>
-				<h3><?php _e(TXT_GROUPS, "UserAccessManager"); ?></h3>
+				<h3><?php echo TXT_GROUPS; ?></h3>
 				<table class="form-table">
 					<tbody>
 						<tr>
 							<th>
-								<label for="usergroups"><?php _e(TXT_SET_UP_USERGROUPS, "UserAccessManager"); ?></label>
+								<label for="usergroups"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
 							</th>
 							<td>
 								<?php
@@ -1786,7 +2021,7 @@ if (!class_exists("UserAccessManager"))
 														<?php echo $accessgroup['groupname']; ?>					
 												</label>
 												<?php
-												$group_info_html = $this->get_usergroup_info_html($accessgroup['ID']);
+												$group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], "padding: 0 0 0 32px");
 							
 												echo $group_info_html->link;
 												echo $group_info_html->content;
@@ -1796,13 +2031,13 @@ if (!class_exists("UserAccessManager"))
 									else
 									{
 										echo "<a href='admin.php?page=uam_usergroup'>";
-										_e(TXT_CREATE_GROUP_FIRST, "UserAccessManager");
+										echo TXT_CREATE_GROUP_FIRST;
 										echo "</a>";
 									}
 								}
 								else
 								{
-									_e(TXT_ADMIN_HINT, "UserAccessManager");
+									echo TXT_ADMIN_HINT;
 								}
 								?>
 							</td>
@@ -1845,7 +2080,7 @@ if (!class_exists("UserAccessManager"))
 	
 		function add_category_columns_header($defaults)
 		{
-    		$defaults['access'] = __('Access');
+    		$defaults['uam_access'] = __('Access');
     		return $defaults;
 		}
 		
@@ -1853,7 +2088,7 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb;
 			
-			if( $column_name == 'access' )
+			if( $column_name == 'uam_access' )
 		    {
 				$usergroups = $wpdb->get_results("	SELECT ag.groupname
 													FROM ".DB_ACCESSGROUP." ag, ".DB_ACCESSGROUP_TO_CATEGORY." agtc
@@ -1862,11 +2097,13 @@ if (!class_exists("UserAccessManager"))
 													GROUP BY ag.groupname", ARRAY_A);
 				
 				if($usergroups)
-				{						
+				{
+					$content .= "<ul>";					
 					foreach($usergroups as $usergroup)
 					{
-						$content .= "- ".$usergroup['groupname']."<br />";
+						$content .= "<li>".$usergroup['groupname']."</li>";
 					}
+					$content .= "</ul>";
 				}
 		    	else
 				{ 
@@ -1874,53 +2111,6 @@ if (!class_exists("UserAccessManager"))
 				}
 				return $content;
 		    }
-		}
-		
-		function show_cat_add_form($cat)
-		{
-			global $wpdb, $current_user;
-
-			$cat_id = $cat->cat_ID;
-
-			$accessgroups = $wpdb->get_results("SELECT *
-												FROM ".DB_ACCESSGROUP."
-												ORDER BY groupname", ARRAY_A);
-					
-			?>
-			<div class="form-field">
-				<label for="usergroups"><?php _e(TXT_SET_UP_USERGROUPS, "UserAccessManager"); ?></label>
-				<?php
-				if($accessgroups)
-				{
-					foreach($accessgroups as $accessgroup)
-					{
-						$checked = $wpdb->get_results("	SELECT *
-														FROM ".DB_ACCESSGROUP_TO_CATEGORY."
-														WHERE category_id = ".$cat_id."
-															AND group_id = ".$accessgroup['ID'], ARRAY_A)
-						?>
-						<p style="margin:6px 0;">
-							<label for="uam_accesssgroup-<?php echo $accessgroup['ID'];?>" class="selectit" >
-								<input type="checkbox" id="uam_accesssgroup-<?php echo $accessgroup['ID'];?>" <?php if($checked){ echo 'checked="checked"'; } ?> value="<?php echo $accessgroup['ID']; ?>" name="accessgroups[]"/>
-								<?php echo $accessgroup['groupname']; ?>					
-							</label>
-							<?php
-							$group_info_html = $this->get_usergroup_info_html($accessgroup['ID']);
-							
-							echo $group_info_html->link;
-							echo $group_info_html->content;
-						echo "</p>";	
-					}
-				}
-				else
-				{
-					echo "<a href='admin.php?page=uam_usergroup'>";
-					_e(TXT_CREATE_GROUP_FIRST, "UserAccessManager");
-					echo "</a>";
-				}
-				?>
-			</div>
-			<?php
 		}
 		
 		function show_cat_edit_form($cat)
@@ -1940,7 +2130,7 @@ if (!class_exists("UserAccessManager"))
 					<tbody>
 						<tr>
 							<th>
-								<label for="description"><?php _e(TXT_SET_UP_USERGROUPS, "UserAccessManager"); ?></label>
+								<label for="description"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
 							</th>
 							<td>
 								<?php
@@ -1963,7 +2153,7 @@ if (!class_exists("UserAccessManager"))
 												<?php echo $accessgroup['groupname']; ?>					
 											</label>
 											<?php
-											$group_info_html = $this->get_usergroup_info_html($accessgroup['ID']);
+											$group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], "padding:0 0 0 32px;");
 								
 											echo $group_info_html->link;
 											
@@ -1974,7 +2164,7 @@ if (!class_exists("UserAccessManager"))
 											
 											if($set_recursive->posts || $set_recursive->categories)
 											{
-												$recursive_info = '<ul class="uam_group_lock_info"><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
+												$recursive_info = '<ul class="uam_group_lock_info" style="padding:0 0 0 32px;"><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
 												if($set_recursive->posts)
 						    					{
 						    						foreach($set_recursive->posts as $cur_id)
@@ -2001,7 +2191,7 @@ if (!class_exists("UserAccessManager"))
 								else
 								{
 									echo "<a href='admin.php?page=uam_usergroup'>";
-									_e(TXT_CREATE_GROUP_FIRST, "UserAccessManager");
+									echo TXT_CREATE_GROUP_FIRST;
 									echo "</a>";
 								}
 								?>
@@ -2585,7 +2775,7 @@ if (!function_exists("UserAccessManager_AP")) {
 		}
 		if (function_exists('add_menu_page'))
 		{
-			add_menu_page('User Access Manager', 'Access Manager', 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
+			add_menu_page('User Access Manager', 'Access Manager', 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH."/gfx/icon.png");
 		}
 		if (function_exists('add_submenu_page'))
 		{
@@ -2620,7 +2810,9 @@ if (!function_exists("UserAccessManager_AP")) {
 		add_filter('manage_posts_columns', array(&$userAccessManager, 'add_post_columns_header'));
 		add_filter('manage_pages_columns', array(&$userAccessManager, 'add_post_columns_header'));
 		
-		if($wp_version >= 2.7)
+		$uamOptions = $userAccessManager->getAdminOptions();
+		
+		if($wp_version >= 2.8 || $uamOptions['core_mod'] == 'true')
 		{
 			add_filter('manage_users_columns', array(&$userAccessManager, 'add_user_columns_header'), 10);
 			add_filter('manage_users_custom_column', array(&$userAccessManager, 'add_user_column'), 10, 2);
@@ -2629,7 +2821,6 @@ if (!function_exists("UserAccessManager_AP")) {
 			
 			//add_action('edit_category_add_form_before_button', array(&$userAccessManager, 'show_cat_add_form'), 9);
    			//add_action('created_term', array(&$userAccessManager, 'save_categorydata'), 9);
-   			
 		}
 	}	
 }
