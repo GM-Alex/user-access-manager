@@ -296,7 +296,7 @@ if (!class_exists("UserAccessManager"))
 			$wud = wp_upload_dir();
 			if(empty($wud['error']))
 			{
-				$url = $_SERVER["DOCUMENT_ROOT"].$wud['basedir']."/";
+				$url = $wud['basedir']."/";
 				
 				if(!file_exists($url.".htaccess") || $create_new)
 				{
@@ -331,7 +331,7 @@ if (!class_exists("UserAccessManager"))
 			$wud = wp_upload_dir();
 			if(empty($wud['error']))
 			{
-				$url = $_SERVER["DOCUMENT_ROOT"].$wud['basedir']."/";
+				$url = $wud['basedir']."/";
 				
 				if(!file_exists($url.".htpasswd") || $create_new)
 				{
@@ -398,7 +398,7 @@ if (!class_exists("UserAccessManager"))
 			$wud = wp_upload_dir();
 			if(empty($wud['error']))
 			{
-				$url = $_SERVER["DOCUMENT_ROOT"].$wud['basedir']."/";
+				$url = $wud['basedir']."/";
 				unlink($url.".htaccess");
 				unlink($url.".htpasswd");
 			}
