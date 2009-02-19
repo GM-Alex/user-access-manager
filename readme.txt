@@ -2,20 +2,21 @@
 Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
-Requires at least: 2.7
-Tested up to: 2.7
-Stable tag: 0.7.0.1
+Requires at least: 2.6
+Tested up to: 2.7.1
+Stable tag: 0.7.1
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
 == Description ==
 
-With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible for the specified group. This plugin is useful if you need a member area or a private section at your blog.
+With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible and writable for the specified group. This plugin is useful if you need a member area or a private section at your blog or you want that other people can write at your blog but not everywhere.
 
 <strong>Note</strong>: At this release you can replace on core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>). <strong>This core modification is not needed and only optional, but it gives you more comfort.</strong>
 
 <em>Feature list</em>
 
+* Set seperate access for readers and editors
 * User groups
 * Set access by user groups
 * Set access by post categories
@@ -46,6 +47,10 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    0.7.1		2009/02/16	Add write access control
+    						Add support down to 2.6
+    						Code optimization
     
     0.7.0.1		2009/02/13	Small fixes
     
