@@ -89,6 +89,7 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_FILE_SETTING_DESC', __('Set up the behaviour of files', 'user-access-manager'));
 			define('TXT_LOCK_FILE', __('Lock files', 'user-access-manager'));
 			define('TXT_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files.', 'user-access-manager'));
+			define('TXT_SELECTED_FILE_TYPES', __('Filetypes to lock: ', 'user-access-manager'));
 			define('TXT_DOWNLOAD_FILE_TYPE', __('Locked file types', 'user-access-manager'));
 			define('TXT_DOWNLOAD_FILE_TYPE_DESC', __('Type in file types which you will lock if the post/page is locked. <b>Note:</b> If you use images, vids or something else in your posts which are directly shown there and not for download do not type these types in here, because this types will not work anymore.', 'user-access-manager'));
 			define('TXT_DOWNLOAD_TYPE', __('Download type', 'user-access-manager'));
@@ -285,7 +286,7 @@ if (!class_exists("UserAccessManager"))
 		function uninstall()
 		{
 			global $wpdb;
-			$wpdb->query("DROP TABLE ".DB_ACCESSGROUP.", ".DB_ACCESSGROUP_TO_POST.", ".DB_ACCESSGROUP_TO_USER);
+			$wpdb->query("DROP TABLE ".DB_ACCESSGROUP.", ".DB_ACCESSGROUP_TO_POST.", ".DB_ACCESSGROUP_TO_USER.", ".DB_ACCESSGROUP_TO_CATEGORY.", ".DB_ACCESSGROUP_TO_ROLE);
 		}
 		
 		function create_htaccess($create_new = false)
@@ -309,16 +310,22 @@ if (!class_exists("UserAccessManager"))
 					$file_types = str_replace(",", "|", $file_types);
 					
 					// make .htaccess and .htpasswd
-					$htaccess_txt = "<FilesMatch '\.(".$file_types.")'>\n";
+					
+					$htaccess_txt = "";
+					
+					if($uamOptions['lock_file_types'] == 'selected')
+						$htaccess_txt .= "<FilesMatch '\.(".$file_types.")'>\n";
+
 					$htaccess_txt .= "AuthType Basic"."\n";
 					$htaccess_txt .= "AuthName \"".$areaname."\""."\n";
 					$htaccess_txt .= "AuthUserFile ".$url.".htpasswd"."\n";
 					$htaccess_txt .= "require valid-user"."\n";
-					$htaccess_txt .= "</FilesMatch>\n";
-	
 					
+					if($uamOptions['lock_file_types'] == 'selected')
+						$htaccess_txt .= "</FilesMatch>\n";
+
 					// save files
-					$htaccess= fopen($url.".htaccess", "w");
+					$htaccess = fopen($url.".htaccess", "w");
 					fwrite($htaccess, $htaccess_txt);
 					fclose($htaccess);
 				}
@@ -423,6 +430,7 @@ if (!class_exists("UserAccessManager"))
 										'uam_redirect_custom_url' => '',
 										'lock_recursive' => 'true',
 										'lock_file' => 'true',
+										'lock_file_types' => 'all',
 										'download_type' => 'fopen',
 										'locked_file_types' => 'zip,rar,tar,gz,bz2',
 										'blog_admin_hint' => 'true',
@@ -546,6 +554,13 @@ if (!class_exists("UserAccessManager"))
 					
 					$uamOptions['locked_file_types'] = $_POST['uam_locked_file_types'];
 				}
+				if (isset($_POST['uam_lock_file_types']))
+				{
+					if($uamOptions['lock_file_types'] != $_POST['uam_lock_file_types'])
+						$locked_file_types_changed = true;
+					
+					$uamOptions['lock_file_types'] = $_POST['uam_lock_file_types'];
+				}
 				
 				update_option($this->adminOptionsName, $uamOptions);
 				
@@ -652,18 +667,16 @@ if (!class_exists("UserAccessManager"))
 			{
 				if(isset($_POST['delete']))
 					$del_ids = $_POST['delete'];
-				else
-					$del_ids = null;
 					
-				if($del_ids)
+				if(isset($del_ids))
 				{
 					foreach($del_ids as $del_id)
 					{
 						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP." WHERE ID = $del_id LIMIT 1");
-						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_POST." WHERE group_id = $del_id LIMIT 1");
-						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_USER." WHERE group_id = $del_id LIMIT 1");
-						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_CATEGORY." WHERE group_id = $del_id LIMIT 1");
-						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_ROLE." WHERE group_id = $del_id LIMIT 1");
+						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_POST." WHERE group_id = $del_id");
+						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_USER." WHERE group_id = $del_id");
+						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_CATEGORY." WHERE group_id = $del_id");
+						$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_ROLE." WHERE group_id = $del_id");
 					}
 					?>
 						<div class="updated"><p><strong><?php echo TXT_DEL_GROUP; ?></strong></p></div> 
@@ -1327,7 +1340,14 @@ if (!class_exists("UserAccessManager"))
 										<?php echo TXT_DOWNLOAD_FILE_TYPE; ?>
 									</th>
 									<td>
-										<input name="uam_locked_file_types" value="<?php echo $uamOptions['locked_file_types']; ?>" />
+										<label for="uam_lock_file_types_all">
+											<input type="radio" id="uam_lock_file_types_all" name="uam_lock_file_types" value="all" <?php if ($uamOptions['lock_file_types'] == "all") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_ALL; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_lock_file_types_selected">
+											<input type="radio" id="uam_lock_file_types_selected" name="uam_lock_file_types" value="selected" <?php if ($uamOptions['lock_file_types'] == "selected") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_SELECTED_FILE_TYPES; ?>
+										</label><input name="uam_locked_file_types" value="<?php echo $uamOptions['locked_file_types']; ?>" />
 										<br />
 										<?php echo TXT_DOWNLOAD_FILE_TYPE_DESC; ?>
 									</td>
@@ -1371,7 +1391,23 @@ if (!class_exists("UserAccessManager"))
 										<label for="uam_redirect_custom_page">
 											<input type="radio" id="uam_redirect_custom_p" name="uam_redirect" value="custom_page" <?php if ($uamOptions['redirect'] == "custom_page") { echo 'checked="checked"'; }?>/> 
 											<?php echo TXT_REDIRECT_TO_PAGE; ?> 
-										</label><input name="uam_redirect_custom_page" value="<?php echo $uamOptions['redirect_custom_page']; ?>" />&nbsp;&nbsp;&nbsp;&nbsp;
+										</label><select name="uam_redirect_custom_page">
+										<?php 
+											$pages = get_pages('sort_column=menu_order');
+											
+											if(isset($pages))
+											{
+												foreach($pages as $page)
+												{
+													echo '<option value="'.$page->ID;
+													
+													if($uamOptions['redirect_custom_page'] == $page->ID)
+														echo ' selected = "selected"';
+
+													echo '>'.$page->post_title.'</option>';
+												}
+											} 
+										?></seclect>&nbsp;&nbsp;&nbsp;&nbsp;
 										<label for="uam_redirect_custom_url">
 											<input type="radio" id="uam_redirect_custom_u" name="uam_redirect" value="custom_url" <?php if ($uamOptions['redirect'] == "custom_url") { echo 'checked="checked"'; }?>/> 
 											<?php echo TXT_REDIRECT_TO_URL; ?> 
@@ -1429,25 +1465,25 @@ if (!class_exists("UserAccessManager"))
 								
 								if($wp_version < 2.8)
 								{
-								?>
-								<tr>
-									<th>
-										<?php echo TXT_CORE_MOD; ?>
-									</th>
-									<td>
-										<label for="uam_core_mod_yes">
-											<input type="radio" id="uam_core_mod_yes" name="uam_core_mod" value="true" <?php if ($uamOptions['core_mod'] == "true") { echo 'checked="checked"'; }?> />
-											<?php echo TXT_YES; ?>
-										</label>&nbsp;&nbsp;&nbsp;&nbsp;
-										<label for="uam_core_mod_no">
-											<input type="radio" id="uam_core_mod_no" name="uam_core_mod" value="false" <?php if ($uamOptions['core_mod'] == "false") { echo 'checked="checked"'; }?>/> 
-											<?php echo TXT_NO; ?>
-										</label>
-										<br />
-										<?php echo TXT_CORE_MOD_DESC; ?>
-									</td>
-								</tr>
-								<?php 
+									?>
+									<tr>
+										<th>
+											<?php echo TXT_CORE_MOD; ?>
+										</th>
+										<td>
+											<label for="uam_core_mod_yes">
+												<input type="radio" id="uam_core_mod_yes" name="uam_core_mod" value="true" <?php if ($uamOptions['core_mod'] == "true") { echo 'checked="checked"'; }?> />
+												<?php echo TXT_YES; ?>
+											</label>&nbsp;&nbsp;&nbsp;&nbsp;
+											<label for="uam_core_mod_no">
+												<input type="radio" id="uam_core_mod_no" name="uam_core_mod" value="false" <?php if ($uamOptions['core_mod'] == "false") { echo 'checked="checked"'; }?>/> 
+												<?php echo TXT_NO; ?>
+											</label>
+											<br />
+											<?php echo TXT_CORE_MOD_DESC; ?>
+										</td>
+									</tr>
+									<?php 
 								}
 								?>
 							</tbody>
@@ -2249,6 +2285,85 @@ if (!class_exists("UserAccessManager"))
 			}
 		}
 		
+		function show_media_file($meta = '', $post)
+		{
+			global $wpdb;
+			$accessgroups = $wpdb->get_results("SELECT *
+												FROM ".DB_ACCESSGROUP."
+												ORDER BY groupname", ARRAY_A);
+			
+			$recursive_set = $this->get_usergroups_for_post($post->ID);
+			
+			$content = $meta;
+			$content .= '</td></tr><tr><th class="label"><label>'.TXT_SET_UP_USERGROUPS.'</label></th><td class="field">';
+			
+			if(isset($accessgroups))
+			{
+				foreach($accessgroups as $accessgroup)
+				{
+					$checked = $wpdb->get_results("	SELECT *
+													FROM ".DB_ACCESSGROUP_TO_POST."
+													WHERE post_id = ".$post->ID."
+													AND group_id = ".$accessgroup['ID'], ARRAY_A);
+					
+					if(isset($recursive_set[$accessgroup['groupname']]))
+						$set_recursive = $recursive_set[$accessgroup['groupname']];
+
+					$content .= '<p><label for="uam_accesssgroup-'.$accessgroup['ID'].'" class="selectit" style="display:inline;" >';
+					$content .= '<input type="checkbox" id="uam_accesssgroup-'.$accessgroup['ID'].'"';
+					if(isset($checked) || isset($set_recursive->posts) || isset($set_recursive->categories))
+						$content .= 'checked="checked"';
+					if(isset($set_recursive->posts) || isset($set_recursive->categories))
+						$content .= 'disabled=""';
+					$content .= 'value="'.$accessgroup['ID'].'" name="accessgroups[]"/>';
+					$content .= $accessgroup['groupname'];					
+					$content .=	"</label>";
+
+					$group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], "padding:0 0 0 38px;top:-12px;");
+
+					$content .= $group_info_html->link;
+							
+					if(isset($set_recursive->posts) || isset($set_recursive->categories))
+						$content .= '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
+						
+					$content .= $group_info_html->content;							
+
+					if(isset($set_recursive->posts) || isset($set_recursive->categories))
+					{
+						$recursive_info = '<ul class="uam_group_lock_info" style="padding:0 0 0 38px;top:-12px;"><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
+						if(isset($set_recursive->posts))
+		    			{
+		    				foreach($set_recursive->posts as $cur_id)
+		    				{
+		    					$cur_post = & get_post($cur_id);
+		    					$recursive_info .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
+		    				}
+		    			}
+		    			
+		    			if(isset($set_recursive->categories))
+		    			{
+		    				foreach($set_recursive->categories as $cur_id)
+		    				{
+		    					$cur_category = & get_category($cur_id);
+		    					$recursive_info .= "<li>$cur_category->name [".TXT_CATEGORY."]</li>";
+		    				}
+		    			}
+						$recursive_info .= "</ul>";
+						$content .= $recursive_info;
+					}
+					$content .= "</p>";
+				}
+			}
+			else
+			{
+				$content .= "<a href='admin.php?page=uam_usergroup'>";
+				$content .= TXT_CREATE_GROUP_FIRST;
+				$content .= "</a>";
+			}
+			
+			return $content;
+		}
+		
 		function save_userdata($user_id)
 		{
 			global $wpdb, $current_user;
@@ -2466,13 +2581,12 @@ if (!class_exists("UserAccessManager"))
 			$uamOptions = $this->getAdminOptions();
 			
 			if($this->atAdminPanel)
-			{
 				$sqlCheckLocation = "ag.write_access != 'all'";
-			}
 			else
-			{
 				$sqlCheckLocation = "ag.read_access != 'all'";
-			}
+				
+			$restricted_by_categories = array();
+			$restricted_by_posts = array();
 			
 			//check categories access
 			if(isset($cur_categories))
@@ -2481,9 +2595,17 @@ if (!class_exists("UserAccessManager"))
 				{
 					if($cur_post->post_type == "post" || $cur_post->post_type == "attachment")
 					{
+						$restricted_access_by_cat = $wpdb->get_results("	SELECT *
+																			FROM ".DB_ACCESSGROUP_TO_CATEGORY." atc, ".DB_ACCESSGROUP." ag
+																			WHERE atc.category_id = ".$cur_category->term_id."
+																				AND atc.group_id = ag.ID
+																				AND ".$sqlCheckLocation, ARRAY_A);
+						if(isset($restricted_access_by_cat))
+							$restricted_by_categories[$cur_category->term_id] = $cur_category->term_id;
+						
 						if($uamOptions['lock_recursive'] == 'true')
 						{
-							$cur_id = $cur_category->term_id;
+							$cur_id = $cur_category->parent;
 							while($cur_id != 0)
 							{
 								$restricted_access_by_cat = $wpdb->get_results("	SELECT *
@@ -2493,7 +2615,7 @@ if (!class_exists("UserAccessManager"))
 																						AND ".$sqlCheckLocation, ARRAY_A);
 									
 								if(isset($cur_category->term_id) && isset($restricted_access_by_cat))
-									$restricted_by_categories[] = $cur_category->term_id;
+									$restricted_by_categories[$cur_category->term_id] = $cur_category->term_id;
 									
 								if(isset($cur_category->parent))
 								{	
@@ -2506,81 +2628,70 @@ if (!class_exists("UserAccessManager"))
 								}
 							}
 						}
-						elseif($uamOptions['lock_recursive'] == 'false')
-						{
-							$restricted_access_by_cat = $wpdb->get_results("	SELECT *
-																				FROM ".DB_ACCESSGROUP_TO_CATEGORY." atc, ".DB_ACCESSGROUP." ag
-																				WHERE atc.category_id = ".$cur_category->term_id."
-																					AND atc.group_id = ag.ID
-																					AND ".$sqlCheckLocation, ARRAY_A);
-							if(isset($restricted_access_by_cat))
-								$restricted_by_categories[] = $cur_category->term_id;
-						}
 					}
 				}
 			}
+			
 			//check posts access
-			if($uamOptions['lock_recursive'] == 'true')
+			if(isset($cur_post->ID))
 			{
-				if(isset($cur_post->ID))
-					$cur_id = $cur_post->ID;
-					
-				while($cur_id != 0 && isset($cur_post->ID))
+				$restricted_access_by_post = $wpdb->get_results("	SELECT *
+																	FROM ".DB_ACCESSGROUP_TO_POST." atp, ".DB_ACCESSGROUP." ag
+																	WHERE atp.post_id = ".$cur_post->ID."
+																		AND atp.group_id = ag.ID
+																		AND ".$sqlCheckLocation, ARRAY_A);
+				if(isset($restricted_access_by_post))
+					$restricted_by_posts[$cur_post->ID] = $cur_post->ID;
+			
+				if($uamOptions['lock_recursive'] == 'true')
 				{
-					$restricted_access_by_post = $wpdb->get_results("	SELECT *
-																		FROM ".DB_ACCESSGROUP_TO_POST." atp, ".DB_ACCESSGROUP." ag
-																		WHERE atp.post_id = ".$cur_post->ID."
-																			AND atp.group_id = ag.ID
-																			AND ".$sqlCheckLocation, ARRAY_A);
-					if(isset($restricted_access_by_post))
-						$restricted_by_posts[] = $cur_post->ID;
-					
-					if(isset($cur_category->parent))
-					{	
+					if(isset($cur_post->post_parent))
 						$cur_id = $cur_post->post_parent;
-						$cur_post = & get_post($cur_id);
-					}
-					else
+						
+					while($cur_id != 0 && isset($cur_id))
 					{
-						$cur_id = 0;
-					}
-				}
-			}
-			elseif($uamOptions['lock_recursive'] == 'false')
-			{
-				if(isset($cur_post->ID))
-				{
-					if( $cur_post->post_type != 'attachment')
-					{
-						$restricted_access_by_post = $wpdb->get_results("	SELECT *
-																			FROM ".DB_ACCESSGROUP_TO_POST." atp, ".DB_ACCESSGROUP." ag
-																			WHERE atp.post_id = ".$cur_post->ID."
-																				AND atp.group_id = ag.ID
-																				AND ".$sqlCheckLocation, ARRAY_A);
-						if(isset($restricted_access_by_post))
-							$restricted_by_posts[] = $cur_post->ID;
-					}
-					else
-					{
-						if($cur_post->post_parent != 0)
-						{
-							if(!$this->check_access($cur_post->post_parent))
-								$restricted_by_posts[] = $cur_post->post_parent;
+						$restricted_access = $this->get_access($cur_id);
+
+						if(isset($restricted_access->restricted_by_categories))
+							$restricted_by_categories = array_unique(array_merge($restricted_by_categories, $restricted_access->restricted_by_categories));
+						
+						if(isset($restricted_access->restricted_by_posts))
+							$restricted_by_posts = array_unique(array_merge($restricted_by_posts, $restricted_access->restricted_by_posts));
+						
+						if(isset($cur_post->post_parent))
+						{	
+							$cur_id = $cur_post->post_parent;
+							$cur_post = & get_post($cur_id);
 						}
 						else
 						{
-							$restricted_by_posts[] = $cur_post->ID;
+							$cur_id = 0;
 						}
 					}
-					
+				}
+				elseif($uamOptions['lock_recursive'] == 'false' && $cur_post->post_type == "attachment")
+				{
+					if(isset($cur_post->post_parent))
+						$cur_id = $cur_post->post_parent;
+
+					if($cur_id != 0 && isset($cur_id))
+					{
+						$restricted_access = $this->get_access($cur_id);
+	
+						if(isset($restricted_access->restricted_by_categories))
+							$restricted_by_categories = array_unique(array_merge($restricted_by_categories, $restricted_access->restricted_by_categories));
+							
+						if(isset($restricted_access->restricted_by_posts))
+							$restricted_by_posts = array_unique(array_merge($restricted_by_posts, $restricted_access->restricted_by_posts));
+					}
 				}
 			}
-			
-			if(isset($restricted_by_categories))
+				
+			if(isset($restricted_by_categories) && count($restricted_by_categories) != 0)
 				$access->restricted_by_categories = $restricted_by_categories;
-			if(isset($restricted_by_posts))
-				$access->restricted_by_posts = $restricted_by_posts;
-			
+			if(isset($restricted_by_posts) && count($restricted_by_posts) != 0)
+				$access->restricted_by_posts = $restricted_by_posts;	
+				
 			return $access;
 		}
 		
@@ -2911,10 +3022,10 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wp_query;
 			
+			$uamOptions = $this->getAdminOptions();	
+			
 			if(!$this->check_access() && $uamOptions['redirect'] != 'false' && !$this->atAdminPanel)
 			{
-				$uamOptions = $this->getAdminOptions();				
-				
 				if($uamOptions['redirect'] == 'blog' || $uamOptions['redirect'] == 'custom_page')
 				{
 					$host  = $_SERVER['HTTP_HOST'];
@@ -2923,7 +3034,7 @@ if (!class_exists("UserAccessManager"))
 					if($uamOptions['redirect'] == 'blog')
 						$extra = '';
 					elseif($uamOptions['redirect'] == 'custom_page')
-						$extra = $uamOptions['redirect_custom_page'];
+						$extra = get_page_uri($uamOptions['redirect_custom_page']);
 						
 					$url = "http://".$host.$uri."/".$extra;
 				}
@@ -2939,7 +3050,7 @@ if (!class_exists("UserAccessManager"))
 				
 				foreach($cur_posts as $cur_post)
 				{
-					if($this->check_access())
+					if($this->check_access($cur_post->ID))
 					{
 						$post_to_show = true;
 						break;
@@ -2956,6 +3067,7 @@ if (!class_exists("UserAccessManager"))
 			{
 				$cur_id = $_GET['getfile'];
 				$cur_post = & get_post($cur_id);
+				$uamOptions = $this->getAdminOptions();
 				
 				if($cur_post->post_type == 'attachment' && $this->check_access($cur_post->ID))
 				{
@@ -3001,6 +3113,9 @@ if (!class_exists("UserAccessManager"))
 						echo 'Error: File not found';
 					}
 				}
+				elseif($uamOptions['redirectnofileaccess'] != 'false')
+				{
+				}
 			}
 		}
 		
@@ -3021,7 +3136,7 @@ if (!class_exists("UserAccessManager"))
 				$file_types = $uamOptions['locked_file_types'];
 				$file_types = explode(",", $file_types);
 				
-				if(in_array($type, $file_types))
+				if(in_array($type, $file_types) || $uamOptions['lock_file_types'] == 'all')
 				{	
 					$cur_guid = get_option('siteurl');
 					
@@ -3087,9 +3202,14 @@ if (!function_exists("UserAccessManager_AP")) {
    		//Admin filters
 		add_filter('manage_posts_columns', array(&$userAccessManager, 'add_post_columns_header'));
 		add_filter('manage_pages_columns', array(&$userAccessManager, 'add_post_columns_header'));
-		add_filter('manage_media_columns', array(&$userAccessManager, 'add_post_columns_header'));
 		
 		$uamOptions = $userAccessManager->getAdminOptions();
+		
+		if($uamOptions['lock_file'] == 'true')
+		{
+			add_action('media_meta', array(&$userAccessManager, 'show_media_file'), 10 , 2);
+			add_filter('manage_media_columns', array(&$userAccessManager, 'add_post_columns_header'));
+		}
 		
 		if($wp_version >= 2.8 || $uamOptions['core_mod'] == 'true')
 		{
