@@ -30,6 +30,12 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 * Multilanguage support
 * Also proteced your rss feeds
 
+<em>Included languages</em>
+
+* English
+* German
+* Czech, base on 0.7.0.1. Thanks to Huska
+
 <strong>Note</strong>: At this release you can replace one core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>). <strong>This core modification is not needed and only optional, but it gives you more comfort.</strong>
 
 For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com).
