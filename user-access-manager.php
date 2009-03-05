@@ -1008,7 +1008,7 @@ if (!class_exists("UserAccessManager"))
 											<input type="radio" id="uam_lock_file_types_selected" name="uam_lock_file_types" value="selected" <?php if ($uamOptions['lock_file_types'] == "selected") { echo 'checked="checked"'; }?> />
 											<?php echo TXT_SELECTED_FILE_TYPES; ?>
 										</label><input name="uam_locked_file_types" value="<?php echo $uamOptions['locked_file_types']; ?>" />
-										<label for="uam_not_lock_file_types_not_selected">
+										<label for="uam_lock_file_types_not_selected">
 											<input type="radio" id="uam_lock_file_types_not_selected" name="uam_lock_file_types" value="not_selected" <?php if ($uamOptions['lock_file_types'] == "not_selected") { echo 'checked="checked"'; }?> />
 											<?php echo TXT_NOT_SELECTED_FILE_TYPES; ?>
 										</label><input name="uam_not_locked_file_types" value="<?php echo $uamOptions['not_locked_file_types']; ?>" />
