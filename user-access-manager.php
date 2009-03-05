@@ -152,7 +152,7 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_GROUP_DESC', __('Access group description', 'user-access-manager'));
 			define('TXT_GROUP_DESC_DESC', __('The description of the group.', 'user-access-manager'));
 			define('TXT_GROUP_IP_RANGE', __('IP range', 'user-access-manager'));
-			define('TXT_GROUP_IP_RANGE_DESC', __('Type in the IP ranges of users which are join these groups by there IP address without loggin. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30', 'user-access-manager'));
+			define('TXT_GROUP_IP_RANGE_DESC', __('Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like "BEGIN"-"END", seperate ranges by using ";", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30', 'user-access-manager'));
 			define('TXT_GROUP_READ_ACCESS', __('Read access', 'user-access-manager'));
 			define('TXT_GROUP_READ_ACCESS_DESC', __('The read access.', 'user-access-manager'));
 			define('TXT_GROUP_WRITE_ACCESS', __('Write access', 'user-access-manager'));

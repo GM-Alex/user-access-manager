@@ -12,12 +12,10 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible and writable for the specified group. This plugin is useful if you need a member area or a private section at your blog or you want that other people can write at your blog but not everywhere.
 
-<strong>Note</strong>: At this release you can replace one core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>). <strong>This core modification is not needed and only optional, but it gives you more comfort.</strong>
-
 <em>Feature list</em>
 
-* Set seperate access for readers and editors
 * User groups
+* Set seperate access for readers and editors
 * Set access by user groups
 * Set access by post categories
 * User-defined post/page title (if no access)
@@ -30,6 +28,9 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 * Limited access to uploaded files
 * Full integrated at the admin panel
 * Multilanguage support
+* Also proteced your rss feeds
+
+<strong>Note</strong>: At this release you can replace one core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>). <strong>This core modification is not needed and only optional, but it gives you more comfort.</strong>
 
 For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com).
 
