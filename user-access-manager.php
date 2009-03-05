@@ -23,6 +23,7 @@ Copyright 2008  Alexander Schneider  (email :  alexanderschneider85 [at] gmail D
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+Uses an Image by: Everaldo Coelho - http://www.everaldo.com/
 */
 
 //DB

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: User Access Manager\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
 "POT-Creation-Date: 2009-03-05 16:55+0000\n"
-"PO-Revision-Date: 2009-03-05 18:22+0100\n"
+"PO-Revision-Date: 2009-03-05 18:32+0100\n"
 "Last-Translator: Alexander Schneider <alexanderschneider85@googlemail.com>\n"
 "Language-Team: Alexander Schneider <alexanderschneider85@googlemail.com>\n"
 "MIME-Version: 1.0\n"
@@ -281,7 +281,7 @@ msgstr "Schreibzugriff"
 
 #: user-access-manager.php:143
 msgid "Files"
-msgstr "Dateine"
+msgstr "Dateien"
 
 #: user-access-manager.php:145
 msgid "Users"
