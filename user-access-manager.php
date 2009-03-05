@@ -5,7 +5,7 @@ Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager
 Author URI: http://www.gm-alex.de/
 Version: 0.8
 Author: Alexander Schneider
-Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will not overwrite the '.htaccess'.</em>
+Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
  
 Copyright 2008  Alexander Schneider  (email :  alexanderschneider85 [at] gmail DOT com)
 
@@ -44,6 +44,10 @@ if (!class_exists("UserAccessManager"))
 	{
 		var $adminOptionsName = "uamAdminOptions";
 		var $atAdminPanel = false;
+		var $restrictedPost = array();
+		var $postAccess = array();
+		var $uam_db_version = "1.1";
+		var $adminOptions;
 		
 		function UserAccessManager() 
 		{ //constructor
@@ -90,8 +94,13 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_LOCK_FILE', __('Lock files', 'user-access-manager'));
 			define('TXT_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files.', 'user-access-manager'));
 			define('TXT_SELECTED_FILE_TYPES', __('Filetypes to lock: ', 'user-access-manager'));
+			define('TXT_NOT_SELECTED_FILE_TYPES', __('Filetypes not to lock: ', 'user-access-manager'));
 			define('TXT_DOWNLOAD_FILE_TYPE', __('Locked file types', 'user-access-manager'));
-			define('TXT_DOWNLOAD_FILE_TYPE_DESC', __('Type in file types which you will lock if the post/page is locked. <b>Note:</b> If you use images, vids or something else in your posts which are directly shown there and not for download do not type these types in here, because this types will not work anymore.', 'user-access-manager'));
+			define('TXT_DOWNLOAD_FILE_TYPE_DESC', __('Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <b>Note:</b> If you have no problems use all to get the maximum security.', 'user-access-manager'));
+			define('TXT_FILE_PASS_TYPE', __('.htaccess password', 'user-access-manager'));
+			define('TXT_FILE_PASS_TYPE_DESC', __('Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files.', 'user-access-manager'));
+			define('TXT_RANDOM_PASS', __('Use a random generated pass word.', 'user-access-manager'));
+			define('TXT_CURRENT_LOGGEDIN_ADMIN_PASS', __('Use the password of the current logged in admin.', 'user-access-manager'));
 			define('TXT_DOWNLOAD_TYPE', __('Download type', 'user-access-manager'));
 			define('TXT_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".', 'user-access-manager'));
 			define('TXT_NORMAL', __('Normal', 'user-access-manager'));
@@ -99,13 +108,15 @@ if (!class_exists("UserAccessManager"))
 			
 			define('TXT_OTHER_SETTING', __('Other settings', 'user-access-manager'));
 			define('TXT_OTHER_SETTING_DESC', __('Here you will find all other settings', 'user-access-manager'));
+			define('TXT_HIDE_EMPTY_CATEGORIES', __('Hide empty categories', 'user-access-manager'));
+			define('TXT_HIDE_EMPTY_CATEGORIES_DESC', __('Selecting "Yes" will hide empty categories which are containing only empty childs or no childs.', 'user-access-manager'));
 			define('TXT_REDIRECT', __('Redirect user', 'user-access-manager'));
 			define('TXT_REDIRECT_DESC', __('Setup what happen if a user visit a post/page with no access.', 'user-access-manager'));
 			define('TXT_REDIRECT_TO_BOLG', __('To blog startpage', 'user-access-manager'));
 			define('TXT_REDIRECT_TO_PAGE', __('Custom page: ', 'user-access-manager'));
 			define('TXT_REDIRECT_TO_URL', __('Custom URL: ', 'user-access-manager'));
 			define('TXT_LOCK_RECURSIVE', __('Lock recursive', 'user-access-manager'));
-			define('TXT_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page.', 'user-access-manager'));
+			define('TXT_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to "No" could result in display errors relating to the hierarchy.', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
@@ -129,6 +140,7 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_WRITE_ACCESS', __('Write access', 'user-access-manager'));
 			define('TXT_POSTS', __('Posts', 'user-access-manager'));
 			define('TXT_PAGES', __('Pages', 'user-access-manager'));
+			define('TXT_FILES', __('Files', 'user-access-manager'));
 			define('TXT_CATEGORY', __('Categories', 'user-access-manager'));
 			define('TXT_USERS', __('Users', 'user-access-manager'));
 			define('TXT_DELETE', __('Delete', 'user-access-manager'));
@@ -139,6 +151,8 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_GROUP_NAME_DESC', __('The name is used to identify the access user group.', 'user-access-manager'));
 			define('TXT_GROUP_DESC', __('Access group description', 'user-access-manager'));
 			define('TXT_GROUP_DESC_DESC', __('The description of the group.', 'user-access-manager'));
+			define('TXT_GROUP_IP_RANGE', __('IP range', 'user-access-manager'));
+			define('TXT_GROUP_IP_RANGE_DESC', __('Type in the IP ranges of users which are join these groups by there IP address without loggin. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30', 'user-access-manager'));
 			define('TXT_GROUP_READ_ACCESS', __('Read access', 'user-access-manager'));
 			define('TXT_GROUP_READ_ACCESS_DESC', __('The read access.', 'user-access-manager'));
 			define('TXT_GROUP_WRITE_ACCESS', __('Write access', 'user-access-manager'));
@@ -147,10 +161,12 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_DEL_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
 			define('TXT_NONE', __('none', 'user-access-manager')); 
 			define('TXT_ACCESS_GROUP_EDIT_SUC', __('Access group edit successfully.', 'user-access-manager'));
-			define('TXT_CONTAIN_POSTS', __('Contains <span class="uam_element_count">%1$s</span> of %2$s posts', 'user-access-manager'));
-			define('TXT_CONTAIN_PAGES', __('Contains <span class="uam_element_count">%1$s</span> of %2$s pages', 'user-access-manager'));
-			define('TXT_CONTAIN_CATEGORIES', __('Contains <span class="uam_element_count">%1$s</span> of %2$s categories', 'user-access-manager'));
-			define('TXT_CONTAIN_USERS', __('Contains <span class="uam_element_count">%1$s</span> of %2$s users', 'user-access-manager'));
+			define('TXT_CONTAIN_POSTS', __('Contains %1$s of %2$s posts', 'user-access-manager'));
+			define('TXT_CONTAIN_PAGES', __('Contains %1$s of %2$s pages', 'user-access-manager'));
+			define('TXT_CONTAIN_FILES', __('Contains %1$s of %2$s files', 'user-access-manager'));
+			define('TXT_CONTAIN_CATEGORIES', __('Contains %1$s of %2$s categories', 'user-access-manager'));
+			define('TXT_CONTAIN_USERS', __('Contains %1$s of %2$s users', 'user-access-manager'));
+			define('TXT_IP_RANGE', __('IP range', 'user-access-manager'));
 			
 			//---Misc---
 			define('TXT_FULL_ACCESS', __('Full access', 'user-access-manager'));
@@ -182,6 +198,8 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_IS_ADMIN', __('User is Admin. Full access.', 'user-access-manager'));
 			define('TXT_EXPAND', __('expand', 'user-access-manager'));
 			define('TXT_EXPAND_ALL', __('expand all', 'user-access-manager'));
+			define('TXT_COLLAPS', __('collaps', 'user-access-manager'));
+			define('TXT_COLLAPS_ALL', __('collaps all', 'user-access-manager'));
 			define('TXT_ALL', __('all', 'user-access-manager'));
 			define('TXT_ONLY_GROUP_USERS', __('only group users', 'user-access-manager'));
 		}
@@ -192,7 +210,7 @@ if (!class_exists("UserAccessManager"))
 			$this->create_htpasswd();
 			
 			global $wpdb;
-			$uam_db_version = "1.1";
+			$uam_db_version = $this->uam_db_version;
 			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 			
 			$charset_collate = '';
@@ -204,7 +222,72 @@ if (!class_exists("UserAccessManager"))
 				if ( ! empty($wpdb->collate) )
 					$charset_collate .= " COLLATE $wpdb->collate";
 			}
+				
+			if($wpdb->get_var("show tables like '".DB_ACCESSGROUP."'") != DB_ACCESSGROUP)
+			{			
+				$sql = "CREATE TABLE " . DB_ACCESSGROUP . " (
+						  ID int(11) NOT NULL auto_increment,
+						  groupname tinytext NOT NULL,
+						  groupdesc text NOT NULL,
+						  read_access tinytext NOT NULL,
+						  write_access tinytext NOT NULL,
+						  PRIMARY KEY  (ID)
+						) $charset_collate;";
+					
+				dbDelta($sql);
+			}
 			
+			if($wpdb->get_var("show tables like '".DB_ACCESSGROUP_TO_POST."'") != DB_ACCESSGROUP_TO_POST)
+			{							
+				$sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_POST . " ( 
+						  post_id int(11) NOT NULL,
+						  group_id int(11) NOT NULL,
+						  PRIMARY KEY  (post_id,group_id)
+						) $charset_collate;";
+	
+				dbDelta($sql);
+			}
+			
+			if($wpdb->get_var("show tables like '".DB_ACCESSGROUP_TO_USER."'") != DB_ACCESSGROUP_TO_USER)
+			{			
+				$sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_USER . " (
+						  user_id int(11) NOT NULL,
+						  group_id int(11) NOT NULL,
+						  PRIMARY KEY  (user_id,group_id)
+						) $charset_collate;";		  
+	
+				dbDelta($sql);
+			}
+			
+			if($wpdb->get_var("show tables like '".DB_ACCESSGROUP_TO_CATEGORY."'") != DB_ACCESSGROUP_TO_CATEGORY)
+			{			
+				$sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_CATEGORY . " (
+						  category_id int(11) NOT NULL,
+						  group_id int(11) NOT NULL,
+						  PRIMARY KEY  (category_id,group_id)
+						) $charset_collate;";		  
+	
+				dbDelta($sql);
+			}
+			
+			if($wpdb->get_var("show tables like '".DB_ACCESSGROUP_TO_ROLE."'") != DB_ACCESSGROUP_TO_ROLE)
+			{			
+				$sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_ROLE . " (
+						  role_name varchar(255) NOT NULL,
+						  group_id int(11) NOT NULL,
+						  PRIMARY KEY  (role_name,group_id)
+						) $charset_collate;";		  
+	
+				dbDelta($sql);
+			}
+				
+			add_option("uam_db_version", $uam_db_version);
+		}
+		
+		function update()
+		{
+			global $wpdb;
+			$uam_db_version = $this->uam_db_version;
 			$installed_ver = get_option( "uam_db_version" );
 			
 			if($installed_ver != $uam_db_version)
@@ -213,74 +296,12 @@ if (!class_exists("UserAccessManager"))
 				{
 					if($wpdb->get_var("show tables like '".DB_ACCESSGROUP."'") == DB_ACCESSGROUP)
 					{			
-						$sql = "ALTER TABLE 'wp_uam_accessgroups' ADD 'read_access' TINYTEXT NOT NULL , ADD 'write_access' TINYTEXT NOT NULL DEFAULT ''";
-							
-						dbDelta($sql);
-						
+						$wpdb->query("ALTER TABLE ".DB_ACCESSGROUP." ADD read_access TINYTEXT NOT NULL DEFAULT '', ADD write_access TINYTEXT NOT NULL DEFAULT '', ADD ip_range MEDIUMTEXT NULL DEFAULT ''");
 						$wpdb->query("UPDATE ".DB_ACCESSGROUP." SET read_access = 'group', write_access = 'group'");
+						update_option("uam_db_version", $uam_db_version);
 					}
 				}
-				
-				if($wpdb->get_var("show tables like '".DB_ACCESSGROUP."'") != DB_ACCESSGROUP)
-				{			
-					$sql = "CREATE TABLE " . DB_ACCESSGROUP . " (
-							  ID int(11) NOT NULL auto_increment,
-							  groupname tinytext NOT NULL,
-							  groupdesc text NOT NULL,
-							  read_access tinytext NOT NULL,
-							  write_access tinytext NOT NULL,
-							  PRIMARY KEY  (ID)
-							) $charset_collate;";
-						
-					dbDelta($sql);
-				}
-				
-				if($wpdb->get_var("show tables like '".DB_ACCESSGROUP_TO_POST."'") != DB_ACCESSGROUP_TO_POST)
-				{							
-					$sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_POST . " ( 
-							  post_id int(11) NOT NULL,
-							  group_id int(11) NOT NULL,
-							  PRIMARY KEY  (post_id,group_id)
-							) $charset_collate;";
-	
-					dbDelta($sql);
-				}
-				
-				if($wpdb->get_var("show tables like '".DB_ACCESSGROUP_TO_USER."'") != DB_ACCESSGROUP_TO_USER)
-				{			
-					$sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_USER . " (
-							  user_id int(11) NOT NULL,
-							  group_id int(11) NOT NULL,
-							  PRIMARY KEY  (user_id,group_id)
-							) $charset_collate;";		  
-	
-					dbDelta($sql);
-				}
-				
-				if($wpdb->get_var("show tables like '".DB_ACCESSGROUP_TO_CATEGORY."'") != DB_ACCESSGROUP_TO_CATEGORY)
-				{			
-					$sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_CATEGORY . " (
-							  category_id int(11) NOT NULL,
-							  group_id int(11) NOT NULL,
-							  PRIMARY KEY  (category_id,group_id)
-							) $charset_collate;";		  
-	
-					dbDelta($sql);
-				}
-				
-				if($wpdb->get_var("show tables like '".DB_ACCESSGROUP_TO_ROLE."'") != DB_ACCESSGROUP_TO_ROLE)
-				{			
-					$sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_ROLE . " (
-							  role_name varchar(255) NOT NULL,
-							  group_id int(11) NOT NULL,
-							  PRIMARY KEY  (role_name,group_id)
-							) $charset_collate;";		  
-	
-					dbDelta($sql);
-				}
 			}
-				
-			add_option("uam_db_version", $uam_db_version);
 		}
 		
 		function uninstall()
@@ -289,7 +310,7 @@ if (!class_exists("UserAccessManager"))
 			$wpdb->query("DROP TABLE ".DB_ACCESSGROUP.", ".DB_ACCESSGROUP_TO_POST.", ".DB_ACCESSGROUP_TO_USER.", ".DB_ACCESSGROUP_TO_CATEGORY.", ".DB_ACCESSGROUP_TO_ROLE);
 		}
 		
-		function create_htaccess($create_new = false)
+		function create_htaccess()
 		{
 			// Make .htaccess file to protect data
 			
@@ -299,98 +320,116 @@ if (!class_exists("UserAccessManager"))
 			{
 				$url = $wud['basedir']."/";
 				
-				if(!file_exists($url.".htaccess") || $create_new)
-				{
-					$areaname = "WP-Files";
+				$areaname = "WP-Files";
 					
-					$uamOptions = $this->getAdminOptions();
-					
+				$uamOptions = $this->getAdminOptions();
+
+				if($uamOptions['lock_file_types'] == 'selected')
 					$file_types = $uamOptions['locked_file_types'];
-					
+				elseif($uamOptions['lock_file_types'] == 'not_selected')
+					$file_types = $uamOptions['not_locked_file_types'];
+
+				if(isset($file_types))
 					$file_types = str_replace(",", "|", $file_types);
 					
-					// make .htaccess and .htpasswd
+				// make .htaccess and .htpasswd
 					
-					$htaccess_txt = "";
-					
-					if($uamOptions['lock_file_types'] == 'selected')
+				$htaccess_txt = "";
+				
+				if($uamOptions['lock_file_types'] == 'selected')
 						$htaccess_txt .= "<FilesMatch '\.(".$file_types.")'>\n";
+						
+				if($uamOptions['lock_file_types'] == 'not_selected')
+						$htaccess_txt .= "<FilesMatch '^\.(".$file_types.")'>\n";
 
-					$htaccess_txt .= "AuthType Basic"."\n";
-					$htaccess_txt .= "AuthName \"".$areaname."\""."\n";
-					$htaccess_txt .= "AuthUserFile ".$url.".htpasswd"."\n";
-					$htaccess_txt .= "require valid-user"."\n";
+				$htaccess_txt .= "AuthType Basic"."\n";
+				$htaccess_txt .= "AuthName \"".$areaname."\""."\n";
+				$htaccess_txt .= "AuthUserFile ".$url.".htpasswd"."\n";
+				$htaccess_txt .= "require valid-user"."\n";
 					
-					if($uamOptions['lock_file_types'] == 'selected')
-						$htaccess_txt .= "</FilesMatch>\n";
+				if($uamOptions['lock_file_types'] == 'selected' || $uamOptions['lock_file_types'] == 'not_selected')
+					$htaccess_txt .= "</FilesMatch>\n";
 
-					// save files
-					$htaccess = fopen($url.".htaccess", "w");
-					fwrite($htaccess, $htaccess_txt);
-					fclose($htaccess);
-				}
+				// save files
+				$htaccess = fopen($url.".htaccess", "w");
+				fwrite($htaccess, $htaccess_txt);
+				fclose($htaccess);
 			}
 		}
 		
 		function create_htpasswd($create_new = false)
 		{
+			global $current_user;
+			
+			$uamOptions = $this->getAdminOptions();
+			
 			// get url
 			$wud = wp_upload_dir();
+			
 			if(empty($wud['error']))
 			{
 				$url = $wud['basedir']."/";
+				$cur_userdata = get_userdata($current_user->ID);
+				
+				$user = $cur_userdata->user_login;
 				
 				if(!file_exists($url.".htpasswd") || $create_new)
 				{
-					$user = "admin";
+					if($uamOptions['file_pass_type'] == 'random')
+					{
+						# create password
+					    $array = array();
 					
-					# create password
-				    $array = array();
-				
-				    $length = 10;
-					$capitals = true;
-					$specialSigns = false;
+					    $length = 10;
+						$capitals = true;
+						$specialSigns = false;
+						
+					    if($length < 8)
+					     	$length = mt_rand(8,20);
 					
-				    if($length < 8)
-				     	$length = mt_rand(8,20);
-				
-				    # numbers
-				    for($i=48;$i<58;$i++)
-				      	$array[] = chr($i);
-				
-				    # small
-				    for($i=97;$i<122;$i++)
-				      	$array[] = chr($i);
-				
-				    # capitals
-				    if($capitals)
-				      for($i=65;$i<90;$i++)
-				        $array[] = chr($i);
-				
-				    # specialchar:
-				    if($specialSigns)
-				    {
-				    	for($i=33;$i<47;$i++)
-				      		$array[] = chr($i);
-				      	for($i=59;$i<64;$i++)
-				     	   $array[] = chr($i);
-				     	 for($i=91;$i<96;$i++)
-				        	$array[] = chr($i);
-				      	for($i=123;$i<126;$i++)
-				        	$array[] = chr($i);
-				    }
-				
-				    mt_srand((double)microtime()*1000000);
-				    $password = '';
-				
-				    for ($i=1; $i<=$length; $i++)
-				    {
-				      	$rnd = mt_rand( 0, count($array)-1 );
-				      	$password .= $array[$rnd];
-				    }
-				    
+					    # numbers
+					    for($i=48;$i<58;$i++)
+					      	$array[] = chr($i);
+					
+					    # small
+					    for($i=97;$i<122;$i++)
+					      	$array[] = chr($i);
+					
+					    # capitals
+					    if($capitals)
+					      for($i=65;$i<90;$i++)
+					        $array[] = chr($i);
+					
+					    # specialchar:
+					    if($specialSigns)
+					    {
+					    	for($i=33;$i<47;$i++)
+					      		$array[] = chr($i);
+					      	for($i=59;$i<64;$i++)
+					     	   $array[] = chr($i);
+					     	 for($i=91;$i<96;$i++)
+					        	$array[] = chr($i);
+					      	for($i=123;$i<126;$i++)
+					        	$array[] = chr($i);
+					    }
+					
+					    mt_srand((double)microtime()*1000000);
+					    $password = '';
+					
+					    for ($i=1; $i<=$length; $i++)
+					    {
+					      	$rnd = mt_rand( 0, count($array)-1 );
+					      	$password .= $array[$rnd];
+					      	$password = md5($password);
+					    }
+					}
+					elseif($uamOptions['file_pass_type'] == 'admin')
+					{
+						$password = $cur_userdata->user_pass;
+					}
+						
 				    // make .htpasswd
-				    $htpasswd_txt = "$user:".md5($password)."\n";
+				    $htpasswd_txt = "$user:".$password."\n";
 					
 					// save file
 					$htpasswd = fopen($url.".htpasswd", "w");
@@ -414,36 +453,43 @@ if (!class_exists("UserAccessManager"))
 		//Returns an array of admin options
 		function getAdminOptions() 
 		{
-			$uamAdminOptions = array(	'hide_post_title' => 'false',
-										'post_title' => 'No rights!',
-										'hide_post_comment' => 'false',
-										'post_comment_content' => 'Sorry no rights to view comments!',
-										'allow_comments_locked' => 'false',
-										'post_content' => 'Sorry no rights!',
-										'hide_post' => 'false',
-										'hide_page_title' => 'false',
-										'page_title' => 'No rights!',
-										'page_content' => 'Sorry you have no rights to view this page!',
-										'hide_page' => 'false',
-										'redirect' => 'false',
-										'uam_redirect_custom_page' => '',
-										'uam_redirect_custom_url' => '',
-										'lock_recursive' => 'true',
-										'lock_file' => 'true',
-										'lock_file_types' => 'all',
-										'download_type' => 'fopen',
-										'locked_file_types' => 'zip,rar,tar,gz,bz2',
-										'blog_admin_hint' => 'true',
-										'blog_admin_hint_text' => '[L]',
-										'core_mod' => 'false');
-			
-			$uamOptions = get_option($this->adminOptionsName);
-			if (!empty($uamOptions)) {
-				foreach ($uamOptions as $key => $option)
-					$uamAdminOptions[$key] = $option;
-			}				
-			update_option($this->adminOptionsName, $uamAdminOptions);
-			return $uamAdminOptions;
+			if($this->atAdminPanel || empty($this->adminOptions))
+			{
+				$uamAdminOptions = array(	'hide_post_title' => 'false',
+											'post_title' => __('No rights!', 'user-access-manager'),
+											'hide_post_comment' => 'false',
+											'post_comment_content' => __('Sorry no rights to view comments!', 'user-access-manager'),
+											'allow_comments_locked' => 'false',
+											'post_content' => 'Sorry no rights!',
+											'hide_post' => 'false',
+											'hide_page_title' => 'false',
+											'page_title' => 'No rights!',
+											'page_content' => __('Sorry you have no rights to view this page!', 'user-access-manager'),
+											'hide_page' => 'false',
+											'redirect' => 'false',
+											'redirect_custom_page' => '',
+											'redirect_custom_url' => '',
+											'lock_recursive' => 'true',
+											'lock_file' => 'true',
+											'file_pass_type' => 'random',
+											'lock_file_types' => 'all',
+											'download_type' => 'fopen',
+											'locked_file_types' => 'zip,rar,tar,gz,bz2',
+											'not_locked_file_types' => 'gif,jpg,jpeg,png',
+											'blog_admin_hint' => 'true',
+											'blog_admin_hint_text' => '[L]',
+											'core_mod' => 'false',
+											'hide_empty_categories' => 'true');
+				
+				$uamOptions = get_option($this->adminOptionsName);
+				if (!empty($uamOptions)) {
+					foreach ($uamOptions as $key => $option)
+						$uamAdminOptions[$key] = $option;
+				}				
+				update_option($this->adminOptionsName, $uamAdminOptions);
+				$this->adminOptions = $uamAdminOptions;
+			}
+			return $this->adminOptions;
 		}
 		
 		//Prints out the admin page
@@ -499,6 +545,10 @@ if (!class_exists("UserAccessManager"))
 				{
 					$uamOptions['hide_page'] = $_POST['uam_hide_page'];
 				}
+				if (isset($_POST['uam_hide_empty_categories']))
+				{
+					$uamOptions['hide_empty_categories'] = $_POST['uam_hide_empty_categories'];
+				}
 				if (isset($_POST['uam_redirect']))
 				{
 					$uamOptions['redirect'] = $_POST['uam_redirect'];
@@ -541,6 +591,16 @@ if (!class_exists("UserAccessManager"))
 					}
 					$uamOptions['lock_file'] = $_POST['uam_lock_file'];
 				}
+				
+				if (isset($_POST['uam_file_pass_type']))
+				{
+					if($uamOptions['file_pass_type'] != $_POST['uam_file_pass_type'])
+						$file_pass_changed = true;
+					else
+						$file_pass_changed = false;
+						
+					$uamOptions['file_pass_type'] = $_POST['uam_file_pass_type'];
+				}
 				if (isset($_POST['uam_download_type']))
 				{
 					$uamOptions['download_type'] = $_POST['uam_download_type'];
@@ -554,6 +614,15 @@ if (!class_exists("UserAccessManager"))
 					
 					$uamOptions['locked_file_types'] = $_POST['uam_locked_file_types'];
 				}
+				if (isset($_POST['uam_not_locked_file_types']))
+				{
+					if($uamOptions['not_locked_file_types'] != $_POST['uam_not_locked_file_types'])
+						$not_locked_file_types_changed = true;
+					else
+						$not_locked_file_types_changed = false;
+					
+					$uamOptions['not_locked_file_types'] = $_POST['uam_not_locked_file_types'];
+				}
 				if (isset($_POST['uam_lock_file_types']))
 				{
 					if($uamOptions['lock_file_types'] != $_POST['uam_lock_file_types'])
@@ -564,9 +633,9 @@ if (!class_exists("UserAccessManager"))
 				
 				update_option($this->adminOptionsName, $uamOptions);
 				
-				if(($locked_file_types_changed || isset($lock_file_changed)) && $uamOptions['lock_file'] != 'false')
+				if(($locked_file_types_changed || $not_locked_file_types_changed || isset($lock_file_changed) || $file_pass_changed) && $uamOptions['lock_file'] != 'false')
 				{
-					$this->create_htaccess(true);
+					$this->create_htaccess();
 					$this->create_htpasswd(true);
 				}
 				?>
@@ -586,82 +655,6 @@ if (!class_exists("UserAccessManager"))
 				$post_action = $_POST['action'];
 			else
 				$post_action = null;
-
-			if($post_action == 'addgroup')
-			{
-				$wpdb->query("INSERT INTO ".DB_ACCESSGROUP." (ID, groupname, groupdesc, read_access, write_access) VALUES(NULL, '".$_POST['access_group_name']."', '".$_POST['access_group_description']."', '".$_POST['read_access']."', '".$_POST['write_access']."')");
-				
-				$group_id = $wpdb->insert_id; 
-				
-				if(isset($_POST['roles']))
-					$roles = $_POST['roles'];
-				else
-					$rolses = null;
-					
-				if($roles)
-				{
-					foreach($roles as $role)
-					{
-						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_ROLE." (group_id, role_name) VALUES('".$group_id."', '".$role."')");
-					}
-				}
-				
-				if(isset($_POST['post']))
-					$posts = $_POST['post'];
-				else
-					$posts = null;
-				
-				if($posts)
-				{
-					foreach($posts as $post)
-					{
-						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_POST." (group_id, post_id) VALUES('".$group_id."', '".$post."')");
-					}
-				}
-				
-				if(isset($_POST['page']))
-					$pages = $_POST['page'];
-				else
-					$pages = null;
-				
-				if($pages)
-				{
-					foreach($pages as $page)
-					{
-						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_POST." (group_id, post_id) VALUES('".$group_id."', '".$page."')");
-					}
-				}
-				
-				if(isset($_POST['category']))
-					$categories = $_POST['category'];
-				else
-					$categories = null;
-			
-				if($categories)
-				{
-					foreach($categories as $category)
-					{
-						echo $category;
-						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_CATEGORY." (group_id, category_id) VALUES('".$group_id."', '".$category."')");
-					}
-				}
-				
-				if(isset($_POST['user']))
-					$users = $_POST['user'];
-				else
-					$users = null;
-				
-				if($users)
-				{
-					foreach($users as $user)
-					{
-						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_USER." (group_id, user_id) VALUES('".$group_id."', '".$user."')");
-					}
-				}
-				?>
-					<div class="updated"><p><strong><?php echo TXT_GROUP_ADDED; ?></strong></p></div> 
-				<?php
-			}
 			
 			if($post_action == 'delgroup')
 			{
@@ -684,15 +677,27 @@ if (!class_exists("UserAccessManager"))
 				}
 			}
 			
-			if($post_action == 'update_group')
+			if($post_action == 'update_group' || $post_action == 'addgroup')
 			{
-				$wpdb->query("	UPDATE ".DB_ACCESSGROUP." 
-								SET groupname = '".$_POST['access_group_name']."', groupdesc = '".$_POST['access_group_description']."', read_access = '".$_POST['read_access']."', write_access = '".$_POST['write_access']."'
-								WHERE ID = ".$_POST['access_group_id']);
-				
-				$group_id = $_POST['access_group_id'];
-				
-				$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_ROLE." WHERE group_id = ".$group_id);
+				if($post_action == 'addgroup')
+				{
+					$wpdb->query("INSERT INTO ".DB_ACCESSGROUP." (ID, groupname, groupdesc, read_access, write_access, ip_range) VALUES(NULL, '".$_POST['access_group_name']."', '".$_POST['access_group_description']."', '".$_POST['read_access']."', '".$_POST['write_access']."', '".$_POST['ip_range']."')");
+					
+					$group_id = $wpdb->insert_id;
+				}
+				elseif($post_action == 'update_group')
+				{
+					$wpdb->query("	UPDATE ".DB_ACCESSGROUP." 
+									SET groupname = '".$_POST['access_group_name']."', groupdesc = '".$_POST['access_group_description']."', read_access = '".$_POST['read_access']."', write_access = '".$_POST['write_access']."', ip_range = '".$_POST['ip_range']."'
+									WHERE ID = ".$_POST['access_group_id']);
+					
+					$group_id = $_POST['access_group_id'];
+					
+					$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_ROLE." WHERE group_id = ".$group_id);
+					$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_POST." WHERE group_id = ".$group_id);
+					$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_CATEGORY." WHERE group_id = ".$group_id);
+					$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_USER." WHERE group_id = ".$group_id);
+				}
 				
 				if(isset($_POST['roles']))
 					$roles = $_POST['roles'];
@@ -706,8 +711,6 @@ if (!class_exists("UserAccessManager"))
 						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_ROLE." (group_id, role_name) VALUES('".$group_id."', '".$role."')");
 					}
 				}
-				
-				$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_POST." WHERE group_id = ".$group_id);
 				
 				if(isset($_POST['post']))
 					$posts = $_POST['post'];
@@ -735,7 +738,18 @@ if (!class_exists("UserAccessManager"))
 					}
 				}
 				
-				$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_CATEGORY." WHERE group_id = ".$group_id);
+				if(isset($_POST['file']))
+					$files = $_POST['file'];
+				else
+					$files = null;
+					
+				if($files)
+				{
+					foreach($files as $file)
+					{
+						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_POST." (group_id, post_id) VALUES('".$group_id."', '".$file."')");
+					}
+				}
 				
 				if(isset($_POST['category']))
 					$categories = $_POST['category'];
@@ -750,8 +764,6 @@ if (!class_exists("UserAccessManager"))
 					}
 				}
 				
-				$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_USER." WHERE group_id = ".$group_id);
-				
 				if(isset($_POST['user']))
 					$users = $_POST['user'];
 				else
@@ -764,375 +776,22 @@ if (!class_exists("UserAccessManager"))
 						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_USER." (group_id, user_id) VALUES('".$group_id."', '".$user."')");
 					}
 				}
+				
+				if($post_action == 'addgroup')
+				{
+				?>
+					<div class="updated"><p><strong><?php echo TXT_GROUP_ADDED; ?></strong></p></div> 
+				<?php
+				}
+				elseif($post_action == 'update_group')
+				{
 				?>
 					<div class="updated"><p><strong><?php echo TXT_ACCESS_GROUP_EDIT_SUC; ?></strong></p></div> 
 				<?php
+				}
 			}
 			
-			if($cur_admin_page == 'uam_usergroup' AND !$action)
-			{
-				$accessgroups = $wpdb->get_results("SELECT *
-													FROM ".DB_ACCESSGROUP."
-													ORDER BY ID", ARRAY_A);
-				?>
-				<div class=wrap>
-					<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
-						<input type="hidden" value="delgroup" name="action"/>
-						<h2><?php echo TXT_MANAGE_GROUP; ?></h2>
-						<div class="tablenav">
-							<div class="alignleft">
-								<input type="submit" class="button-secondary delete" name="deleteit" value="<?php echo TXT_DELETE; ?>"/>
-							</div>
-							<br class="clear"/>
-						</div>
-						<br class="clear"/>
-						<table class="widefat">
-							<thead>
-								<tr class="thead">
-									<th scope="col"></th>
-									<th scope="col"><?php echo TXT_NAME; ?></th>
-									<th scope="col"><?php echo TXT_DESCRIPTION; ?></th>
-									<th scope="col"><?php echo TXT_READ_ACCESS; ?></th>
-									<th scope="col"><?php echo TXT_WRITE_ACCESS; ?></th>
-									<th scope="col"><?php echo TXT_POSTS; ?></th>
-									<th scope="col"><?php echo TXT_PAGES; ?></th>
-									<th scope="col"><?php echo TXT_CATEGORY; ?></th>
-									<th scope="col"><?php echo TXT_USERS; ?></th>
-									<th></th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php
-								if(isset($accessgroups))
-								{
-									foreach($accessgroups as $accessgroup)
-									{
-										$group_info = $this->get_usergroup_info($accessgroup['ID']);
-									?>
-										<tr class="alternate" id="group-<?php echo $accessgroup['ID']; ?>">
-		 									<th class="check-column" scope="row"><input type="checkbox" value="<?php echo $accessgroup['ID']; ?>" name="delete[]"/></th>
-											<td><strong><a href="?page=<?php echo $cur_admin_page; ?>&action=edit_group&id=<?php echo $accessgroup['ID']; ?>"><?php echo $accessgroup['groupname']; ?></a></strong></td>
-											<td><?php echo $accessgroup['groupdesc']; ?></td>
-											<td><?php if($accessgroup['read_access'] == "all"){ echo TXT_ALL;}elseif($accessgroup['read_access'] == "group"){ echo TXT_ONLY_GROUP_USERS;} ?></td>
-											<td><?php if($accessgroup['write_access'] == "all"){ echo TXT_ALL;}elseif($accessgroup['write_access'] == "group"){ echo TXT_ONLY_GROUP_USERS;} ?></td>
-											<td>
-												<?php
-												if(isset($group_info->posts))
-												{
-													$expandcontent = null;
-													foreach($group_info->posts as $post)
-													{
-															$expandcontent .= "<li>".$post->post_title."</li>";
-													}
-													echo "<a class='uam_info_link'>".count($group_info->posts)." ".TXT_POSTS."</a>";;
-													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
-												}
-												else
-												{
-													echo TXT_NONE;
-												}
-												?>
-											</td>
-											<td>
-												<?php
-												if(isset($group_info->pages))
-												{
-													$expandcontent = null;
-													foreach($group_info->pages as $page)
-													{
-														$expandcontent .= "<li>".$page->post_title."</li>";
-													}
-													echo "<a class='uam_info_link'>".count($group_info->pages)." ".TXT_PAGES."</a>";
-													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
-												}
-												else
-												{
-													echo TXT_NONE;
-												}
-												?>
-											</td>
-											<td>
-												<?php
-												if(isset($group_info->categories))
-												{
-													$expandcontent = null;
-													foreach($group_info->categories as $categorie)
-													{
-														$expandcontent .= "<li>".$categorie->cat_name."</li>";
-													}
-													echo "<a class='uam_info_link'>".count($group_info->categories)." ".TXT_CATEGORY."</a>";
-													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
-												}
-												else
-												{
-													echo TXT_NONE;
-												}
-												?>
-											</td>
-											<td>
-												<?php
-												if(isset($group_info->users))
-												{
-													$expandcontent = null;
-													foreach($group_info->users as $user)
-													{
-														$expandcontent .= "<li>".$user->nickname."</li>";
-													}
-													echo "<a class='uam_info_link'>".count($group_info->users)." ".TXT_USERS."</a>";
-													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
-												}
-												else
-												{
-													echo TXT_NONE;
-												}
-												?>
-											</td>
-											<td>
-												<a class="uam_info_link_all" href="#"><?php echo TXT_EXPAND_ALL; ?></a>
-											</td>
-		   								</tr>
-									<?php
-									}
-								}
-								?>
-							</tbody>
-						</table>
-					</form>
-				</div>
-				<div class="wrap">
-					<h2><?php echo TXT_ADD_GROUP; ?></h2>
-					<div id="ajax-response"/>
-					<form class="add:the-list: validate" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post" id="addgroup" name="addgroup">
-						<input type="hidden" value="addgroup" name="action"/>
-						<input type="hidden" value="<?php echo $uamOptions['lock_recursive']; ?>" name="uam_lock_recursive" id="uam_set_lock_recursive"/>
-						<table class="form-table">
-							<tbody>
-								<tr class="form-field form-required">
-									<th valign="top" scope="row"><?php echo TXT_GROUP_NAME; ?></th>
-									<td><input type="text" aria-required="true" size="40" value="" id="access_group_name" name="access_group_name"/><br/>
-					            	<?php echo TXT_GROUP_NAME_DESC; ?></td>
-					            	
-								</tr>
-								<tr  class="form-field form-required">
-									<th valign="top" scope="row"><?php echo TXT_GROUP_DESC; ?></th>
-									<td><input type="text" aria-required="true" size="40" value="" id="access_group_description" name="access_group_description"/><br/>
-					            	<?php echo TXT_GROUP_DESC_DESC; ?></td>
-					            </tr>
-					          	 <tr class="form-field form-required">
-									<th valign="top" scope="row"><?php echo TXT_GROUP_READ_ACCESS; ?></th>
-									<td><select name="read_access">
-										<option value="group" ><?php echo TXT_ONLY_GROUP_USERS ?></option>
-										<option value="all" ><?php echo TXT_ALL ?></option>
-									</select><br />
-					            	<?php echo TXT_GROUP_READ_ACCESS_DESC; ?></td>
-					            </tr>
-					              <tr class="form-field form-required">
-									<th valign="top" scope="row"><?php echo TXT_GROUP_WRITE_ACCESS; ?></th>
-									<td><select name="write_access">
-										<option value="group" ><?php echo TXT_ONLY_GROUP_USERS ?></option>
-										<option value="all" ><?php echo TXT_ALL ?></option>
-									</select><br />
-					            	<?php echo TXT_GROUP_WRITE_ACCESS_DESC; ?></td>
-					            </tr>
-					            <tr>
-					            	<th valign="top" scope="row"><?php echo TXT_GROUP_ROLE; ?></th>
-									<td>
-										<ul>
-						            	<?php
-						               	global $wp_roles;
-	   		
-	   									foreach($wp_roles->role_names as $role => $name)
-										{
-											?>
-											<li class="selectit">
-												<input id="role-<?php echo $role; ?>" type="checkbox" value="<?php echo $role; ?>" name="roles[]"/>
-												<label for="role-<?php echo $role; ?>"><?php echo $role ?></label>
-											</li>
-											<?php 
-										}
-	   								 	?>
-	   								 	</ul>
-   								 	</td>
-   								</tr>
-   								<tr>
-   									<?php 
-   										$args = array('numberposts' => -1);  
-   										$posts = get_posts($args); 
-   									?>
-									<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; }?></th>
-									<td>
-										<?php
-											echo "<strong>".count($posts)." ".TXT_POSTS."</strong>";
-											if(isset($posts))
-											{
-												echo "<ul class='uam_group_stuff'>";
-												foreach($posts as $post)
-												{
-													?>
-													<li class="selectit">
-														<input id="post-<?php echo $post->ID; ?>" type="checkbox" value="<?php echo $post->ID; ?>" name="post[]"/>
-														<label for="post-<?php echo $post->ID; ?>"><strong><?php echo $post->post_title; ?></strong> - <?php echo $post->post_date; ?></label>
-														<?php
-														
-													?>
-													</li>
-												<?php
-												}
-												echo "</ul>";
-											}
-										?>
-									</td>
-					           	</tr>
-   								<tr>
-   									<?php 
-   										$posts = get_pages('sort_column=menu_order');
-   									?>
-									<th valign="top" scope="row"><?php echo TXT_PAGES; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
-									<td>
-										<?php
-											echo "<strong>".count($posts)." ".TXT_PAGES."</strong>";
-											if(isset($posts))
-											{
-												echo "<ul class='uam_group_stuff'>";
-												$deepness = 0;
-												
-												foreach($posts as $post)
-												{
-													$old_deepness = $deepness;
-													$deepness = 0;
-													
-													if($post->post_parent != 0)
-													{
-														$cur_post = $post;
-														$cur_id = $post->ID;
-														while($cur_post->post_parent != 0)
-														{
-															$deepness++;
-															$cur_parent_id = $cur_post->post_parent;
-															$cur_post = & get_post($cur_parent_id);
-														}
-													}
-														
-													if($old_deepness > $deepness)
-													{
-														$count = abs($old_deepness - $deepness);
-														for($i = 0; $i < $count; $i++)
-															echo "</ul>";
-													}
-													elseif($old_deepness < $deepness)
-													{
-														$count = abs($old_deepness - $deepness);
-														for($i = 0; $i < $count; $i++)
-															echo "<ul class='uam_group_stuff_child'>";
-													}
-												?>
-													<li class="selectit">
-														<input id="post-<?php echo $post->ID; ?>" type="checkbox" value="<?php echo $post->ID; ?>"  name="page[]"/>
-														<label for="post-<?php echo $post->ID; ?>"><strong><?php echo $post->post_title; ?></strong> - <?php echo $post->post_date; ?></label>
-													</li>
-												<?php
-												}
-												echo "</ul>";
-											}
-										?>
-									</td>
-					            </tr>
-					            <tr>
-					            	<?php 
-					            		$categories = get_categories();
-					            	?>
-									<th valign="top" scope="row"><?php echo TXT_CATEGORY;  if(count($categories) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
-									<td>
-										<?php 
-											echo "<strong>".count($categories)." ".TXT_CATEGORY."</strong>";
-												
-											function print_elements($category = 0, $deepness = 0)
-											{
-												global $wpdb;
-									
-												$args = array('child_of' => $category);
-												$categories = get_categories($args);
-												
-												if(isset($categories))
-												{
-													if($category == 0)
-														echo "<ul class='uam_group_stuff'>";
-													else
-														echo "<ul  class='uam_group_stuff_child'>";
-														
-													foreach($categories as $cat)
-													{
-														if($cat->parent == $category)
-														{
-															?>
-															<li class="selectit">
-																<input id="category-<?php echo $cat->term_id; ?>" type="checkbox" name="category[]" value="<?php echo $cat->term_id; ?>"  />
-																<label for="category-<?php echo $cat->term_id; ?>"><strong><?php echo $cat->cat_name; ?></strong></label>
-															</li>
-															<?php
-															print_elements($cat->term_id, $deepness++);
-														}
-													}
-													echo "</ul>";
-												}
-											}
-											
-											$callFkt = "print_elements";
-											echo $callFkt();
-										?>
-									</td>
-					            </tr>
-					            <tr>
-					            	<?php 
-					            		$users = $wpdb->get_results("	SELECT ID
-																		FROM $wpdb->users
-																		ORDER BY ID", ARRAY_A);
-					            	?>
-									<th valign="top" scope="row"><?php echo TXT_USERS;  if(count($users) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
-									<td>
-										<?php
-											echo "<strong>".count($users)." ".TXT_USERS."</strong>";
-											if(isset($users))
-											{
-												echo "<ul class='uam_group_stuff'>";
-												foreach($users as $user)
-												{
-													$cur_user = get_userdata($user['ID']);
-													?>
-														<li class="selectit">
-															<?php 
-																if(empty($cur_user->{$wpdb->prefix."capabilities"}['administrator']))
-																{
-																		?>
-																		<input id="user-<?php echo $cur_user->ID; ?>" type="checkbox" value="<?php echo $cur_user->ID;?>" name="user[]"/>
-																		<label for="user-<?php echo $cur_user->ID; ?>"><strong><?php echo $cur_user->nickname; ?></strong> - <?php echo $cur_user->user_firstname." ".$cur_user->user_lastname; ?>
-																		<?php
-																}
-																else
-																{
-																	?>
-																		<strong><?php echo $cur_user->nickname; ?></strong> - <?php echo $cur_user->user_firstname." ".$cur_user->user_lastname; ?>
-																	<?php
-																	echo "(".TXT_IS_ADMIN.")";
-																}
-															?>
-															
-						   								</li>
-													<?php
-												}
-												echo "</ul>";
-											}
-										?>
-									</td>
-					            </tr>
-							</tbody>
-						</table>
-						<p class="submit"><input type="submit" value="<?php echo TXT_ADD; ?>" name="submit" class="button"/></p>
-					</form>
-				</div>
-				<?php
-			}
-			elseif($cur_admin_page == 'uam_settings' AND !$action)
+			if($cur_admin_page == 'uam_settings')
 			{
 				?>
 				<div class=wrap>
@@ -1348,8 +1007,29 @@ if (!class_exists("UserAccessManager"))
 											<input type="radio" id="uam_lock_file_types_selected" name="uam_lock_file_types" value="selected" <?php if ($uamOptions['lock_file_types'] == "selected") { echo 'checked="checked"'; }?> />
 											<?php echo TXT_SELECTED_FILE_TYPES; ?>
 										</label><input name="uam_locked_file_types" value="<?php echo $uamOptions['locked_file_types']; ?>" />
+										<label for="uam_not_lock_file_types_not_selected">
+											<input type="radio" id="uam_lock_file_types_not_selected" name="uam_lock_file_types" value="not_selected" <?php if ($uamOptions['lock_file_types'] == "not_selected") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_NOT_SELECTED_FILE_TYPES; ?>
+										</label><input name="uam_not_locked_file_types" value="<?php echo $uamOptions['not_locked_file_types']; ?>" />
 										<br />
 										<?php echo TXT_DOWNLOAD_FILE_TYPE_DESC; ?>
+									</td>
+								</tr>
+								<tr>
+									<th>
+										<?php echo TXT_FILE_PASS_TYPE; ?>
+									</th>
+									<td>
+										<label for="uam_file_pass_type_admin">
+											<input type="radio" id="uam_file_pass_type_admin" name="uam_file_pass_type" value="admin" <?php if ($uamOptions['file_pass_type'] == "admin") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_CURRENT_LOGGEDIN_ADMIN_PASS; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_file_pass_type_random">
+											<input type="radio" id="uam_file_pass_type_random" name="uam_file_pass_type" value="random" <?php if ($uamOptions['file_pass_type'] == "random") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_RANDOM_PASS; ?>
+										</label>
+										<br />
+										<?php echo TXT_FILE_PASS_TYPE_DESC; ?>
 									</td>
 								</tr>
 								<tr>
@@ -1375,6 +1055,23 @@ if (!class_exists("UserAccessManager"))
 						<p><?php echo TXT_OTHER_SETTING_DESC; ?></p>
 						<table class="form-table">
 							<tbody>
+								<tr>
+									<th>
+										<?php echo TXT_HIDE_EMPTY_CATEGORIES; ?>
+									</th>
+									<td>
+										<label for="uam_hide_empty_categories_yes">
+											<input type="radio" id="uam_hide_empty_categories_yes" name="uam_hide_empty_categories" value="true" <?php if ($uamOptions['hide_empty_categories'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_hide_empty_categories_no">
+											<input type="radio" id="uam_hide_empty_categories_no" name="uam_hide_empty_categories" value="false" <?php if ($uamOptions['hide_empty_categories'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_HIDE_EMPTY_CATEGORIES_DESC; ?>
+									</td>
+								</tr>
 								<tr>
 									<th>
 										<?php echo TXT_REDIRECT; ?>
@@ -1407,7 +1104,7 @@ if (!class_exists("UserAccessManager"))
 													echo '>'.$page->post_title.'</option>';
 												}
 											} 
-										?></seclect>&nbsp;&nbsp;&nbsp;&nbsp;
+										?></select>&nbsp;&nbsp;&nbsp;&nbsp;
 										<label for="uam_redirect_custom_url">
 											<input type="radio" id="uam_redirect_custom_u" name="uam_redirect" value="custom_url" <?php if ($uamOptions['redirect'] == "custom_url") { echo 'checked="checked"'; }?>/> 
 											<?php echo TXT_REDIRECT_TO_URL; ?> 
@@ -1495,7 +1192,7 @@ if (!class_exists("UserAccessManager"))
 				</div>
 				<?php
 			}
-			elseif($action == 'edit_group')
+			elseif($action == 'edit_group' && isset($_GET['id']))
 			{
 				$group_id = $_GET['id'];
 				$accessgroup = $wpdb->get_row("	SELECT *
@@ -1503,296 +1200,507 @@ if (!class_exists("UserAccessManager"))
 												WHERE ID = ".$group_id."
 												LIMIT 1", ARRAY_A);
 				?>
+				<div class="wrap">
+					<?php $this->get_print_edit_group($group_id); ?>
+				</div>
+				<?php 
+			}
+			elseif($cur_admin_page == 'uam_usergroup')
+			{
+				$accessgroups = $wpdb->get_results("SELECT *
+													FROM ".DB_ACCESSGROUP."
+													ORDER BY ID", ARRAY_A);
+				?>
 				<div class=wrap>
-					<form method="post" action="<?php echo reset(explode("?", $_SERVER["REQUEST_URI"]))."?page=".$_GET['page']; ?>">
-						<input type="hidden" value="update_group" name="action"/>
-						<input type="hidden" value="<?php echo $group_id; ?>" name="access_group_id"/>
-						<input type="hidden" value="<?php echo $uamOptions['lock_recursive']; ?>" name="uam_lock_recursive" id="uam_set_lock_recursive"/>
-						<table class="form-table">
-							<tbody>
-								<tr class="form-field form-required">
-									<th valign="top" scope="row"><?php echo TXT_GROUP_NAME; ?></th>
-									<td><input type="text" aria-required="true" size="40" value="<?php echo $accessgroup["groupname"];?>" id="access_group_name" name="access_group_name"/><br/>
-					            	<?php echo TXT_GROUP_NAME_DESC; ?></td>
+					<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+						<input type="hidden" value="delgroup" name="action"/>
+						<h2><?php echo TXT_MANAGE_GROUP; ?></h2>
+						<div class="tablenav">
+							<div class="alignleft">
+								<input type="submit" class="button-secondary delete" name="deleteit" value="<?php echo TXT_DELETE; ?>"/>
+								<input type="hidden" id="TXT_COLLAPS_ALL" name="deleteit" value="<?php echo TXT_COLLAPS_ALL; ?>"/>
+								<input type="hidden" id="TXT_EXPAND_ALL" name="deleteit" value="<?php echo TXT_EXPAND_ALL; ?>"/>
+							</div>
+							<br class="clear"/>
+						</div>
+						<br class="clear"/>
+						<table class="widefat">
+							<thead>
+								<tr class="thead">
+									<th scope="col"></th>
+									<th scope="col"><?php echo TXT_NAME; ?></th>
+									<th scope="col"><?php echo TXT_DESCRIPTION; ?></th>
+									<th scope="col"><?php echo TXT_READ_ACCESS; ?></th>
+									<th scope="col"><?php echo TXT_WRITE_ACCESS; ?></th>
+									<th scope="col"><?php echo TXT_IP_RANGE; ?></th>
+									<th scope="col"><?php echo TXT_POSTS; ?></th>
+									<th scope="col"><?php echo TXT_PAGES; ?></th>
+									<th scope="col"><?php echo TXT_FILES; ?></th>
+									<th scope="col"><?php echo TXT_CATEGORY; ?></th>
+									<th scope="col"><?php echo TXT_USERS; ?></th>
+									<th></th>
 								</tr>
-								<tr class="form-field form-required">
-									<th valign="top" scope="row"><?php echo TXT_GROUP_DESC; ?></th>
-									<td><input type="text" aria-required="true" size="40" value="<?php echo $accessgroup["groupdesc"];?>" id="access_group_description" name="access_group_description"/><br/>
-					            	<?php echo TXT_GROUP_DESC_DESC; ?></td>
-					            </tr>
-					            <tr class="form-field form-required">
-									<th valign="top" scope="row"><?php echo TXT_GROUP_READ_ACCESS; ?></th>
-									<td><select name="read_access">
-										<option value="group" <?php if($accessgroup["read_access"] == "group"){ echo 'selected="selected"'; } ?> ><?php echo TXT_ONLY_GROUP_USERS ?></option>
-										<option value="all" <?php if($accessgroup["read_access"] == "all"){ echo 'selected="selected"'; } ?> ><?php echo TXT_ALL ?></option>
-									</select><br />
-					            	<?php echo TXT_GROUP_READ_ACCESS_DESC; ?></td>
-					            </tr>
-					              <tr class="form-field form-required">
-									<th valign="top" scope="row"><?php echo TXT_GROUP_WRITE_ACCESS; ?></th>
-									<td><select name="write_access">
-										<option value="group" <?php if($accessgroup["write_access"] == "group"){ echo 'selected="selected"'; } ?> ><?php echo TXT_ONLY_GROUP_USERS ?></option>
-										<option value="all" <?php if($accessgroup["write_access"] == "all"){ echo 'selected="selected"'; } ?> ><?php echo TXT_ALL ?></option>
-									</select><br />
-					            	<?php echo TXT_GROUP_WRITE_ACCESS_DESC; ?></td>
-					            </tr>
-					            <tr>
-					            	<th valign="top" scope="row"><?php echo TXT_GROUP_ROLE; ?></th>
-									<td>
-										<ul>
-						            	<?php
-						               	global $wp_roles;
-	   		
-	   									foreach($wp_roles->role_names as $role => $name)
-										{
-											$checked = $wpdb->get_results("	SELECT *
-																			FROM ".DB_ACCESSGROUP_TO_ROLE."
-																			WHERE role_name = '".$role."'
-																				AND group_id = ".$group_id, ARRAY_A)
-											?>
-											<li class="selectit">
-												<input id="role-<?php echo $role; ?>" type="checkbox" <?php if(isset($checked)){ echo 'checked="checked"'; } ?> value="<?php echo $role; ?>" name="roles[]"/>
-												<label for="role-<?php echo $role; ?>"><?php echo $role ?></label>
-											</li>
-											<?php 
-										}
-	   								 	?>
-	   								 	</ul>
-   								 	</td>
-   								</tr>
-   								<tr>
-   									<?php 
-   										$args = array('numberposts' => -1);  
-   										$posts = get_posts($args); 
-   									?>
-									<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; }?></th>
-									<td>
-										<?php
-											$posts_in_group = 0;
-											if(isset($posts))
-											{
-												foreach($posts as $post)
-												{
-													$checked = $wpdb->get_results("	SELECT *
-																					FROM ".DB_ACCESSGROUP_TO_POST."
-																					WHERE post_id = ".$post->ID."
-																						AND group_id = ".$group_id, ARRAY_A);
-													 if(isset($checked))
-													 	$posts_in_group++;
-												}
-											}
-											echo "<strong>".sprintf(TXT_CONTAIN_POSTS, $posts_in_group, count($posts))."</strong>";
-											
-											if(isset($posts))
-											{
-												echo "<ul class='uam_group_stuff'>";
-												foreach($posts as $post)
-												{
-													$checked = $wpdb->get_results("	SELECT *
-																					FROM ".DB_ACCESSGROUP_TO_POST."
-																					WHERE post_id = ".$post->ID."
-																						AND group_id = ".$group_id, ARRAY_A);
-													?>
-													<li class="selectit">
-														<input id="post-<?php echo $post->ID; ?>" type="checkbox" value="<?php echo $post->ID;?>" <?php if(isset($checked)){ echo 'checked="checked"'; } ?> name="post[]"/>
-														<label for="post-<?php echo $post->ID; ?>"><strong><?php echo $post->post_title; ?></strong> - <?php echo $post->post_date; ?></label>
-														<?php
-														
-													?>
-													</li>
+							</thead>
+							<tbody>
+								<?php
+								if(isset($accessgroups))
+								{
+									foreach($accessgroups as $accessgroup)
+									{
+										$group_info = $this->get_usergroup_info($accessgroup['ID']);
+									?>
+										<tr class="alternate" id="group-<?php echo $accessgroup['ID']; ?>">
+		 									<th class="check-column" scope="row"><input type="checkbox" value="<?php echo $accessgroup['ID']; ?>" name="delete[]"/></th>
+											<td><strong><a href="?page=<?php echo $cur_admin_page; ?>&action=edit_group&id=<?php echo $accessgroup['ID']; ?>"><?php echo $accessgroup['groupname']; ?></a></strong></td>
+											<td><?php echo $accessgroup['groupdesc']; ?></td>
+											<td><?php if($accessgroup['read_access'] == "all"){ echo TXT_ALL;}elseif($accessgroup['read_access'] == "group"){ echo TXT_ONLY_GROUP_USERS;} ?></td>
+											<td><?php if($accessgroup['write_access'] == "all"){ echo TXT_ALL;}elseif($accessgroup['write_access'] == "group"){ echo TXT_ONLY_GROUP_USERS;} ?></td>
+											<td><?php if(isset($accessgroup['ip_range'])){ echo $accessgroup['ip_range']; }else{ echo TXT_NONE; }?></td>
+											<td>
 												<?php
-												}
-												echo "</ul>";
-											}
-										?>
-									</td>
-					           	</tr>
-   								<tr>
-   									<?php 
-   										$posts = get_pages('sort_column=menu_order');
-   									?>
-									<th valign="top" scope="row"><?php echo TXT_PAGES; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
-									<td>
-										<?php
-											$posts_in_group = 0;
-											if(isset($posts))
-											{
-												foreach($posts as $post)
+												if(isset($group_info->posts))
 												{
-													$checked = $wpdb->get_results("	SELECT *
-																					FROM ".DB_ACCESSGROUP_TO_POST."
-																					WHERE post_id = ".$post->ID."
-																						AND group_id = ".$group_id, ARRAY_A);
-													 if(isset($checked))
-													 	$posts_in_group++;
+													$expandcontent = null;
+													foreach($group_info->posts as $post)
+													{
+															$expandcontent .= "<li>".$post->post_title."</li>";
+													}
+													echo "<a class='uam_info_link'>".count($group_info->posts)." ".TXT_POSTS."</a>";;
+													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
 												}
-											}
-											echo "<strong>".sprintf(TXT_CONTAIN_PAGES, $posts_in_group, count($posts))."</strong>";
-											
-											if(isset($posts))
-											{
-												echo "<ul class='uam_group_stuff'>";
-												$deepness = 0;
-												
-												foreach($posts as $post)
+												else
 												{
-													$old_deepness = $deepness;
-													$deepness = 0;
-													
-													if($post->post_parent != 0)
-													{
-														$cur_post = $post;
-														$cur_id = $post->ID;
-														while($cur_post->post_parent != 0)
-														{
-															$deepness++;
-															$cur_parent_id = $cur_post->post_parent;
-															$cur_post = & get_post($cur_parent_id);
-														}
-													}
-														
-													if($old_deepness > $deepness)
-													{
-														$count = abs($old_deepness - $deepness);
-														for($i = 0; $i < $count; $i++)
-															echo "</ul>";
-													}
-													elseif($old_deepness < $deepness)
-													{
-														$count = abs($old_deepness - $deepness);
-														for($i = 0; $i < $count; $i++)
-															echo "<ul class='uam_group_stuff_child'>";
-													}
-													
-													$checked = $wpdb->get_results("	SELECT *
-																					FROM ".DB_ACCESSGROUP_TO_POST."
-																					WHERE post_id = ".$post->ID."
-																						AND group_id = ".$group_id, ARRAY_A);
+													echo TXT_NONE;
+												}
 												?>
-													<li class="selectit">
-														<input id="post-<?php echo $post->ID; ?>" type="checkbox" value="<?php echo $post->ID;?>" <?php if(isset($checked)){ echo 'checked="checked"'; } ?>  name="page[]"/>
-														<label for="post-<?php echo $post->ID; ?>"><strong><?php echo $post->post_title; ?></strong> - <?php echo $post->post_date; ?></label>
-													</li>
+											</td>
+											<td>
 												<?php
-												}
-												echo "</ul>";
-											}
-										?>
-									</td>
-					            </tr>
-					            <tr>
-					            	<?php 
-					            		$categories = get_categories();
-					            	?>
-									<th valign="top" scope="row"><?php echo TXT_CATEGORY;  if(count($categories) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
-									<td>
-										<?php
-											$categories_in_group = $wpdb->get_var("	SELECT COUNT(*)
-																					FROM ".DB_ACCESSGROUP_TO_CATEGORY."
-																					WHERE group_id = ".$group_id);
-											
-											echo "<strong>".sprintf(TXT_CONTAIN_CATEGORIES, $categories_in_group, count($categories))."</strong>";
-												
-											function print_elements($group_id, $category = 0, $deepness = 0)
-											{
-												global $wpdb;
-									
-												$args = array('child_of' => $category);
-												$categories = get_categories($args);
-												
-												if(isset($categories))
+												if(isset($group_info->pages))
 												{
-													if($category == 0)
-														echo "<ul class='uam_group_stuff'>";
-													else
-														echo "<ul class='uam_group_stuff_child'>";
-														
-													foreach($categories as $cat)
+													$expandcontent = null;
+													foreach($group_info->pages as $page)
 													{
-														if($cat->parent == $category)
-														{
-															$checked = $wpdb->get_results("	SELECT *
-																							FROM ".DB_ACCESSGROUP_TO_CATEGORY."
-																							WHERE category_id = ".$cat->term_id."
-																								AND group_id = ".$group_id, ARRAY_A);
-															?>
-															<li class="selectit">
-																<input id="category-<?php echo $cat->term_id; ?>" type="checkbox" name="category[]" value="<?php echo $cat->term_id;?>" <?php if(isset($checked)){ echo 'checked="checked"'; } ?>  />
-																<label for="category-<?php echo $cat->term_id; ?>"><strong><?php echo $cat->cat_name; ?></strong></label>
-															</li>
-															<?php
-															print_elements($group_id, $cat->term_id, $deepness++);
-														}
+														$expandcontent .= "<li>".$page->post_title."</li>";
 													}
-													echo "</ul>";
+													echo "<a class='uam_info_link'>".count($group_info->pages)." ".TXT_PAGES."</a>";
+													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
 												}
-											}
-											
-											$callFkt = "print_elements";
-											echo $callFkt($group_id);
-										?>
-									</td>
-					            </tr>
-					            <tr>
-					            	<?php 
-					            		$users = $wpdb->get_results("	SELECT ID
-																		FROM $wpdb->users
-																		ORDER BY ID", ARRAY_A);
-					            	?>
-									<th valign="top" scope="row"><?php echo TXT_USERS;  if(count($users) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
-									<td>
-										<?php
-											$users_in_group = $wpdb->get_var("	SELECT COUNT(*)
-																				FROM ".DB_ACCESSGROUP_TO_USER."
-																				WHERE group_id = ".$group_id);
-											
-											echo "<strong>".sprintf(TXT_CONTAIN_USERS, $users_in_group, count($users))."</strong>";
-											
-											if(isset($users))
-											{
-												echo "<ul class='uam_group_stuff'>";
-												foreach($users as $user)
+												else
 												{
-													$cur_user = get_userdata($user['ID']);
-													$checked = $wpdb->get_results("	SELECT *
-																						FROM ".DB_ACCESSGROUP_TO_USER."
-																						WHERE user_id = ".$cur_user->ID."
-																							AND group_id = ".$group_id, ARRAY_A);
-													?>
-														<li class="selectit">
-															<?php 
-																if(empty($cur_user->{$wpdb->prefix."capabilities"}['administrator']))
-																{
-																		?>
-																		<input id="user-<?php echo $cur_user->ID; ?>" type="checkbox" value="<?php echo $cur_user->ID; ?>" <?php if(isset($checked)){ echo 'checked="checked"'; } ?> name="user[]"/>
-																		<label for="user-<?php echo $cur_user->ID; ?>"><strong><?php echo $cur_user->nickname; ?></strong> - <?php echo $cur_user->user_firstname." ".$cur_user->user_lastname; ?>
-																		<?php
-																}
-																else
-																{
-																	?>
-																		<strong><?php echo $cur_user->nickname; ?></strong> - <?php echo $cur_user->user_firstname." ".$cur_user->user_lastname; ?>
-																	<?php
-																	echo "(".TXT_IS_ADMIN.")";
-																}
-															?>
-															
-						   								</li>
-													<?php
+													echo TXT_NONE;
 												}
-												echo "</ul>";
-											}
-										?>
-									</td>
-					            </tr>
+												?>
+											</td>
+											<td>
+												<?php
+												if(isset($group_info->files))
+												{
+													$expandcontent = null;
+													foreach($group_info->files as $file)
+													{
+														$expandcontent .= "<li>".$file->post_title."</li>";
+													}
+													echo "<a class='uam_info_link'>".count($group_info->files)." ".TXT_FILES."</a>";
+													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
+												}
+												else
+												{
+													echo TXT_NONE;
+												}
+												?>
+											</td>
+											<td>
+												<?php
+												if(isset($group_info->categories))
+												{
+													$expandcontent = null;
+													foreach($group_info->categories as $categorie)
+													{
+														$expandcontent .= "<li>".$categorie->cat_name."</li>";
+													}
+													echo "<a class='uam_info_link'>".count($group_info->categories)." ".TXT_CATEGORY."</a>";
+													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
+												}
+												else
+												{
+													echo TXT_NONE;
+												}
+												?>
+											</td>
+											<td>
+												<?php
+												if(isset($group_info->users))
+												{
+													$expandcontent = null;
+													foreach($group_info->users as $user)
+													{
+														$expandcontent .= "<li>".$user->nickname."</li>";
+													}
+													echo "<a class='uam_info_link'>".count($group_info->users)." ".TXT_USERS."</a>";
+													echo "<ul class='uam_info_content expand_deactive'>".$expandcontent."</ul>";
+												}
+												else
+												{
+													echo TXT_NONE;
+												}
+												?>
+											</td>
+											<td>
+												<a class="uam_info_link_all" href="#"><?php echo TXT_EXPAND_ALL; ?></a>
+											</td>
+		   								</tr>
+									<?php
+									}
+								}
+								?>
 							</tbody>
 						</table>
-						<p class="submit"><input type="submit" value="<?php echo TXT_UPDATE_GROUP; ?>" name="submit" class="button"/></p>
 					</form>
 				</div>
+				<div class="wrap">
+					<h2><?php echo TXT_ADD_GROUP; ?></h2>
+					<div id="ajax-response"/>
+						<?php $this->get_print_edit_group(); ?>
+					</div>
 				<?php
 			}
 		}//End function printAdminPage()
+		
+		function get_print_edit_group($group_id = null)
+		{
+			global $wpdb;
+			$uamOptions = $this->getAdminOptions();
+			
+			if(isset($group_id))
+				$group_info = $this->get_usergroup_info($group_id);
+			?>
+				<form method="post" action="<?php echo reset(explode("?", $_SERVER["REQUEST_URI"]))."?page=".$_GET['page']; ?>">
+					<input type="hidden" id="TXT_COLLAPS" name="deleteit" value="<?php echo TXT_COLLAPS; ?>"/>
+					<input type="hidden" id="TXT_EXPAND" name="deleteit" value="<?php echo TXT_EXPAND; ?>"/>
+					<?php 
+						if(isset($group_id))
+						{
+					?>
+						<input type="hidden" value="update_group" name="action"/>
+						<input type="hidden" value="<?php echo $group_id; ?>" name="access_group_id"/>
+					<?php
+						} 
+						else
+						{
+					?>
+						<input type="hidden" value="addgroup" name="action"/>
+					<?php 
+						}
+					?>
+					<input type="hidden" value="<?php echo $uamOptions['lock_recursive']; ?>" name="uam_lock_recursive" id="uam_set_lock_recursive"/>
+					<table class="form-table">
+						<tbody>
+							<tr class="form-field form-required">
+								<th valign="top" scope="row"><?php echo TXT_GROUP_NAME; ?></th>
+								<td><input type="text" size="40" value="<?php if(isset($group_id)){echo $group_info->group["groupname"]; }?>" id="access_group_name" name="access_group_name"/><br/>
+				            	<?php echo TXT_GROUP_NAME_DESC; ?></td>
+							</tr>
+							<tr class="form-field form-required">
+								<th valign="top" scope="row"><?php echo TXT_GROUP_DESC; ?></th>
+								<td><input type="text" size="40" value="<?php if(isset($group_id)){ echo $group_info->group["groupdesc"]; }?>" id="access_group_description" name="access_group_description"/><br/>
+				            	<?php echo TXT_GROUP_DESC_DESC; ?></td>
+				            </tr>
+				            <tr class="form-field form-required">
+								<th valign="top" scope="row"><?php echo TXT_GROUP_IP_RANGE; ?></th>
+								<td><input type="text" size="40" value="<?php if(isset($group_id)){ echo $group_info->group["ip_range"]; }?>" id="ip_range" name="ip_range"/><br/>
+				            	<?php echo TXT_GROUP_IP_RANGE_DESC; ?></td>
+				            </tr>
+				            <tr class="form-field form-required">
+								<th valign="top" scope="row"><?php echo TXT_GROUP_READ_ACCESS; ?></th>
+								<td><select name="read_access">
+									<option value="group" <?php if(isset($group_id)){ if($group_info->group["read_access"] == "group"){ echo 'selected="selected"'; }} ?> ><?php echo TXT_ONLY_GROUP_USERS ?></option>
+									<option value="all" <?php if(isset($group_id)){ if($group_info->group["read_access"] == "all"){ echo 'selected="selected"'; }} ?> ><?php echo TXT_ALL ?></option>
+								</select><br />
+				            	<?php echo TXT_GROUP_READ_ACCESS_DESC; ?></td>
+				            </tr>
+				              <tr class="form-field form-required">
+								<th valign="top" scope="row"><?php echo TXT_GROUP_WRITE_ACCESS; ?></th>
+								<td><select name="write_access">
+									<option value="group" <?php if(isset($group_id)){ if($group_info->group["write_access"] == "group"){ echo 'selected="selected"'; }} ?> ><?php echo TXT_ONLY_GROUP_USERS ?></option>
+									<option value="all" <?php if(isset($group_id)){ if($group_info->group["write_access"] == "all"){ echo 'selected="selected"'; }} ?> ><?php echo TXT_ALL ?></option>
+								</select><br />
+				            	<?php echo TXT_GROUP_WRITE_ACCESS_DESC; ?></td>
+				            </tr>
+				            <tr>
+				            	<th valign="top" scope="row"><?php echo TXT_GROUP_ROLE; ?></th>
+								<td>
+									<ul class='uam_role'>
+					            	<?php
+					               	global $wp_roles;
+   		
+   									foreach($wp_roles->role_names as $role => $name)
+									{
+										if($role != "administrator")
+										{
+											?>
+											<li class="selectit">
+												<input id="role-<?php echo $role; ?>" type="checkbox" <?php if(isset($group_info->posts[$role])){ echo 'checked="checked"'; } ?> value="<?php echo $role; ?>" name="roles[]"/>
+												<label for="role-<?php echo $role; ?>"><?php echo $role ?></label>
+											</li>
+											<?php
+										}
+									}
+   								 	?>
+   								 	</ul>
+   							 	</td>
+   							</tr>
+   							<tr>
+   								<?php 
+   									$args = array('numberposts' => -1);  
+   									$posts = get_posts($args); 
+   								?>
+								<th valign="top" scope="row"><?php echo TXT_POSTS; if(count($posts) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; }?></th>
+								<td>
+									<?php
+										if(isset($group_info->posts))
+											$posts_in_group = count($group_info->posts);
+										else
+											$posts_in_group = 0;
+											
+										echo "<strong>".sprintf(TXT_CONTAIN_POSTS, "<span class='uam_element_count'>".$posts_in_group."</span>", count($posts))."</strong>";
+										
+										if(isset($posts))
+										{
+											echo "<ul class='uam_group_stuff'>";
+											foreach($posts as $post)
+											{
+												$cur_categories = get_the_category($post->ID);	
+												?>
+												<li class="selectit <?php foreach($cur_categories as $cur_cat){ echo "cat-".$cur_cat->term_id." "; }?>">
+													<input id="post-<?php echo $post->ID; ?>" type="checkbox" value="<?php echo $post->ID;?>" <?php if(isset($group_info->posts[$post->ID])){ echo 'checked="checked"'; } ?> name="post[]"/>
+													<label for="post-<?php echo $post->ID; ?>"><strong><?php echo $post->post_title; ?></strong> - <?php echo $post->post_date; ?></label>
+													<?php
+													
+												?>
+												</li>
+											<?php
+											}
+											echo "</ul>";
+										}
+									?>
+								</td>
+				           	</tr>
+   							<tr>
+   								<?php
+   									$pages = get_pages('sort_column=menu_order');
+   								?>
+								<th valign="top" scope="row"><?php echo TXT_PAGES; if(count($pages) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
+								<td>
+									<?php
+										if(isset($group_info->pages))
+											$pages_in_group = count($group_info->pages);
+										else
+											$pages_in_group = 0;
+											
+										echo "<strong>".sprintf(TXT_CONTAIN_PAGES, "<span class='uam_element_count'>".$pages_in_group."</span>", count($pages))."</strong>";
+										
+										if(isset($pages))
+										{
+											echo "<ul class='uam_group_stuff'>";
+											$deepness = 0;
+											
+											foreach($pages as $page)
+											{
+												$old_deepness = $deepness;
+												$deepness = 0;
+												
+												if($page->post_parent != 0)
+												{
+													$cur_page = $page;
+													$cur_id = $page->ID;
+													while($cur_page->post_parent != 0)
+													{
+														$deepness++;
+														$cur_parent_id = $cur_page->post_parent;
+														$cur_page = & get_post($cur_parent_id);
+													}
+												}
+													
+												if($old_deepness > $deepness)
+												{
+													$count = abs($old_deepness - $deepness);
+													for($i = 0; $i < $count; $i++)
+														echo "</ul>";
+												}
+												elseif($old_deepness < $deepness)
+												{
+													$count = abs($old_deepness - $deepness);
+													for($i = 0; $i < $count; $i++)
+														echo "<ul class='uam_group_stuff_child'>";
+												}
+												
+												?>
+												<li class="selectit">
+													<input id="post-<?php echo $page->ID; ?>" type="checkbox" value="<?php echo $page->ID;?>" <?php if(isset($group_info->pages[$page->ID])){ echo 'checked="checked"'; } ?>  name="page[]"/>
+													<label for="post-<?php echo $page->ID; ?>"><strong><?php echo $page->post_title; ?></strong> - <?php echo $page->post_date; ?></label>
+												</li>
+											<?php
+											}
+											echo "</ul>";
+										}
+									?>
+								</td>
+				            </tr>
+				            <tr>
+   								<?php 
+   									$args = array(	'numberposts' => -1,
+   													'post_type' => 'attachment');  
+   									$files = get_posts($args); 
+   								?>
+								<th valign="top" scope="row"><?php echo TXT_FILES; if(count($files) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; }?></th>
+								<td>
+									<?php
+										if(isset($group_info->files))
+											$files_in_group = count($group_info->files);
+										else
+											$files_in_group = 0;
+											
+										echo "<strong>".sprintf(TXT_CONTAIN_FILES, "<span class='uam_element_count'>".$files_in_group."</span>", count($files))."</strong>";
+										
+										if(isset($files))
+										{
+											echo "<ul class='uam_group_stuff'>";
+											foreach($files as $file)
+											{
+												$cur_categories = get_the_category($file->ID);	
+												?>
+												<li class="selectit <?php foreach($cur_categories as $cur_cat){ echo "cat-".$cur_cat->term_id." "; } echo "parent_post-".$file->post_parent." ";?>">
+													<input id="post-<?php echo $file->ID; ?>" type="checkbox" value="<?php echo $file->ID;?>" <?php if(isset($group_info->files[$file->ID])){ echo 'checked="checked"'; } ?> name="file[]"/>
+													<label for="post-<?php echo $file->ID; ?>"><strong><?php echo $file->post_title; ?></strong> - <?php echo $file->post_date; ?></label>
+												</li>
+											<?php
+											}
+											echo "</ul>";
+										}
+									?>
+								</td>
+				           	</tr>
+				            <tr>
+				            	<?php 
+				            		$categories = get_categories();
+				            	?>
+								<th valign="top" scope="row"><?php echo TXT_CATEGORY;  if(count($categories) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
+								<td>
+									<?php
+										if(isset($group_info->categories))
+											$categories_in_group = count($group_info->categories);
+										else
+											$categories_in_group = 0;
+											
+										echo "<strong>".sprintf(TXT_CONTAIN_CATEGORIES, "<span class='uam_element_count'>".$categories_in_group."</span>", count($categories))."</strong>";
+											
+										function print_elements($group_id, $group_info = null, $category = 0, $deepness = 0)
+										{
+											global $wpdb;
+								
+											$args = array('child_of' => $category);
+											$categories = get_categories($args);
+											
+											if(isset($categories))
+											{
+												$first_round = true;
+												foreach($categories as $cat)
+												{
+													
+													if($cat->parent == $category)
+													{
+														if($first_round == true)
+														{
+															if($category == 0)
+																echo "<ul class='uam_group_stuff uam_category'>";
+															else
+																echo "<ul class='uam_group_stuff_child uam_category'>";
+																
+															$first_round = false;
+														}	
+														?>
+														<li class="selectit">
+															<input id="category-<?php echo $cat->term_id; ?>" type="checkbox" name="category[]" value="<?php echo $cat->term_id;?>" <?php if(isset($group_info[$cat->term_id])){ echo 'checked="checked"'; } ?>  />
+															<label for="category-<?php echo $cat->term_id; ?>"><strong><?php echo $cat->cat_name; ?></strong></label>
+														</li>
+														<?php
+														print_elements($group_id, $group_info, $cat->term_id, $deepness++);
+													}
+												}
+												if($first_round == false)
+												{
+													echo "</ul>";
+												}
+											}
+										}
+										
+										$callFkt = "print_elements";
+										
+										if(isset($group_info->categories))
+											echo $callFkt($group_id, $group_info->categories);
+										else
+											echo $callFkt($group_id);
+									?>
+								</td>
+				            </tr>
+				            <tr>
+				            	<?php 
+				            		$users = $wpdb->get_results("	SELECT ID
+																	FROM $wpdb->users
+																	ORDER BY ID", ARRAY_A);
+				            	?>
+								<th valign="top" scope="row"><?php echo TXT_USERS;  if(count($users) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
+								<td>
+									<?php
+										if(isset($group_info))
+											$users_in_group = count($group_info->users);
+										else
+											$users_in_group = 0;
+										
+										echo "<strong>".sprintf(TXT_CONTAIN_USERS, "<span class='uam_element_count'>".$users_in_group."</span>", count($users))."</strong>";
+										
+										if(isset($users))
+										{
+											echo "<ul class='uam_group_stuff'>";
+											foreach($users as $user)
+											{
+												$cur_user = get_userdata($user['ID']);
+												$user_capabilities = array_keys($cur_user->{$wpdb->prefix."capabilities"})
+												?>
+													<li class="selectit <?php foreach($user_capabilities as $user_capability){ echo "usercap_".$user_capability." "; } ?>">
+														<?php 
+															if(empty($cur_user->{$wpdb->prefix."capabilities"}['administrator']))
+															{
+																	?>
+																	<input id="user-<?php echo $cur_user->ID; ?>" type="checkbox" value="<?php echo $cur_user->ID; ?>" <?php if(isset($group_info->users[$cur_user->ID])){ echo 'checked="checked"'; } ?> name="user[]"/>
+																	<label for="user-<?php echo $cur_user->ID; ?>"><strong><?php echo $cur_user->nickname; ?></strong> - <?php echo $cur_user->user_firstname." ".$cur_user->user_lastname; ?>
+																	<?php
+															}
+															else
+															{
+																?>
+																	<input id="user-<?php echo $cur_user->ID; ?>" type="checkbox" value="<?php echo $cur_user->ID; ?>" checked="checked" disabled="disabled" name="user[]"/>
+																	<label for="user-<?php echo $cur_user->ID; ?>"><strong><?php echo $cur_user->nickname; ?></strong> - <?php echo $cur_user->user_firstname." ".$cur_user->user_lastname; ?>
+																<?php
+																echo "(".TXT_IS_ADMIN.")";
+															}
+														?>
+														
+					   								</li>
+												<?php
+											}
+											echo "</ul>";
+										}
+									?>
+								</td>
+				            </tr>
+						</tbody>
+					</table> 
+					<p class="submit"><input type="submit" value="<?php if(isset($group_id)) { echo TXT_UPDATE_GROUP; }else{ echo TXT_ADD_GROUP;} ?>" name="submit" class="button"/></p>
+				</form>
+			<?php
+		}
 		
 		function get_usergroups_for_post($ID)
 		{
@@ -1808,7 +1716,7 @@ if (!class_exists("UserAccessManager"))
 				{
 					foreach($access->restricted_by_posts as $cur_id)
 					{
-						$usergroups = $wpdb->get_results("	SELECT ag.groupname
+						$usergroups = $wpdb->get_results("	SELECT ag.ID, ag.groupname
 															FROM ".DB_ACCESSGROUP." ag, ".DB_ACCESSGROUP_TO_POST." agtp
 															WHERE agtp.post_id = ".$cur_id."
 																AND ag.ID = agtp.group_id
@@ -1818,9 +1726,12 @@ if (!class_exists("UserAccessManager"))
 						{
 							foreach($usergroups as $usergroup)
 							{
-								if(isset($post_usergroups[$usergroup['groupname']]))
-									$cur_usergroup = $post_usergroups[$usergroup['groupname']];
+								$cur_usergroup = null;
 								
+								if(isset($post_usergroups[$usergroup['ID']]))
+									$cur_usergroup = $post_usergroups[$usergroup['ID']];
+								
+								$cur_usergroup->ID = $usergroup['ID'];
 								$cur_usergroup->name = $usergroup['groupname'];
 			
 								if($cur_id != $ID)
@@ -1837,7 +1748,7 @@ if (!class_exists("UserAccessManager"))
 									$cur_usergroup->itself = true;
 								}
 								
-								$post_usergroups[$usergroup['groupname']] = $cur_usergroup;
+								$post_usergroups[$usergroup['ID']] = $cur_usergroup;
 							}
 						}	
 					}
@@ -1847,19 +1758,22 @@ if (!class_exists("UserAccessManager"))
 				{
 					foreach($access->restricted_by_categories as $cur_id)
 					{
-						$usergroups = $wpdb->get_results("	SELECT ag.groupname
+						$usergroups = $wpdb->get_results("	SELECT ag.ID, ag.groupname
 															FROM ".DB_ACCESSGROUP." ag, ".DB_ACCESSGROUP_TO_CATEGORY." agtc
 															WHERE agtc.category_id = ".$cur_id."
 																AND ag.ID = agtc.group_id
 															GROUP BY ag.groupname", ARRAY_A);
-			   		
+						
 						if(isset($usergroups))
 						{
 							foreach($usergroups as $usergroup)
 							{
-								if(isset($post_usergroups[$usergroup['groupname']]))
-									$cur_usergroup = $post_usergroups[$usergroup['groupname']];
+								$cur_usergroup = null;
 								
+								if(isset($post_usergroups[$usergroup['ID']]))
+									$cur_usergroup = $post_usergroups[$usergroup['ID']];
+								
+								$cur_usergroup->ID = $usergroup['ID'];
 								$cur_usergroup->name = $usergroup['groupname'];
 
 								if(isset($cur_usergroup->categorie))
@@ -1868,10 +1782,12 @@ if (!class_exists("UserAccessManager"))
 								$lock_cat = & get_category($cur_id);
 								$categories[] = $lock_cat->term_id;
 								$cur_usergroup->categories = $categories;
-								
-								$post_usergroups[$usergroup['groupname']] = $cur_usergroup;
+
+								$post_usergroups[$usergroup['ID']] = $cur_usergroup;
 							}
-						}			
+						}
+
+						
 					}
 				}
 			}
@@ -1882,6 +1798,8 @@ if (!class_exists("UserAccessManager"))
 		function get_usergroup_info($groupid)
 		{
 			global $wpdb;
+			
+			$uamOptions = $this->getAdminOptions();
 		
 			$cur_group = $wpdb->get_results("	SELECT *
 												FROM ".DB_ACCESSGROUP."
@@ -1903,6 +1821,15 @@ if (!class_exists("UserAccessManager"))
 													FROM ".DB_ACCESSGROUP_TO_CATEGORY."
 													WHERE group_id = ".$groupid."
 													ORDER BY category_id", ARRAY_A);
+			
+			$db_roles = $wpdb->get_results("	SELECT *
+												FROM ".DB_ACCESSGROUP_TO_ROLE."
+												WHERE group_id = ".$groupid, ARRAY_A);
+			
+			$wp_users = $wpdb->get_results("	SELECT ID, user_nicename 
+												FROM $wpdb->users 
+												ORDER BY user_nicename", ARRAY_A);
+			
 
 			if(isset($db_posts))
 			{
@@ -1910,13 +1837,21 @@ if (!class_exists("UserAccessManager"))
 				{
 					$cur_id = $db_post['post_id'];
 					$cur_post = & get_post($cur_id);
-					if($cur_post->post_type == 'post')
+					
+					if(isset($cur_post->post_type))
 					{
-						$info->posts[] = $cur_post;
-					}
-					elseif($cur_post->post_type == 'page')
-					{
-						$info->pages[] = $cur_post;
+						if($cur_post->post_type == 'post')
+						{
+							$info->posts[$cur_id] = $cur_post;
+						}
+						elseif($cur_post->post_type == 'page')
+						{
+							$info->pages[$cur_id] = $cur_post;
+						}
+						elseif($cur_post->post_type == 'attachment')
+						{
+							$info->files[$cur_id] = $cur_post;
+						}
 					}
 				}
 			}
@@ -1925,7 +1860,22 @@ if (!class_exists("UserAccessManager"))
 			{
 				foreach($db_categories as $db_categorie)
 				{
-					$info->categories[] = get_category($db_categorie['category_id']);
+					$cur_category = get_category($db_categorie['category_id']);
+					
+					$info->categories[$db_categorie['category_id']] = $cur_category;
+					
+					if($uamOptions['lock_recursive'] == 'true')
+					{	
+						$cur_categories = get_categories('child_of='.$db_categorie['category_id']);
+						if(isset($cur_categories))
+						{
+							foreach($cur_categories as $cur_category)
+							{
+								$cur_category->recursive_lock_by_category[$db_categorie['category_id']] = $db_categorie['category_id'];
+								$info->categories[$cur_category->term_id] = $cur_category;
+							}
+						}
+					}
 				}
 			}
 
@@ -1934,9 +1884,175 @@ if (!class_exists("UserAccessManager"))
 				$expandcontent = null;
 				foreach($db_users as $db_user)
 				{
-					$info->users[] = get_userdata($db_user['user_id']);
+					$info->users[$db_user['user_id']] = get_userdata($db_user['user_id']);
 				}
 			}
+
+			if(isset($db_roles))
+			{
+				foreach($db_roles as $db_role)
+				{
+					$info->roles[$db_role['role_name']] = $db_role;
+				}
+			}
+			
+			if(isset($wp_users))
+			{
+				foreach($wp_users as $wp_user)
+				{
+					$cur_userdata = get_userdata($wp_user['ID']);
+					
+					if(isset($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+					{
+						$info->users[$wp_user['ID']] = $cur_userdata;
+					}
+					elseif(isset($db_roles) && empty($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+					{
+						foreach($db_roles as $db_role)
+						{
+							if(isset($cur_userdata->{$wpdb->prefix."capabilities"}[$db_role['role_name']]))
+							{
+								$info->users[$wp_user['ID']] = $cur_userdata;
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+
+			if(isset($info->categories))
+			{
+				foreach($info->categories as $group_category)
+				{
+					$cur_posts = get_posts('category='.$group_category->term_id);
+					if(isset($cur_posts))
+					{
+						foreach($cur_posts as $cur_post)
+						{
+							if($uamOptions['lock_recursive'] == 'false')
+							{
+								$cur_categories = get_the_category($cur_post->ID);	
+								foreach($cur_categories as $cur_cat)
+								{
+									if($cur_cat->term_id == $group_category->term_id)
+									{
+										$add = true;
+										break;
+									}
+								}
+							}
+							
+							if(isset($add) || $uamOptions['lock_recursive'] == 'true')
+							{
+								if(isset($info->posts[$cur_post->ID]))
+									$cur_post = $info->posts[$cur_post->ID];
+								
+								$cur_post->recursive_lock_by_category[$group_category->term_id] = $group_category->term_id;
+								$info->posts[$cur_post->ID] = $cur_post;
+							}
+						}
+					}
+					
+					$cur_files = get_posts('category='.$group_category->term_id.'&post_type=attachment');
+					if(isset($cur_files))
+					{
+						foreach($cur_files as $cur_file)
+						{
+							if($uamOptions['lock_recursive'] == 'false')
+							{
+								$cur_categories = get_the_category($cur_post->ID);	
+								foreach($cur_categories as $cur_cat)
+								{
+									if($cur_cat->term_id == $group_category->term_id)
+									{
+										$add = true;
+										break;
+									}
+								}
+							}
+							
+							if(isset($add) || $uamOptions['lock_recursive'] == 'true')
+							{
+								if(isset($info->files[$cur_file->ID]))
+									$cur_file = $info->files[$cur_file->ID];
+								
+								$cur_file->recursive_lock_by_category[$group_category->term_id] = $group_category->term_id;
+								$info->files[$cur_file->ID] = $cur_file;
+							}
+						}
+					}
+				}	
+			}
+			
+			if(isset($info->posts))
+			{
+				foreach($info->posts as $group_post)
+				{
+					if($uamOptions['lock_recursive'] == 'true')
+					{
+						$cur_posts = get_posts('post_parent='.$group_post->ID);
+						if(isset($cur_posts))
+						{
+							foreach($cur_posts as $cur_post)
+							{
+								if(isset($info->posts[$cur_post->ID]))
+									$cur_post = $info->posts[$cur_post->ID];
+								
+								$cur_post->recursive_lock_by_post[$group_post->ID] = $group_post->ID;
+								$info->posts[$cur_post->ID] = $cur_post;
+							}
+						}
+					}
+					$cur_files = get_posts('post_parent='.$group_post->ID.'&post_type=attachment');
+					if(isset($cur_files))
+					{
+						foreach($cur_files as $cur_file)
+						{
+							if(isset($info->files[$cur_file->ID]))
+								$cur_file = $info->files[$cur_file->ID];
+							
+							$cur_file->recursive_lock_by_post[$group_post->ID] = $group_post->ID;
+							$info->files[$cur_file->ID] = $cur_file;
+						}
+					}
+				}
+			}	
+				
+			if(isset($info->pages))
+			{		
+				foreach($info->pages as $group_page)
+				{
+					if($uamOptions['lock_recursive'] == 'true')
+					{
+						$cur_pages = get_pages('child_of='.$group_page->ID);
+						if(isset($cur_pages))
+						{
+							foreach($cur_pages as $cur_page)
+							{
+								if(isset($info->posts[$cur_post->ID]))
+									$cur_post = $info->posts[$cur_post->ID];
+								
+								$cur_post->recursive_lock_by_post[$group_page->ID] = $group_page->ID;
+								$info->pages[$cur_page->ID] = $cur_page;
+							}
+						}
+					}
+				
+					$cur_files = get_posts('post_parent='.$group_page->ID.'&post_type=attachment');
+					if(isset($cur_files))
+					{
+						foreach($cur_files as $cur_file)
+						{
+							if(isset($info->files[$cur_file->ID]))
+								$cur_file = $info->files[$cur_file->ID];
+							
+							$cur_file->recursive_lock_by_post[$group_post->ID] = $group_post->ID;
+							$info->files[$cur_file->ID] = $cur_file;
+						}
+					}
+				}
+			}	
 			
 			return $info;
 		}
@@ -2034,130 +2150,150 @@ if (!class_exists("UserAccessManager"))
 			return $result;
 		}
 		
+		function get_post_info_html($id)
+		{
+			$usergroups = $this->get_usergroups_for_post($id);
+
+		    if(isset($usergroups) && $usergroups != null)
+		    {
+	    		$output = "<ul>";
+	    		foreach($usergroups as $usergroup)
+	    		{
+	    			$output .= "<li><a class='uma_user_access_group'>".$usergroup->name."</a>";
+	    			$output .= "<ul class='uma_user_access_group_from'>";
+	    			
+	    			if(isset($usergroup->itself))
+	    				$output .= "<li>".TXT_ITSELF."</li>";
+	    			
+	    			if(isset($usergroup->posts))
+	    			{
+	    				foreach($usergroup->posts as $cur_id)
+	    				{
+	    					$cur_post = & get_post($cur_id);
+	    					$output .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
+	    				}
+	    			}
+	    			
+	    			if(isset($usergroup->categories))
+	    			{
+	    				foreach($usergroup->categories as $cur_id)
+	    				{
+	    					$cur_category = & get_category($cur_id);
+	    					$output .= "<li>$cur_category->name [category]</li>";
+	    				}
+	    			}
+					
+	    			$output = substr($output, 0, -2);
+	    			
+	    			$output .= "</ul></li>";
+	    		}
+	    		$output .= "</ul>";
+	    	}
+	    	else
+			{ 
+				$output = TXT_FULL_ACCESS;
+			}
+			return $output;
+		}
 		function add_post_columns_header($defaults)
 		{
     		$defaults['uam_access'] = __('Access');
     		return $defaults;
 		}
 		
-		function add_post_column($column_name, $id)
-		{			
-		    if( $column_name == 'uam_access' )
-		    {
-		    	$usergroups = $this->get_usergroups_for_post($id);
-		    	if(isset($usergroups) && $usergroups != null)
-		    	{
-		    		echo "<ul>";
-		    		foreach($usergroups as $usergroup)
-		    		{
-		    			$output = "<li><a class='uma_user_access_group'>".$usergroup->name. "</a>";
-		    			$output .= "<ul class='uma_user_access_group_from'>";
-		    			
-		    			if(isset($usergroup->itself))
-		    				$output .= "<li>".TXT_ITSELF."</li>";
-		    			
-		    			if(isset($usergroup->posts))
-		    			{
-		    				foreach($usergroup->posts as $cur_id)
-		    				{
-		    					$cur_post = & get_post($cur_id);
-		    					$output .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
-		    				}
-		    			}
-		    			
-		    			if(isset($usergroup->categories))
-		    			{
-		    				foreach($usergroup->categories as $cur_id)
-		    				{
-		    					$cur_category = & get_category($cur_id);
-		    					$output .= "<li>$cur_category->name [category]</li>";
-		    				}
-		    			}
-						
-		    			$output = substr($output, 0, -2);
-		    			
-		    			$output .= "</ul></li>";
-		    			echo $output;
-		    		}
-		    		echo "</ul>";
-		    	}
-		    	else
-				{ 
-					echo TXT_FULL_ACCESS;
-				}
-		    }
-		}
-		
-		function edit_post_content($post)
+		function get_post_edit_info_html($id , $style = null)
 		{
 			global $wpdb;
 			$accessgroups = $wpdb->get_results("SELECT *
 												FROM ".DB_ACCESSGROUP."
 												ORDER BY groupname", ARRAY_A);
 			
-			$recursive_set = $this->get_usergroups_for_post($post->ID);
-			
+			$recursive_set = $this->get_usergroups_for_post($id);
+
 			if(isset($accessgroups))
 			{
+				$content = "";
+				
 				foreach($accessgroups as $accessgroup)
 				{
 					$checked = $wpdb->get_results("	SELECT *
 													FROM ".DB_ACCESSGROUP_TO_POST."
-													WHERE post_id = ".$post->ID."
+													WHERE post_id = ".$id."
 													AND group_id = ".$accessgroup['ID'], ARRAY_A);
 					
-					if(isset($recursive_set[$accessgroup['groupname']]))
-						$set_recursive = $recursive_set[$accessgroup['groupname']];
-					?>
-					<p>
-						<label for="uam_accesssgroup-<?php echo $accessgroup['ID'];?>" class="selectit" >
-							<input type="checkbox" id="uam_accesssgroup-<?php echo $accessgroup['ID'];?>" <?php if(isset($checked) || isset($set_recursive->posts) || isset($set_recursive->categories)){ echo 'checked="checked"'; } if(isset($set_recursive->posts) || isset($set_recursive->categories)){echo 'disabled=""';} ?>value="<?php echo $accessgroup['ID']; ?>" name="accessgroups[]"/>
-							<?php echo $accessgroup['groupname']; ?>					
-						</label>
-						<?php
-							$group_info_html = $this->get_usergroup_info_html($accessgroup['ID']);
-							
-							echo $group_info_html->link;
-							
-							if(isset($set_recursive->posts) || isset($set_recursive->categories))
-								echo '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
-							
-							echo $group_info_html->content;							
+					$set_recursive = null;
+					if(isset($recursive_set[$accessgroup['ID']]))
+						$set_recursive = $recursive_set[$accessgroup['ID']];
 
-							if(isset($set_recursive->posts) || isset($set_recursive->categories))
-							{
-								$recursive_info = '<ul class="uam_group_lock_info"><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
-								if(isset($set_recursive->posts))
-		    					{
-		    						foreach($set_recursive->posts as $cur_id)
-		    						{
-		    							$cur_post = & get_post($cur_id);
-		    							$recursive_info .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
-		    						}
-		    					}
+					$content .= '<p><label for="uam_accesssgroup-'.$accessgroup['ID'].'" class="selectit" style="display:inline;" >';
+					$content .= '<input type="checkbox" id="uam_accesssgroup-'.$accessgroup['ID'].'"';
+					if(isset($checked) || isset($set_recursive->posts) || isset($set_recursive->categories))
+						$content .= 'checked="checked"';
+					if(isset($set_recursive->posts) || isset($set_recursive->categories))
+						$content .= 'disabled=""';
+					$content .= 'value="'.$accessgroup['ID'].'" name="accessgroups[]"/>';
+					$content .= $accessgroup['groupname'];					
+					$content .=	"</label>";
+
+					$group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], $style);
+
+					$content .= $group_info_html->link;
+							
+					if(isset($set_recursive->posts) || isset($set_recursive->categories))
+						$content .= '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
+						
+					$content .= $group_info_html->content;							
+
+					if(isset($set_recursive->posts) || isset($set_recursive->categories))
+					{
+						$recursive_info = '<ul class="uam_group_lock_info" ';
+						if($style != null)
+							$recursive_info .= " style='".$style."' ";
+						$recursive_info .= '><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
+						
+						if(isset($set_recursive->posts))
+		    			{
+		    				foreach($set_recursive->posts as $cur_id)
+		    				{
+		    					$cur_post = & get_post($cur_id);
+		    					$recursive_info .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
+		    				}
+		    			}
 		    			
-		    					if(isset($set_recursive->categories))
-		    					{
-		    						foreach($set_recursive->categories as $cur_id)
-		    						{
-		    							$cur_category = & get_category($cur_id);
-		    							$recursive_info .= "<li>$cur_category->name [".TXT_CATEGORY."]</li>";
-		    						}
-		    					}
-								$recursive_info .= "</ul>";
-								echo $recursive_info;
-							}
-						?>
-					</p>
-					<?php 
+		    			if(isset($set_recursive->categories))
+		    			{
+		    				foreach($set_recursive->categories as $cur_id)
+		    				{
+		    					$cur_category = & get_category($cur_id);
+		    					$recursive_info .= "<li>$cur_category->name [".TXT_CATEGORY."]</li>";
+		    				}
+		    			}
+						$recursive_info .= "</ul>";
+						$content .= $recursive_info;
+					}
+					$content .= "</p>";
 				}
 			}
 			else
 			{
-				echo "<p><a href='admin.php?page=uam_usergroup'>";
-				echo TXT_CREATE_GROUP_FIRST;
-				echo "</a></p>";
+				$content = "<a href='admin.php?page=uam_usergroup'>";
+				$content .= TXT_CREATE_GROUP_FIRST;
+				$content .= "</a>";
 			}
+			
+			return $content;
+		}
+		function add_post_column($column_name, $id)
+		{			
+		    if( $column_name == 'uam_access' )
+		    {
+		    	echo $this->get_post_info_html($id);
+		    }
+		}
+		
+		function edit_post_content($post)
+		{
+			echo $this->get_post_edit_info_html($post->ID, "padding:0 0 0 36px;");
 		}
 		
 		function save_postdata($post_id)
@@ -2174,6 +2310,30 @@ if (!class_exists("UserAccessManager"))
 					$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_POST." (post_id,group_id) VALUES(".$post_id.", ".$accessgroup.")");
 				}
 			}
+		}
+		
+		function save_attachmentdata($post)
+		{
+			global $wpdb;
+
+			if(isset($post['ID']))
+			{
+				$post_id = $post['ID'];
+				
+				if(isset($_POST['accessgroups']))
+					$accessgroups = $_POST['accessgroups'];
+				
+				$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_POST." WHERE post_id = $post_id");
+				if(isset($accessgroups))
+				{
+					foreach($accessgroups as $accessgroup)
+					{
+						$wpdb->query("INSERT INTO ".DB_ACCESSGROUP_TO_POST." (post_id,group_id) VALUES(".$post_id.", ".$accessgroup.")");
+					}
+				}
+			}
+			
+			return $post;
 		}
 		
 		function remove_postdata($post_id)
@@ -2287,79 +2447,9 @@ if (!class_exists("UserAccessManager"))
 		
 		function show_media_file($meta = '', $post)
 		{
-			global $wpdb;
-			$accessgroups = $wpdb->get_results("SELECT *
-												FROM ".DB_ACCESSGROUP."
-												ORDER BY groupname", ARRAY_A);
-			
-			$recursive_set = $this->get_usergroups_for_post($post->ID);
-			
 			$content = $meta;
 			$content .= '</td></tr><tr><th class="label"><label>'.TXT_SET_UP_USERGROUPS.'</label></th><td class="field">';
-			
-			if(isset($accessgroups))
-			{
-				foreach($accessgroups as $accessgroup)
-				{
-					$checked = $wpdb->get_results("	SELECT *
-													FROM ".DB_ACCESSGROUP_TO_POST."
-													WHERE post_id = ".$post->ID."
-													AND group_id = ".$accessgroup['ID'], ARRAY_A);
-					
-					if(isset($recursive_set[$accessgroup['groupname']]))
-						$set_recursive = $recursive_set[$accessgroup['groupname']];
-
-					$content .= '<p><label for="uam_accesssgroup-'.$accessgroup['ID'].'" class="selectit" style="display:inline;" >';
-					$content .= '<input type="checkbox" id="uam_accesssgroup-'.$accessgroup['ID'].'"';
-					if(isset($checked) || isset($set_recursive->posts) || isset($set_recursive->categories))
-						$content .= 'checked="checked"';
-					if(isset($set_recursive->posts) || isset($set_recursive->categories))
-						$content .= 'disabled=""';
-					$content .= 'value="'.$accessgroup['ID'].'" name="accessgroups[]"/>';
-					$content .= $accessgroup['groupname'];					
-					$content .=	"</label>";
-
-					$group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], "padding:0 0 0 38px;top:-12px;");
-
-					$content .= $group_info_html->link;
-							
-					if(isset($set_recursive->posts) || isset($set_recursive->categories))
-						$content .= '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
-						
-					$content .= $group_info_html->content;							
-
-					if(isset($set_recursive->posts) || isset($set_recursive->categories))
-					{
-						$recursive_info = '<ul class="uam_group_lock_info" style="padding:0 0 0 38px;top:-12px;"><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
-						if(isset($set_recursive->posts))
-		    			{
-		    				foreach($set_recursive->posts as $cur_id)
-		    				{
-		    					$cur_post = & get_post($cur_id);
-		    					$recursive_info .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
-		    				}
-		    			}
-		    			
-		    			if(isset($set_recursive->categories))
-		    			{
-		    				foreach($set_recursive->categories as $cur_id)
-		    				{
-		    					$cur_category = & get_category($cur_id);
-		    					$recursive_info .= "<li>$cur_category->name [".TXT_CATEGORY."]</li>";
-		    				}
-		    			}
-						$recursive_info .= "</ul>";
-						$content .= $recursive_info;
-					}
-					$content .= "</p>";
-				}
-			}
-			else
-			{
-				$content .= "<a href='admin.php?page=uam_usergroup'>";
-				$content .= TXT_CREATE_GROUP_FIRST;
-				$content .= "</a>";
-			}
+			$content .= $this->get_post_edit_info_html($post->ID, "padding:0 0 0 38px;top:-12px;");
 			
 			return $content;
 		}
@@ -2572,6 +2662,9 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb;
 			
+			if(isset($this->restrictedPost[$post_id]))
+				return $this->restrictedPost[$post_id];
+				
 			$access = null;
 			$cur_id = $post_id;
 			$cur_post = & get_post($cur_id);
@@ -2648,7 +2741,7 @@ if (!class_exists("UserAccessManager"))
 					if(isset($cur_post->post_parent))
 						$cur_id = $cur_post->post_parent;
 						
-					while($cur_id != 0 && isset($cur_id))
+					if($cur_id != 0 && isset($cur_id))
 					{
 						$restricted_access = $this->get_access($cur_id);
 
@@ -2658,7 +2751,7 @@ if (!class_exists("UserAccessManager"))
 						if(isset($restricted_access->restricted_by_posts))
 							$restricted_by_posts = array_unique(array_merge($restricted_by_posts, $restricted_access->restricted_by_posts));
 						
-						if(isset($cur_post->post_parent))
+						/*if(isset($cur_post->post_parent))
 						{	
 							$cur_id = $cur_post->post_parent;
 							$cur_post = & get_post($cur_id);
@@ -2666,7 +2759,7 @@ if (!class_exists("UserAccessManager"))
 						else
 						{
 							$cur_id = 0;
-						}
+						}*/
 					}
 				}
 				elseif($uamOptions['lock_recursive'] == 'false' && $cur_post->post_type == "attachment")
@@ -2690,8 +2783,13 @@ if (!class_exists("UserAccessManager"))
 			if(isset($restricted_by_categories) && count($restricted_by_categories) != 0)
 				$access->restricted_by_categories = $restricted_by_categories;
 			if(isset($restricted_by_posts) && count($restricted_by_posts) != 0)
-				$access->restricted_by_posts = $restricted_by_posts;	
-				
+				$access->restricted_by_posts = $restricted_by_posts;
+
+			if(empty($access))
+				$access = -1;
+			
+			$this->restrictedPost[$post_id] = $access;
+			
 			return $access;
 		}
 		
@@ -2699,8 +2797,11 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb, $current_user;
 			
+			if(isset($this->postAccess[$post_id]))
+				return $this->postAccess[$post_id];
+			
 			$access = $this->get_access($post_id);
-			$cur_user_ip = $_SERVER['REMOTE_ADDR'];
+			$cur_user_ip = explode(".", $_SERVER['REMOTE_ADDR']);
 			
 			if(isset($access->restricted_by_posts) || isset($access->restricted_by_categories))
 			{
@@ -2720,7 +2821,10 @@ if (!class_exists("UserAccessManager"))
 																		AND atc.group_id = atu.group_id
 																		AND atu.user_id = ".$current_user->ID, ARRAY_A);
 								if(isset($user_access))
+								{
+									$this->postAccess[$post_id] = true;
 									return true;
+								}
 									
 								$access_roles = $wpdb->get_results("SELECT atr.role_name
 																	FROM ".DB_ACCESSGROUP_TO_CATEGORY." atc, ".DB_ACCESSGROUP_TO_ROLE." atr
@@ -2732,8 +2836,22 @@ if (!class_exists("UserAccessManager"))
 									foreach($access_roles as $access_role)
 									{
 										if(isset($cur_userdata->wp_capabilities[$access_role['role_name']]))
+										{
+											$this->postAccess[$post_id] = true;
 											return true;
+										}
 									}
+								}
+								
+								$db_ip_ranges = $wpdb->get_var("SELECT ag.ip_range
+																FROM ".DB_ACCESSGROUP_TO_CATEGORY." atc, ".DB_ACCESSGROUP." ag
+																WHERE atc.category_id = ".$cur_cat_id."
+																	AND atc.group_id = ag.ID", ARRAY_A);
+								
+								if($this->check_user_ip($cur_user_ip, $db_ip_ranges))
+								{
+									$this->postAccess[$post_id] = true;
+									return true;
 								}
 							}
 						}
@@ -2748,7 +2866,10 @@ if (!class_exists("UserAccessManager"))
 																		AND atp.group_id = atu.group_id
 																		AND atu.user_id = ".$current_user->ID, ARRAY_A);
 								if(isset($user_access))
+								{
+									$this->postAccess[$post_id] = true;
 									return true;
+								}
 									
 								$access_roles = $wpdb->get_results("SELECT atr.role_name
 																	FROM ".DB_ACCESSGROUP_TO_POST." atp, ".DB_ACCESSGROUP_TO_ROLE." atr
@@ -2759,29 +2880,115 @@ if (!class_exists("UserAccessManager"))
 									foreach($access_roles as $access_role)
 									{
 										if(isset($cur_userdata->wp_capabilities[$access_role['role_name']]))
+										{
+											$this->postAccess[$post_id] = true;
 											return true;
+										}
 									}
+								}
+								
+								$db_ip_ranges = $wpdb->get_var("SELECT ag.ip_range
+																FROM ".DB_ACCESSGROUP_TO_POST." atp, ".DB_ACCESSGROUP." ag
+																WHERE atp.post_id = ".$cur_post_id."
+																	AND atp.group_id = ag.ID", ARRAY_A);
+								
+								if($this->check_user_ip($cur_user_ip, $db_ip_ranges))
+								{
+									$this->postAccess[$post_id] = true;
+									return true;
 								}
 							}
 						}
 							
 						if(empty($user_access))
+						{
+							$this->postAccess[$post_id] = false;
 							return false;
+						}
 					}
 					else
 					{
+						$this->postAccess[$post_id] = true;
 						return true;
 					}
 				}
 				else
 				{
+					if(isset($access->restricted_by_categories))
+					{
+						foreach($access->restricted_by_categories as $cur_cat_id)
+						{
+							$db_ip_ranges = $wpdb->get_var("SELECT ag.ip_range
+															FROM ".DB_ACCESSGROUP_TO_CATEGORY." atc, ".DB_ACCESSGROUP." ag
+															WHERE atc.category_id = ".$cur_cat_id."
+																AND atc.group_id = ag.ID");
+							
+							if($this->check_user_ip($cur_user_ip, $db_ip_ranges))
+							{
+								$this->postAccess[$post_id] = true;
+								return true;
+							}
+						}
+					}
+						
+					if(isset($access->restricted_by_posts))
+					{
+						foreach($access->restricted_by_posts as $cur_post_id)
+						{
+							$db_ip_ranges = $wpdb->get_var("SELECT ag.ip_range
+															FROM ".DB_ACCESSGROUP_TO_POST." atp, ".DB_ACCESSGROUP." ag
+															WHERE atp.post_id = ".$cur_post_id."
+																AND atp.group_id = ag.ID");
+							
+							if($this->check_user_ip($cur_user_ip, $db_ip_ranges))
+							{
+								$this->postAccess[$post_id] = true;
+								return true;
+							}
+						}
+					}
+					
+					$this->postAccess[$post_id] = false;
 					return false;
 				}
 			}
 			else
 			{
+				$this->postAccess[$post_id] = true;
 				return true;
 			}	
+		}
+		
+		function check_user_ip($cur_user_ip, $db_ip_ranges)
+		{	
+			if(isset($db_ip_ranges))
+			{
+				$ip_ranges = explode(";", $db_ip_ranges);
+					
+				if(isset($ip_ranges))
+				{
+					foreach($ip_ranges as $ip_range)
+					{
+						$ip_range = explode("-", $ip_range);
+						
+						$range_begin = explode(".",$ip_range[0]);
+						
+						if(isset($ip_range[1]))
+							$range_end = explode(".",$ip_range[1]);
+						else
+							$range_end = explode(".",$ip_range[0]);
+						
+						if(	$range_begin[0] <= $cur_user_ip[0] && $cur_user_ip[0] <= $range_end[0] && 
+							$range_begin[1] <= $cur_user_ip[1] && $cur_user_ip[1] <= $range_end[1] && 
+							$range_begin[2] <= $cur_user_ip[2] && $cur_user_ip[2] <= $range_end[2] && 
+							$range_begin[3] <= $cur_user_ip[3] && $cur_user_ip[3] <= $range_end[3])
+						{
+							return true;
+						}	
+					}
+				}
+			}
+			return false;
 		}
 		
 		function show_post($posts = array())
@@ -2938,18 +3145,46 @@ if (!class_exists("UserAccessManager"))
 							}
 						}
 						
-						if($count != 0)
+						if($count != 0 || $uamOptions['hide_empty_categories'] == 'false')
 						{
 							$category->count = $count;
-							$show_categories[] = $category;
+							$cur_show_categories[$category->term_id] = $category;
 						}
 						elseif($category->taxonomy == "link_category" || $category->taxonomy == "post_tag")
 						{
 							$show_categories[] = $category;
 						}
-						
-						$categories = $show_categories;
+						elseif($count == 0)
+						{
+							$empty_categories[$category->term_id] = $category;
+						}
 					}
+					
+					if($uamOptions['hide_empty_categories'] == 'true')
+					{
+						if(isset($cur_show_categories))
+						{
+							foreach($cur_show_categories as $cur_show_category)
+							{
+								$show_categories[$cur_show_category->term_id] = $cur_show_category;
+								
+								$cur_cat = $cur_show_category;
+								while($cur_cat->parent != 0 && isset($empty_categories))
+								{
+									if(empty($show_categories[$cur_cat->parent]))
+										$show_categories[$cur_cat->parent] = $empty_categories[$cur_cat->parent];
+									
+									$cur_id = $cur_cat->parent;
+									$cur_cat = & get_category($cur_id);
+								}
+							}
+						}
+					}
+					
+					if(isset($show_categories))
+						$categories = $show_categories;
+					else
+						$categories = null;
 				}
 			}
 			
@@ -2980,16 +3215,19 @@ if (!class_exists("UserAccessManager"))
 			$uamOptions = $this->getAdminOptions();
 
 			$posts = get_posts();
-			foreach($posts as $post)
+			if(isset($posts))
 			{
-				if(!$this->check_access($post->ID))
-					$excluded_posts[] = $post->ID;
-			}
-			if(isset($excluded_posts))
-			{
-				$excluded_posts_str = implode(",", $excluded_posts);
-				$sql .= "AND ID NOT IN($excluded_posts_str)";
-			}
+				foreach($posts as $post)
+				{
+					if(!$this->check_access($post->ID))
+						$excluded_posts[] = $post->ID;
+				}
+				if(isset($excluded_posts))
+				{
+					$excluded_posts_str = implode(",", $excluded_posts);
+					$sql .= "AND ID NOT IN($excluded_posts_str)";
+				}
+			}	
 				
 			return $sql;
 		}
@@ -3016,6 +3254,7 @@ if (!class_exists("UserAccessManager"))
 					return $output;
 				}
 			}
+			return null;
 		}
 	
 		function redirect_user()
@@ -3024,40 +3263,39 @@ if (!class_exists("UserAccessManager"))
 			
 			$uamOptions = $this->getAdminOptions();	
 			
-			if(!$this->check_access() && $uamOptions['redirect'] != 'false' && !$this->atAdminPanel)
+			if(isset($_GET['getfile']))
+				$cur_file_id = $_GET['getfile'];
+				
+			if(	$uamOptions['redirect'] != 'false' && 	(	( !$this->check_access() 				&& !$this->atAdminPanel 					&& empty($cur_file_id) ) || 
+															( !$this->check_access($cur_file_id) 	&& !wp_attachment_is_image($cur_file_id) 	&& isset($cur_file_id) )) )
 			{
-				if($uamOptions['redirect'] == 'blog' || $uamOptions['redirect'] == 'custom_page')
+				$cur_id = null;
+				$cur_post = & get_post($cur_id);
+				
+				if($uamOptions['redirect'] == 'blog')
+					$url = get_option('siteurl');
+				elseif($uamOptions['redirect'] == 'custom_page')
 				{
-					$host  = $_SERVER['HTTP_HOST'];
-					$uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-					
-					if($uamOptions['redirect'] == 'blog')
-						$extra = '';
-					elseif($uamOptions['redirect'] == 'custom_page')
-						$extra = get_page_uri($uamOptions['redirect_custom_page']);
-						
-					$url = "http://".$host.$uri."/".$extra;
+					$post_to_go = & get_post($uamOptions['redirect_custom_page']);
+					$url = $post_to_go->guid;
 				}
 				elseif( $uamOptions['redirect'] == 'custom_url')
-				{
 					$url = $uamOptions['redirect_custom_url'];
-				}
-				
-				
+					
 				$cur_posts = $wp_query->get_posts();
-
-				$post_to_show = false;
-				
-				foreach($cur_posts as $cur_post)
+				if(isset($cur_posts))
 				{
-					if($this->check_access($cur_post->ID))
+					foreach($cur_posts as $cur_post)
 					{
-						$post_to_show = true;
-						break;
+						if($this->check_access($cur_post->ID))
+						{
+							$post_to_show = true;
+							break;
+						}
 					}
 				}
 				
-				if($url != "http://".$_SERVER['HTTP_HOST'].$_SERVER["REQUEST_URI"] && !$post_to_show)
+				if($url != "http://".$_SERVER['HTTP_HOST'].$_SERVER["REQUEST_URI"] && empty($post_to_show))
 				{
 					header("Location: $url");
 					exit;
@@ -3067,7 +3305,6 @@ if (!class_exists("UserAccessManager"))
 			{
 				$cur_id = $_GET['getfile'];
 				$cur_post = & get_post($cur_id);
-				$uamOptions = $this->getAdminOptions();
 				
 				if($cur_post->post_type == 'attachment' && $this->check_access($cur_post->ID))
 				{
@@ -3113,8 +3350,25 @@ if (!class_exists("UserAccessManager"))
 						echo 'Error: File not found';
 					}
 				}
-				elseif($uamOptions['redirectnofileaccess'] != 'false')
+				elseif(wp_attachment_is_image($cur_id))
 				{
+					$cur_url = explode("?", "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+					$file = str_replace($cur_url[0], "", UAM_URLPATH .'gfx/no_access_pic.png');
+					$filename = basename($file);
+						
+					if(file_exists($file))
+					{
+						$len = filesize($file);
+						header('content-type: '.$cur_post->post_mime_type);
+						header('content-length: '.$len);
+						
+						readfile($file);
+						exit;
+					}
+					else 
+				 	{
+						echo 'Error: File not found';
+					}
 				}
 			}
 		}
@@ -3148,13 +3402,13 @@ if (!class_exists("UserAccessManager"))
 	}
 }
 
-if (class_exists("UserAccessManager"))
+if(class_exists("UserAccessManager"))
 {
 	$userAccessManager = new UserAccessManager();
 }
 
 //Initialize the admin panel
-if (!function_exists("UserAccessManager_AP")) {
+if(!function_exists("UserAccessManager_AP")) {
 	function UserAccessManager_AP()
 	{
 		global $userAccessManager, $wp_version;
@@ -3181,11 +3435,17 @@ if (!function_exists("UserAccessManager_AP")) {
    		}
    		
    		//Admin actions
+   		
+   		$userAccessManager->update();
+   		
   		add_action('manage_posts_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
    		add_action('manage_pages_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
    		add_action('manage_media_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
    		add_action('save_post', array(&$userAccessManager, 'save_postdata'));
+   		add_action('add_attachment', array(&$userAccessManager, 'save_postdata'));
+   		add_action('attachment_fields_to_save', array(&$userAccessManager, 'save_attachmentdata'));
    		add_action('delete_post', array(&$userAccessManager, 'remove_postdata'));
+   		add_action('delete_attachment', array(&$userAccessManager, 'remove_postdata'));
    		
    		add_action('edit_user_profile', array(&$userAccessManager, 'show_user_profile'));
    		add_action('profile_update', array(&$userAccessManager, 'save_userdata'));
@@ -3222,7 +3482,7 @@ if (!function_exists("UserAccessManager_AP")) {
 }
 
 //Actions and Filters	
-if (isset($userAccessManager))
+if(isset($userAccessManager))
 {
 	add_action('init', array(&$userAccessManager, 'init'));	
 	$uamOptions = $userAccessManager->getAdminOptions();
@@ -3243,7 +3503,6 @@ if (isset($userAccessManager))
 		
 	//Filters
 	add_filter('wp_get_attachment_url', array(&$userAccessManager, 'get_file'), 10, 2);
-	//add_filter('get_attachment_link', array(&$userAccessManager, 'get_file'), 10, 2);
 	add_filter('the_posts', array(&$userAccessManager, 'show_post'));
 	add_filter('comments_array', array(&$userAccessManager, 'show_comment'));
 	add_filter('get_pages', array(&$userAccessManager, 'show_page'));

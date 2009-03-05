@@ -51,7 +51,10 @@ Here you found the changes in each version.
     
     0.8			2009/02/16	Add write access control
     						Add support down to 2.6
-    						Code optimization
+    						Better file access control
+    						Code optimization - Plugin became faster
+    						Fix the category bug
+    						Small fixes
     
     0.7.0.1		2009/02/13	Small fixes
     
