@@ -2750,16 +2750,6 @@ if (!class_exists("UserAccessManager"))
 						
 						if(isset($restricted_access->restricted_by_posts))
 							$restricted_by_posts = array_unique(array_merge($restricted_by_posts, $restricted_access->restricted_by_posts));
-						
-						/*if(isset($cur_post->post_parent))
-						{	
-							$cur_id = $cur_post->post_parent;
-							$cur_post = & get_post($cur_id);
-						}
-						else
-						{
-							$cur_id = 0;
-						}*/
 					}
 				}
 				elseif($uamOptions['lock_recursive'] == 'false' && $cur_post->post_type == "attachment")
