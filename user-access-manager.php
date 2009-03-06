@@ -3,7 +3,7 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.8
+Version: 0.8.0.1
 Author: Alexander Schneider
 Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
  
@@ -232,6 +232,7 @@ if (!class_exists("UserAccessManager"))
 						  groupdesc text NOT NULL,
 						  read_access tinytext NOT NULL,
 						  write_access tinytext NOT NULL,
+						  ip_range mediumtext NULL,
 						  PRIMARY KEY  (ID)
 						) $charset_collate;";
 					
@@ -302,6 +303,10 @@ if (!class_exists("UserAccessManager"))
 						update_option("uam_db_version", $uam_db_version);
 					}
 				}
+			}
+			if($wpdb->get_var("show columns from ".DB_ACCESSGROUP." like 'ip_range'") != 'ip_range')
+			{
+				$wpdb->query("ALTER TABLE ".DB_ACCESSGROUP." ADD ip_range MEDIUMTEXT NULL DEFAULT ''");
 			}
 		}
 		
