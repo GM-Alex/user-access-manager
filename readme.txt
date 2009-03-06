@@ -54,7 +54,7 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    0.8			2009/02/16	Add write access control
+    0.8			2009/03/05	Add write access control
     						Add support down to 2.6
     						Better file access control
     						Code optimization - Plugin became faster
