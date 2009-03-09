@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 2.6
 Tested up to: 2.7.1
-Stable tag: 0.8.0.1
+Stable tag: 0.8.0.2
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -35,6 +35,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 * English
 * German
 * Czech, base on 0.7.0.1. Thanks to Huska
+* French, thanks to macbidule
 
 <strong>Note</strong>: At this release you can replace one core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>). <strong>This core modification is not needed and only optional, but it gives you more comfort.</strong>
 
@@ -52,6 +53,9 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    0.8.0.2		2009/03/09	Add French language file
+    						Delete .htaccess files on deactivation/uninstall 
     
     0.8.0.1		2009/03/06	Small fix
     

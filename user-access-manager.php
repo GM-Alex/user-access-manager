@@ -3,7 +3,7 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.8.0.1
+Version: 0.8.0.2
 Author: Alexander Schneider
 Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
  
@@ -35,7 +35,7 @@ define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix.'uam_accessgroup_to_category'
 define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix.'uam_accessgroup_to_role');
 
 //PATH
-define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/');//define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' );
+define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' );
 
 //###Lang###
 
@@ -314,6 +314,12 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb;
 			$wpdb->query("DROP TABLE ".DB_ACCESSGROUP.", ".DB_ACCESSGROUP_TO_POST.", ".DB_ACCESSGROUP_TO_USER.", ".DB_ACCESSGROUP_TO_CATEGORY.", ".DB_ACCESSGROUP_TO_ROLE);
+			$this->delete_htaccess_files();
+		}
+		
+		function deactivate()
+		{
+			$this->delete_htaccess_files();
 		}
 		
 		function create_htaccess()
@@ -3486,11 +3492,15 @@ if(isset($userAccessManager))
 	//install
 	if(function_exists('register_activation_hook'))
 		register_activation_hook(__FILE__, array(&$userAccessManager, 'install'));
+		
 	if(function_exists('register_uninstall_hook'))
 		register_uninstall_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
 	elseif(function_exists('register_deactivation_hook'))
 		register_deactivation_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
-	
+		
+	if(function_exists('register_deactivation_hook'))
+		register_deactivation_hook(__FILE__, array(&$userAccessManager, 'deactivate'));
+		
 	//Actions
 	add_action('admin_menu', 'UserAccessManager_AP');
 		
