@@ -20,15 +20,15 @@ msgstr "Paramètres des articles"
 
 #: user-access-manager.php:66
 msgid "Set up the behaviour of locked posts"
-msgstr "Mettre en place le comportement des blocages des articles"
+msgstr "Mettre en place le comportement de blocage des articles"
 
 #: user-access-manager.php:67
 msgid "Post title"
-msgstr "Titres des articles"
+msgstr "Titre de article"
 
 #: user-access-manager.php:68
 msgid "Displayed text as post title if user has no access"
-msgstr "Texte  à afficher après le titre si l'utilisateur n'a pas l'autorisation d'accès."
+msgstr "Texte à afficher après le titre si l'utilisateur n'a pas l'autorisation d'accès."
 
 #: user-access-manager.php:69
 msgid "Hide post titel"
@@ -68,7 +68,7 @@ msgstr "Texte affiché après le texte du commentaire que si l'utilisateur n'a p
 
 #: user-access-manager.php:77
 msgid "Hide post comments"
-msgstr "Cacher les commentaires de l'articles"
+msgstr "Cacher les commentaires de l'article"
 
 #: user-access-manager.php:79
 msgid "Allow comments"
@@ -76,11 +76,11 @@ msgstr "Autoriser les commentaires"
 
 #: user-access-manager.php:80
 msgid "Selecting \"yes\" allows users to comment on locked posts"
-msgstr "Sélectionnez \"oui \" permet aux utilisateurs de commenter les articles bloquées"
+msgstr "Sélectionnez \"oui \" permet aux utilisateurs de commenter les articles bloqués"
 
 #: user-access-manager.php:82
 msgid "Page settings"
-msgstr "Paramètres des Pages"
+msgstr "Paramètres des pages"
 
 #: user-access-manager.php:83
 msgid "Set up the behaviour of locked pages"
@@ -104,11 +104,11 @@ msgstr "Contenu de la Page"
 
 #: user-access-manager.php:90
 msgid "Hide complete pages"
-msgstr "Masquer complètement les Pages."
+msgstr "Masquer complètement les pages."
 
 #: user-access-manager.php:91
 msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will also hide in the navigation."
-msgstr "Sélectionnez \"oui \" cache des pages si l'utilisateur n'a pas d'aurisation d'accès. Les pages sont également cachée dans la navigation."
+msgstr "Sélectionnez \"oui \" cache des pages si l'utilisateur n'a pas d'autorisation d'accès. Les pages sont également cachées dans la navigation."
 
 #: user-access-manager.php:93
 msgid "File settings"
@@ -196,7 +196,7 @@ msgstr "Rediriger l'utilisateur vers"
 
 #: user-access-manager.php:115
 msgid "Setup what happen if a user visit a post/page with no access."
-msgstr "Paramètres définissant ce qui se passe si un utilisateur visite un poste / page dont il n'a pas les autorisation d'accès."
+msgstr "Paramètres définissant ce qui se passe si un utilisateur visite un article/une page dont il n'a pas les autorisations d'accès."
 
 #: user-access-manager.php:116
 msgid "To blog startpage"
@@ -220,7 +220,7 @@ msgstr "Sélectionnez \"oui \" verrouille tous les articles, les pages d'un arti
 
 #: user-access-manager.php:121
 msgid "Admin hint text"
-msgstr "Drapeau \"Usage admnistrateur\""
+msgstr "Drapeau \"Usage administrateur\""
 
 #: user-access-manager.php:122
 msgid "The text which will shown behinde the post/page."
@@ -233,7 +233,7 @@ msgstr "Afficher le drapeau sur les articles"
 #: user-access-manager.php:124
 #, php-format
 msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
-msgstr "Sélectionnez \"oui \" affichera le texte ci-dessous dans \"% s \" derrière le titre de l'article / de la page si un adminstrateur se connecte pour lui montrer que ces articles / ces pages sont verrouillées sur son blog."
+msgstr "Sélectionnez \"oui \" affichera le texte ci-dessous dans \"% s \" derrière le titre de l'article / de la page si un administrateur se connecte pour lui montrer que ces articles/ces pages sont verrouillés sur son blog."
 
 #: user-access-manager.php:125
 msgid "Core modifications installed?"
@@ -241,7 +241,7 @@ msgstr "\"Core\" modifications installées ?"
 
 #: user-access-manager.php:126
 msgid "If you installed the core modifications activated this option."
-msgstr "Si vous avez installé les \"Core\" modifications activé cette option."
+msgstr "Si vous avez installé les \"Core\" modifications activez cette option."
 
 #: user-access-manager.php:128
 msgid "Yes"
@@ -344,7 +344,7 @@ msgstr "Le groupe a été ajouté avec succès"
 
 #: user-access-manager.php:162
 msgid "Group(s) was deleted successfully."
-msgstr "Le(s) groupe(s) a(ont) été supprimé avec succès."
+msgstr "Le(s) groupe(s) a(ont) été supprimé(s) avec succès."
 
 #: user-access-manager.php:163
 msgid "none"
@@ -352,7 +352,7 @@ msgstr "aucun"
 
 #: user-access-manager.php:164
 msgid "Access group edit successfully."
-msgstr "Les autorisations d'accès du groupe ont été modifié avec succès."
+msgstr "Les autorisations d'accès du groupe ont été modifiées avec succès."
 
 #: user-access-manager.php:165
 #, php-format
@@ -397,7 +397,7 @@ msgstr "Définir les accès"
 
 #: user-access-manager.php:180
 msgid "Group access"
-msgstr "Autorisation des groupes"
+msgstr "Autorisations des groupes"
 
 #: user-access-manager.php:184
 #: user-access-manager.php:2201
@@ -456,7 +456,7 @@ msgstr "L'utilisateur est l'admistrateur. Accès libre"
 
 #: user-access-manager.php:200
 msgid "expand"
-msgstr "dévelloper"
+msgstr "développer"
 
 #: user-access-manager.php:201
 msgid "expand all"
@@ -476,7 +476,7 @@ msgstr "Tous"
 
 #: user-access-manager.php:205
 msgid "only group users"
-msgstr "Uniquement le groupe d'utilisateur"
+msgstr "Uniquement le groupe d'utilisateurs"
 
 #: user-access-manager.php:460
 msgid "No rights!"
@@ -500,7 +500,7 @@ msgstr ""
 
 #. Description of an extension
 msgid "Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>"
-msgstr "Gérer l'accès à vos messages et de pages. strong>Note:</strong> <em>Si vous activez le plugin pour télécharger dan s le répertoire '.htaccess' protégé par un mot de passe aléatoire et que tous les anciens téléchargements insérer dans un précédent articles / pages ne fonctionne plus. Vous devez mettre à jour vos pages et articles. Si vous avez déjà utilisé un fichier '.htaccess' pour protéger vos fichiers le plugin <strong>ecrasera</strong> le fichier '.htaccess' existant. Vous pouvez désactiver le fichier de verrouillage et mettre en place un mot de passe de diffèrent \".</em>"
+msgstr "Gérer l'accès à vos messages et à vos pages. strong>Note:</strong> <em>Si vous activez le plugin pour télécharger dan s le répertoire '.htaccess' protégé par un mot de passe aléatoire et que tous les anciens téléchargements insérer dans un précédent articles / pages ne fonctionne plus. Vous devez mettre à jour vos pages et articles. Si vous avez déjà utilisé un fichier '.htaccess' pour protéger vos fichiers le plugin <strong>ecrasera</strong> le fichier '.htaccess' existant. Vous pouvez désactiver le fichier de verrouillage et mettre en place un mot de passe de diffèrent \".</em>"
 
 #. Author of an extension
 msgid "Alexander Schneider"
