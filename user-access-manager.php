@@ -71,7 +71,7 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_POST_CONTENT', __('Post content', 'user-access-manager'));
 			define('TXT_POST_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single posts, otherwise a link will shown.', 'user-access-manager'));
 			define('TXT_SHOW_POST_CONTENT_BEFORE_MORE', __('Show post content before &lt;!--more--&gt; tag', 'user-access-manager'));
-			define('TXT_SHOW_POST_CONTENT_BEFORE_MORE_DESC', __('Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at "'.TXT_POST_CONTENT.'". If no &lt;!--more--&gt; is set he defined text at "'.TXT_POST_CONTENT.'" will shown.', 'user-access-manager'));
+			define('TXT_SHOW_POST_CONTENT_BEFORE_MORE_DESC', sprintf(__('Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at "%s". If no &lt;!--more--&gt; is set he defined text at "%s" will shown.', 'user-access-manager'), TXT_POST_CONTENT));
 			define('TXT_HIDE_POST', __('Hide complete posts', 'user-access-manager'));
 			define('TXT_HIDE_POST_DESC', __('Selecting "Yes" will hide posts if the user has no access.', 'user-access-manager'));
 			define('TXT_POST_COMMENT_CONTENT', __('Post commtent text', 'user-access-manager'));
