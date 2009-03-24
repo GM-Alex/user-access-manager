@@ -3,9 +3,9 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.8.0.2
+Version: 0.9
 Author: Alexander Schneider
-Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
+Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
  
 Copyright 2008  Alexander Schneider  (email :  alexanderschneider85 [at] gmail DOT com)
 
@@ -35,9 +35,8 @@ define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix.'uam_accessgroup_to_category'
 define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix.'uam_accessgroup_to_role');
 
 //PATH
-define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' );
-
-//###Lang###
+//define('UAM_URLPATH', WP_CONTENT_URL.plugin_basename( dirname(__FILE__)).'/' );
+define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/' ); //Localhost DEBUG
 
 if (!class_exists("UserAccessManager"))
 {
@@ -47,6 +46,7 @@ if (!class_exists("UserAccessManager"))
 		var $atAdminPanel = false;
 		var $restrictedPost = array();
 		var $postAccess = array();
+		var $postUserGroup = array();
 		var $uam_db_version = "1.1";
 		var $adminOptions;
 		
@@ -69,7 +69,9 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_DISPLAY_POST_TITLE', __('Hide post titel', 'user-access-manager'));
 			define('TXT_DISPLAY_POST_TITLE_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_TITLE));
 			define('TXT_POST_CONTENT', __('Post content', 'user-access-manager'));
-			define('TXT_POST_CONTENT_DESC', __('Content displayed if user has no access', 'user-access-manager'));
+			define('TXT_POST_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single posts, otherwise a link will shown.', 'user-access-manager'));
+			define('TXT_SHOW_POST_CONTENT_BEFORE_MORE', __('Show post content before &lt;!--more--&gt; tag', 'user-access-manager'));
+			define('TXT_SHOW_POST_CONTENT_BEFORE_MORE_DESC', __('Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at "'.TXT_POST_CONTENT.'". If no &lt;!--more--&gt; is set he defined text at "'.TXT_POST_CONTENT.'" will shown.', 'user-access-manager'));
 			define('TXT_HIDE_POST', __('Hide complete posts', 'user-access-manager'));
 			define('TXT_HIDE_POST_DESC', __('Selecting "Yes" will hide posts if the user has no access.', 'user-access-manager'));
 			define('TXT_POST_COMMENT_CONTENT', __('Post commtent text', 'user-access-manager'));
@@ -86,7 +88,7 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_DISPLAY_PAGE_TITLE', __('Hide page titel', 'user-access-manager'));
 			define('TXT_DISPLAY_PAGE_TITLE_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_TITLE));
 			define('TXT_PAGE_CONTENT', __('Page content', 'user-access-manager'));
-			define('TXT_PAGE_CONTENT_DESC', __('Content displayed if user has no access', 'user-access-manager'));
+			define('TXT_PAGE_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single pages, otherwise a link will shown.', 'user-access-manager'));
 			define('TXT_HIDE_PAGE', __('Hide complete pages', 'user-access-manager'));
 			define('TXT_HIDE_PAGE_DESC', __('Selecting "Yes" will hide pages if the user has no access. Pages will also hide in the navigation.', 'user-access-manager'));
 			
@@ -109,6 +111,8 @@ if (!class_exists("UserAccessManager"))
 			
 			define('TXT_OTHER_SETTING', __('Other settings', 'user-access-manager'));
 			define('TXT_OTHER_SETTING_DESC', __('Here you will find all other settings', 'user-access-manager'));
+			define('TXT_PROTECT_FEED', __('Protect Feed', 'user-access-manager'));
+			define('TXT_PROTECT_FEED_DESC', __('Selecting "Yes" will also protect your feed entries.', 'user-access-manager'));
 			define('TXT_HIDE_EMPTY_CATEGORIES', __('Hide empty categories', 'user-access-manager'));
 			define('TXT_HIDE_EMPTY_CATEGORIES_DESC', __('Selecting "Yes" will hide empty categories which are containing only empty childs or no childs.', 'user-access-manager'));
 			define('TXT_REDIRECT', __('Redirect user', 'user-access-manager'));
@@ -491,7 +495,8 @@ if (!class_exists("UserAccessManager"))
 											'blog_admin_hint' => 'true',
 											'blog_admin_hint_text' => '[L]',
 											'core_mod' => 'false',
-											'hide_empty_categories' => 'true');
+											'hide_empty_categories' => 'true',
+											'protect_feed' => 'true');
 				
 				$uamOptions = get_option($this->adminOptionsName);
 				if (!empty($uamOptions)) {
@@ -520,6 +525,10 @@ if (!class_exists("UserAccessManager"))
 				if (isset($_POST['uam_post_title']))
 				{
 					$uamOptions['post_title'] = $_POST['uam_post_title'];
+				}
+				if (isset($_POST['uam_show_post_content_before_more']))
+				{
+					$uamOptions['show_post_content_before_more'] = $_POST['uam_show_post_content_before_more'];
 				}
 				if (isset($_POST['uam_post_content']))
 				{
@@ -556,6 +565,10 @@ if (!class_exists("UserAccessManager"))
 				if (isset($_POST['uam_hide_page']))
 				{
 					$uamOptions['hide_page'] = $_POST['uam_hide_page'];
+				}
+				if (isset($_POST['uam_protect_feed']))
+				{
+					$uamOptions['protect_feed'] = $_POST['uam_protect_feed'];
 				}
 				if (isset($_POST['uam_hide_empty_categories']))
 				{
@@ -863,6 +876,23 @@ if (!class_exists("UserAccessManager"))
 								</tr>
 								<tr valign="top">
 									<th scope="row">
+										<?php echo TXT_SHOW_POST_CONTENT_BEFORE_MORE; ?>
+									</th>
+									<td>
+										<label for="uam_show_post_content_before_more_yes">
+											<input type="radio" id="uam_hide_post_title_yes" name="uam_show_post_content_before_more" value="true" <?php if ($uamOptions['show_post_content_before_more'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_show_post_content_before_more_no">
+											<input type="radio" id="uam_hide_post_title_no" name="uam_show_post_content_before_more" value="false" <?php if ($uamOptions['show_post_content_before_more'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_SHOW_POST_CONTENT_BEFORE_MORE_DESC; ?>
+									</td>
+								</tr>
+								<tr valign="top">
+									<th scope="row">
 										<?php echo TXT_POST_CONTENT; ?>
 									</th>
 									<td>
@@ -1067,6 +1097,23 @@ if (!class_exists("UserAccessManager"))
 						<p><?php echo TXT_OTHER_SETTING_DESC; ?></p>
 						<table class="form-table">
 							<tbody>
+								<tr>
+									<th>
+										<?php echo TXT_PROTECT_FEED; ?>
+									</th>
+									<td>
+										<label for="uam_protect_feed_yes">
+											<input type="radio" id="uam_protect_feed_yes" name="uam_protect_feed" value="true" <?php if ($uamOptions['protect_feed'] == "true") { echo 'checked="checked"'; }?> />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_protect_feed_no">
+											<input type="radio" id="uam_protect_feed_no" name="uam_protect_feed" value="false" <?php if ($uamOptions['protect_feed'] == "false") { echo 'checked="checked"'; }?>/> 
+											<?php echo TXT_NO; ?>
+										</label>
+										<br />
+										<?php echo TXT_PROTECT_FEED_DESC; ?>
+									</td>
+								</tr>
 								<tr>
 									<th>
 										<?php echo TXT_HIDE_EMPTY_CATEGORIES; ?>
@@ -1718,6 +1765,9 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb;
 			
+			if(isset($this->postUserGroup[$ID]))
+				return $this->postUserGroup[$ID];
+			
 			$access = $this->get_access($ID);
 			
 			$post_usergroups = array();
@@ -1752,7 +1802,7 @@ if (!class_exists("UserAccessManager"))
 										$posts = $cur_usergroup->posts;
 									
 									$lock_post = & get_post($cur_id);
-									$posts[] = $lock_post->ID;
+									$posts[$lock_post->ID] = $lock_post->ID;
 									$cur_usergroup->posts = $posts;
 								}
 								else
@@ -1792,7 +1842,7 @@ if (!class_exists("UserAccessManager"))
 									$categories = $cur_usergroup->categories;
 									
 								$lock_cat = & get_category($cur_id);
-								$categories[] = $lock_cat->term_id;
+								$categories[$lock_cat->term_id] = $lock_cat->term_id;
 								$cur_usergroup->categories = $categories;
 
 								$post_usergroups[$usergroup['ID']] = $cur_usergroup;
@@ -1803,6 +1853,8 @@ if (!class_exists("UserAccessManager"))
 					}
 				}
 			}
+			
+			$this->postUserGroup[$ID] = $post_usergroups;
 			
 			return $post_usergroups;
 		}
@@ -1824,11 +1876,6 @@ if (!class_exists("UserAccessManager"))
 												WHERE group_id = ".$groupid."
 												ORDER BY user_id", ARRAY_A);
 			
-			$db_posts = $wpdb->get_results("	SELECT *
-												FROM ".DB_ACCESSGROUP_TO_POST."
-												WHERE group_id = ".$groupid."
-												ORDER BY post_id", ARRAY_A);
-			
 			$db_categories = $wpdb->get_results("	SELECT *
 													FROM ".DB_ACCESSGROUP_TO_CATEGORY."
 													WHERE group_id = ".$groupid."
@@ -1843,28 +1890,48 @@ if (!class_exists("UserAccessManager"))
 												ORDER BY user_nicename", ARRAY_A);
 			
 
-			if(isset($db_posts))
+			$args = array( 	'numberposts' => -1,
+							'post_type' => 'any');
+			
+			$posts = get_posts($args);
+			
+			if(isset($posts))
 			{
-				foreach($db_posts as $db_post)
-				{
-					$cur_id = $db_post['post_id'];
-					$cur_post = & get_post($cur_id);
+				foreach($posts as $post)
+				{					
+					$groupinfo = $this->get_usergroups_for_post($post->ID);
 					
-					if(isset($cur_post->post_type))
+					if(isset($groupinfo[$groupid]))
 					{
-						if($cur_post->post_type == 'post')
+						if($post->post_type == 'post')
 						{
-							$info->posts[$cur_id] = $cur_post;
+							$info->posts[$post->ID] = $post;
 						}
-						elseif($cur_post->post_type == 'page')
+						elseif($post->post_type == 'page')
 						{
-							$info->pages[$cur_id] = $cur_post;
+							$info->pages[$post->ID] = $post;
 						}
-						elseif($cur_post->post_type == 'attachment')
+						elseif($post->post_type == 'attachment')
 						{
-							$info->files[$cur_id] = $cur_post;
+							$info->files[$post->ID] = $post;
 						}
 					}
+				}
+			}
+			
+			$args = array( 	'numberposts' => -1,
+							'post_type' => 'attachment');
+			
+			$files = get_posts($args);
+			
+			if(isset($files))
+			{
+				foreach($files as $file)
+				{					
+					$groupinfo = $this->get_usergroups_for_post($file->ID);
+					
+					if(isset($groupinfo[$groupid]))
+						$info->files[$file->ID] = $file;
 				}
 			}
 
@@ -1931,140 +1998,6 @@ if (!class_exists("UserAccessManager"))
 					}
 				}
 			}
-			
-
-			if(isset($info->categories))
-			{
-				foreach($info->categories as $group_category)
-				{
-					$cur_posts = get_posts('category='.$group_category->term_id);
-					if(isset($cur_posts))
-					{
-						foreach($cur_posts as $cur_post)
-						{
-							if($uamOptions['lock_recursive'] == 'false')
-							{
-								$cur_categories = get_the_category($cur_post->ID);	
-								foreach($cur_categories as $cur_cat)
-								{
-									if($cur_cat->term_id == $group_category->term_id)
-									{
-										$add = true;
-										break;
-									}
-								}
-							}
-							
-							if(isset($add) || $uamOptions['lock_recursive'] == 'true')
-							{
-								if(isset($info->posts[$cur_post->ID]))
-									$cur_post = $info->posts[$cur_post->ID];
-								
-								$cur_post->recursive_lock_by_category[$group_category->term_id] = $group_category->term_id;
-								$info->posts[$cur_post->ID] = $cur_post;
-							}
-						}
-					}
-					
-					$cur_files = get_posts('category='.$group_category->term_id.'&post_type=attachment');
-					if(isset($cur_files))
-					{
-						foreach($cur_files as $cur_file)
-						{
-							if($uamOptions['lock_recursive'] == 'false')
-							{
-								$cur_categories = get_the_category($cur_post->ID);	
-								foreach($cur_categories as $cur_cat)
-								{
-									if($cur_cat->term_id == $group_category->term_id)
-									{
-										$add = true;
-										break;
-									}
-								}
-							}
-							
-							if(isset($add) || $uamOptions['lock_recursive'] == 'true')
-							{
-								if(isset($info->files[$cur_file->ID]))
-									$cur_file = $info->files[$cur_file->ID];
-								
-								$cur_file->recursive_lock_by_category[$group_category->term_id] = $group_category->term_id;
-								$info->files[$cur_file->ID] = $cur_file;
-							}
-						}
-					}
-				}	
-			}
-			
-			if(isset($info->posts))
-			{
-				foreach($info->posts as $group_post)
-				{
-					if($uamOptions['lock_recursive'] == 'true')
-					{
-						$cur_posts = get_posts('post_parent='.$group_post->ID);
-						if(isset($cur_posts))
-						{
-							foreach($cur_posts as $cur_post)
-							{
-								if(isset($info->posts[$cur_post->ID]))
-									$cur_post = $info->posts[$cur_post->ID];
-								
-								$cur_post->recursive_lock_by_post[$group_post->ID] = $group_post->ID;
-								$info->posts[$cur_post->ID] = $cur_post;
-							}
-						}
-					}
-					$cur_files = get_posts('post_parent='.$group_post->ID.'&post_type=attachment');
-					if(isset($cur_files))
-					{
-						foreach($cur_files as $cur_file)
-						{
-							if(isset($info->files[$cur_file->ID]))
-								$cur_file = $info->files[$cur_file->ID];
-							
-							$cur_file->recursive_lock_by_post[$group_post->ID] = $group_post->ID;
-							$info->files[$cur_file->ID] = $cur_file;
-						}
-					}
-				}
-			}	
-				
-			if(isset($info->pages))
-			{		
-				foreach($info->pages as $group_page)
-				{
-					if($uamOptions['lock_recursive'] == 'true')
-					{
-						$cur_pages = get_pages('child_of='.$group_page->ID);
-						if(isset($cur_pages))
-						{
-							foreach($cur_pages as $cur_page)
-							{
-								if(isset($info->posts[$cur_post->ID]))
-									$cur_post = $info->posts[$cur_post->ID];
-								
-								$cur_post->recursive_lock_by_post[$group_page->ID] = $group_page->ID;
-								$info->pages[$cur_page->ID] = $cur_page;
-							}
-						}
-					}
-				
-					$cur_files = get_posts('post_parent='.$group_page->ID.'&post_type=attachment');
-					if(isset($cur_files))
-					{
-						foreach($cur_files as $cur_file)
-						{
-							if(isset($info->files[$cur_file->ID]))
-								$cur_file = $info->files[$cur_file->ID];
-							
-							$cur_file->recursive_lock_by_post[$group_post->ID] = $group_post->ID;
-							$info->files[$cur_file->ID] = $cur_file;
-						}
-					}
-				}
-			}	
 			
 			return $info;
 		}
@@ -2310,10 +2243,41 @@ if (!class_exists("UserAccessManager"))
 		
 		function save_postdata($post_id)
 		{
-			global $wpdb;
-			if(isset($_POST['accessgroups']))
-				$accessgroups = $_POST['accessgroups'];
+			global $current_user, $wpdb;
+			$cur_userdata = get_userdata($current_user->ID);
 			
+			if(empty($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+			{
+				$uamOptions = $this->getAdminOptions();
+			
+				$cur_categories = wp_get_post_categories($post_id);
+				
+				$allowded_categories = get_categories();
+				
+				foreach($cur_categories as $category)
+				{
+					foreach($allowded_categories as $allowded_category)
+					{
+						if($allowded_category->term_id == $category)
+						{
+							$post_categories[] = $allowded_category->term_id;
+							break;
+						}
+					}
+				}
+				
+				if(!isset($post_categories))
+				{
+					$last_category = array_pop($allowded_categories);
+					$post_categories[] = $last_category->term_id;
+				}
+				
+				wp_set_post_categories($post_id, $post_categories);
+			}	
+			
+			if(isset($_POST['accessgroups']))
+				$accessgroups = $_POST['accessgroups'];	
+				
 			$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_POST." WHERE post_id = $post_id");
 			if(isset($accessgroups))
 			{
@@ -2670,6 +2634,39 @@ if (!class_exists("UserAccessManager"))
 			$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_CATEGORY." WHERE category_id = $category_id");
 		}
 		
+		function get_login_bar() 
+		{
+			if(!is_user_logged_in())
+			{
+				if(!is_single())
+				{
+					$output = '<a href="' . get_bloginfo ( 'url' ) . '/wp-login.php?redirect_to=' . urlencode($_SERVER['REQUEST_URI'])  . '">'.__('Login').'</a>';
+				}
+				else
+				{
+					if(! isset ($user_login))
+							$user_login = '';
+					// login form
+					$output = '<form action="'. get_bloginfo ( 'url' ) . '/wp-login.php" method="post" >';     
+						$output .= '<p><label for="user_login">'.__('Username:').'<input name="log" value="'.wp_specialchars(stripslashes($user_login), 1).'" class="input" id="user_login" type="text" /></label></p>';
+						$output .= '<p><label for="user_pass">'.__('Password:').'<input name="pwd" class="imput" id="user_pass" type="password" /></label></p>';
+						$output .= '<p class="forgetmenot"><label for="rememberme"><input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" /> '. __('Remember me').'</label></p>';
+						$output .= '<p class="submit"><input type="submit" name="wp-submit" id="wp-submit" value="'.__('Login').' &raquo;" />';
+						$output .= '<input type="hidden" name="redirect_to" value="' . $_SERVER['REQUEST_URI'] . '" />';
+					$output .= '</form>';
+		
+					$output .= '<p>';
+						if (get_option('users_can_register'))
+							$output .= '<a href="'.get_bloginfo('wpurl').'/wp-login.php?action=register">'.__('Register').'</a></br>';
+						$output .= '<a href="'.get_bloginfo('wpurl').'/wp-login.php?action=lostpassword" title="'. __('Password Lost and Found').'">'. __('Lost your password?').'</a>';
+					$output .= '</p>';
+				}
+				
+				return $output;
+			}
+			return null;
+		}
+		
 		function get_access($post_id = null)
 		{
 			global $wpdb;
@@ -2998,45 +2995,61 @@ if (!class_exists("UserAccessManager"))
 			$show_posts = null;
 			$uamOptions = $this->getAdminOptions();
 			
-			foreach($posts as $post)
+			if(!is_feed() || ($uamOptions['protect_feed'] == 'true' && is_feed()))
 			{
-				if( ($uamOptions['hide_post'] == 'true' && $post->post_type == "post") || ($uamOptions['hide_page'] == 'true' && $post->post_type == "page") || $this->atAdminPanel)
+				foreach($posts as $post)
 				{
-					if($this->check_access($post->ID))
+					if( ($uamOptions['hide_post'] == 'true' && $post->post_type == "post") || ($uamOptions['hide_page'] == 'true' && $post->post_type == "page") || $this->atAdminPanel)
 					{
+						if($this->check_access($post->ID))
+						{
+							$post->post_title .= $this->admin_output($post->ID);
+							$show_posts[] = $post;
+						}
+					}
+					else
+					{
+						if(!$this->check_access($post->ID))
+						{
+							if($post->post_type == "post")
+							{
+								$uam_post_content = $uamOptions['post_content'];
+								$uam_post_content = str_replace("[LOGIN_FORM]", $this->get_login_bar(), $uam_post_content);
+								
+								if($uamOptions['hide_post_title'] == 'true')
+									$post->post_title = $uamOptions['post_title'];
+								
+								if($uamOptions['show_post_content_before_more'] == 'true' && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches))
+								{
+									$post->post_content = explode($matches[0], $post->post_content, 2);
+									$post->post_content = $post->post_content[0]." ".$uam_post_content;
+								}
+								else
+								{
+									$post->post_content = $uam_post_content;
+								}
+								
+								if($uamOptions['allow_comments_locked'] == 'false')
+									$post->comment_status = 'close';
+							}
+							elseif($post->post_type == "page")
+							{
+								if($uamOptions['hide_page_title'] == 'true')
+									$post->post_title = $uamOptions['page_title'];
+								
+								$uam_post_content = $uamOptions['page_content'];
+								$uam_post_content = str_replace("[LOGIN_FORM]", $this->get_login_bar(), $uam_post_content);	
+									
+								$post->post_content = $uam_post_content;
+							}
+						}
 						$post->post_title .= $this->admin_output($post->ID);
 						$show_posts[] = $post;
 					}
 				}
-				else
-				{
-					if(!$this->check_access($post->ID))
-					{
-						if($post->post_type == "post")
-						{
-							if($uamOptions['hide_post_title'] == 'true')
-								$post->post_title = $uamOptions['post_title'];
-							
-							$post->post_content = $uamOptions['post_content'];
-							
-							if($uamOptions['allow_comments_locked'] == 'false')
-								$post->comment_status = 'close';
-						}
-						elseif($post->post_type == "page")
-						{
-							if($uamOptions['hide_page_title'] == 'true')
-								$post->post_title = $uamOptions['page_title'];
-							
-							$post->post_content = $uamOptions['page_content'];
-						}
-					}
-					$post->post_title .= $this->admin_output($post->ID);
-					$show_posts[] = $post;
-				}
-			}
-		
-			$posts = $show_posts;
 			
+			$posts = $show_posts;
+			}	
 			return $posts;
 		}
 		
@@ -3047,7 +3060,7 @@ if (!class_exists("UserAccessManager"))
 			
 			foreach($comments as $comment)
 			{
-				if($uamOptions['hide_post_comment'] == 'true' || $this->atAdminPanel)
+				if($uamOptions['hide_post_comment'] == 'true' || $uamOptions['hide_post'] == 'true' ||$this->atAdminPanel)
 				{
 					if($this->check_access($comment->comment_post_ID))
 					{
@@ -3108,73 +3121,51 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $current_user, $wpdb;
 			$cur_userdata = get_userdata($current_user->ID);
-					
+			
 			if(empty($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
 			{
 				$uamOptions = $this->getAdminOptions();
-				if($uamOptions['hide_post'] == 'true' || $uamOptions['hide_page'] == 'true' || $this->atAdminPanel)
+				
+				if($this->atAdminPanel)
 				{
-					$args = array( 'numberposts' => -1); 
-					$posts = get_posts($args);
+					$accesscategories = $wpdb->get_results("SELECT agtc.category_id
+															FROM ".DB_ACCESSGROUP_TO_USER." agtu, ".DB_ACCESSGROUP_TO_CATEGORY." agtc
+															WHERE agtu.user_id = ".$current_user->ID."
+																AND agtu.group_id = agtc.group_id", ARRAY_A);
 					
-					foreach($categories as $category)
+					if(isset($accesscategories))
 					{
-						$count = 0;
-							
-						if(isset($posts))
-						{
-							foreach($posts as $cur_post)
+						foreach($accesscategories as $accesscategory)
+						{							
+							foreach($categories as $category)
 							{
-								$post_cat_ids = array();
-								$post_cats = get_the_category($cur_post->ID);
-								foreach($post_cats as $post_cat)
+								if($accesscategory['category_id'] == $category->term_id)
 								{
-									$post_cat_ids[] = $post_cat->term_id;
+									$show_categories[$category->term_id] = $category;
+									
+									if(isset($empty_categories[$category->term_id]))
+										unset($empty_categories[$category->term_id]);
 								}
-								
-								if(in_array($category->term_id, $post_cat_ids) )
+								else
 								{
-									if( ($uamOptions['hide_post'] == 'true' && $cur_post->post_type == "post") || ($uamOptions['hide_page'] == 'true' && $cur_post->post_type == "page") )
-									{
-										if($this->check_access($cur_post->ID))
-											$count++;
-									}
-									else
-									{
-										$count++;
-									}
+									if(empty($show_categories[$category->term_id]))
+										$empty_categories[$category->term_id] = $category;
 								}
 							}
 						}
 						
-						if($count != 0 || $uamOptions['hide_empty_categories'] == 'false')
+						if(isset($empty_categories) && $uamOptions['lock_recursive'] == 'true')
 						{
-							$category->count = $count;
-							$cur_show_categories[$category->term_id] = $category;
-						}
-						elseif($category->taxonomy == "link_category" || $category->taxonomy == "post_tag")
-						{
-							$show_categories[] = $category;
-						}
-						elseif($count == 0)
-						{
-							$empty_categories[$category->term_id] = $category;
-						}
-					}
-					
-					if($uamOptions['hide_empty_categories'] == 'true')
-					{
-						if(isset($cur_show_categories))
-						{
-							foreach($cur_show_categories as $cur_show_category)
+							foreach($empty_categories as $empty_category)
 							{
-								$show_categories[$cur_show_category->term_id] = $cur_show_category;
-								
-								$cur_cat = $cur_show_category;
-								while($cur_cat->parent != 0 && isset($empty_categories))
+								$cur_cat = $empty_category;
+								while($cur_cat->parent != 0 && isset($show_categories))
 								{
-									if(empty($show_categories[$cur_cat->parent]))
-										$show_categories[$cur_cat->parent] = $empty_categories[$cur_cat->parent];
+									if(isset($show_categories[$cur_cat->parent]))
+									{
+										$show_categories[$empty_category->term_id] = $empty_category;
+										break;
+									}
 									
 									$cur_id = $cur_cat->parent;
 									$cur_cat = & get_category($cur_id);
@@ -3182,12 +3173,104 @@ if (!class_exists("UserAccessManager"))
 							}
 						}
 					}
-					
-					if(isset($show_categories))
-						$categories = $show_categories;
-					else
-						$categories = null;
 				}
+				else
+				{
+					if($uamOptions['hide_post'] == 'true' || $uamOptions['hide_page'] == 'true')
+					{
+						$args = array( 'numberposts' => -1); 
+						$posts = get_posts($args);
+						
+						foreach($categories as $category)
+						{
+							$count = 0;
+								
+							if(isset($posts))
+							{
+								foreach($posts as $cur_post)
+								{
+									$post_cat_ids = array();
+									$post_cats = get_the_category($cur_post->ID);
+									foreach($post_cats as $post_cat)
+									{
+										$post_cat_ids[] = $post_cat->term_id;
+									}
+									
+									if(in_array($category->term_id, $post_cat_ids) )
+									{
+										if( ($uamOptions['hide_post'] == 'true' && $cur_post->post_type == "post") || ($uamOptions['hide_page'] == 'true' && $cur_post->post_type == "page"))
+										{
+											if($this->check_access($cur_post->ID))
+												$count++;
+										}
+										else
+										{
+											$count++;
+										}
+									}
+								}
+							}
+							
+							if(($count != 0 || ($uamOptions['hide_empty_categories'] == 'false' && !$this->atAdminPanel )))
+							{
+								$category->count = $count;
+								$cur_show_categories[$category->term_id] = $category;
+							}
+							elseif($category->taxonomy == "link_category" || $category->taxonomy == "post_tag")
+							{
+								$show_categories[$category->term_id] = $category;
+							}
+							elseif($count == 0)
+							{
+								$category->count = $count;
+								$empty_categories[$category->term_id] = $category;
+							}
+						}
+						
+						if($uamOptions['hide_empty_categories'] == 'true')
+						{
+							if(isset($cur_show_categories))
+							{
+								foreach($cur_show_categories as $cur_show_category)
+								{
+									$cur_count = $cur_show_category->count;
+									$show_categories[$cur_show_category->term_id] = $cur_show_category;
+									
+									$cur_cat = $cur_show_category;
+									while($cur_cat->parent != 0 && isset($empty_categories))
+									{
+										if(empty($show_categories[$cur_cat->parent]))
+										{
+											if(isset( $empty_categories[$cur_cat->parent]))
+											{
+												$cur_empty_cat = $empty_categories[$cur_cat->parent];
+												$cur_empty_cat->count = $cur_count;
+												$show_categories[$cur_cat->parent] = $cur_empty_cat;
+											}
+										}
+										
+										$cur_id = $cur_cat->parent;
+										$cur_cat = & get_category($cur_id);
+									}
+								}
+							}
+						}
+						else
+						{
+							if(isset($cur_show_categories))
+							{
+								foreach($cur_show_categories as $cur_show_category)
+								{
+									$show_categories[$cur_show_category->term_id] = $cur_show_category;
+								}
+							}
+						}
+					}
+				}
+				if(isset($show_categories))
+					$categories = $show_categories;
+				else
+					$categories = null;
 			}
 			
 			return $categories;
@@ -3216,20 +3299,48 @@ if (!class_exists("UserAccessManager"))
 		{
 			$uamOptions = $this->getAdminOptions();
 
-			$posts = get_posts();
-			if(isset($posts))
+			if($uamOptions['hide_post'] == 'true')
 			{
-				foreach($posts as $post)
+				$posts = get_posts();
+				if(isset($posts))
 				{
-					if(!$this->check_access($post->ID))
-						$excluded_posts[] = $post->ID;
-				}
-				if(isset($excluded_posts))
+					foreach($posts as $post)
+					{
+						if(!$this->check_access($post->ID))
+							$excluded_posts[] = $post->ID;
+					}
+					if(isset($excluded_posts))
+					{
+						$excluded_posts_str = implode(",", $excluded_posts);
+						$sql .= "AND ID NOT IN($excluded_posts_str)";
+					}
+				}	
+			}
+				
+			return $sql;
+		}
+		
+		function show_post_sql($sql)
+		{
+			$uamOptions = $this->getAdminOptions();
+
+			if($uamOptions['hide_post'] == 'true')
+			{
+				$posts = get_posts();
+				if(isset($posts))
 				{
-					$excluded_posts_str = implode(",", $excluded_posts);
-					$sql .= "AND ID NOT IN($excluded_posts_str)";
-				}
-			}	
+					foreach($posts as $post)
+					{
+						if(!$this->check_access($post->ID))
+							$excluded_posts[] = $post->ID;
+					}
+					if(isset($excluded_posts))
+					{
+						$excluded_posts_str = implode(",", $excluded_posts);
+						$sql .= "AND ID NOT IN($excluded_posts_str)";
+					}
+				}	
+			}
 				
 			return $sql;
 		}
@@ -3313,7 +3424,7 @@ if (!class_exists("UserAccessManager"))
 					$cur_url = explode("?", "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
 					$file = str_replace($cur_url[0], "", $cur_post->guid);
 					$filename = basename($file);
-						
+					
 					if(file_exists($file))
 					{
 						$len = filesize($file);
@@ -3413,7 +3524,7 @@ if(class_exists("UserAccessManager"))
 if(!function_exists("UserAccessManager_AP")) {
 	function UserAccessManager_AP()
 	{
-		global $userAccessManager, $wp_version;
+		global $userAccessManager, $wp_version, $current_user, $wpdb;
 		
 		$userAccessManager->atAdminPanel = true;
 		
@@ -3432,9 +3543,16 @@ if(!function_exists("UserAccessManager_AP")) {
 		}
 		if( function_exists( 'add_meta_box' )) 
 		{
-    		add_meta_box( 'uma_post_access', 'Access', array(&$userAccessManager, 'edit_post_content'), 'post', 'side' );
-    		add_meta_box( 'uma_post_access', 'Access', array(&$userAccessManager, 'edit_post_content'), 'page', 'side' );
+			get_currentuserinfo();
+			$cur_userdata = get_userdata($current_user->ID);		
+
+			if(isset($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+			{
+	    		add_meta_box( 'uma_post_access', 'Access', array(&$userAccessManager, 'edit_post_content'), 'post', 'side' );
+	    		add_meta_box( 'uma_post_access', 'Access', array(&$userAccessManager, 'edit_post_content'), 'page', 'side' );
+			}
    		}
+   		
    		
    		//Admin actions
    		
@@ -3462,6 +3580,7 @@ if(!function_exists("UserAccessManager_AP")) {
    		
    		
    		//Admin filters
+
 		add_filter('manage_posts_columns', array(&$userAccessManager, 'add_post_columns_header'));
 		add_filter('manage_pages_columns', array(&$userAccessManager, 'add_post_columns_header'));
 		
@@ -3500,7 +3619,7 @@ if(isset($userAccessManager))
 		
 	if(function_exists('register_deactivation_hook'))
 		register_deactivation_hook(__FILE__, array(&$userAccessManager, 'deactivate'));
-		
+	
 	//Actions
 	add_action('admin_menu', 'UserAccessManager_AP');
 		
@@ -3517,6 +3636,6 @@ if(isset($userAccessManager))
 	add_filter('get_previous_post_where', array(&$userAccessManager, 'show_next_previous_post'));
 	add_filter('get_previous_post_where', array(&$userAccessManager, 'show_next_previous_post'));
 	add_filter('the_title', array(&$userAccessManager, 'show_title'), 10, 2);
+	add_filter('posts_where', array(&$userAccessManager, 'show_post_sql'));
 }
-
 ?>

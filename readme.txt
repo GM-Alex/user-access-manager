@@ -20,6 +20,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 * Set access by post categories
 * User-defined post/page title (if no access)
 * User-defined post/page text (if no access)
+* Optional login form (if no access)
 * User-defined comment text (if no access)
 * Hide complete post/page
 * Hide pages in navigation
@@ -29,13 +30,14 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 * Full integrated at the admin panel
 * Multilanguage support
 * Also proteced your rss feeds
+* Give access by IP-address
 
 <em>Included languages</em>
 
 * English
 * German
 * Czech, base on 0.7.0.1. Thanks to Huska
-* French, thanks to macbidule
+* French, base on 0.8.0.2. Thanks to macbidule
 
 <strong>Note</strong>: At this release you can replace one core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>). <strong>This core modification is not needed and only optional, but it gives you more comfort.</strong>
 
@@ -53,6 +55,12 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    0.9			2009/03/24	Add login form
+    						Add option to show text bevor &lt;!--more--&gt; tag
+    						Fix write access issues
+    						Fix file issues
+    						Small fixes
     
     0.8.0.2		2009/03/09	Add French language file
     						Delete .htaccess files on deactivation/uninstall 
