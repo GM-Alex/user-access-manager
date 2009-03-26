@@ -58,6 +58,8 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    0.9.1.1		2009/03/26	Fix the empty category issue
+    
     0.9.1		2009/03/26	Fix the database problem
     						Fix feed bug. Thanks to Markus Brinkmann
     						Fix wrong javascript path
