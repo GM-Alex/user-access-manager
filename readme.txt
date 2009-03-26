@@ -122,6 +122,11 @@ Access:
 - Post1: User1 because he is a admin, User2 because he is in the group and a subscriber, User3 he is a subscriber (to this group all subscribers has access!)
 - Post2: User1 because he is a admin, User3 because he is in the group (only group members has access because there is no role affiliation!) 
 
+<strong>I get an login box "WP-Files", what can I do?</strong>
+
+- You can deactivate the file locking at the UAM settings.
+- You can replace your media files in your posts. Just delete the old link and insert it again. (A new working link will generated)
+
 
 == Screenshots ==
 
