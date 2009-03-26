@@ -97,16 +97,16 @@ Here you found the changes in each version.
 
 == Frequently Asked Questions ==
 
-<strong>How works the User Access Manager?</strong>
+<h5>How works the User Access Manager?</h5>
 
 All posts/pages which are not in a user access group are accessable to all users. Posts/pages can put to groupes by themselfe, categories or recursive (most by pages).
 
-<strong>How dose "Role affiliation" work?</strong>
+<h5>How dose "Role affiliation" work?</h5>
 
 This example will give you an overview:
 
-Posts: Post1, Post2
-Users: User1 (admin), User2 (subscriber), User3 (subscriber)
+- Posts: Post1, Post2
+- Users: User1 (admin), User2 (subscriber), User3 (subscriber)
 
 Groups:
 
@@ -115,8 +115,8 @@ Groups:
 
 Access:
 
-Post1: User1 because he is a admin, User2 because he is in the group and a subscriber, User3 he is a subscriber (to this group all subscribers has access!)
-Post2: User1 because he is a admin, User3 because he is in the group (only group members has access because there is no role affiliation!) 
+- Post1: User1 because he is a admin, User2 because he is in the group and a subscriber, User3 he is a subscriber (to this group all subscribers has access!)
+- Post2: User1 because he is a admin, User3 because he is in the group (only group members has access because there is no role affiliation!) 
 
 
 == Screenshots ==
