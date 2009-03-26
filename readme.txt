@@ -97,6 +97,10 @@ Here you found the changes in each version.
 
 == Frequently Asked Questions ==
 
+<strong>How works the User Access Manager?</strong>
+
+All posts/pages which are not in a user access group are accessable to all users. Posts/pages can put to groupes by themselfe, categories or recursive (most by pages).
+
 <strong>How dose "Role affiliation" work?</strong>
 
 This example will give you an overview:
