@@ -3324,7 +3324,7 @@ if (!class_exists("UserAccessManager"))
 		{
 			$uamOptions = $this->getAdminOptions();
 
-			if($uamOptions['hide_post'] == 'true')
+			if(($uamOptions['hide_post'] == 'true' && !is_feed()) || (is_feed() && $uamOptions['protect_feed'] == 'true'))
 			{
 				$posts = get_posts();
 				if(isset($posts))
