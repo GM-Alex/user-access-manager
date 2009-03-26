@@ -59,7 +59,7 @@ Here you found the changes in each version.
     Version		Date      	Changes
     
     0.9			2009/03/24	Add login form
-    						Add option to show text bevor &lt;!--more--&gt; tag
+    						Add option to show text bevor <!--more--> tag
     						Fix write access issues
     						Fix file issues
     						Small fixes
@@ -95,9 +95,11 @@ Here you found the changes in each version.
     0.6			2007/12/14	First release.
 
 
-== FAQ ==
+== Frequently Asked Questions ==
 
-How dose "Role affiliation" work?
+<strong>How dose "Role affiliation" work?</strong>
+
+This example will give you an overview:
 
 Posts: Post1, Post2
 Users: User1 (admin), User2 (subscriber), User3 (subscriber)
