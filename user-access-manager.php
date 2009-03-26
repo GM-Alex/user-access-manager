@@ -3,7 +3,7 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.9
+Version: 0.9.1
 Author: Alexander Schneider
 Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
  
@@ -35,7 +35,7 @@ define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix.'uam_accessgroup_to_category'
 define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix.'uam_accessgroup_to_role');
 
 //PATH
-define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)) );
+define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' );
 //define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/' ); //Localhost DEBUG
 
 if (!class_exists("UserAccessManager"))
@@ -296,6 +296,9 @@ if (!class_exists("UserAccessManager"))
 			$uam_db_version = $this->uam_db_version;
 			$installed_ver = get_option( "uam_db_version" );
 			
+			if(empty($installed_ver))
+				$this->install();
+			
 			if($installed_ver != $uam_db_version)
 			{
 				if($installed_ver == '1.0')
@@ -308,9 +311,12 @@ if (!class_exists("UserAccessManager"))
 					}
 				}
 			}
-			if($wpdb->get_var("show columns from ".DB_ACCESSGROUP." like 'ip_range'") != 'ip_range')
+			if($wpdb->get_var("show tables like '".DB_ACCESSGROUP."'") == DB_ACCESSGROUP)
 			{
-				$wpdb->query("ALTER TABLE ".DB_ACCESSGROUP." ADD ip_range MEDIUMTEXT NULL DEFAULT ''");
+				if($wpdb->get_var("show columns from ".DB_ACCESSGROUP." like 'ip_range'") != 'ip_range')
+				{
+					$wpdb->query("ALTER TABLE ".DB_ACCESSGROUP." ADD ip_range MEDIUMTEXT NULL DEFAULT ''");
+				}
 			}
 		}
 		
@@ -3534,7 +3540,7 @@ if(!function_exists("UserAccessManager_AP")) {
 		}
 		if (function_exists('add_menu_page'))
 		{
-			add_menu_page('User Access Manager', 'Access Manager', 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH."/gfx/icon.png");
+			add_menu_page('User Access Manager', 'Access Manager', 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH."gfx/icon.png");
 		}
 		if (function_exists('add_submenu_page'))
 		{
@@ -3607,7 +3613,7 @@ if(isset($userAccessManager))
 {
 	add_action('init', array(&$userAccessManager, 'init'));	
 	$uamOptions = $userAccessManager->getAdminOptions();
-	
+
 	//install
 	if(function_exists('register_activation_hook'))
 		register_activation_hook(__FILE__, array(&$userAccessManager, 'install'));
