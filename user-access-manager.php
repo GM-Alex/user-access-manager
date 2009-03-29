@@ -3,7 +3,7 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.9.1.1
+Version: 0.9.1.2
 Author: Alexander Schneider
 Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
  
@@ -207,6 +207,12 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_COLLAPS_ALL', __('collaps all', 'user-access-manager'));
 			define('TXT_ALL', __('all', 'user-access-manager'));
 			define('TXT_ONLY_GROUP_USERS', __('only group users', 'user-access-manager'));
+			
+			define('TXT_SETUP', __('Setup', 'user-access-manager'));
+			define('TXT_RESET_UAM', __('Reset User Access Manager', 'user-access-manager'));
+			define('TXT_RESET_UAM_DESC', __('Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost.', 'user-access-manager'));
+			define('TXT_RESET', __('reset', 'user-access-manager'));
+			define('TXT_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
 		}
 		
 		function install()
@@ -324,6 +330,8 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb;
 			$wpdb->query("DROP TABLE ".DB_ACCESSGROUP.", ".DB_ACCESSGROUP_TO_POST.", ".DB_ACCESSGROUP_TO_USER.", ".DB_ACCESSGROUP_TO_CATEGORY.", ".DB_ACCESSGROUP_TO_ROLE);
+			delete_option($this->adminOptionsName);
+			delete_option("uam_db_version");
 			$this->delete_htaccess_files();
 		}
 		
@@ -502,7 +510,8 @@ if (!class_exists("UserAccessManager"))
 											'blog_admin_hint_text' => '[L]',
 											'core_mod' => 'false',
 											'hide_empty_categories' => 'true',
-											'protect_feed' => 'true');
+											'protect_feed' => 'true',
+											'show_post_content_before_more' => 'false');
 				
 				$uamOptions = get_option($this->adminOptionsName);
 				if (!empty($uamOptions)) {
@@ -819,6 +828,23 @@ if (!class_exists("UserAccessManager"))
 				?>
 					<div class="updated"><p><strong><?php echo TXT_ACCESS_GROUP_EDIT_SUC; ?></strong></p></div> 
 				<?php
+				}
+			}
+
+			if($post_action == 'reset_uam')
+			{
+				if(isset($_POST['uam_reset']))
+					$reset = $_POST['uam_reset'];
+				else
+					$reset = null;
+				
+				if($reset == 'true')
+				{	
+					$this->uninstall();
+					$this->install();
+					?>
+						<div class="updated"><p><strong><?php echo TXT_UAM_RESET_SUC; ?></strong></p></div>
+					<?php
 				}
 			}
 			
@@ -1428,6 +1454,38 @@ if (!class_exists("UserAccessManager"))
 					<div id="ajax-response"/>
 						<?php $this->get_print_edit_group(); ?>
 					</div>
+				<?php
+			}
+			elseif($cur_admin_page == 'uam_setup')	
+			{
+				?>
+				<div class=wrap>
+					<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+						<input type="hidden" value="reset_uam" name="action"/>
+						<h2><?php echo TXT_SETUP; ?></h2>
+						<table class="form-table">
+							<tbody>
+								<tr valign="top">
+									<th scope="row">
+										<?php echo TXT_RESET_UAM; ?>
+									</th>
+									<td>
+										<label for="uam_reset_yes">
+											<input type="radio" id="uam_reset_yes" class="uam_reset_yes" name="uam_reset" value="true"  />
+											<?php echo TXT_YES; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;
+										<label for="uam_reset_no">
+											<input type="radio" id="uam_reset_no" class="uam_reset_no" name="uam_reset" value="false" checked="checked" />
+											<?php echo TXT_NO; ?>
+										</label>&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" class="button" name="uam_reset_submit" value="<?php echo TXT_RESET; ?>" />
+										<br />
+										<p style="color:red; font-size: 12px; font-weight: bold;"><?php echo TXT_RESET_UAM_DESC; ?></p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
 				<?php
 			}
 		}//End function printAdminPage()
@@ -2646,25 +2704,25 @@ if (!class_exists("UserAccessManager"))
 			{
 				if(!is_single())
 				{
-					$output = '<a href="' . get_bloginfo ( 'url' ) . '/wp-login.php?redirect_to=' . urlencode($_SERVER['REQUEST_URI'])  . '">'.__('Login').'</a>';
+					$output = '<a href="'.get_bloginfo('wpurl').'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']).'">'.__('Login', 'user-access-manager').'</a>';
 				}
 				else
 				{
 					if(! isset ($user_login))
 							$user_login = '';
 					// login form
-					$output = '<form action="'. get_bloginfo ( 'url' ) . '/wp-login.php" method="post" >';     
-						$output .= '<p><label for="user_login">'.__('Username:').'<input name="log" value="'.wp_specialchars(stripslashes($user_login), 1).'" class="input" id="user_login" type="text" /></label></p>';
-						$output .= '<p><label for="user_pass">'.__('Password:').'<input name="pwd" class="imput" id="user_pass" type="password" /></label></p>';
-						$output .= '<p class="forgetmenot"><label for="rememberme"><input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" /> '. __('Remember me').'</label></p>';
-						$output .= '<p class="submit"><input type="submit" name="wp-submit" id="wp-submit" value="'.__('Login').' &raquo;" />';
+					$output = '<form action="'.get_bloginfo('wpurl').'/wp-login.php" method="post" >';     
+						$output .= '<p><label for="user_login">'.__('Username:', 'user-access-manager').'<input name="log" value="'.wp_specialchars(stripslashes($user_login), 1).'" class="input" id="user_login" type="text" /></label></p>';
+						$output .= '<p><label for="user_pass">'.__('Password:', 'user-access-manager').'<input name="pwd" class="imput" id="user_pass" type="password" /></label></p>';
+						$output .= '<p class="forgetmenot"><label for="rememberme"><input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" /> '. __('Remember me', 'user-access-manager').'</label></p>';
+						$output .= '<p class="submit"><input type="submit" name="wp-submit" id="wp-submit" value="'.__('Login', 'user-access-manager').' &raquo;" />';
 						$output .= '<input type="hidden" name="redirect_to" value="' . $_SERVER['REQUEST_URI'] . '" />';
 					$output .= '</form>';
 		
 					$output .= '<p>';
 						if (get_option('users_can_register'))
-							$output .= '<a href="'.get_bloginfo('wpurl').'/wp-login.php?action=register">'.__('Register').'</a></br>';
-						$output .= '<a href="'.get_bloginfo('wpurl').'/wp-login.php?action=lostpassword" title="'. __('Password Lost and Found').'">'. __('Lost your password?').'</a>';
+							$output .= '<a href="'.get_bloginfo('wpurl').'/wp-login.php?action=register">'.__('Register', 'user-access-manager').'</a></br>';
+						$output .= '<a href="'.get_bloginfo('wpurl').'/wp-login.php?action=lostpassword" title="'. __('Password Lost and Found', 'user-access-manager').'">'. __('Lost your password?', 'user-access-manager').'</a>';
 					$output .= '</p>';
 				}
 				
@@ -3434,8 +3492,7 @@ if (!class_exists("UserAccessManager"))
 				
 				if($cur_post->post_type == 'attachment' && $this->check_access($cur_post->ID))
 				{
-					$cur_url = explode("?", "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-					$file = str_replace($cur_url[0], "", $cur_post->guid);
+					$file = str_replace(get_option('siteurl').'/', "", $cur_post->guid);
 					$filename = basename($file);
 					
 					if(file_exists($file))
@@ -3478,8 +3535,7 @@ if (!class_exists("UserAccessManager"))
 				}
 				elseif(wp_attachment_is_image($cur_id))
 				{
-					$cur_url = explode("?", "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-					$file = str_replace($cur_url[0], "", UAM_URLPATH .'gfx/no_access_pic.png');
+					$file = UAM_URLPATH .'gfx/no_access_pic.png';
 					$filename = basename($file);
 						
 					if(file_exists($file))
@@ -3518,7 +3574,7 @@ if (!class_exists("UserAccessManager"))
 				
 				if(in_array($type, $file_types) || $uamOptions['lock_file_types'] == 'all')
 				{	
-					$cur_guid = get_option('siteurl');
+					$cur_guid = get_bloginfo('url');
 					
 					$URL = $cur_guid.'?getfile='.$cur_post->ID;
 				}
@@ -3547,12 +3603,13 @@ if(!function_exists("UserAccessManager_AP")) {
 		}
 		if (function_exists('add_menu_page'))
 		{
-			add_menu_page('User Access Manager', 'Access Manager', 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH."gfx/icon.png");
+			add_menu_page('User Access Manager', 'UAM', 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH."gfx/icon.png");
 		}
 		if (function_exists('add_submenu_page'))
 		{
 			add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
 			add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 9, 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
+			add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 9, 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
 		}
 		if( function_exists( 'add_meta_box' )) 
 		{
