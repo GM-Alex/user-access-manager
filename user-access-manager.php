@@ -3217,58 +3217,59 @@ if (!class_exists("UserAccessManager"))
 				{
 					$restrictedcategories = $wpdb->get_results("SELECT category_id
 																FROM ".DB_ACCESSGROUP_TO_CATEGORY, ARRAY_A);
-											
-					foreach($categories as $category)
+					
+					if(isset($restrictedcategories))
 					{
-						foreach($restrictedcategories as $restrictedcategory)
+						foreach($categories as $category)
 						{
-							$has_access = true;
-							
-							if($restrictedcategory['category_id'] == $category->term_id)
+							foreach($restrictedcategories as $restrictedcategory)
 							{
-								$has_access = false;
+								$has_access = true;
 								
-								$access = $wpdb->get_results("	SELECT category_id
-																FROM ".DB_ACCESSGROUP_TO_USER." agtu, ".DB_ACCESSGROUP_TO_CATEGORY." agtc
-																WHERE agtu.user_id = ".$current_user->ID."
-																	AND agtu.group_id = agtc.group_id
-																	AND agtc.category_id = ".$category->term_id, ARRAY_A);
-								
-								if(!empty($access))
-									$has_access = true;
-								
-								if(empty($show_categories[$category->term_id]) && !$has_access)
-									$empty_categories[$category->term_id] = $category;
-							}
-							
-							if($has_access)
-							{
-								$show_categories[$category->term_id] = $category;
-										
-								if(isset($empty_categories[$category->term_id]))
-									unset($empty_categories[$category->term_id]);
-							}
-						}
-					}
-
-						
-					if(isset($empty_categories) && $uamOptions['lock_recursive'] == 'true')
-					{
-						foreach($empty_categories as $empty_category)
-						{
-							$cur_cat = $empty_category;
-							while($cur_cat->parent != 0 && isset($show_categories))
-							{
-								if(isset($show_categories[$cur_cat->parent]))
+								if($restrictedcategory['category_id'] == $category->term_id)
 								{
-									$show_categories[$empty_category->term_id] = $empty_category;
-									break;
+									$has_access = false;
+									
+									$access = $wpdb->get_results("	SELECT category_id
+																	FROM ".DB_ACCESSGROUP_TO_USER." agtu, ".DB_ACCESSGROUP_TO_CATEGORY." agtc
+																	WHERE agtu.user_id = ".$current_user->ID."
+																		AND agtu.group_id = agtc.group_id
+																		AND agtc.category_id = ".$category->term_id, ARRAY_A);
+									
+									if(isset($access))
+										$has_access = true;
+									
+									if(empty($show_categories[$category->term_id]) && !$has_access)
+										$restrict_categories[$category->term_id] = $category;
 								}
 								
-								$cur_id = $cur_cat->parent;
-								$cur_cat = & get_category($cur_id);
+								if($has_access)
+								{
+									$show_categories[$category->term_id] = $category;
+											
+									if(isset($restrict_categories[$category->term_id]))
+										unset($restrict_categories[$category->term_id]);
+								}
 							}
 						}
+
+						
+						if(isset($restrict_categories) && $uamOptions['lock_recursive'] == 'true')
+						{
+							foreach($restrict_categories as $restrict_category)
+							{
+								$args = array('child_of' => $restrict_category->term_id);
+								$child_categories = get_categories($args);
+								
+								foreach($child_categories as $child_category)
+									unset($show_categories[$child_category->term_id]);
+							}
+						}
+						
+						if(isset($show_categories))
+							$categories = $show_categories;
+						else
+							$categories = null;
 					}
 					
 					/*$accesscategories = $wpdb->get_results("SELECT agtc.category_id
@@ -3315,12 +3316,12 @@ if (!class_exists("UserAccessManager"))
 								}
 							}
 						}
-					}*/
+					}
 					
 					if(isset($show_categories))
 						$categories = $show_categories;
 					else
-						$categories = null;
+						$categories = null;*/
 				}
 				else
 				{
