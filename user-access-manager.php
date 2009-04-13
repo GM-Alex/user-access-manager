@@ -3,7 +3,7 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.9.1.2
+Version: 0.9.2
 Author: Alexander Schneider
 Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
  
@@ -126,6 +126,8 @@ if (!class_exists("UserAccessManager"))
 			define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
 			define('TXT_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_BLOG_ADMIN_HINT_TEXT));
+			define('TXT_FULL_ACCESS_LEVEL', __('Access Level with full access', 'user-access-manager'));
+			define('TXT_FULL_ACCESS_LEVEL_DESC', __('All user with access level equal or higher to this has full access. <b>Note: 10 is the highest value.</b>', 'user-access-manager'));
 			define('TXT_CORE_MOD', __('Core modifications installed?', 'user-access-manager'));
 			define('TXT_CORE_MOD_DESC', __('If you installed the core modifications activated this option.', 'user-access-manager'));
 			
@@ -511,7 +513,8 @@ if (!class_exists("UserAccessManager"))
 											'core_mod' => 'false',
 											'hide_empty_categories' => 'true',
 											'protect_feed' => 'true',
-											'show_post_content_before_more' => 'false');
+											'show_post_content_before_more' => 'false',
+											'full_access_level' => 10);
 				
 				$uamOptions = get_option($this->adminOptionsName);
 				if (!empty($uamOptions)) {
@@ -616,6 +619,10 @@ if (!class_exists("UserAccessManager"))
 				if (isset($_POST['uam_core_mod']))
 				{
 					$uamOptions['core_mod'] = $_POST['uam_core_mod'];
+				}
+				if (isset($_POST['uam_full_access_level']) && is_numeric($_POST['uam_full_access_level']) && $_POST['uam_full_access_level'] <= 10)
+				{
+					$uamOptions['full_access_level'] = $_POST['uam_full_access_level'];
 				}
 				if (isset($_POST['uam_lock_file']))
 				{
@@ -1248,6 +1255,16 @@ if (!class_exists("UserAccessManager"))
 										<?php echo TXT_BLOG_ADMIN_HINT_TEXT_DESC; ?>
 									</td>
 								</tr>
+								<tr>
+									<th>
+										<?php echo TXT_FULL_ACCESS_LEVEL; ?>
+									</th>
+									<td>
+										<input name="uam_full_access_level" value="<?php echo $uamOptions['full_access_level']; ?>" />
+										<br />
+										<?php echo TXT_FULL_ACCESS_LEVEL_DESC; ?>
+									</td>
+								</tr>
 								<?php 
 								global $wp_version;
 								
@@ -1793,7 +1810,7 @@ if (!class_exists("UserAccessManager"))
 												?>
 													<li class="selectit <?php foreach($user_capabilities as $user_capability){ echo "usercap_".$user_capability." "; } ?>">
 														<?php 
-															if(empty($cur_user->{$wpdb->prefix."capabilities"}['administrator']))
+															if($cur_user->user_level < $uamOptions['full_access_level'])
 															{
 																	?>
 																	<input id="user-<?php echo $cur_user->ID; ?>" type="checkbox" value="<?php echo $cur_user->ID; ?>" <?php if(isset($group_info->users[$cur_user->ID])){ echo 'checked="checked"'; } ?> name="user[]"/>
@@ -2045,11 +2062,11 @@ if (!class_exists("UserAccessManager"))
 				{
 					$cur_userdata = get_userdata($wp_user['ID']);
 					
-					if(isset($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+					if($cur_userdata->user_level >= $uamOptions['full_access_level'])
 					{
 						$info->users[$wp_user['ID']] = $cur_userdata;
 					}
-					elseif(isset($db_roles) && empty($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+					elseif(isset($db_roles) && $cur_userdata->user_level < $uamOptions['full_access_level'])
 					{
 						foreach($db_roles as $db_role)
 						{
@@ -2309,8 +2326,9 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $current_user, $wpdb;
 			$cur_userdata = get_userdata($current_user->ID);
+			$uamOptions = $this->getAdminOptions();
 			
-			if(empty($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+			if($cur_userdata->user_level < $uamOptions['full_access_level'])
 			{
 				$uamOptions = $this->getAdminOptions();
 			
@@ -2424,8 +2442,9 @@ if (!class_exists("UserAccessManager"))
 			$user_id = $_GET['user_id'];
 			$cur_userdata = get_userdata($current_user->ID);
 			$cur_edit_userdata = get_userdata($user_id);
+			$uamOptions = $this->getAdminOptions();
 			
-			if(isset($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+			if($cur_userdata->user_level >= $uamOptions['full_access_level'])
 			{
 				$accessgroups = $wpdb->get_results("SELECT *
 													FROM ".DB_ACCESSGROUP."
@@ -2498,9 +2517,10 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb, $current_user;
 			
-			$cur_userdata = get_userdata($current_user->ID);		
+			$cur_userdata = get_userdata($current_user->ID);
+			$uamOptions = $this->getAdminOptions();	
 
-			if(isset($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+			if($cur_userdata->user_level >= $uamOptions['full_access_level'])
 			{
 				$accessgroups = $_POST['accessgroups'];
 				$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_USER." WHERE user_id = $user_id");
@@ -2518,9 +2538,10 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $wpdb, $current_user;
 			
-			$cur_userdata = get_userdata($current_user->ID);		
+			$cur_userdata = get_userdata($current_user->ID);
+			$uamOptions = $this->getAdminOptions();	
 
-			if(isset($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+			if($cur_userdata->user_level >= $uamOptions['full_access_level'])
 				$wpdb->query("DELETE FROM ".DB_ACCESSGROUP_TO_USER." WHERE user_id = $user_id");
 		}
 	
@@ -2865,6 +2886,7 @@ if (!class_exists("UserAccessManager"))
 			
 			$access = $this->get_access($post_id);
 			$cur_user_ip = explode(".", $_SERVER['REMOTE_ADDR']);
+			$uamOptions = $this->getAdminOptions();
 			
 			if(isset($access->restricted_by_posts) || isset($access->restricted_by_categories))
 			{
@@ -2872,7 +2894,7 @@ if (!class_exists("UserAccessManager"))
 				{
 					$cur_userdata = get_userdata($current_user->ID);
 					
-					if(empty($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+					if($cur_userdata->user_level < $uamOptions['full_access_level'])
 					{
 						if(isset($access->restricted_by_categories))
 						{
@@ -3185,8 +3207,9 @@ if (!class_exists("UserAccessManager"))
 		{
 			global $current_user, $wpdb;
 			$cur_userdata = get_userdata($current_user->ID);
+			$uamOptions = $this->getAdminOptions();
 			
-			if(empty($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+			if($cur_userdata->user_level < $uamOptions['full_access_level'])
 			{
 				$uamOptions = $this->getAdminOptions();
 				
@@ -3431,7 +3454,7 @@ if (!class_exists("UserAccessManager"))
 					$output = "";
 					
 					$access = $this->get_access($post_id);
-					if(isset($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']) && (isset($access->restricted_by_posts) || isset($access->restricted_by_categories)))
+					if($cur_userdata->user_level >= $uamOptions['full_access_level'] && (isset($access->restricted_by_posts) || isset($access->restricted_by_categories)))
 					{
 						$output = "&nbsp;".$uamOptions['blog_admin_hint_text'];	
 					}
@@ -3596,6 +3619,7 @@ if(!function_exists("UserAccessManager_AP")) {
 		global $userAccessManager, $wp_version, $current_user, $wpdb;
 		
 		$userAccessManager->atAdminPanel = true;
+		$uamOptions = $userAccessManager->getAdminOptions();
 		
 		if (!isset($userAccessManager))
 		{
@@ -3616,7 +3640,7 @@ if(!function_exists("UserAccessManager_AP")) {
 			get_currentuserinfo();
 			$cur_userdata = get_userdata($current_user->ID);		
 
-			if(isset($cur_userdata->{$wpdb->prefix."capabilities"}['administrator']))
+			if($cur_userdata->user_level == $uamOptions['full_access_level'])
 			{
 	    		add_meta_box( 'uma_post_access', 'Access', array(&$userAccessManager, 'edit_post_content'), 'post', 'side' );
 	    		add_meta_box( 'uma_post_access', 'Access', array(&$userAccessManager, 'edit_post_content'), 'page', 'side' );
