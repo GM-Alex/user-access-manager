@@ -3215,7 +3215,63 @@ if (!class_exists("UserAccessManager"))
 				
 				if($this->atAdminPanel)
 				{
-					$accesscategories = $wpdb->get_results("SELECT agtc.category_id
+					$restrictedcategories = $wpdb->get_results("SELECT category_id
+																FROM ".DB_ACCESSGROUP_TO_CATEGORY, ARRAY_A);
+											
+					foreach($categories as $category)
+					{
+						foreach($restrictedcategories as $restrictedcategory)
+						{
+							$has_access = true;
+							
+							if($restrictedcategory['category_id'] == $category->term_id)
+							{
+								$has_access = false;
+								
+								$access = $wpdb->get_results("	SELECT category_id
+																FROM ".DB_ACCESSGROUP_TO_USER." agtu, ".DB_ACCESSGROUP_TO_CATEGORY." agtc
+																WHERE agtu.user_id = ".$current_user->ID."
+																	AND agtu.group_id = agtc.group_id
+																	AND agtc.category_id = ".$category->term_id, ARRAY_A);
+								
+								if(!empty($access))
+									$has_access = true;
+								
+								if(empty($show_categories[$category->term_id]) && !$has_access)
+									$empty_categories[$category->term_id] = $category;
+							}
+							
+							if($has_access)
+							{
+								$show_categories[$category->term_id] = $category;
+										
+								if(isset($empty_categories[$category->term_id]))
+									unset($empty_categories[$category->term_id]);
+							}
+						}
+					}
+
+						
+					if(isset($empty_categories) && $uamOptions['lock_recursive'] == 'true')
+					{
+						foreach($empty_categories as $empty_category)
+						{
+							$cur_cat = $empty_category;
+							while($cur_cat->parent != 0 && isset($show_categories))
+							{
+								if(isset($show_categories[$cur_cat->parent]))
+								{
+									$show_categories[$empty_category->term_id] = $empty_category;
+									break;
+								}
+								
+								$cur_id = $cur_cat->parent;
+								$cur_cat = & get_category($cur_id);
+							}
+						}
+					}
+					
+					/*$accesscategories = $wpdb->get_results("SELECT agtc.category_id
 															FROM ".DB_ACCESSGROUP_TO_USER." agtu, ".DB_ACCESSGROUP_TO_CATEGORY." agtc
 															WHERE agtu.user_id = ".$current_user->ID."
 																AND agtu.group_id = agtc.group_id", ARRAY_A);
@@ -3259,7 +3315,7 @@ if (!class_exists("UserAccessManager"))
 								}
 							}
 						}
-					}
+					}*/
 					
 					if(isset($show_categories))
 						$categories = $show_categories;
