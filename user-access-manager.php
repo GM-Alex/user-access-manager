@@ -57,7 +57,7 @@ if (!class_exists("UserAccessManager"))
 		
 		function init()
 		{
-			echo load_plugin_textdomain('user-access-manager', 'wp-content/plugins/user-access-manager');
+			load_plugin_textdomain('user-access-manager', 'wp-content/plugins/user-access-manager');
 			
 			//---Lang Settings---
 			define('TXT_SETTINGS', __('Settings', 'user-access-manager'));
@@ -1722,8 +1722,9 @@ if (!class_exists("UserAccessManager"))
 								</td>
 				           	</tr>
 				            <tr>
-				            	<?php 
-				            		$categories = get_categories();
+				            	<?php
+				            		$args = array('hide_empty' => 0);
+				            		$categories = get_categories($args);
 				            	?>
 								<th valign="top" scope="row"><?php echo TXT_CATEGORY;  if(count($categories) > 0){ echo " <label>(<a class='selectit uam_group_stuff_link'>".TXT_EXPAND."</a>)</label>"; } ?></th>
 								<td>
@@ -3146,12 +3147,10 @@ if (!class_exists("UserAccessManager"))
 			
 			foreach($comments as $comment)
 			{
-				if($uamOptions['hide_post_comment'] == 'true' || $uamOptions['hide_post'] == 'true' ||$this->atAdminPanel)
+				if($uamOptions['hide_post_comment'] == 'true' || $uamOptions['hide_post'] == 'true' || $this->atAdminPanel)
 				{
 					if($this->check_access($comment->comment_post_ID))
-					{
 						$show_comments[] = $comment;
-					}
 				}
 				else
 				{
@@ -3208,6 +3207,9 @@ if (!class_exists("UserAccessManager"))
 			global $current_user, $wpdb;
 			$cur_userdata = get_userdata($current_user->ID);
 			$uamOptions = $this->getAdminOptions();
+			
+			if(!isset($cur_userdata->user_level))
+					$cur_userdata->user_level = null;
 			
 			if($cur_userdata->user_level < $uamOptions['full_access_level'])
 			{
@@ -3511,10 +3513,13 @@ if (!class_exists("UserAccessManager"))
 					$output = "";
 					
 					$access = $this->get_access($post_id);
+					
+					if(!isset($cur_userdata->user_level))
+					$cur_userdata->user_level = null;
+					
 					if($cur_userdata->user_level >= $uamOptions['full_access_level'] && (isset($access->restricted_by_posts) || isset($access->restricted_by_categories)))
-					{
-						$output = "&nbsp;".$uamOptions['blog_admin_hint_text'];	
-					}
+						$output = "&nbsp;".$uamOptions['blog_admin_hint_text'];
+							
 					return $output;
 				}
 			}
@@ -3661,6 +3666,11 @@ if (!class_exists("UserAccessManager"))
 			}
 			return $URL;
 		}
+		
+		function get_thumb($URL, $ID)
+		{
+			echo "test";
+		}
 	}
 }
 
@@ -3778,6 +3788,7 @@ if(isset($userAccessManager))
 		add_action('template_redirect', array(&$userAccessManager, 'redirect_user'));
 		
 	//Filters
+	add_filter('wp_get_attachment_thumb_url', array(&$userAccessManager, 'get_file'), 10, 2);
 	add_filter('wp_get_attachment_url', array(&$userAccessManager, 'get_file'), 10, 2);
 	add_filter('the_posts', array(&$userAccessManager, 'show_post'));
 	add_filter('comments_array', array(&$userAccessManager, 'show_comment'));
