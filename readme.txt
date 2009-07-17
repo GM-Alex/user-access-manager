@@ -58,6 +58,9 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    0.9.1.3		2009/07/17	Fix "header already send"-Problem with Wordpress 2.8.1
+    						Add option to set level with full access
+    
     0.9.1.2		2009/03/29	Fix some path problems
     						Add a reset function
     						Rename menu at admin panel

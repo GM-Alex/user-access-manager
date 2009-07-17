@@ -3,7 +3,7 @@
 Plugin Name: User Access Manager
 Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
 Author URI: http://www.gm-alex.de/
-Version: 0.9.2
+Version: 0.9.1.3
 Author: Alexander Schneider
 Description: Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
  
@@ -35,8 +35,8 @@ define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix.'uam_accessgroup_to_category'
 define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix.'uam_accessgroup_to_role');
 
 //PATH
-define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' );
-//define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/' ); //Localhost DEBUG
+//define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' );
+define('UAM_URLPATH', WP_CONTENT_URL.'/plugins/user-access-manager/' ); //Localhost DEBUG
 
 if (!class_exists("UserAccessManager"))
 {
@@ -3665,11 +3665,6 @@ if (!class_exists("UserAccessManager"))
 				}
 			}
 			return $URL;
-		}
-		
-		function get_thumb($URL, $ID)
-		{
-			echo "test";
 		}
 	}
 }
