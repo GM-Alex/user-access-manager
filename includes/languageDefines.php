@@ -1,5 +1,20 @@
 <?php
-//---Lang Settings---
+/**
+ * languageDefines.php
+ * 
+ * Defines needed for the language
+ * 
+ * PHP versions 5
+ * 
+ * @category  UserAccessManager
+ * @package   UserAccessManager
+ * @author    Alexander Schneider <author@example.com>
+ * @copyright 2008-2010 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+
 define('TXT_SETTINGS', __('Settings', 'user-access-manager'));
 
 define('TXT_POST_SETTING', __('Post settings', 'user-access-manager'));
@@ -17,7 +32,10 @@ define('TXT_HIDE_POST_DESC', __('Selecting "Yes" will hide posts if the user has
 define('TXT_POST_COMMENT_CONTENT', __('Post commtent text', 'user-access-manager'));
 define('TXT_POST_COMMENT_CONTENT_DESC', __('Displayed text as post comment text if user has no access', 'user-access-manager'));
 define('TXT_DISPLAY_POST_COMMENT', __('Hide post comments', 'user-access-manager'));
-define('TXT_DISPLAY_POST_COMMENT_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_COMMENT_CONTENT) );
+define(
+	'TXT_DISPLAY_POST_COMMENT_DESC', 
+    sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_COMMENT_CONTENT) 
+);
 define('TXT_ALLOW_COMMENTS_LOCKED', __('Allow comments', 'user-access-manager'));
 define('TXT_ALLOW_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked posts', 'user-access-manager'));
 
@@ -155,4 +173,3 @@ define('TXT_RESET_UAM', __('Reset User Access Manager', 'user-access-manager'));
 define('TXT_RESET_UAM_DESC', __('Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost.', 'user-access-manager'));
 define('TXT_RESET', __('reset', 'user-access-manager'));
 define('TXT_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
-?>
