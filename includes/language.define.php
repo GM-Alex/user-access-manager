@@ -1,6 +1,6 @@
 <?php
 /**
- * languageDefines.php
+ * language.define.php
  * 
  * Defines needed for the language
  * 
@@ -32,10 +32,7 @@ define('TXT_HIDE_POST_DESC', __('Selecting "Yes" will hide posts if the user has
 define('TXT_POST_COMMENT_CONTENT', __('Post commtent text', 'user-access-manager'));
 define('TXT_POST_COMMENT_CONTENT_DESC', __('Displayed text as post comment text if user has no access', 'user-access-manager'));
 define('TXT_DISPLAY_POST_COMMENT', __('Hide post comments', 'user-access-manager'));
-define(
-	'TXT_DISPLAY_POST_COMMENT_DESC', 
-    sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_COMMENT_CONTENT) 
-);
+define('TXT_DISPLAY_POST_COMMENT_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_COMMENT_CONTENT));
 define('TXT_ALLOW_COMMENTS_LOCKED', __('Allow comments', 'user-access-manager'));
 define('TXT_ALLOW_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked posts', 'user-access-manager'));
 
