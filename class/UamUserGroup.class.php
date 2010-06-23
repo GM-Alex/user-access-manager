@@ -310,7 +310,7 @@ class UamUserGroup
                     
                     if (isset($subCategories)) {
                         foreach ($subCategories as $curCategory) {
-                            $curCategory->recursive_lock_by_category[$dbCategorie['category_id']] 
+                            $curCategory->rlByCategory[$dbCategorie['category_id']] 
                                 = $dbCategorie['category_id'];
                             $this->categories[$curCategory->term_id] 
                                 = $curCategory;

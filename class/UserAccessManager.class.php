@@ -32,7 +32,7 @@ class UserAccessManager
     var $restrictedPost = array();
     var $postAccess = array();
     var $postUserGroup = array();
-    var $uam_db_version = "1.1";
+    var $uamDbVersion = "1.1";
     var $adminOptions;
     
     /**
@@ -70,7 +70,7 @@ class UserAccessManager
         $this->createHtaccess();
         $this->createHtpasswd();
         global $wpdb;
-        $uam_db_version = $this->uam_db_version;
+        $uamDbVersion = $this->uam_db_version;
         include_once ABSPATH . 'wp-admin/includes/upgrade.php';
         $charset_collate = '';
         
@@ -133,7 +133,7 @@ class UserAccessManager
             dbDelta($sql);
         }
         
-        add_option("uam_db_version", $uam_db_version);
+        add_option("uam_db_version", $uamDbVersion);
     }
     
     /**
@@ -144,14 +144,14 @@ class UserAccessManager
     function update()
     {
         global $wpdb;
-        $uam_db_version = $this->uam_db_version;
+        $uamDbVersion = $this->uam_db_version;
         $installed_ver = get_option("uam_db_version");
         
         if (empty($installed_ver)) {
             $this->install();
         }
         
-        if ($installed_ver != $uam_db_version) {
+        if ($installed_ver != $uamDbVersion) {
             if ($installed_ver == '1.0') {
                 if ($wpdb->get_var("SHOW TABLES LIKE '" . DB_ACCESSGROUP . "'") == DB_ACCESSGROUP) {
                     $wpdb->query(
@@ -167,7 +167,7 @@ class UserAccessManager
                     		write_access = 'group'"
                     );
                     
-                    update_option("uam_db_version", $uam_db_version);
+                    update_option("uam_db_version", $uamDbVersion);
                 }
             }
         }
@@ -228,19 +228,38 @@ class UserAccessManager
             $url = $wud['basedir'] . "/";
             $areaname = "WP-Files";
             $uamOptions = $this->getAdminOptions();
-            if ($uamOptions['lock_file_types'] == 'selected') $file_types = $uamOptions['locked_file_types'];
-            elseif ($uamOptions['lock_file_types'] == 'not_selected') $file_types = $uamOptions['not_locked_file_types'];
-            if (isset($file_types)) $file_types = str_replace(",", "|", $file_types);
+            
+            if ($uamOptions['lock_file_types'] == 'selected') {
+                $file_types = $uamOptions['locked_file_types'];
+            } elseif ($uamOptions['lock_file_types'] == 'not_selected') {
+                $file_types = $uamOptions['not_locked_file_types'];
+            }
+            
+            if (isset($file_types)) {
+                $file_types = str_replace(",", "|", $file_types);
+            }
 
             // make .htaccess and .htpasswd
             $htaccess_txt = "";
-            if ($uamOptions['lock_file_types'] == 'selected') $htaccess_txt.= "<FilesMatch '\.(" . $file_types . ")'>\n";
-            if ($uamOptions['lock_file_types'] == 'not_selected') $htaccess_txt.= "<FilesMatch '^\.(" . $file_types . ")'>\n";
+            
+            if ($uamOptions['lock_file_types'] == 'selected') {
+                $htaccess_txt.= "<FilesMatch '\.(" . $file_types . ")'>\n";
+            }
+            
+            if ($uamOptions['lock_file_types'] == 'not_selected') {
+                $htaccess_txt.= "<FilesMatch '^\.(" . $file_types . ")'>\n";
+            }
+            
             $htaccess_txt.= "AuthType Basic" . "\n";
             $htaccess_txt.= "AuthName \"" . $areaname . "\"" . "\n";
             $htaccess_txt.= "AuthUserFile " . $url . ".htpasswd" . "\n";
             $htaccess_txt.= "require valid-user" . "\n";
-            if ($uamOptions['lock_file_types'] == 'selected' || $uamOptions['lock_file_types'] == 'not_selected') $htaccess_txt.= "</FilesMatch>\n";
+            
+            if ($uamOptions['lock_file_types'] == 'selected' 
+                || $uamOptions['lock_file_types'] == 'not_selected'
+            ) {
+                $htaccess_txt.= "</FilesMatch>\n";
+            }
 
             // save files
             $htaccess = fopen($url . ".htaccess", "w");
@@ -252,9 +271,11 @@ class UserAccessManager
 	/**
      * Creates a htpasswd file.
      * 
+     * @param boolean $createNew Force to create new file.
+     * 
      * @return null
      */
-    function createHtpasswd($create_new = false)
+    function createHtpasswd($createNew = false)
     {
         global $current_user;
         $uamOptions = $this->getAdminOptions();
@@ -266,7 +287,7 @@ class UserAccessManager
             $cur_userdata = get_userdata($current_user->ID);
             $user = $cur_userdata->user_login;
             
-            if (!file_exists($url . ".htpasswd") || $create_new) {
+            if (!file_exists($url . ".htpasswd") || $createNew) {
                 if ($uamOptions['file_pass_type'] == 'random') {
                     // create password
                     $array = array();
@@ -288,16 +309,29 @@ class UserAccessManager
                     }
 
                     // capitals
-                    if ($capitals) for ($i = 65; $i < 90; $i++) {
-                        $array[] = chr($i);
-                    }
+                    if ($capitals) {
+                        for ($i = 65; $i < 90; $i++) {
+                            $array[] = chr($i);
+                        }
+                    } 
 
                     // specialchar:
                     if ($specialSigns) {
-                        for ($i = 33; $i < 47; $i++) $array[] = chr($i);
-                        for ($i = 59; $i < 64; $i++) $array[] = chr($i);
-                        for ($i = 91; $i < 96; $i++) $array[] = chr($i);
-                        for ($i = 123; $i < 126; $i++) $array[] = chr($i);
+                        for ($i = 33; $i < 47; $i++) {
+                            $array[] = chr($i);
+                        }
+                        
+                        for ($i = 59; $i < 64; $i++) {
+                            $array[] = chr($i);
+                        }
+                        
+                        for ($i = 91; $i < 96; $i++) {
+                            $array[] = chr($i);
+                        }
+                        
+                        for ($i = 123; $i < 126; $i++) {
+                            $array[] = chr($i);
+                        }
                     }
                     
                     mt_srand((double)microtime() * 1000000);
@@ -346,11 +380,51 @@ class UserAccessManager
     function getAdminOptions()
     {
         if ($this->atAdminPanel || empty($this->adminOptions)) {
-            $uamAdminOptions = array('hide_post_title' => 'false', 'post_title' => __('No rights!', 'user-access-manager'), 'hide_post_comment' => 'false', 'post_comment_content' => __('Sorry no rights to view comments!', 'user-access-manager'), 'allow_comments_locked' => 'false', 'post_content' => 'Sorry no rights!', 'hide_post' => 'false', 'hide_page_title' => 'false', 'page_title' => 'No rights!', 'page_content' => __('Sorry you have no rights to view this page!', 'user-access-manager'), 'hide_page' => 'false', 'redirect' => 'false', 'redirect_custom_page' => '', 'redirect_custom_url' => '', 'lock_recursive' => 'true', 'lock_file' => 'true', 'file_pass_type' => 'random', 'lock_file_types' => 'all', 'download_type' => 'fopen', 'locked_file_types' => 'zip,rar,tar,gz,bz2', 'not_locked_file_types' => 'gif,jpg,jpeg,png', 'blog_admin_hint' => 'true', 'blog_admin_hint_text' => '[L]', 'core_mod' => 'false', 'hide_empty_categories' => 'true', 'protect_feed' => 'true', 'show_post_content_before_more' => 'false', 'full_access_level' => 10);
+            $uamAdminOptions = array(
+            	'hide_post_title' => 'false', 
+            	'post_title' => __('No rights!', 'user-access-manager'), 
+            	'hide_post_comment' => 'false', 
+            	'post_comment_content' => __(
+            		'Sorry no rights to view comments!', 
+            		'user-access-manager'
+                ), 
+            	'allow_comments_locked' => 'false', 
+            	'post_content' => 'Sorry no rights!', 
+            	'hide_post' => 'false', 
+            	'hide_page_title' => 'false', 
+            	'page_title' => 'No rights!', 
+            	'page_content' => __(
+            		'Sorry you have no rights to view this page!', 
+            		'user-access-manager'
+                ), 
+            	'hide_page' => 'false', 
+            	'redirect' => 'false', 
+            	'redirect_custom_page' => '', 
+            	'redirect_custom_url' => '', 
+            	'lock_recursive' => 'true', 
+            	'lock_file' => 'true', 
+            	'file_pass_type' => 'random', 
+            	'lock_file_types' => 'all', 
+            	'download_type' => 'fopen', 
+            	'locked_file_types' => 'zip,rar,tar,gz,bz2', 
+            	'not_locked_file_types' => 'gif,jpg,jpeg,png', 
+            	'blog_admin_hint' => 'true', 
+            	'blog_admin_hint_text' => '[L]', 
+            	'core_mod' => 'false', 
+            	'hide_empty_categories' => 'true', 
+            	'protect_feed' => 'true', 
+            	'show_post_content_before_more' => 'false', 
+            	'full_access_level' => 10
+            );
+            
             $uamOptions = get_option($this->adminOptionsName);
+            
             if (!empty($uamOptions)) {
-                foreach ($uamOptions as $key => $option) $uamAdminOptions[$key] = $option;
+                foreach ($uamOptions as $key => $option) {
+                    $uamAdminOptions[$key] = $option;
+                }
             }
+            
             update_option($this->adminOptionsName, $uamAdminOptions);
             $this->adminOptions = $uamAdminOptions;
         }
@@ -380,7 +454,8 @@ class UserAccessManager
     /**
      * Returns the user groups which has access for the given post.
      * 
-     * @param $ID
+     * @param integer $ID The id of the given post.
+     * 
      * @return object
      */
     function getUsergroupsForPost($ID)
@@ -392,7 +467,9 @@ class UserAccessManager
         
         $access = $this->get_access($ID);
         $post_usergroups = array();
-        if (isset($access->restricted_by_posts) || isset($access->restricted_by_categories)) {
+        if (isset($access->restricted_by_posts) 
+            || isset($access->restricted_by_categories)
+        ) {
             if (isset($access->restricted_by_posts)) {
                 foreach ($access->restricted_by_posts as $cur_id) {
                     $usergroups = $wpdb->get_results(
@@ -429,6 +506,7 @@ class UserAccessManager
                     }
                 }
             }
+            
             if (isset($access->restricted_by_categories)) {
                 foreach ($access->restricted_by_categories as $cur_id) {
                     $usergroups = $wpdb->get_results(
@@ -464,7 +542,9 @@ class UserAccessManager
                 }
             }
         }
+        
         $this->postUserGroup[$ID] = $post_usergroups;
+        
         return $post_usergroups;
     }
     
