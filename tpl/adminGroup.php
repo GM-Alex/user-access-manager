@@ -8,7 +8,7 @@
  * 
  * @category  UserAccessManager
  * @package   UserAccessManager
- * @author    Alexander Schneider <author@example.com>
+ * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
  * @copyright 2008-2010 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
@@ -490,15 +490,7 @@ if (isset($_GET['action'])) {
 }
 
 if ($action == 'edit_group' && isset($_GET['id'])) {
-    $group_id = $_GET['id'];
-    
-    $accessgroup = $wpdb->get_row(
-    	"SELECT *
-		FROM " . DB_ACCESSGROUP . "
-		WHERE ID = " . $group_id . "
-		LIMIT 1", ARRAY_A
-    );
-    
+    $group_id = $_GET['id'];    
     getPrintEditGroup($group_id);
 } else {
     getPrintEditGroup();

@@ -8,7 +8,7 @@
  * 
  * @category  UserAccessManager
  * @package   UserAccessManager
- * @author    Alexander Schneider <author@example.com>
+ * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
  * @copyright 2008-2010 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
@@ -52,7 +52,7 @@ class UamUserGroup
         if ($id !== null) {
             $this->id = $id;
             
-            $db_usergroup = $wpdb->get_results(
+            $dbUsergroup = $wpdb->get_results(
             	"SELECT *
     			FROM " . DB_ACCESSGROUP . "
     			WHERE group_id = " . $this->id . "
@@ -60,11 +60,11 @@ class UamUserGroup
                 ARRAY_A
             );
             
-            $this->groupName = $db_usergroup['groupname'];
-            $this->groupDesc = $db_usergroup['groupdesc'];
-            $this->readAccess = $db_usergroup['read_access'];
-            $this->writeAccess = $db_usergroup['write_access'];
-            $this->ipRange = $db_usergroup['ip_range']; 
+            $this->groupName = $dbUsergroup['groupname'];
+            $this->groupDesc = $dbUsergroup['groupdesc'];
+            $this->readAccess = $dbUsergroup['read_access'];
+            $this->writeAccess = $dbUsergroup['write_access'];
+            $this->ipRange = $dbUsergroup['ip_range']; 
         }
     }
     
@@ -101,9 +101,80 @@ class UamUserGroup
         );
     }
     
+    /**
+     * Saves the user group.
+     * 
+     * @return null;
+     */
     function save()
     {
+        if ($this->id == null) {
+            $wpdb->query(
+            	"INSERT INTO " . DB_ACCESSGROUP . " (
+            		ID, 
+            		groupname, 
+            		groupdesc, 
+            		read_access, 
+            		write_access, 
+            		ip_range
+            	) 
+            	VALUES (
+            		NULL, 
+            		'" . $this->groupName . "', 
+            		'" . $this->groupDesc . "', 
+            		'" . $this->readAccess . "', 
+            		'" . $this->writeAccess . "', 
+            		'" . $this->ipRange . "'
+            	)"
+            );
+            
+            $this->id = $wpdb->insert_id;
+        } else {
+            $wpdb->query(
+            	"UPDATE " . DB_ACCESSGROUP . "
+    			SET groupname = '" . $this->groupName . "', 
+    				groupdesc = '" . $this->groupDesc . "', 
+    				read_access = '" . $this->readAccess . "', 
+    				write_access = '" . $this->writeAccess . "', 
+    				ip_range = '" . $this->ipRange . "'
+    			WHERE ID = " . $this->id
+            );
+            
+            $wpdb->query(
+            	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
+            	WHERE group_id = " . $this->id
+            );
+            
+            $wpdb->query(
+            	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
+            	WHERE group_id = " . $this->id
+            );
+            
+            $wpdb->query(
+            	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
+            	WHERE group_id = " . $this->id
+            );
+            
+            $wpdb->query(
+            	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
+            	WHERE group_id = " . $this->id
+            );
+        }
         
+        foreach ($this->getRoles() as $roleKey => $role) {
+            $wpdb->query(
+            	"INSERT INTO " . DB_ACCESSGROUP_TO_ROLE . " (
+            		group_id, 
+            		role_name
+            	) 
+            	VALUES(
+            		'" . $this->id . "', 
+            		'" . $roleKey . "'
+            	)"
+            );
+        }
+        
+        //TODO add the rest
     }
     
     /**
@@ -165,7 +236,7 @@ class UamUserGroup
         $userAccessManager = new UserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
-        $db_users = $wpdb->get_results(
+        $dbUsers = $wpdb->get_results(
         	"SELECT *
 			FROM " . DB_ACCESSGROUP_TO_USER . "
 			WHERE group_id = " . $this->id . "
@@ -173,23 +244,23 @@ class UamUserGroup
             ARRAY_A
         );
         
-        if (isset($db_users)) {
-            foreach ($db_users as $db_user) {
-                $this->users[$db_user['user_id']] 
-                    = get_userdata($db_user['user_id']);
+        if (isset($dbUsers)) {
+            foreach ($dbUsers as $dbUser) {
+                $this->users[$dbUser['user_id']] 
+                    = get_userdata($dbUser['user_id']);
             }
         }
         
-        $wp_users = $wpdb->get_results(
+        $wpUsers = $wpdb->get_results(
         	"SELECT ID, user_nicename
 			FROM $wpdb->users 
 			ORDER BY user_nicename", 
             ARRAY_A
         );
         
-        if (isset($wp_users)) {
-            foreach ($wp_users as $wp_user) {
-                $cur_userdata = get_userdata($wp_user['ID']);
+        if (isset($wpUsers)) {
+            foreach ($wpUsers as $wpUser) {
+                $cur_userdata = get_userdata($wpUser['ID']);
                 $capabilities = $cur_userdata->{$wpdb->prefix . "capabilities"};
                 $role 
                     = is_array($capabilities) ? array_keys($capabilities) : 'norole';
@@ -197,7 +268,7 @@ class UamUserGroup
                 if ($cur_userdata->user_level >= $uamOptions['full_access_level']
                     || array_key_exists($role[0], $this->getRoles())
                 ) {
-                    $this->users[$wp_user['ID']] = $cur_userdata;
+                    $this->users[$wpUser['ID']] = $cur_userdata;
                 }
             }
         }
@@ -220,7 +291,7 @@ class UamUserGroup
         $userAccessManager = new UserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
-        $db_categories = $wpdb->get_results(
+        $dbCategories = $wpdb->get_results(
         	"SELECT *
 			FROM " . DB_ACCESSGROUP_TO_CATEGORY . "
 			WHERE group_id = " . $this->id . "
@@ -228,26 +299,26 @@ class UamUserGroup
             ARRAY_A
         );
         
-        if (isset($db_categories)) {
-            foreach ($db_categories as $db_categorie) {
-                $cur_category = get_category($db_categorie['category_id']);
+        if (isset($dbCategories)) {
+            foreach ($dbCategories as $dbCategorie) {
+                $curCategory = get_category($dbCategorie['category_id']);
                 
                 
                 if ($uamOptions['lock_recursive'] == 'true') {
-                    $sub_categories 
-                        = get_categories('child_of=' . $db_categorie['category_id']);
+                    $subCategories 
+                        = get_categories('child_of=' . $dbCategorie['category_id']);
                     
-                    if (isset($sub_categories)) {
-                        foreach ($sub_categories as $cur_category) {
-                            $cur_category->recursive_lock_by_category[$db_categorie['category_id']] 
-                                = $db_categorie['category_id'];
-                            $this->categories[$cur_category->term_id] 
-                                = $cur_category;
+                    if (isset($subCategories)) {
+                        foreach ($subCategories as $curCategory) {
+                            $curCategory->recursive_lock_by_category[$dbCategorie['category_id']] 
+                                = $dbCategorie['category_id'];
+                            $this->categories[$curCategory->term_id] 
+                                = $curCategory;
                         }
                     }
                 }
                 
-                $this->categories[$db_categorie['category_id']] = $cur_category;
+                $this->categories[$dbCategorie['category_id']] = $curCategory;
             }
         }
         
@@ -267,16 +338,16 @@ class UamUserGroup
         
         global $wpdb;
         
-        $db_roles = $wpdb->get_results(
+        $dbRoles = $wpdb->get_results(
         	"SELECT *
 			FROM " . DB_ACCESSGROUP_TO_ROLE . "
 			WHERE group_id = " . $this->id, 
             ARRAY_A
         );
         
-        if (isset($db_roles)) {
-            foreach ($db_roles as $db_role) {
-                $this->roles[$db_role['role_name']] = $db_role;
+        if (isset($dbRoles)) {
+            foreach ($dbRoles as $dbRole) {
+                $this->roles[$dbRole['role_name']] = $dbRole;
             }
         }
         

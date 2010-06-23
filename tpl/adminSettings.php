@@ -8,7 +8,7 @@
  * 
  * @category  UserAccessManager
  * @package   UserAccessManager
- * @author    Alexander Schneider <author@example.com>
+ * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
  * @copyright 2008-2010 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
