@@ -56,7 +56,8 @@ class UserAccessManager
         	'user-access-manager', 
         	'wp-content/plugins/user-access-manager'
         );
-        include_once 'languageDefines.php';
+        
+        include_once 'includes/language.define.php';
     }
     
     /**
@@ -74,8 +75,13 @@ class UserAccessManager
         $charset_collate = '';
         
         if (version_compare(mysql_get_server_info(), '4.1.0', '>=')) {
-            if (!empty($wpdb->charset)) $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-            if (!empty($wpdb->collate)) $charset_collate.= " COLLATE $wpdb->collate";
+            if (!empty($wpdb->charset)) {
+                $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+            }
+            
+            if (!empty($wpdb->collate)) {
+                $charset_collate.= " COLLATE $wpdb->collate";
+            }
         }
         
         if ($wpdb->get_var("show tables like '" . DB_ACCESSGROUP . "'") != DB_ACCESSGROUP) {
@@ -126,6 +132,7 @@ class UserAccessManager
 					) $charset_collate;";
             dbDelta($sql);
         }
+        
         add_option("uam_db_version", $uam_db_version);
     }
     
@@ -1590,8 +1597,18 @@ class UserAccessManager
                 $cur_userdata = get_userdata($current_user->ID);
                 $output = "";
                 $access = $this->get_access($post_id);
-                if (!isset($cur_userdata->user_level)) $cur_userdata->user_level = null;
-                if ($cur_userdata->user_level >= $uamOptions['full_access_level'] && (isset($access->restricted_by_posts) || isset($access->restricted_by_categories))) $output = "&nbsp;" . $uamOptions['blog_admin_hint_text'];
+                
+                if (!isset($cur_userdata->user_level)) {
+                    $cur_userdata->user_level = null;
+                }
+                
+                if ($cur_userdata->user_level >= $uamOptions['full_access_level'] 
+                    && (isset($access->restricted_by_posts) 
+                    || isset($access->restricted_by_categories))
+                ) { 
+                    $output = "&nbsp;" . $uamOptions['blog_admin_hint_text'];
+                }
+                
                 return $output;
             }
         }

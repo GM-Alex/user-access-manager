@@ -24,24 +24,20 @@
 */
 
 //DB
-global $wpdb;
-require_once 'includes/UserAccessManager.class.php';
-require_once 'includes/UamUserGroup.class.php';
-define('DB_ACCESSGROUP', $wpdb->prefix . 'uam_accessgroups');
-define('DB_ACCESSGROUP_TO_POST', $wpdb->prefix . 'uam_accessgroup_to_post');
-define('DB_ACCESSGROUP_TO_USER', $wpdb->prefix . 'uam_accessgroup_to_user');
-define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix . 'uam_accessgroup_to_category');
-define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix . 'uam_accessgroup_to_role');
+require_once 'class/UserAccessManager.class.php';
+require_once 'class/UamUserGroup.class.php';
+require_once 'class/UamAccessHandler.class.php';
 
-//PATH
+//Path
 /*define(
 	'UAM_URLPATH', 
     WP_CONTENT_URL.'/plugins/'.plugin_basename( dirname(__FILE__)).'/' 
 );*/
+//Path for Localhost DEBUG
 define(
 	'UAM_URLPATH', 
     WP_CONTENT_URL . '/plugins/user-access-manager/'
-); //Localhost DEBUG
+);
 
 if (class_exists("UserAccessManager")) {
     $userAccessManager = new UserAccessManager();
@@ -49,6 +45,10 @@ if (class_exists("UserAccessManager")) {
 
 if (class_exists("UamUserGroup")) {
     $uamUserGroup = new UamUserGroup(1);  
+}
+
+if (class_exists("UamAccessHandler")) {
+    $uamAccessHandler = new UamAccessHandler(1);  
 }
 
 //Initialize the admin panel
@@ -60,11 +60,8 @@ if (!function_exists("userAccessManagerAP")) {
      */
     function userAccessManagerAP()
     {
-        global $userAccessManager, $uamUserGroup, $wp_version, $current_user, $wpdb;
+        global $userAccessManager, $uamUserGroup, $uamAccessHandler, $wp_version, $current_user;
         $userAccessManager->atAdminPanel = true;
-        
-        print_r($uamUserGroup->getRoles());
-        print_r($uamUserGroup->getUsers());
         
         $uamOptions = $userAccessManager->getAdminOptions();
         if (!isset($userAccessManager)) {
@@ -138,6 +135,7 @@ if (isset($userAccessManager)) {
         register_activation_hook(__FILE__, array(&$userAccessManager, 'install'));
     }
     
+    //uninstall or deactivation
     if (function_exists('register_uninstall_hook')) {
         register_uninstall_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
     } elseif (function_exists('register_deactivation_hook')) {
@@ -150,6 +148,7 @@ if (isset($userAccessManager)) {
 
     //Actions
     add_action('admin_menu', 'userAccessManagerAP');
+    
     if ($uamOptions['redirect'] != 'false' || isset($_GET['getfile'])) {
         add_action('template_redirect', array(&$userAccessManager, 'redirect_user'));
     }
