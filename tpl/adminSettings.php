@@ -2,7 +2,7 @@
 /**
  * adminSettings.php
  * 
- * Shows the setting page at the admin panel
+ * Shows the setting page at the admin panel.
  * 
  * PHP versions 5
  * 
@@ -21,9 +21,6 @@ $uamOptions = $userAccessManager->getAdminOptions();
 if (isset($_POST['update_uam_settings'])) {
     foreach ($osOptions as $option => $value) {
         if (isset($_POST['uam_' . $option])) {
-            if ('flash_dimenson_x' == $option || 'flash_dimenson_y' == $option || 'flash_font_name' == $option || 'flash_font_size' == $option || 'flash_font_color' == $option || 'flash_font_bold' == $option || 'flash_font_italic' == $option || 'flash_text' == $option || 'flash_text_x' == $option || 'flash_text_y' == $option || 'flash_pic' == $option || 'flash_pic_x' == $option || 'flash_pic_y' == $option) {
-                if ($osOptions[$option] != $_POST['os_' . $option]) $update_xml = true;
-            }
             $osOptions[$option] = $_POST['uam_' . $option];
         }
     }
@@ -81,7 +78,12 @@ if (isset($_POST['update_uam_settings'])) {
     
     update_option($this->adminOptionsName, $uamOptions);
     
-    if (($locked_file_types_changed || $not_locked_file_types_changed || isset($lock_file_changed) || $file_pass_changed) && $uamOptions['lock_file'] != 'false') {
+    if (($locked_file_types_changed 
+        || $not_locked_file_types_changed 
+        || isset($lock_file_changed) 
+        || $file_pass_changed) 
+        && $uamOptions['lock_file'] != 'false'
+    ) {
         $this->create_htaccess();
         $this->create_htpasswd(true);
     }
@@ -648,8 +650,8 @@ if ($uamOptions['blog_admin_hint'] == "false") {
 		</tr>
 	</tbody>
 </table>
-<div class="submit"><input type="submit" name="update_uam_settings"
-	value="<?php
-echo TXT_UPDATE_SETTING; ?>" /></div>
+<div class="submit">
+	<input type="submit" name="update_uam_settings" value="<?php echo TXT_UPDATE_SETTING; ?>" />
+</div>
 </form>
 </div>

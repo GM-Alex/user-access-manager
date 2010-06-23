@@ -2,7 +2,7 @@
 /**
  * adminGroup.php
  * 
- * Shows the groupmanagement page at the admin panel
+ * Shows the groupmanagement page at the admin panel.
  * 
  * PHP versions 5
  * 
@@ -15,24 +15,31 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-function getPrintEditGroup($group_id = null)
+/**
+ * Prints the group formular.
+ * 
+ * @param integer $groupId The given group id.
+ * 
+ * @return null
+ */
+function getPrintEditGroup($groupId = null)
 {
     global $wpdb;
     $userAccessManager = new UserAccessManager();
     $uamOptions = $userAccessManager->getAdminOptions();
     
-    if (isset($group_id)) {
-        $group_info = $userAccessManager->get_usergroup_info($group_id);
+    if (isset($groupId)) {
+        $group_info = $userAccessManager->get_usergroup_info($groupId);
     }
     ?>
 	<form method="post" action="<?php echo reset(explode("?", $_SERVER["REQUEST_URI"])) . "?page=" . $_GET['page']; ?>">
 		<input type="hidden" id="TXT_COLLAPS" name="deleteit" value="<?php echo TXT_COLLAPS; ?>" /> 
 		<input type="hidden" id="TXT_EXPAND" name="deleteit" value="<?php echo TXT_EXPAND; ?>" /> 
 	<?php
-    if (isset($group_id)) {
+    if (isset($groupId)) {
         ?> 
     	<input type="hidden" value="update_group" name="action" /> 
-    	<input type="hidden" value="<?php echo $group_id; ?>" name="access_group_id" />
+    	<input type="hidden" value="<?php echo $groupId; ?>" name="access_group_id" />
 		<?php
     } else {
         ?> 
@@ -47,7 +54,7 @@ function getPrintEditGroup($group_id = null)
     				<th valign="top" scope="row"><?php echo TXT_GROUP_NAME; ?></th>
     				<td>
     					<input type="text" size="40" value="<?php
-    if (isset($group_id)) {
+    if (isset($groupId)) {
         echo $group_info->group["groupname"];
     } 
                         ?>" id="access_group_name" name="access_group_name" /><br />
@@ -58,7 +65,7 @@ function getPrintEditGroup($group_id = null)
             		<th valign="top" scope="row"><?php echo TXT_GROUP_DESC; ?></th>
             		<td>
             			<input type="text" size="40" value="<?php 
-    if (isset($group_id)) { 
+    if (isset($groupId)) { 
         echo $group_info->group["groupdesc"]; 
     } 
                         ?>" id="access_group_description" name="access_group_description" /><br />
@@ -68,7 +75,7 @@ function getPrintEditGroup($group_id = null)
 				<tr class="form-field form-required">
                 	<th valign="top" scope="row"><?php echo TXT_GROUP_IP_RANGE; ?></th>
                 	<td><input type="text" size="40" value="<?php
-    if (isset($group_id)) {
+    if (isset($groupId)) {
         echo $group_info->group["ip_range"];
     } 
                         ?>" id="ip_range" name="ip_range" /><br />
@@ -81,7 +88,7 @@ function getPrintEditGroup($group_id = null)
                 		<select name="read_access">
                 			<option value="group"
 	<?php
-    if (isset($group_id)) {
+    if (isset($groupId)) {
         if ($group_info->group["read_access"] == "group") {
             echo 'selected="selected"';
         }
@@ -92,7 +99,7 @@ function getPrintEditGroup($group_id = null)
     						</option>
 							<option value="all"
 	<?php
-    if (isset($group_id)) {
+    if (isset($groupId)) {
         if ($group_info->group["read_access"] == "all") {
             echo 'selected="selected"';
         }
@@ -111,7 +118,7 @@ function getPrintEditGroup($group_id = null)
 						<select name="write_access">
 							<option value="group"
 	<?php
-    if (isset($group_id)) {
+    if (isset($groupId)) {
         if ($group_info->group["write_access"] == "group") {
             echo 'selected="selected"';
         }
@@ -122,7 +129,7 @@ function getPrintEditGroup($group_id = null)
         					</option>
     						<option value="all" 
 	<?php 
-    if (isset($group_id)) {
+    if (isset($groupId)) {
         if ($group_info->group["write_access"] == "all") {
             echo 'selected="selected"';
         }
@@ -168,7 +175,7 @@ function getPrintEditGroup($group_id = null)
 		</table>
 		<p class="submit">
 			<input type="submit" value="<?php
-    if (isset($group_id)) {
+    if (isset($groupId)) {
         echo TXT_UPDATE_GROUP;
     } else {
         echo TXT_ADD_GROUP;
@@ -246,7 +253,7 @@ if ($post_action == 'update_group' || $post_action == 'addgroup') {
         		'" . $_POST['ip_range'] . "'
         	)"
         );
-        $group_id = $wpdb->insert_id;
+        $groupId = $wpdb->insert_id;
     } elseif ($post_action == 'update_group') {
         $wpdb->query(
         	"UPDATE " . DB_ACCESSGROUP . "
@@ -258,25 +265,25 @@ if ($post_action == 'update_group' || $post_action == 'addgroup') {
 			WHERE ID = " . $_POST['access_group_id']
         );
         
-        $group_id = $_POST['access_group_id'];
+        $groupId = $_POST['access_group_id'];
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
-        	WHERE group_id = " . $group_id
+        	WHERE group_id = " . $groupId
         );
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-        	WHERE group_id = " . $group_id
+        	WHERE group_id = " . $groupId
         );
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-        	WHERE group_id = " . $group_id
+        	WHERE group_id = " . $groupId
         );
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-        	WHERE group_id = " . $group_id
+        	WHERE group_id = " . $groupId
         );
     }
     
@@ -294,7 +301,7 @@ if ($post_action == 'update_group' || $post_action == 'addgroup') {
             		role_name
             	) 
             	VALUES(
-            		'" . $group_id . "', 
+            		'" . $groupId . "', 
             		'" . $role . "'
             	)"
             );
@@ -490,8 +497,8 @@ if (isset($_GET['action'])) {
 }
 
 if ($action == 'edit_group' && isset($_GET['id'])) {
-    $group_id = $_GET['id'];    
-    getPrintEditGroup($group_id);
+    $groupId = $_GET['id'];    
+    getPrintEditGroup($groupId);
 } else {
     getPrintEditGroup();
 }
