@@ -2,16 +2,29 @@
 /**
  * UserAccessManager.class.php
  * 
- * The main class
+ * The UserAccessManager class file.
+ * 
+ * PHP versions 5
  * 
  * @category  UserAccessManager
  * @package   UserAccessManager
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @author    Alexander Schneider <author@example.com>
  * @copyright 2008-2010 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+/**
+ * The user user access manager class.
+ * 
+ * @category UserAccessManager
+ * @package  UserAccessManager
+ * @author   Alexander Schneider <alexanderschneider85@gmail.com>
+ * @license  http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @link     http://wordpress.org/extend/plugins/user-access-manager/
+ */
+
 class UserAccessManager
 {
     var $adminOptionsName = "uamAdminOptions";

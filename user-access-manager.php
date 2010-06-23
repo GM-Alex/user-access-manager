@@ -25,7 +25,8 @@
 
 //DB
 global $wpdb;
-require_once 'includes/userAccessManager.class.php';
+require_once 'includes/UserAccessManager.class.php';
+require_once 'includes/UamUserGroup.class.php';
 define('DB_ACCESSGROUP', $wpdb->prefix . 'uam_accessgroups');
 define('DB_ACCESSGROUP_TO_POST', $wpdb->prefix . 'uam_accessgroup_to_post');
 define('DB_ACCESSGROUP_TO_USER', $wpdb->prefix . 'uam_accessgroup_to_user');
@@ -46,6 +47,10 @@ if (class_exists("UserAccessManager")) {
     $userAccessManager = new UserAccessManager();
 }
 
+if (class_exists("UamUserGroup")) {
+    $uamUserGroup = new UamUserGroup(1);  
+}
+
 //Initialize the admin panel
 if (!function_exists("userAccessManagerAP")) {
     /**
@@ -53,11 +58,13 @@ if (!function_exists("userAccessManagerAP")) {
      * 
      * @return null;
      */
-    
     function userAccessManagerAP()
     {
-        global $userAccessManager, $wp_version, $current_user, $wpdb;
+        global $userAccessManager, $uamUserGroup, $wp_version, $current_user, $wpdb;
         $userAccessManager->atAdminPanel = true;
+        
+        print_r($uamUserGroup->getRoles());
+        print_r($uamUserGroup->getUsers());
         
         $uamOptions = $userAccessManager->getAdminOptions();
         if (!isset($userAccessManager)) {
