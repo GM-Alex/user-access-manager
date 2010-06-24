@@ -226,6 +226,8 @@ if ($post_action == 'updateGroup' || $post_action == 'addGroup') {
         $roles = null;
     }
     
+    $uamUserGroup->unsetRoles(true);
+    
     if ($roles) {
         foreach ($roles as $role) {
             $uamUserGroup->addRole($role);

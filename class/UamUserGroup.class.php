@@ -32,18 +32,33 @@ class UamUserGroup
     protected $groupDesc = null;
     protected $readAccess = null;
     protected $writeAccess = null;
-    protected $ipRange = null; 
-    protected $users = array();
-    protected $categories = array();
+    protected $ipRange = null;
     protected $roles = array();
-    protected $posts = array();
-    protected $pages = array();
-    protected $files = array();
+    protected $users = array(
+    	'real' => array(),
+        'full' => array(),
+    );
+    protected $categories = array(
+    	'real' => array(),
+        'full' => array(),
+    );
+    protected $posts = array(
+    	'real' => array(),
+        'full' => array(),
+    );
+    protected $pages = array(
+    	'real' => array(),
+        'full' => array(),
+    );
+    protected $files = array(
+    	'real' => array(),
+        'full' => array(),
+    );
     
     /**
      * Consturtor
      * 
-     * @param integer $id The id of the usergroup
+     * @param integer $id The id of the user group.
      * 
      * @return null
      */
@@ -82,25 +97,10 @@ class UamUserGroup
         	WHERE ID = $this->id LIMIT 1"
         );
         
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-        	WHERE group_id = $this->id"
-        );
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-        	WHERE group_id = $this->id"
-        );
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-        	WHERE group_id = $this->id"
-        );
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
-        	WHERE group_id = $this->id"
-        );
+        $this->_deleteRolesFromDb();
+        $this->_deletePostByTypeFromDb('all');
+        $this->_deleteCategoriesFromDb();
+        $this->_deleteUsersFromDb();
     }
     
     /**
@@ -142,25 +142,17 @@ class UamUserGroup
     			WHERE ID = " . $this->id
             );
             
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
-            	WHERE group_id = " . $this->id
-            );
+            $this->getPosts();
+            $this->getPages();
+            $this->getFiles();
+            $this->getRoles();
+            $this->getCategories();
+            $this->getUsers();
             
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-            	WHERE group_id = " . $this->id
-            );
-            
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-            	WHERE group_id = " . $this->id
-            );
-            
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-            	WHERE group_id = " . $this->id
-            );
+            $this->_deletePostByTypeFromDb('all');
+            $this->_deleteRolesFromDb();
+            $this->_deleteCategoriesFromDb();
+            $this->_deleteUsersFromDb();
         }
         
         foreach ($this->getUsers() as $userKey => $user) {
@@ -209,7 +201,7 @@ class UamUserGroup
             $wpdb->query(
             	"INSERT INTO " . DB_ACCESSGROUP_TO_POST . " (
             		group_id, 
-            		category_id
+            		post_id
             	) 
             	VALUES(
             		'" . $this->id . "', 
@@ -325,17 +317,23 @@ class UamUserGroup
     /**
      * Returns the users in the group
      * 
+     * @param string $type The return type. Can be real or full.
+     * 
      * @return array
      */
-    function getUsers()
+    function getUsers($type = 'real')
     {
-        if ($this->users != array()) {
-            return $this->users;
+        if ($type != 'real' 
+            && $type != 'full'
+        ) {
+            return null;
+        }
+        
+        if ($this->users[$type] != array()) {
+            return $this->users[$type];
         }
         
         global $wpdb;
-        $userAccessManager = new UserAccessManager();
-        $uamOptions = $userAccessManager->getAdminOptions();
         
         $dbUsers = $wpdb->get_results(
         	"SELECT *
@@ -347,34 +345,34 @@ class UamUserGroup
         
         if (isset($dbUsers)) {
             foreach ($dbUsers as $dbUser) {
-                $this->users[$dbUser['user_id']] 
+                $this->users[$type][$dbUser['user_id']] 
                     = get_userdata($dbUser['user_id']);
             }
         }
         
-        $wpUsers = $wpdb->get_results(
-        	"SELECT ID, user_nicename
-			FROM $wpdb->users 
-			ORDER BY user_nicename", 
-            ARRAY_A
-        );
-        
-        if (isset($wpUsers)) {
-            foreach ($wpUsers as $wpUser) {
-                $cur_userdata = get_userdata($wpUser['ID']);
-                $capabilities = $cur_userdata->{$wpdb->prefix . "capabilities"};
-                $role 
-                    = is_array($capabilities) ? array_keys($capabilities) : 'norole';
-                
-                if ($cur_userdata->user_level >= $uamOptions['full_access_level']
-                    || array_key_exists($role[0], $this->getRoles())
-                ) {
-                    $this->users[$wpUser['ID']] = $cur_userdata;
+        if ($type == 'full') {
+            $wpUsers = $wpdb->get_results(
+            	"SELECT ID, user_nicename
+    			FROM $wpdb->users 
+    			ORDER BY user_nicename", 
+                ARRAY_A
+            );
+            
+            if (isset($wpUsers)) {
+                foreach ($wpUsers as $wpUser) {
+                    $curUserdata = get_userdata($wpUser['ID']);
+                    $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
+                    $role = is_array($capabilities) ? array_keys($capabilities) : 'norole';
+                    
+                    if (array_key_exists($role[0], $this->getRoles())
+                    ) {
+                        $this->users[$wpUser['ID']] = $curUserdata;
+                    }
                 }
             }
         }
         
-        return $this->users;
+        return $this->users[$type];
     }
     
     /**
@@ -387,7 +385,8 @@ class UamUserGroup
     function addUser($userID)
     {
         $this->getUsers();
-        $this->users[$userID] = get_userdata($userID);
+        $this->users['real'][$userID] = get_userdata($userID);
+        $this->users['full'] = array();
     }
     
     /**
@@ -400,18 +399,59 @@ class UamUserGroup
     function removeUser($userID)
     {
         $this->getUsers();
-        unset($this->users[$userID]);
+        unset($this->users['real'][$userID]);
+        $this->users['full'] = array();
+    }
+    
+    /**
+     * Unsets the users.
+     * 
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    function unsetUsers($plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deleteUsersFromDb();
+        }
+
+        $this->users = array(
+    		'real' => array(),
+        	'full' => array(),
+        );
+    }
+    
+    /**
+     * Removes all users from the user group.
+     * 
+     * @return null
+     */
+    function deleteUsersFromDb()
+    {
+        $wpdb->query(
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
+        	WHERE group_id = $this->id"
+        );
     }
     
     /**
      * Returns the categories in the group
      * 
+     * @param string $type The return type. Can be real or full.
+     * 
      * @return array
      */
-    function getCategories()
+    function getCategories($type = 'real')
     {
-        if ($this->categories != array()) {
-            return $this->categories;
+        if ($type != 'real' 
+            && $type != 'full'
+        ) {
+            return null;
+        }
+        
+        if ($this->categories[$type] != array()) {
+            return $this->categories[$type];
         }
         
         global $wpdb;
@@ -430,8 +470,7 @@ class UamUserGroup
             foreach ($dbCategories as $dbCategorie) {
                 $curCategory = get_category($dbCategorie['category_id']);
                 
-                
-                if ($uamOptions['lock_recursive'] == 'true') {
+                if ($uamOptions['lock_recursive'] == 'true' && $type == 'full') {
                     $subCategories 
                         = get_categories('child_of=' . $dbCategorie['category_id']);
                     
@@ -445,11 +484,11 @@ class UamUserGroup
                     }
                 }
                 
-                $this->categories[$dbCategorie['category_id']] = $curCategory;
+                $this->categories[$type][$dbCategorie['category_id']] = $curCategory;
             }
         }
         
-        return $this->categories;
+        return $this->categories[$type];
     }
     
     /**
@@ -461,8 +500,9 @@ class UamUserGroup
      */
     function addCategory($categoryID)
     {
-        $this->getCategorys();
-        $this->categorys[$categoryID] = get_categorydata($categoryID);
+        $this->getCategories();
+        $this->categories['real'][$categoryID] = get_categorydata($categoryID);
+        $this->categories['full'] = array();
     }
     
     /**
@@ -474,8 +514,41 @@ class UamUserGroup
      */
     function removeCategory($categoryID)
     {
-        $this->getCategorys();
-        unset($this->categorys[$categoryID]);
+        $this->getCategories();
+        unset($this->categories['real'][$categoryID]);
+        $this->categories['full'] = array();
+    }
+    
+    /**
+     * Unsets the categories.
+     * 
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    function unsetCategories($plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deleteCategoriesFromDb();
+        }
+        
+        $this->categories = array(
+    		'real' => array(),
+        	'full' => array(),
+        );
+    }
+    
+    /**
+     * Removes all categories from the user group.
+     * 
+     * @return null
+     */
+    private function _deleteCategoriesFromDb()
+    {
+        $wpdb->query(
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
+        	WHERE group_id = $this->id"
+        );
     }
     
     /**
@@ -534,24 +607,58 @@ class UamUserGroup
     }
     
     /**
+     * Unsets the roles.
+     * 
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    function unsetRoles($plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deleteRolesFromDb();
+        }
+
+        $this->roles = array();
+    }
+    
+    /**
+     * Removes all roles from the user group.
+     * 
+     * @return null
+     */
+    private function _deleteRolesFromDb()
+    {
+        $wpdb->query(
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
+        	WHERE group_id = $this->id"
+        );
+    }
+    
+    /**
      * Returns the posts by the given type in the group
      * 
-     * @param string $type The type of the post
+     * @param string $postType The type of the post.
+     * @param string $type     The return type. Can be real or full.
      * 
      * @return array
      */
-    private function _getPostByType($type)
+    private function _getPostByType($postType, $type)
     {
-        if ($this->posts != array()) {
-            return $this->posts;
+        if ($type != 'real' 
+            && $type != 'full'
+        ) {
+            return null;
         }
-
-        global $wpdb;
         
-        if ($type == 'file') {
+        if ($postType == 'file') {
             $wpType = 'attachment';
         } else {
-            $wpType = $type;
+            $wpType = $postType;
+        }
+        
+        if ($this->{$postType.'s'}[$type] != array()) {
+            return $this->{$postType.'s'}[$type];
         }
         
         $args = array('numberposts' => - 1, 'post_type' => $wpType);
@@ -563,13 +670,75 @@ class UamUserGroup
                 	"SELECT COUNT(*)
 					FROM " . DB_ACCESSGROUP_TO_POST . "
         			WHERE group_id = " . $this->id . "
-        			ORDER BY category_id",
+        				AND post_id".$post->ID,
                     ARRAY_A
                 );
 
-                if ($count > 0) {
-                    $this->{$type.'s'}[$post->ID] = $post;
+                $isRecursiveMember = false;
+                
+                if ($type == 'full') {
+                    foreach (get_the_category($post->ID) as $category) {
+                        if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
+                            $isRecursiveMember = true;
+                            break;
+                        }
+                    }
+                    
+                    if ($postType == 'page' && !$isRecursiveMember) {
+                        $tmpPost = $post;
+                        
+                        while ($tmpPost->child_of != 0) {
+                            if ($this->postIsMember($tmpPost->child_of)) {
+                                $isRecursiveMember = true;
+                                break;
+                            }
+                            
+                            $tmpPost = get_post($tmpPost->child_of);
+                        }
+                    }
                 }
+                
+                if ($count > 0 || $isRecursiveMember) {
+                    $this->{$postType.'s'}[$type][$post->ID] = $post;
+                }
+            }
+        }
+        
+        
+    }
+    
+    /**
+     * Removes all post of all types from the user group.
+     * 
+     * @param string $postType The type which should be deleted.
+     * 
+     * @return null;
+     */
+    private function _deletePostByTypeFromDb($postType)
+    {
+        global $wpdb;
+        
+        if ($postType == 'all') {
+            $wpdb->query(
+            	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
+            	WHERE group_id = $this->id"
+            );
+        } else {
+            if ($type == 'post') {
+                $curPostTypes = $this->getPosts();
+            } elseif ($type == 'page') {
+                $curPostTypes = $this->getPages();
+            } elseif ($type == 'file') {
+                $curPostTypes = $this->getFiles();
+            }
+            
+            foreach ($curPostTypes as $id => $post) {
+                $wpdb->query(
+                	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
+                	WHERE group_id = ".$this->id."
+                        AND post_id = ".$id."
+                    LIMIT 1"
+                );
             }
         }
     }
@@ -577,15 +746,17 @@ class UamUserGroup
     /**
      * Returns the pages in the group
      * 
+     * @param string $type The return type. Can be real or full.
+     * 
      * @return array
      */
-    function getPosts()
+    function getPosts($type = 'real')
     {
         if ($this->pages != array()) {
             return $this->posts;
         }
         
-        return $this->_getPostByType('post');
+        return $this->_getPostByType('post', $type);
     }
     
     /**
@@ -598,7 +769,8 @@ class UamUserGroup
     function addPost($postID)
     {
         $this->getPosts();
-        $this->posts[$postID] = get_postdata($postID);
+        $this->posts['real'][$postID] = get_postdata($postID);
+        $this->posts['full'] = array();
     }
     
     /**
@@ -611,21 +783,43 @@ class UamUserGroup
     function removePost($postID)
     {
         $this->getPosts();
-        unset($this->posts[$postID]);
+        unset($this->posts['real'][$postID]);
+        $this->posts['full'] = array();
+    }
+    
+    /**
+     * Unsets the posts.
+     * 
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    function unsetPosts($plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deletePostByTypeFromDb('post');
+        }
+        
+        $this->posts  = array(
+    		'real' => array(),
+        	'full' => array(),
+        );;
     }
     
     /**
      * Returns the pages in the group
      * 
+     * @param string $type The return type. Can be real or full.
+     * 
      * @return array
      */
-    function getPages()
+    function getPages($type = 'real')
     {
         if ($this->pages != array()) {
             return $this->pages;
         }
         
-        return $this->_getPostByType('page');
+        return $this->_getPostByType('page', $type);
     }
     
     /**
@@ -638,7 +832,8 @@ class UamUserGroup
     function addPage($pageID)
     {
         $this->getPages();
-        $this->pages[$pageID] = get_pagedata($pageID);
+        $this->pages['real'][$pageID] = get_pagedata($pageID);
+        $this->pages['full'] = array();
     }
     
     /**
@@ -651,21 +846,43 @@ class UamUserGroup
     function removePage($pageID)
     {
         $this->getPages();
-        unset($this->pages[$pageID]);
+        unset($this->pages['real'][$pageID]);
+        $this->pages['full'] = array();
+    }
+    
+    /**
+     * Unsets the pages.
+     * 
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    function unsetPages($plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deletePostByTypeFromDb('page');
+        }
+        
+        $this->pages  = array(
+    		'real' => array(),
+        	'full' => array(),
+        );;
     }
     
     /**
      * Returns the files in the group
      * 
+     * @param string $type The return type. Can be real or full.
+     * 
      * @return array
      */
-    function getFiles()
+    function getFiles($type = 'real')
     {
         if ($this->pages != array()) {
             return $this->files;
         }
         
-        return $this->_getPostByType('file');
+        return $this->_getPostByType('file', $type);
     }
     
     /**
@@ -678,7 +895,8 @@ class UamUserGroup
     function addFile($fileID)
     {
         $this->getFiles();
-        $this->files[$fileID] = get_filedata($fileID);
+        $this->files['real'][$fileID] = get_filedata($fileID);
+        $this->files['full'] = array();
     }
     
     /**
@@ -691,6 +909,90 @@ class UamUserGroup
     function removeFile($fileID)
     {
         $this->getFiles();
-        unset($this->files[$fileID]);
+        unset($this->files['real'][$fileID]);
+        $this->files['full'] = array();
+    }
+    
+    /**
+     * Unsets the files.
+     * 
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    function unsetFiles($plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deletePostByTypeFromDb('file');
+        }
+        
+        $this->files = array(
+    		'real' => array(),
+        	'full' => array(),
+        );;
+    }
+    
+    /**
+     * Checks if the given post is a member of the group.
+     * 
+     * @param interger $postId The id of the post which should be checked.
+     * 
+     * @return boolean
+     */
+    function postIsMember($postId)
+    {
+        $count = $wpdb->get_var(
+        	"SELECT COUNT(*)
+			FROM " . DB_ACCESSGROUP_TO_POST . "
+			WHERE group_id = " . $this->id . "
+				AND post_id".$postId,
+            ARRAY_A
+        );
+        
+        if ($count > 0) {
+            return true;
+        }
+        
+        foreach (get_the_category($postId) as $category) {
+            if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Checks if the given user is a member of the group.
+     * 
+     * @param interger $userId The id of the user which should be checked.
+     * 
+     * @return boolean
+     */
+    function userIsMember($userId)
+    {
+        global $wpdb;
+        
+        $count = $wpdb->get_var(
+        	"SELECT COUNT(*)
+			FROM " . DB_ACCESSGROUP_TO_USER . "
+			WHERE group_id = " . $this->id . "
+				AND user_id".$userId,
+            ARRAY_A
+        );
+        
+        if ($count > 0) {
+            return true;
+        }
+        
+        $curUserdata = get_userdata($userId);
+        $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
+        $role = is_array($capabilities) ? array_keys($capabilities) : 'norole';
+        
+        if (array_key_exists($role[0], $this->getRoles())) {
+            return true;
+        }
+        
+        return false;
     }
 }
