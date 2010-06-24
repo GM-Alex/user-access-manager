@@ -294,7 +294,7 @@ class UamUserGroup
      */
     function getIpRange()
     {
-        $ipArray = explode($this->ipRange);
+        $ipArray = explode(';', $this->ipRange);
         return $ipArray;
     }
     
