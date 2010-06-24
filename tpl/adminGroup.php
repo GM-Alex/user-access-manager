@@ -24,13 +24,7 @@
  */
 function getPrintEditGroup($groupId = null)
 {
-    global $wpdb;
-    $userAccessManager = new UserAccessManager();
-    $uamOptions = $userAccessManager->getAdminOptions();
-    
-    if (isset($groupId)) {
-        $group_info = $userAccessManager->get_usergroup_info($groupId);
-    }
+    $uamUserGroup = new UamUserGroup($groupId);
     ?>
 	<form method="post" action="<?php echo reset(explode("?", $_SERVER["REQUEST_URI"])) . "?page=" . $_GET['page']; ?>">
 		<input type="hidden" id="TXT_COLLAPS" name="deleteit" value="<?php echo TXT_COLLAPS; ?>" /> 
@@ -38,16 +32,15 @@ function getPrintEditGroup($groupId = null)
 	<?php
     if (isset($groupId)) {
         ?> 
-    	<input type="hidden" value="update_group" name="action" /> 
-    	<input type="hidden" value="<?php echo $groupId; ?>" name="access_group_id" />
+    	<input type="hidden" value="updateGroup" name="action" /> 
+    	<input type="hidden" value="<?php echo $groupId; ?>" name="accessGroupId" />
 		<?php
     } else {
         ?> 
-    	<input type="hidden" value="addgroup" name="action" /> 
+    	<input type="hidden" value="addGroup" name="action" /> 
         <?php
     }
-    ?> 
-       	<input type="hidden" value="<?php echo $uamOptions['lock_recursive']; ?>" name="uam_lock_recursive" id="uam_set_lock_recursive" />
+    ?>
     	<table class="form-table">
     		<tbody>
     			<tr class="form-field form-required">
@@ -55,9 +48,9 @@ function getPrintEditGroup($groupId = null)
     				<td>
     					<input type="text" size="40" value="<?php
     if (isset($groupId)) {
-        echo $group_info->group["groupname"];
+        echo $uamUserGroup->getGroupName();
     } 
-                        ?>" id="access_group_name" name="access_group_name" /><br />
+                        ?>" id="accessGroupName" name="accessGroupName" /><br />
 		                <?php echo TXT_GROUP_NAME_DESC; ?>
 		        	</td>
 				</tr>
@@ -66,9 +59,9 @@ function getPrintEditGroup($groupId = null)
             		<td>
             			<input type="text" size="40" value="<?php 
     if (isset($groupId)) { 
-        echo $group_info->group["groupdesc"]; 
+        echo $uamUserGroup->getGroupDesc(); 
     } 
-                        ?>" id="access_group_description" name="access_group_description" /><br />
+                        ?>" id="accessGroupDescription" name="accessGroupDescription" /><br />
             		    <?php echo TXT_GROUP_DESC_DESC; ?>
             		</td>
             	</tr>
@@ -76,20 +69,20 @@ function getPrintEditGroup($groupId = null)
                 	<th valign="top" scope="row"><?php echo TXT_GROUP_IP_RANGE; ?></th>
                 	<td><input type="text" size="40" value="<?php
     if (isset($groupId)) {
-        echo $group_info->group["ip_range"];
+        echo $uamUserGroup->getIpRange();
     } 
-                        ?>" id="ip_range" name="ip_range" /><br />
+                        ?>" id="ipRange" name="ipRange" /><br />
                 		<?php echo TXT_GROUP_IP_RANGE_DESC; ?>
                 	</td>
                 </tr>
                 <tr class="form-field form-required">
                 	<th valign="top" scope="row"><?php echo TXT_GROUP_READ_ACCESS; ?></th>
                 	<td>
-                		<select name="read_access">
+                		<select name="readAccess">
                 			<option value="group"
 	<?php
     if (isset($groupId)) {
-        if ($group_info->group["read_access"] == "group") {
+        if ($uamUserGroup->getReadAccess() == "group") {
             echo 'selected="selected"';
         }
     } 
@@ -100,7 +93,7 @@ function getPrintEditGroup($groupId = null)
 							<option value="all"
 	<?php
     if (isset($groupId)) {
-        if ($group_info->group["read_access"] == "all") {
+        if ($uamUserGroup->getReadAccess() == "all") {
             echo 'selected="selected"';
         }
     } 
@@ -115,11 +108,11 @@ function getPrintEditGroup($groupId = null)
 				<tr class="form-field form-required">
 					<th valign="top" scope="row"><?php echo TXT_GROUP_WRITE_ACCESS; ?></th>
 					<td>
-						<select name="write_access">
+						<select name="writeAccess">
 							<option value="group"
 	<?php
     if (isset($groupId)) {
-        if ($group_info->group["write_access"] == "group") {
+        if ($uamUserGroup->getWriteAccess() == "group") {
             echo 'selected="selected"';
         }
     } 
@@ -130,7 +123,7 @@ function getPrintEditGroup($groupId = null)
     						<option value="all" 
 	<?php 
     if (isset($groupId)) {
-        if ($group_info->group["write_access"] == "all") {
+        if ($uamUserGroup->getWriteAccess() == "all") {
             echo 'selected="selected"';
         }
     } 
@@ -148,13 +141,16 @@ function getPrintEditGroup($groupId = null)
 						<ul class='uam_role'>
 	<?php
     global $wp_roles;
+    
     foreach ($wp_roles->role_names as $role => $name) {
         if ($role != "administrator") {
             ?>
 							<li class="selectit">
 								<input id="role-<?php echo $role; ?>" type="checkbox"
 			<?php
-            if (isset($group_info->posts[$role])) {
+			$groupRoles = $uamUserGroup->getRoles();
+			
+            if (isset($groupRoles[$role])) {
                 echo 'checked="checked"';
             } 
             ?>
@@ -186,8 +182,6 @@ function getPrintEditGroup($groupId = null)
     <?php
 }
 
-global $wpdb;
-
 if (isset($_POST['action'])) {
     $post_action = $_POST['action'];
 } else {
@@ -196,34 +190,12 @@ if (isset($_POST['action'])) {
 
 if ($post_action == 'delgroup') {
     if (isset($_POST['delete'])) {
-        $del_ids = $_POST['delete'];
+        $delIds = $_POST['delete'];
     }
-    if (isset($del_ids)) {
-        foreach ($del_ids as $del_id) {
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP . " 
-            	WHERE ID = $del_id LIMIT 1"
-            );
-            
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-            	WHERE group_id = $del_id"
-            );
-            
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-            	WHERE group_id = $del_id"
-            );
-            
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-            	WHERE group_id = $del_id"
-            );
-            
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
-            	WHERE group_id = $del_id"
-            );
+    if (isset($delIds)) {
+        foreach ($delIds as $delId) {
+            $uamUserGroup = new UamUserGroup($delId);
+            $uamUserGroup->delete();
         }
         ?>
         <div class="updated">
@@ -233,60 +205,21 @@ if ($post_action == 'delgroup') {
     }
 }
 
-if ($post_action == 'update_group' || $post_action == 'addgroup') {
-    if ($post_action == 'addgroup') {
-        $wpdb->query(
-        	"INSERT INTO " . DB_ACCESSGROUP . " (
-        		ID, 
-        		groupname, 
-        		groupdesc, 
-        		read_access, 
-        		write_access, 
-        		ip_range
-        	) 
-        	VALUES (
-        		NULL, 
-        		'" . $_POST['access_group_name'] . "', 
-        		'" . $_POST['access_group_description'] . "', 
-        		'" . $_POST['read_access'] . "', 
-        		'" . $_POST['write_access'] . "', 
-        		'" . $_POST['ip_range'] . "'
-        	)"
-        );
-        $groupId = $wpdb->insert_id;
-    } elseif ($post_action == 'update_group') {
-        $wpdb->query(
-        	"UPDATE " . DB_ACCESSGROUP . "
-			SET groupname = '" . $_POST['access_group_name'] . "', 
-				groupdesc = '" . $_POST['access_group_description'] . "', 
-				read_access = '" . $_POST['read_access'] . "', 
-				write_access = '" . $_POST['write_access'] . "', 
-				ip_range = '" . $_POST['ip_range'] . "'
-			WHERE ID = " . $_POST['access_group_id']
-        );
-        
-        $groupId = $_POST['access_group_id'];
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
-        	WHERE group_id = " . $groupId
-        );
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-        	WHERE group_id = " . $groupId
-        );
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-        	WHERE group_id = " . $groupId
-        );
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-        	WHERE group_id = " . $groupId
-        );
+if ($post_action == 'updateGroup' || $post_action == 'addGroup') {
+    if (isset($_POST['accessGroupId'])) {
+        $groupId = $_POST['accessGroupId'];
+    } else {
+        $groupId = null;
     }
     
+    $uamUserGroup = new UamUserGroup($groupId);
+    
+    $uamUserGroup->setGroupName($_POST['accessGroupName']);
+	$uamUserGroup->setGroupDesc($_POST['accessGroupDescription']);
+	$uamUserGroup->setReadAccess($_POST['readAccess']);
+	$uamUserGroup->setWriteAccess($_POST['writeAccess']);
+	$uamUserGroup->setIpRange($_POST['ipRange']);
+        
     if (isset($_POST['roles'])) {
         $roles = $_POST['roles'];
     } else {
@@ -295,26 +228,19 @@ if ($post_action == 'update_group' || $post_action == 'addgroup') {
     
     if ($roles) {
         foreach ($roles as $role) {
-            $wpdb->query(
-            	"INSERT INTO " . DB_ACCESSGROUP_TO_ROLE . " (
-            		group_id, 
-            		role_name
-            	) 
-            	VALUES(
-            		'" . $groupId . "', 
-            		'" . $role . "'
-            	)"
-            );
+            $uamUserGroup->addRole($role);
         }
     }
     
-    if ($post_action == 'addgroup') {
+    $uamUserGroup->save();
+    
+    if ($post_action == 'addGroup') {
         ?>
         <div class="updated">
         	<p><strong><?php echo TXT_GROUP_ADDED; ?></strong></p>
         </div>
         <?php
-    } elseif ($post_action == 'update_group') {
+    } elseif ($post_action == 'updateGroup') {
         ?>
         <div class="updated">
         	<p><strong><?php echo TXT_ACCESS_GROUP_EDIT_SUC; ?></strong></p>
@@ -322,15 +248,10 @@ if ($post_action == 'update_group' || $post_action == 'addgroup') {
         <?php
     }
 }
-
-$accessgroups = $wpdb->get_results(
-	"SELECT *
-	FROM " . DB_ACCESSGROUP . "
-	ORDER BY ID", ARRAY_A
-);
 ?>
 <div class=wrap>
-    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>"><input type="hidden" value="delgroup" name="action" />
+    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+    	<input type="hidden" value="delgroup" name="action" />
         <h2><?php echo TXT_MANAGE_GROUP; ?></h2>
         <div class="tablenav">
             <div class="alignleft">
@@ -355,49 +276,56 @@ $accessgroups = $wpdb->get_results(
         			<th scope="col"><?php echo TXT_FILES; ?></th>
         			<th scope="col"><?php echo TXT_CATEGORY; ?></th>
         			<th scope="col"><?php echo TXT_USERS; ?></th>
-        			<th></th>
         		</tr>
         	</thead>
     	<tbody>
 <?php
-if (isset($accessgroups)) {
-    foreach ($accessgroups as $accessgroup) {
-        $group_info = $this->get_usergroup_info($accessgroup['ID']);
+global $wpdb;
+
+$accessGroups = $wpdb->get_results(
+	"SELECT ID
+	FROM " . DB_ACCESSGROUP . "
+	ORDER BY ID", ARRAY_A
+);
+
+if (isset($accessGroups)) {
+    foreach ($accessGroups as $accessGroup) {
+        $uamUserGroup = new UamUserGroup($accessGroup['ID']);
         ?>
-    		<tr class="alternate" id="group-<?php echo $accessgroup['ID']; ?>">
+    		<tr class="alternate" id="group-<?php echo $uamUserGroup->getId(); ?>">
     			<th class="check-column" scope="row">
-    				<input type="checkbox" value="<?php echo $accessgroup['ID']; ?>" name="delete[]" />
+    				<input type="checkbox" value="<?php echo $uamUserGroup->getId(); ?>" name="delete[]" />
     			</th>
     			<td>
     				<strong>
-    					<a href="?page=<?php echo $cur_admin_page; ?>&action=edit_group&id=<?php echo $accessgroup['ID']; ?>">
-    					    <?php echo $accessgroup['groupname']; ?>
+    					<a href="?page=<?php echo $curAdminPage; ?>&action=editGroup&id=<?php echo $uamUserGroup->getId(); ?>">
+    					    <?php echo $uamUserGroup->getGroupName(); ?>
     					</a>
     				</strong>
     			</td>
-    			<td><?php echo $accessgroup['groupdesc']; ?></td>
+    			<td><?php echo $uamUserGroup->getGroupDesc() ?></td>
     			<td>
         <?php 
-        if ($accessgroup['read_access'] == "all") {
+        if ($uamUserGroup->getReadAccess() == "all") {
             echo TXT_ALL;
-        } elseif ($accessgroup['read_access'] == "group") {
+        } elseif ($uamUserGroup->getReadAccess() == "group") {
             echo TXT_ONLY_GROUP_USERS;
         } 
         ?>
                 </td>
     			<td>
 		<?php
-        if ($accessgroup['write_access'] == "all") {
+        if ($uamUserGroup->getWriteAccess() == "all") {
             echo TXT_ALL;
-        } elseif ($accessgroup['write_access'] == "group") {
+        } elseif ($uamUserGroup->getWriteAccess() == "group") {
             echo TXT_ONLY_GROUP_USERS;
         } 
         ?>
             	</td>
     			<td>
 		<?php
-        if (isset($accessgroup['ip_range'])) {
-            echo $accessgroup['ip_range'];
+        if ($uamUserGroup->getIpRange()) {
+            echo $uamUserGroup->getIpRange();
         } else {
             echo TXT_NONE;
         }
@@ -405,13 +333,8 @@ if (isset($accessgroups)) {
             	</td>
     			<td>
 		<?php
-        if (isset($group_info->posts)) {
-            $expandcontent = null;
-            foreach ($group_info->posts as $post) {
-                $expandcontent.= "<li>" . $post->post_title . "</li>";
-            }
-            echo "<a class='uam_info_link'>" . count($group_info->posts) . " " . TXT_POSTS . "</a>";
-            echo "<ul class='uam_info_content expand_deactive'>" . $expandcontent . "</ul>";
+        if (count($uamUserGroup->getPosts()) > 0) {
+            echocount($uamUserGroup->getPosts()) . " " . TXT_POSTS;
         } else {
             echo TXT_NONE;
         }
@@ -419,13 +342,8 @@ if (isset($accessgroups)) {
     			</td>
     			<td>
 		<?php
-        if (isset($group_info->pages)) {
-            $expandcontent = null;
-            foreach ($group_info->pages as $page) {
-                $expandcontent.= "<li>" . $page->post_title . "</li>";
-            }
-            echo "<a class='uam_info_link'>" . count($group_info->pages) . " " . TXT_PAGES . "</a>";
-            echo "<ul class='uam_info_content expand_deactive'>" . $expandcontent . "</ul>";
+        if (count($uamUserGroup->getPages()) > 0) {
+            echocount($uamUserGroup->getPages()) . " " . TXT_PAGES;
         } else {
             echo TXT_NONE;
         }
@@ -433,13 +351,8 @@ if (isset($accessgroups)) {
             	</td>
     			<td>
 		<?php
-        if (isset($group_info->files)) {
-            $expandcontent = null;
-            foreach ($group_info->files as $file) {
-                $expandcontent.= "<li>" . $file->post_title . "</li>";
-            }
-            echo "<a class='uam_info_link'>" . count($group_info->files) . " " . TXT_FILES . "</a>";
-            echo "<ul class='uam_info_content expand_deactive'>" . $expandcontent . "</ul>";
+        if (count($uamUserGroup->getFiles()) > 0) {
+            echocount($uamUserGroup->getFiles()) . " " . TXT_FILES;
         } else {
             echo TXT_NONE;
         }
@@ -447,13 +360,8 @@ if (isset($accessgroups)) {
                 	</td>
         			<td>
 		<?php
-        if (isset($group_info->categories)) {
-            $expandcontent = null;
-            foreach ($group_info->categories as $categorie) {
-                $expandcontent.= "<li>" . $categorie->cat_name . "</li>";
-            }
-            echo "<a class='uam_info_link'>" . count($group_info->categories) . " " . TXT_CATEGORY . "</a>";
-            echo "<ul class='uam_info_content expand_deactive'>" . $expandcontent . "</ul>";
+        if (count($uamUserGroup->getCategories()) > 0) {
+            echocount($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES;
         } else {
             echo TXT_NONE;
         }
@@ -461,23 +369,13 @@ if (isset($accessgroups)) {
         			</td>
         			<td>
 		<?php
-        if (isset($group_info->users)) {
-            $expandcontent = null;
-            foreach ($group_info->users as $user) {
-                $expandcontent.= "<li>" . $user->nickname . "</li>";
-            }
-            echo "<a class='uam_info_link'>" . count($group_info->users) . " " . TXT_USERS . "</a>";
-            echo "<ul class='uam_info_content expand_deactive'>" . $expandcontent . "</ul>";
+        if (count($uamUserGroup->getUsers()) > 0) {
+            echocount($uamUserGroup->getUsers()) . " " . TXT_USERS;
         } else {
             echo TXT_NONE;
         }
         ?>
                 	</td>
-        			<td>
-        				<a class="uam_info_link_all" href="#">
-        				    <?php echo TXT_EXPAND_ALL; ?>
-        				</a>
-        			</td>
         		</tr>
 		<?php
     }
@@ -496,7 +394,7 @@ if (isset($_GET['action'])) {
     $action = null;
 }
 
-if ($action == 'edit_group' && isset($_GET['id'])) {
+if ($action == 'editGroup' && isset($_GET['id'])) {
     $groupId = $_GET['id'];    
     getPrintEditGroup($groupId);
 } else {

@@ -50,6 +50,8 @@ class UamUserGroup
     function __construct($id = null)
     {
         if ($id !== null) {
+            global $wpdb;
+            
             $this->id = $id;
             
             $dbUsergroup = $wpdb->get_results(
@@ -161,6 +163,32 @@ class UamUserGroup
             );
         }
         
+        foreach ($this->getUsers() as $userKey => $user) {
+            $wpdb->query(
+            	"INSERT INTO " . DB_ACCESSGROUP_TO_USER . " (
+            		group_id, 
+            		user_id
+            	) 
+            	VALUES(
+            		'" . $this->id . "', 
+            		'" . $userKey . "'
+            	)"
+            );
+        }
+        
+        foreach ($this->getCategories() as $categoryKey => $category) {
+            $wpdb->query(
+            	"INSERT INTO " . DB_ACCESSGROUP_TO_CATEGORY . " (
+            		group_id, 
+            		category_id
+            	) 
+            	VALUES(
+            		'" . $this->id . "', 
+            		'" . $categoryKey . "'
+            	)"
+            );
+        }
+        
         foreach ($this->getRoles() as $roleKey => $role) {
             $wpdb->query(
             	"INSERT INTO " . DB_ACCESSGROUP_TO_ROLE . " (
@@ -174,7 +202,31 @@ class UamUserGroup
             );
         }
         
-        //TODO add the rest
+        $allPosts 
+            = array_merge($this->getPosts(), $this->getPages(), $this->getFiles());
+        
+        foreach ($allPosts as $postKey => $post) {
+            $wpdb->query(
+            	"INSERT INTO " . DB_ACCESSGROUP_TO_POST . " (
+            		group_id, 
+            		category_id
+            	) 
+            	VALUES(
+            		'" . $this->id . "', 
+            		'" . $postKey . "'
+            	)"
+            );
+        }
+    }
+    
+    /**
+     * Returns the group id.
+     * 
+     * @return integer
+     */
+    function getId()
+    {
+        return $this->id;
     }
     
     /**
@@ -200,25 +252,74 @@ class UamUserGroup
     }
     
     /**
-     * Returns the group description.
+     * Returns the read access.
      * 
      * @return string
      */
-    function getGroupDesc()
+    function getReadAccess()
     {
-        return $this->groupDesc;
+        return $this->readAccess;
     }
     
     /**
-     * Sets the group description.
+     * Sets the read access.
      * 
-     * @param string $groupDesc The new group description.
+     * @param string $readAccess The read access.
      * 
      * @return null
      */
-    function setGroupName($groupDesc)
+    function setReadAccess($readAccess)
     {
-        $this->groupDesc = $groupDesc;
+        $this->readAccess = $readAccess;
+    }
+    
+    /**
+     * Returns the write access.
+     * 
+     * @return string
+     */
+    function getWriteAccess()
+    {
+        return $this->writeAccess;
+    }
+    
+    /**
+     * Sets the write access.
+     * 
+     * @param string $writeAccess The wirte access.
+     * 
+     * @return null
+     */
+    function setWriteAccess($writeAccess)
+    {
+        $this->writeAccess = $writeAccess;
+    }
+    
+    /**
+     * Returns the ip range.
+     * 
+     * @return array
+     */
+    function getIpRange()
+    {
+        $ipArray = explode($this->ipRange);
+        return $ipArray;
+    }
+    
+    /**
+     * Sets the ip range.
+     * 
+     * @param string $ipRange The new ip range.
+     * 
+     * @return null
+     */
+    function setIpRange($ipRange)
+    {
+        if (is_array($ipRange)) {
+            $ipRange = implode(';', $ipRange);
+        }
+        
+        $this->ipRange = $ipRange;
     }
     
     /**
@@ -277,6 +378,32 @@ class UamUserGroup
     }
     
     /**
+     * Adds a user to the user group.
+     * 
+     * @param integer $userID The user id which should be added.
+     * 
+     * @return null
+     */
+    function addUser($userID)
+    {
+        $this->getUsers();
+        $this->users[$userID] = get_userdata($userID);
+    }
+    
+    /**
+     * Removes a user from the user group.
+     * 
+     * @param integer $userID The user id which should be removed.
+     * 
+     * @return null
+     */
+    function removeUser($userID)
+    {
+        $this->getUsers();
+        unset($this->users[$userID]);
+    }
+    
+    /**
      * Returns the categories in the group
      * 
      * @return array
@@ -326,6 +453,32 @@ class UamUserGroup
     }
     
     /**
+     * Adds a category to the category group.
+     * 
+     * @param integer $categoryID The category id which should be added.
+     * 
+     * @return null
+     */
+    function addCategory($categoryID)
+    {
+        $this->getCategorys();
+        $this->categorys[$categoryID] = get_categorydata($categoryID);
+    }
+    
+    /**
+     * Removes a category from the category group.
+     * 
+     * @param integer $categoryID The category id which should be removed.
+     * 
+     * @return null
+     */
+    function removeCategory($categoryID)
+    {
+        $this->getCategorys();
+        unset($this->categorys[$categoryID]);
+    }
+    
+    /**
      * Returns the roles in the group
      * 
      * @return array
@@ -352,6 +505,32 @@ class UamUserGroup
         }
         
         return $this->roles;
+    }
+    
+    /**
+     * Adds a role to the role group.
+     * 
+     * @param integer $roleName The role name which should be added.
+     * 
+     * @return null
+     */
+    function addRole($roleName)
+    {
+        $this->getRoles();
+        $this->roles[$roleName] = get_roledata($roleID);
+    }
+    
+    /**
+     * Removes a role from the role group.
+     * 
+     * @param integer $roleName The role name which should be removed.
+     * 
+     * @return null
+     */
+    function removeRole($roleName)
+    {
+        $this->getRoles();
+        unset($this->roles[$roleName]);
     }
     
     /**
@@ -410,6 +589,32 @@ class UamUserGroup
     }
     
     /**
+     * Adds a post to the post group.
+     * 
+     * @param integer $postID The post id which should be added.
+     * 
+     * @return null
+     */
+    function addPost($postID)
+    {
+        $this->getPosts();
+        $this->posts[$postID] = get_postdata($postID);
+    }
+    
+    /**
+     * Removes a post from the post group.
+     * 
+     * @param integer $postID The post id which should be removed.
+     * 
+     * @return null
+     */
+    function removePost($postID)
+    {
+        $this->getPosts();
+        unset($this->posts[$postID]);
+    }
+    
+    /**
      * Returns the pages in the group
      * 
      * @return array
@@ -424,6 +629,32 @@ class UamUserGroup
     }
     
     /**
+     * Adds a page to the page group.
+     * 
+     * @param integer $pageID The page id which should be added.
+     * 
+     * @return null
+     */
+    function addPage($pageID)
+    {
+        $this->getPages();
+        $this->pages[$pageID] = get_pagedata($pageID);
+    }
+    
+    /**
+     * Removes a page from the page group.
+     * 
+     * @param integer $pageID The page id which should be removed.
+     * 
+     * @return null
+     */
+    function removePage($pageID)
+    {
+        $this->getPages();
+        unset($this->pages[$pageID]);
+    }
+    
+    /**
      * Returns the files in the group
      * 
      * @return array
@@ -435,5 +666,31 @@ class UamUserGroup
         }
         
         return $this->_getPostByType('file');
+    }
+    
+    /**
+     * Adds a file to the file group.
+     * 
+     * @param integer $fileID The file id which should be added.
+     * 
+     * @return null
+     */
+    function addFile($fileID)
+    {
+        $this->getFiles();
+        $this->files[$fileID] = get_filedata($fileID);
+    }
+    
+    /**
+     * Removes a file from the file group.
+     * 
+     * @param integer $fileID The file id which should be removed.
+     * 
+     * @return null
+     */
+    function removeFile($fileID)
+    {
+        $this->getFiles();
+        unset($this->files[$fileID]);
     }
 }
