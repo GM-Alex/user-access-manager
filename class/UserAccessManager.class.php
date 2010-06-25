@@ -555,10 +555,18 @@ class UserAccessManager
         return $content;
     }
     
-    function add_post_column($column_name, $id)
+    /**
+     * The function for the manage_users_custom_column action.
+     * 
+     * @param string  $columnName The column name.
+     * @param integer $id         The id.
+     * 
+     * @return String
+     */
+    function addPostColumn($columnName, $id)
     {
-        if ($column_name == 'uam_access') {
-            echo $this->get_post_info_html($id);
+        if ($columnName == 'uam_access') {
+            return $this->get_post_info_html($id);
         }
     }
     
@@ -673,25 +681,18 @@ class UserAccessManager
         return $defaults;
     }
     
-    function add_user_column($column_name, $id)
+    /**
+     * The function for the manage_users_custom_column action.
+     * 
+     * @param string  $columnName The column name.
+     * @param integer $id         The id.
+     * 
+     * @return String
+     */
+    function addUserColumn($columnName, $id)
     {
-        global $wpdb;
-        if ($column_name == 'uam_access') {
-            $usergroups = $wpdb->get_results("	SELECT ag.groupname
-												FROM " . DB_ACCESSGROUP . " ag, " . DB_ACCESSGROUP_TO_USER . " agtp
-												WHERE agtp.user_id = " . $id . "
-													AND ag.ID = agtp.group_id
-												GROUP BY ag.groupname", ARRAY_A);
-            if (isset($usergroups)) {
-                $content.= "<ul>";
-                foreach ($usergroups as $usergroup) {
-                    $content.= "<li>" . $usergroup['groupname'] . "</li>";
-                }
-                $content.= "</ul>";
-            } else {
-                $content = TXT_NO_GROUP;
-            }
-            return $content;
+        if ($columnName == 'uam_access') {
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php');
         }
     }
     
@@ -771,7 +772,15 @@ class UserAccessManager
         return $defaults;
     }
     
-    function add_category_column($columnName, $id)
+    /**
+     * The function for the manage_categories_custom_column action.
+     * 
+     * @param string  $columnName The column name.
+     * @param integer $id         The id.
+     * 
+     * @return String
+     */
+    function addCategoryColumn($columnName, $id)
     {
         if ($columnName == 'uam_access') {
             return $this->getIncludeContents(UAM_REALPATH.'tpl/categoryColumn.php');

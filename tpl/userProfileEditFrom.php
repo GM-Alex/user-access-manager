@@ -16,6 +16,7 @@
  */
 
 global $wpdb, $current_user;
+
 $userId = $_GET['user_id'];
 $curUserdata = get_userdata($current_user->ID);
 $cur_edit_userdata = get_userdata($userId);
@@ -78,3 +79,4 @@ if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
 	</table>
     <?php
 }
+?>

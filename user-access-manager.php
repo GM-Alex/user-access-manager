@@ -103,9 +103,9 @@ if (!function_exists("userAccessManagerAP")) {
 
         //Admin actions
         $userAccessManager->update();
-        add_action('manage_posts_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
-        add_action('manage_pages_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
-        add_action('manage_media_custom_column', array(&$userAccessManager, 'add_post_column'), 10, 2);
+        add_action('manage_posts_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
+        add_action('manage_pages_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
+        add_action('manage_media_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
         add_action('save_post', array(&$userAccessManager, 'savePostData'));
         add_action('add_attachment', array(&$userAccessManager, 'savePostData'));
         add_action('attachment_fields_to_save', array(&$userAccessManager, 'saveAttachmentData'));
@@ -127,13 +127,13 @@ if (!function_exists("userAccessManagerAP")) {
         
         if ($uamOptions['lock_file'] == 'true') {
             add_action('media_meta', array(&$userAccessManager, 'show_media_file'), 10, 2);
-            add_filter('manage_media_columns', array(&$userAccessManager, 'add_post_columns_header'));
+            add_filter('manage_media_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
         }
         
         add_filter('manage_users_columns', array(&$userAccessManager, 'addUserColumnsHeader'), 10);
-        add_filter('manage_users_custom_column', array(&$userAccessManager, 'add_user_column'), 10, 2);
+        add_filter('manage_users_custom_column', array(&$userAccessManager, 'addUserColumn'), 10, 2);
         add_filter('manage_categories_columns', array(&$userAccessManager, 'addCategoryColumnsHeader'));
-        add_filter('manage_categories_custom_column', array(&$userAccessManager, 'add_category_column'), 10, 2);
+        add_filter('manage_categories_custom_column', array(&$userAccessManager, 'addCategoryColumn'), 10, 2);
     }
 }
 
