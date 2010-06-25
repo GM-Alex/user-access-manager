@@ -114,7 +114,7 @@ if (!function_exists("userAccessManagerAP")) {
         add_action('edit_user_profile', array(&$userAccessManager, 'showUserProfile'));
         add_action('profile_update', array(&$userAccessManager, 'saveUserData'));
         add_action('delete_user', array(&$userAccessManager, 'removeUserData'));
-        add_action('edit_category_form', array(&$userAccessManager, 'show_cat_edit_form'));
+        add_action('edit_category_form', array(&$userAccessManager, 'showCategoryEditForm'));
         add_action('edit_category', array(&$userAccessManager, 'saveCategoryData'));
         add_action('delete_category', array(&$userAccessManager, 'removeCategoryData'));
         add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));

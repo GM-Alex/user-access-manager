@@ -522,7 +522,7 @@ class UserAccessManager
                 $content.= 'value="' . $accessgroup['ID'] . '" name="accessgroups[]"/>';
                 $content.= $accessgroup['groupname'];
                 $content.= "</label>";
-                $group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], $style);
+                $group_info_html = $this->getUserGroupInfoHtml($accessgroup['ID'], $style);
                 $content.= $group_info_html->link;
                 if (isset($set_recursive->posts) || isset($set_recursive->categories)) $content.= '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
                 $content.= $group_info_html->content;
@@ -702,7 +702,7 @@ class UserAccessManager
      */
     function showUserProfile()
     {
-        include UAM_REALPATH.'/tpl/userProfile.php';
+        include UAM_REALPATH.'/tpl/userProfileEditForm.php';
     }
     
     function show_media_file($meta = '', $post)
@@ -771,118 +771,23 @@ class UserAccessManager
         return $defaults;
     }
     
-    function add_category_column($column_name, $id)
+    function add_category_column($columnName, $id)
     {
-        global $wpdb;
-        if ($column_name == 'uam_access') {
-            $usergroups = $wpdb->get_results("SELECT ag.groupname
-												FROM " . DB_ACCESSGROUP . " ag, " . DB_ACCESSGROUP_TO_CATEGORY . " agtc
-												WHERE agtc.category_id = " . $id . "
-													AND ag.ID = agtc.group_id
-												GROUP BY ag.groupname", ARRAY_A);
-            if (isset($usergroups)) {
-                $content = "<ul>";
-                foreach ($usergroups as $usergroup) {
-                    $content.= "<li>" . $usergroup['groupname'] . "</li>";
-                }
-                $content.= "</ul>";
-            } else {
-                $content = TXT_NO_GROUP;
-            }
-            return $content;
+        if ($columnName == 'uam_access') {
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/categoryColumn.php');
         }
     }
     
-    function show_cat_edit_form($cat)
+    /**
+     * The function for the edit_category_form action.
+     * 
+     * @param object $category The category.
+     * 
+     * @return null
+     */
+    function showCategoryEditForm($category)
     {
-        global $wpdb, $current_user;
-        if (isset($cat->cat_ID)) {
-            $cat_id = $cat->cat_ID;
-        }
-        $accessgroups = $wpdb->get_results("SELECT *
-											FROM " . DB_ACCESSGROUP . "
-											ORDER BY groupname", ARRAY_A);
-        if (isset($_GET['action'])) $action = $_GET['action'];
-        else $action = null;
-        if ($action == 'edit') {
-?>
-<table class="form-table">
-	<tbody>
-		<tr>
-			<th><label for="description"><?php
-            echo TXT_SET_UP_USERGROUPS; ?></label>
-		</th>
-		<td><?php
-            if (isset($accessgroups)) {
-                $recursive_set = $this->getUsergroupsForPost($cat_id);
-                foreach ($accessgroups as $accessgroup) {
-                    $checked = $wpdb->get_results("	SELECT *
-																	FROM " . DB_ACCESSGROUP_TO_CATEGORY . "
-																	WHERE category_id = " . $cat_id . "
-																		AND group_id = " . $accessgroup['ID'], ARRAY_A)
-
-                    //$set_recursive = $recursive_set[$accessgroup['groupname']];
-                    
-?>
-		<p style="margin: 6px 0;"><label
-			for="uam_accesssgroup-<?php
-                    echo $accessgroup['ID']; ?>"
-			class="selectit"> <input type="checkbox"
-			id="uam_accesssgroup-<?php
-                    echo $accessgroup['ID']; ?>"
-			<?php
-                    if (isset($checked)) {
-                        echo 'checked="checked"';
-                    } ?>
-			value="<?php
-                    echo $accessgroup['ID']; ?>" name="accessgroups[]" /> <?php
-                    echo $accessgroup['groupname']; ?>
-		</label> <?php
-                    $group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], "padding:0 0 0 32px;");
-                    echo $group_info_html->link;
-                    if (isset($set_recursive->posts) || isset($set_recursive->categories)) echo '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
-                    echo $group_info_html->content;
-                    if (isset($set_recursive->posts) || isset($set_recursive->categories)) {
-                        $recursive_info = '<ul class="uam_group_lock_info" style="padding:0 0 0 32px;"><li class="uam_group_lock_info_head">' . TXT_GROUP_LOCK_INFO . ':</li>';
-                        if (isset($set_recursive->posts)) {
-                            foreach ($set_recursive->posts as $curId) {
-                                $curPost = & get_post($curId);
-                                $recursive_info.= "<li>$curPost->post_title [$curPost->post_type]</li>";
-                            }
-                        }
-                        if (isset($set_recursive->categories)) {
-                            foreach ($set_recursive->categories as $curId) {
-                                $cur_category = & get_category($curId);
-                                $recursive_info.= "<li>$cur_category->name [" . TXT_CATEGORY . "]</li>";
-                            }
-                        }
-                        $recursive_info.= "</ul>";
-                        echo $recursive_info;
-                    }
-                    echo "</p>";
-                }
-            } else {
-                echo "<a href='admin.php?page=uam_usergroup'>";
-                echo TXT_CREATE_GROUP_FIRST;
-                echo "</a>";
-            }
-?>
-			
-			</td>
-		</tr>
-	</tbody>
-</table>
-<style type="text/css">
-.submit {
-	display: none;
-	position: relative;
-}
-</style>
-<p class="submit" style="display: block; position: relative;"><input
-	class="button-primary" type="submit" value="Update Category"
-	name="submit" /></p>
-			<?php
-        }
+        include UAM_REALPATH.'/tpl/categoryEditFrom.php';
     }
     
     /**
@@ -960,13 +865,25 @@ class UserAccessManager
      * 
      * @return string
      */
-    function getLoginBar()
+    function getLoginBarHtml()
     {
         if (!is_user_logged_in()) {
             return $this->getIncludeContents(UAM_REALPATH.'/tpl/loginBar.php');
         }
         
         return null;
+    }
+    
+    /**
+     * Shows the info html for the user group.
+     * 
+     * @param integer $groupId The group id.
+     * 
+     * @return string
+     */
+    function getUserGroupInfoHtml($groupId)
+    {
+        return $this->getIncludeContents(UAM_REALPATH.'/tpl/groupInfo.php');
     }
 
     /**
@@ -1000,7 +917,7 @@ class UserAccessManager
                         $uamPostContent = $uamOptions[$postType.'_content'];
                         $uamPostContent = str_replace(
                         	"[LOGIN_FORM]", 
-                            $this->getLoginBar(), 
+                            $this->getLoginBarHtml(), 
                             $uamPostContent
                         );
                         

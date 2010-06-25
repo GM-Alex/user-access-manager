@@ -1,6 +1,6 @@
 <?php
 /**
- * userProfile.php
+ * userProfileEditForm.php
  * 
  * Shows the additional content for the user profile edit form.
  * 
@@ -41,24 +41,18 @@ if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
     if (empty($cur_edit_userdata->{$wpdb->prefix . "capabilities"}['administrator'])) {
         if (isset($accessgroups)) {
             foreach ($accessgroups as $accessgroup) {
-                $checked = $wpdb->get_results(
-                	"SELECT *
-					FROM " . DB_ACCESSGROUP_TO_USER . "
-					WHERE user_id = " . $userId . "
-					AND group_id = " . $accessgroup['ID'], 
-                    ARRAY_A
-                );
+                $uamUserGroup = new UamUserGroup($accessgroup['ID']);
                 ?>
 					<p style="margin: 6px 0;">
 						<label for="uam_accesssgroup-<?php echo $accessgroup['ID']; ?>" lass="selectit"> 
 							<input type="checkbox" id="uam_accesssgroup-<?php echo $accessgroup['ID']; ?>"
 	            <?php
-                if (isset($checked)) {
+                if (isset($uamUserGroup->userIsMember($userId)) {
                     echo 'checked="checked"';
                 } 
                 ?>
-						value="<?php echo $accessgroup['ID']; ?>" name="accessgroups[]" /> 
-						<?php echo $accessgroup['groupname']; ?>
+    						value="<?php echo $uamUserGroup->getId(); ?>" name="accessgroups[]" /> 
+    						<?php echo $uamUserGroup->getGroupName; ?>
 						</label>
 				<?php
                 $group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], "padding: 0 0 0 32px");
