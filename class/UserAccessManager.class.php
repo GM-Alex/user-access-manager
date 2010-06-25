@@ -974,6 +974,7 @@ class UserAccessManager
         global $current_user, $wpdb;
         $curUserdata = get_userdata($current_user->ID);
         $uamOptions = $this->getAdminOptions();
+        $uamAccessHandler = new UamAccessHandler();
         
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
@@ -1002,32 +1003,34 @@ class UserAccessManager
                                 if (empty($show_categories[$category->term_id]) 
                                     && !$has_access
                                 ) {
-                                    $restrict_categories[$category->term_id] = $category;   
+                                    $restrict_categories[$category->term_id] = $category;
                                 }
                             }
+                            
                             if ($has_access) {
                                 $show_categories[$category->term_id] = $category;
                                 
                                 if (isset($restrict_categories[$category->term_id])) {
-                                    unset($restrict_categories[$category->term_id]);   
+                                    unset($restrict_categories[$category->term_id]);
                                 }
                             }
                         }
                     }
+                    
                     if (isset($restrict_categories) && $uamOptions['lock_recursive'] == 'true') {
                         foreach ($restrict_categories as $restrict_category) {
                             $args = array('child_of' => $restrict_category->term_id);
                             $child_categories = get_categories($args);
                             
                             foreach ($child_categories as $child_category) {
-                                 unset($show_categories[$child_category->term_id]);   
+                                 unset($show_categories[$child_category->term_id]);
                             }
                         }
                     }
+                    
                     if (isset($show_categories)) {
                         $categories = $show_categories;   
-                    }
-                    else {
+                    } else {
                         $categories = null;   
                     }
                 }
@@ -1048,15 +1051,22 @@ class UserAccessManager
                                     $post_cat_ids[] = $post_cat->term_id;
                                 }
                                 if (in_array($category->term_id, $post_cat_ids)) {
-                                    if (($uamOptions['hide_post'] == 'true' && $curPost->post_type == "post") || ($uamOptions['hide_page'] == 'true' && $curPost->post_type == "page")) {
-                                        if ($this->check_access($curPost->ID)) $count++;
+                                    if (($uamOptions['hide_post'] == 'true' && $curPost->post_type == "post") 
+                                        || ($uamOptions['hide_page'] == 'true' && $curPost->post_type == "page")
+                                    ) {
+                                        if ($this->check_access($curPost->ID)) {
+                                            $count++;   
+                                        }
                                     } else {
                                         $count++;
                                     }
                                 }
                             }
                         }
-                        if (($count != 0 || ($uamOptions['hide_empty_categories'] == 'false' && !$this->atAdminPanel))) {
+                        if (($count != 0 
+                            || ($uamOptions['hide_empty_categories'] == 'false' 
+                            && !$this->atAdminPanel))
+                        ) {
                             $category->count = $count;
                             $cur_show_categories[$category->term_id] = $category;
                         } elseif ($category->taxonomy == "link_category" || $category->taxonomy == "post_tag") {
@@ -1073,6 +1083,7 @@ class UserAccessManager
                                 $cur_count = $cur_show_category->count;
                                 $show_categories[$cur_show_category->term_id] = $cur_show_category;
                                 $cur_cat = $cur_show_category;
+                                
                                 while ($cur_cat->parent != 0 && isset($empty_categories)) {
                                     if (empty($show_categories[$cur_cat->parent])) {
                                         if (isset($empty_categories[$cur_cat->parent])) {
@@ -1081,6 +1092,7 @@ class UserAccessManager
                                             $show_categories[$cur_cat->parent] = $cur_empty_cat;
                                         }
                                     }
+                                    
                                     $curId = $cur_cat->parent;
                                     $cur_cat = & get_category($curId);
                                 }
@@ -1089,12 +1101,16 @@ class UserAccessManager
                     } else {
                         if (isset($cur_show_categories)) {
                             foreach ($cur_show_categories as $cur_show_category) {
-                                $show_categories[$cur_show_category->term_id] = $cur_show_category;
+                                $show_categories[$cur_show_category->term_id] 
+                                    = $cur_show_category;
                             }
                         }
                     }
-                    if (isset($show_categories)) $categories = $show_categories;
-                    else $categories = null;
+                    if (isset($show_categories)) {
+                        $categories = $show_categories;
+                    } else {
+                        $categories = null;    
+                    }
                 }
             }
         }
