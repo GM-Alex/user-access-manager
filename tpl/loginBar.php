@@ -1,24 +1,66 @@
 <?php
+/**
+ * loginBar.php
+ * 
+ * Shows the login bar.
+ * 
+ * PHP versions 5
+ * 
+ * @category  UserAccessManager
+ * @package   UserAccessManager
+ * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
+ * @copyright 2008-2010 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+
 if (!is_single()) {
-                $output = '<a href="' . get_bloginfo('wpurl') . '/wp-login.php?redirect_to=' . urlencode($_SERVER['REQUEST_URI']) . '">' . __('Login', 'user-access-manager') . '</a>';
+    ?>
+    <a href="<?php echo get_bloginfo('wpurl') ?>/wp-login.php?redirect_to=<?php echo urlencode($_SERVER['REQUEST_URI'])?>">
+    	<?php __('Login', 'user-access-manager'); ?>
+    </a>;
+	<?php
 } else {
     if (!isset($userLogin)) {
         $userLogin = '';
     }
-    
-    $output = '<form action="' . get_bloginfo('wpurl') . '/wp-login.php" method="post" >';
-    $output.= '<p><label for="user_login">' . __('Username:', 'user-access-manager') . '<input name="log" value="' . wp_specialchars(stripslashes($userLogin), 1) . '" class="input" id="user_login" type="text" /></label></p>';
-    $output.= '<p><label for="user_pass">' . __('Password:', 'user-access-manager') . '<input name="pwd" class="imput" id="user_pass" type="password" /></label></p>';
-    $output.= '<p class="forgetmenot"><label for="rememberme"><input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" /> ' . __('Remember me', 'user-access-manager') . '</label></p>';
-    $output.= '<p class="submit"><input type="submit" name="wp-submit" id="wp-submit" value="' . __('Login', 'user-access-manager') . ' &raquo;" />';
-    $output.= '<input type="hidden" name="redirect_to" value="' . $_SERVER['REQUEST_URI'] . '" />';
-    $output.= '</form>';
-    $output.= '<p>';
-    
+    ?>
+    <form action="<?php echo get_bloginfo('wpurl') ?>/wp-login.php" method="post" >
+    <p>
+    	<label for="user_login">
+    	    <?php echo __('Username:', 'user-access-manager') ?><input name="log" value="<?php echo wp_specialchars(stripslashes($userLogin), 1) ?>" class="input" id="user_login" type="text" />
+    	</label>
+   	</p>;
+    <p>
+    	<label for="user_pass">
+    	    <?php echo __('Password:', 'user-access-manager') ?><input name="pwd" class="imput" id="user_pass" type="password" />
+    	</label>
+   	</p>
+    <p class="forgetmenot">
+    	<label for="rememberme">
+    		<input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" /><?php echo __('Remember me', 'user-access-manager') ?>
+    	</label>
+    </p>';
+    <p class="submit">
+    	<input type="submit" name="wp-submit" id="wp-submit" value="<?php __('Login', 'user-access-manager') ?> &raquo;" />';
+   	</p>
+    <input type="hidden" name="redirect_to" value="<?php echo $_SERVER['REQUEST_URI'] ?>" />';
+    </form>';
+    <p>
+    <?php 
     if (get_option('users_can_register')) {
-        $output.= '<a href="' . get_bloginfo('wpurl') . '/wp-login.php?action=register">' . __('Register', 'user-access-manager') . '</a></br>';
+        ?>
+        <a href="<?php echo get_bloginfo('wpurl') ?>/wp-login.php?action=register">
+            <?php echo __('Register', 'user-access-manager') ?>
+       	</a></br>
+        <?php
     }
-    
-    $output.= '<a href="' . get_bloginfo('wpurl') . '/wp-login.php?action=lostpassword" title="' . __('Password Lost and Found', 'user-access-manager') . '">' . __('Lost your password?', 'user-access-manager') . '</a>';
-    $output.= '</p>';
+    ?>
+    	<a href="<?php echo get_bloginfo('wpurl') ?>/wp-login.php?action=lostpassword" title="<?php __('Password Lost and Found', 'user-access-manager') ?>">
+    	    <?php __('Lost your password?', 'user-access-manager') ?>
+    	</a>';
+    </p>
+    <?php
 }
+?>

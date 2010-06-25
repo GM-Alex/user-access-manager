@@ -57,7 +57,7 @@ class UamAccessHandler
             foreach ($accessGroups as $accessGroup) {
                 $uamUserGroup = new UamUserGroup($accessGroup['ID']);
                 
-                if ($uamUserGroup->isPostMember($postId)) {
+                if ($uamUserGroup->postIsMember($postId)) {
                     $this->postUserGroups[$postId][$accessGroup['ID']] 
                         = $uamUserGroup;
                 }
@@ -97,7 +97,7 @@ class UamAccessHandler
                 
                 foreach ($postMembership as $userGroup) {
                     if ($this->checkUserIp($curIp, $userGroup->getIpRange())
-                        || $userGroup->isUserMember($current_user->ID)
+                        || $userGroup->userIsMember($current_user->ID)
                     ) {
                         $this->postAccess[$postId] = true;
                         break;

@@ -69,10 +69,10 @@ class UamUserGroup
             
             $this->id = $id;
             
-            $dbUsergroup = $wpdb->get_results(
+            $dbUsergroup = $wpdb->get_row(
             	"SELECT *
     			FROM " . DB_ACCESSGROUP . "
-    			WHERE group_id = " . $this->id . "
+    			WHERE ID = " . $this->id . "
     			LIMIT 1", 
                 ARRAY_A
             );
@@ -81,7 +81,7 @@ class UamUserGroup
             $this->groupDesc = $dbUsergroup['groupdesc'];
             $this->readAccess = $dbUsergroup['read_access'];
             $this->writeAccess = $dbUsergroup['write_access'];
-            $this->ipRange = $dbUsergroup['ip_range']; 
+            $this->ipRange = $dbUsergroup['ip_range'];
         }
     }
     
@@ -92,6 +92,8 @@ class UamUserGroup
      */
     function delete()
     {
+        global $wpdb;
+        
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP . " 
         	WHERE ID = $this->id LIMIT 1"
@@ -110,6 +112,8 @@ class UamUserGroup
      */
     function save()
     {
+        global $wpdb;
+        
         if ($this->id == null) {
             $wpdb->query(
             	"INSERT INTO " . DB_ACCESSGROUP . " (
@@ -241,6 +245,28 @@ class UamUserGroup
     function setGroupName($groupName)
     {
         $this->groupName = $groupName;
+    }
+    
+    /**
+     * Returns the group description.
+     * 
+     * @return string
+     */
+    function getGroupDesc()
+    {
+        return $this->groupDesc;
+    }
+    
+    /**
+     * Sets the group description.
+     * 
+     * @param string $groupDesc The new group description.
+     * 
+     * @return null
+     */
+    function setGroupDesc($groupDesc)
+    {
+        $this->groupDesc = $groupDesc;
     }
     
     /**
@@ -427,8 +453,10 @@ class UamUserGroup
      * 
      * @return null
      */
-    function deleteUsersFromDb()
+    private function _deleteUsersFromDb()
     {
+        global $wpdb;
+        
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
         	WHERE group_id = $this->id"
@@ -545,6 +573,8 @@ class UamUserGroup
      */
     private function _deleteCategoriesFromDb()
     {
+        global $wpdb;
+        
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
         	WHERE group_id = $this->id"
@@ -573,7 +603,7 @@ class UamUserGroup
         
         if (isset($dbRoles)) {
             foreach ($dbRoles as $dbRole) {
-                $this->roles[$dbRole['role_name']] = $dbRole;
+                $this->roles[trim($dbRole['role_name'])] = $dbRole;
             }
         }
         
@@ -590,7 +620,7 @@ class UamUserGroup
     function addRole($roleName)
     {
         $this->getRoles();
-        $this->roles[$roleName] = get_roledata($roleID);
+        $this->roles[$roleName] = get_role($roleID);
     }
     
     /**
@@ -629,6 +659,8 @@ class UamUserGroup
      */
     private function _deleteRolesFromDb()
     {
+        global $wpdb;
+        
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
         	WHERE group_id = $this->id"
@@ -663,6 +695,8 @@ class UamUserGroup
         
         $args = array('numberposts' => - 1, 'post_type' => $wpType);
         $posts = get_posts($args);
+        
+        global $wpdb;
         
         if (isset($posts)) {
             foreach ($posts as $post) {
@@ -941,6 +975,8 @@ class UamUserGroup
      */
     function postIsMember($postId)
     {
+        global $wpdb;
+        
         $count = $wpdb->get_var(
         	"SELECT COUNT(*)
 			FROM " . DB_ACCESSGROUP_TO_POST . "

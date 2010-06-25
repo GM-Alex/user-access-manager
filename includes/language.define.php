@@ -109,6 +109,7 @@ define('TXT_DELETE', __('Delete', 'user-access-manager'));
 define('TXT_UPDATE_GROUP', __('Update group', 'user-access-manager'));
 define('TXT_ADD', __('Add', 'user-access-manager'));
 define('TXT_ADD_GROUP', __('Add access group', 'user-access-manager'));
+define('TXT_EDIT_GROUP', __('EDIT access group', 'user-access-manager'));
 define('TXT_GROUP_NAME', __('Access group name', 'user-access-manager'));
 define('TXT_GROUP_NAME_DESC', __('The name is used to identify the access user group.', 'user-access-manager'));
 define('TXT_GROUP_DESC', __('Access group description', 'user-access-manager'));
@@ -120,6 +121,7 @@ define('TXT_GROUP_READ_ACCESS_DESC', __('The read access.', 'user-access-manager
 define('TXT_GROUP_WRITE_ACCESS', __('Write access', 'user-access-manager'));
 define('TXT_GROUP_WRITE_ACCESS_DESC', __('The write access.', 'user-access-manager'));
 define('TXT_GROUP_ADDED', __('Group was added successfully.', 'user-access-manager'));
+define('TXT_GROUP_ERROR', __('Group name can not be empty.', 'user-access-manager'));
 define('TXT_DEL_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
 define('TXT_NONE', __('none', 'user-access-manager')); 
 define('TXT_ACCESS_GROUP_EDIT_SUC', __('Access group edit successfully.', 'user-access-manager'));
