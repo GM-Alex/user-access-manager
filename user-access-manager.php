@@ -96,8 +96,8 @@ if (!function_exists("userAccessManagerAP")) {
             get_currentuserinfo();
             $cur_userdata = get_userdata($current_user->ID);
             if ($cur_userdata->user_level == $uamOptions['full_access_level']) {
-                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'edit_post_content'), 'post', 'side');
-                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'edit_post_content'), 'page', 'side');
+                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'post', 'side');
+                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'page', 'side');
             }
         }
 
@@ -126,7 +126,7 @@ if (!function_exists("userAccessManagerAP")) {
         $uamOptions = $userAccessManager->getAdminOptions();
         
         if ($uamOptions['lock_file'] == 'true') {
-            add_action('media_meta', array(&$userAccessManager, 'show_media_file'), 10, 2);
+            add_action('media_meta', array(&$userAccessManager, 'showMediaFile'), 10, 2);
             add_filter('manage_media_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
         }
         
@@ -176,7 +176,7 @@ if (isset($userAccessManager)) {
     add_filter('the_posts', array(&$userAccessManager, 'showPost'));
     add_filter('comments_array', array(&$userAccessManager, 'showComment'));
     add_filter('get_pages', array(&$userAccessManager, 'showPage'));
-    add_filter('get_terms', array(&$userAccessManager, 'show_category'));
+    add_filter('get_terms', array(&$userAccessManager, 'showCategory'));
     add_filter('get_next_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
     add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
     add_filter('the_title', array(&$userAccessManager, 'showTitle'), 10, 2);

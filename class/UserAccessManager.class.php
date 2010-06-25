@@ -453,38 +453,7 @@ class UserAccessManager
         
         return null;
     }
-    
-    function get_post_info_html($id)
-    {
-        $usergroups = $this->getUsergroupsForPost($id);
-        if (isset($usergroups) && $usergroups != null) {
-            $output = "<ul>";
-            foreach ($usergroups as $usergroup) {
-                $output.= "<li><a class='uma_user_access_group'>" . $usergroup->name . "</a>";
-                $output.= "<ul class='uma_user_access_group_from'>";
-                if (isset($usergroup->itself)) $output.= "<li>" . TXT_ITSELF . "</li>";
-                if (isset($usergroup->posts)) {
-                    foreach ($usergroup->posts as $curId) {
-                        $curPost = & get_post($curId);
-                        $output.= "<li>$curPost->post_title [$curPost->post_type]</li>";
-                    }
-                }
-                if (isset($usergroup->categories)) {
-                    foreach ($usergroup->categories as $curId) {
-                        $cur_category = & get_category($curId);
-                        $output.= "<li>$cur_category->name [category]</li>";
-                    }
-                }
-                $output = substr($output, 0, -2);
-                $output.= "</ul></li>";
-            }
-            $output.= "</ul>";
-        } else {
-            $output = TXT_FULL_ACCESS;
-        }
-        return $output;
-    }
-    
+        
     /**
      * The function for the manage_posts_columns and 
      * the manage_pages_columns filter.
@@ -499,62 +468,6 @@ class UserAccessManager
         return $defaults;
     }
     
-    function get_post_edit_info_html($id, $style = null)
-    {
-        global $wpdb;
-        $accessgroups = $wpdb->get_results("SELECT *
-											FROM " . DB_ACCESSGROUP . "
-											ORDER BY groupname", ARRAY_A);
-        $recursive_set = $this->getUsergroupsForPost($id);
-        if (isset($accessgroups)) {
-            $content = "";
-            foreach ($accessgroups as $accessgroup) {
-                $checked = $wpdb->get_results("	SELECT *
-												FROM " . DB_ACCESSGROUP_TO_POST . "
-												WHERE post_id = " . $id . "
-												AND group_id = " . $accessgroup['ID'], ARRAY_A);
-                $set_recursive = null;
-                if (isset($recursive_set[$accessgroup['ID']])) $set_recursive = $recursive_set[$accessgroup['ID']];
-                $content.= '<p><label for="uam_accesssgroup-' . $accessgroup['ID'] . '" class="selectit" style="display:inline;" >';
-                $content.= '<input type="checkbox" id="uam_accesssgroup-' . $accessgroup['ID'] . '"';
-                if (isset($checked) || isset($set_recursive->posts) || isset($set_recursive->categories)) $content.= 'checked="checked"';
-                if (isset($set_recursive->posts) || isset($set_recursive->categories)) $content.= 'disabled=""';
-                $content.= 'value="' . $accessgroup['ID'] . '" name="accessgroups[]"/>';
-                $content.= $accessgroup['groupname'];
-                $content.= "</label>";
-                $group_info_html = $this->getUserGroupInfoHtml($accessgroup['ID'], $style);
-                $content.= $group_info_html->link;
-                if (isset($set_recursive->posts) || isset($set_recursive->categories)) $content.= '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
-                $content.= $group_info_html->content;
-                if (isset($set_recursive->posts) || isset($set_recursive->categories)) {
-                    $recursive_info = '<ul class="uam_group_lock_info" ';
-                    if ($style != null) $recursive_info.= " style='" . $style . "' ";
-                    $recursive_info.= '><li class="uam_group_lock_info_head">' . TXT_GROUP_LOCK_INFO . ':</li>';
-                    if (isset($set_recursive->posts)) {
-                        foreach ($set_recursive->posts as $curId) {
-                            $curPost = & get_post($curId);
-                            $recursive_info.= "<li>$curPost->post_title [$curPost->post_type]</li>";
-                        }
-                    }
-                    if (isset($set_recursive->categories)) {
-                        foreach ($set_recursive->categories as $curId) {
-                            $cur_category = & get_category($curId);
-                            $recursive_info.= "<li>$cur_category->name [" . TXT_CATEGORY . "]</li>";
-                        }
-                    }
-                    $recursive_info.= "</ul>";
-                    $content.= $recursive_info;
-                }
-                $content.= "</p>";
-            }
-        } else {
-            $content = "<a href='admin.php?page=uam_usergroup'>";
-            $content.= TXT_CREATE_GROUP_FIRST;
-            $content.= "</a>";
-        }
-        return $content;
-    }
-    
     /**
      * The function for the manage_users_custom_column action.
      * 
@@ -566,13 +479,20 @@ class UserAccessManager
     function addPostColumn($columnName, $id)
     {
         if ($columnName == 'uam_access') {
-            return $this->get_post_info_html($id);
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/postColumn.php');
         }
     }
     
-    function edit_post_content($post)
+    /**
+     * The function for the uma_post_access metabox.
+     * 
+     * @param object $post The post.
+     * 
+     * @return null;
+     */
+    function editPostContent($post)
     {
-        echo $this->get_post_edit_info_html($post->ID, "padding:0 0 0 36px;");
+        include UAM_REALPATH.'/tpl/postEditFrom.php';
     }
     
     /**
@@ -649,8 +569,7 @@ class UserAccessManager
         
         return $post;
     }
-    
-    
+
     /**
      * The function for the delete_post action.
      * 
@@ -706,11 +625,22 @@ class UserAccessManager
         include UAM_REALPATH.'/tpl/userProfileEditForm.php';
     }
     
-    function show_media_file($meta = '', $post)
+    /**
+     * The function for the media_meta action.
+     * 
+     * @param string $meta The meta.
+     * @param object $post The post.
+     * 
+     * @return string
+     */
+    function showMediaFile($meta = '', $post = null)
     {
         $content = $meta;
-        $content .= '</td></tr><tr><th class="label"><label>' . TXT_SET_UP_USERGROUPS . '</label></th><td class="field">';
-        $content .= $this->get_post_edit_info_html($post->ID, "padding:0 0 0 38px;top:-12px;");
+        $content .= '</td></tr><tr>';
+        $content .= '<th class="label"><label>'.TXT_SET_UP_USERGROUPS.'</label></th>';
+        $content .= '<td class="field">';
+        $content .= $this->getIncludeContents(UAM_REALPATH.'/tpl/postEditFrom.php');
+        
         return $content;
     }
     
@@ -1039,7 +969,7 @@ class UserAccessManager
         return $pages;
     }
     
-    function show_category($categories = array())
+    function showCategory($categories = array())
     {
         global $current_user, $wpdb;
         $curUserdata = get_userdata($current_user->ID);
@@ -1065,12 +995,22 @@ class UserAccessManager
 																WHERE agtu.user_id = " . $current_user->ID . "
 																	AND agtu.group_id = agtc.group_id
 																	AND agtc.category_id = " . $category->term_id, ARRAY_A);
-                                if (isset($access)) $has_access = true;
-                                if (empty($show_categories[$category->term_id]) && !$has_access) $restrict_categories[$category->term_id] = $category;
+                                if (isset($access)) {
+                                    $has_access = true;    
+                                }
+                                
+                                if (empty($show_categories[$category->term_id]) 
+                                    && !$has_access
+                                ) {
+                                    $restrict_categories[$category->term_id] = $category;   
+                                }
                             }
                             if ($has_access) {
                                 $show_categories[$category->term_id] = $category;
-                                if (isset($restrict_categories[$category->term_id])) unset($restrict_categories[$category->term_id]);
+                                
+                                if (isset($restrict_categories[$category->term_id])) {
+                                    unset($restrict_categories[$category->term_id]);   
+                                }
                             }
                         }
                     }
@@ -1078,16 +1018,26 @@ class UserAccessManager
                         foreach ($restrict_categories as $restrict_category) {
                             $args = array('child_of' => $restrict_category->term_id);
                             $child_categories = get_categories($args);
-                            foreach ($child_categories as $child_category) unset($show_categories[$child_category->term_id]);
+                            
+                            foreach ($child_categories as $child_category) {
+                                 unset($show_categories[$child_category->term_id]);   
+                            }
                         }
                     }
-                    if (isset($show_categories)) $categories = $show_categories;
-                    else $categories = null;
+                    if (isset($show_categories)) {
+                        $categories = $show_categories;   
+                    }
+                    else {
+                        $categories = null;   
+                    }
                 }
             } else {
-                if ($uamOptions['hide_post'] == 'true' || $uamOptions['hide_page'] == 'true') {
+                if ($uamOptions['hide_post'] == 'true' 
+                    || $uamOptions['hide_page'] == 'true'
+                ) {
                     $args = array('numberposts' => - 1);
                     $posts = get_posts($args);
+                    
                     foreach ($categories as $category) {
                         $count = 0;
                         if (isset($posts)) {
@@ -1116,6 +1066,7 @@ class UserAccessManager
                             $empty_categories[$category->term_id] = $category;
                         }
                     }
+                    
                     if ($uamOptions['hide_empty_categories'] == 'true') {
                         if (isset($cur_show_categories)) {
                             foreach ($cur_show_categories as $cur_show_category) {
@@ -1147,6 +1098,7 @@ class UserAccessManager
                 }
             }
         }
+        
         return $categories;
     }
     
