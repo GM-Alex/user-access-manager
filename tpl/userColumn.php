@@ -1,16 +1,38 @@
 <?php
-$usergroups = $wpdb->get_results("	SELECT ag.groupname
-												FROM " . DB_ACCESSGROUP . " ag, " . DB_ACCESSGROUP_TO_USER . " agtp
-												WHERE agtp.user_id = " . $id . "
-													AND ag.ID = agtp.group_id
-												GROUP BY ag.groupname", ARRAY_A);
-if (isset($usergroups)) {
-    $content.= "<ul>";
+/**
+ * userColumn.php
+ * 
+ * Shows the setup page at the admin panel.
+ * 
+ * PHP versions 5
+ * 
+ * @category  UserAccessManager
+ * @package   UserAccessManager
+ * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
+ * @copyright 2008-2010 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+
+$uamAccessHandler = new UamAccessHandler();
+$usergroups = $uamAccessHandler->getUsergroupsForUser($id);
+if ($usergroups != Array()) {
+    ?>
+	<ul>
+    <?php
     foreach ($usergroups as $usergroup) {
-        $content.= "<li>" . $usergroup['groupname'] . "</li>";
+        ?> 
+    	<li>
+        <?php 
+        include 'groupInfo.php';
+        ?> 
+        </li>
+        <?php
     }
-    $content.= "</ul>";
+    ?>
+	</ul>
+    <?php
 } else {
-    $content = TXT_NO_GROUP;
+    echo TXT_FULL_ACCESS;
 }
-return $content;

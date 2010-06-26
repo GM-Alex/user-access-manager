@@ -811,10 +811,10 @@ class UserAccessManager
      * 
      * @return string
      */
-    /*function getUserGroupInfoHtml($groupId)
+    function getUserGroupInfoHtml($groupId)
     {
         return $this->getIncludeContents(UAM_REALPATH.'/tpl/groupInfo.php');
-    }*/
+    }
 
     
     /*

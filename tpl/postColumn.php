@@ -18,8 +18,21 @@
 $uamAccessHandler = new UamAccessHandler();
 $usergroups = $uamAccessHandler->getUsergroupsForPost($id);
 if ($usergroups != Array()) {
-    include 'groupInfo.php';
+    ?>
+	<ul>
+    <?php
+    foreach ($usergroups as $usergroup) {
+        ?> 
+    	<li>
+        <?php 
+        include 'groupInfo.php';
+        ?> 
+        </li>
+        <?php
+    }
+    ?>
+	</ul>
+    <?php
 } else {
     echo TXT_FULL_ACCESS;
 }
-?>

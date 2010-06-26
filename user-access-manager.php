@@ -70,7 +70,12 @@ if (!function_exists("userAccessManagerAP")) {
      */
     function userAccessManagerAP()
     {
-        global $userAccessManager, $uamUserGroup, $uamAccessHandler, $wp_version, $current_user;
+        global $userAccessManager, 
+        $uamUserGroup, 
+        $uamAccessHandler, 
+        $wp_version, 
+        $current_user;
+        
         $userAccessManager->atAdminPanel = true;
         
         $uamOptions = $userAccessManager->getAdminOptions();
@@ -182,4 +187,3 @@ if (isset($userAccessManager)) {
     add_filter('the_title', array(&$userAccessManager, 'showTitle'), 10, 2);
     add_filter('posts_where', array(&$userAccessManager, 'showPostSql'));
 }
-?>

@@ -27,25 +27,28 @@ if (!is_single()) {
     }
     ?>
     <form action="<?php echo get_bloginfo('wpurl') ?>/wp-login.php" method="post" >
-    <p>
-    	<label for="user_login">
-    	    <?php echo __('Username:', 'user-access-manager') ?><input name="log" value="<?php echo wp_specialchars(stripslashes($userLogin), 1) ?>" class="input" id="user_login" type="text" />
-    	</label>
-   	</p>;
-    <p>
-    	<label for="user_pass">
-    	    <?php echo __('Password:', 'user-access-manager') ?><input name="pwd" class="imput" id="user_pass" type="password" />
-    	</label>
-   	</p>
-    <p class="forgetmenot">
-    	<label for="rememberme">
-    		<input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" /><?php echo __('Remember me', 'user-access-manager') ?>
-    	</label>
-    </p>';
-    <p class="submit">
-    	<input type="submit" name="wp-submit" id="wp-submit" value="<?php __('Login', 'user-access-manager') ?> &raquo;" />';
-   	</p>
-    <input type="hidden" name="redirect_to" value="<?php echo $_SERVER['REQUEST_URI'] ?>" />';
+        <p>
+        	<label for="user_login">
+        	    <?php echo __('Username:', 'user-access-manager') ?>
+        	    <input name="log" value="<?php echo wp_specialchars(stripslashes($userLogin), 1) ?>" class="input" id="user_login" type="text" />
+        	</label>
+       	</p>
+        <p>
+        	<label for="user_pass">
+        	    <?php echo __('Password:', 'user-access-manager') ?>
+        	    <input name="pwd" class="imput" id="user_pass" type="password" />
+        	</label>
+       	</p>
+        <p class="forgetmenot">
+        	<label for="rememberme">
+        		<input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" />
+        		<?php echo __('Remember me', 'user-access-manager') ?>
+        	</label>
+        </p>
+        <p class="submit">
+        	<input type="submit" name="wp-submit" id="wp-submit" value="<?php __('Login', 'user-access-manager') ?> &raquo;" />';
+       	</p>
+        <input type="hidden" name="redirect_to" value="<?php echo $_SERVER['REQUEST_URI'] ?>" />';
     </form>';
     <p>
     <?php 
@@ -53,7 +56,7 @@ if (!is_single()) {
         ?>
         <a href="<?php echo get_bloginfo('wpurl') ?>/wp-login.php?action=register">
             <?php echo __('Register', 'user-access-manager') ?>
-       	</a></br>
+       	</a><br/>
         <?php
     }
     ?>
@@ -63,4 +66,3 @@ if (!is_single()) {
     </p>
     <?php
 }
-?>
