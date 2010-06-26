@@ -1,28 +1,25 @@
 <?php
-$usergroups = $this->getUsergroupsForPost($id);
-if (isset($usergroups) && $usergroups != null) {
-    $output = "<ul>";
-    foreach ($usergroups as $usergroup) {
-        $output.= "<li><a class='uma_user_access_group'>" . $usergroup->name . "</a>";
-        $output.= "<ul class='uma_user_access_group_from'>";
-        if (isset($usergroup->itself)) $output.= "<li>" . TXT_ITSELF . "</li>";
-        if (isset($usergroup->posts)) {
-            foreach ($usergroup->posts as $curId) {
-                $curPost = & get_post($curId);
-                $output.= "<li>$curPost->post_title [$curPost->post_type]</li>";
-            }
-        }
-        if (isset($usergroup->categories)) {
-            foreach ($usergroup->categories as $curId) {
-                $cur_category = & get_category($curId);
-                $output.= "<li>$cur_category->name [category]</li>";
-            }
-        }
-        $output = substr($output, 0, -2);
-        $output.= "</ul></li>";
-    }
-    $output.= "</ul>";
+/**
+ * postColumn.php
+ * 
+ * Shows the setup page at the admin panel.
+ * 
+ * PHP versions 5
+ * 
+ * @category  UserAccessManager
+ * @package   UserAccessManager
+ * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
+ * @copyright 2008-2010 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+
+$uamAccessHandler = new UamAccessHandler();
+$usergroups = $uamAccessHandler->getUsergroupsForPost($id);
+if ($usergroups != Array()) {
+    include 'groupInfo.php';
 } else {
-    $output = TXT_FULL_ACCESS;
+    echo TXT_FULL_ACCESS;
 }
-return $output;
+?>

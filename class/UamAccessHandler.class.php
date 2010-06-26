@@ -63,7 +63,7 @@ class UamAccessHandler
                 }
             }
         }
-
+        
         return $this->postUserGroups[$postId];
     }
     

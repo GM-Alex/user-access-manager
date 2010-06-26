@@ -15,7 +15,7 @@
 * @link      http://wordpress.org/extend/plugins/user-access-manager/
 */
 
-$uamUserGroup = new UamUserGroup($groupId);
+$usergroup = new UamUserGroup($groupId);
 ?>
 
 <a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
@@ -23,25 +23,25 @@ $uamUserGroup = new UamUserGroup($groupId);
 	<li class="uam_group_info_head"><?php echo TXT_GROUP_INFO; ?>:</li>
 	<li><?php echo TXT_READ_ACCESS; ?>:
 <?php
-if ($uamUserGroup->getReadAccess() == "all") {
+if ($usergroup->getReadAccess() == "all") {
     echo TXT_ALL;
-} elseif ($uamUserGroup->getReadAccess() == "group") {
+} elseif ($usergroup->getReadAccess() == "group") {
     echo TXT_ONLY_GROUP_USERS;
 }
 ?>
 	</li>
 	<li><?php echo TXT_WRITE_ACCESS; ?>:
 <?php
-if ($uamUserGroup->getWriteAccess()  == "all") {
+if ($usergroup->getWriteAccess()  == "all") {
     echo TXT_ALL;   
-} elseif ($uamUserGroup->getWriteAccess()  == "group") {
+} elseif ($usergroup->getWriteAccess()  == "group") {
     echo TXT_ONLY_GROUP_USERS;
 }
 ?>
 	</li>
-	<li><?php count($uamUserGroup->getPosts()) . " " . TXT_POSTS; ?></li>
-	<li><?php count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
-	<li><?php count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
-	<li><?php count($uamUserGroup->getCategories()) . " " . TXT_CATEGORY; ?></li>
-	<li><?php count($uamUserGroup->getUsers()) . " " . TXT_USERS; ?></li>
+	<li><?php count($usergroup->getPosts()) . " " . TXT_POSTS; ?></li>
+	<li><?php count($usergroup->getPages()) . " " . TXT_PAGES; ?></li>
+	<li><?php count($usergroup->getPages()) . " " . TXT_PAGES; ?></li>
+	<li><?php count($usergroup->getCategories()) . " " . TXT_CATEGORY; ?></li>
+	<li><?php count($usergroup->getUsers()) . " " . TXT_USERS; ?></li>
 </ul>
