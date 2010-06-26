@@ -1,80 +1,110 @@
 <?php
+/**
+ * postEditFrom.php
+ * 
+ * Shows the setup page at the admin panel.
+ * 
+ * PHP versions 5
+ * 
+ * @category  UserAccessManager
+ * @package   UserAccessManager
+ * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
+ * @copyright 2008-2010 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+
 global $wpdb;
-$accessgroups = $wpdb->get_results("SELECT *
-									FROM ".DB_ACCESSGROUP."
-									ORDER BY groupname", ARRAY_A);
 
-$recursive_set = $this->get_usergroups_for_post($id);
+$userGroupsDb = $wpdb->get_results(
+	"SELECT *
+	FROM ".DB_ACCESSGROUP."
+	ORDER BY groupname", 
+    ARRAY_A
+);
 
-if(isset($accessgroups))
-{
-	$content = "";
-	
-	foreach($accessgroups as $accessgroup)
-	{
-		$checked = $wpdb->get_results("	SELECT *
-										FROM ".DB_ACCESSGROUP_TO_POST."
-										WHERE post_id = ".$id."
-										AND group_id = ".$accessgroup['ID'], ARRAY_A);
-		
-		$set_recursive = null;
-		if(isset($recursive_set[$accessgroup['ID']]))
-			$set_recursive = $recursive_set[$accessgroup['ID']];
+$post = get_post($id);
+            
+if ($post->post_parent != 0) {
+    $postId = $post->post_parent;
+} else {
+    $postId = $post->ID;
+}
 
-		$content .= '<p><label for="uam_accesssgroup-'.$accessgroup['ID'].'" class="selectit" style="display:inline;" >';
-		$content .= '<input type="checkbox" id="uam_accesssgroup-'.$accessgroup['ID'].'"';
-		if(isset($checked) || isset($set_recursive->posts) || isset($set_recursive->categories))
-			$content .= 'checked="checked"';
-		if(isset($set_recursive->posts) || isset($set_recursive->categories))
-			$content .= 'disabled=""';
-		$content .= 'value="'.$accessgroup['ID'].'" name="accessgroups[]"/>';
-		$content .= $accessgroup['groupname'];					
-		$content .=	"</label>";
+$uamAccessHandler = new UamAccessHandler();
+$userGroupsForObject = $uamAccessHandler->getUsergroupsForPost($postId);
 
-		$group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], $style);
+if (isset($userGroupsDb)) {
+	?>
+	<ul>
+	<?php 
+	foreach ($userGroupsDb as $userGroupDb) {
+		$usergroup = new UamUserGroup($userGroupDb['ID']);
+		?>
+		<li>
+			<label for="uam_usergroup-<?php echo $usergroup->getId(); ?>" class="selectit" style="display:inline;" >
+				<input type="checkbox" id="uam_usergroup-<?php echo $usergroup->getId(); ?>"
+		<?php
+	    if (array_key_exists($usergroup->getId(), $userGroupsForObject)) {
+            echo 'checked="checked"';
+        }
+		/*if(isset($set_recursive->posts) || isset($set_recursive->categories))
+			$content .= 'disabled=""';*/
+        ?>
+				value="<?php echo $usergroup->getId(); ?>" name="usergroups[]"/>
+				<?php echo $usergroup->getGroupName(); ?>
+			</label>
+			<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
+		<?php 
 
-		$content .= $group_info_html->link;
-				
-		if(isset($set_recursive->posts) || isset($set_recursive->categories))
-			$content .= '&nbsp;<a class="uam_group_lock_info_link">[LR]</a>';
-			
-		$content .= $group_info_html->content;							
-
-		if(isset($set_recursive->posts) || isset($set_recursive->categories))
-		{
-			$recursive_info = '<ul class="uam_group_lock_info" ';
-			if($style != null)
-				$recursive_info .= " style='".$style."' ";
-			$recursive_info .= '><li class="uam_group_lock_info_head">'.TXT_GROUP_LOCK_INFO.':</li>';
-			
-			if(isset($set_recursive->posts))
-			{
-				foreach($set_recursive->posts as $cur_id)
-				{
-					$cur_post = & get_post($cur_id);
-					$recursive_info .= "<li>$cur_post->post_title [$cur_post->post_type]</li>";
-				}
-			}
-			
-			if(isset($set_recursive->categories))
-			{
-				foreach($set_recursive->categories as $cur_id)
-				{
-					$cur_category = & get_category($cur_id);
-					$recursive_info .= "<li>$cur_category->name [".TXT_CATEGORY."]</li>";
-				}
-			}
-			$recursive_info .= "</ul>";
-			$content .= $recursive_info;
+		include 'groupInfo.php';
+		if (isset($setRecursive->posts) 
+		    || isset($setRecursive->categories)
+		) {
+		    ?>
+			&nbsp;<a class="uam_group_lock_info_link">[LR]</a>
+			<?php 
 		}
-		$content .= "</p>";
-	}
-}
-else
-{
-	$content = "<a href='admin.php?page=uam_usergroup'>";
-	$content .= TXT_CREATE_GROUP_FIRST;
-	$content .= "</a>";
-}
 
-return $content;
+		if (isset($setRecursive->posts) 
+		    || isset($setRecursive->categories)
+		) {
+		    ?>
+			<ul class="uam_group_lock_info">
+				<li class="uam_group_lock_info_head"><?php echo TXT_GROUP_LOCK_INFO; ?></li>
+			<?php
+			
+			if (isset($setRecursive->posts)) {
+				foreach ($setRecursive->posts as $postId) {
+					$post = & get_post($postId);
+					?>
+					<li><?php echo$cur_post->post_title; ?> [<?php echo $post->post_type; ?>]</li>
+					<?php
+				}
+			}
+			
+			if (isset($setRecursive->categories)) {
+				foreach ($setRecursive->categories as $categoryId) {
+					$category = & get_category($categoryId);
+					?>
+					<li><?php echo$category->name; ?> [<?php echo TXT_CATEGORY; ?>]</li>
+					<?php
+				}
+			}
+			?>
+			</ul>
+			<?php
+		}
+		?>
+		</li>
+		<?php
+	}
+	?>
+	</ul>
+	<?php 
+} else {
+    ?>
+	<a href='admin.php?page=uam_usergroup'><?php echo TXT_CREATE_GROUP_FIRST; ?></a>
+	<?php
+}

@@ -200,8 +200,8 @@ class UamUserGroup
         
         $allPosts 
             = array_merge($this->getPosts(), $this->getPages(), $this->getFiles());
-        
-        foreach ($allPosts as $postKey => $post) {
+            
+        foreach ($allPosts as $post) {
             $wpdb->query(
             	"INSERT INTO " . DB_ACCESSGROUP_TO_POST . " (
             		group_id, 
@@ -209,7 +209,7 @@ class UamUserGroup
             	) 
             	VALUES(
             		'" . $this->id . "', 
-            		'" . $postKey . "'
+            		'" . $post->ID . "'
             	)"
             );
         }
@@ -459,7 +459,7 @@ class UamUserGroup
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-        	WHERE group_id = $this->id"
+        	WHERE group_id = ".$this->id
         );
     }
     
@@ -577,7 +577,7 @@ class UamUserGroup
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-        	WHERE group_id = $this->id"
+        	WHERE group_id = ".$this->id
         );
     }
     
@@ -663,7 +663,7 @@ class UamUserGroup
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
-        	WHERE group_id = $this->id"
+        	WHERE group_id = ".$this->id
         );
     }
     
@@ -704,8 +704,7 @@ class UamUserGroup
                 	"SELECT COUNT(*)
 					FROM " . DB_ACCESSGROUP_TO_POST . "
         			WHERE group_id = " . $this->id . "
-        				AND post_id".$post->ID,
-                    ARRAY_A
+        				AND post_id = ".$post->ID
                 );
 
                 $isRecursiveMember = false;
@@ -738,7 +737,7 @@ class UamUserGroup
             }
         }
         
-        
+        return $this->{$postType.'s'}[$type];
     }
     
     /**
@@ -755,7 +754,7 @@ class UamUserGroup
         if ($postType == 'all') {
             $wpdb->query(
             	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-            	WHERE group_id = $this->id"
+            	WHERE group_id = ".$this->id
             );
         } else {
             if ($type == 'post') {
@@ -786,10 +785,6 @@ class UamUserGroup
      */
     function getPosts($type = 'real')
     {
-        if ($this->pages != array()) {
-            return $this->posts;
-        }
-        
         return $this->_getPostByType('post', $type);
     }
     
@@ -803,7 +798,7 @@ class UamUserGroup
     function addPost($postID)
     {
         $this->getPosts();
-        $this->posts['real'][$postID] = get_postdata($postID);
+        $this->posts['real'][$postID] = get_post($postID);
         $this->posts['full'] = array();
     }
     
@@ -849,10 +844,6 @@ class UamUserGroup
      */
     function getPages($type = 'real')
     {
-        if ($this->pages != array()) {
-            return $this->pages;
-        }
-        
         return $this->_getPostByType('page', $type);
     }
     
@@ -912,10 +903,6 @@ class UamUserGroup
      */
     function getFiles($type = 'real')
     {
-        if ($this->pages != array()) {
-            return $this->files;
-        }
-        
         return $this->_getPostByType('file', $type);
     }
     
@@ -981,8 +968,7 @@ class UamUserGroup
         	"SELECT COUNT(*)
 			FROM " . DB_ACCESSGROUP_TO_POST . "
 			WHERE group_id = " . $this->id . "
-				AND post_id".$postId,
-            ARRAY_A
+				AND post_id = ".$postId
         );
         
         if ($count > 0) {
@@ -1013,8 +999,7 @@ class UamUserGroup
         	"SELECT COUNT(*)
 			FROM " . DB_ACCESSGROUP_TO_USER . "
 			WHERE group_id = " . $this->id . "
-				AND user_id".$userId,
-            ARRAY_A
+				AND user_id = ".$userId
         );
         
         if ($count > 0) {

@@ -14,14 +14,10 @@
 * @version   SVN: $Id$
 * @link      http://wordpress.org/extend/plugins/user-access-manager/
 */
-
-$usergroup = new UamUserGroup($groupId);
 ?>
-<ul>
-	<li><a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a></li>
-    <ul class="uam_group_info">
-    	<li class="uam_group_info_head"><?php echo TXT_GROUP_INFO; ?>:</li>
-    	<li><?php echo TXT_READ_ACCESS; ?>:
+<ul class="uam_group_info">
+	<li class="uam_group_info_head"><?php echo TXT_GROUP_INFO; ?>:</li>
+	<li><?php echo TXT_READ_ACCESS; ?>:
 <?php
 if ($usergroup->getReadAccess() == "all") {
     echo TXT_ALL;
@@ -29,8 +25,8 @@ if ($usergroup->getReadAccess() == "all") {
     echo TXT_ONLY_GROUP_USERS;
 }
 ?>
-    	</li>
-    	<li><?php echo TXT_WRITE_ACCESS; ?>:
+	</li>
+	<li><?php echo TXT_WRITE_ACCESS; ?>:
 <?php
 if ($usergroup->getWriteAccess()  == "all") {
     echo TXT_ALL;   
@@ -38,11 +34,10 @@ if ($usergroup->getWriteAccess()  == "all") {
     echo TXT_ONLY_GROUP_USERS;
 }
 ?>
-    	</li>
-    	<li><?php count($usergroup->getPosts()) . " " . TXT_POSTS; ?></li>
-    	<li><?php count($usergroup->getPages()) . " " . TXT_PAGES; ?></li>
-    	<li><?php count($usergroup->getPages()) . " " . TXT_PAGES; ?></li>
-    	<li><?php count($usergroup->getCategories()) . " " . TXT_CATEGORY; ?></li>
-    	<li><?php count($usergroup->getUsers()) . " " . TXT_USERS; ?></li>
-    </ul>
+	</li>
+	<li><?php echo count($usergroup->getPosts()) . " " . TXT_POSTS; ?></li>
+	<li><?php echo count($usergroup->getPages()) . " " . TXT_PAGES; ?></li>
+	<li><?php echo count($usergroup->getPages()) . " " . TXT_PAGES; ?></li>
+	<li><?php echo count($usergroup->getCategories()) . " " . TXT_CATEGORY; ?></li>
+	<li><?php echo count($usergroup->getUsers()) . " " . TXT_USERS; ?></li>
 </ul>

@@ -24,6 +24,7 @@ if ($usergroups != Array()) {
     foreach ($usergroups as $usergroup) {
         ?> 
     	<li>
+    	    <?php echo $usergroup->getGroupName(); ?> <a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
         <?php 
         include 'groupInfo.php';
         ?> 

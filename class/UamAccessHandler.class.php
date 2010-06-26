@@ -64,6 +64,7 @@ class UamAccessHandler
             }
         }
         
+        //print_r($this->postUserGroups[$postId]);
         return $this->postUserGroups[$postId];
     }
     
@@ -81,8 +82,9 @@ class UamAccessHandler
         if (isset($this->postAccess[$postId])) {
             return $this->postAccess[$postId];  
         } 
-        
-        $postMembership == $this->getUserGroupsForPost($postId);
+
+        $postMembership = $this->getUserGroupsForPost($postId);
+     
         $userAccessManager = new UserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);

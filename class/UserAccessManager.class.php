@@ -416,7 +416,8 @@ class UserAccessManager
     /**
      * Retruns the content of the excecuded php file.
      * 
-     * @param string $fileName The file name
+     * @param string  $fileName The file name
+     * @param integer $id       The id if needed.
      * 
      * @return string
      */
@@ -528,7 +529,7 @@ class UserAccessManager
      */
     function editPostContent($post)
     {
-        include UAM_REALPATH.'/tpl/postEditFrom.php';
+        include UAM_REALPATH.'/tpl/postEditForm.php';
     }
     
     /**
@@ -567,15 +568,24 @@ class UserAccessManager
             wp_set_post_categories($postId, $post_categories);
         }*/
         
-        if (isset($_POST['accessgroups'])) {
-            $accessGroups = $_POST['accessgroups'];
+        if (isset($_POST['usergroups'])) {
+            $userGroups = $_POST['usergroups'];
         }
         
-        if (isset($accessGroups)) {
-            foreach ($accessgroups as $accessGroupId) {
-                $uamUserGroup = new uamUserGroup($accessGroupId);
-                
+        if (isset($userGroups)) {
+            $post = get_post($postId);
+            
+            if ($post->post_parent != 0) {
+                $postId = $post->post_parent;
+            } else {
+                $postId = $post->ID;
+            }
+            
+            foreach ($userGroups as $userGroupId) {
+                $uamUserGroup = new uamUserGroup($userGroupId);
+
                 $uamUserGroup->addPost($postId);
+                $uamUserGroup->save();
             }
         }
     }
@@ -611,7 +621,7 @@ class UserAccessManager
         $content .= '</td></tr><tr>';
         $content .= '<th class="label"><label>'.TXT_SET_UP_USERGROUPS.'</label></th>';
         $content .= '<td class="field">';
-        $content .= $this->getIncludeContents(UAM_REALPATH.'/tpl/postEditFrom.php');
+        $content .= $this->getIncludeContents(UAM_REALPATH.'/tpl/postEditForm.php');
         
         return $content;
     }
@@ -625,14 +635,14 @@ class UserAccessManager
      */    
     function saveAttachmentData($post)
     {
-        if (isset($_POST['accessgroups'])) {
-            $accessGroups = $_POST['accessgroups'];
+        if (isset($_POST['usergroups'])) {
+            $userGroups = $_POST['usergroups'];
         }
         
         if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
-            if (isset($accessGroups)) {
-                foreach ($accessgroups as $accessGroupId) {
-                    $uamUserGroup = new uamUserGroup($accessGroupId);
+            if (isset($userGroups)) {
+                foreach ($userGroups as $userGroupId) {
+                    $uamUserGroup = new uamUserGroup($userGroupId);
                     
                     $uamUserGroup->addFile($userId);
                 }
@@ -689,14 +699,14 @@ class UserAccessManager
      */
     function saveUserData($userId)
     {        
-        if (isset($_POST['accessgroups'])) {
-            $accessGroups = $_POST['accessgroups'];
+        if (isset($_POST['usergroups'])) {
+            $userGroups = $_POST['usergroups'];
         }
         
         if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
-            if (isset($accessGroups)) {
-                foreach ($accessgroups as $accessGroupId) {
-                    $uamUserGroup = new uamUserGroup($accessGroupId);
+            if (isset($userGroups)) {
+                foreach ($userGroups as $userGroupId) {
+                    $uamUserGroup = new uamUserGroup($userGroupId);
                     
                     $uamUserGroup->addUser($userId);
                 }
@@ -762,7 +772,7 @@ class UserAccessManager
      */
     function showCategoryEditForm($category)
     {
-        include UAM_REALPATH.'/tpl/categoryEditFrom.php';
+        include UAM_REALPATH.'/tpl/categoryEditForm.php';
     }
     
     /**
@@ -774,13 +784,13 @@ class UserAccessManager
      */
     function saveCategoryData($categoryId)
     {
-        if (isset($_POST['accessgroups'])) {
-            $accessGroups = $_POST['accessgroups'];
+        if (isset($_POST['usergroups'])) {
+            $userGroups = $_POST['usergroups'];
         }
         
-        if (isset($accessGroups)) {
-            foreach ($accessgroups as $accessGroupId) {
-                $uamUserGroup = new uamUserGroup($accessGroupId);
+        if (isset($userGroups)) {
+            foreach ($userGroups as $userGroupId) {
+                $uamUserGroup = new uamUserGroup($userGroupId);
                 
                 $uamUserGroup->addCategory($categoryId);
             }
