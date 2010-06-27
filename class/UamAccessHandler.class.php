@@ -28,7 +28,10 @@
 class UamAccessHandler
 {
     protected $postUserGroups = array();
+    protected $categoryUserGroups = array();
+    protected $userUserGroups = array();
     protected $postAccess = array();
+    protected $categroyAccess = array();
     
     /**
      * Returns the user groups of the given post.
@@ -47,25 +50,97 @@ class UamAccessHandler
         
         $this->postUserGroups[$postId] = array();
         
-        $accessGroups = $wpdb->get_results(
+        $userGroups = $wpdb->get_results(
         	"SELECT ID
         	FROM " . DB_ACCESSGROUP . "
         	ORDER BY ID", ARRAY_A
         );
         
-        if (isset($accessGroups)) {
-            foreach ($accessGroups as $accessGroup) {
-                $uamUserGroup = new UamUserGroup($accessGroup['ID']);
+        if (isset($userGroups)) {
+            foreach ($userGroups as $userGroup) {
+                $uamUserGroup = new UamUserGroup($userGroup['ID']);
                 
                 if ($uamUserGroup->postIsMember($postId)) {
-                    $this->postUserGroups[$postId][$accessGroup['ID']] 
+                    $this->postUserGroups[$postId][$userGroup['ID']] 
+                        = $uamUserGroup;
+                }
+            }
+        }
+
+        return $this->postUserGroups[$postId];
+    }
+    
+    /**
+     * Returns the user groups of the given category.
+     * 
+     * @param integer $categoryId The id of the category from which we want the groups.
+     * 
+     * @return array
+     */
+    function getUserGroupsForCategory($categoryId)
+    {
+        if (isset($this->categoryUserGroups[$postId])) {
+            return $this->categoryUserGroups[$postId];
+        }
+        
+        global $wpdb;
+        $this->categoryUserGroups[$postId] = array();
+        
+        $userGroups = $wpdb->get_results(
+        	"SELECT ID
+        	FROM " . DB_ACCESSGROUP . "
+        	ORDER BY ID", ARRAY_A
+        );
+        
+        if (isset($userGroups)) {
+            foreach ($userGroups as $userGroup) {
+                $uamUserGroup = new UamUserGroup($userGroup['ID']);
+                
+                if ($uamUserGroup->categoryIsMember($postId)) {
+                    $this->categoryUserGroups[$postId][$userGroup['ID']] 
                         = $uamUserGroup;
                 }
             }
         }
         
-        //print_r($this->postUserGroups[$postId]);
-        return $this->postUserGroups[$postId];
+        return $this->categoryUserGroups[$categoryId];
+    }
+    
+	/**
+     * Returns the user groups of the given user.
+     * 
+     * @param integer $userId The id of the user from which we want the groups.
+     * 
+     * @return array
+     */
+    function getUserGroupsForUser($userId)
+    {
+        if (isset($this->userUserGroups[$userId])) {
+            return $this->userUserGroups[$userId];
+        }
+        
+        global $wpdb;
+        
+        $this->userUserGroups[$userId] = array();
+        
+        $userGroups = $wpdb->get_results(
+        	"SELECT ID
+        	FROM " . DB_ACCESSGROUP . "
+        	ORDER BY ID", ARRAY_A
+        );
+        
+        if (isset($userGroups)) {
+            foreach ($userGroups as $userGroup) {
+                $uamUserGroup = new UamUserGroup($userGroup['ID']);
+                
+                if ($uamUserGroup->userIsMember($userId)) {
+                    $this->userUserGroups[$userId][$userGroup['ID']] 
+                        = $uamUserGroup;
+                }
+            }
+        }
+
+        return $this->userUserGroups[$userId];
     }
     
     /**
@@ -77,12 +152,11 @@ class UamAccessHandler
      */
     function checkAccess($postId)
     {
-        global $current_user;
-        
         if (isset($this->postAccess[$postId])) {
             return $this->postAccess[$postId];  
         } 
 
+        global $current_user;
         $postMembership = $this->getUserGroupsForPost($postId);
      
         $userAccessManager = new UserAccessManager();
@@ -111,6 +185,50 @@ class UamAccessHandler
         }
         
         return $this->postAccess[$postId];
+    }
+    
+    /**
+     * Checks if the current_user has access to the given category.
+     * 
+     * @param integer $categoryId The id of the category which we want to check.
+     * 
+     * @return boolean
+     */
+    function checkCategoryAccess($categoryId)
+    {
+        if (isset($this->categroyAccess[$postId])) {
+            return $this->categroyAccess[$postId];  
+        } 
+
+        global $current_user;
+        $categoryMembership = $this->getUserGroupsForCategory($postId);
+     
+        $userAccessManager = new UserAccessManager();
+        $uamOptions = $userAccessManager->getAdminOptions();
+        $curUserdata = get_userdata($current_user->ID);
+        
+        if ($categoryMembership == array() 
+            || $curUserdata->user_level >= $uamOptions['full_access_level']
+        ) {
+            $this->categroyAccess[$postId] = true;
+        } else {
+            if (is_user_logged_in()) {
+                $curIp = explode(".", $_SERVER['REMOTE_ADDR']);
+                
+                foreach ($categoryMembership as $userGroup) {
+                    if ($this->checkUserIp($curIp, $userGroup->getIpRange())
+                        || $userGroup->userIsMember($current_user->ID)
+                    ) {
+                        $this->categroyAccess[$postId] = true;
+                        break;
+                    }
+                }
+            } else {
+                $this->categroyAccess[$postId] = false;
+            }
+        }
+        
+        return $this->categroyAccess[$postId];   
     }
     
     /**

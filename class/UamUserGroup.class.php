@@ -35,24 +35,24 @@ class UamUserGroup
     protected $ipRange = null;
     protected $roles = array();
     protected $users = array(
-    	'real' => array(),
-        'full' => array(),
+    	'real' => -1,
+        'full' => -1
     );
     protected $categories = array(
-    	'real' => array(),
-        'full' => array(),
+    	'real' => -1,
+        'full' => -1
     );
     protected $posts = array(
-    	'real' => array(),
-        'full' => array(),
+    	'real' => -1,
+        'full' => -1
     );
     protected $pages = array(
-    	'real' => array(),
-        'full' => array(),
+    	'real' => -1,
+        'full' => -1
     );
     protected $files = array(
-    	'real' => array(),
-        'full' => array(),
+    	'real' => -1,
+        'full' => -1
     );
     
     /**
@@ -348,15 +348,17 @@ class UamUserGroup
      * @return array
      */
     function getUsers($type = 'real')
-    {
+    {        
         if ($type != 'real' 
             && $type != 'full'
         ) {
             return null;
         }
         
-        if ($this->users[$type] != array()) {
+        if ($this->users[$type] != -1) {
             return $this->users[$type];
+        } else {
+            $this->users[$type] = array();
         }
         
         global $wpdb;
@@ -392,7 +394,7 @@ class UamUserGroup
                     
                     if (array_key_exists($role[0], $this->getRoles())
                     ) {
-                        $this->users[$wpUser['ID']] = $curUserdata;
+                        $this->users[$type][$wpUser['ID']] = $curUserdata;
                     }
                 }
             }
@@ -412,7 +414,7 @@ class UamUserGroup
     {
         $this->getUsers();
         $this->users['real'][$userID] = get_userdata($userID);
-        $this->users['full'] = array();
+        $this->users['full'] = -1;
     }
     
     /**
@@ -426,7 +428,7 @@ class UamUserGroup
     {
         $this->getUsers();
         unset($this->users['real'][$userID]);
-        $this->users['full'] = array();
+        $this->users['full'] = -1;
     }
     
     /**
@@ -478,8 +480,10 @@ class UamUserGroup
             return null;
         }
         
-        if ($this->categories[$type] != array()) {
+        if ($this->categories[$type] != -1) {
             return $this->categories[$type];
+        } else {
+            $this->categories[$type] = array();
         }
         
         global $wpdb;
@@ -530,7 +534,7 @@ class UamUserGroup
     {
         $this->getCategories();
         $this->categories['real'][$categoryID] = get_categorydata($categoryID);
-        $this->categories['full'] = array();
+        $this->categories['full'] = -1;
     }
     
     /**
@@ -544,7 +548,7 @@ class UamUserGroup
     {
         $this->getCategories();
         unset($this->categories['real'][$categoryID]);
-        $this->categories['full'] = array();
+        $this->categories['full'] = -1;
     }
     
     /**
@@ -689,8 +693,10 @@ class UamUserGroup
             $wpType = $postType;
         }
         
-        if ($this->{$postType.'s'}[$type] != array()) {
+        if ($this->{$postType.'s'}[$type] != -1) {
             return $this->{$postType.'s'}[$type];
+        } else {
+            $this->{$postType.'s'}[$type] = array();
         }
         
         $args = array('numberposts' => - 1, 'post_type' => $wpType);
@@ -799,7 +805,7 @@ class UamUserGroup
     {
         $this->getPosts();
         $this->posts['real'][$postID] = get_post($postID);
-        $this->posts['full'] = array();
+        $this->posts['full'] = -1;
     }
     
     /**
@@ -813,7 +819,7 @@ class UamUserGroup
     {
         $this->getPosts();
         unset($this->posts['real'][$postID]);
-        $this->posts['full'] = array();
+        $this->posts['full'] = -1;
     }
     
     /**
@@ -858,7 +864,7 @@ class UamUserGroup
     {
         $this->getPages();
         $this->pages['real'][$pageID] = get_pagedata($pageID);
-        $this->pages['full'] = array();
+        $this->pages['full'] = -1;
     }
     
     /**
@@ -872,7 +878,7 @@ class UamUserGroup
     {
         $this->getPages();
         unset($this->pages['real'][$pageID]);
-        $this->pages['full'] = array();
+        $this->pages['full'] = -1;
     }
     
     /**
@@ -917,7 +923,7 @@ class UamUserGroup
     {
         $this->getFiles();
         $this->files['real'][$fileID] = get_filedata($fileID);
-        $this->files['full'] = array();
+        $this->files['full'] = -1;
     }
     
     /**
@@ -931,7 +937,7 @@ class UamUserGroup
     {
         $this->getFiles();
         unset($this->files['real'][$fileID]);
-        $this->files['full'] = array();
+        $this->files['full'] = -1;
     }
     
     /**
@@ -962,23 +968,37 @@ class UamUserGroup
      */
     function postIsMember($postId)
     {
-        global $wpdb;
+        $post = get_post($postId);
+
+        if ($post->post_type == 'post') {
+            $posts = $this->getPosts('full');
+        } elseif ($post->post_type == 'page') {
+            $posts = $this->getPages('full');
+        } elseif ($post->post_type == 'attachment') {
+            $posts = $this->getFiles('full');
+        }
         
-        $count = $wpdb->get_var(
-        	"SELECT COUNT(*)
-			FROM " . DB_ACCESSGROUP_TO_POST . "
-			WHERE group_id = " . $this->id . "
-				AND post_id = ".$postId
-        );
         
-        if ($count > 0) {
+        if (array_key_exists($postId, $posts)) {
             return true;
         }
         
-        foreach (get_the_category($postId) as $category) {
-            if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
-                return true;
-            }
+        return false;
+    }
+    
+	/**
+     * Checks if the given post is a member of the group.
+     * 
+     * @param interger $categoryId The id of the post which should be checked.
+     * 
+     * @return boolean
+     */
+    function categoryIsMember($categoryId)
+    {
+        $categories = $this->getCategories('full');
+        
+        if (array_key_exists($categoryId, $categories)) {
+            return true;
         }
         
         return false;
@@ -993,24 +1013,9 @@ class UamUserGroup
      */
     function userIsMember($userId)
     {
-        global $wpdb;
+        $users = $this->getUsers('full');
         
-        $count = $wpdb->get_var(
-        	"SELECT COUNT(*)
-			FROM " . DB_ACCESSGROUP_TO_USER . "
-			WHERE group_id = " . $this->id . "
-				AND user_id = ".$userId
-        );
-        
-        if ($count > 0) {
-            return true;
-        }
-        
-        $curUserdata = get_userdata($userId);
-        $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
-        $role = is_array($capabilities) ? array_keys($capabilities) : 'norole';
-        
-        if (array_key_exists($role[0], $this->getRoles())) {
+        if (array_key_exists($userId, $users)) {
             return true;
         }
         

@@ -33,7 +33,7 @@ if ($post->post_parent != 0) {
 }
 
 $uamAccessHandler = new UamAccessHandler();
-$userGroupsForObject = $uamAccessHandler->getUsergroupsForPost($postId);
+$userGroupsForObject = $uamAccessHandler->getUserGroupsForPost($postId);
 
 if (isset($userGroupsDb)) {
 	?>

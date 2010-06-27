@@ -19,11 +19,14 @@ global $wpdb, $current_user;
 
 $userId = $_GET['user_id'];
 $curUserdata = get_userdata($current_user->ID);
-$cur_edit_userdata = get_userdata($userId);
+$editUserData = get_userdata($userId);
 $uamOptions = $this->getAdminOptions();
 
+$uamAccessHandler = new UamAccessHandler();
+$userGroupsForObject = $uamAccessHandler->getUserGroupsForUser($userId);
+
 if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
-    $accessgroups = $wpdb->get_results(
+    $userGroupDbs = $wpdb->get_results(
     	"SELECT *
 		FROM " . DB_ACCESSGROUP . "
 		ORDER BY groupname",
@@ -38,41 +41,44 @@ if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
     				<label for="usergroups"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
     			</th>
 				<td>
+					<ul>
     <?php
-    if (empty($cur_edit_userdata->{$wpdb->prefix . "capabilities"}['administrator'])) {
-        if (isset($accessgroups)) {
-            foreach ($accessgroups as $accessgroup) {
-                $uamUserGroup = new UamUserGroup($accessgroup['ID']);
+    if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
+        if (isset($userGroupDbs)) {
+            foreach ($userGroupDbs as $userGroupDb) {
+                $usergroup = new UamUserGroup($userGroupDb['ID']);
                 ?>
-					<p style="margin: 6px 0;">
-						<label for="uam_accesssgroup-<?php echo $accessgroup['ID']; ?>" lass="selectit"> 
-							<input type="checkbox" id="uam_accesssgroup-<?php echo $accessgroup['ID']; ?>"
+    					<li>
+    						<label for="uam_usergroup-<?php echo $usergroup->getId(); ?>" lass="selectit"> 
+    							<input type="checkbox" id="uam_usergroup-<?php echo $userGroupDb['ID']; ?>"
 	            <?php
-                if (isset($uamUserGroup->userIsMember($userId)) {
+                 if (array_key_exists($usergroup->getId(), $userGroupsForObject)) {
                     echo 'checked="checked"';
-                } 
+                }
                 ?>
-    						value="<?php echo $uamUserGroup->getId(); ?>" name="accessgroups[]" /> 
-    						<?php echo $uamUserGroup->getGroupName; ?>
-						</label>
+    						value="<?php echo $usergroup->getId(); ?>" name="usergroups[]" /> 
+    						<?php echo $usergroup->getGroupName(); ?>
+							</label>
+							<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
+						
 				<?php
-                $group_info_html = $this->get_usergroup_info_html($accessgroup['ID'], "padding: 0 0 0 32px");
-                echo $group_info_html->link;
-                echo $group_info_html->content;
+                include 'groupInfo.php';
                 ?>
-                	</p>
-                <?php 
+                		</li>
+                <?php
             }
         } else {
                 ?>
-                <a href='admin.php?page=uam_usergroup'><?php echo TXT_CREATE_GROUP_FIRST; ?></a>
+                		<li>
+                			<a href='admin.php?page=uam_usergroup'><?php echo TXT_CREATE_GROUP_FIRST; ?></a>
+                		</li>
                 <?php 
         }
     } else {
         echo TXT_ADMIN_HINT;
     }
     ?>
-
+					</ul>
     			</td>
     		</tr>
     	</tbody>

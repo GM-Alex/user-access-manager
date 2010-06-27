@@ -106,39 +106,43 @@ if (!function_exists("userAccessManagerAP")) {
             }
         }
 
-        //Admin actions
         $userAccessManager->update();
+        
+        //Admin actions and filters
+        add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
+        add_action('wp_print_styles', array(&$userAccessManager, 'addStyles'));
+        
+        add_filter('manage_posts_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
+        add_filter('manage_pages_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
         add_action('manage_posts_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
         add_action('manage_pages_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
-        add_action('manage_media_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
         add_action('save_post', array(&$userAccessManager, 'savePostData'));
-        add_action('add_attachment', array(&$userAccessManager, 'savePostData'));
-        add_action('attachment_fields_to_save', array(&$userAccessManager, 'saveAttachmentData'));
         add_action('delete_post', array(&$userAccessManager, 'removePostData'));
+        
+        add_action('manage_media_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
+        add_action('add_attachment', array(&$userAccessManager, 'savePostData'));
+        //add_action('attachment_fields_to_save', array(&$userAccessManager, 'saveAttachmentData')); //Should not needed anymore
+        add_action('attachment_fields_to_save', array(&$userAccessManager, 'savePostData'));
         add_action('delete_attachment', array(&$userAccessManager, 'removePostData'));
+        
+        add_filter('manage_users_columns', array(&$userAccessManager, 'addUserColumnsHeader'), 10);
+        add_filter('manage_users_custom_column', array(&$userAccessManager, 'addUserColumn'), 10, 3);
         add_action('edit_user_profile', array(&$userAccessManager, 'showUserProfile'));
         add_action('profile_update', array(&$userAccessManager, 'saveUserData'));
         add_action('delete_user', array(&$userAccessManager, 'removeUserData'));
+        
+        add_filter('manage_edit-category_columns', array(&$userAccessManager, 'addCategoryColumnsHeader'));
+        add_filter('manage_category_custom_column', array(&$userAccessManager, 'addCategoryColumn'), 10, 3);
         add_action('edit_category_form', array(&$userAccessManager, 'showCategoryEditForm'));
         add_action('edit_category', array(&$userAccessManager, 'saveCategoryData'));
         add_action('delete_category', array(&$userAccessManager, 'removeCategoryData'));
-        add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
-        add_action('wp_print_styles', array(&$userAccessManager, 'addStyles'));
 
-        //Admin filters
-        add_filter('manage_posts_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
-        add_filter('manage_pages_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
         $uamOptions = $userAccessManager->getAdminOptions();
         
         if ($uamOptions['lock_file'] == 'true') {
             add_action('media_meta', array(&$userAccessManager, 'showMediaFile'), 10, 2);
             add_filter('manage_media_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
-        }
-        
-        add_filter('manage_users_columns', array(&$userAccessManager, 'addUserColumnsHeader'), 10);
-        add_filter('manage_users_custom_column', array(&$userAccessManager, 'addUserColumn'), 10, 2);
-        add_filter('manage_categories_columns', array(&$userAccessManager, 'addCategoryColumnsHeader'));
-        add_filter('manage_categories_custom_column', array(&$userAccessManager, 'addCategoryColumn'), 10, 2);
+        }    
     }
 }
 

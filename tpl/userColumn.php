@@ -16,7 +16,7 @@
  */
 
 $uamAccessHandler = new UamAccessHandler();
-$usergroups = $uamAccessHandler->getUsergroupsForUser($id);
+$usergroups = $uamAccessHandler->getUserGroupsForUser($id);
 if ($usergroups != Array()) {
     ?>
 	<ul>
@@ -35,5 +35,13 @@ if ($usergroups != Array()) {
 	</ul>
     <?php
 } else {
-    echo TXT_FULL_ACCESS;
+    global $wpdb;
+    
+    $userData = get_userdata($id);
+    
+    if (empty($userData->{$wpdb->prefix . "capabilities"}['administrator'])) {
+        echo TXT_NONE;
+    } else {
+        echo TXT_ADMIN_HINT;
+    }
 }
