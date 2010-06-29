@@ -24,8 +24,8 @@ $userGroupsDb = $wpdb->get_results(
     ARRAY_A
 );
 
-if (isset($cat->cat_ID)) {
-    $categoryId = $cat->cat_ID;
+if (isset($_GET['tag_ID'])) {
+    $categoryId = $_GET['tag_ID'];
 }
 
 $uamAccessHandler = new UamAccessHandler();

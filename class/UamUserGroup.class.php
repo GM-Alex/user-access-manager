@@ -27,6 +27,7 @@
 
 class UamUserGroup
 {
+    protected $accessHandler = null;
     protected $id = null;
     protected $groupName = null;
     protected $groupDesc = null;
@@ -58,12 +59,15 @@ class UamUserGroup
     /**
      * Consturtor
      * 
-     * @param integer $id The id of the user group.
+     * @param object  &$uamAccessHandler The access handler object.
+     * @param integer $id                The id of the user group.
      * 
      * @return null
      */
-    function __construct($id = null)
+    function __construct(&$uamAccessHandler, $id = null)
     {
+        $this->accessHandler = $uamAccessHandler;
+
         if ($id !== null) {
             global $wpdb;
             
@@ -390,7 +394,8 @@ class UamUserGroup
                 foreach ($wpUsers as $wpUser) {
                     $curUserdata = get_userdata($wpUser['ID']);
                     $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
-                    $role = is_array($capabilities) ? array_keys($capabilities) : 'norole';
+                    $role  = is_array($capabilities) ? 
+                        array_keys($capabilities) : 'norole';
                     
                     if (array_key_exists($role[0], $this->getRoles())
                     ) {
@@ -487,7 +492,7 @@ class UamUserGroup
         }
         
         global $wpdb;
-        $userAccessManager = new UserAccessManager();
+        $userAccessManager = $this->accessHandler->getUserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
         $dbCategories = $wpdb->get_results(
@@ -500,23 +505,39 @@ class UamUserGroup
         
         if (isset($dbCategories)) {
             foreach ($dbCategories as $dbCategorie) {
-                $curCategory = get_category($dbCategorie['category_id']);
+                $category = get_category($dbCategorie['category_id']);
                 
-                if ($uamOptions['lock_recursive'] == 'true' && $type == 'full') {
-                    $subCategories 
-                        = get_categories('child_of=' . $dbCategorie['category_id']);
+                if ($uamOptions['lock_recursive'] == 'true' 
+                    && $type == 'full'
+                ) {
+                    //We have to remove the filter to get all categories
+                    $removeSucc = remove_filter(
+                    	'get_terms', 
+                        array(
+                            $this->accessHandler->getUserAccessManager(), 
+                            'showCategory'
+                        )
+                    );
                     
-                    if (isset($subCategories)) {
-                        foreach ($subCategories as $curCategory) {
-                            $curCategory->rlByCategory[$dbCategorie['category_id']] 
-                                = $dbCategorie['category_id'];
-                            $this->categories[$curCategory->term_id] 
-                                = $curCategory;
+                    if ($removeSucc) {
+                        $args = array(
+                            'child_of' => $category->term_id
+                        );
+                        
+                        $categoryChilds = get_categories();
+                        add_filter(
+                        	'get_terms', 
+                            array(&$userAccessManager, 'showCategory')
+                        );
+                        
+                        foreach ($categoryChilds as $categoryChild) {
+                            $this->categories[$type][$categoryChild->term_id] 
+                                = $categoryChild;
                         }
                     }
                 }
                 
-                $this->categories[$type][$dbCategorie['category_id']] = $curCategory;
+                $this->categories[$type][$category->term_id] = $category;
             }
         }
         
@@ -533,7 +554,7 @@ class UamUserGroup
     function addCategory($categoryID)
     {
         $this->getCategories();
-        $this->categories['real'][$categoryID] = get_categorydata($categoryID);
+        $this->categories['real'][$categoryID] = get_category($categoryID);
         $this->categories['full'] = -1;
     }
     
@@ -684,7 +705,7 @@ class UamUserGroup
         if ($type != 'real' 
             && $type != 'full'
         ) {
-            return null;
+            return array();
         }
         
         if ($postType == 'file') {
@@ -976,8 +997,12 @@ class UamUserGroup
             $posts = $this->getPages('full');
         } elseif ($post->post_type == 'attachment') {
             $posts = $this->getFiles('full');
+        } elseif ($post->post_type == 'comment') {
+            //TODO add comment support
+            $posts = array();
+        } else {
+            $posts = array();
         }
-        
         
         if (array_key_exists($postId, $posts)) {
             return true;

@@ -27,10 +27,11 @@
 
 class UserAccessManager
 {
-    var $adminOptionsName = "uamAdminOptions";
     var $atAdminPanel = false;
-    var $uamDbVersion = "1.1";
-    var $adminOptions;
+    protected $adminOptionsName = "uamAdminOptions";
+    protected $uamDbVersion = "1.1";
+    protected $adminOptions;
+    protected $accessHandler = null;
     
     /**
      * Consturctor
@@ -66,7 +67,12 @@ class UserAccessManager
             }
         }
         
-        if ($wpdb->get_var("show tables like '" . DB_ACCESSGROUP . "'") != DB_ACCESSGROUP) {
+        $dbUserGroup = $wpdb->get_var(
+        	"SHOW TABELS 
+        	LIKE '" . DB_ACCESSGROUP . "'"
+        );
+        
+        if ($dbUserGroup != DB_ACCESSGROUP) {
             $sql = "CREATE TABLE " . DB_ACCESSGROUP . " (
 					  ID int(11) NOT NULL auto_increment,
 					  groupname tinytext NOT NULL,
@@ -79,7 +85,12 @@ class UserAccessManager
             dbDelta($sql);
         }
         
-        if ($wpdb->get_var("show tables like '" . DB_ACCESSGROUP_TO_POST . "'") != DB_ACCESSGROUP_TO_POST) {
+        $dbUserGroupToPost = $wpdb->get_var(
+        	"SHOW TABELS 
+        	LIKE '" . DB_ACCESSGROUP_TO_POST . "'"
+        );
+        
+        if ($dbUserGroupToPost != DB_ACCESSGROUP_TO_POST) {
             $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_POST . " (
 					  post_id int(11) NOT NULL,
 					  group_id int(11) NOT NULL,
@@ -88,7 +99,12 @@ class UserAccessManager
             dbDelta($sql);
         }
         
-        if ($wpdb->get_var("show tables like '" . DB_ACCESSGROUP_TO_USER . "'") != DB_ACCESSGROUP_TO_USER) {
+        $dbUserGroupToUser = $wpdb->get_var(
+        	"SHOW TABELS 
+        	LIKE '" . DB_ACCESSGROUP_TO_USER . "'"
+        );
+        
+        if ($dbUserGroupToUser != DB_ACCESSGROUP_TO_USER) {
             $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_USER . " (
 					  user_id int(11) NOT NULL,
 					  group_id int(11) NOT NULL,
@@ -97,7 +113,12 @@ class UserAccessManager
             dbDelta($sql);
         }
         
-        if ($wpdb->get_var("show tables like '" . DB_ACCESSGROUP_TO_CATEGORY . "'") != DB_ACCESSGROUP_TO_CATEGORY) {
+        $dbUserGroupToCategory = $wpdb->get_var(
+        	"SHOW TABELS 
+        	LIKE '" . DB_ACCESSGROUP_TO_CATEGORY . "'"
+        );
+        
+        if ($dbUserGroupToCategory != DB_ACCESSGROUP_TO_CATEGORY) {
             $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_CATEGORY . " (
 					  category_id int(11) NOT NULL,
 					  group_id int(11) NOT NULL,
@@ -106,7 +127,12 @@ class UserAccessManager
             dbDelta($sql);
         }
         
-        if ($wpdb->get_var("show tables like '" . DB_ACCESSGROUP_TO_ROLE . "'") != DB_ACCESSGROUP_TO_ROLE) {
+        $dbUserGroupToRole = $wpdb->get_var(
+        	"SHOW TABELS 
+        	LIKE '" . DB_ACCESSGROUP_TO_ROLE . "'"
+        );
+        
+        if ($dbUserGroupToRole != DB_ACCESSGROUP_TO_ROLE) {
             $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_ROLE . " (
 					  role_name varchar(255) NOT NULL,
 					  group_id int(11) NOT NULL,
@@ -133,9 +159,16 @@ class UserAccessManager
             $this->install();
         }
         
+        $dbUserGroup = $wpdb->get_var(
+        	"SHOW TABELS 
+        	LIKE '" . DB_ACCESSGROUP . "'"
+        );
+        
         if ($installed_ver != $uamDbVersion) {
             if ($installed_ver == '1.0') {
-                if ($wpdb->get_var("SHOW TABLES LIKE '" . DB_ACCESSGROUP . "'") == DB_ACCESSGROUP) {
+                
+                
+                if ($dbUserGroup == DB_ACCESSGROUP) {
                     $wpdb->query(
                     	"ALTER TABLE " . DB_ACCESSGROUP . " 
                     	ADD read_access TINYTEXT NOT NULL DEFAULT '', 
@@ -154,8 +187,14 @@ class UserAccessManager
             }
         }
         
-        if ($wpdb->get_var("SHOW tables LIKE '" . DB_ACCESSGROUP . "'") == DB_ACCESSGROUP) {
-            if ($wpdb->get_var("SHOW columns FROM " . DB_ACCESSGROUP . " LIKE 'ip_range'") != 'ip_range') {
+        if ($dbUserGroup == DB_ACCESSGROUP) {
+            $dbIpRange = $wpdb->get_var(
+            	"SHOW columns 
+            	FROM " . DB_ACCESSGROUP . " 
+            	LIKE 'ip_range'"
+            );
+            
+            if ($dbIpRange != 'ip_range') {
                 $wpdb->query(
                 	"ALTER TABLE " . DB_ACCESSGROUP . " 
                 	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
@@ -435,6 +474,20 @@ class UserAccessManager
         return '';
     }
     
+    /**
+     * Returns the access handler object.
+     * 
+     * @return object
+     */
+    function &getAccessHandler()
+    {
+        if ($this->accessHandler == null) {
+            $this->accessHandler = new UamAccessHandler(&$this);
+        }
+        
+        return $this->accessHandler;
+    }
+    
     
     /*
      * Functions for the admin panel content.
@@ -585,7 +638,7 @@ class UserAccessManager
             $postType = 'File';
         }
         
-        $uamAccessHandler = new UamAccessHandler();
+        $uamAccessHandler = $this->getAccessHandler();
         $userGroupsForPost = $uamAccessHandler->getUserGroupsForPost($postId);
         
         foreach ($userGroupsForPost as $uamUserGroup) {
@@ -599,7 +652,7 @@ class UserAccessManager
         
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroupId) {
-                $uamUserGroup = new uamUserGroup($userGroupId);
+                $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
 
                 $uamUserGroup->{'add'.$postType}($postId);
                 $uamUserGroup->save();
@@ -636,7 +689,9 @@ class UserAccessManager
     {
         $content = $meta;
         $content .= '</td></tr><tr>';
-        $content .= '<th class="label"><label>'.TXT_SET_UP_USERGROUPS.'</label></th>';
+        $content .= '<th class="label">';
+        $content .= '<label>'.TXT_SET_UP_USERGROUPS.'</label>';
+        $content .= '</th>';
         $content .= '<td class="field">';
         $content .= $this->getIncludeContents(UAM_REALPATH.'/tpl/postEditForm.php');
         
@@ -694,7 +749,10 @@ class UserAccessManager
     function addUserColumn($empty, $columnName, $id)
     {
         if ($columnName == 'uam_access') {
-            return $this->getIncludeContents(UAM_REALPATH.'/tpl/userColumn.php', $id);
+            return $this->getIncludeContents(
+                UAM_REALPATH.'/tpl/userColumn.php', 
+                $id
+            );
         }
     }
     
@@ -721,7 +779,7 @@ class UserAccessManager
 
         }*/
         
-        $uamAccessHandler = new UamAccessHandler();
+        $uamAccessHandler = $this->getAccessHandler();
         $userGroupsForPost = $uamAccessHandler->getUserGroupsForUser($userId);
         
         foreach ($userGroupsForPost as $uamUserGroup) {
@@ -735,7 +793,7 @@ class UserAccessManager
         
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroupId) {
-                $uamUserGroup = new uamUserGroup($userGroupId);
+                $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
 
                 $uamUserGroup->addUser($userId);
                 $uamUserGroup->save();
@@ -789,7 +847,10 @@ class UserAccessManager
     function addCategoryColumn($empty, $columnName, $id)
     {
         if ($columnName == 'uam_access') {
-            return $this->getIncludeContents(UAM_REALPATH.'/tpl/categoryColumn.php');
+            return $this->getIncludeContents(
+                UAM_REALPATH.'/tpl/categoryColumn.php', 
+                $id
+            );
         }
     }
     
@@ -814,18 +875,28 @@ class UserAccessManager
      */
     function saveCategoryData($categoryId)
     {
+        $uamAccessHandler = $this->getAccessHandler();
+        $userGroupsForPost 
+            = $uamAccessHandler->getUserGroupsForCategory($categoryId);
+        
+        foreach ($userGroupsForPost as $uamUserGroup) {
+            $uamUserGroup->removeCategory($categoryId);
+            $uamUserGroup->save();
+        }
+        
         if (isset($_POST['usergroups'])) {
             $userGroups = $_POST['usergroups'];
         }
         
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroupId) {
-                $uamUserGroup = new uamUserGroup($userGroupId);
-                
+                $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
+
                 $uamUserGroup->addCategory($categoryId);
+                $uamUserGroup->save();
             }
         }
-    }
+    } 
     
     /**
      * The function for the delete_category action.
@@ -872,7 +943,7 @@ class UserAccessManager
     {
         $showPosts = null;
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = new UamAccessHandler();
+        $uamAccessHandler = $this->getAccessHandler();
         
         if (!is_feed() 
             || ($uamOptions['protect_feed'] == 'true' && is_feed())
@@ -942,7 +1013,7 @@ class UserAccessManager
     {
         $showComments = null;
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = new UamAccessHandler();
+        $uamAccessHandler = $this->getAccessHandler();
         
         foreach ($comments as $comment) {
             if ($uamOptions['hide_post_comment'] == 'true' 
@@ -977,7 +1048,7 @@ class UserAccessManager
     {
         $showPages = null;
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = new UamAccessHandler();
+        $uamAccessHandler = $this->getAccessHandler();
         
         foreach ($pages as $page) {
             if ($uamOptions['hide_page'] == 'true' 
@@ -1018,7 +1089,7 @@ class UserAccessManager
         global $current_user;
         $curUserdata = get_userdata($current_user->ID);
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = new UamAccessHandler();
+        $uamAccessHandler = $this->getAccessHandler();
         
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
@@ -1106,7 +1177,7 @@ class UserAccessManager
     function showTitle($title, $post = null)
     {
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = new UamAccessHandler();
+        $uamAccessHandler = $this->getAccessHandler();
         
         if (isset($post)) {
             $postId = $post->ID;
@@ -1135,7 +1206,7 @@ class UserAccessManager
         
         if ($uamOptions['hide_post'] == 'true') {
             $posts = get_posts();
-            $uamAccessHandler = new UamAccessHandler();
+            $uamAccessHandler = $this->getAccessHandler();
             
             if (isset($posts)) {
                 foreach ($posts as $post) {
@@ -1168,7 +1239,7 @@ class UserAccessManager
             || (is_feed() && $uamOptions['protect_feed'] == 'true')
         ) {
             $posts = get_posts();
-            $uamAccessHandler = new UamAccessHandler();
+            $uamAccessHandler = $this->getAccessHandler();
             
             if (isset($posts)) {
                 foreach ($posts as $post) {
@@ -1210,7 +1281,7 @@ class UserAccessManager
                     return $output;
                 }
                 
-                $uamAccessHandler = new UamAccessHandler();
+                $uamAccessHandler = $this->getAccessHandler();
                 $groups = $uamAccessHandler->getUserGroupsForPost($postId);
                 
                 if ($curUserdata->user_level >= $uamOptions['full_access_level'] 

@@ -53,14 +53,6 @@ if (class_exists("UserAccessManager")) {
     $userAccessManager = new UserAccessManager();
 }
 
-if (class_exists("UamUserGroup")) {
-    $uamUserGroup = new UamUserGroup(1);  
-}
-
-if (class_exists("UamAccessHandler")) {
-    $uamAccessHandler = new UamAccessHandler(1);  
-}
-
 //Initialize the admin panel
 if (!function_exists("userAccessManagerAP")) {
     /**

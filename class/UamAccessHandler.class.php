@@ -27,11 +27,87 @@
 
 class UamAccessHandler
 {
+    protected $userAccessManager = null;
     protected $postUserGroups = array();
     protected $categoryUserGroups = array();
     protected $userUserGroups = array();
     protected $postAccess = array();
     protected $categroyAccess = array();
+    protected $userGroups = array();
+    
+    /**
+     * The consturctor
+     * 
+     * @param object &$userAccessManager The user access manager object.
+     * 
+     * @return null
+     */
+    function __construct(&$userAccessManager)
+    {
+        $this->userAccessManager = $userAccessManager;
+    }
+    
+    /**
+     * Returns the user access manager object.
+     * 
+     * @return object
+     */
+    function &getUserAccessManager()
+    {
+        return $this->userAccessManager;
+    }
+    
+    /**
+     * Returns all user groups or one requested by the user group id.
+     * 
+     * @param integer $userGroupId The id of the single user group 
+     * 							   which should be returned.
+     * 
+     * @return array|object
+     */
+    function &getUserGroups($userGroupId = null)
+    {
+        if ($userGroupId == null
+            && $this->userGroups != array()
+        ) {
+            return $this->userGroups;
+        } elseif ($userGroupId != null
+                  && $this->userGroups != array()
+        ) {
+            if (isset($this->userGroups[$userGroupId])) {
+                return $this->userGroups[$userGroupId];
+            } else {
+                return null;
+            }
+        }
+        
+        $this->userGroups = array();
+        
+        global $wpdb;
+
+        $userGroupsDb = $wpdb->get_results(
+        	"SELECT ID
+        	FROM " . DB_ACCESSGROUP . "
+        	ORDER BY ID", ARRAY_A
+        );
+        
+        if (isset($userGroupsDb)) {
+            foreach ($userGroupsDb as $userGroupDb) {
+                $this->userGroups[$userGroupDb['ID']] 
+                    = new UamUserGroup(&$this, $userGroupDb['ID']);
+            }
+        }
+        
+        if ($userGroupId == null) {
+            return $this->userGroups;
+        } elseif ($userGroupId != null) {
+            if (isset($this->userGroups[$userGroupId])) {
+                return $this->userGroups[$userGroupId];
+            } else {
+                return null;
+            }
+        }
+    }
     
     /**
      * Returns the user groups of the given post.
@@ -46,23 +122,15 @@ class UamAccessHandler
             return $this->postUserGroups[$postId];
         }
         
-        global $wpdb;
-        
         $this->postUserGroups[$postId] = array();
-        
-        $userGroups = $wpdb->get_results(
-        	"SELECT ID
-        	FROM " . DB_ACCESSGROUP . "
-        	ORDER BY ID", ARRAY_A
-        );
-        
+
+        $userGroups = $this->getUserGroups();
+       
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
-                $uamUserGroup = new UamUserGroup($userGroup['ID']);
-                
-                if ($uamUserGroup->postIsMember($postId)) {
-                    $this->postUserGroups[$postId][$userGroup['ID']] 
-                        = $uamUserGroup;
+                if ($userGroup->postIsMember($postId)) {
+                    $this->postUserGroups[$postId][$userGroup->getId()] 
+                        = $userGroup;
                 }
             }
         }
@@ -73,32 +141,26 @@ class UamAccessHandler
     /**
      * Returns the user groups of the given category.
      * 
-     * @param integer $categoryId The id of the category from which we want the groups.
+     * @param integer $categoryId The id of the category from which 
+     * 							  we want the groups.
      * 
      * @return array
      */
     function getUserGroupsForCategory($categoryId)
     {
-        if (isset($this->categoryUserGroups[$postId])) {
-            return $this->categoryUserGroups[$postId];
+        if (isset($this->categoryUserGroups[$categoryId])) {
+            return $this->categoryUserGroups[$categoryId];
         }
         
-        global $wpdb;
-        $this->categoryUserGroups[$postId] = array();
+        $this->categoryUserGroups[$categoryId] = array();
         
-        $userGroups = $wpdb->get_results(
-        	"SELECT ID
-        	FROM " . DB_ACCESSGROUP . "
-        	ORDER BY ID", ARRAY_A
-        );
+        $userGroups = $this->getUserGroups();
         
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
-                $uamUserGroup = new UamUserGroup($userGroup['ID']);
-                
-                if ($uamUserGroup->categoryIsMember($postId)) {
-                    $this->categoryUserGroups[$postId][$userGroup['ID']] 
-                        = $uamUserGroup;
+                if ($userGroup->categoryIsMember($categoryId)) {
+                    $this->categoryUserGroups[$categoryId][$userGroup->getId()] 
+                        = $userGroup;
                 }
             }
         }
@@ -119,23 +181,15 @@ class UamAccessHandler
             return $this->userUserGroups[$userId];
         }
         
-        global $wpdb;
-        
         $this->userUserGroups[$userId] = array();
         
-        $userGroups = $wpdb->get_results(
-        	"SELECT ID
-        	FROM " . DB_ACCESSGROUP . "
-        	ORDER BY ID", ARRAY_A
-        );
+        $userGroups = $this->getUserGroups();
         
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
-                $uamUserGroup = new UamUserGroup($userGroup['ID']);
-                
-                if ($uamUserGroup->userIsMember($userId)) {
-                    $this->userUserGroups[$userId][$userGroup['ID']] 
-                        = $uamUserGroup;
+                if ($userGroup->userIsMember($userId)) {
+                    $this->userUserGroups[$userId][$userGroup->getId()] 
+                        = $userGroup;
                 }
             }
         }
