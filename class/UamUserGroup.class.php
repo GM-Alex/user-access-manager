@@ -96,6 +96,10 @@ class UamUserGroup
      */
     function delete()
     {
+        if ($this->id == null) {
+            return false;
+        }
+        
         global $wpdb;
         
         $wpdb->query(
@@ -320,10 +324,16 @@ class UamUserGroup
     /**
      * Returns the ip range.
      * 
+     * @param string $type The return type.
+     * 
      * @return array
      */
-    function getIpRange()
+    function getIpRange($type = null)
     {
+        if ($type == 'string') {
+            return $this->ipRange;
+        }
+        
         $ipArray = explode(';', $this->ipRange);
         return $ipArray;
     }
@@ -352,11 +362,15 @@ class UamUserGroup
      * @return array
      */
     function getUsers($type = 'real')
-    {        
+    {
+        if ($this->id == null) {
+            return array();
+        }
+        
         if ($type != 'real' 
             && $type != 'full'
         ) {
-            return null;
+            return array();
         }
         
         if ($this->users[$type] != -1) {
@@ -479,10 +493,14 @@ class UamUserGroup
      */
     function getCategories($type = 'real')
     {
+        if ($this->id == null) {
+            return array();
+        }
+        
         if ($type != 'real' 
             && $type != 'full'
         ) {
-            return null;
+            return array();
         }
         
         if ($this->categories[$type] != -1) {
@@ -613,6 +631,10 @@ class UamUserGroup
      */
     function getRoles()
     {
+        if ($this->id == null) {
+            return array();
+        }
+        
         if ($this->roles != array()) {
             return $this->roles;
         }
@@ -645,7 +667,16 @@ class UamUserGroup
     function addRole($roleName)
     {
         $this->getRoles();
-        $this->roles[$roleName] = get_role($roleID);
+        
+        /**
+         * $this->roles[$roleName] = &get_role($roleName);
+         *  
+         * Makes trouble, but why? 
+         *
+         * Error: "Notice: Only variable references should be returned by reference"
+         */
+        
+        $this->roles[$roleName] = $roleName;
     }
     
     /**
@@ -656,7 +687,7 @@ class UamUserGroup
      * @return null
      */
     function removeRole($roleName)
-    {
+    {        
         $this->getRoles();
         unset($this->roles[$roleName]);
     }
@@ -684,6 +715,10 @@ class UamUserGroup
      */
     private function _deleteRolesFromDb()
     {
+        if ($this->id == null) {
+            return false;
+        }
+        
         global $wpdb;
         
         $wpdb->query(
@@ -702,6 +737,10 @@ class UamUserGroup
      */
     private function _getPostByType($postType, $type)
     {
+        if ($this->id == null) {
+            return array();
+        }
+        
         if ($type != 'real' 
             && $type != 'full'
         ) {
@@ -747,13 +786,13 @@ class UamUserGroup
                     if ($postType == 'page' && !$isRecursiveMember) {
                         $tmpPost = $post;
                         
-                        while ($tmpPost->child_of != 0) {
-                            if ($this->postIsMember($tmpPost->child_of)) {
+                        while ($tmpPost->post_parent != 0) {
+                            if ($this->postIsMember($tmpPost->post_parent)) {
                                 $isRecursiveMember = true;
                                 break;
                             }
                             
-                            $tmpPost = get_post($tmpPost->child_of);
+                            $tmpPost = get_post($tmpPost->post_parent);
                         }
                     }
                 }
@@ -776,6 +815,10 @@ class UamUserGroup
      */
     private function _deletePostByTypeFromDb($postType)
     {
+        if ($this->id == null) {
+            return false;
+        }
+        
         global $wpdb;
         
         if ($postType == 'all') {

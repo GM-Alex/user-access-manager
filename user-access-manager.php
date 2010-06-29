@@ -78,14 +78,14 @@ if (!function_exists("userAccessManagerAP")) {
         
         //Admin main menu
         if (function_exists('add_menu_page')) {
-            add_menu_page('User Access Manager', 'UAM', 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH . "gfx/icon.png");
+            add_menu_page('User Access Manager', 'UAM', 'manage_options', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH . "gfx/icon.png");
         }
         
         //Admin sub menus
         if (function_exists('add_submenu_page')) {
-            add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 9, 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
-            add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 9, 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
-            add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 9, 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
+            add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 'manage_options', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
+            add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 'manage_options', 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
+            add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 'manage_options', 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
         }
         
         //Admin meta boxes
@@ -142,7 +142,8 @@ if (!function_exists("userAccessManagerAP")) {
 if (isset($userAccessManager)) {
     load_plugin_textdomain(
     	'user-access-manager', 
-    	'wp-content/plugins/user-access-manager'
+    	false, 
+    	dirname(plugin_basename(__FILE__))
     );
     
     $uamOptions = $userAccessManager->getAdminOptions();

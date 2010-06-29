@@ -110,6 +110,34 @@ class UamAccessHandler
     }
     
     /**
+     * Adds a user group.
+     * 
+     * @param object $userGroup The user group which we want to add.
+     * 
+     * @return null
+     */
+    function addUserGroup($userGroup)
+    {
+        $this->getUserGroups();
+        $this->userGroups[$userGroup->getId()] = $userGroup;
+    }
+    
+    /**
+     * Deletes a user group.
+     * 
+     * @param integer $userGroupId The user group id which we want to delete.
+     * 
+     * @return null
+     */
+    function deleteUserGroup($userGroupId)
+    {
+        if ($this->getUserGroups($userGroupId) != null) {
+            $this->getUserGroups($userGroupId)->delete();
+            unset($this->userGroups[$userGroupId]);
+        }
+    }
+    
+    /**
      * Returns the user groups of the given post.
      * 
      * @param integer $postId The id of the post from which we want the groups.
@@ -217,6 +245,10 @@ class UamAccessHandler
         $uamOptions = $userAccessManager->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);
         
+        if (!isset($curUserdata->user_level)) {
+            $curUserdata->user_level = null;
+        }
+        
         if ($postMembership == array() 
             || $curUserdata->user_level >= $uamOptions['full_access_level']
         ) {
@@ -250,21 +282,25 @@ class UamAccessHandler
      */
     function checkCategoryAccess($categoryId)
     {
-        if (isset($this->categroyAccess[$postId])) {
-            return $this->categroyAccess[$postId];  
+        if (isset($this->categroyAccess[$categoryId])) {
+            return $this->categroyAccess[$categoryId];  
         } 
 
         global $current_user;
-        $categoryMembership = $this->getUserGroupsForCategory($postId);
+        $categoryMembership = $this->getUserGroupsForCategory($categoryId);
      
         $userAccessManager = new UserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);
         
+        if (!isset($curUserdata->user_level)) {
+            $curUserdata->user_level = null;
+        }
+        
         if ($categoryMembership == array() 
             || $curUserdata->user_level >= $uamOptions['full_access_level']
         ) {
-            $this->categroyAccess[$postId] = true;
+            $this->categroyAccess[$categoryId] = true;
         } else {
             if (is_user_logged_in()) {
                 $curIp = explode(".", $_SERVER['REMOTE_ADDR']);
@@ -273,16 +309,16 @@ class UamAccessHandler
                     if ($this->checkUserIp($curIp, $userGroup->getIpRange())
                         || $userGroup->userIsMember($current_user->ID)
                     ) {
-                        $this->categroyAccess[$postId] = true;
+                        $this->categroyAccess[$categoryId] = true;
                         break;
                     }
                 }
             } else {
-                $this->categroyAccess[$postId] = false;
+                $this->categroyAccess[$categoryId] = false;
             }
         }
         
-        return $this->categroyAccess[$postId];   
+        return $this->categroyAccess[$categoryId];   
     }
     
     /**

@@ -68,7 +68,7 @@ class UserAccessManager
         }
         
         $dbUserGroup = $wpdb->get_var(
-        	"SHOW TABELS 
+        	"SHOW TABLES 
         	LIKE '" . DB_ACCESSGROUP . "'"
         );
         
@@ -86,7 +86,7 @@ class UserAccessManager
         }
         
         $dbUserGroupToPost = $wpdb->get_var(
-        	"SHOW TABELS 
+        	"SHOW TABLES 
         	LIKE '" . DB_ACCESSGROUP_TO_POST . "'"
         );
         
@@ -100,7 +100,7 @@ class UserAccessManager
         }
         
         $dbUserGroupToUser = $wpdb->get_var(
-        	"SHOW TABELS 
+        	"SHOW TABLES 
         	LIKE '" . DB_ACCESSGROUP_TO_USER . "'"
         );
         
@@ -114,7 +114,7 @@ class UserAccessManager
         }
         
         $dbUserGroupToCategory = $wpdb->get_var(
-        	"SHOW TABELS 
+        	"SHOW TABLES 
         	LIKE '" . DB_ACCESSGROUP_TO_CATEGORY . "'"
         );
         
@@ -128,7 +128,7 @@ class UserAccessManager
         }
         
         $dbUserGroupToRole = $wpdb->get_var(
-        	"SHOW TABELS 
+        	"SHOW TABLES 
         	LIKE '" . DB_ACCESSGROUP_TO_ROLE . "'"
         );
         
@@ -152,7 +152,7 @@ class UserAccessManager
     function update()
     {
         global $wpdb;
-        $uamDbVersion = $this->uam_db_version;
+        $uamDbVersion = $this->uamDbVersion;
         $installed_ver = get_option("uam_db_version");
         
         if (empty($installed_ver)) {
@@ -160,7 +160,7 @@ class UserAccessManager
         }
         
         $dbUserGroup = $wpdb->get_var(
-        	"SHOW TABELS 
+        	"SHOW TABLES 
         	LIKE '" . DB_ACCESSGROUP . "'"
         );
         
@@ -1105,7 +1105,7 @@ class UserAccessManager
                 ) {
                     $args = array(
                     	'numberposts' => - 1,
-                        'category' => $category->ID
+                        'category' => $category->term_id
                     );
                     $categoryPosts = get_posts($args);
                     
@@ -1169,21 +1169,15 @@ class UserAccessManager
     /**
      * The function for the get_the_title filter.
      * 
-     * @param string $title The title of the post
-     * @param object $post  The post
+     * @param string $title  The title of the post.
+     * @param object $postId The post id.
      * 
      * @return string
      */
-    function showTitle($title, $post = null)
+    function showTitle($title, $postId = null)
     {
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = $this->getAccessHandler();
-        
-        if (isset($post)) {
-            $postId = $post->ID;
-        } else {
-            $postId = null;
-        }
         
         if (!$uamAccessHandler->checkAccess($postId) && $post != null) {
             $title = $uamOptions[$post->post_type.'_title'];

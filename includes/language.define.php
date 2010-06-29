@@ -103,7 +103,7 @@ define('TXT_WRITE_ACCESS', __('Write access', 'user-access-manager'));
 define('TXT_POSTS', __('Posts', 'user-access-manager'));
 define('TXT_PAGES', __('Pages', 'user-access-manager'));
 define('TXT_FILES', __('Files', 'user-access-manager'));
-define('TXT_CATEGORY', __('Categories', 'user-access-manager'));
+define('TXT_CATEGORIES', __('Categories', 'user-access-manager'));
 define('TXT_USERS', __('Users', 'user-access-manager'));
 define('TXT_DELETE', __('Delete', 'user-access-manager'));
 define('TXT_UPDATE_GROUP', __('Update group', 'user-access-manager'));

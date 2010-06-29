@@ -15,8 +15,9 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-$uamAccessHandler = new UamAccessHandler();
-$usergroups = $uamAccessHandler->getUsergroupsForCategory($id);
+global $userAccessManager;
+$usergroups = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($id);
+
 if ($usergroups != Array()) {
     ?>
 	<ul>
@@ -24,7 +25,9 @@ if ($usergroups != Array()) {
     foreach ($usergroups as $usergroup) {
         ?> 
     	<li>
-    		<?php echo $usergroup->getGroupName(); ?> <a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
+    		<a class="uam_group_info_link">
+    		    <?php echo $usergroup->getGroupName(); ?>
+    		</a>
         <?php 
         include 'groupInfo.php';
         ?> 
