@@ -52,7 +52,7 @@ if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
     						<label for="uam_usergroup-<?php echo $usergroup->getId(); ?>" lass="selectit"> 
     							<input type="checkbox" id="uam_usergroup-<?php echo $userGroupDb['ID']; ?>"
 	            <?php
-                 if (array_key_exists($usergroup->getId(), $userGroupsForObject)) {
+                if (array_key_exists($usergroup->getId(), $userGroupsForObject)) {
                     echo 'checked="checked"';
                 }
                 ?>
