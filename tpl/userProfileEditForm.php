@@ -15,74 +15,62 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-global $wpdb, $current_user;
-
 $userId = $_GET['user_id'];
-$curUserdata = get_userdata($current_user->ID);
 $editUserData = get_userdata($userId);
-$uamOptions = $this->getAdminOptions();
 
-$uamAccessHandler = new UamAccessHandler();
-$userGroupsForObject = $uamAccessHandler->getUserGroupsForUser($userId);
+global $userAccessManager, $wpdb;
+$uamUserGroups 
+    = &$userAccessManager->getAccessHandler()->getUserGroups();
+$userGroupsForObject 
+    = &$userAccessManager->getAccessHandler()->getUserGroupsForUser($userId);
 
-if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
-    $userGroupDbs = $wpdb->get_results(
-    	"SELECT *
-		FROM " . DB_ACCESSGROUP . "
-		ORDER BY groupname",
-        ARRAY_A
-    );
-    ?>
-	<h3><?php echo TXT_GROUPS; ?></h3>
-	<table class="form-table">
-		<tbody>
-    		<tr>
-    			<th>
-    				<label for="usergroups"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
-    			</th>
-				<td>
-					<ul>
-    <?php
-    if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
-        if (isset($userGroupDbs)) {
-            foreach ($userGroupDbs as $userGroupDb) {
-                $usergroup = new UamUserGroup($userGroupDb['ID']);
-                ?>
-    					<li>
-    						<label for="uam_usergroup-<?php echo $usergroup->getId(); ?>" lass="selectit"> 
-    							<input type="checkbox" id="uam_usergroup-<?php echo $userGroupDb['ID']; ?>"
-	            <?php
-                if (array_key_exists($usergroup->getId(), $userGroupsForObject)) {
-                    echo 'checked="checked"';
-                }
-                ?>
-    						value="<?php echo $usergroup->getId(); ?>" name="usergroups[]" /> 
-    						<?php echo $usergroup->getGroupName(); ?>
-							</label>
-							<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
-						
-				<?php
-                include 'groupInfo.php';
-                ?>
-                		</li>
-                <?php
+?>
+<h3><?php echo TXT_GROUPS; ?></h3>
+<table class="form-table">
+	<tbody>
+		<tr>
+			<th>
+				<label for="usergroups"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
+			</th>
+			<td>
+				<ul>
+<?php
+if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
+    if (isset($uamUserGroups)) {
+        foreach ($uamUserGroups as $uamUserGroup) {
+            ?>
+					<li>
+						<label for="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>" lass="selectit"> 
+							<input type="checkbox" id="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>"
+            <?php
+            if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
+                echo 'checked="checked"';
             }
-        } else {
-                ?>
-                		<li>
-                			<a href='admin.php?page=uam_usergroup'><?php echo TXT_CREATE_GROUP_FIRST; ?></a>
-                		</li>
-                <?php 
+            ?>
+						value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]" /> 
+						<?php echo $uamUserGroup->getGroupName(); ?>
+						</label>
+						<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
+					
+			<?php
+            include 'groupInfo.php';
+            ?>
+            		</li>
+            <?php
         }
     } else {
-        echo TXT_ADMIN_HINT;
+            ?>
+            		<li>
+            			<a href='admin.php?page=uam_usergroup'><?php echo TXT_CREATE_GROUP_FIRST; ?></a>
+            		</li>
+            <?php 
     }
-    ?>
-					</ul>
-    			</td>
-    		</tr>
-    	</tbody>
-	</table>
-    <?php
+} else {
+    echo TXT_ADMIN_HINT;
 }
 ?>
+				</ul>
+			</td>
+		</tr>
+	</tbody>
+</table>
