@@ -19,25 +19,25 @@
 	<li class="uam_group_info_head"><?php echo TXT_GROUP_INFO; ?>:</li>
 	<li><?php echo TXT_READ_ACCESS; ?>:
 <?php
-if ($usergroup->getReadAccess() == "all") {
+if ($uamUserGroup->getReadAccess() == "all") {
     echo TXT_ALL;
-} elseif ($usergroup->getReadAccess() == "group") {
+} elseif ($uamUserGroup->getReadAccess() == "group") {
     echo TXT_ONLY_GROUP_USERS;
 }
 ?>
 	</li>
 	<li><?php echo TXT_WRITE_ACCESS; ?>:
 <?php
-if ($usergroup->getWriteAccess()  == "all") {
+if ($uamUserGroup->getWriteAccess()  == "all") {
     echo TXT_ALL;   
-} elseif ($usergroup->getWriteAccess()  == "group") {
+} elseif ($uamUserGroup->getWriteAccess()  == "group") {
     echo TXT_ONLY_GROUP_USERS;
 }
 ?>
 	</li>
-	<li><?php echo count($usergroup->getPosts()) . " " . TXT_POSTS; ?></li>
-	<li><?php echo count($usergroup->getPages()) . " " . TXT_PAGES; ?></li>
-	<li><?php echo count($usergroup->getPages()) . " " . TXT_PAGES; ?></li>
-	<li><?php echo count($usergroup->getCategories()) . " " . TXT_CATEGORY; ?></li>
-	<li><?php echo count($usergroup->getUsers()) . " " . TXT_USERS; ?></li>
+	<li><?php echo count($uamUserGroup->getPosts()) . " " . TXT_POSTS; ?></li>
+	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
+	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
+	<li><?php echo count($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES; ?></li>
+	<li><?php echo count($uamUserGroup->getUsers()) . " " . TXT_USERS; ?></li>
 </ul>

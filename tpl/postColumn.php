@@ -16,17 +16,17 @@
  */
 
 global $userAccessManager;
-$usergroups = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($id);
+$uamUserGroups = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($id);
 
-if ($usergroups != Array()) {
+if ($uamUserGroups != Array()) {
     ?>
 	<ul>
     <?php
-    foreach ($usergroups as $usergroup) {
+    foreach ($uamUserGroups as $uamUserGroup) {
         ?> 
     	<li>
     	    <a class="uam_group_info_link">
-    		    <?php echo $usergroup->getGroupName(); ?>
+    		    <?php echo $uamUserGroup->getGroupName(); ?>
     		</a>
         <?php 
         include 'groupInfo.php';

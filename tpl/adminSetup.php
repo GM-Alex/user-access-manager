@@ -41,7 +41,7 @@ if ($post_action == 'reset_uam') {
 }
 ?>
 
-<div class=wrap>
+<div class="wrap">
     <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
     	<input type="hidden" value="reset_uam" name="action" />
         <h2><?php echo TXT_SETUP; ?></h2>

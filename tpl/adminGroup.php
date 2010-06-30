@@ -301,7 +301,7 @@ if (($postAction == 'updateGroup' || $postAction == 'addGroup')
 
 if (!$editGroup) {
     ?>
-    <div class=wrap>
+    <div class="wrap">
         <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
         	<input type="hidden" value="delgroup" name="action" />
             <h2><?php echo TXT_MANAGE_GROUP; ?></h2>
@@ -348,7 +348,7 @@ if (!$editGroup) {
         			</th>
         			<td>
         				<strong>
-        					<a href="?page=<?php echo $curAdminPage; ?>&action=editGroup&id=<?php echo $uamUserGroup->getId(); ?>">
+        					<a href="?page=<?php echo $curAdminPage; ?>&amp;action=editGroup&amp;id=<?php echo $uamUserGroup->getId(); ?>">
         					    <?php echo $uamUserGroup->getGroupName(); ?>
         					</a>
         				</strong>

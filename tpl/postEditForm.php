@@ -15,15 +15,6 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-global $wpdb;
-
-$userGroupsDb = $wpdb->get_results(
-	"SELECT *
-	FROM ".DB_ACCESSGROUP."
-	ORDER BY groupname", 
-    ARRAY_A
-);
-
 $post = get_post($id);
             
 if ($post->post_parent != 0) {
@@ -32,28 +23,30 @@ if ($post->post_parent != 0) {
     $postId = $post->ID;
 }
 
-$uamAccessHandler = new UamAccessHandler();
-$userGroupsForObject = $uamAccessHandler->getUserGroupsForPost($postId);
+global $userAccessManager;
+$uamUserGroups 
+    = &$userAccessManager->getAccessHandler()->getUserGroups();
+$userGroupsForObject 
+    = &$userAccessManager->getAccessHandler()->getUserGroupsForPost($postId);
 
-if (isset($userGroupsDb)) {
+if (isset($uamUserGroups)) {
 	?>
 	<ul>
 	<?php 
-	foreach ($userGroupsDb as $userGroupDb) {
-		$usergroup = new UamUserGroup($userGroupDb['ID']);
+	foreach ($uamUserGroups as $uamUserGroup) {
 		?>
 		<li>
-			<label for="uam_usergroup-<?php echo $usergroup->getId(); ?>" class="selectit" style="display:inline;" >
-				<input type="checkbox" id="uam_usergroup-<?php echo $usergroup->getId(); ?>"
+			<label for="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
+				<input type="checkbox" id="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>"
 		<?php
-	    if (array_key_exists($usergroup->getId(), $userGroupsForObject)) {
+	    if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
             echo 'checked="checked"';
         }
 		/*if(isset($set_recursive->posts) || isset($set_recursive->categories))
 			$content .= 'disabled=""';*/
         ?>
-				value="<?php echo $usergroup->getId(); ?>" name="usergroups[]"/>
-				<?php echo $usergroup->getGroupName(); ?>
+				value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]"/>
+				<?php echo $uamUserGroup->getGroupName(); ?>
 			</label>
 			<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
 		<?php 

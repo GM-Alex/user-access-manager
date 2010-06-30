@@ -334,8 +334,13 @@ class UamUserGroup
             return $this->ipRange;
         }
         
-        $ipArray = explode(';', $this->ipRange);
-        return $ipArray;
+        $ipRange = explode(';', $this->ipRange);
+        
+        if ($ipRange[0] == null) {
+            return null;
+        }
+        
+        return $ipRange;
     }
     
     /**

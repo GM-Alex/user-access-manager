@@ -1099,6 +1099,10 @@ class UserAccessManager
         $uamOptions = $this->getAdminOptions();
 
         foreach ($categories as $category) {
+            if (!is_object($category)) {
+                $category = get_category($category);
+            }
+
             if ($uamAccessHandler->checkCategoryAccess($category->term_id)) {
                 if ($uamOptions['hide_post'] == 'true'
                     || $uamOptions['hide_page'] == 'true'
@@ -1281,7 +1285,7 @@ class UserAccessManager
                 if ($curUserdata->user_level >= $uamOptions['full_access_level'] 
                     && $groups != array()
                 ) { 
-                    return "&nbsp;" . $uamOptions['blog_admin_hint_text'];
+                    return $uamOptions['blog_admin_hint_text'];
                 }
             }
         }

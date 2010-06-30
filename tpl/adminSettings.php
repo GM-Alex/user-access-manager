@@ -193,7 +193,7 @@ if ($uamOptions['show_post_content_before_more'] == "false") {
 			<th scope="row"><?php echo TXT_DISPLAY_POST_COMMENT; ?></th>
 			<td>
 				<label for="uam_hide_post_comment_yes"> 
-					<input type="radio" name="uam_hide_post_comment" value="true" <?php
+					<input id="uam_hide_post_comment_yes" type="radio" name="uam_hide_post_comment" value="true" <?php
 if ($uamOptions['hide_post_comment'] == "true") {
     echo 'checked="checked"';
 } 
@@ -201,7 +201,7 @@ if ($uamOptions['hide_post_comment'] == "true") {
 				    <?php echo TXT_YES; ?> 
 				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
 				<label for="uam_hide_post_comment_no"> 
-					<input type="radio" name="uam_hide_post_comment" value="false" <?php
+					<input id="uam_hide_post_comment_no" type="radio" name="uam_hide_post_comment" value="false" <?php
 if ($uamOptions['hide_post_comment'] == "false") {
     echo 'checked="checked"';
 } 
@@ -222,7 +222,7 @@ if ($uamOptions['hide_post_comment'] == "false") {
 			<th scope="row"><?php echo TXT_ALLOW_COMMENTS_LOCKED; ?></th>
 			<td>
 				<label for="uam_allow_comments_locked_yes"> 
-					<input type="radio" name="uam_allow_comments_locked" value="true" <?php
+					<input id="uam_allow_comments_locked_yes" type="radio" name="uam_allow_comments_locked" value="true" <?php
 if ($uamOptions['allow_comments_locked'] == "true") {
     echo 'checked="checked"';
 } 
@@ -230,7 +230,7 @@ if ($uamOptions['allow_comments_locked'] == "true") {
 				    <?php echo TXT_YES; ?> 
 				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
 				<label for="uam_allow_comments_locked_no"> 
-					<input type="radio" name="uam_allow_comments_locked" value="false" <?php
+					<input id="uam_allow_comments_locked_no" type="radio" name="uam_allow_comments_locked" value="false" <?php
 if ($uamOptions['allow_comments_locked'] == "false") {
     echo 'checked="checked"';
 } 
