@@ -39,15 +39,12 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 * Czech, base on 0.7.0.1. Thanks to Huska
 * French, base on 0.8.0.2. Thanks to macbidule
 
-<strong>Note</strong>: At this release you can replace one core files, because I need some hooks which are not created by the Wordpress-Team for the better integration. I've send them a diff patch and this will add in Wordpress 2.8, so you can trust this modification (see <a href="http://trac.wordpress.org/changeset/10292">http://trac.wordpress.org/changeset/10292</a>). <strong>This core modification is not needed and only optional, but it gives you more comfort.</strong>
-
 For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com).
 
 
 == Installation ==
  
 1. Upload the full directory, with the folder, into your wp-content/plugins directory
-1. Replace the following files in the wp-admin dir with the files at 'core_files' or use the patches: 'includes/template.php'
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Enjoy
 
@@ -57,6 +54,8 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    1.0			2010/07/xx	
     
     0.9.1.4 	2010/06/23  Hotfix for Wordpress 3.0
     

@@ -11,8 +11,10 @@ foreach ($uamUserGroups as $uamUserGroup) {
     if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
         echo 'checked="checked"';
     }
-	/*if(isset($set_recursive->posts) || isset($set_recursive->categories))
-		$content .= 'disabled=""';*/
+    
+	if (isset($uamUserGroup->setRecursive)) {
+		echo 'disabled=""';
+	}
     ?>
 			value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]"/>
 			<?php echo $uamUserGroup->getGroupName(); ?>

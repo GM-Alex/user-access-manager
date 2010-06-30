@@ -17,6 +17,8 @@
 
 if (isset($_GET['tag_ID'])) {
     $categoryId = $_GET['tag_ID'];
+} else {
+    $categoryId = null;
 }
 
 global $userAccessManager;

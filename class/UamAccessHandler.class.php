@@ -156,7 +156,13 @@ class UamAccessHandler
        
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
-                if ($userGroup->postIsMember($postId)) {
+                $postMembership = $userGroup->postIsMember($postId, true);
+                
+                if ($postMembership !== false) {
+                    if (is_array($postMembership)) {
+                        $userGroup->setRecursive = $postMembership;
+                    }
+
                     $this->postUserGroups[$postId][$userGroup->getId()] 
                         = $userGroup;
                 }

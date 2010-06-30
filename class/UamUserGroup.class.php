@@ -529,7 +529,7 @@ class UamUserGroup
         if (isset($dbCategories)) {
             foreach ($dbCategories as $dbCategorie) {
                 $category = get_category($dbCategorie['category_id']);
-                
+
                 if ($uamOptions['lock_recursive'] == 'true' 
                     && $type == 'full'
                 ) {
@@ -547,7 +547,7 @@ class UamUserGroup
                             'child_of' => $category->term_id
                         );
                         
-                        $categoryChilds = get_categories();
+                        $categoryChilds = get_categories($args);
                         add_filter(
                         	'get_terms', 
                             array(&$userAccessManager, 'showCategory')
@@ -778,22 +778,23 @@ class UamUserGroup
         				AND post_id = ".$post->ID
                 );
 
-                $isRecursiveMember = false;
+                $isRecursiveMember = array();
                 
                 if ($type == 'full') {
                     foreach (get_the_category($post->ID) as $category) {
                         if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
-                            $isRecursiveMember = true;
+                            $isRecursiveMember['byCategory'] = $category->cat_ID;
                             break;
                         }
                     }
                     
-                    if ($postType == 'page' && !$isRecursiveMember) {
+                    if ($postType == 'page' && $isRecursiveMember == array()) {
                         $tmpPost = $post;
                         
                         while ($tmpPost->post_parent != 0) {
                             if ($this->postIsMember($tmpPost->post_parent)) {
-                                $isRecursiveMember = true;
+                                $isRecursiveMember['byParent'] 
+                                    = $tmpPost->post_parent;
                                 break;
                             }
                             
@@ -802,7 +803,11 @@ class UamUserGroup
                     }
                 }
                 
-                if ($count > 0 || $isRecursiveMember) {
+                if ($count > 0 || $isRecursiveMember != array()) {
+                    if ($isRecursiveMember) {
+                        $post->recursiveMember = $isRecursiveMember;
+                    }
+                    
                     $this->{$postType.'s'}[$type][$post->ID] = $post;
                 }
             }
@@ -1031,11 +1036,12 @@ class UamUserGroup
     /**
      * Checks if the given post is a member of the group.
      * 
-     * @param interger $postId The id of the post which should be checked.
+     * @param interger $postId   The id of the post which should be checked.
+     * @param boolean  $withInfo If true then we return additional infos.
      * 
      * @return boolean
      */
-    function postIsMember($postId)
+    function postIsMember($postId, $withInfo = false)
     {
         $post = get_post($postId);
 
@@ -1052,7 +1058,13 @@ class UamUserGroup
             $posts = array();
         }
         
-        if (array_key_exists($postId, $posts)) {
+        if (array_key_exists($post->ID, $posts)) {
+            if ($withInfo
+                && isset($posts[$post->ID]->recursiveMember)
+            ) {
+                return $posts[$post->ID]->recursiveMember;
+            }
+            
             return true;
         }
         

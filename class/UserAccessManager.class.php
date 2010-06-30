@@ -638,7 +638,7 @@ class UserAccessManager
             $postType = 'File';
         }
         
-        $uamAccessHandler = $this->getAccessHandler();
+        $uamAccessHandler = &$this->getAccessHandler();
         $userGroupsForPost = $uamAccessHandler->getUserGroupsForPost($postId);
         
         foreach ($userGroupsForPost as $uamUserGroup) {
@@ -779,7 +779,7 @@ class UserAccessManager
 
         }*/
         
-        $uamAccessHandler = $this->getAccessHandler();
+        $uamAccessHandler = &$this->getAccessHandler();
         $userGroupsForPost = $uamAccessHandler->getUserGroupsForUser($userId);
         
         foreach ($userGroupsForPost as $uamUserGroup) {
@@ -875,7 +875,7 @@ class UserAccessManager
      */
     function saveCategoryData($categoryId)
     {
-        $uamAccessHandler = $this->getAccessHandler();
+        $uamAccessHandler = &$this->getAccessHandler();
         $userGroupsForPost 
             = $uamAccessHandler->getUserGroupsForCategory($categoryId);
         
@@ -943,7 +943,7 @@ class UserAccessManager
     {
         $showPosts = null;
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = $this->getAccessHandler();
+        $uamAccessHandler = &$this->getAccessHandler();
         
         if (!is_feed() 
             || ($uamOptions['protect_feed'] == 'true' && is_feed())
@@ -1013,7 +1013,7 @@ class UserAccessManager
     {
         $showComments = null;
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = $this->getAccessHandler();
+        $uamAccessHandler = &$this->getAccessHandler();
         
         foreach ($comments as $comment) {
             if ($uamOptions['hide_post_comment'] == 'true' 
@@ -1048,7 +1048,7 @@ class UserAccessManager
     {
         $showPages = null;
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = $this->getAccessHandler();
+        $uamAccessHandler = &$this->getAccessHandler();
         
         foreach ($pages as $page) {
             if ($uamOptions['hide_page'] == 'true' 
@@ -1089,7 +1089,7 @@ class UserAccessManager
         global $current_user;
         $curUserdata = get_userdata($current_user->ID);
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = $this->getAccessHandler();
+        $uamAccessHandler = &$this->getAccessHandler();
         
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
@@ -1101,6 +1101,10 @@ class UserAccessManager
         foreach ($categories as $category) {
             if (!is_object($category)) {
                 $category = get_category($category);
+                
+                if (!isset($category->term_id)) {
+                    $category->term_id = null;
+                }
             }
 
             if ($uamAccessHandler->checkCategoryAccess($category->term_id)) {
@@ -1160,7 +1164,7 @@ class UserAccessManager
             }
         }
         //}
-        
+
         if (isset($showCategories)) {
             $categories = $showCategories;
         } else {
@@ -1181,7 +1185,7 @@ class UserAccessManager
     function showTitle($title, $postId = null)
     {
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = $this->getAccessHandler();
+        $uamAccessHandler = &$this->getAccessHandler();
         
         if (!$uamAccessHandler->checkAccess($postId) && $post != null) {
             $title = $uamOptions[$post->post_type.'_title'];
@@ -1204,7 +1208,7 @@ class UserAccessManager
         
         if ($uamOptions['hide_post'] == 'true') {
             $posts = get_posts();
-            $uamAccessHandler = $this->getAccessHandler();
+            $uamAccessHandler = &$this->getAccessHandler();
             
             if (isset($posts)) {
                 foreach ($posts as $post) {
@@ -1237,7 +1241,7 @@ class UserAccessManager
             || (is_feed() && $uamOptions['protect_feed'] == 'true')
         ) {
             $posts = get_posts();
-            $uamAccessHandler = $this->getAccessHandler();
+            $uamAccessHandler = &$this->getAccessHandler();
             
             if (isset($posts)) {
                 foreach ($posts as $post) {
@@ -1279,7 +1283,7 @@ class UserAccessManager
                     return $output;
                 }
                 
-                $uamAccessHandler = $this->getAccessHandler();
+                $uamAccessHandler = &$this->getAccessHandler();
                 $groups = $uamAccessHandler->getUserGroupsForPost($postId);
                 
                 if ($curUserdata->user_level >= $uamOptions['full_access_level'] 
