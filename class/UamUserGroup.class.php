@@ -554,6 +554,7 @@ class UamUserGroup
                         );
                         
                         foreach ($categoryChilds as $categoryChild) {
+                            $categoryChild->recursiveMember = $category->term_id;
                             $this->categories[$type][$categoryChild->term_id] 
                                 = $categoryChild;
                         }
@@ -1075,14 +1076,21 @@ class UamUserGroup
      * Checks if the given post is a member of the group.
      * 
      * @param interger $categoryId The id of the post which should be checked.
+     * @param boolean  $withInfo   If true then we return additional infos.
      * 
      * @return boolean
      */
-    function categoryIsMember($categoryId)
+    function categoryIsMember($categoryId, $withInfo = false)
     {
         $categories = $this->getCategories('full');
         
         if (array_key_exists($categoryId, $categories)) {
+            if ($withInfo
+                && isset($categories[$categoryId]->recursiveMember)
+            ) {
+                return $categories[$categoryIdD]->recursiveMember;
+            }
+            
             return true;
         }
         

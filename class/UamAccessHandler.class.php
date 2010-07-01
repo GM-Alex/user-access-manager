@@ -192,7 +192,13 @@ class UamAccessHandler
         
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
-                if ($userGroup->categoryIsMember($categoryId)) {
+                $categoryMembership = $userGroup->categoryIsMember($categoryId, true);
+                
+                if ($categoryMembership !== false) {
+                    if (is_array($categoryMembership)) {
+                        $userGroup->setRecursive = $categoryMembership;
+                    }
+
                     $this->categoryUserGroups[$categoryId][$userGroup->getId()] 
                         = $userGroup;
                 }

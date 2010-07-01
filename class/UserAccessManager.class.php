@@ -1084,8 +1084,10 @@ class UserAccessManager
      * 
      * @return array
      */
-    function showCategory($categories = array())
+    function &showCategory($categories = array())
     {
+        //return $categories;
+        
         global $current_user;
         $curUserdata = get_userdata($current_user->ID);
         $uamOptions = $this->getAdminOptions();
@@ -1094,8 +1096,7 @@ class UserAccessManager
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
         }
-        
-        //if ($curUserdata->user_level <= $uamOptions['full_access_level']) {
+
         $uamOptions = $this->getAdminOptions();
 
         foreach ($categories as $category) {
@@ -1163,12 +1164,25 @@ class UserAccessManager
                 }
             }
         }
-        //}
 
-        if (isset($showCategories)) {
-            $categories = $showCategories;
-        } else {
-            $categories = array();    
+        /* Don't know why this don't work.
+         * Sets wp_option category_children on an empty value, but why?
+         * 
+         * $categories = array();
+         * 
+         * foreach ($showCategories as $showCategory) {
+         *     $categories[$i] = $showCategory;
+         * }
+         */
+        
+        $i = 0;
+        foreach ($showCategories as $showCategory) {
+            $categories[$i] = $showCategory;
+            $i++;
+        }
+        
+        for ($i; $i < count($categories); $i++) {
+            unset($categories[$i]);
         }
         
         return $categories;
