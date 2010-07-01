@@ -544,17 +544,20 @@ class UamUserGroup
                     
                     if ($removeSucc) {
                         $args = array(
-                            'child_of' => $category->term_id
+                            'child_of' => $category->term_id,
+                            'hide_empty' => false
                         );
                         
                         $categoryChilds = get_categories($args);
+                        
                         add_filter(
                         	'get_terms', 
                             array(&$userAccessManager, 'showCategory')
                         );
                         
                         foreach ($categoryChilds as $categoryChild) {
-                            $categoryChild->recursiveMember = $category->term_id;
+                            $categoryChild->recursiveMember 
+                                = array('byParent' => $category->term_id);
                             $this->categories[$type][$categoryChild->term_id] 
                                 = $categoryChild;
                         }
@@ -1088,7 +1091,7 @@ class UamUserGroup
             if ($withInfo
                 && isset($categories[$categoryId]->recursiveMember)
             ) {
-                return $categories[$categoryIdD]->recursiveMember;
+                return $categories[$categoryId]->recursiveMember;
             }
             
             return true;

@@ -20,9 +20,8 @@ foreach ($uamUserGroups as $uamUserGroup) {
 			<?php echo $uamUserGroup->getGroupName(); ?>
 		</label>
 		<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
+		<?php include 'groupInfo.php'; ?>
 	<?php 
-
-	include 'groupInfo.php';
 	if (isset($setRecursive->posts) 
 	    || isset($setRecursive->categories)
 	) {

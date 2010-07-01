@@ -15,6 +15,7 @@
 * @link      http://wordpress.org/extend/plugins/user-access-manager/
 */
 ?>
+<div class="tooltip">
 <ul class="uam_group_info">
 	<li class="uam_group_info_head"><?php echo TXT_GROUP_INFO; ?>:</li>
 	<li><?php echo TXT_READ_ACCESS; ?>:
@@ -41,3 +42,4 @@ if ($uamUserGroup->getWriteAccess()  == "all") {
 	<li><?php echo count($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES; ?></li>
 	<li><?php echo count($uamUserGroup->getUsers()) . " " . TXT_USERS; ?></li>
 </ul>
+</div>

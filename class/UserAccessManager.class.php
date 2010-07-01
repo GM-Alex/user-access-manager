@@ -517,10 +517,14 @@ class UserAccessManager
     function addScripts()
     {
         wp_enqueue_script(
-        	'UserAccessManager', 
+        	'UserAccessManagerJQueryTools', 
+            UAM_URLPATH . 'js/jquery.tools.min.js',
+            array('jquery')
+        );
+        wp_enqueue_script(
+        	'UserAccessManagerFunctions', 
             UAM_URLPATH . 'js/functions.js', 
-            array('jquery'), 
-            '1.0'
+            array('jquery', 'UserAccessManagerJQueryTools')
         );
     }
     

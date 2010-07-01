@@ -101,8 +101,8 @@ if (!function_exists("userAccessManagerAP")) {
         $userAccessManager->update();
         
         //Admin actions and filters
+        add_action('admin_print_styles', array(&$userAccessManager, 'addStyles'));
         add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
-        add_action('wp_print_styles', array(&$userAccessManager, 'addStyles'));
         
         add_filter('manage_posts_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
         add_filter('manage_pages_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
