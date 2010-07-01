@@ -43,6 +43,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com).
 
+<strong>Note for thoes which have problemes with plugin in combination with Wordpress 3</strong>: I have started with the rewriting of the plugin for Wordpress 3. To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 == Installation ==
  
