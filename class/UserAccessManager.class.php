@@ -1167,6 +1167,8 @@ class UserAccessManager
 
         /* Don't know why this don't work.
          * Sets wp_option category_children on an empty value, but why?
+         * Reason could be locatet at clean_term_cache() function in
+         * taxonomy.php line 2120
          * 
          * $categories = array();
          * 
