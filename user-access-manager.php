@@ -183,4 +183,7 @@ if (isset($userAccessManager)) {
     add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
     add_filter('the_title', array(&$userAccessManager, 'showTitle'), 10, 2);
     add_filter('posts_where', array(&$userAccessManager, 'showPostSql'));
+    
+    add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
+    add_action('wp_print_styles', array(&$userAccessManager, 'addStyles'));
 }

@@ -900,7 +900,7 @@ class UserAccessManager
                 $uamUserGroup->save();
             }
         }
-    } 
+    }
     
     /**
      * The function for the delete_category action.
@@ -917,18 +917,6 @@ class UserAccessManager
         	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
         	WHERE category_id = $categoryId"
         );
-    }
-
-    /**
-     * Shows the info html for the user group.
-     * 
-     * @param integer $groupId The group id.
-     * 
-     * @return string
-     */
-    function getUserGroupInfoHtml($groupId)
-    {
-        return $this->getIncludeContents(UAM_REALPATH.'/tpl/groupInfo.php');
     }
 
     
@@ -1207,6 +1195,8 @@ class UserAccessManager
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
+        $post = get_post($postId);
+        
         if (!$uamAccessHandler->checkAccess($postId) && $post != null) {
             $title = $uamOptions[$post->post_type.'_title'];
         }
@@ -1309,7 +1299,9 @@ class UserAccessManager
                 if ($curUserdata->user_level >= $uamOptions['full_access_level'] 
                     && $groups != array()
                 ) { 
-                    return $uamOptions['blog_admin_hint_text'];
+                    $output .= '</a>';
+                    $output .= '<a class="uam_group_info_link">'.$uamOptions['blog_admin_hint_text'].'</a>';
+                    $output .= '<div class="tooltip"></div>';
                 }
             }
         }

@@ -240,6 +240,57 @@ class UamAccessHandler
     /**
      * Checks if the current_user has access to the given post.
      * 
+     * @param integer $objectId   The id of the object.
+     * @param array   $membership The group membership for the object.
+     * 
+     * @return boolean
+     */
+    private function _checkAccess($objectId, $membership)
+    {
+        global $current_user;
+        $membership = $this->getUserGroupsForPost($objectId);
+     
+        $userAccessManager = new UserAccessManager();
+        $uamOptions = $userAccessManager->getAdminOptions();
+        $curUserdata = get_userdata($current_user->ID);
+            
+        if (!isset($curUserdata->user_level)) {
+            $curUserdata->user_level = null;
+        }   
+        
+        
+        if ($membership == array() 
+            || $curUserdata->user_level >= $uamOptions['full_access_level']
+        ) {
+            return true;
+        }
+        
+        $curIp = explode(".", $_SERVER['REMOTE_ADDR']);
+        
+        foreach ($membership as $key => $userGroup) {
+            if ($this->checkUserIp($curIp, $userGroup->getIpRange())
+                || $userGroup->userIsMember($current_user->ID)
+            ) {
+                return true;
+            }
+            
+            if ($this->userAccessManager->atAdminPanel && $userGroup->getWriteAccess() == 'all'
+            	|| !$this->userAccessManager->atAdminPanel && $userGroup->getReadAccess() == 'all'
+            ) {
+                unset($membership[$key]);
+            }
+        }
+        
+        if ($membership == array()) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+	/**
+     * Checks if the current_user has access to the given post.
+     * 
      * @param integer $postId The id of the post which we want to check.
      * 
      * @return boolean
@@ -250,46 +301,10 @@ class UamAccessHandler
             return $this->postAccess[$postId];  
         } 
 
-        global $current_user;
         $postMembership = $this->getUserGroupsForPost($postId);
-     
-        $userAccessManager = new UserAccessManager();
-        $uamOptions = $userAccessManager->getAdminOptions();
-        $curUserdata = get_userdata($current_user->ID);
         
-        if (!isset($curUserdata->user_level)) {
-            $curUserdata->user_level = null;
-        }
-        
-        for ($i = 0; $i < count($postMembership); $i++) {
-            if (is_admin() && $postMembership[$i]->getWriteAccess() == 'all'
-            	|| !is_admin() && $postMembership[$i]->getReadAccess() == 'all'
-            ) {
-                unset($postMembership[$i]);
-            }
-        }
-            
-        
-        if ($postMembership == array() 
-            || $curUserdata->user_level >= $uamOptions['full_access_level']
-        ) {
-            $this->postAccess[$postId] = true;
-        } else {
-            if (is_user_logged_in()) {
-                $curIp = explode(".", $_SERVER['REMOTE_ADDR']);
-                
-                foreach ($postMembership as $userGroup) {
-                    if ($this->checkUserIp($curIp, $userGroup->getIpRange())
-                        || $userGroup->userIsMember($current_user->ID)
-                    ) {
-                        $this->postAccess[$postId] = true;
-                        break;
-                    }
-                }
-            } else {
-                $this->postAccess[$postId] = false;
-            }
-        }
+        $this->postAccess[$postId] 
+            = $this->_checkAccess($postId, $postMembership);
         
         return $this->postAccess[$postId];
     }
@@ -307,46 +322,11 @@ class UamAccessHandler
             return $this->categroyAccess[$categoryId];  
         } 
 
-        global $current_user;
         $categoryMembership = $this->getUserGroupsForCategory($categoryId);
-     
-        $userAccessManager = new UserAccessManager();
-        $uamOptions = $userAccessManager->getAdminOptions();
-        $curUserdata = get_userdata($current_user->ID);
         
-        if (!isset($curUserdata->user_level)) {
-            $curUserdata->user_level = null;
-        }
-        
-        for ($i = 0; $i < count($categoryMembership); $i++) {
-            if (is_admin() && $categoryMembership[$i]->getWriteAccess() == 'all'
-            	|| !is_admin() && $categoryMembership[$i]->getReadAccess() == 'all'
-            ) {
-                unset($categoryMembership[$i]);
-            }
-        }
-        
-        if ($categoryMembership == array() 
-            || $curUserdata->user_level >= $uamOptions['full_access_level']
-        ) {
-            $this->categroyAccess[$categoryId] = true;
-        } else {
-            if (is_user_logged_in()) {
-                $curIp = explode(".", $_SERVER['REMOTE_ADDR']);
+        $this->categroyAccess[$categoryId] 
+            = $this->_checkAccess($categoryId, $categoryMembership);
                 
-                foreach ($categoryMembership as $userGroup) {
-                    if ($this->checkUserIp($curIp, $userGroup->getIpRange())
-                        || $userGroup->userIsMember($current_user->ID)
-                    ) {
-                        $this->categroyAccess[$categoryId] = true;
-                        break;
-                    }
-                }
-            } else {
-                $this->categroyAccess[$categoryId] = false;
-            }
-        }
-        
         return $this->categroyAccess[$categoryId];   
     }
     
