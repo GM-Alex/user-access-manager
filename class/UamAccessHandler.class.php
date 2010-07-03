@@ -261,6 +261,15 @@ class UamAccessHandler
             $curUserdata->user_level = null;
         }
         
+        for ($i = 0; $i < count($postMembership); $i++) {
+            if (is_admin() && $postMembership[$i]->getWriteAccess() == 'all'
+            	|| !is_admin() && $postMembership[$i]->getReadAccess() == 'all'
+            ) {
+                unset($postMembership[$i]);
+            }
+        }
+            
+        
         if ($postMembership == array() 
             || $curUserdata->user_level >= $uamOptions['full_access_level']
         ) {
@@ -307,6 +316,14 @@ class UamAccessHandler
         
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
+        }
+        
+        for ($i = 0; $i < count($categoryMembership); $i++) {
+            if (is_admin() && $categoryMembership[$i]->getWriteAccess() == 'all'
+            	|| !is_admin() && $categoryMembership[$i]->getReadAccess() == 'all'
+            ) {
+                unset($categoryMembership[$i]);
+            }
         }
         
         if ($categoryMembership == array() 

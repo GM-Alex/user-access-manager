@@ -17,8 +17,47 @@
 ?>
 <div class="tooltip">
 <ul class="uam_group_info">
-	<li class="uam_group_info_head"><?php echo TXT_GROUP_INFO; ?>:</li>
-	<li><?php echo TXT_READ_ACCESS; ?>:
+<?php 
+if (isset($uamUserGroup->setRecursive['byCategory'])) {
+    ?>
+	<li  class="uam_group_info_head">
+		<?php echo TXT_GROUP_MEMBERSHIP_BY_CATEGORIES; ?>:
+		<ul>
+	<?php
+	foreach ($uamUserGroup->setRecursive['byCategory'] as $categoryId) {
+	    $category = get_category($categoryId);
+	    ?>
+	    	<li><?php echo $category->name; ?></li>
+	    <?php
+	}
+	?>
+		</ul>
+	</li>
+    <?php 
+}
+?>
+<?php 
+if (isset($uamUserGroup->setRecursive['byPost'])) {
+    ?>
+	<li  class="uam_group_info_head">
+		<?php echo TXT_GROUP_MEMBERSHIP_BY_POSTS; ?>:
+		<ul>
+	<?php 
+	foreach ($isRecursiveMember['byPost'] as $postId) {
+	}
+	    $post = get_post($postId);
+	    ?>
+	    	<li><?php echo $post->name; ?></li>
+	    <?php
+	?>
+		</ul>
+	</li>
+    <?php 
+}
+?>
+	<li class="uam_group_info_head"><?php echo TXT_GROUP_INFO; ?>:
+		<ul>
+			<li><?php echo TXT_READ_ACCESS; ?>:
 <?php
 if ($uamUserGroup->getReadAccess() == "all") {
     echo TXT_ALL;
@@ -26,8 +65,8 @@ if ($uamUserGroup->getReadAccess() == "all") {
     echo TXT_ONLY_GROUP_USERS;
 }
 ?>
-	</li>
-	<li><?php echo TXT_WRITE_ACCESS; ?>:
+			</li>
+			<li><?php echo TXT_WRITE_ACCESS; ?>:
 <?php
 if ($uamUserGroup->getWriteAccess()  == "all") {
     echo TXT_ALL;   
@@ -35,11 +74,13 @@ if ($uamUserGroup->getWriteAccess()  == "all") {
     echo TXT_ONLY_GROUP_USERS;
 }
 ?>
+        	</li>
+        	<li><?php echo count($uamUserGroup->getPosts()) . " " . TXT_POSTS; ?></li>
+        	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
+        	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
+        	<li><?php echo count($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES; ?></li>
+        	<li><?php echo count($uamUserGroup->getUsers()) . " " . TXT_USERS; ?></li>
+		</ul>
 	</li>
-	<li><?php echo count($uamUserGroup->getPosts()) . " " . TXT_POSTS; ?></li>
-	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
-	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
-	<li><?php echo count($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES; ?></li>
-	<li><?php echo count($uamUserGroup->getUsers()) . " " . TXT_USERS; ?></li>
 </ul>
 </div>

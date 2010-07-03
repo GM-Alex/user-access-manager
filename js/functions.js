@@ -41,5 +41,8 @@ jQuery(document).ready(function(){
 		jQuery(this).parent().next().toggleClass("active");
 	});*/
 	
-	jQuery(".uam_group_info_link").tooltip({ effect: 'slide'});
+	jQuery(".uam_group_info_link").tooltip({
+		effect: 'slide', 
+		relative: true
+	});
 });

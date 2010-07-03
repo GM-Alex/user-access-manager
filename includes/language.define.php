@@ -172,3 +172,5 @@ define('TXT_RESET_UAM', __('Reset User Access Manager', 'user-access-manager'));
 define('TXT_RESET_UAM_DESC', __('Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost.', 'user-access-manager'));
 define('TXT_RESET', __('reset', 'user-access-manager'));
 define('TXT_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
+define('TXT_GROUP_MEMBERSHIP_BY_POSTS', __('Group membership given by posts', 'user-access-manager'));
+define('TXT_GROUP_MEMBERSHIP_BY_CATEGORIES', __('Group membership given by categories', 'user-access-manager'));

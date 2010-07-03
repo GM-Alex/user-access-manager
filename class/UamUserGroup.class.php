@@ -555,9 +555,13 @@ class UamUserGroup
                             array(&$userAccessManager, 'showCategory')
                         );
                         
+                        if (count($categoryChilds) > 0) {
+                            $categoryChild->recursiveMember = array('byCategory' => array());
+                        }
+                        
                         foreach ($categoryChilds as $categoryChild) {
-                            $categoryChild->recursiveMember 
-                                = array('byParent' => $category->term_id);
+                            $categoryChild->recursiveMember[] 
+                                = $category->term_id;
                             $this->categories[$type][$categoryChild->term_id] 
                                 = $categoryChild;
                         }
@@ -787,7 +791,7 @@ class UamUserGroup
                 if ($type == 'full') {
                     foreach (get_the_category($post->ID) as $category) {
                         if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
-                            $isRecursiveMember['byCategory'] = $category->cat_ID;
+                            $isRecursiveMember['byCategory'][] = $category->cat_ID;
                             break;
                         }
                     }
@@ -797,7 +801,7 @@ class UamUserGroup
                         
                         while ($tmpPost->post_parent != 0) {
                             if ($this->postIsMember($tmpPost->post_parent)) {
-                                $isRecursiveMember['byParent'] 
+                                $isRecursiveMember['byPost'][]
                                     = $tmpPost->post_parent;
                                 break;
                             }
@@ -808,7 +812,7 @@ class UamUserGroup
                 }
                 
                 if ($count > 0 || $isRecursiveMember != array()) {
-                    if ($isRecursiveMember) {
+                    if ($isRecursiveMember != array()) {
                         $post->recursiveMember = $isRecursiveMember;
                     }
                     

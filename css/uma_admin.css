@@ -16,13 +16,20 @@
 	font-weight:bold;
 }
 
+.uam_group_info_head ul {
+	font-weight:normal;
+}
+
+.uam_group_selection li a{
+	vertical-align:middle;
+}
+
 .tooltip {
 	display:none;
-	width:180px;
+	width:280px;
 	font-size:10px;
-	position:relative;
 	background-color:#F9F9F9;
-	padding:4px 8px;
+	padding:4px 8px 0;
 	border:1px solid #DFDFDF;
 	-moz-border-radius:6px;
 	-webkit-border-radius:6px;

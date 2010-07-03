@@ -47,7 +47,7 @@ if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
                 echo 'checked="checked"';
             }
             ?>
-						value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]" /> 
+							value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]" /> 
 						<?php echo $uamUserGroup->getGroupName(); ?>
 						</label>
 						<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>

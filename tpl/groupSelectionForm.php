@@ -1,6 +1,6 @@
 <?php
 ?>
-<ul>
+<ul class="uam_group_selection">
 <?php 
 foreach ($uamUserGroups as $uamUserGroup) {
 	?>
@@ -16,50 +16,15 @@ foreach ($uamUserGroups as $uamUserGroup) {
 		echo 'disabled=""';
 	}
     ?>
-			value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]"/>
-			<?php echo $uamUserGroup->getGroupName(); ?>
-		</label>
+			value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]" /><?php 
+	echo $uamUserGroup->getGroupName();
+	
+	if (isset($uamUserGroup->setRecursive)) {
+		echo ' [LR]';
+	}
+		?></label>
 		<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
 		<?php include 'groupInfo.php'; ?>
-	<?php 
-	if (isset($setRecursive->posts) 
-	    || isset($setRecursive->categories)
-	) {
-	    ?>
-		&nbsp;<a class="uam_group_lock_info_link">[LR]</a>
-		<?php 
-	}
-
-	if (isset($setRecursive->posts) 
-	    || isset($setRecursive->categories)
-	) {
-	    ?>
-		<ul class="uam_group_lock_info">
-			<li class="uam_group_lock_info_head"><?php echo TXT_GROUP_LOCK_INFO; ?></li>
-		<?php
-		
-		if (isset($setRecursive->posts)) {
-			foreach ($setRecursive->posts as $postId) {
-				$post = & get_post($postId);
-				?>
-				<li><?php echo $post->post_title; ?> [<?php echo $post->post_type; ?>]</li>
-				<?php
-			}
-		}
-		
-		if (isset($setRecursive->categories)) {
-			foreach ($setRecursive->categories as $categoryId) {
-				$category = & get_category($categoryId);
-				?>
-				<li><?php echo $category->name; ?> [<?php echo TXT_CATEGORY; ?>]</li>
-				<?php
-			}
-		}
-		?>
-		</ul>
-		<?php
-	}
-	?>
 	</li>
 	<?php
 }
