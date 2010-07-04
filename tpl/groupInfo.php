@@ -75,6 +75,21 @@ if ($uamUserGroup->getWriteAccess()  == "all") {
 }
 ?>
         	</li>
+        	<li>
+        	    <?php echo TXT_GROUP_ROLE; ?>: <?php
+if ($uamUserGroup->getRoles()) {
+    $out = '';
+    
+    foreach ($uamUserGroup->getRoles() as $role) {
+        $out .= trim($role['role_name']).', ';
+    }
+    
+    echo rtrim($out, ', ');
+} else {
+    echo TXT_NONE;
+}
+?>
+        	</li>
         	<li><?php echo count($uamUserGroup->getPosts()) . " " . TXT_POSTS; ?></li>
         	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
         	<li><?php echo count($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES; ?></li>

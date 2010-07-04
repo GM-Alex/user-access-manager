@@ -322,6 +322,7 @@ if (!$editGroup) {
             			<th scope="col"><?php echo TXT_DESCRIPTION; ?></th>
             			<th scope="col"><?php echo TXT_READ_ACCESS; ?></th>
             			<th scope="col"><?php echo TXT_WRITE_ACCESS; ?></th>
+            			<th scope="col"><?php echo TXT_GROUP_ROLE; ?></th>
             			<th scope="col"><?php echo TXT_IP_RANGE; ?></th>
             			<th scope="col"><?php echo TXT_POSTS; ?></th>
             			<th scope="col"><?php echo TXT_PAGES; ?></th>
@@ -370,6 +371,29 @@ if (!$editGroup) {
             } elseif ($uamUserGroup->getWriteAccess() == "group") {
                 echo TXT_ONLY_GROUP_USERS;
             } 
+            ?>
+                	</td>
+                	        			<td>
+    		<?php
+            if ($uamUserGroup->getRoles()) {
+                ?>
+                		<ul>
+                <?php
+                foreach ($uamUserGroup->getRoles() as $role) {
+                    ?>
+                			<li>
+                    <?php
+                    echo $role['role_name'];
+                    ?>
+                			</li>
+                    <?php
+                }
+                ?>
+                		</ul>
+                <?php
+            } else {
+                echo TXT_NONE;
+            }
             ?>
                 	</td>
         			<td>

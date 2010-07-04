@@ -65,7 +65,7 @@ class UamAccessHandler
      * 
      * @return array|object
      */
-    function &getUserGroups($userGroupId = null)
+    function getUserGroups($userGroupId = null)
     {
         if ($userGroupId == null
             && $this->userGroups != array()
@@ -153,6 +153,9 @@ class UamAccessHandler
        
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
+                //We have to clone the group to prevent errors by reference
+                $userGroup = clone $userGroup;
+                
                 $objectMembership = $userGroup->{$type.'IsMember'}($objectId, true);
                 
                 if ($objectMembership !== false) {
@@ -160,10 +163,6 @@ class UamAccessHandler
                         || isset($objectMembership['byCategory'])
                     ) {
                         $userGroup->setRecursive = $objectMembership;
-                    } else {
-                        //Could be an hack, but if we use reference calls
-                        //at $this->getUserGroups() we need this
-                        unset($userGroup->setRecursive);
                     }
 
                     $objectUserGroups[$userGroup->getId()] 
@@ -190,7 +189,7 @@ class UamAccessHandler
         
         $this->postUserGroups[$postId] 
             = $this->_getUserGroupsForObject($postId, 'post');
-
+            
         return $this->postUserGroups[$postId];
     }
     

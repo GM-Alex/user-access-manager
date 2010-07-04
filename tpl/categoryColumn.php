@@ -16,7 +16,9 @@
  */
 
 global $userAccessManager;
-$uamUserGroups = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($id);
+$uamUserGroups 
+    = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($id);
+$userGroupsForObject = &$uamUserGroups;
 
 if ($uamUserGroups != Array()) {
     ?>

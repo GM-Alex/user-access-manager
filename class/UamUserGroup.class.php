@@ -795,7 +795,12 @@ class UamUserGroup
             $this->{$postType.'s'}[$type] = array();
         }
         
-        $args = array('numberposts' => - 1, 'post_type' => $wpType);
+        $args = array(
+        	'numberposts' => - 1, 
+        	'post_type' => $wpType,
+            'post_status' => '(blank)'
+        );
+        
         $posts = get_posts($args);
         
         if (isset($posts)) {
@@ -817,6 +822,7 @@ class UamUserGroup
                             if ($this->_isPostAssignedToGroup($tmpPost->post_parent)) {
                                 $isRecursiveMember['byPost'][]
                                     = $tmpPost->post_parent;
+                                
                                 break;
                             }
                             
