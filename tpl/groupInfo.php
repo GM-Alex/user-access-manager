@@ -18,13 +18,13 @@
 <div class="tooltip">
 <ul class="uam_group_info">
 <?php 
-if (isset($uamUserGroup->setRecursive['byCategory'])) {
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byCategory'])) {
     ?>
 	<li  class="uam_group_info_head">
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_CATEGORIES; ?>:
 		<ul>
 	<?php
-	foreach ($uamUserGroup->setRecursive['byCategory'] as $categoryId) {
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byCategory'] as $categoryId) {
 	    $category = get_category($categoryId);
 	    ?>
 	    	<li><?php echo $category->name; ?></li>
@@ -37,17 +37,17 @@ if (isset($uamUserGroup->setRecursive['byCategory'])) {
 }
 ?>
 <?php 
-if (isset($uamUserGroup->setRecursive['byPost'])) {
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byPost'])) {
     ?>
 	<li  class="uam_group_info_head">
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_POSTS; ?>:
 		<ul>
 	<?php 
-	foreach ($isRecursiveMember['byPost'] as $postId) {
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byPost'] as $postId) {
 	}
 	    $post = get_post($postId);
 	    ?>
-	    	<li><?php echo $post->name; ?></li>
+	    	<li><?php echo $post->post_title; ?></li>
 	    <?php
 	?>
 		</ul>
@@ -76,7 +76,6 @@ if ($uamUserGroup->getWriteAccess()  == "all") {
 ?>
         	</li>
         	<li><?php echo count($uamUserGroup->getPosts()) . " " . TXT_POSTS; ?></li>
-        	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
         	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
         	<li><?php echo count($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES; ?></li>
         	<li><?php echo count($uamUserGroup->getUsers()) . " " . TXT_USERS; ?></li>

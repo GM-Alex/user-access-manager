@@ -11,8 +11,8 @@ foreach ($uamUserGroups as $uamUserGroup) {
     if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
         echo 'checked="checked"';
     }
-    
-	if (isset($uamUserGroup->setRecursive)) {
+
+	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive)) {
 		echo 'disabled=""';
 	}
     ?>

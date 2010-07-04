@@ -555,12 +555,10 @@ class UamUserGroup
                             array(&$userAccessManager, 'showCategory')
                         );
                         
-                        if (count($categoryChilds) > 0) {
-                            $categoryChild->recursiveMember = array('byCategory' => array());
-                        }
-                        
                         foreach ($categoryChilds as $categoryChild) {
-                            $categoryChild->recursiveMember[] 
+                            $categoryChild->recursiveMember 
+                                = array('byCategory' => array());
+                            $categoryChild->recursiveMember['byCategory'][] 
                                 = $category->term_id;
                             $this->categories[$type][$categoryChild->term_id] 
                                 = $categoryChild;
@@ -741,6 +739,31 @@ class UamUserGroup
     }
     
     /**
+     * Checks it the post is assigned to the group.
+     * 
+     * @param integer $postId The post id.
+     * 
+     * @return boolean
+     */
+    private function _isPostAssignedToGroup($postId)
+    {    
+        global $wpdb;
+        
+        $count = $wpdb->get_var(
+        	"SELECT COUNT(*)
+			FROM " . DB_ACCESSGROUP_TO_POST . "
+			WHERE group_id = " . $this->id . "
+				AND post_id = ".$postId
+        );
+        
+        if ($count > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
      * Returns the posts by the given type in the group
      * 
      * @param string $postType The type of the post.
@@ -775,17 +798,8 @@ class UamUserGroup
         $args = array('numberposts' => - 1, 'post_type' => $wpType);
         $posts = get_posts($args);
         
-        global $wpdb;
-        
         if (isset($posts)) {
             foreach ($posts as $post) {
-                $count = $wpdb->get_var(
-                	"SELECT COUNT(*)
-					FROM " . DB_ACCESSGROUP_TO_POST . "
-        			WHERE group_id = " . $this->id . "
-        				AND post_id = ".$post->ID
-                );
-
                 $isRecursiveMember = array();
                 
                 if ($type == 'full') {
@@ -800,7 +814,7 @@ class UamUserGroup
                         $tmpPost = $post;
                         
                         while ($tmpPost->post_parent != 0) {
-                            if ($this->postIsMember($tmpPost->post_parent)) {
+                            if ($this->_isPostAssignedToGroup($tmpPost->post_parent)) {
                                 $isRecursiveMember['byPost'][]
                                     = $tmpPost->post_parent;
                                 break;
@@ -811,7 +825,9 @@ class UamUserGroup
                     }
                 }
                 
-                if ($count > 0 || $isRecursiveMember != array()) {
+                if ($this->_isPostAssignedToGroup($post->ID)
+                    || $isRecursiveMember != array()
+                ) {
                     if ($isRecursiveMember != array()) {
                         $post->recursiveMember = $isRecursiveMember;
                     }
@@ -945,7 +961,7 @@ class UamUserGroup
     function addPage($pageID)
     {
         $this->getPages();
-        $this->pages['real'][$pageID] = get_pagedata($pageID);
+        $this->pages['real'][$pageID] = get_post($pageID);
         $this->pages['full'] = -1;
     }
     
@@ -1038,7 +1054,7 @@ class UamUserGroup
         $this->files = array(
     		'real' => array(),
         	'full' => array(),
-        );;
+        );
     }
     
     /**
@@ -1067,8 +1083,8 @@ class UamUserGroup
         }
         
         if (array_key_exists($post->ID, $posts)) {
-            if ($withInfo
-                && isset($posts[$post->ID]->recursiveMember)
+            if (isset($posts[$post->ID]->recursiveMember)
+                && $withInfo
             ) {
                 return $posts[$post->ID]->recursiveMember;
             }
@@ -1092,8 +1108,8 @@ class UamUserGroup
         $categories = $this->getCategories('full');
         
         if (array_key_exists($categoryId, $categories)) {
-            if ($withInfo
-                && isset($categories[$categoryId]->recursiveMember)
+            if (isset($categories[$categoryId]->recursiveMember)
+                && $withInfo
             ) {
                 return $categories[$categoryId]->recursiveMember;
             }

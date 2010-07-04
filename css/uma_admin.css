@@ -25,12 +25,14 @@
 }
 
 .tooltip {
+	z-index:1000;
 	display:none;
-	width:280px;
+	width:200px;
 	font-size:10px;
-	background-color:#F9F9F9;
-	padding:4px 8px 0;
-	border:1px solid #DFDFDF;
+	color:#000 !important;
+	background-color:#F9F9F9 !important;
+	padding:4px 8px 0 !important;
+	border:1px solid #DFDFDF !important;
 	-moz-border-radius:6px;
 	-webkit-border-radius:6px;
 }

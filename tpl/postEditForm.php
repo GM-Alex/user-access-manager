@@ -16,12 +16,17 @@
  */
 
 $post = get_post($id);
-            
-if ($post->post_parent != 0) {
+
+//Do we need this anymore?
+/*if ($post->post_parent != 0
+    && $post->post_type == 'post'
+) {
     $postId = $post->post_parent;
 } else {
     $postId = $post->ID;
-}
+}*/
+
+$postId = $post->ID;
 
 global $userAccessManager;
 $uamUserGroups 

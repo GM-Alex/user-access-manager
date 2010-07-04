@@ -138,6 +138,44 @@ class UamAccessHandler
     }
     
     /**
+     * Returns the user groups for the given object.
+     * 
+     * @param integer $objectId The id of the object.
+     * @param string  $type     The type for what we want the groups.
+     * 
+     * @return array
+     */
+    private function _getUserGroupsForObject($objectId, $type)
+    {
+        $objectUserGroups = array();
+
+        $userGroups = $this->getUserGroups();
+       
+        if (isset($userGroups)) {
+            foreach ($userGroups as $userGroup) {
+                $objectMembership = $userGroup->{$type.'IsMember'}($objectId, true);
+                
+                if ($objectMembership !== false) {
+                    if (isset($objectMembership['byPost'])
+                        || isset($objectMembership['byCategory'])
+                    ) {
+                        $userGroup->setRecursive = $objectMembership;
+                    } else {
+                        //Could be an hack, but if we use reference calls
+                        //at $this->getUserGroups() we need this
+                        unset($userGroup->setRecursive);
+                    }
+
+                    $objectUserGroups[$userGroup->getId()] 
+                        = $userGroup;
+                }
+            }
+        }
+        
+        return $objectUserGroups;
+    }
+    
+    /**
      * Returns the user groups of the given post.
      * 
      * @param integer $postId The id of the post from which we want the groups.
@@ -150,24 +188,8 @@ class UamAccessHandler
             return $this->postUserGroups[$postId];
         }
         
-        $this->postUserGroups[$postId] = array();
-
-        $userGroups = $this->getUserGroups();
-       
-        if (isset($userGroups)) {
-            foreach ($userGroups as $userGroup) {
-                $postMembership = $userGroup->postIsMember($postId, true);
-                
-                if ($postMembership !== false) {
-                    if (is_array($postMembership)) {
-                        $userGroup->setRecursive = $postMembership;
-                    }
-
-                    $this->postUserGroups[$postId][$userGroup->getId()] 
-                        = $userGroup;
-                }
-            }
-        }
+        $this->postUserGroups[$postId] 
+            = $this->_getUserGroupsForObject($postId, 'post');
 
         return $this->postUserGroups[$postId];
     }
@@ -185,25 +207,9 @@ class UamAccessHandler
         if (isset($this->categoryUserGroups[$categoryId])) {
             return $this->categoryUserGroups[$categoryId];
         }
-        
-        $this->categoryUserGroups[$categoryId] = array();
-        
-        $userGroups = $this->getUserGroups();
-        
-        if (isset($userGroups)) {
-            foreach ($userGroups as $userGroup) {
-                $categoryMembership = $userGroup->categoryIsMember($categoryId, true);
-                
-                if ($categoryMembership !== false) {
-                    if (is_array($categoryMembership)) {
-                        $userGroup->setRecursive = $categoryMembership;
-                    }
 
-                    $this->categoryUserGroups[$categoryId][$userGroup->getId()] 
-                        = $userGroup;
-                }
-            }
-        }
+        $this->categoryUserGroups[$categoryId] 
+            = $this->_getUserGroupsForObject($categoryId, 'category');
         
         return $this->categoryUserGroups[$categoryId];
     }
@@ -248,7 +254,6 @@ class UamAccessHandler
     private function _checkAccess($objectId, $membership)
     {
         global $current_user;
-        $membership = $this->getUserGroupsForPost($objectId);
      
         $userAccessManager = new UserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
@@ -257,7 +262,6 @@ class UamAccessHandler
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
         }   
-        
         
         if ($membership == array() 
             || $curUserdata->user_level >= $uamOptions['full_access_level']

@@ -26,7 +26,7 @@ $uamUserGroups
     = &$userAccessManager->getAccessHandler()->getUserGroups();
 $userGroupsForObject 
     = &$userAccessManager->getAccessHandler()->getUserGroupsForCategory($categoryId);
-
+    
 ?>
 <table class="form-table">
 	<tbody>

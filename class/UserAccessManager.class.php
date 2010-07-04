@@ -597,34 +597,7 @@ class UserAccessManager
      * @return object
      */    
     function savePostData($postId)
-    {
-        /*global $current_user;
-        
-        $curUserdata = get_userdata($current_user->ID);
-        $uamOptions = $this->getAdminOptions();
-        
-        if ($curUserdata->user_level < $uamOptions['full_access_level']) {
-            $uamOptions = $this->getAdminOptions();
-            $cur_categories = wp_get_post_categories($postId);
-            $allowded_categories = get_categories();
-            
-            foreach ($cur_categories as $category) {
-                foreach ($allowded_categories as $allowded_category) {
-                    if ($allowded_category->term_id == $category) {
-                        $post_categories[] = $allowded_category->term_id;
-                        break;
-                    }
-                }
-            }
-            
-            if (!isset($post_categories)) {
-                $last_category = array_pop($allowded_categories);
-                $post_categories[] = $last_category->term_id;
-            }
-            
-            wp_set_post_categories($postId, $post_categories);
-        }*/
-        
+    {        
         $post = get_post($postId);
         
         if ($post->post_parent != 0) {
@@ -1298,10 +1271,17 @@ class UserAccessManager
                 
                 if ($curUserdata->user_level >= $uamOptions['full_access_level'] 
                     && $groups != array()
-                ) { 
-                    $output .= '</a>';
-                    $output .= '<a class="uam_group_info_link">'.$uamOptions['blog_admin_hint_text'].'</a>';
-                    $output .= '<div class="tooltip"></div>';
+                ) {
+                    $output .= '<span class="uam_group_info_link">'.$uamOptions['blog_admin_hint_text'].'</span>';
+                    $output .= '<div class="tooltip">';
+                    
+                    foreach ($groups as $group) {
+                        $output .= $group->getGroupName().', ';
+                    }
+                    
+                    $output = rtrim($output, ', ');
+                    
+                    $output .= '</div>';
                 }
             }
         }
