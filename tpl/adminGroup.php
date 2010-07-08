@@ -421,8 +421,8 @@ if (!$editGroup) {
                 	</td>
         			<td>
     		<?php
-            if (count($uamUserGroup->getPosts()) > 0) {
-                echo count($uamUserGroup->getPosts()) . " " . TXT_POSTS;
+            if (count($uamUserGroup->getPosts('full')) > 0) {
+                echo count($uamUserGroup->getPosts('full')) . " " . TXT_POSTS;
             } else {
                 echo TXT_NONE;
             }
@@ -430,8 +430,8 @@ if (!$editGroup) {
         			</td>
         			<td>
     		<?php
-            if (count($uamUserGroup->getPages()) > 0) {
-                echo count($uamUserGroup->getPages()) . " " . TXT_PAGES;
+            if (count($uamUserGroup->getPages('full')) > 0) {
+                echo count($uamUserGroup->getPages('full')) . " " . TXT_PAGES;
             } else {
                 echo TXT_NONE;
             }
@@ -439,8 +439,8 @@ if (!$editGroup) {
                 	</td>
         			<td>
     		<?php
-            if (count($uamUserGroup->getFiles()) > 0) {
-                echo count($uamUserGroup->getFiles()) . " " . TXT_FILES;
+            if (count($uamUserGroup->getFiles('full')) > 0) {
+                echo count($uamUserGroup->getFiles('full')) . " " . TXT_FILES;
             } else {
                 echo TXT_NONE;
             }
@@ -448,8 +448,8 @@ if (!$editGroup) {
                     	</td>
             			<td>
     		<?php
-            if (count($uamUserGroup->getCategories()) > 0) {
-                echo count($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES;
+            if (count($uamUserGroup->getCategories('full')) > 0) {
+                echo count($uamUserGroup->getCategories('full')) . " " . TXT_CATEGORIES;
             } else {
                 echo TXT_NONE;
             }
@@ -457,8 +457,8 @@ if (!$editGroup) {
         			</td>
         			<td>
     		<?php
-            if (count($uamUserGroup->getUsers()) > 0) {
-                echo count($uamUserGroup->getUsers()) . " " . TXT_USERS;
+            if (count($uamUserGroup->getUsers('full')) > 0) {
+                echo count($uamUserGroup->getUsers('full')) . " " . TXT_USERS;
             } else {
                 echo TXT_NONE;
             }

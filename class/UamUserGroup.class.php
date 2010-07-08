@@ -418,6 +418,11 @@ class UamUserGroup
                     
                     if (array_key_exists($role[0], $this->getRoles())
                     ) {
+                        $curUserdata->recursiveMember 
+                            = array('byRole' => array());
+                        $curUserdata->recursiveMember['byRole'][] 
+                            = $role[0];
+                        
                         $this->users[$type][$wpUser['ID']] = $curUserdata;
                     }
                 }
@@ -681,13 +686,11 @@ class UamUserGroup
         
         /**
          * $this->roles[$roleName] = &get_role($roleName);
-         *  
          * Makes trouble, but why? 
-         *
          * Error: "Notice: Only variable references should be returned by reference"
          */
-        
-        $this->roles[$roleName] = $roleName;
+
+        $this->roles[$roleName] = array('role_name' => $roleName);
     }
     
     /**
@@ -764,6 +767,65 @@ class UamUserGroup
     }
     
     /**
+     * Returns the membership of a single post.
+     * 
+     * @param object $post     The post object.
+     * @param string $type     The return type.
+     * @param string $postType The post type needed for the intern representation.
+     * 
+     * @return object
+     */
+    function _getSinglePost($post, $type, $postType)
+    {
+        $isRecursiveMember = array();
+                
+        if ($type == 'full') {
+            foreach (get_the_category($post->ID) as $category) {
+                if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
+                    $isRecursiveMember['byCategory'][] = $category->cat_ID;
+                    //break;
+                }
+            }
+            
+            if ($postType == 'page'
+            	|| $postType == 'file' /*&& $isRecursiveMember == array()*/
+            ) {
+                if ($post->post_parent != 0) {
+                    $parentPost = get_post($post->post_parent);
+                    
+                    $parentPost = $this->_getSinglePost(
+                        $parentPost,
+                        $type, 
+                        $parentPost->post_type
+                    );
+
+                    if ($parentPost !== null) {
+                        if (isset($parentPost->recursiveMember)) {
+                            $isRecursiveMember['byPost'][]
+                                = $parentPost;
+                        } else {
+                            $isRecursiveMember['byPost'][]
+                                = $parentPost->ID;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($this->_isPostAssignedToGroup($post->ID)
+            || $isRecursiveMember != array()
+        ) {
+            if ($isRecursiveMember != array()) {
+                $post->recursiveMember = $isRecursiveMember;
+            }
+            
+            return $post;
+        }
+        
+        return null;
+    }
+    
+    /**
      * Returns the posts by the given type in the group
      * 
      * @param string $postType The type of the post.
@@ -773,12 +835,9 @@ class UamUserGroup
      */
     private function _getPostByType($postType, $type)
     {
-        if ($this->id == null) {
-            return array();
-        }
-        
         if ($type != 'real' 
             && $type != 'full'
+            || $this->id == null
         ) {
             return array();
         }
@@ -805,39 +864,9 @@ class UamUserGroup
         
         if (isset($posts)) {
             foreach ($posts as $post) {
-                $isRecursiveMember = array();
+                $post = $this->_getSinglePost($post, $type, $postType);
                 
-                if ($type == 'full') {
-                    foreach (get_the_category($post->ID) as $category) {
-                        if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
-                            $isRecursiveMember['byCategory'][] = $category->cat_ID;
-                            break;
-                        }
-                    }
-                    
-                    if ($postType == 'page' && $isRecursiveMember == array()) {
-                        $tmpPost = $post;
-                        
-                        while ($tmpPost->post_parent != 0) {
-                            if ($this->_isPostAssignedToGroup($tmpPost->post_parent)) {
-                                $isRecursiveMember['byPost'][]
-                                    = $tmpPost->post_parent;
-                                
-                                break;
-                            }
-                            
-                            $tmpPost = get_post($tmpPost->post_parent);
-                        }
-                    }
-                }
-                
-                if ($this->_isPostAssignedToGroup($post->ID)
-                    || $isRecursiveMember != array()
-                ) {
-                    if ($isRecursiveMember != array()) {
-                        $post->recursiveMember = $isRecursiveMember;
-                    }
-                    
+                if ($post !== null) {
                     $this->{$postType.'s'}[$type][$post->ID] = $post;
                 }
             }
@@ -1026,7 +1055,7 @@ class UamUserGroup
     function addFile($fileID)
     {
         $this->getFiles();
-        $this->files['real'][$fileID] = get_filedata($fileID);
+        $this->files['real'][$fileID] = get_post($fileID);
         $this->files['full'] = -1;
     }
     
@@ -1072,7 +1101,7 @@ class UamUserGroup
      * @return boolean
      */
     function postIsMember($postId, $withInfo = false)
-    {
+    {        
         $post = get_post($postId);
 
         if ($post->post_type == 'post') {
@@ -1129,15 +1158,22 @@ class UamUserGroup
     /**
      * Checks if the given user is a member of the group.
      * 
-     * @param interger $userId The id of the user which should be checked.
+     * @param interger $userId   The id of the user which should be checked.
+     * @param boolean  $withInfo If true then we return additional infos.
      * 
      * @return boolean
      */
-    function userIsMember($userId)
+    function userIsMember($userId, $withInfo = false)
     {
         $users = $this->getUsers('full');
         
         if (array_key_exists($userId, $users)) {
+            if (isset($users[$userId]->recursiveMember)
+                && $withInfo
+            ) {
+                return $users[$userId]->recursiveMember;
+            }
+            
             return true;
         }
         

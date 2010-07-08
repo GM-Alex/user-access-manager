@@ -14,8 +14,7 @@
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
-$userAccessManager = new UserAccessManager();
+global $userAccessManager;
 $uamOptions = $userAccessManager->getAdminOptions();
 
 if (isset($_POST['update_uam_settings'])) {
@@ -25,67 +24,13 @@ if (isset($_POST['update_uam_settings'])) {
         }
     }
     
-    if (isset($_POST['uam_lock_file'])) {
-        if ($_POST['uam_lock_file'] == 'false') {
-            if ($uamOptions['lock_file'] != $_POST['uam_lock_file']) {
-                $this->delete_htaccess_files();
-            }
-        } else {
-            if ($uamOptions['lock_file'] != $_POST['uam_lock_file']) {
-                $lock_file_changed = true;
-            }
-        }
-        $uamOptions['lock_file'] = $_POST['uam_lock_file'];
-    }
-    
-    if (isset($_POST['uam_file_pass_type'])) {
-        if ($uamOptions['file_pass_type'] != $_POST['uam_file_pass_type']) {
-            $file_pass_changed = true;
-        } else {
-            $file_pass_changed = false;
-        }
-        $uamOptions['file_pass_type'] = $_POST['uam_file_pass_type'];
-    }
-    
-    if (isset($_POST['uam_download_type'])) {
-        $uamOptions['download_type'] = $_POST['uam_download_type'];
-    }
-    
-    if (isset($_POST['uam_locked_file_types'])) {
-        if ($uamOptions['locked_file_types'] != $_POST['uam_locked_file_types']) {
-            $locked_file_types_changed = true;
-        } else {
-            $locked_file_types_changed = false;
-        }
-        $uamOptions['locked_file_types'] = $_POST['uam_locked_file_types'];
-    }
-    
-    if (isset($_POST['uam_not_locked_file_types'])) {
-        if ($uamOptions['not_locked_file_types'] != $_POST['uam_not_locked_file_types']) {
-            $not_locked_file_types_changed = true;
-        } else {
-            $not_locked_file_types_changed = false;
-        }
-        $uamOptions['not_locked_file_types'] = $_POST['uam_not_locked_file_types'];
-    }
-    
-    if (isset($_POST['uam_lock_file_types'])) {
-        if ($uamOptions['lock_file_types'] != $_POST['uam_lock_file_types']) {
-            $locked_file_types_changed = true;
-        }
-        $uamOptions['lock_file_types'] = $_POST['uam_lock_file_types'];
-    }
-    
     update_option($this->adminOptionsName, $uamOptions);
     
-    if (($locked_file_types_changed 
-        || $not_locked_file_types_changed 
-        || isset($lock_file_changed) 
-        || $file_pass_changed) 
-        && $uamOptions['lock_file'] != 'false'
-    ) {
-        $this->create_htaccess();
-        $this->create_htpasswd(true);
+    if ($_POST['uam_lock_file'] == 'false') {
+        $userAccessManager->deleteHtaccessFiles();
+    } else {
+        $userAccessManager->createHtaccess();
+        $userAccessManager->createHtpasswd(true);
     }
     ?>
     <div class="updated">

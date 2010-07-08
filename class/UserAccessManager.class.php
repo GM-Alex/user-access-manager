@@ -246,45 +246,61 @@ class UserAccessManager
 
         $wud = wp_upload_dir();
         if (empty($wud['error'])) {
-            $url = $wud['basedir'] . "/";
-            $areaname = "WP-Files";
-            $uamOptions = $this->getAdminOptions();
+            $dir = $wud['basedir'] . "/";
+            $permaStruc = get_option('permalink_structure');
             
-            if ($uamOptions['lock_file_types'] == 'selected') {
-                $fileTypes = $uamOptions['locked_file_types'];
-            } elseif ($uamOptions['lock_file_types'] == 'not_selected') {
-                $fileTypes = $uamOptions['not_locked_file_types'];
+            if (empty($permaStruc)) {
+                $areaname = "WP-Files";
+                $uamOptions = $this->getAdminOptions();
+                
+                if ($uamOptions['lock_file_types'] == 'selected') {
+                    $fileTypes = $uamOptions['locked_file_types'];
+                } elseif ($uamOptions['lock_file_types'] == 'not_selected') {
+                    $fileTypes = $uamOptions['not_locked_file_types'];
+                }
+                
+                if (isset($fileTypes)) {
+                    $fileTypes = str_replace(",", "|", $fileTypes);
+                }
+    
+                // make .htaccess and .htpasswd
+                $htaccessTxt = "";
+                
+                if ($uamOptions['lock_file_types'] == 'selected') {
+                    $htaccessTxt .= "<FilesMatch '\.(" . $fileTypes . ")'>\n";
+                } elseif ($uamOptions['lock_file_types'] == 'not_selected') {
+                    $htaccessTxt .= "<FilesMatch '^\.(" . $fileTypes . ")'>\n";
+                }
+                
+                $htaccessTxt .= "AuthType Basic" . "\n";
+                $htaccessTxt .= "AuthName \"" . $areaname . "\"" . "\n";
+                $htaccessTxt .= "AuthUserFile " . $dir . ".htpasswd" . "\n";
+                $htaccessTxt .= "require valid-user" . "\n";
+                
+                if ($uamOptions['lock_file_types'] == 'selected' 
+                    || $uamOptions['lock_file_types'] == 'not_selected'
+                ) {
+                    $htaccessTxt.= "</FilesMatch>\n";
+                }
+            } else {
+                $homeRoot = parse_url(home_url());
+        		if (isset($homeRoot['path'])) {
+        			$homeRoot = trailingslashit($homeRoot['path']);
+        		} else {
+        			$homeRoot = '/';
+        		}
+                
+                $htaccessTxt = "<IfModule mod_rewrite.c>\n";
+                $htaccessTxt .= "RewriteEngine On\n";
+                $htaccessTxt .= "RewriteBase ".$homeRoot."\n";
+                $htaccessTxt .= "RewriteRule ^index\.php$ - [L]\n";
+                $htaccessTxt .= "RewriteRule (.*) ".$homeRoot."index.php?getfile=$1 [L]\n";
+                $htaccessTxt .= "</IfModule>\n";
             }
             
-            if (isset($fileTypes)) {
-                $fileTypes = str_replace(",", "|", $fileTypes);
-            }
-
-            // make .htaccess and .htpasswd
-            $htaccess_txt = "";
-            
-            if ($uamOptions['lock_file_types'] == 'selected') {
-                $htaccess_txt.= "<FilesMatch '\.(" . $fileTypes . ")'>\n";
-            }
-            
-            if ($uamOptions['lock_file_types'] == 'not_selected') {
-                $htaccess_txt.= "<FilesMatch '^\.(" . $fileTypes . ")'>\n";
-            }
-            
-            $htaccess_txt.= "AuthType Basic" . "\n";
-            $htaccess_txt.= "AuthName \"" . $areaname . "\"" . "\n";
-            $htaccess_txt.= "AuthUserFile " . $url . ".htpasswd" . "\n";
-            $htaccess_txt.= "require valid-user" . "\n";
-            
-            if ($uamOptions['lock_file_types'] == 'selected' 
-                || $uamOptions['lock_file_types'] == 'not_selected'
-            ) {
-                $htaccess_txt.= "</FilesMatch>\n";
-            }
-
             // save files
-            $htaccess = fopen($url . ".htaccess", "w");
-            fwrite($htaccess, $htaccess_txt);
+            $htaccess = fopen($dir . ".htaccess", "w");
+            fwrite($htaccess, $htaccessTxt);
             fclose($htaccess);
         }
     }
@@ -590,49 +606,80 @@ class UserAccessManager
     }
     
     /**
+     * Shows the error if the user has no rights to edit the content
+     * 
+     * @return null
+     */
+    function noRightsToEditContent()
+    {
+        $noRights = false;
+        
+        if (isset($_GET['post'])) {
+            $noRights 
+                = !$this->getAccessHandler()->checkAccess($_GET['post']); 
+        } 
+        
+        if (isset($_GET['tag_ID']) && !$noRights) {
+            $noRights 
+                = !$this->getAccessHandler()->checkCategoryAccess($_GET['tag_ID']);
+        }
+        
+        if ($noRights) {
+            wp_die(TXT_NO_RIGHTS);
+        }
+    }
+    
+    /**
      * The function for the save_post and the add_attachment action.
      * 
-     * @param integer $postId The post id.
+     * @param mixed $postParam The post id or a array of a post.
      * 
      * @return object
      */    
-    function savePostData($postId)
-    {        
-        $post = get_post($postId);
-        
-        if ($post->post_parent != 0) {
-            $postId = $post->post_parent;
-            $post = get_post($postId);
-        } else {
-            $postId = $post->ID;
-        }
-        
-        if ($post->post_type == 'post') {
-            $postType = 'Post';
-        } elseif ($post->post_type == 'page') {
-            $postType = 'Page';
-        } elseif ($post->post_type == 'attachment') {
-            $postType = 'File';
-        }
-        
+    function savePostData($postParam)
+    {
         $uamAccessHandler = &$this->getAccessHandler();
-        $userGroupsForPost = $uamAccessHandler->getUserGroupsForPost($postId);
         
-        foreach ($userGroupsForPost as $uamUserGroup) {
-            $uamUserGroup->{'remove'.$postType}($postId);
-            $uamUserGroup->save();
-        }
-        
-        if (isset($_POST['usergroups'])) {
-            $userGroups = $_POST['usergroups'];
-        }
-        
-        if (isset($userGroups)) {
-            foreach ($userGroups as $userGroupId) {
-                $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
+        if ($uamAccessHandler->checkUserAccess()) {        
+            if (is_array($postParam)) {
+                $post = get_post($postParam['ID']);
+            } else {
+                $post = get_post($postParam);
+            }
 
-                $uamUserGroup->{'add'.$postType}($postId);
+            if ($post->post_type == 'revision') {
+                $postId = $post->post_parent;
+                $post = get_post($postId);
+            } else {
+                $postId = $post->ID;
+            }
+            
+            if ($post->post_type == 'post') {
+                $postType = 'Post';
+            } elseif ($post->post_type == 'page') {
+                $postType = 'Page';
+            } elseif ($post->post_type == 'attachment') {
+                $postType = 'File';
+            }
+            
+            $userGroupsForPost = $uamAccessHandler->getUserGroupsForPost($postId);
+            
+            foreach ($userGroupsForPost as $uamUserGroup) {
+                $uamUserGroup->{'remove'.$postType}($postId);
                 $uamUserGroup->save();
+            }
+            
+            if (isset($_POST['usergroups'])) {
+                $userGroups = $_POST['usergroups'];
+            }
+            
+            if (isset($userGroups)) {
+                foreach ($userGroups as $userGroupId) {
+                    $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
+    
+                    $uamUserGroup->{'add'.$postType}($postId);
+                    $uamUserGroup->save();
+                }
             }
         }
     }
@@ -674,32 +721,6 @@ class UserAccessManager
         
         return $content;
     }
-    
-	/**
-     * The function for the attachment_fields_to_save action.
-     * 
-     * @param integer $post The post.
-     * 
-     * @return object
-     */    
-    /*function saveAttachmentData($post)
-    {
-        if (isset($_POST['usergroups'])) {
-            $userGroups = $_POST['usergroups'];
-        }
-        
-        if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
-            if (isset($userGroups)) {
-                foreach ($userGroups as $userGroupId) {
-                    $uamUserGroup = new uamUserGroup($userGroupId);
-                    
-                    $uamUserGroup->addFile($userId);
-                }
-            }
-        }
-        
-        return $post;
-    }*/
     
     /**
      * The function for the manage_users_columns filter.
@@ -752,28 +773,31 @@ class UserAccessManager
      */
     function saveUserData($userId)
     {        
-        /*if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
-
-        }*/
-        
         $uamAccessHandler = &$this->getAccessHandler();
-        $userGroupsForPost = $uamAccessHandler->getUserGroupsForUser($userId);
         
-        foreach ($userGroupsForPost as $uamUserGroup) {
-            $uamUserGroup->removeUser($userId);
-            $uamUserGroup->save();
-        }
+        if ($uamAccessHandler->checkUserAccess()) {
+            if ($uamAccessHandler->checkUserAccess()) {
+                $userGroupsForPost 
+                    = $uamAccessHandler->getUserGroupsForUser($userId);
+                
+                foreach ($userGroupsForPost as $uamUserGroup) {
+                    $uamUserGroup->removeUser($userId);
+                    $uamUserGroup->save();
+                }
+                
+                if (isset($_POST['usergroups'])) {
+                    $userGroups = $_POST['usergroups'];
+                }
+                
+                if (isset($userGroups)) {
+                    foreach ($userGroups as $userGroupId) {
+                        $uamUserGroup 
+                            = $uamAccessHandler->getUserGroups($userGroupId);
         
-        if (isset($_POST['usergroups'])) {
-            $userGroups = $_POST['usergroups'];
-        }
-        
-        if (isset($userGroups)) {
-            foreach ($userGroups as $userGroupId) {
-                $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
-
-                $uamUserGroup->addUser($userId);
-                $uamUserGroup->save();
+                        $uamUserGroup->addUser($userId);
+                        $uamUserGroup->save();
+                    }
+                }
             }
         }
     }
@@ -787,16 +811,12 @@ class UserAccessManager
      */
     function removeUserData($userId)
     {
-        global $wpdb, $current_user;
-        $curUserdata = get_userdata($current_user->ID);
-        $uamOptions = $this->getAdminOptions();
-        
-        if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-            	WHERE user_id = $userId"
-            );
-        }
+        global $wpdb;
+
+        $wpdb->query(
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
+        	WHERE user_id = $userId"
+        );
     }
     
     /**
@@ -853,24 +873,27 @@ class UserAccessManager
     function saveCategoryData($categoryId)
     {
         $uamAccessHandler = &$this->getAccessHandler();
-        $userGroupsForPost 
-            = $uamAccessHandler->getUserGroupsForCategory($categoryId);
         
-        foreach ($userGroupsForPost as $uamUserGroup) {
-            $uamUserGroup->removeCategory($categoryId);
-            $uamUserGroup->save();
-        }
-        
-        if (isset($_POST['usergroups'])) {
-            $userGroups = $_POST['usergroups'];
-        }
-        
-        if (isset($userGroups)) {
-            foreach ($userGroups as $userGroupId) {
-                $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
-
-                $uamUserGroup->addCategory($categoryId);
+        if ($uamAccessHandler->checkUserAccess()) {
+            $userGroupsForPost 
+                = $uamAccessHandler->getUserGroupsForCategory($categoryId);
+            
+            foreach ($userGroupsForPost as $uamUserGroup) {
+                $uamUserGroup->removeCategory($categoryId);
                 $uamUserGroup->save();
+            }
+            
+            if (isset($_POST['usergroups'])) {
+                $userGroups = $_POST['usergroups'];
+            }
+            
+            if (isset($userGroups)) {
+                foreach ($userGroups as $userGroupId) {
+                    $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
+    
+                    $uamUserGroup->addCategory($categoryId);
+                    $uamUserGroup->save();
+                }
             }
         }
     }
@@ -915,6 +938,10 @@ class UserAccessManager
         ) {
             foreach ($posts as $post) {
                 $postType = $post->post_type;
+                
+                if ($postType == 'attachment') {
+                    $postType = 'post';
+                }
                 
                 if ($uamOptions['hide_'.$postType] == 'true'
                     || $this->atAdminPanel
@@ -1058,6 +1085,8 @@ class UserAccessManager
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
+        $showCategories = array();
+        
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
         }
@@ -1142,13 +1171,15 @@ class UserAccessManager
          * }
          */
         
+        $catCount = count($categories);
         $i = 0;
+        
         foreach ($showCategories as $showCategory) {
             $categories[$i] = $showCategory;
             $i++;
         }
         
-        for ($i; $i < count($categories); $i++) {
+        for ($i; $i < $catCount; $i++) {
             unset($categories[$i]);
         }
         
@@ -1269,10 +1300,12 @@ class UserAccessManager
                 $uamAccessHandler = &$this->getAccessHandler();
                 $groups = $uamAccessHandler->getUserGroupsForPost($postId);
                 
-                if ($curUserdata->user_level >= $uamOptions['full_access_level'] 
+                if ($uamAccessHandler->checkUserAccess()
                     && $groups != array()
                 ) {
-                    $output .= '<span class="uam_group_info_link">'.$uamOptions['blog_admin_hint_text'].'</span>';
+                    $output .= '<span class="uam_group_info_link">';
+                    $output .= $uamOptions['blog_admin_hint_text'];
+                    $output .= '</span>';
                     $output .= '<div class="tooltip">';
                     
                     foreach ($groups as $group) {
@@ -1309,6 +1342,40 @@ class UserAccessManager
      */
     
     /**
+     * Redirects to a page or to content.
+     * 
+     * @return null
+     */
+    function redirect()
+    {
+        $uamOptions = $this->getAdminOptions();
+        
+        if (isset($_GET['getfile'])) {
+            $fileUrl = $_GET['getfile'];
+        }
+        
+        $emptyId = null;
+        $post = get_post($emptyId);
+        
+        //|| (!$this->getAccessHandler()->checkAccess($fileId) && !wp_attachment_is_image($fileId) && isset($fileId)))
+        
+        if ($uamOptions['redirect'] != 'false' 
+            && !$this->getAccessHandler()->checkAccess($post->ID) 
+            && !$this->atAdminPanel 
+            && !isset($fileUrl)
+        ) {
+            $this->redirectUser();
+        } elseif (isset($fileUrl)) {
+            if (!empty($permaStruc)) {
+                $uploadDir = wp_upload_dir();
+                $fileUrl = $uploadDir['baseurl'].'/'.$fileUrl;
+            }
+            
+            $this->getFile($fileUrl);
+        }
+    }
+    
+    /**
      * Redirects the user to his destination.
      * 
      * @return null
@@ -1316,134 +1383,195 @@ class UserAccessManager
     function redirectUser()
     {
         global $wp_query;
-        $uamOptions = $this->getAdminOptions();
         
-        if (isset($_GET['getfile'])) {
-            $curFileId = $_GET['getfile'];
+        $postToShow = false;
+        $posts = $wp_query->get_posts();
+        
+        if (isset($posts)) {
+            foreach ($posts as $post) {
+                if ($this->getAccessHandler()->checkAccess($post->ID)) {
+                    $postToShow = true;
+                    break;
+                }
+            }
         }
         
-        if ($uamOptions['redirect'] != 'false' 
-            && ((!$this->check_access() && !$this->atAdminPanel && empty($curFileId))
-            || (!$this->check_access($curFileId) && !wp_attachment_is_image($curFileId) && isset($curFileId)))
-        ) {
-            $curId = null;
-            $post = & get_post($curId);
+        if (!$postToShow) {
+            $uamOptions = $this->getAdminOptions();
             
             if ($uamOptions['redirect'] == 'blog') {
-                $url = get_option('siteurl');
+                $url = home_url('/');
             } elseif ($uamOptions['redirect'] == 'custom_page') {
-                $postToGo = & get_post($uamOptions['redirect_custom_page']);
-                $url = $postToGo->guid;
+                $post = get_post($uamOptions['redirect_custom_page']);
+                $url = $post->guid;
             } elseif ($uamOptions['redirect'] == 'custom_url') {
                 $url = $uamOptions['redirect_custom_url'];
             }
             
-            $posts = $wp_query->get_posts();
-            
-            if (isset($posts)) {
-                foreach ($posts as $post) {
-                    if ($this->check_access($post->ID)) {
-                        $post_to_show = true;
-                        break;
-                    }
-                }
+            if ($url != "http://".$_SERVER['HTTP_HOST'].$_SERVER["REQUEST_URI"]) {
+                wp_redirect($url);
+            }      
+        }
+    }
+    
+    /**
+     * Delivers the content of the requestet file.
+     * 
+     * @param string $url The file url.
+     * 
+     * @return null
+     */
+    function getFile($url) 
+    {
+        $post = get_post($this->getAttachmentIdByUrl($url));
+
+        if ($post !== null) {
+            $file = null;
+        } else {
+            return null;
+        }
+        
+        if ($post->post_type == 'attachment' 
+            && $this->getAccessHandler()->checkAccess($post->ID)
+        ) {
+            $uploadDir = wp_upload_dir();
+            $file = $uploadDir['basedir'].'/'.str_replace(home_url('/'), '', $url);
+        } else if (wp_attachment_is_image($post->ID)) {
+    		$file = UAM_REALPATH.'/gfx/no_access_pic.png';
+        } else {
+            wp_die(TXT_NO_RIGHTS);
+        }
+        
+        //Deliver content
+        if (file_exists($file)) {
+            $fileName = basename($file);
+            $finfo = finfo_open(FILEINFO_MIME);
+    
+            if (!$finfo) {
+                wp_die("Opening fileinfo database failed");
             }
             
-            if ($url != "http://" . $_SERVER['HTTP_HOST'] . $_SERVER["REQUEST_URI"] 
-                && empty($post_to_show)
+            header('Content-Description: File Transfer');
+            header('Content-Type: ' . finfo_file($finfo, $file));
+            header('Content-Length: ' . filesize($file));
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            
+            if (!wp_attachment_is_image($post->ID)) {
+                header('Content-Disposition: attachment; filename='.basename($file));
+            }
+
+            if ($uamOptions['download_type'] == 'fopen'
+                && !wp_attachment_is_image($post->ID)
             ) {
-                header("Location: $url");
+                $fp = fopen($file, 'rb');
+                
+                while (!feof($fp)) {
+                    set_time_limit(30);
+                    $buffer = fread($fp, 1024);
+                    echo $buffer;
+                }
+                                
+                exit;
+            } else {
+                ob_clean();
+                flush();
+                readfile($file);
                 exit;
             }
-        } elseif (isset($_GET['getfile'])) {
-            $curId = $_GET['getfile'];
-            $post = & get_post($curId);
-            
-            if ($post->post_type == 'attachment' 
-                && $this->check_access($post->ID)
-            ) {
-                $file = str_replace(get_option('siteurl') . '/', "", $post->guid);
-                $fileName = basename($file);
-                
-                if (file_exists($file)) {
-                    $len = filesize($file);
-                    header('content-type: ' . $post->post_mime_type);
-                    header('content-length: ' . $len);
-                    
-                    if (wp_attachment_is_image($curId)) {
-                        readfile($file);
-                        exit;
-                    } else {
-                        header('content-disposition: attachment; filename='.basename($file));
-                        
-                        if ($uamOptions['download_type'] == 'fopen') {
-                            $fp = fopen($file, 'rb');
-                            
-                            while (!feof($fp)) {
-                                set_time_limit(30);
-                                $buffer = fread($fp, 1024);
-                                echo $buffer;
-                            }
-                            
-                            exit;
-                        } else {
-                            readfile($file);
-                            exit;
-                        }
-                    }
-                } else {
-                    echo 'Error: File not found';
-                }
-            } elseif (wp_attachment_is_image($curId)) {
-                $file = UAM_URLPATH . 'gfx/no_access_pic.png';
-                $fileName = basename($file);
-                
-                if (file_exists($file)) {
-                    $len = filesize($file);
-                    
-                    header('content-type: ' . $post->post_mime_type);
-                    header('content-length: ' . $len);
-                    
-                    readfile($file);
-                    
-                    exit;
-                } else {
-                    echo 'Error: File not found';
-                }
-            }
+        } else {
+            wp_die('Error: File not found');
         }
     }
     
     /**
      * Returns the url for a locked file.
      * 
-     * @param string  $URL The base url.
-     * @param integer $ID  The id of the file.
+     * @param string  $url The base url.
+     * @param integer $id  The id of the file.
      * 
      * @return string
      */
-    function getFile($URL, $ID)
+    function getFileUrl($url, $id)
     {
         $uamOptions = $this->getAdminOptions();
-        
-        if ($uamOptions['lock_file'] == 'true') {
-            $curId = $ID;
-            $post = & get_post($curId);
-            $curParentId = $post->post_parent;
-            $curParent = & get_post($curParentId);
+        $permaStruc = get_option('permalink_structure');
+            
+        if (empty($permaStruc)
+            && $uamOptions['lock_file'] == 'true'
+        ) {
+            $post = &get_post($id);
+
             $type = explode("/", $post->post_mime_type);
             $type = $type[1];
-            $fileTypes = $uamOptions['locked_file_types'];
-            $fileTypes = explode(",", $fileTypes);
+
+            $fileTypes = explode(
+            	",", 
+                $uamOptions['locked_file_types']
+            );
             
             if (in_array($type, $fileTypes) 
                 || $uamOptions['lock_file_types'] == 'all'
             ) {
-                $curGuid = get_bloginfo('url');
-                $URL = $curGuid . '?getfile=' . $post->ID;
+                $url = home_url('/').'?getfile='.$url;
             }
         }
         
-        return $URL;
+        return $url;
+    }
+    
+    /**
+     * The function for the wp_get_attachment_image_attributes filter
+     * 
+     * @param array  $attributes The image attributes.
+     * @param object $attachment The image object.
+     * 
+     * @return array
+     */
+    /*function getImageAttributes($attributes, $attachment)
+    {
+        $attributes['src'] = $this->getFileUrl($attributes['src'], $attachment->ID);
+
+        return $attributes;
+    }*/
+    
+    /**
+     * Returns the post by the given url.
+     * 
+     * @param string $url The url of the post(attachment).
+     * 
+     * @return object The post.
+     */
+    function getAttachmentIdByUrl($url)
+    {
+        $newUrl = preg_split("/-[0-9]*x[0-9]*/", $url);
+
+        if (count($newUrl) == 2) {
+            $newUrl = $newUrl[0].$newUrl[1];
+        } else {
+            $newUrl = $newUrl[0];
+        }
+        
+        /*$permaStruc = get_option('permalink_structure');
+            
+        if (!empty($permaStruc)) {
+            $uploadDir = wp_upload_dir();
+            $newUrl = $uploadDir['baseurl'].'/'.$newUrl;
+        }*/
+        
+        global $wpdb;
+        $dbPost = $wpdb->get_row(
+        	"SELECT ID
+			FROM ".$wpdb->prefix."posts
+			WHERE guid = '" . $newUrl . "'
+			LIMIT 1", 
+            ARRAY_A
+        );
+        
+        if ($dbPost) {
+            return $dbPost['ID'];
+        }
+        
+        return null;
     }
 }

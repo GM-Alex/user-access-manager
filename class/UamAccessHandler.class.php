@@ -161,6 +161,7 @@ class UamAccessHandler
                 if ($objectMembership !== false) {
                     if (isset($objectMembership['byPost'])
                         || isset($objectMembership['byCategory'])
+                        || isset($objectMembership['byRole'])
                     ) {
                         $userGroup->setRecursive = $objectMembership;
                     }
@@ -226,18 +227,8 @@ class UamAccessHandler
             return $this->userUserGroups[$userId];
         }
         
-        $this->userUserGroups[$userId] = array();
-        
-        $userGroups = $this->getUserGroups();
-        
-        if (isset($userGroups)) {
-            foreach ($userGroups as $userGroup) {
-                if ($userGroup->userIsMember($userId)) {
-                    $this->userUserGroups[$userId][$userGroup->getId()] 
-                        = $userGroup;
-                }
-            }
-        }
+        $this->userUserGroups[$userId] 
+            = $this->_getUserGroupsForObject($userId, 'user');
 
         return $this->userUserGroups[$userId];
     }
@@ -253,17 +244,9 @@ class UamAccessHandler
     private function _checkAccess($objectId, $membership)
     {
         global $current_user;
-     
-        $userAccessManager = new UserAccessManager();
-        $uamOptions = $userAccessManager->getAdminOptions();
-        $curUserdata = get_userdata($current_user->ID);
-            
-        if (!isset($curUserdata->user_level)) {
-            $curUserdata->user_level = null;
-        }   
         
         if ($membership == array() 
-            || $curUserdata->user_level >= $uamOptions['full_access_level']
+            || $this->checkUserAccess()
         ) {
             return true;
         }
@@ -299,13 +282,13 @@ class UamAccessHandler
      * @return boolean
      */
     function checkAccess($postId)
-    {
+    {        
         if (isset($this->postAccess[$postId])) {
             return $this->postAccess[$postId];  
         } 
 
         $postMembership = $this->getUserGroupsForPost($postId);
-        
+
         $this->postAccess[$postId] 
             = $this->_checkAccess($postId, $postMembership);
         
@@ -320,7 +303,7 @@ class UamAccessHandler
      * @return boolean
      */
     function checkCategoryAccess($categoryId)
-    {
+    {        
         if (isset($this->categroyAccess[$categoryId])) {
             return $this->categroyAccess[$categoryId];  
         } 
@@ -366,6 +349,29 @@ class UamAccessHandler
                     return true;
                 }
             }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Checks the user access by user level.
+     * 
+     * @return boolean
+     */
+    function checkUserAccess()
+    {
+        global $current_user;
+
+        $uamOptions = $this->userAccessManager->getAdminOptions();
+        $curUserdata = get_userdata($current_user->ID);
+            
+        if (!isset($curUserdata->user_level)) {
+            $curUserdata->user_level = null;
+        }
+        
+        if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
+            return true;
         }
         
         return false;

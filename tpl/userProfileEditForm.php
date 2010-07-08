@@ -15,14 +15,19 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-$userId = $_GET['user_id'];
-$editUserData = get_userdata($userId);
-
 global $userAccessManager, $wpdb;
 $uamUserGroups 
     = &$userAccessManager->getAccessHandler()->getUserGroups();
-$userGroupsForObject 
-    = &$userAccessManager->getAccessHandler()->getUserGroupsForUser($userId);
+
+if (isset($_GET['user_id'])) {
+    $userId = $_GET['user_id'];
+    $editUserData = get_userdata($userId);
+    
+    $userGroupsForObject 
+        = &$userAccessManager->getAccessHandler()->getUserGroupsForUser($userId);
+} else {
+    $userGroupsForObject = array();
+}
 
 ?>
 <h3><?php echo TXT_GROUPS; ?></h3>
@@ -46,6 +51,9 @@ if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
             if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
                 echo 'checked="checked"';
             }
+        	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive)) {
+        		echo 'disabled=""';
+        	} 
             ?>
 							value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]" /> 
 						<?php echo $uamUserGroup->getGroupName(); ?>

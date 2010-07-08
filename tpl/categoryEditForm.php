@@ -15,17 +15,18 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-if (isset($_GET['tag_ID'])) {
-    $categoryId = $_GET['tag_ID'];
-} else {
-    $categoryId = null;
-}
-
 global $userAccessManager;
 $uamUserGroups 
     = &$userAccessManager->getAccessHandler()->getUserGroups();
-$userGroupsForObject 
-    = &$userAccessManager->getAccessHandler()->getUserGroupsForCategory($categoryId);
+
+if (isset($_GET['tag_ID'])) {
+    $categoryId = $_GET['tag_ID'];
+    
+    $userGroupsForObject 
+        = &$userAccessManager->getAccessHandler()->getUserGroupsForCategory($categoryId);
+} else {
+    $userGroupsForObject = array();
+}
     
 ?>
 <table class="form-table">

@@ -43,6 +43,7 @@ jQuery(document).ready(function(){
 	
 	jQuery(".uam_group_info_link").tooltip({
 		effect: 'slide', 
-		relative: true
+		relative: true,
+		position: 'center left'
 	});
 });

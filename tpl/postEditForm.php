@@ -15,7 +15,12 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-$post = get_post($id);
+if (isset($id)) {
+    $postId = $id;
+} else if (isset($_GET['attachment_id'])) {
+    $postId = $_GET['attachment_id'];
+}
+$post = get_post($postId);
 
 //Do we need this anymore?
 /*if ($post->post_parent != 0
@@ -26,14 +31,19 @@ $post = get_post($id);
     $postId = $post->ID;
 }*/
 
-$postId = $post->ID;
-
 global $userAccessManager;
 $uamUserGroups 
     = &$userAccessManager->getAccessHandler()->getUserGroups();
-$userGroupsForObject 
-    = &$userAccessManager->getAccessHandler()->getUserGroupsForPost($postId);
+
+if (isset($post->ID)) {
+    $postId = $post->ID;
     
+    $userGroupsForObject 
+        = &$userAccessManager->getAccessHandler()->getUserGroupsForPost($postId);
+} else {
+    $userGroupsForObject = array();
+}
+
 if (isset($uamUserGroups)) {
 	include 'groupSelectionForm.php';
 } else {

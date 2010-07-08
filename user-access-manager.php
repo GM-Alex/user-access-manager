@@ -47,8 +47,6 @@ require_once 'class/UserAccessManager.class.php';
 require_once 'class/UamUserGroup.class.php';
 require_once 'class/UamAccessHandler.class.php';
 
-
-
 if (class_exists("UserAccessManager")) {
     $userAccessManager = new UserAccessManager();
 }
@@ -68,77 +66,97 @@ if (!function_exists("userAccessManagerAP")) {
         $wp_version, 
         $current_user;
         
-        $userAccessManager->atAdminPanel = true;
-        
-        $uamOptions = $userAccessManager->getAdminOptions();
-        
         if (!isset($userAccessManager)) {
             return;
         }
         
-        //Admin main menu
-        if (function_exists('add_menu_page')) {
-            add_menu_page('User Access Manager', 'UAM', 'manage_options', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH . "gfx/icon.png");
-        }
+        $userAccessManager->atAdminPanel = true;
+        $uamOptions = $userAccessManager->getAdminOptions();
+        $userAccessManager->update();
         
-        //Admin sub menus
-        if (function_exists('add_submenu_page')) {
-            add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 'manage_options', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
-            add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 'manage_options', 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
-            add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 'manage_options', 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
-        }
+        get_currentuserinfo();
+        $cur_userdata = get_userdata($current_user->ID);
         
-        //Admin meta boxes
-        if (function_exists('add_meta_box')) {
-            get_currentuserinfo();
-            $cur_userdata = get_userdata($current_user->ID);
-            if ($cur_userdata->user_level == $uamOptions['full_access_level']) {
+        if ($cur_userdata->user_level >= $uamOptions['full_access_level']) {
+            //TODO
+            /**
+             * --- BOF ---
+             * Not the best way to handle full user access capabilities seems 
+             * to be the right way, but it is way difficult.
+             */
+            
+            //Admin main menu
+            if (function_exists('add_menu_page')) {
+                add_menu_page('User Access Manager', 'UAM', 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH . "gfx/icon.png");
+            }
+            
+            //Admin sub menus
+            if (function_exists('add_submenu_page')) {
+                add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 'read', 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 'read', 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
+            }
+            /**
+             * --- EOF ---
+             */
+            
+            //Admin meta boxes
+            if (function_exists('add_meta_box')) {
                 add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'post', 'side');
                 add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'page', 'side');
             }
+        
+            //Admin actions
+            if (function_exists('add_action')) {
+                add_action('admin_print_styles', array(&$userAccessManager, 'addStyles'));
+                add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
+                
+                add_action('manage_posts_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
+                add_action('manage_pages_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
+                add_action('save_post', array(&$userAccessManager, 'savePostData'));
+                
+                add_action('manage_media_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
+                add_action('add_attachment', array(&$userAccessManager, 'savePostData'));
+                //add_action('attachment_fields_to_save', array(&$userAccessManager, 'saveAttachmentData')); //Should not needed anymore
+                add_action('attachment_fields_to_save', array(&$userAccessManager, 'savePostData'));
+                
+                add_action('edit_user_profile', array(&$userAccessManager, 'showUserProfile'));
+                add_action('profile_update', array(&$userAccessManager, 'saveUserData'));
+    
+                add_action('edit_category_form', array(&$userAccessManager, 'showCategoryEditForm'));
+                add_action('edit_category', array(&$userAccessManager, 'saveCategoryData'));
+            }
+            
+            //Admin filters
+            if (function_exists('add_filter')) {
+                add_filter('manage_posts_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
+                add_filter('manage_pages_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
+                
+                add_filter('manage_users_columns', array(&$userAccessManager, 'addUserColumnsHeader'), 10);
+                add_filter('manage_users_custom_column', array(&$userAccessManager, 'addUserColumn'), 10, 3);
+                
+                add_filter('manage_edit-category_columns', array(&$userAccessManager, 'addCategoryColumnsHeader'));
+                add_filter('manage_category_custom_column', array(&$userAccessManager, 'addCategoryColumn'), 10, 3);
+            }
+            
+            if ($uamOptions['lock_file'] == 'true') {
+                add_action('media_meta', array(&$userAccessManager, 'showMediaFile'), 10, 2);
+                add_filter('manage_media_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
+            }
         }
-
-        $userAccessManager->update();
         
-        //Admin actions and filters
-        add_action('admin_print_styles', array(&$userAccessManager, 'addStyles'));
-        add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
+        //Clean up at deleting should be always done.
+        if (function_exists('add_action')) {
+            add_action('delete_post', array(&$userAccessManager, 'removePostData'));
+            add_action('delete_attachment', array(&$userAccessManager, 'removePostData'));
+            add_action('delete_user', array(&$userAccessManager, 'removeUserData'));
+            add_action('delete_category', array(&$userAccessManager, 'removeCategoryData'));
+        }
         
-        add_filter('manage_posts_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
-        add_filter('manage_pages_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
-        add_action('manage_posts_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
-        add_action('manage_pages_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
-        add_action('save_post', array(&$userAccessManager, 'savePostData'));
-        add_action('delete_post', array(&$userAccessManager, 'removePostData'));
-        
-        add_action('manage_media_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
-        add_action('add_attachment', array(&$userAccessManager, 'savePostData'));
-        //add_action('attachment_fields_to_save', array(&$userAccessManager, 'saveAttachmentData')); //Should not needed anymore
-        add_action('attachment_fields_to_save', array(&$userAccessManager, 'savePostData'));
-        add_action('delete_attachment', array(&$userAccessManager, 'removePostData'));
-        
-        add_filter('manage_users_columns', array(&$userAccessManager, 'addUserColumnsHeader'), 10);
-        add_filter('manage_users_custom_column', array(&$userAccessManager, 'addUserColumn'), 10, 3);
-        add_action('edit_user_profile', array(&$userAccessManager, 'showUserProfile'));
-        add_action('profile_update', array(&$userAccessManager, 'saveUserData'));
-        add_action('delete_user', array(&$userAccessManager, 'removeUserData'));
-        
-        add_filter('manage_edit-category_columns', array(&$userAccessManager, 'addCategoryColumnsHeader'));
-        add_filter('manage_category_custom_column', array(&$userAccessManager, 'addCategoryColumn'), 10, 3);
-        add_action('edit_category_form', array(&$userAccessManager, 'showCategoryEditForm'));
-        add_action('edit_category', array(&$userAccessManager, 'saveCategoryData'));
-        add_action('delete_category', array(&$userAccessManager, 'removeCategoryData'));
-
-        $uamOptions = $userAccessManager->getAdminOptions();
-        
-        if ($uamOptions['lock_file'] == 'true') {
-            add_action('media_meta', array(&$userAccessManager, 'showMediaFile'), 10, 2);
-            add_filter('manage_media_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
-        }    
+        $userAccessManager->noRightsToEditContent();
     }
 }
 
-//Actions and Filters
 if (isset($userAccessManager)) {
     load_plugin_textdomain(
     	'user-access-manager', 
@@ -146,14 +164,12 @@ if (isset($userAccessManager)) {
     	dirname(plugin_basename(__FILE__))
     );
     
-    $uamOptions = $userAccessManager->getAdminOptions();
-
     //install
     if (function_exists('register_activation_hook')) {
         register_activation_hook(__FILE__, array(&$userAccessManager, 'install'));
     }
     
-    //uninstall or deactivation
+    //uninstall
     if (function_exists('register_uninstall_hook')) {
         register_uninstall_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
     } elseif (function_exists('register_deactivation_hook')) {
@@ -161,29 +177,37 @@ if (isset($userAccessManager)) {
         register_deactivation_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
     }
     
+    //deactivation
     if (function_exists('register_deactivation_hook')) {
         register_deactivation_hook(__FILE__, array(&$userAccessManager, 'deactivate'));
     }
-
-    //Actions
-    add_action('admin_menu', 'userAccessManagerAP');
+    
+    //Redirect
+    $uamOptions = $userAccessManager->getAdminOptions();
     
     if ($uamOptions['redirect'] != 'false' || isset($_GET['getfile'])) {
-        add_action('template_redirect', array(&$userAccessManager, 'redirectUser'));
+        add_action('template_redirect', array(&$userAccessManager, 'redirect'));
     }
 
-    //Filters
-    add_filter('wp_get_attachment_thumb_url', array(&$userAccessManager, 'getFile'), 10, 2);
-    add_filter('wp_get_attachment_url', array(&$userAccessManager, 'getFile'), 10, 2);
-    add_filter('the_posts', array(&$userAccessManager, 'showPost'));
-    add_filter('comments_array', array(&$userAccessManager, 'showComment'));
-    add_filter('get_pages', array(&$userAccessManager, 'showPage'));
-    add_filter('get_terms', array(&$userAccessManager, 'showCategory'));
-    add_filter('get_next_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
-    add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
-    add_filter('the_title', array(&$userAccessManager, 'showTitle'), 10, 2);
-    add_filter('posts_where', array(&$userAccessManager, 'showPostSql'));
+    //Actions
+    if (function_exists('add_action')) {
+        add_action('admin_menu', 'userAccessManagerAP');
+        add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
+        add_action('wp_print_styles', array(&$userAccessManager, 'addStyles'));
+    }
     
-    add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
-    add_action('wp_print_styles', array(&$userAccessManager, 'addStyles'));
+    //Filters
+    if (function_exists('add_filter')) {
+        add_filter('wp_get_attachment_thumb_url', array(&$userAccessManager, 'getFileUrl'), 10, 2);
+        add_filter('wp_get_attachment_url', array(&$userAccessManager, 'getFileUrl'), 10, 2);
+        //add_filter('wp_get_attachment_image_attributes', array(&$userAccessManager, 'getImageAttributes'), 10, 2);
+        add_filter('the_posts', array(&$userAccessManager, 'showPost'));
+        add_filter('comments_array', array(&$userAccessManager, 'showComment'));
+        add_filter('get_pages', array(&$userAccessManager, 'showPage'));
+        add_filter('get_terms', array(&$userAccessManager, 'showCategory'));
+        add_filter('get_next_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
+        add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
+        add_filter('the_title', array(&$userAccessManager, 'showTitle'), 10, 2);
+        add_filter('posts_where', array(&$userAccessManager, 'showPostSql'));
+    }
 }

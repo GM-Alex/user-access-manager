@@ -14,6 +14,60 @@
 * @version   SVN: $Id$
 * @link      http://wordpress.org/extend/plugins/user-access-manager/
 */
+
+if (!function_exists('walkPath')) {
+    /**
+     * Retruns the html code for the recursive access.
+     * 
+     * @param mixed  $object The object.
+     * @param string $type   The type of the object.
+     * 
+     * @return string
+     */
+    function walkPath($object, $type)
+    {
+        $out = '';
+        
+        if (is_object($object)) {
+            if ($type == 'post') {
+            	$out = $object->post_title;
+    	    } elseif ($type == 'category') {
+        	    $out = $object->name;
+    	    }
+            
+    	    
+            if (isset($object->recursiveMember['byPost'])) {
+                $out .= '<ul>';
+                foreach ($object->recursiveMember['byPost'] as $post) {
+                    $out .= '<li>';
+                    $out .= walkPath($post, 'post');
+                    $out .= '</li>';
+                }
+                $out .= '</ul>';
+            }
+            
+            if (isset($object->recursiveMember['byCategory'])) {
+                $out .= '<ul>';
+                foreach ($object->recursiveMember['byCategory'] as $category) {
+                    $out .= '<li>';
+                    $out .= walkPath($category, 'category');
+                    $out .= '</li>';
+                }
+                $out .= '</ul>';
+            }
+    	} else {
+    	    if ($type == 'post') {
+                $post = get_post($object);
+            	$out = $post->post_title;
+    	    } elseif ($type == 'category') {
+    	        $category = get_category($object);
+        	    $out = $category->name;
+    	    }
+    	}
+    	
+    	return $out;
+    }
+}
 ?>
 <div class="tooltip">
 <ul class="uam_group_info">
@@ -24,10 +78,9 @@ if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byCategory
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_CATEGORIES; ?>:
 		<ul>
 	<?php
-	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byCategory'] as $categoryId) {
-	    $category = get_category($categoryId);
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byCategory'] as $category) {
 	    ?>
-	    	<li><?php echo $category->name; ?></li>
+	    	<li class="recusiveTree"><?php echo walkPath($category, 'category'); ?></li>
 	    <?php
 	}
 	?>
@@ -43,12 +96,30 @@ if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byPost']))
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_POSTS; ?>:
 		<ul>
 	<?php 
-	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byPost'] as $postId) {
-	}
-	    $post = get_post($postId);
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byPost'] as $post) {
+	    //$post = get_post($post);
 	    ?>
-	    	<li><?php echo $post->post_title; ?></li>
+	    	<li class="recusiveTree"><?php echo walkPath($post, 'post'); ?></li>
 	    <?php
+	}
+	?>
+		</ul>
+	</li>
+    <?php 
+}
+?>
+<?php 
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byRole'])) {
+    ?>
+	<li  class="uam_group_info_head">
+		<?php echo TXT_GROUP_MEMBERSHIP_BY_ROLE; ?>:
+		<ul>
+	<?php 
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byRole'] as $role) {
+	    ?>
+	    	<li><?php echo $role; ?></li>
+	    <?php
+    }
 	?>
 		</ul>
 	</li>
@@ -90,10 +161,11 @@ if ($uamUserGroup->getRoles()) {
 }
 ?>
         	</li>
-        	<li><?php echo count($uamUserGroup->getPosts()) . " " . TXT_POSTS; ?></li>
-        	<li><?php echo count($uamUserGroup->getPages()) . " " . TXT_PAGES; ?></li>
-        	<li><?php echo count($uamUserGroup->getCategories()) . " " . TXT_CATEGORIES; ?></li>
-        	<li><?php echo count($uamUserGroup->getUsers()) . " " . TXT_USERS; ?></li>
+        	<li><?php echo count($uamUserGroup->getPosts('full')) . " " . TXT_POSTS; ?></li>
+        	<li><?php echo count($uamUserGroup->getPages('full')) . " " . TXT_PAGES; ?></li>
+        	<li><?php echo count($uamUserGroup->getFiles('full')) . " " . TXT_FILES; ?></li>
+        	<li><?php echo count($uamUserGroup->getCategories('full')) . " " . TXT_CATEGORIES; ?></li>
+        	<li><?php echo count($uamUserGroup->getUsers('full')) . " " . TXT_USERS; ?></li>
 		</ul>
 	</li>
 </ul>

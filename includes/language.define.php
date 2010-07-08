@@ -174,3 +174,5 @@ define('TXT_RESET', __('reset', 'user-access-manager'));
 define('TXT_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_POSTS', __('Group membership given by posts', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_CATEGORIES', __('Group membership given by categories', 'user-access-manager'));
+define('TXT_GROUP_MEMBERSHIP_BY_ROLE', __('Group membership given by role', 'user-access-manager'));
+define('TXT_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
