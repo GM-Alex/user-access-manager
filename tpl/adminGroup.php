@@ -294,7 +294,7 @@ if (($postAction == 'updateGroup' || $postAction == 'addGroup')
          && empty($_POST['userGroupName'])) {
     ?>
     <div class="error">
-    	<p><strong><?php echo TXT_GROUP_ERROR; ?></strong></p>
+    	<p><strong><?php echo TXT_GROUP_NAME_ERROR; ?></strong></p>
     </div>
     <?php
 }
@@ -308,8 +308,6 @@ if (!$editGroup) {
             <div class="tablenav">
                 <div class="alignleft">
                 	<input type="submit" class="button-secondary delete" name="deleteit" value="<?php echo TXT_DELETE; ?>" /> 
-                	<input type="hidden" id="TXT_COLLAPS_ALL" name="deleteit" value="<?php echo TXT_COLLAPS_ALL; ?>" /> 
-                	<input type="hidden" id="TXT_EXPAND_ALL" name="deleteit" value="<?php echo TXT_EXPAND_ALL; ?>" />
                 </div>
             	<br class="clear" />
             </div>

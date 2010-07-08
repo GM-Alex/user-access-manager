@@ -15,8 +15,17 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
+// --- Multiuse
+define('TXT_ALL', __('all', 'user-access-manager'));
+define('TXT_ONLY_GROUP_USERS', __('only group users', 'user-access-manager'));
+define('TXT_YES', __('Yes', 'user-access-manager'));
+define('TXT_NO', __('No', 'user-access-manager'));
+
+
+// --- Setting Page ---
 define('TXT_SETTINGS', __('Settings', 'user-access-manager'));
 
+// --- Setting Page -> post settings ---
 define('TXT_POST_SETTING', __('Post settings', 'user-access-manager'));
 define('TXT_POST_SETTING_DESC', __('Set up the behaviour of locked posts', 'user-access-manager'));
 define('TXT_POST_TITLE', __('Post title', 'user-access-manager'));
@@ -33,9 +42,10 @@ define('TXT_POST_COMMENT_CONTENT', __('Post commtent text', 'user-access-manager
 define('TXT_POST_COMMENT_CONTENT_DESC', __('Displayed text as post comment text if user has no access', 'user-access-manager'));
 define('TXT_DISPLAY_POST_COMMENT', __('Hide post comments', 'user-access-manager'));
 define('TXT_DISPLAY_POST_COMMENT_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_POST_COMMENT_CONTENT));
-define('TXT_ALLOW_COMMENTS_LOCKED', __('Allow comments', 'user-access-manager'));
-define('TXT_ALLOW_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked posts', 'user-access-manager'));
+define('TXT_POST_COMMENTS_LOCKED', __('Allow post comments', 'user-access-manager'));
+define('TXT_POST_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked posts', 'user-access-manager'));
 
+// --- Setting Page -> page settings ---
 define('TXT_PAGE_SETTING', __('Page settings', 'user-access-manager'));
 define('TXT_PAGE_SETTING_DESC', __('Set up the behaviour of locked pages', 'user-access-manager'));
 define('TXT_PAGE_TITLE', __('Page title', 'user-access-manager'));
@@ -46,7 +56,14 @@ define('TXT_PAGE_CONTENT', __('Page content', 'user-access-manager'));
 define('TXT_PAGE_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single pages, otherwise a link will shown.', 'user-access-manager'));
 define('TXT_HIDE_PAGE', __('Hide complete pages', 'user-access-manager'));
 define('TXT_HIDE_PAGE_DESC', __('Selecting "Yes" will hide pages if the user has no access. Pages will also hide in the navigation.', 'user-access-manager'));
+define('TXT_PAGE_COMMENT_CONTENT', __('Page commtent text', 'user-access-manager'));
+define('TXT_PAGE_COMMENT_CONTENT_DESC', __('Displayed text as page comment text if user has no access', 'user-access-manager'));
+define('TXT_DISPLAY_PAGE_COMMENT', __('Hide page comments', 'user-access-manager'));
+define('TXT_DISPLAY_PAGE_COMMENT_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_PAGE_COMMENT_CONTENT));
+define('TXT_PAGE_COMMENTS_LOCKED', __('Allow page comments', 'user-access-manager'));
+define('TXT_PAGE_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked pages', 'user-access-manager'));
 
+// --- Setting Page -> file settings ---
 define('TXT_FILE_SETTING', __('File settings', 'user-access-manager'));
 define('TXT_FILE_SETTING_DESC', __('Set up the behaviour of files', 'user-access-manager'));
 define('TXT_LOCK_FILE', __('Lock files', 'user-access-manager'));
@@ -64,6 +81,7 @@ define('TXT_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong
 define('TXT_NORMAL', __('Normal', 'user-access-manager'));
 define('TXT_FOPEN', __('fopen', 'user-access-manager'));
 
+// --- Setting Page -> other settings ---
 define('TXT_OTHER_SETTING', __('Other settings', 'user-access-manager'));
 define('TXT_OTHER_SETTING_DESC', __('Here you will find all other settings', 'user-access-manager'));
 define('TXT_PROTECT_FEED', __('Protect Feed', 'user-access-manager'));
@@ -77,23 +95,21 @@ define('TXT_REDIRECT_TO_PAGE', __('Custom page: ', 'user-access-manager'));
 define('TXT_REDIRECT_TO_URL', __('Custom URL: ', 'user-access-manager'));
 define('TXT_LOCK_RECURSIVE', __('Lock recursive', 'user-access-manager'));
 define('TXT_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to "No" could result in display errors relating to the hierarchy.', 'user-access-manager'));
+define('TXT_AUTHORS_HAS_ACCESS_TO_OWN', __('Athors always has access to own posts/pages: ', 'user-access-manager'));
+define('TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC', __('If "Yes" is selected author will always have full access to ther own posts or pages.', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_BLOG_ADMIN_HINT_TEXT));
 define('TXT_FULL_ACCESS_LEVEL', __('Access Level with full access', 'user-access-manager'));
 define('TXT_FULL_ACCESS_LEVEL_DESC', __('All user with access level equal or higher to this has full access. <b>Note: 10 is the highest value.</b>', 'user-access-manager'));
-define('TXT_CORE_MOD', __('Core modifications installed?', 'user-access-manager'));
-define('TXT_CORE_MOD_DESC', __('If you installed the core modifications activated this option.', 'user-access-manager'));
 
-define('TXT_YES', __('Yes', 'user-access-manager'));
-define('TXT_NO', __('No', 'user-access-manager'));
-
+// --- Setting Page -> update message ---
 define('TXT_UPDATE_SETTING', __('Update settings', 'user-access-manager'));
 define('TXT_UPDATE_SETTINGS', __('Settings updated.', 'user-access-manager'));
 
-//---Access groups---
 
+// --- User groups page ---
 define('TXT_MANAGE_GROUP', __('Manage user access groups', 'user-access-manager'));
 define('TXT_GROUP_ROLE', __('Role affiliation', 'user-access-manager'));
 define('TXT_NAME', __('Name', 'user-access-manager'));
@@ -121,58 +137,38 @@ define('TXT_GROUP_READ_ACCESS_DESC', __('The read access.', 'user-access-manager
 define('TXT_GROUP_WRITE_ACCESS', __('Write access', 'user-access-manager'));
 define('TXT_GROUP_WRITE_ACCESS_DESC', __('The write access.', 'user-access-manager'));
 define('TXT_GROUP_ADDED', __('Group was added successfully.', 'user-access-manager'));
-define('TXT_GROUP_ERROR', __('Group name can not be empty.', 'user-access-manager'));
+define('TXT_GROUP_NAME_ERROR', __('Group name can not be empty.', 'user-access-manager'));
 define('TXT_DEL_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
 define('TXT_NONE', __('none', 'user-access-manager')); 
 define('TXT_ACCESS_GROUP_EDIT_SUC', __('Access group edit successfully.', 'user-access-manager'));
-define('TXT_CONTAIN_POSTS', __('Contains %1$s of %2$s posts', 'user-access-manager'));
-define('TXT_CONTAIN_PAGES', __('Contains %1$s of %2$s pages', 'user-access-manager'));
-define('TXT_CONTAIN_FILES', __('Contains %1$s of %2$s files', 'user-access-manager'));
-define('TXT_CONTAIN_CATEGORIES', __('Contains %1$s of %2$s categories', 'user-access-manager'));
-define('TXT_CONTAIN_USERS', __('Contains %1$s of %2$s users', 'user-access-manager'));
 define('TXT_IP_RANGE', __('IP range', 'user-access-manager'));
 
-//---Misc---
-define('TXT_FULL_ACCESS', __('Full access', 'user-access-manager'));
-define('TXT_FULL_ACCESS_ADMIN', __('Full access (Administrator)', 'user-access-manager'));
-define('TXT_NO_GROUP', __('No group', 'user-access-manager'));
-define('TXT_SET_ACCESS', __('Set access', 'user-access-manager'));
 
-define('TXT_DATE', __('Date', 'user-access-manager'));
-define('TXT_TITLE', __('Title', 'user-access-manager'));
-define('TXT_GROUP_ACCESS', __('Group access', 'user-access-manager'));
-define('TXT_USERNAME', __('Username', 'user-access-manager'));
-
-define('TXT_MAIL', __('E-mail', 'user-access-manager'));
-define('TXT_ACCESS', __('Access', 'user-access-manager'));
-define('TXT_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.', 'user-access-manager'));
-
-define('TXT_SET_POST_ACCESS', __('Set post access', 'user-access-manager'));
-define('TXT_SET_PAGE_ACCESS', __('Set page access', 'user-access-manager'));
-define('TXT_GROUPS', __('Access Groups', 'user-access-manager'));
-define('TXT_CREATE_GROUP_FIRST', __('Please create a access group first.', 'user-access-manager'));
-define('TXT_SET_USER_ACCESS', __('Set user access', 'user-access-manager'));
-
-define('TXT_SET_UP_USERGROUPS', __('Set up usergroups', 'user-access-manager'));
-
-define('TXT_ITSELF', __('itself', 'user-access-manager'));
-define('TXT_INFO', __('Info', 'user-access-manager'));
-define('TXT_GROUP_INFO', __('Group infos', 'user-access-manager'));
-define('TXT_GROUP_LOCK_INFO', __('Locked by', 'user-access-manager'));
-define('TXT_IS_ADMIN', __('User is Admin. Full access.', 'user-access-manager'));
-define('TXT_EXPAND', __('expand', 'user-access-manager'));
-define('TXT_EXPAND_ALL', __('expand all', 'user-access-manager'));
-define('TXT_COLLAPS', __('collaps', 'user-access-manager'));
-define('TXT_COLLAPS_ALL', __('collaps all', 'user-access-manager'));
-define('TXT_ALL', __('all', 'user-access-manager'));
-define('TXT_ONLY_GROUP_USERS', __('only group users', 'user-access-manager'));
-
+// --- Setup page ---
 define('TXT_SETUP', __('Setup', 'user-access-manager'));
 define('TXT_RESET_UAM', __('Reset User Access Manager', 'user-access-manager'));
 define('TXT_RESET_UAM_DESC', __('Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost.', 'user-access-manager'));
 define('TXT_RESET', __('reset', 'user-access-manager'));
 define('TXT_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
+
+
+// --- Edit forms ---
+define('TXT_FULL_ACCESS', __('Full access', 'user-access-manager'));
+define('TXT_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.', 'user-access-manager'));
+define('TXT_CREATE_GROUP_FIRST', __('Please create a access group first.', 'user-access-manager'));
+define('TXT_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
+define('TXT_GROUPS', __('Access Groups', 'user-access-manager'));
+define('TXT_SET_UP_USERGROUPS', __('Set up usergroups', 'user-access-manager'));
+
+
+// --- Group info ---
+define('TXT_INFO', __('Info', 'user-access-manager'));
+define('TXT_GROUP_INFO', __('Group infos', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_POSTS', __('Group membership given by posts', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_CATEGORIES', __('Group membership given by categories', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_ROLE', __('Group membership given by role', 'user-access-manager'));
-define('TXT_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
+
+
+// --- File access ---
+define('TXT_FILEINFO_DB_ERROR', __('Opening fileinfo database failed.', 'user-access-manager'));
+define('TXT_FILE_NOT_FOUND_ERROR', __('Error: File not found.', 'user-access-manager'));

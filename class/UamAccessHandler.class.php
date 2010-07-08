@@ -238,15 +238,27 @@ class UamAccessHandler
      * 
      * @param integer $objectId   The id of the object.
      * @param array   $membership The group membership for the object.
+     * @param string  $type       The object type which should be checked.
      * 
      * @return boolean
      */
-    private function _checkAccess($objectId, $membership)
+    private function _checkAccess($objectId, $membership, $type = null)
     {
         global $current_user;
         
+        $uamOptions = $this->getUserAccessManager()->getAdminOptions();
+        
+        if ($type == 'post') {
+            $post = get_post($objectId);
+            $authorId = $post->post_author;
+        } else {
+            $authorId = -1;
+        }
+        
         if ($membership == array() 
             || $this->checkUserAccess()
+            || $current_user->ID == $authorId
+            && $uamOptions['authors_has_access_to_own'] == 'true'
         ) {
             return true;
         }
@@ -260,8 +272,10 @@ class UamAccessHandler
                 return true;
             }
             
-            if ($this->userAccessManager->atAdminPanel && $userGroup->getWriteAccess() == 'all'
-            	|| !$this->userAccessManager->atAdminPanel && $userGroup->getReadAccess() == 'all'
+            if ($this->getUserAccessManager()->atAdminPanel 
+                && $userGroup->getWriteAccess() == 'all'
+            	|| !$this->getUserAccessManager()->atAdminPanel 
+            	&& $userGroup->getReadAccess() == 'all'
             ) {
                 unset($membership[$key]);
             }
@@ -290,7 +304,7 @@ class UamAccessHandler
         $postMembership = $this->getUserGroupsForPost($postId);
 
         $this->postAccess[$postId] 
-            = $this->_checkAccess($postId, $postMembership);
+            = $this->_checkAccess($postId, $postMembership, 'post');
         
         return $this->postAccess[$postId];
     }
@@ -363,7 +377,7 @@ class UamAccessHandler
     {
         global $current_user;
 
-        $uamOptions = $this->userAccessManager->getAdminOptions();
+        $uamOptions = $this->getUserAccessManager()->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);
             
         if (!isset($curUserdata->user_level)) {

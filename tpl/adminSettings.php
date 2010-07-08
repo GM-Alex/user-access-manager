@@ -18,6 +18,12 @@ global $userAccessManager;
 $uamOptions = $userAccessManager->getAdminOptions();
 
 if (isset($_POST['update_uam_settings'])) {
+    if ($_POST['uam_full_access_level'] > 10
+        || !is_numeric($_POST['uam_full_access_level'])
+    ) {
+        $_POST['uam_full_access_level'] = 10;
+    }
+    
     foreach ($uamOptions as $option => $value) {
         if (isset($_POST['uam_' . $option])) {
             $uamOptions[$option] = $_POST['uam_' . $option];
@@ -164,25 +170,25 @@ if ($uamOptions['hide_post_comment'] == "false") {
 			</td>
 		</tr>
 		<tr valign="top">
-			<th scope="row"><?php echo TXT_ALLOW_COMMENTS_LOCKED; ?></th>
+			<th scope="row"><?php echo TXT_POST_COMMENTS_LOCKED; ?></th>
 			<td>
-				<label for="uam_allow_comments_locked_yes"> 
-					<input id="uam_allow_comments_locked_yes" type="radio" name="uam_allow_comments_locked" value="true" <?php
-if ($uamOptions['allow_comments_locked'] == "true") {
+				<label for="uam_post_comments_locked_yes"> 
+					<input id="uam_post_comments_locked_yes" type="radio" name="uam_post_comments_locked" value="true" <?php
+if ($uamOptions['post_comments_locked'] == "true") {
     echo 'checked="checked"';
 } 
                     ?> />
 				    <?php echo TXT_YES; ?> 
 				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
-				<label for="uam_allow_comments_locked_no"> 
-					<input id="uam_allow_comments_locked_no" type="radio" name="uam_allow_comments_locked" value="false" <?php
-if ($uamOptions['allow_comments_locked'] == "false") {
+				<label for="uam_post_comments_locked_no"> 
+					<input id="uam_post_comments_locked_no" type="radio" name="uam_post_comments_locked" value="false" <?php
+if ($uamOptions['post_comments_locked'] == "false") {
     echo 'checked="checked"';
 } 
                     ?> />
 				    <?php echo TXT_NO; ?> 
 				</label> <br />
-				<?php echo TXT_ALLOW_COMMENTS_LOCKED_DESC; ?>
+				<?php echo TXT_POST_COMMENTS_LOCKED_DESC; ?>
 			</td>
 		</tr>
 	</tbody>
@@ -254,6 +260,57 @@ if ($uamOptions['hide_page_title'] == "false") {
 				?></textarea>
 				<br />
 			    <?php echo TXT_PAGE_CONTENT_DESC; ?>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php echo TXT_DISPLAY_PAGE_COMMENT; ?></th>
+			<td>
+				<label for="uam_hide_page_comment_yes"> 
+					<input id="uam_hide_page_comment_yes" type="radio" name="uam_hide_page_comment" value="true" <?php
+if ($uamOptions['hide_page_comment'] == "true") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_YES; ?> 
+				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
+				<label for="uam_hide_page_comment_no"> 
+					<input id="uam_hide_page_comment_no" type="radio" name="uam_hide_page_comment" value="false" <?php
+if ($uamOptions['hide_page_comment'] == "false") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_NO; ?> 
+				</label> <br />
+				<?php echo TXT_DISPLAY_PAGE_COMMENT_DESC; ?>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php echo TXT_PAGE_COMMENT_CONTENT; ?></th>
+			<td>
+				<input name="uam_page_comment_content" value="<?php echo $uamOptions['page_comment_content']; ?>" /> <br />
+				<?php echo TXT_PAGE_COMMENT_CONTENT_DESC; ?>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php echo TXT_PAGE_COMMENTS_LOCKED; ?></th>
+			<td>
+				<label for="uam_page_comments_locked_yes"> 
+					<input id="uam_page_comments_locked_yes" type="radio" name="uam_page_comments_locked" value="true" <?php
+if ($uamOptions['page_comments_locked'] == "true") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_YES; ?> 
+				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
+				<label for="uam_page_comments_locked_no"> 
+					<input id="uam_page_comments_locked_no" type="radio" name="uam_page_comments_locked" value="false" <?php
+if ($uamOptions['page_comments_locked'] == "false") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_NO; ?> 
+				</label> <br />
+				<?php echo TXT_PAGE_COMMENTS_LOCKED_DESC; ?>
 			</td>
 		</tr>
 	</tbody>
@@ -487,6 +544,27 @@ if ($uamOptions['lock_recursive'] == "false") {
 				    <?php echo TXT_NO; ?> 
 				</label> <br />
 				<?php echo TXT_LOCK_RECURSIVE_DESC; ?></td>
+		</tr>
+		<tr>
+			<th><?php echo TXT_AUTHORS_HAS_ACCESS_TO_OWN; ?></th>
+			<td>
+				<label for="uam_authors_has_access_to_own_yes"> 
+					<input type="radio" id="uam_authors_has_access_to_own_yes" name="uam_authors_has_access_to_own" value="true" <?php
+if ($uamOptions['authors_has_access_to_own'] == "true") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_YES; ?> 
+				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
+				<label for="uam_authors_has_access_to_own_no">
+					<input type="radio" id="uam_authors_has_access_to_own_no" name="uam_authors_has_access_to_own" value="false" <?php
+if ($uamOptions['authors_has_access_to_own'] == "false") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_NO; ?> 
+				</label> <br />
+				<?php echo TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC; ?></td>
 		</tr>
 		<tr>
 			<th><?php echo TXT_BLOG_ADMIN_HINT; ?></th>

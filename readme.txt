@@ -2,7 +2,7 @@
 Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
-Requires at least: 2.6
+Requires at least: 2.8
 Tested up to: 3.0
 Stable tag: 0.9.1.4
 
@@ -36,8 +36,8 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 * English
 * German
-* Czech, base on 0.7.0.1. Thanks to Huska
-* French, base on 0.8.0.2. Thanks to macbidule
+* Czech, based on 0.7.0.1. Thanks to Huska
+* French, based on 0.8.0.2. Thanks to macbidule
 
 For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com).
 
@@ -55,7 +55,7 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.0			2010/07/xx	
+    1.0 Beta	2010/07/xx	Complete rewrite
     
     0.9.1.4 	2010/06/23  Hotfix for Wordpress 3.0
     

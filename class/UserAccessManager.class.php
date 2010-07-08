@@ -29,7 +29,8 @@ class UserAccessManager
 {
     var $atAdminPanel = false;
     protected $adminOptionsName = "uamAdminOptions";
-    protected $uamDbVersion = "1.1";
+    protected $uamVersion = 1.0;
+    protected $uamDbVersion = 1.1;
     protected $adminOptions;
     protected $accessHandler = null;
     
@@ -152,11 +153,18 @@ class UserAccessManager
     function update()
     {
         global $wpdb;
-        $uamDbVersion = $this->uamDbVersion;
-        $installed_ver = get_option("uam_db_version");
+        $currentDbVersion = get_option("uam_db_version");
         
-        if (empty($installed_ver)) {
+        if (empty($currentDbVersion)) {
             $this->install();
+        }
+        
+        if (!get_option('uam_version')
+            || get_option('uam_version') < $this->uamVersion
+        ) {
+            update_option('uam_version', $this->uamVersion);
+            
+            delete_option('allow_comments_locked');
         }
         
         $dbUserGroup = $wpdb->get_var(
@@ -164,8 +172,8 @@ class UserAccessManager
         	LIKE '" . DB_ACCESSGROUP . "'"
         );
         
-        if ($installed_ver != $uamDbVersion) {
-            if ($installed_ver == '1.0') {
+        if ($currentDbVersion != $this->uamDbVersion) {
+            if ($currentDbVersion == 1.0) {
                 
                 
                 if ($dbUserGroup == DB_ACCESSGROUP) {
@@ -182,7 +190,7 @@ class UserAccessManager
                     		write_access = 'group'"
                     );
                     
-                    update_option("uam_db_version", $uamDbVersion);
+                    update_option('uam_db_version', $this->uamDbVersion);
                 }
             }
         }
@@ -220,7 +228,8 @@ class UserAccessManager
         );
         
         delete_option($this->adminOptionsName);
-        delete_option("uam_db_version");
+        delete_option('uam_version');
+        delete_option('uam_db_version');
         $this->deleteHtaccessFiles();
     }
     
@@ -419,26 +428,36 @@ class UserAccessManager
         if ($this->atAdminPanel || empty($this->adminOptions)) {
             $uamAdminOptions = array(
             	'hide_post_title' => 'false', 
-            	'post_title' => __('No rights!', 'user-access-manager'), 
+            	'post_title' => __('No rights!', 'user-access-manager'),
+            	'post_content' => __(
+            		'Sorry you have no rights to view this post!', 
+            		'user-access-manager'
+                ),
+                'hide_post' => 'false', 
             	'hide_post_comment' => 'false', 
             	'post_comment_content' => __(
             		'Sorry no rights to view comments!', 
             		'user-access-manager'
                 ), 
-            	'allow_comments_locked' => 'false', 
-            	'post_content' => 'Sorry no rights!', 
-            	'hide_post' => 'false', 
+            	'post_comments_locked' => 'false',
             	'hide_page_title' => 'false', 
-            	'page_title' => 'No rights!', 
+            	'page_title' => __('No rights!', 'user-access-manager'), 
             	'page_content' => __(
             		'Sorry you have no rights to view this page!', 
             		'user-access-manager'
                 ), 
-            	'hide_page' => 'false', 
+            	'hide_page' => 'false',
+                'hide_page_comment' => 'false', 
+            	'page_comment_content' => __(
+            		'Sorry no rights to view comments!', 
+            		'user-access-manager'
+                ), 
+            	'page_comments_locked' => 'false',
             	'redirect' => 'false', 
             	'redirect_custom_page' => '', 
             	'redirect_custom_url' => '', 
-            	'lock_recursive' => 'true', 
+            	'lock_recursive' => 'true',
+                'authors_has_access_to_own' => 'true',
             	'lock_file' => 'true', 
             	'file_pass_type' => 'random', 
             	'lock_file_types' => 'all', 
@@ -446,8 +465,7 @@ class UserAccessManager
             	'locked_file_types' => 'zip,rar,tar,gz,bz2', 
             	'not_locked_file_types' => 'gif,jpg,jpeg,png', 
             	'blog_admin_hint' => 'true', 
-            	'blog_admin_hint_text' => '[L]', 
-            	'core_mod' => 'false', 
+            	'blog_admin_hint_text' => '[L]',
             	'hide_empty_categories' => 'true', 
             	'protect_feed' => 'true', 
             	'showPost_content_before_more' => 'false', 
@@ -517,8 +535,16 @@ class UserAccessManager
     function addStyles()
     {
         wp_enqueue_style(
-        	'UserAccessManager', 
-            UAM_URLPATH . "css/uma_admin.css", 
+        	'UserAccessManagerAdmin', 
+            UAM_URLPATH . "css/uamAdmin.css", 
+            false, 
+            '1.0',
+            'screen'
+        );
+        
+        wp_enqueue_style(
+        	'UserAccessManagerLoginForm', 
+            UAM_URLPATH . "css/uamLoginForm.css", 
             false, 
             '1.0',
             'screen'
@@ -563,7 +589,51 @@ class UserAccessManager
             include UAM_REALPATH."/tpl/adminSetup.php";
         }
     }
+    
+    /**
+     * Shows the error if the user has no rights to edit the content
+     * 
+     * @return null
+     */
+    function noRightsToEditContent()
+    {
+        $noRights = false;
         
+        if (isset($_GET['post'])) {
+            $noRights 
+                = !$this->getAccessHandler()->checkAccess($_GET['post']); 
+        }
+        
+        if (isset($_GET['attachment_id']) && !$noRights) {
+            $noRights 
+                = !$this->getAccessHandler()->checkAccess($_GET['attachment_id']);
+        }
+        
+        if (isset($_GET['tag_ID']) && !$noRights) {
+            $noRights 
+                = !$this->getAccessHandler()->checkCategoryAccess($_GET['tag_ID']);
+        }
+
+        if ($noRights) {
+            wp_die(TXT_NO_RIGHTS);
+        }
+    }
+    
+    /**
+     * The function for the wp_dashboard_setup action.
+     * Removes widgets to which a user should not have access.
+     * 
+     * @return null
+     */
+    function setupAdminDashboard()
+    {
+        global $wp_meta_boxes;
+        
+        if (!$this->getAccessHandler()->checkUserAccess()) {
+            unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
+        }
+    }
+    
     /**
      * The function for the manage_posts_columns and 
      * the manage_pages_columns filter.
@@ -603,35 +673,6 @@ class UserAccessManager
     function editPostContent($post)
     {
         include UAM_REALPATH.'/tpl/postEditForm.php';
-    }
-    
-    /**
-     * Shows the error if the user has no rights to edit the content
-     * 
-     * @return null
-     */
-    function noRightsToEditContent()
-    {
-        $noRights = false;
-        
-        if (isset($_GET['post'])) {
-            $noRights 
-                = !$this->getAccessHandler()->checkAccess($_GET['post']); 
-        }
-        
-        if (isset($_GET['attachment_id']) && !$noRights) {
-            $noRights 
-                = !$this->getAccessHandler()->checkAccess($_GET['attachment_id']);
-        }
-        
-        if (isset($_GET['tag_ID']) && !$noRights) {
-            $noRights 
-                = !$this->getAccessHandler()->checkCategoryAccess($_GET['tag_ID']);
-        }
-
-        if ($noRights) {
-            wp_die(TXT_NO_RIGHTS);
-        }
     }
     
     /**
@@ -968,7 +1009,7 @@ class UserAccessManager
                             $post->post_title = $uamOptions[$postType.'_title'];
                         }
                         
-                        if ($uamOptions['allow_comments_locked'] == 'false') {
+                        if ($uamOptions[$postType.'_comments_locked'] == 'false') {
                             $post->comment_status = 'close';
                         }
   
@@ -1013,16 +1054,20 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         
         foreach ($comments as $comment) {
-            if ($uamOptions['hide_post_comment'] == 'true' 
-                || $uamOptions['hide_post'] == 'true' 
+            $post = get_post($comment->comment_post_ID);
+            $postType = $post->post_type;
+            
+            if ($uamOptions['hide_'.$postType.'_comment'] == 'true' 
+                || $uamOptions['hide_'.$postType] == 'true' 
                 || $this->atAdminPanel
             ) {
-                if ($uamAccessHandler->checkAccess($comment->comment_post_ID)) {
+                if ($uamAccessHandler->checkAccess($post->ID)) {
                     $showComments[] = $comment;
                 }
             } else {
-                if (!$uamAccessHandler->checkAccess($comment->comment_post_ID)) {
-                    $comment->comment_content = $uamOptions['post_comment_content'];
+                if (!$uamAccessHandler->checkAccess($post->ID)) {
+                    $comment->comment_content 
+                        = $uamOptions[$postType.'_comment_content'];
                 }
                 
                 $showComments[] = $comment;
@@ -1440,7 +1485,11 @@ class UserAccessManager
             && $this->getAccessHandler()->checkAccess($post->ID)
         ) {
             $uploadDir = wp_upload_dir();
-            $file = $uploadDir['basedir'].'/'.str_replace($uploadDir['baseurl'], '', $url);
+            $file = $uploadDir['basedir'].'/'.str_replace(
+                $uploadDir['baseurl'], 
+                '', 
+                $url
+            );
         } else if (wp_attachment_is_image($post->ID)) {
     		$file = UAM_REALPATH.'/gfx/no_access_pic.png';
         } else {
@@ -1453,7 +1502,7 @@ class UserAccessManager
             $finfo = finfo_open(FILEINFO_MIME);
     
             if (!$finfo) {
-                wp_die("Opening fileinfo database failed");
+                wp_die(TXT_FILEINFO_DB_ERROR);
             }
             
             header('Content-Description: File Transfer');
@@ -1485,7 +1534,7 @@ class UserAccessManager
                 exit;
             }
         } else {
-            wp_die('Error: File not found');
+            wp_die(TXT_FILE_NOT_FOUND_ERROR);
         }
     }
     

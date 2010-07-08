@@ -90,6 +90,16 @@ class UamUserGroup
     }
     
     /**
+     * Returns the user access handler object.
+     * 
+     * @return object
+     */
+    function &getAccessHandler()
+    {
+        return $this->accessHandler;
+    }
+    
+    /**
      * Deletes the user group.
      * 
      * @return null
@@ -520,7 +530,7 @@ class UamUserGroup
         }
         
         global $wpdb;
-        $userAccessManager = $this->accessHandler->getUserAccessManager();
+        $userAccessManager = $this->getAccessHandler()->getUserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
         $dbCategories = $wpdb->get_results(
@@ -542,7 +552,7 @@ class UamUserGroup
                     $removeSucc = remove_filter(
                     	'get_terms', 
                         array(
-                            $this->accessHandler->getUserAccessManager(), 
+                            $this->getAccessHandler()->getUserAccessManager(), 
                             'showCategory'
                         )
                     );

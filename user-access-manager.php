@@ -147,6 +147,7 @@ if (!function_exists("userAccessManagerAP")) {
         
         //Clean up at deleting should be always done.
         if (function_exists('add_action')) {
+            add_action('wp_dashboard_setup', array(&$userAccessManager, 'setupAdminDashboard'));
             add_action('delete_post', array(&$userAccessManager, 'removePostData'));
             add_action('delete_attachment', array(&$userAccessManager, 'removePostData'));
             add_action('delete_user', array(&$userAccessManager, 'removeUserData'));
