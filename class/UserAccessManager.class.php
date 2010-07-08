@@ -617,13 +617,18 @@ class UserAccessManager
         if (isset($_GET['post'])) {
             $noRights 
                 = !$this->getAccessHandler()->checkAccess($_GET['post']); 
-        } 
+        }
+        
+        if (isset($_GET['attachment_id']) && !$noRights) {
+            $noRights 
+                = !$this->getAccessHandler()->checkAccess($_GET['attachment_id']);
+        }
         
         if (isset($_GET['tag_ID']) && !$noRights) {
             $noRights 
                 = !$this->getAccessHandler()->checkCategoryAccess($_GET['tag_ID']);
         }
-        
+
         if ($noRights) {
             wp_die(TXT_NO_RIGHTS);
         }
@@ -1435,7 +1440,7 @@ class UserAccessManager
             && $this->getAccessHandler()->checkAccess($post->ID)
         ) {
             $uploadDir = wp_upload_dir();
-            $file = $uploadDir['basedir'].'/'.str_replace(home_url('/'), '', $url);
+            $file = $uploadDir['basedir'].'/'.str_replace($uploadDir['baseurl'], '', $url);
         } else if (wp_attachment_is_image($post->ID)) {
     		$file = UAM_REALPATH.'/gfx/no_access_pic.png';
         } else {
@@ -1519,21 +1524,6 @@ class UserAccessManager
         
         return $url;
     }
-    
-    /**
-     * The function for the wp_get_attachment_image_attributes filter
-     * 
-     * @param array  $attributes The image attributes.
-     * @param object $attachment The image object.
-     * 
-     * @return array
-     */
-    /*function getImageAttributes($attributes, $attachment)
-    {
-        $attributes['src'] = $this->getFileUrl($attributes['src'], $attachment->ID);
-
-        return $attributes;
-    }*/
     
     /**
      * Returns the post by the given url.

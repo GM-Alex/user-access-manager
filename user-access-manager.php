@@ -200,7 +200,6 @@ if (isset($userAccessManager)) {
     if (function_exists('add_filter')) {
         add_filter('wp_get_attachment_thumb_url', array(&$userAccessManager, 'getFileUrl'), 10, 2);
         add_filter('wp_get_attachment_url', array(&$userAccessManager, 'getFileUrl'), 10, 2);
-        //add_filter('wp_get_attachment_image_attributes', array(&$userAccessManager, 'getImageAttributes'), 10, 2);
         add_filter('the_posts', array(&$userAccessManager, 'showPost'));
         add_filter('comments_array', array(&$userAccessManager, 'showComment'));
         add_filter('get_pages', array(&$userAccessManager, 'showPage'));
