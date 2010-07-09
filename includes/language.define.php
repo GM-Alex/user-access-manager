@@ -95,7 +95,7 @@ define('TXT_REDIRECT_TO_PAGE', __('Custom page: ', 'user-access-manager'));
 define('TXT_REDIRECT_TO_URL', __('Custom URL: ', 'user-access-manager'));
 define('TXT_LOCK_RECURSIVE', __('Lock recursive', 'user-access-manager'));
 define('TXT_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to "No" could result in display errors relating to the hierarchy.', 'user-access-manager'));
-define('TXT_AUTHORS_HAS_ACCESS_TO_OWN', __('Athors always has access to own posts/pages: ', 'user-access-manager'));
+define('TXT_AUTHORS_HAS_ACCESS_TO_OWN', __('Authors always has access to own posts/pages', 'user-access-manager'));
 define('TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC', __('If "Yes" is selected author will always have full access to ther own posts or pages.', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.', 'user-access-manager'));

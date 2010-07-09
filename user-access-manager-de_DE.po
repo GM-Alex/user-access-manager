@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: User Access Manager\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
-"POT-Creation-Date: 2010-07-09 15:20+0000\n"
-"PO-Revision-Date: 2010-07-09 17:21+0100\n"
+"POT-Creation-Date: 2010-07-09 15:24+0000\n"
+"PO-Revision-Date: 2010-07-09 17:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: Alexander Schneider <alexanderschneider85@googlemail.com>\n"
 "MIME-Version: 1.0\n"
@@ -18,9 +18,8 @@ msgid "No rights!"
 msgstr "Keine Berechtigung!"
 
 #: class/UserAccessManager.class.php:433
-#, fuzzy
 msgid "Sorry you have no rights to view this post!"
-msgstr "Entschuldigung aber du hast nicht die Rechte um diese Seite zu sehen!"
+msgstr "Entschuldigung aber du hast nicht die Rechte um dieses Post zu sehen!"
 
 #: class/UserAccessManager.class.php:439
 #: class/UserAccessManager.class.php:452
@@ -37,9 +36,8 @@ msgid "Access"
 msgstr "Zugriff"
 
 #: class/UserAccessManager.class.php:792
-#, fuzzy
 msgid "uam user groups"
-msgstr "Nutzergruppen einrichten"
+msgstr "uam Nutzergruppen"
 
 #: includes/language.define.php:19
 msgid "all"
@@ -102,7 +100,7 @@ msgid "Show post content before &lt;!--more--&gt; tag"
 msgstr "Post Inhalt vor dem &lt;!--more--&gt; tag zeigen"
 
 #: includes/language.define.php:38
-#, fuzzy, php-format
+#, php-format
 msgid "Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at \"%s\". If no &lt;!--more--&gt; is set he defined text at \"%s\" will shown."
 msgstr "Zeigt den Text vor dem &lt;!--more--&gt; Tag und im Anschluss den angegeben Text bei \"%s\". Wenn kein &lt;!--more--&gt; Tag angegeben ist wird der angegebene Text bei \"%s\" angezeigt."
 
@@ -124,12 +122,11 @@ msgstr "Anzuzeigender Text als Post-Kommentartext wenn ein Nutzer keinen Zugriff
 
 #: includes/language.define.php:43
 msgid "Hide post comments"
-msgstr "Post-Kommentare verstecken"
+msgstr "Post Kommentare verstecken"
 
 #: includes/language.define.php:45
-#, fuzzy
 msgid "Allow post comments"
-msgstr "Kommentare erlauben"
+msgstr "Post Kommentare erlauben"
 
 #: includes/language.define.php:46
 msgid "Selecting \"yes\" allows users to comment on locked posts"
@@ -172,29 +169,24 @@ msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will a
 msgstr "Wenn \"Ja\" ausgewählt ist wird die Seite versteckt wenn ein Nutzer keinen Zugriff hat. Seiten werden ebenfalls in der Navigation versteckt."
 
 #: includes/language.define.php:59
-#, fuzzy
 msgid "Page commtent text"
-msgstr "Post-Kommentartext"
+msgstr "Seiten Kommentartext"
 
 #: includes/language.define.php:60
-#, fuzzy
 msgid "Displayed text as page comment text if user has no access"
-msgstr "Anzuzeigender Text als Post-Kommentartext wenn ein Nutzer keinen Zugriff hat "
+msgstr "Anzuzeigender Text als Seiten Kommentartext wenn ein Nutzer keinen Zugriff hat "
 
 #: includes/language.define.php:61
-#, fuzzy
 msgid "Hide page comments"
-msgstr "Post-Kommentare verstecken"
+msgstr "Seiten Kommentare verstecken"
 
 #: includes/language.define.php:63
-#, fuzzy
 msgid "Allow page comments"
-msgstr "Kommentare erlauben"
+msgstr "Kommentare auf Seiten erlauben"
 
 #: includes/language.define.php:64
-#, fuzzy
 msgid "Selecting \"yes\" allows users to comment on locked pages"
-msgstr "Wenn \"Ja\" ausgewählt ist können Nutzer Kommentare bei gesperrten Posts hinterlassen."
+msgstr "Wenn \"Ja\" ausgewählt ist können Nutzer Kommentare bei gesperrten Seiten hinterlassen."
 
 #: includes/language.define.php:67
 msgid "File settings"
@@ -314,7 +306,7 @@ msgstr "Wenn \"Ja\" ausgewählt ist werden alle Kinder-Posts/Seiten eines Posts/
 
 #: includes/language.define.php:98
 msgid "Athors always has access to own posts/pages: "
-msgstr ""
+msgstr "Zugriff für Autoren zu deren Posts/Seiten erlauben"
 
 #: includes/language.define.php:99
 msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
@@ -339,7 +331,7 @@ msgstr "Wenn \"Ja\" ausgewählt ist wird der Text der bei \"%s\" angegeben Text 
 
 #: includes/language.define.php:104
 msgid "Access Level with full access"
-msgstr ""
+msgstr "Zugriffslevel mit Vollzugriff"
 
 #: includes/language.define.php:105
 msgid "All user with access level equal or higher to this has full access. <b>Note: 10 is the highest value.</b>"
@@ -354,7 +346,7 @@ msgid "Settings updated."
 msgstr "Einstellungen aktualisiert."
 
 #: includes/language.define.php:113
-msgid "Manage user access groups"
+msgid "Manage user user groups"
 msgstr "Nutzergruppen verwalten"
 
 #: includes/language.define.php:114
@@ -412,16 +404,15 @@ msgid "Add"
 msgstr "Hinzufügen"
 
 #: includes/language.define.php:127
-msgid "Add access group"
-msgstr "Nutzergruppe hinzufügen"
+msgid "Add user group"
+msgstr "Nutzergruppen hinzufügen"
 
 #: includes/language.define.php:128
-#, fuzzy
-msgid "EDIT access group"
-msgstr "Nutzergruppe hinzufügen"
+msgid "Edit user group"
+msgstr "Nutzergruppen bearbeiten"
 
 #: includes/language.define.php:129
-msgid "Access group name"
+msgid "User group name"
 msgstr "Nutzergruppenname"
 
 #: includes/language.define.php:130
@@ -429,7 +420,7 @@ msgid "The name is used to identify the access user group."
 msgstr "Der Name um die Nutzergruppe zu identifizieren."
 
 #: includes/language.define.php:131
-msgid "Access group description"
+msgid "User group description"
 msgstr "Nutzergruppenbeschreibung"
 
 #: includes/language.define.php:132
@@ -459,7 +450,7 @@ msgstr "Gruppe erfolgreich hinzugefügt."
 
 #: includes/language.define.php:140
 msgid "Group name can not be empty."
-msgstr ""
+msgstr "Nutzergruppenname darf nicht leer sein."
 
 #: includes/language.define.php:141
 msgid "Group(s) was deleted successfully."
@@ -470,17 +461,16 @@ msgid "none"
 msgstr "keine"
 
 #: includes/language.define.php:143
-msgid "Access group edit successfully."
+msgid "User group edit successfully."
 msgstr "Gruppe erfolgreich bearbeitet."
 
 #: includes/language.define.php:148
 msgid "Setup"
-msgstr ""
+msgstr "Setup"
 
 #: includes/language.define.php:149
-#, fuzzy
 msgid "Reset User Access Manager"
-msgstr "User Access Manager"
+msgstr "User Access Manager zurücksetzen"
 
 #: includes/language.define.php:150
 msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
@@ -488,16 +478,15 @@ msgstr ""
 
 #: includes/language.define.php:151
 msgid "reset"
-msgstr ""
+msgstr "zurücksetzen"
 
 #: includes/language.define.php:152
-#, fuzzy
 msgid "User Access Manager was reset successfully"
-msgstr "Gruppe erfolgreich bearbeitet."
+msgstr "User Access Manager erfolgreich zurückgesetzt."
 
 #: includes/language.define.php:156
 msgid "About"
-msgstr ""
+msgstr "&Uuml;ber"
 
 #: includes/language.define.php:159
 msgid "How to support me?"
@@ -540,16 +529,15 @@ msgid "<strong>Note:</strong> An administrator has allways access to all posts/p
 msgstr "<strong>Hinweis:</strong> Ein Administrator hat immer Vollzugriff zu allen Posts/Seiten."
 
 #: includes/language.define.php:174
-msgid "Please create a access group first."
-msgstr "Bitte zuerst eine Nutzergruppe erstellen."
+msgid "Please create a user group first."
+msgstr "Bitte erstellen Sie zuerst eine Nutzergruppe."
 
 #: includes/language.define.php:175
-#, fuzzy
 msgid "You have no rights to access this content."
-msgstr "Entschuldigung aber du hast nicht die Rechte um diese Seite zu sehen!"
+msgstr "Entschuldigung aber du hast nicht die Rechte um diesen Inhalt zu sehen!"
 
 #: includes/language.define.php:176
-msgid "Access Groups"
+msgid "User Groups"
 msgstr "Nutzergruppen"
 
 #: includes/language.define.php:177
@@ -577,9 +565,8 @@ msgid "Group membership given by role"
 msgstr ""
 
 #: includes/language.define.php:186
-#, fuzzy
 msgid "Assigned groups"
-msgstr "Nutzergruppen"
+msgstr "Zugewiesene Gruppen"
 
 #: includes/language.define.php:190
 msgid "Opening fileinfo database failed."
@@ -587,7 +574,7 @@ msgstr ""
 
 #: includes/language.define.php:191
 msgid "Error: File not found."
-msgstr ""
+msgstr "Fehler: Datei nicht gefunden."
 
 #: tpl/loginBar.php:20
 #: tpl/loginBar.php:34
@@ -639,6 +626,14 @@ msgstr "Alexander Schneider"
 msgid "http://www.gm-alex.de/"
 msgstr "http://www.gm-alex.de/"
 
+#~ msgid "Add access group"
+#~ msgstr "Nutzergruppe hinzufügen"
+
+#, fuzzy
+#~ msgid "EDIT access group"
+#~ msgstr "Nutzergruppe hinzufügen"
+#~ msgid "Access Groups"
+#~ msgstr "Nutzergruppen"
 #~ msgid "Date"
 #~ msgstr "Datum"
 #~ msgid "Title"
