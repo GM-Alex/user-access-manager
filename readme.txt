@@ -2,7 +2,7 @@
 Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
-Requires at least: 2.8
+Requires at least: 3.0
 Tested up to: 3.0
 Stable tag: 0.9.1.4
 
