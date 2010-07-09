@@ -1606,15 +1606,25 @@ class UserAccessManager
         //Deliver content
         if (file_exists($file)) {
             $fileName = basename($file);
-            $finfo = finfo_open(FILEINFO_MIME);
-    
-            if (!$finfo) {
-                wp_die(TXT_FILEINFO_DB_ERROR);
+
+            //This only for compatibility
+            //mime_content_type has been deprecated as the PECL extension Fileinfo 
+            //provides the same functionality (and more) in a much cleaner way.
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME);
+        
+                if (!$finfo) {
+                    wp_die(TXT_FILEINFO_DB_ERROR);
+                }
+                
+                $fileType = finfo_file($finfo, $file);
+            } else {
+                $fileType = mime_content_type($file);
             }
             
             header('Content-Description: File Transfer');
-            header('Content-Type: ' . finfo_file($finfo, $file));
-            header('Content-Length: ' . filesize($file));
+            header('Content-Type: '.$fileType);
+            header('Content-Length: '.filesize($file));
             header('Content-Transfer-Encoding: binary');
             header('Expires: 0');
             
