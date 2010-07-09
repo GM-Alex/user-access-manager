@@ -587,6 +587,8 @@ class UserAccessManager
             include UAM_REALPATH."/tpl/adminGroup.php";
         } elseif ($curAdminPage == 'uam_setup') {
             include UAM_REALPATH."/tpl/adminSetup.php";
+        } elseif ($curAdminPage == 'uam_about') {
+            include UAM_REALPATH."/tpl/about.php";
         }
     }
     
@@ -632,6 +634,16 @@ class UserAccessManager
         if (!$this->getAccessHandler()->checkUserAccess()) {
             unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
         }
+    }
+    
+    /**
+     * The function for the update_option_permalink_structure action.
+     * 
+     * @return null
+     */
+    function updatePermalink()
+    {
+        $this->createHtaccess();
     }
     
     /**
@@ -1416,6 +1428,8 @@ class UserAccessManager
         ) {
             $this->redirectUser();
         } elseif (isset($fileUrl)) {
+            $permaStruc = get_option('permalink_structure');
+            
             if (!empty($permaStruc)) {
                 $uploadDir = wp_upload_dir();
                 $fileUrl = $uploadDir['baseurl'].'/'.$fileUrl;

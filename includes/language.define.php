@@ -152,6 +152,22 @@ define('TXT_RESET', __('reset', 'user-access-manager'));
 define('TXT_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
 
 
+// --- About page ---
+define('TXT_ABOUT', __('About', 'user-access-manager'));
+
+// --- About page -> support ---
+define('TXT_HOW_TO_SUPPORT', __('How to support me?', 'user-access-manager'));
+define('TXT_SEND_REPORTS', __('<strong>Send me bug reports, bugfixes, code modifications or your ideas</strong><br/>Help me to improve the plugin.', 'user-access-manager'));
+define('TXT_MAKE_TRANSLATION', __('<strong>Make a translation of the plugin</strong><br/>The give other users more comfort help me to translate it to all languages.', 'user-access-manager'));
+define('TXT_DONATE', __('<strong>Donate via paypal</strong>', 'user-access-manager'));
+define('TXT_PLACE_LINK', __('<strong>Place a link to the plugin in your blog/webpage</strong>', 'user-access-manager'));
+
+// --- About page -> thanks ---
+define('TXT_THANKS', __('Thanks', 'user-access-manager'));
+define('TXT_SPECIAL_THANKS', __('Special thanks go out to my girlfriend for giving me the time to develop this plugin.', 'user-access-manager'));
+define('TXT_THANKS_TO', __('I would like to thank all the guys which has helped me with this plugin:', 'user-access-manager'));
+
+
 // --- Edit forms ---
 define('TXT_FULL_ACCESS', __('Full access', 'user-access-manager'));
 define('TXT_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.', 'user-access-manager'));

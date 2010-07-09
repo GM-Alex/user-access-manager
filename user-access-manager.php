@@ -95,6 +95,7 @@ if (!function_exists("userAccessManagerAP")) {
                 add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
                 add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 'read', 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
                 add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 'read', 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_ABOUT, TXT_ABOUT, 'read', 'uam_about', array(&$userAccessManager, 'printAdminPage'));
             }
             /**
              * --- EOF ---
@@ -117,7 +118,6 @@ if (!function_exists("userAccessManagerAP")) {
                 
                 add_action('manage_media_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
                 add_action('add_attachment', array(&$userAccessManager, 'savePostData'));
-                //add_action('attachment_fields_to_save', array(&$userAccessManager, 'saveAttachmentData')); //Should not needed anymore
                 add_action('attachment_fields_to_save', array(&$userAccessManager, 'savePostData'));
                 
                 add_action('edit_user_profile', array(&$userAccessManager, 'showUserProfile'));
@@ -147,6 +147,7 @@ if (!function_exists("userAccessManagerAP")) {
         
         //Clean up at deleting should be always done.
         if (function_exists('add_action')) {
+            add_action('update_option_permalink_structure', array(&$userAccessManager, 'updatePermalink'));
             add_action('wp_dashboard_setup', array(&$userAccessManager, 'setupAdminDashboard'));
             add_action('delete_post', array(&$userAccessManager, 'removePostData'));
             add_action('delete_attachment', array(&$userAccessManager, 'removePostData'));
@@ -192,9 +193,9 @@ if (isset($userAccessManager)) {
 
     //Actions
     if (function_exists('add_action')) {
-        add_action('admin_menu', 'userAccessManagerAP');
         add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
         add_action('wp_print_styles', array(&$userAccessManager, 'addStyles'));
+        add_action('admin_menu', 'userAccessManagerAP');
     }
     
     //Filters

@@ -345,31 +345,36 @@ if ($uamOptions['lock_file'] == "false") {
 </table>
 <table class="form-table" id="uam_file_settings">
 	<tbody>
+<?php 
+$permaStruc = get_option('permalink_structure');
+            
+if (empty($permaStruc)) {
+    ?>
 		<tr>
 			<th><?php
-echo TXT_DOWNLOAD_FILE_TYPE; ?></th>
+    echo TXT_DOWNLOAD_FILE_TYPE; ?></th>
 			<td>
 				<label for="uam_lock_file_types_all"> 
 					<input type="radio" id="uam_lock_file_types_all" name="uam_lock_file_types" value="all" <?php
-if ($uamOptions['lock_file_types'] == "all") {
-    echo 'checked="checked"';
-}                   ?> />
+    if ($uamOptions['lock_file_types'] == "all") {
+        echo 'checked="checked"';
+    }                   ?> />
 				    <?php echo TXT_ALL; ?> 
 				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
 				<label for="uam_lock_file_types_selected"> 
 					<input type="radio" id="uam_lock_file_types_selected" name="uam_lock_file_types" value="selected" <?php
-if ($uamOptions['lock_file_types'] == "selected") {
-    echo 'checked="checked"';
-} 
+    if ($uamOptions['lock_file_types'] == "selected") {
+        echo 'checked="checked"';
+    } 
                     ?> />
 				    <?php echo TXT_SELECTED_FILE_TYPES; ?> 
 				</label>
 				<input name="uam_locked_file_types" value="<?php echo $uamOptions['locked_file_types']; ?>" /> 
 				<label for="uam_lock_file_types_not_selected"> 
 					<input type="radio" id="uam_lock_file_types_not_selected" name="uam_lock_file_types" value="not_selected" <?php
-if ($uamOptions['lock_file_types'] == "not_selected") {
-    echo 'checked="checked"';
-} 
+    if ($uamOptions['lock_file_types'] == "not_selected") {
+        echo 'checked="checked"';
+    } 
                     ?> />
 				    <?php echo TXT_NOT_SELECTED_FILE_TYPES; ?> 
 				</label>
@@ -399,6 +404,9 @@ if ($uamOptions['file_pass_type'] == "random") {
 				<?php echo TXT_FILE_PASS_TYPE_DESC; ?>
 			</td>
 		</tr>
+<?php 
+}
+?>
 		<tr>
 			<th><?php echo TXT_DOWNLOAD_TYPE; ?></th>
 			<td>
