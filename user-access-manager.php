@@ -22,14 +22,9 @@
 */
 
 //Paths
-/*define(
-	'UAM_URLPATH', 
-    WP_CONTENT_URL.'/plugins/'.plugin_basename(dirname(__FILE__)).'/' 
-);*/
-//Path for Localhost DEBUG
 define(
 	'UAM_URLPATH', 
-    WP_CONTENT_URL . '/plugins/user-access-manager/'
+    WP_PLUGIN_URL.'/user-access-manager/'
 );
 define(
     'UAM_REALPATH',
