@@ -26,7 +26,7 @@
         		<p><?php echo TXT_MAKE_TRANSLATION; ?></p>
     			<p>
     				<?php echo TXT_DONATE; ?><br/>
-    				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052"></a>
+    				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052">
     					<img style="margin:4px 0;" alt="Make payments with PayPal - it's fast, free and secure!" name="submit" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif" />
     				</a>
     			</p>
