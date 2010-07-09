@@ -26,10 +26,19 @@ define(
 	'UAM_URLPATH', 
     WP_PLUGIN_URL.'/user-access-manager/'
 );
-define(
-    'UAM_REALPATH',
-    '/'.plugin_basename(dirname(__FILE__))
-);
+
+if (defined('UAM_LOCAL_DEBUG')) {
+    //ONLY FOR MY LOCAL DEBUG
+    define(
+        'UAM_REALPATH',
+        '/'.plugin_basename(dirname(__FILE__)).'/'
+    );
+} else {
+    define(
+        'UAM_REALPATH',
+        WP_PLUGIN_DIR.'/'.plugin_basename(dirname(__FILE__)).'/'
+    );
+}
 
 //Defines
 require_once 'includes/database.define.php';

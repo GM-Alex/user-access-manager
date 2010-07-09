@@ -588,13 +588,13 @@ class UserAccessManager
         }
         
         if ($curAdminPage == 'uam_settings') {
-            include UAM_REALPATH."/tpl/adminSettings.php";
+            include UAM_REALPATH."tpl/adminSettings.php";
         } elseif ($curAdminPage == 'uam_usergroup') {
-            include UAM_REALPATH."/tpl/adminGroup.php";
+            include UAM_REALPATH."tpl/adminGroup.php";
         } elseif ($curAdminPage == 'uam_setup') {
-            include UAM_REALPATH."/tpl/adminSetup.php";
+            include UAM_REALPATH."tpl/adminSetup.php";
         } elseif ($curAdminPage == 'uam_about') {
-            include UAM_REALPATH."/tpl/about.php";
+            include UAM_REALPATH."tpl/about.php";
         }
     }
     
@@ -677,7 +677,7 @@ class UserAccessManager
     function addPostColumn($columnName, $id)
     {
         if ($columnName == 'uam_access') {
-            echo $this->getIncludeContents(UAM_REALPATH.'/tpl/postColumn.php', $id);
+            echo $this->getIncludeContents(UAM_REALPATH.'tpl/postColumn.php', $id);
         }
     }
     
@@ -690,7 +690,7 @@ class UserAccessManager
      */
     function editPostContent($post)
     {
-        include UAM_REALPATH.'/tpl/postEditForm.php';
+        include UAM_REALPATH.'tpl/postEditForm.php';
     }
     
     /**
@@ -781,7 +781,7 @@ class UserAccessManager
         $content .= '<label>'.TXT_SET_UP_USERGROUPS.'</label>';
         $content .= '</th>';
         $content .= '<td class="field">';
-        $content .= $this->getIncludeContents(UAM_REALPATH.'/tpl/postEditForm.php');
+        $content .= $this->getIncludeContents(UAM_REALPATH.'tpl/postEditForm.php');
         
         return $content;
     }
@@ -812,7 +812,7 @@ class UserAccessManager
     {
         if ($columnName == 'uam_access') {
             return $this->getIncludeContents(
-                UAM_REALPATH.'/tpl/userColumn.php', 
+                UAM_REALPATH.'tpl/userColumn.php', 
                 $id
             );
         }
@@ -825,7 +825,7 @@ class UserAccessManager
      */
     function showUserProfile()
     {
-        echo $this->getIncludeContents(UAM_REALPATH.'/tpl/userProfileEditForm.php');
+        echo $this->getIncludeContents(UAM_REALPATH.'tpl/userProfileEditForm.php');
     }
     
     /**
@@ -909,7 +909,7 @@ class UserAccessManager
     {
         if ($columnName == 'uam_access') {
             return $this->getIncludeContents(
-                UAM_REALPATH.'/tpl/categoryColumn.php', 
+                UAM_REALPATH.'tpl/categoryColumn.php', 
                 $id
             );
         }
@@ -924,7 +924,7 @@ class UserAccessManager
      */
     function showCategoryEditForm($category)
     {
-        include UAM_REALPATH.'/tpl/categoryEditForm.php';
+        include UAM_REALPATH.'tpl/categoryEditForm.php';
     }
     
     /**
@@ -1399,7 +1399,7 @@ class UserAccessManager
     function getLoginBarHtml()
     {
         if (!is_user_logged_in()) {
-            return $this->getIncludeContents(UAM_REALPATH.'/tpl/loginBar.php');
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/loginBar.php');
         }
         
         return '';
@@ -1512,7 +1512,7 @@ class UserAccessManager
                 $url
             );
         } else if (wp_attachment_is_image($post->ID)) {
-    		$file = UAM_REALPATH.'/gfx/noAccessPic.png';
+    		$file = UAM_REALPATH.'gfx/noAccessPic.png';
         } else {
             wp_die(TXT_NO_RIGHTS);
         }
