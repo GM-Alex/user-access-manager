@@ -387,24 +387,24 @@ if (empty($permaStruc)) {
 			<td>
 				<label for="uam_file_pass_type_admin"> 
 					<input type="radio" id="uam_file_pass_type_admin" name="uam_file_pass_type"	value="admin" <?php
-if ($uamOptions['file_pass_type'] == "admin") {
-    echo 'checked="checked"';
-} 
+    if ($uamOptions['file_pass_type'] == "admin") {
+        echo 'checked="checked"';
+    } 
                     ?> />
     				<?php echo TXT_CURRENT_LOGGEDIN_ADMIN_PASS; ?> 
     			</label>&nbsp;&nbsp;&nbsp;&nbsp;
     			<label for="uam_file_pass_type_random"> 
 					<input type="radio" id="uam_file_pass_type_random" name="uam_file_pass_type" value="random" <?php
-if ($uamOptions['file_pass_type'] == "random") {
-    echo 'checked="checked"';
-} 
+    if ($uamOptions['file_pass_type'] == "random") {
+        echo 'checked="checked"';
+    } 
                     ?> />
 				    <?php echo TXT_RANDOM_PASS; ?> 
 				</label> <br />
 				<?php echo TXT_FILE_PASS_TYPE_DESC; ?>
 			</td>
 		</tr>
-<?php 
+    <?php 
 }
 ?>
 		<tr>
