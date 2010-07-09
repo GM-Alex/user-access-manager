@@ -183,6 +183,7 @@ define('TXT_GROUP_INFO', __('Group infos', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_POSTS', __('Group membership given by posts', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_CATEGORIES', __('Group membership given by categories', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_ROLE', __('Group membership given by role', 'user-access-manager'));
+define('TXT_ASSIGNED_GROUPS', __('Assigned groups', 'user-access-manager'));
 
 
 // --- File access ---

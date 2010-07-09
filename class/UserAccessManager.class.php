@@ -1369,6 +1369,7 @@ class UserAccessManager
                     $output .= $uamOptions['blog_admin_hint_text'];
                     $output .= '</span>';
                     $output .= '<div class="tooltip">';
+                     $output .= '<b>'.TXT_ASSIGNED_GROUPS.':</b>&nbsp;';
                     
                     foreach ($groups as $group) {
                         $output .= $group->getGroupName().', ';

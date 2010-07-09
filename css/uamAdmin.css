@@ -18,10 +18,12 @@ The file needed for the group info boxes style.
 .uam_group_info_link {
 	cursor: pointer;
 }
+
 .uam_group_info ul {
 	display:block !important;
 	padding:0 !important;
 	margin:0 !important;
+	list-style:none !important;
 }
 
 .uam_group_info ul li {
