@@ -413,8 +413,14 @@ class UserAccessManager
         $wud = wp_upload_dir();
         if (empty($wud['error'])) {
             $url = $wud['basedir'] . "/";
-            unlink($url . ".htaccess");
-            unlink($url . ".htpasswd");
+            
+            if (file_exists($url.".htaccess")) {
+                unlink($url.".htaccess");
+            }
+            
+            if (file_exists($url.".htpasswd")) {
+                unlink($url.".htpasswd");
+            }
         }
     }
     
