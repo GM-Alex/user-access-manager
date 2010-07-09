@@ -110,7 +110,7 @@ define('TXT_UPDATE_SETTINGS', __('Settings updated.', 'user-access-manager'));
 
 
 // --- User groups page ---
-define('TXT_MANAGE_GROUP', __('Manage user access groups', 'user-access-manager'));
+define('TXT_MANAGE_GROUP', __('Manage user user groups', 'user-access-manager'));
 define('TXT_GROUP_ROLE', __('Role affiliation', 'user-access-manager'));
 define('TXT_NAME', __('Name', 'user-access-manager'));
 define('TXT_DESCRIPTION', __('Description', 'user-access-manager'));
@@ -124,11 +124,11 @@ define('TXT_USERS', __('Users', 'user-access-manager'));
 define('TXT_DELETE', __('Delete', 'user-access-manager'));
 define('TXT_UPDATE_GROUP', __('Update group', 'user-access-manager'));
 define('TXT_ADD', __('Add', 'user-access-manager'));
-define('TXT_ADD_GROUP', __('Add access group', 'user-access-manager'));
-define('TXT_EDIT_GROUP', __('EDIT access group', 'user-access-manager'));
-define('TXT_GROUP_NAME', __('Access group name', 'user-access-manager'));
+define('TXT_ADD_GROUP', __('Add user group', 'user-access-manager'));
+define('TXT_EDIT_GROUP', __('Edit user group', 'user-access-manager'));
+define('TXT_GROUP_NAME', __('User group name', 'user-access-manager'));
 define('TXT_GROUP_NAME_DESC', __('The name is used to identify the access user group.', 'user-access-manager'));
-define('TXT_GROUP_DESC', __('Access group description', 'user-access-manager'));
+define('TXT_GROUP_DESC', __('User group description', 'user-access-manager'));
 define('TXT_GROUP_DESC_DESC', __('The description of the group.', 'user-access-manager'));
 define('TXT_GROUP_IP_RANGE', __('IP range', 'user-access-manager'));
 define('TXT_GROUP_IP_RANGE_DESC', __('Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like "BEGIN"-"END", seperate ranges by using ";", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30', 'user-access-manager'));
@@ -140,7 +140,7 @@ define('TXT_GROUP_ADDED', __('Group was added successfully.', 'user-access-manag
 define('TXT_GROUP_NAME_ERROR', __('Group name can not be empty.', 'user-access-manager'));
 define('TXT_DEL_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
 define('TXT_NONE', __('none', 'user-access-manager')); 
-define('TXT_ACCESS_GROUP_EDIT_SUC', __('Access group edit successfully.', 'user-access-manager'));
+define('TXT_ACCESS_GROUP_EDIT_SUC', __('User group edit successfully.', 'user-access-manager'));
 define('TXT_IP_RANGE', __('IP range', 'user-access-manager'));
 
 
@@ -171,9 +171,9 @@ define('TXT_THANKS_TO', __('I would like to thank all the guys which has helped 
 // --- Edit forms ---
 define('TXT_FULL_ACCESS', __('Full access', 'user-access-manager'));
 define('TXT_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.', 'user-access-manager'));
-define('TXT_CREATE_GROUP_FIRST', __('Please create a access group first.', 'user-access-manager'));
+define('TXT_CREATE_GROUP_FIRST', __('Please create a user group first.', 'user-access-manager'));
 define('TXT_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
-define('TXT_GROUPS', __('Access Groups', 'user-access-manager'));
+define('TXT_GROUPS', __('User Groups', 'user-access-manager'));
 define('TXT_SET_UP_USERGROUPS', __('Set up usergroups', 'user-access-manager'));
 
 
