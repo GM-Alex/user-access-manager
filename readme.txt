@@ -141,5 +141,10 @@ Access:
 == Screenshots ==
 
 1. The group manger.
-2. The setting screen.
-3. Integration at posts.
+2. The setting screen - Part 1.
+3. The setting screen - Part 2.
+4. The setting screen - Part 3.
+5. The setup screen.
+6. Integration into post overview.
+7. Integration into the post page.
+8. Admin hint at the blog frontend.
