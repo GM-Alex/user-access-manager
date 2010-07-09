@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: User Access Manager\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
-"POT-Creation-Date: 2010-07-09 15:24+0000\n"
-"PO-Revision-Date: 2010-07-09 17:34+0100\n"
+"POT-Creation-Date: 2010-07-09 15:37+0000\n"
+"PO-Revision-Date: 2010-07-09 18:01+0100\n"
 "Last-Translator: \n"
 "Language-Team: Alexander Schneider <alexanderschneider85@googlemail.com>\n"
 "MIME-Version: 1.0\n"
@@ -305,12 +305,12 @@ msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a use
 msgstr "Wenn \"Ja\" ausgewählt ist werden alle Kinder-Posts/Seiten eines Posts/Seite gesperrt sobald ein Nutzer keinen Zugriff hat. Hinweis: Die Auswahl von der Option \"Nein\" zu Darstellungsfehlern bezüglich der Hierarchie führen."
 
 #: includes/language.define.php:98
-msgid "Athors always has access to own posts/pages: "
+msgid "Authors always has access to own posts/pages"
 msgstr "Zugriff für Autoren zu deren Posts/Seiten erlauben"
 
 #: includes/language.define.php:99
 msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
-msgstr ""
+msgstr "Wenn \"Ja\" ausgewählt ist haben Autoren immer Vollzugriff zu deren eigenen Posts oder Seiten."
 
 #: includes/language.define.php:100
 msgid "Admin hint text"
@@ -335,7 +335,7 @@ msgstr "Zugriffslevel mit Vollzugriff"
 
 #: includes/language.define.php:105
 msgid "All user with access level equal or higher to this has full access. <b>Note: 10 is the highest value.</b>"
-msgstr ""
+msgstr "Alle Nutzer mit einem h&ouml;heren oder gleichen Nutzerlevel haben Vollzugriff. <b>Hinweis: 10 ist der Maximalwert.</b>"
 
 #: includes/language.define.php:108
 msgid "Update settings"
@@ -474,7 +474,7 @@ msgstr "User Access Manager zurücksetzen"
 
 #: includes/language.define.php:150
 msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
-msgstr ""
+msgstr "Achtung: Das zur&uuml;cksetzen des User Access Manager kann nicht r&uuml;ckg&auml;nig gemacht werden. Alle Einstellungen und Nutzergruppen werden permanent gel&ouml;scht."
 
 #: includes/language.define.php:151
 msgid "reset"
@@ -490,35 +490,35 @@ msgstr "&Uuml;ber"
 
 #: includes/language.define.php:159
 msgid "How to support me?"
-msgstr ""
+msgstr "So k&ouml;nnt ihr mich unterst&uuml;tzen"
 
 #: includes/language.define.php:160
 msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
-msgstr ""
+msgstr "<strong>Sendet mir eure Bugs, Bugfixes, Code Modifikationen oder Ideen.</strong><br/>Helft mir das Plugin zu verbessern."
 
 #: includes/language.define.php:161
 msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
-msgstr ""
+msgstr "<strong>Erstelle eine &Uuml;bersetzung dieses Plugins.</strong><br/>Um anderen Nutzern mehr Komfort zu geben w&auml;re es toll dieses Plugin in mehreren Sprachen zu haben."
 
 #: includes/language.define.php:162
 msgid "<strong>Donate via paypal</strong>"
-msgstr ""
+msgstr "<strong>Spende via paypal</strong>"
 
 #: includes/language.define.php:163
 msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
-msgstr ""
+msgstr "<strong>Platziere einen Link zum Plugin auf deinem Blog/Webseite.</strong>"
 
 #: includes/language.define.php:166
 msgid "Thanks"
-msgstr ""
+msgstr "Danksagung"
 
 #: includes/language.define.php:167
 msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
-msgstr ""
+msgstr "Besonderer Dank geht an mein Freundin die geduldig mein PC-Sessions ertragen hat und es mir so erm&ouml;glichte dieses Plugin zu entwickeln."
 
 #: includes/language.define.php:168
 msgid "I would like to thank all the guys which has helped me with this plugin:"
-msgstr ""
+msgstr "Vielen Dank auch an die Leute die mir geholfen haben:"
 
 #: includes/language.define.php:172
 msgid "Full access"
@@ -554,15 +554,15 @@ msgstr "Gruppeninformationen"
 
 #: includes/language.define.php:183
 msgid "Group membership given by posts"
-msgstr ""
+msgstr "Nutzergruppen zugewiesen durch Posts"
 
 #: includes/language.define.php:184
 msgid "Group membership given by categories"
-msgstr ""
+msgstr "Nutzergruppen zugewiesen durch Kategorien"
 
 #: includes/language.define.php:185
 msgid "Group membership given by role"
-msgstr ""
+msgstr "Nutzergruppen zugewiesen durch Nutzerrollen"
 
 #: includes/language.define.php:186
 msgid "Assigned groups"
@@ -570,7 +570,7 @@ msgstr "Zugewiesene Gruppen"
 
 #: includes/language.define.php:190
 msgid "Opening fileinfo database failed."
-msgstr ""
+msgstr "&Ouml;ffnen der Dateiinformationsdatenbank fehlgeschlagen."
 
 #: includes/language.define.php:191
 msgid "Error: File not found."
@@ -614,9 +614,8 @@ msgid "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
 msgstr "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
 
 #. Description of the plugin/theme
-#, fuzzy
 msgid "Manage the access to your posts and pages. <strong>Note:</strong> <em> If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess' file. If you activate the plugin and you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated). You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>"
-msgstr "Mit dem “User Access Manager”-Plugin ist es möglich den Zugriff auf die Posts, Seiten und Dateien festzulegen. <strong>Hinweis:</strong> <em>Wenn das Plugin aktiviert wird wird das Upload Verzeichnis durch eine '.htaccess' Datei mit einem zufälligen Passwort geschützt. Alte Mediafiles in Posts werden nicht mehr korrekt funktionieren. Diese müssen per Hand aktualisiert werden. Ein schon vorhandene '.htaccess' Datei wird <strong>überschrieben</strong>.  Die .htaccess Datei kann bei den UAM Einstellungen deaktiviert werden.</em>"
+msgstr "Mit dem “User Access Manager”-Plugin ist es möglich den Zugriff auf Posts, Seiten und Dateien festzulegen. <strong>Hinweis:</strong> <em>Wird bereits eine '.htaccess' Datei verwendet um die Dateien im Upload-Ordner zu sch&uuml;tzen wird diese <strong>überschrieben</strong>.Wenn das Plugin aktiviert wird und keine Permalinks aktiviert sind wird das Upload Verzeichnis durch eine '.htaccess' Datei mit einem zufälligen Passwort geschützt. Alte Mediafiles in Posts werden nicht mehr korrekt funktionieren. Diese müssen per Hand aktualisiert werden (Nur n&ouml;tig wenn keine Permalinks aktiviert sind).  Die .htaccess Datei kann bei den UAM Einstellungen deaktiviert werden.</em>"
 
 #. Author of the plugin/theme
 msgid "Alexander Schneider"
