@@ -985,6 +985,74 @@ class UserAccessManager
      */
     
     /**
+     * Modifies the content of the post by the given settings.
+     * 
+     * @param object $post The current post.
+     * 
+     * @return object
+     */
+    function _getPost($post)
+    {
+        $uamOptions = $this->getAdminOptions();
+        $uamAccessHandler = &$this->getAccessHandler();
+        
+        $postType = $post->post_type;
+                
+        if ($postType == 'attachment') {
+            $postType = 'post';
+        }
+        
+        if ($uamOptions['hide_'.$postType] == 'true'
+            || $this->atAdminPanel
+        ) {
+            if ($uamAccessHandler->checkAccess($post->ID)) {
+                $post->post_title .= $this->adminOutput($post->ID);
+                
+                return $post;
+            }
+        } else {
+            if (!$uamAccessHandler->checkAccess($post->ID)) {
+                $uamPostContent = $uamOptions[$postType.'_content'];
+                $uamPostContent = str_replace(
+                	"[LOGIN_FORM]", 
+                    $this->getLoginBarHtml(), 
+                    $uamPostContent
+                );
+                
+                if ($uamOptions['hide_'.$postType.'_title'] == 'true') {
+                    $post->post_title = $uamOptions[$postType.'_title'];
+                }
+                
+                if ($uamOptions[$postType.'_comments_locked'] == 'false') {
+                    $post->comment_status = 'close';
+                }
+
+                if ($uamOptions['showPost_content_before_more'] == 'true'
+                	&& $postType == "post"
+                    && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
+                ) {
+                    $post->post_content = explode(
+                        $matches[0], 
+                        $post->post_content, 
+                        2
+                    );
+                    $uamPostContent 
+                        = $post->post_content[0] . " " . $uamPostContent;
+                } 
+                
+                $post->post_content = $uamPostContent;
+            }
+            
+            $post->post_title .= $this->adminOutput($post->ID);
+            
+            return $post;
+        }
+        
+        return null;
+    }
+    
+    
+    /**
      * The function for the the_posts filter.
      * 
      * @param arrray $posts The posts.
@@ -993,61 +1061,16 @@ class UserAccessManager
      */
     function showPost($posts = array())
     {
-        $showPosts = null;
+        $showPosts = array();
         $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = &$this->getAccessHandler();
         
         if (!is_feed() 
             || ($uamOptions['protect_feed'] == 'true' && is_feed())
         ) {
             foreach ($posts as $post) {
-                $postType = $post->post_type;
+                $post = $this->_getPost($post);
                 
-                if ($postType == 'attachment') {
-                    $postType = 'post';
-                }
-                
-                if ($uamOptions['hide_'.$postType] == 'true'
-                    || $this->atAdminPanel
-                ) {
-                    if ($uamAccessHandler->checkAccess($post->ID)) {
-                        $post->post_title .= $this->adminOutput($post->ID);
-                        $showPosts[] = $post;
-                    }
-                } else {
-                    if (!$uamAccessHandler->checkAccess($post->ID)) {
-                        $uamPostContent = $uamOptions[$postType.'_content'];
-                        $uamPostContent = str_replace(
-                        	"[LOGIN_FORM]", 
-                            $this->getLoginBarHtml(), 
-                            $uamPostContent
-                        );
-                        
-                        if ($uamOptions['hide_'.$postType.'_title'] == 'true') {
-                            $post->post_title = $uamOptions[$postType.'_title'];
-                        }
-                        
-                        if ($uamOptions[$postType.'_comments_locked'] == 'false') {
-                            $post->comment_status = 'close';
-                        }
-  
-                        if ($uamOptions['showPost_content_before_more'] == 'true'
-                        	&& $postType == "post"
-                            && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
-                        ) {
-                            $post->post_content = explode(
-                                $matches[0], 
-                                $post->post_content, 
-                                2
-                            );
-                            $uamPostContent 
-                                = $post->post_content[0] . " " . $uamPostContent;
-                        } 
-                        
-                        $post->post_content = $uamPostContent;
-                    }
-                    
-                    $post->post_title .= $this->adminOutput($post->ID);
+                if ($post !== null) {
                     $showPosts[] = $post;
                 }
             }
@@ -1056,6 +1079,45 @@ class UserAccessManager
         }
         
         return $posts;
+    }
+    
+    /**
+     * The function for the wp_get_nav_menu_items filter.
+     * 
+     * @param array $items The menu item.
+     * 
+     * @return array
+     */
+    function showCustomMenu($items)
+    {
+        $showItems = array();
+        
+        foreach ($items as $item) {            
+            if ($item->object == 'post'
+                || $item->object == 'page'
+            ) {
+                $object = get_post($item->object_id);
+                $post = $this->_getPost($object);
+   
+                if ($post !== null) {
+                    $item->title = $post->post_title;
+                    
+                    $showItems[] = $item;
+                }
+            } elseif ($item->object == 'category') {
+                $object = get_category($item->object_id);
+                $post = $this->_getCategory($object);
+   
+                //TODO look if it really works
+                if ($post !== null) {
+                    $showItems[] = $item;
+                }
+            } else {
+                $showItems[] = $item;
+            }
+        }
+        
+        return $showItems;
     }
     
     /**
@@ -1138,6 +1200,59 @@ class UserAccessManager
     }
     
     /**
+     * Modifies the content of the category by the given settings.
+     * 
+     * @param object $category The current category.
+     * 
+     * @return object
+     */
+    function _getCategory($category)
+    {
+        $uamOptions = $this->getAdminOptions();
+        $uamAccessHandler = &$this->getAccessHandler();
+        
+        $category->isEmpty = false;
+        
+        if ($uamAccessHandler->checkCategoryAccess($category->term_id)) {
+            if ($uamOptions['hide_post'] == 'true'
+                || $uamOptions['hide_page'] == 'true'
+            ) {
+                $args = array(
+                	'numberposts' => - 1,
+                    'category' => $category->term_id
+                );
+                $categoryPosts = get_posts($args);
+                
+                if (isset($categoryPosts)) {
+                    foreach ($categoryPosts as $post) {
+                        if ($uamOptions['hide_'.$post->post_type] == 'true'
+                            && !$uamAccessHandler->checkAccess($post->ID)
+                        ) {
+                            $category->count--;   
+                        }
+                    }
+                }
+                
+                if ($category->count !=0
+                    || $category->taxonomy == "link_category" 
+                    || $category->taxonomy == "post_tag" 
+                    || ($uamOptions['hide_empty_categories'] == 'false' 
+                    && $this->atAdminPanel == false)
+                ) {
+                    return $category;
+                } elseif ($category->count == 0) {
+                    $category->isEmpty = true;
+                    return $category;
+                }   
+            } else {
+                return $category;
+            } 
+        }
+        
+        return null;
+    }
+    
+    /**
      * The function for the get_terms filter.
      * 
      * @param array $categories The categories.
@@ -1146,18 +1261,10 @@ class UserAccessManager
      */
     function &showCategory($categories = array())
     {
-        //return $categories;
-        
-        global $current_user;
-        $curUserdata = get_userdata($current_user->ID);
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
         $showCategories = array();
-        
-        if (!isset($curUserdata->user_level)) {
-            $curUserdata->user_level = null;
-        }
 
         $uamOptions = $this->getAdminOptions();
 
@@ -1170,39 +1277,14 @@ class UserAccessManager
                 }
             }
 
-            if ($uamAccessHandler->checkCategoryAccess($category->term_id)) {
-                if ($uamOptions['hide_post'] == 'true'
-                    || $uamOptions['hide_page'] == 'true'
-                ) {
-                    $args = array(
-                    	'numberposts' => - 1,
-                        'category' => $category->term_id
-                    );
-                    $categoryPosts = get_posts($args);
-                    
-                    if (isset($categoryPosts)) {
-                        foreach ($categoryPosts as $post) {
-                            if ($uamOptions['hide_'.$post->post_type] == 'true'
-                                && !$uamAccessHandler->checkAccess($post->ID)
-                            ) {
-                                $category->count--;   
-                            }
-                        }
-                    }
-                    
-                    if ($category->count !=0
-                        || $category->taxonomy == "link_category" 
-                        || $category->taxonomy == "post_tag" 
-                        || ($uamOptions['hide_empty_categories'] == 'false' 
-                        && $this->atAdminPanel == false)
-                    ) {
-                        $showCategories[$category->term_id] = $category;
-                    } elseif ($category->count == 0) {
-                        $emptyCategories[$category->term_id] = $category;
-                    }   
+            $category = $this->_getCategory($category);
+
+            if ($category !== null) {
+                if (!$category->isEmpty) {
+                    $showCategories[$category->term_id] = $category;
                 } else {
-                    $showCategories[$category->term_id] = $category; 
-                }                    
+                    $emptyCategories[$category->term_id] = $category;
+                }
             }
             
             if ($uamOptions['hide_empty_categories'] == 'true'
@@ -1268,9 +1350,13 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         
         $post = get_post($postId);
+        $postType = $post->post_type;
         
-        if (!$uamAccessHandler->checkAccess($postId) && $post != null) {
-            $title = $uamOptions[$post->post_type.'_title'];
+        if (!$uamAccessHandler->checkAccess($postId) 
+            && $post != null 
+            && $uamOptions['hide_'.$postType.'_title'] == 'true'
+        ) {
+            $title = $uamOptions[$postType.'_title'];
         }
         
         return $title;
@@ -1404,7 +1490,7 @@ class UserAccessManager
         
         return '';
     }
-    
+
     
     /*
      * Functions for the redirection and files.
