@@ -1505,7 +1505,7 @@ class UserAccessManager
                 $url
             );
         } else if (wp_attachment_is_image($post->ID)) {
-    		$file = UAM_REALPATH.'/gfx/no_access_pic.png';
+    		$file = UAM_REALPATH.'/gfx/noAccessPic.png';
         } else {
             wp_die(TXT_NO_RIGHTS);
         }

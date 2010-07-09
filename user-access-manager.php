@@ -87,7 +87,7 @@ if (!function_exists("userAccessManagerAP")) {
             
             //Admin main menu
             if (function_exists('add_menu_page')) {
-                add_menu_page('User Access Manager', 'UAM', 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), UAM_URLPATH . "gfx/icon.png");
+                add_menu_page('User Access Manager', 'UAM', 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), 'div');
             }
             
             //Admin sub menus
