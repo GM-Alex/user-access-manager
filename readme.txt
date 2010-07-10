@@ -41,7 +41,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 * Czech, based on 0.7.0.1. Thanks to Huska
 * French, based on 0.8.0.2. Thanks to macbidule
 
-For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com).
+For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com). To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
 == Installation ==
