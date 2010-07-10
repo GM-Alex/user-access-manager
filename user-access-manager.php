@@ -126,6 +126,7 @@ if (!function_exists("userAccessManagerAP")) {
                 add_action('profile_update', array(&$userAccessManager, 'saveUserData'));
     
                 add_action('edit_category_form', array(&$userAccessManager, 'showCategoryEditForm'));
+                add_action('create_category', array(&$userAccessManager, 'saveCategoryData'));
                 add_action('edit_category', array(&$userAccessManager, 'saveCategoryData'));
             }
             

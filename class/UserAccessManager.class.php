@@ -54,7 +54,7 @@ class UserAccessManager
         $this->createHtaccess();
         $this->createHtpasswd();
         global $wpdb;
-        $uamDbVersion = $this->uam_db_version;
+        $uamDbVersion = $this->uamDbVersion;
         include_once ABSPATH . 'wp-admin/includes/upgrade.php';
         $charset_collate = '';
         
@@ -761,7 +761,7 @@ class UserAccessManager
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-        	WHERE post_id = $postId"
+        	WHERE post_id = ".$postId
         );
     }
     
@@ -879,7 +879,7 @@ class UserAccessManager
 
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-        	WHERE user_id = $userId"
+        	WHERE user_id = ".$userId
         );
     }
     
@@ -951,6 +951,9 @@ class UserAccessManager
                 $userGroups = $_POST['usergroups'];
             }
             
+            echo $categoryId;
+            print_r($_POST['usergroups']);
+            
             if (isset($userGroups)) {
                 foreach ($userGroups as $userGroupId) {
                     $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
@@ -975,7 +978,7 @@ class UserAccessManager
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-        	WHERE category_id = $categoryId"
+        	WHERE category_id = ".$categoryId
         );
     }
 
