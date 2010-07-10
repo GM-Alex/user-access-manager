@@ -1221,6 +1221,7 @@ class UserAccessManager
                 	'numberposts' => - 1,
                     'category' => $category->term_id
                 );
+                
                 $categoryPosts = get_posts($args);
                 
                 if (isset($categoryPosts)) {
@@ -1256,11 +1257,12 @@ class UserAccessManager
      * The function for the get_terms filter.
      * 
      * @param array $categories The categories.
+     * @param array $args       The given arguments.
      * 
      * @return array
      */
-    function &showCategory($categories = array())
-    {
+    function showCategory($categories = array(), $args = array())
+    {        
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
@@ -1270,11 +1272,7 @@ class UserAccessManager
 
         foreach ($categories as $category) {
             if (!is_object($category)) {
-                $category = get_category($category);
-                
-                if (!isset($category->term_id)) {
-                    $category->term_id = null;
-                }
+                return $categories;
             }
 
             $category = $this->_getCategory($category);

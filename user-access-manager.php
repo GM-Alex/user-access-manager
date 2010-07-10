@@ -208,7 +208,7 @@ if (isset($userAccessManager)) {
         add_filter('wp_get_nav_menu_items', array(&$userAccessManager, 'showCustomMenu'));
         add_filter('comments_array', array(&$userAccessManager, 'showComment'));
         add_filter('get_pages', array(&$userAccessManager, 'showPage'));
-        add_filter('get_terms', array(&$userAccessManager, 'showCategory'));
+        add_filter('get_terms', array(&$userAccessManager, 'showCategory'), 10, 2);
         add_filter('get_next_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
         add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
         add_filter('the_title', array(&$userAccessManager, 'showTitle'), 10, 2);
