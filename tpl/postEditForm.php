@@ -16,11 +16,12 @@
  */
 
 if (isset($id)) {
-    $postId = $id;
+    $objectId = $id;
 } else if (isset($_GET['attachment_id'])) {
-    $postId = $_GET['attachment_id'];
+    $objectId = $_GET['attachment_id'];
 }
-$post = get_post($postId);
+
+$post = get_post($objectId);
 
 //Do we need this anymore?
 /*if ($post->post_parent != 0
@@ -36,10 +37,10 @@ $uamUserGroups
     = &$userAccessManager->getAccessHandler()->getUserGroups();
 
 if (isset($post->ID)) {
-    $postId = $post->ID;
+    $objectId = $post->ID;
     
     $userGroupsForObject 
-        = &$userAccessManager->getAccessHandler()->getUserGroupsForPost($postId);
+        = &$userAccessManager->getAccessHandler()->getUserGroupsForPost($objectId);
 } else {
     $userGroupsForObject = array();
 }

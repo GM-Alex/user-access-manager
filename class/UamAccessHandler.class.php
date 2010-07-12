@@ -153,9 +153,6 @@ class UamAccessHandler
        
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
-                //We have to clone the group to prevent errors by reference
-                $userGroup = clone $userGroup;
-                
                 $objectMembership = $userGroup->{$type.'IsMember'}($objectId, true);
                 
                 if ($objectMembership !== false) {
@@ -163,7 +160,7 @@ class UamAccessHandler
                         || isset($objectMembership['byCategory'])
                         || isset($objectMembership['byRole'])
                     ) {
-                        $userGroup->setRecursive = $objectMembership;
+                        $userGroup->setRecursive[$objectId] = $objectMembership;
                     }
 
                     $objectUserGroups[$userGroup->getId()] 

@@ -951,9 +951,6 @@ class UserAccessManager
                 $userGroups = $_POST['usergroups'];
             }
             
-            echo $categoryId;
-            print_r($_POST['usergroups']);
-            
             if (isset($userGroups)) {
                 foreach ($userGroups as $userGroupId) {
                     $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
@@ -1003,6 +1000,8 @@ class UserAccessManager
                 
         if ($postType == 'attachment') {
             $postType = 'post';
+        } elseif ($postType != 'post' && $postType != 'page') {
+            return $post;
         }
         
         if ($uamOptions['hide_'.$postType] == 'true'
@@ -1132,7 +1131,7 @@ class UserAccessManager
      */
     function showComment($comments = array())
     {
-        $showComments = null;
+        $showComments = array();
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
@@ -1171,7 +1170,7 @@ class UserAccessManager
      */
     function showPage($pages = array())
     {
-        $showPages = null;
+        $showPages = array();
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
@@ -1265,7 +1264,9 @@ class UserAccessManager
      * @return array
      */
     function showCategory($categories = array(), $args = array())
-    {        
+    {
+        return $categories;
+        
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
@@ -1392,6 +1393,7 @@ class UserAccessManager
                 }
             }
         }
+        
         return $sql;
     }
     

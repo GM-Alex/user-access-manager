@@ -72,13 +72,13 @@ if (!function_exists('walkPath')) {
 <div class="tooltip">
 <ul class="uam_group_info">
 <?php 
-if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byCategory'])) {
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectId]['byCategory'])) {
     ?>
 	<li  class="uam_group_info_head">
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_CATEGORIES; ?>:
 		<ul>
 	<?php
-	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byCategory'] as $category) {
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectId]['byCategory'] as $category) {
 	    ?>
 	    	<li class="recusiveTree"><?php echo walkPath($category, 'category'); ?></li>
 	    <?php
@@ -90,14 +90,13 @@ if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byCategory
 }
 ?>
 <?php 
-if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byPost'])) {
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectId]['byPost'])) {
     ?>
 	<li  class="uam_group_info_head">
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_POSTS; ?>:
 		<ul>
 	<?php 
-	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byPost'] as $post) {
-	    //$post = get_post($post);
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectId]['byPost'] as $post) {
 	    ?>
 	    	<li class="recusiveTree"><?php echo walkPath($post, 'post'); ?></li>
 	    <?php
@@ -109,13 +108,13 @@ if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byPost']))
 }
 ?>
 <?php 
-if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byRole'])) {
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectId]['byRole'])) {
     ?>
 	<li  class="uam_group_info_head">
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_ROLE; ?>:
 		<ul>
 	<?php 
-	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive['byRole'] as $role) {
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectId]['byRole'] as $role) {
 	    ?>
 	    	<li><?php echo $role; ?></li>
 	    <?php

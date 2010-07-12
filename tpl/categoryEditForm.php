@@ -19,11 +19,13 @@ global $userAccessManager;
 $uamUserGroups 
     = &$userAccessManager->getAccessHandler()->getUserGroups();
 
+$objectId = null;    
+
 if (isset($_GET['tag_ID'])) {
-    $categoryId = $_GET['tag_ID'];
+    $objectId = $_GET['tag_ID'];
     
     $userGroupsForObject 
-        = &$userAccessManager->getAccessHandler()->getUserGroupsForCategory($categoryId);
+        = &$userAccessManager->getAccessHandler()->getUserGroupsForCategory($objectId);
 } else {
     $userGroupsForObject = array();
 }

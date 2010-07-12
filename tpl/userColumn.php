@@ -15,8 +15,11 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
+$objectId = $id;
 global $userAccessManager;
-$uamUserGroups = $userAccessManager->getAccessHandler()->getUsergroupsForUser($id);
+
+$uamUserGroups 
+    = $userAccessManager->getAccessHandler()->getUsergroupsForUser($objectId);
 $userGroupsForObject = &$uamUserGroups;
 
 if ($uamUserGroups != Array()) {

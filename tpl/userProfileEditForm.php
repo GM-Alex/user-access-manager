@@ -20,11 +20,11 @@ $uamUserGroups
     = &$userAccessManager->getAccessHandler()->getUserGroups();
 
 if (isset($_GET['user_id'])) {
-    $userId = $_GET['user_id'];
-    $editUserData = get_userdata($userId);
+    $objectId = $_GET['user_id'];
+    $editUserData = get_userdata($objectId);
     
     $userGroupsForObject 
-        = &$userAccessManager->getAccessHandler()->getUserGroupsForUser($userId);
+        = &$userAccessManager->getAccessHandler()->getUserGroupsForUser($objectId);
 } else {
     $userGroupsForObject = array();
 }

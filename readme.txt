@@ -57,6 +57,9 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    1.0 Beta2	2010/07/xx	Fix perforance issues
+    						Nearly all reported bugs are fixed.
+    
     1.0 Beta	2010/07/09	Complete rewrite
     						Some new options to improve the functions
     

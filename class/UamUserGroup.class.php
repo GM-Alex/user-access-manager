@@ -544,44 +544,46 @@ class UamUserGroup
         if (isset($dbCategories)) {
             foreach ($dbCategories as $dbCategorie) {
                 $category = get_category($dbCategorie['category_id']);
-
-                if ($uamOptions['lock_recursive'] == 'true' 
-                    && $type == 'full'
-                ) {
-                    //We have to remove the filter to get all categories
-                    $removeSucc = remove_filter(
-                    	'get_terms', 
-                        array(
-                            $this->getAccessHandler()->getUserAccessManager(), 
-                            'showCategory'
-                        )
-                    );
-                    
-                    if ($removeSucc) {
-                        $args = array(
-                            'child_of' => $category->term_id,
-                            'hide_empty' => false
-                        );
-                        
-                        $categoryChilds = get_categories($args);
-                        
-                        add_filter(
+                
+                if ($category != null) {
+                    if ($uamOptions['lock_recursive'] == 'true' 
+                        && $type == 'full'
+                    ) {
+                        //We have to remove the filter to get all categories
+                        $removeSucc = remove_filter(
                         	'get_terms', 
-                            array(&$userAccessManager, 'showCategory')
+                            array(
+                                $this->getAccessHandler()->getUserAccessManager(), 
+                                'showCategory'
+                            )
                         );
                         
-                        foreach ($categoryChilds as $categoryChild) {
-                            $categoryChild->recursiveMember 
-                                = array('byCategory' => array());
-                            $categoryChild->recursiveMember['byCategory'][] 
-                                = $category->term_id;
-                            $this->categories[$type][$categoryChild->term_id] 
-                                = $categoryChild;
+                        if ($removeSucc) {
+                            $args = array(
+                                'child_of' => $category->term_id,
+                                'hide_empty' => false
+                            );
+                            
+                            $categoryChilds = get_categories($args);
+                            
+                            add_filter(
+                            	'get_terms', 
+                                array(&$userAccessManager, 'showCategory')
+                            );
+                            
+                            foreach ($categoryChilds as $categoryChild) {
+                                $categoryChild->recursiveMember 
+                                    = array('byCategory' => array());
+                                $categoryChild->recursiveMember['byCategory'][] 
+                                    = $category->term_id;
+                                $this->categories[$type][$categoryChild->term_id] 
+                                    = $categoryChild;
+                            }
                         }
                     }
-                }
                 
-                $this->categories[$type][$category->term_id] = $category;
+                    $this->categories[$type][$category->term_id] = $category;
+                }
             }
         }
         
