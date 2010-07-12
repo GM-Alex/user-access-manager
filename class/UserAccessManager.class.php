@@ -1264,9 +1264,7 @@ class UserAccessManager
      * @return array
      */
     function showCategory($categories = array(), $args = array())
-    {
-        return $categories;
-        
+    {        
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         

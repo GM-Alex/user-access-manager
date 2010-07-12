@@ -56,7 +56,7 @@ if (class_exists("UserAccessManager")) {
 //Initialize the admin panel
 if (!function_exists("userAccessManagerAP")) {
     /**
-     * Creates the menu at the admin panel
+     * Creates the filters and actions for the admin panel
      * 
      * @return null;
      */
@@ -65,7 +65,6 @@ if (!function_exists("userAccessManagerAP")) {
         global $userAccessManager, 
         $uamUserGroup, 
         $uamAccessHandler, 
-        $wp_version, 
         $current_user;
         
         if (!isset($userAccessManager)) {
@@ -77,38 +76,9 @@ if (!function_exists("userAccessManagerAP")) {
         $userAccessManager->update();
         
         get_currentuserinfo();
-        $cur_userdata = get_userdata($current_user->ID);
+        $curUserdata = get_userdata($current_user->ID);
         
-        if ($cur_userdata->user_level >= $uamOptions['full_access_level']) {
-            //TODO
-            /**
-             * --- BOF ---
-             * Not the best way to handle full user access capabilities seems 
-             * to be the right way, but it is way difficult.
-             */
-            
-            //Admin main menu
-            if (function_exists('add_menu_page')) {
-                add_menu_page('User Access Manager', 'UAM', 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), 'div');
-            }
-            
-            //Admin sub menus
-            if (function_exists('add_submenu_page')) {
-                add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
-                add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 'read', 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
-                add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 'read', 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
-                add_submenu_page('uam_usergroup', TXT_ABOUT, TXT_ABOUT, 'read', 'uam_about', array(&$userAccessManager, 'printAdminPage'));
-            }
-            /**
-             * --- EOF ---
-             */
-            
-            //Admin meta boxes
-            if (function_exists('add_meta_box')) {
-                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'post', 'side');
-                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'page', 'side');
-            }
-        
+        if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
             //Admin actions
             if (function_exists('add_action')) {
                 add_action('admin_print_styles', array(&$userAccessManager, 'addStyles'));
@@ -162,6 +132,57 @@ if (!function_exists("userAccessManagerAP")) {
     }
 }
 
+if (!function_exists("userAccessManagerAPMenu")) {
+    /**
+     * Creates the menu at the admin panel
+     * 
+     * @return null;
+     */
+    function userAccessManagerAPMenu()
+    {
+        global $userAccessManager,
+        $current_user;
+        
+        if (!isset($userAccessManager)) {
+            return;
+        }
+        
+        $uamOptions = $userAccessManager->getAdminOptions();
+        $curUserdata = get_userdata($current_user->ID);
+        
+        if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
+            //TODO
+            /**
+             * --- BOF ---
+             * Not the best way to handle full user access capabilities seems 
+             * to be the right way, but it is way difficult.
+             */
+            
+            //Admin main menu
+            if (function_exists('add_menu_page')) {
+                add_menu_page('User Access Manager', 'UAM', 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'), 'div');
+            }
+            
+            //Admin sub menus
+            if (function_exists('add_submenu_page')) {
+                add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 'read', 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 'read', 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_ABOUT, TXT_ABOUT, 'read', 'uam_about', array(&$userAccessManager, 'printAdminPage'));
+            }
+            /**
+             * --- EOF ---
+             */
+            
+            //Admin meta boxes
+            if (function_exists('add_meta_box')) {
+                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'post', 'side');
+                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'page', 'side');
+            }
+        }
+    }
+}
+
 if (isset($userAccessManager)) {
     load_plugin_textdomain(
     	'user-access-manager', 
@@ -198,7 +219,8 @@ if (isset($userAccessManager)) {
     if (function_exists('add_action')) {
         add_action('wp_print_scripts', array(&$userAccessManager, 'addScripts'));
         add_action('wp_print_styles', array(&$userAccessManager, 'addStyles'));
-        add_action('admin_menu', 'userAccessManagerAP');
+        add_action('admin_init', 'userAccessManagerAP');
+        add_action('admin_menu', 'userAccessManagerAPMenu');
     }
     
     //Filters
