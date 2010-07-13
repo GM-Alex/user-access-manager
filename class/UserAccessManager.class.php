@@ -474,7 +474,7 @@ class UserAccessManager
             	'blog_admin_hint_text' => '[L]',
             	'hide_empty_categories' => 'true', 
             	'protect_feed' => 'true', 
-            	'showPost_content_before_more' => 'false', 
+            	'show_post_content_before_more' => 'false', 
             	'full_access_level' => 10
             );
             
@@ -1029,7 +1029,7 @@ class UserAccessManager
                     $post->comment_status = 'close';
                 }
 
-                if ($uamOptions['showPost_content_before_more'] == 'true'
+                if ($uamOptions['show_post_content_before_more'] == 'true'
                 	&& $postType == "post"
                     && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
                 ) {
@@ -1108,10 +1108,11 @@ class UserAccessManager
                 }
             } elseif ($item->object == 'category') {
                 $object = get_category($item->object_id);
-                $post = $this->_getCategory($object);
-   
-                //TODO look if it really works
-                if ($post !== null) {
+                $category = $this->_getCategory($object);
+
+                if ($category !== null
+                    && !$category->isEmpty
+                ) {
                     $showItems[] = $item;
                 }
             } else {
@@ -1216,8 +1217,9 @@ class UserAccessManager
         $category->isEmpty = false;
         
         if ($uamAccessHandler->checkCategoryAccess($category->term_id)) {
-            if ($uamOptions['hide_post'] == 'true'
-                || $uamOptions['hide_page'] == 'true'
+            if ($this->atAdminPanel == false
+                && ($uamOptions['hide_post'] == 'true'
+                || $uamOptions['hide_page'] == 'true')
             ) {
                 $args = array(
                 	'numberposts' => - 1,
@@ -1236,17 +1238,14 @@ class UserAccessManager
                     }
                 }
                 
-                if ($category->count !=0
-                    || $category->taxonomy == "link_category" 
-                    || $category->taxonomy == "post_tag" 
-                    || ($uamOptions['hide_empty_categories'] == 'false' 
-                    && $this->atAdminPanel == false)
+                if ($category->count <= 0 
+                    && $uamOptions['hide_empty_categories'] == 'true'
+                    && $category->taxonomy == "category"
                 ) {
-                    return $category;
-                } elseif ($category->count == 0) {
                     $category->isEmpty = true;
-                    return $category;
-                }   
+                }
+                
+                return $category;
             } else {
                 return $category;
             } 
@@ -1282,55 +1281,14 @@ class UserAccessManager
             if ($category !== null) {
                 if (!$category->isEmpty) {
                     $showCategories[$category->term_id] = $category;
-                } else {
-                    $emptyCategories[$category->term_id] = $category;
-                }
-            }
-            
-            if ($uamOptions['hide_empty_categories'] == 'true'
-                && isset($showCategories)
-                && isset($emptyCategories)
-            ) {
-                foreach ($showCategories as $showCategory) {
-                    $curCategory = $showCategory;
-                
-                    while ($curCategory->parent != 0 
-                           && isset($emptyCategories)
-                    ) {
-                        $showCategories[$showCategory->parent] 
-                            = $emptyCategories[$curCategory->parent];
-                        $showCategories[$showCategory->parent]->count 
-                            = $showCategory->count;
-                        unset($emptyCategories[$curCategory->parent]);
-                        
-                        $curCategory = & get_category($curCategory->parent);
-                    }
                 }
             }
         }
-
-        /* Don't know why this don't work.
-         * Sets wp_option category_children on an empty value, but why?
-         * Reason could be locatet at clean_term_cache() function in
-         * taxonomy.php line 2120
-         * 
-         * $categories = array();
-         * 
-         * foreach ($showCategories as $showCategory) {
-         *     $categories[$i] = $showCategory;
-         * }
-         */
         
-        $catCount = count($categories);
-        $i = 0;
-        
-        foreach ($showCategories as $showCategory) {
-            $categories[$i] = $showCategory;
-            $i++;
-        }
-        
-        for ($i; $i < $catCount; $i++) {
-            unset($categories[$i]);
+        foreach ($categories as $key => $category) {
+            if (!array_key_exists($category->term_id, $showCategories)) {
+                unset($categories[$key]);
+            }
         }
         
         return $categories;
@@ -1513,8 +1471,6 @@ class UserAccessManager
         $emptyId = null;
         $post = get_post($emptyId);
         
-        //|| (!$this->getAccessHandler()->checkAccess($fileId) && !wp_attachment_is_image($fileId) && isset($fileId)))
-        
         if ($uamOptions['redirect'] != 'false' 
             && !$this->getAccessHandler()->checkAccess($post->ID) 
             && !$this->atAdminPanel 
@@ -1608,9 +1564,11 @@ class UserAccessManager
         if (file_exists($file)) {
             $fileName = basename($file);
 
-            //This only for compatibility
-            //mime_content_type has been deprecated as the PECL extension Fileinfo 
-            //provides the same functionality (and more) in a much cleaner way.
+            /**
+             * This only for compatibility
+             * mime_content_type has been deprecated as the PECL extension Fileinfo 
+             * provides the same functionality (and more) in a much cleaner way.
+             */
             if (function_exists('finfo_open')) {
                 $finfo = finfo_open(FILEINFO_MIME);
         
@@ -1708,13 +1666,6 @@ class UserAccessManager
         } else {
             $newUrl = $newUrl[0];
         }
-        
-        /*$permaStruc = get_option('permalink_structure');
-            
-        if (!empty($permaStruc)) {
-            $uploadDir = wp_upload_dir();
-            $newUrl = $uploadDir['baseurl'].'/'.$newUrl;
-        }*/
         
         global $wpdb;
         $dbPost = $wpdb->get_row(
