@@ -1663,7 +1663,17 @@ class UserAccessManager
      */
     function getAttachmentIdByUrl($url)
     {
-        $newUrl = preg_split("/-[0-9]*x[0-9]*/", $url);
+        //Filter editstring
+        $newUrl = preg_split("/-e[0-9]*/", $url);
+
+        if (count($newUrl) == 2) {
+            $newUrl = $newUrl[0].$newUrl[1];
+        } else {
+            $newUrl = $newUrl[0];
+        }
+        
+        //Filter size
+        $newUrl = preg_split("/-[0-9]*x[0-9]*/", $newUrl);
 
         if (count($newUrl) == 2) {
             $newUrl = $newUrl[0].$newUrl[1];

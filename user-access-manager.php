@@ -25,10 +25,8 @@
 load_plugin_textdomain(
 	'user-access-manager', 
 	false, 
-	'var/www/wordpress/wp-content/plugins/user-access-manager'.'/lang'
+	'user-access-manager/lang'
 );
-
-echo dirname(plugin_basename(__FILE__)).'/lang';
 
 define(
 	'UAM_URLPATH', 

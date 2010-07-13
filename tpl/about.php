@@ -40,7 +40,7 @@
         		    <strong><?php echo TXT_SPECIAL_THANKS; ?></strong><br/>
         		    <br/>
         		    <?php echo TXT_THANKS_TO; ?><br/> 
-        			Patric Schwarz, Mark LeRoy, Huska, macbidule
+        			Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, all beta testers and all others I forgot.
         		</p>
         	</div>
         </div>
