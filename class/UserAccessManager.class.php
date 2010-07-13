@@ -1343,9 +1343,11 @@ class UserAccessManager
                     }
                 }
                 
+                global $wpdb;
+                
                 if (isset($excludedPosts)) {
                     $excludedPostsStr = implode(",", $excludedPosts);
-                    $sql.= "AND ID NOT IN($excludedPostsStr)";
+                    $sql.= "AND p.ID NOT IN($excludedPostsStr)";
                 }
             }
         }
@@ -1377,9 +1379,11 @@ class UserAccessManager
                     }
                 }
                 
+                global $wpdb;
+                
                 if (isset($excludedPosts)) {
                     $excludedPostsStr = implode(",", $excludedPosts);
-                    $sql.= "AND ID NOT IN($excludedPostsStr)";
+                    $sql.= "AND $wpdb->posts.ID NOT IN($excludedPostsStr)";
                 }
             }
         }

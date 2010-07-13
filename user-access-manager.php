@@ -22,6 +22,12 @@
 */
 
 //Paths
+load_plugin_textdomain(
+	'user-access-manager', 
+	false, 
+	'/var/www/wordpress/wp-content/plugins/user-access-manager/'
+);
+
 define(
 	'UAM_URLPATH', 
     WP_PLUGIN_URL.'/user-access-manager/'
@@ -183,13 +189,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
     }
 }
 
-if (isset($userAccessManager)) {
-    load_plugin_textdomain(
-    	'user-access-manager', 
-    	false, 
-    	dirname(plugin_basename(__FILE__))
-    );
-    
+if (isset($userAccessManager)) {    
     //install
     if (function_exists('register_activation_hook')) {
         register_activation_hook(__FILE__, array(&$userAccessManager, 'install'));
@@ -235,6 +235,6 @@ if (isset($userAccessManager)) {
         add_filter('get_next_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
         add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
         add_filter('the_title', array(&$userAccessManager, 'showTitle'), 10, 2);
-        add_filter('posts_where', array(&$userAccessManager, 'showPostSql'));
+        //add_filter('posts_where', array(&$userAccessManager, 'showPostSql'));
     }
 }
