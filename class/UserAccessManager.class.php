@@ -1244,6 +1244,19 @@ class UserAccessManager
                     $category->isEmpty = true;
                 }
                 
+                if ($uamOptions['lock_recursive'] == 'false') {
+                    $curCategory = $category;
+                    
+                    while ($curCategory->parent != 0) {
+                        $curCategory = get_category($curCategory->parent);
+                        
+                        if ($uamAccessHandler->checkCategoryAccess($curCategory->term_id)) {
+                            $category->parent = $curCategory->term_id;
+                            break;
+                        }
+                    }
+                }
+                
                 return $category;
             } else {
                 return $category;
@@ -1353,43 +1366,7 @@ class UserAccessManager
         
         return $sql;
     }
-    
-    /**
-     * The function for the posts_where filter.
-     * 
-     * @param string $sql The current sql string.
-     * 
-     * @return string
-     */
-    function showPostSql($sql)
-    {
-        $uamOptions = $this->getAdminOptions();
-        
-        if (($uamOptions['hide_post'] == 'true' && !is_feed()) 
-            || (is_feed() && $uamOptions['protect_feed'] == 'true')
-        ) {
-            $posts = get_posts();
-            $uamAccessHandler = &$this->getAccessHandler();
-            
-            if (isset($posts)) {
-                foreach ($posts as $post) {
-                    if (!$uamAccessHandler->checkAccess($post->ID)) {
-                        $excludedPosts[] = $post->ID;
-                    }
-                }
-                
-                global $wpdb;
-                
-                if (isset($excludedPosts)) {
-                    $excludedPostsStr = implode(",", $excludedPosts);
-                    $sql.= "AND $wpdb->posts.ID NOT IN($excludedPostsStr)";
-                }
-            }
-        }
-        
-        return $sql;
-    }
-    
+     
     /**
      * Returns the admin hint.
      * 
@@ -1414,29 +1391,40 @@ class UserAccessManager
                 }
                 
                 $uamAccessHandler = &$this->getAccessHandler();
-                $groups = $uamAccessHandler->getUserGroupsForPost($postId);
                 
-                if ($uamAccessHandler->checkUserAccess()
-                    && $groups != array()
-                ) {
-                    $output .= '<span class="uam_group_info_link">';
+                if (count($uamAccessHandler->getUserGroupsForPost($postId)) > 0) {
                     $output .= $uamOptions['blog_admin_hint_text'];
-                    $output .= '</span>';
-                    $output .= '<div class="tooltip">';
-                     $output .= '<b>'.TXT_ASSIGNED_GROUPS.':</b>&nbsp;';
-                    
-                    foreach ($groups as $group) {
-                        $output .= $group->getGroupName().', ';
-                    }
-                    
-                    $output = rtrim($output, ', ');
-                    
-                    $output .= '</div>';
                 }
             }
         }
         
         return $output;
+    }
+    
+    /**
+     * The function for the edit_post_link filter.
+     * 
+     * @param string  $link   The edit link.
+     * @param integer $postId The id of the post.
+     * 
+     * @return string
+     */
+    function showGroupMembership($link, $postId)
+    {
+        $uamAccessHandler = &$this->getAccessHandler();
+        $groups = $uamAccessHandler->getUserGroupsForPost($postId);
+        
+        if (count($groups) > 0) {
+            $link .= ' | '.TXT_ASSIGNED_GROUPS.': ';
+            
+            foreach ($groups as $group) {
+                $link .= $group->getGroupName().', ';
+            }
+            
+            $link = rtrim($link, ', ');
+        }
+        
+        return $link;
     }
     
     /**

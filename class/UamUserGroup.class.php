@@ -790,7 +790,10 @@ class UamUserGroup
     function _getSinglePost($post, $type, $postType)
     {
         $isRecursiveMember = array();
-                
+        
+        $userAccessManager = $this->getAccessHandler()->getUserAccessManager();
+        $uamOptions = $userAccessManager->getAdminOptions();
+        
         if ($type == 'full') {
             foreach (get_the_category($post->ID) as $category) {
                 if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
@@ -798,9 +801,10 @@ class UamUserGroup
                     //break;
                 }
             }
-            
-            if ($postType == 'page'
-            	|| $postType == 'file' /*&& $isRecursiveMember == array()*/
+
+            if (($postType == 'page'
+            	|| $postType == 'file')
+            	&& $uamOptions['lock_recursive'] == 'true'
             ) {
                 if ($post->post_parent != 0) {
                     $parentPost = get_post($post->post_parent);

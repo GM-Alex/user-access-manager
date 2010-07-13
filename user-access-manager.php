@@ -235,6 +235,6 @@ if (isset($userAccessManager)) {
         add_filter('get_next_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
         add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
         add_filter('the_title', array(&$userAccessManager, 'showTitle'), 10, 2);
-        //add_filter('posts_where', array(&$userAccessManager, 'showPostSql'));
+        add_filter('edit_post_link', array(&$userAccessManager, 'showGroupMembership'), 10, 2);
     }
 }
