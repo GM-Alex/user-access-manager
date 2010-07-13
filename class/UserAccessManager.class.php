@@ -1053,7 +1053,6 @@ class UserAccessManager
         return null;
     }
     
-    
     /**
      * The function for the the_posts filter.
      * 
