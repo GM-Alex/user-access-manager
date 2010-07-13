@@ -39,9 +39,9 @@ class UserAccessManager
      * 
      * @return null
      */
-    function UserAccessManager()
+    function __construct()
     {
-
+        
     }
     
     /**
