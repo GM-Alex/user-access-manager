@@ -57,7 +57,7 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.0			2010/07/13	Fix perforance issues
+    1.0	Beta 2	2010/07/13	Fix perforance issues
     						Fix media gallery issues
     						Fix category bug
     						Fix not loaded translation
