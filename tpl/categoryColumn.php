@@ -25,8 +25,6 @@ $uamUserGroupsFull
     = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($objectId, false);
 $groupDiff = count($uamUserGroupsFull) - count($uamUserGroups);
 
-echo $groupDiff;
-
 if ($uamUserGroups != Array()) {
     ?>
 	<ul>
