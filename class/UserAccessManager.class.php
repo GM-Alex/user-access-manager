@@ -694,11 +694,9 @@ class UserAccessManager
     }
     
     /**
-     * The function for the save_post and the add_attachment action.
+     * The function for the save_post action.
      * 
      * @param mixed $postParam The post id or a array of a post.
-     * 
-     * @return object
      */    
     function savePostData($postParam)
     {
@@ -748,6 +746,22 @@ class UserAccessManager
         }
     }
 
+    /**
+     * The function for the attachment_fields_to_save filter.
+     * We have to use this because the attachment actions work
+     * not in the way we need.
+     * 
+     * @param object $attachment The attachment id.
+     * 
+     * @return object
+     */    
+    function saveAttachmentData($attachment)
+    {
+        $this->savePostData($attachment['ID']);
+        
+        return $attachment;
+    }
+    
     /**
      * The function for the delete_post action.
      * 
@@ -991,7 +1005,7 @@ class UserAccessManager
      * 
      * @return object
      */
-    function _getPost($post)
+    private function _getPost($post)
     {
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
@@ -1208,7 +1222,7 @@ class UserAccessManager
      * 
      * @return object
      */
-    function _getCategory($category)
+    private function _getCategory($category)
     {
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();

@@ -95,8 +95,10 @@ if (!function_exists("userAccessManagerAP")) {
                 add_action('save_post', array(&$userAccessManager, 'savePostData'));
                 
                 add_action('manage_media_custom_column', array(&$userAccessManager, 'addPostColumn'), 10, 2);
-                add_action('add_attachment', array(&$userAccessManager, 'savePostData'));
-                add_action('attachment_fields_to_save', array(&$userAccessManager, 'savePostData'));
+                
+                //Actions are only called when the attachment content is modified so we can't use it.
+                //add_action('add_attachment', array(&$userAccessManager, 'savePostData'));
+                //add_action('edit_attachment', array(&$userAccessManager, 'savePostData'));
                 
                 add_action('edit_user_profile', array(&$userAccessManager, 'showUserProfile'));
                 add_action('profile_update', array(&$userAccessManager, 'saveUserData'));
@@ -108,6 +110,9 @@ if (!function_exists("userAccessManagerAP")) {
             
             //Admin filters
             if (function_exists('add_filter')) {
+                //The filter we use instead of add|edit_attachment action, reason see top
+                add_filter('attachment_fields_to_save', array(&$userAccessManager, 'saveAttachmentData'));
+                
                 add_filter('manage_posts_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
                 add_filter('manage_pages_columns', array(&$userAccessManager, 'addPostColumnsHeader'));
                 
