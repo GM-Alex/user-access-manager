@@ -457,6 +457,27 @@ if ($uamOptions['authors_has_access_to_own'] == "false") {
 				<?php echo TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC; ?></td>
 		</tr>
 		<tr>
+			<th><?php echo TXT_AUTHORS_CAN_ADD_POSTS_TO_GROUPS; ?></th>
+			<td>
+				<label for="uam_authors_can_add_posts_to_groups_yes"> 
+					<input type="radio" id="uam_authors_can_add_posts_to_groups_yes" name="uam_authors_can_add_posts_to_groups" value="true" <?php
+if ($uamOptions['authors_can_add_posts_to_groups'] == "true") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_YES; ?> 
+				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
+				<label for="uam_authors_can_add_posts_to_groups_no">
+					<input type="radio" id="uam_authors_can_add_posts_to_groups_no" name="uam_authors_can_add_posts_to_groups" value="false" <?php
+if ($uamOptions['authors_can_add_posts_to_groups'] == "false") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_NO; ?> 
+				</label> <br />
+				<?php echo TXT_AUTHORS_CAN_ADD_POSTS_TO_GROUPS_DESC; ?></td>
+		</tr>
+		<tr>
 			<th><?php echo TXT_FULL_ACCESS_LEVEL; ?></th>
 			<td>
 				<input name="uam_full_access_level" value="<?php echo $uamOptions['full_access_level']; ?>" /> <br />

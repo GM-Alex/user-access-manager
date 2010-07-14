@@ -84,7 +84,9 @@ if (!function_exists("userAccessManagerAP")) {
         get_currentuserinfo();
         $curUserdata = get_userdata($current_user->ID);
         
-        if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
+        if ($userAccessManager->checkUserAccess()
+            || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
+        ) {
             //Admin actions
             if (function_exists('add_action')) {
                 add_action('admin_print_styles', array(&$userAccessManager, 'addStyles'));
@@ -161,7 +163,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
         $uamOptions = $userAccessManager->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);
         
-        if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
+        if ($userAccessManager->checkUserAccess()) {
             //TODO
             /**
              * --- BOF ---
@@ -184,7 +186,11 @@ if (!function_exists("userAccessManagerAPMenu")) {
             /**
              * --- EOF ---
              */
-            
+        }
+        
+        if ($userAccessManager->checkUserAccess()
+            || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
+        ) {
             //Admin meta boxes
             if (function_exists('add_meta_box')) {
                 add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'post', 'side');

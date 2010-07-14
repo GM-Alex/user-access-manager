@@ -23,16 +23,8 @@ if (isset($id)) {
 
 $post = get_post($objectId);
 
-//Do we need this anymore?
-/*if ($post->post_parent != 0
-    && $post->post_type == 'post'
-) {
-    $postId = $post->post_parent;
-} else {
-    $postId = $post->ID;
-}*/
-
 global $userAccessManager;
+
 $uamUserGroups 
     = &$userAccessManager->getAccessHandler()->getUserGroups();
 

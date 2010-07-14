@@ -58,6 +58,36 @@ class UamAccessHandler
     }
     
     /**
+     * Filter the user groups of an object if authors_can_add_posts_to_groups
+     * option is enabled
+     * 
+     * @param array $userGroups The user groups.
+     * 
+     * @return array
+     */
+    private function _filterUserGroups($userGroups)
+    {
+        $uamOptions = $this->getUserAccessManager()->getAdminOptions();
+        
+        if ($uamOptions['authors_can_add_posts_to_groups'] == 'true'
+        	&& !$userAccessManager->checkUserAccess()
+        ) {
+            global $current_user;
+            
+            $userGroupsForUser 
+                = $this->getUserGroupsForUser($current_user->ID);
+            
+            foreach ($userGroups as $key => $uamUserGroup) {
+                if (!array_key_exists($uamUserGroup->getId(), $userGroupsForUser)) {
+                    unset($userGroups[$key]);
+                }
+            }
+        }
+        
+        return $userGroups;
+    }
+    
+    /**
      * Returns all user groups or one requested by the user group id.
      * 
      * @param integer $userGroupId The id of the single user group 
