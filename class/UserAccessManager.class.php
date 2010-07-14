@@ -697,6 +697,8 @@ class UserAccessManager
      * The function for the save_post action.
      * 
      * @param mixed $postParam The post id or a array of a post.
+     * 
+     * @return null
      */    
     function savePostData($postParam)
     {
