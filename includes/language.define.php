@@ -81,6 +81,14 @@ define('TXT_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong
 define('TXT_NORMAL', __('Normal', 'user-access-manager'));
 define('TXT_FOPEN', __('fopen', 'user-access-manager'));
 
+// --- Setting Page -> editor settings ---
+define('TXT_AUTHOR_SETTING', __('Authors settings', 'user-access-manager'));
+define('TXT_AUTHOR_SETTING_DESC', __('Here you will find the settings for authors', 'user-access-manager'));
+define('TXT_AUTHORS_HAS_ACCESS_TO_OWN', __('Authors always has access to own posts/pages', 'user-access-manager'));
+define('TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC', __('If "Yes" is selected author will always have full access to ther own posts or pages.', 'user-access-manager'));
+define('TXT_FULL_ACCESS_LEVEL', __('Access Level with full access', 'user-access-manager'));
+define('TXT_FULL_ACCESS_LEVEL_DESC', __('All user with access level equal or higher to this has full access. <b>Note: 10 is the highest value.</b>', 'user-access-manager'));
+
 // --- Setting Page -> other settings ---
 define('TXT_OTHER_SETTING', __('Other settings', 'user-access-manager'));
 define('TXT_OTHER_SETTING_DESC', __('Here you will find all other settings', 'user-access-manager'));
@@ -95,14 +103,10 @@ define('TXT_REDIRECT_TO_PAGE', __('Custom page: ', 'user-access-manager'));
 define('TXT_REDIRECT_TO_URL', __('Custom URL: ', 'user-access-manager'));
 define('TXT_LOCK_RECURSIVE', __('Lock recursive', 'user-access-manager'));
 define('TXT_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to "No" could result in display errors relating to the hierarchy.', 'user-access-manager'));
-define('TXT_AUTHORS_HAS_ACCESS_TO_OWN', __('Authors always has access to own posts/pages', 'user-access-manager'));
-define('TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC', __('If "Yes" is selected author will always have full access to ther own posts or pages.', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behinde the post/page.', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
 define('TXT_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_BLOG_ADMIN_HINT_TEXT));
-define('TXT_FULL_ACCESS_LEVEL', __('Access Level with full access', 'user-access-manager'));
-define('TXT_FULL_ACCESS_LEVEL_DESC', __('All user with access level equal or higher to this has full access. <b>Note: 10 is the highest value.</b>', 'user-access-manager'));
 
 // --- Setting Page -> update message ---
 define('TXT_UPDATE_SETTING', __('Update settings', 'user-access-manager'));
@@ -166,6 +170,7 @@ define('TXT_PLACE_LINK', __('<strong>Place a link to the plugin in your blog/web
 define('TXT_THANKS', __('Thanks', 'user-access-manager'));
 define('TXT_SPECIAL_THANKS', __('Special thanks go out to my girlfriend for giving me the time to develop this plugin.', 'user-access-manager'));
 define('TXT_THANKS_TO', __('I would like to thank all the guys which has helped me with this plugin:', 'user-access-manager'));
+define('TXT_THANKS_OTHERS', __('all beta testers and all others I forgot', 'user-access-manager'));
 
 
 // --- Edit forms ---

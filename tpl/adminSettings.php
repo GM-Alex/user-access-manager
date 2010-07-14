@@ -431,6 +431,40 @@ if ($uamOptions['download_type'] == "fopen") {
 		</tr>
 	</tbody>
 </table>
+<h3><?php echo TXT_AUTHOR_SETTING; ?></h3>
+<p><?php echo TXT_AUTHOR_SETTING_DESC; ?></p>
+<table class="form-table">
+	<tbody>
+		<tr>
+			<th><?php echo TXT_AUTHORS_HAS_ACCESS_TO_OWN; ?></th>
+			<td>
+				<label for="uam_authors_has_access_to_own_yes"> 
+					<input type="radio" id="uam_authors_has_access_to_own_yes" name="uam_authors_has_access_to_own" value="true" <?php
+if ($uamOptions['authors_has_access_to_own'] == "true") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_YES; ?> 
+				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
+				<label for="uam_authors_has_access_to_own_no">
+					<input type="radio" id="uam_authors_has_access_to_own_no" name="uam_authors_has_access_to_own" value="false" <?php
+if ($uamOptions['authors_has_access_to_own'] == "false") {
+    echo 'checked="checked"';
+} 
+                    ?> />
+				    <?php echo TXT_NO; ?> 
+				</label> <br />
+				<?php echo TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC; ?></td>
+		</tr>
+		<tr>
+			<th><?php echo TXT_FULL_ACCESS_LEVEL; ?></th>
+			<td>
+				<input name="uam_full_access_level" value="<?php echo $uamOptions['full_access_level']; ?>" /> <br />
+				<?php echo TXT_FULL_ACCESS_LEVEL_DESC; ?>
+			</td>
+		</tr>
+	</tbody>
+</table>
 <h3><?php echo TXT_OTHER_SETTING; ?></h3>
 <p><?php echo TXT_OTHER_SETTING_DESC; ?></p>
 <table class="form-table">
@@ -554,27 +588,6 @@ if ($uamOptions['lock_recursive'] == "false") {
 				<?php echo TXT_LOCK_RECURSIVE_DESC; ?></td>
 		</tr>
 		<tr>
-			<th><?php echo TXT_AUTHORS_HAS_ACCESS_TO_OWN; ?></th>
-			<td>
-				<label for="uam_authors_has_access_to_own_yes"> 
-					<input type="radio" id="uam_authors_has_access_to_own_yes" name="uam_authors_has_access_to_own" value="true" <?php
-if ($uamOptions['authors_has_access_to_own'] == "true") {
-    echo 'checked="checked"';
-} 
-                    ?> />
-				    <?php echo TXT_YES; ?> 
-				</label>&nbsp;&nbsp;&nbsp;&nbsp; 
-				<label for="uam_authors_has_access_to_own_no">
-					<input type="radio" id="uam_authors_has_access_to_own_no" name="uam_authors_has_access_to_own" value="false" <?php
-if ($uamOptions['authors_has_access_to_own'] == "false") {
-    echo 'checked="checked"';
-} 
-                    ?> />
-				    <?php echo TXT_NO; ?> 
-				</label> <br />
-				<?php echo TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC; ?></td>
-		</tr>
-		<tr>
 			<th><?php echo TXT_BLOG_ADMIN_HINT; ?></th>
 			<td>
 				<label for="uam_blog_admin_hint_yes"> 
@@ -601,13 +614,6 @@ if ($uamOptions['blog_admin_hint'] == "false") {
 			<td>
 				<input name="uam_blog_admin_hint_text" value="<?php echo $uamOptions['blog_admin_hint_text']; ?>" /> <br />
 				<?php echo TXT_BLOG_ADMIN_HINT_TEXT_DESC; ?>
-			</td>
-		</tr>
-		<tr>
-			<th><?php echo TXT_FULL_ACCESS_LEVEL; ?></th>
-			<td>
-				<input name="uam_full_access_level" value="<?php echo $uamOptions['full_access_level']; ?>" /> <br />
-				<?php echo TXT_FULL_ACCESS_LEVEL_DESC; ?>
 			</td>
 		</tr>
 	</tbody>
