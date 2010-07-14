@@ -177,8 +177,10 @@ define('TXT_THANKS_OTHERS', __('all beta testers and all others I forgot', 'user
 
 // --- Edit forms ---
 define('TXT_FULL_ACCESS', __('Full access', 'user-access-manager'));
+define('TXT_MEMBER_OF_OTHER_GROUPS', __('Member of other user groups', 'user-access-manager'));
 define('TXT_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.', 'user-access-manager'));
 define('TXT_CREATE_GROUP_FIRST', __('Please create a user group first.', 'user-access-manager'));
+define('TXT_NO_GROUP_AVAILABLE', __('No user group available.', 'user-access-manager'));
 define('TXT_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
 define('TXT_GROUPS', __('User Groups', 'user-access-manager'));
 define('TXT_SET_UP_USERGROUPS', __('Set up usergroups', 'user-access-manager'));

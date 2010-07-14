@@ -84,7 +84,7 @@ if (!function_exists("userAccessManagerAP")) {
         get_currentuserinfo();
         $curUserdata = get_userdata($current_user->ID);
         
-        if ($userAccessManager->checkUserAccess()
+        if ($userAccessManager->getAccessHandler()->checkUserAccess()
             || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
         ) {
             //Admin actions
@@ -163,7 +163,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
         $uamOptions = $userAccessManager->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);
         
-        if ($userAccessManager->checkUserAccess()) {
+        if ($userAccessManager->getAccessHandler()->checkUserAccess()) {
             //TODO
             /**
              * --- BOF ---
@@ -188,7 +188,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
              */
         }
         
-        if ($userAccessManager->checkUserAccess()
+        if ($userAccessManager->getAccessHandler()->checkUserAccess()
             || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
         ) {
             //Admin meta boxes

@@ -629,36 +629,6 @@ class UserAccessManager
     }
     
     /**
-     * Filter the user groups of an object if authors_can_add_posts_to_groups
-     * option is enabled
-     * 
-     * @param array $userGroupsForObject The user groups for an object
-     * 
-     * @return array
-     */
-    private function _filterObjectGroups($userGroupsForObject)
-    {
-        if ($uamOptions['authors_can_add_posts_to_groups'] == 'true'
-        	&& !$userAccessManager->checkUserAccess()
-        ) {
-            global $current_user;
-            
-            $uamAccessHandler = &$this->getAccessHandler();
-            
-            $userGroupsForUser 
-                = $uamAccessHandler->getUserGroupsForUser($current_user->ID);
-            
-            foreach ($userGroupsForObject as $key => $uamUserGroup) {
-                if (!array_key_exists($uamUserGroup->getId(), $userGroupsForUser)) {
-                    unset($userGroupsForObject[$key]);
-                }
-            }
-        }
-        
-        return $userGroupsForObject;
-    }
-    
-    /**
      * The function for the wp_dashboard_setup action.
      * Removes widgets to which a user should not have access.
      * 
@@ -734,8 +704,11 @@ class UserAccessManager
     function savePostData($postParam)
     {
         $uamAccessHandler = &$this->getAccessHandler();
+        $uamOptions = $this->getAdminOptions();
         
-        if ($uamAccessHandler->checkUserAccess()) {        
+        if ($uamAccessHandler->checkUserAccess()
+            || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
+        ) {        
             if (is_array($postParam)) {
                 $post = get_post($postParam['ID']);
             } else {
@@ -758,8 +731,7 @@ class UserAccessManager
             }
             
             $userGroupsForPost = $uamAccessHandler->getUserGroupsForPost($postId);
-            $userGroupsForPost = $this->_filterObjectGroups($userGroupsForPost);
-            
+
             foreach ($userGroupsForPost as $uamUserGroup) {
                 $uamUserGroup->{'remove'.$postType}($postId);
                 $uamUserGroup->save();
@@ -985,12 +957,13 @@ class UserAccessManager
     function saveCategoryData($categoryId)
     {
         $uamAccessHandler = &$this->getAccessHandler();
+        $uamOptions = $this->getAdminOptions();
         
-        if ($uamAccessHandler->checkUserAccess()) {
+        if ($uamAccessHandler->checkUserAccess()
+            || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
+        ) {  
             $userGroupsForCategory 
-                = $uamAccessHandler->getUserGroupsForCategory($categoryId);
-            $userGroupsForCategory 
-                = $this->_filterObjectGroups($userGroupsForCategory);    
+                = $uamAccessHandler->getUserGroupsForCategory($categoryId); 
                 
             foreach ($userGroupsForCategory as $uamUserGroup) {
                 $uamUserGroup->removeCategory($categoryId);

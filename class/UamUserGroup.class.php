@@ -870,13 +870,7 @@ class UamUserGroup
             $this->{$postType.'s'}[$type] = array();
         }
         
-        $args = array(
-        	'numberposts' => - 1, 
-        	'post_type' => $wpType,
-            'post_status' => '(blank)'
-        );
-        
-        $posts = get_posts($args);
+        $posts = $this->getAccessHandler()->getFullPost();
         
         if (isset($posts)) {
             foreach ($posts as $post) {

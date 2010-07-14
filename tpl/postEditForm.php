@@ -37,10 +37,12 @@ if (isset($post->ID)) {
     $userGroupsForObject = array();
 }
 
-if (isset($uamUserGroups)) {
+if (count($uamUserGroups) > 0) {
 	include 'groupSelectionForm.php';
-} else {
+} elseif ($userAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>
 	<a href='admin.php?page=uam_usergroup'><?php echo TXT_CREATE_GROUP_FIRST; ?></a>
 	<?php
+} else {
+    echo TXT_NO_GROUP_AVAILABLE;
 }

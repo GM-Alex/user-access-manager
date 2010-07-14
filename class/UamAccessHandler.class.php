@@ -33,7 +33,11 @@ class UamAccessHandler
     protected $userUserGroups = array();
     protected $postAccess = array();
     protected $categroyAccess = array();
-    protected $userGroups = array();
+    protected $userGroups = array(
+        'filtered' => array(),
+        'noneFiltered' => array(),
+    );
+    protected $posts = array();
     
     /**
      * The consturctor
@@ -58,6 +62,28 @@ class UamAccessHandler
     }
     
     /**
+     * Return all posts of the blog.
+     * 
+     * @return array
+     */
+    function getFullPost()
+    {
+        if ($this->posts != array()) {
+            return $this->posts;
+        }
+        
+        $args = array(
+        	'numberposts' => - 1, 
+        	'post_type' => $wpType,
+            'post_status' => '(blank)'
+        );
+        
+        $this->posts = get_posts($args);
+        
+        return $this->posts;
+    }
+    
+    /**
      * Filter the user groups of an object if authors_can_add_posts_to_groups
      * option is enabled
      * 
@@ -70,7 +96,8 @@ class UamAccessHandler
         $uamOptions = $this->getUserAccessManager()->getAdminOptions();
         
         if ($uamOptions['authors_can_add_posts_to_groups'] == 'true'
-        	&& !$userAccessManager->checkUserAccess()
+        	&& !$this->checkUserAccess()
+        	&& $this->getUserAccessManager()->atAdminPanel
         ) {
             global $current_user;
             
@@ -92,26 +119,33 @@ class UamAccessHandler
      * 
      * @param integer $userGroupId The id of the single user group 
      * 							   which should be returned.
+     * @param boolean $filter      Filter the groups.
      * 
      * @return array|object
      */
-    function getUserGroups($userGroupId = null)
+    function getUserGroups($userGroupId = null, $filter = true)
     {
+        if ($filter) {
+            $filterAttr = 'filtered';
+        } else {
+            $filterAttr = 'noneFiltered';
+        }
+        
         if ($userGroupId == null
-            && $this->userGroups != array()
+            && $this->userGroups[$filterAttr] != array()
         ) {
-            return $this->userGroups;
+            return $this->userGroups[$filterAttr];
         } elseif ($userGroupId != null
-                  && $this->userGroups != array()
+                  && $this->userGroups[$filterAttr] != array()
         ) {
-            if (isset($this->userGroups[$userGroupId])) {
-                return $this->userGroups[$userGroupId];
+            if (isset($this->userGroups[$filterAttr][$userGroupId])) {
+                return $this->userGroups[$filterAttr][$userGroupId];
             } else {
                 return null;
             }
         }
         
-        $this->userGroups = array();
+        $this->userGroups[$filterAttr] = array();
         
         global $wpdb;
 
@@ -123,16 +157,21 @@ class UamAccessHandler
         
         if (isset($userGroupsDb)) {
             foreach ($userGroupsDb as $userGroupDb) {
-                $this->userGroups[$userGroupDb['ID']] 
+                $this->userGroups[$filterAttr][$userGroupDb['ID']] 
                     = new UamUserGroup(&$this, $userGroupDb['ID']);
             }
         }
         
+        //Filter the user groups
+        if ($filter) {
+            $this->userGroups[$filterAttr] = $this->_filterUserGroups($this->userGroups[$filterAttr]);
+        }
+        
         if ($userGroupId == null) {
-            return $this->userGroups;
+            return $this->userGroups[$filterAttr];
         } elseif ($userGroupId != null) {
-            if (isset($this->userGroups[$userGroupId])) {
-                return $this->userGroups[$userGroupId];
+            if (isset($this->userGroups[$filterAttr][$userGroupId])) {
+                return $this->userGroups[$filterAttr][$userGroupId];
             } else {
                 return null;
             }
@@ -172,14 +211,15 @@ class UamAccessHandler
      * 
      * @param integer $objectId The id of the object.
      * @param string  $type     The type for what we want the groups.
+     * @param boolean $filter   Filter the groups.
      * 
      * @return array
      */
-    private function _getUserGroupsForObject($objectId, $type)
+    private function _getUserGroupsForObject($objectId, $type, $filter = true)
     {
         $objectUserGroups = array();
 
-        $userGroups = $this->getUserGroups();
+        $userGroups = $this->getUserGroups(null, $filter);
        
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
@@ -199,6 +239,11 @@ class UamAccessHandler
             }
         }
         
+        //Filter the user groups
+        if ($filter) {
+            $objectUserGroups = $this->_filterUserGroups($objectUserGroups);
+        }
+        
         return $objectUserGroups;
     }
     
@@ -206,19 +251,26 @@ class UamAccessHandler
      * Returns the user groups of the given post.
      * 
      * @param integer $postId The id of the post from which we want the groups.
+     * @param boolean $filter Filter the groups.
      * 
      * @return array
      */
-    function getUserGroupsForPost($postId)
+    function getUserGroupsForPost($postId, $filter = true)
     {
-        if (isset($this->postUserGroups[$postId])) {
-            return $this->postUserGroups[$postId];
+        if ($filter) {
+            $filterAttr = 'filtered';
+        } else {
+            $filterAttr = 'noneFiltered';
         }
         
-        $this->postUserGroups[$postId] 
-            = $this->_getUserGroupsForObject($postId, 'post');
+        if (isset($this->postUserGroups[$filterAttr][$postId])) {
+            return $this->postUserGroups[$filterAttr][$postId];
+        }
+        
+        $this->postUserGroups[$filterAttr][$postId] 
+            = $this->_getUserGroupsForObject($postId, 'post', $filter);
             
-        return $this->postUserGroups[$postId];
+        return $this->postUserGroups[$filterAttr][$postId];
     }
     
     /**
@@ -226,19 +278,26 @@ class UamAccessHandler
      * 
      * @param integer $categoryId The id of the category from which 
      * 							  we want the groups.
+     * @param boolean $filter     Filter the groups.
      * 
      * @return array
      */
-    function getUserGroupsForCategory($categoryId)
+    function getUserGroupsForCategory($categoryId, $filter = true)
     {
-        if (isset($this->categoryUserGroups[$categoryId])) {
-            return $this->categoryUserGroups[$categoryId];
+        if ($filter) {
+            $filterAttr = 'filtered';
+        } else {
+            $filterAttr = 'noneFiltered';
+        }
+        
+        if (isset($this->categoryUserGroups[$filterAttr][$categoryId])) {
+            return $this->categoryUserGroups[$filterAttr][$categoryId];
         }
 
-        $this->categoryUserGroups[$categoryId] 
-            = $this->_getUserGroupsForObject($categoryId, 'category');
+        $this->categoryUserGroups[$filterAttr][$categoryId] 
+            = $this->_getUserGroupsForObject($categoryId, 'category', $filter);
         
-        return $this->categoryUserGroups[$categoryId];
+        return $this->categoryUserGroups[$filterAttr][$categoryId];
     }
     
 	/**
@@ -255,7 +314,7 @@ class UamAccessHandler
         }
         
         $this->userUserGroups[$userId] 
-            = $this->_getUserGroupsForObject($userId, 'user');
+            = $this->_getUserGroupsForObject($userId, 'user', false);
 
         return $this->userUserGroups[$userId];
     }
@@ -292,7 +351,7 @@ class UamAccessHandler
         
         $curIp = explode(".", $_SERVER['REMOTE_ADDR']);
         
-        foreach ($membership as $key => $userGroup) {
+        foreach ($membership as $key => $userGroup) {            
             if ($this->checkUserIp($curIp, $userGroup->getIpRange())
                 || $userGroup->userIsMember($current_user->ID)
             ) {
@@ -328,8 +387,8 @@ class UamAccessHandler
             return $this->postAccess[$postId];  
         } 
 
-        $postMembership = $this->getUserGroupsForPost($postId);
-
+        $postMembership = $this->getUserGroupsForPost($postId, false);
+        
         $this->postAccess[$postId] 
             = $this->_checkAccess($postId, $postMembership, 'post');
         
@@ -349,7 +408,7 @@ class UamAccessHandler
             return $this->categroyAccess[$categoryId];  
         } 
 
-        $categoryMembership = $this->getUserGroupsForCategory($categoryId);
+        $categoryMembership = $this->getUserGroupsForCategory($categoryId, false);
         
         $this->categroyAccess[$categoryId] 
             = $this->_checkAccess($categoryId, $categoryMembership);

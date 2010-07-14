@@ -21,6 +21,11 @@ global $userAccessManager;
 $uamUserGroups 
     = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($objectId);
 $userGroupsForObject = &$uamUserGroups;
+$uamUserGroupsFull
+    = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($objectId, false);
+$groupDiff = count($uamUserGroupsFull) - count($uamUserGroups);
+
+echo $groupDiff;
 
 if ($uamUserGroups != Array()) {
     ?>
@@ -41,6 +46,8 @@ if ($uamUserGroups != Array()) {
     ?>
 	</ul>
     <?php
+} elseif ($groupDiff > 0) {
+    echo TXT_MEMBER_OF_OTHER_GROUPS;
 } else {
     echo TXT_FULL_ACCESS;
 }
