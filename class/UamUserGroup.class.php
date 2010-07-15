@@ -47,6 +47,7 @@ class UamUserGroup
     	'real' => -1,
         'full' => -1
     );
+    protected $singelPosts = array();
     protected $pages = array(
     	'real' => -1,
         'full' => -1
@@ -809,14 +810,18 @@ class UamUserGroup
      */
     function _getSinglePost($post, $type, $postType)
     {
+        if (isset($this->singelPosts[$post->ID])) {
+            return $this->singelPosts[$post->ID];
+        }
+        
         $isRecursiveMember = array();
         
         $userAccessManager = &$this->getAccessHandler()->getUserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
-        if ($type == 'full') {            
+        if ($type == 'full') {
             foreach ($this->getCategories('full') as $category) {
-                if (in_category($category->cat_ID, $post->ID)) {
+                if (in_category($category->cat_ID, $post->ID)) { 
                     $isRecursiveMember['byCategory'][] = $category->cat_ID;
                     //break;
                 }
@@ -854,11 +859,12 @@ class UamUserGroup
             if ($isRecursiveMember != array()) {
                 $post->recursiveMember = $isRecursiveMember;
             }
-            
-            return $post;
+            $this->singelPosts[$post->ID] = $post;
+        } else {
+            $this->singelPosts[$post->ID] = null;
         }
-        
-        return null;
+
+        return $this->singelPosts[$post->ID];
     }
     
     /**
@@ -1145,10 +1151,10 @@ class UamUserGroup
      * @return boolean
      */
     function postIsMember($postId, $withInfo = false)
-    {        
+    {
         $post = get_post($postId);
 
-        if ($post->post_type == 'post') {
+        /*if ($post->post_type == 'post') {
             $posts = $this->getPosts('full');
         } elseif ($post->post_type == 'page') {
             $posts = $this->getPages('full');
@@ -1166,6 +1172,24 @@ class UamUserGroup
                 && $withInfo
             ) {
                 return $posts[$post->ID]->recursiveMember;
+            }
+            
+            return true;
+        }*/
+        
+        if ($post->post_type == 'attachment') {
+            $postType = 'file';
+        } else {
+            $postType = $post->post_type;
+        }
+        
+        $post = $this->_getSinglePost($post, 'full', $postType);
+        
+        if ($post !== null) {
+            if (isset($post->recursiveMember)
+                && $withInfo
+            ) {
+                return $post->recursiveMember;
             }
             
             return true;

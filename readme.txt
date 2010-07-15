@@ -59,7 +59,8 @@ Here you found the changes in each version.
     
     1.0			2010/07/xx	Fix array_merge bug at media page
     						Reorder some admin options
-    						Add some new admin functions 
+    						Add some new admin functions
+    						Speed it up
     
     1.0	Beta 2	2010/07/13	Fix perforance issues
     						Fix media gallery issues
