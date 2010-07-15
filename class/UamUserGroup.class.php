@@ -55,6 +55,7 @@ class UamUserGroup
     	'real' => -1,
         'full' => -1
     );
+    private $_assignedPosts = null;
     
     /**
      * Consturtor
@@ -761,21 +762,40 @@ class UamUserGroup
      * @return boolean
      */
     private function _isPostAssignedToGroup($postId)
-    {    
-        global $wpdb;
-        
-        $count = $wpdb->get_var(
-        	"SELECT COUNT(*)
-			FROM " . DB_ACCESSGROUP_TO_POST . "
-			WHERE group_id = " . $this->id . "
-				AND post_id = ".$postId
-        );
-        
-        if ($count > 0) {
+    {
+        if (array_key_exists($postId, $this->_getAssignedPosts())) {
             return true;
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Returns the assigned posts
+     * 
+     * @return array
+     */
+    private function _getAssignedPosts()
+    {
+        if ($this->_assignedPosts !== null) {
+            return $this->_assignedPosts;
+        }
+
+        global $wpdb;
+        
+        $realPosts = $wpdb->get_results(
+        	"SELECT post_id
+			FROM " . DB_ACCESSGROUP_TO_POST . "
+			WHERE group_id = " . $this->id
+        );
+        
+        $this->_assignedPosts = array();
+        
+        foreach ($realPosts as $realPost) {
+            $this->_assignedPosts[$realPost->post_id] = $realPost->post_id;
+        }
+        
+        return $this->_assignedPosts;
     }
     
     /**
@@ -791,12 +811,12 @@ class UamUserGroup
     {
         $isRecursiveMember = array();
         
-        $userAccessManager = $this->getAccessHandler()->getUserAccessManager();
+        $userAccessManager = &$this->getAccessHandler()->getUserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
-        if ($type == 'full') {
-            foreach (get_the_category($post->ID) as $category) {
-                if (array_key_exists($category->cat_ID, $this->getCategories('full'))) {
+        if ($type == 'full') {            
+            foreach ($this->getCategories('full') as $category) {
+                if (in_category($category->cat_ID, $post->ID)) {
                     $isRecursiveMember['byCategory'][] = $category->cat_ID;
                     //break;
                 }
@@ -870,7 +890,21 @@ class UamUserGroup
             $this->{$postType.'s'}[$type] = array();
         }
         
-        $posts = $this->getAccessHandler()->getFullPost();
+        /*$args = array(
+        	'numberposts' => -1, 
+        	'post_type' => $wpType,
+            'post_status' => '(blank)'
+        );
+        
+        $posts = get_posts($args);*/
+        
+        global $wpdb;
+
+        $posts = $wpdb->get_results(
+        	"SELECT ID, post_parent
+			FROM $wpdb->posts
+			WHERE post_type = '".$wpType."'"
+        );
         
         if (isset($posts)) {
             foreach ($posts as $post) {

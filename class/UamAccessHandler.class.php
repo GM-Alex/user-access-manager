@@ -37,7 +37,6 @@ class UamAccessHandler
         'filtered' => array(),
         'noneFiltered' => array(),
     );
-    protected $posts = array();
     
     /**
      * The consturctor
@@ -59,28 +58,6 @@ class UamAccessHandler
     function &getUserAccessManager()
     {
         return $this->userAccessManager;
-    }
-    
-    /**
-     * Return all posts of the blog.
-     * 
-     * @return array
-     */
-    function getFullPost()
-    {
-        if ($this->posts != array()) {
-            return $this->posts;
-        }
-        
-        $args = array(
-        	'numberposts' => - 1, 
-        	'post_type' => $wpType,
-            'post_status' => '(blank)'
-        );
-        
-        $this->posts = get_posts($args);
-        
-        return $this->posts;
     }
     
     /**
@@ -164,7 +141,8 @@ class UamAccessHandler
         
         //Filter the user groups
         if ($filter) {
-            $this->userGroups[$filterAttr] = $this->_filterUserGroups($this->userGroups[$filterAttr]);
+            $this->userGroups[$filterAttr] 
+                = $this->_filterUserGroups($this->userGroups[$filterAttr]);
         }
         
         if ($userGroupId == null) {
@@ -461,7 +439,7 @@ class UamAccessHandler
      */
     function checkUserAccess()
     {
-        global $current_user;
+        global $current_user, $wpdb;
 
         $uamOptions = $this->getUserAccessManager()->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);
@@ -470,7 +448,14 @@ class UamAccessHandler
             $curUserdata->user_level = null;
         }
         
-        if ($curUserdata->user_level >= $uamOptions['full_access_level']) {
+        $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
+        $role  = is_array($capabilities) ? 
+            array_keys($capabilities) : 'norole';
+        $role = $role[0];
+        
+        if ($curUserdata->user_level >= $uamOptions['full_access_level']
+            || $role == 'administrator'
+        ) {
             return true;
         }
         

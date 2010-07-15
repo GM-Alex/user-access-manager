@@ -53,8 +53,10 @@ class UserAccessManager
     {
         $this->createHtaccess();
         $this->createHtpasswd();
+        
         global $wpdb;
         $uamDbVersion = $this->uamDbVersion;
+        
         include_once ABSPATH . 'wp-admin/includes/upgrade.php';
         $charset_collate = '';
         
@@ -431,7 +433,7 @@ class UserAccessManager
      */
     function getAdminOptions()
     {
-        if ($this->atAdminPanel || empty($this->adminOptions)) {
+        if (empty($this->adminOptions)) {
             $uamAdminOptions = array(
             	'hide_post_title' => 'false', 
             	'post_title' => __('No rights!', 'user-access-manager'),
@@ -490,6 +492,7 @@ class UserAccessManager
             update_option($this->adminOptionsName, $uamAdminOptions);
             $this->adminOptions = $uamAdminOptions;
         }
+
         return $this->adminOptions;
     }
 

@@ -40,7 +40,7 @@
         		    <strong><?php echo TXT_SPECIAL_THANKS; ?></strong><br/>
         		    <br/>
         		    <?php echo TXT_THANKS_TO; ?><br/> 
-        			Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, <?php echo TXT_THANKS_OTHERS; ?>.
+        			J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, <?php echo TXT_THANKS_OTHERS; ?>.
         		</p>
         	</div>
         </div>
