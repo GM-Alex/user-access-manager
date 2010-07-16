@@ -39,6 +39,7 @@ class UamUserGroup
     	'real' => -1,
         'full' => -1
     );
+    protected $singleUsers = array();
     protected $categories = array(
     	'real' => -1,
         'full' => -1
@@ -47,7 +48,7 @@ class UamUserGroup
     	'real' => -1,
         'full' => -1
     );
-    protected $singelPosts = array();
+    protected $singlePosts = array();
     protected $pages = array(
     	'real' => -1,
         'full' => -1
@@ -56,6 +57,7 @@ class UamUserGroup
     	'real' => -1,
         'full' => -1
     );
+    private $_assignedUsers = null;
     private $_assignedPosts = null;
     
     /**
@@ -371,6 +373,99 @@ class UamUserGroup
         $this->ipRange = $ipRange;
     }
     
+	/**
+     * Checks it the user is assigned to the group.
+     * 
+     * @param integer $userId The user id.
+     * 
+     * @return boolean
+     */
+    private function _isUserAssignedToGroup($userId)
+    {
+        if (array_key_exists($userId, $this->_getAssignedUsers())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * Returns the assigned users.
+     * 
+     * @return array
+     */
+    private function _getAssignedUsers()
+    {
+        if ($this->_assignedUsers !== null) {
+            return $this->_assignedUsers;
+        }
+
+        global $wpdb;
+        
+        $dbUsers = $wpdb->get_results(
+        	"SELECT user_id
+			FROM " . DB_ACCESSGROUP_TO_USER . "
+			WHERE group_id = " . $this->id . "
+			ORDER BY user_id"
+        );
+        
+        $this->_assignedUsers = array();
+        
+        foreach ($dbUsers as $dbUser) {
+            $this->_assignedUsers[$dbUser->user_id] = $dbUser->user_id;
+        }
+        
+        return $this->_assignedUsers;
+    }
+    
+    /**
+     * Returns a single user.
+     * 
+     * @param object $user The user.
+     * @param string $type The return type. Can be real or full.
+     * 
+     * @return object
+     */
+    private function _getSingleUser($user, $type)
+    {
+        if (isset($this->singleUsers[$user->ID])) {
+            return $this->singleUsers[$user->ID];
+        }
+        
+        $isRecursiveMember = array();
+        
+        if ($type == 'full') {
+            global $wpdb;
+            
+            $curUserdata = get_userdata($user->ID);
+            $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
+            $role  = is_array($capabilities) ? 
+                array_keys($capabilities) : 'norole';
+            
+            if (array_key_exists($role[0], $this->getRoles())
+            ) {
+                $isRecursiveMember
+                    = array('byRole' => array());
+                $isRecursiveMember['byRole'][] 
+                    = $role[0];
+            }
+        }
+
+        if ($this->_isUserAssignedToGroup($user->ID)
+            || $isRecursiveMember != array()
+        ) {
+            if ($isRecursiveMember != array()) {
+                $user->recursiveMember = $isRecursiveMember;
+            }
+            
+            $this->singleUsers[$user->ID] = $user;
+        } else {
+            $this->singleUsers[$user->ID] = null;
+        }
+
+        return $this->singleUsers[$user->ID];
+    }
+    
     /**
      * Returns the users in the group
      * 
@@ -398,45 +493,28 @@ class UamUserGroup
         
         global $wpdb;
         
-        $dbUsers = $wpdb->get_results(
-        	"SELECT *
-			FROM " . DB_ACCESSGROUP_TO_USER . "
-			WHERE group_id = " . $this->id . "
-			ORDER BY user_id", 
-            ARRAY_A
-        );
-        
-        if (isset($dbUsers)) {
-            foreach ($dbUsers as $dbUser) {
-                $this->users[$type][$dbUser['user_id']] 
-                    = get_userdata($dbUser['user_id']);
-            }
-        }
-        
-        if ($type == 'full') {
-            $wpUsers = $wpdb->get_results(
-            	"SELECT ID, user_nicename
-    			FROM $wpdb->users 
-    			ORDER BY user_nicename", 
+        if ($type == 'real') {
+            $dbUsers = $wpdb->get_results(
+            	"SELECT user_id as ID
+    			FROM " . DB_ACCESSGROUP_TO_USER . "
+    			WHERE group_id = " . $this->id . "
+    			ORDER BY user_id", 
                 ARRAY_A
             );
+        } elseif ($type == 'full') {
+            $dbUsers = $wpdb->get_results(
+            	"SELECT ID, user_nicename
+    			FROM $wpdb->users 
+    			ORDER BY user_nicename"
+            );
+        }
             
-            if (isset($wpUsers)) {
-                foreach ($wpUsers as $wpUser) {
-                    $curUserdata = get_userdata($wpUser['ID']);
-                    $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
-                    $role  = is_array($capabilities) ? 
-                        array_keys($capabilities) : 'norole';
-                    
-                    if (array_key_exists($role[0], $this->getRoles())
-                    ) {
-                        $curUserdata->recursiveMember 
-                            = array('byRole' => array());
-                        $curUserdata->recursiveMember['byRole'][] 
-                            = $role[0];
-                        
-                        $this->users[$type][$wpUser['ID']] = $curUserdata;
-                    }
+        if (isset($dbUsers)) {
+            foreach ($dbUsers as $dbUser) {
+                $user = $this->_getSingleUser($dbUser, $type);
+                
+                if ($user !== null) {
+                    $this->users[$type][$user->ID] = $user;
                 }
             }
         }
@@ -784,7 +862,7 @@ class UamUserGroup
 
         global $wpdb;
         
-        $realPosts = $wpdb->get_results(
+        $dbPosts = $wpdb->get_results(
         	"SELECT post_id
 			FROM " . DB_ACCESSGROUP_TO_POST . "
 			WHERE group_id = " . $this->id
@@ -792,8 +870,8 @@ class UamUserGroup
         
         $this->_assignedPosts = array();
         
-        foreach ($realPosts as $realPost) {
-            $this->_assignedPosts[$realPost->post_id] = $realPost->post_id;
+        foreach ($dbPosts as $dbPost) {
+            $this->_assignedPosts[$dbPost->post_id] = $dbPost->post_id;
         }
         
         return $this->_assignedPosts;
@@ -810,8 +888,8 @@ class UamUserGroup
      */
     function _getSinglePost($post, $type, $postType)
     {
-        if (isset($this->singelPosts[$post->ID])) {
-            return $this->singelPosts[$post->ID];
+        if (isset($this->singlePosts[$post->ID])) {
+            return $this->singlePosts[$post->ID];
         }
         
         $isRecursiveMember = array();
@@ -859,12 +937,12 @@ class UamUserGroup
             if ($isRecursiveMember != array()) {
                 $post->recursiveMember = $isRecursiveMember;
             }
-            $this->singelPosts[$post->ID] = $post;
+            $this->singlePosts[$post->ID] = $post;
         } else {
-            $this->singelPosts[$post->ID] = null;
+            $this->singlePosts[$post->ID] = null;
         }
 
-        return $this->singelPosts[$post->ID];
+        return $this->singlePosts[$post->ID];
     }
     
     /**
@@ -895,14 +973,6 @@ class UamUserGroup
         } else {
             $this->{$postType.'s'}[$type] = array();
         }
-        
-        /*$args = array(
-        	'numberposts' => -1, 
-        	'post_type' => $wpType,
-            'post_status' => '(blank)'
-        );
-        
-        $posts = get_posts($args);*/
         
         global $wpdb;
 
@@ -1153,29 +1223,6 @@ class UamUserGroup
     function postIsMember($postId, $withInfo = false)
     {
         $post = get_post($postId);
-
-        /*if ($post->post_type == 'post') {
-            $posts = $this->getPosts('full');
-        } elseif ($post->post_type == 'page') {
-            $posts = $this->getPages('full');
-        } elseif ($post->post_type == 'attachment') {
-            $posts = $this->getFiles('full');
-        } elseif ($post->post_type == 'comment') {
-            //TODO add comment support
-            $posts = array();
-        } else {
-            $posts = array();
-        }
-        
-        if (array_key_exists($post->ID, $posts)) {
-            if (isset($posts[$post->ID]->recursiveMember)
-                && $withInfo
-            ) {
-                return $posts[$post->ID]->recursiveMember;
-            }
-            
-            return true;
-        }*/
         
         if ($post->post_type == 'attachment') {
             $postType = 'file';
@@ -1233,13 +1280,14 @@ class UamUserGroup
      */
     function userIsMember($userId, $withInfo = false)
     {
-        $users = $this->getUsers('full');
+        $user = get_userdata($userId);
+        $user = $this->_getSingleUser($user, 'full');
         
-        if (array_key_exists($userId, $users)) {
-            if (isset($users[$userId]->recursiveMember)
+        if ($user !== null) {
+            if (isset($user->recursiveMember)
                 && $withInfo
             ) {
-                return $users[$userId]->recursiveMember;
+                return $user->recursiveMember;
             }
             
             return true;

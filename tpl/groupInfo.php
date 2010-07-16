@@ -28,11 +28,13 @@ if (!function_exists('walkPath')) {
     {
         $out = '';
         
-        if (is_object($object)) {
+        if (is_object($object)) {            
             if ($type == 'post') {
-            	$out = $object->post_title;
+                $post = get_post($object->ID);
+            	$out = $post->post_title;
     	    } elseif ($type == 'category') {
-        	    $out = $object->name;
+    	        $category = get_category($object->cat_id);
+        	    $out = $category->name;
     	    }
             
     	    
@@ -160,11 +162,13 @@ if ($uamUserGroup->getRoles()) {
 }
 ?>
         	</li>
+<?php /*?>
         	<li><?php echo count($uamUserGroup->getPosts('full')) . " " . TXT_POSTS; ?></li>
         	<li><?php echo count($uamUserGroup->getPages('full')) . " " . TXT_PAGES; ?></li>
         	<li><?php echo count($uamUserGroup->getFiles('full')) . " " . TXT_FILES; ?></li>
         	<li><?php echo count($uamUserGroup->getCategories('full')) . " " . TXT_CATEGORIES; ?></li>
         	<li><?php echo count($uamUserGroup->getUsers('full')) . " " . TXT_USERS; ?></li>
+<?php */?>
 		</ul>
 	</li>
 </ul>
