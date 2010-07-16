@@ -1301,7 +1301,7 @@ class UserAccessManager
      * @return array
      */
     function showCategory($categories = array(), $args = array())
-    {        
+    {    
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
@@ -1342,7 +1342,7 @@ class UserAccessManager
      */
     function showTitle($title, $postId = null)
     {
-        $uamOptions = $this->getAdminOptions();
+        /*$uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
         $post = get_post($postId);
@@ -1353,7 +1353,7 @@ class UserAccessManager
             && $uamOptions['hide_'.$postType.'_title'] == 'true'
         ) {
             $title = $uamOptions[$postType.'_title'];
-        }
+        }*/
         
         return $title;
     }

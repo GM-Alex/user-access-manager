@@ -237,6 +237,11 @@ class UamUserGroup
         }
     }
     
+    
+    /*
+     * Primary values.
+     */
+    
     /**
      * Returns the group id.
      * 
@@ -373,21 +378,116 @@ class UamUserGroup
         $this->ipRange = $ipRange;
     }
     
-	/**
-     * Checks it the user is assigned to the group.
-     * 
-     * @param integer $userId The user id.
-     * 
-     * @return boolean
+    
+    /*
+     * Group roles functions.
      */
-    private function _isUserAssignedToGroup($userId)
+    
+    /**
+     * Returns the roles in the group
+     * 
+     * @return array
+     */
+    function getRoles()
     {
-        if (array_key_exists($userId, $this->_getAssignedUsers())) {
-            return true;
-        } else {
+        if ($this->id == null) {
+            return array();
+        }
+        
+        if ($this->roles != array()) {
+            return $this->roles;
+        }
+        
+        global $wpdb;
+        
+        $dbRoles = $wpdb->get_results(
+        	"SELECT *
+			FROM " . DB_ACCESSGROUP_TO_ROLE . "
+			WHERE group_id = " . $this->id, 
+            ARRAY_A
+        );
+        
+        if (isset($dbRoles)) {
+            foreach ($dbRoles as $dbRole) {
+                $this->roles[trim($dbRole['role_name'])] = $dbRole;
+            }
+        }
+        
+        return $this->roles;
+    }
+    
+    /**
+     * Adds a role to the role group.
+     * 
+     * @param integer $roleName The role name which should be added.
+     * 
+     * @return null
+     */
+    function addRole($roleName)
+    {
+        $this->getRoles();
+        
+        /**
+         * $this->roles[$roleName] = &get_role($roleName);
+         * Makes trouble, but why? 
+         * Error: "Notice: Only variable references should be returned by reference"
+         */
+
+        $this->roles[$roleName] = array('role_name' => $roleName);
+    }
+    
+    /**
+     * Removes a role from the role group.
+     * 
+     * @param integer $roleName The role name which should be removed.
+     * 
+     * @return null
+     */
+    function removeRole($roleName)
+    {        
+        $this->getRoles();
+        unset($this->roles[$roleName]);
+    }
+    
+    /**
+     * Unsets the roles.
+     * 
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    function unsetRoles($plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deleteRolesFromDb();
+        }
+
+        $this->roles = array();
+    }
+    
+    /**
+     * Removes all roles from the user group.
+     * 
+     * @return null
+     */
+    private function _deleteRolesFromDb()
+    {
+        if ($this->id == null) {
             return false;
         }
+        
+        global $wpdb;
+        
+        $wpdb->query(
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
+        	WHERE group_id = ".$this->id
+        );
     }
+    
+    
+    /*
+     * Group users functions.
+     */
     
     /**
      * Returns the assigned users.
@@ -416,6 +516,22 @@ class UamUserGroup
         }
         
         return $this->_assignedUsers;
+    }
+    
+	/**
+     * Checks it the user is assigned to the group.
+     * 
+     * @param integer $userId The user id.
+     * 
+     * @return boolean
+     */
+    private function _isUserAssignedToGroup($userId)
+    {
+        if (array_key_exists($userId, $this->_getAssignedUsers())) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     /**
@@ -585,6 +701,37 @@ class UamUserGroup
     }
     
     /**
+     * Checks if the given user is a member of the group.
+     * 
+     * @param interger $userId   The id of the user which should be checked.
+     * @param boolean  $withInfo If true then we return additional infos.
+     * 
+     * @return boolean
+     */
+    function userIsMember($userId, $withInfo = false)
+    {
+        $user = get_userdata($userId);
+        $user = $this->_getSingleUser($user, 'full');
+        
+        if ($user !== null) {
+            if (isset($user->recursiveMember)
+                && $withInfo
+            ) {
+                return $user->recursiveMember;
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    
+    /*
+     * Group categories functions.
+     */
+    
+    /**
      * Returns the categories in the group
      * 
      * @param string $type The return type. Can be real or full.
@@ -732,122 +879,35 @@ class UamUserGroup
         );
     }
     
-    /**
-     * Returns the roles in the group
+	/**
+     * Checks if the given post is a member of the group.
      * 
-     * @return array
-     */
-    function getRoles()
-    {
-        if ($this->id == null) {
-            return array();
-        }
-        
-        if ($this->roles != array()) {
-            return $this->roles;
-        }
-        
-        global $wpdb;
-        
-        $dbRoles = $wpdb->get_results(
-        	"SELECT *
-			FROM " . DB_ACCESSGROUP_TO_ROLE . "
-			WHERE group_id = " . $this->id, 
-            ARRAY_A
-        );
-        
-        if (isset($dbRoles)) {
-            foreach ($dbRoles as $dbRole) {
-                $this->roles[trim($dbRole['role_name'])] = $dbRole;
-            }
-        }
-        
-        return $this->roles;
-    }
-    
-    /**
-     * Adds a role to the role group.
-     * 
-     * @param integer $roleName The role name which should be added.
-     * 
-     * @return null
-     */
-    function addRole($roleName)
-    {
-        $this->getRoles();
-        
-        /**
-         * $this->roles[$roleName] = &get_role($roleName);
-         * Makes trouble, but why? 
-         * Error: "Notice: Only variable references should be returned by reference"
-         */
-
-        $this->roles[$roleName] = array('role_name' => $roleName);
-    }
-    
-    /**
-     * Removes a role from the role group.
-     * 
-     * @param integer $roleName The role name which should be removed.
-     * 
-     * @return null
-     */
-    function removeRole($roleName)
-    {        
-        $this->getRoles();
-        unset($this->roles[$roleName]);
-    }
-    
-    /**
-     * Unsets the roles.
-     * 
-     * @param boolean $plusRemove If true also database entrys will remove.
-     * 
-     * @return null;
-     */
-    function unsetRoles($plusRemove = false)
-    {
-        if ($plusRemove) {
-            $this->_deleteRolesFromDb();
-        }
-
-        $this->roles = array();
-    }
-    
-    /**
-     * Removes all roles from the user group.
-     * 
-     * @return null
-     */
-    private function _deleteRolesFromDb()
-    {
-        if ($this->id == null) {
-            return false;
-        }
-        
-        global $wpdb;
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_ROLE . " 
-        	WHERE group_id = ".$this->id
-        );
-    }
-    
-    /**
-     * Checks it the post is assigned to the group.
-     * 
-     * @param integer $postId The post id.
+     * @param interger $categoryId The id of the post which should be checked.
+     * @param boolean  $withInfo   If true then we return additional infos.
      * 
      * @return boolean
      */
-    private function _isPostAssignedToGroup($postId)
+    function categoryIsMember($categoryId, $withInfo = false)
     {
-        if (array_key_exists($postId, $this->_getAssignedPosts())) {
+        $categories = $this->getCategories('full');
+        
+        if (array_key_exists($categoryId, $categories)) {
+            if (isset($categories[$categoryId]->recursiveMember)
+                && $withInfo
+            ) {
+                return $categories[$categoryId]->recursiveMember;
+            }
+            
             return true;
-        } else {
-            return false;
         }
+        
+        return false;
     }
+    
+    
+    /*
+     * Group posts functions.
+     */
     
     /**
      * Returns the assigned posts
@@ -875,6 +935,22 @@ class UamUserGroup
         }
         
         return $this->_assignedPosts;
+    }
+    
+    /**
+     * Checks it the post is assigned to the group.
+     * 
+     * @param integer $postId The post id.
+     * 
+     * @return boolean
+     */
+    private function _isPostAssignedToGroup($postId)
+    {
+        if (array_key_exists($postId, $this->_getAssignedPosts())) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     /**
@@ -1237,57 +1313,6 @@ class UamUserGroup
                 && $withInfo
             ) {
                 return $post->recursiveMember;
-            }
-            
-            return true;
-        }
-        
-        return false;
-    }
-    
-	/**
-     * Checks if the given post is a member of the group.
-     * 
-     * @param interger $categoryId The id of the post which should be checked.
-     * @param boolean  $withInfo   If true then we return additional infos.
-     * 
-     * @return boolean
-     */
-    function categoryIsMember($categoryId, $withInfo = false)
-    {
-        $categories = $this->getCategories('full');
-        
-        if (array_key_exists($categoryId, $categories)) {
-            if (isset($categories[$categoryId]->recursiveMember)
-                && $withInfo
-            ) {
-                return $categories[$categoryId]->recursiveMember;
-            }
-            
-            return true;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Checks if the given user is a member of the group.
-     * 
-     * @param interger $userId   The id of the user which should be checked.
-     * @param boolean  $withInfo If true then we return additional infos.
-     * 
-     * @return boolean
-     */
-    function userIsMember($userId, $withInfo = false)
-    {
-        $user = get_userdata($userId);
-        $user = $this->_getSingleUser($user, 'full');
-        
-        if ($user !== null) {
-            if (isset($user->recursiveMember)
-                && $withInfo
-            ) {
-                return $user->recursiveMember;
             }
             
             return true;

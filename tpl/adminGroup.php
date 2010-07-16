@@ -322,11 +322,13 @@ if (!$editGroup) {
             			<th scope="col"><?php echo TXT_WRITE_ACCESS; ?></th>
             			<th scope="col"><?php echo TXT_GROUP_ROLE; ?></th>
             			<th scope="col"><?php echo TXT_IP_RANGE; ?></th>
+            			<?php /*?>
             			<th scope="col"><?php echo TXT_POSTS; ?></th>
             			<th scope="col"><?php echo TXT_PAGES; ?></th>
             			<th scope="col"><?php echo TXT_FILES; ?></th>
             			<th scope="col"><?php echo TXT_CATEGORIES; ?></th>
             			<th scope="col"><?php echo TXT_USERS; ?></th>
+            			<?php */?>
             		</tr>
             	</thead>
         	<tbody>
@@ -417,6 +419,7 @@ if (!$editGroup) {
             }
             ?>
                 	</td>
+            <?php /*?>
         			<td>
     		<?php
             if (count($uamUserGroup->getPosts('full')) > 0) {
@@ -462,6 +465,7 @@ if (!$editGroup) {
             }
             ?>
                     	</td>
+            <?php */?>
             		</tr>
     		<?php
         }
