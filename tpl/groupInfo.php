@@ -162,13 +162,6 @@ if ($uamUserGroup->getRoles()) {
 }
 ?>
         	</li>
-<?php /*?>
-        	<li><?php echo count($uamUserGroup->getPosts('full')) . " " . TXT_POSTS; ?></li>
-        	<li><?php echo count($uamUserGroup->getPages('full')) . " " . TXT_PAGES; ?></li>
-        	<li><?php echo count($uamUserGroup->getFiles('full')) . " " . TXT_FILES; ?></li>
-        	<li><?php echo count($uamUserGroup->getCategories('full')) . " " . TXT_CATEGORIES; ?></li>
-        	<li><?php echo count($uamUserGroup->getUsers('full')) . " " . TXT_USERS; ?></li>
-<?php */?>
 		</ul>
 	</li>
 </ul>

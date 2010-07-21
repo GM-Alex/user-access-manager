@@ -1340,9 +1340,9 @@ class UserAccessManager
      * 
      * @return string
      */
-    function showTitle($title, $postId = null)
+    /*function showTitle($title, $postId = null)
     {
-        /*$uamOptions = $this->getAdminOptions();
+        $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
         $post = get_post($postId);
@@ -1353,10 +1353,10 @@ class UserAccessManager
             && $uamOptions['hide_'.$postType.'_title'] == 'true'
         ) {
             $title = $uamOptions[$postType.'_title'];
-        }*/
+        }
         
         return $title;
-    }
+    }*/
     
     /**
      * The function for the get_previous_post_where and 

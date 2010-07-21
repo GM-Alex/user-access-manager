@@ -448,7 +448,7 @@ class UamAccessHandler
             $curUserdata->user_level = null;
         }
         
-        if (!isset($curUserdata->{$wpdb->prefix . "capabilities"})) {
+        if (isset($curUserdata->{$wpdb->prefix . "capabilities"})) {
             $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
         } else {
             $capabilities = null;
