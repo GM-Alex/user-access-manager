@@ -611,17 +611,25 @@ class UserAccessManager
     {
         $noRights = false;
         
-        if (isset($_GET['post'])) {
+        if (isset($_GET['post']) 
+            && is_numeric($_GET['post'])
+        ) {
             $noRights 
                 = !$this->getAccessHandler()->checkAccess($_GET['post']); 
         }
         
-        if (isset($_GET['attachment_id']) && !$noRights) {
+        if (isset($_GET['attachment_id'])
+            && is_numeric($_GET['attachment_id'])
+            && !$noRights
+        ) {
             $noRights 
                 = !$this->getAccessHandler()->checkAccess($_GET['attachment_id']);
         }
         
-        if (isset($_GET['tag_ID']) && !$noRights) {
+        if (isset($_GET['tag_ID']) 
+            && is_numeric($_GET['tag_ID'])
+            && !$noRights
+        ) {
             $noRights 
                 = !$this->getAccessHandler()->checkCategoryAccess($_GET['tag_ID']);
         }
