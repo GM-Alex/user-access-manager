@@ -50,10 +50,7 @@ class UserAccessManager
      * @return null;
      */
     function install()
-    {
-        $this->createHtaccess();
-        $this->createHtpasswd();
-        
+    {        
         global $wpdb;
         $uamDbVersion = $this->uamDbVersion;
         
@@ -467,7 +464,7 @@ class UserAccessManager
             	'lock_recursive' => 'true',
                 'authors_has_access_to_own' => 'true',
                 'authors_can_add_posts_to_groups' => 'false',
-            	'lock_file' => 'true', 
+            	'lock_file' => 'false', 
             	'file_pass_type' => 'random', 
             	'lock_file_types' => 'all', 
             	'download_type' => 'fopen', 

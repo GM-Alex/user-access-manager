@@ -61,6 +61,7 @@ Here you found the changes in each version.
     						Reorder some admin options
     						Add some new admin functions
     						Speed it up
+    						Disable file locking by default
     
     1.0	Beta 2	2010/07/13	Fix perforance issues
     						Fix media gallery issues

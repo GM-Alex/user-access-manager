@@ -67,7 +67,7 @@ define('TXT_PAGE_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comm
 define('TXT_FILE_SETTING', __('File settings', 'user-access-manager'));
 define('TXT_FILE_SETTING_DESC', __('Set up the behaviour of files', 'user-access-manager'));
 define('TXT_LOCK_FILE', __('Lock files', 'user-access-manager'));
-define('TXT_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files.', 'user-access-manager'));
+define('TXT_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style="color:red;">Note: If you activate this option the plugin will overwirte a \'.htaccess\' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a \'.htaccess\' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>', 'user-access-manager'));
 define('TXT_SELECTED_FILE_TYPES', __('Filetypes to lock: ', 'user-access-manager'));
 define('TXT_NOT_SELECTED_FILE_TYPES', __('Filetypes not to lock: ', 'user-access-manager'));
 define('TXT_DOWNLOAD_FILE_TYPE', __('Locked file types', 'user-access-manager'));
