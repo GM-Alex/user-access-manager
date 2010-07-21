@@ -651,46 +651,6 @@ class UamUserGroup
     }
     
     /**
-     * Count the users attached to the group.
-     * 
-     * @return integer
-     */
-    function countUsers()
-    {
-        $userCount = 0;
-
-		// Get direct attached users which are not in a assigned role
-		$selectRoles = array();
-		$countedUsers = count_users();
-		
-		foreach ( $this->getRoles() as $rolename => $role ) {
-		    $userCount += $countedUsers['avail_roles'][$rolename];
-			$selectRoles[] 
-			    = "meta_value NOT LIKE '%" . like_escape($rolename) . "%'";
-		}
-		
-		if (count($selectRoles) > 0) {
-    		$selectRoles = implode(' AND ', $selectRoles);
-    		$selectRoles = ' AND '.$selectRoles;
-		} else {
-		    $selectRoles = '';
-		}
-		
-		global $wpdb;
-		
-		$userCount += $wpdb->get_var(
-			"SELECT COUNT(*) FROM ".DB_ACCESSGROUP_TO_USER." AGU 
-				JOIN ".$wpdb->usermeta." WU
-				ON (AGU.user_id = WU.user_id)
-			WHERE meta_key = 'wp_capabilities' 
-				AND AGU.group_id = ".$this->getId()."
-				 ".$selectRoles
-		);
-
-		return $userCount;
-    }
-    
-    /**
      * Adds a user to the user group.
      * 
      * @param integer $userID The user id which should be added.
@@ -974,16 +934,6 @@ class UamUserGroup
         }
         
         return $this->categories[$type];
-    }
-    
-    /**
-     * Count the categories attached to the group.
-     * 
-     * @return integer
-     */
-    function countCategories()
-    {
-        return count($this->getCategories('full'));
     }
     
     /**
