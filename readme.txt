@@ -4,15 +4,13 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.0
-Stable tag: 1.0 Beta 2
+Stable tag: 1.0
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
 == Description ==
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible and writable for the specified group. This plugin is useful if you need a member area or a private section at your blog or you want that other people can write at your blog but not everywhere.
-
-<strong>Note:</strong> This is the second public beta release of the User Access Manager 1.0. This version is a stable release, but there could be still some small bugs. I publish this version as beta because my aim is to release a bug free version 1.0. So please help me to find all bugs.
 
 <em>Feature list</em>
 
