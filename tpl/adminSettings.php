@@ -17,13 +17,7 @@
 global $userAccessManager;
 $uamOptions = $userAccessManager->getAdminOptions();
 
-if (isset($_POST['update_uam_settings'])) {
-    if ($_POST['uam_full_access_level'] > 10
-        || !is_numeric($_POST['uam_full_access_level'])
-    ) {
-        $_POST['uam_full_access_level'] = 10;
-    }
-    
+if (isset($_POST['update_uam_settings'])) {    
     foreach ($uamOptions as $option => $value) {
         if (isset($_POST['uam_' . $option])) {
             $uamOptions[$option] = $_POST['uam_' . $option];
@@ -478,10 +472,36 @@ if ($uamOptions['authors_can_add_posts_to_groups'] == "false") {
 				<?php echo TXT_AUTHORS_CAN_ADD_POSTS_TO_GROUPS_DESC; ?></td>
 		</tr>
 		<tr>
-			<th><?php echo TXT_FULL_ACCESS_LEVEL; ?></th>
+			<th><?php echo TXT_FULL_ACCESS_ROLE; ?></th>
 			<td>
-				<input name="uam_full_access_level" value="<?php echo $uamOptions['full_access_level']; ?>" /> <br />
-				<?php echo TXT_FULL_ACCESS_LEVEL_DESC; ?>
+				<select name="uam_full_access_role">
+					<option value="administrator" <?php 
+if ($uamOptions['full_access_role'] == "administrator") {
+    echo 'selected="selected"';
+} 
+                    ?>><?php echo TXT_ADMINISTRATOR; ?></option>
+					<option value="editor" <?php 
+if ($uamOptions['full_access_role'] == "editor") {
+    echo 'selected="selected"';
+} 
+                    ?>><?php echo TXT_EDITOR; ?></option>
+					<option value="author" <?php 
+if ($uamOptions['full_access_role'] == "author") {
+    echo 'selected="selected"';
+} 
+                    ?>><?php echo TXT_AUTHOR; ?></option>
+					<option value="contributor" <?php 
+if ($uamOptions['full_access_role'] == "contributor") {
+    echo 'selected="selected"';
+} 
+                    ?>><?php echo TXT_CONTRIBUTOR; ?></option>
+					<option value="subscriber" <?php 
+if ($uamOptions['full_access_role'] == "subscriber") {
+    echo 'selected="selected"';
+} 
+                    ?>><?php echo TXT_SUBSCRIBER; ?></option>
+				</select><br />
+				<?php echo TXT_FULL_ACCESS_ROLE_DESC; ?>
 			</td>
 		</tr>
 	</tbody>

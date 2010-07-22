@@ -475,7 +475,7 @@ class UserAccessManager
             	'hide_empty_categories' => 'true', 
             	'protect_feed' => 'true', 
             	'show_post_content_before_more' => 'false', 
-            	'full_access_level' => 10
+            	'full_access_role' => 'administrator'
             );
             
             $uamOptions = get_option($this->adminOptionsName);

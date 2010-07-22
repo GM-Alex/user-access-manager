@@ -88,8 +88,13 @@ define('TXT_AUTHORS_HAS_ACCESS_TO_OWN', __('Authors always has access to own pos
 define('TXT_AUTHORS_HAS_ACCESS_TO_OWN_DESC', __('If "Yes" is selected author will always have full access to ther own posts or pages.', 'user-access-manager'));
 define('TXT_AUTHORS_CAN_ADD_POSTS_TO_GROUPS', __('Authors can add content to there own groups', 'user-access-manager'));
 define('TXT_AUTHORS_CAN_ADD_POSTS_TO_GROUPS_DESC', __('If "Yes" is selected author are able to restrict the content by adding it to there groups.', 'user-access-manager'));
-define('TXT_FULL_ACCESS_LEVEL', __('Access Level with full access', 'user-access-manager'));
-define('TXT_FULL_ACCESS_LEVEL_DESC', __('All user with access level equal or higher to this has full access. <b>Note: 10 is the highest value.</b>', 'user-access-manager'));
+define('TXT_FULL_ACCESS_ROLE', __('Minimum user role with full access', 'user-access-manager'));
+define('TXT_FULL_ACCESS_ROLE_DESC', __('All user with a role equal or higher to this has full access.', 'user-access-manager'));
+define('TXT_ADMINISTRATOR', __('Administrator', 'user-access-manager'));
+define('TXT_EDITOR', __('Editor', 'user-access-manager'));
+define('TXT_AUTHOR', __('Author', 'user-access-manager'));
+define('TXT_CONTRIBUTOR', __('Contributor', 'user-access-manager'));
+define('TXT_SUBSCRIBER', __('Subscriber', 'user-access-manager'));
 
 // --- Setting Page -> other settings ---
 define('TXT_OTHER_SETTING', __('Other settings', 'user-access-manager'));

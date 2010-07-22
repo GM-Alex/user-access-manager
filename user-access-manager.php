@@ -6,7 +6,7 @@
  * Author URI: http://www.gm-alex.de/
  * Version: 1.0
  * Author: Alexander Schneider
- * Description: Manage the access to your posts and pages. <strong>Note:</strong> <em> If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess' file. If you activate the plugin and you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated). You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>
+ * Description: Manage the access to your posts, pages, categories and files.
  * 
  * user-access-manager.php
  *

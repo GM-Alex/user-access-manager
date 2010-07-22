@@ -456,14 +456,35 @@ class UamAccessHandler
         
         $role  = is_array($capabilities) ? 
             array_keys($capabilities) : 'norole';
-        $role = $role[0];
+        $role = trim($role[0]);
         
-        if ($curUserdata->user_level >= $uamOptions['full_access_level']
+        $orderedRoles = $this->getRolesOrdered();
+        
+        if ($orderedRoles[$role] >= $orderedRoles[$uamOptions['full_access_role']]
             || $role == 'administrator'
         ) {
             return true;
         }
         
         return false;
+    }
+    
+    /**
+     * Returns the roles as assoziative array.
+     * 
+     * @return array
+     */
+    function getRolesOrdered()
+    {
+        $orderedRoles = array(
+            'norole' => 0,
+            'subscriber' => 1,
+            'contributor' => 2,
+            'author' => 3,
+        	'editor' => 4,
+            'administrator' => 5
+        );
+        
+        return $orderedRoles;
     }
 }
