@@ -57,7 +57,7 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.0			2010/07/xx	Fix array_merge bug at media page
+    1.0			2010/07/22	Fix array_merge bug at media page
     						Reorder some admin options
     						Add some new admin functions
     						Speed it up

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: User Access Manager\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
-"POT-Creation-Date: 2010-07-09 15:37+0000\n"
-"PO-Revision-Date: 2010-07-09 18:01+0100\n"
+"POT-Creation-Date: 2010-07-22 12:29+0000\n"
+"PO-Revision-Date: 2010-07-22 14:47+0100\n"
 "Last-Translator: \n"
 "Language-Team: Alexander Schneider <alexanderschneider85@googlemail.com>\n"
 "MIME-Version: 1.0\n"
@@ -12,30 +12,30 @@ msgstr ""
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 
-#: class/UserAccessManager.class.php:431
-#: class/UserAccessManager.class.php:444
+#: class/UserAccessManager.class.php:436
+#: class/UserAccessManager.class.php:449
 msgid "No rights!"
 msgstr "Keine Berechtigung!"
 
-#: class/UserAccessManager.class.php:433
+#: class/UserAccessManager.class.php:438
 msgid "Sorry you have no rights to view this post!"
 msgstr "Entschuldigung aber du hast nicht die Rechte um dieses Post zu sehen!"
 
-#: class/UserAccessManager.class.php:439
-#: class/UserAccessManager.class.php:452
+#: class/UserAccessManager.class.php:444
+#: class/UserAccessManager.class.php:457
 msgid "Sorry no rights to view comments!"
 msgstr "Entschuldigung aber du hast nicht die Rechte um diese Kommentare zu sehen!"
 
-#: class/UserAccessManager.class.php:446
+#: class/UserAccessManager.class.php:451
 msgid "Sorry you have no rights to view this page!"
 msgstr "Entschuldigung aber du hast nicht die Rechte um diese Seite zu sehen!"
 
-#: class/UserAccessManager.class.php:659
-#: class/UserAccessManager.class.php:889
+#: class/UserAccessManager.class.php:674
+#: class/UserAccessManager.class.php:923
 msgid "Access"
 msgstr "Zugriff"
 
-#: class/UserAccessManager.class.php:792
+#: class/UserAccessManager.class.php:826
 msgid "uam user groups"
 msgstr "uam Nutzergruppen"
 
@@ -201,8 +201,8 @@ msgid "Lock files"
 msgstr "Dateien sperren"
 
 #: includes/language.define.php:70
-msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files."
-msgstr "Wenn \"Ja\" ausgewählt ist werden alle Dateien durch eine .htaccess Datei gesperrt. Nur Nutzer mit den entsprechenden Rechten auf das Post oder die Seite zuzugreifen können diese Dateien herunterladen."
+msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style=\"color:red;\">Note: If you activate this option the plugin will overwirte a '.htaccess' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>"
+msgstr "Wenn \"Ja\" ausgew&auml;hlt ist werden alle Dateine durch eine .htaccess Datei gesch&uuml;tzt wodurch nur noch Nutzer mit Zugriffsberechtigung auf die Dateien zugreifen k&ouml;nnen.<br/><strong style=\"color:red;\">Hinweis: Wenn diese Option aktiviert wird wird eine bereits bestehende '.htaccess' Datei welche siich im Upload-Ordner befindet &uuml;berschrieben. Des Weiterem wird, sofern keine Permalinks aktiviert sind, das Upload Verzeichnis durch eine '.htaccess' Datei mit einem zufälligen Passwort geschützt. Alte Mediafiles in Posts werden nicht mehr korrekt funktionieren. Diese müssen per Hand aktualisiert werden (Nur n&ouml;tig wenn keine Permalinks aktiviert sind).</strong>"
 
 #: includes/language.define.php:71
 msgid "Filetypes to lock: "
@@ -253,326 +253,354 @@ msgid "fopen"
 msgstr "fopen"
 
 #: includes/language.define.php:85
-msgid "Other settings"
-msgstr "Andere Einstellungen"
+msgid "Authors settings"
+msgstr "Autoren Einstellungen"
 
 #: includes/language.define.php:86
-msgid "Here you will find all other settings"
-msgstr "Hier sind alle anderen Einstellungen zu finden"
+msgid "Here you will find the settings for authors"
+msgstr "Hier sind die Einstellungen f&uuml;r Autoren zu finden"
 
 #: includes/language.define.php:87
-msgid "Protect Feed"
-msgstr "RSS-Einträge schützen"
-
-#: includes/language.define.php:88
-msgid "Selecting \"Yes\" will also protect your feed entries."
-msgstr "Wenn \"Ja\" ausgewählt ist werden die RSS-Einträge geschützt."
-
-#: includes/language.define.php:89
-msgid "Hide empty categories"
-msgstr "Leere Kategorien verstecken"
-
-#: includes/language.define.php:90
-msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
-msgstr "Die Auswahl der Option \"Ja\" versteckt alle leeren Kategorien welche keine nicht leeren Kinder enthalten."
-
-#: includes/language.define.php:91
-msgid "Redirect user"
-msgstr "Nutzer weitleiten"
-
-#: includes/language.define.php:92
-msgid "Setup what happen if a user visit a post/page with no access."
-msgstr "Einstellung was passiert wenn ein Nutzer keinen Zugriff auf ein Post/Seite hat."
-
-#: includes/language.define.php:93
-msgid "To blog startpage"
-msgstr "Zu Blog-Startseite"
-
-#: includes/language.define.php:94
-msgid "Custom page: "
-msgstr "Benutzerdefinierte Seite:"
-
-#: includes/language.define.php:95
-msgid "Custom URL: "
-msgstr "Benutzerdefinierte URL:"
-
-#: includes/language.define.php:96
-msgid "Lock recursive"
-msgstr "Rekursives Sperren"
-
-#: includes/language.define.php:97
-msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
-msgstr "Wenn \"Ja\" ausgewählt ist werden alle Kinder-Posts/Seiten eines Posts/Seite gesperrt sobald ein Nutzer keinen Zugriff hat. Hinweis: Die Auswahl von der Option \"Nein\" zu Darstellungsfehlern bezüglich der Hierarchie führen."
-
-#: includes/language.define.php:98
 msgid "Authors always has access to own posts/pages"
 msgstr "Zugriff für Autoren zu deren Posts/Seiten erlauben"
 
-#: includes/language.define.php:99
+#: includes/language.define.php:88
 msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
 msgstr "Wenn \"Ja\" ausgewählt ist haben Autoren immer Vollzugriff zu deren eigenen Posts oder Seiten."
 
+#: includes/language.define.php:89
+msgid "Authors can add content to there own groups"
+msgstr "Autoren können Inhalte zu deren eigener Gruppe hinzuf&uuml;gen"
+
+#: includes/language.define.php:90
+msgid "If \"Yes\" is selected author are able to restrict the content by adding it to there groups."
+msgstr "Wenn \"Ja\" ausgewählt ist haben Autoren die M&ouml;glichkeit Inhalte zu deren eigenen Nutzergruppen hinzuzuf&uuml;gen."
+
+#: includes/language.define.php:91
+msgid "Minimum user role with full access"
+msgstr "Minimale Nutzerrolle mit Vollzugriff"
+
+#: includes/language.define.php:92
+msgid "All user with a role equal or higher to this has full access."
+msgstr "Alle Nutzer mit einer h&ouml;heren oder gleichen Nutzerrolle haben Vollzugriff."
+
+#: includes/language.define.php:93
+msgid "Administrator"
+msgstr "Administrator"
+
+#: includes/language.define.php:94
+msgid "Editor"
+msgstr "Redakteur"
+
+#: includes/language.define.php:95
+msgid "Author"
+msgstr "Autor"
+
+#: includes/language.define.php:96
+msgid "Contributor"
+msgstr "Mitarbeiter"
+
+#: includes/language.define.php:97
+msgid "Subscriber"
+msgstr "Abonnent"
+
 #: includes/language.define.php:100
+msgid "Other settings"
+msgstr "Andere Einstellungen"
+
+#: includes/language.define.php:101
+msgid "Here you will find all other settings"
+msgstr "Hier sind alle anderen Einstellungen zu finden"
+
+#: includes/language.define.php:102
+msgid "Protect Feed"
+msgstr "RSS-Einträge schützen"
+
+#: includes/language.define.php:103
+msgid "Selecting \"Yes\" will also protect your feed entries."
+msgstr "Wenn \"Ja\" ausgewählt ist werden die RSS-Einträge geschützt."
+
+#: includes/language.define.php:104
+msgid "Hide empty categories"
+msgstr "Leere Kategorien verstecken"
+
+#: includes/language.define.php:105
+msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
+msgstr "Die Auswahl der Option \"Ja\" versteckt alle leeren Kategorien welche keine nicht leeren Kinder enthalten."
+
+#: includes/language.define.php:106
+msgid "Redirect user"
+msgstr "Nutzer weitleiten"
+
+#: includes/language.define.php:107
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr "Einstellung was passiert wenn ein Nutzer keinen Zugriff auf ein Post/Seite hat."
+
+#: includes/language.define.php:108
+msgid "To blog startpage"
+msgstr "Zu Blog-Startseite"
+
+#: includes/language.define.php:109
+msgid "Custom page: "
+msgstr "Benutzerdefinierte Seite:"
+
+#: includes/language.define.php:110
+msgid "Custom URL: "
+msgstr "Benutzerdefinierte URL:"
+
+#: includes/language.define.php:111
+msgid "Lock recursive"
+msgstr "Rekursives Sperren"
+
+#: includes/language.define.php:112
+msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgstr "Wenn \"Ja\" ausgewählt ist werden alle Kinder-Posts/Seiten eines Posts/Seite gesperrt sobald ein Nutzer keinen Zugriff hat. Hinweis: Die Auswahl von der Option \"Nein\" zu Darstellungsfehlern bezüglich der Hierarchie führen."
+
+#: includes/language.define.php:113
 msgid "Admin hint text"
 msgstr "Administrator Hinweißtext"
 
-#: includes/language.define.php:101
+#: includes/language.define.php:114
 msgid "The text which will shown behinde the post/page."
 msgstr "Der Text der hinter den Post/Seiten-Titeln angezeigt wird."
 
-#: includes/language.define.php:102
+#: includes/language.define.php:115
 msgid "Show admin hint at Posts"
 msgstr "Administratorhinweiße bei Posts zeigen"
 
-#: includes/language.define.php:103
+#: includes/language.define.php:116
 #, php-format
 msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
 msgstr "Wenn \"Ja\" ausgewählt ist wird der Text der bei \"%s\" angegeben Text einem angemeldeten Administrator angezeigt."
 
-#: includes/language.define.php:104
-msgid "Access Level with full access"
-msgstr "Zugriffslevel mit Vollzugriff"
-
-#: includes/language.define.php:105
-msgid "All user with access level equal or higher to this has full access. <b>Note: 10 is the highest value.</b>"
-msgstr "Alle Nutzer mit einem h&ouml;heren oder gleichen Nutzerlevel haben Vollzugriff. <b>Hinweis: 10 ist der Maximalwert.</b>"
-
-#: includes/language.define.php:108
+#: includes/language.define.php:119
 msgid "Update settings"
 msgstr "Einstellungen aktualisieren"
 
-#: includes/language.define.php:109
+#: includes/language.define.php:120
 msgid "Settings updated."
 msgstr "Einstellungen aktualisiert."
 
-#: includes/language.define.php:113
+#: includes/language.define.php:124
 msgid "Manage user user groups"
 msgstr "Nutzergruppen verwalten"
 
-#: includes/language.define.php:114
+#: includes/language.define.php:125
 msgid "Role affiliation"
 msgstr "Wordpress-Rollen Zugehörigkeit"
 
-#: includes/language.define.php:115
+#: includes/language.define.php:126
 msgid "Name"
 msgstr "Name"
 
-#: includes/language.define.php:116
+#: includes/language.define.php:127
 msgid "Description"
 msgstr "Beschreibung"
 
-#: includes/language.define.php:117
-#: includes/language.define.php:135
+#: includes/language.define.php:128
+#: includes/language.define.php:141
 msgid "Read access"
 msgstr "Lesezugriff"
 
-#: includes/language.define.php:118
-#: includes/language.define.php:137
+#: includes/language.define.php:129
+#: includes/language.define.php:143
 msgid "Write access"
 msgstr "Schreibzugriff"
 
-#: includes/language.define.php:119
-msgid "Posts"
-msgstr "Posts"
-
-#: includes/language.define.php:120
-msgid "Pages"
-msgstr "Seiten"
-
-#: includes/language.define.php:121
-msgid "Files"
-msgstr "Dateien"
-
-#: includes/language.define.php:122
-msgid "Categories"
-msgstr "Kategorien"
-
-#: includes/language.define.php:123
-msgid "Users"
-msgstr "Benutzer"
-
-#: includes/language.define.php:124
+#: includes/language.define.php:130
 msgid "Delete"
 msgstr "Löschen"
 
-#: includes/language.define.php:125
+#: includes/language.define.php:131
 msgid "Update group"
 msgstr "Gruppe aktualisieren"
 
-#: includes/language.define.php:126
+#: includes/language.define.php:132
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: includes/language.define.php:127
+#: includes/language.define.php:133
 msgid "Add user group"
 msgstr "Nutzergruppen hinzufügen"
 
-#: includes/language.define.php:128
+#: includes/language.define.php:134
 msgid "Edit user group"
 msgstr "Nutzergruppen bearbeiten"
 
-#: includes/language.define.php:129
+#: includes/language.define.php:135
 msgid "User group name"
 msgstr "Nutzergruppenname"
 
-#: includes/language.define.php:130
+#: includes/language.define.php:136
 msgid "The name is used to identify the access user group."
 msgstr "Der Name um die Nutzergruppe zu identifizieren."
 
-#: includes/language.define.php:131
+#: includes/language.define.php:137
 msgid "User group description"
 msgstr "Nutzergruppenbeschreibung"
 
-#: includes/language.define.php:132
+#: includes/language.define.php:138
 msgid "The description of the group."
 msgstr "Die Beschreibung der Gruppe."
 
-#: includes/language.define.php:133
-#: includes/language.define.php:144
+#: includes/language.define.php:139
+#: includes/language.define.php:150
 msgid "IP range"
 msgstr "IP Bereich"
 
-#: includes/language.define.php:134
+#: includes/language.define.php:140
 msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
 msgstr "Hier können IP-Bereich festgelegt werden, welche es nicht eingeloggten Nutzern ermöglicht UAM-Gruppen beizutreten, wenn sich diese im entsprechenden IP-Bereich befinden. Bereiche werden so gesetzt: \"BEGIN\"-\"END\", um Bereiche zu separieren kann \";\" verwendet werden, einzelne IPs sind ebenso erlaubt. Beispiel: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
 
-#: includes/language.define.php:136
+#: includes/language.define.php:142
 msgid "The read access."
 msgstr "Der Lesezugriff."
 
-#: includes/language.define.php:138
+#: includes/language.define.php:144
 msgid "The write access."
 msgstr "Der Schreibzugriff."
 
-#: includes/language.define.php:139
+#: includes/language.define.php:145
 msgid "Group was added successfully."
 msgstr "Gruppe erfolgreich hinzugefügt."
 
-#: includes/language.define.php:140
+#: includes/language.define.php:146
 msgid "Group name can not be empty."
 msgstr "Nutzergruppenname darf nicht leer sein."
 
-#: includes/language.define.php:141
+#: includes/language.define.php:147
 msgid "Group(s) was deleted successfully."
 msgstr "Gruppe(n) erfolgreich gelöscht."
 
-#: includes/language.define.php:142
+#: includes/language.define.php:148
 msgid "none"
 msgstr "keine"
 
-#: includes/language.define.php:143
+#: includes/language.define.php:149
 msgid "User group edit successfully."
 msgstr "Gruppe erfolgreich bearbeitet."
 
-#: includes/language.define.php:148
+#: includes/language.define.php:154
 msgid "Setup"
 msgstr "Setup"
 
-#: includes/language.define.php:149
+#: includes/language.define.php:155
 msgid "Reset User Access Manager"
 msgstr "User Access Manager zurücksetzen"
 
-#: includes/language.define.php:150
+#: includes/language.define.php:156
 msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
 msgstr "Achtung: Das zur&uuml;cksetzen des User Access Manager kann nicht r&uuml;ckg&auml;nig gemacht werden. Alle Einstellungen und Nutzergruppen werden permanent gel&ouml;scht."
 
-#: includes/language.define.php:151
+#: includes/language.define.php:157
 msgid "reset"
 msgstr "zurücksetzen"
 
-#: includes/language.define.php:152
+#: includes/language.define.php:158
 msgid "User Access Manager was reset successfully"
 msgstr "User Access Manager erfolgreich zurückgesetzt."
 
-#: includes/language.define.php:156
+#: includes/language.define.php:162
 msgid "About"
 msgstr "&Uuml;ber"
 
-#: includes/language.define.php:159
+#: includes/language.define.php:165
 msgid "How to support me?"
 msgstr "So k&ouml;nnt ihr mich unterst&uuml;tzen"
 
-#: includes/language.define.php:160
+#: includes/language.define.php:166
 msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
 msgstr "<strong>Sendet mir eure Bugs, Bugfixes, Code Modifikationen oder Ideen.</strong><br/>Helft mir das Plugin zu verbessern."
 
-#: includes/language.define.php:161
+#: includes/language.define.php:167
 msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
 msgstr "<strong>Erstelle eine &Uuml;bersetzung dieses Plugins.</strong><br/>Um anderen Nutzern mehr Komfort zu geben w&auml;re es toll dieses Plugin in mehreren Sprachen zu haben."
 
-#: includes/language.define.php:162
+#: includes/language.define.php:168
 msgid "<strong>Donate via paypal</strong>"
 msgstr "<strong>Spende via paypal</strong>"
 
-#: includes/language.define.php:163
+#: includes/language.define.php:169
 msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
 msgstr "<strong>Platziere einen Link zum Plugin auf deinem Blog/Webseite.</strong>"
 
-#: includes/language.define.php:166
+#: includes/language.define.php:172
 msgid "Thanks"
 msgstr "Danksagung"
 
-#: includes/language.define.php:167
+#: includes/language.define.php:173
 msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
 msgstr "Besonderer Dank geht an mein Freundin die geduldig mein PC-Sessions ertragen hat und es mir so erm&ouml;glichte dieses Plugin zu entwickeln."
 
-#: includes/language.define.php:168
+#: includes/language.define.php:174
 msgid "I would like to thank all the guys which has helped me with this plugin:"
 msgstr "Vielen Dank auch an die Leute die mir geholfen haben:"
 
-#: includes/language.define.php:172
+#: includes/language.define.php:175
+msgid "all beta testers and all others I forgot"
+msgstr "allen Betatestern und allen die ich vergessen habe."
+
+#: includes/language.define.php:179
 msgid "Full access"
 msgstr "Vollzugriff"
 
-#: includes/language.define.php:173
+#: includes/language.define.php:180
+msgid "Member of other user groups"
+msgstr "Mitglied eine anderen Nutzergruppe"
+
+#: includes/language.define.php:181
 msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
 msgstr "<strong>Hinweis:</strong> Ein Administrator hat immer Vollzugriff zu allen Posts/Seiten."
 
-#: includes/language.define.php:174
+#: includes/language.define.php:182
 msgid "Please create a user group first."
 msgstr "Bitte erstellen Sie zuerst eine Nutzergruppe."
 
-#: includes/language.define.php:175
+#: includes/language.define.php:183
+msgid "No user group available."
+msgstr "Keine Nutzergruppe verfügbar."
+
+#: includes/language.define.php:184
 msgid "You have no rights to access this content."
 msgstr "Entschuldigung aber du hast nicht die Rechte um diesen Inhalt zu sehen!"
 
-#: includes/language.define.php:176
+#: includes/language.define.php:185
 msgid "User Groups"
 msgstr "Nutzergruppen"
 
-#: includes/language.define.php:177
+#: includes/language.define.php:186
 msgid "Set up usergroups"
 msgstr "Nutzergruppen einrichten"
 
-#: includes/language.define.php:181
+#: includes/language.define.php:190
 msgid "Info"
 msgstr "Info"
 
-#: includes/language.define.php:182
+#: includes/language.define.php:191
 msgid "Group infos"
 msgstr "Gruppeninformationen"
 
-#: includes/language.define.php:183
+#: includes/language.define.php:192
 msgid "Group membership given by posts"
 msgstr "Nutzergruppen zugewiesen durch Posts"
 
-#: includes/language.define.php:184
+#: includes/language.define.php:193
 msgid "Group membership given by categories"
 msgstr "Nutzergruppen zugewiesen durch Kategorien"
 
-#: includes/language.define.php:185
+#: includes/language.define.php:194
 msgid "Group membership given by role"
 msgstr "Nutzergruppen zugewiesen durch Nutzerrollen"
 
-#: includes/language.define.php:186
+#: includes/language.define.php:195
 msgid "Assigned groups"
 msgstr "Zugewiesene Gruppen"
 
-#: includes/language.define.php:190
+#: includes/language.define.php:199
 msgid "Opening fileinfo database failed."
 msgstr "&Ouml;ffnen der Dateiinformationsdatenbank fehlgeschlagen."
 
-#: includes/language.define.php:191
+#: includes/language.define.php:200
 msgid "Error: File not found."
 msgstr "Fehler: Datei nicht gefunden."
 
@@ -614,8 +642,8 @@ msgid "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
 msgstr "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
 
 #. Description of the plugin/theme
-msgid "Manage the access to your posts and pages. <strong>Note:</strong> <em> If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess' file. If you activate the plugin and you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated). You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>"
-msgstr "Mit dem “User Access Manager”-Plugin ist es möglich den Zugriff auf Posts, Seiten und Dateien festzulegen. <strong>Hinweis:</strong> <em>Wird bereits eine '.htaccess' Datei verwendet um die Dateien im Upload-Ordner zu sch&uuml;tzen wird diese <strong>überschrieben</strong>.Wenn das Plugin aktiviert wird und keine Permalinks aktiviert sind wird das Upload Verzeichnis durch eine '.htaccess' Datei mit einem zufälligen Passwort geschützt. Alte Mediafiles in Posts werden nicht mehr korrekt funktionieren. Diese müssen per Hand aktualisiert werden (Nur n&ouml;tig wenn keine Permalinks aktiviert sind).  Die .htaccess Datei kann bei den UAM Einstellungen deaktiviert werden.</em>"
+msgid "Manage the access to your posts, pages, categories and files."
+msgstr "Mit dem “User Access Manager”-Plugin ist es möglich den Zugriff auf Posts, Seiten und Dateien festzulegen."
 
 #. Author of the plugin/theme
 msgid "Alexander Schneider"
@@ -625,6 +653,23 @@ msgstr "Alexander Schneider"
 msgid "http://www.gm-alex.de/"
 msgstr "http://www.gm-alex.de/"
 
+#~ msgid ""
+#~ "If you select \"Yes\" all files will locked by a .htaccess file and only "
+#~ "users with access can download files."
+#~ msgstr ""
+#~ "Wenn \"Ja\" ausgewählt ist werden alle Dateien durch eine .htaccess Datei "
+#~ "gesperrt. Nur Nutzer mit den entsprechenden Rechten auf das Post oder die "
+#~ "Seite zuzugreifen können diese Dateien herunterladen."
+#~ msgid "Posts"
+#~ msgstr "Posts"
+#~ msgid "Pages"
+#~ msgstr "Seiten"
+#~ msgid "Files"
+#~ msgstr "Dateien"
+#~ msgid "Categories"
+#~ msgstr "Kategorien"
+#~ msgid "Users"
+#~ msgstr "Benutzer"
 #~ msgid "Add access group"
 #~ msgstr "Nutzergruppe hinzufügen"
 
@@ -657,8 +702,6 @@ msgstr "http://www.gm-alex.de/"
 #~ msgstr "Beinhaltete %1$s von %2$s Kategorien"
 #~ msgid "Contains %1$s of %2$s users"
 #~ msgstr "Beinhaltete %1$s von %2$s Benutzern"
-#~ msgid "Full access (Administrator)"
-#~ msgstr "Vollzugriff (Administrator)"
 #~ msgid "No group"
 #~ msgstr "Keine Gruppe"
 #~ msgid "Set access"
