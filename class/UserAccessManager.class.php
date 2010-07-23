@@ -868,6 +868,8 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         
         if ($uamAccessHandler->checkUserAccess()) {
+            echo $userId;
+            
             $userGroupsForUser
                 = $uamAccessHandler->getUserGroupsForUser($userId);
             

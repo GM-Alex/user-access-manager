@@ -76,6 +76,16 @@ class UamUserGroup
     function __construct(&$uamAccessHandler, $id = null)
     {
         $this->accessHandler = $uamAccessHandler;
+        
+        //Create default values for the pluggable objects.
+        $pluggableObjects = $uamAccessHandler->getPluggableObjects();
+        
+        foreach ($pluggableObjects as $objectName => $pluggableObject) {
+            $this->$pluggableObjects[$objectName] = array(
+            	'real' => -1,
+                'full' => -1
+            );
+        }
 
         if ($id !== null) {
             global $wpdb;
@@ -510,8 +520,7 @@ class UamUserGroup
         $dbUsers = $wpdb->get_results(
         	"SELECT user_id
 			FROM " . DB_ACCESSGROUP_TO_USER . "
-			WHERE group_id = " . $this->id . "
-			ORDER BY user_id"
+			WHERE group_id = " . $this->id
         );
         
         $this->_assignedUsers = array();
@@ -628,15 +637,12 @@ class UamUserGroup
             $dbUsers = $wpdb->get_results(
             	"SELECT user_id as ID
     			FROM " . DB_ACCESSGROUP_TO_USER . "
-    			WHERE group_id = " . $this->id . "
-    			ORDER BY user_id", 
-                ARRAY_A
+    			WHERE group_id = " . $this->id
             );
         } elseif ($type == 'full') {
             $dbUsers = $wpdb->get_results(
             	"SELECT ID, user_nicename
-    			FROM $wpdb->users 
-    			ORDER BY user_nicename"
+    			FROM ".$wpdb->users
             );
         }
             
@@ -762,8 +768,7 @@ class UamUserGroup
         $dbCategories = $wpdb->get_results(
         	"SELECT *
 			FROM " . DB_ACCESSGROUP_TO_CATEGORY . "
-			WHERE group_id = " . $this->id . "
-			ORDER BY category_id"
+			WHERE group_id = " . $this->id
         );
         
         $this->_assignedCategories = array();
@@ -885,8 +890,7 @@ class UamUserGroup
         $dbCategories = $wpdb->get_results(
         	"SELECT *
 			FROM " . DB_ACCESSGROUP_TO_CATEGORY . "
-			WHERE group_id = " . $this->id . "
-			ORDER BY category_id",
+			WHERE group_id = " . $this->id,
             ARRAY_A
         );
         
@@ -1493,11 +1497,53 @@ class UamUserGroup
      */
     private function _isPluggableObjectAssignedToGroup($object, $objectId)
     {
-        if (array_key_exists($categoryId, $this->_getAssignedPluggableObjects($object))) {
+        if (array_key_exists($objectId, $this->_getAssignedPluggableObjects($object))) {
             return true;
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Returns a single pluggable object.
+     * 
+     * @param object  $object   The pluggable object.
+     * @param integer $objectId The object id.
+     * @param string  $type     The return type. Can be real or full.
+     * 
+     * @return object
+     */
+    private function _getSinglePluggableObject($object, $objectId, $type = 'full')
+    {
+        if (!isset($objectId)) {
+            return null;
+        }
+        
+        if (isset($this->singlePluggableObjects[$objectId])) {
+            return $this->singlePluggableObjects[$objectId];
+        }
+        
+        $isRecursiveMember = array();
+        
+        $userAccessManager = &$this->getAccessHandler()->getUserAccessManager();
+        $uamOptions = $userAccessManager->getAdminOptions();
+        
+        if ($type == 'full') {
+            //TODO Function for full.
+        }
+
+        if ($this->_isPostAssignedToGroup($objectId)
+            || $isRecursiveMember != array()
+        ) {
+            if ($isRecursiveMember != array()) {
+                $object->recursiveMember = $isRecursiveMember;
+            }
+            $this->singlePluggableObjects[$objectId] = $object;
+        } else {
+            $this->singlePluggableObjects[$objectId] = null;
+        }
+
+        return $this->singlePluggableObjects[$objectId];
     }
     
     /**
@@ -1511,8 +1557,10 @@ class UamUserGroup
     function addPluggableObject($object, $objectId)
     {
         $this->getPluggableObjects();
-        //TODO add the object recieve function
-        $this->pluggableObjects[$object]['real'][$objectId] = TODO($objectId);
+        $pluggableObject = $this->getAccessHandler()->getPluggableObject($object);
+        
+        $this->pluggableObjects[$object]['real'][$objectId] 
+            = $pluggableObject['ref']->{$pluggableObject['getObject']}($objectId);
         $this->pluggableObjects[$object]['full'] = -1;
     }
     
@@ -1572,17 +1620,19 @@ class UamUserGroup
 	/**
      * Checks if the given post is a member of the group.
      * 
+     * @param string   $object   The name of the object.
      * @param interger $objectId The id of the object which should be checked.
      * @param boolean  $withInfo If true then we return additional infos.
      * 
      * @return boolean
      */
-    function pluggableObjectIsMember($objectId, $withInfo = false)
+    function pluggableObjectIsMember($object, $objectId, $withInfo = false)
     {
-        $object = get_category($objectId);
+        $pluggableObject = $this->getAccessHandler()->getPluggableObject($object);
         
-        //TODO add the object recieve function
-        $object = $this->_getSinglePluggableObject($object, 'full');
+        $object 
+            = $pluggableObject['ref']->{$pluggableObject['getObject']}($objectId);
+        $object = $this->_getSinglePluggableObject($object, $objectId, 'full');
         
         if ($object !== null) {
             if (isset($object->recursiveMember)

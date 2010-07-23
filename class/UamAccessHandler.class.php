@@ -498,7 +498,7 @@ class UamAccessHandler
      */
     function registerPluggableObject($object)
     {
-        $this->pluggableObjects[$object] = $object;
+        $this->pluggableObjects[$object['name']] = $object;
     }
     
     /**
