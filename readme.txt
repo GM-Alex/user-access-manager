@@ -55,6 +55,9 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    1.0.1		2010/07/24	Fix bug that only one user can be a member of a user group
+    						Fix bug for recursive locking for categories
+    
     1.0			2010/07/22	Fix array_merge bug at media page
     						Reorder some admin options
     						Add some new admin functions
