@@ -612,7 +612,7 @@ class UserAccessManager
             && is_numeric($_GET['post'])
         ) {
             $noRights 
-                = !$this->getAccessHandler()->checkAccess($_GET['post']); 
+                = !$this->getAccessHandler()->checkPostAccess($_GET['post']); 
         }
         
         if (isset($_GET['attachment_id'])
@@ -620,7 +620,7 @@ class UserAccessManager
             && !$noRights
         ) {
             $noRights 
-                = !$this->getAccessHandler()->checkAccess($_GET['attachment_id']);
+                = !$this->getAccessHandler()->checkPostAccess($_GET['attachment_id']);
         }
         
         if (isset($_GET['tag_ID']) 
@@ -868,27 +868,25 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         
         if ($uamAccessHandler->checkUserAccess()) {
-            if ($uamAccessHandler->checkUserAccess()) {
-                $userGroupsForPost 
-                    = $uamAccessHandler->getUserGroupsForUser($userId);
-                
-                foreach ($userGroupsForPost as $uamUserGroup) {
-                    $uamUserGroup->removeUser($userId);
+            $userGroupsForUser
+                = $uamAccessHandler->getUserGroupsForUser($userId);
+            
+            foreach ($userGroupsForUser as $uamUserGroup) {
+                $uamUserGroup->removeUser($userId);
+                $uamUserGroup->save();
+            }
+            
+            if (isset($_POST['usergroups'])) {
+                $userGroups = $_POST['usergroups'];
+            }
+            
+            if (isset($userGroups)) {
+                foreach ($userGroups as $userGroupId) {
+                    $uamUserGroup 
+                        = $uamAccessHandler->getUserGroups($userGroupId);
+    
+                    $uamUserGroup->addUser($userId);
                     $uamUserGroup->save();
-                }
-                
-                if (isset($_POST['usergroups'])) {
-                    $userGroups = $_POST['usergroups'];
-                }
-                
-                if (isset($userGroups)) {
-                    foreach ($userGroups as $userGroupId) {
-                        $uamUserGroup 
-                            = $uamAccessHandler->getUserGroups($userGroupId);
-        
-                        $uamUserGroup->addUser($userId);
-                        $uamUserGroup->save();
-                    }
                 }
             }
         }
@@ -1038,13 +1036,13 @@ class UserAccessManager
         if ($uamOptions['hide_'.$postType] == 'true'
             || $this->atAdminPanel
         ) {
-            if ($uamAccessHandler->checkAccess($post->ID)) {
+            if ($uamAccessHandler->checkPostAccess($post->ID)) {
                 $post->post_title .= $this->adminOutput($post->ID);
                 
                 return $post;
             }
         } else {
-            if (!$uamAccessHandler->checkAccess($post->ID)) {
+            if (!$uamAccessHandler->checkPostAccess($post->ID)) {
                 $uamPostContent = $uamOptions[$postType.'_content'];
                 $uamPostContent = str_replace(
                 	"[LOGIN_FORM]", 
@@ -1174,11 +1172,11 @@ class UserAccessManager
                 || $uamOptions['hide_'.$postType] == 'true' 
                 || $this->atAdminPanel
             ) {
-                if ($uamAccessHandler->checkAccess($post->ID)) {
+                if ($uamAccessHandler->checkPostAccess($post->ID)) {
                     $showComments[] = $comment;
                 }
             } else {
-                if (!$uamAccessHandler->checkAccess($post->ID)) {
+                if (!$uamAccessHandler->checkPostAccess($post->ID)) {
                     $comment->comment_content 
                         = $uamOptions[$postType.'_comment_content'];
                 }
@@ -1209,12 +1207,12 @@ class UserAccessManager
             if ($uamOptions['hide_page'] == 'true' 
                 || $this->atAdminPanel
             ) {
-                if ($uamAccessHandler->checkAccess($page->ID)) {
+                if ($uamAccessHandler->checkPostAccess($page->ID)) {
                     $page->post_title.= $this->adminOutput($page->ID);
                     $showPages[] = $page;
                 }
             } else {
-                if (!$uamAccessHandler->checkAccess($page->ID)) {
+                if (!$uamAccessHandler->checkPostAccess($page->ID)) {
                     if ($uamOptions['hide_page_title'] == 'true') {
                         $page->post_title = $uamOptions['page_title'];
                     }
@@ -1261,7 +1259,7 @@ class UserAccessManager
                 if (isset($categoryPosts)) {
                     foreach ($categoryPosts as $post) {
                         if ($uamOptions['hide_'.$post->post_type] == 'true'
-                            && !$uamAccessHandler->checkAccess($post->ID)
+                            && !$uamAccessHandler->checkPostAccess($post->ID)
                         ) {
                             $category->count--;   
                         }
@@ -1338,32 +1336,6 @@ class UserAccessManager
     }
     
     /**
-     * The function for the get_the_title filter.
-     * 
-     * @param string $title  The title of the post.
-     * @param object $postId The post id.
-     * 
-     * @return string
-     */
-    /*function showTitle($title, $postId = null)
-    {
-        $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = &$this->getAccessHandler();
-        
-        $post = get_post($postId);
-        $postType = $post->post_type;
-        
-        if (!$uamAccessHandler->checkAccess($postId) 
-            && $post != null 
-            && $uamOptions['hide_'.$postType.'_title'] == 'true'
-        ) {
-            $title = $uamOptions[$postType.'_title'];
-        }
-        
-        return $title;
-    }*/
-    
-    /**
      * The function for the get_previous_post_where and 
      * the get_next_post_where filter.
      * 
@@ -1381,7 +1353,7 @@ class UserAccessManager
             
             if (isset($posts)) {
                 foreach ($posts as $post) {
-                    if (!$uamAccessHandler->checkAccess($post->ID)) {
+                    if (!$uamAccessHandler->checkPostAccess($post->ID)) {
                         $excludedPosts[] = $post->ID;
                     }
                 }
@@ -1494,7 +1466,7 @@ class UserAccessManager
         $post = get_post($emptyId);
         
         if ($uamOptions['redirect'] != 'false' 
-            && !$this->getAccessHandler()->checkAccess($post->ID) 
+            && !$this->getAccessHandler()->checkPostAccess($post->ID) 
             && !$this->atAdminPanel 
             && !isset($fileUrl)
         ) {
@@ -1525,7 +1497,7 @@ class UserAccessManager
         
         if (isset($posts)) {
             foreach ($posts as $post) {
-                if ($this->getAccessHandler()->checkAccess($post->ID)) {
+                if ($this->getAccessHandler()->checkPostAccess($post->ID)) {
                     $postToShow = true;
                     break;
                 }
@@ -1568,7 +1540,7 @@ class UserAccessManager
         }
         
         if ($post->post_type == 'attachment' 
-            && $this->getAccessHandler()->checkAccess($post->ID)
+            && $this->getAccessHandler()->checkPostAccess($post->ID)
         ) {
             $uploadDir = wp_upload_dir();
             $file = $uploadDir['basedir'].'/'.str_replace(

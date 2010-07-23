@@ -40,16 +40,19 @@ class UamUserGroup
         'full' => -1
     );
     protected $singleUsers = array();
+    private $_assignedUsers = null;
     protected $categories = array(
     	'real' => -1,
         'full' => -1
     );
     protected $singleCategories = array();
+    private $_assignedCategories = null;
     protected $posts = array(
     	'real' => -1,
         'full' => -1
     );
     protected $singlePosts = array();
+    private $_assignedPosts = null;
     protected $pages = array(
     	'real' => -1,
         'full' => -1
@@ -58,9 +61,9 @@ class UamUserGroup
     	'real' => -1,
         'full' => -1
     );
-    private $_assignedUsers = null;
-    private $_assignedCategories = null;
-    private $_assignedPosts = null;
+    protected $pluggableObjects = null;
+    protected $singlePluggableObjects = null;
+    private $_assignedPluggableObjects = null;
     
     /**
      * Consturtor
@@ -653,28 +656,28 @@ class UamUserGroup
     /**
      * Adds a user to the user group.
      * 
-     * @param integer $userID The user id which should be added.
+     * @param integer $userId The user id which should be added.
      * 
      * @return null
      */
-    function addUser($userID)
+    function addUser($userId)
     {
         $this->getUsers();
-        $this->users['real'][$userID] = get_userdata($userID);
+        $this->users['real'][$userId] = get_userdata($userId);
         $this->users['full'] = -1;
     }
     
     /**
      * Removes a user from the user group.
      * 
-     * @param integer $userID The user id which should be removed.
+     * @param integer $userId The user id which should be removed.
      * 
      * @return null
      */
-    function removeUser($userID)
+    function removeUser($userId)
     {
         $this->getUsers();
-        unset($this->users['real'][$userID]);
+        unset($this->users['real'][$userId]);
         $this->users['full'] = -1;
     }
     
@@ -816,7 +819,7 @@ class UamUserGroup
             && $type == 'full'
         ) {
             if ($category->parent != 0) {
-                $parentCategory = get_post($category->parent);
+                $parentCategory = get_category($category->parent);
                 
                 $parentCategory = $this->_getSingleCategory(
                     $parentCategory,
@@ -937,30 +940,30 @@ class UamUserGroup
     }
     
     /**
-     * Adds a category to the category group.
+     * Adds a category to the user group.
      * 
-     * @param integer $categoryID The category id which should be added.
+     * @param integer $categoryId The category id which should be added.
      * 
      * @return null
      */
-    function addCategory($categoryID)
+    function addCategory($categoryId)
     {
         $this->getCategories();
-        $this->categories['real'][$categoryID] = get_category($categoryID);
+        $this->categories['real'][$categoryId] = get_category($categoryId);
         $this->categories['full'] = -1;
     }
     
     /**
-     * Removes a category from the category group.
+     * Removes a category from the user group.
      * 
-     * @param integer $categoryID The category id which should be removed.
+     * @param integer $categoryId The category id which should be removed.
      * 
      * @return null
      */
-    function removeCategory($categoryID)
+    function removeCategory($categoryId)
     {
         $this->getCategories();
-        unset($this->categories['real'][$categoryID]);
+        unset($this->categories['real'][$categoryId]);
         $this->categories['full'] = -1;
     }
     
@@ -1001,7 +1004,7 @@ class UamUserGroup
 	/**
      * Checks if the given post is a member of the group.
      * 
-     * @param interger $categoryId The id of the post which should be checked.
+     * @param interger $categoryId The id of the category which should be checked.
      * @param boolean  $withInfo   If true then we return additional infos.
      * 
      * @return boolean
@@ -1020,18 +1023,6 @@ class UamUserGroup
             
             return true;
         }
-
-        /*$categories = $this->getCategories('full');
-        
-        if (array_key_exists($categoryId, $categories)) {
-            if (isset($categories[$categoryId]->recursiveMember)
-                && $withInfo
-            ) {
-                return $categories[$categoryId]->recursiveMember;
-            }
-            
-            return true;
-        }*/
         
         return false;
     }
@@ -1042,7 +1033,7 @@ class UamUserGroup
      */
     
     /**
-     * Returns the assigned posts
+     * Returns the assigned posts.
      * 
      * @return array
      */
@@ -1259,30 +1250,30 @@ class UamUserGroup
     }
     
     /**
-     * Adds a post to the post group.
+     * Adds a post to the user group.
      * 
-     * @param integer $postID The post id which should be added.
+     * @param integer $postId The post id which should be added.
      * 
      * @return null
      */
-    function addPost($postID)
+    function addPost($postId)
     {
         $this->getPosts();
-        $this->posts['real'][$postID] = get_post($postID);
+        $this->posts['real'][$postId] = get_post($postId);
         $this->posts['full'] = -1;
     }
     
     /**
-     * Removes a post from the post group.
+     * Removes a post from the user group.
      * 
-     * @param integer $postID The post id which should be removed.
+     * @param integer $postId The post id which should be removed.
      * 
      * @return null
      */
-    function removePost($postID)
+    function removePost($postId)
     {
         $this->getPosts();
-        unset($this->posts['real'][$postID]);
+        unset($this->posts['real'][$postId]);
         $this->posts['full'] = -1;
     }
     
@@ -1306,7 +1297,7 @@ class UamUserGroup
     }
     
     /**
-     * Returns the pages in the group
+     * Returns the pages in the group.
      * 
      * @param string $type The return type. Can be real or full.
      * 
@@ -1448,6 +1439,156 @@ class UamUserGroup
                 && $withInfo
             ) {
                 return $post->recursiveMember;
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /*
+     * Group pluggable objects functions.
+     */
+    
+    /**
+     * Returns the assigned pluggable object.
+     * 
+     * @param string $object The name of the object.
+     * 
+     * @return array
+     */
+    private function _getAssignedPluggableObjects($object)
+    {
+        if ($this->_assignedPluggableObjects[$object] !== null) {
+            return $this->_assignedPluggableObjects[$object];
+        }
+
+        global $wpdb;
+        
+        $dbObjects = $wpdb->get_results(
+        	"SELECT *
+			FROM " . DB_ACCESSGROUP_TO_OBJECT . "
+			WHERE group_id = " . $this->id . "
+                AND object_type = '" . $object ."'"
+        );
+        
+        $this->_assignedPluggableObjects[$object] = array();
+        
+        foreach ($dbObjects as $dbObject) {
+            $this->_assignedPluggableObjects[$object][$dbObject->object_id] 
+                = $dbObject->object_id;
+        }
+        
+        return $this->_assignedPluggableObjects[$object];
+    }
+    
+	/**
+     * Checks it the category is assigned to the group.
+     * 
+     * @param string  $object   The name of the object.
+     * @param integer $objectId The object id.
+     * 
+     * @return boolean
+     */
+    private function _isPluggableObjectAssignedToGroup($object, $objectId)
+    {
+        if (array_key_exists($categoryId, $this->_getAssignedPluggableObjects($object))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * Adds a pluggable object to the user group.
+     * 
+     * @param string  $object   The name of the object.
+     * @param integer $objectId The object id which should be added.
+     * 
+     * @return null
+     */
+    function addPluggableObject($object, $objectId)
+    {
+        $this->getPluggableObjects();
+        //TODO add the object recieve function
+        $this->pluggableObjects[$object]['real'][$objectId] = TODO($objectId);
+        $this->pluggableObjects[$object]['full'] = -1;
+    }
+    
+    /**
+     * Removes a pluggable from the user group.
+     * 
+     * @param string  $object   The name of the object.
+     * @param integer $objectId The object id which should be removed.
+     * 
+     * @return null
+     */
+    function removePluggableObject($object, $objectId)
+    {
+        $this->getPluggableObjects();
+        unset($this->pluggableObjects[$object]['real'][$objectId]);
+        $this->pluggableObjects[$object]['full'] = -1;
+    }
+    
+    /**
+     * Unsets the categories.
+     * 
+     * @param string  $object     The name of the object.
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    function unsetPluggableObject($object, $plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deletePluggableObjectFromDb($object);
+        }
+        
+        $this->pluggableObjects[$object] = array(
+    		'real' => array(),
+        	'full' => array(),
+        );
+    }
+    
+    /**
+     * Removes all categories from the user group.
+     * 
+     * @param string $object The name of the object.
+     * 
+     * @return null
+     */
+    private function _deletePluggableObjectFromDb($object)
+    {
+        global $wpdb;
+        
+        $wpdb->query(
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+        	WHERE group_id = " . $this->id . "
+            	AND object_type = '" . $object . "'"
+        );
+    }
+    
+	/**
+     * Checks if the given post is a member of the group.
+     * 
+     * @param interger $objectId The id of the object which should be checked.
+     * @param boolean  $withInfo If true then we return additional infos.
+     * 
+     * @return boolean
+     */
+    function pluggableObjectIsMember($objectId, $withInfo = false)
+    {
+        $object = get_category($objectId);
+        
+        //TODO add the object recieve function
+        $object = $this->_getSinglePluggableObject($object, 'full');
+        
+        if ($object !== null) {
+            if (isset($object->recursiveMember)
+                && $withInfo
+            ) {
+                return $object->recursiveMember;
             }
             
             return true;

@@ -33,7 +33,7 @@ if (!function_exists('walkPath')) {
                 $post = get_post($object->ID);
             	$out = $post->post_title;
     	    } elseif ($type == 'category') {
-    	        $category = get_category($object->cat_id);
+    	        $category = get_category($object->term_id);
         	    $out = $category->name;
     	    }
             

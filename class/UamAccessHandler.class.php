@@ -37,6 +37,7 @@ class UamAccessHandler
         'filtered' => array(),
         'noneFiltered' => array(),
     );
+    protected $pluggableObjects = array();
     
     /**
      * The consturctor
@@ -359,7 +360,7 @@ class UamAccessHandler
      * 
      * @return boolean
      */
-    function checkAccess($postId)
+    function checkPostAccess($postId)
     {        
         if (isset($this->postAccess[$postId])) {
             return $this->postAccess[$postId];  
@@ -486,5 +487,43 @@ class UamAccessHandler
         );
         
         return $orderedRoles;
+    }
+    
+    /**
+     * Registers object that should be handelt by the user access manager.
+     * 
+     * @param array $object The object which you want to register.
+     * 
+     * @return null
+     */
+    function registerPluggableObject($object)
+    {
+        $this->pluggableObjects[$object] = $object;
+    }
+    
+    /**
+     * Returns a registerd pluggable object.
+     * 
+     * @param string $object The name of the object which should be returned.
+     * 
+     * @return array
+     */
+    function getPluggableObject($object)
+    {
+        if (isset($this->pluggableObjects[$object])) {
+            return $this->pluggableObjects[$object];
+        }
+        
+        return array();
+    }
+    
+    /**
+     * Returns all registerd pluggable objects.
+     * 
+     * @return array
+     */
+    function getPluggableObjects()
+    {
+        return $this->pluggableObjects;
     }
 }
