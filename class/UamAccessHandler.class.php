@@ -495,11 +495,21 @@ class UamAccessHandler
      * 
      * @param array $object The object which you want to register.
      * 
-     * @return null
+     * @return boolean
      */
     function registerPluggableObject($object)
     {
+        if (!isset($object['name'])
+            || !isset($object['reference'])
+            || !isset($object['getObject'])
+            || !isset($object['getFull'])
+        ) {
+            return false;
+        }
+        
         $this->pluggableObjects[$object['name']] = $object;
+        
+        return true;
     }
     
     /**

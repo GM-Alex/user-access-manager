@@ -55,6 +55,8 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    1.1			2010/0?/??	Add plugin api.
+    
     1.0.2		2010/07/24	Remove debugging code.
     						Fix file download bug.
     

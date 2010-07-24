@@ -81,7 +81,7 @@ class UamUserGroup
         $pluggableObjects = $uamAccessHandler->getPluggableObjects();
         
         foreach ($pluggableObjects as $objectName => $pluggableObject) {
-            $this->$pluggableObjects[$objectName] = array(
+            $this->pluggableObjects[$objectName] = array(
             	'real' => -1,
                 'full' => -1
             );
@@ -249,6 +249,23 @@ class UamUserGroup
             		'" . $post->ID . "'
             	)"
             );
+        }
+        
+        foreach ($this->getPluggableObjects() as $objectType => $objects) {
+            foreach ($objects as $objectKey => $object) {
+                $wpdb->query(
+                	"INSERT INTO " . DB_ACCESSGROUP_TO_OBJECT . " (
+                		group_id, 
+                		role_name,
+                		object_type
+                	) 
+                	VALUES(
+                		'" . $this->id . "', 
+                		'" . $objectKey . "',
+                		'" . $objectType . "'
+                	)"
+                );
+            }
         }
     }
     
@@ -1523,13 +1540,17 @@ class UamUserGroup
             return $this->singlePluggableObjects[$objectId];
         }
         
+        //TODO recursive member
         $isRecursiveMember = array();
         
         $userAccessManager = &$this->getAccessHandler()->getUserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
         if ($type == 'full') {
-            //TODO Function for full.
+            $pluggableObject 
+                = $this->getAccessHandler()->getPluggableObject($object);
+            $object 
+                = $pluggableObject['reference']->{$pluggableObject['getFull']}($object);
         }
 
         if ($this->_isPostAssignedToGroup($objectId)
@@ -1558,9 +1579,8 @@ class UamUserGroup
     {
         $this->getPluggableObjects();
         $pluggableObject = $this->getAccessHandler()->getPluggableObject($object);
-        
         $this->pluggableObjects[$object]['real'][$objectId] 
-            = $pluggableObject['ref']->{$pluggableObject['getObject']}($objectId);
+            = $pluggableObject['reference']->{$pluggableObject['getObject']}($objectId);
         $this->pluggableObjects[$object]['full'] = -1;
     }
     
@@ -1600,6 +1620,48 @@ class UamUserGroup
     }
     
     /**
+     * Returns the pluggable objects in the group.
+     * 
+     * @param string $type The return type. Can be real or full.
+     * 
+     * @return array
+     */
+    function getPluggableObjects($type = 'real')
+    {
+        if ($type != 'real' 
+            && $type != 'full'
+        ) {
+            return array();
+        }
+        
+        if ($this->{$postType.'s'}[$type] != -1) {
+            return $this->{$postType.'s'}[$type];
+        } else {
+            $this->{$postType.'s'}[$type] = array();
+        }
+        
+        global $wpdb;
+
+        $posts = $wpdb->get_results(
+        	"SELECT ID, post_parent
+			FROM $wpdb->posts
+			WHERE post_type = '".$wpType."'"
+        );
+        
+        if (isset($posts)) {
+            foreach ($posts as $post) {
+                $post = $this->_getSinglePost($post, $type, $postType);
+                
+                if ($post !== null) {
+                    $this->{$postType.'s'}[$type][$post->ID] = $post;
+                }
+            }
+        }
+        
+        return $this->{$postType.'s'}[$type];
+    }
+    
+    /**
      * Removes all categories from the user group.
      * 
      * @param string $object The name of the object.
@@ -1631,7 +1693,7 @@ class UamUserGroup
         $pluggableObject = $this->getAccessHandler()->getPluggableObject($object);
         
         $object 
-            = $pluggableObject['ref']->{$pluggableObject['getObject']}($objectId);
+            = $pluggableObject['reference']->{$pluggableObject['getObject']}($objectId);
         $object = $this->_getSinglePluggableObject($object, $objectId, 'full');
         
         if ($object !== null) {

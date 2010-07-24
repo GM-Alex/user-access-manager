@@ -29,8 +29,8 @@ class UserAccessManager
 {
     var $atAdminPanel = false;
     protected $adminOptionsName = "uamAdminOptions";
-    protected $uamVersion = 1.0;
-    protected $uamDbVersion = 1.1;
+    protected $uamVersion = 1.1;
+    protected $uamDbVersion = 1.2;
     protected $adminOptions;
     protected $accessHandler = null;
     
@@ -41,7 +41,7 @@ class UserAccessManager
      */
     function __construct()
     {
-        
+        do_action('uam_init', $this);
     }
     
     /**
@@ -141,6 +141,21 @@ class UserAccessManager
             dbDelta($sql);
         }
         
+        $dbUserGroupToObject = $wpdb->get_var(
+        	"SHOW TABLES 
+        	LIKE '" . DB_ACCESSGROUP_TO_ROLE . "'"
+        );
+        
+        if ($dbUserGroupToObject != DB_ACCESSGROUP_TO_OBJECT) {
+            $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_OBJECT . " (
+					  object_id int(11) NOT NULL,
+					  object_type varchar(255) NOT NULL,
+					  group_id int(11) NOT NULL,
+					  PRIMARY KEY  (object_id,group_id)
+					) $charset_collate;";
+            dbDelta($sql);
+        }
+        
         add_option("uam_db_version", $uamDbVersion);
     }
     
@@ -191,6 +206,10 @@ class UserAccessManager
                     
                     update_option('uam_db_version', $this->uamDbVersion);
                 }
+            }
+            
+            if ($currentDbVersion < 1.2) {
+                $this->install();
             }
         }
         
