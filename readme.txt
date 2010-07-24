@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -54,6 +54,9 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    1.0.2		2010/07/24	Remove debugging code.
+    						Fix file download bug.
     
     1.0.1		2010/07/24	Fix bug that only one user can be a member of a user group
     						Fix bug for recursive locking for categories

@@ -223,7 +223,7 @@ if (isset($userAccessManager)) {
     $uamOptions = $userAccessManager->getAdminOptions();
     
     if ($uamOptions['redirect'] != 'false' || isset($_GET['getfile'])) {
-        add_action('template_redirect', array(&$userAccessManager, 'redirect'));
+        add_action('send_headers', array(&$userAccessManager, 'redirect'));
     }
 
     //Actions

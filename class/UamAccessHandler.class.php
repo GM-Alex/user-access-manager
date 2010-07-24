@@ -456,7 +456,8 @@ class UamAccessHandler
         }
         
         $role  = is_array($capabilities) ? 
-            array_keys($capabilities) : 'norole';
+            array_keys($capabilities) : array('norole');
+            
         $role = trim($role[0]);
         
         $orderedRoles = $this->getRolesOrdered();

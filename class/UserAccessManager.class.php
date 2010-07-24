@@ -868,8 +868,6 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         
         if ($uamAccessHandler->checkUserAccess()) {
-            echo $userId;
-            
             $userGroupsForUser
                 = $uamAccessHandler->getUserGroupsForUser($userId);
             
@@ -1467,7 +1465,8 @@ class UserAccessManager
         $emptyId = null;
         $post = get_post($emptyId);
         
-        if ($uamOptions['redirect'] != 'false' 
+        if ($post !== null
+            && $uamOptions['redirect'] != 'false' 
             && !$this->getAccessHandler()->checkPostAccess($post->ID) 
             && !$this->atAdminPanel 
             && !isset($fileUrl)
@@ -1545,7 +1544,7 @@ class UserAccessManager
             && $this->getAccessHandler()->checkPostAccess($post->ID)
         ) {
             $uploadDir = wp_upload_dir();
-            $file = $uploadDir['basedir'].'/'.str_replace(
+            $file = $uploadDir['basedir'].str_replace(
                 $uploadDir['baseurl'], 
                 '', 
                 $url
@@ -1558,34 +1557,20 @@ class UserAccessManager
         
         //Deliver content
         if (file_exists($file)) {
+            $uamOptions = $this->getAdminOptions();
             $fileName = basename($file);
-
-            /**
-             * This only for compatibility
-             * mime_content_type has been deprecated as the PECL extension Fileinfo 
-             * provides the same functionality (and more) in a much cleaner way.
-             */
-            if (function_exists('finfo_open')) {
-                $finfo = finfo_open(FILEINFO_MIME);
-        
-                if (!$finfo) {
-                    wp_die(TXT_FILEINFO_DB_ERROR);
-                }
-                
-                $fileType = finfo_file($finfo, $file);
-            } else {
-                $fileType = mime_content_type($file);
-            }
             
             header('Content-Description: File Transfer');
-            header('Content-Type: '.$fileType);
-            header('Content-Length: '.filesize($file));
-            header('Content-Transfer-Encoding: binary');
-            header('Expires: 0');
+            header('Content-Type: '.$post->post_mime_type);
             
             if (!wp_attachment_is_image($post->ID)) {
-                header('Content-Disposition: attachment; filename='.basename($file));
+                $baseName = str_replace(' ', '_', basename($file));
+                
+                header('Content-Disposition: attachment; filename="'.$baseName.'"');
             }
+           
+            header('Content-Transfer-Encoding: binary');
+            header('Content-Length: '.filesize($file));
 
             if ($uamOptions['download_type'] == 'fopen'
                 && !wp_attachment_is_image($post->ID)

@@ -580,7 +580,7 @@ class UamUserGroup
             }
             
             $role  = is_array($capabilities) ? 
-                array_keys($capabilities) : 'norole';
+                array_keys($capabilities) : array('norole');
             
             if (array_key_exists($role[0], $this->getRoles())
             ) {
