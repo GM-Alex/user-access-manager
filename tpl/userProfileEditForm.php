@@ -57,7 +57,7 @@ if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
         		echo 'disabled=""';
         	} 
             ?>
-							value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]" /> 
+							value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" /> 
 						<?php echo $uamUserGroup->getGroupName(); ?>
 			<?php
 			if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId])) {

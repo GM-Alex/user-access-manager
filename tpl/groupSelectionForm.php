@@ -31,7 +31,7 @@ foreach ($uamUserGroups as $uamUserGroup) {
 		echo 'disabled=""';
 	}
     ?>
-			value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]" /><?php 
+			value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" /><?php 
 	echo $uamUserGroup->getGroupName();
 	
 	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId])) {

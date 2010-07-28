@@ -321,7 +321,8 @@ class UserAccessManager
                 $htaccessTxt .= "RewriteEngine On\n";
                 $htaccessTxt .= "RewriteBase ".$homeRoot."\n";
                 $htaccessTxt .= "RewriteRule ^index\.php$ - [L]\n";
-                $htaccessTxt .= "RewriteRule (.*) ".$homeRoot."index.php?getfile=$1 [L]\n";
+                $htaccessTxt .= "RewriteRule (.*) ";
+                $htaccessTxt .= $homeRoot."index.php?getfile=$1 [L]\n";
                 $htaccessTxt .= "</IfModule>\n";
             }
             
@@ -638,8 +639,9 @@ class UserAccessManager
             && is_numeric($_GET['attachment_id'])
             && !$noRights
         ) {
-            $noRights 
-                = !$this->getAccessHandler()->checkPostAccess($_GET['attachment_id']);
+            $noRights = !$this->getAccessHandler()->checkPostAccess(
+                $_GET['attachment_id']
+            );
         }
         
         if (isset($_GET['tag_ID']) 
@@ -679,6 +681,11 @@ class UserAccessManager
     {
         $this->createHtaccess();
     }
+    
+    
+    /*
+     * Functions for the post actions.
+     */
     
     /**
      * The function for the manage_posts_columns and 
@@ -764,8 +771,8 @@ class UserAccessManager
                 $uamUserGroup->save();
             }
             
-            if (isset($_POST['usergroups'])) {
-                $userGroups = $_POST['usergroups'];
+            if (isset($_POST['uam_usergroups'])) {
+                $userGroups = $_POST['uam_usergroups'];
             }
             
             if (isset($userGroups)) {
@@ -828,10 +835,18 @@ class UserAccessManager
         $content .= '<label>'.TXT_SET_UP_USERGROUPS.'</label>';
         $content .= '</th>';
         $content .= '<td class="field">';
-        $content .= $this->getIncludeContents(UAM_REALPATH.'tpl/postEditForm.php', $post->ID);
+        $content .= $this->getIncludeContents(
+            UAM_REALPATH.'tpl/postEditForm.php',
+            $post->ID
+        );
         
         return $content;
     }
+    
+    
+    /*
+     * Functions for the user actions.
+     */
     
     /**
      * The function for the manage_users_columns filter.
@@ -895,8 +910,8 @@ class UserAccessManager
                 $uamUserGroup->save();
             }
             
-            if (isset($_POST['usergroups'])) {
-                $userGroups = $_POST['usergroups'];
+            if (isset($_POST['uam_usergroups'])) {
+                $userGroups = $_POST['uam_usergroups'];
             }
             
             if (isset($userGroups)) {
@@ -927,6 +942,11 @@ class UserAccessManager
         	WHERE user_id = ".$userId
         );
     }
+    
+    
+    /*
+     * Functions for the category actions.
+     */
     
     /**
      * The function for the manage_categories_columns filter.
@@ -995,8 +1015,8 @@ class UserAccessManager
                 $uamUserGroup->save();
             }
             
-            if (isset($_POST['usergroups'])) {
-                $userGroups = $_POST['usergroups'];
+            if (isset($_POST['uam_usergroups'])) {
+                $userGroups = $_POST['uam_usergroups'];
             }
             
             if (isset($userGroups)) {
@@ -1026,7 +1046,68 @@ class UserAccessManager
         	WHERE category_id = ".$categoryId
         );
     }
+    
 
+    /*
+     * Functions for the pluggable object actions.
+     */
+    
+    /**
+     * The function for the pluggable save action.
+     * 
+     * @param string  $object   The name of the pluggable object.
+     * @param integer $objectId The pluggable object id.
+     * 
+     * @return null
+     */
+    function savePlObjectData($object, $objectId)
+    {
+        $uamAccessHandler = &$this->getAccessHandler();
+        $uamOptions = $this->getAdminOptions();
+        
+        if ($uamAccessHandler->checkUserAccess()) {  
+            $userGroupsForPlObject
+                = $uamAccessHandler->getUserGroupsForPlObject($object, $objectId); 
+                
+            foreach ($userGroupsForPlObject as $uamUserGroup) {
+                $uamUserGroup->removePlObject($oject, $objectId);
+                $uamUserGroup->save();
+            }
+            
+            if (isset($_POST['uam_usergroups'])) {
+                $userGroups = $_POST['uam_usergroups'];
+            }
+            
+            if (isset($userGroups)) {
+                foreach ($userGroups as $userGroupId) {
+                    $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
+    
+                    $uamUserGroup->addPlObject($oject, $objectId);
+                    $uamUserGroup->save();
+                }
+            }
+        }
+    }
+    
+    /**
+     * The function for the pluggable remove action.
+     * 
+     * @param string  $object   The name of the pluggable object.
+     * @param integer $objectId The pluggable object id.
+     * 
+     * @return null
+     */
+    function removePlObjectData($object, $objectId)
+    {
+        global $wpdb;
+
+        $wpdb->query(
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+        	WHERE user_id = ".$userId."
+                AND object_type = ".$object
+        );
+    }
+    
     
     /*
      * Functions for the blog content.

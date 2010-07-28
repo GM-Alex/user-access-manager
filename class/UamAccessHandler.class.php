@@ -37,7 +37,7 @@ class UamAccessHandler
         'filtered' => array(),
         'noneFiltered' => array(),
     );
-    protected $pluggableObjects = array();
+    protected $plObjects = array();
     
     /**
      * The consturctor
@@ -202,20 +202,20 @@ class UamAccessHandler
 
         $userGroups = $this->getUserGroups(null, $filter);
         
-        $pluggableObject = false;
+        $plObject = false;
         
         if ($type != 'user'
             && $type != 'post'
             && $type != 'category'
         ) {
-            $pluggableObject = true;
+            $plObject = true;
         }
        
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
-                if ($pluggableObject) {
+                if ($plObject) {
                     $objectMembership 
-                        = $userGroup->pluggableObjectIsMember($objectId, true);
+                        = $userGroup->plObjectIsMember($objectId, true);
                 } else {
                     $objectMembership 
                         = $userGroup->{$type.'IsMember'}($objectId, true);
@@ -301,15 +301,14 @@ class UamAccessHandler
     /**
      * Returns the user groups of the given pluggable object.
      * 
-     * @param string  $object            The name of the object which 
-     * 									 should be checked.
-     * @param integer $pluggableObjectId The id of the pluggable object 
-     * 									 from which we want the groups.
-     * @param boolean $filter            Filter the groups.
+     * @param string  $object     The name of the object which should be checked.
+     * @param integer $plObjectId The id of the pluggable object from which we 
+     *                            want the groups.
+     * @param boolean $filter     Filter the groups.
      * 
      * @return array
      */
-    function getUserGroupsForPluggableObject($object, $pluggableObjectId, $filter = true)
+    function getUserGroupsForPlObject($object, $plObjectId, $filter = true)
     {
         if ($filter) {
             $filterAttr = 'filtered';
@@ -317,14 +316,14 @@ class UamAccessHandler
             $filterAttr = 'noneFiltered';
         }
         
-        if (isset($this->pluggableObjectUserGroups[$filterAttr][$object][$pluggableObjectId])) {
-            return $this->pluggableObjectUserGroups[$filterAttr][$object][$pluggableObjectId];
+        if (isset($this->plObjectUserGroups[$filterAttr][$object][$plObjectId])) {
+            return $this->plObjectUserGroups[$filterAttr][$object][$plObjectId];
         }
 
-        $this->pluggableObjectUserGroups[$filterAttr][$object][$pluggableObjectId] 
-            = $this->_getUserGroupsForObject($pluggableObjectId, $object, $filter);
+        $this->plObjectUserGroups[$filterAttr][$object][$plObjectId] 
+            = $this->_getUserGroupsForObject($plObjectId, $object, $filter);
         
-        return $this->pluggableObjectUserGroups[$filterAttr][$object][$pluggableObjectId];
+        return $this->plObjectUserGroups[$filterAttr][$object][$plObjectId];
     }
     
 	/**
@@ -448,29 +447,28 @@ class UamAccessHandler
     /**
      * Checks if the current_user has access to the given pluggable object.
      * 
-     * @param string  $object            The name of the object which 
-     * 									 should be checked.
-     * @param integer $pluggableObjectId The id of the category which 
-     *                                   we want to check.
+     * @param string  $object     The name of the object which should be checked.
+     * @param integer $plObjectId The id of the pluggable object which we want to 
+     *                            check.
      * 
      * @return boolean
      */
-    function checkPluggableObjectAccess($object, $pluggableObjectId)
+    function checkPlObjectAccess($object, $plObjectId)
     {        
-        if (isset($this->pluggableObjectAccess[$object][$pluggableObjectId])) {
-            return $this->pluggableObjectAccess[$object][$pluggableObjectId];  
+        if (isset($this->plObjectAccess[$object][$plObjectId])) {
+            return $this->plObjectAccess[$object][$plObjectId];  
         } 
 
-        $pluggableObjectMembership = $this->getUserGroupsForPluggableObject(
+        $plObjectMembership = $this->getUserGroupsForPlObject(
             $object, 
-            $pluggableObjectId, 
+            $plObjectId, 
             false
         );
         
-        $this->pluggableObjectAccess[$object][$pluggableObjectId]
-            = $this->_checkAccess($pluggableObjectId, $pluggableObjectMembership);
+        $this->plObjectAccess[$object][$plObjectId]
+            = $this->_checkAccess($plObjectId, $plObjectMembership);
                 
-        return $this->pluggableObjectAccess[$object][$pluggableObjectId];   
+        return $this->plObjectAccess[$object][$plObjectId];   
     }
     
     /**
@@ -577,7 +575,7 @@ class UamAccessHandler
      * 
      * @return boolean
      */
-    function registerPluggableObject($object)
+    function registerPlObject($object)
     {
         if (!isset($object['name'])
             || !isset($object['reference'])
@@ -587,7 +585,7 @@ class UamAccessHandler
             return false;
         }
         
-        $this->pluggableObjects[$object['name']] = $object;
+        $this->plObjects[$object['name']] = $object;
         
         return true;
     }
@@ -599,10 +597,10 @@ class UamAccessHandler
      * 
      * @return array
      */
-    function getPluggableObject($object)
+    function getPlObject($object)
     {
-        if (isset($this->pluggableObjects[$object])) {
-            return $this->pluggableObjects[$object];
+        if (isset($this->plObjects[$object])) {
+            return $this->plObjects[$object];
         }
         
         return array();
@@ -613,8 +611,8 @@ class UamAccessHandler
      * 
      * @return array
      */
-    function getPluggableObjects()
+    function getPlObjects()
     {
-        return $this->pluggableObjects;
+        return $this->plObjects;
     }
 }
