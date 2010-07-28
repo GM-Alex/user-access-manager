@@ -821,14 +821,14 @@ class UserAccessManager
      * @return string
      */
     function showMediaFile($meta = '', $post = null)
-    {
+    {  
         $content = $meta;
         $content .= '</td></tr><tr>';
         $content .= '<th class="label">';
         $content .= '<label>'.TXT_SET_UP_USERGROUPS.'</label>';
         $content .= '</th>';
         $content .= '<td class="field">';
-        $content .= $this->getIncludeContents(UAM_REALPATH.'tpl/postEditForm.php');
+        $content .= $this->getIncludeContents(UAM_REALPATH.'tpl/postEditForm.php', $post->ID);
         
         return $content;
     }
@@ -1062,6 +1062,8 @@ class UserAccessManager
             }
         } else {
             if (!$uamAccessHandler->checkPostAccess($post->ID)) {
+                $post->isLocked = true;
+                
                 $uamPostContent = $uamOptions[$postType.'_content'];
                 $uamPostContent = str_replace(
                 	"[LOGIN_FORM]", 
@@ -1149,8 +1151,10 @@ class UserAccessManager
                 $post = $this->_getPost($object);
    
                 if ($post !== null) {
-                    $item->title = $post->post_title;
-                    
+                    if (isset($post->isLocked)) {
+                        $item->title = $post->post_title;
+                    }
+                        
                     $showItems[] = $item;
                 }
             } elseif ($item->object == 'category') {
@@ -1274,13 +1278,14 @@ class UserAccessManager
                 );
                 
                 $categoryPosts = get_posts($args);
+                $category->count = count($categoryPosts);
                 
                 if (isset($categoryPosts)) {
                     foreach ($categoryPosts as $post) {
                         if ($uamOptions['hide_'.$post->post_type] == 'true'
                             && !$uamAccessHandler->checkPostAccess($post->ID)
                         ) {
-                            $category->count--;   
+                            $category->count--;
                         }
                     }
                 }

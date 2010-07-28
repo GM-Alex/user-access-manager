@@ -61,7 +61,7 @@ class UamUserGroup
     	'real' => -1,
         'full' => -1
     );
-    protected $pluggableObjects = null;
+    protected $pluggableObjects = array();
     protected $singlePluggableObjects = null;
     private $_assignedPluggableObjects = null;
     
@@ -250,7 +250,7 @@ class UamUserGroup
             	)"
             );
         }
-        
+
         foreach ($this->getPluggableObjects() as $objectType => $objects) {
             foreach ($objects as $objectKey => $object) {
                 $wpdb->query(
@@ -1620,6 +1620,50 @@ class UamUserGroup
     }
     
     /**
+     * Returns the pluggable objects in the group for the given object type.
+     * 
+     * @param string $object The name of the object.
+     * @param string $type   The return type. Can be real or full.
+     * 
+     * @return array
+     */
+    function getPluggableObjectsByObjectType($object, $type = 'real')
+    {
+        if ($type != 'real' 
+            && $type != 'full'
+        ) {
+            return array();
+        }
+        
+        if ($this->pluggableObjects[$object][$type] != -1) {
+            return $this->pluggableObjects[$object][$type];
+        } else {
+            $this->pluggableObjects[$object][$type] = array();
+        }
+        
+        global $wpdb;
+
+        $pluggableObjects = $this->_getAssignedPluggableObjects($object);
+        
+        if (isset($pluggableObjects)) {
+            foreach ($pluggableObjects as $pluggableObjectId) {
+                $pluggableObject = $this->_getSinglePluggableObject(
+                    $object, 
+                    $pluggableObjectId, 
+                    $type
+                );
+                
+                if ($pluggableObject !== null) {
+                    $this->pluggableObjects[$object][$type][$pluggableObjectId] 
+                        = $pluggableObject;
+                }
+            }
+        }
+        
+        return $this->pluggableObjects[$object][$type];
+    }
+    
+    /**
      * Returns the pluggable objects in the group.
      * 
      * @param string $type The return type. Can be real or full.
@@ -1628,37 +1672,14 @@ class UamUserGroup
      */
     function getPluggableObjects($type = 'real')
     {
-        if ($type != 'real' 
-            && $type != 'full'
-        ) {
-            return array();
+        $allPluggableObjects = array(); 
+        
+        foreach ($this->pluggableObjects as $objectName => $content) {
+            $allPluggableObjects[$objectName] 
+                = $this->getPluggableObjectsByObjectType($objectName, $type); 
         }
         
-        if ($this->{$postType.'s'}[$type] != -1) {
-            return $this->{$postType.'s'}[$type];
-        } else {
-            $this->{$postType.'s'}[$type] = array();
-        }
-        
-        global $wpdb;
-
-        $posts = $wpdb->get_results(
-        	"SELECT ID, post_parent
-			FROM $wpdb->posts
-			WHERE post_type = '".$wpType."'"
-        );
-        
-        if (isset($posts)) {
-            foreach ($posts as $post) {
-                $post = $this->_getSinglePost($post, $type, $postType);
-                
-                if ($post !== null) {
-                    $this->{$postType.'s'}[$type][$post->ID] = $post;
-                }
-            }
-        }
-        
-        return $this->{$postType.'s'}[$type];
+        return $allPluggableObjects;
     }
     
     /**

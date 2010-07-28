@@ -57,10 +57,12 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.1			2010/0?/??	Add plugin api.
+    1.1			2010/0?/??	Add plugin api
+    						Fix bug that user groups can't removed from element
+    						Fix empty category bug
     
-    1.0.2		2010/07/24	Remove debugging code.
-    						Fix file download bug.
+    1.0.2		2010/07/24	Remove debugging code
+    						Fix file download bug
     
     1.0.1		2010/07/24	Fix bug that only one user can be a member of a user group
     						Fix bug for recursive locking for categories
@@ -127,7 +129,7 @@ Here you found the changes in each version.
     0.62		2008/12/18	Fix: Fatal error: Only variables can 
     						be passed by reference. Thanks to David Thompson
     
-    0.61		2008/12/17	Fix: Wrong file id in Media Library.
+    0.61		2008/12/17	Fix: Wrong file id in Media Library
 
     0.6			2007/12/14	First release.
 

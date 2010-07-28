@@ -40,6 +40,7 @@ if (isset($_GET['tag_ID'])) {
 			<td>
 <?php
 if (count($uamUserGroups) > 0) {
+    $type = 'category';
 	include 'groupSelectionForm.php';
 } elseif ($userAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>

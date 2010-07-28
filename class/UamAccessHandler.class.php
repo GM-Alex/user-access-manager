@@ -78,6 +78,8 @@ class UamAccessHandler
         	&& $this->getUserAccessManager()->atAdminPanel
         ) {
             global $current_user;
+            //Force user infos
+            wp_get_current_user();
             
             $userGroupsForUser 
                 = $this->getUserGroupsForUser($current_user->ID);
@@ -199,17 +201,34 @@ class UamAccessHandler
         $objectUserGroups = array();
 
         $userGroups = $this->getUserGroups(null, $filter);
+        
+        $pluggableObject = false;
+        
+        if ($type != 'user'
+            && $type != 'post'
+            && $type != 'category'
+        ) {
+            $pluggableObject = true;
+        }
        
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
-                $objectMembership = $userGroup->{$type.'IsMember'}($objectId, true);
+                if ($pluggableObject) {
+                    $objectMembership 
+                        = $userGroup->pluggableObjectIsMember($objectId, true);
+                } else {
+                    $objectMembership 
+                        = $userGroup->{$type.'IsMember'}($objectId, true);
+                }
                 
+                //TODO byPluggable
                 if ($objectMembership !== false) {
                     if (isset($objectMembership['byPost'])
                         || isset($objectMembership['byCategory'])
                         || isset($objectMembership['byRole'])
                     ) {
-                        $userGroup->setRecursive[$objectId] = $objectMembership;
+                        $userGroup->setRecursive[$type][$objectId] 
+                            = $objectMembership;
                     }
 
                     $objectUserGroups[$userGroup->getId()] 
@@ -279,6 +298,35 @@ class UamAccessHandler
         return $this->categoryUserGroups[$filterAttr][$categoryId];
     }
     
+    /**
+     * Returns the user groups of the given pluggable object.
+     * 
+     * @param string  $object            The name of the object which 
+     * 									 should be checked.
+     * @param integer $pluggableObjectId The id of the pluggable object 
+     * 									 from which we want the groups.
+     * @param boolean $filter            Filter the groups.
+     * 
+     * @return array
+     */
+    function getUserGroupsForPluggableObject($object, $pluggableObjectId, $filter = true)
+    {
+        if ($filter) {
+            $filterAttr = 'filtered';
+        } else {
+            $filterAttr = 'noneFiltered';
+        }
+        
+        if (isset($this->pluggableObjectUserGroups[$filterAttr][$object][$pluggableObjectId])) {
+            return $this->pluggableObjectUserGroups[$filterAttr][$object][$pluggableObjectId];
+        }
+
+        $this->pluggableObjectUserGroups[$filterAttr][$object][$pluggableObjectId] 
+            = $this->_getUserGroupsForObject($pluggableObjectId, $object, $filter);
+        
+        return $this->pluggableObjectUserGroups[$filterAttr][$object][$pluggableObjectId];
+    }
+    
 	/**
      * Returns the user groups of the given user.
      * 
@@ -310,6 +358,8 @@ class UamAccessHandler
     private function _checkAccess($objectId, $membership, $type = null)
     {
         global $current_user;
+        //Force user infos
+        wp_get_current_user();
         
         $uamOptions = $this->getUserAccessManager()->getAdminOptions();
         
@@ -396,6 +446,34 @@ class UamAccessHandler
     }
     
     /**
+     * Checks if the current_user has access to the given pluggable object.
+     * 
+     * @param string  $object            The name of the object which 
+     * 									 should be checked.
+     * @param integer $pluggableObjectId The id of the category which 
+     *                                   we want to check.
+     * 
+     * @return boolean
+     */
+    function checkPluggableObjectAccess($object, $pluggableObjectId)
+    {        
+        if (isset($this->pluggableObjectAccess[$object][$pluggableObjectId])) {
+            return $this->pluggableObjectAccess[$object][$pluggableObjectId];  
+        } 
+
+        $pluggableObjectMembership = $this->getUserGroupsForPluggableObject(
+            $object, 
+            $pluggableObjectId, 
+            false
+        );
+        
+        $this->pluggableObjectAccess[$object][$pluggableObjectId]
+            = $this->_checkAccess($pluggableObjectId, $pluggableObjectMembership);
+                
+        return $this->pluggableObjectAccess[$object][$pluggableObjectId];   
+    }
+    
+    /**
      * Checks if the given ip matches with the range.
      * 
      * @param string $curIp    The ip of the current user.
@@ -441,7 +519,9 @@ class UamAccessHandler
     function checkUserAccess()
     {
         global $current_user, $wpdb;
-
+        //Force user infos
+        wp_get_current_user();
+        
         $uamOptions = $this->getUserAccessManager()->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);
             

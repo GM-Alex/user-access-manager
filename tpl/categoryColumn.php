@@ -35,7 +35,8 @@ if ($uamUserGroups != Array()) {
     		<a class="uam_group_info_link">
     		    <?php echo $uamUserGroup->getGroupName(); ?>
     		</a>
-        <?php 
+        <?php
+        $type = 'category'; 
         include 'groupInfo.php';
         ?> 
         </li>

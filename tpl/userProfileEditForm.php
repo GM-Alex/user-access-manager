@@ -42,6 +42,8 @@ if (isset($_GET['user_id'])) {
 <?php
 if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
     if (isset($uamUserGroups)) {
+        $type = 'user';
+        
         foreach ($uamUserGroups as $uamUserGroup) {
             ?>
 					<li>
@@ -51,16 +53,22 @@ if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
             if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
                 echo 'checked="checked"';
             }
-        	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive)) {
+        	if (isset($userGroupsForObject['user'][$uamUserGroup->getId()]->setRecursive[$type][$objectId])) {
         		echo 'disabled=""';
         	} 
             ?>
 							value="<?php echo $uamUserGroup->getId(); ?>" name="usergroups[]" /> 
 						<?php echo $uamUserGroup->getGroupName(); ?>
+			<?php
+			if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId])) {
+        		echo ' [LR]';
+        	}
+        	?>
 						</label>
 						<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
 					
 			<?php
+			$type = 'user';
             include 'groupInfo.php';
             ?>
             		</li>
