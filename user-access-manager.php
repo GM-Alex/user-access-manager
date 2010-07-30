@@ -241,8 +241,9 @@ if (isset($userAccessManager)) {
         add_filter('comments_array', array(&$userAccessManager, 'showComment'));
         add_filter('get_pages', array(&$userAccessManager, 'showPage'));
         add_filter('get_terms', array(&$userAccessManager, 'showCategory'), 10, 2);
-        add_filter('get_next_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
-        add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
+        add_filter('next_post_link', array(&$userAccessManager, 'showNextPreviousPost'), 10, 2);
+        add_filter('previous_post_link', array(&$userAccessManager, 'showNextPreviousPost'), 10, 2);
+        add_filter('post_link', array(&$userAccessManager, 'cachePostLinks'), 10, 2);
         add_filter('edit_post_link', array(&$userAccessManager, 'showGroupMembership'), 10, 2);
     }
 }

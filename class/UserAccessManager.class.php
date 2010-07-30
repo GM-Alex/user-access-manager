@@ -33,6 +33,7 @@ class UserAccessManager
     protected $uamDbVersion = 1.2;
     protected $adminOptions;
     protected $accessHandler = null;
+    protected $postUrls = array();
     
     /**
      * Consturctor
@@ -1441,38 +1442,29 @@ class UserAccessManager
     }
     
     /**
-     * The function for the get_previous_post_where and 
-     * the get_next_post_where filter.
+     * The function for the previous_post_link and 
+     * the next_post_link filter.
      * 
-     * @param string $sql The current sql string.
+     * @param string $format The format of the next|prev post.
+     * @param string $link   The link of the next|prev post.
      * 
      * @return string
      */
-    function showNextPreviousPost($sql)
+    function showNextPreviousPost($format, $link)
     {
         $uamOptions = $this->getAdminOptions();
         
         if ($uamOptions['hide_post'] == 'true') {
-            $posts = get_posts();
-            $uamAccessHandler = &$this->getAccessHandler();
+            $url = preg_replace(
+            	'/<a href="([^"]*)"(.)*/', 
+                '$1', 
+                $link
+            );
             
-            if (isset($posts)) {
-                foreach ($posts as $post) {
-                    if (!$uamAccessHandler->checkPostAccess($post->ID)) {
-                        $excludedPosts[] = $post->ID;
-                    }
-                }
-                
-                global $wpdb;
-                
-                if (isset($excludedPosts)) {
-                    $excludedPostsStr = implode(",", $excludedPosts);
-                    $sql.= "AND p.ID NOT IN($excludedPostsStr)";
-                }
-            }
+            $uamAccessHandler = &$this->getAccessHandler();
         }
         
-        return $sql;
+        return $format;
     }
      
     /**
@@ -1637,7 +1629,7 @@ class UserAccessManager
      */
     function getFile($url) 
     {
-        $post = get_post($this->getAttachmentIdByUrl($url));
+        $post = get_post($this->getPostIdByUrl($url));
 
         if ($post !== null) {
             $file = null;
@@ -1743,9 +1735,13 @@ class UserAccessManager
      * 
      * @return object The post.
      */
-    function getAttachmentIdByUrl($url)
+    function getPostIdByUrl($url)
     {
-        //Filter editstring
+        if (isset($this->postUrls[$url])) {
+            return $this->postUrls[$url];
+        }
+        
+        //Filter edit string
         $newUrl = preg_split("/-e[0-9]*/", $url);
 
         if (count($newUrl) == 2) {
@@ -1777,5 +1773,19 @@ class UserAccessManager
         }
         
         return null;
+    }
+    
+    /**
+     * Caches the urls for the post for a later lookup.
+     * 
+     * @param string $url  The url of the post.
+     * @param object $post The post object.
+     * 
+     * @return null
+     */
+    function cachePostLinks($url, $post)
+    {
+        $this->postUrls[$url] = $post->ID;
+        return $url;
     }
 }
