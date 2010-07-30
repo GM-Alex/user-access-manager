@@ -28,7 +28,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 * Hide pages in navigation
 * Redirecting users to other pages (if no access)
 * Recursive locking of posts/pages
-* Limited access to uploaded files
+* Limited access to uploaded filesem
 * Full integrated at the admin panel
 * Multilanguage support
 * Also proteced your rss feeds
