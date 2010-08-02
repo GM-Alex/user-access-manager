@@ -1111,6 +1111,18 @@ class UserAccessManager
         );
     }
     
+    /**
+     * Returns the group selection form for pluggable objects.
+     * 
+     * @param object $uamUserGroups The usergroups for the plObject.
+     * 
+     * @return null;
+     */
+    function showPlGroupSelectionForm($uamUserGroups)
+    {
+        include UAM_REALPATH.'tpl/groupSelectionForm.php';
+    }
+    
     
     /*
      * Functions for the blog content.
