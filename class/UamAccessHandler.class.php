@@ -215,7 +215,7 @@ class UamAccessHandler
             foreach ($userGroups as $userGroup) {
                 if ($plObject) {
                     $objectMembership 
-                        = $userGroup->plObjectIsMember($objectId, true);
+                        = $userGroup->plObjectIsMember($type, $objectId, true);
                 } else {
                     $objectMembership 
                         = $userGroup->{$type.'IsMember'}($objectId, true);
@@ -593,14 +593,14 @@ class UamAccessHandler
     /**
      * Returns a registerd pluggable object.
      * 
-     * @param string $object The name of the object which should be returned.
+     * @param string $objectName The name of the object which should be returned.
      * 
      * @return array
      */
-    function getPlObject($object)
+    function getPlObject($objectName)
     {
-        if (isset($this->plObjects[$object])) {
-            return $this->plObjects[$object];
+        if (isset($this->plObjects[$objectName])) {
+            return $this->plObjects[$objectName];
         }
         
         return array();

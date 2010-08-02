@@ -1056,22 +1056,24 @@ class UserAccessManager
     /**
      * The function for the pluggable save action.
      * 
-     * @param string  $object   The name of the pluggable object.
-     * @param integer $objectId The pluggable object id.
+     * @param string  $objectName The name of the pluggable object.
+     * @param integer $objectId   The pluggable object id.
      * 
      * @return null
      */
-    function savePlObjectData($object, $objectId)
+    function savePlObjectData($objectName, $objectId)
     {
         $uamAccessHandler = &$this->getAccessHandler();
         $uamOptions = $this->getAdminOptions();
         
         if ($uamAccessHandler->checkUserAccess()) {  
-            $userGroupsForPlObject
-                = $uamAccessHandler->getUserGroupsForPlObject($object, $objectId); 
+            $userGroupsForPlObject = $uamAccessHandler->getUserGroupsForPlObject(
+                $objectName, 
+                $objectId
+            );  
                 
             foreach ($userGroupsForPlObject as $uamUserGroup) {
-                $uamUserGroup->removePlObject($oject, $objectId);
+                $uamUserGroup->removePlObject($objectName, $objectId);
                 $uamUserGroup->save();
             }
             
@@ -1083,7 +1085,7 @@ class UserAccessManager
                 foreach ($userGroups as $userGroupId) {
                     $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
     
-                    $uamUserGroup->addPlObject($oject, $objectId);
+                    $uamUserGroup->addPlObject($objectName, $objectId);
                     $uamUserGroup->save();
                 }
             }
@@ -1093,19 +1095,19 @@ class UserAccessManager
     /**
      * The function for the pluggable remove action.
      * 
-     * @param string  $object   The name of the pluggable object.
-     * @param integer $objectId The pluggable object id.
+     * @param string  $objectName The name of the pluggable object.
+     * @param integer $objectId   The pluggable object id.
      * 
      * @return null
      */
-    function removePlObjectData($object, $objectId)
+    function removePlObjectData($objectName, $objectId)
     {
         global $wpdb;
 
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
         	WHERE user_id = ".$userId."
-                AND object_type = ".$object
+                AND object_type = ".$objectName
         );
     }
     
@@ -1212,6 +1214,89 @@ class UserAccessManager
         }
         
         return $posts;
+    }
+    
+    /**
+     * The function for the posts_where_paged filter.
+     * 
+     * @param string $sql The where sql statment.
+     * 
+     * @return string
+     */
+    function showPostSql($sql)
+    {   
+        $uamAccessHandler = &$this->getAccessHandler();
+        $uamOptions = $this->getAdminOptions();
+        
+        if ($uamOptions['hide_post'] == 'true'
+            && !$uamAccessHandler->checkUserAccess()
+        ) {
+            global $current_user, $wpdb;
+            //Force user infos
+            wp_get_current_user();
+            
+            $userUserGroups = $uamAccessHandler->getUserGroupsForUser(
+                $current_user->ID, 
+                false
+            );
+            
+            $userUserGroupArray = array();
+            foreach ($userUserGroups as $userUserGroup) {
+                $userUserGroupArray[] = $userUserGroup->getId();
+            }
+            
+            if ($userUserGroupArray !== array()) {
+                $userUserGroupString = implode(', ', $userUserGroupArray);
+            } else {
+                $userUserGroupString = 'NULL';
+            }
+
+            $postSql = "SELECT DISTINCT p.ID 
+            	FROM $wpdb->posts AS p 
+            	INNER JOIN $wpdb->term_relationships AS tr 
+            		ON p.ID = tr.object_id 
+            	INNER JOIN $wpdb->term_taxonomy tt 
+            		ON tr.term_taxonomy_id = tt.term_taxonomy_id
+                WHERE tt.taxonomy = 'category' 
+        		AND tt.term_id IN (
+        			SELECT gc.category_id
+        			FROM ".DB_ACCESSGROUP_TO_CATEGORY." gc
+        			WHERE gc.category_id NOT IN (
+        				SELECT igc.category_id 
+                		FROM ".DB_ACCESSGROUP_TO_CATEGORY." igc
+                		WHERE igc.group_id IN (".$userUserGroupString.")
+        			)
+        		) AND p.ID NOT IN (
+        			SELECT igp.post_id 
+            		FROM ".DB_ACCESSGROUP_TO_POST." igp
+            		WHERE igp.group_id IN (".$userUserGroupString.")
+        		)
+        		UNION
+        		SELECT DISTINCT gp.post_id
+        		FROM ".DB_ACCESSGROUP_TO_POST." gp
+        		INNER JOIN $wpdb->term_relationships AS tr 
+            		ON gp.post_id = tr.object_id 
+            	INNER JOIN $wpdb->term_taxonomy tt 
+            		ON tr.term_taxonomy_id = tt.term_taxonomy_id
+        		WHERE gp.post_id NOT IN (
+            		SELECT igp.post_id 
+            		FROM ".DB_ACCESSGROUP_TO_POST." igp
+            		WHERE igp.group_id IN (".$userUserGroupString.")
+            	) AND tt.term_id NOT IN (
+            		SELECT igc.category_id 
+            		FROM ".DB_ACCESSGROUP_TO_CATEGORY." igc
+            		WHERE igc.group_id IN (".$userUserGroupString.")
+            	)";
+            
+            $excludedPosts = $wpdb->get_col($postSql);
+            
+            if (isset($excludedPosts)) {
+                $excludedPostsStr = implode(",", $excludedPosts);
+                $sql .= " AND wp_posts.ID NOT IN($excludedPostsStr) ";
+            }
+        }
+        
+        return $sql;
     }
     
     /**
@@ -1442,29 +1527,87 @@ class UserAccessManager
     }
     
     /**
-     * The function for the previous_post_link and 
-     * the next_post_link filter.
+     * The function for the get_previous_post_where and 
+     * the get_next_post_where filter.
      * 
-     * @param string $format The format of the next|prev post.
-     * @param string $link   The link of the next|prev post.
+     * @param string $sql The current sql string.
      * 
      * @return string
      */
-    function showNextPreviousPost($format, $link)
+    function showNextPreviousPost($sql)
     {
+        $uamAccessHandler = &$this->getAccessHandler();
         $uamOptions = $this->getAdminOptions();
         
-        if ($uamOptions['hide_post'] == 'true') {
-            $url = preg_replace(
-            	'/<a href="([^"]*)"(.)*/', 
-                '$1', 
-                $link
+        if ($uamOptions['hide_post'] == 'true'
+            && !$uamAccessHandler->checkUserAccess()
+        ) {
+            global $current_user, $wpdb;
+            //Force user infos
+            wp_get_current_user();
+            
+            $userUserGroups = $uamAccessHandler->getUserGroupsForUser(
+                $current_user->ID, 
+                false
             );
             
-            $uamAccessHandler = &$this->getAccessHandler();
+            $userUserGroupArray = array();
+            foreach ($userUserGroups as $userUserGroup) {
+                $userUserGroupArray[] = $userUserGroup->getId();
+            }
+            
+            if ($userUserGroupArray !== array()) {
+                $userUserGroupString = implode(', ', $userUserGroupArray);
+            } else {
+                $userUserGroupString = 'NULL';
+            }
+
+            $postSql = "SELECT DISTINCT p.ID 
+            	FROM $wpdb->posts AS p 
+            	INNER JOIN $wpdb->term_relationships AS tr 
+            		ON p.ID = tr.object_id 
+            	INNER JOIN $wpdb->term_taxonomy tt 
+            		ON tr.term_taxonomy_id = tt.term_taxonomy_id
+                WHERE tt.taxonomy = 'category' 
+        		AND tt.term_id IN (
+        			SELECT gc.category_id
+        			FROM ".DB_ACCESSGROUP_TO_CATEGORY." gc
+        			WHERE gc.category_id NOT IN (
+        				SELECT igc.category_id 
+                		FROM ".DB_ACCESSGROUP_TO_CATEGORY." igc
+                		WHERE igc.group_id IN (".$userUserGroupString.")
+        			)
+        		) AND p.ID NOT IN (
+        			SELECT igp.post_id 
+            		FROM ".DB_ACCESSGROUP_TO_POST." igp
+            		WHERE igp.group_id IN (".$userUserGroupString.")
+        		)
+        		UNION
+        		SELECT DISTINCT gp.post_id
+        		FROM ".DB_ACCESSGROUP_TO_POST." gp
+        		INNER JOIN $wpdb->term_relationships AS tr 
+            		ON gp.post_id = tr.object_id 
+            	INNER JOIN $wpdb->term_taxonomy tt 
+            		ON tr.term_taxonomy_id = tt.term_taxonomy_id
+        		WHERE gp.post_id NOT IN (
+            		SELECT igp.post_id 
+            		FROM ".DB_ACCESSGROUP_TO_POST." igp
+            		WHERE igp.group_id IN (".$userUserGroupString.")
+            	) AND tt.term_id NOT IN (
+            		SELECT igc.category_id 
+            		FROM ".DB_ACCESSGROUP_TO_CATEGORY." igc
+            		WHERE igc.group_id IN (".$userUserGroupString.")
+            	)";
+            
+            $excludedPosts = $wpdb->get_col($postSql);
+            
+            if (isset($excludedPosts)) {
+                $excludedPostsStr = implode(",", $excludedPosts);
+                $sql.= " AND p.ID NOT IN($excludedPostsStr) ";
+            }
         }
         
-        return $format;
+        return $sql;
     }
      
     /**

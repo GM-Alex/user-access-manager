@@ -194,6 +194,9 @@ class UamUserGroup
             $this->_deleteRolesFromDb();
             $this->_deleteCategoriesFromDb();
             $this->_deleteUsersFromDb();
+            foreach ($this->getPlObjects() as $objectName => $objects) {
+                $this->_deletePlObjectFromDb($objectName);
+            }
         }
         
         foreach ($this->getUsers() as $userKey => $user) {
@@ -251,18 +254,18 @@ class UamUserGroup
             );
         }
 
-        foreach ($this->getPlObjects() as $objectType => $objects) {
+        foreach ($this->getPlObjects() as $objectName => $objects) {
             foreach ($objects as $objectKey => $object) {
                 $wpdb->query(
                 	"INSERT INTO " . DB_ACCESSGROUP_TO_OBJECT . " (
                 		group_id, 
-                		role_name,
+                		object_id,
                 		object_type
                 	) 
                 	VALUES(
                 		'" . $this->id . "', 
                 		'" . $objectKey . "',
-                		'" . $objectType . "'
+                		'" . $objectName . "'
                 	)"
                 );
             }
@@ -1475,14 +1478,14 @@ class UamUserGroup
     /**
      * Returns the assigned pluggable object.
      * 
-     * @param string $object The name of the object.
+     * @param string $objectName The name of the object.
      * 
      * @return array
      */
-    private function _getAssignedPlObjects($object)
+    private function _getAssignedPlObjects($objectName)
     {
-        if ($this->_assignedPlObjects[$object] !== null) {
-            return $this->_assignedPlObjects[$object];
+        if (isset($this->_assignedPlObjects[$objectName])) {
+            return $this->_assignedPlObjects[$objectName];
         }
 
         global $wpdb;
@@ -1491,30 +1494,30 @@ class UamUserGroup
         	"SELECT *
 			FROM " . DB_ACCESSGROUP_TO_OBJECT . "
 			WHERE group_id = " . $this->id . "
-                AND object_type = '" . $object ."'"
+                AND object_type = '" . $objectName ."'"
         );
         
-        $this->_assignedPlObjects[$object] = array();
+        $this->_assignedPlObjects[$objectName] = array();
         
         foreach ($dbObjects as $dbObject) {
-            $this->_assignedPlObjects[$object][$dbObject->object_id] 
+            $this->_assignedPlObjects[$objectName][$dbObject->object_id] 
                 = $dbObject->object_id;
         }
         
-        return $this->_assignedPlObjects[$object];
+        return $this->_assignedPlObjects[$objectName];
     }
     
 	/**
      * Checks it the category is assigned to the group.
      * 
-     * @param string  $object   The name of the object.
-     * @param integer $objectId The object id.
+     * @param string  $objectName The name of the object.
+     * @param integer $objectId   The object id.
      * 
      * @return boolean
      */
-    private function _isPlObjectAssignedToGroup($object, $objectId)
+    private function _isPlObjectAssignedToGroup($objectName, $objectId)
     {
-        if (array_key_exists($objectId, $this->_getAssignedPlObjects($object))) {
+        if (array_key_exists($objectId, $this->_getAssignedPlObjects($objectName))) {
             return true;
         } else {
             return false;
@@ -1524,20 +1527,20 @@ class UamUserGroup
     /**
      * Returns a single pluggable object.
      * 
-     * @param object  $object   The pluggable object.
-     * @param integer $objectId The object id.
-     * @param string  $type     The return type. Can be real or full.
+     * @param object  $objectName The pluggable object.
+     * @param integer $objectId   The object id.
+     * @param string  $type       The return type. Can be real or full.
      * 
      * @return object
      */
-    private function _getSinglePlObject($object, $objectId, $type = 'full')
+    private function _getSinglePlObject($objectName, $objectId, $type = 'full')
     {
         if (!isset($objectId)) {
             return null;
         }
         
-        if (isset($this->singlePlObjects[$objectId])) {
-            return $this->singlePlObjects[$objectId];
+        if (isset($this->singlePlObjects[$objectName][$objectId])) {
+            return $this->singlePlObjects[$objectName][$objectId];
         }
         
         //TODO recursive member
@@ -1546,74 +1549,81 @@ class UamUserGroup
         $userAccessManager = &$this->getAccessHandler()->getUserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
+        $plObjectStuff = $this->getAccessHandler()->getPlObject($objectName);
+
         if ($type == 'full') {
-            $plObject 
-                = $this->getAccessHandler()->getPlObject($object);
-            $object 
-                = $plObject['reference']->{$plObject['getFull']}($object);
+            $plObject
+                = $plObjectStuff['reference']->{$plObjectStuff['getFull']}(
+                    $objectName
+                );
+        } else {
+            $plObject
+                = $plObjectStuff['reference']->{$plObjectStuff['getObject']}(
+                    $objectId
+                );
         }
 
         if ($this->_isPostAssignedToGroup($objectId)
             || $isRecursiveMember != array()
         ) {
             if ($isRecursiveMember != array()) {
-                $object->recursiveMember = $isRecursiveMember;
+                $plObject->recursiveMember = $isRecursiveMember;
             }
-            $this->singlePlObjects[$objectId] = $object;
+            $this->singlePlObjects[$objectName][$objectId] = $plObject;
         } else {
-            $this->singlePlObjects[$objectId] = null;
+            $this->singlePlObjects[$objectName][$objectId] = null;
         }
 
-        return $this->singlePlObjects[$objectId];
+        return $this->singlePlObjects[$objectName][$objectId];
     }
     
     /**
      * Adds a pluggable object to the user group.
      * 
-     * @param string  $object   The name of the object.
-     * @param integer $objectId The object id which should be added.
+     * @param string  $objectName The name of the object.
+     * @param integer $objectId   The object id which should be added.
      * 
      * @return null
      */
-    function addPlObject($object, $objectId)
+    function addPlObject($objectName, $objectId)
     {
         $this->getPlObjects();
-        $plObject = $this->getAccessHandler()->getPlObject($object);
-        $this->plObjects[$object]['real'][$objectId] 
+        $plObject = $this->getAccessHandler()->getPlObject($objectName);
+        $this->plObjects[$objectName]['real'][$objectId] 
             = $plObject['reference']->{$plObject['getObject']}($objectId);
-        $this->plObjects[$object]['full'] = -1;
+        $this->plObjects[$objectName]['full'] = -1;
     }
     
     /**
      * Removes a pluggable from the user group.
      * 
-     * @param string  $object   The name of the object.
-     * @param integer $objectId The object id which should be removed.
+     * @param string  $objectName The name of the object.
+     * @param integer $objectId   The object id which should be removed.
      * 
      * @return null
      */
-    function removePlObject($object, $objectId)
+    function removePlObject($objectName, $objectId)
     {
         $this->getPlObjects();
-        unset($this->plObjects[$object]['real'][$objectId]);
-        $this->plObjects[$object]['full'] = -1;
+        unset($this->plObjects[$objectName]['real'][$objectId]);
+        $this->plObjects[$objectName]['full'] = -1;
     }
     
     /**
      * Unsets the categories.
      * 
-     * @param string  $object     The name of the object.
+     * @param string  $objectName The name of the object.
      * @param boolean $plusRemove If true also database entrys will remove.
      * 
      * @return null;
      */
-    function unsetPlObject($object, $plusRemove = false)
+    function unsetPlObject($objectName, $plusRemove = false)
     {
         if ($plusRemove) {
-            $this->_deletePlObjectFromDb($object);
+            $this->_deletePlObjectFromDb($objectName);
         }
         
-        $this->plObjects[$object] = array(
+        $this->plObjects[$objectName] = array(
     		'real' => array(),
         	'full' => array(),
         );
@@ -1622,12 +1632,12 @@ class UamUserGroup
     /**
      * Returns the pluggable objects in the group for the given object type.
      * 
-     * @param string $object The name of the object.
-     * @param string $type   The return type. Can be real or full.
+     * @param string $objectName The name of the object.
+     * @param string $type       The return type. Can be real or full.
      * 
      * @return array
      */
-    function getPlObjectsByObjectType($object, $type = 'real')
+    function getPlObjectsByObjectType($objectName, $type = 'real')
     {
         if ($type != 'real' 
             && $type != 'full'
@@ -1635,32 +1645,32 @@ class UamUserGroup
             return array();
         }
         
-        if ($this->plObjects[$object][$type] != -1) {
-            return $this->plObjects[$object][$type];
+        if ($this->plObjects[$objectName][$type] != -1) {
+            return $this->plObjects[$objectName][$type];
         } else {
-            $this->plObjects[$object][$type] = array();
+            $this->plObjects[$objectName][$type] = array();
         }
         
         global $wpdb;
 
-        $plObjects = $this->_getAssignedPlObjects($object);
+        $plObjects = $this->_getAssignedPlObjects($objectName);
         
         if (isset($plObjects)) {
             foreach ($plObjects as $plObjectId) {
                 $plObject = $this->_getSinglePlObject(
-                    $object, 
+                    $objectName, 
                     $plObjectId, 
                     $type
                 );
                 
                 if ($plObject !== null) {
-                    $this->plObjects[$object][$type][$plObjectId] 
+                    $this->plObjects[$objectName][$type][$plObjectId] 
                         = $plObject;
                 }
             }
         }
         
-        return $this->plObjects[$object][$type];
+        return $this->plObjects[$objectName][$type];
     }
     
     /**
@@ -1685,43 +1695,39 @@ class UamUserGroup
     /**
      * Removes all categories from the user group.
      * 
-     * @param string $object The name of the object.
+     * @param string $objectName The name of the object.
      * 
      * @return null
      */
-    private function _deletePlObjectFromDb($object)
+    private function _deletePlObjectFromDb($objectName)
     {
         global $wpdb;
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
         	WHERE group_id = " . $this->id . "
-            	AND object_type = '" . $object . "'"
+            	AND object_type = '" . $objectName . "'"
         );
     }
     
 	/**
      * Checks if the given post is a member of the group.
      * 
-     * @param string   $object   The name of the object.
-     * @param interger $objectId The id of the object which should be checked.
-     * @param boolean  $withInfo If true then we return additional infos.
+     * @param string   $objectName The name of the object.
+     * @param interger $objectId   The id of the object which should be checked.
+     * @param boolean  $withInfo   If true then we return additional infos.
      * 
      * @return boolean
      */
-    function plObjectIsMember($object, $objectId, $withInfo = false)
+    function plObjectIsMember($objectName, $objectId, $withInfo = false)
     {
-        $plObject = $this->getAccessHandler()->getPlObject($object);
+        $plObject = $this->_getSinglePlObject($objectName, $objectId, 'full');
         
-        $object 
-            = $plObject['reference']->{$plObject['getObject']}($objectId);
-        $object = $this->_getSinglePlObject($object, $objectId, 'full');
-        
-        if ($object !== null) {
-            if (isset($object->recursiveMember)
+        if ($objectName !== null) {
+            if (isset($plObject->recursiveMember)
                 && $withInfo
             ) {
-                return $object->recursiveMember;
+                return $plObject->recursiveMember;
             }
             
             return true;
