@@ -221,7 +221,7 @@ if (isset($userAccessManager)) {
     $uamOptions = $userAccessManager->getAdminOptions();
     
     if ($uamOptions['redirect'] != 'false' || isset($_GET['getfile'])) {
-        add_action('send_headers', array(&$userAccessManager, 'redirect'));
+        add_filter('wp_headers', array(&$userAccessManager, 'redirect'));
     }
 
     //Actions

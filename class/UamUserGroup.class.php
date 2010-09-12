@@ -35,32 +35,16 @@ class UamUserGroup
     protected $writeAccess = null;
     protected $ipRange = null;
     protected $roles = array();
-    protected $users = array(
-    	'real' => -1,
-        'full' => -1
+    protected $objectTypes = array(
+        'post',
+        'page',
+        'file',
+        'category',
+        'user'
     );
-    protected $singleUsers = array();
-    private $_assignedUsers = null;
-    protected $categories = array(
-    	'real' => -1,
-        'full' => -1
-    );
-    protected $singleCategories = array();
-    private $_assignedCategories = null;
-    protected $posts = array(
-    	'real' => -1,
-        'full' => -1
-    );
-    protected $singlePosts = array();
-    private $_assignedPosts = null;
-    protected $pages = array(
-    	'real' => -1,
-        'full' => -1
-    );
-    protected $files = array(
-    	'real' => -1,
-        'full' => -1
-    );
+    protected $objects = null;
+    protected $singleObjects = null;
+    private $_assignedObjects = null;
     protected $plObjects = array();
     protected $singlePlObjects = null;
     private $_assignedPlObjects = null;
@@ -76,15 +60,21 @@ class UamUserGroup
     function __construct(&$uamAccessHandler, $id = null)
     {
         $this->accessHandler = $uamAccessHandler;
-        
-        //Create default values for the pluggable objects.
+
+        //Create default values for the objects.
         $plObjects = $uamAccessHandler->getPlObjects();
         
-        foreach ($plObjects as $objectName => $plObject) {
-            $this->plObjects[$objectName] = array(
+        $allTypes = array_merge(
+            $this->objectTypes,
+            array_keys($plObjects)
+        );
+        
+        foreach ($allTypes as $objectType) {
+            $this->objects[$objectType] = array(
             	'real' => -1,
                 'full' => -1
             );
+            $this->_assignedObjects[$objectType] = null;
         }
 
         if ($id !== null) {
@@ -94,8 +84,8 @@ class UamUserGroup
             
             $dbUsergroup = $wpdb->get_row(
             	"SELECT *
-    			FROM " . DB_ACCESSGROUP . "
-    			WHERE ID = " . $this->id . "
+    			FROM ".DB_ACCESSGROUP."
+    			WHERE ID = ".$this->getId()."
     			LIMIT 1", 
                 ARRAY_A
             );
@@ -137,9 +127,9 @@ class UamUserGroup
         );
         
         $this->_deleteRolesFromDb();
-        $this->_deletePostByTypeFromDb('all');
-        $this->_deleteCategoriesFromDb();
-        $this->_deleteUsersFromDb();
+        $this->_deleteObjectsFromDb('user');
+        $this->_deleteObjectsFromDb('allPostTypes');
+        $this->_deleteObjectsFromDb('category');
     }
     
     /**
@@ -190,10 +180,9 @@ class UamUserGroup
             $this->getCategories();
             $this->getUsers();
             
-            $this->_deletePostByTypeFromDb('all');
-            $this->_deleteRolesFromDb();
-            $this->_deleteCategoriesFromDb();
-            $this->_deleteUsersFromDb();
+            $this->_deleteObjectsFromDb('user');
+            $this->_deleteObjectsFromDb('allPostTypes');
+            $this->_deleteObjectsFromDb('category');
             foreach ($this->getPlObjects() as $objectName => $objects) {
                 $this->_deletePlObjectFromDb($objectName);
             }
@@ -521,109 +510,290 @@ class UamUserGroup
     
     
     /*
-     * Group users functions.
+     * Meta functions.
      */
     
     /**
-     * Returns the assigned users.
+     * Adds a object of the given type.
+     * 
+     * @param string  $objectType The object type.
+     * @param integer $objectId   The object id.
+     * @param object  $object     The object.
+     * 
+     * @return null
+     */
+    private function _addObject($objectType, $objectId, $object)
+    {
+        $this->getObjectsFromType($objectType);
+        
+        $this->objects[$objectType]['real'][$objectId] = $object;
+        $this->objects[$objectType]['full'] = -1;
+        
+        $this->singleObjects[$objectType][$objectId] = $object;
+        $this->_assignedObjects[$objectType][$objectId] = $objectId;
+    }
+    
+    /**
+     * Removes a object of the given type.
+     * 
+     * @param string  $objectType The object type.
+     * @param integer $objectId   The object id.
+     * 
+     * @return null
+     */
+    private function _removeObject($objectType, $objectId)
+    {
+        $this->getObjectsFromType($objectType);
+        
+        unset($this->objects[$objectType]['real'][$objectId]);
+        $this->objects[$objectType]['full'] = -1;
+        
+        unset($this->singleObjects[$objectType][$objectId]);
+        unset($this->_assignedObjects[$objectType][$objectId]);
+    }
+    
+    /**
+     * Returns the assigned objects.
+     * 
+     * @param string $objectType The object type.
      * 
      * @return array
      */
-    private function _getAssignedUsers()
+    private function _getAssignedObjects($objectType)
     {
-        if ($this->_assignedUsers !== null) {
-            return $this->_assignedUsers;
+        if ($this->_assignedObjects[$objectType] !== null) {
+            return $this->_assignedObjects[$objectType];
         }
 
         global $wpdb;
         
-        $dbUsers = $wpdb->get_results(
-        	"SELECT user_id
-			FROM " . DB_ACCESSGROUP_TO_USER . "
-			WHERE group_id = " . $this->id
+        if ($objectType == 'post'
+        	|| $objectType == 'page'
+        	|| $objectType == 'file'
+        ) {
+            $dbIdName = 'post_id';
+            $database = DB_ACCESSGROUP_TO_POST;
+        } elseif ($objectType == 'category') {
+            $dbIdName = 'category_id';
+            $database = DB_ACCESSGROUP_TO_CATEGORY;
+        } elseif ($objectType == 'user') {
+            $dbIdName = 'user_id';
+            $database = DB_ACCESSGROUP_TO_USER;
+        }
+        
+        $dbObjects = $wpdb->get_results(
+        	"SELECT ".$dbIdName."
+			FROM ".$database."
+			WHERE group_id = ".$this->getId()
         );
         
-        $this->_assignedUsers = array();
+        $this->_assignedObjects[$objectType] = array();
         
-        foreach ($dbUsers as $dbUser) {
-            $this->_assignedUsers[$dbUser->user_id] = $dbUser->user_id;
+        foreach ($dbObjects as $dbObject) {
+            $this->_assignedObjects[$objectType][$dbObject->{$dbIdName}] 
+                = $dbObject->{$dbIdName};
         }
         
-        return $this->_assignedUsers;
-    }
-    
-	/**
-     * Checks it the user is assigned to the group.
-     * 
-     * @param integer $userId The user id.
-     * 
-     * @return boolean
-     */
-    private function _isUserAssignedToGroup($userId)
-    {
-        if (array_key_exists($userId, $this->_getAssignedUsers())) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->_assignedObjects[$objectType];
     }
     
     /**
-     * Returns a single user.
+     * Checks if the object is assigned to the group.
      * 
-     * @param object $user The user.
-     * @param string $type The return type. Can be real or full.
+     * @param string  $objectType The object type.
+     * @param integer $objectId   The object id.
+     * 
+     * @return boolean
+     */
+    private function _isObjectAssignedToGroup($objectType, $objectId)
+    {        
+        return array_key_exists(
+            $objectId, 
+            $this->_getAssignedObjects($objectType)
+        );
+    }
+    
+    /**
+     * Unsets the ojects.
+     * 
+     * @param string  $objectType The object type.
+     * @param boolean $plusRemove If true also database entrys will remove.
+     * 
+     * @return null;
+     */
+    private function _unsetObjects($objectType, $plusRemove = false)
+    {
+        if ($plusRemove) {
+            $this->_deleteObjectsFromDb($objectType);
+        }
+        
+        $this->objects[$objectType] = array(
+    		'real' => array(),
+        	'full' => array(),
+        );
+    }
+    
+    /**
+     * Removes all objects from the user group.
+     * 
+     * @param string $objectType The object type.
+     * 
+     * @return null
+     */
+    private function _deleteObjectsFromDb($objectType)
+    {
+        global $wpdb;
+        
+        if ($objectType == 'allPostTypes') {
+            $database = DB_ACCESSGROUP_TO_POST;
+        } elseif ($objectType == 'category') {
+            $database = DB_ACCESSGROUP_TO_CATEGORY;
+        } elseif ($objectType == 'user') {
+            $database = DB_ACCESSGROUP_TO_USER;
+        }
+        
+        $wpdb->query(
+        	"DELETE FROM ".$database." 
+        	WHERE group_id = ".$this->getId()
+        );
+    }
+    
+	/**
+     * Checks if the given object is a member of the group.
+     * 
+     * @param string   $objectType The object type.
+     * @param interger $objectId   The id of the object which should be checked.
+     * @param object   $object     The object.
+     * @param boolean  $withInfo   If true then we return additional infos.
+     * 
+     * @return boolean
+     */
+    private function _objectIsMember($objectType, $objectId, $object, $withInfo = false)
+    {
+        $object = $this->_getSingleObject($objectType, $objectId, $object, 'full');
+        
+        if ($object !== null) {
+            if (isset($object->recursiveMember)
+                && $withInfo
+            ) {
+                return $object->recursiveMember;
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Returns all objects of the given type.
+     * 
+     * @param string $objectType The object type.
+     * 
+     * @return array
+     */
+    private function _getObjectsFromType($objectType)
+    {
+        if ($objectType = 'post'
+            || $objectType = 'page'
+            || $objectType = 'file'
+        ) {
+            return $this->_getPostByType($objectType);
+        } else if ($objectType = 'category') {
+            return $this->getCategories();
+        } else if ($objectType = 'user') {
+            return $this->getUsers();
+        }
+        
+        return array();
+    }
+    
+    /**
+     * Returns a single object.
+     * 
+     * @param string   $objectType The object type.
+     * @param interger $objectId   The id of the object which should be checked.
+     * @param object   $object     The object.
+     * @param string   $type       The return type. Can be real or full.
      * 
      * @return object
      */
-    private function _getSingleUser($user, $type)
-    {
-        if (!isset($user->ID)) {
-            return null;
-        }
-        
-        if (isset($this->singleUsers[$user->ID])) {
-            return $this->singleUsers[$user->ID];
+    private function _getSingleObject($objectType, $objectId, $object, $type)
+    { 
+        if (isset($this->singleObjects[$objectType][$objectId])) {
+            return $this->singleObjects[$objectType][$objectId];
         }
         
         $isRecursiveMember = array();
         
         if ($type == 'full') {
-            global $wpdb;
-            
-            $curUserdata = get_userdata($user->ID);
-            
-            if (isset($curUserdata->{$wpdb->prefix . "capabilities"})) {
-                $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
-            } else {
-                $capabilities = null;
-            }
-            
-            $role  = is_array($capabilities) ? 
-                array_keys($capabilities) : array('norole');
-            
-            if (array_key_exists($role[0], $this->getRoles())
+            if ($objectType == 'post'
+            	|| $objectType == 'page'
+            	|| $objectType == 'file'
             ) {
-                $isRecursiveMember
-                    = array('byRole' => array());
-                $isRecursiveMember['byRole'][] 
-                    = $role[0];
+                $isRecursiveMember = $this->_getFullPost($object, $objectType);
+            } else if ($objectType == 'category') {
+                $isRecursiveMember = $this->_getFullCategory($object);
+            } else if ($objectType == 'user') {
+                $isRecursiveMember = $this->_getFullUser($object);
+            } else {
+                
             }
         }
 
-        if ($this->_isUserAssignedToGroup($user->ID)
+        if ($this->_isObjectAssignedToGroup($objectType, $objectId)
             || $isRecursiveMember != array()
         ) {
             if ($isRecursiveMember != array()) {
                 $user->recursiveMember = $isRecursiveMember;
             }
             
-            $this->singleUsers[$user->ID] = $user;
+            $this->singleObjects[$objectType][$objectId] = $object;
         } else {
-            $this->singleUsers[$user->ID] = null;
+            $this->singleObjects[$objectType][$objectId] = null;
         }
 
-        return $this->singleUsers[$user->ID];
+        return $this->singleObjects[$objectType][$objectId];
+    }
+
+    
+    /*
+     * Group users functions.
+     */
+    
+    /**
+     * Returns a single user.
+     * 
+     * @param object $user The user.
+     * 
+     * @return object
+     */
+    private function _getFullUser($user)
+    {
+        $isRecursiveMember = array();
+        
+        global $wpdb;
+        
+        $curUserdata = get_userdata($user->ID);
+        
+        if (isset($curUserdata->{$wpdb->prefix . "capabilities"})) {
+            $capabilities = $curUserdata->{$wpdb->prefix . "capabilities"};
+        } else {
+            $capabilities = null;
+        }
+        
+        $role  = is_array($capabilities) ? 
+            array_keys($capabilities) : array('norole');
+        
+        if (array_key_exists($role[0], $this->getRoles())
+        ) {
+            $isRecursiveMember
+                = array('byRole' => array());
+            $isRecursiveMember['byRole'][] 
+                = $role[0];
+        }
+
+        return $isRecursiveMember;
     }
     
     /**
@@ -645,10 +815,10 @@ class UamUserGroup
             return array();
         }
         
-        if ($this->users[$type] != -1) {
-            return $this->users[$type];
+        if ($this->objects['user'][$type] != -1) {
+            return $this->objects['user'][$type];
         } else {
-            $this->users[$type] = array();
+            $this->objects['user'][$type] = array();
         }
         
         global $wpdb;
@@ -671,12 +841,12 @@ class UamUserGroup
                 $user = $this->_getSingleUser($dbUser, $type);
                 
                 if ($user !== null) {
-                    $this->users[$type][$user->ID] = $user;
+                    $this->objects['user'][$type][$user->ID] = $user;
                 }
             }
         }
         
-        return $this->users[$type];
+        return $this->objects['user'][$type];
     }
     
     /**
@@ -688,9 +858,7 @@ class UamUserGroup
      */
     function addUser($userId)
     {
-        $this->getUsers();
-        $this->users['real'][$userId] = get_userdata($userId);
-        $this->users['full'] = -1;
+        $this->_addObject('user', $userId, get_userdata($userId));
     }
     
     /**
@@ -702,43 +870,7 @@ class UamUserGroup
      */
     function removeUser($userId)
     {
-        $this->getUsers();
-        unset($this->users['real'][$userId]);
-        $this->users['full'] = -1;
-    }
-    
-    /**
-     * Unsets the users.
-     * 
-     * @param boolean $plusRemove If true also database entrys will remove.
-     * 
-     * @return null;
-     */
-    function unsetUsers($plusRemove = false)
-    {
-        if ($plusRemove) {
-            $this->_deleteUsersFromDb();
-        }
-
-        $this->users = array(
-    		'real' => array(),
-        	'full' => array(),
-        );
-    }
-    
-    /**
-     * Removes all users from the user group.
-     * 
-     * @return null
-     */
-    private function _deleteUsersFromDb()
-    {
-        global $wpdb;
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-        	WHERE group_id = ".$this->id
-        );
+        $this->_removeObject('user', $userId);
     }
     
     /**
@@ -751,88 +883,29 @@ class UamUserGroup
      */
     function userIsMember($userId, $withInfo = false)
     {
-        $user->ID = $userId;
-        $user = $this->_getSingleUser($user, 'full');
-        
-        if ($user !== null) {
-            if (isset($user->recursiveMember)
-                && $withInfo
-            ) {
-                return $user->recursiveMember;
-            }
-            
-            return true;
-        }
-        
-        return false;
+        return $this->_objectIsMember(
+        	'user', 
+            $userId, 
+            $user, 
+            $withInfo
+        );
     }
-    
     
     /*
      * Group categories functions.
      */
     
     /**
-     * Returns the assigned categories.
-     * 
-     * @return array
-     */
-    private function _getAssignedCategories()
-    {
-        if ($this->_assignedCategories !== null) {
-            return $this->_assignedCategories;
-        }
-
-        global $wpdb;
-        
-        $dbCategories = $wpdb->get_results(
-        	"SELECT *
-			FROM " . DB_ACCESSGROUP_TO_CATEGORY . "
-			WHERE group_id = " . $this->id
-        );
-        
-        $this->_assignedCategories = array();
-        
-        foreach ($dbCategories as $dbCategory) {
-            $this->_assignedCategories[$dbCategory->category_id] 
-                = $dbCategory->category_id;
-        }
-        
-        return $this->_assignedCategories;
-    }
-    
-	/**
-     * Checks it the category is assigned to the group.
-     * 
-     * @param integer $categoryId The category id.
-     * 
-     * @return boolean
-     */
-    private function _isCategoryAssignedToGroup($categoryId)
-    {
-        if (array_key_exists($categoryId, $this->_getAssignedCategories())) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    /**
      * Returns a single category.
      * 
      * @param object $category The category.
-     * @param string $type     The return type. Can be real or full.
      * 
      * @return object
      */
-    private function _getSingleCategory($category, $type)
+    private function _getFullCategory($category)
     {
-        if (!isset($category->term_id)) {
-            return null;
-        }
-        
-        if (isset($this->singleCategories[$category->term_id])) {
-            return $this->singleCategories[$category->term_id];
+        if (!is_object($category)) {
+            return array();
         }
         
         $isRecursiveMember = array();
@@ -840,15 +913,15 @@ class UamUserGroup
         $userAccessManager = $this->getAccessHandler()->getUserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
-        if ($uamOptions['lock_recursive'] == 'true'
-            && $type == 'full'
-        ) {
+        if ($uamOptions['lock_recursive'] == 'true') {
             if ($category->parent != 0) {
                 $parentCategory = get_category($category->parent);
                 
-                $parentCategory = $this->_getSingleCategory(
+                $parentCategory = $this->_getSingleObject(
+                    'category',
+                    $parentCategory->term_id,
                     $parentCategory,
-                    $type
+                    'full'
                 );
 
                 if ($parentCategory !== null) {
@@ -863,19 +936,7 @@ class UamUserGroup
             }
         }
 
-        if ($this->_isCategoryAssignedToGroup($category->term_id)
-            || $isRecursiveMember != array()
-        ) {
-            if ($isRecursiveMember != array()) {
-                $category->recursiveMember = $isRecursiveMember;
-            }
-            
-            $this->singleCategories[$category->term_id] = $category;
-        } else {
-            $this->singleCategories[$category->term_id] = null;
-        }
-
-        return $this->singleCategories[$category->term_id];
+        return $isRecursiveMember;
     }
     
     /**
@@ -887,7 +948,7 @@ class UamUserGroup
      */
     function getCategories($type = 'real')
     {
-        if ($this->id == null) {
+        if ($this->getId() == null) {
             return array();
         }
         
@@ -897,10 +958,10 @@ class UamUserGroup
             return array();
         }
         
-        if ($this->categories[$type] != -1) {
-            return $this->categories[$type];
+        if ($this->objects['category'][$type] != -1) {
+            return $this->objects['category'][$type];
         } else {
-            $this->categories[$type] = array();
+            $this->objects['category'][$type] = array();
         }
         
         global $wpdb;
@@ -955,12 +1016,13 @@ class UamUserGroup
                         }
                     }
                 
-                    $this->categories[$type][$category->term_id] = $category;
+                    $this->objects['category'][$type][$category->term_id] 
+                        = $category;
                 }
             }
         }
         
-        return $this->categories[$type];
+        return $this->objects['category'][$type];
     }
     
     /**
@@ -972,9 +1034,7 @@ class UamUserGroup
      */
     function addCategory($categoryId)
     {
-        $this->getCategories();
-        $this->categories['real'][$categoryId] = get_category($categoryId);
-        $this->categories['full'] = -1;
+        $this->_addObject('category', $categoryId, get_category($categoryId));
     }
     
     /**
@@ -986,43 +1046,7 @@ class UamUserGroup
      */
     function removeCategory($categoryId)
     {
-        $this->getCategories();
-        unset($this->categories['real'][$categoryId]);
-        $this->categories['full'] = -1;
-    }
-    
-    /**
-     * Unsets the categories.
-     * 
-     * @param boolean $plusRemove If true also database entrys will remove.
-     * 
-     * @return null;
-     */
-    function unsetCategories($plusRemove = false)
-    {
-        if ($plusRemove) {
-            $this->_deleteCategoriesFromDb();
-        }
-        
-        $this->categories = array(
-    		'real' => array(),
-        	'full' => array(),
-        );
-    }
-    
-    /**
-     * Removes all categories from the user group.
-     * 
-     * @return null
-     */
-    private function _deleteCategoriesFromDb()
-    {
-        global $wpdb;
-        
-        $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-        	WHERE group_id = ".$this->id
-        );
+        $this->_removeObject('category', $categoryId);
     }
     
 	/**
@@ -1035,141 +1059,67 @@ class UamUserGroup
      */
     function categoryIsMember($categoryId, $withInfo = false)
     {
-        $category = get_category($categoryId);
-        $category = $this->_getSingleCategory($category, 'full');
-        
-        if ($category !== null) {
-            if (isset($category->recursiveMember)
-                && $withInfo
-            ) {
-                return $category->recursiveMember;
-            }
-            
-            return true;
-        }
-        
-        return false;
+        return $this->_objectIsMember(
+        	'category', 
+            $categoryId, 
+            get_category($categoryId), 
+            $withInfo
+        );
     }
     
     
     /*
      * Group posts functions.
-     */
-    
-    /**
-     * Returns the assigned posts.
-     * 
-     * @return array
-     */
-    private function _getAssignedPosts()
-    {
-        if ($this->_assignedPosts !== null) {
-            return $this->_assignedPosts;
-        }
-
-        global $wpdb;
-        
-        $dbPosts = $wpdb->get_results(
-        	"SELECT post_id
-			FROM " . DB_ACCESSGROUP_TO_POST . "
-			WHERE group_id = " . $this->id
-        );
-        
-        $this->_assignedPosts = array();
-        
-        foreach ($dbPosts as $dbPost) {
-            $this->_assignedPosts[$dbPost->post_id] = $dbPost->post_id;
-        }
-        
-        return $this->_assignedPosts;
-    }
-    
-    /**
-     * Checks it the post is assigned to the group.
-     * 
-     * @param integer $postId The post id.
-     * 
-     * @return boolean
-     */
-    private function _isPostAssignedToGroup($postId)
-    {
-        if (array_key_exists($postId, $this->_getAssignedPosts())) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+     */  
     
     /**
      * Returns the membership of a single post.
      * 
      * @param object $post     The post object.
-     * @param string $type     The return type.
      * @param string $postType The post type needed for the intern representation.
      * 
      * @return object
      */
-    function _getSinglePost($post, $type, $postType)
+    function _getFullPost($post, $postType)
     {
-        if (!isset($post->ID)) {
-            return null;
-        }
-        
-        if (isset($this->singlePosts[$post->ID])) {
-            return $this->singlePosts[$post->ID];
-        }
-        
         $isRecursiveMember = array();
         
-        $userAccessManager = &$this->getAccessHandler()->getUserAccessManager();
+        $userAccessManager = $this->getAccessHandler()->getUserAccessManager();
         $uamOptions = $userAccessManager->getAdminOptions();
         
-        if ($type == 'full') {
-            foreach ($this->getCategories('full') as $category) {
-                if (in_category($category->cat_ID, $post->ID)) { 
-                    $isRecursiveMember['byCategory'][] = $category->cat_ID;
-                    //break;
-                }
+        foreach ($this->getCategories('full') as $category) {
+            if (in_category($category->cat_ID, $post->ID)) { 
+                $isRecursiveMember['byCategory'][] = $category->cat_ID;
             }
+        }
 
-            if (($postType == 'page'
-            	|| $postType == 'file')
-            	&& $uamOptions['lock_recursive'] == 'true'
-            ) {
-                if ($post->post_parent != 0) {
-                    $parentPost = get_post($post->post_parent);
-                    
-                    $parentPost = $this->_getSinglePost(
-                        $parentPost,
-                        $type, 
-                        $parentPost->post_type
-                    );
+        if (($postType == 'page'
+        	|| $postType == 'file')
+        	&& $uamOptions['lock_recursive'] == 'true'
+        ) {
+            if ($post->post_parent != 0) {
+                $parentPost = get_post($post->post_parent);
+                
+                $parentPost = $this->_getSingleObject(
+                    $postType,
+                    $parentPost->ID,
+                    $parentPost,
+                    'full'
+                );
 
-                    if ($parentPost !== null) {
-                        if (isset($parentPost->recursiveMember)) {
-                            $isRecursiveMember['byPost'][]
-                                = $parentPost;
-                        } else {
-                            $isRecursiveMember['byPost'][]
-                                = $parentPost->ID;
-                        }
+                if ($parentPost !== null) {
+                    if (isset($parentPost->recursiveMember)) {
+                        $isRecursiveMember['byPost'][]
+                            = $parentPost;
+                    } else {
+                        $isRecursiveMember['byPost'][]
+                            = $parentPost->ID;
                     }
                 }
             }
         }
 
-        if ($this->_isPostAssignedToGroup($post->ID)
-            || $isRecursiveMember != array()
-        ) {
-            if ($isRecursiveMember != array()) {
-                $post->recursiveMember = $isRecursiveMember;
-            }
-            $this->singlePosts[$post->ID] = $post;
-        } else {
-            $this->singlePosts[$post->ID] = null;
-        }
-
-        return $this->singlePosts[$post->ID];
+        return $isRecursiveMember;
     }
     
     /**
@@ -1194,10 +1144,10 @@ class UamUserGroup
             $wpType = $postType;
         }
         
-        if ($this->{$postType.'s'}[$type] != -1) {
-            return $this->{$postType.'s'}[$type];
+        if ($this->objects[$postType][$type] != -1) {
+            return $this->objects[$postType][$type];
         } else {
-            $this->{$postType.'s'}[$type] = array();
+            $this->objects[$postType][$type] = array();
         }
         
         global $wpdb;
@@ -1213,52 +1163,12 @@ class UamUserGroup
                 $post = $this->_getSinglePost($post, $type, $postType);
                 
                 if ($post !== null) {
-                    $this->{$postType.'s'}[$type][$post->ID] = $post;
+                    $this->objects[$postType][$type][$post->ID] = $post;
                 }
             }
         }
         
-        return $this->{$postType.'s'}[$type];
-    }
-    
-    /**
-     * Removes all post of all types from the user group.
-     * 
-     * @param string $postType The type which should be deleted.
-     * 
-     * @return null;
-     */
-    private function _deletePostByTypeFromDb($postType)
-    {
-        if ($this->id == null) {
-            return false;
-        }
-        
-        global $wpdb;
-        
-        if ($postType == 'all') {
-            $wpdb->query(
-            	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-            	WHERE group_id = ".$this->id
-            );
-        } else {
-            if ($type == 'post') {
-                $curPostTypes = $this->getPosts();
-            } elseif ($type == 'page') {
-                $curPostTypes = $this->getPages();
-            } elseif ($type == 'file') {
-                $curPostTypes = $this->getFiles();
-            }
-            
-            foreach ($curPostTypes as $id => $post) {
-                $wpdb->query(
-                	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-                	WHERE group_id = ".$this->id."
-                        AND post_id = ".$id."
-                    LIMIT 1"
-                );
-            }
-        }
+        return $this->objects[$postType][$type];
     }
     
     /**
@@ -1282,9 +1192,7 @@ class UamUserGroup
      */
     function addPost($postId)
     {
-        $this->getPosts();
-        $this->posts['real'][$postId] = get_post($postId);
-        $this->posts['full'] = -1;
+        $this->_addObject('post', $postId, get_post($postId));
     }
     
     /**
@@ -1296,28 +1204,7 @@ class UamUserGroup
      */
     function removePost($postId)
     {
-        $this->getPosts();
-        unset($this->posts['real'][$postId]);
-        $this->posts['full'] = -1;
-    }
-    
-    /**
-     * Unsets the posts.
-     * 
-     * @param boolean $plusRemove If true also database entrys will remove.
-     * 
-     * @return null;
-     */
-    function unsetPosts($plusRemove = false)
-    {
-        if ($plusRemove) {
-            $this->_deletePostByTypeFromDb('post');
-        }
-        
-        $this->posts  = array(
-    		'real' => array(),
-        	'full' => array(),
-        );;
+        $this->_removeObject('post', $postId);
     }
     
     /**
@@ -1341,9 +1228,7 @@ class UamUserGroup
      */
     function addPage($pageID)
     {
-        $this->getPages();
-        $this->pages['real'][$pageID] = get_post($pageID);
-        $this->pages['full'] = -1;
+        $this->_addObject('page', $pageID, get_post($pageID));
     }
     
     /**
@@ -1355,28 +1240,7 @@ class UamUserGroup
      */
     function removePage($pageID)
     {
-        $this->getPages();
-        unset($this->pages['real'][$pageID]);
-        $this->pages['full'] = -1;
-    }
-    
-    /**
-     * Unsets the pages.
-     * 
-     * @param boolean $plusRemove If true also database entrys will remove.
-     * 
-     * @return null;
-     */
-    function unsetPages($plusRemove = false)
-    {
-        if ($plusRemove) {
-            $this->_deletePostByTypeFromDb('page');
-        }
-        
-        $this->pages  = array(
-    		'real' => array(),
-        	'full' => array(),
-        );;
+        $this->_removeObject('page', $pageID);
     }
     
     /**
@@ -1400,9 +1264,7 @@ class UamUserGroup
      */
     function addFile($fileID)
     {
-        $this->getFiles();
-        $this->files['real'][$fileID] = get_post($fileID);
-        $this->files['full'] = -1;
+        $this->_addObject('file', $fileID, get_post($fileID));
     }
     
     /**
@@ -1414,30 +1276,9 @@ class UamUserGroup
      */
     function removeFile($fileID)
     {
-        $this->getFiles();
-        unset($this->files['real'][$fileID]);
-        $this->files['full'] = -1;
+        $this->_removeObject('file', $fileID);
     }
-    
-    /**
-     * Unsets the files.
-     * 
-     * @param boolean $plusRemove If true also database entrys will remove.
-     * 
-     * @return null;
-     */
-    function unsetFiles($plusRemove = false)
-    {
-        if ($plusRemove) {
-            $this->_deletePostByTypeFromDb('file');
-        }
-        
-        $this->files = array(
-    		'real' => array(),
-        	'full' => array(),
-        );
-    }
-    
+      
     /**
      * Checks if the given post is a member of the group.
      * 
@@ -1456,20 +1297,14 @@ class UamUserGroup
             $postType = $post->post_type;
         }
         
-        $post = $this->_getSinglePost($post, 'full', $postType);
-        
-        if ($post !== null) {
-            if (isset($post->recursiveMember)
-                && $withInfo
-            ) {
-                return $post->recursiveMember;
-            }
-            
-            return true;
-        }
-        
-        return false;
+        return $this->_objectIsMember(
+        	$postType, 
+            $postId, 
+            $post, 
+            $withInfo
+        );
     }
+    
     
     /*
      * Group pluggable objects functions.
@@ -1493,7 +1328,7 @@ class UamUserGroup
         $dbObjects = $wpdb->get_results(
         	"SELECT *
 			FROM " . DB_ACCESSGROUP_TO_OBJECT . "
-			WHERE group_id = " . $this->id . "
+			WHERE group_id = " . $this->getId() . "
                 AND object_type = '" . $objectName ."'"
         );
         
@@ -1527,13 +1362,14 @@ class UamUserGroup
     /**
      * Returns a single pluggable object.
      * 
-     * @param object  $objectName The pluggable object.
+     * @param string  $objectName The pluggable object name.
+     * @param object  $plObject   The pluggable object.
      * @param integer $objectId   The object id.
      * @param string  $type       The return type. Can be real or full.
      * 
      * @return object
      */
-    private function _getSinglePlObject($objectName, $objectId, $type = 'full')
+    private function _getSinglePlObject($objectName, $plObject, $objectId, $type = 'full')
     {
         if (!isset($objectId)) {
             return null;
@@ -1552,18 +1388,13 @@ class UamUserGroup
         $plObjectStuff = $this->getAccessHandler()->getPlObject($objectName);
 
         if ($type == 'full') {
-            $plObject
+            /*$plObject
                 = $plObjectStuff['reference']->{$plObjectStuff['getFull']}(
                     $objectName
-                );
-        } else {
-            $plObject
-                = $plObjectStuff['reference']->{$plObjectStuff['getObject']}(
-                    $objectId
-                );
+                );*/
         }
 
-        if ($this->_isPostAssignedToGroup($objectId)
+        if ($this->_isPlObjectAssignedToGroup($objectName, $objectId)
             || $isRecursiveMember != array()
         ) {
             if ($isRecursiveMember != array()) {
@@ -1588,10 +1419,15 @@ class UamUserGroup
     function addPlObject($objectName, $objectId)
     {
         $this->getPlObjects();
-        $plObject = $this->getAccessHandler()->getPlObject($objectName);
+        $plObjectStuff = $this->getAccessHandler()->getPlObject($objectName);
+        
         $this->plObjects[$objectName]['real'][$objectId] 
-            = $plObject['reference']->{$plObject['getObject']}($objectId);
+            = $plObjectStuff['reference']->{$plObjectStuff['getObject']}($objectId);
+        $this->singlePlObjects[$objectName][$objectId]
+            = $plObjectStuff['reference']->{$plObjectStuff['getObject']}($objectId);
         $this->plObjects[$objectName]['full'] = -1;
+        $this->_assignedPlObjects[$objectName][$objectId] = $objectId;
+        
     }
     
     /**
@@ -1606,7 +1442,10 @@ class UamUserGroup
     {
         $this->getPlObjects();
         unset($this->plObjects[$objectName]['real'][$objectId]);
+        unset($this->singlePlObjects[$objectName][$objectId]);
         $this->plObjects[$objectName]['full'] = -1;
+        unset($this->_assignedPlObjects[$objectName][$objectId]);
+        
     }
     
     /**
@@ -1721,9 +1560,19 @@ class UamUserGroup
      */
     function plObjectIsMember($objectName, $objectId, $withInfo = false)
     {
-        $plObject = $this->_getSinglePlObject($objectName, $objectId, 'full');
+        $plObjectStuff = $this->getAccessHandler()->getPlObject($objectName);
+        $plObject = $plObjectStuff['reference']->{$plObjectStuff['getObject']}(
+            $objectName
+        );
         
-        if ($objectName !== null) {
+        $plObject = $this->_getSinglePlObject(
+            $objectName, 
+            $plObject, 
+            $objectId, 
+            'full'
+        );
+        
+        if ($plObject !== null) {
             if (isset($plObject->recursiveMember)
                 && $withInfo
             ) {

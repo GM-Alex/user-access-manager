@@ -51,8 +51,9 @@ class UserAccessManager
      * @return null;
      */
     function install()
-    {        
+    {
         global $wpdb;
+        return 0;
         $uamDbVersion = $this->uamDbVersion;
         
         include_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -1114,13 +1115,27 @@ class UserAccessManager
     /**
      * Returns the group selection form for pluggable objects.
      * 
-     * @param object $uamUserGroups The usergroups for the plObject.
+     * @param string  $type                The object type.
+     * @param integer $objectId            The id of the object.
+     * @param object  $userGroupsForObject The usergroups for the plObject.
      * 
      * @return null;
      */
-    function showPlGroupSelectionForm($uamUserGroups)
+    function showPlGroupSelectionForm($type, $objectId, $userGroupsForObject)
     {
-        include UAM_REALPATH.'tpl/groupSelectionForm.php';
+        $fileName = UAM_REALPATH.'tpl/groupSelectionForm.php';
+        $uamUserGroups = $this->getAccessHandler()->getUserGroups();
+        
+        if (is_file($fileName)) {
+            ob_start();
+            include $fileName;
+            $contents = ob_get_contents();
+            ob_end_clean();
+            
+            return $contents;
+        }
+        
+        return '';
     }
     
     
@@ -1704,9 +1719,11 @@ class UserAccessManager
     /**
      * Redirects to a page or to content.
      * 
+     * @param string $headers The headers which are given from wordpress.
+     * 
      * @return null
      */
-    function redirect()
+    function redirect($headers)
     {
         $uamOptions = $this->getAdminOptions();
         

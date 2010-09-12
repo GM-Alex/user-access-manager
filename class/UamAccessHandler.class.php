@@ -316,9 +316,10 @@ class UamAccessHandler
             $filterAttr = 'noneFiltered';
         }
         
-        if (isset($this->plObjectUserGroups[$filterAttr][$object][$plObjectId])) {
+        //TODO caching error
+        /*if (isset($this->plObjectUserGroups[$filterAttr][$object][$plObjectId])) {
             return $this->plObjectUserGroups[$filterAttr][$object][$plObjectId];
-        }
+        }*/
 
         $this->plObjectUserGroups[$filterAttr][$object][$plObjectId] 
             = $this->_getUserGroupsForObject($plObjectId, $object, $filter);
