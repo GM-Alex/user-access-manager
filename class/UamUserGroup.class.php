@@ -514,6 +514,55 @@ class UamUserGroup
      */
     
     /**
+     * Magic method getter.
+     * 
+     * @param string $name      The name of the function 
+     * @param array  $arguments The arguments for the function
+     * 
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        //TODO parse name and arguments add $object
+        
+        if ($objectType == 'user') {
+            $object = get_userdata($objectId);
+        } elseif ($objectType == 'category') {
+            $object = get_category($objectId);
+        } elseif ($objectType == 'post'
+            || $objectType == 'page'
+            || $objectType == 'attachment'
+        ) {
+            $object = get_post($objectId);
+        } else {
+            $plObject = $this->getAccessHandler()->getPlObject($objectType);
+            $object = $plObject['reference']->{$plObjectStuff['getObject']}(
+                $objectType
+            );
+        }
+        
+        if ($action == 'add') {
+            return $this->_addObject(
+                $objectType, 
+                $objectId, 
+                $object
+            );
+        } elseif ($action == 'remove') {
+            return $this->_removeObject(
+                $objectType, 
+                $objectId
+            );
+        } elseif ($action == 'ismember') {
+            return $this->_objectIsMember(
+            	$objectType, 
+                $objectId, 
+                $object, 
+                $withInfo
+            );
+        }
+    }
+    
+    /**
      * Adds a object of the given type.
      * 
      * @param string  $objectType The object type.
@@ -737,7 +786,7 @@ class UamUserGroup
             } else if ($objectType == 'user') {
                 $isRecursiveMember = $this->_getFullUser($object);
             } else {
-                
+                //TODO
             }
         }
 
