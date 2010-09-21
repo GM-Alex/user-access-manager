@@ -266,16 +266,21 @@ class UserAccessManager
     /**
      * Creates a htaccess file.
      * 
+     * @param string $dir The destination directory.
+     * 
      * @return null.
      */
-    public function createHtaccess()
+    public function createHtaccess($dir = null)
     {
-        // Make .htaccess file to protect data
-        // get url
-
-        $wud = wp_upload_dir();
-        if (empty($wud['error'])) {
-            $dir = $wud['basedir'] . "/";
+        if ($dir === null) {
+            $wud = wp_upload_dir();
+            
+            if (empty($wud['error'])) {
+                $dir = $wud['basedir'] . "/";
+            }
+        }
+        
+        if ($dir !== null) {   
             $permaStruc = get_option('permalink_structure');
             
             if (empty($permaStruc)) {
@@ -339,85 +344,41 @@ class UserAccessManager
      * Creates a htpasswd file.
      * 
      * @param boolean $createNew Force to create new file.
+     * @param string  $dir       The destination directory.
      * 
      * @return null
      */
-    public function createHtpasswd($createNew = false)
+    public function createHtpasswd($createNew = false, $dir = null)
     {
         global $current_user;
         $uamOptions = $this->getAdminOptions();
 
         // get url
-        $wud = wp_upload_dir();
-        if (empty($wud['error'])) {
-            $url = $wud['basedir'] . "/";
-            $curUserdata = get_userdata($current_user->ID);
-            $user = $curUserdata->user_login;
+        if ($dir === null) {
+            $wud = wp_upload_dir();
             
-            if (!file_exists($url . ".htpasswd") || $createNew) {
+            if (empty($wud['error'])) {
+                $dir = $wud['basedir'] . "/";
+            }
+        }
+        
+        if ($dir !== null) {
+            $curUserdata = get_userdata($current_user->ID);
+            
+            if (!file_exists($dir . ".htpasswd") || $createNew) {
                 if ($uamOptions['file_pass_type'] == 'random') {
-                    // create password
-                    $array = array();
-                    $length = 10;
-                    $capitals = true;
-                    $specialSigns = false;
-                    if ($length < 8) {
-                        $length = mt_rand(8, 20);
-                    }
-
-                    // numbers
-                    for ($i = 48; $i < 58; $i++) {
-                        $array[] = chr($i);
-                    }
-
-                    // small
-                    for ($i = 97; $i < 122; $i++) {
-                        $array[] = chr($i);
-                    }
-
-                    // capitals
-                    if ($capitals) {
-                        for ($i = 65; $i < 90; $i++) {
-                            $array[] = chr($i);
-                        }
-                    } 
-
-                    // specialchar:
-                    if ($specialSigns) {
-                        for ($i = 33; $i < 47; $i++) {
-                            $array[] = chr($i);
-                        }
-                        
-                        for ($i = 59; $i < 64; $i++) {
-                            $array[] = chr($i);
-                        }
-                        
-                        for ($i = 91; $i < 96; $i++) {
-                            $array[] = chr($i);
-                        }
-                        
-                        for ($i = 123; $i < 126; $i++) {
-                            $array[] = chr($i);
-                        }
-                    }
-                    
-                    mt_srand((double)microtime() * 1000000);
-                    $password = '';
-                    
-                    for ($i = 1; $i <= $length; $i++) {
-                        $rnd = mt_rand(0, count($array) - 1);
-                        $password.= $array[$rnd];
-                        $password = md5($password);
-                    }
+                    $password = md5($this->getRandomPassword());
                 } elseif ($uamOptions['file_pass_type'] == 'admin') {
                     $password = $curUserdata->user_pass;
                 }
+              
+                $user = $curUserdata->user_login;
 
                 // make .htpasswd
                 $htpasswd_txt = "$user:" . $password . "\n";
 
                 // save file
-                $htpasswd = fopen($url . ".htpasswd", "w");
+                $htpasswd = fopen($dir . ".htpasswd", "w");
                 fwrite($htpasswd, $htpasswd_txt);
                 fclose($htpasswd);
             }
@@ -427,22 +388,92 @@ class UserAccessManager
     /**
      * Deletes the htaccess files.
      * 
+     * @param string $dir The destination directory.
+     * 
      * @return null
      */
-    public function deleteHtaccessFiles()
+    public function deleteHtaccessFiles($dir = null)
     {
-        $wud = wp_upload_dir();
-        if (empty($wud['error'])) {
-            $url = $wud['basedir'] . "/";
+        if ($dir === null) {
+            $wud = wp_upload_dir();
             
-            if (file_exists($url.".htaccess")) {
-                unlink($url.".htaccess");
-            }
-            
-            if (file_exists($url.".htpasswd")) {
-                unlink($url.".htpasswd");
+            if (empty($wud['error'])) {
+                $dir = $wud['basedir'] . "/";
             }
         }
+
+        if ($dir !== null) {    
+            if (file_exists($dir.".htaccess")) {
+                unlink($dir.".htaccess");
+            }
+            
+            if (file_exists($dir.".htpasswd")) {
+                unlink($dir.".htpasswd");
+            }
+        }
+    }
+    
+    /**
+     * Generates and retruns a randmom password.
+     * 
+     * @return string
+     */
+    public function getRandomPassword()
+    {
+        //create password
+        $array = array();
+        $length = 16;
+        $capitals = true;
+        $specialSigns = false;
+        if ($length < 8) {
+            $length = mt_rand(8, 20);
+        }
+
+        // numbers
+        for ($i = 48; $i < 58; $i++) {
+            $array[] = chr($i);
+        }
+
+        // small
+        for ($i = 97; $i < 122; $i++) {
+            $array[] = chr($i);
+        }
+
+        // capitals
+        if ($capitals) {
+            for ($i = 65; $i < 90; $i++) {
+                $array[] = chr($i);
+            }
+        } 
+
+        // specialchar:
+        if ($specialSigns) {
+            for ($i = 33; $i < 47; $i++) {
+                $array[] = chr($i);
+            }
+            
+            for ($i = 59; $i < 64; $i++) {
+                $array[] = chr($i);
+            }
+            
+            for ($i = 91; $i < 96; $i++) {
+                $array[] = chr($i);
+            }
+            
+            for ($i = 123; $i < 126; $i++) {
+                $array[] = chr($i);
+            }
+        }
+        
+        mt_srand((double)microtime() * 1000000);
+        $password = '';
+        
+        for ($i = 1; $i <= $length; $i++) {
+            $rnd = mt_rand(0, count($array) - 1);
+            $password.= $array[$rnd];
+        }
+        
+        return $password;
     }
     
     /**
