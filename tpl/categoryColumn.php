@@ -16,13 +16,14 @@
  */
 
 $objectId = $id;
+$objectType = 'category';
 global $userAccessManager;
 
 $uamUserGroups 
-    = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($objectId);
+    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
 $userGroupsForObject = &$uamUserGroups;
 $uamUserGroupsFull
-    = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($objectId, false);
+    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId, false);
 $groupDiff = count($uamUserGroupsFull) - count($uamUserGroups);
 
 if ($uamUserGroups != Array()) {
@@ -36,7 +37,6 @@ if ($uamUserGroups != Array()) {
     		    <?php echo $uamUserGroup->getGroupName(); ?>
     		</a>
         <?php
-        $type = 'category'; 
         include 'groupInfo.php';
         ?> 
         </li>

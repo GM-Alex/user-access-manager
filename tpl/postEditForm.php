@@ -26,21 +26,21 @@ if (isset($post->ID)) {
 }
 
 $post = get_post($objectId);
+$objectType = $post->post_type;
 
 global $userAccessManager;
 
 $uamUserGroups 
     = &$userAccessManager->getAccessHandler()->getUserGroups();
 
-if (isset($post->ID)) {
+if (isset($objectId)) {
     $userGroupsForObject 
-        = &$userAccessManager->getAccessHandler()->getUserGroupsForPost($post->ID);
+        = &$userAccessManager->getAccessHandler()->getUserGroupsForObject($objectType, $objectId);
 } else {
     $userGroupsForObject = array();
 }
 
 if (count($uamUserGroups) > 0) {
-    $type = 'post';
 	include 'groupSelectionForm.php';
 } elseif ($userAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>

@@ -27,14 +27,14 @@ foreach ($uamUserGroups as $uamUserGroup) {
         echo 'checked="checked"';
     }
 
-	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId])) {
+	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
 		echo 'disabled=""';
 	}
     ?>
 			value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" /><?php 
 	echo $uamUserGroup->getGroupName();
 	
-	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId])) {
+	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
 		echo ' [LR]';
 	}
 		?></label>

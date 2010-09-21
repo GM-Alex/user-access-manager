@@ -16,10 +16,11 @@
  */
 
 $objectId = $id;
+$objectType = 'user';
 global $userAccessManager;
 
 $uamUserGroups 
-    = $userAccessManager->getAccessHandler()->getUsergroupsForUser($objectId);
+    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
 $userGroupsForObject = &$uamUserGroups;
 
 if ($uamUserGroups != Array()) {
@@ -33,7 +34,6 @@ if ($uamUserGroups != Array()) {
     		    <?php echo $uamUserGroup->getGroupName(); ?>
     		</a>
         <?php
-        $type = 'user'; 
         include 'groupInfo.php';
         ?> 
         </li>

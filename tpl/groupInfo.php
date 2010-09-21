@@ -20,20 +20,23 @@ if (!function_exists('walkPath')) {
      * Retruns the html code for the recursive access.
      * 
      * @param mixed  $object The object.
-     * @param string $type   The type of the object.
+     * @param string $objectType   The type of the object.
      * 
      * @return string
      */
-    function walkPath($object, $type)
+    function walkPath($object, $objectType)
     {
         $out = '';
         
         if (is_object($object)) {            
-            if ($type == 'post') {
-                $post = get_post($object->ID);
+            if ($objectType == 'post'
+            	|| $objectType == 'page'
+            	|| $objectType == 'attachment'
+            ) {
+                $post = get_post($object->id);
             	$out = $post->post_title;
-    	    } elseif ($type == 'category') {
-    	        $category = get_category($object->term_id);
+    	    } elseif ($objectType == 'category') {
+    	        $category = get_category($object->id);
         	    $out = $category->name;
     	    }
             
@@ -58,10 +61,13 @@ if (!function_exists('walkPath')) {
                 $out .= '</ul>';
             }
     	} else {
-    	    if ($type == 'post') {
+    	    if ($objectType == 'post'
+            	|| $objectType == 'page'
+            	|| $objectType == 'attachment'
+    	    ) {
                 $post = get_post($object);
             	$out = $post->post_title;
-    	    } elseif ($type == 'category') {
+    	    } elseif ($objectType == 'category') {
     	        $category = get_category($object);
         	    $out = $category->name;
     	    }
@@ -74,13 +80,13 @@ if (!function_exists('walkPath')) {
 <div class="tooltip">
 <ul class="uam_group_info">
 <?php 
-if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId]['byCategory'])) {
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId]['byCategory'])) {
     ?>
 	<li  class="uam_group_info_head">
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_CATEGORIES; ?>:
 		<ul>
 	<?php
-	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId]['byCategory'] as $category) {
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId]['byCategory'] as $category) {
 	    ?>
 	    	<li class="recusiveTree"><?php echo walkPath($category, 'category'); ?></li>
 	    <?php
@@ -92,13 +98,13 @@ if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$obj
 }
 ?>
 <?php 
-if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId]['byPost'])) {
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId]['byPost'])) {
     ?>
 	<li  class="uam_group_info_head">
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_POSTS; ?>:
 		<ul>
 	<?php 
-	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId]['byPost'] as $post) {
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId]['byPost'] as $post) {
 	    ?>
 	    	<li class="recusiveTree"><?php echo walkPath($post, 'post'); ?></li>
 	    <?php
@@ -110,13 +116,13 @@ if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$obj
 }
 ?>
 <?php 
-if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId]['byRole'])) {
+if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId]['byRole'])) {
     ?>
 	<li  class="uam_group_info_head">
 		<?php echo TXT_GROUP_MEMBERSHIP_BY_ROLE; ?>:
 		<ul>
 	<?php 
-	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId]['byRole'] as $role) {
+	foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId]['byRole'] as $role) {
 	    ?>
 	    	<li><?php echo $role; ?></li>
 	    <?php
@@ -149,11 +155,11 @@ if ($uamUserGroup->getWriteAccess()  == "all") {
         	</li>
         	<li>
         	    <?php echo TXT_GROUP_ROLE; ?>: <?php
-if ($uamUserGroup->getRoles()) {
+if ($uamUserGroup->getObjectsFromType('role')) {
     $out = '';
     
-    foreach ($uamUserGroup->getRoles() as $role) {
-        $out .= trim($role['role_name']).', ';
+    foreach ($uamUserGroup->getObjectsFromType('role') as $key => $role) {
+        $out .= trim($key).', ';
     }
     
     echo rtrim($out, ', ');
