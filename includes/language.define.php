@@ -189,8 +189,8 @@ define('TXT_SET_UP_USERGROUPS', __('Set up usergroups', 'user-access-manager'));
 // --- Group info ---
 define('TXT_INFO', __('Info', 'user-access-manager'));
 define('TXT_GROUP_INFO', __('Group infos', 'user-access-manager'));
-define('TXT_GROUP_MEMBERSHIP_BY_POSTS', __('Group membership given by posts', 'user-access-manager'));
-define('TXT_GROUP_MEMBERSHIP_BY_CATEGORIES', __('Group membership given by categories', 'user-access-manager'));
+define('TXT_GROUP_MEMBERSHIP_BY_POST', __('Group membership given by posts', 'user-access-manager'));
+define('TXT_GROUP_MEMBERSHIP_BY_CATEGORY', __('Group membership given by categories', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_ROLE', __('Group membership given by role', 'user-access-manager'));
 define('TXT_ASSIGNED_GROUPS', __('Assigned groups', 'user-access-manager'));
 

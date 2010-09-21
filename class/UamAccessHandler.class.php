@@ -35,6 +35,15 @@ class UamAccessHandler
         'noneFiltered' => array(),
     );
     protected $plObjects = array();
+    protected $objectTypes = array(
+        'post',
+        'page',
+        'attachment',
+        'category',
+        'user',
+        'role'
+    );
+    protected $allObjectTypes = null;
     
     /**
      * The consturctor
@@ -56,6 +65,27 @@ class UamAccessHandler
     public function &getUserAccessManager()
     {
         return $this->userAccessManager;
+    }
+    
+    /**
+     * Returns all objects types.
+     * 
+     * @return array
+     */
+    public function getAllObjectTypes()
+    {
+        if (isset($this->allObjectTypes)) {
+            return $this->allObjectTypes;
+        }
+        
+        $plObjects = $this->getPlObjects();
+
+        $this->allObjectTypes = array_merge(
+            $this->objectTypes,
+            array_keys($plObjects)
+        );
+        
+        return $this->allObjectTypes;
     }
     
     /**
@@ -273,13 +303,9 @@ class UamAccessHandler
                     $objectId, 
                     true
                 );
-                
-                //TODO byPluggable
+
                 if ($objectMembership !== false) {
-                    if (isset($objectMembership['byPost'])
-                        || isset($objectMembership['byCategory'])
-                        || isset($objectMembership['byRole'])
-                    ) {
+                    if (is_array($objectMembership)) {
                         $userGroup->setRecursive[$objectType][$objectId] 
                             = $objectMembership;
                     }

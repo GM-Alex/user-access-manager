@@ -35,19 +35,10 @@ class UamUserGroup
     protected $writeAccess = null;
     protected $ipRange = null;
     protected $roles = array();
-    protected $objectTypes = array(
-        'post',
-        'page',
-        'attachment',
-        'category',
-        'user',
-        'role'
-    );
     protected $objects = null;
     protected $singleObjects = null;
     private $_assignedObjects = null;
     protected $plObjects = array();
-    protected $allObjectTypes = null;
     
     /**
      * Consturtor
@@ -329,44 +320,11 @@ class UamUserGroup
     /**
      * Returns all objects types.
      * 
-     * @param string $type The return type, could be real or reduced.
-     * 
      * @return array
      */
-    public function getAllObjectTypes($type = 'real')
+    public function getAllObjectTypes()
     {
-        if (isset($this->allObjectTypes[$type])) {
-            return $this->allObjectTypes[$type];
-        }
-        
-        if (!isset($this->allObjectTypes['real'])) {
-            $plObjects = $this->accessHandler->getPlObjects();
-
-            $this->allObjectTypes['real'] = array_merge(
-                $this->objectTypes,
-                array_keys($plObjects)
-            );
-        }
-        
-        //TODO could be removed
-        if ($type == 'reduced') {
-            $reduced = array();
-            
-            foreach ($this->allObjectTypes['real'] as $objectType) {
-                if ($objectType != 'post'
-                	&& $objectType != 'page'
-                	&& $objectType != 'attachment'
-                ) {
-                    $reduced[] = $objectType;
-                }
-                
-                $reduced[] = 'allPostTypes';
-            }
-            
-            $this->allObjectTypes[$type] = $reduced;
-        }
-        
-        return $this->allObjectTypes[$type];
+        return $this->getAccessHandler()->getAllObjectTypes();
     }
 
     
@@ -696,7 +654,7 @@ class UamUserGroup
             } elseif ($objectType == 'user') {
                  $this->objects[$objectType][$type] = $this->getFullUsers();
             } else {
-                
+                //TODO
             }
         }
         
@@ -786,10 +744,10 @@ class UamUserGroup
         
         if (array_key_exists($role[0], $this->getObjectsFromType('role'))
         ) {
-            $isRecursiveMember
-                = array('byRole' => array());
-            $isRecursiveMember['byRole'][] 
-                = $role[0];
+            $roleObject->name = $role[0];
+            
+            $isRecursiveMember = array('role' => array());
+            $isRecursiveMember['role'][] = $roleObject;
         }
 
         return $isRecursiveMember;
@@ -856,12 +814,15 @@ class UamUserGroup
                 );
 
                 if ($parentCategory !== null) {
+                    $curCategory = get_category($objectId);
+                    $parentCategory->name = $curCategory->name;
+                    
                     if (isset($parentCategory->recursiveMember)) {
-                        $isRecursiveMember['byCategory'][]
+                        $isRecursiveMember['category'][]
                             = $parentCategory;
                     } else {
-                        $isRecursiveMember['byCategory'][]
-                            = $parentCategory->id;
+                        $isRecursiveMember['category'][]
+                            = $parentCategory;
                     }
                 }
             }
@@ -911,11 +872,12 @@ class UamUserGroup
                         foreach ($categoryChilds as $categoryChild) {
                             $curCategoryChild = new stdClass();
                             $curCategoryChild->id = $categoryChild->term_id;
+                            $curCategoryChild->name = $categoryChild->name;
                             
                             $curCategoryChild->recursiveMember 
-                                = array('byCategory' => array());
-                            $curCategoryChild->recursiveMember['byCategory'][] 
-                                = $category->id;
+                                = array('category' => array());
+                            $curCategoryChild->recursiveMember['category'][] 
+                                = $curCategoryChild;
                             $categories[$curCategoryChild->id] 
                                 = $curCategoryChild;
                         }
@@ -952,8 +914,11 @@ class UamUserGroup
         $uamOptions = $userAccessManager->getAdminOptions();
         
         foreach ($this->getObjectsFromType('category', 'full') as $category) {
-            if (in_category($category->id, $post->ID)) { 
-                $isRecursiveMember['byCategory'][] = $category->id;
+            if (in_category($category->id, $post->ID)) {
+                $categoryObject = get_category($category->id);
+                $category->name = $categoryObject->name;
+                
+                $isRecursiveMember['category'][] = $category;
             }
         }
         
@@ -969,13 +934,10 @@ class UamUserGroup
             );
     
             if ($parentPost !== null) {
-                if (isset($parentPost->recursiveMember)) {
-                    $isRecursiveMember['byPost'][]
-                        = $parentPost;
-                } else {
-                    $isRecursiveMember['byPost'][]
-                        = $parentPost->id;
-                }
+                $postObject = get_post($parentPost->id);
+                $parentPost->name = $postObject->post_title;
+
+                $isRecursiveMember['post'][] = $parentPost;
             }
         }
 
@@ -1000,7 +962,7 @@ class UamUserGroup
         $isRecursiveMember = array();
         
         $plObject = $this->getAccessHandler()->getPlObject($objectName);
-        $plRecMember = $plObject['reference']->{$plObject['getFull']}($objectId);
+        $plRecMember = $plObject['reference']->{$plObject['getFull']}($objectId, &$this);
         
         if (is_array($plRecMember)) {
             $isRecursiveMember = $plRecMember;
