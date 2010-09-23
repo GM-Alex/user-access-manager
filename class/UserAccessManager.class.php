@@ -1738,7 +1738,7 @@ class UserAccessManager
         
         if ($post !== null
             && $uamOptions['redirect'] != 'false' 
-            && !$this->getAccessHandler()->checkObjectAccess($post->post_type, $post->ID) 
+            && !$this->getAccessHandler()->checkObjectAccess($post->post_type, $post->ID)
             && !$this->atAdminPanel 
             && !isset($fileUrl)
         ) {
@@ -1846,7 +1846,11 @@ class UserAccessManager
             if ($uamOptions['download_type'] == 'fopen'
                 && !wp_attachment_is_image($post->ID)
             ) {
-                $fp = fopen($file, 'rb');
+                $fp = fopen($file, 'r');
+                
+                //TODO find better solution (prevent '\n' / '0A')
+                /*ob_clean();
+                flush();*/
                 
                 while (!feof($fp)) {
                     set_time_limit(30);
