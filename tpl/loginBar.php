@@ -15,7 +15,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-if (!is_single()) {
+if (!is_single() && !is_page()) {
     ?>
     <a class="uam_login_link" href="<?php echo get_bloginfo('wpurl') ?>/wp-login.php?redirect_to=<?php echo urlencode($_SERVER['REQUEST_URI'])?>"><?php echo __('Login', 'user-access-manager'); ?></a>
 	<?php
