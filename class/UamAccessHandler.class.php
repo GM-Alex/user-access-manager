@@ -68,6 +68,16 @@ class UamAccessHandler
     }
     
     /**
+     * Returns the predfined object types.
+     * 
+     * @return array();
+     */
+    public function getObjectTypes()
+    {
+        return $this->objectTypes;
+    }
+    
+    /**
      * Returns all objects types.
      * 
      * @return array
@@ -278,7 +288,6 @@ class UamAccessHandler
             $filterAttr = 'noneFiltered';
         }
         
-        //TODO caching results in display error
         if (isset($this->objectUserGroups[$objectType][$filterAttr][$objectId])) {
             return $this->objectUserGroups[$objectType][$filterAttr][$objectId];
         }
@@ -455,7 +464,7 @@ class UamAccessHandler
         
         $uamOptions = $this->getUserAccessManager()->getAdminOptions();
         $curUserdata = get_userdata($current_user->ID);
-            
+        
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
         }
@@ -475,6 +484,7 @@ class UamAccessHandler
         
         if ($orderedRoles[$role] >= $orderedRoles[$uamOptions['full_access_role']]
             || $role == 'administrator'
+            || is_super_admin($current_user->ID)
         ) {
             return true;
         }

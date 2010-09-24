@@ -170,10 +170,6 @@ class UamUserGroup
                 $wpdb->query($sql);
             }
         }
-        
-        /*$allPosts = $this->getObjectsFromType('post') + 
-            $this->getObjectsFromType('page') +
-            $this->getObjectsFromType('attachment');*/
     }
     
     
@@ -393,59 +389,27 @@ class UamUserGroup
      */
     private function _getSqlQuery($objectType, $action)
     {
-        $addition[0] = '';
-        $addition[1] = '';
-        
-        if ($objectType == 'post'
-        	|| $objectType == 'page'
-        	|| $objectType == 'attachment'
-        	|| $objectType == 'allPostTypes'
-        ) {
-            $dbIdName = 'post_id';
-            $database = DB_ACCESSGROUP_TO_POST;
-        } elseif ($objectType == 'category') {
-            $dbIdName = 'category_id';
-            $database = DB_ACCESSGROUP_TO_CATEGORY;
-        } elseif ($objectType == 'user') {
-            $dbIdName = 'user_id';
-            $database = DB_ACCESSGROUP_TO_USER;
-        } elseif ($objectType == 'role') {
-            $dbIdName = 'role_name';
-            $database = DB_ACCESSGROUP_TO_ROLE;
-        } else {
-            $dbIdName = 'object_id';
-            $database = DB_ACCESSGROUP_TO_OBJECT;
-            
-            if ($action == 'insert') {
-                $addition[0] = ", object_type";
-                $addition[1] = ", '" . $objectType . "'";
-            } else {
-                $addition[0] = " AND object_type = '".$objectType ."'";
-            }
-        }
-        
         $sql = '';
         
         if ($action == 'select') {
-            $sql = "SELECT ".$dbIdName." as id
-    			FROM ".$database."
-    			WHERE group_id = ".$this->getId()
-                .$addition[0];
+            $sql = "SELECT object_id as id
+    			FROM ".DB_ACCESSGROUP_TO_OBJECT."
+    			WHERE group_id = ".$this->getId()." 
+    			AND object_type = '".$objectType ."'";
         } elseif ($action == 'delete') {
-            $sql = "DELETE FROM ".$database." 
-        		WHERE group_id = ".$this->getId()
-                .$addition[0];
+            $sql = "DELETE FROM ".DB_ACCESSGROUP_TO_OBJECT." 
+        		WHERE group_id = ".$this->getId()." 
+                AND object_type = '".$objectType ."'";
         } elseif ($action == 'insert') {
-            $sql = "INSERT INTO ".$database." (
+            $sql = "INSERT INTO ".DB_ACCESSGROUP_TO_OBJECT." (
             		group_id, 
-            		".$dbIdName.""
-            		.$addition[0].
-            	") 
-            	VALUES(
+            		object_id, 
+            		object_type
+            	) VALUES (
             		'".$this->getId()."', 
-            		'%s'"
-            		.$addition[1].
-            	")";
+            		'%s',
+            		'".$objectType."'
+            	)";
         }
         
         return $sql;

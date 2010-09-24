@@ -53,29 +53,19 @@ class UserAccessManager
     public function install()
     {
         global $wpdb;
-        return 0;
         $uamDbVersion = $this->uamDbVersion;
         
         include_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        $charset_collate = '';
-        
-        if (version_compare(mysql_get_server_info(), '4.1.0', '>=')) {
-            if (!empty($wpdb->charset)) {
-                $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-            }
-            
-            if (!empty($wpdb->collate)) {
-                $charset_collate.= " COLLATE $wpdb->collate";
-            }
-        }
+  
+        $charsetCollate = $this->_getCharset();
         
         $dbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '" . DB_ACCESSGROUP . "'"
+        	LIKE '".DB_ACCESSGROUP."'"
         );
         
         if ($dbUserGroup != DB_ACCESSGROUP) {
-            $sql = "CREATE TABLE " . DB_ACCESSGROUP . " (
+            $sql = "CREATE TABLE ".DB_ACCESSGROUP." (
 					  ID int(11) NOT NULL auto_increment,
 					  groupname tinytext NOT NULL,
 					  groupdesc text NOT NULL,
@@ -83,86 +73,30 @@ class UserAccessManager
 					  write_access tinytext NOT NULL,
 					  ip_range mediumtext NULL,
 					  PRIMARY KEY  (ID)
-					) $charset_collate;";
+					) $charsetCollate;";
             dbDelta($sql);
         }
-        
-        $dbUserGroupToPost = $wpdb->get_var(
-        	"SHOW TABLES 
-        	LIKE '" . DB_ACCESSGROUP_TO_POST . "'"
-        );
-        
-        if ($dbUserGroupToPost != DB_ACCESSGROUP_TO_POST) {
-            $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_POST . " (
-					  post_id int(11) NOT NULL,
-					  group_id int(11) NOT NULL,
-					  PRIMARY KEY  (post_id,group_id)
-					) $charset_collate;";
-            dbDelta($sql);
-        }
-        
-        $dbUserGroupToUser = $wpdb->get_var(
-        	"SHOW TABLES 
-        	LIKE '" . DB_ACCESSGROUP_TO_USER . "'"
-        );
-        
-        if ($dbUserGroupToUser != DB_ACCESSGROUP_TO_USER) {
-            $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_USER . " (
-					  user_id int(11) NOT NULL,
-					  group_id int(11) NOT NULL,
-					  PRIMARY KEY  (user_id,group_id)
-					) $charset_collate;";
-            dbDelta($sql);
-        }
-        
-        $dbUserGroupToCategory = $wpdb->get_var(
-        	"SHOW TABLES 
-        	LIKE '" . DB_ACCESSGROUP_TO_CATEGORY . "'"
-        );
-        
-        if ($dbUserGroupToCategory != DB_ACCESSGROUP_TO_CATEGORY) {
-            $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_CATEGORY . " (
-					  category_id int(11) NOT NULL,
-					  group_id int(11) NOT NULL,
-					  PRIMARY KEY  (category_id,group_id)
-					) $charset_collate;";
-            dbDelta($sql);
-        }
-        
-        $dbUserGroupToRole = $wpdb->get_var(
-        	"SHOW TABLES 
-        	LIKE '" . DB_ACCESSGROUP_TO_ROLE . "'"
-        );
-        
-        if ($dbUserGroupToRole != DB_ACCESSGROUP_TO_ROLE) {
-            $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_ROLE . " (
-					  role_name varchar(255) NOT NULL,
-					  group_id int(11) NOT NULL,
-					  PRIMARY KEY  (role_name,group_id)
-					) $charset_collate;";
-            dbDelta($sql);
-        }
-        
+
         $dbUserGroupToObject = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '" . DB_ACCESSGROUP_TO_ROLE . "'"
+        	LIKE '".DB_ACCESSGROUP_TO_OBJECT."'"
         );
         
         if ($dbUserGroupToObject != DB_ACCESSGROUP_TO_OBJECT) {
             $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_OBJECT . " (
-					  object_id int(11) NOT NULL,
+					  object_id VARCHAR(11) NOT NULL,
 					  object_type varchar(255) NOT NULL,
 					  group_id int(11) NOT NULL,
 					  PRIMARY KEY  (object_id,object_type,group_id)
-					) $charset_collate;";
+					) $charsetCollate;";
             dbDelta($sql);
         }
         
-        add_option("uam_db_version", $uamDbVersion);
+        add_option("uam_db_version", $this->uamDbVersion);
     }
     
     /**
-     * Updates the database if an old version was installed.
+     * Updates the user access manager if an old version was installed.
      * 
      * @return null;
      */
@@ -176,10 +110,8 @@ class UserAccessManager
         }
         
         if (!get_option('uam_version')
-            || get_option('uam_version') < $this->uamVersion
+            || get_option('uam_version') < 1.0
         ) {
-            update_option('uam_version', $this->uamVersion);
-            
             delete_option('allow_comments_locked');
         }
         
@@ -190,44 +122,101 @@ class UserAccessManager
         
         if ($currentDbVersion != $this->uamDbVersion) {
             if ($currentDbVersion == 1.0) {
-                
-                
                 if ($dbUserGroup == DB_ACCESSGROUP) {
                     $wpdb->query(
-                    	"ALTER TABLE " . DB_ACCESSGROUP . " 
+                    	"ALTER TABLE ".DB_ACCESSGROUP." 
                     	ADD read_access TINYTEXT NOT NULL DEFAULT '', 
                     	ADD write_access TINYTEXT NOT NULL DEFAULT '', 
                     	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                     );
                     
                     $wpdb->query(
-                    	"UPDATE " . DB_ACCESSGROUP . " 
+                    	"UPDATE ".DB_ACCESSGROUP." 
                     	SET read_access = 'group', 
                     		write_access = 'group'"
                     );
                     
-                    update_option('uam_db_version', $this->uamDbVersion);
+                    $dbIpRange = $wpdb->get_var(
+                    	"SHOW columns 
+                    	FROM ".DB_ACCESSGROUP." 
+                    	LIKE 'ip_range'"
+                    );
+            
+                    if ($dbIpRange != 'ip_range') {
+                        $wpdb->query(
+                        	"ALTER TABLE ".DB_ACCESSGROUP." 
+                        	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
+                        );
+                    }
                 }
-            }
-            
-            if ($currentDbVersion < 1.2) {
-                $this->install();
-            }
-        }
-        
-        if ($dbUserGroup == DB_ACCESSGROUP) {
-            $dbIpRange = $wpdb->get_var(
-            	"SHOW columns 
-            	FROM " . DB_ACCESSGROUP . " 
-            	LIKE 'ip_range'"
-            );
-            
-            if ($dbIpRange != 'ip_range') {
+            } elseif ($currentDbVersion == 1.1) {
+                define('DB_ACCESSGROUP_TO_POST', $wpdb->prefix . 'uam_accessgroup_to_post');
+                define('DB_ACCESSGROUP_TO_USER', $wpdb->prefix . 'uam_accessgroup_to_user');
+                define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix . 'uam_accessgroup_to_category');
+                define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix . 'uam_accessgroup_to_role');
+                
+                $charsetCollate = $this->_getCharset();
+                
                 $wpdb->query(
-                	"ALTER TABLE " . DB_ACCESSGROUP . " 
-                	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
+                    "ALTER TABLE 'wp_uam_accessgroup_to_object' 
+                    CHANGE 'object_id' 'object_id' VARCHAR(11) 
+                    $charsetCollate;"
+                );
+                
+                $objectTypes = $this->getAccessHandler()->getObjectTypes();
+                
+                foreach ($objectTypes as $objectType) {
+                    $addition = '';
+                    
+                    if ($objectType == 'post'
+                    	|| $objectType == 'page'
+                    	|| $objectType == 'attachment'
+                    ) {
+                        $dbIdName = 'post_id';
+                        $database = DB_ACCESSGROUP_TO_POST.', '.$wpdb->posts;
+                        $addition = " WHERE post_id = ID
+                        	AND post_type = '".$objectType."'";
+                    } elseif ($objectType == 'category') {
+                        $dbIdName = 'category_id';
+                        $database = DB_ACCESSGROUP_TO_CATEGORY;
+                    } elseif ($objectType == 'user') {
+                        $dbIdName = 'user_id';
+                        $database = DB_ACCESSGROUP_TO_USER;
+                    } elseif ($objectType == 'role') {
+                        $dbIdName = 'role_name';
+                        $database = DB_ACCESSGROUP_TO_ROLE;
+                    }
+                    
+                    $sql = "SELECT ".$dbIdName." as id, group_id as groupId
+                    	FROM ".$database.$addition;
+                        
+                    $dbObjects = $wpdb->get_results($sql);
+                    
+                    foreach ($dbObjects as $dbObject) {
+                        $sql = "INSERT INTO ".DB_ACCESSGROUP_TO_OBJECT." (
+                        		group_id, 
+                        		object_id,
+                        		object_type
+                        	) 
+                        	VALUES(
+                        		'".$dbObject->groupId."', 
+                        		'".$dbObject->id."',
+                        		'".$objectType."'
+                        	)";
+                        
+                        $wpdb->query($sql);
+                    } 
+                }
+                
+                $wpdb->query(
+                	"DROP TABLE ".DB_ACCESSGROUP_TO_POST.", 
+                		".DB_ACCESSGROUP_TO_USER.", 
+                		".DB_ACCESSGROUP_TO_CATEGORY.", 
+                		".DB_ACCESSGROUP_TO_ROLE
                 );
             }
+            
+            update_option('uam_db_version', $this->uamDbVersion);
         }
     }
     
@@ -251,6 +240,23 @@ class UserAccessManager
         delete_option('uam_version');
         delete_option('uam_db_version');
         $this->deleteHtaccessFiles();
+    }
+    
+    private function _getCharset()
+    {
+        $charsetCollate = '';
+        
+        if (version_compare(mysql_get_server_info(), '4.1.0', '>=')) {
+            if (!empty($wpdb->charset)) {
+                $charsetCollate = "DEFAULT CHARACTER SET $wpdb->charset";
+            }
+            
+            if (!empty($wpdb->collate)) {
+                $charsetCollate.= " COLLATE $wpdb->collate";
+            }
+        }
+        
+        return $charsetCollate;
     }
     
     /**

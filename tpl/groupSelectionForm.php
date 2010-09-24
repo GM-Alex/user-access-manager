@@ -16,28 +16,26 @@
  */
 ?>
 <ul class="uam_group_selection">
-<?php 
+<?php
 foreach ($uamUserGroups as $uamUserGroup) {
+    $addition = '';
+    $attributes = '';
+    
+    if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
+        $attributes .= 'checked="checked" ';
+    }
+    
+    if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
+        $attributes .= 'disabled="" ';
+		$addition .= ' [LR]';
+	}
+    
 	?>
 	<li>
 		<label for="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
-			<input type="checkbox" id="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>"
-	<?php
-    if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
-        echo 'checked="checked"';
-    }
-
-	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
-		echo 'disabled=""';
-	}
-    ?>
-			value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" /><?php 
-	echo $uamUserGroup->getGroupName();
-	
-	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
-		echo ' [LR]';
-	}
-		?></label>
+			<input type="checkbox" id="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>" <?php echo $attributes;?> value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" />
+			<?php echo $uamUserGroup->getGroupName().$addition; ?>
+		</label>
 		<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
 		<?php include 'groupInfo.php'; ?>
 	</li>
