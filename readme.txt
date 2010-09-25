@@ -60,8 +60,13 @@ Here you found the changes in each version.
     Version		Date      	Changes
     
     1.1			2010/0?/??	Add plugin api
+    						Optimized code
     						Fix bug that user groups can't removed from element
     						Fix empty category bug
+    						Fix pre/next post bug
+    						Fix login form bug
+    						Fix redirect bug
+    						Fix some other small bugs
     
     1.0.2		2010/07/24	Remove debugging code
     						Fix file download bug

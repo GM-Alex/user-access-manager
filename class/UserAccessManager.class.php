@@ -1691,12 +1691,13 @@ class UserAccessManager
     
     /**
      * Redirects to a page or to content.
-     * 
-     * @param string $headers The headers which are given from wordpress.
+     *  
+     * @param string $headers    The headers which are given from wordpress.
+     * @param object $pageParams The params of the current page.
      * 
      * @return null
      */
-    public function redirect($headers)
+    public function redirect($headers, $pageParams)
     {
         $uamOptions = $this->getAdminOptions();
         
@@ -1704,16 +1705,30 @@ class UserAccessManager
             $fileUrl = $_GET['getfile'];
         }
         
-        $emptyId = null;
-        $post = get_post($emptyId);
+        $object = null;
         
-        if ($post !== null
+        if (isset($pageParams->query_vars['p'])) {
+            $object = get_post($pageParams->query_vars['p']);
+            $objectType = $object->post_type;
+            $objectId = $object->ID;
+        } elseif (isset($pageParams->query_vars['page_id'])) {
+            $object = get_post($pageParams->query_vars['page_id']);
+            $objectType = $object->post_type;
+            $objectId = $object->ID;
+        } elseif (isset($pageParams->query_vars['cat_id'])) {
+            $object = get_category($pageParams->query_vars['cat_id']);
+            $objectType = 'category';
+            $objectId = $object->term_id;
+        }
+        
+        if (($object === null
+            ||$object !== null
+            && !$this->getAccessHandler()->checkObjectAccess($objectType, $objectId))
             && $uamOptions['redirect'] != 'false' 
-            && !$this->getAccessHandler()->checkObjectAccess($post->post_type, $post->ID)
-            && !$this->atAdminPanel 
+            && !$this->atAdminPanel
             && !isset($fileUrl)
         ) {
-            $this->redirectUser();
+            $this->redirectUser($object);
         } elseif (isset($fileUrl)) {
             $permaStruc = get_option('permalink_structure');
             
@@ -1729,18 +1744,22 @@ class UserAccessManager
     /**
      * Redirects the user to his destination.
      * 
+     * @param object $object The current object we want to access.
+     * 
      * @return null
      */
-    public function redirectUser()
+    public function redirectUser($object = null)
     {
         global $wp_query;
         
         $postToShow = false;
         $posts = $wp_query->get_posts();
         
-        if (isset($posts)) {
+        if ($object === null
+            && isset($posts)
+        ) {
             foreach ($posts as $post) {
-                if ($this->getAccessHandler()->checkObjectAccess($page->post_type, $post->ID)) {
+                if ($this->getAccessHandler()->checkObjectAccess($post->post_type, $post->ID)) {
                     $postToShow = true;
                     break;
                 }
@@ -1749,7 +1768,7 @@ class UserAccessManager
         
         if (!$postToShow) {
             $uamOptions = $this->getAdminOptions();
-            
+
             if ($uamOptions['redirect'] == 'blog') {
                 $url = home_url('/');
             } elseif ($uamOptions['redirect'] == 'custom_page') {
@@ -1761,6 +1780,7 @@ class UserAccessManager
             
             if ($url != "http://".$_SERVER['HTTP_HOST'].$_SERVER["REQUEST_URI"]) {
                 wp_redirect($url);
+                exit;
             }      
         }
     }
@@ -1820,8 +1840,8 @@ class UserAccessManager
                 $fp = fopen($file, 'r');
                 
                 //TODO find better solution (prevent '\n' / '0A')
-                /*ob_clean();
-                flush();*/
+                ob_clean();
+                flush();
                 
                 while (!feof($fp)) {
                     set_time_limit(30);
