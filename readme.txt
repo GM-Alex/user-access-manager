@@ -33,6 +33,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 * Multilanguage support
 * Also proteced your rss feeds
 * Give access by IP-address
+* Plugin-Api to use the User Access Manager in your on plugins or extend other plugins
 
 <em>Included languages</em>
 
