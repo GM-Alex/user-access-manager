@@ -1,6 +1,6 @@
 <?php
 /**
- * categoryColumn.php
+ * objectColumn.php
  * 
  * Shows the setup page at the admin panel.
  * 
@@ -15,8 +15,6 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-$objectId = $id;
-$objectType = 'category';
 global $userAccessManager;
 
 $uamUserGroups 
@@ -33,7 +31,7 @@ if ($uamUserGroups != Array()) {
     foreach ($uamUserGroups as $uamUserGroup) {
         ?> 
     	<li>
-    		<a class="uam_group_info_link">
+    	    <a class="uam_group_info_link">
     		    <?php echo $uamUserGroup->getGroupName(); ?>
     		</a>
         <?php

@@ -15,7 +15,12 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-// --- Multiuse
+// --- Error Messages ---
+define('TXT_PHP_VERSION_TO_LOW', __('Sorry you need at least PHP version 5.0 to use the User Access Manager. Your current PHP version is %s.', 'user-access-manager'));
+define('TXT_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s.', 'user-access-manager'));
+define('TXT_NEED_DATABASE_UPDATE', __('Please update the database of the User Access Manager. <a href="%s">Click here to proceed</a>', 'user-access-manager'));
+
+// --- Multiuse ---
 define('TXT_ALL', __('all', 'user-access-manager'));
 define('TXT_ONLY_GROUP_USERS', __('only group users', 'user-access-manager'));
 define('TXT_YES', __('Yes', 'user-access-manager'));
@@ -155,7 +160,11 @@ define('TXT_SETUP', __('Setup', 'user-access-manager'));
 define('TXT_RESET_UAM', __('Reset User Access Manager', 'user-access-manager'));
 define('TXT_RESET_UAM_DESC', __('Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost.', 'user-access-manager'));
 define('TXT_RESET', __('reset', 'user-access-manager'));
+define('TXT_UPDATE_UAM_DB', __('Update User Access Manager database', 'user-access-manager'));
+define('TXT_UPDATE_UAM_DB_DESC', __('Updates the database of the User Access Manager. Please backup your database before you perform the update.', 'user-access-manager'));
+define('TXT_UPDATE', __('update', 'user-access-manager'));
 define('TXT_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
+define('TXT_UAM_DB_UPDATE_SUC', __('User Access Manager database was updated successfully', 'user-access-manager'));
 
 
 // --- About page ---

@@ -42,6 +42,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 * German
 * Czech, based on 0.7.0.1. Thanks to Huska
 * French, based on 0.8.0.2. Thanks to macbidule
+* Hungary, based on 1.0.2. Thanks to Zina
 
 For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com). To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
@@ -61,6 +62,7 @@ Here you found the changes in each version.
     
     1.1			2010/0?/??	Add plugin api
     						Optimized code
+    						Improve content filtering
     						Fix bug that user groups can't removed from element
     						Fix empty category bug
     						Fix pre/next post bug

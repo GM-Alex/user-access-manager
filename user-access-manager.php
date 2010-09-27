@@ -46,9 +46,54 @@ if (defined('UAM_LOCAL_DEBUG')) {
     );
 }
 
+
 //Defines
 require_once 'includes/database.define.php';
 require_once 'includes/language.define.php';
+
+
+//Check requirements
+$stop = false;
+
+//Check php version
+$phpVersion = phpversion();
+
+if ($phpVersion < 5.0) {
+    add_action(
+    	'admin_notices', 
+    	create_function(
+    		'', 
+    		'echo \'<div id="message" class="error"><p><strong>'. 
+    	    sprintf(TXT_PHP_VERSION_TO_LOW, $phpVersion). 
+    		'</strong></p></div>\';'
+    	)
+    );
+    
+    $stop = true;
+}
+
+//Check wordpress version
+global $wp_version;
+
+if ($wp_version < 3.0) {
+    add_action(
+    	'admin_notices', 
+    	create_function(
+    		'', 
+    		'echo \'<div id="message" class="error"><p><strong>'. 
+    	    sprintf(TXT_WORDPRESS_VERSION_TO_LOW, $wp_version). 
+    		'</strong></p></div>\';'
+    	)
+    );
+    
+    $stop = true;
+}
+
+//If we have a error stop plugin.
+if ($stop) {
+    return;
+}
+
 
 //Classes
 require_once 'class/UserAccessManager.class.php';
@@ -77,7 +122,20 @@ if (!function_exists("userAccessManagerAP")) {
         
         $userAccessManager->atAdminPanel = true;
         $uamOptions = $userAccessManager->getAdminOptions();
-        $userAccessManager->update();
+        
+        if ($userAccessManager->isDatabaseUpdateNecessary()) {
+            $link = 'admin.php?page=uam_setup';
+            
+            add_action(
+            	'admin_notices', 
+            	create_function(
+            		'', 
+            		'echo \'<div id="message" class="error"><p><strong>'. 
+            	    sprintf(TXT_NEED_DATABASE_UPDATE, $link). 
+            		'</strong></p></div>\';'
+            	)
+            );
+        }
         
         get_currentuserinfo();
         $curUserdata = get_userdata($current_user->ID);
@@ -220,7 +278,7 @@ if (isset($userAccessManager)) {
     //Redirect
     $uamOptions = $userAccessManager->getAdminOptions();
     
-    if ($uamOptions['redirect'] != 'false' || isset($_GET['getfile'])) {
+    if ($uamOptions['redirect'] != 'false' || isset($_GET['uamgetfile'])) {
         add_filter('wp_headers', array(&$userAccessManager, 'redirect'), 10, 2);
     }
 
@@ -246,5 +304,7 @@ if (isset($userAccessManager)) {
         add_filter('get_previous_post_where', array(&$userAccessManager, 'showNextPreviousPost'));
         add_filter('post_link', array(&$userAccessManager, 'cachePostLinks'), 10, 2);
         add_filter('edit_post_link', array(&$userAccessManager, 'showGroupMembership'), 10, 2);
+        add_filter('parse_query', array(&$userAccessManager, 'parseQuery'));
+        add_filter('getarchives_where', array(&$userAccessManager, 'showPostSql'));
     }
 }

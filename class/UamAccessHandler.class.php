@@ -452,18 +452,17 @@ class UamAccessHandler
     }
     
     /**
-     * Checks the user access by user level.
+     * Return the role of the user.
      * 
-     * @return boolean
+     * @param integer $userId The user id.
+     * 
+     * @return string|null
      */
-    public function checkUserAccess()
+    private function _getUserRole($userId)
     {
-        global $current_user, $wpdb;
-        //Force user infos
-        wp_get_current_user();
+        global $wpdb;
         
-        $uamOptions = $this->getUserAccessManager()->getAdminOptions();
-        $curUserdata = get_userdata($current_user->ID);
+        $curUserdata = get_userdata($userId);
         
         if (!isset($curUserdata->user_level)) {
             $curUserdata->user_level = null;
@@ -475,11 +474,46 @@ class UamAccessHandler
             $capabilities = null;
         }
         
-        $role  = is_array($capabilities) ? 
+        $role = is_array($capabilities) ? 
             array_keys($capabilities) : array('norole');
             
-        $role = trim($role[0]);
+        return trim($role[0]);
+    }
+    
+    /**
+     * Checks if the user is an admin user
+     * 
+     * @param integer $userId The user id.
+     * 
+     * @return boolean
+     */
+    public function userIsAdmin($userId)
+    {
+        $role = $this->_getUserRole($userId);
         
+        if ($role == 'administrator'
+            || is_super_admin($userId)
+        ) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Checks the user access by user level.
+     * 
+     * @return boolean
+     */
+    public function checkUserAccess()
+    {
+        global $current_user;
+        //Force user infos
+        wp_get_current_user();
+        
+        $uamOptions = $this->getUserAccessManager()->getAdminOptions();
+        
+        $role = $this->_getUserRole($current_user->ID);
         $orderedRoles = $this->getRolesOrdered();
         
         if ($orderedRoles[$role] >= $orderedRoles[$uamOptions['full_access_role']]
@@ -523,6 +557,7 @@ class UamAccessHandler
         if (!isset($object['name'])
             || !isset($object['reference'])
             || !isset($object['getFull'])
+            || !isset($object['getFullObjects'])
         ) {
             return false;
         }

@@ -15,8 +15,6 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-$objectId = $id;
-$objectType = 'user';
 global $userAccessManager;
 
 $uamUserGroups 
@@ -45,9 +43,7 @@ if ($uamUserGroups != Array()) {
 } else {
     global $wpdb;
     
-    $userData = get_userdata($id);
-    
-    if (empty($userData->{$wpdb->prefix . "capabilities"}['administrator'])) {
+    if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
         echo TXT_NONE;
     } else {
         echo TXT_ADMIN_HINT;

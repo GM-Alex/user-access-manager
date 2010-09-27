@@ -43,7 +43,7 @@ if (isset($_GET['user_id'])) {
 			<td>
 				<ul>
 <?php
-if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
+if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
     if (isset($uamUserGroups)) {
         foreach ($uamUserGroups as $uamUserGroup) {
             ?>

@@ -15,13 +15,9 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-if (isset($post->ID)) {
-    $objectId = $post->ID;
-} elseif (isset($id)) {
-    $objectId = $id;
-} elseif (isset($_GET['attachment_id'])) {
+if (isset($_GET['attachment_id'])) {
     $objectId = $_GET['attachment_id'];
-} else {
+} elseif (!isset($objectId)) {
     $objectId = 0;
 }
 

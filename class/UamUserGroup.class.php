@@ -618,7 +618,12 @@ class UamUserGroup
             } elseif ($objectType == 'user') {
                  $this->objects[$objectType][$type] = $this->getFullUsers();
             } else {
-                //TODO
+                $plObject = $this->getAccessHandler()->getPlObject($objectType);
+                $this->objects[$objectType][$type] 
+                    = $plObject['reference']->{$plObject['getFullObjects']}(
+                        $this->objects[$objectType][$type],
+                        &$this
+                    );
             }
         }
         
@@ -916,16 +921,16 @@ class UamUserGroup
     /**
      * Returns a the recursive membership for a pluggable object.
      * 
-     * @param string  $objectName The pluggable object name.
+     * @param string  $objectType The pluggable object type.
      * @param integer $objectId   The object id.
      * 
      * @return array
      */
-    private function _getFullPlObject($objectName, $objectId)
+    private function _getFullPlObject($objectType, $objectId)
     {
         $isRecursiveMember = array();
         
-        $plObject = $this->getAccessHandler()->getPlObject($objectName);
+        $plObject = $this->getAccessHandler()->getPlObject($objectType);
         $plRecMember = $plObject['reference']->{$plObject['getFull']}($objectId, &$this);
         
         if (is_array($plRecMember)) {

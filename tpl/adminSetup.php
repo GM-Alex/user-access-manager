@@ -14,14 +14,32 @@
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+global $userAccessManager;
 
 if (isset($_POST['action'])) {
-    $post_action = $_POST['action'];
+    $postAction = $_POST['action'];
 } else {
-    $post_action = null;
+    $postAction = null;
 }
 
-if ($post_action == 'reset_uam') {
+if ($postAction == 'update_db') {
+    if (isset($_POST['uam_update_db'])) {
+        $update = $_POST['uam_update_db'];
+    } else {
+        $update = null;
+    }
+    
+    if ($update == 'true') {
+        $userAccessManager->update();
+        ?>
+    	<div class="updated">
+    		<p><strong><?php echo TXT_UAM_DB_UPDATE_SUC; ?></strong></p>
+    	</div>
+    	<?php
+    }
+}
+
+if ($postAction == 'reset_uam') {
     if (isset($_POST['uam_reset'])) {
         $reset = $_POST['uam_reset'];
     } else {
@@ -41,15 +59,15 @@ if ($post_action == 'reset_uam') {
 }
 ?>
 
-<div class="wrap">
-    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
-    	<input type="hidden" value="reset_uam" name="action" />
-        <h2><?php echo TXT_SETUP; ?></h2>
-        <table class="form-table">
-        	<tbody>
-        		<tr valign="top">
-        			<th scope="row"><?php echo TXT_RESET_UAM; ?></th>
-        			<td>
+<div class="wrap"> 
+    <h2><?php echo TXT_SETUP; ?></h2>
+    <table class="form-table">
+    	<tbody>
+    		<tr valign="top">
+    			<th scope="row"><?php echo TXT_RESET_UAM; ?></th>
+    			<td>
+        			<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+    					<input type="hidden" value="reset_uam" name="action" />
         				<label for="uam_reset_yes"> 
         					<input type="radio" id="uam_reset_yes" class="uam_reset_yes" name="uam_reset" value="true" /> 
         					<?php echo TXT_YES; ?> 
@@ -62,9 +80,35 @@ if ($post_action == 'reset_uam') {
         				<p style="color: red; font-size: 12px; font-weight: bold;">
         				    <?php echo TXT_RESET_UAM_DESC; ?>
         				</p>
-        			</td>
+        			</form>
+    			</td>
+    		</tr>
+    		<?php 
+if ($userAccessManager->isDatabaseUpdateNecessary()) {
+        		?>
+        		<tr valign="top">
+        			<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+    					<input type="hidden" value="update_db" name="action" />
+            			<th scope="row"><?php echo TXT_UPDATE_UAM_DB; ?></th>
+            			<td>
+            				<label for="uam_update_db_yes"> 
+            					<input type="radio" id="uam_update_db_yes" class="uam_reset_yes" name="uam_update_db" value="true" /> 
+            					<?php echo TXT_YES; ?> 
+            				</label>&nbsp;&nbsp;&nbsp;&nbsp;
+            				<label for="uam_update_db_no"> 
+            					<input type="radio" id="uam_update_db_no" class="uam_reset_no" name="uam_update_db" value="false" checked="checked" /> 
+            					<?php echo TXT_NO; ?> 
+            				</label>&nbsp;&nbsp;&nbsp;&nbsp;
+            				<input type="submit" class="button" name="uam_update_db_submit" value="<?php echo TXT_UPDATE; ?>" /> <br />
+            				<p style="color: red; font-size: 12px; font-weight: bold;">
+            				    <?php echo TXT_UPDATE_UAM_DB_DESC; ?>
+            				</p>
+            			</td>
+            		</form>
         		</tr>
-        	</tbody>
-        </table>
-    </form>
+        		<?php 
+}
+        	?>
+    	</tbody>
+    </table>
 </div>

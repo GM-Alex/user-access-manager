@@ -96,6 +96,17 @@ class UserAccessManager
     }
     
     /**
+     * Checks if a database update is necessary.
+     * 
+     * @return boolean
+     */
+    public function isDatabaseUpdateNecessary()
+    {
+        $currentDbVersion = get_option("uam_db_version");
+        return version_compare($currentDbVersion, $this->uamDbVersion, '<');
+    }
+    
+    /**
      * Updates the user access manager if an old version was installed.
      * 
      * @return null;
@@ -120,7 +131,7 @@ class UserAccessManager
         	LIKE '" . DB_ACCESSGROUP . "'"
         );
         
-        if ($currentDbVersion != $this->uamDbVersion) {
+        if ($currentDbVersion < $this->uamDbVersion) {
             if ($currentDbVersion == 1.0) {
                 if ($dbUserGroup == DB_ACCESSGROUP) {
                     $wpdb->query(
@@ -149,7 +160,11 @@ class UserAccessManager
                         );
                     }
                 }
-            } elseif ($currentDbVersion == 1.1) {
+                
+                $currentDbVersion = 1.1;
+            } 
+            
+            if ($currentDbVersion == 1.1) {
                 define('DB_ACCESSGROUP_TO_POST', $wpdb->prefix . 'uam_accessgroup_to_post');
                 define('DB_ACCESSGROUP_TO_USER', $wpdb->prefix . 'uam_accessgroup_to_user');
                 define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix . 'uam_accessgroup_to_category');
@@ -289,9 +304,7 @@ class UserAccessManager
         }
         
         if ($dir !== null) {   
-            $permaStruc = get_option('permalink_structure');
-            
-            if (empty($permaStruc)) {
+            if (!$this->isPermalinksActive()) {
                 $areaname = "WP-Files";
                 $uamOptions = $this->getAdminOptions();
                 
@@ -337,7 +350,7 @@ class UserAccessManager
                 $htaccessTxt .= "RewriteBase ".$homeRoot."\n";
                 $htaccessTxt .= "RewriteRule ^index\.php$ - [L]\n";
                 $htaccessTxt .= "RewriteRule (.*) ";
-                $htaccessTxt .= $homeRoot."index.php?getfile=$1 [L]\n";
+                $htaccessTxt .= $homeRoot."index.php?uamfiletype=attachment&uamgetfile=$1 [L]\n";
                 $htaccessTxt .= "</IfModule>\n";
             }
             
@@ -557,12 +570,13 @@ class UserAccessManager
     /**
      * Retruns the content of the excecuded php file.
      * 
-     * @param string  $fileName The file name
-     * @param integer $id       The id if needed.
+     * @param string  $fileName   The file name
+     * @param integer $objectId   The id if needed.
+     * @param string  $objectType The object type if needed.
      * 
      * @return string
      */
-    public function getIncludeContents($fileName, $id = null) 
+    public function getIncludeContents($fileName, $objectId = null, $objectType = null) 
     {
         if (is_file($fileName)) {
             ob_start();
@@ -824,7 +838,13 @@ class UserAccessManager
     public function addPostColumn($columnName, $id)
     {
         if ($columnName == 'uam_access') {
-            echo $this->getIncludeContents(UAM_REALPATH.'tpl/postColumn.php', $id);
+            $post = get_post($id);
+            
+            echo $this->getIncludeContents(
+                UAM_REALPATH.'tpl/objectColumn.php', 
+                $post->ID, 
+                $post->post_type
+            );
         }
     }
     
@@ -837,6 +857,8 @@ class UserAccessManager
      */
     public function editPostContent($post)
     {
+        $objectId = $post->ID;
+        
         include UAM_REALPATH.'tpl/postEditForm.php';
     }
     
@@ -956,7 +978,8 @@ class UserAccessManager
         if ($columnName == 'uam_access') {
             return $this->getIncludeContents(
                 UAM_REALPATH.'tpl/userColumn.php', 
-                $id
+                $id,
+                'user'
             );
         }
     }
@@ -1031,8 +1054,9 @@ class UserAccessManager
     {
         if ($columnName == 'uam_access') {
             return $this->getIncludeContents(
-                UAM_REALPATH.'tpl/categoryColumn.php', 
-                $id
+                UAM_REALPATH.'tpl/objectColumn.php', 
+                $id,
+                'category'
             );
         }
     }
@@ -1150,6 +1174,19 @@ class UserAccessManager
      */
     
     /**
+     * Manipulates the wordpress query object to filter content.
+     * 
+     * @param object $wpQuery The wordpress query object.
+     * 
+     * @return null
+     */
+    public function parseQuery($wpQuery)
+    {
+        $wpQuery->query_vars['post__not_in'] 
+            += $this->_getExcludedPosts();
+    }
+    
+    /**
      * Modifies the content of the post by the given settings.
      * 
      * @param object $post The current post.
@@ -1256,11 +1293,15 @@ class UserAccessManager
      */
     private function _getExcludedPosts()
     {
+        $uamAccessHandler = &$this->getAccessHandler();
+        
+        if ($uamAccessHandler->checkUserAccess()) {
+            return array();
+        }
+        
         global $current_user, $wpdb;
         //Force user infos
         wp_get_current_user();
-        
-        $uamAccessHandler = &$this->getAccessHandler();
         
         $userUserGroups = $uamAccessHandler->getUserGroupsForObject(
             'user',
@@ -1343,11 +1384,12 @@ class UserAccessManager
         if ($uamOptions['hide_post'] == 'true'
             && !$uamAccessHandler->checkUserAccess()
         ) {
+            global $wpdb;
             $excludedPosts = $this->_getExcludedPosts();
             
             if (count($excludedPosts) > 0) {
                 $excludedPostsStr = implode(",", $excludedPosts);
-                $sql .= " AND wp_posts.ID NOT IN($excludedPostsStr) ";
+                $sql .= " AND $wpdb->posts.ID NOT IN($excludedPostsStr) ";
             }
         }
         
@@ -1635,7 +1677,9 @@ class UserAccessManager
                 
                 $post = get_post($postId);
                 
-                if (count($uamAccessHandler->getUserGroupsForObject($post->post_type, $post->ID)) > 0) {
+                if ($uamAccessHandler->userIsAdmin($current_user->ID)
+                    && count($uamAccessHandler->getUserGroupsForObject($post->post_type, $post->ID)) > 0
+                ) {
                     $output .= $uamOptions['blog_admin_hint_text'];
                 }
             }
@@ -1690,6 +1734,22 @@ class UserAccessManager
      */
     
     /**
+     * Returns ture if permalinks are active otherwise false.
+     * 
+     * @return boolean
+     */
+    public function isPermalinksActive()
+    {
+        $permaStruc = get_option('permalink_structure');
+            
+        if (empty($permaStruc)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+    /**
      * Redirects to a page or to content.
      *  
      * @param string $headers    The headers which are given from wordpress.
@@ -1701,43 +1761,35 @@ class UserAccessManager
     {
         $uamOptions = $this->getAdminOptions();
         
-        if (isset($_GET['getfile'])) {
-            $fileUrl = $_GET['getfile'];
-        }
-        
-        $object = null;
-        
-        if (isset($pageParams->query_vars['p'])) {
-            $object = get_post($pageParams->query_vars['p']);
-            $objectType = $object->post_type;
-            $objectId = $object->ID;
-        } elseif (isset($pageParams->query_vars['page_id'])) {
-            $object = get_post($pageParams->query_vars['page_id']);
-            $objectType = $object->post_type;
-            $objectId = $object->ID;
-        } elseif (isset($pageParams->query_vars['cat_id'])) {
-            $object = get_category($pageParams->query_vars['cat_id']);
-            $objectType = 'category';
-            $objectId = $object->term_id;
-        }
-        
-        if (($object === null
-            ||$object !== null
-            && !$this->getAccessHandler()->checkObjectAccess($objectType, $objectId))
-            && $uamOptions['redirect'] != 'false' 
-            && !$this->atAdminPanel
-            && !isset($fileUrl)
+        if (isset($_GET['uamgetfile'])
+            && isset($_GET['uamfiletype'])
         ) {
-            $this->redirectUser($object);
-        } elseif (isset($fileUrl)) {
-            $permaStruc = get_option('permalink_structure');
-            
-            if (!empty($permaStruc)) {
-                $uploadDir = wp_upload_dir();
-                $fileUrl = $uploadDir['baseurl'].'/'.$fileUrl;
+            $fileUrl = $_GET['uamgetfile'];
+            $fileType = $_GET['uamfiletype'];
+            $this->getFile($fileType, $fileUrl);
+        } elseif (!$this->atAdminPanel && $uamOptions['redirect'] != 'false') {
+            $object = null;
+        
+            if (isset($pageParams->query_vars['p'])) {
+                $object = get_post($pageParams->query_vars['p']);
+                $objectType = $object->post_type;
+                $objectId = $object->ID;
+            } elseif (isset($pageParams->query_vars['page_id'])) {
+                $object = get_post($pageParams->query_vars['page_id']);
+                $objectType = $object->post_type;
+                $objectId = $object->ID;
+            } elseif (isset($pageParams->query_vars['cat_id'])) {
+                $object = get_category($pageParams->query_vars['cat_id']);
+                $objectType = 'category';
+                $objectId = $object->term_id;
             }
             
-            $this->getFile($fileUrl);
+            if ($object === null
+                ||$object !== null
+                && !$this->getAccessHandler()->checkObjectAccess($objectType, $objectId)
+            ) {
+                $this->redirectUser($object);
+            }
         }
     }
     
@@ -1788,30 +1840,24 @@ class UserAccessManager
     /**
      * Delivers the content of the requestet file.
      * 
-     * @param string $url The file url.
+     * @param string $objectType The type of the requested file.
+     * @param string $objectUrl  The file url.
      * 
      * @return null
      */
-    public function getFile($url) 
+    public function getFile($objectType, $objectUrl) 
     {
-        $post = get_post($this->getPostIdByUrl($url));
+        $object = $this->_getFileSettingsByType($objectType, $objectUrl);
 
-        if ($post !== null) {
-            $file = null;
-        } else {
+        if ($object === null) {
             return null;
         }
         
-        if ($post->post_type == 'attachment' 
-            && $this->getAccessHandler()->checkObjectAccess($post->post_type, $post->ID)
-        ) {
-            $uploadDir = wp_upload_dir();
-            $file = $uploadDir['basedir'].str_replace(
-                $uploadDir['baseurl'], 
-                '', 
-                $url
-            );
-        } else if (wp_attachment_is_image($post->ID)) {
+        $file = null;
+        
+        if ($this->getAccessHandler()->checkObjectAccess($object->type, $object->id)) {
+            $file = $object->file;
+        } elseif ($object->isImage) {
     		$file = UAM_REALPATH.'gfx/noAccessPic.png';
         } else {
             wp_die(TXT_NO_RIGHTS);
@@ -1819,13 +1865,25 @@ class UserAccessManager
         
         //Deliver content
         if (file_exists($file)) {
-            $uamOptions = $this->getAdminOptions();
             $fileName = basename($file);
             
-            header('Content-Description: File Transfer');
-            header('Content-Type: '.$post->post_mime_type);
+            /*
+             * This only for compatibility
+             * mime_content_type has been deprecated as the PECL extension Fileinfo 
+             * provides the same functionality (and more) in a much cleaner way.
+             */
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME);
+                $fileMimeType = finfo_file($finfo, $file);
+                finfo_close($finfo);
+            } else {
+                $fileMimeType = mime_content_type($file);
+            }
             
-            if (!wp_attachment_is_image($post->ID)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: '.$fileMimeType);
+            
+            if (!$object->isImage) {
                 $baseName = str_replace(' ', '_', basename($file));
                 
                 header('Content-Disposition: attachment; filename="'.$baseName.'"');
@@ -1834,8 +1892,10 @@ class UserAccessManager
             header('Content-Transfer-Encoding: binary');
             header('Content-Length: '.filesize($file));
 
+            $uamOptions = $this->getAdminOptions();
+            
             if ($uamOptions['download_type'] == 'fopen'
-                && !wp_attachment_is_image($post->ID)
+                && !$objectIsImage
             ) {
                 $fp = fopen($file, 'r');
                 
@@ -1862,6 +1922,55 @@ class UserAccessManager
     }
     
     /**
+     * Returns the file object by the given type and url.
+     * 
+     * @param string $objectType The type of the requested file.
+     * @param string $objectUrl  The file url.
+     * 
+     * @return object|null
+     */
+    private function _getFileSettingsByType($objectType, $objectUrl)
+    {
+        $object = null;
+
+        if ($objectType == 'attachment') {
+            $uploadDir = wp_upload_dir();
+
+            if ($this->isPermalinksActive()) {
+                $objectUrl = $uploadDir['baseurl'].'/'.$objectUrl;
+            }
+            
+            $post = get_post($this->getPostIdByUrl($objectUrl));
+    
+            if ($post !== null
+                && $post->post_type == 'attachment' 
+            ) {
+                $object->id = $post->ID;
+                $object->isImage = wp_attachment_is_image($post->ID);
+                $object->type = $objectType;
+
+                $object->file = $uploadDir['basedir'].str_replace(
+                    $uploadDir['baseurl'], 
+                    '', 
+                    $objectUrl
+                );
+            }
+        } else {
+            $plObject = $this->getAccessHandler()->getPlObject($objectType);
+            
+            if (isset($plObject)
+                && isset($plObject['getFileObject'])
+            ) {
+                $object = $plObject['reference']->{$plObject['getFileObject']}(
+                    $objectUrl
+                );
+            }
+        }
+        
+        return $object;
+    }
+    
+    /**
      * Returns the url for a locked file.
      * 
      * @param string  $url The base url.
@@ -1872,9 +1981,8 @@ class UserAccessManager
     public function getFileUrl($url, $id)
     {
         $uamOptions = $this->getAdminOptions();
-        $permaStruc = get_option('permalink_structure');
             
-        if (empty($permaStruc)
+        if (!$this->isPermalinksActive()
             && $uamOptions['lock_file'] == 'true'
         ) {
             $post = &get_post($id);
@@ -1887,10 +1995,10 @@ class UserAccessManager
                 $uamOptions['locked_file_types']
             );
             
-            if (in_array($type, $fileTypes) 
-                || $uamOptions['lock_file_types'] == 'all'
+            if ($uamOptions['lock_file_types'] == 'all'
+                || in_array($type, $fileTypes) 
             ) {
-                $url = home_url('/').'?getfile='.$url;
+                $url = home_url('/').'?uamfiletype=attachment&uamgetfile='.$url;
             }
         }
         
@@ -1933,12 +2041,11 @@ class UserAccessManager
         	"SELECT ID
 			FROM ".$wpdb->prefix."posts
 			WHERE guid = '" . $newUrl . "'
-			LIMIT 1", 
-            ARRAY_A
+			LIMIT 1"
         );
         
         if ($dbPost) {
-            return $dbPost['ID'];
+            return $dbPost->ID;
         }
         
         return null;
