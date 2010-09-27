@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.0
-Stable tag: 1.0.2
+Stable tag: 1.1
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -33,6 +33,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 * Multilanguage support
 * Also proteced your rss feeds
 * Give access by IP-address
+* Plugin-Api to use the User Access Manager in your on plugins or extend other plugins
 
 <em>Included languages</em>
 
@@ -40,6 +41,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 * German
 * Czech, based on 0.7.0.1. Thanks to Huska
 * French, based on 0.8.0.2. Thanks to macbidule
+* Hungary, based on 1.0.2. Thanks to Zina
 
 For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com). To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
@@ -57,9 +59,15 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.1			2010/0?/??	Add plugin api
+    1.1			2010/09/28	Add plugin api
+    						Optimized code
+    						Improve content filtering
     						Fix bug that user groups can't removed from element
     						Fix empty category bug
+    						Fix pre/next post bug
+    						Fix login form bug
+    						Fix redirect bug
+    						Fix some other small bugs
     
     1.0.2		2010/07/24	Remove debugging code
     						Fix file download bug

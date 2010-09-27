@@ -39,8 +39,7 @@
         		<p>
         		    <strong><?php echo TXT_SPECIAL_THANKS; ?></strong><br/>
         		    <br/>
-        		    <?php echo TXT_THANKS_TO; ?><br/> 
-        			J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, <?php echo TXT_THANKS_OTHERS; ?>.
+        		    <?php echo TXT_THANKS_TO; ?> Ron Harding, Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, <?php echo TXT_THANKS_OTHERS; ?>.
         		</p>
         	</div>
         </div>

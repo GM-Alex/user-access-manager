@@ -15,11 +15,10 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-$objectId = $id;
 global $userAccessManager;
 
 $uamUserGroups 
-    = $userAccessManager->getAccessHandler()->getUsergroupsForUser($objectId);
+    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
 $userGroupsForObject = &$uamUserGroups;
 
 if ($uamUserGroups != Array()) {
@@ -33,7 +32,6 @@ if ($uamUserGroups != Array()) {
     		    <?php echo $uamUserGroup->getGroupName(); ?>
     		</a>
         <?php
-        $type = 'user'; 
         include 'groupInfo.php';
         ?> 
         </li>
@@ -45,9 +43,7 @@ if ($uamUserGroups != Array()) {
 } else {
     global $wpdb;
     
-    $userData = get_userdata($id);
-    
-    if (empty($userData->{$wpdb->prefix . "capabilities"}['administrator'])) {
+    if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
         echo TXT_NONE;
     } else {
         echo TXT_ADMIN_HINT;

@@ -16,16 +16,18 @@
  */
 
 global $userAccessManager;
-$uamUserGroups 
-    = &$userAccessManager->getAccessHandler()->getUserGroups();
+$uamUserGroups = $userAccessManager->getAccessHandler()->getUserGroups();
 
-$objectId = null;    
+$objectId = null;
+$objectType = 'category';
 
 if (isset($_GET['tag_ID'])) {
     $objectId = $_GET['tag_ID'];
     
-    $userGroupsForObject 
-        = &$userAccessManager->getAccessHandler()->getUserGroupsForCategory($objectId);
+    $userGroupsForObject = $userAccessManager->getAccessHandler()->getUserGroupsForObject(
+        $objectType, 
+        $objectId
+    );
 } else {
     $userGroupsForObject = array();
 }
@@ -40,7 +42,6 @@ if (isset($_GET['tag_ID'])) {
 			<td>
 <?php
 if (count($uamUserGroups) > 0) {
-    $type = 'category';
 	include 'groupSelectionForm.php';
 } elseif ($userAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>

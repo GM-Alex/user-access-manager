@@ -28,7 +28,7 @@ function insertUpdateGroup($userGroupId)
     
     if ($userGroupId != null) {
         $uamUserGroup 
-            = &$userAccessManager->getAccessHandler()->getUserGroups($userGroupId);
+            = $userAccessManager->getAccessHandler()->getUserGroups($userGroupId);
     } else {
         $uamUserGroup 
             = new UamUserGroup($userAccessManager->getAccessHandler(), null);
@@ -46,11 +46,11 @@ function insertUpdateGroup($userGroupId)
         $roles = null;
     }
 
-    $uamUserGroup->unsetRoles(true);
+    $uamUserGroup->unsetObjects('role', true);
     
     if ($roles) {
         foreach ($roles as $role) {
-            $uamUserGroup->addRole($role);
+            $uamUserGroup->addObject('role', $role);
         }
     }
     
@@ -69,7 +69,7 @@ function insertUpdateGroup($userGroupId)
 function getPrintEditGroup($groupId = null)
 {
     global $userAccessManager;
-    $uamUserGroup = &$userAccessManager->getAccessHandler()->getUserGroups($groupId);
+    $uamUserGroup = $userAccessManager->getAccessHandler()->getUserGroups($groupId);
     ?>
 	<form method="post" action="<?php 
 	    echo reset(
@@ -190,7 +190,7 @@ function getPrintEditGroup($groupId = null)
     global $wp_roles;
     
     if (isset($groupId)) {
-        $groupRoles = $uamUserGroup->getRoles();
+        $groupRoles = $uamUserGroup->getObjectsFromType('role');
     }
     
     foreach ($wp_roles->role_names as $role => $name) {
@@ -254,6 +254,7 @@ if ($postAction == 'delgroup') {
     if (isset($_POST['delete'])) {
         $delIds = $_POST['delete'];
     }
+    
     if (isset($delIds)) {
         global $userAccessManager;
         
@@ -331,7 +332,7 @@ if (!$editGroup) {
     }
     
     global $userAccessManager;
-    $uamUserGroups = &$userAccessManager->getAccessHandler()->getUserGroups();
+    $uamUserGroups = $userAccessManager->getAccessHandler()->getUserGroups();
     
     if (isset($uamUserGroups)) {
         foreach ($uamUserGroups as $uamUserGroup) {
@@ -368,15 +369,15 @@ if (!$editGroup) {
                 	</td>
                 	        			<td>
     		<?php
-            if ($uamUserGroup->getRoles()) {
+            if ($uamUserGroup->getObjectsFromType('role')) {
                 ?>
                 		<ul>
                 <?php
-                foreach ($uamUserGroup->getRoles() as $role) {
+                foreach ($uamUserGroup->getObjectsFromType('role') as $key => $role) {
                     ?>
                 			<li>
                     <?php
-                    echo $role['role_name'];
+                    echo $key;
                     ?>
                 			</li>
                     <?php

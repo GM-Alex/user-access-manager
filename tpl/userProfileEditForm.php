@@ -16,15 +16,18 @@
  */
 
 global $userAccessManager, $wpdb;
-$uamUserGroups 
-    = &$userAccessManager->getAccessHandler()->getUserGroups();
+$uamUserGroups = &$userAccessManager->getAccessHandler()->getUserGroups();
+    
+$objectType = 'user';
 
 if (isset($_GET['user_id'])) {
     $objectId = $_GET['user_id'];
     $editUserData = get_userdata($objectId);
     
-    $userGroupsForObject 
-        = &$userAccessManager->getAccessHandler()->getUserGroupsForUser($objectId);
+    $userGroupsForObject = &$userAccessManager->getAccessHandler()->getUserGroupsForObject(
+        $objectType, 
+        $objectId
+    );
 } else {
     $userGroupsForObject = array();
 }
@@ -40,10 +43,8 @@ if (isset($_GET['user_id'])) {
 			<td>
 				<ul>
 <?php
-if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
+if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
     if (isset($uamUserGroups)) {
-        $type = 'user';
-        
         foreach ($uamUserGroups as $uamUserGroup) {
             ?>
 					<li>
@@ -53,14 +54,14 @@ if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
             if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
                 echo 'checked="checked"';
             }
-        	if (isset($userGroupsForObject['user'][$uamUserGroup->getId()]->setRecursive[$type][$objectId])) {
+        	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
         		echo 'disabled=""';
         	} 
             ?>
 							value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" /> 
 						<?php echo $uamUserGroup->getGroupName(); ?>
 			<?php
-			if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$type][$objectId])) {
+			if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
         		echo ' [LR]';
         	}
         	?>
@@ -68,7 +69,6 @@ if (empty($editUserData->{$wpdb->prefix . "capabilities"}['administrator'])) {
 						<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
 					
 			<?php
-			$type = 'user';
             include 'groupInfo.php';
             ?>
             		</li>

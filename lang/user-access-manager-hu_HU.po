@@ -1,0 +1,741 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: User Access Manager\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
+"POT-Creation-Date: 2010-07-24 14:07+0000\n"
+"PO-Revision-Date: 2010-09-04 20:02+0100\n"
+"Last-Translator: ZINA LEMMIKKI <zinadesigns@gmail.com>\n"
+"Language-Team: huuska <houska@seznam.cz>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Czech\n"
+"X-Poedit-Country: CZECH REPUBLIC\n"
+
+#: class/UserAccessManager.class.php:436
+#: class/UserAccessManager.class.php:449
+msgid "No rights!"
+msgstr "Nincs jog!"
+
+#: class/UserAccessManager.class.php:438
+msgid "Sorry you have no rights to view this post!"
+msgstr "A bejegyzés megtekintéséhez nincs jogosultsága!"
+
+#: class/UserAccessManager.class.php:444
+#: class/UserAccessManager.class.php:457
+msgid "Sorry no rights to view comments!"
+msgstr "A hozzászólások  megtekintéséhez nincs jogosultsága!"
+
+#: class/UserAccessManager.class.php:451
+msgid "Sorry you have no rights to view this page!"
+msgstr "Az oldal megtekintéséhez nincs jogosultsága!"
+
+#: class/UserAccessManager.class.php:674
+#: class/UserAccessManager.class.php:921
+msgid "Access"
+msgstr "Hozzáférés"
+
+#: class/UserAccessManager.class.php:826
+msgid "uam user groups"
+msgstr "Felhasználó csoportok"
+
+#: includes/language.define.php:19
+msgid "all"
+msgstr "mind"
+
+#: includes/language.define.php:20
+msgid "only group users"
+msgstr "csak a csoporttagok"
+
+#: includes/language.define.php:21
+msgid "Yes"
+msgstr "Igen"
+
+#: includes/language.define.php:22
+msgid "No"
+msgstr "Nem"
+
+#: includes/language.define.php:26
+msgid "Settings"
+msgstr "Beállítások"
+
+#: includes/language.define.php:29
+msgid "Post settings"
+msgstr "Bejegyzés beállítások"
+
+#: includes/language.define.php:30
+msgid "Set up the behaviour of locked posts"
+msgstr "Zárolt bejegyzések viselkedésének beállítása"
+
+#: includes/language.define.php:31
+msgid "Post title"
+msgstr "Bejegyzés címe"
+
+#: includes/language.define.php:32
+msgid "Displayed text as post title if user has no access"
+msgstr "Ez a szöveg jelenik meg a bejegyzés címe helyett, ha nincs hozzáférése a látogatónak"
+
+#: includes/language.define.php:33
+msgid "Hide post title"
+msgstr "Oldal címének elrejtése"
+
+#: includes/language.define.php:34
+#: includes/language.define.php:44
+#: includes/language.define.php:54
+#: includes/language.define.php:62
+#, php-format
+msgid "Selecting \"Yes\" will show the text which is defined at \"%s\" if user has no access."
+msgstr "Az \"Igen\" kiválasztásával a \"%s\" részben írt szöveg jelenik majd meg az oldal címe helyett."
+
+#: includes/language.define.php:35
+msgid "Post content"
+msgstr "Bejegyzés tartalma"
+
+#: includes/language.define.php:36
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single posts, otherwise a link will shown."
+msgstr "Ez a tartalom látszik, ha ahhoz nincs hozzáférése a látogatónak. A <b>[LOGIN_FORM]</b> elem hozzáadásával a fenti mezőbe megjeleníthető a bejelentkező form is."
+
+#: includes/language.define.php:37
+msgid "Show post content before &lt;!--more--&gt; tag"
+msgstr "A &lt;!--more--&gt; előtti szöveg mutatása"
+
+#: includes/language.define.php:38
+#, php-format
+msgid "Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at \"%s\". If no &lt;!--more--&gt; is set he defined text at \"%s\" will shown."
+msgstr "A &lt;!--more--&gt; tag előtti szöveget mutatja csak, utána pedig a \"%s\" részben megadott szöveg látszik. Ha nincs &lt;!--more--&gt; , akkor a teljes bejegyzés helyett a \"%s\"  szöveg látszik majd."
+
+#: includes/language.define.php:39
+msgid "Hide complete posts"
+msgstr "Teljes bejegyzések elrejtése"
+
+#: includes/language.define.php:40
+msgid "Selecting \"Yes\" will hide posts if the user has no access."
+msgstr "Az \"Igen\" kiválasztásával minden bejegyzés zárolásra kerül, és csak azok nézhetik meg, akiknek van hozzáférésük."
+
+#: includes/language.define.php:41
+msgid "Post comment text"
+msgstr "Hozzászólás szövege"
+
+#: includes/language.define.php:42
+msgid "Displayed text as post comment text if user has no access"
+msgstr "Ez a szöveg jelenik meg a hozzászólások helyett, ha nincs hozzáférése a látogatónak"
+
+#: includes/language.define.php:43
+msgid "Hide post comments"
+msgstr "Hozzászólások elrejtése bejegyzéseknél"
+
+#: includes/language.define.php:45
+msgid "Allow post comments"
+msgstr "Hozzászólások engedélyezése"
+
+#: includes/language.define.php:46
+msgid "Selecting \"yes\" allows users to comment on locked posts"
+msgstr "Az \"Igen\" kiválasztásával meg lehet engedni a hozzászólást a zárt bejegyzésekhez."
+
+#: includes/language.define.php:49
+msgid "Page settings"
+msgstr "Oldal beállítások"
+
+#: includes/language.define.php:50
+msgid "Set up the behaviour of locked pages"
+msgstr "A zárt oldalak viselkedésének beállítása"
+
+#: includes/language.define.php:51
+msgid "Page title"
+msgstr "Oldal címe"
+
+#: includes/language.define.php:52
+msgid "Displayed text as page title if user has no access"
+msgstr "Ez a szöveg jelenik meg az oldal címe helyett, ha ahhoz a felhasználónak nincs hozzáférése"
+
+#: includes/language.define.php:53
+msgid "Hide page title"
+msgstr "Oldal cím elrejtése"
+
+#: includes/language.define.php:55
+msgid "Page content"
+msgstr "Oldal tartalma"
+
+#: includes/language.define.php:56
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single pages, otherwise a link will shown."
+msgstr "A tartalom, ami akkor jelenik meg, ha a felhasználónak nincs hozzáférése. A <b>[LOGIN_FORM]</b> kódot ide beillesztve egy bejelentkező form is megjelenik majd a bejegyzés oldalon."
+
+#: includes/language.define.php:57
+msgid "Hide complete pages"
+msgstr "Teljes oldalak elrejtése"
+
+#: includes/language.define.php:58
+msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will also hide in the navigation."
+msgstr "Az \"Igen\" kiválasztásával az összes oldal alapértelmezetten védetté válik és a navigációt is elrejti."
+
+#: includes/language.define.php:59
+msgid "Page comment text"
+msgstr "Oldal hozzászólások szöveg"
+
+#: includes/language.define.php:60
+msgid "Displayed text as page comment text if user has no access"
+msgstr "Ha nincsenek hozzászólások engedélyezve az oldalon, ez a szöveg jelenik meg helyette."
+
+#: includes/language.define.php:61
+msgid "Hide page comments"
+msgstr "Oldal hozzászólás elrejtése"
+
+#: includes/language.define.php:63
+msgid "Allow page comments"
+msgstr "Oldal hozzászólások engedélyezése"
+
+#: includes/language.define.php:64
+msgid "Selecting \"yes\" allows users to comment on locked pages"
+msgstr "Az \"Igen\" kiválasztásával a felhasználók kommentezhetnek majd a lezárt bejegyzésekhez is"
+
+#: includes/language.define.php:67
+msgid "File settings"
+msgstr "Fájl beállítások"
+
+#: includes/language.define.php:68
+msgid "Set up the behaviour of files"
+msgstr "Fájlok viselkedésének beállítása"
+
+#: includes/language.define.php:69
+msgid "Lock files"
+msgstr "Fájlok zárolása"
+
+#: includes/language.define.php:70
+msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style=\"color:red;\">Note: If you activate this option the plugin will overwirte a '.htaccess' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>"
+msgstr "Ha az \"Igen\" opciót választod, akkor a fájlokat a .htaccess fájl fogja zárolni, és csak a megfelelő jogkörrel rendelkező felhasználók tudják majd letölteni. <br/><strong style=\"color:red;\">Figylem: Ennek az opciónak az aktiválásval a bővítmény újra fogja generálni a feltöltött '.htaccess' fájlt. Ha még nincsen a közvetlen linkek miatt elkészített .htaccess fájl, akkor az upload könyvtárat fogja egy véletlenszerűen generát jelszóval levédeni, és a korábban feltöltött fájlok nem fognak működni. Ekkor frissíteni kell a régebbi feltöltött fájlokat. (Ha már vannak közvetlen linkek beállítva, akkor ez nem szükséges.</strong>"
+
+#: includes/language.define.php:71
+msgid "Filetypes to lock: "
+msgstr "Zárolandó fájl típusok:"
+
+#: includes/language.define.php:72
+msgid "Filetypes not to lock: "
+msgstr "Nem zárolt fájl típusok:"
+
+#: includes/language.define.php:73
+msgid "Locked file types"
+msgstr "Zárt fájl típusok"
+
+#: includes/language.define.php:74
+msgid "Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <b>Note:</b> If you have no problems use all to get the maximum security."
+msgstr "Minden fájl zárolása, add meg azokat a fájl típusokat, amiket zárolni szeretnél, vagy azokat, amik épp hogy ne legyenek zárolva. <b>Megyjegyzés:</b> Ha nem okoz problémát, akkor az összeset zárold a teljes biztonság érdekében."
+
+#: includes/language.define.php:75
+msgid ".htaccess password"
+msgstr ".htaccess jelszó"
+
+#: includes/language.define.php:76
+msgid "Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files."
+msgstr "Állítsd be a jelszót a .htaccess hozzáféréséhez. Erre csak akkor van szükség, ha szeretnél közvetlen hozzáférést a fájlokhoz."
+
+#: includes/language.define.php:77
+msgid "Use a random generated pass word."
+msgstr "Véletlenszerűen generált jelszó használata."
+
+#: includes/language.define.php:78
+msgid "Use the password of the current logged in admin."
+msgstr "A jelenleg bejelentkezett admin jelszavának használata."
+
+#: includes/language.define.php:79
+msgid "Download type"
+msgstr "Letöltés típusa"
+
+#: includes/language.define.php:80
+msgid "Selecting the type for downloading. <strong>Note:</strong> For using fopen you need \"safe_mode = off\"."
+msgstr "Válassz típust a letöltéshez. <strong>Megjegyzés:</strong> Az fopen funkcióhoz az alábbi apache beállítás szükséges: \"safe_mode = off\"."
+
+#: includes/language.define.php:81
+msgid "Normal"
+msgstr "Normál"
+
+#: includes/language.define.php:82
+msgid "fopen"
+msgstr "fopen"
+
+#: includes/language.define.php:85
+msgid "Authors settings"
+msgstr "Szerzői beállítások"
+
+#: includes/language.define.php:86
+msgid "Here you will find the settings for authors"
+msgstr "Itt találod az szerzők beállításait"
+
+#: includes/language.define.php:87
+msgid "Authors always has access to own posts/pages"
+msgstr "A szerzőknek mindig legyen joga hozzáférni saját oldalaikhoz"
+
+#: includes/language.define.php:88
+msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
+msgstr "Az \"Igen\" kiválasztásával az adott bejegyzéshez vagy oldalhoz a szerzőjének automatikusan hozzáférést ad."
+
+#: includes/language.define.php:89
+msgid "Authors can add content to there own groups"
+msgstr "A szerzők hozzáfűzhetnek csoport josultságokat a tartalmaikhoz"
+
+#: includes/language.define.php:90
+msgid "If \"Yes\" is selected author are able to restrict the content by adding it to there groups."
+msgstr "Az \"Igen\" kiválasztásával a szerző a saját tartalmait (bejegyzés, oldal) levédheti, hozzáadhat csoportokat. "
+
+#: includes/language.define.php:91
+msgid "Minimum user role with full access"
+msgstr "Minimum jogkör a teljes hozzáféréshez"
+
+#: includes/language.define.php:92
+msgid "All user with a role equal or higher to this has full access."
+msgstr "Minden felhasználó, aki legalább ezzel a jogkörrel rendelkezik, mindenhez hozzá fog férni."
+
+#: includes/language.define.php:93
+msgid "Administrator"
+msgstr "Adminisztrátor"
+
+#: includes/language.define.php:94
+msgid "Editor"
+msgstr "Szerkesztő"
+
+#: includes/language.define.php:95
+msgid "Author"
+msgstr "Szerző"
+
+#: includes/language.define.php:96
+msgid "Contributor"
+msgstr "Közreműködő"
+
+#: includes/language.define.php:97
+msgid "Subscriber"
+msgstr "Feliratkozó"
+
+#: includes/language.define.php:100
+msgid "Other settings"
+msgstr "További beállítások"
+
+#: includes/language.define.php:101
+msgid "Here you will find all other settings"
+msgstr "Az egyéb beállítások találhatóak itt"
+
+#: includes/language.define.php:102
+msgid "Protect Feed"
+msgstr "RSS feed védelme"
+
+#: includes/language.define.php:103
+msgid "Selecting \"Yes\" will also protect your feed entries."
+msgstr "Az \"Igen\" kiválasztásával a bejegyzés feed nem lesz szabadon hozzáférhető."
+
+#: includes/language.define.php:104
+msgid "Hide empty categories"
+msgstr "Üres kategóriák elrejtése"
+
+#: includes/language.define.php:105
+msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
+msgstr "Az \"igen\" megjelölésével a rendszer nem fogja azon kategóriákat mutatni, amiben nincs bejegyzés, vagy mindegyik zárolt benne."
+
+#: includes/language.define.php:106
+msgid "Redirect user"
+msgstr "Felhasználó átirányítása"
+
+#: includes/language.define.php:107
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr "Ide irányítja át a rendszer a felhasználót, ha nincs hozzáférése az adott oldalhoz."
+
+#: includes/language.define.php:108
+msgid "To blog startpage"
+msgstr "Nyitólapra"
+
+#: includes/language.define.php:109
+msgid "Custom page: "
+msgstr "Erre az oldalra:"
+
+#: includes/language.define.php:110
+msgid "Custom URL: "
+msgstr "Erre a címre:"
+
+#: includes/language.define.php:111
+msgid "Lock recursive"
+msgstr "Rekurzív zárolás"
+
+#: includes/language.define.php:112
+msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgstr "A \"Igen\" kiválasztásával minden zárolt oldal alá tartozó többi oldal is zárolásra kerül. "
+
+#: includes/language.define.php:113
+msgid "Admin hint text"
+msgstr "Admin segítség szöveg"
+
+#: includes/language.define.php:114
+msgid "The text which will shown behinde the post/page."
+msgstr "Ez a szöveg fog látszani az oldal cím után."
+
+#: includes/language.define.php:115
+msgid "Show admin hint at Posts"
+msgstr "Admin segítség mutatása a címekben"
+
+#: includes/language.define.php:116
+#, php-format
+msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
+msgstr "Az \"Igen\" kiválasztásával a \"%s\" mezőben meghatározott szöveg jelenik meg az oldal vagy bejegyzés címe mellett akkor, ha az admin be van jelentkezve a zárolt oldalaknál."
+
+#: includes/language.define.php:119
+msgid "Update settings"
+msgstr "Beállítások frissítése"
+
+#: includes/language.define.php:120
+msgid "Settings updated."
+msgstr "Beállítások módosítva."
+
+#: includes/language.define.php:124
+msgid "Manage user user groups"
+msgstr "Felhasználó csoportok kezelése"
+
+#: includes/language.define.php:125
+msgid "Role affiliation"
+msgstr "Jogosultság hozzárendelés"
+
+#: includes/language.define.php:126
+msgid "Name"
+msgstr "Név"
+
+#: includes/language.define.php:127
+msgid "Description"
+msgstr "Leírás"
+
+#: includes/language.define.php:128
+#: includes/language.define.php:141
+msgid "Read access"
+msgstr "Olvasási jog"
+
+#: includes/language.define.php:129
+#: includes/language.define.php:143
+msgid "Write access"
+msgstr "Írási jog"
+
+#: includes/language.define.php:130
+msgid "Delete"
+msgstr "Törlés"
+
+#: includes/language.define.php:131
+msgid "Update group"
+msgstr "Csoport frissítése"
+
+#: includes/language.define.php:132
+msgid "Add"
+msgstr "Hozzáadás"
+
+#: includes/language.define.php:133
+msgid "Add user group"
+msgstr "Felhasználó csoport hozzáadása"
+
+#: includes/language.define.php:134
+msgid "Edit user group"
+msgstr "Felhasználó csoport szerkesztése"
+
+#: includes/language.define.php:135
+msgid "User group name"
+msgstr "Felhasználó csoport neve"
+
+#: includes/language.define.php:136
+msgid "The name is used to identify the access user group."
+msgstr "Ezzel a névvel lehet majd később beazonosítani a csoportot."
+
+#: includes/language.define.php:137
+msgid "User group description"
+msgstr "Felhasználó csoport leírása"
+
+#: includes/language.define.php:138
+msgid "The description of the group."
+msgstr "A csoport leírása"
+
+#: includes/language.define.php:139
+#: includes/language.define.php:150
+msgid "IP range"
+msgstr "IP tartomány"
+
+#: includes/language.define.php:140
+msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgstr "Itt egyes IP tartományban lévő felhasználóknak olyan jogot adhatunk, hogy be tudnak lépni bejelentkezés nélkül. Tartományokat a \"KEZDET\"-\"CÉG\" formában és azokat \";\"-vel elválasztva lehet megadni, de egyedüli IP címek is megadhatók. Példa: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+
+#: includes/language.define.php:142
+msgid "The read access."
+msgstr "Olvasási jogosultság"
+
+#: includes/language.define.php:144
+msgid "The write access."
+msgstr "Írási jogosultság."
+
+#: includes/language.define.php:145
+msgid "Group was added successfully."
+msgstr "A csoport sikeresen hozzáadva."
+
+#: includes/language.define.php:146
+msgid "Group name can not be empty."
+msgstr "A csoport neve nem lehet üres."
+
+#: includes/language.define.php:147
+msgid "Group(s) was deleted successfully."
+msgstr "A csoport sikeresen törlésre került."
+
+#: includes/language.define.php:148
+msgid "none"
+msgstr "nincs"
+
+#: includes/language.define.php:149
+msgid "User group edit successfully."
+msgstr "A csoport szerkesztése sikeres volt."
+
+#: includes/language.define.php:154
+msgid "Setup"
+msgstr "Visszaállítás"
+
+#: includes/language.define.php:155
+msgid "Reset User Access Manager"
+msgstr "Felhasználói jogkörök visszaállítása"
+
+#: includes/language.define.php:156
+msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
+msgstr "Figyelem: a beállítások visszaállítása nem csinálható vissza. Minden beállítás és csoport örökre elveszik."
+
+#: includes/language.define.php:157
+msgid "reset"
+msgstr "visszaállítás"
+
+#: includes/language.define.php:158
+msgid "User Access Manager was reset successfully"
+msgstr "A felhasználói jogkörök visszaállítása sikeres volt."
+
+#: includes/language.define.php:162
+msgid "About"
+msgstr "Segítség"
+
+#: includes/language.define.php:165
+msgid "How to support me?"
+msgstr "Segítség"
+
+#: includes/language.define.php:166
+msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
+msgstr "<strong>Küldd nekem el a felmerülő hibákat, kód módosításokat és ötleteket</strong><br/>Segíts a plugin fejlesztésében!"
+
+#: includes/language.define.php:167
+msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
+msgstr "<strong>Fordítsd le a plugint</strong><br/>A többi felhasználónak is sokat fogsz ebben segíteni!"
+
+#: includes/language.define.php:168
+msgid "<strong>Donate via paypal</strong>"
+msgstr "<strong>Küldj egy kis pénzt PayPal-on</strong>"
+
+#: includes/language.define.php:169
+msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
+msgstr "<strong>Helyezz el egy linket a weboldaladon.</strong>"
+
+#: includes/language.define.php:172
+msgid "Thanks"
+msgstr "Köszönet"
+
+#: includes/language.define.php:173
+msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
+msgstr "Különösen köszönöm a barátnőmnek, aki adott időt a plugin fejlesztésére."
+
+#: includes/language.define.php:174
+msgid "I would like to thank all the guys which has helped me with this plugin:"
+msgstr "Mindenkinek szeretnék segítséget mondani, akik segítettek a plugin fejlesztésében:"
+
+#: includes/language.define.php:175
+msgid "all beta testers and all others I forgot"
+msgstr "minden béta teszternek, és akikről elfelejtkeztem"
+
+#: includes/language.define.php:179
+msgid "Full access"
+msgstr "Teljes hozzáférés"
+
+#: includes/language.define.php:180
+msgid "Member of other user groups"
+msgstr "A többi felhasználó csoport tagjai"
+
+#: includes/language.define.php:181
+msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
+msgstr "<strong>Megjegyzés:</strong> Az adminisztrátoroknak minden oldalhoz van joga."
+
+#: includes/language.define.php:182
+msgid "Please create a user group first."
+msgstr "Először hozz létre egy felhasználó csoportot."
+
+#: includes/language.define.php:183
+msgid "No user group available."
+msgstr "Nincsenek felhasználói csoportok."
+
+#: includes/language.define.php:184
+msgid "You have no rights to access this content."
+msgstr "Nincs joga a tartalom megtekintéséhez."
+
+#: includes/language.define.php:185
+msgid "User Groups"
+msgstr "Felhasználó csoportok"
+
+#: includes/language.define.php:186
+msgid "Set up usergroups"
+msgstr "Csoportok beállítása"
+
+#: includes/language.define.php:190
+msgid "Info"
+msgstr "Info"
+
+#: includes/language.define.php:191
+msgid "Group infos"
+msgstr "Csoport infó"
+
+#: includes/language.define.php:192
+msgid "Group membership given by posts"
+msgstr "Csoporttagság bejegyzések alapján"
+
+#: includes/language.define.php:193
+msgid "Group membership given by categories"
+msgstr "Csoporttagság kategóriák alapján"
+
+#: includes/language.define.php:194
+msgid "Group membership given by role"
+msgstr "Csoporttagság felhasználói jogkör alapján"
+
+#: includes/language.define.php:195
+msgid "Assigned groups"
+msgstr "Hozzárendelt csoportok"
+
+#: includes/language.define.php:199
+msgid "Opening fileinfo database failed."
+msgstr "A fájlinformációs adatbázis megnyitása nem sikerült."
+
+#: includes/language.define.php:200
+msgid "Error: File not found."
+msgstr "HIBA: Nincs meg a fájl."
+
+#: tpl/loginBar.php:20
+#: tpl/loginBar.php:34
+msgid "Login"
+msgstr "Bejelentkezés"
+
+#: tpl/loginBar.php:28
+msgid "Username:"
+msgstr "Felhasználónév:"
+
+#: tpl/loginBar.php:30
+msgid "Password:"
+msgstr "Jelszó:"
+
+#: tpl/loginBar.php:33
+msgid "Remember me"
+msgstr "Emlékezz rám"
+
+#: tpl/loginBar.php:41
+msgid "Register"
+msgstr "Regisztráció"
+
+#: tpl/loginBar.php:45
+msgid "Password Lost and Found"
+msgstr "Elveszett jelszó"
+
+#: tpl/loginBar.php:45
+msgid "Lost your password?"
+msgstr "Elfelejtette jelszavát?"
+
+#. Plugin Name of the plugin/theme
+msgid "User Access Manager"
+msgstr "Jogosultságok"
+
+#. Plugin URI of the plugin/theme
+msgid "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+msgstr "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+
+#. Description of the plugin/theme
+msgid "Manage the access to your posts, pages, categories and files."
+msgstr "Hozzáférések kezelése a bejegyzésekhez, oldalakhoz, hozzászólásokhoz, fájlokhoz"
+
+#. Author of the plugin/theme
+msgid "Alexander Schneider"
+msgstr "Alexander Schneider"
+
+#. Author URI of the plugin/theme
+msgid "http://www.gm-alex.de/"
+msgstr "http://www.gm-alex.de/"
+
+#~ msgid "Content displayed if user has no access"
+#~ msgstr "Zobrazený obsah, pokud k nim nemá mít uživatel přístup."
+
+#~ msgid ""
+#~ "If you select \"Yes\" all files will locked by a .htaccess file and only "
+#~ "users with access can download files."
+#~ msgstr ""
+#~ "Volba \"Ano\" zamkne soubory pomocí  .htaccess souboru a jen uživatelé s "
+#~ "povoleným přístupem mohou spubory stáhnout."
+
+#~ msgid "Core modifications installed?"
+#~ msgstr "Je nainstalovaná modifikace jádra?"
+
+#~ msgid "If you installed the core modifications activated this option."
+#~ msgstr "Pokud máte nainstalovanou modifikaci jádra, akivujte tuto volbu"
+
+#~ msgid "Users"
+#~ msgstr "Uživatelé"
+
+#~ msgid "No group"
+#~ msgstr "Žádná skupina"
+
+#~ msgid "Set access"
+#~ msgstr "Nastav oprávnění"
+
+#~ msgid "Group access"
+#~ msgstr "Skupinový přístup"
+
+#~ msgid "Set post access"
+#~ msgstr "Nastav přístup k příspěvku"
+
+#~ msgid "Set page access"
+#~ msgstr "Nastav přístup ke stránce"
+
+#~ msgid "Set user access"
+#~ msgstr "nastav uživatelský přístup"
+
+#~ msgid "itself"
+#~ msgstr "samo"
+
+#~ msgid "Locked by"
+#~ msgstr "Zamčeno "
+
+#~ msgid "User is Admin. Full access."
+#~ msgstr "Uživatel je Administrator. Plný přístup."
+
+#~ msgid "expand"
+#~ msgstr "rozbal"
+
+#~ msgid "expand all"
+#~ msgstr "rozbal vše"
+
+#, fuzzy
+#~ msgid ""
+#~ "Manage the access to your posts and pages. <strong>Note:</strong> <em>If "
+#~ "you activate the plugin your upload dir will protect by a '.htaccess' "
+#~ "with a random password and all old downloads insert in a previous post/"
+#~ "page will not work anymore. You have to update your posts/pages. If you "
+#~ "use already a '.htaccess' file to protect your files the plugin will "
+#~ "<strong>overwrite</strong> the '.htaccess'. You can disabel the file "
+#~ "locking and set up an other password for the '.htaccess' file at the UAM "
+#~ "setting page.</em>"
+#~ msgstr ""
+#~ "Manage the access to your posts and pages. <strong>Note:</strong> <em>If "
+#~ "you activate the plugin your upload dir will protect by a '.htaccess' "
+#~ "with a random password and all old downloads insert in a previous post/"
+#~ "page will not work anymore. You have to update your posts/pages. If you "
+#~ "use already a '.htaccess' file to protect your files the plugin will not "
+#~ "overwrite the '.htaccess'.</em>"
+
+#~ msgid ""
+#~ "Type in file types which you will lock if the post/page is locked. "
+#~ "<b>Note:</b> If you use images, vids or something else in your posts "
+#~ "which are directly shown there and not for download do not type these "
+#~ "types in here, because this types will not work anymore."
+#~ msgstr ""
+#~ "Typy souborů, které budou zamčeny, pokud je jejich příspěvek/stránka "
+#~ "zamčena. <b>Poznámka:</b> Pokud budou obrázky, videa a ostatní soubory v "
+#~ "příspěvcích, které mají být zobrazeny a nejsou určeny pro stažení, nesmí "
+#~ "zde být uvedeny, jinak nebudou k dispozici."
+
+#~ msgid "Posts"
+#~ msgstr "Příspěvky"
+
+#~ msgid "Categories"
+#~ msgstr "Kategorie"

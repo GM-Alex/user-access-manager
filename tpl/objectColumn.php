@@ -1,6 +1,6 @@
 <?php
 /**
- * postColumn.php
+ * objectColumn.php
  * 
  * Shows the setup page at the admin panel.
  * 
@@ -15,14 +15,13 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-$objectId = $id;
 global $userAccessManager;
 
 $uamUserGroups 
-    = $userAccessManager->getAccessHandler()->getUsergroupsForPost($objectId);
+    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
 $userGroupsForObject = &$uamUserGroups;
 $uamUserGroupsFull
-    = $userAccessManager->getAccessHandler()->getUsergroupsForCategory($objectId, false);
+    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId, false);
 $groupDiff = count($uamUserGroupsFull) - count($uamUserGroups);
 
 if ($uamUserGroups != Array()) {
@@ -36,7 +35,6 @@ if ($uamUserGroups != Array()) {
     		    <?php echo $uamUserGroup->getGroupName(); ?>
     		</a>
         <?php
-        $type = 'post'; 
         include 'groupInfo.php';
         ?> 
         </li>

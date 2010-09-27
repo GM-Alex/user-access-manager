@@ -15,32 +15,28 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-if (isset($post->ID)) {
-    $objectId = $post->ID;
-} elseif (isset($id)) {
-    $objectId = $id;
-} elseif (isset($_GET['attachment_id'])) {
+if (isset($_GET['attachment_id'])) {
     $objectId = $_GET['attachment_id'];
-} else {
+} elseif (!isset($objectId)) {
     $objectId = 0;
 }
 
 $post = get_post($objectId);
+$objectType = $post->post_type;
 
 global $userAccessManager;
 
 $uamUserGroups 
     = &$userAccessManager->getAccessHandler()->getUserGroups();
 
-if (isset($post->ID)) {
+if (isset($objectId)) {
     $userGroupsForObject 
-        = &$userAccessManager->getAccessHandler()->getUserGroupsForPost($post->ID);
+        = &$userAccessManager->getAccessHandler()->getUserGroupsForObject($objectType, $objectId);
 } else {
     $userGroupsForObject = array();
 }
 
 if (count($uamUserGroups) > 0) {
-    $type = 'post';
 	include 'groupSelectionForm.php';
 } elseif ($userAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>
