@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: User Access Manager
  * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
