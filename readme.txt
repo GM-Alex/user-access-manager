@@ -59,6 +59,8 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    1.1.2       2010/09/29  Fix read/write access bug
+    
     1.1.1       2010/09/29  Fix custom menu bug
                             Fix quick edit bug
                             Fix undefined object bug
