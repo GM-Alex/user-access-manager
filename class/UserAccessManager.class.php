@@ -289,11 +289,12 @@ class UserAccessManager
     /**
      * Creates a htaccess file.
      * 
-     * @param string $dir The destination directory.
+     * @param string $dir        The destination directory.
+     * @param string $objectType The object type.
      * 
      * @return null.
      */
-    public function createHtaccess($dir = null)
+    public function createHtaccess($dir = null, $objectType = null)
     {
         if ($dir === null) {
             $wud = wp_upload_dir();
@@ -301,6 +302,10 @@ class UserAccessManager
             if (empty($wud['error'])) {
                 $dir = $wud['basedir'] . "/";
             }
+        }
+        
+        if ($objectType === null) {
+            $objectType = 'attachment';
         }
         
         if ($dir !== null) {   
@@ -350,12 +355,12 @@ class UserAccessManager
                 $htaccessTxt .= "RewriteBase ".$homeRoot."\n";
                 $htaccessTxt .= "RewriteRule ^index\.php$ - [L]\n";
                 $htaccessTxt .= "RewriteRule (.*) ";
-                $htaccessTxt .= $homeRoot."index.php?uamfiletype=attachment&uamgetfile=$1 [L]\n";
+                $htaccessTxt .= $homeRoot."index.php?uamfiletype=".$objectType."&uamgetfile=$1 [L]\n";
                 $htaccessTxt .= "</IfModule>\n";
             }
             
             // save files
-            $htaccess = fopen($dir . ".htaccess", "w");
+            $htaccess = fopen($dir.".htaccess", "w");
             fwrite($htaccess, $htaccessTxt);
             fclose($htaccess);
         }
@@ -372,6 +377,7 @@ class UserAccessManager
     public function createHtpasswd($createNew = false, $dir = null)
     {
         global $current_user;
+        
         $uamOptions = $this->getAdminOptions();
 
         // get url
@@ -386,7 +392,7 @@ class UserAccessManager
         if ($dir !== null) {
             $curUserdata = get_userdata($current_user->ID);
             
-            if (!file_exists($dir . ".htpasswd") || $createNew) {
+            if (!file_exists($dir.".htpasswd") || $createNew) {
                 if ($uamOptions['file_pass_type'] == 'random') {
                     $password = md5($this->getRandomPassword());
                 } elseif ($uamOptions['file_pass_type'] == 'admin') {
@@ -396,11 +402,11 @@ class UserAccessManager
                 $user = $curUserdata->user_login;
 
                 // make .htpasswd
-                $htpasswd_txt = "$user:" . $password . "\n";
-
+                $htpasswdTxt = "$user:" . $password . "\n";
+                
                 // save file
-                $htpasswd = fopen($dir . ".htpasswd", "w");
-                fwrite($htpasswd, $htpasswd_txt);
+                $htpasswd = fopen($dir.".htpasswd", "w");
+                fwrite($htpasswd, $htpasswdTxt);
                 fclose($htpasswd);
             }
         }
@@ -762,6 +768,7 @@ class UserAccessManager
     public function updatePermalink()
     {
         $this->createHtaccess();
+        $this->createHtpasswd();
     }
     
     /*
@@ -781,8 +788,9 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         $uamOptions = $this->getAdminOptions();
         
-        if ($uamAccessHandler->checkUserAccess()
-            || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
+        if (isset($_POST['uam_update_groups'])
+            && ($uamAccessHandler->checkUserAccess()
+            || $uamOptions['authors_can_add_posts_to_groups'] == 'true')
         ) {            
             $userGroupsForObject = $uamAccessHandler->getUserGroupsForObject(
                 $objectType, 
@@ -1110,14 +1118,14 @@ class UserAccessManager
     /**
      * The function for the pluggable save action.
      * 
-     * @param string  $objectName The name of the pluggable object.
+     * @param string  $objectType The name of the pluggable object.
      * @param integer $objectId   The pluggable object id.
      * 
      * @return null
      */
-    public function savePlObjectData($objectName, $objectId)
+    public function savePlObjectData($objectType, $objectId)
     {
-        $this->_saveObjectData($objectName, $objectId);
+        $this->_saveObjectData($objectType, $objectId);
     }
     
     /**
@@ -1168,6 +1176,23 @@ class UserAccessManager
         return '';
     }
     
+    /**
+     * Returns the column for a pluggable object.
+     * 
+     * @param string  $objectType The object type.
+     * @param integer $objectId   The object id.
+     * 
+     * @return string
+     */
+    public function getPlColumn($objectType, $objectId)
+    {
+        return $this->getIncludeContents(
+            UAM_REALPATH.'tpl/objectColumn.php', 
+            $objectId, 
+            $objectType
+        );
+    }
+    
     
     /*
      * Functions for the blog content.
@@ -1210,7 +1235,7 @@ class UserAccessManager
             || $this->atAdminPanel
         ) {
             if ($uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)) {
-                $post->post_title .= $this->adminOutput($post->ID);
+                $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
                 
                 return $post;
             }
@@ -1249,7 +1274,7 @@ class UserAccessManager
                 $post->post_content = $uamPostContent;
             }
             
-            $post->post_title .= $this->adminOutput($post->ID);
+            $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
             
             return $post;
         }
@@ -1418,7 +1443,9 @@ class UserAccessManager
                     if (isset($post->isLocked)) {
                         $item->title = $post->post_title;
                     }
-                        
+
+                    $item->title .= $this->adminOutput($item->object, $item->object_id);
+                    
                     $showItems[] = $item;
                 }
             } elseif ($item->object == 'category') {
@@ -1428,6 +1455,7 @@ class UserAccessManager
                 if ($category !== null
                     && !$category->isEmpty
                 ) {
+                    $item->title .= $this->adminOutput($item->object, $item->object_id);
                     $showItems[] = $item;
                 }
             } else {
@@ -1495,7 +1523,7 @@ class UserAccessManager
                 || $this->atAdminPanel
             ) {
                 if ($uamAccessHandler->checkObjectAccess($page->post_type, $page->ID)) {
-                    $page->post_title.= $this->adminOutput($page->ID);
+                    $page->post_title.= $this->adminOutput($page->post_type, $page->ID);
                     $showPages[] = $page;
                 }
             } else {
@@ -1507,7 +1535,7 @@ class UserAccessManager
                     $page->post_content = $uamOptions['page_content'];
                 }
                 
-                $page->post_title.= $this->adminOutput($page->ID);
+                $page->post_title .= $this->adminOutput($page->post_type, $page->ID);
                 $showPages[] = $page;
             }
         }
@@ -1530,6 +1558,8 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         
         $category->isEmpty = false;
+        
+        $category->name .= $this->adminOutput('category', $category->term_id);
         
         if ($uamAccessHandler->checkObjectAccess('category', $category->term_id)) {
             if ($this->atAdminPanel == false
@@ -1653,11 +1683,12 @@ class UserAccessManager
     /**
      * Returns the admin hint.
      * 
-     * @param integer $postId The post id we want to check.
+     * @param string  $objectType The object type.
+     * @param integer $objectId   The object id we want to check.
      * 
      * @return string
      */
-    public function adminOutput($postId)
+    public function adminOutput($objectType, $objectId)
     {
         $output = "";
         
@@ -1675,10 +1706,8 @@ class UserAccessManager
                 
                 $uamAccessHandler = &$this->getAccessHandler();
                 
-                $post = get_post($postId);
-                
                 if ($uamAccessHandler->userIsAdmin($current_user->ID)
-                    && count($uamAccessHandler->getUserGroupsForObject($post->post_type, $post->ID)) > 0
+                    && count($uamAccessHandler->getUserGroupsForObject($objectType, $objectId)) > 0
                 ) {
                     $output .= $uamOptions['blog_admin_hint_text'];
                 }

@@ -278,6 +278,10 @@ class UamAccessHandler
      */
     public function getUserGroupsForObject($objectType, $objectId, $filter = true)
     {
+        if (!in_array($objectType, $this->getAllObjectTypes())) {
+            return;
+        }
+        
         if ($objectType == 'user') {
             $filter = false;
         }
@@ -356,6 +360,10 @@ class UamAccessHandler
      */
     public function checkObjectAccess($objectType, $objectId)
     {
+        if (!in_array($objectType, $this->getAllObjectTypes())) {
+            return;
+        }
+        
         if (isset($this->objectAccess[$objectType][$objectId])) {
             return $this->objectAccess[$objectType][$objectId];  
         }

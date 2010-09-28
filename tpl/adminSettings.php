@@ -32,6 +32,8 @@ if (isset($_POST['update_uam_settings'])) {
         $userAccessManager->createHtaccess();
         $userAccessManager->createHtpasswd(true);
     }
+    
+    do_action('uam_update_options', $uamOptions);
     ?>
     <div class="updated">
     	<p><strong><?php echo TXT_UPDATE_SETTINGS; ?></strong></p>

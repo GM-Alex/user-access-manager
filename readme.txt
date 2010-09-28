@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.0
-Stable tag: 1.1
+Stable tag: 1.1.1
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -58,6 +58,11 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    1.1.1       2010/09/29  Fix custom menu bug
+                            Fix quick edit bug
+                            Fix undefined object bug
+                            Extend admin hint
     
     1.1			2010/09/28	Add plugin api
     						Optimized code

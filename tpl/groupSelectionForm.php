@@ -15,6 +15,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 ?>
+<input type="hidden" name="uam_update_groups" value="true" />
 <ul class="uam_group_selection">
 <?php
 foreach ($uamUserGroups as $uamUserGroup) {

@@ -338,9 +338,6 @@ class UamUserGroup
      */
     public function __call($name, $arguments)
     {
-        echo "NAME:".$name;
-        exit;
-        
         $uam = $this->getAccessHandler()->getUserAccessManager();
 
         $action = '';
@@ -425,6 +422,10 @@ class UamUserGroup
      */
     public function addObject($objectType, $objectId)
     {
+        if (!in_array($objectType, $this->getAllObjectTypes())) {
+            return;
+        }
+        
         $this->getAccessHandler()->unsetUserGroupsForObject();
         $this->getObjectsFromType($objectType);
         
@@ -447,6 +448,10 @@ class UamUserGroup
      */
     public function removeObject($objectType, $objectId)
     {
+        if (!in_array($objectType, $this->getAllObjectTypes())) {
+            return;
+        }
+        
         $this->getAccessHandler()->unsetUserGroupsForObject();
         $this->getObjectsFromType($objectType);
         
@@ -512,6 +517,10 @@ class UamUserGroup
      */
     public function unsetObjects($objectType, $plusRemove = false)
     {
+        if (!in_array($objectType, $this->getAllObjectTypes())) {
+            return;
+        }
+        
         if ($plusRemove) {
             $this->_deleteObjectsFromDb($objectType);
         }
@@ -551,6 +560,10 @@ class UamUserGroup
      */
     public function objectIsMember($objectType, $objectId, $withInfo = false)
     {
+        if (!in_array($objectType, $this->getAllObjectTypes())) {
+            return;
+        }
+        
         $object = $this->_getSingleObject($objectType, $objectId, 'full');
         
         if ($object !== null) {
@@ -576,6 +589,10 @@ class UamUserGroup
      */
     function getObjectsFromType($objectType, $type = 'real')
     {
+        if (!in_array($objectType, $this->getAllObjectTypes())) {
+            return;
+        }
+        
         if ($this->id == null) {
             return array();
         }
@@ -931,12 +948,20 @@ class UamUserGroup
         $isRecursiveMember = array();
         
         $plObject = $this->getAccessHandler()->getPlObject($objectType);
-        $plRecMember = $plObject['reference']->{$plObject['getFull']}($objectId, &$this);
         
-        if (is_array($plRecMember)) {
-            $isRecursiveMember = $plRecMember;
+        if (isset($plObject['reference'])
+            && isset($plObject['getFull'])
+        ) {
+            $plRecMember = $plObject['reference']->{$plObject['getFull']}(
+                $objectId, 
+                &$this
+            );
+            
+            if (is_array($plRecMember)) {
+                $isRecursiveMember = $plRecMember;
+            }
         }
-        
+
         return $isRecursiveMember;
     }
 }
