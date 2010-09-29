@@ -41,46 +41,11 @@ if (isset($_GET['user_id'])) {
 				<label for="usergroups"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
 			</th>
 			<td>
+				<input type="hidden" name="uam_update_groups" value="true" />
 				<ul>
 <?php
 if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
-    if (isset($uamUserGroups)) {
-        foreach ($uamUserGroups as $uamUserGroup) {
-            ?>
-					<li>
-						<label for="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>" lass="selectit"> 
-							<input type="checkbox" id="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>"
-            <?php
-            if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
-                echo 'checked="checked"';
-            }
-        	if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
-        		echo 'disabled=""';
-        	} 
-            ?>
-							value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" /> 
-						<?php echo $uamUserGroup->getGroupName(); ?>
-			<?php
-			if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
-        		echo ' [LR]';
-        	}
-        	?>
-						</label>
-						<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
-					
-			<?php
-            include 'groupInfo.php';
-            ?>
-            		</li>
-            <?php
-        }
-    } else {
-            ?>
-            		<li>
-            			<a href='admin.php?page=uam_usergroup'><?php echo TXT_CREATE_GROUP_FIRST; ?></a>
-            		</li>
-            <?php 
-    }
+    include 'groupSelectionForm.php';
 } else {
     echo TXT_ADMIN_HINT;
 }
