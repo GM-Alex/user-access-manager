@@ -418,6 +418,108 @@ class UamAccessHandler
     
     
     /*
+     * SQL functions.
+     */
+    
+    /**
+     * Returns the usergroups for the current user as sql string.
+     * 
+     * @return string
+     */
+    private function _getUserGroupsForUserAsSqlString()
+    {
+        global $current_user;
+        //Force user infos
+        wp_get_current_user();
+        
+        $userUserGroups = $this->getUserGroupsForObject(
+            'user',
+            $current_user->ID, 
+            false
+        );
+        
+        $userUserGroupArray = array();
+        
+        foreach ($userUserGroups as $userUserGroup) {
+            $userUserGroupArray[] = $userUserGroup->getId();
+        }
+        
+        if ($userUserGroupArray !== array()) {
+            $userUserGroupString = implode(', ', $userUserGroupArray);
+        } else {
+            $userUserGroupString = 'NULL';
+        }
+        
+        return $userUserGroupString;
+    }
+    
+ 	/**
+     * Returns the excluded posts.
+     * 
+     * @return array
+     */
+    public function getExcludedPosts()
+    {
+        global $wpdb;
+        
+        if ($this->checkUserAccess()) {
+            return array();
+        }
+        
+        $userUserGroupString = $this->_getUserGroupsForUserAsSqlString();
+        
+        if ($this->getUserAccessManager()->atAdminPanel) {
+            $accessType = "write";
+        } else {
+            $accessType = "read";
+        }
+
+        $categoriesAssignedToUserSql = "
+        	SELECT igc.object_id  
+    		FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igc
+    		WHERE igc.object_type = 'category'
+    		AND igc.group_id IN (".$userUserGroupString.")";
+        
+        $postAssignedToUserSql = "
+        	SELECT igp.object_id  
+        	FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igp
+        	WHERE igp.object_type = 'post'
+            AND igp.group_id IN (".$userUserGroupString.")";
+        
+        $postSql = "SELECT DISTINCT p.ID 
+        	FROM $wpdb->posts AS p 
+        	INNER JOIN $wpdb->term_relationships AS tr 
+        		ON p.ID = tr.object_id 
+        	INNER JOIN $wpdb->term_taxonomy tt 
+        		ON tr.term_taxonomy_id = tt.term_taxonomy_id
+            WHERE tt.taxonomy = 'category' 
+    		AND tt.term_id IN (
+    			SELECT gc.object_id 
+    			FROM ".DB_ACCESSGROUP_TO_OBJECT." gc
+    			WHERE gc.object_type = 'category'
+    			AND gc.object_id  NOT IN (".$categoriesAssignedToUserSql.")
+    		) AND p.ID NOT IN (".$postAssignedToUserSql.")
+    		UNION
+    		SELECT DISTINCT gp.object_id 
+    		FROM ".DB_ACCESSGROUP." AS ag
+            INNER JOIN ".DB_ACCESSGROUP_TO_OBJECT." AS gp
+                ON ag.id = gp.group_id
+    		INNER JOIN $wpdb->term_relationships AS tr 
+        		ON gp.object_id  = tr.object_id 
+        	INNER JOIN $wpdb->term_taxonomy tt 
+        		ON tr.term_taxonomy_id = tt.term_taxonomy_id
+    		WHERE gp.object_type = 'post'
+    		AND ag.".$accessType."_access != 'all'
+    		AND gp.object_id  NOT IN (".$postAssignedToUserSql.") 
+    		AND tt.term_id NOT IN (".$categoriesAssignedToUserSql.")";
+            
+        $excludedPosts = $wpdb->get_col($postSql);
+
+        return $excludedPosts;
+    }
+    
+    
+    /*
      * Other functions
      */
     

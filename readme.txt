@@ -59,6 +59,8 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    1.1.2		2010/09/XX  Fix read/write access bug 
+    
     1.1.1.2		2010/09/29  Fix bug that a usergroup for a user wasn't saved
     
     1.1.1.1     2010/09/29  Fix T_DNUMBER bug

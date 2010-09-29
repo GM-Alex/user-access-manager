@@ -41,8 +41,6 @@ if (isset($_GET['user_id'])) {
 				<label for="usergroups"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
 			</th>
 			<td>
-				<input type="hidden" name="uam_update_groups" value="true" />
-				<ul>
 <?php
 if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
     include 'groupSelectionForm.php';
@@ -50,7 +48,6 @@ if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
     echo TXT_ADMIN_HINT;
 }
 ?>
-				</ul>
 			</td>
 		</tr>
 	</tbody>

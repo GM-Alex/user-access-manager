@@ -29,8 +29,8 @@ class UserAccessManager
 {
     var $atAdminPanel = false;
     protected $adminOptionsName = "uamAdminOptions";
-    protected $uamVersion = 1.1;
-    protected $uamDbVersion = 1.2;
+    protected $uamVersion = "1.1.2pre";
+    protected $uamDbVersion = "1.1";
     protected $adminOptions;
     protected $accessHandler = null;
     protected $postUrls = array();
@@ -59,13 +59,16 @@ class UserAccessManager
   
         $charsetCollate = $this->_getCharset();
         
+        $dbAccessGroup = $wpdb->prefix.'uam_accessgroups';
+        $dbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+        
         $dbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".DB_ACCESSGROUP."'"
+        	LIKE '".$dbAccessGroup."'"
         );
         
-        if ($dbUserGroup != DB_ACCESSGROUP) {
-            $sql = "CREATE TABLE ".DB_ACCESSGROUP." (
+        if ($dbUserGroup != $dbAccessGroup) {
+            $sql = "CREATE TABLE ".$dbAccessGroup." (
 					  ID int(11) NOT NULL auto_increment,
 					  groupname tinytext NOT NULL,
 					  groupdesc text NOT NULL,
@@ -79,11 +82,11 @@ class UserAccessManager
 
         $dbUserGroupToObject = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".DB_ACCESSGROUP_TO_OBJECT."'"
+        	LIKE '".$dbAccessGroupToObject."'"
         );
         
-        if ($dbUserGroupToObject != DB_ACCESSGROUP_TO_OBJECT) {
-            $sql = "CREATE TABLE " . DB_ACCESSGROUP_TO_OBJECT . " (
+        if ($dbUserGroupToObject != $dbAccessGroupToObject) {
+            $sql = "CREATE TABLE " . $dbAccessGroupToObject . " (
 					  object_id VARCHAR(11) NOT NULL,
 					  object_type varchar(255) NOT NULL,
 					  group_id int(11) NOT NULL,
@@ -121,54 +124,57 @@ class UserAccessManager
         }
         
         if (!get_option('uam_version')
-            || get_option('uam_version') < 1.0
+            || version_compare(get_option('uam_version'), "1.0") === -1
         ) {
             delete_option('allow_comments_locked');
         }
         
+        $dbAccessGroup = $wpdb->prefix.'uam_accessgroups';
+        
         $dbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '" . DB_ACCESSGROUP . "'"
+        	LIKE '".$dbAccessGroup."'"
         );
         
-        if ($currentDbVersion < $this->uamDbVersion) {
-            if ($currentDbVersion == 1.0) {
-                if ($dbUserGroup == DB_ACCESSGROUP) {
+        if (version_compare($currentDbVersion, $this->uamDbVersion) === -1) {
+            if (version_compare($currentDbVersion, "1.0") === 0) {
+                if ($dbUserGroup == $dbAccessGroup) {
                     $wpdb->query(
-                    	"ALTER TABLE ".DB_ACCESSGROUP." 
+                    	"ALTER TABLE ".$dbAccessGroup." 
                     	ADD read_access TINYTEXT NOT NULL DEFAULT '', 
                     	ADD write_access TINYTEXT NOT NULL DEFAULT '', 
                     	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                     );
                     
                     $wpdb->query(
-                    	"UPDATE ".DB_ACCESSGROUP." 
+                    	"UPDATE ".$dbAccessGroup." 
                     	SET read_access = 'group', 
                     		write_access = 'group'"
                     );
                     
                     $dbIpRange = $wpdb->get_var(
                     	"SHOW columns 
-                    	FROM ".DB_ACCESSGROUP." 
+                    	FROM ".$dbAccessGroup." 
                     	LIKE 'ip_range'"
                     );
             
                     if ($dbIpRange != 'ip_range') {
                         $wpdb->query(
-                        	"ALTER TABLE ".DB_ACCESSGROUP." 
+                        	"ALTER TABLE ".$dbAccessGroup." 
                         	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                         );
                     }
                 }
                 
-                $currentDbVersion = 1.1;
+                $currentDbVersion = "1.1";
             } 
             
-            if ($currentDbVersion == 1.1) {
-                define('DB_ACCESSGROUP_TO_POST', $wpdb->prefix . 'uam_accessgroup_to_post');
-                define('DB_ACCESSGROUP_TO_USER', $wpdb->prefix . 'uam_accessgroup_to_user');
-                define('DB_ACCESSGROUP_TO_CATEGORY', $wpdb->prefix . 'uam_accessgroup_to_category');
-                define('DB_ACCESSGROUP_TO_ROLE', $wpdb->prefix . 'uam_accessgroup_to_role');
+            if (version_compare($currentDbVersion, "1.1") === 0) {
+                $dbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+                $dbAccessgroupToPost = $wpdb->prefix.'uam_accessgroup_to_post';
+                $dbAccessgroupToUser = $wpdb->prefix.'uam_accessgroup_to_user';
+                $dbAccessgroupToCategory = $wpdb->prefix.'uam_accessgroup_to_category';
+                $dbAccessgroupToRole = $wpdb->prefix.'uam_accessgroup_to_role';
                 
                 $charsetCollate = $this->_getCharset();
                 
@@ -188,18 +194,18 @@ class UserAccessManager
                     	|| $objectType == 'attachment'
                     ) {
                         $dbIdName = 'post_id';
-                        $database = DB_ACCESSGROUP_TO_POST.', '.$wpdb->posts;
+                        $database = $dbAccessgroupToPost.', '.$wpdb->posts;
                         $addition = " WHERE post_id = ID
                         	AND post_type = '".$objectType."'";
                     } elseif ($objectType == 'category') {
                         $dbIdName = 'category_id';
-                        $database = DB_ACCESSGROUP_TO_CATEGORY;
+                        $database = $dbAccessgroupToCategory;
                     } elseif ($objectType == 'user') {
                         $dbIdName = 'user_id';
-                        $database = DB_ACCESSGROUP_TO_USER;
+                        $database = $dbAccessgroupToUser;
                     } elseif ($objectType == 'role') {
                         $dbIdName = 'role_name';
-                        $database = DB_ACCESSGROUP_TO_ROLE;
+                        $database = $dbAccessgroupToRole;
                     }
                     
                     $sql = "SELECT ".$dbIdName." as id, group_id as groupId
@@ -208,7 +214,7 @@ class UserAccessManager
                     $dbObjects = $wpdb->get_results($sql);
                     
                     foreach ($dbObjects as $dbObject) {
-                        $sql = "INSERT INTO ".DB_ACCESSGROUP_TO_OBJECT." (
+                        $sql = "INSERT INTO ".$dbAccessGroupToObject." (
                         		group_id, 
                         		object_id,
                         		object_type
@@ -224,10 +230,10 @@ class UserAccessManager
                 }
                 
                 $wpdb->query(
-                	"DROP TABLE ".DB_ACCESSGROUP_TO_POST.", 
-                		".DB_ACCESSGROUP_TO_USER.", 
-                		".DB_ACCESSGROUP_TO_CATEGORY.", 
-                		".DB_ACCESSGROUP_TO_ROLE
+                	"DROP TABLE ".$dbAccessgroupToPost.", 
+                		".$dbAccessgroupToUser.", 
+                		".$dbAccessgroupToCategory.", 
+                		".$dbAccessgroupToRole
                 );
             }
             
@@ -1207,8 +1213,13 @@ class UserAccessManager
      */
     public function parseQuery($wpQuery)
     {
-        $wpQuery->query_vars['post__not_in'] 
-            += $this->_getExcludedPosts();
+        $uamAccessHandler = &$this->getAccessHandler();
+        $uamOptions = $this->getAdminOptions();
+        
+        if ($uamOptions['hide_post'] == 'true') {
+            $wpQuery->query_vars['post__not_in'] 
+                += $uamAccessHandler->getExcludedPosts();
+        }
     }
     
     /**
@@ -1311,88 +1322,7 @@ class UserAccessManager
         return $posts;
     }
     
-    /**
-     * Returns the excluded posts.
-     * 
-     * @return array
-     */
-    private function _getExcludedPosts()
-    {
-        $uamAccessHandler = &$this->getAccessHandler();
-        
-        if ($uamAccessHandler->checkUserAccess()) {
-            return array();
-        }
-        
-        global $current_user, $wpdb;
-        //Force user infos
-        wp_get_current_user();
-        
-        $userUserGroups = $uamAccessHandler->getUserGroupsForObject(
-            'user',
-            $current_user->ID, 
-            false
-        );
-        
-        $userUserGroupArray = array();
-        
-        foreach ($userUserGroups as $userUserGroup) {
-            $userUserGroupArray[] = $userUserGroup->getId();
-        }
-        
-        if ($userUserGroupArray !== array()) {
-            $userUserGroupString = implode(', ', $userUserGroupArray);
-        } else {
-            $userUserGroupString = 'NULL';
-        }
-        
-        $postSql = "SELECT DISTINCT p.ID 
-        	FROM $wpdb->posts AS p 
-        	INNER JOIN $wpdb->term_relationships AS tr 
-        		ON p.ID = tr.object_id 
-        	INNER JOIN $wpdb->term_taxonomy tt 
-        		ON tr.term_taxonomy_id = tt.term_taxonomy_id
-            WHERE tt.taxonomy = 'category' 
-    		AND tt.term_id IN (
-    			SELECT gc.object_id 
-    			FROM ".DB_ACCESSGROUP_TO_OBJECT." gc
-    			WHERE gc.object_type = 'category'
-    			AND gc.object_id  NOT IN (
-    				SELECT igc.object_id  
-            		FROM ".DB_ACCESSGROUP_TO_OBJECT." igc
-            		WHERE igc.object_type = 'category'
-            		AND igc.group_id IN (".$userUserGroupString.")
-    			)
-    		) AND p.ID NOT IN (
-    			SELECT igp.object_id  
-        		FROM ".DB_ACCESSGROUP_TO_OBJECT." igp
-        		WHERE (igp.object_type = 'post' OR igp.object_type = 'page')
-            	AND igp.group_id IN (".$userUserGroupString.")
-    		)
-    		UNION
-    		SELECT DISTINCT gp.object_id 
-    		FROM ".DB_ACCESSGROUP_TO_OBJECT." gp
-    		INNER JOIN $wpdb->term_relationships AS tr 
-        		ON gp.object_id  = tr.object_id 
-        	INNER JOIN $wpdb->term_taxonomy tt 
-        		ON tr.term_taxonomy_id = tt.term_taxonomy_id
-    		WHERE (gp.object_type = 'post' OR gp.object_type = 'page')
-    		AND gp.object_id  NOT IN (
-        		SELECT igp.object_id  
-        		FROM ".DB_ACCESSGROUP_TO_OBJECT." igp
-        		WHERE (igp.object_type = 'post' OR igp.object_type = 'page')
-        		AND igp.group_id IN (".$userUserGroupString.")
-        	) AND tt.term_id NOT IN (
-        		SELECT igc.object_id 
-        		FROM ".DB_ACCESSGROUP_TO_OBJECT." igc
-        		WHERE igc.object_type = 'category'
-        		AND igc.group_id IN (".$userUserGroupString.")
-        	)";
-            
-        $excludedPosts = $wpdb->get_col($postSql);
-        
-        return $excludedPosts;
-    }
+   
     
     /**
      * The function for the posts_where_paged filter.
@@ -1406,11 +1336,9 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         $uamOptions = $this->getAdminOptions();
         
-        if ($uamOptions['hide_post'] == 'true'
-            && !$uamAccessHandler->checkUserAccess()
-        ) {
+        if ($uamOptions['hide_post'] == 'true') {
             global $wpdb;
-            $excludedPosts = $this->_getExcludedPosts();
+            $excludedPosts = $uamAccessHandler->getExcludedPosts();
             
             if (count($excludedPosts) > 0) {
                 $excludedPostsStr = implode(",", $excludedPosts);
@@ -1666,10 +1594,8 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         $uamOptions = $this->getAdminOptions();
         
-        if ($uamOptions['hide_post'] == 'true'
-            && !$uamAccessHandler->checkUserAccess()
-        ) {
-            $excludedPosts = $this->_getExcludedPosts();
+        if ($uamOptions['hide_post'] == 'true') {
+            $excludedPosts = $uamAccessHandler->getExcludedPosts();
             
             if (count($excludedPosts) > 0) {
                 $excludedPostsStr = implode(",", $excludedPosts);
