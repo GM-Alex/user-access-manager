@@ -111,7 +111,13 @@ if ($userAccessManager->isDatabaseUpdateNecessary()) {
 	?>
             				<label for="uam_update_db_yes"> 
             					<input type="radio" id="uam_update_db_yes" class="uam_reset_yes" name="uam_update_db" value="true" /> 
-            					<?php if (is_super_admin()) { echo TXT_UPDATE_BLOG; } else { echo TXT_YES; } ?> 
+	<?php 
+	if (is_super_admin()) { 
+	    echo TXT_UPDATE_BLOG; 
+	} else { 
+	    echo TXT_YES; 
+	} 
+	?> 
             				</label>&nbsp;&nbsp;&nbsp;&nbsp;
             				<label for="uam_update_db_no"> 
             					<input type="radio" id="uam_update_db_no" class="uam_reset_no" name="uam_update_db" value="false" checked="checked" /> 
