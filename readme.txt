@@ -60,6 +60,7 @@ Here you found the changes in each version.
     Version		Date      	Changes
     
     1.1.2		2010/09/XX  Fix read/write access bug
+    						Add recursive looking for posts page option
                             Improve network activation/update
     
     1.1.1.2		2010/09/29  Fix bug that a usergroup for a user wasn't saved

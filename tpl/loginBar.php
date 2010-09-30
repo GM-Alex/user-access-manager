@@ -16,33 +16,38 @@
  */
 
 if (!is_single() && !is_page()) {
+    $loginUrl = get_bloginfo('wpurl').'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']);
+    $loginUrl = apply_filters('uam_login_url', $loginUrl);
+    
     ?>
-    <a class="uam_login_link" href="<?php echo get_bloginfo('wpurl') ?>/wp-login.php?redirect_to=<?php echo urlencode($_SERVER['REQUEST_URI'])?>"><?php echo __('Login', 'user-access-manager'); ?></a>
+    <a class="uam_login_link" href="<?php echo $loginUrl; ?>"><?php echo __('Login', 'user-access-manager'); ?></a>
 	<?php
 } else {
     if (!isset($userLogin)) {
         $userLogin = '';
     }
-    ?>
-    <form action="<?php echo get_bloginfo('wpurl') ?>/wp-login.php" method="post" class="uam_login_form">
-        <label class="input_label" for="user_login"><?php echo __('Username:', 'user-access-manager') ?></label>
-        <input name="log" value="<?php echo esc_html(stripslashes($userLogin), 1); ?>" class="input" id="user_login" type="text" />
-		<label class="input_label" for="user_pass"><?php echo __('Password:', 'user-access-manager') ?></label>
-        <input name="pwd" class="input" id="user_pass" type="password" />
-        <input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" />
-        <label class="checkbox_label" for="rememberme"><?php echo __('Remember me', 'user-access-manager'); ?></label>
-        <input class="button" type="submit" name="wp-submit" id="wp-submit" value="<?php echo __('Login', 'user-access-manager'); ?> &raquo;" />
-        <input type="hidden" name="redirect_to" value="<?php echo $_SERVER['REQUEST_URI']; ?>" />
-    </form>
-    <div class="uam_login_options">
-    <?php
+    
+    $loginUrl = get_bloginfo('wpurl').'/wp-login.php';
+    $loginUrl = apply_filters('uam_login_form_url', $loginUrl);
+   
+    $loginForm = '<form action="'.$loginUrl.'" method="post" class="uam_login_form">';
+    $loginForm .= '<label class="input_label" for="user_login">'.__('Username:', 'user-access-manager').'</label>';
+    $loginForm .= '<input name="log" value="'.esc_html(stripslashes($userLogin), 1).'" class="input" id="user_login" type="text" />';
+	$loginForm .= '<label class="input_label" for="user_pass">'.__('Password:', 'user-access-manager').'</label>';
+    $loginForm .= '<input name="pwd" class="input" id="user_pass" type="password" />';
+    $loginForm .= '<input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" />';
+    $loginForm .= '<label class="checkbox_label" for="rememberme">'.__('Remember me', 'user-access-manager').'</label>';
+    $loginForm .= '<input class="button" type="submit" name="wp-submit" id="wp-submit" value="'.__('Login', 'user-access-manager').' &raquo;" />';
+    $loginForm .= '<input type="hidden" name="redirect_to" value="'.$_SERVER['REQUEST_URI'].'" />';
+    $loginForm .= '</form>';
+    $loginForm .= '<div class="uam_login_options">';
+
     if (get_option('users_can_register')) {
-        ?>
-        <a href="<?php echo get_bloginfo('wpurl') ?>/wp-login.php?action=register"><?php echo __('Register', 'user-access-manager'); ?></a>
-        <?php
+         $loginForm .= '<a href="'.get_bloginfo('wpurl').'/wp-login.php?action=register">'.__('Register', 'user-access-manager').'</a>';
     }
-    ?>
-    	<a href="<?php echo get_bloginfo('wpurl') ?>/wp-login.php?action=lostpassword" title="<?php __('Password Lost and Found', 'user-access-manager') ?>"><?php echo __('Lost your password?', 'user-access-manager') ?></a>
-    </div>
-    <?php
+    
+    $loginForm .= '<a href="'.get_bloginfo('wpurl').'/wp-login.php?action=lostpassword" title="'.__('Password Lost and Found', 'user-access-manager').'">'.__('Lost your password?', 'user-access-manager').'</a>';
+    $loginForm .= '</div>';
+
+    echo apply_filters('uam_login_form', $loginForm);
 }
