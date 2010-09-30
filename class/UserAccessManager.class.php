@@ -1328,8 +1328,10 @@ class UserAccessManager
         $uamOptions = $this->getAdminOptions();
         
         if ($uamOptions['hide_post'] == 'true') {
-            $wpQuery->query_vars['post__not_in'] 
-                += $uamAccessHandler->getExcludedPosts();
+            $wpQuery->query_vars['post__not_in'] = array_merge(
+                $wpQuery->query_vars['post__not_in'],
+                $uamAccessHandler->getExcludedPosts()
+            );
         }
     }
     
