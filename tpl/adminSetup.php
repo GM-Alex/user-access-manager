@@ -29,8 +29,16 @@ if ($postAction == 'update_db') {
         $update = null;
     }
     
-    if ($update == 'true') {
-        $userAccessManager->update();
+    if ($update == 'true'
+    	|| $update == 'network'
+    ) {
+        $network = false;
+        
+        if ($update == 'network') {
+            $network = true;
+        }
+        
+        $userAccessManager->update($network);
         ?>
     	<div class="updated">
     		<p><strong><?php echo TXT_UAM_DB_UPDATE_SUC; ?></strong></p>
@@ -91,9 +99,19 @@ if ($userAccessManager->isDatabaseUpdateNecessary()) {
     					<input type="hidden" value="update_db" name="action" />
             			<th scope="row"><?php echo TXT_UPDATE_UAM_DB; ?></th>
             			<td>
+	<?php 
+    if (is_super_admin()) {
+	    ?>
+            				<label for="uam_update_db_yes"> 
+            					<input type="radio" id="uam_update_db_yes" class="uam_reset_yes" name="uam_update_db" value="network" /> 
+            					<?php echo TXT_UPDATE_NETWORK; ?> 
+            				</label>&nbsp;&nbsp;&nbsp;&nbsp;
+	    <?php
+    }
+	?>
             				<label for="uam_update_db_yes"> 
             					<input type="radio" id="uam_update_db_yes" class="uam_reset_yes" name="uam_update_db" value="true" /> 
-            					<?php echo TXT_YES; ?> 
+            					<?php if (is_super_admin()) { echo TXT_UPDATE_BLOG; } else { echo TXT_YES; } ?> 
             				</label>&nbsp;&nbsp;&nbsp;&nbsp;
             				<label for="uam_update_db_no"> 
             					<input type="radio" id="uam_update_db_no" class="uam_reset_no" name="uam_update_db" value="false" checked="checked" /> 

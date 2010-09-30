@@ -46,16 +46,66 @@ class UserAccessManager
     }
     
     /**
-     * Creates the needed tables at the database
+     * Returns all blogs of the network
+     * 
+     * @return array()
+     */
+    private function _getBlogIds()
+    {
+        global $wpdb;
+ 
+    	if (is_multisite()) {
+			$blogIds = $wpdb->get_col(
+				"SELECT blog_id
+				FROM $wpdb->blogs"
+			);
+			
+			return $blogIds;
+    	}
+    	
+    	return array();
+    }
+    
+    /**
+     * Installs the user access manager.
      * 
      * @return null;
      */
     public function install()
     {
         global $wpdb;
+        $blogIds = $this->_getBlogIds();
+ 
+    	if ($blogIds !== array()
+    	    && isset($_GET['networkwide']) 
+    		&& ($_GET['networkwide'] == 1)
+    	) {
+	        $currentBlog = $wpdb->blogid;
+			
+			foreach ($blogIds as $blogId) {
+				switch_to_blog($blogId);
+				$this->_installUam();
+			}
+			
+			switch_to_blog($currentBlog);
+			
+			return;
+    	}
+    	
+    	$this->_installUam();
+    }
+    
+    /**
+     * Creates the needed tables at the database and adds the options
+     * 
+     * @return null;
+     */
+    private function _installUam()
+    {
+        global $wpdb;
         $uamDbVersion = $this->uamDbVersion;
         
-        include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        include_once ABSPATH.'wp-admin/includes/upgrade.php';
   
         $charsetCollate = $this->_getCharset();
         
@@ -68,16 +118,17 @@ class UserAccessManager
         );
         
         if ($dbUserGroup != $dbAccessGroup) {
-            $sql = "CREATE TABLE ".$dbAccessGroup." (
-					  ID int(11) NOT NULL auto_increment,
-					  groupname tinytext NOT NULL,
-					  groupdesc text NOT NULL,
-					  read_access tinytext NOT NULL,
-					  write_access tinytext NOT NULL,
-					  ip_range mediumtext NULL,
-					  PRIMARY KEY  (ID)
-					) $charsetCollate;";
-            dbDelta($sql);
+            dbDelta(
+                "CREATE TABLE ".$dbAccessGroup." (
+					ID int(11) NOT NULL auto_increment,
+					groupname tinytext NOT NULL,
+					groupdesc text NOT NULL,
+					read_access tinytext NOT NULL,
+					write_access tinytext NOT NULL,
+					ip_range mediumtext NULL,
+					PRIMARY KEY  (ID)
+				) $charsetCollate;"
+            );
         }
 
         $dbUserGroupToObject = $wpdb->get_var(
@@ -86,13 +137,14 @@ class UserAccessManager
         );
         
         if ($dbUserGroupToObject != $dbAccessGroupToObject) {
-            $sql = "CREATE TABLE " . $dbAccessGroupToObject . " (
-					  object_id VARCHAR(11) NOT NULL,
-					  object_type varchar(255) NOT NULL,
-					  group_id int(11) NOT NULL,
-					  PRIMARY KEY  (object_id,object_type,group_id)
-					) $charsetCollate;";
-            dbDelta($sql);
+            dbDelta(
+            	"CREATE TABLE " . $dbAccessGroupToObject . " (
+					object_id VARCHAR(11) NOT NULL,
+					object_type varchar(255) NOT NULL,
+					group_id int(11) NOT NULL,
+					PRIMARY KEY  (object_id,object_type,group_id)
+				) $charsetCollate;"
+            );
         }
         
         add_option("uam_db_version", $this->uamDbVersion);
@@ -105,6 +157,27 @@ class UserAccessManager
      */
     public function isDatabaseUpdateNecessary()
     {
+        global $wpdb;
+        $blogIds = $this->_getBlogIds();
+ 
+    	if ($blogIds !== array()
+            && is_super_admin()
+        ) {
+            $currentBlog = $wpdb->blogid;
+			
+			foreach ($blogIds as $blogId) {
+				switch_to_blog($blogId);
+				$currentDbVersion = get_option("uam_db_version");
+				
+                if (version_compare($currentDbVersion, $this->uamDbVersion, '<')) {
+                    switch_to_blog($currentBlog);
+                    return true;
+                }
+			}
+			
+			switch_to_blog($currentBlog);
+        }
+        
         $currentDbVersion = get_option("uam_db_version");
         return version_compare($currentDbVersion, $this->uamDbVersion, '<');
     }
@@ -112,9 +185,40 @@ class UserAccessManager
     /**
      * Updates the user access manager if an old version was installed.
      * 
+     * @param boolean $networkWide If true update network wide
+     * 
      * @return null;
      */
-    public function update()
+    public function update($networkWide)
+    {
+        global $wpdb;
+        $blogIds = $this->_getBlogIds();
+ 
+    	if ($blogIds !== array()
+    	    && $networkWide
+    	) {
+	        $currentBlog = $wpdb->blogid;
+			
+			foreach ($blogIds as $blogId) {
+				switch_to_blog($blogId);
+				$this->_installUam();
+			}
+			
+			switch_to_blog($currentBlog);
+			
+			return;
+    	}
+        
+        $this->_updateUam();
+    }
+    
+    
+    /**
+     * Updates the user access manager if an old version was installed.
+     * 
+     * @return null;
+     */
+    private function _updateUam()
     {
         global $wpdb;
         $currentDbVersion = get_option("uam_db_version");
@@ -240,6 +344,7 @@ class UserAccessManager
             update_option('uam_db_version', $this->uamDbVersion);
         }
     }
+    
     
     /**
      * Clean up wordpress if the plugin will be uninstalled.
@@ -382,7 +487,13 @@ class UserAccessManager
      */
     public function createHtpasswd($createNew = false, $dir = null)
     {
+        if (!function_exists('get_userdata')) {
+            include_once ABSPATH.'wp-includes/pluggable.php';
+        }
+        
         global $current_user;
+        //Force user infos
+        wp_get_current_user();
         
         $uamOptions = $this->getAdminOptions();
 
@@ -588,7 +699,7 @@ class UserAccessManager
      * 
      * @return string
      */
-    public function getIncludeContents($fileName, $objectId = null, $objectType = null) 
+    public function getIncludeContents($fileName, $objectId = null, $objectType = null)
     {
         if (is_file($fileName)) {
             ob_start();
@@ -1372,7 +1483,10 @@ class UserAccessManager
                         $item->title = $post->post_title;
                     }
 
-                    $item->title .= $this->adminOutput($item->object, $item->object_id);
+                    $item->title .= $this->adminOutput(
+                        $item->object, 
+                        $item->object_id
+                    );
                     
                     $showItems[] = $item;
                 }
@@ -1383,7 +1497,10 @@ class UserAccessManager
                 if ($category !== null
                     && !$category->isEmpty
                 ) {
-                    $item->title .= $this->adminOutput($item->object, $item->object_id);
+                    $item->title .= $this->adminOutput(
+                        $item->object, 
+                        $item->object_id
+                    );
                     $showItems[] = $item;
                 }
             } else {
@@ -1451,7 +1568,10 @@ class UserAccessManager
                 || $this->atAdminPanel
             ) {
                 if ($uamAccessHandler->checkObjectAccess($page->post_type, $page->ID)) {
-                    $page->post_title.= $this->adminOutput($page->post_type, $page->ID);
+                    $page->post_title .= $this->adminOutput(
+                        $page->post_type, 
+                        $page->ID
+                    );
                     $showPages[] = $page;
                 }
             } else {

@@ -165,6 +165,8 @@ define('TXT_UPDATE_UAM_DB_DESC', __('Updates the database of the User Access Man
 define('TXT_UPDATE', __('update', 'user-access-manager'));
 define('TXT_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
 define('TXT_UAM_DB_UPDATE_SUC', __('User Access Manager database was updated successfully', 'user-access-manager'));
+define('TXT_UPDATE_BLOG', __('Update current blog', 'user-access-manager'));
+define('TXT_UPDATE_NETWORK', __('Update network wide', 'user-access-manager'));
 
 
 // --- About page ---
@@ -199,6 +201,7 @@ define('TXT_SET_UP_USERGROUPS', __('Set up usergroups', 'user-access-manager'));
 define('TXT_INFO', __('Info', 'user-access-manager'));
 define('TXT_GROUP_INFO', __('Group infos', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_POST', __('Group membership given by posts', 'user-access-manager'));
+define('TXT_GROUP_MEMBERSHIP_BY_PAGE', __('Group membership given by pages', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_CATEGORY', __('Group membership given by categories', 'user-access-manager'));
 define('TXT_GROUP_MEMBERSHIP_BY_ROLE', __('Group membership given by role', 'user-access-manager'));
 define('TXT_ASSIGNED_GROUPS', __('Assigned groups', 'user-access-manager'));

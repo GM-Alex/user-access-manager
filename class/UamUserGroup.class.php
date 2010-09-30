@@ -166,7 +166,10 @@ class UamUserGroup
         
         foreach ($this->getAllObjectTypes() as $objectType) {
             foreach ($this->getObjectsFromType($objectType) as $key => $object) {
-                $sql = sprintf($this->_getSqlQuery($objectType, 'insert'), trim($key));
+                $sql = sprintf(
+                    $this->_getSqlQuery($objectType, 'insert'), 
+                    trim($key)
+                );
                 $wpdb->query($sql);
             }
         }
@@ -908,14 +911,24 @@ class UamUserGroup
             }
         }
         
-        if (($postType == 'page'
-        	|| $postType == 'attachment')
-        	&& $uamOptions['lock_recursive'] == 'true'
-        	&& $post->post_parent != 0   
+        if (get_option('show_on_front') == 'page'
+            && $post->post_parent == 0
+            && $post->post_type == 'post'
+            && get_option('page_for_posts') != $objectId
         ) {
+            $parentId = get_option('page_for_posts');
+        } else {
+            $parentId = $post->post_parent;
+        }
+
+        if ($uamOptions['lock_recursive'] == 'true'
+        	&& $parentId != 0   
+        ) {
+            $parent = get_post($parentId);
+            
             $parentPost = $this->_getSingleObject(
-                $postType,
-                $post->post_parent,
+                $parent->post_type,
+                $parentId,
                 'full'
             );
     
@@ -923,7 +936,7 @@ class UamUserGroup
                 $postObject = get_post($parentPost->id);
                 $parentPost->name = $postObject->post_title;
 
-                $isRecursiveMember['post'][] = $parentPost;
+                $isRecursiveMember[$parent->post_type][] = $parentPost;
             }
         }
 

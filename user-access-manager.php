@@ -57,7 +57,7 @@ $stop = false;
 //Check php version
 $phpVersion = phpversion();
 
-if ($phpVersion < 5.0) {
+if (version_compare($phpVersion, "5.0") === -1) {
     add_action(
     	'admin_notices', 
     	create_function(
@@ -74,7 +74,7 @@ if ($phpVersion < 5.0) {
 //Check wordpress version
 global $wp_version;
 
-if ($wp_version < 3.0) {
+if (version_compare($wp_version, "3.0") === -1) {
     add_action(
     	'admin_notices', 
     	create_function(
