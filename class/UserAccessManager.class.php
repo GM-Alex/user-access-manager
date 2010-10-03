@@ -897,10 +897,11 @@ class UserAccessManager
      * 
      * @param string  $objectType The object type.
      * @param integer $objectId   The id of the object.
+     * @param array   $userGroups The new usergroups for the object.
      * 
      * @return null
      */
-    private function _saveObjectData($objectType, $objectId)
+    private function _saveObjectData($objectType, $objectId, $userGroups = null)
     {        
         $uamAccessHandler = &$this->getAccessHandler();
         $uamOptions = $this->getAdminOptions();
@@ -919,11 +920,13 @@ class UserAccessManager
                 $uamUserGroup->save();
             }
             
-            if (isset($_POST['uam_usergroups'])) {
+            if ($userGroups !== null
+                && isset($_POST['uam_usergroups'])
+            ) {
                 $userGroups = $_POST['uam_usergroups'];
             }
             
-            if (isset($userGroups)) {
+            if ($userGroups !== null) {
                 foreach ($userGroups as $userGroupId) {
                     $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
     
