@@ -44,7 +44,7 @@ if ($uamUserGroups != Array()) {
 	</ul>
     <?php
 } elseif ($groupDiff > 0) {
-    echo TXT_MEMBER_OF_OTHER_GROUPS;
+    echo TXT_UAM_MEMBER_OF_OTHER_GROUPS;
 } else {
-    echo TXT_FULL_ACCESS;
+    echo TXT_UAM_FULL_ACCESS;
 }

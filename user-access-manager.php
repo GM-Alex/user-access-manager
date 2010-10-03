@@ -63,7 +63,7 @@ if (version_compare($phpVersion, "5.0") === -1) {
     	create_function(
     		'', 
     		'echo \'<div id="message" class="error"><p><strong>'. 
-    	    sprintf(TXT_PHP_VERSION_TO_LOW, $phpVersion). 
+    	    sprintf(TXT_UAM_PHP_VERSION_TO_LOW, $phpVersion). 
     		'</strong></p></div>\';'
     	)
     );
@@ -80,7 +80,7 @@ if (version_compare($wp_version, "3.0") === -1) {
     	create_function(
     		'', 
     		'echo \'<div id="message" class="error"><p><strong>'. 
-    	    sprintf(TXT_WORDPRESS_VERSION_TO_LOW, $wp_version). 
+    	    sprintf(TXT_UAM_WORDPRESS_VERSION_TO_LOW, $wp_version). 
     		'</strong></p></div>\';'
     	)
     );
@@ -130,7 +130,7 @@ if (!function_exists("userAccessManagerAP")) {
             	create_function(
             		'', 
             		'echo \'<div id="message" class="error"><p><strong>'. 
-            	    sprintf(TXT_NEED_DATABASE_UPDATE, $link). 
+            	    sprintf(TXT_UAM_NEED_DATABASE_UPDATE, $link). 
             		'</strong></p></div>\';'
             	)
             );
@@ -233,10 +233,12 @@ if (!function_exists("userAccessManagerAPMenu")) {
             
             //Admin sub menus
             if (function_exists('add_submenu_page')) {
-                add_submenu_page('uam_usergroup', TXT_MANAGE_GROUP, TXT_MANAGE_GROUP, 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
-                add_submenu_page('uam_usergroup', TXT_SETTINGS, TXT_SETTINGS, 'read', 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
-                add_submenu_page('uam_usergroup', TXT_SETUP, TXT_SETUP, 'read', 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
-                add_submenu_page('uam_usergroup', TXT_ABOUT, TXT_ABOUT, 'read', 'uam_about', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_UAM_MANAGE_GROUP, TXT_UAM_MANAGE_GROUP, 'read', 'uam_usergroup', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_UAM_SETTINGS, TXT_UAM_SETTINGS, 'read', 'uam_settings', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_UAM_SETUP, TXT_UAM_SETUP, 'read', 'uam_setup', array(&$userAccessManager, 'printAdminPage'));
+                add_submenu_page('uam_usergroup', TXT_UAM_ABOUT, TXT_UAM_ABOUT, 'read', 'uam_about', array(&$userAccessManager, 'printAdminPage'));
+                
+                do_action('uam_add_submenu');
             }
             /**
              * --- EOF ---

@@ -33,19 +33,19 @@ if (isset($_GET['user_id'])) {
 }
 
 ?>
-<h3><?php echo TXT_GROUPS; ?></h3>
+<h3><?php echo TXT_UAM_GROUPS; ?></h3>
 <table class="form-table">
 	<tbody>
 		<tr>
 			<th>
-				<label for="usergroups"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
+				<label for="usergroups"><?php echo TXT_UAM_SET_UP_USERGROUPS; ?></label>
 			</th>
 			<td>
 <?php
 if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
     include 'groupSelectionForm.php';
 } else {
-    echo TXT_ADMIN_HINT;
+    echo TXT_UAM_ADMIN_HINT;
 }
 ?>
 			</td>

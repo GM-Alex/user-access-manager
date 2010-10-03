@@ -37,7 +37,7 @@ if (isset($_GET['tag_ID'])) {
 	<tbody>
 		<tr>
 			<th>
-				<label for="description"><?php echo TXT_SET_UP_USERGROUPS; ?></label>
+				<label for="description"><?php echo TXT_UAM_SET_UP_USERGROUPS; ?></label>
 			</th>
 			<td>
 <?php
@@ -45,10 +45,10 @@ if (count($uamUserGroups) > 0) {
 	include 'groupSelectionForm.php';
 } elseif ($userAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>
-	<a href='admin.php?page=uam_usergroup'><?php echo TXT_CREATE_GROUP_FIRST; ?></a>
+	<a href='admin.php?page=uam_usergroup'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
 	<?php
 } else {
-    echo TXT_NO_GROUP_AVAILABLE;
+    echo TXT_UAM_NO_GROUP_AVAILABLE;
 }
 ?>
 			</td>

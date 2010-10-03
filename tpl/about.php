@@ -17,29 +17,29 @@
 
 ?>
 <div class="wrap">
-	<h2><?php echo TXT_ABOUT; ?></h2>
+	<h2><?php echo TXT_UAM_ABOUT; ?></h2>
     <div id="poststuff">
         <div class="postbox">
-        	<h3 class="hndle"><?php echo TXT_HOW_TO_SUPPORT; ?></h3>
+        	<h3 class="hndle"><?php echo TXT_UAM_HOW_TO_SUPPORT; ?></h3>
         	<div class="inside">
-        		<p><?php echo TXT_SEND_REPORTS; ?></p>
-        		<p><?php echo TXT_MAKE_TRANSLATION; ?></p>
+        		<p><?php echo TXT_UAM_SEND_REPORTS; ?></p>
+        		<p><?php echo TXT_UAM_MAKE_TRANSLATION; ?></p>
     			<p>
-    				<?php echo TXT_DONATE; ?><br/>
+    				<?php echo TXT_UAM_DONATE; ?><br/>
     				<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052">
     					<img style="margin:4px 0;" alt="Make payments with PayPal - it's fast, free and secure!" name="submit" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif" />
     				</a>
     			</p>
-    			<p><?php echo TXT_PLACE_LINK; ?></p>
+    			<p><?php echo TXT_UAM_PLACE_LINK; ?></p>
         	</div>
         </div>
         <div class="postbox">
-        	<h3 class="hndle"><?php echo TXT_THANKS; ?></h3>
+        	<h3 class="hndle"><?php echo TXT_UAM_THANKS; ?></h3>
         	<div class="inside">
         		<p>
-        		    <strong><?php echo TXT_SPECIAL_THANKS; ?></strong><br/>
+        		    <strong><?php echo TXT_UAM_SPECIAL_THANKS; ?></strong><br/>
         		    <br/>
-        		    <?php echo TXT_THANKS_TO; ?> Ron Harding, Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, <?php echo TXT_THANKS_OTHERS; ?>.
+        		    <?php echo TXT_UAM_THANKS_TO; ?> Ron Harding, Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, <?php echo TXT_UAM_THANKS_OTHERS; ?>.
         		</p>
         	</div>
         </div>

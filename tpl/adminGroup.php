@@ -91,39 +91,39 @@ function getPrintEditGroup($groupId = null)
     	<table class="form-table">
     		<tbody>
     			<tr class="form-field form-required">
-    				<th valign="top" scope="row"><?php echo TXT_GROUP_NAME; ?></th>
+    				<th valign="top" scope="row"><?php echo TXT_UAM_GROUP_NAME; ?></th>
     				<td>
     					<input type="text" size="40" value="<?php
     if (isset($groupId)) {
         echo $uamUserGroup->getGroupName();
     } 
                         ?>" id="userGroupName" name="userGroupName" /><br />
-		                <?php echo TXT_GROUP_NAME_DESC; ?>
+		                <?php echo TXT_UAM_GROUP_NAME_DESC; ?>
 		        	</td>
 				</tr>
             	<tr class="form-field form-required">
-            		<th valign="top" scope="row"><?php echo TXT_GROUP_DESC; ?></th>
+            		<th valign="top" scope="row"><?php echo TXT_UAM_GROUP_DESC; ?></th>
             		<td>
             			<input type="text" size="40" value="<?php 
     if (isset($groupId)) { 
         echo $uamUserGroup->getGroupDesc(); 
     } 
                         ?>" id="userGroupDescription" name="userGroupDescription" /><br />
-            		    <?php echo TXT_GROUP_DESC_DESC; ?>
+            		    <?php echo TXT_UAM_GROUP_DESC_DESC; ?>
             		</td>
             	</tr>
 				<tr class="form-field form-required">
-                	<th valign="top" scope="row"><?php echo TXT_GROUP_IP_RANGE; ?></th>
+                	<th valign="top" scope="row"><?php echo TXT_UAM_GROUP_IP_RANGE; ?></th>
                 	<td><input type="text" size="40" value="<?php
     if (isset($groupId)) {
         echo $uamUserGroup->getIpRange('string');
     } 
                         ?>" id="ipRange" name="ipRange" /><br />
-                		<?php echo TXT_GROUP_IP_RANGE_DESC; ?>
+                		<?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?>
                 	</td>
                 </tr>
                 <tr class="form-field form-required">
-                	<th valign="top" scope="row"><?php echo TXT_GROUP_READ_ACCESS; ?></th>
+                	<th valign="top" scope="row"><?php echo TXT_UAM_GROUP_READ_ACCESS; ?></th>
                 	<td>
                 		<select name="readAccess">
                 			<option value="group"
@@ -135,7 +135,7 @@ function getPrintEditGroup($groupId = null)
     } 
     ?>
     						>
-    						    <?php echo TXT_ONLY_GROUP_USERS ?>
+    						    <?php echo TXT_UAM_ONLY_GROUP_USERS ?>
     						</option>
 							<option value="all"
 	<?php
@@ -146,14 +146,14 @@ function getPrintEditGroup($groupId = null)
     } 
     ?>
     						>
-    						    <?php echo TXT_ALL ?>
+    						    <?php echo TXT_UAM_ALL ?>
     						</option>
 						</select><br />
-	                    <?php echo TXT_GROUP_READ_ACCESS_DESC; ?>
+	                    <?php echo TXT_UAM_GROUP_READ_ACCESS_DESC; ?>
 					</td>
 				</tr>
 				<tr class="form-field form-required">
-					<th valign="top" scope="row"><?php echo TXT_GROUP_WRITE_ACCESS; ?></th>
+					<th valign="top" scope="row"><?php echo TXT_UAM_GROUP_WRITE_ACCESS; ?></th>
 					<td>
 						<select name="writeAccess">
 							<option value="group"
@@ -165,7 +165,7 @@ function getPrintEditGroup($groupId = null)
     } 
     ?>
     						>
-    					        <?php echo TXT_ONLY_GROUP_USERS ?>
+    					        <?php echo TXT_UAM_ONLY_GROUP_USERS ?>
         					</option>
     						<option value="all" 
 	<?php 
@@ -176,14 +176,14 @@ function getPrintEditGroup($groupId = null)
     } 
     ?>
     					>
-        					    <?php echo TXT_ALL ?>
+        					    <?php echo TXT_UAM_ALL ?>
         					</option>
 						</select><br />
-	                    <?php echo TXT_GROUP_WRITE_ACCESS_DESC; ?>
+	                    <?php echo TXT_UAM_GROUP_WRITE_ACCESS_DESC; ?>
 	            	</td>
 				</tr>
 				<tr>
-					<th valign="top" scope="row"><?php echo TXT_GROUP_ROLE; ?></th>
+					<th valign="top" scope="row"><?php echo TXT_UAM_GROUP_ROLE; ?></th>
 					<td>
 						<ul class='uam_role'>
 	<?php
@@ -222,9 +222,9 @@ function getPrintEditGroup($groupId = null)
 		<p class="submit">
 			<input type="submit" value="<?php
     if (isset($groupId)) {
-        echo TXT_UPDATE_GROUP;
+        echo TXT_UAM_UPDATE_GROUP;
     } else {
-        echo TXT_ADD_GROUP;
+        echo TXT_UAM_ADD_GROUP;
     } 
             ?>" name="submit" class="button" />
 		</p>
@@ -263,7 +263,7 @@ if ($postAction == 'delgroup') {
         }
         ?>
         <div class="updated">
-        	<p><strong><?php echo TXT_DEL_GROUP; ?></strong></p>
+        	<p><strong><?php echo TXT_UAM_DEL_GROUP; ?></strong></p>
         </div>
         <?php
     }
@@ -281,13 +281,13 @@ if (($postAction == 'updateGroup' || $postAction == 'addGroup')
     if ($postAction == 'addGroup') {
         ?>
         <div class="updated">
-        	<p><strong><?php echo TXT_GROUP_ADDED; ?></strong></p>
+        	<p><strong><?php echo TXT_UAM_GROUP_ADDED; ?></strong></p>
         </div>
         <?php
     } elseif ($postAction == 'updateGroup') {
         ?>
         <div class="updated">
-        	<p><strong><?php echo TXT_ACCESS_GROUP_EDIT_SUC; ?></strong></p>
+        	<p><strong><?php echo TXT_UAM_ACCESS_GROUP_EDIT_SUC; ?></strong></p>
         </div>
         <?php
     }
@@ -295,7 +295,7 @@ if (($postAction == 'updateGroup' || $postAction == 'addGroup')
          && empty($_POST['userGroupName'])) {
     ?>
     <div class="error">
-    	<p><strong><?php echo TXT_GROUP_NAME_ERROR; ?></strong></p>
+    	<p><strong><?php echo TXT_UAM_GROUP_NAME_ERROR; ?></strong></p>
     </div>
     <?php
 }
@@ -305,10 +305,10 @@ if (!$editGroup) {
     <div class="wrap">
         <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
         	<input type="hidden" value="delgroup" name="action" />
-            <h2><?php echo TXT_MANAGE_GROUP; ?></h2>
+            <h2><?php echo TXT_UAM_MANAGE_GROUP; ?></h2>
             <div class="tablenav">
                 <div class="alignleft">
-                	<input type="submit" class="button-secondary delete" name="deleteit" value="<?php echo TXT_DELETE; ?>" /> 
+                	<input type="submit" class="button-secondary delete" name="deleteit" value="<?php echo TXT_UAM_DELETE; ?>" /> 
                 </div>
             	<br class="clear" />
             </div>
@@ -317,12 +317,12 @@ if (!$editGroup) {
             	<thead>
             		<tr class="thead">
             			<th scope="col"></th>
-            			<th scope="col"><?php echo TXT_NAME; ?></th>
-            			<th scope="col"><?php echo TXT_DESCRIPTION; ?></th>
-            			<th scope="col"><?php echo TXT_READ_ACCESS; ?></th>
-            			<th scope="col"><?php echo TXT_WRITE_ACCESS; ?></th>
-            			<th scope="col"><?php echo TXT_GROUP_ROLE; ?></th>
-            			<th scope="col"><?php echo TXT_IP_RANGE; ?></th>
+            			<th scope="col"><?php echo TXT_UAM_NAME; ?></th>
+            			<th scope="col"><?php echo TXT_UAM_DESCRIPTION; ?></th>
+            			<th scope="col"><?php echo TXT_UAM_READ_ACCESS; ?></th>
+            			<th scope="col"><?php echo TXT_UAM_WRITE_ACCESS; ?></th>
+            			<th scope="col"><?php echo TXT_UAM_GROUP_ROLE; ?></th>
+            			<th scope="col"><?php echo TXT_UAM_IP_RANGE; ?></th>
             		</tr>
             	</thead>
         	<tbody>
@@ -352,18 +352,18 @@ if (!$editGroup) {
         			<td>
             <?php 
             if ($uamUserGroup->getReadAccess() == "all") {
-                echo TXT_ALL;
+                echo TXT_UAM_ALL;
             } elseif ($uamUserGroup->getReadAccess() == "group") {
-                echo TXT_ONLY_GROUP_USERS;
+                echo TXT_UAM_ONLY_GROUP_USERS;
             } 
             ?>
                     </td>
         			<td>
     		<?php
             if ($uamUserGroup->getWriteAccess() == "all") {
-                echo TXT_ALL;
+                echo TXT_UAM_ALL;
             } elseif ($uamUserGroup->getWriteAccess() == "group") {
-                echo TXT_ONLY_GROUP_USERS;
+                echo TXT_UAM_ONLY_GROUP_USERS;
             } 
             ?>
                 	</td>
@@ -386,7 +386,7 @@ if (!$editGroup) {
                 		</ul>
                 <?php
             } else {
-                echo TXT_NONE;
+                echo TXT_UAM_NONE;
             }
             ?>
                 	</td>
@@ -409,7 +409,7 @@ if (!$editGroup) {
                 		</ul>
                 <?php
             } else {
-                echo TXT_NONE;
+                echo TXT_UAM_NONE;
             }
             ?>
                 	</td>
@@ -431,9 +431,9 @@ if (!$editGroup) {
 
 
 if ($editGroup) {
-    echo TXT_EDIT_GROUP;
+    echo TXT_UAM_EDIT_GROUP;
 } else {
-    echo TXT_ADD_GROUP;
+    echo TXT_UAM_ADD_GROUP;
 }
 ?>
 	</h2>

@@ -37,7 +37,7 @@ foreach ($uamUserGroups as $uamUserGroup) {
 			<input type="checkbox" id="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>" <?php echo $attributes;?> value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" />
 			<?php echo $uamUserGroup->getGroupName().$addition; ?>
 		</label>
-		<a class="uam_group_info_link">(<?php echo TXT_INFO; ?>)</a>
+		<a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
 		<?php include 'groupInfo.php'; ?>
 	</li>
 	<?php

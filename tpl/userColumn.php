@@ -44,8 +44,8 @@ if ($uamUserGroups != Array()) {
     global $wpdb;
     
     if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
-        echo TXT_NONE;
+        echo TXT_UAM_NONE;
     } else {
-        echo TXT_ADMIN_HINT;
+        echo TXT_UAM_ADMIN_HINT;
     }
 }

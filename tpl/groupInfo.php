@@ -53,7 +53,7 @@ foreach ($userAccessManager->getAccessHandler()->getAllObjectTypes() as $curObje
     if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId][$curObjectType])) {
         ?>
 		<li  class="uam_group_info_head">
-		<?php echo constant('TXT_GROUP_MEMBERSHIP_BY_'.strtoupper($curObjectType)); ?>:
+		<?php echo constant('TXT_UAM_GROUP_MEMBERSHIP_BY_'.strtoupper($curObjectType)); ?>:
 			<ul>
 	    <?php
 	    foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId][$curObjectType] as $object) {
@@ -68,28 +68,28 @@ foreach ($userAccessManager->getAccessHandler()->getAllObjectTypes() as $curObje
     }
 }
 ?>
-	<li class="uam_group_info_head"><?php echo TXT_GROUP_INFO; ?>:
+	<li class="uam_group_info_head"><?php echo TXT_UAM_GROUP_INFO; ?>:
 		<ul>
-			<li><?php echo TXT_READ_ACCESS; ?>:
+			<li><?php echo TXT_UAM_READ_ACCESS; ?>:
 <?php
 if ($uamUserGroup->getReadAccess() == "all") {
-    echo TXT_ALL;
+    echo TXT_UAM_ALL;
 } elseif ($uamUserGroup->getReadAccess() == "group") {
-    echo TXT_ONLY_GROUP_USERS;
+    echo TXT_UAM_ONLY_GROUP_USERS;
 }
 ?>
 			</li>
-			<li><?php echo TXT_WRITE_ACCESS; ?>:
+			<li><?php echo TXT_UAM_WRITE_ACCESS; ?>:
 <?php
 if ($uamUserGroup->getWriteAccess()  == "all") {
-    echo TXT_ALL;   
+    echo TXT_UAM_ALL;   
 } elseif ($uamUserGroup->getWriteAccess()  == "group") {
-    echo TXT_ONLY_GROUP_USERS;
+    echo TXT_UAM_ONLY_GROUP_USERS;
 }
 ?>
         	</li>
         	<li>
-        	    <?php echo TXT_GROUP_ROLE; ?>: <?php
+        	    <?php echo TXT_UAM_GROUP_ROLE; ?>: <?php
 if ($uamUserGroup->getObjectsFromType('role')) {
     $out = '';
     
@@ -99,7 +99,7 @@ if ($uamUserGroup->getObjectsFromType('role')) {
     
     echo rtrim($out, ', ');
 } else {
-    echo TXT_NONE;
+    echo TXT_UAM_NONE;
 }
 ?>
         	</li>

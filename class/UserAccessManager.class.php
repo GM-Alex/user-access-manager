@@ -858,7 +858,7 @@ class UserAccessManager
         }
 
         if ($noRights) {
-            wp_die(TXT_NO_RIGHTS);
+            wp_die(TXT_UAM_NO_RIGHTS);
         }
     }
     
@@ -1063,7 +1063,7 @@ class UserAccessManager
         $content = $meta;
         $content .= '</td></tr><tr>';
         $content .= '<th class="label">';
-        $content .= '<label>'.TXT_SET_UP_USERGROUPS.'</label>';
+        $content .= '<label>'.TXT_UAM_SET_UP_USERGROUPS.'</label>';
         $content .= '</th>';
         $content .= '<td class="field">';
         $content .= $this->getIncludeContents(
@@ -1782,7 +1782,7 @@ class UserAccessManager
         $groups = $uamAccessHandler->getUserGroupsForObject('post', $postId);
         
         if (count($groups) > 0) {
-            $link .= ' | '.TXT_ASSIGNED_GROUPS.': ';
+            $link .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
             
             foreach ($groups as $group) {
                 $link .= $group->getGroupName().', ';
@@ -1940,7 +1940,7 @@ class UserAccessManager
         } elseif ($object->isImage) {
     		$file = UAM_REALPATH.'gfx/noAccessPic.png';
         } else {
-            wp_die(TXT_NO_RIGHTS);
+            wp_die(TXT_UAM_NO_RIGHTS);
         }
         
         //Deliver content
@@ -1997,7 +1997,7 @@ class UserAccessManager
                 exit;
             }
         } else {
-            wp_die(TXT_FILE_NOT_FOUND_ERROR);
+            wp_die(TXT_UAM_FILE_NOT_FOUND_ERROR);
         }
     }
     
