@@ -4,13 +4,15 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.0
-Stable tag: 1.1.1.2
+Stable tag: 1.1.2
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
 == Description ==
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible and writable for the specified group. This plugin is useful if you need a member area or a private section at your blog or you want that other people can write at your blog but not everywhere.
+
+Check out the [User Access Manager - NextGEN Gallery Extension](http://wordpress.org/extend/plugins/user-access-manager-nextgen-gallery-extension/) (Beta).
 
 Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and [send me an error report](mailto:alexanderschneider85@googlemail.com). That is the only way to find bugs and see if the plugin works proper. Thanks.
 
@@ -62,10 +64,11 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.1.2		2010/09/XX  Fix read/write access bug
+    1.1.2		2010/10/04  Fix read/write access bug
     						Add recursive looking for posts page option
                             Improve network activation/update
                             Add hooks for login bar
+                            Prepair for NextGEN Gallery extension
     
     1.1.1.2		2010/09/29  Fix bug that a usergroup for a user wasn't saved
     
