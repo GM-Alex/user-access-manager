@@ -888,6 +888,7 @@ class UserAccessManager
         $this->createHtpasswd();
     }
     
+    
     /*
      * Meta functions
      */
@@ -936,6 +937,7 @@ class UserAccessManager
             }
         }
     }
+    
     
     /*
      * Functions for the post actions.
@@ -1240,12 +1242,13 @@ class UserAccessManager
      * 
      * @param string  $objectType The name of the pluggable object.
      * @param integer $objectId   The pluggable object id.
+     * @param array	  $userGroups The user groups for the object.
      * 
      * @return null
      */
-    public function savePlObjectData($objectType, $objectId)
+    public function savePlObjectData($objectType, $objectId, $userGroups = null)
     {
-        $this->_saveObjectData($objectType, $objectId);
+        $this->_saveObjectData($objectType, $objectId, $userGroups);
     }
     
     /**
@@ -1270,13 +1273,14 @@ class UserAccessManager
     /**
      * Returns the group selection form for pluggable objects.
      * 
-     * @param string  $objectType The object type.
-     * @param integer $objectId   The id of the object.
+     * @param string  $objectType     The object type.
+     * @param integer $objectId       The id of the object.
+     * @param string  $groupsFormName The name of the form which contains the groups.
      * 
      * @return string;
      */
-    public function showPlGroupSelectionForm($objectType, $objectId)
-    {
+    public function showPlGroupSelectionForm($objectType, $objectId, $groupsFormName = null)
+    {   
         $fileName = UAM_REALPATH.'tpl/groupSelectionForm.php';
         $uamUserGroups = $this->getAccessHandler()->getUserGroups();
         $userGroupsForObject = $this->getAccessHandler()->getUserGroupsForObject(

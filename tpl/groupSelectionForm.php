@@ -18,6 +18,10 @@
 <input type="hidden" name="uam_update_groups" value="true" />
 <ul class="uam_group_selection">
 <?php
+if ($groupsFormName === null) {
+    $groupsFormName = 'uam_usergroups';
+}
+
 foreach ($uamUserGroups as $uamUserGroup) {
     $addition = '';
     $attributes = '';
@@ -33,8 +37,8 @@ foreach ($uamUserGroups as $uamUserGroup) {
     
 	?>
 	<li>
-		<label for="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
-			<input type="checkbox" id="uam_usergroup-<?php echo $uamUserGroup->getId(); ?>" <?php echo $attributes;?> value="<?php echo $uamUserGroup->getId(); ?>" name="uam_usergroups[]" />
+		<label for="<?php echo $groupsFormName; ?>-<?php echo $uamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
+			<input type="checkbox" id="<?php echo $groupsFormName; ?>-<?php echo $uamUserGroup->getId(); ?>" <?php echo $attributes;?> value="<?php echo $uamUserGroup->getId(); ?>" name="<?php echo $groupsFormName; ?>[]" />
 			<?php echo $uamUserGroup->getGroupName().$addition; ?>
 		</label>
 		<a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
