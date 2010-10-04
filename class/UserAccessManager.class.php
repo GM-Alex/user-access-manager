@@ -920,7 +920,7 @@ class UserAccessManager
                 $uamUserGroup->save();
             }
             
-            if ($userGroups !== null
+            if ($userGroups === null
                 && isset($_POST['uam_usergroups'])
             ) {
                 $userGroups = $_POST['uam_usergroups'];
