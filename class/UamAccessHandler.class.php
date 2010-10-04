@@ -495,8 +495,11 @@ class UamAccessHandler
             WHERE tt.taxonomy = 'category' 
     		AND tt.term_id IN (
     			SELECT gc.object_id 
-    			FROM ".DB_ACCESSGROUP_TO_OBJECT." gc
+    			FROM ".DB_ACCESSGROUP." iag
+    			INNER JOIN ".DB_ACCESSGROUP_TO_OBJECT." AS gc
+    				ON iag.id = gc.group_id
     			WHERE gc.object_type = 'category'
+    			AND iag.".$accessType."_access != 'all'
     			AND gc.object_id  NOT IN (".$categoriesAssignedToUserSql.")
     		) AND p.ID NOT IN (".$postAssignedToUserSql.")
     		UNION

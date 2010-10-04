@@ -1442,8 +1442,6 @@ class UserAccessManager
         return $posts;
     }
     
-   
-    
     /**
      * The function for the posts_where_paged filter.
      * 

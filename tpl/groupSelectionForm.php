@@ -18,7 +18,9 @@
 <input type="hidden" name="uam_update_groups" value="true" />
 <ul class="uam_group_selection">
 <?php
-if ($groupsFormName === null) {
+if (!isset($groupsFormName)
+    || $groupsFormName === null
+) {
     $groupsFormName = 'uam_usergroups';
 }
 
