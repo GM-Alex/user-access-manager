@@ -39,9 +39,10 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 
 * English
 * German
-* Czech, based on 0.7.0.1. Thanks to Huska
+* Czech, based on 1.1.1.2. Thanks to Jan
 * French, based on 0.8.0.2. Thanks to macbidule
 * Hungary, based on 1.0.2. Thanks to Zina
+* Danish, based on 1.1.1.2. Thanks to GeorgWP
 
 Some language files are really old, if you are a native speaker it would be nice if you update a language file or make one for a language which is not translated jet.
 
