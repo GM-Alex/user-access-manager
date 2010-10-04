@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: User Access Manager\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
-"POT-Creation-Date: 2010-09-27 23:12+0000\n"
-"PO-Revision-Date: 2010-09-28 01:17+0100\n"
+"POT-Creation-Date: 2010-10-04 20:18+0000\n"
+"PO-Revision-Date: 2010-10-04 22:19+0100\n"
 "Last-Translator: Alexander Schneider <alexanderschneider85@gmail.com>\n"
 "Language-Team: Alexander Schneider <alexanderschneider85@googlemail.com>\n"
 "MIME-Version: 1.0\n"
@@ -12,30 +12,30 @@ msgstr ""
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 
-#: class/UserAccessManager.class.php:510
-#: class/UserAccessManager.class.php:523
+#: class/UserAccessManager.class.php:633
+#: class/UserAccessManager.class.php:646
 msgid "No rights!"
 msgstr "Keine Berechtigung!"
 
-#: class/UserAccessManager.class.php:512
+#: class/UserAccessManager.class.php:635
 msgid "Sorry you have no rights to view this post!"
 msgstr "Entschuldigung aber du hast nicht die Rechte um dieses Post zu sehen!"
 
-#: class/UserAccessManager.class.php:518
-#: class/UserAccessManager.class.php:531
+#: class/UserAccessManager.class.php:641
+#: class/UserAccessManager.class.php:654
 msgid "Sorry no rights to view comments!"
 msgstr "Entschuldigung aber du hast nicht die Rechte um diese Kommentare zu sehen!"
 
-#: class/UserAccessManager.class.php:525
+#: class/UserAccessManager.class.php:648
 msgid "Sorry you have no rights to view this page!"
 msgstr "Entschuldigung aber du hast nicht die Rechte um diese Seite zu sehen!"
 
-#: class/UserAccessManager.class.php:826
-#: class/UserAccessManager.class.php:1040
+#: class/UserAccessManager.class.php:956
+#: class/UserAccessManager.class.php:1170
 msgid "Access"
 msgstr "Zugriff"
 
-#: class/UserAccessManager.class.php:963
+#: class/UserAccessManager.class.php:1093
 msgid "uam user groups"
 msgstr "uam Nutzergruppen"
 
@@ -531,136 +531,148 @@ msgstr "User Access Manager erfolgreich zur&uuml;ckgesetzt."
 msgid "User Access Manager database was updated successfully"
 msgstr "User Access Manager Datenbank Update erfolgreich."
 
-#: includes/language.define.php:171
+#: includes/language.define.php:168
+msgid "Update current blog"
+msgstr "Aktuellen Blog updaten"
+
+#: includes/language.define.php:169
+msgid "Update network wide"
+msgstr "Netzwerk updaten"
+
+#: includes/language.define.php:173
 msgid "About"
 msgstr "&Uuml;ber"
 
-#: includes/language.define.php:174
+#: includes/language.define.php:176
 msgid "How to support me?"
 msgstr "So k&ouml;nnt ihr mich unterst&uuml;tzen"
 
-#: includes/language.define.php:175
+#: includes/language.define.php:177
 msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
 msgstr "<strong>Sendet mir eure Bugs, Bugfixes, Code Modifikationen oder Ideen.</strong><br/>Helft mir das Plugin zu verbessern."
 
-#: includes/language.define.php:176
+#: includes/language.define.php:178
 msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
 msgstr "<strong>Erstelle eine &Uuml;bersetzung dieses Plugins.</strong><br/>Um anderen Nutzern mehr Komfort zu geben w&auml;re es toll dieses Plugin in mehreren Sprachen zu haben."
 
-#: includes/language.define.php:177
+#: includes/language.define.php:179
 msgid "<strong>Donate via paypal</strong>"
 msgstr "<strong>Spende via paypal</strong>"
 
-#: includes/language.define.php:178
+#: includes/language.define.php:180
 msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
 msgstr "<strong>Platziere einen Link zum Plugin auf deinem Blog/Webseite.</strong>"
 
-#: includes/language.define.php:181
+#: includes/language.define.php:183
 msgid "Thanks"
 msgstr "Danksagung"
 
-#: includes/language.define.php:182
+#: includes/language.define.php:184
 msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
 msgstr "Besonderer Dank geht an mein Freundin die geduldig mein PC-Sessions ertragen hat und es mir so erm&ouml;glichte dieses Plugin zu entwickeln."
 
-#: includes/language.define.php:183
+#: includes/language.define.php:185
 msgid "I would like to thank all the guys which has helped me with this plugin:"
 msgstr "Vielen Dank auch an die Leute die mir geholfen haben:"
 
-#: includes/language.define.php:184
+#: includes/language.define.php:186
 msgid "all beta testers and all others I forgot"
 msgstr "allen Betatestern und allen die ich vergessen habe."
 
-#: includes/language.define.php:188
+#: includes/language.define.php:190
 msgid "Full access"
 msgstr "Vollzugriff"
 
-#: includes/language.define.php:189
+#: includes/language.define.php:191
 msgid "Member of other user groups"
 msgstr "Mitglied eine anderen Nutzergruppe"
 
-#: includes/language.define.php:190
+#: includes/language.define.php:192
 msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
 msgstr "<strong>Hinweis:</strong> Ein Administrator hat immer Vollzugriff zu allen Posts/Seiten."
 
-#: includes/language.define.php:191
+#: includes/language.define.php:193
 msgid "Please create a user group first."
 msgstr "Bitte erstellen Sie zuerst eine Nutzergruppe."
 
-#: includes/language.define.php:192
+#: includes/language.define.php:194
 msgid "No user group available."
 msgstr "Keine Nutzergruppe verf&uuml;gbar."
 
-#: includes/language.define.php:193
+#: includes/language.define.php:195
 msgid "You have no rights to access this content."
 msgstr "Entschuldigung aber du hast nicht die Rechte um diesen Inhalt zu sehen!"
 
-#: includes/language.define.php:194
+#: includes/language.define.php:196
 msgid "User Groups"
 msgstr "Nutzergruppen"
 
-#: includes/language.define.php:195
+#: includes/language.define.php:197
 msgid "Set up usergroups"
 msgstr "Nutzergruppen einrichten"
 
-#: includes/language.define.php:199
+#: includes/language.define.php:201
 msgid "Info"
 msgstr "Info"
 
-#: includes/language.define.php:200
+#: includes/language.define.php:202
 msgid "Group infos"
 msgstr "Gruppeninformationen"
 
-#: includes/language.define.php:201
+#: includes/language.define.php:203
 msgid "Group membership given by posts"
 msgstr "Nutzergruppen zugewiesen durch Posts"
 
-#: includes/language.define.php:202
+#: includes/language.define.php:204
+msgid "Group membership given by pages"
+msgstr "Nutzergruppen zugewiesen durch Seiten"
+
+#: includes/language.define.php:205
 msgid "Group membership given by categories"
 msgstr "Nutzergruppen zugewiesen durch Kategorien"
 
-#: includes/language.define.php:203
+#: includes/language.define.php:206
 msgid "Group membership given by role"
 msgstr "Nutzergruppen zugewiesen durch Nutzerrollen"
 
-#: includes/language.define.php:204
+#: includes/language.define.php:207
 msgid "Assigned groups"
 msgstr "Zugewiesene Gruppen"
 
-#: includes/language.define.php:208
+#: includes/language.define.php:211
 msgid "Opening fileinfo database failed."
 msgstr "&Ouml;ffnen der Dateiinformationsdatenbank fehlgeschlagen."
 
-#: includes/language.define.php:209
+#: includes/language.define.php:212
 msgid "Error: File not found."
 msgstr "Fehler: Datei nicht gefunden."
 
-#: tpl/loginBar.php:20
-#: tpl/loginBar.php:34
+#: tpl/loginBar.php:23
+#: tpl/loginBar.php:40
 msgid "Login"
 msgstr "Login"
 
-#: tpl/loginBar.php:28
+#: tpl/loginBar.php:34
 msgid "Username:"
 msgstr "Benutzername:"
 
-#: tpl/loginBar.php:30
+#: tpl/loginBar.php:36
 msgid "Password:"
 msgstr "Passwort:"
 
-#: tpl/loginBar.php:33
+#: tpl/loginBar.php:39
 msgid "Remember me"
 msgstr "Angemeldet bleiben"
 
-#: tpl/loginBar.php:41
+#: tpl/loginBar.php:46
 msgid "Register"
 msgstr "Registrieren"
 
-#: tpl/loginBar.php:45
+#: tpl/loginBar.php:49
 msgid "Password Lost and Found"
 msgstr "Passwort Lost and Found"
 
-#: tpl/loginBar.php:45
+#: tpl/loginBar.php:49
 msgid "Lost your password?"
 msgstr "Passwort vergessen?"
 

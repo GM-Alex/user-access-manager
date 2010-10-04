@@ -1,4 +1,4 @@
-# Translation of the WordPress plugin User Access Manager 1.1 by Alexander Schneider.
+# Translation of the WordPress plugin User Access Manager 1.1.2pre by Alexander Schneider.
 # Copyright (C) 2010 Alexander Schneider
 # This file is distributed under the same license as the User Access Manager package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: User Access Manager 1.1\n"
+"Project-Id-Version: User Access Manager 1.1.2pre\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
-"POT-Creation-Date: 2010-09-27 23:12+0000\n"
+"POT-Creation-Date: 2010-10-04 20:18+0000\n"
 "PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,28 +16,28 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: class/UserAccessManager.class.php:510 class/UserAccessManager.class.php:523
+#: class/UserAccessManager.class.php:633 class/UserAccessManager.class.php:646
 msgid "No rights!"
 msgstr ""
 
-#: class/UserAccessManager.class.php:512
+#: class/UserAccessManager.class.php:635
 msgid "Sorry you have no rights to view this post!"
 msgstr ""
 
-#: class/UserAccessManager.class.php:518 class/UserAccessManager.class.php:531
+#: class/UserAccessManager.class.php:641 class/UserAccessManager.class.php:654
 msgid "Sorry no rights to view comments!"
 msgstr ""
 
-#: class/UserAccessManager.class.php:525
+#: class/UserAccessManager.class.php:648
 msgid "Sorry you have no rights to view this page!"
 msgstr ""
 
-#: class/UserAccessManager.class.php:826
-#: class/UserAccessManager.class.php:1040
+#: class/UserAccessManager.class.php:956
+#: class/UserAccessManager.class.php:1170
 msgid "Access"
 msgstr ""
 
-#: class/UserAccessManager.class.php:963
+#: class/UserAccessManager.class.php:1093
 msgid "uam user groups"
 msgstr ""
 
@@ -582,144 +582,156 @@ msgstr ""
 msgid "User Access Manager database was updated successfully"
 msgstr ""
 
-#: includes/language.define.php:171
+#: includes/language.define.php:168
+msgid "Update current blog"
+msgstr ""
+
+#: includes/language.define.php:169
+msgid "Update network wide"
+msgstr ""
+
+#: includes/language.define.php:173
 msgid "About"
 msgstr ""
 
-#: includes/language.define.php:174
+#: includes/language.define.php:176
 msgid "How to support me?"
 msgstr ""
 
-#: includes/language.define.php:175
+#: includes/language.define.php:177
 msgid ""
 "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</"
 "strong><br/>Help me to improve the plugin."
 msgstr ""
 
-#: includes/language.define.php:176
+#: includes/language.define.php:178
 msgid ""
 "<strong>Make a translation of the plugin.</strong><br/>The give other users "
 "more comfort help me to translate it to all languages."
 msgstr ""
 
-#: includes/language.define.php:177
+#: includes/language.define.php:179
 msgid "<strong>Donate via paypal</strong>"
 msgstr ""
 
-#: includes/language.define.php:178
+#: includes/language.define.php:180
 msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
 msgstr ""
 
-#: includes/language.define.php:181
+#: includes/language.define.php:183
 msgid "Thanks"
 msgstr ""
 
-#: includes/language.define.php:182
+#: includes/language.define.php:184
 msgid ""
 "Special thanks go out to my girlfriend for giving me the time to develop "
 "this plugin."
 msgstr ""
 
-#: includes/language.define.php:183
+#: includes/language.define.php:185
 msgid ""
 "I would like to thank all the guys which has helped me with this plugin:"
 msgstr ""
 
-#: includes/language.define.php:184
+#: includes/language.define.php:186
 msgid "all beta testers and all others I forgot"
 msgstr ""
 
-#: includes/language.define.php:188
+#: includes/language.define.php:190
 msgid "Full access"
 msgstr ""
 
-#: includes/language.define.php:189
+#: includes/language.define.php:191
 msgid "Member of other user groups"
 msgstr ""
 
-#: includes/language.define.php:190
+#: includes/language.define.php:192
 msgid ""
 "<strong>Note:</strong> An administrator has allways access to all posts/"
 "pages."
 msgstr ""
 
-#: includes/language.define.php:191
+#: includes/language.define.php:193
 msgid "Please create a user group first."
 msgstr ""
 
-#: includes/language.define.php:192
+#: includes/language.define.php:194
 msgid "No user group available."
 msgstr ""
 
-#: includes/language.define.php:193
+#: includes/language.define.php:195
 msgid "You have no rights to access this content."
 msgstr ""
 
-#: includes/language.define.php:194
+#: includes/language.define.php:196
 msgid "User Groups"
 msgstr ""
 
-#: includes/language.define.php:195
+#: includes/language.define.php:197
 msgid "Set up usergroups"
 msgstr ""
 
-#: includes/language.define.php:199
+#: includes/language.define.php:201
 msgid "Info"
 msgstr ""
 
-#: includes/language.define.php:200
+#: includes/language.define.php:202
 msgid "Group infos"
 msgstr ""
 
-#: includes/language.define.php:201
+#: includes/language.define.php:203
 msgid "Group membership given by posts"
 msgstr ""
 
-#: includes/language.define.php:202
+#: includes/language.define.php:204
+msgid "Group membership given by pages"
+msgstr ""
+
+#: includes/language.define.php:205
 msgid "Group membership given by categories"
 msgstr ""
 
-#: includes/language.define.php:203
+#: includes/language.define.php:206
 msgid "Group membership given by role"
 msgstr ""
 
-#: includes/language.define.php:204
+#: includes/language.define.php:207
 msgid "Assigned groups"
 msgstr ""
 
-#: includes/language.define.php:208
+#: includes/language.define.php:211
 msgid "Opening fileinfo database failed."
 msgstr ""
 
-#: includes/language.define.php:209
+#: includes/language.define.php:212
 msgid "Error: File not found."
 msgstr ""
 
-#: tpl/loginBar.php:20 tpl/loginBar.php:34
+#: tpl/loginBar.php:23 tpl/loginBar.php:40
 msgid "Login"
 msgstr ""
 
-#: tpl/loginBar.php:28
+#: tpl/loginBar.php:34
 msgid "Username:"
 msgstr ""
 
-#: tpl/loginBar.php:30
+#: tpl/loginBar.php:36
 msgid "Password:"
 msgstr ""
 
-#: tpl/loginBar.php:33
+#: tpl/loginBar.php:39
 msgid "Remember me"
 msgstr ""
 
-#: tpl/loginBar.php:41
+#: tpl/loginBar.php:46
 msgid "Register"
 msgstr ""
 
-#: tpl/loginBar.php:45
+#: tpl/loginBar.php:49
 msgid "Password Lost and Found"
 msgstr ""
 
-#: tpl/loginBar.php:45
+#: tpl/loginBar.php:49
 msgid "Lost your password?"
 msgstr ""
 
