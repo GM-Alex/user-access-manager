@@ -1331,14 +1331,18 @@ class UserAccessManager
      */
     public function parseQuery($wpQuery)
     {
-        $uamAccessHandler = &$this->getAccessHandler();
         $uamOptions = $this->getAdminOptions();
         
         if ($uamOptions['hide_post'] == 'true') {
-            $wpQuery->query_vars['post__not_in'] = array_merge(
-                $wpQuery->query_vars['post__not_in'],
-                $uamAccessHandler->getExcludedPosts()
-            );
+            $uamAccessHandler = &$this->getAccessHandler();
+            $excludedPosts = $uamAccessHandler->getExcludedPosts();
+            
+            if (count($excludedPosts) > 0) {
+                $wpQuery->query_vars['post__not_in'] = array_merge(
+                    $wpQuery->query_vars['post__not_in'],
+                    $excludedPosts
+                );
+            }
         }
     }
     

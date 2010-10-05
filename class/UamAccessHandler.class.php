@@ -44,6 +44,7 @@ class UamAccessHandler
         'role'
     );
     protected $allObjectTypes = null;
+    protected $sqlResults = array();
     
     /**
      * The consturctor
@@ -428,6 +429,10 @@ class UamAccessHandler
      */
     private function _getUserGroupsForUserAsSqlString()
     {
+        if (isset($this->sqlResults['groupsForUser'])) {
+            return $this->sqlResults['groupsForUser'];
+        }
+        
         global $current_user;
         //Force user infos
         wp_get_current_user();
@@ -450,7 +455,59 @@ class UamAccessHandler
             $userUserGroupString = 'NULL';
         }
         
-        return $userUserGroupString;
+        $this->sqlResults['groupsForUser'] = $userUserGroupString;
+        
+        return $this->sqlResults['groupsForUser'];
+    }
+    
+    /**
+     * Returns the categories assigned to the user.
+     * 
+     * @return array
+     */
+    public function getCategoriesForUser()
+    {
+        if (isset($this->sqlResults['categoriesAssignedToUser'])) {
+            return $this->sqlResults['categoriesAssignedToUser'];
+        }
+        
+        $userUserGroupString = $this->_getUserGroupsForUserAsSqlString();
+        
+        $categoriesAssignedToUserSql = "
+        	SELECT igc.object_id  
+    		FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igc
+    		WHERE igc.object_type = 'category'
+    		AND igc.group_id IN (".$userUserGroupString.")";
+        
+        $this->sqlResults['categoriesAssignedToUser'] 
+            = $wpdb->get_col($categoriesAssignedToUserSql);
+
+        return $this->sqlResults['categoriesAssignedToUser'];
+    }
+    
+    /**
+     * Returns the posts assigned to the user.
+     * 
+     * @return array
+     */
+    public function getPostsForUser()
+    {
+        if (isset($this->sqlResults['postsAssignedToUser'])) {
+            return $this->sqlResults['postsAssignedToUser'];
+        }
+        
+        $userUserGroupString = $this->_getUserGroupsForUserAsSqlString();
+        
+        $postAssignedToUserSql = "
+        	SELECT igp.object_id  
+        	FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igp
+        	WHERE igp.object_type = 'post'
+            AND igp.group_id IN (".$userUserGroupString.")";
+        
+        $this->sqlResults['postsAssignedToUser'] 
+            = $wpdb->get_col($postAssignedToUserSql);
+            
+        return $this->sqlResults['postsAssignedToUser'];
     }
     
  	/**
@@ -463,10 +520,12 @@ class UamAccessHandler
         global $wpdb;
         
         if ($this->checkUserAccess()) {
-            return array();
+            $this->sqlResults['excludedPosts'] = array();
         }
         
-        $userUserGroupString = $this->_getUserGroupsForUserAsSqlString();
+        if (isset($this->sqlResults['excludedPosts'])) {
+            return $this->sqlResults['excludedPosts'];
+        }
         
         if ($this->getUserAccessManager()->atAdminPanel) {
             $accessType = "write";
@@ -474,17 +533,23 @@ class UamAccessHandler
             $accessType = "read";
         }
 
-        $categoriesAssignedToUserSql = "
-        	SELECT igc.object_id  
-    		FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igc
-    		WHERE igc.object_type = 'category'
-    		AND igc.group_id IN (".$userUserGroupString.")";
+        $categoriesAssignedToUser = $this->getCategoriesForUser();
+            
+        if ($categoriesAssignedToUser !== array()) {
+            $categoriesAssignedToUserString 
+                = implode(', ', $categoriesAssignedToUser);
+        } else {
+            $categoriesAssignedToUserString = 'NULL';
+        }
         
-        $postAssignedToUserSql = "
-        	SELECT igp.object_id  
-        	FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igp
-        	WHERE igp.object_type = 'post'
-            AND igp.group_id IN (".$userUserGroupString.")";
+        $postAssignedToUser = $this->getPostsForUser();
+        
+        if ($postAssignedToUser !== array()) {
+            $postAssignedToUserString 
+                = implode(', ', $postAssignedToUser);
+        } else {
+            $postAssignedToUserString = 'NULL';
+        }
         
         $postSql = "SELECT DISTINCT p.ID 
         	FROM $wpdb->posts AS p 
@@ -500,8 +565,8 @@ class UamAccessHandler
     				ON iag.id = gc.group_id
     			WHERE gc.object_type = 'category'
     			AND iag.".$accessType."_access != 'all'
-    			AND gc.object_id  NOT IN (".$categoriesAssignedToUserSql.")
-    		) AND p.ID NOT IN (".$postAssignedToUserSql.")
+    			AND gc.object_id  NOT IN (".$categoriesAssignedToUserString.")
+    		) AND p.ID NOT IN (".$postAssignedToUserString.")
     		UNION
     		SELECT DISTINCT gp.object_id 
     		FROM ".DB_ACCESSGROUP." AS ag
@@ -513,12 +578,12 @@ class UamAccessHandler
         		ON tr.term_taxonomy_id = tt.term_taxonomy_id
     		WHERE gp.object_type = 'post'
     		AND ag.".$accessType."_access != 'all'
-    		AND gp.object_id  NOT IN (".$postAssignedToUserSql.") 
-    		AND tt.term_id NOT IN (".$categoriesAssignedToUserSql.")";
+    		AND gp.object_id  NOT IN (".$postAssignedToUserString.") 
+    		AND tt.term_id NOT IN (".$categoriesAssignedToUserString.")";
             
-        $excludedPosts = $wpdb->get_col($postSql);
+        $this->sqlResults['excludedPosts'] = $wpdb->get_col($postSql);
 
-        return $excludedPosts;
+        return $this->sqlResults['excludedPosts'];
     }
     
     
