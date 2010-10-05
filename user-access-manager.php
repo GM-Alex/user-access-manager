@@ -119,7 +119,7 @@ if (!function_exists("userAccessManagerAP")) {
             return;
         }
         
-        $userAccessManager->atAdminPanel = true;
+        $userAccessManager->setAtAdminPanel();
         $uamOptions = $userAccessManager->getAdminOptions();
         
         if ($userAccessManager->isDatabaseUpdateNecessary()) {

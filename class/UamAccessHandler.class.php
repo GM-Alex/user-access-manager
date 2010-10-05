@@ -154,7 +154,7 @@ class UamAccessHandler
         
         if ($uamOptions['authors_can_add_posts_to_groups'] == 'true'
         	&& !$this->checkUserAccess()
-        	&& $this->getUserAccessManager()->atAdminPanel
+        	&& $this->getUserAccessManager()->atAdminPanel()
         ) {
             global $current_user;
             //Force user infos
@@ -401,9 +401,9 @@ class UamAccessHandler
                 break;
             }
             
-            if ($this->getUserAccessManager()->atAdminPanel 
+            if ($this->getUserAccessManager()->atAdminPanel()
                 && $userGroup->getWriteAccess() == 'all'
-            	|| !$this->getUserAccessManager()->atAdminPanel 
+            	|| !$this->getUserAccessManager()->atAdminPanel() 
             	&& $userGroup->getReadAccess() == 'all'
             ) {
                 unset($membership[$key]);
@@ -531,7 +531,7 @@ class UamAccessHandler
             return $this->sqlResults['excludedPosts'];
         }
         
-        if ($this->getUserAccessManager()->atAdminPanel) {
+        if ($this->getUserAccessManager()->atAdminPanel()) {
             $accessType = "write";
         } else {
             $accessType = "read";

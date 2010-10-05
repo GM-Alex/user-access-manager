@@ -27,7 +27,7 @@
 
 class UserAccessManager
 {
-    var $atAdminPanel = false;
+    protected $atAdminPanel = false;
     protected $adminOptionsName = "uamAdminOptions";
     protected $uamVersion = "1.1.3pre2";
     protected $uamDbVersion = "1.1";
@@ -212,7 +212,6 @@ class UserAccessManager
         $this->_updateUam();
     }
     
-    
     /**
      * Updates the user access manager if an old version was installed.
      * 
@@ -343,8 +342,7 @@ class UserAccessManager
             
             update_option('uam_db_version', $this->uamDbVersion);
         }
-    }
-    
+    }    
     
     /**
      * Clean up wordpress if the plugin will be uninstalled.
@@ -725,6 +723,36 @@ class UserAccessManager
         }
         
         return $this->accessHandler;
+    }
+    
+    /**
+     * Returns the current version of the user access manager.
+     * 
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->uamVersion;
+    }
+    
+    /**
+     * Returns true if a user is at the admin panel.
+     * 
+     * @return boolean
+     */
+    public function atAdminPanel()
+    {
+        return $this->atAdminPanel;
+    }
+    
+    /**
+     * Sets the atAdminPanel var to true.
+     * 
+     * @return null
+     */
+    public function setAtAdminPanel()
+    {
+        $this->atAdminPanel = true;
     }
     
     
@@ -1367,7 +1395,7 @@ class UserAccessManager
         }
         
         if ($uamOptions['hide_'.$postType] == 'true'
-            || $this->atAdminPanel
+            || $this->atAdminPanel()
         ) {
             if ($uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)) {
                 $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
@@ -1541,7 +1569,7 @@ class UserAccessManager
             
             if ($uamOptions['hide_'.$postType.'_comment'] == 'true' 
                 || $uamOptions['hide_'.$postType] == 'true' 
-                || $this->atAdminPanel
+                || $this->atAdminPanel()
             ) {
                 if ($uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)) {
                     $showComments[] = $comment;
@@ -1576,7 +1604,7 @@ class UserAccessManager
         
         foreach ($pages as $page) {
             if ($uamOptions['hide_page'] == 'true' 
-                || $this->atAdminPanel
+                || $this->atAdminPanel()
             ) {
                 if ($uamAccessHandler->checkObjectAccess($page->post_type, $page->ID)) {
                     $page->post_title .= $this->adminOutput(
@@ -1621,7 +1649,7 @@ class UserAccessManager
         $category->name .= $this->adminOutput('category', $category->term_id);
         
         if ($uamAccessHandler->checkObjectAccess('category', $category->term_id)) {
-            if ($this->atAdminPanel == false
+            if ($this->atAdminPanel() == false
                 && ($uamOptions['hide_post'] == 'true'
                 || $uamOptions['hide_page'] == 'true')
             ) {
@@ -1749,7 +1777,7 @@ class UserAccessManager
     {
         $output = "";
         
-        if (!$this->atAdminPanel) {
+        if (!$this->atAdminPanel()) {
             $uamOptions = $this->getAdminOptions();
             
             if ($uamOptions['blog_admin_hint'] == 'true') {
@@ -1853,7 +1881,7 @@ class UserAccessManager
             $fileUrl = $_GET['uamgetfile'];
             $fileType = $_GET['uamfiletype'];
             $this->getFile($fileType, $fileUrl);
-        } elseif (!$this->atAdminPanel && $uamOptions['redirect'] != 'false') {
+        } elseif (!$this->atAdminPanel() && $uamOptions['redirect'] != 'false') {
             $object = null;
         
             if (isset($pageParams->query_vars['p'])) {
