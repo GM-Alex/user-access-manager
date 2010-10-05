@@ -64,6 +64,10 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    1.1.3		2010/10/XX  Fix media file bug
+    						Improve redirecting code
+    						Speed up
+    
     1.1.2		2010/10/04  Fix read/write access bug
     						Add recursive looking for posts page option
                             Improve network activation/update

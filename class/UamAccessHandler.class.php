@@ -452,7 +452,7 @@ class UamAccessHandler
         if ($userUserGroupArray !== array()) {
             $userUserGroupString = implode(', ', $userUserGroupArray);
         } else {
-            $userUserGroupString = 'NULL';
+            $userUserGroupString = "''";
         }
         
         $this->sqlResults['groupsForUser'] = $userUserGroupString;
@@ -467,6 +467,8 @@ class UamAccessHandler
      */
     public function getCategoriesForUser()
     {
+        global $wpdb;
+        
         if (isset($this->sqlResults['categoriesAssignedToUser'])) {
             return $this->sqlResults['categoriesAssignedToUser'];
         }
@@ -478,6 +480,8 @@ class UamAccessHandler
     		FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igc
     		WHERE igc.object_type = 'category'
     		AND igc.group_id IN (".$userUserGroupString.")";
+        
+        return $wpdb->get_col($categoriesAssignedToUserSql);
         
         $this->sqlResults['categoriesAssignedToUser'] 
             = $wpdb->get_col($categoriesAssignedToUserSql);
@@ -492,6 +496,8 @@ class UamAccessHandler
      */
     public function getPostsForUser()
     {
+        global $wpdb;
+        
         if (isset($this->sqlResults['postsAssignedToUser'])) {
             return $this->sqlResults['postsAssignedToUser'];
         }
@@ -503,6 +509,8 @@ class UamAccessHandler
         	FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igp
         	WHERE igp.object_type = 'post'
             AND igp.group_id IN (".$userUserGroupString.")";
+        
+        return $wpdb->get_col($postAssignedToUserSql);
         
         $this->sqlResults['postsAssignedToUser'] 
             = $wpdb->get_col($postAssignedToUserSql);
@@ -539,7 +547,7 @@ class UamAccessHandler
             $categoriesAssignedToUserString 
                 = implode(', ', $categoriesAssignedToUser);
         } else {
-            $categoriesAssignedToUserString = 'NULL';
+            $categoriesAssignedToUserString = "''";
         }
         
         $postAssignedToUser = $this->getPostsForUser();
@@ -548,7 +556,7 @@ class UamAccessHandler
             $postAssignedToUserString 
                 = implode(', ', $postAssignedToUser);
         } else {
-            $postAssignedToUserString = 'NULL';
+            $postAssignedToUserString = "''";
         }
         
         $postSql = "SELECT DISTINCT p.ID 
@@ -580,9 +588,11 @@ class UamAccessHandler
     		AND ag.".$accessType."_access != 'all'
     		AND gp.object_id  NOT IN (".$postAssignedToUserString.") 
     		AND tt.term_id NOT IN (".$categoriesAssignedToUserString.")";
-            
+        
+        return $wpdb->get_col($postSql);
+        
         $this->sqlResults['excludedPosts'] = $wpdb->get_col($postSql);
-
+        
         return $this->sqlResults['excludedPosts'];
     }
     

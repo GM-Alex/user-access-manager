@@ -29,7 +29,7 @@ class UserAccessManager
 {
     var $atAdminPanel = false;
     protected $adminOptionsName = "uamAdminOptions";
-    protected $uamVersion = "1.1.2pre";
+    protected $uamVersion = "1.1.3pre";
     protected $uamDbVersion = "1.1";
     protected $adminOptions;
     protected $accessHandler = null;
@@ -1880,6 +1880,29 @@ class UserAccessManager
     }
     
     /**
+     * Returns the current url.
+     * 
+     * @return string
+     */
+    public function getCurrentUrl()
+    { 
+        if (!isset($_SERVER['REQUEST_URI'])) {
+            $serverrequri = $_SERVER['PHP_SELF']; 
+        } else { 
+            $serverrequri = $_SERVER['REQUEST_URI']; 
+        } 
+        
+        $s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
+        $protocolArray = explode("/", strtolower($_SERVER["SERVER_PROTOCOL"]));
+        $protocol = $protocolArray[0].$s;
+        $port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
+        
+        $fullUrl = $protocol."://".$_SERVER['SERVER_NAME'].$port.$serverrequri;
+        
+        return $fullUrl; 
+    }
+    
+    /**
      * Redirects the user to his destination.
      * 
      * @param object $object The current object we want to access.
@@ -1915,8 +1938,8 @@ class UserAccessManager
             } elseif ($uamOptions['redirect'] == 'custom_url') {
                 $url = $uamOptions['redirect_custom_url'];
             }
-            
-            if ($url != "http://".$_SERVER['HTTP_HOST'].$_SERVER["REQUEST_URI"]) {
+
+            if ($url != $this->getCurrentUrl()) {
                 wp_redirect($url);
                 exit;
             }      
@@ -1981,7 +2004,7 @@ class UserAccessManager
             $uamOptions = $this->getAdminOptions();
             
             if ($uamOptions['download_type'] == 'fopen'
-                && !$objectIsImage
+                && !$object->isImage
             ) {
                 $fp = fopen($file, 'r');
                 
@@ -2117,7 +2140,7 @@ class UserAccessManager
         }
         
         //Filter edit string
-        $newUrl = preg_split("/-e[0-9]*/", $url);
+        $newUrl = preg_split("/-e[0-9]{1,}/", $url);
 
         if (count($newUrl) == 2) {
             $newUrl = $newUrl[0].$newUrl[1];
@@ -2126,7 +2149,7 @@ class UserAccessManager
         }
         
         //Filter size
-        $newUrl = preg_split("/-[0-9]*x[0-9]*/", $newUrl);
+        $newUrl = preg_split("/-[0-9]{1,}x[0-9]{1,}/", $newUrl);
 
         if (count($newUrl) == 2) {
             $newUrl = $newUrl[0].$newUrl[1];
