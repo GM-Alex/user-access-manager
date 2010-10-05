@@ -64,7 +64,7 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.1.3		2010/10/XX  Fix media file bug
+    1.1.3		2010/10/XX  Fix media file bug for multisites
     						Improve redirecting code
     						Speed up
     
