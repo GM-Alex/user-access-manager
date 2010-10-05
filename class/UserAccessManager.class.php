@@ -2041,7 +2041,9 @@ class UserAccessManager
                 flush();
                 
                 while (!feof($fp)) {
-                    set_time_limit(30);
+                    if (!ini_get('safe_mode')) {
+                        set_time_limit(30);
+                    }
                     $buffer = fread($fp, 1024);
                     echo $buffer;
                 }
