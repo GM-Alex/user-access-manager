@@ -2022,8 +2022,13 @@ class UserAccessManager
         if ($objectType == 'attachment') {
             $uploadDir = wp_upload_dir();
 
+            $multiPath = str_replace(ABSPATH, '/', $uploadDir['basedir']);
+            $multiPath = str_replace('/files', $multiPath, $uploadDir['baseurl']);
+            
             if ($this->isPermalinksActive()) {
-                $objectUrl = $uploadDir['baseurl'].'/'.$objectUrl;
+                //TODO Remove if not needed.
+                //$objectUrl = $uploadDir['baseurl'].'/'.$objectUrl;
+                $objectUrl = $multiPath.'/'.$objectUrl;
             }
             
             $post = get_post($this->getPostIdByUrl($objectUrl));
@@ -2035,8 +2040,15 @@ class UserAccessManager
                 $object->isImage = wp_attachment_is_image($post->ID);
                 $object->type = $objectType;
 
-                $object->file = $uploadDir['basedir'].str_replace(
+                //TODO Remove if not needed.
+                /*$object->file = $uploadDir['basedir'].str_replace(
                     $uploadDir['baseurl'], 
+                    '', 
+                    $objectUrl
+                );*/
+                
+                $object->file = $uploadDir['basedir'].str_replace(
+                    $multiPath, 
                     '', 
                     $objectUrl
                 );
