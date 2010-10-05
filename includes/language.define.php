@@ -189,7 +189,7 @@ define('TXT_UAM_THANKS_OTHERS', __('all beta testers and all others I forgot', '
 // --- Edit forms ---
 define('TXT_UAM_FULL_ACCESS', __('Full access', 'user-access-manager'));
 define('TXT_UAM_MEMBER_OF_OTHER_GROUPS', __('Member of other user groups', 'user-access-manager'));
-define('TXT_UAM_ADMIN_HINT', __('<strong>Note:</strong> An administrator has allways access to all posts/pages.', 'user-access-manager'));
+define('TXT_UAM_ADMIN_HINT', __('<strong>Note:</strong> An administrator has always access to all posts/pages.', 'user-access-manager'));
 define('TXT_UAM_CREATE_GROUP_FIRST', __('Please create a user group first.', 'user-access-manager'));
 define('TXT_UAM_NO_GROUP_AVAILABLE', __('No user group available.', 'user-access-manager'));
 define('TXT_UAM_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
