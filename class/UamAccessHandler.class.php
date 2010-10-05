@@ -481,8 +481,6 @@ class UamAccessHandler
     		WHERE igc.object_type = 'category'
     		AND igc.group_id IN (".$userUserGroupString.")";
         
-        return $wpdb->get_col($categoriesAssignedToUserSql);
-        
         $this->sqlResults['categoriesAssignedToUser'] 
             = $wpdb->get_col($categoriesAssignedToUserSql);
 
@@ -509,8 +507,6 @@ class UamAccessHandler
         	FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igp
         	WHERE igp.object_type = 'post'
             AND igp.group_id IN (".$userUserGroupString.")";
-        
-        return $wpdb->get_col($postAssignedToUserSql);
         
         $this->sqlResults['postsAssignedToUser'] 
             = $wpdb->get_col($postAssignedToUserSql);
@@ -588,8 +584,6 @@ class UamAccessHandler
     		AND ag.".$accessType."_access != 'all'
     		AND gp.object_id  NOT IN (".$postAssignedToUserString.") 
     		AND tt.term_id NOT IN (".$categoriesAssignedToUserString.")";
-        
-        return $wpdb->get_col($postSql);
         
         $this->sqlResults['excludedPosts'] = $wpdb->get_col($postSql);
         
