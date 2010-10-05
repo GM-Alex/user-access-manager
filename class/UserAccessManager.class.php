@@ -2173,4 +2173,18 @@ class UserAccessManager
         
         return $this->postUrls[$url];
     }
+    
+    /**
+     * Caches the urls for the post for a later lookup.
+     * 
+     * @param string $url  The url of the post.
+     * @param object $post The post object.
+     * 
+     * @return null
+     */
+    public function cachePostLinks($url, $post)
+    {
+        $this->postUrls[$url] = $post->ID;
+        return $url;
+    }
 }
