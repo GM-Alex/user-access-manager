@@ -2139,6 +2139,8 @@ class UserAccessManager
             return $this->postUrls[$url];
         }
         
+        $this->postUrls[$url] = null;
+        
         //Filter edit string
         $newUrl = preg_split("/-e[0-9]{1,}/", $url);
 
@@ -2166,23 +2168,9 @@ class UserAccessManager
         );
         
         if ($dbPost) {
-            return $dbPost->ID;
+            $this->postUrls[$url] = $dbPost->ID;
         }
         
-        return null;
-    }
-    
-    /**
-     * Caches the urls for the post for a later lookup.
-     * 
-     * @param string $url  The url of the post.
-     * @param object $post The post object.
-     * 
-     * @return null
-     */
-    public function cachePostLinks($url, $post)
-    {
-        $this->postUrls[$url] = $post->ID;
-        return $url;
+        return $this->postUrls[$url];
     }
 }
