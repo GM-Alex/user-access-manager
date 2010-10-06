@@ -216,6 +216,21 @@ if (!function_exists("userAccessManagerAPMenu")) {
         }
         
         $uamOptions = $userAccessManager->getAdminOptions();
+        
+        if (ini_get('safe_mode') 
+            && $uamOptions['download_type'] == 'fopen'
+        ) {
+            add_action(
+            	'admin_notices', 
+            	create_function(
+            		'', 
+            		'echo \'<div id="message" class="error"><p><strong>'. 
+            	    TXT_UAM_FOPEN_WITHOUT_SAVEMODE_OFF. 
+            		'</strong></p></div>\';'
+            	)
+            );
+        }
+        
         $curUserdata = get_userdata($current_user->ID);
         
         if ($userAccessManager->getAccessHandler()->checkUserAccess()) {
