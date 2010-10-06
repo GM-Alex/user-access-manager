@@ -34,6 +34,60 @@ class UserAccessManager
     protected $adminOptions;
     protected $accessHandler = null;
     protected $postUrls = array();
+    protected $mimeTypes = array(
+		'txt' => 'text/plain',
+        'htm' => 'text/html',
+        'html' => 'text/html',
+        'php' => 'text/html',
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'json' => 'application/json',
+        'xml' => 'application/xml',
+        'swf' => 'application/x-shockwave-flash',
+        'flv' => 'video/x-flv',
+
+        // images
+        'png' => 'image/png',
+        'jpe' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'jpg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'bmp' => 'image/bmp',
+        'ico' => 'image/vnd.microsoft.icon',
+        'tiff' => 'image/tiff',
+        'tif' => 'image/tiff',
+        'svg' => 'image/svg+xml',
+        'svgz' => 'image/svg+xml',
+
+        // archives
+        'zip' => 'application/zip',
+        'rar' => 'application/x-rar-compressed',
+        'exe' => 'application/x-msdownload',
+        'msi' => 'application/x-msdownload',
+        'cab' => 'application/vnd.ms-cab-compressed',
+
+        // audio/video
+        'mp3' => 'audio/mpeg',
+        'qt' => 'video/quicktime',
+        'mov' => 'video/quicktime',
+
+        // adobe
+        'pdf' => 'application/pdf',
+        'psd' => 'image/vnd.adobe.photoshop',
+        'ai' => 'application/postscript',
+        'eps' => 'application/postscript',
+        'ps' => 'application/postscript',
+
+        // ms office
+        'doc' => 'application/msword',
+        'rtf' => 'application/rtf',
+        'xls' => 'application/vnd.ms-excel',
+        'ppt' => 'application/vnd.ms-powerpoint',
+
+        // open office
+        'odt' => 'application/vnd.oasis.opendocument.text',
+        'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+    );
     
     /**
      * Consturctor
@@ -1531,7 +1585,7 @@ class UserAccessManager
                 }
             } elseif ($item->object == 'category') {
                 $object = get_category($item->object_id);
-                $category = $this->_getCategory($object);
+                $category = $this->_getTerm('category', $object);
 
                 if ($category !== null
                     && !$category->isEmpty
@@ -1633,67 +1687,87 @@ class UserAccessManager
     }
     
     /**
-     * Modifies the content of the category by the given settings.
+     * Modifies the content of the term by the given settings.
      * 
-     * @param object $category The current category.
+     * @param string $termType The type of the term.
+     * @param object $term     The current term.
      * 
      * @return object
      */
-    private function _getCategory($category)
+    private function _getTerm($termType, $term)
     {
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
-        $category->isEmpty = false;
+        $term->isEmpty = false;
         
-        $category->name .= $this->adminOutput('category', $category->term_id);
+        $term->name .= $this->adminOutput('term', $term->term_id);
         
-        if ($uamAccessHandler->checkObjectAccess('category', $category->term_id)) {
+        if ($termType == 'post_tag'
+            || $termType == 'category'
+            && $uamAccessHandler->checkObjectAccess('category', $term->term_id)
+        ) {
             if ($this->atAdminPanel() == false
                 && ($uamOptions['hide_post'] == 'true'
                 || $uamOptions['hide_page'] == 'true')
             ) {
+                $termRequest = $term->term_id;
+                $termRequestType = $termType;
+                
+                if ($termType == 'post_tag') {
+                    $termRequest = $term->slug;
+                    $termRequestType = 'tag';
+                }
+                
                 $args = array(
                 	'numberposts' => - 1,
-                    'category' => $category->term_id
+                    $termRequestType => $termRequest
                 );
                 
-                $categoryPosts = get_posts($args);
-                $category->count = count($categoryPosts);
+                $termPosts = get_posts($args);
+                $term->count = count($termPosts);
                 
-                if (isset($categoryPosts)) {
-                    foreach ($categoryPosts as $post) {
+                if (isset($termPosts)) {
+                    foreach ($termPosts as $post) {
                         if ($uamOptions['hide_'.$post->post_type] == 'true'
                             && !$uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)
                         ) {
-                            $category->count--;
+                            $term->count--;
                         }
                     }
                 }
                 
-                if ($category->count <= 0 
+                //For post_tags
+                if ($termType == 'post_tag'
+                	&& $term->count <= 0
+        	    ) {
+        	        return null;
+        	    }
+                
+        	    //For categories
+                if ($term->count <= 0 
                     && $uamOptions['hide_empty_categories'] == 'true'
-                    && $category->taxonomy == "category"
+                    && $term->taxonomy == "term"
                 ) {
-                    $category->isEmpty = true;
+                    $term->isEmpty = true;
                 }
                 
                 if ($uamOptions['lock_recursive'] == 'false') {
-                    $curCategory = $category;
+                    $curCategory = $term;
                     
                     while ($curCategory->parent != 0) {
-                        $curCategory = get_category($curCategory->parent);
+                        $curCategory = get_term($curCategory->parent);
                         
-                        if ($uamAccessHandler->checkObjectAccess('category', $curCategory->term_id)) {
-                            $category->parent = $curCategory->term_id;
+                        if ($uamAccessHandler->checkObjectAccess('term', $curCategory->term_id)) {
+                            $term->parent = $curCategory->term_id;
                             break;
                         }
                     }
                 }
                 
-                return $category;
+                return $term;
             } else {
-                return $category;
+                return $term;
             } 
         }
         
@@ -1703,41 +1777,45 @@ class UserAccessManager
     /**
      * The function for the get_terms filter.
      * 
-     * @param array $categories The categories.
-     * @param array $args       The given arguments.
+     * @param array $terms The terms.
+     * @param array $args  The given arguments.
      * 
      * @return array
      */
-    public function showCategory($categories = array(), $args = array())
+    public function showTerms($terms = array(), $args = array())
     {    
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         
-        $showCategories = array();
+        $showTerms = array();
 
         $uamOptions = $this->getAdminOptions();
 
-        foreach ($categories as $category) {
-            if (!is_object($category)) {
-                return $categories;
+        foreach ($terms as $term) {
+            if (!is_object($term)) {
+                return $terms;
             }
 
-            $category = $this->_getCategory($category);
+            if ($term->taxonomy == 'category') {
+                $term = $this->_getTerm('category', $term);
+            } elseif ($term->taxonomy == 'post_tag') {
+                $term = $this->_getTerm('post_tag', $term);
+            }
 
-            if ($category !== null) {
-                if (!$category->isEmpty) {
-                    $showCategories[$category->term_id] = $category;
+            if ($term !== null) {
+                if (!$term->isEmpty) {
+                    $showTerms[$term->term_id] = $term;
                 }
             }
         }
         
-        foreach ($categories as $key => $category) {
-            if (!array_key_exists($category->term_id, $showCategories)) {
-                unset($categories[$key]);
+        foreach ($terms as $key => $term) {
+            if (!array_key_exists($term->term_id, $showTerms)) {
+                unset($terms[$key]);
             }
         }
         
-        return $categories;
+        return $terms;
     }
     
     /**
@@ -2009,12 +2087,18 @@ class UserAccessManager
              * mime_content_type has been deprecated as the PECL extension Fileinfo 
              * provides the same functionality (and more) in a much cleaner way.
              */
+            $ext = strtolower(array_pop(explode('.', $fileName)));
+            
             if (function_exists('finfo_open')) {
                 $finfo = finfo_open(FILEINFO_MIME);
                 $fileMimeType = finfo_file($finfo, $file);
                 finfo_close($finfo);
-            } else {
+            } elseif (function_exists('mime_content_type')) {
                 $fileMimeType = mime_content_type($file);
+            } elseif (array_key_exists($ext, $this->mimeTypes)) {
+                $fileMimeType = $this->mimeTypes[$ext];
+            } else {
+                $fileMimeType = 'application/octet-stream';
             }
             
             header('Content-Description: File Transfer');
