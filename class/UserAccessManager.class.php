@@ -29,7 +29,7 @@ class UserAccessManager
 {
     protected $atAdminPanel = false;
     protected $adminOptionsName = "uamAdminOptions";
-    protected $uamVersion = "1.1.3pre2";
+    protected $uamVersion = "1.1.3";
     protected $uamDbVersion = "1.1";
     protected $adminOptions;
     protected $accessHandler = null;

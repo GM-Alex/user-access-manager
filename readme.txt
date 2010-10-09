@@ -45,6 +45,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 * French, based on 0.8.0.2. Thanks to macbidule
 * Hungary, based on 1.0.2. Thanks to Zina
 * Danish, based on 1.1.1.2. Thanks to GeorgWP
+* Spanish, based on 1.1.2. Thanks to Juan Rodriguez
 
 Some language files are really old, if you are a native speaker it would be nice if you update a language file or make one for a language which is not translated jet.
 
@@ -66,6 +67,7 @@ Here you found the changes in each version.
     
     1.1.3		2010/10/XX  Add tag filter
     						Fix media file bug for multisites
+    						Fix ip access bug
     						Improve redirecting code
     						Speed up
     

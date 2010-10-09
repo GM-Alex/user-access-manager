@@ -310,6 +310,8 @@ class UamAccessHandler
             $plObject = true;
         }
        
+        $curIp = explode(".", $_SERVER['REMOTE_ADDR']);
+        
         if (isset($userGroups)) {
             foreach ($userGroups as $userGroup) {
                 $objectMembership = $userGroup->objectIsMember(
@@ -318,7 +320,10 @@ class UamAccessHandler
                     true
                 );
 
-                if ($objectMembership !== false) {
+                if ($objectMembership !== false
+                    || $objectType == 'user'
+                    && $this->checkUserIp($curIp, $userGroup->getIpRange())
+                ) {
                     if (is_array($objectMembership)) {
                         $userGroup->setRecursive[$objectType][$objectId] 
                             = $objectMembership;
