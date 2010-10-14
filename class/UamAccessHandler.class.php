@@ -360,7 +360,7 @@ class UamAccessHandler
      * Checks if the current_user has access to the given post.
      * 
      * @param string  $objectType The object type which should be checked.
-     * @param integer $objectId   The id of the object.
+     * @param integer $objectId   The id of the object. 
      * 
      * @return boolean
      */
