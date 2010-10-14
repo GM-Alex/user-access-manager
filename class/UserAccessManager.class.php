@@ -29,7 +29,7 @@ class UserAccessManager
 {
     protected $atAdminPanel = false;
     protected $adminOptionsName = "uamAdminOptions";
-    protected $uamVersion = "1.1.3";
+    protected $uamVersion = "1.1.4pre";
     protected $uamDbVersion = "1.1";
     protected $adminOptions;
     protected $accessHandler = null;
@@ -905,17 +905,15 @@ class UserAccessManager
     public function noRightsToEditContent()
     {
         $noRights = false;
-        
+
         if (isset($_GET['post']) 
             && is_numeric($_GET['post'])
         ) {
             $post = get_post($_GET['post']);
             
-            $noRights = !$this->getAccessHandler()->checkObjectAccess(
-                $post->post_type, 
-                $post->ID
-            ); 
-        }
+            $objectType = $post->post_type;
+            $objectId = $post->ID;
+        } 
         
         if (isset($_GET['attachment_id'])
             && is_numeric($_GET['attachment_id'])
@@ -923,23 +921,23 @@ class UserAccessManager
         ) {
             $post = get_post($_GET['attachment_id']);
             
-            $noRights = !$this->getAccessHandler()->checkObjectAccess(
-            	$post->post_type, 
-                $post->ID
-            );
+            $objectType = $post->post_type;
+            $objectId = $post->ID;
         }
         
         if (isset($_GET['tag_ID']) 
             && is_numeric($_GET['tag_ID'])
             && !$noRights
         ) {
-            $noRights = !$this->getAccessHandler()->checkObjectAccess(
-                'category', 
-                $_GET['tag_ID']
-            );
+            $objectType = 'category';
+            $objectId = $_GET['tag_ID'];
         }
 
-        if ($noRights) {
+        $allObjectTypes = $this->getAccessHandler()->getAllObjectTypes();
+        
+        if (in_array($objectType, $allObjectTypes)
+            && !$this->getAccessHandler()->checkObjectAccess($objectType, $objectId)
+        ) {
             wp_die(TXT_UAM_NO_RIGHTS);
         }
     }
