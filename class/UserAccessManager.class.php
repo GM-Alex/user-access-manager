@@ -905,15 +905,17 @@ class UserAccessManager
     public function noRightsToEditContent()
     {
         $noRights = false;
-
+        
         if (isset($_GET['post']) 
             && is_numeric($_GET['post'])
         ) {
             $post = get_post($_GET['post']);
             
-            $objectType = $post->post_type;
-            $objectId = $post->ID;
-        } 
+            $noRights = !$this->getAccessHandler()->checkObjectAccess(
+                $post->post_type, 
+                $post->ID
+            ); 
+        }
         
         if (isset($_GET['attachment_id'])
             && is_numeric($_GET['attachment_id'])
@@ -921,23 +923,23 @@ class UserAccessManager
         ) {
             $post = get_post($_GET['attachment_id']);
             
-            $objectType = $post->post_type;
-            $objectId = $post->ID;
+            $noRights = !$this->getAccessHandler()->checkObjectAccess(
+            	$post->post_type, 
+                $post->ID
+            );
         }
         
         if (isset($_GET['tag_ID']) 
             && is_numeric($_GET['tag_ID'])
             && !$noRights
         ) {
-            $objectType = 'category';
-            $objectId = $_GET['tag_ID'];
+            $noRights = !$this->getAccessHandler()->checkObjectAccess(
+                'category', 
+                $_GET['tag_ID']
+            );
         }
 
-        $allObjectTypes = $this->getAccessHandler()->getAllObjectTypes();
-        
-        if (in_array($objectType, $allObjectTypes)
-            && !$this->getAccessHandler()->checkObjectAccess($objectType, $objectId)
-        ) {
+        if ($noRights) {
             wp_die(TXT_UAM_NO_RIGHTS);
         }
     }
