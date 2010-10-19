@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.0
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -64,6 +64,9 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    1.1.4       2010/10/19  Fix error on custom post types
+                            Add warning for PHP version lower than 5.0
     
     1.1.3		2010/10/09  Add tag filter
     						Fix media file bug for multisites

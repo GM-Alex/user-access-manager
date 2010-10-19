@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
  * Author URI: http://www.gm-alex.de/
- * Version: 1.1.4pre
+ * Version: 1.1.4
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -138,8 +138,9 @@ if (!function_exists("userAccessManagerAP")) {
         
         get_currentuserinfo();
         $curUserdata = get_userdata($current_user->ID);
+        $uamAccessHandler = $userAccessManager->getAccessHandler();
         
-        if ($userAccessManager->getAccessHandler()->checkUserAccess()
+        if ($uamAccessHandler->checkUserAccess()
             || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
         ) {
             //Admin actions
@@ -232,8 +233,9 @@ if (!function_exists("userAccessManagerAPMenu")) {
         }
         
         $curUserdata = get_userdata($current_user->ID);
+        $uamAccessHandler = $userAccessManager->getAccessHandler();
         
-        if ($userAccessManager->getAccessHandler()->checkUserAccess()) {
+        if ($uamAccessHandler->checkUserAccess()) {
             //TODO
             /**
              * --- BOF ---
@@ -260,7 +262,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
              */
         }
         
-        if ($userAccessManager->getAccessHandler()->checkUserAccess()
+        if ($uamAccessHandler->checkUserAccess()
             || $uamOptions['authors_can_add_posts_to_groups'] == 'true'
         ) {
             //Admin meta boxes
