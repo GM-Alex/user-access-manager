@@ -280,6 +280,12 @@ if (!function_exists("userAccessManagerAPMenu")) {
     }
 }
 
+if (!function_exists("userAccessManagerUninstall")) {
+    function userAccessManagerUninstall() {
+        $userAccessManager->uninstall();
+    }
+}
+
 if (isset($userAccessManager)) {    
     //install
     if (function_exists('register_activation_hook')) {
@@ -288,7 +294,7 @@ if (isset($userAccessManager)) {
     
     //uninstall
     if (function_exists('register_uninstall_hook')) {
-        //register_uninstall_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
+        register_uninstall_hook(__FILE__, 'userAccessManagerUninstall');
     } elseif (function_exists('register_deactivation_hook')) {
         //Fallback
         register_deactivation_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
