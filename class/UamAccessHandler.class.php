@@ -36,12 +36,14 @@ class UamAccessHandler
     );
     protected $plObjects = array();
     protected $objectTypes = array(
+        'category',
+        'user',
+        'role',
+    );
+    protected $postableTypes = array(
         'post',
         'page',
         'attachment',
-        'category',
-        'user',
-        'role'
     );
     protected $allObjectTypes = null;
     protected $sqlResults = array();
@@ -56,6 +58,16 @@ class UamAccessHandler
     public function __construct(&$userAccessManager)
     {
         $this->userAccessManager = $userAccessManager;
+        
+        $postTypes = get_post_types(array(), 'objects');
+        
+        foreach ($postTypes as $postType) {
+            if ($postType->publicly_queryable) {
+                $this->postableTypes[] = $postType->name;
+            }
+        }
+        
+        $this->objectTypes = array_merge($this->postableTypes, $this->objectTypes);
     }
     
     /**
@@ -71,11 +83,21 @@ class UamAccessHandler
     /**
      * Returns the predfined object types.
      * 
-     * @return array();
+     * @return array
      */
     public function getObjectTypes()
     {
         return $this->objectTypes;
+    }
+    
+    /**
+     * Returns the predfined object types.
+     * 
+     * @return array();
+     */
+    public function getPostableTypes()
+    {
+        return $this->postableTypes;
     }
     
     /**
@@ -303,10 +325,9 @@ class UamAccessHandler
         
         $plObject = false;
         
-        if ($objectType != 'user'
-            && $objectType != 'post'
-            && $objectType != 'category'
-        ) {
+        $postableTypes = $this->getPostableTypes();
+
+        if (!in_array($objectType, $postableTypes)) {
             $plObject = true;
         }
        
@@ -377,8 +398,10 @@ class UamAccessHandler
         global $current_user;
         //Force user infos
         wp_get_current_user();
+        
+        $postableTypes = $this->getPostableTypes();
 
-        if ($objectType == 'post') {
+        if (in_array($objectType, $postableTypes)) {
             $post = get_post($objectId);
             $authorId = $post->post_author;
         } else {

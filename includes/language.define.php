@@ -196,7 +196,7 @@ define('TXT_UAM_NO_GROUP_AVAILABLE', __('No user group available.', 'user-access
 define('TXT_UAM_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
 define('TXT_UAM_GROUPS', __('User Groups', 'user-access-manager'));
 define('TXT_UAM_SET_UP_USERGROUPS', __('Set up usergroups', 'user-access-manager'));
-
+define('TXT_UAM_NONCE_FAILURE', __('Sorry, your nonce did not verify.'));
 
 // --- Group info ---
 define('TXT_UAM_INFO', __('Info', 'user-access-manager'));

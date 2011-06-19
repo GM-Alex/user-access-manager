@@ -1,0 +1,512 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
+"POT-Creation-Date: 2009-03-05 17:39+0000\n"
+"PO-Revision-Date: \n"
+"Last-Translator: diego valobra <diegovalobra@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: user-access-manager.php:63
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: user-access-manager.php:65
+msgid "Post settings"
+msgstr "Impostazione  articoli"
+
+#: user-access-manager.php:66
+msgid "Set up the behaviour of locked posts"
+msgstr "Imposta le azioni per gli articoli bloccati"
+
+#: user-access-manager.php:67
+msgid "Post title"
+msgstr "Titolo dell'articolo"
+
+#: user-access-manager.php:68
+msgid "Displayed text as post title if user has no access"
+msgstr "Testo mostrato come titolo dell'articolo se l'utente non ha accesso"
+
+#: user-access-manager.php:69
+msgid "Hide post titel"
+msgstr "Nascondi il titolo dell'articolo"
+
+#: user-access-manager.php:70
+#: user-access-manager.php:78
+#: user-access-manager.php:87
+#, php-format
+msgid "Selecting \"Yes\" will show the text which is defined at \"%s\" if user has no access."
+msgstr "Selezionando \"si \" verrà mostrato il testodefinito come \"% s \" se  l'utente non ha accesso."
+
+#: user-access-manager.php:71
+msgid "Post content"
+msgstr "Contenuto dell'articolo"
+
+#: user-access-manager.php:72
+#: user-access-manager.php:89
+msgid "Content displayed if user has no access"
+msgstr "Contenuto mostrato se l'utente non ha accesso"
+
+#: user-access-manager.php:73
+msgid "Hide complete posts"
+msgstr "Nascondi completamente l'articolo"
+
+#: user-access-manager.php:74
+msgid "Selecting \"Yes\" will hide posts if the user has no access."
+msgstr "Selezionando \"si \" l articolo verrà nascosto se l utente non ha accesso."
+
+#: user-access-manager.php:75
+msgid "Post commtent text"
+msgstr "Aggiungi un commento"
+
+#: user-access-manager.php:76
+msgid "Displayed text as post comment text if user has no access"
+msgstr "Testo mostrato nell'articolo se l'utente non ha accesso"
+
+#: user-access-manager.php:77
+msgid "Hide post comments"
+msgstr "Nascondi i commenti sull'articolo"
+
+#: user-access-manager.php:79
+msgid "Allow comments"
+msgstr "Autorizza i commenti"
+
+#: user-access-manager.php:80
+msgid "Selecting \"yes\" allows users to comment on locked posts"
+msgstr "Selezionando \"si \" permetterai agli utenti di commentare articoli bloccati."
+
+#: user-access-manager.php:82
+msgid "Page settings"
+msgstr "Impostazioni della pagina"
+
+#: user-access-manager.php:83
+msgid "Set up the behaviour of locked pages"
+msgstr "Imposta le azioni per le pagine bloccate"
+
+#: user-access-manager.php:84
+msgid "Page title"
+msgstr "Titolo della pagina"
+
+#: user-access-manager.php:85
+msgid "Displayed text as page title if user has no access"
+msgstr "Testo mostrato come titolo della pagina se l'utente non ha accesso"
+
+#: user-access-manager.php:86
+msgid "Hide page titel"
+msgstr "Nascondi il titolo della pagina"
+
+#: user-access-manager.php:88
+msgid "Page content"
+msgstr "Contenuto della pagina"
+
+#: user-access-manager.php:90
+msgid "Hide complete pages"
+msgstr "Nascondi completamente la pagina"
+
+#: user-access-manager.php:91
+msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will also hide in the navigation."
+msgstr "Selezionando \"si \" la pagina verrà nascosta se l'utente non ha accesso. Le pagine verranno nascoste anche nel menù"
+
+#: user-access-manager.php:93
+msgid "File settings"
+msgstr "Impostazioni dei file"
+
+#: user-access-manager.php:94
+msgid "Set up the behaviour of files"
+msgstr "Imposta le azioni per i file"
+
+#: user-access-manager.php:95
+msgid "Lock files"
+msgstr "Blocca i file"
+
+#: user-access-manager.php:96
+msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files."
+msgstr "Se selezioni \"Si \" tutti i file saranno bloccati , solo gli utenti con diritto di accesso potranno scaricare i file"
+
+#: user-access-manager.php:97
+msgid "Filetypes to lock: "
+msgstr "Formato dei file da bloccare"
+
+#: user-access-manager.php:98
+msgid "Filetypes not to lock: "
+msgstr "Formato dei file da non bloccare"
+
+#: user-access-manager.php:99
+msgid "Locked file types"
+msgstr "Tipo di file bloccati"
+
+#: user-access-manager.php:100
+msgid "Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <b>Note:</b> If you have no problems use all to get the maximum security."
+msgstr "Blocca tutti i file, digitare i tipi di file che vuoi bloccare, se l'articolo/pagina è bloccato, definisci i tipi di file che non verranno bloccati. <b>Nota:</b> Se non hai problemi spunta la voce \"tutto\" per ottenere la massima sicurezza."
+
+#: user-access-manager.php:101
+msgid ".htaccess password"
+msgstr ".htaccess password"
+
+#: user-access-manager.php:102
+msgid "Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files."
+msgstr "Imposta la password per l'accesso tramite .htaccess. Questa password è richiesta solamente se hai bisogno di un accesso diretto ai file"
+
+#: user-access-manager.php:103
+msgid "Use a random generated pass word."
+msgstr "Usa un generatore di password random"
+
+#: user-access-manager.php:104
+msgid "Use the password of the current logged in admin."
+msgstr "Utilizza la stessa password  dell'amministratore"
+
+#: user-access-manager.php:105
+msgid "Download type"
+msgstr "Tipo di download"
+
+#: user-access-manager.php:106
+msgid "Selecting the type for downloading. <strong>Note:</strong> For using fopen you need \"safe_mode = off\"."
+msgstr "Selezionare il tipo di download. <strong> Nota: </ strong> Se vuoi usare fopen devi impostare  \"safe_mode = off\"."
+
+#: user-access-manager.php:107
+msgid "Normal"
+msgstr "Normale"
+
+#: user-access-manager.php:108
+msgid "fopen"
+msgstr "fopen"
+
+#: user-access-manager.php:110
+msgid "Other settings"
+msgstr "Altre impostazioni"
+
+#: user-access-manager.php:111
+msgid "Here you will find all other settings"
+msgstr "Quì toverai tutte le altre impostazioni"
+
+#: user-access-manager.php:112
+msgid "Hide empty categories"
+msgstr "Nascondi categorie vuote"
+
+#: user-access-manager.php:113
+msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
+msgstr "Selezionando \"Si \" si nascondono le categorie  vuote e senza pagine o articoli associati."
+
+#: user-access-manager.php:114
+msgid "Redirect user"
+msgstr "Redirect dell'utente"
+
+#: user-access-manager.php:115
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr "Imposta le azioni se un utente visita un articolo/pagina senza permesso di accesso"
+
+#: user-access-manager.php:116
+msgid "To blog startpage"
+msgstr "Ritorna alla pagina di inizio"
+
+#: user-access-manager.php:117
+msgid "Custom page: "
+msgstr "Scegli la pagina"
+
+#: user-access-manager.php:118
+msgid "Custom URL: "
+msgstr "Scegli l'URL"
+
+#: user-access-manager.php:119
+msgid "Lock recursive"
+msgstr "Bloccaggio permanente"
+
+#: user-access-manager.php:120
+msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgstr "Selezionando \"Si \" bloccherai tutti gli articoli/pagine associati ad un'altra pagina/articolo a cui l'utente non ha accesso.<b>Nota:</b> Selezionando \"No \" potrebbe risultare un'errore relativo alla gerarchia delle pagine/articoli."
+
+#: user-access-manager.php:121
+msgid "Admin hint text"
+msgstr "Testo suggerito dall'amministratore"
+
+#: user-access-manager.php:122
+msgid "The text which will shown behinde the post/page."
+msgstr "Il testo verrà visualizzato dietro il nome dell' articolo/pagina."
+
+#: user-access-manager.php:123
+msgid "Show admin hint at Posts"
+msgstr "Mostra il suggerimento dell'amministratore negli articoli"
+
+#: user-access-manager.php:124
+#, php-format
+msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
+msgstr "Selezionano \"Si \" verrà mostrato il testo definito \"% s \" all'amministratore per far vedere che questi elementi sono bloccati sul suo blog."
+
+#: user-access-manager.php:125
+msgid "Core modifications installed?"
+msgstr "Hai installato le modifiche al  \"Core\" ?"
+
+#: user-access-manager.php:126
+msgid "If you installed the core modifications activated this option."
+msgstr "Se avete installato le modifiche al  \"Core\" , attivare questa opzione."
+
+#: user-access-manager.php:128
+msgid "Yes"
+msgstr "Si"
+
+#: user-access-manager.php:129
+msgid "No"
+msgstr "No"
+
+#: user-access-manager.php:131
+msgid "Update settings"
+msgstr "Aggiorna impostazioni"
+
+#: user-access-manager.php:132
+msgid "Settings updated."
+msgstr "Impostazioni aggiornate"
+
+#: user-access-manager.php:136
+msgid "Manage user access groups"
+msgstr "Gestisci gruppi di accesso utenti"
+
+#: user-access-manager.php:137
+msgid "Role affiliation"
+msgstr "Ruolo di appartenenza"
+
+#: user-access-manager.php:140
+#: user-access-manager.php:157
+msgid "Read access"
+msgstr "Autorizza lettura"
+
+#: user-access-manager.php:141
+#: user-access-manager.php:159
+msgid "Write access"
+msgstr "Autorizza scrittura"
+
+#: user-access-manager.php:144
+msgid "Files"
+msgstr "File"
+
+#: user-access-manager.php:145
+msgid "Categories"
+msgstr "Categorie"
+
+#: user-access-manager.php:146
+msgid "Users"
+msgstr "Utenti"
+
+#: user-access-manager.php:147
+msgid "Delete"
+msgstr "Cancella"
+
+#: user-access-manager.php:148
+msgid "Update group"
+msgstr "Aggiorna gruppo"
+
+#: user-access-manager.php:149
+msgid "Add"
+msgstr "Aggiungi"
+
+#: user-access-manager.php:150
+msgid "Add access group"
+msgstr "Aggiungi gruppo"
+
+#: user-access-manager.php:151
+msgid "Access group name"
+msgstr "Nome del gruppo "
+
+#: user-access-manager.php:152
+msgid "The name is used to identify the access user group."
+msgstr "Questo nome è usato per identificare gli utenti del gruppo"
+
+#: user-access-manager.php:153
+msgid "Access group description"
+msgstr "Descrizione del gruppo d'accesso"
+
+#: user-access-manager.php:154
+msgid "The description of the group."
+msgstr "Descrizione del gruppo"
+
+#: user-access-manager.php:155
+#: user-access-manager.php:170
+msgid "IP range"
+msgstr "Gamma degli indirizzi IP"
+
+#: user-access-manager.php:156
+msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgstr "Immetti l'intervallo di indirizzi IP degli utenti che aderiscono al gruppo senza essere loggati. Imposta intervalli IP con  \"INIZIO\"-\"FINE\", separa gli intervalli con \";\" , sono ammessi IP singoli. Esempio: 192.168.0.1-192.168.0.10; 192.168.0.20-192.168.0.30"
+
+#: user-access-manager.php:158
+msgid "The read access."
+msgstr "Accesso alla lettura"
+
+#: user-access-manager.php:160
+msgid "The write access."
+msgstr "Accesso alla scrittura"
+
+#: user-access-manager.php:161
+msgid "Group was added successfully."
+msgstr "Il gruppo è stato aggiunto correttamente"
+
+#: user-access-manager.php:162
+msgid "Group(s) was deleted successfully."
+msgstr "Il/i  gruppo/i è stato cancellato correttamente."
+
+#: user-access-manager.php:163
+msgid "none"
+msgstr "Nessuno"
+
+#: user-access-manager.php:164
+msgid "Access group edit successfully."
+msgstr "Gruppo d'accesso modificato correttamente"
+
+#: user-access-manager.php:165
+#, php-format
+msgid "Contains %1$s of %2$s posts"
+msgstr "Contiene %1$s di %2$s articoli"
+
+#: user-access-manager.php:166
+#, php-format
+msgid "Contains %1$s of %2$s pages"
+msgstr "Contiene %1$s di %2$s pagine"
+
+#: user-access-manager.php:167
+#, php-format
+msgid "Contains %1$s of %2$s files"
+msgstr "Contiene %1$s di %2$s file"
+
+#: user-access-manager.php:168
+#, php-format
+msgid "Contains %1$s of %2$s categories"
+msgstr "Contiene %1$s di %2$s categorie"
+
+#: user-access-manager.php:169
+#, php-format
+msgid "Contains %1$s of %2$s users"
+msgstr "Contiene %1$s di %2$s utenti"
+
+#: user-access-manager.php:173
+msgid "Full access"
+msgstr "Accesso libero"
+
+#: user-access-manager.php:174
+msgid "Full access (Administrator)"
+msgstr "Accesso libero (amministratore)"
+
+#: user-access-manager.php:175
+msgid "No group"
+msgstr "Nessun gruppo"
+
+#: user-access-manager.php:176
+msgid "Set access"
+msgstr "Imposta accesso"
+
+#: user-access-manager.php:180
+msgid "Group access"
+msgstr "Autorizzazione dei gruppi"
+
+#: user-access-manager.php:184
+#: user-access-manager.php:2201
+#: user-access-manager.php:2348
+#: user-access-manager.php:2490
+msgid "Access"
+msgstr "Autorizzazione"
+
+#: user-access-manager.php:185
+msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
+msgstr "<strong> Nota: </ strong> L'amministratore ha l'autorizzazione per tutti gli articoli/pagine"
+
+#: user-access-manager.php:187
+msgid "Set post access"
+msgstr "Imposta autorizzazioni per un articolo"
+
+#: user-access-manager.php:188
+msgid "Set page access"
+msgstr "Imposta autorizzazioni per una pagina"
+
+#: user-access-manager.php:189
+msgid "Access Groups"
+msgstr "Autorizzazione d'accesso ai gruppi"
+
+#: user-access-manager.php:190
+msgid "Please create a access group first."
+msgstr "Devi prima creare un gruppo"
+
+#: user-access-manager.php:191
+msgid "Set user access"
+msgstr "Imposta autorizzazioni utente"
+
+#: user-access-manager.php:193
+msgid "Set up usergroups"
+msgstr "Imposta autorizzazioni degli utenti del gruppo"
+
+#: user-access-manager.php:195
+msgid "itself"
+msgstr "Se stesso"
+
+#: user-access-manager.php:196
+msgid "Info"
+msgstr "Informazioni"
+
+#: user-access-manager.php:197
+msgid "Group infos"
+msgstr "Informazioni sul gruppo"
+
+#: user-access-manager.php:198
+msgid "Locked by"
+msgstr "Bloccato da"
+
+#: user-access-manager.php:199
+msgid "User is Admin. Full access."
+msgstr "L'utente è l'amministratore. Accesso libero"
+
+#: user-access-manager.php:200
+msgid "expand"
+msgstr "Apri"
+
+#: user-access-manager.php:201
+msgid "expand all"
+msgstr "Apri tutto"
+
+#: user-access-manager.php:202
+msgid "collaps"
+msgstr "Chiudi"
+
+#: user-access-manager.php:203
+msgid "collaps all"
+msgstr "Chiudi tutto"
+
+#: user-access-manager.php:204
+msgid "all"
+msgstr "Tutto"
+
+#: user-access-manager.php:205
+msgid "only group users"
+msgstr "Solamente gli utenti del gruppo"
+
+#: user-access-manager.php:460
+msgid "No rights!"
+msgstr "Non hai l'autorizzazione."
+
+#: user-access-manager.php:462
+msgid "Sorry no rights to view comments!"
+msgstr "Mi dispiace non hai l'autorizzazione per vedere i commenti!"
+
+#: user-access-manager.php:468
+msgid "Sorry you have no rights to view this page!"
+msgstr "Mi dispiace non hai l autorizzazione per vedere questa pagina!"
+
+#. Plugin Name of an extension
+msgid "User Access Manager"
+msgstr ""
+
+#. Plugin URI of an extension
+msgid "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+msgstr ""
+
+#. Description of an extension
+msgid "Manage the access to your posts and pages. <strong>Note:</strong> <em>If you activate the plugin your upload dir will protect by a '.htaccess' with a random password and all old downloads insert in a previous post/page will not work anymore. You have to update your posts/pages. If you use already a '.htaccess' file to protect your files the plugin will <strong>overwrite</strong> the '.htaccess'. You can disabel the file locking and set up an other password for the '.htaccess' file at the UAM setting page.</em>"
+msgstr "Gestisci l'accesso agli articoli e alle  pagine <strong>Nota:</strong> <em>Se attivi il plugin la tua cartella upload sarà protetta da  '.htaccess' con una password casuale, e tutti i vecchi downloads inseriti nei precedenti articoli/pagine non funzioneranno più. Devi aggiornare i tuoi articoli/pagine. Se usi già un file' .htaccess' per proteggere i tuoi files, questo verrà <strong>sovrascritto</strong>. Tu puoi disabilitare il blocco ai files e impostare una nuova passworg per il file '.htaccess' alla pagina  \"impostazioni\"</em>"
+
+#. Author of an extension
+msgid "Alexander Schneider"
+msgstr ""
+
+#. Author URI of an extension
+msgid "http://www.gm-alex.de/"
+msgstr ""
+

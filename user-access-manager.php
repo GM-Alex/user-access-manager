@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
  * Author URI: http://www.gm-alex.de/
- * Version: 1.1.4
+ * Version: 1.2
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -267,8 +267,14 @@ if (!function_exists("userAccessManagerAPMenu")) {
         ) {
             //Admin meta boxes
             if (function_exists('add_meta_box')) {
-                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'post', 'side');
-                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'page', 'side');
+                $postableTypes = $uamAccessHandler->getPostableTypes();
+                
+                foreach ($postableTypes as $postableType) {
+                    add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), $postableType, 'side');
+                }
+                
+                /*add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'post', 'side');
+                add_meta_box('uma_post_access', 'Access', array(&$userAccessManager, 'editPostContent'), 'page', 'side');*/
             }
         }
     }
@@ -282,7 +288,7 @@ if (isset($userAccessManager)) {
     
     //uninstall
     if (function_exists('register_uninstall_hook')) {
-        register_uninstall_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
+        //register_uninstall_hook(__FILE__, array(&$userAccessManager, 'uninstall'));
     } elseif (function_exists('register_deactivation_hook')) {
         //Fallback
         register_deactivation_hook(__FILE__, array(&$userAccessManager, 'uninstall'));

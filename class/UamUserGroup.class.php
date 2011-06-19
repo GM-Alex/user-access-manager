@@ -626,10 +626,10 @@ class UamUserGroup
             }
         }
         
+        $postableTypes = $this->getAccessHandler()->getPostableTypes();
+        
         if ($type == 'full'
-        	&& $objectType != 'post'
-            && $objectType != 'page'
-            && $objectType != 'attachment'
+        	&& !in_array($objectType, $postableTypes)
             && $objectType != 'role'
         ) {
             if ($objectType == 'category') {
@@ -670,10 +670,9 @@ class UamUserGroup
         if ($type == 'full'
             && $objectType != 'role'
         ) {
-            if ($objectType == 'post'
-            	|| $objectType == 'page'
-            	|| $objectType == 'attachment'
-            ) {
+            $postableTypes = $this->getAccessHandler()->getPostableTypes();
+
+            if (in_array($objectType, $postableTypes)) {
                 $isRecursiveMember = $this->_getFullPost($objectType, $objectId);
             } else if ($objectType == 'category') {
                 $isRecursiveMember = $this->_getFullCategory($objectId);

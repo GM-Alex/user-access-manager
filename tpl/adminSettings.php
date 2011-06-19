@@ -17,7 +17,13 @@
 global $userAccessManager;
 $uamOptions = $userAccessManager->getAdminOptions();
 
-if (isset($_POST['update_uam_settings'])) {    
+if (isset($_POST['update_uam_settings'])) {
+    if (empty($_POST) 
+        || !wp_verify_nonce($_POST['uamUpdateSettingsNonce'], 'uamUpdateSettings')
+    ) {
+         wp_die(TXT_UAM_NONCE_FAILURE);
+    }
+    
     foreach ($uamOptions as $option => $value) {
         if (isset($_POST['uam_' . $option])) {
             $uamOptions[$option] = $_POST['uam_' . $option];
@@ -44,6 +50,7 @@ if (isset($_POST['update_uam_settings'])) {
 
 <div class="wrap">
     <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+        <?php wp_nonce_field('uamUpdateSettings', 'uamUpdateSettingsNonce'); ?>
         <h2><?php echo TXT_UAM_SETTINGS; ?></h2>
         <h3><?php echo TXT_UAM_POST_SETTING; ?></h3>
         <p><?php echo TXT_UAM_POST_SETTING_DESC; ?></p>

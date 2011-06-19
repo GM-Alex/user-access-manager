@@ -23,6 +23,12 @@ if (isset($_POST['action'])) {
 }
 
 if ($postAction == 'update_db') {
+    if (empty($_POST) 
+        || !wp_verify_nonce($_POST['uamSetupUpdateNonce'], 'uamSetupUpdate')
+    ) {
+         wp_die(TXT_UAM_NONCE_FAILURE);
+    }
+    
     if (isset($_POST['uam_update_db'])) {
         $update = $_POST['uam_update_db'];
     } else {
@@ -48,6 +54,12 @@ if ($postAction == 'update_db') {
 }
 
 if ($postAction == 'reset_uam') {
+    if (empty($_POST) 
+        || !wp_verify_nonce($_POST['uamSetupResetNonce'], 'uamSetupReset')
+    ) {
+         wp_die(TXT_UAM_NONCE_FAILURE);
+    }
+    
     if (isset($_POST['uam_reset'])) {
         $reset = $_POST['uam_reset'];
     } else {
@@ -75,6 +87,7 @@ if ($postAction == 'reset_uam') {
     			<th scope="row"><?php echo TXT_UAM_RESET_UAM; ?></th>
     			<td>
         			<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                        <?php wp_nonce_field('uamSetupReset', 'uamSetupResetNonce'); ?>
     					<input type="hidden" value="reset_uam" name="action" />
         				<label for="uam_reset_yes"> 
         					<input type="radio" id="uam_reset_yes" class="uam_reset_yes" name="uam_reset" value="true" /> 
@@ -96,6 +109,7 @@ if ($userAccessManager->isDatabaseUpdateNecessary()) {
         		?>
         		<tr valign="top">
         			<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                        <?php wp_nonce_field('uamSetupUpdate', 'uamSetupUpdateNonce'); ?>
     					<input type="hidden" value="update_db" name="action" />
             			<th scope="row"><?php echo TXT_UAM_UPDATE_UAM_DB; ?></th>
             			<td>

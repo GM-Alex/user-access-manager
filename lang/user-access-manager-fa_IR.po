@@ -1,0 +1,703 @@
+# Translation of the WordPress plugin User Access Manager 1.1.2pre by Alexander Schneider.
+# Copyright (C) 2010 Alexander Schneider
+# This file is distributed under the same license as the User Access Manager package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Access Manager 1.1.2pre\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
+"POT-Creation-Date: 2010-10-04 20:18+0000\n"
+"PO-Revision-Date: 2011-04-14 23:54+0330\n"
+"Last-Translator: Hadi Mostafapour <farsicity@gmail.com>\n"
+"Language-Team: ISYS <dtecnico@isys.es>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Spanish\n"
+"X-Poedit-Country: SPAIN\n"
+
+#: class/UserAccessManager.class.php:633
+#: class/UserAccessManager.class.php:646
+msgid "No rights!"
+msgstr "غيزمجاز!"
+
+#: class/UserAccessManager.class.php:635
+msgid "Sorry you have no rights to view this post!"
+msgstr "متاسفيم، شما مجاز به مشاهده اين نوشته نمي باشيد!"
+
+#: class/UserAccessManager.class.php:641
+#: class/UserAccessManager.class.php:654
+msgid "Sorry no rights to view comments!"
+msgstr "متاسفيم، شما مجاز به مشاهده اين ديدگاه ها نمي باشيد!"
+
+#: class/UserAccessManager.class.php:648
+msgid "Sorry you have no rights to view this page!"
+msgstr "متاسفيم، شما مجاز به مشاهده اين برگه نمي باشيد"
+
+#: class/UserAccessManager.class.php:956
+#: class/UserAccessManager.class.php:1170
+msgid "Access"
+msgstr "دسترسي"
+
+#: class/UserAccessManager.class.php:1093
+msgid "uam user groups"
+msgstr "گروه هاي كاربري"
+
+#: includes/language.define.php:19
+#, php-format
+msgid "Sorry you need at least PHP version 5.0 to use the User Access Manager. Your current PHP version is %s."
+msgstr "متاسفيم، شما براي استفده از مدير دسترسي كاربر حداقل بايد از PHP نگارش 5 برخوردار باشيد. نگارش فعلي PHP شما %s مي باشد."
+
+#: includes/language.define.php:20
+#, php-format
+msgid "Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s."
+msgstr " متاسفيم، شما براي استفاده از مدير دسترسي كاربر حداقل به وردپرس نگارش 3 نياز داريد. نگارش فعلي وردپرس شما %s مي باشد."
+
+#: includes/language.define.php:21
+#, php-format
+msgid "Please update the database of the User Access Manager. <a href=\"%s\">Click here to proceed</a>"
+msgstr "لطفاً پايگاه داده مدير دسترسي كاربر را بروزرساني كنيد. <a href=\"%s\">براي شروع اينجا كليك كنيد</a>"
+
+#: includes/language.define.php:24
+msgid "all"
+msgstr "همه"
+
+#: includes/language.define.php:25
+msgid "only group users"
+msgstr "فقط اعضاي گروه"
+
+#: includes/language.define.php:26
+msgid "Yes"
+msgstr "بله"
+
+#: includes/language.define.php:27
+msgid "No"
+msgstr "خير"
+
+#: includes/language.define.php:31
+msgid "Settings"
+msgstr "تنظيمات"
+
+#: includes/language.define.php:34
+msgid "Post settings"
+msgstr "تنظيمات نوشته"
+
+#: includes/language.define.php:35
+msgid "Set up the behaviour of locked posts"
+msgstr "تنظيم چگونگي نوشته هاي قفل شده"
+
+#: includes/language.define.php:36
+msgid "Post title"
+msgstr "عنوان نوشته"
+
+#: includes/language.define.php:37
+msgid "Displayed text as post title if user has no access"
+msgstr "نمايش متن به جاي عنوان نوشته در صورتي كه كاربر دسترسي به آن را نداشته باشد"
+
+#: includes/language.define.php:38
+msgid "Hide post title"
+msgstr "عدم نمايش عنوان نوشته"
+
+#: includes/language.define.php:39
+#: includes/language.define.php:49
+#: includes/language.define.php:59
+#: includes/language.define.php:67
+#, php-format
+msgid "Selecting \"Yes\" will show the text which is defined at \"%s\" if user has no access."
+msgstr "انتخاب \"بله\" متني را كه در \"%s\" تعريف شده را در صورتي كه كاربر دسترسي نداشته باشد، نمايش مي دهد."
+
+#: includes/language.define.php:40
+msgid "Post content"
+msgstr "محتواي نوشته"
+
+#: includes/language.define.php:41
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single posts, otherwise a link will shown."
+msgstr "محتوا در صورتي كه كاربر دسترسي نداشته باشد، نمايش داده مي شود. شما مي توانيد يك فرم ورود با استفاده از كلمه كليدي <b>[LOGIN_FORM]</b> اضافه كنيد. اين فرم در برگه هاي تكي نمايش داده خواهد شد، در غير اين صورت يك پيوند نمايش داده مي شود."
+
+#: includes/language.define.php:42
+msgid "Show post content before &lt;!--more--&gt; tag"
+msgstr "نمايش محتواي نوشته قبل از تگ  &lt;!--more--&gt;"
+
+#: includes/language.define.php:43
+#, php-format
+msgid "Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at \"%s\". If no &lt;!--more--&gt; is set he defined text at \"%s\" will shown."
+msgstr "نمايش محتواي نوشته قبل از تگ &lt;!--more--&gt; و بعد از متن تعريف شده در \"%s\".اگر هيچ &lt;!--more--&gt; نبود ، متن تعريف شده اي كه در \"%s\" مي باشد، نمايش داده مي شود."
+
+#: includes/language.define.php:44
+msgid "Hide complete posts"
+msgstr "مخفي سازي كامل نوشته"
+
+#: includes/language.define.php:45
+msgid "Selecting \"Yes\" will hide posts if the user has no access."
+msgstr "انتخاب \"بله\" در صورتي كه كاربر دسترسي نداشته باشد، نوشته را مخفي مي كند."
+
+#: includes/language.define.php:46
+msgid "Post comment text"
+msgstr "متن ديدگاه نوشته"
+
+#: includes/language.define.php:47
+msgid "Displayed text as post comment text if user has no access"
+msgstr "نمايش متن به عنوان ديدگاه نوشته در صورتي كه كاربر دسترسي نداشته باشد."
+
+#: includes/language.define.php:48
+msgid "Hide post comments"
+msgstr "عدم نمايش ديدگاه هاي نوشته"
+
+#: includes/language.define.php:50
+msgid "Allow post comments"
+msgstr "نمايش ديدگاه هاي نوشته"
+
+#: includes/language.define.php:51
+msgid "Selecting \"yes\" allows users to comment on locked posts"
+msgstr "انتخاب \"بله\" به كاربران اجازه ارسال ديدگاه در نوشته هاي قفل شده را مي دهد"
+
+#: includes/language.define.php:54
+msgid "Page settings"
+msgstr "تنظيمات برگه"
+
+#: includes/language.define.php:55
+msgid "Set up the behaviour of locked pages"
+msgstr "تنظيم چگونگي صفحات قفل شده"
+
+#: includes/language.define.php:56
+msgid "Page title"
+msgstr "عنوان برگه"
+
+#: includes/language.define.php:57
+msgid "Displayed text as page title if user has no access"
+msgstr "نمايش متن بجاي عنوان برگه در صورتي كه كاربر دسترسي به آن نداشته باشد."
+
+#: includes/language.define.php:58
+msgid "Hide page title"
+msgstr "مخفي سازي عنوان برگه"
+
+#: includes/language.define.php:60
+msgid "Page content"
+msgstr "محتواي برگه"
+
+#: includes/language.define.php:61
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single pages, otherwise a link will shown."
+msgstr "محتوا در صورتي كه كاربر دسترسي نداشته باشد، نمايش داده مي شود. شما مي توانيد يك فرم ورود با استفاده از كلمه كليدي <b>[LOGIN_FORM]</b> اضافه كنيد. اين فرم در برگه هاي تكي نمايش داده خواهد شد، در غير اين صورت يك پيوند نمايش داده مي شود."
+
+#: includes/language.define.php:62
+msgid "Hide complete pages"
+msgstr "مخفي سازي كامل برگه"
+
+#: includes/language.define.php:63
+msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will also hide in the navigation."
+msgstr "انتخاب \"بله\" برگه ها را در صورتي كه كاربر دسترسي كافي نداشته باشد مخفي مي كند. صفحه همچنين از راهبر مخفي مي شود."
+
+#: includes/language.define.php:64
+msgid "Page comment text"
+msgstr "نوشته ديدگاه برگه"
+
+#: includes/language.define.php:65
+msgid "Displayed text as page comment text if user has no access"
+msgstr "نمايش متن به عنوان محتواي ديدگاه برگه در صورتي كه كاربر دسترسي نداشته باشد"
+
+#: includes/language.define.php:66
+msgid "Hide page comments"
+msgstr "عدم نمايش ديدگاه هاي برگه"
+
+#: includes/language.define.php:68
+msgid "Allow page comments"
+msgstr "نمايش ديدگاه هاي برگه"
+
+#: includes/language.define.php:69
+msgid "Selecting \"yes\" allows users to comment on locked pages"
+msgstr "انتخاب \"بله\" به كاربران اجازه ارسال ديدگاه بر روي برگه هاي قفل شده را مي دهد."
+
+#: includes/language.define.php:72
+msgid "File settings"
+msgstr "تنظيمات پرونده"
+
+#: includes/language.define.php:73
+msgid "Set up the behaviour of files"
+msgstr "تنظيم ويژگي پرونده ها"
+
+#: includes/language.define.php:74
+msgid "Lock files"
+msgstr "قفل كردن پرونده ها"
+
+#: includes/language.define.php:75
+msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style=\"color:red;\">Note: If you activate this option the plugin will overwirte a '.htaccess' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>"
+msgstr "در صورتي كه شما \"بله\" را انتخاب كنيد تمامي پرونده ها با استفاده از يك پرونده .htaccess قفل مي شود و فقط كاربران مجاز مي توانند آن را دريافت كنند. <br/><strong style=\"color:red;\">توجه: اگر شما اين گزينه را فعال كنيد، افزونه يك پرونده '.htaccess' تازه را در پوشه آپلود بازنويسي مي كند، در صورتي كه شما قبلاً از آن براي محافظت پرونده هاي خود استفاده مي كرديد. در صورتي كه شما هيچ پيوند پايداري را فعال نكرده باشيد، مسير آپلود شما با يك پرونده '.htaccess'  و يك رمز اتفاقي محافظت مي شود و  و تمامي رسانه هايي گذشاته شده در نوشته/برگه هاي قديمي ديكر قابل استفاده نمي باشد. شما بايد نوشته/برگه هاي خود را بروزرساني كنيد (در صورتي كه پيوند پايدار فعال باشد، لازم نيست).</strong>"
+
+#: includes/language.define.php:76
+msgid "Filetypes to lock: "
+msgstr "قفل كردن اين نوع پرونده ها:"
+
+#: includes/language.define.php:77
+msgid "Filetypes not to lock: "
+msgstr "عدم قفل اين نوع پرونده ها:"
+
+#: includes/language.define.php:78
+msgid "Locked file types"
+msgstr "نوع پرونده هاي قفل شده"
+
+#: includes/language.define.php:79
+msgid "Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <b>Note:</b> If you have no problems use all to get the maximum security."
+msgstr "قفل تماي پرونده ها، نوع پرونده هايي كه مي خواهيد قفل شوند را وارد كنيد اگر نوشته/برگه قفل است و يا پرونده ايي كه نمي خواهيد قفل شوند را تعريف كنيد. <b>توجه:</b> اگر شما مشكلي نداريد از همه براي دريافت بيشترين امنيت استفاده كنيد.."
+
+#: includes/language.define.php:80
+msgid ".htaccess password"
+msgstr "رمز عبور .htaccess"
+
+#: includes/language.define.php:81
+msgid "Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files."
+msgstr "لطفاً رمزعبور را براي دسترسي .httaccess وارد كنيد. اين رمزعبور فقط درصورتي نياز مي باشد مه شما نياز به دسترسي مستقيم به پرونده هاي خود داريد."
+
+#: includes/language.define.php:82
+msgid "Use a random generated pass word."
+msgstr "استفاده از يك رمز اتفاقي."
+
+#: includes/language.define.php:83
+msgid "Use the password of the current logged in admin."
+msgstr "استفاده از رمز عبور مدير وارد شده فعلي"
+
+#: includes/language.define.php:84
+msgid "Download type"
+msgstr "نحوه دانلود"
+
+#: includes/language.define.php:85
+msgid "Selecting the type for downloading. <strong>Note:</strong> For using fopen you need \"safe_mode = off\"."
+msgstr "لطفاً نوع را براي دانلود انتخاب كنيد.. <strong>توجه:</strong> براي استفاده از fopen شما نياز داريد \"safe_mode = off\" باشد."
+
+#: includes/language.define.php:86
+msgid "Normal"
+msgstr "معمولي"
+
+#: includes/language.define.php:87
+msgid "fopen"
+msgstr "fopen"
+
+#: includes/language.define.php:90
+msgid "Authors settings"
+msgstr "تنظميات نويسنده"
+
+#: includes/language.define.php:91
+msgid "Here you will find the settings for authors"
+msgstr "اينجا شما تنظميات مربوط به نويسندگان را خواهيد داشت"
+
+#: includes/language.define.php:92
+msgid "Authors always has access to own posts/pages"
+msgstr "نويسندگان هميشه به برگه ها/نوشته هاي خود دسترسي دارند"
+
+#: includes/language.define.php:93
+msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
+msgstr "اگر \"بله\" انتخاب شده باشد، نويسنده هميشه دسترسي كامل به نوشته ها يا برگه هاي خود دارد."
+
+#: includes/language.define.php:94
+msgid "Authors can add content to there own groups"
+msgstr "نويسندگان مي توانند محتوا را به گروه هاي خودشان بيافزايند"
+
+#: includes/language.define.php:95
+msgid "If \"Yes\" is selected author are able to restrict the content by adding it to there groups."
+msgstr "اگر \"بله\" انتخاب شده باشد، نويسندگان مجاز به محدودسازي محتوا با افزودن آن به گروه هاي موجود مي باشند."
+
+#: includes/language.define.php:96
+msgid "Minimum user role with full access"
+msgstr "حداقل نقش كاربر با دسترسي كامل"
+
+#: includes/language.define.php:97
+msgid "All user with a role equal or higher to this has full access."
+msgstr "تمامي اعضا با اين نقش يا بالاتر از اين دسترسي كامل خواهند داشت."
+
+#: includes/language.define.php:98
+msgid "Administrator"
+msgstr "مدير"
+
+#: includes/language.define.php:99
+msgid "Editor"
+msgstr "ويرايشگر"
+
+#: includes/language.define.php:100
+msgid "Author"
+msgstr "نويسنده"
+
+#: includes/language.define.php:101
+msgid "Contributor"
+msgstr "مشاركت كننده"
+
+#: includes/language.define.php:102
+msgid "Subscriber"
+msgstr "مشترك"
+
+#: includes/language.define.php:105
+msgid "Other settings"
+msgstr "ديگر تنظيمات"
+
+#: includes/language.define.php:106
+msgid "Here you will find all other settings"
+msgstr "تمامي تنظميات ديگر را اينجا مشاهده مي كنيد"
+
+#: includes/language.define.php:107
+msgid "Protect Feed"
+msgstr "محافظت خوراك"
+
+#: includes/language.define.php:108
+msgid "Selecting \"Yes\" will also protect your feed entries."
+msgstr "انتخاب \"بله\" همچنين از خوراك هاي مطالب شما محافظت مي كند."
+
+#: includes/language.define.php:109
+msgid "Hide empty categories"
+msgstr "عدم نمايش دسته هاي خالي"
+
+#: includes/language.define.php:110
+msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
+msgstr "انتخاب \"بله\" تمامي دسته هاي خالي را كه داراي زيرمجموعه هاي خالي مي باشد و يا هيچ زير مجموعه اي را ندارد، مخفي مي كند."
+
+#: includes/language.define.php:111
+msgid "Redirect user"
+msgstr "هدايت كاربر"
+
+#: includes/language.define.php:112
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr "تنظيم كنيد چه اتفاقي رخ دهد در صورتي كه كاربر از نوشته/برگه اي كه به آن دسترسي  ندارد ، بازديد كند"
+
+#: includes/language.define.php:113
+msgid "To blog startpage"
+msgstr "صفحه ورودي بلاگ"
+
+#: includes/language.define.php:114
+msgid "Custom page: "
+msgstr "برگه دلخواه:"
+
+#: includes/language.define.php:115
+msgid "Custom URL: "
+msgstr "آدرس دلخواه:"
+
+#: includes/language.define.php:116
+msgid "Lock recursive"
+msgstr "قفل بازگشتي"
+
+#: includes/language.define.php:117
+msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgstr "انتخاب \"بله\" تمامي نوشته/برگه هاي فرزند را كه كاربر به نوشته/برگه والدين دسترسي ندارد قفل مي كند. توجه: تنظيم اين گزينه برابر با  \"خير\" مي تواند منجر به نمايش خطاهاي مرتبط سلسله مراتب شود."
+
+#: includes/language.define.php:118
+msgid "Admin hint text"
+msgstr "متن راهنماي مدير"
+
+#: includes/language.define.php:119
+msgid "The text which will shown behinde the post/page."
+msgstr "متني كه در مقابل نوشته/برگه نشان داده مي شود"
+
+#: includes/language.define.php:120
+msgid "Show admin hint at Posts"
+msgstr "نمايش راهنماي مدير در نوشته ها"
+
+#: includes/language.define.php:121
+#, php-format
+msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
+msgstr "انتخاب \"بله\" متن تعريف شده در \"%s\"  را در مقابل نوشته/برگه به مدير وارد شده نشان داده مي شود؛ براي اينكه به او نشان دهد نوشته/برگه ها قفل شده اند."
+
+#: includes/language.define.php:124
+msgid "Update settings"
+msgstr "بروزرساني تنظيمات"
+
+#: includes/language.define.php:125
+msgid "Settings updated."
+msgstr "تنظميات بروزرساني شدند."
+
+#: includes/language.define.php:129
+msgid "Manage user user groups"
+msgstr "مديريت گروه هاي كاربري"
+
+#: includes/language.define.php:130
+msgid "Role affiliation"
+msgstr "وابستگي نقش"
+
+#: includes/language.define.php:131
+msgid "Name"
+msgstr "نام"
+
+#: includes/language.define.php:132
+msgid "Description"
+msgstr "توضيحات"
+
+#: includes/language.define.php:133
+#: includes/language.define.php:146
+msgid "Read access"
+msgstr "مجوز خواندن"
+
+#: includes/language.define.php:134
+#: includes/language.define.php:148
+msgid "Write access"
+msgstr "مجوز نوشتن"
+
+#: includes/language.define.php:135
+msgid "Delete"
+msgstr "حذف"
+
+#: includes/language.define.php:136
+msgid "Update group"
+msgstr "بروزرساني گروه"
+
+#: includes/language.define.php:137
+msgid "Add"
+msgstr "افزودن"
+
+#: includes/language.define.php:138
+msgid "Add user group"
+msgstr "افزودن گروه كاربري"
+
+#: includes/language.define.php:139
+msgid "Edit user group"
+msgstr "ويرايش گروه كاربري"
+
+#: includes/language.define.php:140
+msgid "User group name"
+msgstr "نام گروه كاربري"
+
+#: includes/language.define.php:141
+msgid "The name is used to identify the access user group."
+msgstr "نام براي مشخص كردن دسترسي گروه كاربري مورد استفاده قرار مي گيرد."
+
+#: includes/language.define.php:142
+msgid "User group description"
+msgstr "توضيحات گروه كاربري"
+
+#: includes/language.define.php:143
+msgid "The description of the group."
+msgstr "توضيحات براي  اين گروه وارد كنيد"
+
+#: includes/language.define.php:144
+#: includes/language.define.php:155
+msgid "IP range"
+msgstr "محدوده آي پي"
+
+#: includes/language.define.php:145
+msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgstr "محدوده آي پي كاربراني كه بدون ورود شامل اين گروه ها مي شود را وارد كنيد. محدوده را همچون \"آغاز\"-\"پايان\" مشخص كنيد، محدوده ها را با \";\" از هم جدا كنيد، آي پي هاي تك نيز مجاز مي باشند، مثال: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+
+#: includes/language.define.php:147
+msgid "The read access."
+msgstr "مجاز به خواندن."
+
+#: includes/language.define.php:149
+msgid "The write access."
+msgstr "مجاز به نوشتن."
+
+#: includes/language.define.php:150
+msgid "Group was added successfully."
+msgstr "گروه با موفقيت افزوده شد."
+
+#: includes/language.define.php:151
+msgid "Group name can not be empty."
+msgstr "نام گروه نبايد خالي باشد."
+
+#: includes/language.define.php:152
+msgid "Group(s) was deleted successfully."
+msgstr "گروه با موفقيت حذف شد."
+
+#: includes/language.define.php:153
+msgid "none"
+msgstr "هيچ"
+
+#: includes/language.define.php:154
+msgid "User group edit successfully."
+msgstr "گروه كاربري با موفقيت ويرايش شد."
+
+#: includes/language.define.php:159
+msgid "Setup"
+msgstr "راه اندازي"
+
+#: includes/language.define.php:160
+msgid "Reset User Access Manager"
+msgstr "نوسازي مدير دسترسي كاربر"
+
+#: includes/language.define.php:161
+msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
+msgstr "هشدار:‌ نوسازي مدير دسترسي اعضا قابل باريابي نمي باشد، تمامي تنظميات و گروه هاي كاربري به طور دائمي از بين خواهند رفت."
+
+#: includes/language.define.php:162
+msgid "reset"
+msgstr "نوسازي"
+
+#: includes/language.define.php:163
+msgid "Update User Access Manager database"
+msgstr "بروزرساني پايگاه داده مدير دسترسي كاربر"
+
+#: includes/language.define.php:164
+msgid "Updates the database of the User Access Manager. Please backup your database before you perform the update."
+msgstr "بروزرساني پايگاه داده مدير دسترسي كاربر. قبل از احرا عمليات بروزرساني از پايگاه داده خود پشتيبان بگيريد."
+
+#: includes/language.define.php:165
+msgid "update"
+msgstr "بروزرساني"
+
+#: includes/language.define.php:166
+msgid "User Access Manager was reset successfully"
+msgstr "مدير دسترسي كاربر با موفقيت نوسازي شد."
+
+#: includes/language.define.php:167
+msgid "User Access Manager database was updated successfully"
+msgstr "پايگاه داده مدير دسترسي كاربر با موفقيت بروزرساني شد."
+
+#: includes/language.define.php:168
+msgid "Update current blog"
+msgstr "بروزرساني بلاگ فعلي"
+
+#: includes/language.define.php:169
+msgid "Update network wide"
+msgstr "بروزرساني تمام شبكه"
+
+#: includes/language.define.php:173
+msgid "About"
+msgstr "درباره"
+
+#: includes/language.define.php:176
+msgid "How to support me?"
+msgstr "چگونه از من پشتيباني كنيد؟"
+
+#: includes/language.define.php:177
+msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
+msgstr "<strong> گزارش خطاها، رفع خطا ؛ ويرايش كد و ايده هاي خود را به من بفرستيد </strong><br/> به من در گسترش اين افزونه كمك كنيد."
+
+#: includes/language.define.php:178
+msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
+msgstr "<strong>ترجمه افزونه.</strong><br/> براي راحتي بيشتر كاربران به من در ترجمه آن به تمامي زبان ها كمك كنيد."
+
+#: includes/language.define.php:179
+msgid "<strong>Donate via paypal</strong>"
+msgstr "<strong>ياري با paypal</strong>"
+
+#: includes/language.define.php:180
+msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
+msgstr "<strong>لطفاً يك پيوند با افزونه در وبلاگ/صفحه وب خود قرار دهيد.</strong>"
+
+#: includes/language.define.php:183
+msgid "Thanks"
+msgstr "تشكر"
+
+#: includes/language.define.php:184
+msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
+msgstr "تشكر ويژه براي دوست دخترم كه به من وقت گسترش اين افزونه را داد."
+
+#: includes/language.define.php:185
+msgid "I would like to thank all the guys which has helped me with this plugin:"
+msgstr "من مي خواهم از تمام افرادي كه مرا در مورد اين افزونه كمك كرده اند تشكر كنم:"
+
+#: includes/language.define.php:186
+msgid "all beta testers and all others I forgot"
+msgstr "تمامي آزمايش كنندگان نگارش آزمايشي و ديگر كساني كه فراموش كردم"
+
+#: includes/language.define.php:190
+msgid "Full access"
+msgstr "دسترسي كامل"
+
+#: includes/language.define.php:191
+msgid "Member of other user groups"
+msgstr "عضوي از گروه هاي كاربري ديگر"
+
+#: includes/language.define.php:192
+msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
+msgstr "<strong>توجه:</strong> مدير هميشه دسترسي كامل به تمامي نوشته ها/برگه ها دارد."
+
+#: includes/language.define.php:193
+msgid "Please create a user group first."
+msgstr "لطفاً ابتدا يك گروه كاربري ايجاد كنيد"
+
+#: includes/language.define.php:194
+msgid "No user group available."
+msgstr "هيچ گروه كاربري در دسترسي نمي باشد"
+
+#: includes/language.define.php:195
+msgid "You have no rights to access this content."
+msgstr "شما مجاز به دسترسي به اين پرونده نمي باشيد."
+
+#: includes/language.define.php:196
+msgid "User Groups"
+msgstr "گروه هاي كاربري"
+
+#: includes/language.define.php:197
+msgid "Set up usergroups"
+msgstr "تنظيم گروه هاي كاربري"
+
+#: includes/language.define.php:201
+msgid "Info"
+msgstr "مشخصات"
+
+#: includes/language.define.php:202
+msgid "Group infos"
+msgstr "مشخصات گروه"
+
+#: includes/language.define.php:203
+msgid "Group membership given by posts"
+msgstr "دادن گروه عضو بر اساس نوشته ها"
+
+#: includes/language.define.php:204
+msgid "Group membership given by pages"
+msgstr "دادن گروه عضو بر اساس برگه ها"
+
+#: includes/language.define.php:205
+msgid "Group membership given by categories"
+msgstr "دادن گروه عضو بر اساس دسته ها"
+
+#: includes/language.define.php:206
+msgid "Group membership given by role"
+msgstr "دادن گروه عضو بر اساس نقش"
+
+#: includes/language.define.php:207
+msgid "Assigned groups"
+msgstr "گروه هاي واگذار شده"
+
+#: includes/language.define.php:211
+msgid "Opening fileinfo database failed."
+msgstr "بازكردن پايگاه داده اطلاعات پرونده با شكست مواجه شد."
+
+#: includes/language.define.php:212
+msgid "Error: File not found."
+msgstr "خطا : پرونده يافت نشد."
+
+#: tpl/loginBar.php:23
+#: tpl/loginBar.php:40
+msgid "Login"
+msgstr "ورود"
+
+#: tpl/loginBar.php:34
+msgid "Username:"
+msgstr "نام كاربري"
+
+#: tpl/loginBar.php:36
+msgid "Password:"
+msgstr "رمز عبور"
+
+#: tpl/loginBar.php:39
+msgid "Remember me"
+msgstr "مرا به خاطر بسپار"
+
+#: tpl/loginBar.php:46
+msgid "Register"
+msgstr "ثبت نام"
+
+#: tpl/loginBar.php:49
+msgid "Password Lost and Found"
+msgstr "بازيابي رمز عبور"
+
+#: tpl/loginBar.php:49
+msgid "Lost your password?"
+msgstr "رمز عبورتان را فراموش كرده ايد؟"
+
+#. Plugin Name of the plugin/theme
+msgid "User Access Manager"
+msgstr "مدير دسترسي كاربر"
+
+#. Plugin URI of the plugin/theme
+msgid "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+msgstr "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+
+#. Description of the plugin/theme
+msgid "Manage the access to your posts, pages, categories and files."
+msgstr "مديريت دسترسي به نوشته ها ، برگه ها ، پرونده ها و دسته ها"
+
+#. Author of the plugin/theme
+msgid "Alexander Schneider"
+msgstr "Alexander Schneider"
+
+#. Author URI of the plugin/theme
+msgid "http://www.gm-alex.de/"
+msgstr "http://www.gm-alex.de/"
+

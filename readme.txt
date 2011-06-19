@@ -3,7 +3,7 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
-Tested up to: 3.0
+Tested up to: 3.1.3
 Stable tag: 1.1.4
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
@@ -39,13 +39,19 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 
 <em>Included languages</em>
 
-* English
-* German
 * Czech, based on 1.1.1.2. Thanks to Jan
-* French, based on 0.8.0.2. Thanks to macbidule
-* Hungary, based on 1.0.2. Thanks to Zina
 * Danish, based on 1.1.1.2. Thanks to GeorgWP
+* English
+* Farsi, based on 1.1.2. Thanks to Hadi Mostafapour
+* French, based on 0.8.0.2. Thanks to macbidule
+* German
+* Hungary, based on 1.0.2. Thanks to Zina
+* Italian. Thanks to Diego Valobra
+* Russian, based on 1.1.2. Thanks to PoleeK
 * Spanish, based on 1.1.2. Thanks to Juan Rodriguez
+* Swedish, based on 1.1. Thanks to Konsult
+* Turkish, based on 1.1.2. Thanks to Mesut Soylu
+
 
 Some language files are really old, if you are a native speaker it would be nice if you update a language file or make one for a language which is not translated jet.
 
@@ -64,6 +70,9 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    1.2         2011/06/14  Add custom post types.
+                            Fix CSRF issue. Thanks to Luke Crouch
     
     1.1.4       2010/10/19  Fix error on custom post types
                             Add warning for PHP version lower than 5.0

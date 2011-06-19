@@ -26,6 +26,12 @@ function insertUpdateGroup($userGroupId)
 {
     global $userAccessManager;
     
+    if (empty($_POST) 
+        || !wp_verify_nonce($_POST['uamInsertUpdateGroupNonce'], 'uamInsertUpdateGroup')
+    ) {
+         wp_die(TXT_UAM_NONCE_FAILURE);
+    }
+    
     if ($userGroupId != null) {
         $uamUserGroup 
             = $userAccessManager->getAccessHandler()->getUserGroups($userGroupId);
@@ -77,6 +83,8 @@ function getPrintEditGroup($groupId = null)
 	    ) . "?page=" . $_GET['page']; 
 	?>">
 	<?php
+	wp_nonce_field('uamInsertUpdateGroup', 'uamInsertUpdateGroupNonce');
+	
     if (isset($groupId)) {
         ?> 
     	<input type="hidden" value="updateGroup" name="action" /> 
@@ -251,10 +259,16 @@ if (isset($_POST['action'])) {
 }
 
 if ($postAction == 'delgroup') {
+    if (empty($_POST) 
+        || !wp_verify_nonce($_POST['uamDeleteGroupNonce'], 'uamDeleteGroup')
+    ) {
+         wp_die(TXT_UAM_NONCE_FAILURE);
+    }
+    
     if (isset($_POST['delete'])) {
         $delIds = $_POST['delete'];
     }
-    
+
     if (isset($delIds)) {
         global $userAccessManager;
         
@@ -304,6 +318,7 @@ if (!$editGroup) {
     ?>
     <div class="wrap">
         <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+            <?php wp_nonce_field('uamDeleteGroup', 'uamDeleteGroupNonce'); ?>
         	<input type="hidden" value="delgroup" name="action" />
             <h2><?php echo TXT_UAM_MANAGE_GROUP; ?></h2>
             <div class="tablenav">

@@ -29,7 +29,7 @@ class UserAccessManager
 {
     protected $atAdminPanel = false;
     protected $adminOptionsName = "uamAdminOptions";
-    protected $uamVersion = "1.1.4";
+    protected $uamVersion = "1.2";
     protected $uamDbVersion = "1.1";
     protected $adminOptions;
     protected $accessHandler = null;
@@ -346,10 +346,9 @@ class UserAccessManager
                 foreach ($objectTypes as $objectType) {
                     $addition = '';
                     
-                    if ($objectType == 'post'
-                    	|| $objectType == 'page'
-                    	|| $objectType == 'attachment'
-                    ) {
+                    $postableTypes = $this->getAccessHandler()->getPostableTypes();
+
+                    if (in_array($objectType, $postableTypes)) {
                         $dbIdName = 'post_id';
                         $database = $dbAccessgroupToPost.', '.$wpdb->posts;
                         $addition = " WHERE post_id = ID
@@ -1082,13 +1081,13 @@ class UserAccessManager
      * @return null
      */    
     public function savePostData($postParam)
-    {    
+    {
         if (is_array($postParam)) {
             $post = get_post($postParam['ID']);
         } else {
             $post = get_post($postParam);
         }
-
+        
         $postId = $post->ID;
         $postType = $post->post_type;
         
@@ -1441,8 +1440,13 @@ class UserAccessManager
         $uamAccessHandler = &$this->getAccessHandler();
         
         $postType = $post->post_type;
-                
-        if ($postType == 'attachment') {
+        
+        $postableTypes = $uamAccessHandler->getPostableTypes();
+
+        if (in_array($postType, $postableTypes)
+        	&& $postType != 'post' 
+        	&& $postType != 'page'
+        ) {
             $postType = 'post';
         } elseif ($postType != 'post' && $postType != 'page') {
             return $post;
@@ -1803,7 +1807,9 @@ class UserAccessManager
             }
 
             if ($term !== null) {
-                if (!$term->isEmpty) {
+                if (!isset($term->isEmpty)
+                    || !$term->isEmpty
+                ) {
                     $showTerms[$term->term_id] = $term;
                 }
             }
