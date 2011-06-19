@@ -71,7 +71,7 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.2         2011/06/14  Add custom post types.
+    1.2         2011/06/19  Add custom post types.
                             Fix CSRF issue. Thanks to Luke Crouch
     
     1.1.4       2010/10/19  Fix error on custom post types
