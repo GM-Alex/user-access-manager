@@ -1126,10 +1126,12 @@ class UserAccessManager
     public function removePostData($postId)
     {
         global $wpdb;
+        $post = get_post($postId);
         
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_POST . " 
-        	WHERE post_id = ".$postId
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+        	WHERE object_id = '".$postId."'
+        		AND object_type = '".$post->post_type."'"
         );
     }
     
@@ -1229,8 +1231,9 @@ class UserAccessManager
         global $wpdb;
 
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_USER . " 
-        	WHERE user_id = ".$userId
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+        	WHERE object_id = ".$userId."
+                AND object_type = 'user'"
         );
     }
     
@@ -1305,11 +1308,13 @@ class UserAccessManager
      */
     public function removeCategoryData($categoryId)
     {
+        //TODO
         global $wpdb;
         
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_CATEGORY . " 
-        	WHERE category_id = ".$categoryId
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+        	WHERE object_id = ".$categoryId."
+        		AND object_type = 'category'"
         );
     }
     
@@ -1519,7 +1524,9 @@ class UserAccessManager
             || ($uamOptions['protect_feed'] == 'true' && is_feed())
         ) {
             foreach ($posts as $post) {
-                $post = $this->_getPost($post);
+                if ($post !== null) {
+                    $post = $this->_getPost($post);
+                }
                 
                 if ($post !== null) {
                     $showPosts[] = $post;
@@ -1573,7 +1580,10 @@ class UserAccessManager
                 || $item->object == 'page'
             ) {
                 $object = get_post($item->object_id);
-                $post = $this->_getPost($object);
+              
+                if ($object !== null) {
+                    $post = $this->_getPost($object);
+                }
    
                 if ($post !== null) {
                     if (isset($post->isLocked)) {
@@ -1751,7 +1761,8 @@ class UserAccessManager
         	    //For categories
                 if ($term->count <= 0 
                     && $uamOptions['hide_empty_categories'] == 'true'
-                    && $term->taxonomy == "term"
+                    && ($term->taxonomy == "term"
+                    || $term->taxonomy == "category")
                 ) {
                     $term->isEmpty = true;
                 }
@@ -1787,7 +1798,7 @@ class UserAccessManager
      * @return array
      */
     public function showTerms($terms = array(), $args = array())
-    {    
+    {
         $uamOptions = $this->getAdminOptions();
         $uamAccessHandler = &$this->getAccessHandler();
         

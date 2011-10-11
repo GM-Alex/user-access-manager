@@ -684,8 +684,7 @@ class UamAccessHandler
             $capabilities = null;
         }
         
-        $role = is_array($capabilities) ? 
-            array_keys($capabilities) : array('norole');
+        $role  = (is_array($capabilities) && count($capabilities) > 0) ? array_keys($capabilities) : array('norole');
             
         return trim($role[0]);
     }
@@ -726,8 +725,9 @@ class UamAccessHandler
         $role = $this->_getUserRole($current_user->ID);
         $orderedRoles = $this->getRolesOrdered();
         
-        if ($orderedRoles[$role] >= $orderedRoles[$uamOptions['full_access_role']]
-            || $role == 'administrator'
+        if (/*isset($orderedRoles[$role])
+            && $orderedRoles[$role] >= $orderedRoles[$uamOptions['full_access_role']]
+            || */$role == 'administrator'
             || is_super_admin($current_user->ID)
         ) {
             return true;

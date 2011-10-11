@@ -727,11 +727,9 @@ class UamUserGroup
             $capabilities = null;
         }
         
-        $role  = is_array($capabilities) ? 
-            array_keys($capabilities) : array('norole');
+        $role  = (is_array($capabilities) && count($capabilities) > 0) ? array_keys($capabilities) : array('norole');
         
-        if (array_key_exists($role[0], $this->getObjectsFromType('role'))
-        ) {
+        if (array_key_exists($role[0], $this->getObjectsFromType('role'))) {
             $roleObject->name = $role[0];
             
             $isRecursiveMember = array('role' => array());

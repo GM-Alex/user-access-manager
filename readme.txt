@@ -71,6 +71,8 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
+    1.2.1       2011/10/11  Fix uninstall bug.
+    
     1.2         2011/06/19  Add custom post types.
                             Fix CSRF issue. Thanks to Luke Crouch
     
