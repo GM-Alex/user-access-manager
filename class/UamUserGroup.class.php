@@ -43,12 +43,12 @@ class UamUserGroup
     /**
      * Consturtor
      * 
-     * @param object  &$uamAccessHandler The access handler object.
-     * @param integer $id                The id of the user group.
+     * @param object  $uamAccessHandler The access handler object.
+     * @param integer $id               The id of the user group.
      * 
      * @return null
      */
-    public function __construct(&$uamAccessHandler, $id = null)
+    public function __construct($uamAccessHandler, $id = null)
     {
         $this->accessHandler = $uamAccessHandler;
 

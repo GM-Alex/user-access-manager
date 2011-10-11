@@ -26,12 +26,10 @@ $objectType = $post->post_type;
 
 global $userAccessManager;
 
-$uamUserGroups 
-    = &$userAccessManager->getAccessHandler()->getUserGroups();
+$uamUserGroups = &$userAccessManager->getAccessHandler()->getUserGroups();
 
 if (isset($objectId)) {
-    $userGroupsForObject 
-        = &$userAccessManager->getAccessHandler()->getUserGroupsForObject($objectType, $objectId);
+    $userGroupsForObject = &$userAccessManager->getAccessHandler()->getUserGroupsForObject($objectType, $objectId);
 } else {
     $userGroupsForObject = array();
 }

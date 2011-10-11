@@ -17,8 +17,7 @@
 
 global $userAccessManager;
 
-$uamUserGroups 
-    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
+$uamUserGroups = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
 $userGroupsForObject = &$uamUserGroups;
 
 if ($uamUserGroups != Array()) {

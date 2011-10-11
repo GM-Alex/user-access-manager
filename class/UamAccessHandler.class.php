@@ -51,11 +51,11 @@ class UamAccessHandler
     /**
      * The consturctor
      * 
-     * @param object &$userAccessManager The user access manager object.
+     * @param object $userAccessManager The user access manager object.
      * 
      * @return null
      */
-    public function __construct(&$userAccessManager)
+    public function __construct($userAccessManager)
     {
         $this->userAccessManager = $userAccessManager;
         
@@ -175,7 +175,7 @@ class UamAccessHandler
         $uamOptions = $this->getUserAccessManager()->getAdminOptions();
         
         if ($uamOptions['authors_can_add_posts_to_groups'] == 'true'
-        	&& !$this->checkUserAccess()
+        	&& !$this->checkUserAccess('manage_user_groups')
         	&& $this->getUserAccessManager()->atAdminPanel()
         ) {
             global $current_user;
@@ -239,7 +239,7 @@ class UamAccessHandler
         if (isset($userGroupsDb)) {
             foreach ($userGroupsDb as $userGroupDb) {
                 $this->userGroups[$filterAttr][$userGroupDb['ID']] 
-                    = new UamUserGroup(&$this, $userGroupDb['ID']);
+                    = new UamUserGroup($this, $userGroupDb['ID']);
             }
         }
         
@@ -412,7 +412,7 @@ class UamAccessHandler
         $membership = $this->getUserGroupsForObject($objectType, $objectId, false);
         
         if ($membership == array() 
-            || $this->checkUserAccess()
+            || $this->checkUserAccess('manage_user_groups')
             || $current_user->ID == $authorId
             && $uamOptions['authors_has_access_to_own'] == 'true'
         ) {
@@ -551,7 +551,7 @@ class UamAccessHandler
     {
         global $wpdb;
         
-        if ($this->checkUserAccess()) {
+        if ($this->checkUserAccess('manage_user_groups')) {
             $this->sqlResults['excludedPosts'] = array();
         }
         
@@ -714,7 +714,7 @@ class UamAccessHandler
      * 
      * @return boolean
      */
-    public function checkUserAccess()
+    public function checkUserAccess($allowedCapability = false)
     {
         global $current_user;
         //Force user infos
@@ -725,10 +725,11 @@ class UamAccessHandler
         $role = $this->_getUserRole($current_user->ID);
         $orderedRoles = $this->getRolesOrdered();
         
-        if (/*isset($orderedRoles[$role])
+        if (isset($orderedRoles[$role])
             && $orderedRoles[$role] >= $orderedRoles[$uamOptions['full_access_role']]
-            || */$role == 'administrator'
+            || $role == 'administrator'
             || is_super_admin($current_user->ID)
+            || ($allowedCapability && $current_user->has_cap($allowedCapability))
         ) {
             return true;
         }

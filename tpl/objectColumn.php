@@ -17,11 +17,9 @@
 
 global $userAccessManager;
 
-$uamUserGroups 
-    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
+$uamUserGroups = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
 $userGroupsForObject = &$uamUserGroups;
-$uamUserGroupsFull
-    = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId, false);
+$uamUserGroupsFull = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId, false);
 $groupDiff = count($uamUserGroupsFull) - count($uamUserGroups);
 
 if ($uamUserGroups != Array()) {

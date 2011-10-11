@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
-Tested up to: 3.1.3
-Stable tag: 1.2
+Tested up to: 3.2.1
+Stable tag: 1.2.1
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -72,6 +72,8 @@ Here you found the changes in each version.
     Version		Date      	Changes
     
     1.2.1       2011/10/11  Fix uninstall bug.
+                            Add capability 'manage_user_groups'. Thanks to Tim Okrongli
+                            Some small improvments.
     
     1.2         2011/06/19  Add custom post types.
                             Fix CSRF issue. Thanks to Luke Crouch

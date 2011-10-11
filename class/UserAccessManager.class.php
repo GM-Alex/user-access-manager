@@ -772,7 +772,7 @@ class UserAccessManager
     public function &getAccessHandler()
     {
         if ($this->accessHandler == null) {
-            $this->accessHandler = new UamAccessHandler(&$this);
+            $this->accessHandler = new UamAccessHandler($this);
         }
         
         return $this->accessHandler;
@@ -953,7 +953,7 @@ class UserAccessManager
     {
         global $wp_meta_boxes;
         
-        if (!$this->getAccessHandler()->checkUserAccess()) {
+        if (!$this->getAccessHandler()->checkUserAccess('manage_user_groups')) {
             unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
         }
     }
@@ -989,7 +989,7 @@ class UserAccessManager
         $uamOptions = $this->getAdminOptions();
         
         if (isset($_POST['uam_update_groups'])
-            && ($uamAccessHandler->checkUserAccess()
+            && ($uamAccessHandler->checkUserAccess('manage_user_groups')
             || $uamOptions['authors_can_add_posts_to_groups'] == 'true')
         ) {            
             $userGroupsForObject = $uamAccessHandler->getUserGroupsForObject(
@@ -1034,7 +1034,7 @@ class UserAccessManager
      */
     public function addPostColumnsHeader($defaults)
     {
-        $defaults['uam_access'] = __('Access');
+        $defaults['uam_access'] = __('Access', 'user-access-manager');
         return $defaults;
     }
     
@@ -1251,7 +1251,7 @@ class UserAccessManager
      */
     public function addCategoryColumnsHeader($defaults)
     {
-        $defaults['uam_access'] = __('Access');
+        $defaults['uam_access'] = __('Access', 'user-access-manager');
         return $defaults;
     }
     
