@@ -596,17 +596,17 @@ class UamUserGroup
             return;
         }
         
-        if ($this->id == null) {
-            return array();
-        }
-        
-        if ($type != 'real' 
+        if ($this->id == null
+            || $type != 'real' 
             && $type != 'full'
         ) {
             return array();
         }
         
-        if ($this->objects[$objectType][$type] != -1) {
+        if (isset($this->objects[$objectType])
+            && isset($this->objects[$objectType][$type])
+            && $this->objects[$objectType][$type] != -1
+        ) {
             return $this->objects[$objectType][$type];
         } else {
             $this->objects[$objectType][$type] = array();
@@ -880,7 +880,32 @@ class UamUserGroup
     
     /*
      * Group posts functions.
-     */  
+     */
+
+    /**
+     * Checks if the give post in the give category. 
+     * 
+     * @param integer $postId     The post id.
+     * @param integer $categoryId The category id.
+     * 
+     * @return boolean
+     */
+    private function _isPostInCategory($postId, $categoryId)
+    {        
+        global $wpdb;
+        
+        $count = (int)$wpdb->get_var(
+            "SELECT COUNT(*) 
+            FROM ".$wpdb->term_relationships." AS tr, 
+        		".$wpdb->term_taxonomy." AS tt
+            WHERE tr.object_id = '".$postId."'
+            	AND tt.term_id = '".$categoryId."'
+            	AND tr.term_taxonomy_id = tt.term_taxonomy_id
+            	AND tt.taxonomy = 'category'"
+        );
+        
+        return ($count > 0) ? false : true; 
+    }
     
     /**
      * Returns the membership of a single post.
@@ -900,7 +925,9 @@ class UamUserGroup
         $uamOptions = $userAccessManager->getAdminOptions();
         
         foreach ($this->getObjectsFromType('category', 'full') as $category) {
-            if (in_category($category->id, $post->ID)) {
+            //TODO in_category($category->id, $post->ID) is very slow check if own function works also
+            
+            if ($this->_isPostInCategory($post->ID, $category->id)) {
                 $categoryObject = get_category($category->id);
                 $category->name = $categoryObject->name;
                 

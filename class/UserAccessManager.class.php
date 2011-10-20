@@ -1771,7 +1771,7 @@ class UserAccessManager
                     $curCategory = $term;
                     
                     while ($curCategory->parent != 0) {
-                        $curCategory = get_term($curCategory->parent);
+                        $curCategory = get_term($curCategory->parent, 'category');
                         
                         if ($uamAccessHandler->checkObjectAccess('term', $curCategory->term_id)) {
                             $term->parent = $curCategory->term_id;

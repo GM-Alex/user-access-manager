@@ -51,6 +51,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 * Spanish, based on 1.1.2. Thanks to Juan Rodriguez
 * Swedish, based on 1.1. Thanks to Konsult
 * Turkish, based on 1.1.2. Thanks to Mesut Soylu
+* Polish, based on 1.2. Thanks to Piotr Kaczynski
 
 
 Some language files are really old, if you are a native speaker it would be nice if you update a language file or make one for a language which is not translated jet.
@@ -70,6 +71,9 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+    
+    1.2.2       2011/       Speed improvments.
+                            Fix get_term bug.
     
     1.2.1       2011/10/11  Fix uninstall bug.
                             Add capability 'manage_user_groups'. Thanks to Tim Okrongli
