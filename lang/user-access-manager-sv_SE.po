@@ -1,0 +1,704 @@
+# Translation of the WordPress plugin User Access Manager 1.1 by Alexander Schneider.
+# Copyright (C) 2010 Alexander Schneider
+# This file is distributed under the same license as the User Access Manager package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Access Manager 1.1\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
+"POT-Creation-Date: 2010-10-04 20:18+0000\n"
+"PO-Revision-Date: 2010-10-20 10:01+0100\n"
+"Last-Translator: IÅ Konsult <ingvar@iakonsult.se>\n"
+"Language-Team: IÅ Konsult <info@iakonsult.se>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1\n"
+"X-Poedit-Language: Swedish\n"
+"X-Poedit-Country: SWEDEN\n"
+
+#: class/UserAccessManager.class.php:633
+#: class/UserAccessManager.class.php:646
+msgid "No rights!"
+msgstr "Inga rättigheter!"
+
+#: class/UserAccessManager.class.php:635
+msgid "Sorry you have no rights to view this post!"
+msgstr "Du har tyvärr inte rättigheter att läsa denna post!"
+
+#: class/UserAccessManager.class.php:641
+#: class/UserAccessManager.class.php:654
+msgid "Sorry no rights to view comments!"
+msgstr "Inga rättigheter att se kommentarer!"
+
+#: class/UserAccessManager.class.php:648
+msgid "Sorry you have no rights to view this page!"
+msgstr "Du har tyvärr inte rättigheter att läsa denna sida!"
+
+#: class/UserAccessManager.class.php:956
+#: class/UserAccessManager.class.php:1170
+msgid "Access"
+msgstr "Tillgång"
+
+#: class/UserAccessManager.class.php:1093
+msgid "uam user groups"
+msgstr "UAM användargrupper"
+
+#: includes/language.define.php:19
+#, php-format
+msgid "Sorry you need at least PHP version 5.0 to use the User Access Manager. Your current PHP version is %s."
+msgstr "Tyvärr! Du behöver åtminstonde PHP version 5.0 för att använda User Access Manager. Din nuvarande PHP version är %s."
+
+#: includes/language.define.php:20
+#, php-format
+msgid "Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s."
+msgstr "Tyvärr! Du behöver åtminstondeWordpress version 3.0 för att använda User Access Manager. Din nuvarande Wordpress version är %s."
+
+#: includes/language.define.php:21
+#, php-format
+msgid "Please update the database of the User Access Manager. <a href=\"%s\">Click here to proceed</a>"
+msgstr "Vänligen uppdatera databasen för User Access Manager. <a href=\"%s\">Klicka här för att fortsätta</a>"
+
+#: includes/language.define.php:24
+msgid "all"
+msgstr "Alla"
+
+#: includes/language.define.php:25
+msgid "only group users"
+msgstr "Endast gruppanvändare"
+
+#: includes/language.define.php:26
+msgid "Yes"
+msgstr "Ja"
+
+#: includes/language.define.php:27
+msgid "No"
+msgstr "Nej"
+
+#: includes/language.define.php:31
+msgid "Settings"
+msgstr "Inställningar"
+
+#: includes/language.define.php:34
+msgid "Post settings"
+msgstr "Inställningar för poster"
+
+#: includes/language.define.php:35
+msgid "Set up the behaviour of locked posts"
+msgstr "Ställ in hur låsta poster skall uppföra sig"
+
+#: includes/language.define.php:36
+msgid "Post title"
+msgstr "Postens titel"
+
+#: includes/language.define.php:37
+msgid "Displayed text as post title if user has no access"
+msgstr "Visa text som postens titel om användaren inte har rättigheter."
+
+#: includes/language.define.php:38
+msgid "Hide post title"
+msgstr "Dölj postens titel"
+
+#: includes/language.define.php:39
+#: includes/language.define.php:49
+#: includes/language.define.php:59
+#: includes/language.define.php:67
+#, php-format
+msgid "Selecting \"Yes\" will show the text which is defined at \"%s\" if user has no access."
+msgstr "\"Ja\" kommer att visa texten som är definierad som \"%s\" om användaren inte har rättigheter."
+
+#: includes/language.define.php:40
+msgid "Post content"
+msgstr "Postens innehåll"
+
+#: includes/language.define.php:41
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single posts, otherwise a link will shown."
+msgstr "Visat innehåll om användaren inte har rättigheter. Du kan lägga till ett inloggingsformulär genom att lägga till nyckelordet <b>[LOGIN_FORM]</b>. Inloggningsformuläret kommer att visas på postens sida annars visas en länk."
+
+#: includes/language.define.php:42
+msgid "Show post content before &lt;!--more--&gt; tag"
+msgstr "Visa postens innehåll före &lt;!--Läs mer--&gt; "
+
+#: includes/language.define.php:43
+#, php-format
+msgid "Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at \"%s\". If no &lt;!--more--&gt; is set he defined text at \"%s\" will shown."
+msgstr "Visar postens innehåll före &lt;!--Läs mer--&gt; och efter den definierade texten vid  \"%s\". Om det inte finns någon &lt;!--Läs mer--&gt; kommer den definierade texten vid \"%s\" att visas."
+
+#: includes/language.define.php:44
+msgid "Hide complete posts"
+msgstr "Dölj hela poster"
+
+#: includes/language.define.php:45
+msgid "Selecting \"Yes\" will hide posts if the user has no access."
+msgstr "\"Ja\" kommer att dölja hela posten om användaren inte har rättigheter."
+
+#: includes/language.define.php:46
+msgid "Post comment text"
+msgstr "Postens kommentarer"
+
+#: includes/language.define.php:47
+msgid "Displayed text as post comment text if user has no access"
+msgstr "Visa texten som kommentar om användaren inte har rättigheter."
+
+#: includes/language.define.php:48
+msgid "Hide post comments"
+msgstr "Dölj kommentarer"
+
+#: includes/language.define.php:50
+msgid "Allow post comments"
+msgstr "Tillåt kommentarer"
+
+#: includes/language.define.php:51
+msgid "Selecting \"yes\" allows users to comment on locked posts"
+msgstr "\"Ja\" tillåter användare att kommentera låsta poster"
+
+#: includes/language.define.php:54
+msgid "Page settings"
+msgstr "Inställningar för sidor"
+
+#: includes/language.define.php:55
+msgid "Set up the behaviour of locked pages"
+msgstr "Ställ in hur låsta sidor skall uppföra sig"
+
+#: includes/language.define.php:56
+msgid "Page title"
+msgstr "Sidans titel"
+
+#: includes/language.define.php:57
+msgid "Displayed text as page title if user has no access"
+msgstr "Visa text som Sidans tittel som användaren inte har rättighet"
+
+#: includes/language.define.php:58
+msgid "Hide page title"
+msgstr "Dölj sidans tittel"
+
+#: includes/language.define.php:60
+msgid "Page content"
+msgstr "Sidans innehåll"
+
+#: includes/language.define.php:61
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single pages, otherwise a link will shown."
+msgstr "Innehåll som visas om användaren inte har rättigheter. Du kan lägga till ett inloggningsformulär genom att lägga till nyckelordet <b>[LOGIN_FORM]</b>."
+
+#: includes/language.define.php:62
+msgid "Hide complete pages"
+msgstr "Dölj hela sidor"
+
+#: includes/language.define.php:63
+msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will also hide in the navigation."
+msgstr "\"Ja\" kommer att dölja hela sidor om användaren inte har rättigheter. Sidorna kommer även att döljas i navigationen."
+
+#: includes/language.define.php:64
+msgid "Page comment text"
+msgstr "Sidkommentarer"
+
+#: includes/language.define.php:65
+msgid "Displayed text as page comment text if user has no access"
+msgstr "Visa texten som kommentar om användaren inte har rättigheter."
+
+#: includes/language.define.php:66
+msgid "Hide page comments"
+msgstr "Dölj kommentarer"
+
+#: includes/language.define.php:68
+msgid "Allow page comments"
+msgstr "Tillåt kommentarer"
+
+#: includes/language.define.php:69
+msgid "Selecting \"yes\" allows users to comment on locked pages"
+msgstr "\"Ja\" tillåter användare att kommentera låsta sidor"
+
+#: includes/language.define.php:72
+msgid "File settings"
+msgstr "Inställningar för filer"
+
+#: includes/language.define.php:73
+msgid "Set up the behaviour of files"
+msgstr "Ställ in hur filer skall uppföra sig"
+
+#: includes/language.define.php:74
+msgid "Lock files"
+msgstr "Lås filer"
+
+#: includes/language.define.php:75
+msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style=\"color:red;\">Note: If you activate this option the plugin will overwirte a '.htaccess' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>"
+msgstr "Om du väljer \"Ja\" kommer alla filer låsas av en .htaccess fil och endast användare med rättigheter kan ladda ner filer. <br/><strong style=\"color:red;\">Notera att om du aktiverar denna inställning och använder en '.htaccess' fil för att skydda dina filer kommer den att skrivas över i uppladdningsmappen. Har du inte aktiverat permalänkar kommer din uppladdningsmapp att skyddas av en '.htaccess' med ett slumpgenererat lösenord och alla tidigare uppladdade filer kommer inte längre att fungera. Du måste då uppdatera alla poster/sidor (detta är inte nödvändigt om du använder permalänkar).</strong>"
+
+#: includes/language.define.php:76
+msgid "Filetypes to lock: "
+msgstr "Filtyper att låsa"
+
+#: includes/language.define.php:77
+msgid "Filetypes not to lock: "
+msgstr "Filtyper att inte låsa"
+
+#: includes/language.define.php:78
+msgid "Locked file types"
+msgstr "Låsta filtyper"
+
+#: includes/language.define.php:79
+msgid "Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <b>Note:</b> If you have no problems use all to get the maximum security."
+msgstr "Lås alla filer, skriv in vilka filtyper du vill låsa om posten/sidan är låst eller definiera vilka filtyper som inte skall låsas. <b>Notera:</b> Om du inte har några problem använd alla för att få hötsta möjliga säkerhet"
+
+#: includes/language.define.php:80
+msgid ".htaccess password"
+msgstr ".htaccess lösenord"
+
+#: includes/language.define.php:81
+msgid "Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files."
+msgstr "Ställ in lösenordet för .htaccess rättigheterna. Det här lösenorder är endast nödvändigt om du behöver direkt åtkomst till dina filer."
+
+#: includes/language.define.php:82
+msgid "Use a random generated pass word."
+msgstr "Använd ett slumpgenererat lösenord."
+
+#: includes/language.define.php:83
+msgid "Use the password of the current logged in admin."
+msgstr "Använd lösenordet från nu inloggad admin."
+
+#: includes/language.define.php:84
+msgid "Download type"
+msgstr "Nedladdningstyp"
+
+#: includes/language.define.php:85
+msgid "Selecting the type for downloading. <strong>Note:</strong> For using fopen you need \"safe_mode = off\"."
+msgstr "Välj typ av nedladdning. <strong>Notera:</strong> för användare som använder fopen behöver du \"safe_mode = off\"."
+
+#: includes/language.define.php:86
+msgid "Normal"
+msgstr "Normal"
+
+#: includes/language.define.php:87
+msgid "fopen"
+msgstr "fopen"
+
+#: includes/language.define.php:90
+msgid "Authors settings"
+msgstr "Inställningar för författare"
+
+#: includes/language.define.php:91
+msgid "Here you will find the settings for authors"
+msgstr "Här hittar du inställningarna för författare"
+
+#: includes/language.define.php:92
+msgid "Authors always has access to own posts/pages"
+msgstr "Författare har alltid åtkomst till sina egna poster/sidor"
+
+#: includes/language.define.php:93
+msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
+msgstr "\"Ja\" gör att valda författare alltid har fullständiga rättigheter till sina egna poster/sidor"
+
+#: includes/language.define.php:94
+msgid "Authors can add content to there own groups"
+msgstr "Författare kan lägga till innehåll till sin egen grupp"
+
+#: includes/language.define.php:95
+msgid "If \"Yes\" is selected author are able to restrict the content by adding it to there groups."
+msgstr "\"Ja\" betyder att författaren har rättighet att låsa innehållet genom att lägga till det till sin egen grupp."
+
+#: includes/language.define.php:96
+msgid "Minimum user role with full access"
+msgstr "Minsta anvädarrättighet med full tillgång"
+
+#: includes/language.define.php:97
+msgid "All user with a role equal or higher to this has full access."
+msgstr "Alla användare med en användartyp som är lika eller högre än den här har full tillgång."
+
+#: includes/language.define.php:98
+msgid "Administrator"
+msgstr "Administratör"
+
+#: includes/language.define.php:99
+msgid "Editor"
+msgstr "Redaktör"
+
+#: includes/language.define.php:100
+msgid "Author"
+msgstr "Författare"
+
+#: includes/language.define.php:101
+msgid "Contributor"
+msgstr "Medarbetare"
+
+#: includes/language.define.php:102
+msgid "Subscriber"
+msgstr "Prenumerant"
+
+#: includes/language.define.php:105
+msgid "Other settings"
+msgstr "Övriga inställningar"
+
+#: includes/language.define.php:106
+msgid "Here you will find all other settings"
+msgstr "Här hittar du alla övriga inställningar"
+
+#: includes/language.define.php:107
+msgid "Protect Feed"
+msgstr "Skydda nyhetsflöden"
+
+#: includes/language.define.php:108
+msgid "Selecting \"Yes\" will also protect your feed entries."
+msgstr "\"Ja\" kommer att skydda dina utdelade nyhetsflöden."
+
+#: includes/language.define.php:109
+msgid "Hide empty categories"
+msgstr "Dölj tomma kategorier"
+
+#: includes/language.define.php:110
+msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
+msgstr "\"Ja\" döljer tomma kategorier som endast innehåller tomma underkategorier eller inga kategorier."
+
+#: includes/language.define.php:111
+msgid "Redirect user"
+msgstr "Skicka vidare användare"
+
+#: includes/language.define.php:112
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr "Ställ in vad som händer om en användare besöker en post/sida som den inte har rättigheter till"
+
+#: includes/language.define.php:113
+msgid "To blog startpage"
+msgstr "Till startsidan"
+
+#: includes/language.define.php:114
+msgid "Custom page: "
+msgstr "Anpassad sida:"
+
+#: includes/language.define.php:115
+msgid "Custom URL: "
+msgstr "Anpassad URL:"
+
+#: includes/language.define.php:116
+msgid "Lock recursive"
+msgstr "Lås rekursivt"
+
+#: includes/language.define.php:117
+msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgstr "\"Ja\" kommer att låsa alla underliggande poster/sidor till den sidan som en användare inte har rättigheter till. <strong>Notera:</strong> \"Nej\" kan resultera i visningsfel relaterat till hierarkin."
+
+#: includes/language.define.php:118
+msgid "Admin hint text"
+msgstr "Admintext"
+
+#: includes/language.define.php:119
+msgid "The text which will shown behinde the post/page."
+msgstr "Text som visas efter posten/sidan."
+
+#: includes/language.define.php:120
+msgid "Show admin hint at Posts"
+msgstr "Visa admintext vid poster"
+
+#: includes/language.define.php:121
+#, php-format
+msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
+msgstr "\"Ja\" visar den definierade texten vid \"%s\" efter posten/sidan för en inloggad admin för att visa vilka poster/sidor som är låsta."
+
+#: includes/language.define.php:124
+msgid "Update settings"
+msgstr "Uppdatera inställningar"
+
+#: includes/language.define.php:125
+msgid "Settings updated."
+msgstr "Inställningar uppdaterade"
+
+#: includes/language.define.php:129
+msgid "Manage user user groups"
+msgstr "Hantera användargrupper"
+
+#: includes/language.define.php:130
+msgid "Role affiliation"
+msgstr "Användartillhörighet"
+
+#: includes/language.define.php:131
+msgid "Name"
+msgstr "Namn"
+
+#: includes/language.define.php:132
+msgid "Description"
+msgstr "Beskrivning"
+
+#: includes/language.define.php:133
+#: includes/language.define.php:146
+msgid "Read access"
+msgstr "Läsrättigheter"
+
+#: includes/language.define.php:134
+#: includes/language.define.php:148
+msgid "Write access"
+msgstr "Skrivrättigheter"
+
+#: includes/language.define.php:135
+msgid "Delete"
+msgstr "Radera"
+
+#: includes/language.define.php:136
+msgid "Update group"
+msgstr "Uppdatera grupp"
+
+#: includes/language.define.php:137
+msgid "Add"
+msgstr "Lägg till"
+
+#: includes/language.define.php:138
+msgid "Add user group"
+msgstr "Lägg till användargrupp"
+
+#: includes/language.define.php:139
+msgid "Edit user group"
+msgstr "Editera användargrupp"
+
+#: includes/language.define.php:140
+msgid "User group name"
+msgstr "Användargruppnamn"
+
+#: includes/language.define.php:141
+msgid "The name is used to identify the access user group."
+msgstr "Namnet används för att identifiera användargruppen"
+
+#: includes/language.define.php:142
+msgid "User group description"
+msgstr "Användargruppsbeskrivning"
+
+#: includes/language.define.php:143
+msgid "The description of the group."
+msgstr "Beskrivning av gruppen"
+
+#: includes/language.define.php:144
+#: includes/language.define.php:155
+msgid "IP range"
+msgstr "IP-serie"
+
+#: includes/language.define.php:145
+msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgstr "Skriv in en IP-serie för användare som skall få grupprättigheterna utan att behöva logga in. Skriv en serie som \"START\"-\"SLUT\", separera strängar med \";\", enstaka IP-adresser är också tillåtna. Exampel: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30; 192.168.0.45"
+
+#: includes/language.define.php:147
+msgid "The read access."
+msgstr "Läsrättigheter"
+
+#: includes/language.define.php:149
+msgid "The write access."
+msgstr "Skrivrättigheter"
+
+#: includes/language.define.php:150
+msgid "Group was added successfully."
+msgstr "Gruppen lades till korrekt"
+
+#: includes/language.define.php:151
+msgid "Group name can not be empty."
+msgstr "Gruppnamn kan inte vara tomt"
+
+#: includes/language.define.php:152
+msgid "Group(s) was deleted successfully."
+msgstr "Gruppen/Grupperna raderades korrekt"
+
+#: includes/language.define.php:153
+msgid "none"
+msgstr "Ingen"
+
+#: includes/language.define.php:154
+msgid "User group edit successfully."
+msgstr "Gruppen editerades korrekt"
+
+#: includes/language.define.php:159
+msgid "Setup"
+msgstr "Återställning"
+
+#: includes/language.define.php:160
+msgid "Reset User Access Manager"
+msgstr "Återställ User Access Manager"
+
+#: includes/language.define.php:161
+msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
+msgstr "Varning: Återstälningen av User Access Manager kan inte ångras. Alla inställningar och grupper kommer att raderas permanent."
+
+#: includes/language.define.php:162
+msgid "reset"
+msgstr "Återställ"
+
+#: includes/language.define.php:163
+msgid "Update User Access Manager database"
+msgstr "Uppdatera User Access Manager databasen"
+
+#: includes/language.define.php:164
+msgid "Updates the database of the User Access Manager. Please backup your database before you perform the update."
+msgstr "Uppdatera databasen til User Access Manager. Vänligen ta en säkerhetskopia av din databas innan uppdatering."
+
+#: includes/language.define.php:165
+msgid "update"
+msgstr "Uppdatera"
+
+#: includes/language.define.php:166
+msgid "User Access Manager was reset successfully"
+msgstr "User Access Manager återställdes korrekt"
+
+#: includes/language.define.php:167
+msgid "User Access Manager database was updated successfully"
+msgstr "User Access Manager database uppdaterades korrekt"
+
+#: includes/language.define.php:168
+msgid "Update current blog"
+msgstr "Uppdatera denna blogg"
+
+#: includes/language.define.php:169
+msgid "Update network wide"
+msgstr "Uppdatera hela nätverket"
+
+#: includes/language.define.php:173
+msgid "About"
+msgstr "Om"
+
+#: includes/language.define.php:176
+msgid "How to support me?"
+msgstr "Hur stödjer du mig?"
+
+#: includes/language.define.php:177
+msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
+msgstr "<strong>Skicka mig felrapporter, fixade fel, modifieringar i koden eller dina idéer.</strong><br/>Hjälp mig att förbättra tillägget."
+
+#: includes/language.define.php:178
+msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
+msgstr "<strong>Översätt tillägget.</strong><br/>För att underlätta för andra användare hjälp mig att översätta tillägget."
+
+#: includes/language.define.php:179
+msgid "<strong>Donate via paypal</strong>"
+msgstr "<strong>Donera via paypal</strong>"
+
+#: includes/language.define.php:180
+msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
+msgstr "<strong>Placera en länk till tillägget i din blogg/webbsida.</strong>"
+
+#: includes/language.define.php:183
+msgid "Thanks"
+msgstr "Tack!"
+
+#: includes/language.define.php:184
+msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
+msgstr "Speciellt tack går till min flickvän för att ha gett mig tiden till att utveckla dett tillägg."
+
+#: includes/language.define.php:185
+msgid "I would like to thank all the guys which has helped me with this plugin:"
+msgstr "Jag vill tacka alla som har hjälpt mig med detta tillägg:"
+
+#: includes/language.define.php:186
+msgid "all beta testers and all others I forgot"
+msgstr "alla betatestare och alla andra som jag har glömt"
+
+#: includes/language.define.php:190
+msgid "Full access"
+msgstr "Fulla rättigheter"
+
+#: includes/language.define.php:191
+msgid "Member of other user groups"
+msgstr "Medlem av andra användargrupper"
+
+#: includes/language.define.php:192
+msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
+msgstr "<strong>Notera:</strong> En administratör har alltid tillgång till alla poster/sidor."
+
+#: includes/language.define.php:193
+msgid "Please create a user group first."
+msgstr "Vänligen skapa en grupp först."
+
+#: includes/language.define.php:194
+msgid "No user group available."
+msgstr "Inga användargrupper är tillgängliga."
+
+#: includes/language.define.php:195
+msgid "You have no rights to access this content."
+msgstr "Du har inte rättighet till detta innehåll."
+
+#: includes/language.define.php:196
+msgid "User Groups"
+msgstr "Användargrupper"
+
+#: includes/language.define.php:197
+msgid "Set up usergroups"
+msgstr "Administrera användargrupper"
+
+#: includes/language.define.php:201
+msgid "Info"
+msgstr "Info"
+
+#: includes/language.define.php:202
+msgid "Group infos"
+msgstr "Gruppinfo"
+
+#: includes/language.define.php:203
+msgid "Group membership given by posts"
+msgstr "Gruppmedlemskap per post"
+
+#: includes/language.define.php:204
+msgid "Group membership given by pages"
+msgstr "Gruppmedlemskap baserat på sidor"
+
+#: includes/language.define.php:205
+msgid "Group membership given by categories"
+msgstr "Gruppmedlemskap per kategori"
+
+#: includes/language.define.php:206
+msgid "Group membership given by role"
+msgstr "Gruppmedlemskap per rättighet"
+
+#: includes/language.define.php:207
+msgid "Assigned groups"
+msgstr "Tillgänglig för"
+
+#: includes/language.define.php:211
+msgid "Opening fileinfo database failed."
+msgstr "Öppning av filinformationens databas fungerade inte"
+
+#: includes/language.define.php:212
+msgid "Error: File not found."
+msgstr "Fel: Filen hittades inte"
+
+#: tpl/loginBar.php:23
+#: tpl/loginBar.php:40
+msgid "Login"
+msgstr "Inloggning"
+
+#: tpl/loginBar.php:34
+msgid "Username:"
+msgstr "Användarnamn:"
+
+#: tpl/loginBar.php:36
+msgid "Password:"
+msgstr "Lösenord:"
+
+#: tpl/loginBar.php:39
+msgid "Remember me"
+msgstr "Kom ihåg mig"
+
+#: tpl/loginBar.php:46
+msgid "Register"
+msgstr "Registrera"
+
+#: tpl/loginBar.php:49
+msgid "Password Lost and Found"
+msgstr "Glömt lösenord"
+
+#: tpl/loginBar.php:49
+msgid "Lost your password?"
+msgstr "Förlorat ditt lösenord?"
+
+#. Plugin Name of the plugin/theme
+msgid "User Access Manager"
+msgstr "User Access Manager"
+
+#. Plugin URI of the plugin/theme
+msgid "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+msgstr "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+
+#. Description of the plugin/theme
+msgid "Manage the access to your posts, pages, categories and files."
+msgstr "Hantera rättigheterna till dina poster, sidor, kategorier och filer."
+
+#. Author of the plugin/theme
+msgid "Alexander Schneider"
+msgstr "Alexander Schneider"
+
+#. Author URI of the plugin/theme
+msgid "http://www.gm-alex.de/"
+msgstr "http://www.gm-alex.de/"
+

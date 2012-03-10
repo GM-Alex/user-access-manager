@@ -1,0 +1,839 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: User Access Manager\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
+"POT-Creation-Date: 2009-03-05 16:55+0000\n"
+"PO-Revision-Date: 2009-03-05 18:11+0100\n"
+"Last-Translator: Alexander Schneider <alexanderschneider85@googlemail.com>\n"
+"Language-Team: huuska <houska@seznam.cz>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-Language: Czech\n"
+"X-Poedit-Country: CZECH REPUBLIC\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: \n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: includes/language.define.php:31
+#@ user-access-manager
+msgid "Settings"
+msgstr "Nastavení"
+
+#: includes/language.define.php:34
+#@ user-access-manager
+msgid "Post settings"
+msgstr "Nastavení příspěvků"
+
+#: includes/language.define.php:35
+#@ user-access-manager
+msgid "Set up the behaviour of locked posts"
+msgstr "Nastavení chování uzamčených příspěvků"
+
+#: includes/language.define.php:36
+#@ user-access-manager
+msgid "Post title"
+msgstr "Titulek příspěvku"
+
+#: includes/language.define.php:37
+#@ user-access-manager
+msgid "Displayed text as post title if user has no access"
+msgstr "Text zobrazený jako titulek příspěvku, pokud uživatel nemá povolen přístup"
+
+#: includes/language.define.php:39
+#: includes/language.define.php:49
+#: includes/language.define.php:59
+#: includes/language.define.php:67
+#, php-format
+#@ user-access-manager
+msgid "Selecting \"Yes\" will show the text which is defined at \"%s\" if user has no access."
+msgstr "Volba \"Ano\" zobrazí text, zadaný v  \"%s\", pokud uživatel nemá povolen přístup."
+
+#: includes/language.define.php:40
+#@ user-access-manager
+msgid "Post content"
+msgstr "Obsah příspěvku"
+
+#: includes/language.define.php:44
+#@ user-access-manager
+msgid "Hide complete posts"
+msgstr "Skrýt všechny příspěvky"
+
+#: includes/language.define.php:45
+#@ user-access-manager
+msgid "Selecting \"Yes\" will hide posts if the user has no access."
+msgstr "Volba \"Ano\" skryje příspěvky, pokud uživatel nemá povolen přístup."
+
+#: includes/language.define.php:47
+#@ user-access-manager
+msgid "Displayed text as post comment text if user has no access"
+msgstr "Text zobrazený jako komentář k příspěvku, pokud uživatel nemá povolen přístup"
+
+#: includes/language.define.php:48
+#@ user-access-manager
+msgid "Hide post comments"
+msgstr "Skrýt komentáře k příspěvku"
+
+#: includes/language.define.php:51
+#@ user-access-manager
+msgid "Selecting \"yes\" allows users to comment on locked posts"
+msgstr "Volba \"Ano\" umožňuje uživatelům komentovat uzamčené příspěvky"
+
+#: includes/language.define.php:54
+#@ user-access-manager
+msgid "Page settings"
+msgstr "Nastavení stránek"
+
+#: includes/language.define.php:55
+#@ user-access-manager
+msgid "Set up the behaviour of locked pages"
+msgstr "Nastavení chování uzamčených stránek"
+
+#: includes/language.define.php:56
+#@ user-access-manager
+msgid "Page title"
+msgstr "Titulek stránky"
+
+#: includes/language.define.php:57
+#@ user-access-manager
+msgid "Displayed text as page title if user has no access"
+msgstr "Text zobrazený jako titulek stránky, pokud uživatel nemá povolen přístup"
+
+#: includes/language.define.php:60
+#@ user-access-manager
+msgid "Page content"
+msgstr "Obsah stránky"
+
+#: includes/language.define.php:62
+#@ user-access-manager
+msgid "Hide complete pages"
+msgstr "Skrýt všechny stránky"
+
+#: includes/language.define.php:63
+#@ user-access-manager
+msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will also hide in the navigation."
+msgstr "Volba \"Ano\" skryje stránky, pokud uživatel nemá povolen přístup. Stránky budou skryty taká v navigačním menu."
+
+#: includes/language.define.php:72
+#@ user-access-manager
+msgid "File settings"
+msgstr "Nastavení souborů"
+
+#: includes/language.define.php:73
+#@ user-access-manager
+msgid "Set up the behaviour of files"
+msgstr "Nastavení chování souborů"
+
+#: includes/language.define.php:74
+#@ user-access-manager
+msgid "Lock files"
+msgstr "Zamknout soubory"
+
+#: includes/language.define.php:76
+#@ user-access-manager
+msgid "Filetypes to lock: "
+msgstr "uzamknout pouze tyto typy: "
+
+#: includes/language.define.php:77
+#@ user-access-manager
+msgid "Filetypes not to lock: "
+msgstr "uzamknout všechny mimo tyto typy: "
+
+#: includes/language.define.php:78
+#@ user-access-manager
+msgid "Locked file types"
+msgstr "Výběr souborů k uzamknutí"
+
+#: includes/language.define.php:79
+#@ user-access-manager
+msgid "Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <b>Note:</b> If you have no problems use all to get the maximum security."
+msgstr "Vyberte, které typy souborů požadujete uzamknout - všechny nebo jen některé nebo všechny mimo některé. <br /><b>Poznámka: Pokud Vám to neubude způsobovat problémy, uzamkněte všechny typy souborů pro maximální zapezpečení.</b>"
+
+#: includes/language.define.php:80
+#@ user-access-manager
+msgid ".htaccess password"
+msgstr ".htaccess heslo"
+
+#: includes/language.define.php:81
+#@ user-access-manager
+msgid "Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files."
+msgstr "Nastavte heslo pro .htaccess přístup. Toto heslo je potřeba, pokud potřebujete přímý přístup k vašim souborům."
+
+#: includes/language.define.php:82
+#@ user-access-manager
+msgid "Use a random generated pass word."
+msgstr "Použití náhodné heslo."
+
+#: includes/language.define.php:83
+#@ user-access-manager
+msgid "Use the password of the current logged in admin."
+msgstr "Použijte heslo aktuálně přihlášeného v admin."
+
+#: includes/language.define.php:84
+#@ user-access-manager
+msgid "Download type"
+msgstr "Způsob stahování"
+
+#: includes/language.define.php:85
+#@ user-access-manager
+msgid "Selecting the type for downloading. <strong>Note:</strong> For using fopen you need \"safe_mode = off\"."
+msgstr "Výběr způsobu stahování. <strong>Poznámka: Pro použití fopen je potřeba nastavit \"safe_mode = off\"</strong>."
+
+#: includes/language.define.php:86
+#@ user-access-manager
+msgid "Normal"
+msgstr "Standartní"
+
+#: includes/language.define.php:87
+#@ user-access-manager
+msgid "fopen"
+msgstr "fopen"
+
+#: includes/language.define.php:105
+#@ user-access-manager
+msgid "Other settings"
+msgstr "Ostatní nastavení"
+
+#: includes/language.define.php:106
+#@ user-access-manager
+msgid "Here you will find all other settings"
+msgstr "Zde naleznete ostatní nastavení"
+
+#: includes/language.define.php:109
+#, fuzzy
+#@ user-access-manager
+msgid "Hide empty categories"
+msgstr "Skrýt všechny stránky"
+
+#: includes/language.define.php:110
+#@ user-access-manager
+msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
+msgstr "Volba \"Ano\" skryje prázdné kategorie, které obsahují jen prázdné položky nebo neobsahuje žádné."
+
+#: includes/language.define.php:111
+#@ user-access-manager
+msgid "Redirect user"
+msgstr "Přesměrování uživatele"
+
+#: includes/language.define.php:112
+#@ user-access-manager
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr "Nastavení akce přesměrování při vstupu uživatele na chráněý příspěvek/stránku."
+
+#: includes/language.define.php:113
+#@ user-access-manager
+msgid "To blog startpage"
+msgstr "Úvodní stránka"
+
+#: includes/language.define.php:114
+#@ user-access-manager
+msgid "Custom page: "
+msgstr "Jiná stránka: "
+
+#: includes/language.define.php:115
+#@ user-access-manager
+msgid "Custom URL: "
+msgstr "Jiné URL: "
+
+#: includes/language.define.php:116
+#@ user-access-manager
+msgid "Lock recursive"
+msgstr "Zamkni recursivně"
+
+#: includes/language.define.php:117
+#, fuzzy
+#@ user-access-manager
+msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgstr "Volba \"Ano\" zamkne všechny podřazené stránky/příspěvky, pokud uživatel nemá povolen přístup."
+
+#: includes/language.define.php:118
+#@ user-access-manager
+msgid "Admin hint text"
+msgstr "Administrační značka"
+
+#: includes/language.define.php:119
+#@ user-access-manager
+msgid "The text which will shown behinde the post/page."
+msgstr "Text zobrazený za příspěvkem/stránkou."
+
+#: includes/language.define.php:120
+#@ user-access-manager
+msgid "Show admin hint at Posts"
+msgstr "Zobraz u příspěvků administrační značku"
+
+#: includes/language.define.php:121
+#, php-format
+#@ user-access-manager
+msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
+msgstr "Volba \"Ano\" zobrazí přihlášenému administrátorovi text, zadaný v \"%s\", u chráněných příspěvků/stránek."
+
+#: includes/language.define.php:26
+#@ user-access-manager
+msgid "Yes"
+msgstr "Ano"
+
+#: includes/language.define.php:27
+#@ user-access-manager
+msgid "No"
+msgstr "Ne"
+
+#: includes/language.define.php:124
+#@ user-access-manager
+msgid "Update settings"
+msgstr "Aktualizovat nastavení"
+
+#: includes/language.define.php:125
+#@ user-access-manager
+msgid "Settings updated."
+msgstr "Nastavení aktualizováno."
+
+#: includes/language.define.php:130
+#@ user-access-manager
+msgid "Role affiliation"
+msgstr "Přiřazení role"
+
+#: includes/language.define.php:133
+#: includes/language.define.php:146
+#, fuzzy
+#@ user-access-manager
+msgid "Read access"
+msgstr "Oprávnění číst"
+
+#: includes/language.define.php:134
+#: includes/language.define.php:148
+#, fuzzy
+#@ user-access-manager
+msgid "Write access"
+msgstr "Oprávnění zapisovat"
+
+#: includes/language.define.php:136
+#@ user-access-manager
+msgid "Update group"
+msgstr "Aktualizovat skupinu"
+
+#: includes/language.define.php:137
+#@ user-access-manager
+msgid "Add"
+msgstr "Přidat"
+
+#: includes/language.define.php:141
+#@ user-access-manager
+msgid "The name is used to identify the access user group."
+msgstr "Název je použit pro identifikaci vybrané skupiny."
+
+#: includes/language.define.php:143
+#@ user-access-manager
+msgid "The description of the group."
+msgstr "Popis přístupové skupiny"
+
+#: includes/language.define.php:144
+#: includes/language.define.php:155
+#, fuzzy
+#@ user-access-manager
+msgid "IP range"
+msgstr "Rozsah IP adres"
+
+#: includes/language.define.php:145
+#@ user-access-manager
+msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgstr "Zde uveďte rozsah IP adres uživatelů, kteří mají být zahrnuti do skupiny podle jejich IP adresy bez přihlášení.<br />Nastavte rozsah \"ZAČÁTEK\"-\"KONEC\", rozsahy oddělujte \";\", samostatné IP adresy jsou také povoleny. Například: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+
+#: includes/language.define.php:147
+#, fuzzy
+#@ user-access-manager
+msgid "The read access."
+msgstr "Nastavení oprávnění číst"
+
+#: includes/language.define.php:149
+#, fuzzy
+#@ user-access-manager
+msgid "The write access."
+msgstr "Nastavení oprávnění zapisovat"
+
+#: includes/language.define.php:150
+#@ user-access-manager
+msgid "Group was added successfully."
+msgstr "Skupina byla úspěšně vytvořena."
+
+#: includes/language.define.php:152
+#@ user-access-manager
+msgid "Group(s) was deleted successfully."
+msgstr "Skupina(y) byla(y) úspěšně smazány."
+
+#: includes/language.define.php:153
+#@ user-access-manager
+msgid "none"
+msgstr "žádný"
+
+#: includes/language.define.php:188
+#@ user-access-manager
+msgid "Full access"
+msgstr "Plný přístup"
+
+#: class/UserAccessManager.class.php:834
+#: class/UserAccessManager.class.php:1048
+#@ default
+msgid "Access"
+msgstr "Přístup"
+
+#: includes/language.define.php:190
+#@ user-access-manager
+msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
+msgstr "<strong>Poznámka:</strong> Administrátor má přístup ke všem příspěvkům a stránkám."
+
+#: includes/language.define.php:195
+#@ user-access-manager
+msgid "Set up usergroups"
+msgstr "Zařezení uživatele do skupin UAM"
+
+#: includes/language.define.php:199
+#@ user-access-manager
+msgid "Info"
+msgstr "Info"
+
+#: includes/language.define.php:200
+#@ user-access-manager
+msgid "Group infos"
+msgstr "Info o skupině"
+
+#: includes/language.define.php:24
+#@ user-access-manager
+msgid "all"
+msgstr "všichni"
+
+#: includes/language.define.php:25
+#@ user-access-manager
+msgid "only group users"
+msgstr "pouze uživatelé ze skupiny"
+
+#: class/UserAccessManager.class.php:516
+#: class/UserAccessManager.class.php:529
+#@ user-access-manager
+msgid "No rights!"
+msgstr "Bez oprávnění!"
+
+#: class/UserAccessManager.class.php:524
+#: class/UserAccessManager.class.php:537
+#@ user-access-manager
+msgid "Sorry no rights to view comments!"
+msgstr "Promiňte, nemáte právo na zobrazení komentářů!"
+
+#: class/UserAccessManager.class.php:531
+#@ user-access-manager
+msgid "Sorry you have no rights to view this page!"
+msgstr "Promiňte, nemáte právo na prohlížení této stránky!"
+
+#: class/UserAccessManager.class.php:518
+#@ user-access-manager
+msgid "Sorry you have no rights to view this post!"
+msgstr "Promiňte, nemáte právo na prohlížení tohoto příspěvku!"
+
+#: class/UserAccessManager.class.php:971
+#@ default
+msgid "uam user groups"
+msgstr "UAM skupiny uživatelů"
+
+#: includes/language.define.php:19
+#, php-format
+#@ user-access-manager
+msgid "Sorry you need at least PHP version 5.0 to use the User Access Manager. Your current PHP version is %s."
+msgstr "Omlouváme se, pro použití pluginu \"User Access Manager\" potřebujete alespoň PHP verze 5.0. Vaše aktuální PHP verze je% s."
+
+#: includes/language.define.php:20
+#, php-format
+#@ user-access-manager
+msgid "Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s."
+msgstr "Omlouváme se, pro použití pluginu \"User Access Manager\" potřebujete alespoň Wordpress verze 3.0. Vaše aktuální Wordpress verze je% s."
+
+#: includes/language.define.php:21
+#, php-format
+#@ user-access-manager
+msgid "Please update the database of the User Access Manager. <a href=\"%s\">Click here to proceed</a>"
+msgstr "Prosím aktualizujte databázi pluginu \"User Access Manager\". <a href=\"%s\">Klikněte zde pro aktualizaci</a>"
+
+#: includes/language.define.php:38
+#@ user-access-manager
+msgid "Hide post title"
+msgstr "Skrýt titulek příspěvku"
+
+#: includes/language.define.php:41
+#@ user-access-manager
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single posts, otherwise a link will shown."
+msgstr "Obsah zobrazený, pokud uživatel nemá povolen přístup. Můžete přidat přihlašovací formulář pomocí klíčového slova <b>[LOGIN_FORM]</b>. Tento formulář je zobrazen pouze na stránce samotného příspěvku, v ostatních případech je zobrazen link. "
+
+#: includes/language.define.php:42
+#@ user-access-manager
+msgid "Show post content before &lt;!--more--&gt; tag"
+msgstr "Zobrazit obsah přispěvku před &lt;!--more--&gt; tagem"
+
+#: includes/language.define.php:43
+#, php-format
+#@ user-access-manager
+msgid "Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at \"%s\". If no &lt;!--more--&gt; is set he defined text at \"%s\" will shown."
+msgstr "Volba \"Ano\" zobrazí obsah příspěvku před &lt;!--more--&gt; tagem a dále text z \"%s\". <br />Pokud není použit &lt;!--more--&gt; tag, je zobrazen pouze text z \"%s\"."
+
+#: includes/language.define.php:46
+#@ user-access-manager
+msgid "Post comment text"
+msgstr "Text komentáře příspěvku"
+
+#: includes/language.define.php:50
+#@ user-access-manager
+msgid "Allow post comments"
+msgstr "Povolit psát komentáře"
+
+#: includes/language.define.php:58
+#@ user-access-manager
+msgid "Hide page title"
+msgstr "Skrýt titulek stránky"
+
+#: includes/language.define.php:61
+#@ user-access-manager
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single pages, otherwise a link will shown."
+msgstr "Obsah zobrazený, pokud uživatel nemá povolen přístup. Můžete přidat přihlašovací formulář pomocí klíčového slova <b>[LOGIN_FORM]</b>. Tento formulář je zobrazen pouze na stránce samotného příspěvku, v ostatních případech je zobrazen link. "
+
+#: includes/language.define.php:64
+#@ user-access-manager
+msgid "Page comment text"
+msgstr "Text komentáře stránky"
+
+#: includes/language.define.php:65
+#@ user-access-manager
+msgid "Displayed text as page comment text if user has no access"
+msgstr "Text zobrazený místo komentáře, pokud uživatel nemá povolen přístup."
+
+#: includes/language.define.php:66
+#@ user-access-manager
+msgid "Hide page comments"
+msgstr "Skrýt komentáře stránky"
+
+#: includes/language.define.php:68
+#@ user-access-manager
+msgid "Allow page comments"
+msgstr "Povolit komentáře stránky"
+
+#: includes/language.define.php:69
+#@ user-access-manager
+msgid "Selecting \"yes\" allows users to comment on locked pages"
+msgstr "Volba \"Ano\" umožní uživatelům komentovat uzamčené stránky."
+
+#: includes/language.define.php:75
+#@ user-access-manager
+msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style=\"color:red;\">Note: If you activate this option the plugin will overwirte a '.htaccess' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>"
+msgstr "Volba \"Ano\" uzamkne přístup ke všem soborům pomocí .htaccess souboru. Stahovat soubory budou mít možnost pouze uživatelé s přístupem.<br/><strong style=\"color:red;\">Poznámka: Pokud je aktivována tato volba, plugin přepíše '.htaccess' soubor v adresáři 'upload'. Stejně tak, pokud nemáte aktivovány trvalé odkazy 'permalinks', bude váš 'upload' adresář chráněn '.htaccess' náhodným heslem a všechny multimediální soubory, vložené v předchozích příspěvcích/stránkách, nebudou fungovat. Musíte aktualizovat vaše příspěvky/stránky (není nutné pokud mte aktivovány trvalé odkazy 'permalinks').</strong>"
+
+#: includes/language.define.php:90
+#@ user-access-manager
+msgid "Authors settings"
+msgstr "Nastavení pro autory"
+
+#: includes/language.define.php:91
+#@ user-access-manager
+msgid "Here you will find the settings for authors"
+msgstr "Zde naleznete nastavení pro autory"
+
+#: includes/language.define.php:92
+#@ user-access-manager
+msgid "Authors always has access to own posts/pages"
+msgstr "Autoři mají vždy přístup k vlastním příspěvkům / stránkám."
+
+#: includes/language.define.php:93
+#@ user-access-manager
+msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
+msgstr "Volba \"Ano\" umožní vždy autorovi neomezený přístup ke svým příspěvkům a stránkám."
+
+#: includes/language.define.php:94
+#@ user-access-manager
+msgid "Authors can add content to there own groups"
+msgstr "Autoři mohou přidávat obsah do svých vlastních skupin"
+
+#: includes/language.define.php:95
+#@ user-access-manager
+msgid "If \"Yes\" is selected author are able to restrict the content by adding it to there groups."
+msgstr "Volba \"Ano\" umožní autorovi omezit obsah přidáním do svých vlastních skupin."
+
+#: includes/language.define.php:96
+#@ user-access-manager
+msgid "Minimum user role with full access"
+msgstr "Minimální uživatelská role pro plný přístup"
+
+#: includes/language.define.php:97
+#@ user-access-manager
+msgid "All user with a role equal or higher to this has full access."
+msgstr "Všichni uživatelé se stejnou nebo vyšší rolí budou mít plný přístup."
+
+#: includes/language.define.php:98
+#@ user-access-manager
+msgid "Administrator"
+msgstr "Administrátor"
+
+#: includes/language.define.php:99
+#@ user-access-manager
+msgid "Editor"
+msgstr "Šéfredaktor"
+
+#: includes/language.define.php:100
+#@ user-access-manager
+msgid "Author"
+msgstr "Autor"
+
+#: includes/language.define.php:101
+#@ user-access-manager
+msgid "Contributor"
+msgstr "Přispěvatel"
+
+#: includes/language.define.php:102
+#@ user-access-manager
+msgid "Subscriber"
+msgstr "Návštěvník"
+
+#: includes/language.define.php:107
+#@ user-access-manager
+msgid "Protect Feed"
+msgstr "Chráněný kanál"
+
+#: includes/language.define.php:108
+#@ user-access-manager
+msgid "Selecting \"Yes\" will also protect your feed entries."
+msgstr "Volba \"Ano\"; bude také chránit Vaše položky v RSS kanále."
+
+#: includes/language.define.php:129
+#@ user-access-manager
+msgid "Manage user user groups"
+msgstr "Spravovat skupiny uživatelů"
+
+#: includes/language.define.php:131
+#@ user-access-manager
+msgid "Name"
+msgstr "Jméno"
+
+#: includes/language.define.php:132
+#@ user-access-manager
+msgid "Description"
+msgstr "Popis"
+
+#: includes/language.define.php:135
+#@ user-access-manager
+msgid "Delete"
+msgstr "Odstranit"
+
+#: includes/language.define.php:138
+#@ user-access-manager
+msgid "Add user group"
+msgstr "Přidat skupinu uživatelů"
+
+#: includes/language.define.php:139
+#@ user-access-manager
+msgid "Edit user group"
+msgstr "Upravit skupinu uživatelů"
+
+#: includes/language.define.php:140
+#@ user-access-manager
+msgid "User group name"
+msgstr "Jméno skupiny uživatelů"
+
+#: includes/language.define.php:142
+#@ user-access-manager
+msgid "User group description"
+msgstr "Popis skupiny uživatelů"
+
+#: includes/language.define.php:151
+#@ user-access-manager
+msgid "Group name can not be empty."
+msgstr "Jméno skupiny nesmí být prázdné."
+
+#: includes/language.define.php:154
+#@ user-access-manager
+msgid "User group edit successfully."
+msgstr "Skupina uživatelů byla úspěšně upravena."
+
+#: includes/language.define.php:159
+#@ user-access-manager
+msgid "Setup"
+msgstr "Reset / Upgrade"
+
+#: includes/language.define.php:160
+#@ user-access-manager
+msgid "Reset User Access Manager"
+msgstr "Resetování User Access Manager"
+
+#: includes/language.define.php:161
+#@ user-access-manager
+msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
+msgstr "Upozornění: reset User Access Manageru nelze vrátit zpět. Všechna nastavení a uživatelské skupiny budou navždy ztraceny."
+
+#: includes/language.define.php:162
+#@ user-access-manager
+msgid "reset"
+msgstr "reset"
+
+#: includes/language.define.php:163
+#@ user-access-manager
+msgid "Update User Access Manager database"
+msgstr "Aktualizace databáze User Access Manageru"
+
+#: includes/language.define.php:164
+#@ user-access-manager
+msgid "Updates the database of the User Access Manager. Please backup your database before you perform the update."
+msgstr "Aktualizace databáze User Access Manager. Před aktualizací proveďte, prosím, zálohu Vaší databáze."
+
+#: includes/language.define.php:165
+#@ user-access-manager
+msgid "update"
+msgstr "aktualizace"
+
+#: includes/language.define.php:166
+#@ user-access-manager
+msgid "User Access Manager was reset successfully"
+msgstr "User Access Manager byl úspěšně resetován"
+
+#: includes/language.define.php:167
+#@ user-access-manager
+msgid "User Access Manager database was updated successfully"
+msgstr "Databáze User Access Manager byla úspěšně aktualizována"
+
+#: includes/language.define.php:171
+#@ user-access-manager
+msgid "About"
+msgstr "O pluginu"
+
+#: includes/language.define.php:174
+#@ user-access-manager
+msgid "How to support me?"
+msgstr "Jak mě podpořit?"
+
+#: includes/language.define.php:175
+#@ user-access-manager
+msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
+msgstr "<strong>Pošlete hlášky o chybách, opravy chyb, úpravy kódu a vaše nápady</strong><br>Pomože mi vylepšovat tento plugin."
+
+#: includes/language.define.php:176
+#@ user-access-manager
+msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
+msgstr "<strong>Vytvořte překlad tohoto pluginu.</strong><br/>Pomožte mi přeložit tento plugin do všech jazyků, abychom zvýšili komfort ostatním uživatelům."
+
+#: includes/language.define.php:177
+#@ user-access-manager
+msgid "<strong>Donate via paypal</strong>"
+msgstr "<strong>Darovat přes paypal</strong>"
+
+#: includes/language.define.php:178
+#@ user-access-manager
+msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
+msgstr "<strong>Umístit odkaz na plugin do svého blogu / stránky.</strong>"
+
+#: includes/language.define.php:181
+#@ user-access-manager
+msgid "Thanks"
+msgstr "Díky"
+
+#: includes/language.define.php:182
+#@ user-access-manager
+msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
+msgstr "Zvláštní poděkování patří mé přítelkyni, za čas k vytvoření tohoto plugin."
+
+#: includes/language.define.php:183
+#@ user-access-manager
+msgid "I would like to thank all the guys which has helped me with this plugin:"
+msgstr "Chtěl bych poděkovat všem klukům, kteří mi pomohli s tímto pluginem:"
+
+#: includes/language.define.php:184
+#@ user-access-manager
+msgid "all beta testers and all others I forgot"
+msgstr "všem betatesterům a všem ostatním, na které jsem zapomněl"
+
+#: includes/language.define.php:189
+#@ user-access-manager
+msgid "Member of other user groups"
+msgstr "Člen jiné uživatelské skupiny"
+
+#: includes/language.define.php:191
+#@ user-access-manager
+msgid "Please create a user group first."
+msgstr "Prosím, nejdříve vytvořte uživatelskou skupinu."
+
+#: includes/language.define.php:192
+#@ user-access-manager
+msgid "No user group available."
+msgstr "Není dostupná žádná skupina."
+
+#: includes/language.define.php:193
+#@ user-access-manager
+msgid "You have no rights to access this content."
+msgstr "Nemáte oprávnění na přístup k tomuto obsahu"
+
+#: includes/language.define.php:194
+#@ user-access-manager
+msgid "User Groups"
+msgstr "Skupiny uživatelů"
+
+#: includes/language.define.php:201
+#@ user-access-manager
+msgid "Group membership given by posts"
+msgstr "Členství ve skupině dané podle příspěvků"
+
+#: includes/language.define.php:202
+#@ user-access-manager
+msgid "Group membership given by categories"
+msgstr "Členství ve skpině dané podle kategorií"
+
+#: includes/language.define.php:203
+#@ user-access-manager
+msgid "Group membership given by role"
+msgstr "Členství ve skpině dané podle role"
+
+#: includes/language.define.php:204
+#@ user-access-manager
+msgid "Assigned groups"
+msgstr "Zařazení do skupin"
+
+#: includes/language.define.php:208
+#@ user-access-manager
+msgid "Opening fileinfo database failed."
+msgstr ""
+
+#: includes/language.define.php:209
+#@ user-access-manager
+msgid "Error: File not found."
+msgstr "Chyba: Soubor nebyl nalezen."
+
+#: tpl/loginBar.php:20
+#: tpl/loginBar.php:34
+#@ user-access-manager
+msgid "Login"
+msgstr "Přihlásit se"
+
+#: tpl/loginBar.php:28
+#@ user-access-manager
+msgid "Username:"
+msgstr "Uživatelské jméno:"
+
+#: tpl/loginBar.php:30
+#@ user-access-manager
+msgid "Password:"
+msgstr "Heslo:"
+
+#: tpl/loginBar.php:33
+#@ user-access-manager
+msgid "Remember me"
+msgstr "Připomenout"
+
+#: tpl/loginBar.php:41
+#@ user-access-manager
+msgid "Register"
+msgstr "Registrovat"
+
+#: tpl/loginBar.php:45
+#@ user-access-manager
+msgid "Password Lost and Found"
+msgstr ""
+
+#: tpl/loginBar.php:45
+#@ user-access-manager
+msgid "Lost your password?"
+msgstr "Zapomněli jste heslo?"
+

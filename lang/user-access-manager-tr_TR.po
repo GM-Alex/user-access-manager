@@ -1,0 +1,701 @@
+# Translation of the WordPress plugin User Access Manager 1.1.2pre by Alexander Schneider.
+# Copyright (C) 2010 Alexander Schneider
+# This file is distributed under the same license as the User Access Manager package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: User Access Manager 1.1.2pre\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/user-access-manager\n"
+"POT-Creation-Date: 2010-10-04 20:18+0000\n"
+"PO-Revision-Date: 2010-12-16 18:06+0200\n"
+"Last-Translator: Mesut Soylu <onexey@gmail.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: class/UserAccessManager.class.php:633
+#: class/UserAccessManager.class.php:646
+msgid "No rights!"
+msgstr "Görüntüleme yetkiniz yok!"
+
+#: class/UserAccessManager.class.php:635
+msgid "Sorry you have no rights to view this post!"
+msgstr "Üzgünüz bu mesajı görüntüleme yetkiniz yok!"
+
+#: class/UserAccessManager.class.php:641
+#: class/UserAccessManager.class.php:654
+msgid "Sorry no rights to view comments!"
+msgstr "Üzgünüz bu yorumu  görüntüleme yetkiniz yok!"
+
+#: class/UserAccessManager.class.php:648
+msgid "Sorry you have no rights to view this page!"
+msgstr "Üzgünüz bu sayfayı  görüntüleme yetkiniz yok!"
+
+#: class/UserAccessManager.class.php:956
+#: class/UserAccessManager.class.php:1170
+msgid "Access"
+msgstr "Access"
+
+#: class/UserAccessManager.class.php:1093
+msgid "uam user groups"
+msgstr "UAM kullanıcı grupları"
+
+#: includes/language.define.php:19
+#, php-format
+msgid "Sorry you need at least PHP version 5.0 to use the User Access Manager. Your current PHP version is %s."
+msgstr "User Access Manager'ı kullanmak için en az PHP 5.0 a ihtiyacınız var. Güncel PHP versiyonunuz %s."
+
+#: includes/language.define.php:20
+#, php-format
+msgid "Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s."
+msgstr "User Access Manager'ı kullanmak için en az Wordpress 3.0 a ihtiyacınız var. Güncel Wordpress versiyonunuz %s."
+
+#: includes/language.define.php:21
+#, php-format
+msgid "Please update the database of the User Access Manager. <a href=\"%s\">Click here to proceed</a>"
+msgstr "Lütfen User Access Manager veritabanını güncelleyin. <a href=\"%s\">İşlemi gerçekleştirmek için tıklayın</a>"
+
+#: includes/language.define.php:24
+msgid "all"
+msgstr "hepsi"
+
+#: includes/language.define.php:25
+msgid "only group users"
+msgstr "Sadece grup üyeleri"
+
+#: includes/language.define.php:26
+msgid "Yes"
+msgstr "Evet"
+
+#: includes/language.define.php:27
+msgid "No"
+msgstr "Hayır"
+
+#: includes/language.define.php:31
+msgid "Settings"
+msgstr "Ayarlar"
+
+#: includes/language.define.php:34
+msgid "Post settings"
+msgstr "Mesaj ayarları"
+
+#: includes/language.define.php:35
+msgid "Set up the behaviour of locked posts"
+msgstr "Kilitli konu ayarları"
+
+#: includes/language.define.php:36
+msgid "Post title"
+msgstr "Mesaj başlığı"
+
+#: includes/language.define.php:37
+msgid "Displayed text as post title if user has no access"
+msgstr "Kullanıcının yetkisi olmaması durumunda gösterilecek mesaj başlığı"
+
+#: includes/language.define.php:38
+msgid "Hide post title"
+msgstr "Mesaj başlığını gizle"
+
+#: includes/language.define.php:39
+#: includes/language.define.php:49
+#: includes/language.define.php:59
+#: includes/language.define.php:67
+#, php-format
+msgid "Selecting \"Yes\" will show the text which is defined at \"%s\" if user has no access."
+msgstr "\"Evet\"i seçerseniz kullanıcının erişim yetkisi yoksa \"%s\" daki metin gösterilecek."
+
+#: includes/language.define.php:40
+msgid "Post content"
+msgstr "Mesaj içeriği"
+
+#: includes/language.define.php:41
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single posts, otherwise a link will shown."
+msgstr "Yetkisiz erişimde gösterilecek içerik. <b>[LOGIN_FORM]</b> yazarak giriş yapma kutusu ekleyebilirsiniz.  Bu kutu mesajda gözükecek aksi durumda sadece bir link bulunacak."
+
+#: includes/language.define.php:42
+msgid "Show post content before &lt;!--more--&gt; tag"
+msgstr "&lt;!--devamı--&gt; tagından önce mesaj içeriğini göster"
+
+#: includes/language.define.php:43
+#, php-format
+msgid "Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at \"%s\". If no &lt;!--more--&gt; is set he defined text at \"%s\" will shown."
+msgstr "&lt;!--devamı--&gt; tagından önce mesaj içeriğini sonra da tanımlı \"%s\" ni gösterir. Eğer &lt;!--devamı--&gt; tagı yoksa tanımlı \"%s\" ni gösterir."
+
+#: includes/language.define.php:44
+msgid "Hide complete posts"
+msgstr "Tüm mesajı gizle"
+
+#: includes/language.define.php:45
+msgid "Selecting \"Yes\" will hide posts if the user has no access."
+msgstr "\"Evet\"i seçerseniz kullanıcının erişim yetkisi yoksa mesaj gizlenir."
+
+#: includes/language.define.php:46
+msgid "Post comment text"
+msgstr "Yorum metni"
+
+#: includes/language.define.php:47
+msgid "Displayed text as post comment text if user has no access"
+msgstr "Kullanıcının erişim yetkisi yoksa yorum kısmında gösterilecek metin"
+
+#: includes/language.define.php:48
+msgid "Hide post comments"
+msgstr "Yorumları gizle"
+
+#: includes/language.define.php:50
+msgid "Allow post comments"
+msgstr "Yorumlara izin ver"
+
+#: includes/language.define.php:51
+msgid "Selecting \"yes\" allows users to comment on locked posts"
+msgstr "\"Evet\"i seçerseniz kullanıcılar kilitli mesajlara yorum yazabilir."
+
+#: includes/language.define.php:54
+msgid "Page settings"
+msgstr "Sayfa ayarları"
+
+#: includes/language.define.php:55
+msgid "Set up the behaviour of locked pages"
+msgstr "Kilitli sayfa ayarları"
+
+#: includes/language.define.php:56
+msgid "Page title"
+msgstr "Sayfa başlığı"
+
+#: includes/language.define.php:57
+msgid "Displayed text as page title if user has no access"
+msgstr "Kullanıcının erişim yetkisi yoksa sayfa başlığı kısmında gösterilecek metin"
+
+#: includes/language.define.php:58
+msgid "Hide page title"
+msgstr "Sayfa başlığını gizle"
+
+#: includes/language.define.php:60
+msgid "Page content"
+msgstr "Sayfa içeriği"
+
+#: includes/language.define.php:61
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single pages, otherwise a link will shown."
+msgstr "Yetkisiz erişimde gösterilecek içerik. <b>[LOGIN_FORM]</b> yazarak giriş yapma kutusu ekleyebilirsiniz.  Bu kutu sayfada gözükecek aksi durumda sadece bir link bulunacak."
+
+#: includes/language.define.php:62
+msgid "Hide complete pages"
+msgstr "Sayfa tamamen gizle"
+
+#: includes/language.define.php:63
+msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will also hide in the navigation."
+msgstr "\"Evet\"i seçerseniz kullanıcının erişim yetkisi yoksa sayfa gizlenir. Ayrıca Sayfalar bileşeninde de görünmez."
+
+#: includes/language.define.php:64
+msgid "Page comment text"
+msgstr "Sayfa yorumu metni"
+
+#: includes/language.define.php:65
+msgid "Displayed text as page comment text if user has no access"
+msgstr "Kullanıcının erişim yetkisi yoksa sayfa yorumu kısmında gösterilecek metin"
+
+#: includes/language.define.php:66
+msgid "Hide page comments"
+msgstr "Sayfa yorumlarını gizle"
+
+#: includes/language.define.php:68
+msgid "Allow page comments"
+msgstr "Sayfa yorumlarına izin ver."
+
+#: includes/language.define.php:69
+msgid "Selecting \"yes\" allows users to comment on locked pages"
+msgstr "\"Evet\"i seçerseniz kullanıcılar kilitli sayfalara yorum yazabilir."
+
+#: includes/language.define.php:72
+msgid "File settings"
+msgstr "Dosya ayarları"
+
+#: includes/language.define.php:73
+msgid "Set up the behaviour of files"
+msgstr "Dosya ayarları"
+
+#: includes/language.define.php:74
+msgid "Lock files"
+msgstr "Dosyaları kilitle"
+
+#: includes/language.define.php:75
+msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style=\"color:red;\">Note: If you activate this option the plugin will overwirte a '.htaccess' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>"
+msgstr "\"Evet\"i seçerseniz bütün dosyalar .htaccess ile kilitlenecek ve yalnızca erişim yetkisi bulunan kişiler dosyaları indirebilecek. <br/><strong style=\"color:red;\">Not: Eğer bu seçeneği aktive ederseniz \"upload\" klasöründeki '.htaccess' yeniden düzenlenecek, Eğer '.htaccess'i kullanıyorsanız yedeğini alın. Ayrıca kalıcı bağlantılar aktif değilse upload dizininiz '.htaccess' ile rasgele bir şifreyle şifrelenecektir ve önceki mesaj/sayfalara ait eski dosyalarınız çalışmayacaktır. Mesajlarınızı/sayfalarınızı güncellemeniz gerekir. (Kalıcı bağlantılar aktifse gerek yok).</strong>"
+
+#: includes/language.define.php:76
+msgid "Filetypes to lock: "
+msgstr "Kilitlenecek dosya türleri:"
+
+#: includes/language.define.php:77
+msgid "Filetypes not to lock: "
+msgstr "Kilitlenmeyecek dosya türleri:"
+
+#: includes/language.define.php:78
+msgid "Locked file types"
+msgstr "Kilitlenen dosya türleri"
+
+#: includes/language.define.php:79
+msgid "Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <b>Note:</b> If you have no problems use all to get the maximum security."
+msgstr "Tüm dosyaları kilitleyin, mesaj/sayfa kilitli olduğunda kilitlenicek dosya türlerini seçin ya da kilitlenmeyecek dosya türlerini belirleyin. <b>Not:</b> Eğer problem yaşamıyorsanız maximum güvenlik için hepsini kullanın."
+
+#: includes/language.define.php:80
+msgid ".htaccess password"
+msgstr ".htaccess şifresi"
+
+#: includes/language.define.php:81
+msgid "Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files."
+msgstr ".htaccess şifresini ayarla. Bu şifre yalnız dosyalara direk erişmek istersen gerekli olacak."
+
+#: includes/language.define.php:82
+msgid "Use a random generated pass word."
+msgstr "Rasgele seçilmiş bir şifre kullan."
+
+#: includes/language.define.php:83
+msgid "Use the password of the current logged in admin."
+msgstr "Aktif yönetici hesabının şifresini kullan."
+
+#: includes/language.define.php:84
+msgid "Download type"
+msgstr "İndirme şekli"
+
+#: includes/language.define.php:85
+msgid "Selecting the type for downloading. <strong>Note:</strong> For using fopen you need \"safe_mode = off\"."
+msgstr "İndirme şeklini seçin. <strong>Not:</strong>fopen seçerseniz \"safe_mode = off\" olmalıdır."
+
+#: includes/language.define.php:86
+msgid "Normal"
+msgstr "Normal"
+
+#: includes/language.define.php:87
+msgid "fopen"
+msgstr "fopen"
+
+#: includes/language.define.php:90
+msgid "Authors settings"
+msgstr "Yazar ayarları"
+
+#: includes/language.define.php:91
+msgid "Here you will find the settings for authors"
+msgstr "Yazarlarla alakalı birkaç ayar"
+
+#: includes/language.define.php:92
+msgid "Authors always has access to own posts/pages"
+msgstr "Yazarlar her zaman kendi mesajlarına/sayfalarına erişebilir."
+
+#: includes/language.define.php:93
+msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
+msgstr "\"Evet\"i seçerseniz yazarlar kendi yazdıkları mesajlar ve sayfalar için tam yetkiye sahip olacak."
+
+#: includes/language.define.php:94
+msgid "Authors can add content to there own groups"
+msgstr "Yazalar kendi grupları için içerik ekleyebilir"
+
+#: includes/language.define.php:95
+msgid "If \"Yes\" is selected author are able to restrict the content by adding it to there groups."
+msgstr "Eğer \"Evet\"i seçerseniz yazar gruplara içeriği yasaklayabilir."
+
+#: includes/language.define.php:96
+msgid "Minimum user role with full access"
+msgstr "Tam erişim yetkisine sahip en düşün kullanıcı rolü"
+
+#: includes/language.define.php:97
+msgid "All user with a role equal or higher to this has full access."
+msgstr "Bu kullanıcı rolüne eşit yada üstünde olan her rolün tam erişim hakkı olur."
+
+#: includes/language.define.php:98
+msgid "Administrator"
+msgstr "Yönetici"
+
+#: includes/language.define.php:99
+msgid "Editor"
+msgstr "Editör"
+
+#: includes/language.define.php:100
+msgid "Author"
+msgstr "Yazar"
+
+#: includes/language.define.php:101
+msgid "Contributor"
+msgstr "İçerik Sağlayıcı"
+
+#: includes/language.define.php:102
+msgid "Subscriber"
+msgstr "Abone"
+
+#: includes/language.define.php:105
+msgid "Other settings"
+msgstr "Diğer Ayarlar"
+
+#: includes/language.define.php:106
+msgid "Here you will find all other settings"
+msgstr "Diğer tüm ayarlar"
+
+#: includes/language.define.php:107
+msgid "Protect Feed"
+msgstr "Feed koruması"
+
+#: includes/language.define.php:108
+msgid "Selecting \"Yes\" will also protect your feed entries."
+msgstr "\"Evet\"i seçerseniz feed'leriniz de korunur."
+
+#: includes/language.define.php:109
+msgid "Hide empty categories"
+msgstr "Boş kategorileri gizle"
+
+#: includes/language.define.php:110
+msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
+msgstr "\"Evet\"i seçerseniz boş alt kategorisi olan ya da alt kategorisi olmayan kategoriler gizlenir."
+
+#: includes/language.define.php:111
+msgid "Redirect user"
+msgstr "Kullanıcıyı yönlendir"
+
+#: includes/language.define.php:112
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr "Yetkisiz bir kullanıcı bir mesajı/sayfayı açtığında olacaklar."
+
+#: includes/language.define.php:113
+msgid "To blog startpage"
+msgstr "Anasayfaya"
+
+#: includes/language.define.php:114
+msgid "Custom page: "
+msgstr "Şu sayfaya:"
+
+#: includes/language.define.php:115
+msgid "Custom URL: "
+msgstr "Şu linke:"
+
+#: includes/language.define.php:116
+msgid "Lock recursive"
+msgstr "Dizini kilitle"
+
+#: includes/language.define.php:117
+msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgstr "\"Evet\"i seçerseniz ana mesaja/sayfaya erişim yetkisi olmayan bir kullanıcı alt mesajlara/sayfalara da erişemez. Not: \"Hayır\"ı seçerseniz hiyerarşi sorunuyla alakalı görüntüleme sorunları yaşayabilirsiniz."
+
+#: includes/language.define.php:118
+msgid "Admin hint text"
+msgstr "Admin uyarısı"
+
+#: includes/language.define.php:119
+msgid "The text which will shown behinde the post/page."
+msgstr "Bu metin kilitli mesajların/sayfaların isimlerinin sonunda sadece adminlere gözükür."
+
+#: includes/language.define.php:120
+msgid "Show admin hint at Posts"
+msgstr "Mesajda Admin uyarısını göster."
+
+#: includes/language.define.php:121
+#, php-format
+msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
+msgstr "\"Evet\"i seçerseniz \"%s\"de tanımlı metin kilitli mesajın/sayfanın başlığının sonunda admin olarak giriş yapmış kullanıcılara görünecektir. Böylece adminler kilitli mesajları/sayfaları anlayabilecek."
+
+#: includes/language.define.php:124
+msgid "Update settings"
+msgstr "Ayarları güncelle"
+
+#: includes/language.define.php:125
+msgid "Settings updated."
+msgstr "Ayarlar güncellendi."
+
+#: includes/language.define.php:129
+msgid "Manage user user groups"
+msgstr "Kullanıcı gruplarını düzenle"
+
+#: includes/language.define.php:130
+msgid "Role affiliation"
+msgstr "Rol üyeliği"
+
+#: includes/language.define.php:131
+msgid "Name"
+msgstr "İsim"
+
+#: includes/language.define.php:132
+msgid "Description"
+msgstr "Açıklama"
+
+#: includes/language.define.php:133
+#: includes/language.define.php:146
+msgid "Read access"
+msgstr "Okuma erişimi"
+
+#: includes/language.define.php:134
+#: includes/language.define.php:148
+msgid "Write access"
+msgstr "Yazma erişimi"
+
+#: includes/language.define.php:135
+msgid "Delete"
+msgstr "Sil"
+
+#: includes/language.define.php:136
+msgid "Update group"
+msgstr "Grubu güncelle"
+
+#: includes/language.define.php:137
+msgid "Add"
+msgstr "Ekle"
+
+#: includes/language.define.php:138
+msgid "Add user group"
+msgstr "Kullanıcı grubu ekle"
+
+#: includes/language.define.php:139
+msgid "Edit user group"
+msgstr "Kullanıcı grubunu düzenle"
+
+#: includes/language.define.php:140
+msgid "User group name"
+msgstr "Kullanıcı grubu adı"
+
+#: includes/language.define.php:141
+msgid "The name is used to identify the access user group."
+msgstr "İsim kullanıcı gruplarına erişimi tanımlamada kullanılacak"
+
+#: includes/language.define.php:142
+msgid "User group description"
+msgstr "Grup açıklaması"
+
+#: includes/language.define.php:143
+msgid "The description of the group."
+msgstr "Kullanıcı grubu açıklaması"
+
+#: includes/language.define.php:144
+#: includes/language.define.php:155
+msgid "IP range"
+msgstr "IP aralığı"
+
+#: includes/language.define.php:145
+msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgstr "Üye olmadan gruba dahil edilecek IP aralığını girin. Aralığı \"BAŞLANGIÇ\"-\"BİTİŞ\" şeklinde tanımlayın, aralıkları \";\" ile ayırın, tek IP eklenebilir. Örn: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+
+#: includes/language.define.php:147
+msgid "The read access."
+msgstr "Okuma yetkisi."
+
+#: includes/language.define.php:149
+msgid "The write access."
+msgstr "Yazma yetkisi."
+
+#: includes/language.define.php:150
+msgid "Group was added successfully."
+msgstr "Grup başarıyla eklendi."
+
+#: includes/language.define.php:151
+msgid "Group name can not be empty."
+msgstr "Grup ismi boş bırakılamaz."
+
+#: includes/language.define.php:152
+msgid "Group(s) was deleted successfully."
+msgstr "Grup(lar) başarıyla silindi."
+
+#: includes/language.define.php:153
+msgid "none"
+msgstr "yok"
+
+#: includes/language.define.php:154
+msgid "User group edit successfully."
+msgstr "Grup başarıyla düzenlendi."
+
+#: includes/language.define.php:159
+msgid "Setup"
+msgstr "Kurulum"
+
+#: includes/language.define.php:160
+msgid "Reset User Access Manager"
+msgstr "User Access Managerı varsayılan ayarlarına döndür"
+
+#: includes/language.define.php:161
+msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
+msgstr "User Access Managerı varsayılan ayarlarına döndürme geri alınamaz. Bütün ayarlar ve gruplar kalıcı olarak silinecek."
+
+#: includes/language.define.php:162
+msgid "reset"
+msgstr "varsayılana dön"
+
+#: includes/language.define.php:163
+msgid "Update User Access Manager database"
+msgstr "User Access Manager veritabanını güncelle"
+
+#: includes/language.define.php:164
+msgid "Updates the database of the User Access Manager. Please backup your database before you perform the update."
+msgstr "User Access Manager veritabanını günceller. Bu işlemden önce mevcut veritabanının yedeğini alın."
+
+#: includes/language.define.php:165
+msgid "update"
+msgstr "güncelle"
+
+#: includes/language.define.php:166
+msgid "User Access Manager was reset successfully"
+msgstr "User Access Manager başarıyla varsayılana döndürüldü"
+
+#: includes/language.define.php:167
+msgid "User Access Manager database was updated successfully"
+msgstr "User Access Manager veritabanı başarıyla güncellendi"
+
+#: includes/language.define.php:168
+msgid "Update current blog"
+msgstr "Blogu güncelle"
+
+#: includes/language.define.php:169
+msgid "Update network wide"
+msgstr "Update network wide"
+
+#: includes/language.define.php:173
+msgid "About"
+msgstr "Hakkında"
+
+#: includes/language.define.php:176
+msgid "How to support me?"
+msgstr "Nasıl destek olurum?"
+
+#: includes/language.define.php:177
+msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
+msgstr "<strong>Hata raporlarını, düzeltme yollarını, düzenlemeleri ya da fikirlerinizi yollayın.</strong><br/>Eklentiyi geliştirmeme yardımcı olun."
+
+#: includes/language.define.php:178
+msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
+msgstr "<strong>Eklentinin çevirisini yapın.</strong><br/>Diğer kullanıcılara yardımcı olmak için eklentiyi bütün dillere çevirin."
+
+#: includes/language.define.php:179
+msgid "<strong>Donate via paypal</strong>"
+msgstr "<strong>paypal ile bağış yapın</strong>"
+
+#: includes/language.define.php:180
+msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
+msgstr "<strong>Blogunuzda ya da sitenizde eklentinin linkini yayınlayın.</strong>"
+
+#: includes/language.define.php:183
+msgid "Thanks"
+msgstr "Teşekkürler."
+
+#: includes/language.define.php:184
+msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
+msgstr "Kız arkadaşıma bu eklentiyi geliştirmem için bana zaman tanıdığından dolayı teşekkür ederim. "
+
+#: includes/language.define.php:185
+msgid "I would like to thank all the guys which has helped me with this plugin:"
+msgstr "Bu eklentiyi yapmakta bana yardım eden herkese teşekkürler:"
+
+#: includes/language.define.php:186
+msgid "all beta testers and all others I forgot"
+msgstr "beta testine katılan herkes ve unuttuklarım"
+
+#: includes/language.define.php:190
+msgid "Full access"
+msgstr "Tam erişim"
+
+#: includes/language.define.php:191
+msgid "Member of other user groups"
+msgstr "Grup üyeleri"
+
+#: includes/language.define.php:192
+msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
+msgstr "<strong>Not:</strong> Yöneticiler tüm mesajlara/sayfalara erişebilir."
+
+#: includes/language.define.php:193
+msgid "Please create a user group first."
+msgstr "Önce bir kullanıcı grubu oluşturun."
+
+#: includes/language.define.php:194
+msgid "No user group available."
+msgstr "Kullanıcı grubu yok."
+
+#: includes/language.define.php:195
+msgid "You have no rights to access this content."
+msgstr "Bu içeriğe erişme yetkiniz yok."
+
+#: includes/language.define.php:196
+msgid "User Groups"
+msgstr "Kullanıcı Grupları"
+
+#: includes/language.define.php:197
+msgid "Set up usergroups"
+msgstr "Kullanıcı grupları ayarları"
+
+#: includes/language.define.php:201
+msgid "Info"
+msgstr "Bilgilendirme"
+
+#: includes/language.define.php:202
+msgid "Group infos"
+msgstr "Grup bilgileri"
+
+#: includes/language.define.php:203
+msgid "Group membership given by posts"
+msgstr "Mesajlara göre grup üyelikleri"
+
+#: includes/language.define.php:204
+msgid "Group membership given by pages"
+msgstr "Sayfalara göre grup üyelikleri"
+
+#: includes/language.define.php:205
+msgid "Group membership given by categories"
+msgstr "Kategorilere göre grup üyelikleri"
+
+#: includes/language.define.php:206
+msgid "Group membership given by role"
+msgstr "Role göre grup üyelikleri"
+
+#: includes/language.define.php:207
+msgid "Assigned groups"
+msgstr "Atanmış gruplar"
+
+#: includes/language.define.php:211
+msgid "Opening fileinfo database failed."
+msgstr "Dosya bilgisi açma başarısız oldu."
+
+#: includes/language.define.php:212
+msgid "Error: File not found."
+msgstr "Hata: Dosya bulunamadı."
+
+#: tpl/loginBar.php:23
+#: tpl/loginBar.php:40
+msgid "Login"
+msgstr "Giriş yap"
+
+#: tpl/loginBar.php:34
+msgid "Username:"
+msgstr "Kullanıcı adı:"
+
+#: tpl/loginBar.php:36
+msgid "Password:"
+msgstr "Şifre:"
+
+#: tpl/loginBar.php:39
+msgid "Remember me"
+msgstr "Beni hatırla"
+
+#: tpl/loginBar.php:46
+msgid "Register"
+msgstr "Kayıt ol"
+
+#: tpl/loginBar.php:49
+msgid "Password Lost and Found"
+msgstr "Şifremi unuttum"
+
+#: tpl/loginBar.php:49
+msgid "Lost your password?"
+msgstr "Şifreni mi unuttun?"
+
+#. Plugin Name of the plugin/theme
+msgid "User Access Manager"
+msgstr "User Access Manager"
+
+#. Plugin URI of the plugin/theme
+msgid "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+msgstr "http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/"
+
+#. Description of the plugin/theme
+msgid "Manage the access to your posts, pages, categories and files."
+msgstr "Mesajlarına, sayfalarına, kategorilerine ve dosyalarına erişimi yönet."
+
+#. Author of the plugin/theme
+msgid "Alexander Schneider"
+msgstr "Alexander Schneider"
+
+#. Author URI of the plugin/theme
+msgid "http://www.gm-alex.de/"
+msgstr "http://www.gm-alex.de/"
+
