@@ -19,7 +19,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 <em>Feature list</em>
 
 * User groups
-* Set seperate access for readers and editors
+* Set separate access for readers and editors
 * Set access by user groups
 * Set access by post categories
 * User-defined post/page title (if no access)
