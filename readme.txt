@@ -95,7 +95,7 @@ Here you found the changes in each version.
     						Add recursive looking for posts page option
                             Improve network activation/update
                             Add hooks for login bar
-                            Prepair for NextGEN Gallery extension
+                            Prepare for NextGEN Gallery extension
     
     1.1.1.2		2010/09/29  Fix bug that a usergroup for a user wasn't saved
     
@@ -128,7 +128,7 @@ Here you found the changes in each version.
     						Speed it up
     						Disable file locking by default
     
-    1.0	Beta 2	2010/07/13	Fix perforance issues
+    1.0	Beta 2	2010/07/13	Fix performance issues
     						Fix media gallery issues
     						Fix category bug
     						Fix not loaded translation
