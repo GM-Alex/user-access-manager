@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: 1.2.2
+Version: 1.2.2
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -72,8 +72,9 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
     
-    1.2.2       2011/       Speed improvements.
+    1.2.2       2011/04/03  Speed improvements.
                             Fix get_term bug.
+                            Fix category bug
     
     1.2.1       2011/10/11  Fix uninstall bug.
                             Add capability 'manage_user_groups'. Thanks to Tim Okrongli

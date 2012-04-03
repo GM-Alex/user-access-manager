@@ -927,7 +927,7 @@ class UamUserGroup
         foreach ($this->getObjectsFromType('category', 'full') as $category) {
             //TODO in_category($category->id, $post->ID) is very slow check if own function works also
             
-            if ($this->_isPostInCategory($post->ID, $category->id)) {
+            if (!$this->_isPostInCategory($post->ID, $category->id)) {
                 $categoryObject = get_category($category->id);
                 $category->name = $categoryObject->name;
                 
