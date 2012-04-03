@@ -14,7 +14,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 Check out the [User Access Manager - NextGEN Gallery Extension](http://wordpress.org/extend/plugins/user-access-manager-nextgen-gallery-extension/) (Beta).
 
-Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and [send me an error report](mailto:alexanderschneider85@googlemail.com). That is the only way to find bugs and see if the plugin works proper. Thanks.
+Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and report the issue here: [http://mantis.gm-alex.de](http://mantis.gm-alex.de). That is the only way to find bugs and see if the plugin works proper. Thanks.
 
 <em>Feature list</em>
 
