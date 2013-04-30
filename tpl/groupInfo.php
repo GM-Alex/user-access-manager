@@ -19,46 +19,46 @@ if (!function_exists('walkPath')) {
     /**
      * Retruns the html code for the recursive access.
      * 
-     * @param mixed  $object     The object.
-     * @param string $objectType The type of the object.
+     * @param mixed  $oObject     The object.
+     * @param string $sObjectType The type of the object.
      * 
      * @return string
      */
-    function walkPath($object, $objectType)
+    function walkPath($oObject, $sObjectType)
     {
-        $out = $object->name;
+        $sOut = $oObject->name;
         
-        if (isset($object->recursiveMember[$objectType])) {            
-            $out .= '<ul>';
+        if (isset($oObject->recursiveMember[$sObjectType])) {
+            $sOut .= '<ul>';
             
-            foreach ($object->recursiveMember[$objectType] as $recursiveObject) {
-                $out .= '<li>';
-                $out .= walkPath($recursiveObject, $objectType);
-                $out .= '</li>';
+            foreach ($oObject->recursiveMember[$sObjectType] as $oRecursiveObject) {
+                $sOut .= '<li>';
+                $sOut .= walkPath($oRecursiveObject, $sObjectType);
+                $sOut .= '</li>';
             }
             
-            $out .= '</ul>';
+            $sOut .= '</ul>';
     	}
     	
-    	return $out;
+    	return $sOut;
     }
 }
 ?>
 <div class="tooltip">
 <ul class="uam_group_info">
 <?php
-global $userAccessManager;
+global $oUserAccessManager;
 
-foreach ($userAccessManager->getAccessHandler()->getAllObjectTypes() as $curObjectType) {
-    if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId][$curObjectType])) {
+foreach ($oUserAccessManager->getAccessHandler()->getAllObjectTypes() as $sCurObjectType) {
+    if (isset($aUserGroupsForObject[$oUamUserGroup->getId()]->aSetRecursive[$sObjectType][$iObjectId][$sCurObjectType])) {
         ?>
 		<li  class="uam_group_info_head">
-		<?php echo constant('TXT_UAM_GROUP_MEMBERSHIP_BY_'.strtoupper($curObjectType)); ?>:
+		<?php echo constant('TXT_UAM_GROUP_MEMBERSHIP_BY_'.strtoupper($sCurObjectType)); ?>:
 			<ul>
 	    <?php
-	    foreach ($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId][$curObjectType] as $object) {
+	    foreach ($aUserGroupsForObject[$oUamUserGroup->getId()]->aSetRecursive[$sObjectType][$iObjectId][$sCurObjectType] as $oObject) {
 	        ?>
-	    		<li class="recusiveTree"><?php echo walkPath($object, $curObjectType); ?></li>
+	    		<li class="recusiveTree"><?php echo walkPath($oObject, $sCurObjectType); ?></li>
 	        <?php
 	    }
 	    ?>
@@ -72,32 +72,32 @@ foreach ($userAccessManager->getAccessHandler()->getAllObjectTypes() as $curObje
 		<ul>
 			<li><?php echo TXT_UAM_READ_ACCESS; ?>:
 <?php
-if ($uamUserGroup->getReadAccess() == "all") {
+if ($oUamUserGroup->getReadAccess() == "all") {
     echo TXT_UAM_ALL;
-} elseif ($uamUserGroup->getReadAccess() == "group") {
+} elseif ($oUamUserGroup->getReadAccess() == "group") {
     echo TXT_UAM_ONLY_GROUP_USERS;
 }
 ?>
 			</li>
 			<li><?php echo TXT_UAM_WRITE_ACCESS; ?>:
 <?php
-if ($uamUserGroup->getWriteAccess()  == "all") {
+if ($oUamUserGroup->getWriteAccess()  == "all") {
     echo TXT_UAM_ALL;   
-} elseif ($uamUserGroup->getWriteAccess()  == "group") {
+} elseif ($oUamUserGroup->getWriteAccess()  == "group") {
     echo TXT_UAM_ONLY_GROUP_USERS;
 }
 ?>
         	</li>
         	<li>
         	    <?php echo TXT_UAM_GROUP_ROLE; ?>: <?php
-if ($uamUserGroup->getObjectsFromType('role')) {
-    $out = '';
+if ($oUamUserGroup->getObjectsFromType('role')) {
+    $sOut = '';
     
-    foreach ($uamUserGroup->getObjectsFromType('role') as $key => $role) {
-        $out .= trim($key).', ';
+    foreach ($oUamUserGroup->getObjectsFromType('role') as $sKey => $sRole) {
+        $sOut .= trim($sKey).', ';
     }
     
-    echo rtrim($out, ', ');
+    echo rtrim($sOut, ', ');
 } else {
     echo TXT_UAM_NONE;
 }

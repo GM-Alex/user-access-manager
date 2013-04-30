@@ -15,21 +15,21 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-global $userAccessManager;
-$uamUserGroups = $userAccessManager->getAccessHandler()->getUserGroups();
+global $oUserAccessManager;
+$aUamUserGroups = $oUserAccessManager->getAccessHandler()->getUserGroups();
 
-$objectId = null;
-$objectType = 'category';
+$iObjectId = null;
+$sObjectType = 'category';
 
 if (isset($_GET['tag_ID'])) {
-    $objectId = $_GET['tag_ID'];
+    $iObjectId = $_GET['tag_ID'];
     
-    $userGroupsForObject = $userAccessManager->getAccessHandler()->getUserGroupsForObject(
-        $objectType, 
-        $objectId
+    $aUserGroupsForObject = $oUserAccessManager->getAccessHandler()->getUserGroupsForObject(
+        $sObjectType,
+        $iObjectId
     );
 } else {
-    $userGroupsForObject = array();
+    $aUserGroupsForObject = array();
 }
     
 ?>
@@ -41,9 +41,9 @@ if (isset($_GET['tag_ID'])) {
 			</th>
 			<td>
 <?php
-if (count($uamUserGroups) > 0) {
+if (count($aUamUserGroups) > 0) {
 	include 'groupSelectionForm.php';
-} elseif ($userAccessManager->getAccessHandler()->checkUserAccess()) {
+} elseif ($oUserAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>
 	<a href='admin.php?page=uam_usergroup'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
 	<?php
@@ -57,12 +57,12 @@ if (count($uamUserGroups) > 0) {
 </table>
 <?php
 if (isset($_GET['action'])) {
-    $action = $_GET['action'];
+    $sAction = $_GET['action'];
 } else {
-    $action = null;
+    $sAction = null;
 }
 
-if ($action != 'edit') {
+if ($sAction != 'edit') {
 	?>
 	<style type="text/css">
         .submit {

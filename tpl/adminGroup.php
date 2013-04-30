@@ -18,26 +18,22 @@
 /**
  * Inserts or update a user group.
  * 
- * @param integer $userGroupId The id of the user group.
+ * @param integer $iUserGroupId The _iId of the user group.
  * 
  * @return null
  */
-function insertUpdateGroup($userGroupId)
+function insertUpdateGroup($iUserGroupId)
 {
-    global $userAccessManager;
+    global $oUserAccessManager;
     
-    if (empty($_POST) 
-        || !wp_verify_nonce($_POST['uamInsertUpdateGroupNonce'], 'uamInsertUpdateGroup')
-    ) {
+    if (empty($_POST) || !wp_verify_nonce($_POST['uamInsertUpdateGroupNonce'], 'uamInsertUpdateGroup')) {
          wp_die(TXT_UAM_NONCE_FAILURE);
     }
     
-    if ($userGroupId != null) {
-        $uamUserGroup 
-            = $userAccessManager->getAccessHandler()->getUserGroups($userGroupId);
+    if ($iUserGroupId != null) {
+        $uamUserGroup = $oUserAccessManager->getAccessHandler()->getUserGroups($iUserGroupId);
     } else {
-        $uamUserGroup 
-            = new UamUserGroup($userAccessManager->getAccessHandler(), null);
+        $uamUserGroup = new UamUserGroup($oUserAccessManager->getAccessHandler(), null);
     }
 
     $uamUserGroup->setGroupName($_POST['userGroupName']);
@@ -62,20 +58,20 @@ function insertUpdateGroup($userGroupId)
     
     $uamUserGroup->save();
     
-    $userAccessManager->getAccessHandler()->addUserGroup($uamUserGroup);
+    $oUserAccessManager->getAccessHandler()->addUserGroup($uamUserGroup);
 }
 
 /**
  * Prints the group formular.
  * 
- * @param integer $groupId The given group id.
+ * @param integer $groupId The given group _iId.
  * 
  * @return null
  */
 function getPrintEditGroup($groupId = null)
 {
-    global $userAccessManager;
-    $uamUserGroup = $userAccessManager->getAccessHandler()->getUserGroups($groupId);
+    global $oUserAccessManager;
+    $uamUserGroup = $oUserAccessManager->getAccessHandler()->getUserGroups($groupId);
     ?>
 	<form method="post" action="<?php 
 	    echo reset(
@@ -270,10 +266,10 @@ if ($postAction == 'delgroup') {
     }
 
     if (isset($delIds)) {
-        global $userAccessManager;
+        global $oUserAccessManager;
         
         foreach ($delIds as $delId) {
-            $userAccessManager->getAccessHandler()->deleteUserGroup($delId);
+            $oUserAccessManager->getAccessHandler()->deleteUserGroup($delId);
         }
         ?>
         <div class="updated">
@@ -346,11 +342,11 @@ if (!$editGroup) {
         $curAdminPage = $_GET['page'];
     }
     
-    global $userAccessManager;
-    $uamUserGroups = $userAccessManager->getAccessHandler()->getUserGroups();
+    global $oUserAccessManager;
+    $aUamUserGroups = $oUserAccessManager->getAccessHandler()->getUserGroups();
     
-    if (isset($uamUserGroups)) {
-        foreach ($uamUserGroups as $uamUserGroup) {
+    if (isset($aUamUserGroups)) {
+        foreach ($aUamUserGroups as $uamUserGroup) {
             ?>
         		<tr class="alternate" id="group-<?php echo $uamUserGroup->getId(); ?>">
         			<th class="check-column" scope="row">
