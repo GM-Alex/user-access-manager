@@ -18,30 +18,30 @@
 <input type="hidden" name="uam_update_groups" value="true" />
 <ul class="uam_group_selection">
 <?php
-if (!isset($groupsFormName)
-    || $groupsFormName === null
+if (!isset($sGroupsFormName)
+    || $sGroupsFormName === null
 ) {
-    $groupsFormName = 'uam_usergroups';
+    $sGroupsFormName = 'uam_usergroups';
 }
 
-foreach ($uamUserGroups as $uamUserGroup) {
-    $addition = '';
-    $attributes = '';
+foreach ($aUamUserGroups as $oUamUserGroup) {
+    $sAddition = '';
+    $sAttributes = '';
     
-    if (array_key_exists($uamUserGroup->getId(), $userGroupsForObject)) {
-        $attributes .= 'checked="checked" ';
+    if (array_key_exists($oUamUserGroup->getId(), $aUserGroupsForObject)) {
+        $sAttributes .= 'checked="checked" ';
     }
     
-    if (isset($userGroupsForObject[$uamUserGroup->getId()]->setRecursive[$objectType][$objectId])) {
-        $attributes .= 'disabled="" ';
-		$addition .= ' [LR]';
+    if (isset($aUserGroupsForObject[$oUamUserGroup->getId()]->aSetRecursive[$sObjectType][$iObjectId])) {
+        $sAttributes .= 'disabled="" ';
+		$sAddition .= ' [LR]';
 	}
     
 	?>
 	<li>
-		<label for="<?php echo $groupsFormName; ?>-<?php echo $uamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
-			<input type="checkbox" id="<?php echo $groupsFormName; ?>-<?php echo $uamUserGroup->getId(); ?>" <?php echo $attributes;?> value="<?php echo $uamUserGroup->getId(); ?>" name="<?php echo $groupsFormName; ?>[]" />
-			<?php echo $uamUserGroup->getGroupName().$addition; ?>
+		<label for="<?php echo $sGroupsFormName; ?>-<?php echo $oUamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
+			<input type="checkbox" id="<?php echo $sGroupsFormName; ?>-<?php echo $oUamUserGroup->getId(); ?>" <?php echo $sAttributes;?> value="<?php echo $oUamUserGroup->getId(); ?>" name="<?php echo $sGroupsFormName; ?>[]" />
+			<?php echo $oUamUserGroup->getGroupName().$sAddition; ?>
 		</label>
 		<a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
 		<?php include 'groupInfo.php'; ?>

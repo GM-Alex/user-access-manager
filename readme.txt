@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
-Tested up to: 3.2.1
-Stable tag: 1.2.1
+Tested up to: 3.5.1
+Stable tag: 1.2.3
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -14,12 +14,12 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 Check out the [User Access Manager - NextGEN Gallery Extension](http://wordpress.org/extend/plugins/user-access-manager-nextgen-gallery-extension/) (Beta).
 
-Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and [send me an error report](mailto:alexanderschneider85@googlemail.com). That is the only way to find bugs and see if the plugin works proper. Thanks.
+Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and report the issue here: [http://mantis.gm-alex.de](http://mantis.gm-alex.de). That is the only way to find bugs and see if the plugin works proper. Thanks.
 
 <em>Feature list</em>
 
 * User groups
-* Set seperate access for readers and editors
+* Set separate access for readers and editors
 * Set access by user groups
 * Set access by post categories
 * User-defined post/page title (if no access)
@@ -56,7 +56,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 
 Some language files are really old, if you are a native speaker it would be nice if you update a language file or make one for a language which is not translated jet.
 
-For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please [contact me](mailto:alexanderschneider85@googlemail.com). To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
+For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please visit the bug tracker [http://mantis.gm-alex.de](http://mantis.gm-alex.de), register and report your issue. To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
 == Installation ==
@@ -71,13 +71,18 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
-    
-    1.2.2       2011/       Speed improvments.
+
+    1.2.3       2013/04/30  Fix Fatal 'error: Call-time pass-by-reference' error.
+                            Fix 'get_userdata() is not defined' error. Thanks to ranwaldo.
+                            Refactor many variable names to fit new coding style.
+
+    1.2.2       2011/04/03  Speed improvements.
                             Fix get_term bug.
+                            Fix category bug
     
     1.2.1       2011/10/11  Fix uninstall bug.
                             Add capability 'manage_user_groups'. Thanks to Tim Okrongli
-                            Some small improvments.
+                            Some small improvements.
     
     1.2         2011/06/19  Add custom post types.
                             Fix CSRF issue. Thanks to Luke Crouch
@@ -95,7 +100,7 @@ Here you found the changes in each version.
     						Add recursive looking for posts page option
                             Improve network activation/update
                             Add hooks for login bar
-                            Prepair for NextGEN Gallery extension
+                            Prepare for NextGEN Gallery extension
     
     1.1.1.2		2010/09/29  Fix bug that a usergroup for a user wasn't saved
     
@@ -128,7 +133,7 @@ Here you found the changes in each version.
     						Speed it up
     						Disable file locking by default
     
-    1.0	Beta 2	2010/07/13	Fix perforance issues
+    1.0	Beta 2	2010/07/13	Fix performance issues
     						Fix media gallery issues
     						Fix category bug
     						Fix not loaded translation

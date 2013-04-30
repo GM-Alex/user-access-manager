@@ -14,15 +14,15 @@
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-global $userAccessManager;
+global $oUserAccessManager;
 
 if (isset($_POST['action'])) {
-    $postAction = $_POST['action'];
+    $sPostAction = $_POST['action'];
 } else {
-    $postAction = null;
+    $sPostAction = null;
 }
 
-if ($postAction == 'update_db') {
+if ($sPostAction == 'update_db') {
     if (empty($_POST) 
         || !wp_verify_nonce($_POST['uamSetupUpdateNonce'], 'uamSetupUpdate')
     ) {
@@ -30,21 +30,21 @@ if ($postAction == 'update_db') {
     }
     
     if (isset($_POST['uam_update_db'])) {
-        $update = $_POST['uam_update_db'];
+        $sUpdate = $_POST['uam_update_db'];
     } else {
-        $update = null;
+        $sUpdate = null;
     }
     
-    if ($update == 'true'
-    	|| $update == 'network'
+    if ($sUpdate == 'true'
+    	|| $sUpdate == 'network'
     ) {
-        $network = false;
+        $mNetwork = false;
         
-        if ($update == 'network') {
-            $network = true;
+        if ($sUpdate == 'network') {
+            $mNetwork = true;
         }
         
-        $userAccessManager->update($network);
+        $oUserAccessManager->update($mNetwork);
         ?>
     	<div class="updated">
     		<p><strong><?php echo TXT_UAM_UAM_DB_UPDATE_SUC; ?></strong></p>
@@ -53,7 +53,7 @@ if ($postAction == 'update_db') {
     }
 }
 
-if ($postAction == 'reset_uam') {
+if ($sPostAction == 'reset_uam') {
     if (empty($_POST) 
         || !wp_verify_nonce($_POST['uamSetupResetNonce'], 'uamSetupReset')
     ) {
@@ -61,15 +61,15 @@ if ($postAction == 'reset_uam') {
     }
     
     if (isset($_POST['uam_reset'])) {
-        $reset = $_POST['uam_reset'];
+        $sReset = $_POST['uam_reset'];
     } else {
-        $reset = null;
+        $sReset = null;
     }
     
-    if ($reset == 'true') {
-        $userAccessManager = new UserAccessManager();
-        $userAccessManager->uninstall();
-        $userAccessManager->install();
+    if ($sReset == 'true') {
+        $oUserAccessManager = new UserAccessManager();
+        $oUserAccessManager->uninstall();
+        $oUserAccessManager->install();
         ?>
 		<div class="updated">
 			<p><strong><?php echo TXT_UAM_UAM_RESET_SUC; ?></strong></p>
@@ -105,7 +105,7 @@ if ($postAction == 'reset_uam') {
     			</td>
     		</tr>
     		<?php 
-if ($userAccessManager->isDatabaseUpdateNecessary()) {
+if ($oUserAccessManager->isDatabaseUpdateNecessary()) {
         		?>
         		<tr valign="top">
         			<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
