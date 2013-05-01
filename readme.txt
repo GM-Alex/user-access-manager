@@ -72,6 +72,8 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
 
+    1.3         2013/??/??  Fix add column issue.
+
     1.2.3.1     2013/05/01  Fix terms issue.
 
     1.2.3       2013/04/30  Fix Fatal 'error: Call-time pass-by-reference' error.
