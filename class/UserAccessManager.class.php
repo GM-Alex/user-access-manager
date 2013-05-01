@@ -1737,7 +1737,7 @@ class UserAccessManager
         }
         
         foreach ($aTerms as $sKey => $oTerm) {
-            if (!array_key_exists($oTerm->term_id, $aShowTerms)) {
+            if (!isset($aShowTerms[$oTerm->term_id])) {
                 unset($aTerms[$sKey]);
             }
         }
@@ -2015,7 +2015,7 @@ class UserAccessManager
                 finfo_close($sFileMimeType);
             } elseif (function_exists('mime_content_type')) {
                 $sFileMimeType = mime_content_type($sFile);
-            } elseif (array_key_exists($sFileExt, $this->_aMimeTypes)) {
+            } elseif (isset($this->_aMimeTypes[$sFileExt])) {
                 $sFileMimeType = $this->_aMimeTypes[$sFileExt];
             } else {
                 $sFileMimeType = 'application/octet-stream';

@@ -175,13 +175,9 @@ class UamUserGroup
         }
         
         foreach ($this->getAllObjectTypes() as $sObjectType) {
-            foreach ($this->getObjectsFromType($sObjectType) as $sKey => $oObject) {
-                $sSql = sprintf(
-                    $this->_getSqlQuery($sObjectType, 'insert'),
-                    trim($sKey)
-                );
-                $wpdb->query($sSql);
-            }
+            $aKeys = array_keys($this->getObjectsFromType($sObjectType));
+            $sSql = $this->_getSqlQuery($sObjectType, 'insert', $aKeys);
+            $wpdb->query($sSql);
         }
     }
     
@@ -396,10 +392,11 @@ class UamUserGroup
      * 
      * @param string $sObjectType The object type.
      * @param string $sAction     The sql action.
-     * 
+     * @param array  $aKeys       The keys for the insert query.
+     *
      * @return string
      */
-    protected function _getSqlQuery($sObjectType, $sAction)
+    protected function _getSqlQuery($sObjectType, $sAction, $aKeys = array())
     {
         $sSql = '';
         
@@ -417,11 +414,14 @@ class UamUserGroup
             		group_id, 
             		object_id, 
             		object_type
-            	) VALUES (
-            		'".$this->getId()."', 
-            		'%s',
-            		'".$sObjectType."'
-            	)";
+            	) VALUES ";
+
+            foreach ($aKeys as $sKey) {
+                $sKey = trim($sKey);
+                $sSql .= "('".$this->getId()."', '".$sKey."', '".$sObjectType."'), ";
+            }
+
+            $sSql = rtrim($sSql, ', ');
         }
         
         return $sSql;
@@ -601,7 +601,7 @@ class UamUserGroup
     }
     
     /**
-     * Returns all _aObjects of the given type.
+     * Returns all objects of the given type.
      * 
      * @param string $sObjectType The object type.
      * @param string $sType       The return type, could be real or full.
@@ -738,11 +738,13 @@ class UamUserGroup
             $aCapabilities = array();
         }
         
-        $aRole  = (count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
-        
-        if (array_key_exists($aRole[0], $this->getObjectsFromType('role'))) {
+        $aRole = (count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
+        $sRole = $aRole[0];
+        $aObjects = $this->getObjectsFromType('role');
+
+        if (isset($aObjects[$sRole])) {
             $oRoleObject = new stdClass();
-            $oRoleObject->name = $aRole[0];
+            $oRoleObject->name = $sRole;
             
             $aIsRecursiveMember = array('role' => array());
             $aIsRecursiveMember['role'][] = $oRoleObject;
