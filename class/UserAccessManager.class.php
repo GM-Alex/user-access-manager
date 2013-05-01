@@ -1729,10 +1729,10 @@ class UserAccessManager
 
             if ($oTerm->taxonomy == 'category'  || $oTerm->taxonomy == 'post_tag') {
                 $oTerm = $this->_getTerm($oTerm->taxonomy, $oTerm);
+            }
 
-                if ($oTerm !== null && (!isset($oTerm->isEmpty) || !$oTerm->isEmpty)) {
-                    $aShowTerms[$oTerm->term_id] = $oTerm;
-                }
+            if ($oTerm !== null && (!isset($oTerm->isEmpty) || !$oTerm->isEmpty)) {
+                $aShowTerms[$oTerm->term_id] = $oTerm;
             }
         }
         

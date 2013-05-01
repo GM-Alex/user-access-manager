@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.2.3
+Stable tag: 1.2.3.1
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -71,6 +71,8 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+
+    1.2.3.1     2013/05/01  Fix terms issue.
 
     1.2.3       2013/04/30  Fix Fatal 'error: Call-time pass-by-reference' error.
                             Fix 'get_userdata() is not defined' error. Thanks to ranwaldo.

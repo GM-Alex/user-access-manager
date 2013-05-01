@@ -284,11 +284,11 @@ msgid "If \"Yes\" is selected author will always have full access to ther own po
 msgstr "Wenn \"Ja\" ausgew&auml;hlt ist haben Autoren immer Vollzugriff zu deren eigenen Posts oder Seiten."
 
 #: includes/language.define.php:94
-msgid "Authors can add content to there own groups"
+msgid "Authors can add content to their own groups"
 msgstr "Autoren k&ouml;nnen Inhalte zu deren eigener Gruppe hinzuf&uuml;gen"
 
 #: includes/language.define.php:95
-msgid "If \"Yes\" is selected author are able to restrict the content by adding it to there groups."
+msgid "If \"Yes\" is selected author are able to restrict the content by adding it to their groups."
 msgstr "Wenn \"Ja\" ausgew&auml;hlt ist haben Autoren die M&ouml;glichkeit Inhalte zu deren eigenen Nutzergruppen hinzuzuf&uuml;gen."
 
 #: includes/language.define.php:96
@@ -464,7 +464,7 @@ msgid "IP range"
 msgstr "IP Bereich"
 
 #: includes/language.define.php:145
-msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgid "Type in the IP ranges of users which are join these groups by their IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
 msgstr "Hier k&ouml;nnen IP-Bereich festgelegt werden, welche es nicht eingeloggten Nutzern erm&ouml;glicht UAM-Gruppen beizutreten, wenn sich diese im entsprechenden IP-Bereich befinden. Bereiche werden so gesetzt: \"BEGIN\"-\"END\", um Bereiche zu separieren kann \";\" verwendet werden, einzelne IPs sind ebenso erlaubt. Beispiel: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
 
 #: includes/language.define.php:147
