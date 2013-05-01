@@ -15,6 +15,10 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
+if (!function_exists('get_userdata')) {
+    include_once ABSPATH.'wp-includes/pluggable.php';
+}
+
 /**
  * The user user access manager class.
  * 
@@ -27,14 +31,14 @@
 
 class UserAccessManager
 {
-    protected $atAdminPanel = false;
-    protected $adminOptionsName = "uamAdminOptions";
-    protected $uamVersion = "1.2";
-    protected $uamDbVersion = "1.1";
-    protected $adminOptions;
-    protected $accessHandler = null;
-    protected $postUrls = array();
-    protected $mimeTypes = array(
+    protected $_blAtAdminPanel = false;
+    protected $_sAdminOptionsName = "uamAdminOptions";
+    protected $_sUamVersion = "1.2.3";
+    protected $_sUamDbVersion = "1.1";
+    protected $_aAdminOptions = null;
+    protected $_oAccessHandler = null;
+    protected $_aPostUrls = array();
+    protected $_aMimeTypes = array(
 		'txt' => 'text/plain',
         'htm' => 'text/html',
         'html' => 'text/html',
@@ -90,34 +94,44 @@ class UserAccessManager
     );
     
     /**
-     * Consturctor
-     * 
-     * @return null
+     * Constructor.
      */
     public function __construct()
     {
         do_action('uam_init', $this);
     }
+
+    /**
+     * Returns the admin options name for the uam.
+     *
+     * @return string
+     */
+    public function getAdminOptionsName()
+    {
+        return $this->_sAdminOptionsName;
+    }
     
     /**
-     * Returns all blogs of the network
+     * Returns all blogs of the network.
      * 
      * @return array()
      */
-    private function _getBlogIds()
+    protected function _getBlogIds()
     {
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
- 
+        $aBlogIds = array();
+
     	if (is_multisite()) {
-			$blogIds = $wpdb->get_col(
+			$aBlogIds = $wpdb->get_col(
 				"SELECT blog_id
-				FROM $wpdb->blogs"
+				FROM {$wpdb->blogs}"
 			);
-			
-			return $blogIds;
     	}
-    	
-    	return array();
+
+        return $aBlogIds;
     }
     
     /**
@@ -128,22 +142,21 @@ class UserAccessManager
     public function install()
     {
         global $wpdb;
-        $blogIds = $this->_getBlogIds();
+        $aBlogIds = $this->_getBlogIds();
  
-    	if ($blogIds !== array()
-    	    && isset($_GET['networkwide']) 
+    	if (isset($_GET['networkwide'])
     		&& ($_GET['networkwide'] == 1)
     	) {
-	        $currentBlog = $wpdb->blogid;
+	        $iCurrentBlogId = $wpdb->blogid;
 			
-			foreach ($blogIds as $blogId) {
-				switch_to_blog($blogId);
+			foreach ($aBlogIds as $iBlogId) {
+				switch_to_blog($iBlogId);
 				$this->_installUam();
 			}
 			
-			switch_to_blog($currentBlog);
+			switch_to_blog($iCurrentBlogId);
 			
-			return;
+			return null;
     	}
     	
     	$this->_installUam();
@@ -154,26 +167,27 @@ class UserAccessManager
      * 
      * @return null;
      */
-    private function _installUam()
+    protected function _installUam()
     {
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
-        $uamDbVersion = $this->uamDbVersion;
-        
         include_once ABSPATH.'wp-admin/includes/upgrade.php';
   
-        $charsetCollate = $this->_getCharset();
+        $sCharsetCollate = $this->_getCharset();
         
-        $dbAccessGroup = $wpdb->prefix.'uam_accessgroups';
-        $dbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+        $sDbAccessGroup = $wpdb->prefix.'uam_accessgroups';
+        //$sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
         
-        $dbUserGroup = $wpdb->get_var(
+        $sDbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".$dbAccessGroup."'"
+        	LIKE '".$sDbAccessGroup."'"
         );
         
-        if ($dbUserGroup != $dbAccessGroup) {
+        if ($sDbUserGroup != $sDbAccessGroup) {
             dbDelta(
-                "CREATE TABLE ".$dbAccessGroup." (
+                "CREATE TABLE ".$sDbAccessGroup." (
 					ID int(11) NOT NULL auto_increment,
 					groupname tinytext NOT NULL,
 					groupdesc text NOT NULL,
@@ -181,27 +195,27 @@ class UserAccessManager
 					write_access tinytext NOT NULL,
 					ip_range mediumtext NULL,
 					PRIMARY KEY  (ID)
-				) $charsetCollate;"
+				) $sCharsetCollate;"
             );
         }
 
-        $dbUserGroupToObject = $wpdb->get_var(
+        $sDbAccessGroupToObject = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".$dbAccessGroupToObject."'"
+        	LIKE '".$sDbAccessGroup."'"
         );
         
-        if ($dbUserGroupToObject != $dbAccessGroupToObject) {
+        if ($sDbAccessGroupToObject != $sDbAccessGroup) {
             dbDelta(
-            	"CREATE TABLE " . $dbAccessGroupToObject . " (
+            	"CREATE TABLE " . $sDbAccessGroup . " (
 					object_id VARCHAR(11) NOT NULL,
 					object_type varchar(255) NOT NULL,
 					group_id int(11) NOT NULL,
 					PRIMARY KEY  (object_id,object_type,group_id)
-				) $charsetCollate;"
+				) $sCharsetCollate;"
             );
         }
         
-        add_option("uam_db_version", $this->uamDbVersion);
+        add_option("uam_db_version", $this->_sUamDbVersion);
     }
     
     /**
@@ -212,53 +226,53 @@ class UserAccessManager
     public function isDatabaseUpdateNecessary()
     {
         global $wpdb;
-        $blogIds = $this->_getBlogIds();
+        $sBlogIds = $this->_getBlogIds();
  
-    	if ($blogIds !== array()
+    	if ($sBlogIds !== array()
             && is_super_admin()
         ) {
-            $currentBlog = $wpdb->blogid;
+            $iCurrentBlogId = $wpdb->blogid;
 			
-			foreach ($blogIds as $blogId) {
-				switch_to_blog($blogId);
-				$currentDbVersion = get_option("uam_db_version");
+			foreach ($sBlogIds as $iBlogId) {
+				switch_to_blog($iBlogId);
+				$sCurrentDbVersion = get_option("uam_db_version");
 				
-                if (version_compare($currentDbVersion, $this->uamDbVersion, '<')) {
-                    switch_to_blog($currentBlog);
+                if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<')) {
+                    switch_to_blog($iCurrentBlogId);
                     return true;
                 }
 			}
 			
-			switch_to_blog($currentBlog);
+			switch_to_blog($iCurrentBlogId);
         }
         
-        $currentDbVersion = get_option("uam_db_version");
-        return version_compare($currentDbVersion, $this->uamDbVersion, '<');
+        $sCurrentDbVersion = get_option("uam_db_version");
+        return version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<');
     }
     
     /**
      * Updates the user access manager if an old version was installed.
      * 
-     * @param boolean $networkWide If true update network wide
+     * @param boolean $blNetworkWide If true update network wide
      * 
      * @return null;
      */
-    public function update($networkWide)
+    public function update($blNetworkWide)
     {
         global $wpdb;
-        $blogIds = $this->_getBlogIds();
+        $aBlogIds = $this->_getBlogIds();
  
-    	if ($blogIds !== array()
-    	    && $networkWide
+    	if ($aBlogIds !== array()
+    	    && $blNetworkWide
     	) {
-	        $currentBlog = $wpdb->blogid;
+	        $iCurrentBlogId = $wpdb->blogid;
 			
-			foreach ($blogIds as $blogId) {
-				switch_to_blog($blogId);
+			foreach ($aBlogIds as $iBlogId) {
+				switch_to_blog($iBlogId);
 				$this->_installUam();
 			}
 			
-			switch_to_blog($currentBlog);
+			switch_to_blog($iCurrentBlogId);
 			
 			return;
     	}
@@ -271,129 +285,132 @@ class UserAccessManager
      * 
      * @return null;
      */
-    private function _updateUam()
+    protected function _updateUam()
     {
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
-        $currentDbVersion = get_option("uam_db_version");
+        $sCurrentDbVersion = get_option("uam_db_version");
         
-        if (empty($currentDbVersion)) {
+        if (empty($sCurrentDbVersion)) {
             $this->install();
         }
         
-        if (!get_option('uam_version')
-            || version_compare(get_option('uam_version'), "1.0") === -1
-        ) {
+        if (!get_option('uam_version') || version_compare(get_option('uam_version'), "1.0") === -1) {
             delete_option('allow_comments_locked');
         }
         
-        $dbAccessGroup = $wpdb->prefix.'uam_accessgroups';
+        $sDbAccessGroup = $wpdb->prefix.'uam_accessgroups';
         
-        $dbUserGroup = $wpdb->get_var(
+        $sDbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".$dbAccessGroup."'"
+        	LIKE '".$sDbAccessGroup."'"
         );
         
-        if (version_compare($currentDbVersion, $this->uamDbVersion) === -1) {
-            if (version_compare($currentDbVersion, "1.0") === 0) {
-                if ($dbUserGroup == $dbAccessGroup) {
+        if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion) === -1) {
+            if (version_compare($sCurrentDbVersion, "1.0") === 0) {
+                if ($sDbUserGroup == $sDbAccessGroup) {
                     $wpdb->query(
-                    	"ALTER TABLE ".$dbAccessGroup." 
+                    	"ALTER TABLE ".$sDbAccessGroup."
                     	ADD read_access TINYTEXT NOT NULL DEFAULT '', 
                     	ADD write_access TINYTEXT NOT NULL DEFAULT '', 
                     	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                     );
                     
                     $wpdb->query(
-                    	"UPDATE ".$dbAccessGroup." 
+                    	"UPDATE ".$sDbAccessGroup."
                     	SET read_access = 'group', 
                     		write_access = 'group'"
                     );
                     
-                    $dbIpRange = $wpdb->get_var(
+                    $sDbIpRange = $wpdb->get_var(
                     	"SHOW columns 
-                    	FROM ".$dbAccessGroup." 
+                    	FROM ".$sDbAccessGroup."
                     	LIKE 'ip_range'"
                     );
             
-                    if ($dbIpRange != 'ip_range') {
+                    if ($sDbIpRange != 'ip_range') {
                         $wpdb->query(
-                        	"ALTER TABLE ".$dbAccessGroup." 
+                        	"ALTER TABLE ".$sDbAccessGroup."
                         	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                         );
                     }
                 }
-                
-                $currentDbVersion = "1.1";
+
+                $sCurrentDbVersion = "1.1";
             } 
             
-            if (version_compare($currentDbVersion, "1.1") === 0) {
-                $dbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
-                $dbAccessgroupToPost = $wpdb->prefix.'uam_accessgroup_to_post';
-                $dbAccessgroupToUser = $wpdb->prefix.'uam_accessgroup_to_user';
-                $dbAccessgroupToCategory = $wpdb->prefix.'uam_accessgroup_to_category';
-                $dbAccessgroupToRole = $wpdb->prefix.'uam_accessgroup_to_role';
+            if (version_compare($sCurrentDbVersion, "1.1") === 0) {
+                $sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+                $sDbAccessGroupToPost = $wpdb->prefix.'uam_accessgroup_to_post';
+                $sDbAccessGroupToUser = $wpdb->prefix.'uam_accessgroup_to_user';
+                $sDbAccessGroupToCategory = $wpdb->prefix.'uam_accessgroup_to_category';
+                $sDbAccessGroupToRole = $wpdb->prefix.'uam_accessgroup_to_role';
                 
-                $charsetCollate = $this->_getCharset();
+                $sCharsetCollate = $this->_getCharset();
                 
                 $wpdb->query(
                     "ALTER TABLE 'wp_uam_accessgroup_to_object' 
                     CHANGE 'object_id' 'object_id' VARCHAR(11) 
-                    $charsetCollate;"
+                    $sCharsetCollate;"
                 );
                 
-                $objectTypes = $this->getAccessHandler()->getObjectTypes();
+                $aObjectTypes = $this->getAccessHandler()->getObjectTypes();
                 
-                foreach ($objectTypes as $objectType) {
-                    $addition = '';
+                foreach ($aObjectTypes as $sObjectType) {
+                    $sAddition = '';
                     
-                    $postableTypes = $this->getAccessHandler()->getPostableTypes();
+                    $aPostableTypes = $this->getAccessHandler()->getPostableTypes();
 
-                    if (in_array($objectType, $postableTypes)) {
-                        $dbIdName = 'post_id';
-                        $database = $dbAccessgroupToPost.', '.$wpdb->posts;
-                        $addition = " WHERE post_id = ID
-                        	AND post_type = '".$objectType."'";
-                    } elseif ($objectType == 'category') {
-                        $dbIdName = 'category_id';
-                        $database = $dbAccessgroupToCategory;
-                    } elseif ($objectType == 'user') {
-                        $dbIdName = 'user_id';
-                        $database = $dbAccessgroupToUser;
-                    } elseif ($objectType == 'role') {
-                        $dbIdName = 'role_name';
-                        $database = $dbAccessgroupToRole;
+                    if (in_array($sObjectType, $aPostableTypes)) {
+                        $sDbIdName = 'post_id';
+                        $sDatabase = $sDbAccessGroupToPost.', '.$wpdb->posts;
+                        $sAddition = " WHERE post_id = ID
+                        	AND post_type = '".$sObjectType."'";
+                    } elseif ($sObjectType == 'category') {
+                        $sDbIdName = 'category_id';
+                        $sDatabase = $sDbAccessGroupToCategory;
+                    } elseif ($sObjectType == 'user') {
+                        $sDbIdName = 'user_id';
+                        $sDatabase = $sDbAccessGroupToUser;
+                    } elseif ($sObjectType == 'role') {
+                        $sDbIdName = 'role_name';
+                        $sDatabase = $sDbAccessGroupToRole;
+                    } else {
+                        continue;
                     }
                     
-                    $sql = "SELECT ".$dbIdName." as id, group_id as groupId
-                    	FROM ".$database.$addition;
+                    $sSql = "SELECT ".$sDbIdName." as id, group_id as groupId
+                    	FROM ".$sDatabase.$sAddition;
                         
-                    $dbObjects = $wpdb->get_results($sql);
+                    $aDbObjects = $wpdb->get_results($sSql);
                     
-                    foreach ($dbObjects as $dbObject) {
-                        $sql = "INSERT INTO ".$dbAccessGroupToObject." (
+                    foreach ($aDbObjects as $oDbObject) {
+                        $sSql = "INSERT INTO ".$sDbAccessGroupToObject." (
                         		group_id, 
                         		object_id,
                         		object_type
                         	) 
                         	VALUES(
-                        		'".$dbObject->groupId."', 
-                        		'".$dbObject->id."',
-                        		'".$objectType."'
+                        		'".$oDbObject->groupId."',
+                        		'".$oDbObject->id."',
+                        		'".$sObjectType."'
                         	)";
                         
-                        $wpdb->query($sql);
+                        $wpdb->query($sSql);
                     } 
                 }
                 
                 $wpdb->query(
-                	"DROP TABLE ".$dbAccessgroupToPost.", 
-                		".$dbAccessgroupToUser.", 
-                		".$dbAccessgroupToCategory.", 
-                		".$dbAccessgroupToRole
+                	"DROP TABLE ".$sDbAccessGroupToPost.",
+                		".$sDbAccessGroupToUser.",
+                		".$sDbAccessGroupToCategory.",
+                		".$sDbAccessGroupToRole
                 );
             }
             
-            update_option('uam_db_version', $this->uamDbVersion);
+            update_option('uam_db_version', $this->_sUamDbVersion);
         }
     }    
     
@@ -404,13 +421,17 @@ class UserAccessManager
      */
     public function uninstall()
     {
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
+
         $wpdb->query(
         	"DROP TABLE ".DB_ACCESSGROUP.", 
         		".DB_ACCESSGROUP_TO_OBJECT
         );
         
-        delete_option($this->adminOptionsName);
+        delete_option($this->_sAdminOptionsName);
         delete_option('uam_version');
         delete_option('uam_db_version');
         $this->deleteHtaccessFiles();
@@ -421,21 +442,22 @@ class UserAccessManager
      * 
      * @return string
      */
-    private function _getCharset()
+    protected function _getCharset()
     {
-        $charsetCollate = '';
+        global $wpdb;
+        $sCharsetCollate = '';
         
         if (version_compare(mysql_get_server_info(), '4.1.0', '>=')) {
             if (!empty($wpdb->charset)) {
-                $charsetCollate = "DEFAULT CHARACTER SET $wpdb->charset";
+                $sCharsetCollate = "DEFAULT CHARACTER SET $wpdb->charset";
             }
             
             if (!empty($wpdb->collate)) {
-                $charsetCollate.= " COLLATE $wpdb->collate";
+                $sCharsetCollate.= " COLLATE $wpdb->collate";
             }
         }
         
-        return $charsetCollate;
+        return $sCharsetCollate;
     }
     
     /**
@@ -451,92 +473,84 @@ class UserAccessManager
     /**
      * Creates a htaccess file.
      * 
-     * @param string $dir        The destination directory.
-     * @param string $objectType The object type.
+     * @param string $sDir        The destination directory.
+     * @param string $sObjectType The object type.
      * 
      * @return null.
      */
-    public function createHtaccess($dir = null, $objectType = null)
+    public function createHtaccess($sDir = null, $sObjectType = null)
     {
-        if ($dir === null) {
-            $wud = wp_upload_dir();
+        if ($sDir === null) {
+            $aWordpressUploadDir = wp_upload_dir();
             
-            if (empty($wud['error'])) {
-                $dir = $wud['basedir'] . "/";
+            if (empty($aWordpressUploadDir['error'])) {
+                $sDir = $aWordpressUploadDir['basedir'] . "/";
             }
         }
         
-        if ($objectType === null) {
-            $objectType = 'attachment';
+        if ($sObjectType === null) {
+            $sObjectType = 'attachment';
         }
         
-        if ($dir !== null) {   
+        if ($sDir !== null) {
             if (!$this->isPermalinksActive()) {
-                $areaname = "WP-Files";
-                $uamOptions = $this->getAdminOptions();
-                
-                if ($uamOptions['lock_file_types'] == 'selected') {
-                    $fileTypes = $uamOptions['locked_file_types'];
-                } elseif ($uamOptions['lock_file_types'] == 'not_selected') {
-                    $fileTypes = $uamOptions['not_locked_file_types'];
-                }
-                
-                if (isset($fileTypes)) {
-                    $fileTypes = str_replace(",", "|", $fileTypes);
-                }
+                $sAreaName = "WP-Files";
+                $aUamOptions = $this->getAdminOptions();
     
                 // make .htaccess and .htpasswd
-                $htaccessTxt = "";
+                $sHtaccessTxt = "";
                 
-                if ($uamOptions['lock_file_types'] == 'selected') {
-                    $htaccessTxt .= "<FilesMatch '\.(" . $fileTypes . ")'>\n";
-                } elseif ($uamOptions['lock_file_types'] == 'not_selected') {
-                    $htaccessTxt .= "<FilesMatch '^\.(" . $fileTypes . ")'>\n";
+                if ($aUamOptions['lock_file_types'] == 'selected') {
+                    $sFileTypes = str_replace(",", "|", $aUamOptions['locked_file_types']);
+                    $sHtaccessTxt .= "<FilesMatch '\.(".$sFileTypes.")'>\n";
+                } elseif ($aUamOptions['lock_file_types'] == 'not_selected') {
+                    $sFileTypes = str_replace(",", "|", $aUamOptions['not_locked_file_types']);
+                    $sHtaccessTxt .= "<FilesMatch '^\.(".$sFileTypes.")'>\n";
                 }
                 
-                $htaccessTxt .= "AuthType Basic" . "\n";
-                $htaccessTxt .= "AuthName \"" . $areaname . "\"" . "\n";
-                $htaccessTxt .= "AuthUserFile " . $dir . ".htpasswd" . "\n";
-                $htaccessTxt .= "require valid-user" . "\n";
+                $sHtaccessTxt .= "AuthType Basic" . "\n";
+                $sHtaccessTxt .= "AuthName \"" . $sAreaName . "\"" . "\n";
+                $sHtaccessTxt .= "AuthUserFile " . $sDir . ".htpasswd" . "\n";
+                $sHtaccessTxt .= "require valid-user" . "\n";
                 
-                if ($uamOptions['lock_file_types'] == 'selected' 
-                    || $uamOptions['lock_file_types'] == 'not_selected'
+                if ($aUamOptions['lock_file_types'] == 'selected'
+                    || $aUamOptions['lock_file_types'] == 'not_selected'
                 ) {
-                    $htaccessTxt.= "</FilesMatch>\n";
+                    $sHtaccessTxt.= "</FilesMatch>\n";
                 }
             } else {
-                $homeRoot = parse_url(home_url());
-        		if (isset($homeRoot['path'])) {
-        			$homeRoot = trailingslashit($homeRoot['path']);
+                $aHomeRoot = parse_url(home_url());
+        		if (isset($aHomeRoot['path'])) {
+        			$aHomeRoot = trailingslashit($aHomeRoot['path']);
         		} else {
-        			$homeRoot = '/';
+        			$aHomeRoot = '/';
         		}
                 
-                $htaccessTxt = "<IfModule mod_rewrite.c>\n";
-                $htaccessTxt .= "RewriteEngine On\n";
-                $htaccessTxt .= "RewriteBase ".$homeRoot."\n";
-                $htaccessTxt .= "RewriteRule ^index\.php$ - [L]\n";
-                $htaccessTxt .= "RewriteRule (.*) ";
-                $htaccessTxt .= $homeRoot."index.php?uamfiletype=".$objectType."&uamgetfile=$1 [L]\n";
-                $htaccessTxt .= "</IfModule>\n";
+                $sHtaccessTxt = "<IfModule mod_rewrite.c>\n";
+                $sHtaccessTxt .= "RewriteEngine On\n";
+                $sHtaccessTxt .= "RewriteBase ".$aHomeRoot."\n";
+                $sHtaccessTxt .= "RewriteRule ^index\.php$ - [L]\n";
+                $sHtaccessTxt .= "RewriteRule (.*) ";
+                $sHtaccessTxt .= $aHomeRoot."index.php?uamfiletype=".$sObjectType."&uamgetfile=$1 [L]\n";
+                $sHtaccessTxt .= "</IfModule>\n";
             }
             
             // save files
-            $htaccess = fopen($dir.".htaccess", "w");
-            fwrite($htaccess, $htaccessTxt);
-            fclose($htaccess);
+            $oFileHandler = fopen($sDir.".htaccess", "w");
+            fwrite($oFileHandler, $sHtaccessTxt);
+            fclose($oFileHandler);
         }
     }
     
 	/**
      * Creates a htpasswd file.
      * 
-     * @param boolean $createNew Force to create new file.
-     * @param string  $dir       The destination directory.
+     * @param boolean $blCreateNew Force to create new file.
+     * @param string  $sDir       The destination directory.
      * 
      * @return null
      */
-    public function createHtpasswd($createNew = false, $dir = null)
+    public function createHtpasswd($blCreateNew = false, $sDir = null)
     {
         if (!function_exists('get_userdata')) {
             include_once ABSPATH.'wp-includes/pluggable.php';
@@ -546,36 +560,36 @@ class UserAccessManager
         //Force user infos
         wp_get_current_user();
         
-        $uamOptions = $this->getAdminOptions();
+        $aUamOptions = $this->getAdminOptions();
 
         // get url
-        if ($dir === null) {
-            $wud = wp_upload_dir();
+        if ($sDir === null) {
+            $aWordpressUploadDir = wp_upload_dir();
             
-            if (empty($wud['error'])) {
-                $dir = $wud['basedir'] . "/";
+            if (empty($aWordpressUploadDir['error'])) {
+                $sDir = $aWordpressUploadDir['basedir'] . "/";
             }
         }
         
-        if ($dir !== null) {
-            $curUserdata = get_userdata($current_user->ID);
+        if ($sDir !== null) {
+            $oUserData = get_userdata($current_user->ID);
             
-            if (!file_exists($dir.".htpasswd") || $createNew) {
-                if ($uamOptions['file_pass_type'] == 'random') {
-                    $password = md5($this->getRandomPassword());
-                } elseif ($uamOptions['file_pass_type'] == 'admin') {
-                    $password = $curUserdata->user_pass;
+            if (!file_exists($sDir.".htpasswd") || $blCreateNew) {
+                if ($aUamOptions['file_pass_type'] == 'random') {
+                    $sPassword = md5($this->getRandomPassword());
+                } else {
+                    $sPassword = $oUserData->user_pass;
                 }
               
-                $user = $curUserdata->user_login;
+                $sUser = $oUserData->user_login;
 
                 // make .htpasswd
-                $htpasswdTxt = "$user:" . $password . "\n";
+                $sHtpasswdTxt = "$sUser:" . $sPassword . "\n";
                 
                 // save file
-                $htpasswd = fopen($dir.".htpasswd", "w");
-                fwrite($htpasswd, $htpasswdTxt);
-                fclose($htpasswd);
+                $oFileHandler = fopen($sDir.".htpasswd", "w");
+                fwrite($oFileHandler, $sHtpasswdTxt);
+                fclose($oFileHandler);
             }
         }
     }
@@ -583,92 +597,66 @@ class UserAccessManager
     /**
      * Deletes the htaccess files.
      * 
-     * @param string $dir The destination directory.
+     * @param string $sDir The destination directory.
      * 
      * @return null
      */
-    public function deleteHtaccessFiles($dir = null)
+    public function deleteHtaccessFiles($sDir = null)
     {
-        if ($dir === null) {
-            $wud = wp_upload_dir();
+        if ($sDir === null) {
+            $aWordpressUploadDir = wp_upload_dir();
             
-            if (empty($wud['error'])) {
-                $dir = $wud['basedir'] . "/";
+            if (empty($aWordpressUploadDir['error'])) {
+                $sDir = $aWordpressUploadDir['basedir'] . "/";
             }
         }
 
-        if ($dir !== null) {    
-            if (file_exists($dir.".htaccess")) {
-                unlink($dir.".htaccess");
+        if ($sDir !== null) {
+            if (file_exists($sDir.".htaccess")) {
+                unlink($sDir.".htaccess");
             }
             
-            if (file_exists($dir.".htpasswd")) {
-                unlink($dir.".htpasswd");
+            if (file_exists($sDir.".htpasswd")) {
+                unlink($sDir.".htpasswd");
             }
         }
     }
     
     /**
-     * Generates and retruns a randmom password.
+     * Generates and returns a random password.
      * 
      * @return string
      */
     public function getRandomPassword()
     {
         //create password
-        $array = array();
-        $length = 16;
-        $capitals = true;
-        $specialSigns = false;
-        if ($length < 8) {
-            $length = mt_rand(8, 20);
-        }
+        $aArray = array();
+        $iLength = 16;
 
         // numbers
         for ($i = 48; $i < 58; $i++) {
-            $array[] = chr($i);
+            $aArray[] = chr($i);
         }
 
         // small
         for ($i = 97; $i < 122; $i++) {
-            $array[] = chr($i);
+            $aArray[] = chr($i);
         }
 
         // capitals
-        if ($capitals) {
-            for ($i = 65; $i < 90; $i++) {
-                $array[] = chr($i);
-            }
-        } 
-
-        // specialchar:
-        if ($specialSigns) {
-            for ($i = 33; $i < 47; $i++) {
-                $array[] = chr($i);
-            }
-            
-            for ($i = 59; $i < 64; $i++) {
-                $array[] = chr($i);
-            }
-            
-            for ($i = 91; $i < 96; $i++) {
-                $array[] = chr($i);
-            }
-            
-            for ($i = 123; $i < 126; $i++) {
-                $array[] = chr($i);
-            }
+        for ($i = 65; $i < 90; $i++) {
+            $aArray[] = chr($i);
         }
         
         mt_srand((double)microtime() * 1000000);
-        $password = '';
+        $sPassword = '';
         
-        for ($i = 1; $i <= $length; $i++) {
-            $rnd = mt_rand(0, count($array) - 1);
-            $password.= $array[$rnd];
+        for ($i = 1; $i <= $iLength; $i++) {
+            $iRandomNumber = mt_rand(0, count($aArray) - 1);
+            $sPassword .= $aArray[$iRandomNumber];
         }
         
-        return $password;
+        return $sPassword;
     }
     
     /**
@@ -678,8 +666,8 @@ class UserAccessManager
      */
     public function getAdminOptions()
     {
-        if (empty($this->adminOptions)) {
-            $uamAdminOptions = array(
+        if ($this->_aAdminOptions === null) {
+            $aUamAdminOptions = array(
             	'hide_post_title' => 'false', 
             	'post_title' => __('No rights!', 'user-access-manager'),
             	'post_content' => __(
@@ -726,39 +714,39 @@ class UserAccessManager
             	'full_access_role' => 'administrator'
             );
             
-            $uamOptions = get_option($this->adminOptionsName);
+            $aUamOptions = get_option($this->_sAdminOptionsName);
             
-            if (!empty($uamOptions)) {
-                foreach ($uamOptions as $key => $option) {
-                    $uamAdminOptions[$key] = $option;
+            if (!empty($aUamOptions)) {
+                foreach ($aUamOptions as $sKey => $mOption) {
+                    $aUamAdminOptions[$sKey] = $mOption;
                 }
             }
             
-            update_option($this->adminOptionsName, $uamAdminOptions);
-            $this->adminOptions = $uamAdminOptions;
+            update_option($this->_sAdminOptionsName, $aUamAdminOptions);
+            $this->_aAdminOptions = $aUamAdminOptions;
         }
 
-        return $this->adminOptions;
+        return $this->_aAdminOptions;
     }
 
     /**
-     * Retruns the content of the excecuded php file.
+     * Returns the content of the excluded php file.
      * 
-     * @param string  $fileName   The file name
-     * @param integer $objectId   The id if needed.
-     * @param string  $objectType The object type if needed.
+     * @param string  $sFileName   The file name
+     * @param integer $iObjectId   The _iId if needed.
+     * @param string  $sObjectType The object type if needed.
      * 
      * @return string
      */
-    public function getIncludeContents($fileName, $objectId = null, $objectType = null)
+    public function getIncludeContents($sFileName, $iObjectId = null, $sObjectType = null)
     {
-        if (is_file($fileName)) {
+        if (is_file($sFileName)) {
             ob_start();
-            include $fileName;
-            $contents = ob_get_contents();
+            include $sFileName;
+            $sContents = ob_get_contents();
             ob_end_clean();
             
-            return $contents;
+            return $sContents;
         }
         
         return '';
@@ -767,15 +755,15 @@ class UserAccessManager
     /**
      * Returns the access handler object.
      * 
-     * @return object
+     * @return UamAccessHandler
      */
     public function &getAccessHandler()
     {
-        if ($this->accessHandler == null) {
-            $this->accessHandler = new UamAccessHandler($this);
+        if ($this->_oAccessHandler == null) {
+            $this->_oAccessHandler = new UamAccessHandler($this);
         }
         
-        return $this->accessHandler;
+        return $this->_oAccessHandler;
     }
     
     /**
@@ -785,7 +773,7 @@ class UserAccessManager
      */
     public function getVersion()
     {
-        return $this->uamVersion;
+        return $this->_sUamVersion;
     }
     
     /**
@@ -795,7 +783,7 @@ class UserAccessManager
      */
     public function atAdminPanel()
     {
-        return $this->atAdminPanel;
+        return $this->_blAtAdminPanel;
     }
     
     /**
@@ -805,7 +793,7 @@ class UserAccessManager
      */
     public function setAtAdminPanel()
     {
-        $this->atAdminPanel = true;
+        $this->_blAtAdminPanel = true;
     }
     
     
@@ -816,14 +804,14 @@ class UserAccessManager
     /**
      * Checks if a string starts with the given needle.
      * 
-     * @param string $haystack The haystack.
-     * @param string $needle   The needle
+     * @param string $sHaystack The haystack.
+     * @param string $sNeedle   The needle.
      * 
      * @return boolean
      */
-    public function startsWith($haystack, $needle)
+    public function startsWith($sHaystack, $sNeedle)
     {
-        return strpos($haystack, $needle) === 0;
+        return strpos($sHaystack, $sNeedle) === 0;
     }
     
     
@@ -840,16 +828,16 @@ class UserAccessManager
     {
         wp_enqueue_style(
         	'UserAccessManagerAdmin', 
-            UAM_URLPATH . "css/uamAdmin.css", 
-            false, 
+            UAM_URLPATH . "css/uamAdmin.css",
+            array() ,
             '1.0',
             'screen'
         );
         
         wp_enqueue_style(
         	'UserAccessManagerLoginForm', 
-            UAM_URLPATH . "css/uamLoginForm.css", 
-            false, 
+            UAM_URLPATH . "css/uamLoginForm.css",
+            array() ,
             '1.0',
             'screen'
         );
@@ -875,70 +863,51 @@ class UserAccessManager
     }
     
     /**
-     * Prints the admin page
+     * Prints the admin page.
      * 
      * @return null
      */
     public function printAdminPage()
     {
         if (isset($_GET['page'])) {
-            $curAdminPage = $_GET['page'];
-        }
-        
-        if ($curAdminPage == 'uam_settings') {
-            include UAM_REALPATH."tpl/adminSettings.php";
-        } elseif ($curAdminPage == 'uam_usergroup') {
-            include UAM_REALPATH."tpl/adminGroup.php";
-        } elseif ($curAdminPage == 'uam_setup') {
-            include UAM_REALPATH."tpl/adminSetup.php";
-        } elseif ($curAdminPage == 'uam_about') {
-            include UAM_REALPATH."tpl/about.php";
+            $sAdminPage = $_GET['page'];
+
+            if ($sAdminPage == 'uam_settings') {
+                include UAM_REALPATH."tpl/adminSettings.php";
+            } elseif ($sAdminPage == 'uam_usergroup') {
+                include UAM_REALPATH."tpl/adminGroup.php";
+            } elseif ($sAdminPage == 'uam_setup') {
+                include UAM_REALPATH."tpl/adminSetup.php";
+            } elseif ($sAdminPage == 'uam_about') {
+                include UAM_REALPATH."tpl/about.php";
+            }
         }
     }
     
     /**
-     * Shows the error if the user has no rights to edit the content
+     * Shows the error if the user has no rights to edit the content.
      * 
      * @return null
      */
     public function noRightsToEditContent()
     {
-        $noRights = false;
+        $blNoRights = false;
         
-        if (isset($_GET['post']) 
-            && is_numeric($_GET['post'])
-        ) {
-            $post = get_post($_GET['post']);
-            
-            $noRights = !$this->getAccessHandler()->checkObjectAccess(
-                $post->post_type, 
-                $post->ID
-            ); 
+        if (isset($_GET['post']) && is_numeric($_GET['post'])) {
+            $oPost = get_post($_GET['post']);
+            $blNoRights = !$this->getAccessHandler()->checkObjectAccess( $oPost->post_type, $oPost->ID );
         }
         
-        if (isset($_GET['attachment_id'])
-            && is_numeric($_GET['attachment_id'])
-            && !$noRights
-        ) {
-            $post = get_post($_GET['attachment_id']);
-            
-            $noRights = !$this->getAccessHandler()->checkObjectAccess(
-            	$post->post_type, 
-                $post->ID
-            );
+        if (isset($_GET['attachment_id']) && is_numeric($_GET['attachment_id']) && !$blNoRights) {
+            $oPost = get_post($_GET['attachment_id']);
+            $blNoRights = !$this->getAccessHandler()->checkObjectAccess($oPost->post_type, $oPost->ID);
         }
         
-        if (isset($_GET['tag_ID']) 
-            && is_numeric($_GET['tag_ID'])
-            && !$noRights
-        ) {
-            $noRights = !$this->getAccessHandler()->checkObjectAccess(
-                'category', 
-                $_GET['tag_ID']
-            );
+        if (isset($_GET['tag_ID']) && is_numeric($_GET['tag_ID']) && !$blNoRights) {
+            $blNoRights = !$this->getAccessHandler()->checkObjectAccess('category', $_GET['tag_ID']);
         }
 
-        if ($noRights) {
+        if ($blNoRights) {
             wp_die(TXT_UAM_NO_RIGHTS);
         }
     }
@@ -977,43 +946,38 @@ class UserAccessManager
     /**
      * Saves the object data to the database.
      * 
-     * @param string  $objectType The object type.
-     * @param integer $objectId   The id of the object.
-     * @param array   $userGroups The new usergroups for the object.
+     * @param string  $sObjectType The object type.
+     * @param integer $iObjectId   The _iId of the object.
+     * @param array   $aUserGroups The new usergroups for the object.
      * 
      * @return null
      */
-    private function _saveObjectData($objectType, $objectId, $userGroups = null)
+    protected function _saveObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {        
-        $uamAccessHandler = &$this->getAccessHandler();
-        $uamOptions = $this->getAdminOptions();
+        $oUamAccessHandler = $this->getAccessHandler();
+        $oUamOptions = $this->getAdminOptions();
         
         if (isset($_POST['uam_update_groups'])
-            && ($uamAccessHandler->checkUserAccess('manage_user_groups')
-            || $uamOptions['authors_can_add_posts_to_groups'] == 'true')
+            && ($oUamAccessHandler->checkUserAccess('manage_user_groups')
+            || $oUamOptions['authors_can_add_posts_to_groups'] == 'true')
         ) {            
-            $userGroupsForObject = $uamAccessHandler->getUserGroupsForObject(
-                $objectType, 
-                $objectId
-            );
+            $aUserGroupsForObject = $oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
 
-            foreach ($userGroupsForObject as $uamUserGroup) {
-                $uamUserGroup->removeObject($objectType, $objectId);
-                $uamUserGroup->save();
+            foreach ($aUserGroupsForObject as $oUamUserGroup) {
+                $oUamUserGroup->removeObject($sObjectType, $iObjectId);
+                $oUamUserGroup->save();
             }
             
-            if ($userGroups === null
-                && isset($_POST['uam_usergroups'])
-            ) {
-                $userGroups = $_POST['uam_usergroups'];
+            if ($aUserGroups === null && isset($_POST['uam_usergroups'])) {
+                $aUserGroups = $_POST['uam_usergroups'];
             }
             
-            if ($userGroups !== null) {
-                foreach ($userGroups as $userGroupId) {
-                    $uamUserGroup = $uamAccessHandler->getUserGroups($userGroupId);
+            if ($aUserGroups !== null) {
+                foreach ($aUserGroups as $iUserGroupId) {
+                    $oUamUserGroup = $oUamAccessHandler->getUserGroups($iUserGroupId);
     
-                    $uamUserGroup->addObject($objectType, $objectId);
-                    $uamUserGroup->save();
+                    $oUamUserGroup->addObject($sObjectType, $iObjectId);
+                    $oUamUserGroup->save();
                 }
             }
         }
@@ -1028,76 +992,70 @@ class UserAccessManager
      * The function for the manage_posts_columns and 
      * the manage_pages_columns filter.
      * 
-     * @param array $defaults The table headers.
+     * @param array $aDefaults The table headers.
      * 
      * @return array
      */
-    public function addPostColumnsHeader($defaults)
+    public function addPostColumnsHeader($aDefaults)
     {
-        $defaults['uam_access'] = __('Access', 'user-access-manager');
-        return $defaults;
+        $aDefaults['uam_access'] = __('Access', 'user-access-manager');
+        return $aDefaults;
     }
     
     /**
      * The function for the manage_users_custom_column action.
      * 
-     * @param string  $columnName The column name.
-     * @param integer $id         The id.
+     * @param string  $sColumnName The column name.
+     * @param integer $iId         The _iId.
      * 
-     * @return String
+     * @return string
      */
-    public function addPostColumn($columnName, $id)
+    public function addPostColumn($sColumnName, $iId)
     {
-        if ($columnName == 'uam_access') {
-            $post = get_post($id);
-            
-            echo $this->getIncludeContents(
-                UAM_REALPATH.'tpl/objectColumn.php', 
-                $post->ID, 
-                $post->post_type
-            );
+        if ($sColumnName == 'uam_access') {
+            $oPost = get_post($iId);
+            echo $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $oPost->ID, $oPost->post_type);
         }
     }
     
     /**
      * The function for the uma_post_access metabox.
      * 
-     * @param object $post The post.
+     * @param object $oPost The post.
      * 
      * @return null;
      */
-    public function editPostContent($post)
+    public function editPostContent($oPost)
     {
-        $objectId = $post->ID;
-        
+        $iObjectId = $oPost->ID;
         include UAM_REALPATH.'tpl/postEditForm.php';
     }
     
     /**
      * The function for the save_post action.
      * 
-     * @param mixed $postParam The post id or a array of a post.
+     * @param mixed $mPostParam The post _iId or a array of a post.
      * 
      * @return null
      */    
-    public function savePostData($postParam)
+    public function savePostData($mPostParam)
     {
-        if (is_array($postParam)) {
-            $post = get_post($postParam['ID']);
+        if (is_array($mPostParam)) {
+            $oPost = get_post($mPostParam['ID']);
         } else {
-            $post = get_post($postParam);
+            $oPost = get_post($mPostParam);
         }
         
-        $postId = $post->ID;
-        $postType = $post->post_type;
+        $iPostId = $oPost->ID;
+        $sPostType = $oPost->post_type;
         
-        if ($postType == 'revision') {
-            $postId = $post->post_parent;
-            $parentPost = get_post($postId);
-            $postType = $parentPost->post_type;
+        if ($sPostType == 'revision') {
+            $iPostId = $oPost->post_parent;
+            $oParentPost = get_post($iPostId);
+            $sPostType = $oParentPost->post_type;
         }
         
-        $this->_saveObjectData($postType, $postId);
+        $this->_saveObjectData($sPostType, $iPostId);
     }
 
     /**
@@ -1105,58 +1063,58 @@ class UserAccessManager
      * We have to use this because the attachment actions work
      * not in the way we need.
      * 
-     * @param object $attachment The attachment id.
+     * @param object $oAttachment The attachment _iId.
      * 
      * @return object
      */    
-    public function saveAttachmentData($attachment)
+    public function saveAttachmentData($oAttachment)
     {
-        $this->savePostData($attachment['ID']);
+        $this->savePostData($oAttachment['ID']);
         
-        return $attachment;
+        return $oAttachment;
     }
     
     /**
      * The function for the delete_post action.
      * 
-     * @param integer $postId The post id.
+     * @param integer $iPostId The post _iId.
      * 
      * @return null
      */
-    public function removePostData($postId)
+    public function removePostData($iPostId)
     {
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
-        $post = get_post($postId);
+        $oPost = get_post($iPostId);
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-        	WHERE object_id = '".$postId."'
-        		AND object_type = '".$post->post_type."'"
+        	WHERE object_id = '".$iPostId."'
+        		AND object_type = '".$oPost->post_type."'"
         );
     }
     
     /**
      * The function for the media_meta action.
      * 
-     * @param string $meta The meta.
-     * @param object $post The post.
+     * @param string $sMeta The meta.
+     * @param object $oPost The post.
      * 
      * @return string
      */
-    public function showMediaFile($meta = '', $post = null)
+    public function showMediaFile($sMeta = '', $oPost = null)
     {  
-        $content = $meta;
-        $content .= '</td></tr><tr>';
-        $content .= '<th class="label">';
-        $content .= '<label>'.TXT_UAM_SET_UP_USERGROUPS.'</label>';
-        $content .= '</th>';
-        $content .= '<td class="field">';
-        $content .= $this->getIncludeContents(
-            UAM_REALPATH.'tpl/postEditForm.php',
-            $post->ID
-        );
+        $sContent = $sMeta;
+        $sContent .= '</td></tr><tr>';
+        $sContent .= '<th class="label">';
+        $sContent .= '<label>'.TXT_UAM_SET_UP_USERGROUPS.'</label>';
+        $sContent .= '</th>';
+        $sContent .= '<td class="field">';
+        $sContent .= $this->getIncludeContents(UAM_REALPATH.'tpl/postEditForm.php', $oPost->ID);
         
-        return $content;
+        return $sContent;
     }
     
     
@@ -1167,34 +1125,32 @@ class UserAccessManager
     /**
      * The function for the manage_users_columns filter.
      * 
-     * @param array $defaults The table headers.
+     * @param array $aDefaults The table headers.
      * 
      * @return array
      */
-    public function addUserColumnsHeader($defaults)
+    public function addUserColumnsHeader($aDefaults)
     {
-        $defaults['uam_access'] = __('uam user groups');
-        return $defaults;
+        $aDefaults['uam_access'] = __('uam user groups');
+        return $aDefaults;
     }
     
     /**
      * The function for the manage_users_custom_column action.
      * 
-     * @param unknown $empty      An empty string from wordpress? What the hell?!?
-     * @param string  $columnName The column name.
-     * @param integer $id         The id.
+     * @param string  $sEmpty      An empty string from wordpress? What the hell?!?
+     * @param string  $sColumnName The column name.
+     * @param integer $iId         The _iId.
      * 
-     * @return String
+     * @return string|null
      */
-    public function addUserColumn($empty, $columnName, $id)
+    public function addUserColumn($sEmpty, $sColumnName, $iId)
     {
-        if ($columnName == 'uam_access') {
-            return $this->getIncludeContents(
-                UAM_REALPATH.'tpl/userColumn.php', 
-                $id,
-                'user'
-            );
+        if ($sColumnName == 'uam_access') {
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php', $iId, 'user');
         }
+
+        return null;
     }
     
     /**
@@ -1210,29 +1166,32 @@ class UserAccessManager
     /**
      * The function for the profile_update action.
      * 
-     * @param integer $userId The user id.
+     * @param integer $iUserId The user _iId.
      * 
      * @return null
      */
-    public function saveUserData($userId)
+    public function saveUserData($iUserId)
     {        
-        $this->_saveObjectData('user', $userId);
+        $this->_saveObjectData('user', $iUserId);
     }
     
     /**
      * The function for the delete_user action.
      * 
-     * @param integer $userId The user id.
+     * @param integer $iUserId The user _iId.
      * 
      * @return null
      */
-    public function removeUserData($userId)
+    public function removeUserData($iUserId)
     {
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
 
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-        	WHERE object_id = ".$userId."
+        	WHERE object_id = ".$iUserId."
                 AND object_type = 'user'"
         );
     }
@@ -1245,44 +1204,42 @@ class UserAccessManager
     /**
      * The function for the manage_categories_columns filter.
      * 
-     * @param array $defaults The table headers.
+     * @param array $aDefaults The table headers.
      * 
      * @return array
      */
-    public function addCategoryColumnsHeader($defaults)
+    public function addCategoryColumnsHeader($aDefaults)
     {
-        $defaults['uam_access'] = __('Access', 'user-access-manager');
-        return $defaults;
+        $aDefaults['uam_access'] = __('Access', 'user-access-manager');
+        return $aDefaults;
     }
     
     /**
      * The function for the manage_categories_custom_column action.
      * 
-     * @param unknown $empty      An empty string from wordpress? What the hell?!?
-     * @param string  $columnName The column name.
-     * @param integer $id         The id.
+     * @param string  $sEmpty      An empty string from wordpress? What the hell?!?
+     * @param string  $sColumnName The column name.
+     * @param integer $iId         The _iId.
      * 
-     * @return String
+     * @return string|null
      */
-    public function addCategoryColumn($empty, $columnName, $id)
+    public function addCategoryColumn($sEmpty, $sColumnName, $iId)
     {
-        if ($columnName == 'uam_access') {
-            return $this->getIncludeContents(
-                UAM_REALPATH.'tpl/objectColumn.php', 
-                $id,
-                'category'
-            );
+        if ($sColumnName == 'uam_access') {
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, 'category');
         }
+
+        return null;
     }
     
     /**
      * The function for the edit_category_form action.
      * 
-     * @param object $category The category.
+     * @param object $oCategory The category.
      * 
      * @return null
      */
-    public function showCategoryEditForm($category)
+    public function showCategoryEditForm($oCategory)
     {
         include UAM_REALPATH.'tpl/categoryEditForm.php';
     }
@@ -1290,30 +1247,32 @@ class UserAccessManager
     /**
      * The function for the edit_category action.
      * 
-     * @param integer $categoryId The category id.
+     * @param integer $iCategoryId The category _iId.
      * 
      * @return null
      */
-    public function saveCategoryData($categoryId)
+    public function saveCategoryData($iCategoryId)
     {
-        $this->_saveObjectData('category', $categoryId);
+        $this->_saveObjectData('category', $iCategoryId);
     }
     
     /**
      * The function for the delete_category action.
      * 
-     * @param integer $categoryId The id of the category.
+     * @param integer $iCategoryId The _iId of the category.
      * 
      * @return null
      */
-    public function removeCategoryData($categoryId)
+    public function removeCategoryData($iCategoryId)
     {
-        //TODO
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
         
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-        	WHERE object_id = ".$categoryId."
+        	WHERE object_id = ".$iCategoryId."
         		AND object_type = 'category'"
         );
     }
@@ -1326,61 +1285,61 @@ class UserAccessManager
     /**
      * The function for the pluggable save action.
      * 
-     * @param string  $objectType The name of the pluggable object.
-     * @param integer $objectId   The pluggable object id.
-     * @param array	  $userGroups The user groups for the object.
+     * @param string  $sObjectType The name of the pluggable object.
+     * @param integer $iObjectId   The pluggable object _iId.
+     * @param array	  $aUserGroups The user groups for the object.
      * 
      * @return null
      */
-    public function savePlObjectData($objectType, $objectId, $userGroups = null)
+    public function savePlObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {
-        $this->_saveObjectData($objectType, $objectId, $userGroups);
+        $this->_saveObjectData($sObjectType, $iObjectId, $aUserGroups);
     }
     
     /**
      * The function for the pluggable remove action.
      * 
-     * @param string  $objectName The name of the pluggable object.
-     * @param integer $objectId   The pluggable object id.
+     * @param string  $sObjectName The name of the pluggable object.
+     * @param integer $iObjectId   The pluggable object _iId.
      * 
      * @return null
      */
-    public function removePlObjectData($objectName, $objectId)
+    public function removePlObjectData($sObjectName, $iObjectId)
     {
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
 
         $wpdb->query(
         	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-        	WHERE user_id = ".$userId."
-                AND object_type = ".$objectName
+        	WHERE object_id = ".$iObjectId."
+                AND object_type = ".$sObjectName
         );
     }
     
     /**
-     * Returns the group selection form for pluggable objects.
+     * Returns the group selection form for pluggable _aObjects.
      * 
-     * @param string  $objectType     The object type.
-     * @param integer $objectId       The id of the object.
-     * @param string  $groupsFormName The name of the form which contains the groups.
+     * @param string  $sObjectType     The object type.
+     * @param integer $iObjectId       The _iId of the object.
+     * @param string  $aGroupsFormName The name of the form which contains the groups.
      * 
      * @return string;
      */
-    public function showPlGroupSelectionForm($objectType, $objectId, $groupsFormName = null)
-    {   
-        $fileName = UAM_REALPATH.'tpl/groupSelectionForm.php';
-        $uamUserGroups = $this->getAccessHandler()->getUserGroups();
-        $userGroupsForObject = $this->getAccessHandler()->getUserGroupsForObject(
-        	$objectType, 
-            $objectId
-        );
+    public function showPlGroupSelectionForm($sObjectType, $iObjectId, $aGroupsFormName = null)
+    {
+        $sFileName = UAM_REALPATH.'tpl/groupSelectionForm.php';
+        $aUamUserGroups = $this->getAccessHandler()->getUserGroups();
+        $aUserGroupsForObject = $this->getAccessHandler()->getUserGroupsForObject($sObjectType, $iObjectId);
         
-        if (is_file($fileName)) {
+        if (is_file($sFileName)) {
             ob_start();
-            include $fileName;
-            $contents = ob_get_contents();
+            include $sFileName;
+            $sContents = ob_get_contents();
             ob_end_clean();
             
-            return $contents;
+            return $sContents;
         }
         
         return '';
@@ -1389,18 +1348,14 @@ class UserAccessManager
     /**
      * Returns the column for a pluggable object.
      * 
-     * @param string  $objectType The object type.
-     * @param integer $objectId   The object id.
+     * @param string  $sObjectType The object type.
+     * @param integer $iObjectId   The object _iId.
      * 
      * @return string
      */
-    public function getPlColumn($objectType, $objectId)
+    public function getPlColumn($sObjectType, $iObjectId)
     {
-        return $this->getIncludeContents(
-            UAM_REALPATH.'tpl/objectColumn.php', 
-            $objectId, 
-            $objectType
-        );
+        return $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iObjectId, $sObjectType);
     }
     
     
@@ -1411,22 +1366,22 @@ class UserAccessManager
     /**
      * Manipulates the wordpress query object to filter content.
      * 
-     * @param object $wpQuery The wordpress query object.
+     * @param object $oWpQuery The wordpress query object.
      * 
      * @return null
      */
-    public function parseQuery($wpQuery)
+    public function parseQuery($oWpQuery)
     {
-        $uamOptions = $this->getAdminOptions();
+        $aUamOptions = $this->getAdminOptions();
         
-        if ($uamOptions['hide_post'] == 'true') {
-            $uamAccessHandler = &$this->getAccessHandler();
-            $excludedPosts = $uamAccessHandler->getExcludedPosts();
+        if ($aUamOptions['hide_post'] == 'true') {
+            $oUamAccessHandler = $this->getAccessHandler();
+            $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
             
-            if (count($excludedPosts) > 0) {
-                $wpQuery->query_vars['post__not_in'] = array_merge(
-                    $wpQuery->query_vars['post__not_in'],
-                    $excludedPosts
+            if (count($aExcludedPosts) > 0) {
+                $oWpQuery->query_vars['post__not_in'] = array_merge(
+                    $oWpQuery->query_vars['post__not_in'],
+                    $aExcludedPosts
                 );
             }
         }
@@ -1435,74 +1390,58 @@ class UserAccessManager
     /**
      * Modifies the content of the post by the given settings.
      * 
-     * @param object $post The current post.
+     * @param object $oPost The current post.
      * 
-     * @return object
+     * @return object|null
      */
-    private function _getPost($post)
+    protected function _getPost($oPost)
     {
-        $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = &$this->getAccessHandler();
+        $aUamOptions = $this->getAdminOptions();
+        $oUamAccessHandler = $this->getAccessHandler();
         
-        $postType = $post->post_type;
-        
-        $postableTypes = $uamAccessHandler->getPostableTypes();
+        $sPostType = $oPost->post_type;
+        $aPostableTypes = $oUamAccessHandler->getPostableTypes();
 
-        if (in_array($postType, $postableTypes)
-        	&& $postType != 'post' 
-        	&& $postType != 'page'
-        ) {
-            $postType = 'post';
-        } elseif ($postType != 'post' && $postType != 'page') {
-            return $post;
+        if (in_array($sPostType, $aPostableTypes) && $sPostType != 'post' && $sPostType != 'page') {
+            $sPostType = 'post';
+        } elseif ($sPostType != 'post' && $sPostType != 'page') {
+            return $oPost;
         }
         
-        if ($uamOptions['hide_'.$postType] == 'true'
-            || $this->atAdminPanel()
-        ) {
-            if ($uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)) {
-                $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
-                
-                return $post;
+        if ($aUamOptions['hide_'.$sPostType] == 'true' || $this->atAdminPanel()) {
+            if ($oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
+                $oPost->post_title .= $this->adminOutput($oPost->post_type, $oPost->ID);
+                return $oPost;
             }
         } else {
-            if (!$uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)) {
-                $post->isLocked = true;
+            if (!$oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
+                $oPost->isLocked = true;
                 
-                $uamPostContent = $uamOptions[$postType.'_content'];
-                $uamPostContent = str_replace(
-                	"[LOGIN_FORM]", 
-                    $this->getLoginBarHtml(), 
-                    $uamPostContent
-                );
+                $sUamPostContent = $aUamOptions[$sPostType.'_content'];
+                $sUamPostContent = str_replace("[LOGIN_FORM]",  $this->getLoginBarHtml(), $sUamPostContent);
                 
-                if ($uamOptions['hide_'.$postType.'_title'] == 'true') {
-                    $post->post_title = $uamOptions[$postType.'_title'];
+                if ($aUamOptions['hide_'.$sPostType.'_title'] == 'true') {
+                    $oPost->post_title = $aUamOptions[$sPostType.'_title'];
                 }
                 
-                if ($uamOptions[$postType.'_comments_locked'] == 'false') {
-                    $post->comment_status = 'close';
+                if ($aUamOptions[$sPostType.'_comments_locked'] == 'false') {
+                    $oPost->comment_status = 'close';
                 }
 
-                if ($uamOptions['show_post_content_before_more'] == 'true'
-                	&& $postType == "post"
-                    && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
+                if ($aUamOptions['show_post_content_before_more'] == 'true'
+                	&& $sPostType == "post"
+                    && preg_match('/<!--more(.*?)?-->/', $oPost->post_content, $aMatches)
                 ) {
-                    $post->post_content = explode(
-                        $matches[0], 
-                        $post->post_content, 
-                        2
-                    );
-                    $uamPostContent 
-                        = $post->post_content[0] . " " . $uamPostContent;
-                } 
-                
-                $post->post_content = $uamPostContent;
+                    $oPost->post_content = explode($aMatches[0], $oPost->post_content, 2);
+                    $sUamPostContent = $oPost->post_content[0] . " " . $sUamPostContent;
+                }
+
+                $oPost->post_content = $sUamPostContent;
             }
+
+            $oPost->post_title .= $this->adminOutput($oPost->post_type, $oPost->ID);
             
-            $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
-            
-            return $post;
+            return $oPost;
         }
         
         return null;
@@ -1511,279 +1450,261 @@ class UserAccessManager
     /**
      * The function for the the_posts filter.
      * 
-     * @param arrray $posts The posts.
+     * @param array $aPosts The posts.
      * 
      * @return array
      */
-    public function showPost($posts = array())
+    public function showPost($aPosts = array())
     {
-        $showPosts = array();
-        $uamOptions = $this->getAdminOptions();
+        $aShowPosts = array();
+        $aUamOptions = $this->getAdminOptions();
         
-        if (!is_feed() 
-            || ($uamOptions['protect_feed'] == 'true' && is_feed())
-        ) {
-            foreach ($posts as $post) {
-                if ($post !== null) {
-                    $post = $this->_getPost($post);
-                }
-                
-                if ($post !== null) {
-                    $showPosts[] = $post;
+        if (!is_feed() || ($aUamOptions['protect_feed'] == 'true' && is_feed())) {
+            foreach ($aPosts as $iPostId) {
+                if ($iPostId !== null) {
+                    $oPost = $this->_getPost($iPostId);
+
+                    if ($oPost !== null) {
+                        $aShowPosts[] = $oPost;
+                    }
                 }
             }
-            
-            $posts = $showPosts;
+
+            $aPosts = $aShowPosts;
         }
         
-        return $posts;
+        return $aPosts;
     }
     
     /**
      * The function for the posts_where_paged filter.
      * 
-     * @param string $sql The where sql statment.
+     * @param string $sSql The where sql statement.
      * 
      * @return string
      */
-    public function showPostSql($sql)
+    public function showPostSql($sSql)
     {   
-        $uamAccessHandler = &$this->getAccessHandler();
-        $uamOptions = $this->getAdminOptions();
+        $oUamAccessHandler = $this->getAccessHandler();
+        $aUamOptions = $this->getAdminOptions();
         
-        if ($uamOptions['hide_post'] == 'true') {
+        if ($aUamOptions['hide_post'] == 'true') {
             global $wpdb;
-            $excludedPosts = $uamAccessHandler->getExcludedPosts();
+            $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
             
-            if (count($excludedPosts) > 0) {
-                $excludedPostsStr = implode(",", $excludedPosts);
-                $sql .= " AND $wpdb->posts.ID NOT IN($excludedPostsStr) ";
+            if (count($aExcludedPosts) > 0) {
+                $sExcludedPostsStr = implode(",", $aExcludedPosts);
+                $sSql .= " AND $wpdb->posts.ID NOT IN($sExcludedPostsStr) ";
             }
         }
         
-        return $sql;
+        return $sSql;
     }
     
     /**
      * The function for the wp_get_nav_menu_items filter.
      * 
-     * @param array $items The menu item.
+     * @param array $aItems The menu item.
      * 
      * @return array
      */
-    public function showCustomMenu($items)
+    public function showCustomMenu($aItems)
     {
-        $showItems = array();
+        $aShowItems = array();
         
-        foreach ($items as $item) {            
-            if ($item->object == 'post'
-                || $item->object == 'page'
-            ) {
-                $object = get_post($item->object_id);
+        foreach ($aItems as $oItem) {
+            if ($oItem->object == 'post' || $oItem->object == 'page') {
+                $oObject = get_post($oItem->object_id);
               
-                if ($object !== null) {
-                    $post = $this->_getPost($object);
-                }
-   
-                if ($post !== null) {
-                    if (isset($post->isLocked)) {
-                        $item->title = $post->post_title;
+                if ($oObject !== null) {
+                    $oPost = $this->_getPost($oObject);
+
+                    if ($oPost !== null) {
+                        if (isset($oPost->isLocked)) {
+                            $oItem->title = $oPost->post_title;
+                        }
+
+                        $oItem->title .= $this->adminOutput($oItem->object, $oItem->object_id);
+                        $aShowItems[] = $oItem;
                     }
-
-                    $item->title .= $this->adminOutput(
-                        $item->object, 
-                        $item->object_id
-                    );
-                    
-                    $showItems[] = $item;
                 }
-            } elseif ($item->object == 'category') {
-                $object = get_category($item->object_id);
-                $category = $this->_getTerm('category', $object);
+            } elseif ($oItem->object == 'category') {
+                $oObject = get_category($oItem->object_id);
+                $oCategory = $this->_getTerm('category', $oObject);
 
-                if ($category !== null
-                    && !$category->isEmpty
-                ) {
-                    $item->title .= $this->adminOutput(
-                        $item->object, 
-                        $item->object_id
-                    );
-                    $showItems[] = $item;
+                if ($oCategory !== null && !$oCategory->isEmpty) {
+                    $oItem->title .= $this->adminOutput($oItem->object, $oItem->object_id);
+                    $aShowItems[] = $oItem;
                 }
             } else {
-                $showItems[] = $item;
+                $aShowItems[] = $oItem;
             }
         }
         
-        return $showItems;
+        return $aShowItems;
     }
     
     /**
      * The function for the comments_array filter.
      * 
-     * @param array $comments The comments.
+     * @param array $aComments The comments.
      * 
      * @return array
      */
-    public function showComment($comments = array())
+    public function showComment($aComments = array())
     {
-        $showComments = array();
-        $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = &$this->getAccessHandler();
+        $aShowComments = array();
+        $aUamOptions = $this->getAdminOptions();
+        $oUamAccessHandler = $this->getAccessHandler();
         
-        foreach ($comments as $comment) {
-            $post = get_post($comment->comment_post_ID);
-            $postType = $post->post_type;
+        foreach ($aComments as $oComment) {
+            $oPost = get_post($oComment->comment_post_ID);
+            $sPostType = $oPost->post_type;
             
-            if ($uamOptions['hide_'.$postType.'_comment'] == 'true' 
-                || $uamOptions['hide_'.$postType] == 'true' 
+            if ($aUamOptions['hide_'.$sPostType.'_comment'] == 'true'
+                || $aUamOptions['hide_'.$sPostType] == 'true'
                 || $this->atAdminPanel()
             ) {
-                if ($uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)) {
-                    $showComments[] = $comment;
+                if ($oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
+                    $aShowComments[] = $oComment;
                 }
             } else {
-                if (!$uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)) {
-                    $comment->comment_content 
-                        = $uamOptions[$postType.'_comment_content'];
+                if (!$oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
+                    $oComment->comment_content = $aUamOptions[$sPostType.'_comment_content'];
                 }
                 
-                $showComments[] = $comment;
+                $aShowComments[] = $oComment;
             }
         }
         
-        $comments = $showComments;
+        $aComments = $aShowComments;
         
-        return $comments;
+        return $aComments;
     }
     
     /**
      * The function for the get_pages filter.
      * 
-     * @param array $pages The pages.
+     * @param array $aPages The pages.
      * 
      * @return array
      */
-    public function showPage($pages = array())
+    public function showPage($aPages = array())
     {
-        $showPages = array();
-        $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = &$this->getAccessHandler();
+        $aShowPages = array();
+        $aUamOptions = $this->getAdminOptions();
+        $oUamAccessHandler = $this->getAccessHandler();
         
-        foreach ($pages as $page) {
-            if ($uamOptions['hide_page'] == 'true' 
+        foreach ($aPages as $oPage) {
+            if ($aUamOptions['hide_page'] == 'true'
                 || $this->atAdminPanel()
             ) {
-                if ($uamAccessHandler->checkObjectAccess($page->post_type, $page->ID)) {
-                    $page->post_title .= $this->adminOutput(
-                        $page->post_type, 
-                        $page->ID
+                if ($oUamAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID)) {
+                    $oPage->post_title .= $this->adminOutput(
+                        $oPage->post_type,
+                        $oPage->ID
                     );
-                    $showPages[] = $page;
+                    $aShowPages[] = $oPage;
                 }
             } else {
-                if (!$uamAccessHandler->checkObjectAccess($page->post_type, $page->ID)) {
-                    if ($uamOptions['hide_page_title'] == 'true') {
-                        $page->post_title = $uamOptions['page_title'];
+                if (!$oUamAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID)) {
+                    if ($aUamOptions['hide_page_title'] == 'true') {
+                        $oPage->post_title = $aUamOptions['page_title'];
                     }
-                    
-                    $page->post_content = $uamOptions['page_content'];
+
+                    $oPage->post_content = $aUamOptions['page_content'];
                 }
-                
-                $page->post_title .= $this->adminOutput($page->post_type, $page->ID);
-                $showPages[] = $page;
+
+                $oPage->post_title .= $this->adminOutput($oPage->post_type, $oPage->ID);
+                $aShowPages[] = $oPage;
             }
         }
         
-        $pages = $showPages;
+        $aPages = $aShowPages;
         
-        return $pages;
+        return $aPages;
     }
     
     /**
      * Modifies the content of the term by the given settings.
      * 
-     * @param string $termType The type of the term.
-     * @param object $term     The current term.
+     * @param string $sTermType The type of the term.
+     * @param object $oTerm     The current term.
      * 
-     * @return object
+     * @return object|null
      */
-    private function _getTerm($termType, $term)
+    protected function _getTerm($sTermType, $oTerm)
     {
-        $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = &$this->getAccessHandler();
+        $aUamOptions = $this->getAdminOptions();
+        $oUamAccessHandler = $this->getAccessHandler();
         
-        $term->isEmpty = false;
+        $oTerm->isEmpty = false;
         
-        $term->name .= $this->adminOutput('term', $term->term_id);
+        $oTerm->name .= $this->adminOutput('term', $oTerm->term_id);
         
-        if ($termType == 'post_tag'
-            || $termType == 'category'
-            && $uamAccessHandler->checkObjectAccess('category', $term->term_id)
+        if ($sTermType == 'post_tag'
+            || $sTermType == 'category'
+            && $oUamAccessHandler->checkObjectAccess('category', $oTerm->term_id)
         ) {
             if ($this->atAdminPanel() == false
-                && ($uamOptions['hide_post'] == 'true'
-                || $uamOptions['hide_page'] == 'true')
+                && ($aUamOptions['hide_post'] == 'true'
+                || $aUamOptions['hide_page'] == 'true')
             ) {
-                $termRequest = $term->term_id;
-                $termRequestType = $termType;
+                $iTermRequest = $oTerm->term_id;
+                $sTermRequestType = $sTermType;
                 
-                if ($termType == 'post_tag') {
-                    $termRequest = $term->slug;
-                    $termRequestType = 'tag';
+                if ($sTermType == 'post_tag') {
+                    $iTermRequest = $oTerm->slug;
+                    $sTermRequestType = 'tag';
                 }
                 
-                $args = array(
+                $aArgs = array(
                 	'numberposts' => - 1,
-                    $termRequestType => $termRequest
+                    $sTermRequestType => $iTermRequest
                 );
                 
-                $termPosts = get_posts($args);
-                $term->count = count($termPosts);
+                $aTermPosts = get_posts($aArgs);
+                $oTerm->count = count($aTermPosts);
                 
-                if (isset($termPosts)) {
-                    foreach ($termPosts as $post) {
-                        if ($uamOptions['hide_'.$post->post_type] == 'true'
-                            && !$uamAccessHandler->checkObjectAccess($post->post_type, $post->ID)
+                if (isset($aTermPosts)) {
+                    foreach ($aTermPosts as $oPost) {
+                        if ($aUamOptions['hide_'.$oPost->post_type] == 'true'
+                            && !$oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)
                         ) {
-                            $term->count--;
+                            $oTerm->count--;
                         }
                     }
                 }
                 
                 //For post_tags
-                if ($termType == 'post_tag'
-                	&& $term->count <= 0
-        	    ) {
+                if ($sTermType == 'post_tag' && $oTerm->count <= 0) {
         	        return null;
         	    }
                 
         	    //For categories
-                if ($term->count <= 0 
-                    && $uamOptions['hide_empty_categories'] == 'true'
-                    && ($term->taxonomy == "term"
-                    || $term->taxonomy == "category")
+                if ($oTerm->count <= 0
+                    && $aUamOptions['hide_empty_categories'] == 'true'
+                    && ($oTerm->taxonomy == "term"
+                    || $oTerm->taxonomy == "category")
                 ) {
-                    $term->isEmpty = true;
+                    $oTerm->isEmpty = true;
                 }
                 
-                if ($uamOptions['lock_recursive'] == 'false') {
-                    $curCategory = $term;
+                if ($aUamOptions['lock_recursive'] == 'false') {
+                    $oCurCategory = $oTerm;
                     
-                    while ($curCategory->parent != 0) {
-                        $curCategory = get_term($curCategory->parent, 'category');
+                    while ($oCurCategory->parent != 0) {
+                        $oCurCategory = get_term($oCurCategory->parent, 'category');
                         
-                        if ($uamAccessHandler->checkObjectAccess('term', $curCategory->term_id)) {
-                            $term->parent = $curCategory->term_id;
+                        if ($oUamAccessHandler->checkObjectAccess('term', $oCurCategory->term_id)) {
+                            $oTerm->parent = $oCurCategory->term_id;
                             break;
                         }
                     }
                 }
-                
-                return $term;
-            } else {
-                return $term;
-            } 
+            }
+
+            return $oTerm;
         }
         
         return null;
@@ -1792,135 +1713,124 @@ class UserAccessManager
     /**
      * The function for the get_terms filter.
      * 
-     * @param array $terms The terms.
-     * @param array $args  The given arguments.
+     * @param array $aTerms The terms.
+     * @param array $aArgs  The given arguments.
      * 
      * @return array
      */
-    public function showTerms($terms = array(), $args = array())
+    public function showTerms($aTerms = array(), $aArgs = array())
     {
-        $uamOptions = $this->getAdminOptions();
-        $uamAccessHandler = &$this->getAccessHandler();
-        
-        $showTerms = array();
+        $aShowTerms = array();
 
-        $uamOptions = $this->getAdminOptions();
-
-        foreach ($terms as $term) {
-            if (!is_object($term)) {
-                return $terms;
+        foreach ($aTerms as $oTerm) {
+            if (!is_object($oTerm)) {
+                return $aTerms;
             }
 
-            if ($term->taxonomy == 'category') {
-                $term = $this->_getTerm('category', $term);
-            } elseif ($term->taxonomy == 'post_tag') {
-                $term = $this->_getTerm('post_tag', $term);
+            if ($oTerm->taxonomy == 'category'  || $oTerm->taxonomy == 'post_tag') {
+                $oTerm = $this->_getTerm($oTerm->taxonomy, $oTerm);
             }
 
-            if ($term !== null) {
-                if (!isset($term->isEmpty)
-                    || !$term->isEmpty
-                ) {
-                    $showTerms[$term->term_id] = $term;
-                }
+            if ($oTerm !== null && (!isset($oTerm->isEmpty) || !$oTerm->isEmpty)) {
+                $aShowTerms[$oTerm->term_id] = $oTerm;
             }
         }
         
-        foreach ($terms as $key => $term) {
-            if (!array_key_exists($term->term_id, $showTerms)) {
-                unset($terms[$key]);
+        foreach ($aTerms as $sKey => $oTerm) {
+            if (!array_key_exists($oTerm->term_id, $aShowTerms)) {
+                unset($aTerms[$sKey]);
             }
         }
         
-        return $terms;
+        return $aTerms;
     }
     
     /**
      * The function for the get_previous_post_where and 
      * the get_next_post_where filter.
      * 
-     * @param string $sql The current sql string.
+     * @param string $sSql The current sql string.
      * 
      * @return string
      */
-    public function showNextPreviousPost($sql)
+    public function showNextPreviousPost($sSql)
     {
-        $uamAccessHandler = &$this->getAccessHandler();
-        $uamOptions = $this->getAdminOptions();
+        $oUamAccessHandler = $this->getAccessHandler();
+        $aUamOptions = $this->getAdminOptions();
         
-        if ($uamOptions['hide_post'] == 'true') {
-            $excludedPosts = $uamAccessHandler->getExcludedPosts();
+        if ($aUamOptions['hide_post'] == 'true') {
+            $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
             
-            if (count($excludedPosts) > 0) {
-                $excludedPostsStr = implode(",", $excludedPosts);
-                $sql.= " AND p.ID NOT IN($excludedPostsStr) ";
+            if (count($aExcludedPosts) > 0) {
+                $sExcludedPosts = implode(",", $aExcludedPosts);
+                $sSql.= " AND p.ID NOT IN($sExcludedPosts) ";
             }
         }
         
-        return $sql;
+        return $sSql;
     }
      
     /**
      * Returns the admin hint.
      * 
-     * @param string  $objectType The object type.
-     * @param integer $objectId   The object id we want to check.
+     * @param string  $sObjectType The object type.
+     * @param integer $iObjectId   The object _iId we want to check.
      * 
      * @return string
      */
-    public function adminOutput($objectType, $objectId)
+    public function adminOutput($sObjectType, $iObjectId)
     {
-        $output = "";
+        $sOutput = "";
         
         if (!$this->atAdminPanel()) {
-            $uamOptions = $this->getAdminOptions();
+            $aUamOptions = $this->getAdminOptions();
             
-            if ($uamOptions['blog_admin_hint'] == 'true') {
+            if ($aUamOptions['blog_admin_hint'] == 'true') {
                 global $current_user;
                 
-                $curUserdata = get_userdata($current_user->ID);
+                $oUserData = get_userdata($current_user->ID);
 
-                if (!isset($curUserdata->user_level)) {
-                    return $output;
+                if (!isset($oUserData->user_level)) {
+                    return $sOutput;
                 }
                 
-                $uamAccessHandler = &$this->getAccessHandler();
+                $oUamAccessHandler = $this->getAccessHandler();
                 
-                if ($uamAccessHandler->userIsAdmin($current_user->ID)
-                    && count($uamAccessHandler->getUserGroupsForObject($objectType, $objectId)) > 0
+                if ($oUamAccessHandler->userIsAdmin($current_user->ID)
+                    && count($oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId)) > 0
                 ) {
-                    $output .= $uamOptions['blog_admin_hint_text'];
+                    $sOutput .= $aUamOptions['blog_admin_hint_text'];
                 }
             }
         }
         
-        return $output;
+        return $sOutput;
     }
     
     /**
      * The function for the edit_post_link filter.
      * 
-     * @param string  $link   The edit link.
-     * @param integer $postId The id of the post.
+     * @param string  $sLink   The edit link.
+     * @param integer $iPostId The _iId of the post.
      * 
      * @return string
      */
-    public function showGroupMembership($link, $postId)
+    public function showGroupMembership($sLink, $iPostId)
     {
-        $uamAccessHandler = &$this->getAccessHandler();
-        $groups = $uamAccessHandler->getUserGroupsForObject('post', $postId);
+        $oUamAccessHandler = $this->getAccessHandler();
+        $aGroups = $oUamAccessHandler->getUserGroupsForObject('post', $iPostId);
         
-        if (count($groups) > 0) {
-            $link .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
+        if (count($aGroups) > 0) {
+            $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
             
-            foreach ($groups as $group) {
-                $link .= $group->getGroupName().', ';
+            foreach ($aGroups as $oGroup) {
+                $sLink .= $oGroup->getGroupName().', ';
             }
             
-            $link = rtrim($link, ', ');
+            $sLink = rtrim($sLink, ', ');
         }
         
-        return $link;
+        return $sLink;
     }
     
     /**
@@ -1943,15 +1853,15 @@ class UserAccessManager
      */
     
     /**
-     * Returns ture if permalinks are active otherwise false.
+     * Returns true if permalinks are active otherwise false.
      * 
      * @return boolean
      */
     public function isPermalinksActive()
     {
-        $permaStruc = get_option('permalink_structure');
+        $sPermalinkStructure = get_option('permalink_structure');
             
-        if (empty($permaStruc)) {
+        if (empty($sPermalinkStructure)) {
             return false;
         } else {
             return true;
@@ -1961,43 +1871,40 @@ class UserAccessManager
     /**
      * Redirects to a page or to content.
      *  
-     * @param string $headers    The headers which are given from wordpress.
-     * @param object $pageParams The params of the current page.
+     * @param string $sHeaders    The headers which are given from wordpress.
+     * @param object $oPageParams The params of the current page.
      * 
      * @return null
      */
-    public function redirect($headers, $pageParams)
+    public function redirect($sHeaders, $oPageParams)
     {
-        $uamOptions = $this->getAdminOptions();
+        $oUamOptions = $this->getAdminOptions();
         
-        if (isset($_GET['uamgetfile'])
-            && isset($_GET['uamfiletype'])
-        ) {
-            $fileUrl = $_GET['uamgetfile'];
-            $fileType = $_GET['uamfiletype'];
-            $this->getFile($fileType, $fileUrl);
-        } elseif (!$this->atAdminPanel() && $uamOptions['redirect'] != 'false') {
-            $object = null;
+        if (isset($_GET['uamgetfile']) && isset($_GET['uamfiletype'])) {
+            $sFileUrl = $_GET['uamgetfile'];
+            $sFileType = $_GET['uamfiletype'];
+            $this->getFile($sFileType, $sFileUrl);
+        } elseif (!$this->atAdminPanel() && $oUamOptions['redirect'] != 'false') {
+            $oObject = null;
         
-            if (isset($pageParams->query_vars['p'])) {
-                $object = get_post($pageParams->query_vars['p']);
-                $objectType = $object->post_type;
-                $objectId = $object->ID;
-            } elseif (isset($pageParams->query_vars['page_id'])) {
-                $object = get_post($pageParams->query_vars['page_id']);
-                $objectType = $object->post_type;
-                $objectId = $object->ID;
-            } elseif (isset($pageParams->query_vars['cat_id'])) {
-                $object = get_category($pageParams->query_vars['cat_id']);
-                $objectType = 'category';
-                $objectId = $object->term_id;
+            if (isset($oPageParams->query_vars['p'])) {
+                $oObject = get_post($oPageParams->query_vars['p']);
+                $oObjectType = $oObject->post_type;
+                $iObjectId = $oObject->ID;
+            } elseif (isset($oPageParams->query_vars['page_id'])) {
+                $oObject = get_post($oPageParams->query_vars['page_id']);
+                $oObjectType = $oObject->post_type;
+                $iObjectId = $oObject->ID;
+            } elseif (isset($oPageParams->query_vars['cat_id'])) {
+                $oObject = get_category($oPageParams->query_vars['cat_id']);
+                $oObjectType = 'category';
+                $iObjectId = $oObject->term_id;
             }
             
-            if ($object === null
-                ||$object !== null
-                && !$this->getAccessHandler()->checkObjectAccess($objectType, $objectId)
+            if ($oObject === null || $oObject !== null && isset($oObjectType) && isset($iObjectId)
+                && !$this->getAccessHandler()->checkObjectAccess($oObjectType, $iObjectId)
             ) {
-                $this->redirectUser($object);
+                $this->redirectUser($oObject);
             }
         }
     }
@@ -2010,60 +1917,56 @@ class UserAccessManager
     public function getCurrentUrl()
     { 
         if (!isset($_SERVER['REQUEST_URI'])) {
-            $serverrequri = $_SERVER['PHP_SELF']; 
+            $sServerRequestUri = $_SERVER['PHP_SELF'];
         } else { 
-            $serverrequri = $_SERVER['REQUEST_URI']; 
+            $sServerRequestUri = $_SERVER['REQUEST_URI'];
         } 
         
-        $s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
-        $protocolArray = explode("/", strtolower($_SERVER["SERVER_PROTOCOL"]));
-        $protocol = $protocolArray[0].$s;
-        $port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
+        $sSecure = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
+        $aProtocols = explode("/", strtolower($_SERVER["SERVER_PROTOCOL"]));
+        $sProtocol = $aProtocols[0].$sSecure;
+        $sPort = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
         
-        $fullUrl = $protocol."://".$_SERVER['SERVER_NAME'].$port.$serverrequri;
-        
-        return $fullUrl; 
+        return $sProtocol."://".$_SERVER['SERVER_NAME'].$sPort.$sServerRequestUri;
     }
     
     /**
      * Redirects the user to his destination.
      * 
-     * @param object $object The current object we want to access.
+     * @param object $oObject The current object we want to access.
      * 
      * @return null
      */
-    public function redirectUser($object = null)
+    public function redirectUser($oObject = null)
     {
         global $wp_query;
         
-        $postToShow = false;
-        $posts = $wp_query->get_posts();
+        $blPostToShow = false;
+        $aPosts = $wp_query->get_posts();
         
-        if ($object === null
-            && isset($posts)
-        ) {
-            foreach ($posts as $post) {
-                if ($this->getAccessHandler()->checkObjectAccess($post->post_type, $post->ID)) {
-                    $postToShow = true;
+        if ($oObject === null && isset($aPosts)) {
+            foreach ($aPosts as $oPost) {
+                if ($this->getAccessHandler()->checkObjectAccess($oPost->post_type, $oPost->ID)) {
+                    $blPostToShow = true;
                     break;
                 }
             }
         }
         
-        if (!$postToShow) {
-            $uamOptions = $this->getAdminOptions();
+        if (!$blPostToShow) {
+            $aUamOptions = $this->getAdminOptions();
 
-            if ($uamOptions['redirect'] == 'blog') {
-                $url = home_url('/');
-            } elseif ($uamOptions['redirect'] == 'custom_page') {
-                $post = get_post($uamOptions['redirect_custom_page']);
-                $url = $post->guid;
-            } elseif ($uamOptions['redirect'] == 'custom_url') {
-                $url = $uamOptions['redirect_custom_url'];
+            if ($aUamOptions['redirect'] == 'custom_page') {
+                $oPost = get_post($aUamOptions['redirect_custom_page']);
+                $sUrl = $oPost->guid;
+            } elseif ($aUamOptions['redirect'] == 'custom_url') {
+                $sUrl = $aUamOptions['redirect_custom_url'];
+            } else {
+                $sUrl = home_url('/');
             }
 
-            if ($url != $this->getCurrentUrl()) {
-                wp_redirect($url);
+            if ($sUrl != $this->getCurrentUrl()) {
+                wp_redirect($sUrl);
                 exit;
             }      
         }
@@ -2072,88 +1975,87 @@ class UserAccessManager
     /**
      * Delivers the content of the requestet file.
      * 
-     * @param string $objectType The type of the requested file.
-     * @param string $objectUrl  The file url.
+     * @param string $sObjectType The type of the requested file.
+     * @param string $sObjectUrl  The file url.
      * 
      * @return null
      */
-    public function getFile($objectType, $objectUrl) 
+    public function getFile($sObjectType, $sObjectUrl)
     {
-        $object = $this->_getFileSettingsByType($objectType, $objectUrl);
+        $oObject = $this->_getFileSettingsByType($sObjectType, $sObjectUrl);
 
-        if ($object === null) {
+        if ($oObject === null) {
             return null;
         }
         
-        $file = null;
+        $sFile = null;
         
-        if ($this->getAccessHandler()->checkObjectAccess($object->type, $object->id)) {
-            $file = $object->file;
-        } elseif ($object->isImage) {
-    		$file = UAM_REALPATH.'gfx/noAccessPic.png';
+        if ($this->getAccessHandler()->checkObjectAccess($oObject->type, $oObject->id)) {
+            $sFile = $oObject->file;
+        } elseif ($oObject->isImage) {
+            $sFile = UAM_REALPATH.'gfx/noAccessPic.png';
         } else {
             wp_die(TXT_UAM_NO_RIGHTS);
         }
         
         //Deliver content
-        if (file_exists($file)) {
-            $fileName = basename($file);
+        if (file_exists($sFile)) {
+            $sFileName = basename($sFile);
             
             /*
              * This only for compatibility
              * mime_content_type has been deprecated as the PECL extension Fileinfo 
              * provides the same functionality (and more) in a much cleaner way.
              */
-            $ext = strtolower(array_pop(explode('.', $fileName)));
+            $sFileExt = strtolower(array_pop(explode('.', $sFileName)));
             
             if (function_exists('finfo_open')) {
-                $finfo = finfo_open(FILEINFO_MIME);
-                $fileMimeType = finfo_file($finfo, $file);
-                finfo_close($finfo);
+                $sFileInfo = finfo_open(FILEINFO_MIME);
+                $sFileMimeType = finfo_file($sFileInfo, $sFile);
+                finfo_close($sFileMimeType);
             } elseif (function_exists('mime_content_type')) {
-                $fileMimeType = mime_content_type($file);
-            } elseif (array_key_exists($ext, $this->mimeTypes)) {
-                $fileMimeType = $this->mimeTypes[$ext];
+                $sFileMimeType = mime_content_type($sFile);
+            } elseif (array_key_exists($sFileExt, $this->mimeTypes)) {
+                $sFileMimeType = $this->mimeTypes[$sFileExt];
             } else {
-                $fileMimeType = 'application/octet-stream';
+                $sFileMimeType = 'application/octet-stream';
             }
             
             header('Content-Description: File Transfer');
-            header('Content-Type: '.$fileMimeType);
+            header('Content-Type: '.$sFileMimeType);
             
-            if (!$object->isImage) {
-                $baseName = str_replace(' ', '_', basename($file));
-                
-                header('Content-Disposition: attachment; filename="'.$baseName.'"');
+            if (!$oObject->isImage) {
+                $sBaseName = str_replace(' ', '_', basename($sFile));
+                header('Content-Disposition: attachment; filename="'.$sBaseName.'"');
             }
            
             header('Content-Transfer-Encoding: binary');
-            header('Content-Length: '.filesize($file));
+            header('Content-Length: '.filesize($sFile));
 
-            $uamOptions = $this->getAdminOptions();
+            $aUamOptions = $this->getAdminOptions();
             
-            if ($uamOptions['download_type'] == 'fopen'
-                && !$object->isImage
+            if ($aUamOptions['download_type'] == 'fopen'
+                && !$oObject->isImage
             ) {
-                $fp = fopen($file, 'r');
+                $oHandler = fopen($sFile, 'r');
                 
                 //TODO find better solution (prevent '\n' / '0A')
                 ob_clean();
                 flush();
                 
-                while (!feof($fp)) {
+                while (!feof($oHandler)) {
                     if (!ini_get('safe_mode')) {
                         set_time_limit(30);
                     }
-                    $buffer = fread($fp, 1024);
-                    echo $buffer;
+
+                    echo fread($oHandler, 1024);
                 }
                                 
                 exit;
             } else {
                 ob_clean();
                 flush();
-                readfile($file);
+                readfile($sFile);
                 exit;
             }
         } else {
@@ -2164,158 +2066,136 @@ class UserAccessManager
     /**
      * Returns the file object by the given type and url.
      * 
-     * @param string $objectType The type of the requested file.
-     * @param string $objectUrl  The file url.
+     * @param string $sObjectType The type of the requested file.
+     * @param string $sObjectUrl  The file url.
      * 
      * @return object|null
      */
-    private function _getFileSettingsByType($objectType, $objectUrl)
+    protected function _getFileSettingsByType($sObjectType, $sObjectUrl)
     {
-        $object = null;
+        $oObject = null;
 
-        if ($objectType == 'attachment') {
-            $uploadDir = wp_upload_dir();
+        if ($sObjectType == 'attachment') {
+            $aUploadDir = wp_upload_dir();
 
-            $multiPath = str_replace(ABSPATH, '/', $uploadDir['basedir']);
-            $multiPath = str_replace('/files', $multiPath, $uploadDir['baseurl']);
+            $sMultiPath = str_replace(ABSPATH, '/', $aUploadDir['basedir']);
+            $sMultiPath = str_replace('/files', $sMultiPath, $aUploadDir['baseurl']);
             
             if ($this->isPermalinksActive()) {
-                //TODO Remove if not needed.
-                //$objectUrl = $uploadDir['baseurl'].'/'.$objectUrl;
-                $objectUrl = $multiPath.'/'.$objectUrl;
+                $sObjectUrl = $sMultiPath.'/'.$sObjectUrl;
             }
             
-            $post = get_post($this->getPostIdByUrl($objectUrl));
+            $oPost = get_post($this->getPostIdByUrl($sObjectUrl));
     
-            if ($post !== null
-                && $post->post_type == 'attachment' 
+            if ($oPost !== null
+                && $oPost->post_type == 'attachment'
             ) {
-                $object->id = $post->ID;
-                $object->isImage = wp_attachment_is_image($post->ID);
-                $object->type = $objectType;
-
-                //TODO Remove if not needed.
-                /*$object->file = $uploadDir['basedir'].str_replace(
-                    $uploadDir['baseurl'], 
-                    '', 
-                    $objectUrl
-                );*/
-                
-                $object->file = $uploadDir['basedir'].str_replace(
-                    $multiPath, 
-                    '', 
-                    $objectUrl
-                );
+                $oObject = new stdClass();
+                $oObject->id = $oPost->ID;
+                $oObject->isImage = wp_attachment_is_image($oPost->ID);
+                $oObject->type = $sObjectType;
+                $oObject->file = $aUploadDir['basedir'].str_replace($sMultiPath, '', $sObjectUrl );
             }
         } else {
-            $plObject = $this->getAccessHandler()->getPlObject($objectType);
+            $aPlObject = $this->getAccessHandler()->getPlObject($sObjectType);
             
-            if (isset($plObject)
-                && isset($plObject['getFileObject'])
-            ) {
-                $object = $plObject['reference']->{$plObject['getFileObject']}(
-                    $objectUrl
-                );
+            if (isset($aPlObject) && isset($aPlObject['getFileObject'])) {
+                $oObject = $aPlObject['reference']->{$aPlObject['getFileObject']}($sObjectUrl);
             }
         }
         
-        return $object;
+        return $oObject;
     }
     
     /**
      * Returns the url for a locked file.
      * 
-     * @param string  $url The base url.
-     * @param integer $id  The id of the file.
+     * @param string  $sUrl The base url.
+     * @param integer $iId  The _iId of the file.
      * 
      * @return string
      */
-    public function getFileUrl($url, $id)
+    public function getFileUrl($sUrl, $iId)
     {
-        $uamOptions = $this->getAdminOptions();
+        $aUamOptions = $this->getAdminOptions();
             
-        if (!$this->isPermalinksActive()
-            && $uamOptions['lock_file'] == 'true'
-        ) {
-            $post = &get_post($id);
-
-            $type = explode("/", $post->post_mime_type);
-            $type = $type[1];
-
-            $fileTypes = explode(
-            	",", 
-                $uamOptions['locked_file_types']
-            );
+        if (!$this->isPermalinksActive() && $aUamOptions['lock_file'] == 'true') {
+            $oPost = &get_post($iId);
+            $aType = explode("/", $oPost->post_mime_type);
+            $sType = $aType[1];
+            $sFileTypes = explode(",", $aUamOptions['locked_file_types']);
             
-            if ($uamOptions['lock_file_types'] == 'all'
-                || in_array($type, $fileTypes) 
-            ) {
-                $url = home_url('/').'?uamfiletype=attachment&uamgetfile='.$url;
+            if ($aUamOptions['lock_file_types'] == 'all' || in_array($sType, $sFileTypes)) {
+                $sUrl = home_url('/').'?uamfiletype=attachment&uamgetfile='.$sUrl;
             }
         }
         
-        return $url;
+        return $sUrl;
     }
     
     /**
      * Returns the post by the given url.
      * 
-     * @param string $url The url of the post(attachment).
+     * @param string $sUrl The url of the post(attachment).
      * 
      * @return object The post.
      */
-    public function getPostIdByUrl($url)
+    public function getPostIdByUrl($sUrl)
     {
-        if (isset($this->postUrls[$url])) {
-            return $this->postUrls[$url];
+        if (isset($this->_aPostUrls[$sUrl])) {
+            return $this->_aPostUrls[$sUrl];
         }
         
-        $this->postUrls[$url] = null;
+        $this->_aPostUrls[$sUrl] = null;
         
         //Filter edit string
-        $newUrl = preg_split("/-e[0-9]{1,}/", $url);
+        $sNewUrl = preg_split("/-e[0-9]{1,}/", $sUrl);
 
-        if (count($newUrl) == 2) {
-            $newUrl = $newUrl[0].$newUrl[1];
+        if (count($sNewUrl) == 2) {
+            $sNewUrl = $sNewUrl[0].$sNewUrl[1];
         } else {
-            $newUrl = $newUrl[0];
+            $sNewUrl = $sNewUrl[0];
         }
         
         //Filter size
-        $newUrl = preg_split("/-[0-9]{1,}x[0-9]{1,}/", $newUrl);
+        $sNewUrl = preg_split("/-[0-9]{1,}x[0-9]{1,}/", $sNewUrl);
 
-        if (count($newUrl) == 2) {
-            $newUrl = $newUrl[0].$newUrl[1];
+        if (count($sNewUrl) == 2) {
+            $sNewUrl = $sNewUrl[0].$sNewUrl[1];
         } else {
-            $newUrl = $newUrl[0];
+            $sNewUrl = $sNewUrl[0];
         }
-        
+
+        /**
+         * @var wpdb $wpdb
+         */
         global $wpdb;
-        $dbPost = $wpdb->get_row(
+
+        $oDbPost = $wpdb->get_row(
         	"SELECT ID
 			FROM ".$wpdb->prefix."posts
-			WHERE guid = '" . $newUrl . "'
+			WHERE guid = '" . $sNewUrl . "'
 			LIMIT 1"
         );
         
-        if ($dbPost) {
-            $this->postUrls[$url] = $dbPost->ID;
+        if ($oDbPost) {
+            $this->_aPostUrls[$sUrl] = $oDbPost->ID;
         }
         
-        return $this->postUrls[$url];
+        return $this->_aPostUrls[$sUrl];
     }
     
     /**
      * Caches the urls for the post for a later lookup.
      * 
-     * @param string $url  The url of the post.
-     * @param object $post The post object.
+     * @param string $sUrl  The url of the post.
+     * @param object $oPost The post object.
      * 
      * @return null
      */
-    public function cachePostLinks($url, $post)
+    public function cachePostLinks($sUrl, $oPost)
     {
-        $this->postUrls[$url] = $post->ID;
-        return $url;
+        $this->_aPostUrls[$sUrl] = $oPost->ID;
+        return $sUrl;
     }
 }

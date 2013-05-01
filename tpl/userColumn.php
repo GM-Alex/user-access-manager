@@ -15,20 +15,20 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-global $userAccessManager;
+global $oUserAccessManager;
 
-$uamUserGroups = $userAccessManager->getAccessHandler()->getUsergroupsForObject($objectType, $objectId);
-$userGroupsForObject = &$uamUserGroups;
+$aUamUserGroups = $oUserAccessManager->getAccessHandler()->getUsergroupsForObject($sObjectType, $iObjectId);
+$aUserGroupsForObject = $aUamUserGroups;
 
-if ($uamUserGroups != Array()) {
+if ($aUamUserGroups != Array()) {
     ?>
 	<ul>
     <?php
-    foreach ($uamUserGroups as $uamUserGroup) {
+    foreach ($aUamUserGroups as $oUamUserGroup) {
         ?> 
     	<li>
     		<a class="uam_group_info_link">
-    		    <?php echo $uamUserGroup->getGroupName(); ?>
+    		    <?php echo $oUamUserGroup->getGroupName(); ?>
     		</a>
         <?php
         include 'groupInfo.php';
@@ -42,7 +42,7 @@ if ($uamUserGroups != Array()) {
 } else {
     global $wpdb;
     
-    if (!$userAccessManager->getAccessHandler()->userIsAdmin($objectId)) {
+    if (!$oUserAccessManager->getAccessHandler()->userIsAdmin($iObjectId)) {
         echo TXT_UAM_NONE;
     } else {
         echo TXT_UAM_ADMIN_HINT;
