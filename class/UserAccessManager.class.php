@@ -127,7 +127,7 @@ class UserAccessManager
     	if (is_multisite()) {
 			$aBlogIds = $wpdb->get_col(
 				"SELECT blog_id
-				FROM {$wpdb->blogs}"
+				FROM ".$wpdb->blogs
 			);
     	}
 
@@ -178,7 +178,6 @@ class UserAccessManager
         $sCharsetCollate = $this->_getCharset();
         
         $sDbAccessGroup = $wpdb->prefix.'uam_accessgroups';
-        //$sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
         
         $sDbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
@@ -199,14 +198,16 @@ class UserAccessManager
             );
         }
 
+        $sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+
         $sDbAccessGroupToObject = $wpdb->get_var(
         	"SHOW TABLES 
         	LIKE '".$sDbAccessGroup."'"
         );
         
-        if ($sDbAccessGroupToObject != $sDbAccessGroup) {
+        if ($sDbAccessGroupToObject != $sDbAccessGroupToObject) {
             dbDelta(
-            	"CREATE TABLE " . $sDbAccessGroup . " (
+            	"CREATE TABLE " . $sDbAccessGroupToObject . " (
 					object_id VARCHAR(11) NOT NULL,
 					object_type varchar(255) NOT NULL,
 					group_id int(11) NOT NULL,
@@ -352,8 +353,8 @@ class UserAccessManager
                 
                 $wpdb->query(
                     "ALTER TABLE 'wp_uam_accessgroup_to_object' 
-                    CHANGE 'object_id' 'object_id' VARCHAR(11) 
-                    $sCharsetCollate;"
+                    CHANGE 'object_id' 'object_id' VARCHAR(11)
+                    ".$sCharsetCollate.";"
                 );
                 
                 $aObjectTypes = $this->getAccessHandler()->getObjectTypes();
@@ -1138,19 +1139,19 @@ class UserAccessManager
     /**
      * The function for the manage_users_custom_column action.
      * 
-     * @param string  $sEmpty      An empty string from wordpress? What the hell?!?
+     * @param string  $sReturn     The normal return value.
      * @param string  $sColumnName The column name.
      * @param integer $iId         The _iId.
      * 
      * @return string|null
      */
-    public function addUserColumn($sEmpty, $sColumnName, $iId)
+    public function addUserColumn($sReturn, $sColumnName, $iId)
     {
         if ($sColumnName == 'uam_access') {
             return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php', $iId, 'user');
         }
 
-        return null;
+        return $sReturn;
     }
     
     /**
@@ -1190,7 +1191,7 @@ class UserAccessManager
         global $wpdb;
 
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . "
         	WHERE object_id = ".$iUserId."
                 AND object_type = 'user'"
         );
@@ -1737,7 +1738,7 @@ class UserAccessManager
         }
         
         foreach ($aTerms as $sKey => $oTerm) {
-            if (!array_key_exists($oTerm->term_id, $aShowTerms)) {
+            if (!isset($aShowTerms[$oTerm->term_id])) {
                 unset($aTerms[$sKey]);
             }
         }
@@ -2015,8 +2016,8 @@ class UserAccessManager
                 finfo_close($sFileMimeType);
             } elseif (function_exists('mime_content_type')) {
                 $sFileMimeType = mime_content_type($sFile);
-            } elseif (array_key_exists($sFileExt, $this->mimeTypes)) {
-                $sFileMimeType = $this->mimeTypes[$sFileExt];
+            } elseif (isset($this->_aMimeTypes[$sFileExt])) {
+                $sFileMimeType = $this->_aMimeTypes[$sFileExt];
             } else {
                 $sFileMimeType = 'application/octet-stream';
             }

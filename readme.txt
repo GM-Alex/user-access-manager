@@ -72,6 +72,12 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
 
+    1.2.4       2013/??/??  Fix add column issue.
+                            Fix install bug.
+                            Fix error if no user is logged in. Thanks to Robert Egger and akiko.pusu.
+                            Fix media file issue.
+                            Optimize code.
+
     1.2.3.1     2013/05/01  Fix terms issue.
 
     1.2.3       2013/04/30  Fix Fatal 'error: Call-time pass-by-reference' error.

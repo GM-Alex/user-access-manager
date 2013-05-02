@@ -176,7 +176,7 @@ class UamAccessHandler
             $aUserGroupsForUser = $this->getUserGroupsForObject('user', $current_user->ID);
             
             foreach ($aUserGroups as $sKey => $oUamUserGroup) {
-                if (!array_key_exists($oUamUserGroup->getId(), $aUserGroupsForUser)) {
+                if (!isset($aUserGroupsForUser[$oUamUserGroup->getId()])) {
                     unset($aUserGroups[$sKey]);
                 }
             }
@@ -647,7 +647,7 @@ class UamAccessHandler
         
         $oUserData = get_userdata($iUserId);
         
-        if (!isset($oUserData->user_level)) {
+        if (!empty($oUserData->user_level) && !isset($oUserData->user_level)) {
             $oUserData->user_level = null;
         }
         
