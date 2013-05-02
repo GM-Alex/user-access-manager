@@ -176,8 +176,11 @@ class UamUserGroup
         
         foreach ($this->getAllObjectTypes() as $sObjectType) {
             $aKeys = array_keys($this->getObjectsFromType($sObjectType));
-            $sSql = $this->_getSqlQuery($sObjectType, 'insert', $aKeys);
-            $wpdb->query($sSql);
+
+            if (count($aKeys) > 0) {
+                $sSql = $this->_getSqlQuery($sObjectType, 'insert', $aKeys);
+                $wpdb->query($sSql);
+            }
         }
     }
     

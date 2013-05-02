@@ -177,16 +177,16 @@ class UserAccessManager
   
         $sCharsetCollate = $this->_getCharset();
         
-        $sDbAccessGroup = $wpdb->prefix.'uam_accessgroups';
+        $sDbAccessGroupTable = $wpdb->prefix.'uam_accessgroups';
         
         $sDbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".$sDbAccessGroup."'"
+        	LIKE '".$sDbAccessGroupTable."'"
         );
         
-        if ($sDbUserGroup != $sDbAccessGroup) {
+        if ($sDbUserGroup != $sDbAccessGroupTable) {
             dbDelta(
-                "CREATE TABLE ".$sDbAccessGroup." (
+                "CREATE TABLE ".$sDbAccessGroupTable." (
 					ID int(11) NOT NULL auto_increment,
 					groupname tinytext NOT NULL,
 					groupdesc text NOT NULL,
@@ -198,16 +198,16 @@ class UserAccessManager
             );
         }
 
-        $sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+        $sDbAccessGroupToObjectTable = $wpdb->prefix.'uam_accessgroup_to_object';
 
         $sDbAccessGroupToObject = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".$sDbAccessGroup."'"
+        	LIKE '".$sDbAccessGroupToObjectTable."'"
         );
         
-        if ($sDbAccessGroupToObject != $sDbAccessGroupToObject) {
+        if ($sDbAccessGroupToObject != $sDbAccessGroupToObjectTable) {
             dbDelta(
-            	"CREATE TABLE " . $sDbAccessGroupToObject . " (
+            	"CREATE TABLE " . $sDbAccessGroupToObjectTable . " (
 					object_id VARCHAR(11) NOT NULL,
 					object_type varchar(255) NOT NULL,
 					group_id int(11) NOT NULL,
