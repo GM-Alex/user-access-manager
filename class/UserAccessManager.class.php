@@ -178,7 +178,6 @@ class UserAccessManager
         $sCharsetCollate = $this->_getCharset();
         
         $sDbAccessGroup = $wpdb->prefix.'uam_accessgroups';
-        //$sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
         
         $sDbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
@@ -199,14 +198,16 @@ class UserAccessManager
             );
         }
 
+        $sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+
         $sDbAccessGroupToObject = $wpdb->get_var(
         	"SHOW TABLES 
         	LIKE '".$sDbAccessGroup."'"
         );
         
-        if ($sDbAccessGroupToObject != $sDbAccessGroup) {
+        if ($sDbAccessGroupToObject != $sDbAccessGroupToObject) {
             dbDelta(
-            	"CREATE TABLE " . $sDbAccessGroup . " (
+            	"CREATE TABLE " . $sDbAccessGroupToObject . " (
 					object_id VARCHAR(11) NOT NULL,
 					object_type varchar(255) NOT NULL,
 					group_id int(11) NOT NULL,

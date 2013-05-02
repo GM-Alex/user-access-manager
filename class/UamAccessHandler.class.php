@@ -647,7 +647,7 @@ class UamAccessHandler
         
         $oUserData = get_userdata($iUserId);
         
-        if (!isset($oUserData->user_level)) {
+        if (!empty($oUserData->user_level) && !isset($oUserData->user_level)) {
             $oUserData->user_level = null;
         }
         
