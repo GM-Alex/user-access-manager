@@ -425,6 +425,7 @@ class UamUserGroup
             }
 
             $sSql = rtrim($sSql, ', ');
+            $sSql .= " ON DUPLICATE KEY UPDATE group_id = group_id ";
         }
         
         return $sSql;

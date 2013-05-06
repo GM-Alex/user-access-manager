@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.2.4
+Stable tag: 1.2.4.1
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -72,7 +72,12 @@ Here you found the changes in each version.
 
     Version		Date      	Changes
 
-    1.2.4       2013/??/??  Fix add column issue.
+    1.2.4.1     2013/05/06  Fix broken images issue.
+                            Fix duplicated key issue.
+                            Filter file types.
+                            Use wordpress mime types instead of the config array.
+
+    1.2.4       2013/05/01  Fix add column issue.
                             Fix install bug.
                             Fix error if no user is logged in. Thanks to Robert Egger and akiko.pusu.
                             Fix media file issue.

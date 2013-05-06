@@ -33,65 +33,12 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.3";
+    protected $_sUamVersion = "1.2.4.1";
     protected $_sUamDbVersion = "1.1";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
-    protected $_aMimeTypes = array(
-		'txt' => 'text/plain',
-        'htm' => 'text/html',
-        'html' => 'text/html',
-        'php' => 'text/html',
-        'css' => 'text/css',
-        'js' => 'application/javascript',
-        'json' => 'application/json',
-        'xml' => 'application/xml',
-        'swf' => 'application/x-shockwave-flash',
-        'flv' => 'video/x-flv',
-
-        // images
-        'png' => 'image/png',
-        'jpe' => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'jpg' => 'image/jpeg',
-        'gif' => 'image/gif',
-        'bmp' => 'image/bmp',
-        'ico' => 'image/vnd.microsoft.icon',
-        'tiff' => 'image/tiff',
-        'tif' => 'image/tiff',
-        'svg' => 'image/svg+xml',
-        'svgz' => 'image/svg+xml',
-
-        // archives
-        'zip' => 'application/zip',
-        'rar' => 'application/x-rar-compressed',
-        'exe' => 'application/x-msdownload',
-        'msi' => 'application/x-msdownload',
-        'cab' => 'application/vnd.ms-cab-compressed',
-
-        // audio/video
-        'mp3' => 'audio/mpeg',
-        'qt' => 'video/quicktime',
-        'mov' => 'video/quicktime',
-
-        // adobe
-        'pdf' => 'application/pdf',
-        'psd' => 'image/vnd.adobe.photoshop',
-        'ai' => 'application/postscript',
-        'eps' => 'application/postscript',
-        'ps' => 'application/postscript',
-
-        // ms office
-        'doc' => 'application/msword',
-        'rtf' => 'application/rtf',
-        'xls' => 'application/vnd.ms-excel',
-        'ppt' => 'application/vnd.ms-powerpoint',
-
-        // open office
-        'odt' => 'application/vnd.oasis.opendocument.text',
-        'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
-    );
+    protected $_aMimeTypes = null;
     
     /**
      * Constructor.
@@ -112,7 +59,7 @@ class UserAccessManager
     }
     
     /**
-     * Returns all blogs of the network.
+     * Returns all blog of the network.
      * 
      * @return array()
      */
@@ -470,6 +417,53 @@ class UserAccessManager
     {
         $this->deleteHtaccessFiles();
     }
+
+    /**
+     * Returns the full supported mine types.
+     *
+     * @return array
+     */
+    protected function _getMimeTypes()
+    {
+        if ($this->_aMimeTypes === null) {
+            $aMimeTypes = get_allowed_mime_types();
+            $aFullMimeTypes = array();
+
+            foreach ($aMimeTypes as $sExtensions => $sMineType) {
+                $aExtension = explode('|', $sExtensions);
+
+                foreach ($aExtension as $sExtension) {
+                    $aFullMimeTypes[$sExtension] = $sMineType;
+                }
+            }
+
+            $this->_aMimeTypes = $aFullMimeTypes;
+        }
+
+        return $this->_aMimeTypes;
+    }
+
+    /**
+     * @param string $sFileTypes The file types which should be cleaned up.
+     *
+     * @return string
+     */
+    protected function _cleanUpFileTypesForHtaccess($sFileTypes)
+    {
+        $aValidFileTypes = array();
+        $aFileTypes = explode(',', $sFileTypes);
+        $aMimeTypes = $this->_getMimeTypes();
+
+        foreach ($aFileTypes as $sFileType) {
+            $sCleanFileType = trim($sFileType);
+
+            if (isset($aMimeTypes[$sCleanFileType])) {
+                $aValidFileTypes[$sCleanFileType] = $sCleanFileType;
+            }
+        }
+
+        return implode('|', $aValidFileTypes);
+    }
     
     /**
      * Creates a htaccess file.
@@ -502,13 +496,13 @@ class UserAccessManager
                 $sHtaccessTxt = "";
                 
                 if ($aUamOptions['lock_file_types'] == 'selected') {
-                    $sFileTypes = str_replace(",", "|", $aUamOptions['locked_file_types']);
+                    $sFileTypes = $this->_cleanUpFileTypesForHtaccess($aUamOptions['locked_file_types']);
                     $sHtaccessTxt .= "<FilesMatch '\.(".$sFileTypes.")'>\n";
                 } elseif ($aUamOptions['lock_file_types'] == 'not_selected') {
-                    $sFileTypes = str_replace(",", "|", $aUamOptions['not_locked_file_types']);
+                    $sFileTypes = $this->_cleanUpFileTypesForHtaccess($aUamOptions['not_locked_file_types']);
                     $sHtaccessTxt .= "<FilesMatch '^\.(".$sFileTypes.")'>\n";
                 }
-                
+
                 $sHtaccessTxt .= "AuthType Basic" . "\n";
                 $sHtaccessTxt .= "AuthName \"" . $sAreaName . "\"" . "\n";
                 $sHtaccessTxt .= "AuthUserFile " . $sDir . ".htpasswd" . "\n";
@@ -705,7 +699,7 @@ class UserAccessManager
             	'file_pass_type' => 'random', 
             	'lock_file_types' => 'all', 
             	'download_type' => 'fopen', 
-            	'locked_file_types' => 'zip,rar,tar,gz,bz2', 
+            	'locked_file_types' => 'zip,rar,tar,gz',
             	'not_locked_file_types' => 'gif,jpg,jpeg,png', 
             	'blog_admin_hint' => 'true', 
             	'blog_admin_hint_text' => '[L]',
@@ -2009,15 +2003,16 @@ class UserAccessManager
              * provides the same functionality (and more) in a much cleaner way.
              */
             $sFileExt = strtolower(array_pop(explode('.', $sFileName)));
-            
+            $aMimeTypes = $this->_getMimeTypes();
+
             if (function_exists('finfo_open')) {
                 $sFileInfo = finfo_open(FILEINFO_MIME);
                 $sFileMimeType = finfo_file($sFileInfo, $sFile);
-                finfo_close($sFileMimeType);
+                finfo_close($sFileInfo);
             } elseif (function_exists('mime_content_type')) {
                 $sFileMimeType = mime_content_type($sFile);
-            } elseif (isset($this->_aMimeTypes[$sFileExt])) {
-                $sFileMimeType = $this->_aMimeTypes[$sFileExt];
+            } elseif (isset($aMimeTypes[$sFileExt])) {
+                $sFileMimeType = $aMimeTypes[$sFileExt];
             } else {
                 $sFileMimeType = 'application/octet-stream';
             }
@@ -2124,9 +2119,9 @@ class UserAccessManager
             $oPost = &get_post($iId);
             $aType = explode("/", $oPost->post_mime_type);
             $sType = $aType[1];
-            $sFileTypes = explode(",", $aUamOptions['locked_file_types']);
+            $aFileTypes = explode(',', $aUamOptions['locked_file_types']);
             
-            if ($aUamOptions['lock_file_types'] == 'all' || in_array($sType, $sFileTypes)) {
+            if ($aUamOptions['lock_file_types'] == 'all' || in_array($sType, $aFileTypes)) {
                 $sUrl = home_url('/').'?uamfiletype=attachment&uamgetfile='.$sUrl;
             }
         }
