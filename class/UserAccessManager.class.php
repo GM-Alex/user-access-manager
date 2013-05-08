@@ -1,23 +1,19 @@
 <?php
 /**
  * UserAccessManager.class.php
- * 
+ *
  * The UserAccessManager class file.
- * 
+ *
  * PHP versions 5
- * 
+ *
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2010 Alexander Schneider
+ * @copyright 2008-2013 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
-if (!function_exists('get_userdata')) {
-    include_once ABSPATH.'wp-includes/pluggable.php';
-}
 
 /**
  * The user user access manager class.
@@ -28,70 +24,16 @@ if (!function_exists('get_userdata')) {
  * @license  http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @link     http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.3";
+    protected $_sUamVersion = "1.2.4.3";
     protected $_sUamDbVersion = "1.1";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
-    protected $_aMimeTypes = array(
-		'txt' => 'text/plain',
-        'htm' => 'text/html',
-        'html' => 'text/html',
-        'php' => 'text/html',
-        'css' => 'text/css',
-        'js' => 'application/javascript',
-        'json' => 'application/json',
-        'xml' => 'application/xml',
-        'swf' => 'application/x-shockwave-flash',
-        'flv' => 'video/x-flv',
-
-        // images
-        'png' => 'image/png',
-        'jpe' => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'jpg' => 'image/jpeg',
-        'gif' => 'image/gif',
-        'bmp' => 'image/bmp',
-        'ico' => 'image/vnd.microsoft.icon',
-        'tiff' => 'image/tiff',
-        'tif' => 'image/tiff',
-        'svg' => 'image/svg+xml',
-        'svgz' => 'image/svg+xml',
-
-        // archives
-        'zip' => 'application/zip',
-        'rar' => 'application/x-rar-compressed',
-        'exe' => 'application/x-msdownload',
-        'msi' => 'application/x-msdownload',
-        'cab' => 'application/vnd.ms-cab-compressed',
-
-        // audio/video
-        'mp3' => 'audio/mpeg',
-        'qt' => 'video/quicktime',
-        'mov' => 'video/quicktime',
-
-        // adobe
-        'pdf' => 'application/pdf',
-        'psd' => 'image/vnd.adobe.photoshop',
-        'ai' => 'application/postscript',
-        'eps' => 'application/postscript',
-        'ps' => 'application/postscript',
-
-        // ms office
-        'doc' => 'application/msword',
-        'rtf' => 'application/rtf',
-        'xls' => 'application/vnd.ms-excel',
-        'ppt' => 'application/vnd.ms-powerpoint',
-
-        // open office
-        'odt' => 'application/vnd.oasis.opendocument.text',
-        'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
-    );
+    protected $_aMimeTypes = null;
     
     /**
      * Constructor.
@@ -112,7 +54,7 @@ class UserAccessManager
     }
     
     /**
-     * Returns all blogs of the network.
+     * Returns all blog of the network.
      * 
      * @return array()
      */
@@ -127,7 +69,7 @@ class UserAccessManager
     	if (is_multisite()) {
 			$aBlogIds = $wpdb->get_col(
 				"SELECT blog_id
-				FROM {$wpdb->blogs}"
+				FROM ".$wpdb->blogs
 			);
     	}
 
@@ -177,17 +119,16 @@ class UserAccessManager
   
         $sCharsetCollate = $this->_getCharset();
         
-        $sDbAccessGroup = $wpdb->prefix.'uam_accessgroups';
-        //$sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+        $sDbAccessGroupTable = $wpdb->prefix.'uam_accessgroups';
         
         $sDbUserGroup = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".$sDbAccessGroup."'"
+        	LIKE '".$sDbAccessGroupTable."'"
         );
         
-        if ($sDbUserGroup != $sDbAccessGroup) {
+        if ($sDbUserGroup != $sDbAccessGroupTable) {
             dbDelta(
-                "CREATE TABLE ".$sDbAccessGroup." (
+                "CREATE TABLE ".$sDbAccessGroupTable." (
 					ID int(11) NOT NULL auto_increment,
 					groupname tinytext NOT NULL,
 					groupdesc text NOT NULL,
@@ -199,14 +140,16 @@ class UserAccessManager
             );
         }
 
+        $sDbAccessGroupToObjectTable = $wpdb->prefix.'uam_accessgroup_to_object';
+
         $sDbAccessGroupToObject = $wpdb->get_var(
         	"SHOW TABLES 
-        	LIKE '".$sDbAccessGroup."'"
+        	LIKE '".$sDbAccessGroupToObjectTable."'"
         );
         
-        if ($sDbAccessGroupToObject != $sDbAccessGroup) {
+        if ($sDbAccessGroupToObject != $sDbAccessGroupToObjectTable) {
             dbDelta(
-            	"CREATE TABLE " . $sDbAccessGroup . " (
+            	"CREATE TABLE " . $sDbAccessGroupToObjectTable . " (
 					object_id VARCHAR(11) NOT NULL,
 					object_type varchar(255) NOT NULL,
 					group_id int(11) NOT NULL,
@@ -352,8 +295,8 @@ class UserAccessManager
                 
                 $wpdb->query(
                     "ALTER TABLE 'wp_uam_accessgroup_to_object' 
-                    CHANGE 'object_id' 'object_id' VARCHAR(11) 
-                    $sCharsetCollate;"
+                    CHANGE 'object_id' 'object_id' VARCHAR(11)
+                    ".$sCharsetCollate.";"
                 );
                 
                 $aObjectTypes = $this->getAccessHandler()->getObjectTypes();
@@ -469,6 +412,68 @@ class UserAccessManager
     {
         $this->deleteHtaccessFiles();
     }
+
+    /**
+     * Returns the current user.
+     *
+     * @return WP_User
+     */
+    public function getCurrentUser()
+    {
+        if (!function_exists('get_userdata')) {
+            include_once ABSPATH.'wp-includes/pluggable.php';
+        }
+
+        //Force user information
+        return wp_get_current_user();
+    }
+
+    /**
+     * Returns the full supported mine types.
+     *
+     * @return array
+     */
+    protected function _getMimeTypes()
+    {
+        if ($this->_aMimeTypes === null) {
+            $aMimeTypes = get_allowed_mime_types();
+            $aFullMimeTypes = array();
+
+            foreach ($aMimeTypes as $sExtensions => $sMineType) {
+                $aExtension = explode('|', $sExtensions);
+
+                foreach ($aExtension as $sExtension) {
+                    $aFullMimeTypes[$sExtension] = $sMineType;
+                }
+            }
+
+            $this->_aMimeTypes = $aFullMimeTypes;
+        }
+
+        return $this->_aMimeTypes;
+    }
+
+    /**
+     * @param string $sFileTypes The file types which should be cleaned up.
+     *
+     * @return string
+     */
+    protected function _cleanUpFileTypesForHtaccess($sFileTypes)
+    {
+        $aValidFileTypes = array();
+        $aFileTypes = explode(',', $sFileTypes);
+        $aMimeTypes = $this->_getMimeTypes();
+
+        foreach ($aFileTypes as $sFileType) {
+            $sCleanFileType = trim($sFileType);
+
+            if (isset($aMimeTypes[$sCleanFileType])) {
+                $aValidFileTypes[$sCleanFileType] = $sCleanFileType;
+            }
+        }
+
+        return implode('|', $aValidFileTypes);
+    }
     
     /**
      * Creates a htaccess file.
@@ -501,13 +506,13 @@ class UserAccessManager
                 $sHtaccessTxt = "";
                 
                 if ($aUamOptions['lock_file_types'] == 'selected') {
-                    $sFileTypes = str_replace(",", "|", $aUamOptions['locked_file_types']);
+                    $sFileTypes = $this->_cleanUpFileTypesForHtaccess($aUamOptions['locked_file_types']);
                     $sHtaccessTxt .= "<FilesMatch '\.(".$sFileTypes.")'>\n";
                 } elseif ($aUamOptions['lock_file_types'] == 'not_selected') {
-                    $sFileTypes = str_replace(",", "|", $aUamOptions['not_locked_file_types']);
+                    $sFileTypes = $this->_cleanUpFileTypesForHtaccess($aUamOptions['not_locked_file_types']);
                     $sHtaccessTxt .= "<FilesMatch '^\.(".$sFileTypes.")'>\n";
                 }
-                
+
                 $sHtaccessTxt .= "AuthType Basic" . "\n";
                 $sHtaccessTxt .= "AuthName \"" . $sAreaName . "\"" . "\n";
                 $sHtaccessTxt .= "AuthUserFile " . $sDir . ".htpasswd" . "\n";
@@ -552,13 +557,10 @@ class UserAccessManager
      */
     public function createHtpasswd($blCreateNew = false, $sDir = null)
     {
+        $oCurrentUser = $this->getCurrentUser();
         if (!function_exists('get_userdata')) {
             include_once ABSPATH.'wp-includes/pluggable.php';
         }
-        
-        global $current_user;
-        //Force user infos
-        wp_get_current_user();
         
         $aUamOptions = $this->getAdminOptions();
 
@@ -572,7 +574,7 @@ class UserAccessManager
         }
         
         if ($sDir !== null) {
-            $oUserData = get_userdata($current_user->ID);
+            $oUserData = get_userdata($oCurrentUser->ID);
             
             if (!file_exists($sDir.".htpasswd") || $blCreateNew) {
                 if ($aUamOptions['file_pass_type'] == 'random') {
@@ -704,7 +706,7 @@ class UserAccessManager
             	'file_pass_type' => 'random', 
             	'lock_file_types' => 'all', 
             	'download_type' => 'fopen', 
-            	'locked_file_types' => 'zip,rar,tar,gz,bz2', 
+            	'locked_file_types' => 'zip,rar,tar,gz',
             	'not_locked_file_types' => 'gif,jpg,jpeg,png', 
             	'blog_admin_hint' => 'true', 
             	'blog_admin_hint_text' => '[L]',
@@ -1138,19 +1140,19 @@ class UserAccessManager
     /**
      * The function for the manage_users_custom_column action.
      * 
-     * @param string  $sEmpty      An empty string from wordpress? What the hell?!?
+     * @param string  $sReturn     The normal return value.
      * @param string  $sColumnName The column name.
      * @param integer $iId         The _iId.
      * 
      * @return string|null
      */
-    public function addUserColumn($sEmpty, $sColumnName, $iId)
+    public function addUserColumn($sReturn, $sColumnName, $iId)
     {
         if ($sColumnName == 'uam_access') {
             return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php', $iId, 'user');
         }
 
-        return null;
+        return $sReturn;
     }
     
     /**
@@ -1190,7 +1192,7 @@ class UserAccessManager
         global $wpdb;
 
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . "
         	WHERE object_id = ".$iUserId."
                 AND object_type = 'user'"
         );
@@ -1737,7 +1739,7 @@ class UserAccessManager
         }
         
         foreach ($aTerms as $sKey => $oTerm) {
-            if (!array_key_exists($oTerm->term_id, $aShowTerms)) {
+            if (!isset($aShowTerms[$oTerm->term_id])) {
                 unset($aTerms[$sKey]);
             }
         }
@@ -1786,17 +1788,17 @@ class UserAccessManager
             $aUamOptions = $this->getAdminOptions();
             
             if ($aUamOptions['blog_admin_hint'] == 'true') {
-                global $current_user;
-                
-                $oUserData = get_userdata($current_user->ID);
+                $oCurrentUser = $this->getCurrentUser();
+
+                $oUserData = get_userdata($oCurrentUser->ID);
 
                 if (!isset($oUserData->user_level)) {
                     return $sOutput;
                 }
-                
+
                 $oUamAccessHandler = $this->getAccessHandler();
-                
-                if ($oUamAccessHandler->userIsAdmin($current_user->ID)
+
+                if ($oUamAccessHandler->userIsAdmin($oCurrentUser->ID)
                     && count($oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId)) > 0
                 ) {
                     $sOutput .= $aUamOptions['blog_admin_hint_text'];
@@ -1874,7 +1876,7 @@ class UserAccessManager
      * @param string $sHeaders    The headers which are given from wordpress.
      * @param object $oPageParams The params of the current page.
      * 
-     * @return null
+     * @return string
      */
     public function redirect($sHeaders, $oPageParams)
     {
@@ -1899,6 +1901,20 @@ class UserAccessManager
                 $oObject = get_category($oPageParams->query_vars['cat_id']);
                 $oObjectType = 'category';
                 $iObjectId = $oObject->term_id;
+            } elseif (isset($oPageParams->query_vars['name'])) {
+                $oObject = get_page_by_title($oPageParams->query_vars['name'], OBJECT, 'post');
+
+                if ($oObject !== null) {
+                    $oObjectType = $oObject->post_type;
+                    $iObjectId = $oObject->ID;
+                }
+            } elseif (isset($oPageParams->query_vars['pagename'])) {
+                $oObject = get_page_by_title($oPageParams->query_vars['pagename']);
+
+                if ($oObject !== null) {
+                    $oObjectType = $oObject->post_type;
+                    $iObjectId = $oObject->ID;
+                }
             }
             
             if ($oObject === null || $oObject !== null && isset($oObjectType) && isset($iObjectId)
@@ -1907,6 +1923,8 @@ class UserAccessManager
                 $this->redirectUser($oObject);
             }
         }
+
+        return $sHeaders;
     }
     
     /**
@@ -1973,7 +1991,7 @@ class UserAccessManager
     }
     
     /**
-     * Delivers the content of the requestet file.
+     * Delivers the content of the requested file.
      * 
      * @param string $sObjectType The type of the requested file.
      * @param string $sObjectUrl  The file url.
@@ -2004,19 +2022,20 @@ class UserAccessManager
             
             /*
              * This only for compatibility
-             * mime_content_type has been deprecated as the PECL extension Fileinfo 
+             * mime_content_type has been deprecated as the PECL extension file info
              * provides the same functionality (and more) in a much cleaner way.
              */
             $sFileExt = strtolower(array_pop(explode('.', $sFileName)));
-            
+            $aMimeTypes = $this->_getMimeTypes();
+
             if (function_exists('finfo_open')) {
                 $sFileInfo = finfo_open(FILEINFO_MIME);
                 $sFileMimeType = finfo_file($sFileInfo, $sFile);
-                finfo_close($sFileMimeType);
+                finfo_close($sFileInfo);
             } elseif (function_exists('mime_content_type')) {
                 $sFileMimeType = mime_content_type($sFile);
-            } elseif (array_key_exists($sFileExt, $this->mimeTypes)) {
-                $sFileMimeType = $this->mimeTypes[$sFileExt];
+            } elseif (isset($aMimeTypes[$sFileExt])) {
+                $sFileMimeType = $aMimeTypes[$sFileExt];
             } else {
                 $sFileMimeType = 'application/octet-stream';
             }
@@ -2123,9 +2142,9 @@ class UserAccessManager
             $oPost = &get_post($iId);
             $aType = explode("/", $oPost->post_mime_type);
             $sType = $aType[1];
-            $sFileTypes = explode(",", $aUamOptions['locked_file_types']);
+            $aFileTypes = explode(',', $aUamOptions['locked_file_types']);
             
-            if ($aUamOptions['lock_file_types'] == 'all' || in_array($sType, $sFileTypes)) {
+            if ($aUamOptions['lock_file_types'] == 'all' || in_array($sType, $aFileTypes)) {
                 $sUrl = home_url('/').'?uamfiletype=attachment&uamgetfile='.$sUrl;
             }
         }

@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2010 Alexander Schneider
+ * @copyright 2008-2013 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -21,7 +21,7 @@ define('TXT_UAM_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least Wordpress
 define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the User Access Manager. <a href="%s">Click here to proceed</a>', 'user-access-manager'));
 define('TXT_UAM_FOPEN_WITHOUT_SAVEMODE_OFF', __('You setup fopen as download type for file at the User Access Manager settings, but for this option safe_mode=off is required. Please change the settings.', 'user-access-manager'));
 
-// --- Multiuse ---
+// --- Multiple use ---
 define('TXT_UAM_ALL', __('all', 'user-access-manager'));
 define('TXT_UAM_ONLY_GROUP_USERS', __('only group users', 'user-access-manager'));
 define('TXT_UAM_YES', __('Yes', 'user-access-manager'));
@@ -111,7 +111,7 @@ define('TXT_UAM_HIDE_EMPTY_CATEGORIES', __('Hide empty categories', 'user-access
 define('TXT_UAM_HIDE_EMPTY_CATEGORIES_DESC', __('Selecting "Yes" will hide empty categories which are containing only empty childes or no childes.', 'user-access-manager'));
 define('TXT_UAM_REDIRECT', __('Redirect user', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_DESC', __('Setup what happen if a user visit a post/page with no access.', 'user-access-manager'));
-define('TXT_UAM_REDIRECT_TO_BOLG', __('To blog startpage', 'user-access-manager'));
+define('TXT_UAM_REDIRECT_TO_BLOG', __('To blog startpage', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_PAGE', __('Custom page: ', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_URL', __('Custom URL: ', 'user-access-manager'));
 define('TXT_UAM_LOCK_RECURSIVE', __('Lock recursive', 'user-access-manager'));
@@ -200,7 +200,7 @@ define('TXT_UAM_NONCE_FAILURE', __('Sorry, your nonce did not verify.'));
 
 // --- Group info ---
 define('TXT_UAM_INFO', __('Info', 'user-access-manager'));
-define('TXT_UAM_GROUP_INFO', __('Group infos', 'user-access-manager'));
+define('TXT_UAM_GROUP_INFO', __('Group info', 'user-access-manager'));
 define('TXT_UAM_GROUP_MEMBERSHIP_BY_POST', __('Group membership given by posts', 'user-access-manager'));
 define('TXT_UAM_GROUP_MEMBERSHIP_BY_PAGE', __('Group membership given by pages', 'user-access-manager'));
 define('TXT_UAM_GROUP_MEMBERSHIP_BY_CATEGORY', __('Group membership given by categories', 'user-access-manager'));

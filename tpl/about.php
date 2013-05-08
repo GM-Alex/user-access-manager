@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2010 Alexander Schneider
+ * @copyright 2008-2013 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -39,7 +39,7 @@
         		<p>
         		    <strong><?php echo TXT_UAM_SPECIAL_THANKS; ?></strong><br/>
         		    <br/>
-        		    <?php echo TXT_UAM_THANKS_TO; ?> Luke Crouch, Juan Rodriguez, mkosel, Jan, GeorgWP, Ron Harding, Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, Hadi Mostafapour, Diego Valobra, PoleeK, Konsult, Mesut Soylu, ranwaldo <?php echo TXT_UAM_THANKS_OTHERS; ?>.
+        		    <?php echo TXT_UAM_THANKS_TO; ?> Luke Crouch, Juan Rodriguez, mkosel, Jan, GeorgWP, Ron Harding, Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, Hadi Mostafapour, Diego Valobra, PoleeK, Konsult, Mesut Soylu, ranwaldo, Robert Egger, akiko.pusu, r3d pill, michel.weimerskirch, arjenbreur, jpr105 <?php echo TXT_UAM_THANKS_OTHERS; ?>.
         		</p>
         	</div>
         </div>

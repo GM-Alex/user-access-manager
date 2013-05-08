@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2010 Alexander Schneider
+ * @copyright 2008-2013 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -580,7 +580,7 @@ if ($aUamOptions['redirect'] == "blog") {
     echo 'checked="checked"';
 } 
                     ?> />
-				    <?php echo TXT_UAM_REDIRECT_TO_BOLG; ?> 
+				    <?php echo TXT_UAM_REDIRECT_TO_BLOG; ?>
 				</label>&nbsp;&nbsp;&nbsp;&nbsp;
 				<label for="uam_redirect_custom_page"> 
 					<input type="radio" id="uam_redirect_custom_page" name="uam_redirect" value="custom_page" <?php
