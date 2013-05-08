@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
  * Author URI: http://www.gm-alex.de/
- * Version: 1.2.4.2
+ * Version: 1.2.4.3
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -312,7 +312,6 @@ if (isset($oUserAccessManager)) {
         add_filter('wp_get_attachment_url', array($oUserAccessManager, 'getFileUrl'), 10, 2);
         add_filter('the_posts', array($oUserAccessManager, 'showPost'));
         add_filter('posts_where_paged', array($oUserAccessManager, 'showPostSql'));
-        add_filter('pre_get_posts', array($oUserAccessManager, 'preGetPosts'));
         add_filter('wp_get_nav_menu_items', array($oUserAccessManager, 'showCustomMenu'));
         add_filter('comments_array', array($oUserAccessManager, 'showComment'));
         add_filter('the_comments', array($oUserAccessManager, 'showComment'));

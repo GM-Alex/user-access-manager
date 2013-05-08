@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.4.2";
+    protected $_sUamVersion = "1.2.4.3";
     protected $_sUamDbVersion = "1.1";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -1502,31 +1502,6 @@ class UserAccessManager
         
         return $sSql;
     }
-
-    /**
-     * The function for the pre_get_posts filter.
-     *
-     * @param WP_Query $oQuery The query object.
-     *
-     * @return null
-     */
-    function preGetPosts($oQuery)
-    {
-        if (is_admin() || ! $oQuery->is_main_query()) {
-            return null;
-        }
-
-        $oUamAccessHandler = $this->getAccessHandler();
-
-        $aUsersPosts = $oUamAccessHandler->getPostsForUser();
-
-        $oQuery->query_vars['post__in'] = array_merge(
-            $oQuery->query_vars['post__in'],
-            $aUsersPosts
-        );
-
-        return null;
-    }
     
     /**
      * The function for the wp_get_nav_menu_items filter.
@@ -1927,13 +1902,18 @@ class UserAccessManager
                 $oObjectType = 'category';
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
-                global $wpdb;
-                $sObjectName = $oPageParams->query_vars['name'];
-                $iObjectId = $wpdb->get_var("SELECT ID FROM $wpdb->posts WHERE post_title = '{$sObjectName}'");
+                $oObject = get_page_by_title($oPageParams->query_vars['name'], OBJECT, 'post');
 
-                if ($iObjectId) {
-                    $oObject = get_post($iObjectId);
+                if ($oObject !== null) {
                     $oObjectType = $oObject->post_type;
+                    $iObjectId = $oObject->ID;
+                }
+            } elseif (isset($oPageParams->query_vars['pagename'])) {
+                $oObject = get_page_by_title($oPageParams->query_vars['pagename']);
+
+                if ($oObject !== null) {
+                    $oObjectType = $oObject->post_type;
+                    $iObjectId = $oObject->ID;
                 }
             }
             
