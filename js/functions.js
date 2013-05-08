@@ -33,14 +33,6 @@ jQuery(document).ready(function(){
 	
 	
 	//Functions for the group info
-	
-	/*jQuery(".uam_group_info").css("display","none");
-	
-	jQuery(".uam_group_info_link").click(function(){
-		jQuery(this).parent().next().slideToggle("slow");
-		jQuery(this).parent().next().toggleClass("active");
-	});*/
-	
 	jQuery(".uam_group_info_link").tooltip({
 		effect: 'slide', 
 		relative: true,

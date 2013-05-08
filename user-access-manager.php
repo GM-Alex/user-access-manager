@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
  * Author URI: http://www.gm-alex.de/
- * Version: 1.2.3
+ * Version: 1.2.4.2
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -14,7 +14,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2010 Alexander Schneider
+ * @copyright 2008-2013 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -97,8 +97,8 @@ if (!function_exists("userAccessManagerAP")) {
      */
     function userAccessManagerAP()
     {
-        global $oUserAccessManager,
-        $current_user;
+        global $oUserAccessManager;
+        $oCurrentUser = $oUserAccessManager->getCurrentUser();
         
         if (!isset($oUserAccessManager)) {
             return;
@@ -122,7 +122,7 @@ if (!function_exists("userAccessManagerAP")) {
         }
         
         get_currentuserinfo();
-        $oCurUserData = get_userdata($current_user->ID);
+        $oCurUserData = get_userdata($oCurrentUser->ID);
         $oUamAccessHandler = $oUserAccessManager->getAccessHandler();
         
         if ($oUamAccessHandler->checkUserAccess()
@@ -194,8 +194,8 @@ if (!function_exists("userAccessManagerAPMenu")) {
      */
     function userAccessManagerAPMenu()
     {
-        global $oUserAccessManager,
-        $current_user;
+        global $oUserAccessManager;
+        $oCurrentUser = $oUserAccessManager->getCurrentUser();
         
         if (!isset($oUserAccessManager)) {
             return;
@@ -217,7 +217,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
             );
         }
         
-        $oCurUserData = get_userdata($current_user->ID);
+        $oCurUserData = get_userdata($oCurrentUser->ID);
         $oUamAccessHandler = $oUserAccessManager->getAccessHandler();
         
         if ($oUamAccessHandler->checkUserAccess()) {
@@ -312,8 +312,10 @@ if (isset($oUserAccessManager)) {
         add_filter('wp_get_attachment_url', array($oUserAccessManager, 'getFileUrl'), 10, 2);
         add_filter('the_posts', array($oUserAccessManager, 'showPost'));
         add_filter('posts_where_paged', array($oUserAccessManager, 'showPostSql'));
+        add_filter('pre_get_posts', array($oUserAccessManager, 'preGetPosts'));
         add_filter('wp_get_nav_menu_items', array($oUserAccessManager, 'showCustomMenu'));
         add_filter('comments_array', array($oUserAccessManager, 'showComment'));
+        add_filter('the_comments', array($oUserAccessManager, 'showComment'));
         add_filter('get_pages', array($oUserAccessManager, 'showPage'));
         add_filter('get_terms', array($oUserAccessManager, 'showTerms'), 10, 2);
         add_filter('get_next_post_where', array($oUserAccessManager, 'showNextPreviousPost'));

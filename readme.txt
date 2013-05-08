@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.2.3.1
+Stable tag: 1.2.4.2
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -12,7 +12,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible and writable for the specified group. This plugin is useful if you need a member area or a private section at your blog or you want that other people can write at your blog but not everywhere.
 
-Check out the [User Access Manager - NextGEN Gallery Extension](http://wordpress.org/extend/plugins/user-access-manager-nextgen-gallery-extension/) (Beta).
+Check out the [User Access Manager - NextGEN Gallery Extension](http://wordpress.org/extend/plugins/user-access-manager-nextgen-gallery-extension/).
 
 Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and report the issue here: [http://mantis.gm-alex.de](http://mantis.gm-alex.de). That is the only way to find bugs and see if the plugin works proper. Thanks.
 
@@ -71,6 +71,22 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+
+    1.2.4.2     2013/05/??  Fix pagination issue. Thanks to arjenbreur.
+                            Fix comment issue. Thanks to jpr105.
+                            Redirect if post/page is hidden and permalink is active.
+                            Change icon.
+
+    1.2.4.1     2013/05/06  Fix broken images issue.
+                            Fix duplicated key issue.
+                            Filter file types.
+                            Use wordpress mime types instead of the config array.
+
+    1.2.4       2013/05/01  Fix add column issue.
+                            Fix install bug.
+                            Fix error if no user is logged in. Thanks to Robert Egger and akiko.pusu.
+                            Fix media file issue.
+                            Optimize code.
 
     1.2.3.1     2013/05/01  Fix terms issue.
 
@@ -200,7 +216,7 @@ Here you found the changes in each version.
 
 <strong>How works the User Access Manager?</strong>
 
-All posts/pages which are not in a user access group are accessable to all users. Posts/pages can put to groupes by themselfe, categories or recursive (most by pages).
+All posts/pages which are not in a user access group are accessible to all users. Posts/pages can put to groups by themselves, categories or recursive (most by pages).
 
 <strong>How dose "Role affiliation" work?</strong>
 
