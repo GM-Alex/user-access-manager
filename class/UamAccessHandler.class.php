@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2010 Alexander Schneider
+ * @copyright 2008-2013 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -169,11 +169,8 @@ class UamAccessHandler
         	&& !$this->checkUserAccess('manage_user_groups')
         	&& $this->getUserAccessManager()->atAdminPanel()
         ) {
-            global $current_user;
-            //Force user info
-            wp_get_current_user();
-            
-            $aUserGroupsForUser = $this->getUserGroupsForObject('user', $current_user->ID);
+            $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
+            $aUserGroupsForUser = $this->getUserGroupsForObject('user', $oCurrentUser->ID);
             
             foreach ($aUserGroups as $sKey => $oUamUserGroup) {
                 if (!isset($aUserGroupsForUser[$oUamUserGroup->getId()])) {
@@ -374,11 +371,8 @@ class UamAccessHandler
         if (isset($this->_aObjectAccess[$sObjectType][$iObjectId])) {
             return $this->_aObjectAccess[$sObjectType][$iObjectId];
         }
-        
-        global $current_user;
-        //Force user info
-        wp_get_current_user();
-        
+
+        $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
         $aPostableTypes = $this->getPostableTypes();
 
         if (in_array($sObjectType, $aPostableTypes)) {
@@ -393,7 +387,7 @@ class UamAccessHandler
         
         if ($aMembership == array()
             || $this->checkUserAccess('manage_user_groups')
-            || $current_user->ID == $sAuthorId
+            || $oCurrentUser->ID == $sAuthorId
             && $aUamOptions['authors_has_access_to_own'] == 'true'
         ) {
             return $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
@@ -403,7 +397,7 @@ class UamAccessHandler
         
         foreach ($aMembership as $sKey => $oUserGroup) {
             if ($this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
-                || $oUserGroup->objectIsMember('user', $current_user->ID)
+                || $oUserGroup->objectIsMember('user', $oCurrentUser->ID)
             ) {
                 return $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
                 break;
@@ -438,12 +432,9 @@ class UamAccessHandler
         if (isset($this->_aSqlResults['groupsForUser'])) {
             return $this->_aSqlResults['groupsForUser'];
         }
-        
-        global $current_user;
-        //Force user info
-        wp_get_current_user();
-        
-        $aUserUserGroups = $this->getUserGroupsForObject('user', $current_user->ID, false);
+
+        $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
+        $aUserUserGroups = $this->getUserGroupsForObject('user', $oCurrentUser->ID, false);
         $aUserUserGroupIds = array();
         
         foreach ($aUserUserGroups as $oUserUserGroup) {
@@ -505,11 +496,12 @@ class UamAccessHandler
         }
         
         $sUserUserGroup = $this->_getUserGroupsForUserAsSqlString();
+        $sPostableTypes = "'".implode("','", $this->getPostableTypes())."'";
         
         $sPostAssignedToUserSql = "
         	SELECT igp.object_id  
         	FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igp
-        	WHERE igp.object_type = 'post'
+        	WHERE igp.object_type IN (".$sPostableTypes.")
             AND igp.group_id IN (".$sUserUserGroup.")";
         
         $this->_aSqlResults['postsAssignedToUser'] = $wpdb->get_col($sPostAssignedToUserSql);
@@ -688,19 +680,16 @@ class UamAccessHandler
      */
     public function checkUserAccess($blAllowedCapability = false)
     {
-        global $current_user;
-        //Force user info
-        wp_get_current_user();
-        
+        $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
         $aUamOptions = $this->getUserAccessManager()->getAdminOptions();
         
-        $sRole = $this->_getUserRole($current_user->ID);
+        $sRole = $this->_getUserRole($oCurrentUser->ID);
         $aOrderedRoles = $this->getRolesOrdered();
         
         if (isset($aOrderedRoles[$sRole])
             && $aOrderedRoles[$sRole] >= $aOrderedRoles[$aUamOptions['full_access_role']]
-            || $sRole == 'administrator' || is_super_admin($current_user->ID)
-            || ($blAllowedCapability && $current_user->has_cap($blAllowedCapability))
+            || $sRole == 'administrator' || is_super_admin($oCurrentUser->ID)
+            || ($blAllowedCapability && $oCurrentUser->has_cap($blAllowedCapability))
         ) {
             return true;
         }

@@ -1,23 +1,19 @@
 <?php
 /**
  * UserAccessManager.class.php
- * 
+ *
  * The UserAccessManager class file.
- * 
+ *
  * PHP versions 5
- * 
+ *
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2010 Alexander Schneider
+ * @copyright 2008-2013 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
-if (!function_exists('get_userdata')) {
-    include_once ABSPATH.'wp-includes/pluggable.php';
-}
 
 /**
  * The user user access manager class.
@@ -28,12 +24,11 @@ if (!function_exists('get_userdata')) {
  * @license  http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @link     http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.4.1";
+    protected $_sUamVersion = "1.2.4.2";
     protected $_sUamDbVersion = "1.1";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -419,6 +414,21 @@ class UserAccessManager
     }
 
     /**
+     * Returns the current user.
+     *
+     * @return WP_User
+     */
+    public function getCurrentUser()
+    {
+        if (!function_exists('get_userdata')) {
+            include_once ABSPATH.'wp-includes/pluggable.php';
+        }
+
+        //Force user information
+        return wp_get_current_user();
+    }
+
+    /**
      * Returns the full supported mine types.
      *
      * @return array
@@ -547,13 +557,10 @@ class UserAccessManager
      */
     public function createHtpasswd($blCreateNew = false, $sDir = null)
     {
+        $oCurrentUser = $this->getCurrentUser();
         if (!function_exists('get_userdata')) {
             include_once ABSPATH.'wp-includes/pluggable.php';
         }
-        
-        global $current_user;
-        //Force user infos
-        wp_get_current_user();
         
         $aUamOptions = $this->getAdminOptions();
 
@@ -567,7 +574,7 @@ class UserAccessManager
         }
         
         if ($sDir !== null) {
-            $oUserData = get_userdata($current_user->ID);
+            $oUserData = get_userdata($oCurrentUser->ID);
             
             if (!file_exists($sDir.".htpasswd") || $blCreateNew) {
                 if ($aUamOptions['file_pass_type'] == 'random') {
@@ -1495,6 +1502,31 @@ class UserAccessManager
         
         return $sSql;
     }
+
+    /**
+     * The function for the pre_get_posts filter.
+     *
+     * @param WP_Query $oQuery The query object.
+     *
+     * @return null
+     */
+    function preGetPosts($oQuery)
+    {
+        if (is_admin() || ! $oQuery->is_main_query()) {
+            return null;
+        }
+
+        $oUamAccessHandler = $this->getAccessHandler();
+
+        $aUsersPosts = $oUamAccessHandler->getPostsForUser();
+
+        $oQuery->query_vars['post__in'] = array_merge(
+            $oQuery->query_vars['post__in'],
+            $aUsersPosts
+        );
+
+        return null;
+    }
     
     /**
      * The function for the wp_get_nav_menu_items filter.
@@ -1781,17 +1813,17 @@ class UserAccessManager
             $aUamOptions = $this->getAdminOptions();
             
             if ($aUamOptions['blog_admin_hint'] == 'true') {
-                global $current_user;
-                
-                $oUserData = get_userdata($current_user->ID);
+                $oCurrentUser = $this->getCurrentUser();
+
+                $oUserData = get_userdata($oCurrentUser->ID);
 
                 if (!isset($oUserData->user_level)) {
                     return $sOutput;
                 }
-                
+
                 $oUamAccessHandler = $this->getAccessHandler();
-                
-                if ($oUamAccessHandler->userIsAdmin($current_user->ID)
+
+                if ($oUamAccessHandler->userIsAdmin($oCurrentUser->ID)
                     && count($oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId)) > 0
                 ) {
                     $sOutput .= $aUamOptions['blog_admin_hint_text'];
@@ -1869,7 +1901,7 @@ class UserAccessManager
      * @param string $sHeaders    The headers which are given from wordpress.
      * @param object $oPageParams The params of the current page.
      * 
-     * @return null
+     * @return string
      */
     public function redirect($sHeaders, $oPageParams)
     {
@@ -1894,6 +1926,15 @@ class UserAccessManager
                 $oObject = get_category($oPageParams->query_vars['cat_id']);
                 $oObjectType = 'category';
                 $iObjectId = $oObject->term_id;
+            } elseif (isset($oPageParams->query_vars['name'])) {
+                global $wpdb;
+                $sObjectName = $oPageParams->query_vars['name'];
+                $iObjectId = $wpdb->get_var("SELECT ID FROM $wpdb->posts WHERE post_title = '{$sObjectName}'");
+
+                if ($iObjectId) {
+                    $oObject = get_post($iObjectId);
+                    $oObjectType = $oObject->post_type;
+                }
             }
             
             if ($oObject === null || $oObject !== null && isset($oObjectType) && isset($iObjectId)
@@ -1902,6 +1943,8 @@ class UserAccessManager
                 $this->redirectUser($oObject);
             }
         }
+
+        return $sHeaders;
     }
     
     /**
@@ -1968,7 +2011,7 @@ class UserAccessManager
     }
     
     /**
-     * Delivers the content of the requestet file.
+     * Delivers the content of the requested file.
      * 
      * @param string $sObjectType The type of the requested file.
      * @param string $sObjectUrl  The file url.
@@ -1999,7 +2042,7 @@ class UserAccessManager
             
             /*
              * This only for compatibility
-             * mime_content_type has been deprecated as the PECL extension Fileinfo 
+             * mime_content_type has been deprecated as the PECL extension file info
              * provides the same functionality (and more) in a much cleaner way.
              */
             $sFileExt = strtolower(array_pop(explode('.', $sFileName)));
