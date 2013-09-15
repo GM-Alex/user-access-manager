@@ -28,12 +28,13 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.4.3";
+    protected $_sUamVersion = "1.2.5.0";
     protected $_sUamDbVersion = "1.1";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
     protected $_aMimeTypes = null;
+    protected $_aCache = array();
     
     /**
      * Constructor.
@@ -51,6 +52,33 @@ class UserAccessManager
     public function getAdminOptionsName()
     {
         return $this->_sAdminOptionsName;
+    }
+
+    /**
+     * Adds the variable to the cache.
+     *
+     * @param string $sKey   The cache key
+     * @param mixed  $mValue The value.
+     */
+    public function addToCache($sKey, $mValue)
+    {
+        $this->_aCache[$sKey] = $mValue;
+    }
+
+    /**
+     * Returns a value from the cache by the given key.
+     *
+     * @param string $sKey
+     *
+     * @return mixed
+     */
+    public function getFromCache($sKey)
+    {
+        if (isset($this->_aCache[$sKey])) {
+            return $this->_aCache[$sKey];
+        }
+
+        return null;
     }
     
     /**
@@ -958,29 +986,48 @@ class UserAccessManager
     {        
         $oUamAccessHandler = $this->getAccessHandler();
         $oUamOptions = $this->getAdminOptions();
-        
-        if (isset($_POST['uam_update_groups'])
+        $aFormData = array();
+
+        if (isset($_POST['uam_update_groups'])) {
+            $aFormData = $_POST;
+        } elseif (isset($_GET['uam_update_groups'])) {
+            $aFormData = $_GET;
+        }
+
+        if (isset($aFormData['uam_update_groups'])
             && ($oUamAccessHandler->checkUserAccess('manage_user_groups')
             || $oUamOptions['authors_can_add_posts_to_groups'] == 'true')
-        ) {            
-            $aUserGroupsForObject = $oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
+        ) {
+            if ($aUserGroups === null) {
+                $aUserGroups = isset($aFormData['uam_usergroups']) ? $aFormData['uam_usergroups'] : array();
+            }
 
-            foreach ($aUserGroupsForObject as $oUamUserGroup) {
-                $oUamUserGroup->removeObject($sObjectType, $iObjectId);
-                $oUamUserGroup->save();
-            }
-            
-            if ($aUserGroups === null && isset($_POST['uam_usergroups'])) {
-                $aUserGroups = $_POST['uam_usergroups'];
-            }
-            
-            if ($aUserGroups !== null) {
-                foreach ($aUserGroups as $iUserGroupId) {
-                    $oUamUserGroup = $oUamAccessHandler->getUserGroups($iUserGroupId);
-    
-                    $oUamUserGroup->addObject($sObjectType, $iObjectId);
-                    $oUamUserGroup->save();
+            $aAddUserGroups = array_flip($aUserGroups);
+            $aRemoveUserGroups = $oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
+            $aUamUserGroups = $oUamAccessHandler->getUserGroups();
+            $blRemoveOldAssignments = true;
+
+            if (isset($aFormData['uam_bulk_type'])) {
+                $sBulkType = $aFormData['uam_bulk_type'];
+
+                if ($sBulkType === 'add') {
+                    $blRemoveOldAssignments = false;
+                } elseif ($sBulkType === 'remove') {
+                    $aRemoveUserGroups = $aAddUserGroups;
+                    $aAddUserGroups = array();
                 }
+            }
+
+            foreach ($aUamUserGroups as $sGroupId => $oUamUserGroup) {
+                if (isset($aRemoveUserGroups[$sGroupId])) {
+                    $oUamUserGroup->removeObject($sObjectType, $iObjectId);
+                }
+
+                if (isset($aAddUserGroups[$sGroupId])) {
+                    $oUamUserGroup->addObject($sObjectType, $iObjectId);
+                }
+
+                $oUamUserGroup->save($blRemoveOldAssignments);
             }
         }
     }
@@ -1031,6 +1078,13 @@ class UserAccessManager
     {
         $iObjectId = $oPost->ID;
         include UAM_REALPATH.'tpl/postEditForm.php';
+    }
+
+    public function addBulkAction($sColumnName)
+    {
+        if ($sColumnName == 'uam_access') {
+            include UAM_REALPATH.'tpl/bulkEditForm.php';
+        }
     }
     
     /**

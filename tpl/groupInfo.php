@@ -50,21 +50,25 @@ if (!function_exists('walkPath')) {
 global $oUserAccessManager;
 
 foreach ($oUserAccessManager->getAccessHandler()->getAllObjectTypes() as $sCurObjectType) {
-    if (isset($aUserGroupsForObject[$oUamUserGroup->getId()]->aSetRecursive[$sObjectType][$iObjectId][$sCurObjectType])) {
-        ?>
-		<li  class="uam_group_info_head">
-		<?php echo constant('TXT_UAM_GROUP_MEMBERSHIP_BY_'.strtoupper($sCurObjectType)); ?>:
-			<ul>
-	    <?php
-	    foreach ($aUserGroupsForObject[$oUamUserGroup->getId()]->aSetRecursive[$sObjectType][$iObjectId][$sCurObjectType] as $oObject) {
-	        ?>
-	    		<li class="recusiveTree"><?php echo walkPath($oObject, $sCurObjectType); ?></li>
-	        <?php
-	    }
-	    ?>
-			</ul>
-		</li>
-        <?php 
+    if (isset($aUserGroups[$oUamUserGroup->getId()])) {
+        $aRecursiveMembership = $aUserGroups[$oUamUserGroup->getId()]->getRecursiveMembershipForObjectType($sObjectType, $iObjectId, $sCurObjectType);
+
+        if (count($aRecursiveMembership) > 0) {
+            ?>
+            <li  class="uam_group_info_head">
+            <?php echo constant('TXT_UAM_GROUP_MEMBERSHIP_BY_'.strtoupper($sCurObjectType)); ?>:
+                <ul>
+            <?php
+            foreach ($aRecursiveMembership as $oObject) {
+                ?>
+                    <li class="recusiveTree"><?php echo walkPath($oObject, $sCurObjectType); ?></li>
+                <?php
+            }
+            ?>
+                </ul>
+            </li>
+            <?php
+        }
     }
 }
 ?>

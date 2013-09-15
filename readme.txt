@@ -3,7 +3,7 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
-Tested up to: 3.5.1
+Tested up to: 3.6.1
 Stable tag: 1.2.4.3
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.

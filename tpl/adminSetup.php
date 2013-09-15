@@ -116,15 +116,13 @@ if ($oUserAccessManager->isDatabaseUpdateNecessary()) {
 	<?php 
     if (is_super_admin()) {
 	    ?>
-            				<label for="uam_update_db_yes"> 
-            					<input type="radio" id="uam_update_db_yes" class="uam_reset_yes" name="uam_update_db" value="network" /> 
-            					<?php echo TXT_UAM_UPDATE_NETWORK; ?> 
-            				</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="radio" id="uam_update_db_network" class="uam_reset_yes" name="uam_update_db" value="network" />
+            				<label for="uam_update_db_network"><?php echo TXT_UAM_UPDATE_NETWORK; ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
 	    <?php
     }
 	?>
-            				<label for="uam_update_db_yes"> 
-            					<input type="radio" id="uam_update_db_yes" class="uam_reset_yes" name="uam_update_db" value="true" /> 
+                            <input type="radio" id="uam_update_db_yes" class="uam_reset_yes" name="uam_update_db" value="true" />
+            				<label for="uam_update_db_yes">
 	<?php 
 	if (is_super_admin()) { 
 	    echo TXT_UAM_UPDATE_BLOG; 
@@ -133,10 +131,8 @@ if ($oUserAccessManager->isDatabaseUpdateNecessary()) {
 	} 
 	?> 
             				</label>&nbsp;&nbsp;&nbsp;&nbsp;
-            				<label for="uam_update_db_no"> 
-            					<input type="radio" id="uam_update_db_no" class="uam_reset_no" name="uam_update_db" value="false" checked="checked" /> 
-            					<?php echo TXT_UAM_NO; ?> 
-            				</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="radio" id="uam_update_db_no" class="uam_reset_no" name="uam_update_db" value="false" checked="checked" />
+                            <label for="uam_update_db_no"><?php echo TXT_UAM_NO; ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
             				<input type="submit" class="button" name="uam_update_db_submit" value="<?php echo TXT_UAM_UPDATE; ?>" /> <br />
             				<p style="color: red; font-size: 12px; font-weight: bold;">
             				    <?php echo TXT_UAM_UPDATE_UAM_DB_DESC; ?>

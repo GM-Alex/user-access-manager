@@ -53,7 +53,7 @@ class UamAccessHandler
      * 
      * @param UserAccessManager $oUserAccessManager The user access manager object.
      */
-    public function __construct(UserAccessManager $oUserAccessManager)
+    public function __construct(UserAccessManager &$oUserAccessManager)
     {
         $this->_oUserAccessManager = $oUserAccessManager;
         
@@ -183,10 +183,10 @@ class UamAccessHandler
     }
     
     /**
-     * Returns all user groups or one requested by the user group _iId.
+     * Returns all user groups or one requested by the user group id.
      * 
-     * @param integer $iUserGroupId The _iId of the single user group which should be returned.
-     * @param boolean $blFilter      Filter the groups.
+     * @param integer $iUserGroupId The id of the single user group which should be returned.
+     * @param boolean $blFilter     Filter the groups.
      * 
      * @return UamUserGroup[]|UamUserGroup
      */
@@ -237,13 +237,17 @@ class UamAccessHandler
         }
         
         if ($iUserGroupId == null) {
-            return $this->_aUserGroups[$sFilterAttr];
+            if (isset($this->_aUserGroups[$sFilterAttr])) {
+                return $this->_aUserGroups[$sFilterAttr];
+            }
+
+            return array();
         } else {
             if (isset($this->_aUserGroups[$sFilterAttr][$iUserGroupId])) {
                 return $this->_aUserGroups[$sFilterAttr][$iUserGroupId];
-            } else {
-                return null;
             }
+
+            return null;
         }
     }
     
@@ -301,45 +305,54 @@ class UamAccessHandler
         } else {
             $sFilterAttr = 'noneFiltered';
         }
-        
+
         if (isset($this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId])) {
             return $this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId];
         }
-        
-        $aObjectUserGroups = array();
-        $aUserGroups = $this->getUserGroups(null, $blFilter);
-        
-        /*$blPlObject = false;
-        $aPostableTypes = $this->getPostableTypes();
 
-        if (!in_array($sObjectType, $aPostableTypes)) {
-            $blPlObject = true;
-        }*/
-       
-        $aCurIp = explode(".", $_SERVER['REMOTE_ADDR']);
-        
-        if (isset($aUserGroups)) {
-            foreach ($aUserGroups as $oUserGroup) {
-                $mObjectMembership = $oUserGroup->objectIsMember($sObjectType, $iObjectId, true);
+        $sCacheKey = 'getUserGroupsForObject|'.$sObjectType.'|'.$sFilterAttr.'|'.$iObjectId;
+        $oUserAccessManager = $this->getUserAccessManager();
+        $aObjectUserGroups = $oUserAccessManager->getFromCache($sCacheKey);
 
-                if ($mObjectMembership !== false
-                    || $sObjectType == 'user'
-                    && $this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
-                ) {
-                    if (is_array($mObjectMembership)) {
-                        $oUserGroup->aSetRecursive[$sObjectType][$iObjectId] = $mObjectMembership;
+        if ($aObjectUserGroups !== null) {
+            $this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId] = $aObjectUserGroups;
+        } else {
+            $aObjectUserGroups = array();
+            $aUserGroups = $this->getUserGroups(null, $blFilter);
+
+            /*$blPlObject = false;
+            $aPostableTypes = $this->getPostableTypes();
+
+            if (!in_array($sObjectType, $aPostableTypes)) {
+                $blPlObject = true;
+            }*/
+
+            $aCurIp = explode(".", $_SERVER['REMOTE_ADDR']);
+
+            if (isset($aUserGroups)) {
+                foreach ($aUserGroups as $oUserGroup) {
+                    $mObjectMembership = $oUserGroup->objectIsMember($sObjectType, $iObjectId, true);
+
+                    if ($mObjectMembership !== false
+                        || $sObjectType == 'user' && $this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
+                    ) {
+                        if (is_array($mObjectMembership)) {
+                            $oUserGroup->setRecursiveMembership($sObjectType, $iObjectId, $mObjectMembership);
+                        }
+
+                        $aObjectUserGroups[$oUserGroup->getId()] = $oUserGroup;
                     }
-
-                    $aObjectUserGroups[$oUserGroup->getId()] = $oUserGroup;
                 }
             }
+
+            //Filter the user groups
+            if ($blFilter) {
+                $aObjectUserGroups = $this->_filterUserGroups($aObjectUserGroups);
+            }
+
+            $oUserAccessManager->addToCache($sCacheKey, $aObjectUserGroups);
         }
-        
-        //Filter the user groups
-        if ($blFilter) {
-            $aObjectUserGroups = $this->_filterUserGroups($aObjectUserGroups);
-        }
-        
+
         $this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId] = $aObjectUserGroups;
         return $this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId];
     }

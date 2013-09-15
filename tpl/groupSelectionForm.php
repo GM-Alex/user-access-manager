@@ -28,19 +28,21 @@ foreach ($aUamUserGroups as $oUamUserGroup) {
     $sAddition = '';
     $sAttributes = '';
     
-    if (array_key_exists($oUamUserGroup->getId(), $aUserGroupsForObject)) {
+    if (isset($aUserGroupsForObject[$oUamUserGroup->getId()])) {
         $sAttributes .= 'checked="checked" ';
+
+        if ($aUserGroupsForObject[$oUamUserGroup->getId()]->isLockedRecursive($sObjectType, $iObjectId)) {
+            $sAttributes .= 'disabled="" ';
+            $sAddition .= ' [LR]';
+        }
     }
     
-    if (isset($aUserGroupsForObject[$oUamUserGroup->getId()]->aSetRecursive[$sObjectType][$iObjectId])) {
-        $sAttributes .= 'disabled="" ';
-		$sAddition .= ' [LR]';
-	}
+
     
 	?>
 	<li>
+        <input type="checkbox" id="<?php echo $sGroupsFormName; ?>-<?php echo $oUamUserGroup->getId(); ?>" <?php echo $sAttributes;?> value="<?php echo $oUamUserGroup->getId(); ?>" name="<?php echo $sGroupsFormName; ?>[]" />
 		<label for="<?php echo $sGroupsFormName; ?>-<?php echo $oUamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
-			<input type="checkbox" id="<?php echo $sGroupsFormName; ?>-<?php echo $oUamUserGroup->getId(); ?>" <?php echo $sAttributes;?> value="<?php echo $oUamUserGroup->getId(); ?>" name="<?php echo $sGroupsFormName; ?>[]" />
 			<?php echo $oUamUserGroup->getGroupName().$sAddition; ?>
 		</label>
 		<a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
