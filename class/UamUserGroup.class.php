@@ -40,6 +40,9 @@ class UamUserGroup
     protected $_aAssignedObjects = null;
     protected $_aPlObjects = array();
     protected $_aSetRecursive = array();
+    protected $_aValidObjectTypes = array();
+    protected $_aObjectsInCategory = null;
+    protected $_aObjectIsMember = array();
 
     /**
      * Constructor
@@ -341,6 +344,18 @@ class UamUserGroup
     }
 
     /**
+     * Checks if the object type is a valid one.
+     *
+     * @param string $sObjectType The object type to check.
+     *
+     * @return boolean
+     */
+    public function isValidObjectType($sObjectType)
+    {
+        return $this->getAccessHandler()->isValidObjectType($sObjectType);
+    }
+
+    /**
      * Sets the recursive object membership.
      *
      * @param string  $sObjectType       The object type.
@@ -502,7 +517,7 @@ class UamUserGroup
      */
     public function addObject($sObjectType, $iObjectId)
     {
-        if (!in_array($sObjectType, $this->getAllObjectTypes())) {
+        if (!$this->isValidObjectType($sObjectType)) {
             return;
         }
         
@@ -528,7 +543,7 @@ class UamUserGroup
      */
     public function removeObject($sObjectType, $sObjectId)
     {
-        if (!in_array($sObjectType, $this->getAllObjectTypes())) {
+        if (!$this->isValidObjectType($sObjectType)) {
             return;
         }
         
@@ -594,10 +609,8 @@ class UamUserGroup
      */
     protected function _isObjectAssignedToGroup($sObjectType, $iObjectId)
     {
-        return array_key_exists(
-            $iObjectId,
-            $this->_getAssignedObjects($sObjectType)
-        );
+        $aAssignedObjects = $this->_getAssignedObjects($sObjectType);
+        return isset($aAssignedObjects[$iObjectId]);
     }
     
     /**
@@ -610,7 +623,7 @@ class UamUserGroup
      */
     public function unsetObjects($sObjectType, $blPlusRemove = false)
     {
-        if (!in_array($sObjectType, $this->getAllObjectTypes())) {
+        if (!$this->isValidObjectType($sObjectType)) {
             return;
         }
         
@@ -656,21 +669,26 @@ class UamUserGroup
      */
     public function objectIsMember($sObjectType, $iObjectId, $blWithInfo = false)
     {
-        if (!in_array($sObjectType, $this->getAllObjectTypes())) {
-            return false;
-        }
-        
-        $oObject = $this->_getSingleObject($sObjectType, $iObjectId, 'full');
-        
-        if ($oObject !== null) {
-            if ($blWithInfo && isset($oObject->recursiveMember)) {
-                return $oObject->recursiveMember;
+        $sCacheKey = $sObjectType.'|'.$iObjectId;
+        $sCacheKey .= ($blWithInfo) ? '|wi' : '|ni';
+
+        if (!isset($this->_aObjectIsMember[$sCacheKey])) {
+            $this->_aObjectIsMember[$sCacheKey] = false;
+
+            if ($this->isValidObjectType($sObjectType)) {
+                $oObject = $this->_getSingleObject($sObjectType, $iObjectId, 'full');
+
+                if ($oObject !== null) {
+                    if ($blWithInfo && isset($oObject->recursiveMember)) {
+                        $this->_aObjectIsMember[$sCacheKey] = $oObject->recursiveMember;
+                    }
+
+                    $this->_aObjectIsMember[$sCacheKey] = true;
+                }
             }
-            
-            return true;
         }
-        
-        return false;
+
+        return $this->_aObjectIsMember[$sCacheKey];
     }
 
     /**
@@ -683,7 +701,7 @@ class UamUserGroup
      */
     function getObjectsFromType($sObjectType, $sType = 'real')
     {
-        if (!in_array($sObjectType, $this->getAllObjectTypes())) {
+        if (!$this->isValidObjectType($sObjectType)) {
             return null;
         }
         
@@ -710,10 +728,7 @@ class UamUserGroup
             }
         }
         
-        $aPostableTypes = $this->getAccessHandler()->getPostableTypes();
-        $aPostableTypesMap = array_flip($aPostableTypes);
-        
-        if ($sType == 'full' && isset($aPostableTypesMap[$sObjectType]) && $sObjectType != 'role') {
+        if ($sType == 'full' && $this->getAccessHandler()->isPostableType($sObjectType) && $sObjectType != 'role') {
             if ($sObjectType == 'category') {
                 $this->_aObjects[$sObjectType][$sType] = $this->getFullCategories($this->_aObjects[$sObjectType][$sType]);
             } elseif ($sObjectType == 'user') {
@@ -741,50 +756,36 @@ class UamUserGroup
      */
     protected function _getSingleObject($sObjectType, $iObjectId, $sType)
     {
-        if (isset($this->_aSingleObjects[$sObjectType][$iObjectId])) {
-            return $this->_aSingleObjects[$sObjectType][$iObjectId];
-        }
-
-        $sCacheKey = '_getSingleObject|'.$sObjectType.'|'.$iObjectId.'|'.$sType;
-        $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $aSingleObject = $oUserAccessManager->getFromCache($sCacheKey);
-
-        if ($aSingleObject !== null) {
-            $this->_aSingleObjects[$sObjectType][$iObjectId] = ($aSingleObject === false) ? null : $aSingleObject;
-        } else {
+        if (!isset($this->_aSingleObjects[$sObjectType])
+            || !isset($this->_aSingleObjects[$sObjectType][$iObjectId])
+        ) {
+            $this->_aSingleObjects[$sObjectType][$iObjectId] = null;
             $aIsRecursiveMember = array();
 
             if ($sType == 'full' && $sObjectType != 'role') {
-                $aPostableTypes = $this->getAccessHandler()->getPostableTypes();
-
-                if (in_array($sObjectType, $aPostableTypes)) {
-                    $aIsRecursiveMember = $this->_getFullPost($sObjectType, $iObjectId);
-                } else if ($sObjectType == 'category') {
+                if ($sObjectType == 'category') {
                     $aIsRecursiveMember = $this->_getFullCategory($iObjectId);
-                } else if ($sObjectType == 'user') {
+                } elseif ($sObjectType == 'user') {
                     $aIsRecursiveMember = $this->_getFullUser($iObjectId);
+                } elseif ($this->getAccessHandler()->isPostableType($sObjectType)) {
+                    $aIsRecursiveMember = $this->_getFullPost($sObjectType, $iObjectId);
                 } else {
                     $aIsRecursiveMember = $this->_getFullPlObject($sObjectType, $iObjectId);
                 }
             }
 
-            if ($this->_isObjectAssignedToGroup($sObjectType, $iObjectId)
-                || $aIsRecursiveMember != array()
+            if ($aIsRecursiveMember != array()
+                || $this->_isObjectAssignedToGroup($sObjectType, $iObjectId)
             ) {
-                $oObject = new stdClass;
+                $oObject = new stdClass();
                 $oObject->id = $iObjectId;
 
                 if ($aIsRecursiveMember != array()) {
                     $oObject->recursiveMember = $aIsRecursiveMember;
                 }
 
-                $aSingleObject = $oObject;
-            } else {
-                $aSingleObject = false;
+                $this->_aSingleObjects[$sObjectType][$iObjectId] = $oObject;
             }
-
-            $oUserAccessManager->addToCache($sCacheKey, $aSingleObject);
-            $this->_aSingleObjects[$sObjectType][$iObjectId] = ($aSingleObject === false) ? null : $aSingleObject;
         }
 
         return $this->_aSingleObjects[$sObjectType][$iObjectId];
@@ -838,28 +839,36 @@ class UamUserGroup
      */
     public function getFullUsers()
     {
-        /**
-         * @var wpdb $wpdb
-         */
-        global $wpdb;
-        
-        $aDbUsers = $wpdb->get_results(
-        	"SELECT ID, user_nicename
-    		FROM ".$wpdb->users
-        );
-        
-        $aFullUsers = array();
-        
-        if (isset($aDbUsers)) {
-            foreach ($aDbUsers as $oDbUser) {
-                $oUser = $this->_getSingleObject('user', $oDbUser->ID, 'full');
-                
-                if ($oUser !== null) {
-                    $aFullUsers[$oUser->id] = $oUser;
+        $sCacheKey = 'getFullUsers';
+        $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
+        $aFullUsers = $oUserAccessManager->getFromCache($sCacheKey);
+
+        if ($aFullUsers === null) {
+            /**
+             * @var wpdb $wpdb
+             */
+            global $wpdb;
+
+            $aDbUsers = $wpdb->get_results(
+                "SELECT ID, user_nicename
+                FROM ".$wpdb->users
+            );
+
+            $aFullUsers = array();
+
+            if (isset($aDbUsers)) {
+                foreach ($aDbUsers as $oDbUser) {
+                    $oUser = $this->_getSingleObject('user', $oDbUser->ID, 'full');
+
+                    if ($oUser !== null) {
+                        $aFullUsers[$oUser->id] = $oUser;
+                    }
                 }
             }
+
+            $oUserAccessManager->addToCache($sCacheKey, $aFullUsers);
         }
-        
+
         return $aFullUsers;
     }
     
@@ -877,7 +886,7 @@ class UamUserGroup
      */
     protected function _getFullCategory($iObjectId)
     {
-        $oCategory = get_category($iObjectId);
+        $oCategory = $this->getAccessHandler()->getUserAccessManager()->getCategory($iObjectId);
 
         $aIsRecursiveMember = array();
         
@@ -895,15 +904,13 @@ class UamUserGroup
                 );
 
                 if ($oParentCategory !== null) {
-                    $oCurCategory = get_category($iObjectId);
+                    $oCurCategory = $this->getAccessHandler()->getUserAccessManager()->getCategory($iObjectId);
                     $oParentCategory->name = $oCurCategory->name;
                     
                     if (isset($oParentCategory->recursiveMember)) {
-                        $aIsRecursiveMember['category'][]
-                            = $oParentCategory;
+                        $aIsRecursiveMember['category'][] = $oParentCategory;
                     } else {
-                        $aIsRecursiveMember['category'][]
-                            = $oParentCategory;
+                        $aIsRecursiveMember['category'][] = $oParentCategory;
                     }
                 }
             }
@@ -984,31 +991,42 @@ class UamUserGroup
      */
     protected function _isPostInCategory($iPostId, $iCategoryId)
     {
-        $sCacheKey = '_isPostInCategory|'.$iPostId.'|'.$iCategoryId;
-        $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $blInCategory = $oUserAccessManager->getFromCache($sCacheKey);
+        if ($this->_aObjectsInCategory === null) {
+            $this->_aObjectsInCategory = array();
+            $sCacheKey = '_isPostInCategory';
+            $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
+            $aObjectsInCategory = $oUserAccessManager->getFromCache($sCacheKey);
 
-        if ($blInCategory === null) {
-            /**
-             * @var wpdb $wpdb
-             */
-            global $wpdb;
+            if ($aObjectsInCategory === null) {
+                /**
+                 * @var wpdb $wpdb
+                 */
+                global $wpdb;
 
-            $iCount = (int)$wpdb->get_var(
-                "SELECT COUNT(*)
-                FROM ".$wpdb->term_relationships." AS tr,
+                $aDbObjects = $wpdb->get_results(
+                    "SELECT tr.object_id AS objectId, tt.term_id AS categoryId
+                    FROM ".$wpdb->term_relationships." AS tr,
                     ".$wpdb->term_taxonomy." AS tt
-                WHERE tr.object_id = '".$iPostId."'
-                    AND tt.term_id = '".$iCategoryId."'
-                    AND tr.term_taxonomy_id = tt.term_taxonomy_id
+                WHERE tr.term_taxonomy_id = tt.term_taxonomy_id
                     AND tt.taxonomy = 'category'"
-            );
+                );
 
-            $blInCategory = ($iCount > 0) ? true : false;
-            $oUserAccessManager->addToCache($sCacheKey, $blInCategory);
+                foreach ($aDbObjects as $oDbObject) {
+                    if (!isset($this->_aObjectsInCategory[$oDbObject->objectId])) {
+                        $this->_aObjectsInCategory[$oDbObject->objectId] = array();
+                    }
+
+                    $this->_aObjectsInCategory[$oDbObject->objectId][$oDbObject->categoryId] = $oDbObject->categoryId;
+                }
+
+                $oUserAccessManager->addToCache($sCacheKey, $this->_aObjectsInCategory);
+            } else {
+                $this->_aObjectsInCategory = $aObjectsInCategory;
+            }
         }
 
-        return $blInCategory;
+        return (isset($this->_aObjectsInCategory[$iPostId])
+            &&  isset($this->_aObjectsInCategory[$iPostId][$iCategoryId]));
     }
     
     /**
@@ -1021,36 +1039,33 @@ class UamUserGroup
      */
     protected function _getFullPost($sPostType, $sObjectId)
     {
-        $oPost = get_post($sObjectId);
-        
         $aIsRecursiveMember = array();
-        
-        $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $aUamOptions = $oUserAccessManager->getAdminOptions();
-        
+        $oPost = $this->getAccessHandler()->getUserAccessManager()->getPost($sObjectId);
+        $aUamOptions = $this->getAccessHandler()->getUserAccessManager()->getAdminOptions();
+
         foreach ($this->getObjectsFromType('category', 'full') as $oCategory) {
             if ($this->_isPostInCategory($oPost->ID, $oCategory->id)) {
-                $oCategoryObject = get_category($oCategory->id);
+                $oCategoryObject = $this->getAccessHandler()->getUserAccessManager()->getCategory($oCategory->id);
                 $oCategory->name = $oCategoryObject->name;
                 
                 $aIsRecursiveMember['category'][] = $oCategory;
             }
         }
         
-        if (get_option('show_on_front') == 'page'
-            && $oPost->post_parent == 0
+        if ($oPost->post_parent == 0
             && $oPost->post_type == 'post'
-            && get_option('page_for_posts') != $sObjectId
+            && $this->getAccessHandler()->getUserAccessManager()->getWpOption('show_on_front') == 'page'
+            && $this->getAccessHandler()->getUserAccessManager()->getWpOption('page_for_posts') != $sObjectId
         ) {
-            $iParentId = get_option('page_for_posts');
+            $iParentId = $this->getAccessHandler()->getUserAccessManager()->getWpOption('page_for_posts');
         } else {
             $iParentId = $oPost->post_parent;
         }
 
-        if ($aUamOptions['lock_recursive'] == 'true'
-        	&& $iParentId != 0
+        if ($iParentId != 0
+        	&& $aUamOptions['lock_recursive'] == 'true'
         ) {
-            $oParent = get_post($iParentId);
+            $oParent = $this->getAccessHandler()->getUserAccessManager()->getPost($iParentId);
             
             $oParentPost = $this->_getSingleObject(
                 $oParent->post_type,
@@ -1059,7 +1074,7 @@ class UamUserGroup
             );
     
             if ($oParentPost !== null) {
-                $oPostObject = get_post($oParentPost->id);
+                $oPostObject = $this->getAccessHandler()->getUserAccessManager()->getPost($oParentPost->id);
                 $oParentPost->name = $oPostObject->post_title;
 
                 $aIsRecursiveMember[$oParent->post_type][] = $oParentPost;

@@ -45,8 +45,11 @@ class UamAccessHandler
         'page',
         'attachment',
     );
+    protected $__aPostableTypesMap = array();
     protected $_aAllObjectTypes = null;
+    protected $_aAllObjectTypesMap = null;
     protected $_aSqlResults = array();
+    protected $_aValidObjectTypes = array();
     
     /**
      * The constructor
@@ -64,8 +67,22 @@ class UamAccessHandler
                 $this->_aPostableTypes[] = $oPostType->name;
             }
         }
+
+        $this->_aPostableTypesMap = array_flip($this->_aPostableTypes);
         
         $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes);
+    }
+
+    /**
+     * Checks if type is postable.
+     *
+     * @param string $sType
+     *
+     * @return bool
+     */
+    public function isPostableType($sType)
+    {
+        return isset($this->_aPostableTypes[$sType]);
     }
     
     /**
@@ -99,24 +116,36 @@ class UamAccessHandler
     }
     
     /**
-     * Returns all _aObjects types.
+     * Returns all objects types.
      * 
      * @return array
      */
     public function getAllObjectTypes()
     {
-        if (isset($this->_aAllObjectTypes)) {
-            return $this->_aAllObjectTypes;
+        if ($this->_aAllObjectTypes === null) {
+            $aPlObjects = $this->getPlObjects();
+
+            $this->_aAllObjectTypes = array_merge(
+                $this->_aObjectTypes,
+                array_keys($aPlObjects)
+            );
         }
         
-        $aPlObjects = $this->getPlObjects();
-
-        $this->_aAllObjectTypes = array_merge(
-            $this->_aObjectTypes,
-            array_keys($aPlObjects)
-        );
-        
         return $this->_aAllObjectTypes;
+    }
+
+    /**
+     * Returns all objects types as map.
+     *
+     * @return array
+     */
+    public function getAllObjectTypesMap()
+    {
+        if ($this->_aAllObjectTypesMap === null) {
+            $this->_aAllObjectTypesMap = array_flip($this->getAllObjectTypes());
+        }
+
+        return $this->_aAllObjectTypesMap;
     }
     
     /**
@@ -180,6 +209,28 @@ class UamAccessHandler
         }
         
         return $aUserGroups;
+    }
+
+    /**
+     * Checks if the object type is a valid one.
+     *
+     * @param string $sObjectType The object type to check.
+     *
+     * @return boolean
+     */
+    public function isValidObjectType($sObjectType)
+    {
+        if (!isset($this->_aValidObjectTypes[$sObjectType])) {
+            $aObjectTypesMap = $this->getAllObjectTypesMap();
+
+            if (isset($aObjectTypesMap[$sObjectType])) {
+                $this->_aValidObjectTypes[$sObjectType] = true;
+            } else {
+                $this->_aValidObjectTypes[$sObjectType] = false;
+            }
+        }
+
+        return $this->_aValidObjectTypes[$sObjectType];
     }
     
     /**
@@ -292,7 +343,7 @@ class UamAccessHandler
      */
     public function getUserGroupsForObject($sObjectType, $iObjectId, $blFilter = true)
     {
-        if (!in_array($sObjectType, $this->getAllObjectTypes())) {
+        if (!$this->isValidObjectType($sObjectType)) {
             return array();
         }
         
@@ -319,13 +370,6 @@ class UamAccessHandler
         } else {
             $aObjectUserGroups = array();
             $aUserGroups = $this->getUserGroups(null, $blFilter);
-
-            /*$blPlObject = false;
-            $aPostableTypes = $this->getPostableTypes();
-
-            if (!in_array($sObjectType, $aPostableTypes)) {
-                $blPlObject = true;
-            }*/
 
             $aCurIp = explode(".", $_SERVER['REMOTE_ADDR']);
 
@@ -377,7 +421,7 @@ class UamAccessHandler
      */
     public function checkObjectAccess($sObjectType, $iObjectId)
     {
-        if (!in_array($sObjectType, $this->getAllObjectTypes())) {
+        if (!$this->isValidObjectType($sObjectType)) {
             return true;
         }
         
@@ -386,10 +430,9 @@ class UamAccessHandler
         }
 
         $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
-        $aPostableTypes = $this->getPostableTypes();
 
-        if (in_array($sObjectType, $aPostableTypes)) {
-            $oPost = get_post($iObjectId);
+        if ($this->isPostableType($sObjectType)) {
+            $oPost = $this->getUserAccessManager()->getPost($iObjectId);
             $sAuthorId = $oPost->post_author;
         } else {
             $sAuthorId = -1;
@@ -413,7 +456,6 @@ class UamAccessHandler
                 || $oUserGroup->objectIsMember('user', $oCurrentUser->ID)
             ) {
                 return $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
-                break;
             }
             
             if ($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all'
@@ -687,11 +729,11 @@ class UamAccessHandler
     /**
      * Checks the user access by user level.
      *
-     * @param boolean $blAllowedCapability If true check also for the capability.
+     * @param bool|string $sAllowedCapability If true check also for the capability.
      *
      * @return boolean
      */
-    public function checkUserAccess($blAllowedCapability = false)
+    public function checkUserAccess($sAllowedCapability = false)
     {
         $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
         $aUamOptions = $this->getUserAccessManager()->getAdminOptions();
@@ -702,7 +744,7 @@ class UamAccessHandler
         if (isset($aOrderedRoles[$sRole])
             && $aOrderedRoles[$sRole] >= $aOrderedRoles[$aUamOptions['full_access_role']]
             || $sRole == 'administrator' || is_super_admin($oCurrentUser->ID)
-            || ($blAllowedCapability && $oCurrentUser->has_cap($blAllowedCapability))
+            || ($sAllowedCapability && $oCurrentUser->has_cap($sAllowedCapability))
         ) {
             return true;
         }
