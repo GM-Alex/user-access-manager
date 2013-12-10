@@ -1036,6 +1036,8 @@ class UserAccessManager
             $aFormData = $_GET;
         }
 
+        //TODO
+
         if (isset($aFormData['uam_update_groups'])
             && ($oUamAccessHandler->checkUserAccess('manage_user_groups')
             || $oUamOptions['authors_can_add_posts_to_groups'] == 'true')

@@ -174,7 +174,7 @@ class UamUserGroup
             if ($blRemoveOldAssignments === true) {
                 foreach ($this->getAllObjectTypes() as $sObjectType) {
                     //Load to object
-                    //$this->getObjectsFromType($sObjectType);
+                    $this->getObjectsFromType($sObjectType);
 
                     //Delete form database
                     $this->_deleteObjectsFromDb($sObjectType);
@@ -681,9 +681,9 @@ class UamUserGroup
                 if ($oObject !== null) {
                     if ($blWithInfo && isset($oObject->recursiveMember)) {
                         $this->_aObjectIsMember[$sCacheKey] = $oObject->recursiveMember;
+                    } else {
+                        $this->_aObjectIsMember[$sCacheKey] = true;
                     }
-
-                    $this->_aObjectIsMember[$sCacheKey] = true;
                 }
             }
         }
@@ -719,7 +719,7 @@ class UamUserGroup
         }
 
         $aObjectIds = $this->_getAssignedObjects($sObjectType);
-        
+
         foreach ($aObjectIds as $sObjectId) {
             $oObject = $this->_getSingleObject($sObjectType, $sObjectId, $sType);
             
@@ -906,12 +906,7 @@ class UamUserGroup
                 if ($oParentCategory !== null) {
                     $oCurCategory = $this->getAccessHandler()->getUserAccessManager()->getCategory($iObjectId);
                     $oParentCategory->name = $oCurCategory->name;
-                    
-                    if (isset($oParentCategory->recursiveMember)) {
-                        $aIsRecursiveMember['category'][] = $oParentCategory;
-                    } else {
-                        $aIsRecursiveMember['category'][] = $oParentCategory;
-                    }
+                    $aIsRecursiveMember['category'][] = $oParentCategory;
                 }
             }
         }
@@ -1033,14 +1028,14 @@ class UamUserGroup
      * Returns the membership of a single post.
      * 
      * @param string  $sPostType The post type needed for the intern representation.
-     * @param integer $sObjectId The object _iId.
+     * @param integer $iObjectId The object _iId.
      * 
      * @return object
      */
-    protected function _getFullPost($sPostType, $sObjectId)
+    protected function _getFullPost($sPostType, $iObjectId)
     {
         $aIsRecursiveMember = array();
-        $oPost = $this->getAccessHandler()->getUserAccessManager()->getPost($sObjectId);
+        $oPost = $this->getAccessHandler()->getUserAccessManager()->getPost($iObjectId);
         $aUamOptions = $this->getAccessHandler()->getUserAccessManager()->getAdminOptions();
 
         foreach ($this->getObjectsFromType('category', 'full') as $oCategory) {
@@ -1055,7 +1050,7 @@ class UamUserGroup
         if ($oPost->post_parent == 0
             && $oPost->post_type == 'post'
             && $this->getAccessHandler()->getUserAccessManager()->getWpOption('show_on_front') == 'page'
-            && $this->getAccessHandler()->getUserAccessManager()->getWpOption('page_for_posts') != $sObjectId
+            && $this->getAccessHandler()->getUserAccessManager()->getWpOption('page_for_posts') != $iObjectId
         ) {
             $iParentId = $this->getAccessHandler()->getUserAccessManager()->getWpOption('page_for_posts');
         } else {

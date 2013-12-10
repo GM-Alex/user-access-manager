@@ -45,7 +45,7 @@ class UamAccessHandler
         'page',
         'attachment',
     );
-    protected $__aPostableTypesMap = array();
+    protected $_aPostableTypesMap = array();
     protected $_aAllObjectTypes = null;
     protected $_aAllObjectTypesMap = null;
     protected $_aSqlResults = array();
@@ -82,7 +82,7 @@ class UamAccessHandler
      */
     public function isPostableType($sType)
     {
-        return isset($this->_aPostableTypes[$sType]);
+        return isset($this->_aPostableTypesMap[$sType]);
     }
     
     /**

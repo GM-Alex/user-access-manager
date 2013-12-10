@@ -62,7 +62,7 @@ function insertUpdateGroup($iUserGroupId)
 }
 
 /**
- * Prints the group formular.
+ * Prints the group form.
  * 
  * @param integer $sGroupId The given group _iId.
  * 
