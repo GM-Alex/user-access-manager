@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
-Tested up to: 3.6.1
-Stable tag: 1.2.4.3
+Tested up to: 3.8.0
+Stable tag: 1.2.5.0
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -71,6 +71,9 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+
+    1.2.5.0     2013/12/13  Improve performance. Thanks to all testers.
+                            Add bulk edit feature.
 
     1.2.4.3     2013/05/08  Fix redirect if page is hidden and permalink is active issue.
                             Fix no access issue.

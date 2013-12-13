@@ -54,15 +54,6 @@ class UamUserGroup
     {
         $this->_oAccessHandler = $oUamAccessHandler;
 
-        //Create default values for the _aObjects.
-        foreach ($this->getAllObjectTypes() as $sObjectType) {
-            $this->_aObjects[$sObjectType] = array(
-            	'real' => -1,
-                'full' => -1
-            );
-            $this->_aAssignedObjects[$sObjectType] = null;
-        }
-
         if ($iId !== null) {
             /**
              * @var wpdb $wpdb
@@ -84,6 +75,19 @@ class UamUserGroup
             $this->_sReadAccess = $aDbUserGroup['read_access'];
             $this->_sWriteAccess = $aDbUserGroup['write_access'];
             $this->_sIpRange = $aDbUserGroup['ip_range'];
+        }
+
+        //Create default values for the objects.
+        foreach ($this->getAllObjectTypes() as $sObjectType) {
+            $this->_aAssignedObjects[$sObjectType] = null;
+            $this->_aObjects[$sObjectType] = array(
+                'real' => -1,
+                'full' => -1
+            );
+
+            if ($iId !== null) {
+                $this->getObjectsFromType($sObjectType);
+            }
         }
     }
     
@@ -173,9 +177,6 @@ class UamUserGroup
 
             if ($blRemoveOldAssignments === true) {
                 foreach ($this->getAllObjectTypes() as $sObjectType) {
-                    //Load to object
-                    $this->getObjectsFromType($sObjectType);
-
                     //Delete form database
                     $this->_deleteObjectsFromDb($sObjectType);
                 }

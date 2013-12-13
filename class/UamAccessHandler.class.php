@@ -808,7 +808,7 @@ class UamAccessHandler
     }
     
     /**
-     * Returns all registered pluggable _aObjects.
+     * Returns all registered pluggable objects.
      * 
      * @return array
      */
