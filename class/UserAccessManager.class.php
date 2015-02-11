@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.5.0";
+    protected $_sUamVersion = "1.2.6.0";
     protected $_sUamDbVersion = "1.1";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -366,7 +366,7 @@ class UserAccessManager
                 $sCharsetCollate = $this->_getCharset();
                 
                 $wpdb->query(
-                    "ALTER TABLE 'wp_uam_accessgroup_to_object' 
+                    "ALTER TABLE '{$sDbAccessGroupToObject}'
                     CHANGE 'object_id' 'object_id' VARCHAR(11)
                     ".$sCharsetCollate.";"
                 );
@@ -923,14 +923,9 @@ class UserAccessManager
     public function addScripts()
     {
         wp_enqueue_script(
-        	'UserAccessManagerJQueryTools', 
-            UAM_URLPATH . 'js/jquery.tools.min.js',
-            array('jquery')
-        );
-        wp_enqueue_script(
         	'UserAccessManagerFunctions', 
             UAM_URLPATH . 'js/functions.js', 
-            array('jquery', 'UserAccessManagerJQueryTools')
+            array('jquery')
         );
     }
     
@@ -1740,7 +1735,7 @@ class UserAccessManager
         $oTerm->name .= $this->adminOutput('term', $oTerm->term_id);
         
         if ($sTermType == 'post_tag'
-            || $sTermType == 'category'
+            || ( $sTermType == 'category' || $sTermType == $oTerm->taxonomy)
             && $oUamAccessHandler->checkObjectAccess('category', $oTerm->term_id)
         ) {
             if ($this->atAdminPanel() == false
