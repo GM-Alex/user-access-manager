@@ -30,12 +30,4 @@ jQuery(document).ready(function(){
 		jQuery("#uam_file_settings").toggle();
 		jQuery(this).toggleClass("active");
 	});
-	
-	
-	//Functions for the group info
-	jQuery(".uam_group_info_link").tooltip({
-		effect: 'slide', 
-		relative: true,
-		position: 'center left'
-	});
 });

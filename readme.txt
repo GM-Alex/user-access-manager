@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
-Tested up to: 3.8.0
-Stable tag: 1.2.5.0
+Tested up to: 4.1.0
+Stable tag: 1.2.6.1
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -71,6 +71,13 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+
+    1.2.6.0     2015/02/XX  Remove deprecated php function mysql_get_server_info()
+                            Change object_id from varchar 11 to varchar 255
+                            Fix backslashes issue
+
+    1.2.6.0     2015/02/11  Remove unnecessary js library
+                            Merge changes from https://github.com/nwoetzel/user-access-manager. Thanks for contribution.
 
     1.2.5.0     2013/12/13  Improve performance. Thanks to all testers.
                             Add bulk edit feature.

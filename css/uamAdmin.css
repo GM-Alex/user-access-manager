@@ -8,6 +8,7 @@ The file needed for the group info boxes style.
 
 #toplevel_page_uam_usergroup div.wp-menu-image {
 	background: transparent url(../gfx/icon.png) no-repeat  scroll center 0;
+	height: 32px;
 }
 
 #toplevel_page_uam_usergroup:hover div.wp-menu-image,
@@ -59,14 +60,14 @@ The file needed for the group info boxes style.
 .tooltip {
 	z-index:1000;
 	display:none;
-	width:200px;
-	font-size:10px !important;
-	font-weight:normal !important;
+	min-width:200px;
 	color:#000 !important;
 	background-color:#F9F9F9 !important;
 	padding:4px 8px !important;
 	border:1px solid #DFDFDF !important;
-	line-height: 10px !important;
-	-moz-border-radius:6px;
-	-webkit-border-radius:6px;
+	position: absolute;
+}
+
+.uam_group_info_link:hover + .tooltip {
+	display: block;
 }
