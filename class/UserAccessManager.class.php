@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.6.1";
+    protected $_sUamVersion = "1.2.6.2";
     protected $_sUamDbVersion = "1.2";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -55,6 +55,14 @@ class UserAccessManager
     public function getAdminOptionsName()
     {
         return $this->_sAdminOptionsName;
+    }
+
+    /**
+     * Flushes the cache.
+     */
+    public function flushCache()
+    {
+        $this->_aCache = array();
     }
 
     /**
