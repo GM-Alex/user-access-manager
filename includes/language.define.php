@@ -182,7 +182,7 @@ define('TXT_UAM_PLACE_LINK', __('<strong>Place a link to the plugin in your blog
 
 // --- About page -> thanks ---
 define('TXT_UAM_THANKS', __('Thanks', 'user-access-manager'));
-define('TXT_UAM_SPECIAL_THANKS', __('Special thanks go out to my girlfriend for giving me the time to develop this plugin.', 'user-access-manager'));
+define('TXT_UAM_SPECIAL_THANKS', __('Special thanks go out to my wife for giving me the time to develop this plugin.', 'user-access-manager'));
 define('TXT_UAM_THANKS_TO', __('I would like to thank all the guys which has helped me with this plugin:', 'user-access-manager'));
 define('TXT_UAM_THANKS_OTHERS', __('all beta testers and all others I forgot', 'user-access-manager'));
 
