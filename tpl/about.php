@@ -39,7 +39,7 @@
         		<p>
         		    <strong><?php echo TXT_UAM_SPECIAL_THANKS; ?></strong><br/>
         		    <br/>
-        		    <?php echo TXT_UAM_THANKS_TO; ?> Luke Crouch, Juan Rodriguez, mkosel, Jan, GeorgWP, Ron Harding, Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, Hadi Mostafapour, Diego Valobra, PoleeK, Konsult, Mesut Soylu, ranwaldo, Robert Egger, akiko.pusu, r3d pill, michel.weimerskirch, arjenbreur, jpr105 <?php echo TXT_UAM_THANKS_OTHERS; ?>.
+        		    <?php echo TXT_UAM_THANKS_TO; ?> Luke Crouch, Juan Rodriguez, mkosel, Jan, GeorgWP, Ron Harding, Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, Hadi Mostafapour, Diego Valobra, PoleeK, Konsult, Mesut Soylu, ranwaldo, Robert Egger, akiko.pusu, r3d pill, michel.weimerskirch, arjenbreur, jpr105, nwoetzel (https://github.com/nwoetzel) <?php echo TXT_UAM_THANKS_OTHERS; ?>.
         		</p>
         	</div>
         </div>

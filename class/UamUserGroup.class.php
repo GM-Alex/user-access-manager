@@ -525,7 +525,7 @@ class UamUserGroup
         $this->getAccessHandler()->unsetUserGroupsForObject();
         $this->getObjectsFromType($sObjectType);
         
-        $oObject = new stdClass;
+        $oObject = new stdClass();
         $oObject->iId = $iObjectId;
         
         $this->_aObjects[$sObjectType]['real'][$iObjectId] = $oObject;
@@ -627,11 +627,14 @@ class UamUserGroup
         if (!$this->isValidObjectType($sObjectType)) {
             return;
         }
-        
+
         if ($blPlusRemove) {
             $this->_deleteObjectsFromDb($sObjectType);
         }
-        
+
+        $this->_aAssignedObjects[$sObjectType] = array();
+        $this->getAccessHandler()->getUserAccessManager()->flushCache();
+
         $this->_aObjects[$sObjectType] = array(
     		'real' => array(),
         	'full' => array(),
@@ -652,10 +655,9 @@ class UamUserGroup
              * @var wpdb $wpdb
              */
             global $wpdb;
-        
-            $wpdb->query(
-            	$this->_getSqlQuery($sObjectType, 'delete')
-            );
+
+            $sQuery = $this->_getSqlQuery($sObjectType, 'delete');
+            $wpdb->query($sQuery);
         }
     }
     
@@ -818,7 +820,7 @@ class UamUserGroup
             $aCapabilities = array();
         }
         
-        $aRole = (count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
+        $aRole = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
         $sRole = $aRole[0];
         $aObjects = $this->getObjectsFromType('role');
 
