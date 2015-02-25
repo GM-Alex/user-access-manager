@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 4.1.0
-Stable tag: 1.2.6.2
+Stable tag: 1.2.6.3
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -71,6 +71,10 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version		Date      	Changes
+
+    1.2.6.3     2015/02/25  Fix database update for multi sites.
+                            Fix array_keys warning.
+                            Fix redirect loop.
 
     1.2.6.2     2015/02/24  Fix not removable role affiliation issue.
 

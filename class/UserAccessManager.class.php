@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.6.2";
+    protected $_sUamVersion = "1.2.6.3";
     protected $_sUamDbVersion = "1.2";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -293,14 +293,13 @@ class UserAccessManager
 			foreach ($aBlogIds as $iBlogId) {
 				switch_to_blog($iBlogId);
 				$this->_installUam();
+                $this->_updateUam();
 			}
 			
 			switch_to_blog($iCurrentBlogId);
 			
 			return;
     	}
-        
-        $this->_updateUam();
     }
     
     /**
@@ -1994,9 +1993,9 @@ class UserAccessManager
             $sFileUrl = $_GET['uamgetfile'];
             $sFileType = $_GET['uamfiletype'];
             $this->getFile($sFileType, $sFileUrl);
-        } elseif (!$this->atAdminPanel() && $oUamOptions['redirect'] != 'false') {
+        } elseif (!$this->atAdminPanel() && $oUamOptions['redirect'] !== 'false') {
             $oObject = null;
-        
+
             if (isset($oPageParams->query_vars['p'])) {
                 $oObject = $this->getPost($oPageParams->query_vars['p']);
                 $oObjectType = $oObject->post_type;
@@ -2010,7 +2009,21 @@ class UserAccessManager
                 $oObjectType = 'category';
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
-                $oObject = get_page_by_title($oPageParams->query_vars['name'], OBJECT, 'post');
+                global $wpdb;
+
+                $sQuery = $wpdb->prepare(
+                    "SELECT ID
+                    FROM {$wpdb->posts}
+                    WHERE post_name = %s
+                    AND post_type IN ('post', 'page')",
+                    $oPageParams->query_vars['name']
+                );
+
+                $sObjectId = $wpdb->get_var($sQuery);
+
+                if ($sObjectId) {
+                    $oObject = get_post($sObjectId);
+                }
 
                 if ($oObject !== null) {
                     $oObjectType = $oObject->post_type;
@@ -2081,17 +2094,19 @@ class UserAccessManager
         
         if (!$blPostToShow) {
             $aUamOptions = $this->getAdminOptions();
+            $sPermalink = null;
 
             if ($aUamOptions['redirect'] == 'custom_page') {
                 $oPost = $this->getPost($aUamOptions['redirect_custom_page']);
                 $sUrl = $oPost->guid;
+                $sPermalink = get_page_link($oPost);
             } elseif ($aUamOptions['redirect'] == 'custom_url') {
                 $sUrl = $aUamOptions['redirect_custom_url'];
             } else {
                 $sUrl = home_url('/');
             }
 
-            if ($sUrl != $this->getCurrentUrl()) {
+            if ($sUrl != $this->getCurrentUrl() && $sPermalink != $this->getCurrentUrl()) {
                 wp_redirect($sUrl);
                 exit;
             }      

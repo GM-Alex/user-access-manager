@@ -820,7 +820,7 @@ class UamUserGroup
             $aCapabilities = array();
         }
         
-        $aRole = (count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
+        $aRole = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
         $sRole = $aRole[0];
         $aObjects = $this->getObjectsFromType('role');
 
