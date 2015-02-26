@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
  * Author URI: http://www.gm-alex.de/
- * Version: 1.2.6.3
+ * Version: 1.2.6.4
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -44,13 +44,13 @@ $sPhpVersion = phpversion();
 
 if (version_compare($sPhpVersion, "5.0") === -1) {
     add_action(
-    	'admin_notices', 
-    	create_function(
-    		'', 
-    		'echo \'<div id="message" class="error"><p><strong>'. 
-    	    sprintf(TXT_UAM_PHP_VERSION_TO_LOW, $sPhpVersion).
-    		'</strong></p></div>\';'
-    	)
+        'admin_notices',
+        create_function(
+            '',
+            'echo \'<div id="message" class="error"><p><strong>'.
+            sprintf(TXT_UAM_PHP_VERSION_TO_LOW, $sPhpVersion).
+            '</strong></p></div>\';'
+        )
     );
     
     $blStop = true;
@@ -61,13 +61,13 @@ global $wp_version;
 
 if (version_compare($wp_version, "3.0") === -1) {
     add_action(
-    	'admin_notices', 
-    	create_function(
-    		'', 
-    		'echo \'<div id="message" class="error"><p><strong>'. 
-    	    sprintf(TXT_UAM_WORDPRESS_VERSION_TO_LOW, $wp_version). 
-    		'</strong></p></div>\';'
-    	)
+        'admin_notices',
+        create_function(
+            '',
+            'echo \'<div id="message" class="error"><p><strong>'.
+            sprintf(TXT_UAM_WORDPRESS_VERSION_TO_LOW, $wp_version).
+            '</strong></p></div>\';'
+        )
     );
     
     $blStop = true;
@@ -111,13 +111,13 @@ if (!function_exists("userAccessManagerAP")) {
             $sLink = 'admin.php?page=uam_setup';
 
             add_action(
-            	'admin_notices',
-            	create_function(
-            		'',
-            		'echo \'<div id="message" class="error"><p><strong>'.
-            	    sprintf(TXT_UAM_NEED_DATABASE_UPDATE, $sLink).
-            		'</strong></p></div>\';'
-            	)
+                'admin_notices',
+                create_function(
+                    '',
+                    'echo \'<div id="message" class="error"><p><strong>'.
+                    sprintf(TXT_UAM_NEED_DATABASE_UPDATE, $sLink).
+                    '</strong></p></div>\';'
+                )
             );
         }
 
@@ -227,13 +227,13 @@ if (!function_exists("userAccessManagerAPMenu")) {
             && $aUamOptions['download_type'] == 'fopen'
         ) {
             add_action(
-            	'admin_notices', 
-            	create_function(
-            		'', 
-            		'echo \'<div id="message" class="error"><p><strong>'. 
-            	    TXT_UAM_FOPEN_WITHOUT_SAVEMODE_OFF. 
-            		'</strong></p></div>\';'
-            	)
+                'admin_notices',
+                create_function(
+                    '',
+                    'echo \'<div id="message" class="error"><p><strong>'.
+                    TXT_UAM_FOPEN_WITHOUT_SAVEMODE_OFF.
+                    '</strong></p></div>\';'
+                )
             );
         }
         

@@ -35,11 +35,11 @@ if (isset($iObjectId)) {
 }
 
 if (count($aUamUserGroups) > 0) {
-	include 'groupSelectionForm.php';
+    include 'groupSelectionForm.php';
 } elseif ($oUserAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>
-	<a href='admin.php?page=uam_usergroup'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
-	<?php
+    <a href='admin.php?page=uam_usergroup'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
+    <?php
 } else {
     echo TXT_UAM_NO_GROUP_AVAILABLE;
 }

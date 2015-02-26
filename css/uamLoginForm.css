@@ -10,15 +10,15 @@ Modify this file to change the style of the login form.
 }
 
 .uam_login_form {
-	position:relative;
+    position:relative;
 }
 
 .uam_login_form .input {
-	display:block;
+    display:block;
 }
 
 .uam_login_form .input_label {
-	display:block;
+    display:block;
 }
 
 .uam_login_form .checkbox {
@@ -26,11 +26,11 @@ Modify this file to change the style of the login form.
 }
 
 .uam_login_form .checkbox_label {
-	left:20px;
+    left:20px;
 }
 
 .uam_login_form .button {
-	display:block;
+    display:block;
 }
 
 .uam_login_options {
