@@ -36,7 +36,7 @@ if ($sPostAction == 'update_db') {
     }
     
     if ($sUpdate == 'true'
-    	|| $sUpdate == 'network'
+        || $sUpdate == 'network'
     ) {
         $mNetwork = false;
         
@@ -46,10 +46,10 @@ if ($sPostAction == 'update_db') {
         
         $oUserAccessManager->update($mNetwork);
         ?>
-    	<div class="updated">
-    		<p><strong><?php echo TXT_UAM_UAM_DB_UPDATE_SUC; ?></strong></p>
-    	</div>
-    	<?php
+        <div class="updated">
+            <p><strong><?php echo TXT_UAM_UAM_DB_UPDATE_SUC; ?></strong></p>
+        </div>
+        <?php
     }
 }
 
@@ -71,9 +71,9 @@ if ($sPostAction == 'reset_uam') {
         $oUserAccessManager->uninstall();
         $oUserAccessManager->install();
         ?>
-		<div class="updated">
-			<p><strong><?php echo TXT_UAM_UAM_RESET_SUC; ?></strong></p>
-		</div>
+        <div class="updated">
+            <p><strong><?php echo TXT_UAM_UAM_RESET_SUC; ?></strong></p>
+        </div>
         <?php
     }
 }
@@ -82,67 +82,67 @@ if ($sPostAction == 'reset_uam') {
 <div class="wrap"> 
     <h2><?php echo TXT_UAM_SETUP; ?></h2>
     <table class="form-table">
-    	<tbody>
-    		<tr valign="top">
-    			<th scope="row"><?php echo TXT_UAM_RESET_UAM; ?></th>
-    			<td>
-        			<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+        <tbody>
+            <tr valign="top">
+                <th scope="row"><?php echo TXT_UAM_RESET_UAM; ?></th>
+                <td>
+                    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
                         <?php wp_nonce_field('uamSetupReset', 'uamSetupResetNonce'); ?>
-    					<input type="hidden" value="reset_uam" name="action" />
-        				<label for="uam_reset_yes"> 
-        					<input type="radio" id="uam_reset_yes" class="uam_reset_yes" name="uam_reset" value="true" /> 
-        					<?php echo TXT_UAM_YES; ?> 
-        				</label>&nbsp;&nbsp;&nbsp;&nbsp;
-        				<label for="uam_reset_no"> 
-        					<input type="radio" id="uam_reset_no" class="uam_reset_no" name="uam_reset" value="false" checked="checked" /> 
-        					<?php echo TXT_UAM_NO; ?> 
-        				</label>&nbsp;&nbsp;&nbsp;&nbsp;
-        				<input type="submit" class="button" name="uam_reset_submit" value="<?php echo TXT_UAM_RESET; ?>" /> <br />
-        				<p style="color: red; font-size: 12px; font-weight: bold;">
-        				    <?php echo TXT_UAM_RESET_UAM_DESC; ?>
-        				</p>
-        			</form>
-    			</td>
-    		</tr>
-    		<?php 
+                        <input type="hidden" value="reset_uam" name="action" />
+                        <label for="uam_reset_yes">
+                            <input type="radio" id="uam_reset_yes" class="uam_reset_yes" name="uam_reset" value="true" />
+                            <?php echo TXT_UAM_YES; ?>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label for="uam_reset_no">
+                            <input type="radio" id="uam_reset_no" class="uam_reset_no" name="uam_reset" value="false" checked="checked" />
+                            <?php echo TXT_UAM_NO; ?>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="submit" class="button" name="uam_reset_submit" value="<?php echo TXT_UAM_RESET; ?>" /> <br />
+                        <p style="color: red; font-size: 12px; font-weight: bold;">
+                            <?php echo TXT_UAM_RESET_UAM_DESC; ?>
+                        </p>
+                    </form>
+                </td>
+            </tr>
+            <?php
 if ($oUserAccessManager->isDatabaseUpdateNecessary()) {
-        		?>
-        		<tr valign="top">
-        			<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                ?>
+                <tr valign="top">
+                    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
                         <?php wp_nonce_field('uamSetupUpdate', 'uamSetupUpdateNonce'); ?>
-    					<input type="hidden" value="update_db" name="action" />
-            			<th scope="row"><?php echo TXT_UAM_UPDATE_UAM_DB; ?></th>
-            			<td>
-	<?php 
+                        <input type="hidden" value="update_db" name="action" />
+                        <th scope="row"><?php echo TXT_UAM_UPDATE_UAM_DB; ?></th>
+                        <td>
+    <?php
     if (is_super_admin()) {
-	    ?>
+        ?>
                             <input type="radio" id="uam_update_db_network" class="uam_reset_yes" name="uam_update_db" value="network" />
-            				<label for="uam_update_db_network"><?php echo TXT_UAM_UPDATE_NETWORK; ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
-	    <?php
+                            <label for="uam_update_db_network"><?php echo TXT_UAM_UPDATE_NETWORK; ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
+        <?php
     }
-	?>
+    ?>
                             <input type="radio" id="uam_update_db_yes" class="uam_reset_yes" name="uam_update_db" value="true" />
-            				<label for="uam_update_db_yes">
-	<?php 
-	if (is_super_admin()) { 
-	    echo TXT_UAM_UPDATE_BLOG; 
-	} else { 
-	    echo TXT_UAM_YES; 
-	} 
-	?> 
-            				</label>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <label for="uam_update_db_yes">
+    <?php
+    if (is_super_admin()) {
+        echo TXT_UAM_UPDATE_BLOG;
+    } else {
+        echo TXT_UAM_YES;
+    }
+    ?>
+                            </label>&nbsp;&nbsp;&nbsp;&nbsp;
                             <input type="radio" id="uam_update_db_no" class="uam_reset_no" name="uam_update_db" value="false" checked="checked" />
                             <label for="uam_update_db_no"><?php echo TXT_UAM_NO; ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
-            				<input type="submit" class="button" name="uam_update_db_submit" value="<?php echo TXT_UAM_UPDATE; ?>" /> <br />
-            				<p style="color: red; font-size: 12px; font-weight: bold;">
-            				    <?php echo TXT_UAM_UPDATE_UAM_DB_DESC; ?>
-            				</p>
-            			</td>
-            		</form>
-        		</tr>
-        		<?php 
+                            <input type="submit" class="button" name="uam_update_db_submit" value="<?php echo TXT_UAM_UPDATE; ?>" /> <br />
+                            <p style="color: red; font-size: 12px; font-weight: bold;">
+                                <?php echo TXT_UAM_UPDATE_UAM_DB_DESC; ?>
+                            </p>
+                        </td>
+                    </form>
+                </tr>
+                <?php
 }
-        	?>
-    	</tbody>
+            ?>
+        </tbody>
     </table>
 </div>

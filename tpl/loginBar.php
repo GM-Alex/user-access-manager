@@ -21,7 +21,7 @@ if (!is_single() && !is_page()) {
     
     ?>
     <a class="uam_login_link" href="<?php echo $sLoginUrl; ?>"><?php echo __('Login', 'user-access-manager'); ?></a>
-	<?php
+    <?php
 } else {
     if (!isset($userLogin)) {
         $userLogin = '';
@@ -33,7 +33,7 @@ if (!is_single() && !is_page()) {
     $sLoginForm = '<form action="'.$sLoginUrl.'" method="post" class="uam_login_form">';
     $sLoginForm .= '<label class="input_label" for="user_login">'.__('Username:', 'user-access-manager').'</label>';
     $sLoginForm .= '<input name="log" value="'.esc_html(stripslashes($userLogin), 1).'" class="input" id="user_login" type="text" />';
-	$sLoginForm .= '<label class="input_label" for="user_pass">'.__('Password:', 'user-access-manager').'</label>';
+    $sLoginForm .= '<label class="input_label" for="user_pass">'.__('Password:', 'user-access-manager').'</label>';
     $sLoginForm .= '<input name="pwd" class="input" id="user_pass" type="password" />';
     $sLoginForm .= '<input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" />';
     $sLoginForm .= '<label class="checkbox_label" for="rememberme">'.__('Remember me', 'user-access-manager').'</label>';

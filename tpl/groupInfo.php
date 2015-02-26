@@ -38,9 +38,9 @@ if (!function_exists('walkPath')) {
             }
             
             $sOut .= '</ul>';
-    	}
-    	
-    	return $sOut;
+        }
+
+        return $sOut;
     }
 }
 ?>
@@ -72,9 +72,9 @@ foreach ($oUserAccessManager->getAccessHandler()->getAllObjectTypes() as $sCurOb
     }
 }
 ?>
-	<li class="uam_group_info_head"><?php echo TXT_UAM_GROUP_INFO; ?>:
-		<ul>
-			<li><?php echo TXT_UAM_READ_ACCESS; ?>:
+    <li class="uam_group_info_head"><?php echo TXT_UAM_GROUP_INFO; ?>:
+        <ul>
+            <li><?php echo TXT_UAM_READ_ACCESS; ?>:
 <?php
 if ($oUamUserGroup->getReadAccess() == "all") {
     echo TXT_UAM_ALL;
@@ -82,8 +82,8 @@ if ($oUamUserGroup->getReadAccess() == "all") {
     echo TXT_UAM_ONLY_GROUP_USERS;
 }
 ?>
-			</li>
-			<li><?php echo TXT_UAM_WRITE_ACCESS; ?>:
+            </li>
+            <li><?php echo TXT_UAM_WRITE_ACCESS; ?>:
 <?php
 if ($oUamUserGroup->getWriteAccess()  == "all") {
     echo TXT_UAM_ALL;   
@@ -91,9 +91,9 @@ if ($oUamUserGroup->getWriteAccess()  == "all") {
     echo TXT_UAM_ONLY_GROUP_USERS;
 }
 ?>
-        	</li>
-        	<li>
-        	    <?php echo TXT_UAM_GROUP_ROLE; ?>: <?php
+            </li>
+            <li>
+                <?php echo TXT_UAM_GROUP_ROLE; ?>: <?php
 if ($oUamUserGroup->getObjectsFromType('role')) {
     $sOut = '';
     
@@ -106,8 +106,8 @@ if ($oUamUserGroup->getObjectsFromType('role')) {
     echo TXT_UAM_NONE;
 }
 ?>
-        	</li>
-		</ul>
-	</li>
+            </li>
+        </ul>
+    </li>
 </ul>
 </div>
