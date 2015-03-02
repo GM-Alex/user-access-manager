@@ -28,8 +28,8 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.6.4";
-    protected $_sUamDbVersion = "1.2";
+    protected $_sUamVersion = "1.2.6.5";
+    protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
@@ -215,7 +215,7 @@ class UserAccessManager
                     read_access tinytext NOT NULL,
                     write_access tinytext NOT NULL,
                     ip_range mediumtext NULL,
-                    PRIMARY KEY  (ID)
+                    PRIMARY KEY (ID)
                 ) $sCharsetCollate;"
             );
         }
@@ -230,10 +230,10 @@ class UserAccessManager
         if ($sDbAccessGroupToObject != $sDbAccessGroupToObjectTable) {
             dbDelta(
                 "CREATE TABLE " . $sDbAccessGroupToObjectTable . " (
-                    object_id VARCHAR(255) NOT NULL,
-                    object_type varchar(255) NOT NULL,
+                    object_id VARCHAR(64) NOT NULL,
+                    object_type varchar(64) NOT NULL,
                     group_id int(11) NOT NULL,
-                    PRIMARY KEY  (object_id,object_type,group_id)
+                    PRIMARY KEY (object_id,object_type,group_id)
                 ) $sCharsetCollate;"
             );
         }
@@ -319,7 +319,7 @@ class UserAccessManager
             $this->install();
         }
         
-        if (!$this->getWpOption('uam_version') || version_compare($this->getWpOption('uam_version'), "1.0") === -1) {
+        if (!$this->getWpOption('uam_version') || version_compare($this->getWpOption('uam_version'), "1.0", '<')) {
             delete_option('allow_comments_locked');
         }
         
@@ -330,8 +330,10 @@ class UserAccessManager
             LIKE '".$sDbAccessGroup."'"
         );
         
-        if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion) === -1) {
-            if (version_compare($sCurrentDbVersion, "1.0") === 0) {
+        if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<')) {
+            $sCharsetCollate = $this->_getCharset();
+
+            if (version_compare($sCurrentDbVersion, "1.0", '<=')) {
                 if ($sDbUserGroup == $sDbAccessGroup) {
                     $wpdb->query(
                         "ALTER TABLE ".$sDbAccessGroup."
@@ -366,11 +368,9 @@ class UserAccessManager
                 $sDbAccessGroupToCategory = $wpdb->prefix.'uam_accessgroup_to_category';
                 $sDbAccessGroupToRole = $wpdb->prefix.'uam_accessgroup_to_role';
                 
-                $sCharsetCollate = $this->_getCharset();
-                
                 $wpdb->query(
                     "ALTER TABLE '{$sDbAccessGroupToObject}'
-                    CHANGE 'object_id' 'object_id' VARCHAR(255)
+                    CHANGE 'object_id' 'object_id' VARCHAR(64)
                     ".$sCharsetCollate
                 );
                 
@@ -428,12 +428,13 @@ class UserAccessManager
                 );
             }
 
-            if (version_compare($sCurrentDbVersion, "1.1") === 0) {
+            if (version_compare($sCurrentDbVersion, "1.2", '<=')) {
                 $sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
 
                 $sSql = "
-                    ALTER TABLE {$sDbAccessGroupToObject}
-                    CHANGE `object_id` `object_id` VARCHAR(255) NOT NULL";
+                    ALTER TABLE `{$sDbAccessGroupToObject}`
+                    CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
+                    CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL";
 
                 $wpdb->query($sSql);
             }
