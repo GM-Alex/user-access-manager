@@ -39,16 +39,16 @@ foreach ($aUamUserGroups as $oUamUserGroup) {
     
 
     
-	?>
-	<li>
+    ?>
+    <li>
         <input type="checkbox" id="<?php echo $sGroupsFormName; ?>-<?php echo $oUamUserGroup->getId(); ?>" <?php echo $sAttributes;?> value="<?php echo $oUamUserGroup->getId(); ?>" name="<?php echo $sGroupsFormName; ?>[]" />
-		<label for="<?php echo $sGroupsFormName; ?>-<?php echo $oUamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
-			<?php echo $oUamUserGroup->getGroupName().$sAddition; ?>
-		</label>
-		<a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
-		<?php include 'groupInfo.php'; ?>
-	</li>
-	<?php
+        <label for="<?php echo $sGroupsFormName; ?>-<?php echo $oUamUserGroup->getId(); ?>" class="selectit" style="display:inline;" >
+            <?php echo $oUamUserGroup->getGroupName().$sAddition; ?>
+        </label>
+        <a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
+        <?php include 'groupInfo.php'; ?>
+    </li>
+    <?php
 }
 ?>
 </ul>

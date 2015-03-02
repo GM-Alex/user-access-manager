@@ -34,26 +34,26 @@ if (isset($_GET['tag_ID'])) {
     
 ?>
 <table class="form-table">
-	<tbody>
-		<tr>
-			<th>
-				<label for="description"><?php echo TXT_UAM_SET_UP_USERGROUPS; ?></label>
-			</th>
-			<td>
+    <tbody>
+        <tr>
+            <th>
+                <label for="description"><?php echo TXT_UAM_SET_UP_USERGROUPS; ?></label>
+            </th>
+            <td>
 <?php
 if (count($aUamUserGroups) > 0) {
-	include 'groupSelectionForm.php';
+    include 'groupSelectionForm.php';
 } elseif ($oUserAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>
-	<a href='admin.php?page=uam_usergroup'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
-	<?php
+    <a href='admin.php?page=uam_usergroup'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
+    <?php
 } else {
     echo TXT_UAM_NO_GROUP_AVAILABLE;
 }
 ?>
-			</td>
-		</tr>
-	</tbody>
+            </td>
+        </tr>
+    </tbody>
 </table>
 <?php
 if (isset($_GET['action'])) {
@@ -63,15 +63,15 @@ if (isset($_GET['action'])) {
 }
 
 if ($sAction != 'edit') {
-	?>
-	<style type="text/css">
+    ?>
+    <style type="text/css">
         .submit {
-        	display: none;
-        	position: relative;
+            display: none;
+            position: relative;
         }
     </style>
     <p class="submit" style="display: block; position: relative;">
-    	<input class="button" type="submit" value="Add New Category" name="submit" />
-	</p>
-	<?php
+        <input class="button" type="submit" value="Add New Category" name="submit" />
+    </p>
+    <?php
 }
