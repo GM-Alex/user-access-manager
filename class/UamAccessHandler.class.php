@@ -681,12 +681,12 @@ class UamAccessHandler
                 } else {
                     $aRangeEnd = explode(".", $aIpRange[0]);
                 }
-                
-                if ($aRangeBegin[0] <= $aCurIp[0]  && $aCurIp[0] <= $aRangeEnd[0]
-                    && $aRangeBegin[1] <= $aCurIp[1] && $aCurIp[1] <= $aRangeEnd[1]
-                    && $aRangeBegin[2] <= $aCurIp[2] && $aCurIp[2] <= $aRangeEnd[2]
-                    && $aRangeBegin[3] <= $aCurIp[3] && $aCurIp[3] <= $aRangeEnd[3]
-                ) {
+
+                $iCurIp = ($aCurIp[0] << 24) + ($aCurIp[1] << 16) + ($aCurIp[2] << 8) + $aCurIp[3];
+                $iRangeBegin = ($aRangeBegin[0] << 24) + ($aRangeBegin[1] << 16) + ($aRangeBegin[2] << 8) + $aRangeBegin[3];
+                $iRangeEnd = ($aRangeEnd[0] << 24) + ($aRangeEnd[1]  << 16) + ($aRangeEnd[2]   << 8) + $aRangeEnd[3];
+
+                if ($iRangeBegin <= $iCurIp && $iCurIp <= $iRangeEnd) {
                     return true;
                 }
             }
@@ -700,7 +700,7 @@ class UamAccessHandler
      * 
      * @param integer $iUserId The user _iId.
      * 
-     * @return string|null
+     * @return array
      */
     protected function _getUserRole($iUserId)
     {
@@ -721,8 +721,8 @@ class UamAccessHandler
             $aCapabilities = array();
         }
         
-        $aRole = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
-        return trim($aRole[0]);
+        $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
+        return $aRoles;
     }
     
     /**
@@ -734,9 +734,10 @@ class UamAccessHandler
      */
     public function userIsAdmin($iUserId)
     {
-        $sRole = $this->_getUserRole($iUserId);
+        $aRoles = $this->_getUserRole($iUserId);
+        $aRolesMap = array_keys($aRoles);
         
-        if ($sRole == 'administrator' || is_super_admin($iUserId)) {
+        if (isset($aRolesMap['administrator']) || is_super_admin($iUserId)) {
             return true;
         }
         
@@ -755,12 +756,22 @@ class UamAccessHandler
         $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
         $aUamOptions = $this->getUserAccessManager()->getAdminOptions();
         
-        $sRole = $this->_getUserRole($oCurrentUser->ID);
+        $aRoles = $this->_getUserRole($oCurrentUser->ID);
+        $aRolesMap = array_keys($aRoles);
         $aOrderedRoles = $this->getRolesOrdered();
-        
-        if (isset($aOrderedRoles[$sRole])
-            && $aOrderedRoles[$sRole] >= $aOrderedRoles[$aUamOptions['full_access_role']]
-            || $sRole == 'administrator' || is_super_admin($oCurrentUser->ID)
+        $iRightsLevel = 0;
+
+        foreach ($aRoles as $sRole) {
+            if (isset($aOrderedRoles[$sRole])
+                && $aOrderedRoles[$sRole] > $iRightsLevel
+            ) {
+                $iRightsLevel = $aOrderedRoles[$sRole];
+            }
+        }
+
+        if ($iRightsLevel >= $aOrderedRoles[$aUamOptions['full_access_role']]
+            || isset($aRolesMap['administrator'])
+            || is_super_admin($oCurrentUser->ID)
             || ($sAllowedCapability && $oCurrentUser->has_cap($sAllowedCapability))
         ) {
             return true;

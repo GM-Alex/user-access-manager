@@ -820,16 +820,17 @@ class UamUserGroup
             $aCapabilities = array();
         }
         
-        $aRole = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
-        $sRole = $aRole[0];
+        $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
         $aObjects = $this->getObjectsFromType('role');
 
-        if (isset($aObjects[$sRole])) {
-            $oRoleObject = new stdClass();
-            $oRoleObject->name = $sRole;
-            
-            $aIsRecursiveMember = array('role' => array());
-            $aIsRecursiveMember['role'][] = $oRoleObject;
+        foreach ($aRoles as $sRole) {
+            if (isset($aObjects[$sRole])) {
+                $oRoleObject = new stdClass();
+                $oRoleObject->name = $sRole;
+
+                $aIsRecursiveMember = array('role' => array());
+                $aIsRecursiveMember['role'][] = $oRoleObject;
+            }
         }
 
         return $aIsRecursiveMember;
