@@ -59,18 +59,35 @@ class UamAccessHandler
     public function __construct(UserAccessManager &$oUserAccessManager)
     {
         $this->_oUserAccessManager = $oUserAccessManager;
-        
-        $aPostTypes = get_post_types(array(), 'objects');
-        
-        foreach ($aPostTypes as $oPostType) {
-            if ($oPostType->publicly_queryable) {
-                $this->_aPostableTypes[] = $oPostType->name;
-            }
-        }
+
+        $this->_aPostableTypes = array_merge($this->_aPostableTypes, get_post_types(array('publicly_queryable' => true), 'names'));
+        $this->_aPostableTypes = array_unique($this->_aPostableTypes);
 
         $this->_aPostableTypesMap = array_flip($this->_aPostableTypes);
         
         $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes);
+        add_action( 'registered_post_type', array( &$this, 'registered_post_type'), 10, 2);
+    }
+
+    /**
+     * used for adding custom post types using the registered_post_type hook
+     * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
+     *
+     * @param string    $post_type The string for the new post_type
+     * @param stdClass  $oArgs     The array of arguments used to create the post_type
+     *
+     */
+    public function registered_post_type($post_type, $oArgs)
+    {
+        if ($oArgs->publicly_queryable) {
+            $this->_aPostableTypes[] = $oArgs->name;
+            $this->_aPostableTypes = array_unique($this->_aPostableTypes);
+            $this->_aPostableTypesMap = array_flip($this->_aPostableTypes);
+            $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes);
+            $this->_aAllObjectTypes = null;
+            $this->_aAllObjectTypesMap = null;
+            $this->_aValidObjectTypes = null;
+        }
     }
 
     /**
@@ -195,8 +212,8 @@ class UamAccessHandler
         $aUamOptions = $this->getUserAccessManager()->getAdminOptions();
         
         if ($aUamOptions['authors_can_add_posts_to_groups'] == 'true'
-        	&& !$this->checkUserAccess('manage_user_groups')
-        	&& $this->getUserAccessManager()->atAdminPanel()
+            && !$this->checkUserAccess('manage_user_groups')
+            && $this->getUserAccessManager()->atAdminPanel()
         ) {
             $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
             $aUserGroupsForUser = $this->getUserGroupsForObject('user', $oCurrentUser->ID);
@@ -271,9 +288,9 @@ class UamAccessHandler
         global $wpdb;
 
         $aUserGroupsDb = $wpdb->get_results(
-        	"SELECT ID
-        	FROM " . DB_ACCESSGROUP . "
-        	ORDER BY ID", ARRAY_A
+            "SELECT ID
+            FROM " . DB_ACCESSGROUP . "
+            ORDER BY ID", ARRAY_A
         );
         
         if (isset($aUserGroupsDb)) {
@@ -459,7 +476,7 @@ class UamAccessHandler
             }
             
             if ($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all'
-            	|| !$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all'
+                || !$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all'
             ) {
                 unset($aMembership[$sKey]);
             }
@@ -525,10 +542,10 @@ class UamAccessHandler
         $sUserUserGroups = $this->_getUserGroupsForUserAsSqlString();
         
         $sCategoriesAssignedToUserSql = "
-        	SELECT igc.object_id  
-    		FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igc
-    		WHERE igc.object_type = 'category'
-    		AND igc.group_id IN (".$sUserUserGroups.")";
+            SELECT igc.object_id
+            FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igc
+            WHERE igc.object_type = 'category'
+            AND igc.group_id IN (".$sUserUserGroups.")";
         
         $this->_aSqlResults['categoriesAssignedToUser'] = $wpdb->get_col($sCategoriesAssignedToUserSql);
         return $this->_aSqlResults['categoriesAssignedToUser'];
@@ -554,16 +571,16 @@ class UamAccessHandler
         $sPostableTypes = "'".implode("','", $this->getPostableTypes())."'";
         
         $sPostAssignedToUserSql = "
-        	SELECT igp.object_id  
-        	FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igp
-        	WHERE igp.object_type IN (".$sPostableTypes.")
+            SELECT igp.object_id
+            FROM ".DB_ACCESSGROUP_TO_OBJECT." AS igp
+            WHERE igp.object_type IN (".$sPostableTypes.")
             AND igp.group_id IN (".$sUserUserGroup.")";
         
         $this->_aSqlResults['postsAssignedToUser'] = $wpdb->get_col($sPostAssignedToUserSql);
         return $this->_aSqlResults['postsAssignedToUser'];
     }
     
- 	/**
+     /**
      * Returns the excluded posts.
      * 
      * @return array
@@ -606,34 +623,34 @@ class UamAccessHandler
         }
         
         $sPostSql = "SELECT DISTINCT p.ID
-        	FROM $wpdb->posts AS p 
-        	INNER JOIN $wpdb->term_relationships AS tr 
-        		ON p.ID = tr.object_id 
-        	INNER JOIN $wpdb->term_taxonomy tt 
-        		ON tr.term_taxonomy_id = tt.term_taxonomy_id
+            FROM $wpdb->posts AS p
+            INNER JOIN $wpdb->term_relationships AS tr
+                ON p.ID = tr.object_id
+            INNER JOIN $wpdb->term_taxonomy tt
+                ON tr.term_taxonomy_id = tt.term_taxonomy_id
             WHERE tt.taxonomy = 'category' 
-    		AND tt.term_id IN (
-    			SELECT gc.object_id 
-    			FROM ".DB_ACCESSGROUP." iag
-    			INNER JOIN ".DB_ACCESSGROUP_TO_OBJECT." AS gc
-    				ON iag.id = gc.group_id
-    			WHERE gc.object_type = 'category'
-    			AND iag.".$sAccessType."_access != 'all'
-    			AND gc.object_id  NOT IN (".$sCategoriesAssignedToUser.")
-    		) AND p.ID NOT IN (".$sPostAssignedToUser.")
-    		UNION
-    		SELECT DISTINCT gp.object_id 
-    		FROM ".DB_ACCESSGROUP." AS ag
+            AND tt.term_id IN (
+                SELECT gc.object_id
+                FROM ".DB_ACCESSGROUP." iag
+                INNER JOIN ".DB_ACCESSGROUP_TO_OBJECT." AS gc
+                    ON iag.id = gc.group_id
+                WHERE gc.object_type = 'category'
+                AND iag.".$sAccessType."_access != 'all'
+                AND gc.object_id  NOT IN (".$sCategoriesAssignedToUser.")
+            ) AND p.ID NOT IN (".$sPostAssignedToUser.")
+            UNION
+            SELECT DISTINCT gp.object_id
+            FROM ".DB_ACCESSGROUP." AS ag
             INNER JOIN ".DB_ACCESSGROUP_TO_OBJECT." AS gp
                 ON ag.id = gp.group_id
-    		INNER JOIN $wpdb->term_relationships AS tr 
-        		ON gp.object_id  = tr.object_id 
-        	INNER JOIN $wpdb->term_taxonomy tt 
-        		ON tr.term_taxonomy_id = tt.term_taxonomy_id
-    		WHERE gp.object_type = 'post'
-    		AND ag.".$sAccessType."_access != 'all'
-    		AND gp.object_id  NOT IN (".$sPostAssignedToUser.")
-    		AND tt.term_id NOT IN (".$sCategoriesAssignedToUser.")";
+            INNER JOIN $wpdb->term_relationships AS tr
+                ON gp.object_id  = tr.object_id
+            INNER JOIN $wpdb->term_taxonomy tt
+                ON tr.term_taxonomy_id = tt.term_taxonomy_id
+            WHERE gp.object_type = 'post'
+            AND ag.".$sAccessType."_access != 'all'
+            AND gp.object_id  NOT IN (".$sPostAssignedToUser.")
+            AND tt.term_id NOT IN (".$sCategoriesAssignedToUser.")";
         
         $this->_aSqlResults['excludedPosts'] = $wpdb->get_col($sPostSql);
         return $this->_aSqlResults['excludedPosts'];
@@ -664,12 +681,12 @@ class UamAccessHandler
                 } else {
                     $aRangeEnd = explode(".", $aIpRange[0]);
                 }
-                
-                if ($aRangeBegin[0] <= $aCurIp[0]  && $aCurIp[0] <= $aRangeEnd[0]
-                    && $aRangeBegin[1] <= $aCurIp[1] && $aCurIp[1] <= $aRangeEnd[1]
-                    && $aRangeBegin[2] <= $aCurIp[2] && $aCurIp[2] <= $aRangeEnd[2]
-                    && $aRangeBegin[3] <= $aCurIp[3] && $aCurIp[3] <= $aRangeEnd[3]
-                ) {
+
+                $iCurIp = ($aCurIp[0] << 24) + ($aCurIp[1] << 16) + ($aCurIp[2] << 8) + $aCurIp[3];
+                $iRangeBegin = ($aRangeBegin[0] << 24) + ($aRangeBegin[1] << 16) + ($aRangeBegin[2] << 8) + $aRangeBegin[3];
+                $iRangeEnd = ($aRangeEnd[0] << 24) + ($aRangeEnd[1]  << 16) + ($aRangeEnd[2]   << 8) + $aRangeEnd[3];
+
+                if ($iRangeBegin <= $iCurIp && $iCurIp <= $iRangeEnd) {
                     return true;
                 }
             }
@@ -683,7 +700,7 @@ class UamAccessHandler
      * 
      * @param integer $iUserId The user _iId.
      * 
-     * @return string|null
+     * @return array
      */
     protected function _getUserRole($iUserId)
     {
@@ -704,8 +721,8 @@ class UamAccessHandler
             $aCapabilities = array();
         }
         
-        $aRole  = (count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
-        return trim($aRole[0]);
+        $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
+        return $aRoles;
     }
     
     /**
@@ -717,9 +734,10 @@ class UamAccessHandler
      */
     public function userIsAdmin($iUserId)
     {
-        $sRole = $this->_getUserRole($iUserId);
+        $aRoles = $this->_getUserRole($iUserId);
+        $aRolesMap = array_keys($aRoles);
         
-        if ($sRole == 'administrator' || is_super_admin($iUserId)) {
+        if (isset($aRolesMap['administrator']) || is_super_admin($iUserId)) {
             return true;
         }
         
@@ -738,12 +756,22 @@ class UamAccessHandler
         $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
         $aUamOptions = $this->getUserAccessManager()->getAdminOptions();
         
-        $sRole = $this->_getUserRole($oCurrentUser->ID);
+        $aRoles = $this->_getUserRole($oCurrentUser->ID);
+        $aRolesMap = array_keys($aRoles);
         $aOrderedRoles = $this->getRolesOrdered();
-        
-        if (isset($aOrderedRoles[$sRole])
-            && $aOrderedRoles[$sRole] >= $aOrderedRoles[$aUamOptions['full_access_role']]
-            || $sRole == 'administrator' || is_super_admin($oCurrentUser->ID)
+        $iRightsLevel = 0;
+
+        foreach ($aRoles as $sRole) {
+            if (isset($aOrderedRoles[$sRole])
+                && $aOrderedRoles[$sRole] > $iRightsLevel
+            ) {
+                $iRightsLevel = $aOrderedRoles[$sRole];
+            }
+        }
+
+        if ($iRightsLevel >= $aOrderedRoles[$aUamOptions['full_access_role']]
+            || isset($aRolesMap['administrator'])
+            || is_super_admin($oCurrentUser->ID)
             || ($sAllowedCapability && $oCurrentUser->has_cap($sAllowedCapability))
         ) {
             return true;
@@ -764,7 +792,7 @@ class UamAccessHandler
             'subscriber' => 1,
             'contributor' => 2,
             'author' => 3,
-        	'editor' => 4,
+            'editor' => 4,
             'administrator' => 5
         );
         

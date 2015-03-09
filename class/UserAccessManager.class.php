@@ -28,8 +28,8 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.5.0";
-    protected $_sUamDbVersion = "1.1";
+    protected $_sUamVersion = "1.2.6.6";
+    protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
@@ -55,6 +55,14 @@ class UserAccessManager
     public function getAdminOptionsName()
     {
         return $this->_sAdminOptionsName;
+    }
+
+    /**
+     * Flushes the cache.
+     */
+    public function flushCache()
+    {
+        $this->_aCache = array();
     }
 
     /**
@@ -138,12 +146,12 @@ class UserAccessManager
         global $wpdb;
         $aBlogIds = array();
 
-    	if (is_multisite()) {
-			$aBlogIds = $wpdb->get_col(
-				"SELECT blog_id
-				FROM ".$wpdb->blogs
-			);
-    	}
+        if (is_multisite()) {
+            $aBlogIds = $wpdb->get_col(
+                "SELECT blog_id
+                FROM ".$wpdb->blogs
+            );
+        }
 
         return $aBlogIds;
     }
@@ -158,22 +166,22 @@ class UserAccessManager
         global $wpdb;
         $aBlogIds = $this->_getBlogIds();
  
-    	if (isset($_GET['networkwide'])
-    		&& ($_GET['networkwide'] == 1)
-    	) {
-	        $iCurrentBlogId = $wpdb->blogid;
-			
-			foreach ($aBlogIds as $iBlogId) {
-				switch_to_blog($iBlogId);
-				$this->_installUam();
-			}
-			
-			switch_to_blog($iCurrentBlogId);
-			
-			return null;
-    	}
-    	
-    	$this->_installUam();
+        if (isset($_GET['networkwide'])
+            && ($_GET['networkwide'] == 1)
+        ) {
+            $iCurrentBlogId = $wpdb->blogid;
+            
+            foreach ($aBlogIds as $iBlogId) {
+                switch_to_blog($iBlogId);
+                $this->_installUam();
+            }
+            
+            switch_to_blog($iCurrentBlogId);
+            
+            return null;
+        }
+        
+        $this->_installUam();
     }
     
     /**
@@ -194,39 +202,39 @@ class UserAccessManager
         $sDbAccessGroupTable = $wpdb->prefix.'uam_accessgroups';
         
         $sDbUserGroup = $wpdb->get_var(
-        	"SHOW TABLES 
-        	LIKE '".$sDbAccessGroupTable."'"
+            "SHOW TABLES 
+            LIKE '".$sDbAccessGroupTable."'"
         );
         
         if ($sDbUserGroup != $sDbAccessGroupTable) {
             dbDelta(
                 "CREATE TABLE ".$sDbAccessGroupTable." (
-					ID int(11) NOT NULL auto_increment,
-					groupname tinytext NOT NULL,
-					groupdesc text NOT NULL,
-					read_access tinytext NOT NULL,
-					write_access tinytext NOT NULL,
-					ip_range mediumtext NULL,
-					PRIMARY KEY  (ID)
-				) $sCharsetCollate;"
+                    ID int(11) NOT NULL auto_increment,
+                    groupname tinytext NOT NULL,
+                    groupdesc text NOT NULL,
+                    read_access tinytext NOT NULL,
+                    write_access tinytext NOT NULL,
+                    ip_range mediumtext NULL,
+                    PRIMARY KEY (ID)
+                ) $sCharsetCollate;"
             );
         }
 
         $sDbAccessGroupToObjectTable = $wpdb->prefix.'uam_accessgroup_to_object';
 
         $sDbAccessGroupToObject = $wpdb->get_var(
-        	"SHOW TABLES 
-        	LIKE '".$sDbAccessGroupToObjectTable."'"
+            "SHOW TABLES 
+            LIKE '".$sDbAccessGroupToObjectTable."'"
         );
         
         if ($sDbAccessGroupToObject != $sDbAccessGroupToObjectTable) {
             dbDelta(
-            	"CREATE TABLE " . $sDbAccessGroupToObjectTable . " (
-					object_id VARCHAR(11) NOT NULL,
-					object_type varchar(255) NOT NULL,
-					group_id int(11) NOT NULL,
-					PRIMARY KEY  (object_id,object_type,group_id)
-				) $sCharsetCollate;"
+                "CREATE TABLE " . $sDbAccessGroupToObjectTable . " (
+                    object_id VARCHAR(64) NOT NULL,
+                    object_type varchar(64) NOT NULL,
+                    group_id int(11) NOT NULL,
+                    PRIMARY KEY (object_id,object_type,group_id)
+                ) $sCharsetCollate;"
             );
         }
         
@@ -243,22 +251,22 @@ class UserAccessManager
         global $wpdb;
         $sBlogIds = $this->_getBlogIds();
  
-    	if ($sBlogIds !== array()
+        if ($sBlogIds !== array()
             && is_super_admin()
         ) {
             $iCurrentBlogId = $wpdb->blogid;
-			
-			foreach ($sBlogIds as $iBlogId) {
-				switch_to_blog($iBlogId);
-				$sCurrentDbVersion = $this->getWpOption("uam_db_version");
-				
+            
+            foreach ($sBlogIds as $iBlogId) {
+                switch_to_blog($iBlogId);
+                $sCurrentDbVersion = $this->getWpOption("uam_db_version");
+                
                 if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<')) {
                     switch_to_blog($iCurrentBlogId);
                     return true;
                 }
-			}
-			
-			switch_to_blog($iCurrentBlogId);
+            }
+            
+            switch_to_blog($iCurrentBlogId);
         }
         
         $sCurrentDbVersion = $this->getWpOption("uam_db_version");
@@ -277,22 +285,21 @@ class UserAccessManager
         global $wpdb;
         $aBlogIds = $this->_getBlogIds();
  
-    	if ($aBlogIds !== array()
-    	    && $blNetworkWide
-    	) {
-	        $iCurrentBlogId = $wpdb->blogid;
-			
-			foreach ($aBlogIds as $iBlogId) {
-				switch_to_blog($iBlogId);
-				$this->_installUam();
-			}
-			
-			switch_to_blog($iCurrentBlogId);
-			
-			return;
-    	}
-        
-        $this->_updateUam();
+        if ($blNetworkWide
+            && $aBlogIds !== array()
+        ) {
+            $iCurrentBlogId = $wpdb->blogid;
+            
+            foreach ($aBlogIds as $iBlogId) {
+                switch_to_blog($iBlogId);
+                $this->_installUam();
+                $this->_updateUam();
+            }
+            
+            switch_to_blog($iCurrentBlogId);
+        } else {
+            $this->_updateUam();
+        }
     }
     
     /**
@@ -312,63 +319,59 @@ class UserAccessManager
             $this->install();
         }
         
-        if (!$this->getWpOption('uam_version') || version_compare($this->getWpOption('uam_version'), "1.0") === -1) {
+        if (!$this->getWpOption('uam_version') || version_compare($this->getWpOption('uam_version'), "1.0", '<')) {
             delete_option('allow_comments_locked');
         }
         
         $sDbAccessGroup = $wpdb->prefix.'uam_accessgroups';
         
         $sDbUserGroup = $wpdb->get_var(
-        	"SHOW TABLES 
-        	LIKE '".$sDbAccessGroup."'"
+            "SHOW TABLES 
+            LIKE '".$sDbAccessGroup."'"
         );
         
-        if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion) === -1) {
-            if (version_compare($sCurrentDbVersion, "1.0") === 0) {
+        if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<')) {
+            $sCharsetCollate = $this->_getCharset();
+
+            if (version_compare($sCurrentDbVersion, "1.0", '<=')) {
                 if ($sDbUserGroup == $sDbAccessGroup) {
                     $wpdb->query(
-                    	"ALTER TABLE ".$sDbAccessGroup."
-                    	ADD read_access TINYTEXT NOT NULL DEFAULT '', 
-                    	ADD write_access TINYTEXT NOT NULL DEFAULT '', 
-                    	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
+                        "ALTER TABLE ".$sDbAccessGroup."
+                        ADD read_access TINYTEXT NOT NULL DEFAULT '', 
+                        ADD write_access TINYTEXT NOT NULL DEFAULT '', 
+                        ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                     );
                     
                     $wpdb->query(
-                    	"UPDATE ".$sDbAccessGroup."
-                    	SET read_access = 'group', 
-                    		write_access = 'group'"
+                        "UPDATE ".$sDbAccessGroup."
+                        SET read_access = 'group', 
+                            write_access = 'group'"
                     );
                     
                     $sDbIpRange = $wpdb->get_var(
-                    	"SHOW columns 
-                    	FROM ".$sDbAccessGroup."
-                    	LIKE 'ip_range'"
+                        "SHOW columns 
+                        FROM ".$sDbAccessGroup."
+                        LIKE 'ip_range'"
                     );
             
                     if ($sDbIpRange != 'ip_range') {
                         $wpdb->query(
-                        	"ALTER TABLE ".$sDbAccessGroup."
-                        	ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
+                            "ALTER TABLE ".$sDbAccessGroup."
+                            ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                         );
                     }
                 }
 
-                $sCurrentDbVersion = "1.1";
-            } 
-            
-            if (version_compare($sCurrentDbVersion, "1.1") === 0) {
                 $sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
                 $sDbAccessGroupToPost = $wpdb->prefix.'uam_accessgroup_to_post';
                 $sDbAccessGroupToUser = $wpdb->prefix.'uam_accessgroup_to_user';
                 $sDbAccessGroupToCategory = $wpdb->prefix.'uam_accessgroup_to_category';
                 $sDbAccessGroupToRole = $wpdb->prefix.'uam_accessgroup_to_role';
                 
-                $sCharsetCollate = $this->_getCharset();
-                
                 $wpdb->query(
-                    "ALTER TABLE 'wp_uam_accessgroup_to_object' 
-                    CHANGE 'object_id' 'object_id' VARCHAR(11)
-                    ".$sCharsetCollate.";"
+                    "ALTER TABLE '{$sDbAccessGroupToObject}'
+                    CHANGE 'object_id' 'object_id' VARCHAR(64)
+                    ".$sCharsetCollate
                 );
                 
                 $aObjectTypes = $this->getAccessHandler()->getObjectTypes();
@@ -380,7 +383,7 @@ class UserAccessManager
                         $sDbIdName = 'post_id';
                         $sDatabase = $sDbAccessGroupToPost.', '.$wpdb->posts;
                         $sAddition = " WHERE post_id = ID
-                        	AND post_type = '".$sObjectType."'";
+                            AND post_type = '".$sObjectType."'";
                     } elseif ($sObjectType == 'category') {
                         $sDbIdName = 'category_id';
                         $sDatabase = $sDbAccessGroupToCategory;
@@ -393,34 +396,47 @@ class UserAccessManager
                     } else {
                         continue;
                     }
-                    
-                    $sSql = "SELECT ".$sDbIdName." as id, group_id as groupId
-                    	FROM ".$sDatabase.$sAddition;
+
+                    $sFullDatabase = $sDatabase.$sAddition;
+
+                    $sSql = "SELECT {$sDbIdName} as id, group_id as groupId
+                        FROM {$sFullDatabase}";
                         
                     $aDbObjects = $wpdb->get_results($sSql);
                     
                     foreach ($aDbObjects as $oDbObject) {
-                        $sSql = "INSERT INTO ".$sDbAccessGroupToObject." (
-                        		group_id, 
-                        		object_id,
-                        		object_type
-                        	) 
-                        	VALUES(
-                        		'".$oDbObject->groupId."',
-                        		'".$oDbObject->id."',
-                        		'".$sObjectType."'
-                        	)";
+                        $sSql = "INSERT INTO {$sDbAccessGroupToObject} (
+                                group_id, 
+                                object_id,
+                                object_type
+                            ) 
+                            VALUES(
+                                '{$oDbObject->groupId}',
+                                '{$oDbObject->id}',
+                                '{$sObjectType}'
+                            )";
                         
                         $wpdb->query($sSql);
                     } 
                 }
                 
                 $wpdb->query(
-                	"DROP TABLE ".$sDbAccessGroupToPost.",
-                		".$sDbAccessGroupToUser.",
-                		".$sDbAccessGroupToCategory.",
-                		".$sDbAccessGroupToRole
+                    "DROP TABLE {$sDbAccessGroupToPost},
+                        {$sDbAccessGroupToUser},
+                        {$sDbAccessGroupToCategory},
+                        {$sDbAccessGroupToRole}"
                 );
+            }
+
+            if (version_compare($sCurrentDbVersion, "1.2", '<=')) {
+                $sDbAccessGroupToObject = $wpdb->prefix.'uam_accessgroup_to_object';
+
+                $sSql = "
+                    ALTER TABLE `{$sDbAccessGroupToObject}`
+                    CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
+                    CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL";
+
+                $wpdb->query($sSql);
             }
             
             update_option('uam_db_version', $this->_sUamDbVersion);
@@ -440,8 +456,8 @@ class UserAccessManager
         global $wpdb;
 
         $wpdb->query(
-        	"DROP TABLE ".DB_ACCESSGROUP.", 
-        		".DB_ACCESSGROUP_TO_OBJECT
+            "DROP TABLE ".DB_ACCESSGROUP.", 
+                ".DB_ACCESSGROUP_TO_OBJECT
         );
         
         delete_option($this->_sAdminOptionsName);
@@ -459,8 +475,10 @@ class UserAccessManager
     {
         global $wpdb;
         $sCharsetCollate = '';
+
+        $sMySlqVersion = $wpdb->get_var("SELECT VERSION() as mysql_version");
         
-        if (version_compare(mysql_get_server_info(), '4.1.0', '>=')) {
+        if (version_compare($sMySlqVersion, '4.1.0', '>=')) {
             if (!empty($wpdb->charset)) {
                 $sCharsetCollate = "DEFAULT CHARACTER SET $wpdb->charset";
             }
@@ -595,11 +613,11 @@ class UserAccessManager
                 }
             } else {
                 $aHomeRoot = parse_url(home_url());
-        		if (isset($aHomeRoot['path'])) {
-        			$aHomeRoot = trailingslashit($aHomeRoot['path']);
-        		} else {
-        			$aHomeRoot = '/';
-        		}
+                if (isset($aHomeRoot['path'])) {
+                    $aHomeRoot = trailingslashit($aHomeRoot['path']);
+                } else {
+                    $aHomeRoot = '/';
+                }
                 
                 $sHtaccessTxt = "<IfModule mod_rewrite.c>\n";
                 $sHtaccessTxt .= "RewriteEngine On\n";
@@ -617,7 +635,7 @@ class UserAccessManager
         }
     }
     
-	/**
+    /**
      * Creates a htpasswd file.
      * 
      * @param boolean $blCreateNew Force to create new file.
@@ -740,50 +758,50 @@ class UserAccessManager
     {
         if ($this->_aAdminOptions === null) {
             $aUamAdminOptions = array(
-            	'hide_post_title' => 'false', 
-            	'post_title' => __('No rights!', 'user-access-manager'),
-            	'post_content' => __(
-            		'Sorry you have no rights to view this post!', 
-            		'user-access-manager'
+                'hide_post_title' => 'false', 
+                'post_title' => __('No rights!', 'user-access-manager'),
+                'post_content' => __(
+                    'Sorry you have no rights to view this post!', 
+                    'user-access-manager'
                 ),
                 'hide_post' => 'false', 
-            	'hide_post_comment' => 'false', 
-            	'post_comment_content' => __(
-            		'Sorry no rights to view comments!', 
-            		'user-access-manager'
+                'hide_post_comment' => 'false', 
+                'post_comment_content' => __(
+                    'Sorry no rights to view comments!', 
+                    'user-access-manager'
                 ), 
-            	'post_comments_locked' => 'false',
-            	'hide_page_title' => 'false', 
-            	'page_title' => __('No rights!', 'user-access-manager'), 
-            	'page_content' => __(
-            		'Sorry you have no rights to view this page!', 
-            		'user-access-manager'
+                'post_comments_locked' => 'false',
+                'hide_page_title' => 'false', 
+                'page_title' => __('No rights!', 'user-access-manager'), 
+                'page_content' => __(
+                    'Sorry you have no rights to view this page!', 
+                    'user-access-manager'
                 ), 
-            	'hide_page' => 'false',
+                'hide_page' => 'false',
                 'hide_page_comment' => 'false', 
-            	'page_comment_content' => __(
-            		'Sorry no rights to view comments!', 
-            		'user-access-manager'
+                'page_comment_content' => __(
+                    'Sorry no rights to view comments!', 
+                    'user-access-manager'
                 ), 
-            	'page_comments_locked' => 'false',
-            	'redirect' => 'false', 
-            	'redirect_custom_page' => '', 
-            	'redirect_custom_url' => '', 
-            	'lock_recursive' => 'true',
+                'page_comments_locked' => 'false',
+                'redirect' => 'false', 
+                'redirect_custom_page' => '', 
+                'redirect_custom_url' => '', 
+                'lock_recursive' => 'true',
                 'authors_has_access_to_own' => 'true',
                 'authors_can_add_posts_to_groups' => 'false',
-            	'lock_file' => 'false', 
-            	'file_pass_type' => 'random', 
-            	'lock_file_types' => 'all', 
-            	'download_type' => 'fopen', 
-            	'locked_file_types' => 'zip,rar,tar,gz',
-            	'not_locked_file_types' => 'gif,jpg,jpeg,png', 
-            	'blog_admin_hint' => 'true', 
-            	'blog_admin_hint_text' => '[L]',
-            	'hide_empty_categories' => 'true', 
-            	'protect_feed' => 'true', 
-            	'show_post_content_before_more' => 'false', 
-            	'full_access_role' => 'administrator'
+                'lock_file' => 'false', 
+                'file_pass_type' => 'random', 
+                'lock_file_types' => 'all', 
+                'download_type' => 'fopen', 
+                'locked_file_types' => 'zip,rar,tar,gz',
+                'not_locked_file_types' => 'gif,jpg,jpeg,png', 
+                'blog_admin_hint' => 'true', 
+                'blog_admin_hint_text' => '[L]',
+                'hide_empty_categories' => 'true', 
+                'protect_feed' => 'true', 
+                'show_post_content_before_more' => 'false', 
+                'full_access_role' => 'administrator'
             );
             
             $aUamOptions = $this->getWpOption($this->_sAdminOptionsName);
@@ -899,7 +917,7 @@ class UserAccessManager
     public function addStyles()
     {
         wp_enqueue_style(
-        	'UserAccessManagerAdmin', 
+            'UserAccessManagerAdmin', 
             UAM_URLPATH . "css/uamAdmin.css",
             array() ,
             '1.0',
@@ -907,7 +925,7 @@ class UserAccessManager
         );
         
         wp_enqueue_style(
-        	'UserAccessManagerLoginForm', 
+            'UserAccessManagerLoginForm', 
             UAM_URLPATH . "css/uamLoginForm.css",
             array() ,
             '1.0',
@@ -923,14 +941,9 @@ class UserAccessManager
     public function addScripts()
     {
         wp_enqueue_script(
-        	'UserAccessManagerJQueryTools', 
-            UAM_URLPATH . 'js/jquery.tools.min.js',
-            array('jquery')
-        );
-        wp_enqueue_script(
-        	'UserAccessManagerFunctions', 
+            'UserAccessManagerFunctions', 
             UAM_URLPATH . 'js/functions.js', 
-            array('jquery', 'UserAccessManagerJQueryTools')
+            array('jquery')
         );
     }
     
@@ -1188,9 +1201,9 @@ class UserAccessManager
         $oPost = $this->getPost($iPostId);
         
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-        	WHERE object_id = '".$iPostId."'
-        		AND object_type = '".$oPost->post_type."'"
+            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+            WHERE object_id = '".$iPostId."'
+                AND object_type = '".$oPost->post_type."'"
         );
     }
     
@@ -1288,8 +1301,8 @@ class UserAccessManager
         global $wpdb;
 
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . "
-        	WHERE object_id = ".$iUserId."
+            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . "
+            WHERE object_id = ".$iUserId."
                 AND object_type = 'user'"
         );
     }
@@ -1369,9 +1382,9 @@ class UserAccessManager
         global $wpdb;
         
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-        	WHERE object_id = ".$iCategoryId."
-        		AND object_type = 'category'"
+            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+            WHERE object_id = ".$iCategoryId."
+                AND object_type = 'category'"
         );
     }
     
@@ -1385,7 +1398,7 @@ class UserAccessManager
      * 
      * @param string  $sObjectType The name of the pluggable object.
      * @param integer $iObjectId   The pluggable object _iId.
-     * @param array	  $aUserGroups The user groups for the object.
+     * @param array      $aUserGroups The user groups for the object.
      * 
      * @return null
      */
@@ -1410,8 +1423,8 @@ class UserAccessManager
         global $wpdb;
 
         $wpdb->query(
-        	"DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-        	WHERE object_id = ".$iObjectId."
+            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+            WHERE object_id = ".$iObjectId."
                 AND object_type = ".$sObjectName
         );
     }
@@ -1526,14 +1539,14 @@ class UserAccessManager
                 }
 
                 if ($aUamOptions['show_post_content_before_more'] == 'true'
-                	&& $sPostType == "post"
+                    && $sPostType == "post"
                     && preg_match('/<!--more(.*?)?-->/', $oPost->post_content, $aMatches)
                 ) {
                     $oPost->post_content = explode($aMatches[0], $oPost->post_content, 2);
                     $sUamPostContent = $oPost->post_content[0] . " " . $sUamPostContent;
                 }
 
-                $oPost->post_content = $sUamPostContent;
+                $oPost->post_content = stripslashes($sUamPostContent);
             }
 
             $oPost->post_title .= $this->adminOutput($oPost->post_type, $oPost->ID);
@@ -1740,7 +1753,7 @@ class UserAccessManager
         $oTerm->name .= $this->adminOutput('term', $oTerm->term_id);
         
         if ($sTermType == 'post_tag'
-            || $sTermType == 'category'
+            || ( $sTermType == 'category' || $sTermType == $oTerm->taxonomy)
             && $oUamAccessHandler->checkObjectAccess('category', $oTerm->term_id)
         ) {
             if ($this->atAdminPanel() == false
@@ -1756,7 +1769,7 @@ class UserAccessManager
                 }
                 
                 $aArgs = array(
-                	'numberposts' => - 1,
+                    'numberposts' => - 1,
                     $sTermRequestType => $iTermRequest
                 );
                 
@@ -1775,10 +1788,10 @@ class UserAccessManager
                 
                 //For post_tags
                 if ($sTermType == 'post_tag' && $oTerm->count <= 0) {
-        	        return null;
-        	    }
+                    return null;
+                }
                 
-        	    //For categories
+                //For categories
                 if ($oTerm->count <= 0
                     && $aUamOptions['hide_empty_categories'] == 'true'
                     && ($oTerm->taxonomy == "term"
@@ -1981,9 +1994,9 @@ class UserAccessManager
             $sFileUrl = $_GET['uamgetfile'];
             $sFileType = $_GET['uamfiletype'];
             $this->getFile($sFileType, $sFileUrl);
-        } elseif (!$this->atAdminPanel() && $oUamOptions['redirect'] != 'false') {
+        } elseif (!$this->atAdminPanel() && $oUamOptions['redirect'] !== 'false') {
             $oObject = null;
-        
+
             if (isset($oPageParams->query_vars['p'])) {
                 $oObject = $this->getPost($oPageParams->query_vars['p']);
                 $oObjectType = $oObject->post_type;
@@ -1997,7 +2010,21 @@ class UserAccessManager
                 $oObjectType = 'category';
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
-                $oObject = get_page_by_title($oPageParams->query_vars['name'], OBJECT, 'post');
+                global $wpdb;
+
+                $sQuery = $wpdb->prepare(
+                    "SELECT ID
+                    FROM {$wpdb->posts}
+                    WHERE post_name = %s
+                    AND post_type IN ('post', 'page')",
+                    $oPageParams->query_vars['name']
+                );
+
+                $sObjectId = $wpdb->get_var($sQuery);
+
+                if ($sObjectId) {
+                    $oObject = get_post($sObjectId);
+                }
 
                 if ($oObject !== null) {
                     $oObjectType = $oObject->post_type;
@@ -2068,17 +2095,19 @@ class UserAccessManager
         
         if (!$blPostToShow) {
             $aUamOptions = $this->getAdminOptions();
+            $sPermalink = null;
 
             if ($aUamOptions['redirect'] == 'custom_page') {
                 $oPost = $this->getPost($aUamOptions['redirect_custom_page']);
                 $sUrl = $oPost->guid;
+                $sPermalink = get_page_link($oPost);
             } elseif ($aUamOptions['redirect'] == 'custom_url') {
                 $sUrl = $aUamOptions['redirect_custom_url'];
             } else {
                 $sUrl = home_url('/');
             }
 
-            if ($sUrl != $this->getCurrentUrl()) {
+            if ($sUrl != $this->getCurrentUrl() && $sPermalink != $this->getCurrentUrl()) {
                 wp_redirect($sUrl);
                 exit;
             }      
@@ -2286,10 +2315,10 @@ class UserAccessManager
         global $wpdb;
 
         $oDbPost = $wpdb->get_row(
-        	"SELECT ID
-			FROM ".$wpdb->prefix."posts
-			WHERE guid = '" . $sNewUrl . "'
-			LIMIT 1"
+            "SELECT ID
+            FROM ".$wpdb->prefix."posts
+            WHERE guid = '" . $sNewUrl . "'
+            LIMIT 1"
         );
         
         if ($oDbPost) {
