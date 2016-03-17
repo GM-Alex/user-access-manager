@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.6.6";
+    protected $_sUamVersion = "1.2.6.7";
     protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -2314,12 +2314,15 @@ class UserAccessManager
          */
         global $wpdb;
 
-        $oDbPost = $wpdb->get_row(
+        $sSql = $wpdb->prepare(
             "SELECT ID
             FROM ".$wpdb->prefix."posts
-            WHERE guid = '" . $sNewUrl . "'
-            LIMIT 1"
+            WHERE guid = %s
+            LIMIT 1",
+            $sNewUrl
         );
+
+        $oDbPost = $wpdb->get_row($sSql);
         
         if ($oDbPost) {
             $this->_aPostUrls[$sUrl] = $oDbPost->ID;
