@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.6.7";
+    protected $_sUamVersion = "1.2.6.8";
     protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -167,7 +167,7 @@ class UserAccessManager
         $aBlogIds = $this->_getBlogIds();
  
         if (isset($_GET['networkwide'])
-            && ($_GET['networkwide'] == 1)
+            && ((int)$_GET['networkwide'] === 1)
         ) {
             $iCurrentBlogId = $wpdb->blogid;
             
@@ -1054,7 +1054,8 @@ class UserAccessManager
             || $oUamOptions['authors_can_add_posts_to_groups'] == 'true')
         ) {
             if ($aUserGroups === null) {
-                $aUserGroups = isset($aFormData['uam_usergroups']) ? $aFormData['uam_usergroups'] : array();
+                $aUserGroups = (isset($aFormData['uam_usergroups']) && is_array($aFormData['uam_usergroups']))
+                    ? $aFormData['uam_usergroups'] : array();
             }
 
             $aAddUserGroups = array_flip($aUserGroups);
@@ -1934,7 +1935,7 @@ class UserAccessManager
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
             
             foreach ($aGroups as $oGroup) {
-                $sLink .= $oGroup->getGroupName().', ';
+                $sLink .= htmlentities($oGroup->getGroupName()).', ';
             }
             
             $sLink = rtrim($sLink, ', ');
@@ -2343,5 +2344,25 @@ class UserAccessManager
     {
         $this->_aPostUrls[$sUrl] = $oPost->ID;
         return $sUrl;
+    }
+
+    /**
+     * Filter for Yoast SEO Plugin
+     *
+     * Hides the url from the site map if the user is not allowed
+     *
+     * @param string $url
+     * @param string $type
+     * @param object $object
+     * @return false|string
+     */
+    function wp_seo_url($url, $type, $object)
+    {
+        $uaManager = new UserAccessManager();
+        $handler = $uaManager->getAccessHandler();
+        if($handler->checkObjectAccess($type, $object->ID)){
+            return $url;
+        }
+        return false;
     }
 }

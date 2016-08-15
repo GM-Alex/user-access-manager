@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 4.1.1
-Stable tag: 1.2.6.7
+Stable tag: 1.2.6.8
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -71,6 +71,9 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    1.2.6.8     2016/08/15  Security fix
+                            Add Yoast SEO Plugin filter. Thanks to Christian Werner
 
     1.2.6.7     2016/03/17  Security fix
 

@@ -50,9 +50,9 @@ function insertUpdateGroup($iUserGroupId)
 
     $oUamUserGroup->unsetObjects('role', true);
     
-    if ($aRoles) {
+    if ($aRoles && is_array($aRoles)) {
         foreach ($aRoles as $sRole) {
-            $oUamUserGroup->addObject('role', $sRole);
+            $oUamUserGroup->addObject('role', htmlentities($sRole));
         }
     }
 
@@ -98,7 +98,7 @@ function getPrintEditGroup($sGroupId = null)
                     <td>
                         <input type="text" size="40" value="<?php
     if (isset($sGroupId)) {
-        echo $oUamUserGroup->getGroupName();
+        echo htmlentities($oUamUserGroup->getGroupName());
     } 
                         ?>" id="userGroupName" name="userGroupName" /><br />
                         <?php echo TXT_UAM_GROUP_NAME_DESC; ?>
@@ -109,7 +109,7 @@ function getPrintEditGroup($sGroupId = null)
                     <td>
                         <input type="text" size="40" value="<?php
     if (isset($sGroupId)) {
-        echo $oUamUserGroup->getGroupDesc();
+        echo htmlentities($oUamUserGroup->getGroupDesc());
     } 
                         ?>" id="userGroupDescription" name="userGroupDescription" /><br />
                         <?php echo TXT_UAM_GROUP_DESC_DESC; ?>
@@ -119,7 +119,7 @@ function getPrintEditGroup($sGroupId = null)
                     <th valign="top" scope="row"><?php echo TXT_UAM_GROUP_IP_RANGE; ?></th>
                     <td><input type="text" size="40" value="<?php
     if (isset($sGroupId)) {
-        echo $oUamUserGroup->getIpRange('string');
+        echo htmlentities($oUamUserGroup->getIpRange('string'));
     } 
                         ?>" id="ipRange" name="ipRange" /><br />
                         <?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?>
@@ -259,15 +259,11 @@ if ($postAction == 'delgroup') {
     ) {
          wp_die(TXT_UAM_NONCE_FAILURE);
     }
-    
-    if (isset($_POST['delete'])) {
-        $delIds = $_POST['delete'];
-    }
 
-    if (isset($delIds)) {
+    if (isset($_POST['delete']) && is_array($_POST['delete'])) {
         global $oUserAccessManager;
         
-        foreach ($delIds as $delId) {
+        foreach ($_POST['delete'] as $delId) {
             $oUserAccessManager->getAccessHandler()->deleteUserGroup($delId);
         }
         ?>
@@ -352,11 +348,11 @@ if (!$editGroup) {
                     <td>
                         <strong>
                             <a href="?page=<?php echo $sCurAdminPage; ?>&amp;action=editGroup&amp;id=<?php echo $oUamUserGroup->getId(); ?>">
-                                <?php echo $oUamUserGroup->getGroupName(); ?>
+                                <?php echo htmlentities($oUamUserGroup->getGroupName()); ?>
                             </a>
                         </strong>
                     </td>
-                    <td><?php echo $oUamUserGroup->getGroupDesc() ?></td>
+                    <td><?php echo htmlentities($oUamUserGroup->getGroupDesc()) ?></td>
                     <td>
             <?php 
             if ($oUamUserGroup->getReadAccess() == "all") {
@@ -408,7 +404,7 @@ if (!$editGroup) {
                     ?>
                             <li>
                     <?php
-                    echo $sIpRange;
+                    echo htmlentities($sIpRange);
                     ?>
                             </li>
                     <?php
