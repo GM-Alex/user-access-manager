@@ -49,7 +49,7 @@ if (isset($_POST['update_uam_settings'])) {
 ?>
 
 <div class="wrap">
-    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["REQUEST_URI"]); ?>">
         <?php wp_nonce_field('uamUpdateSettings', 'uamUpdateSettingsNonce'); ?>
         <h2><?php echo TXT_UAM_SETTINGS; ?></h2>
         <h3><?php echo TXT_UAM_POST_SETTING; ?></h3>
