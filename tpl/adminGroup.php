@@ -75,7 +75,8 @@ function getPrintEditGroup($sGroupId = null)
     ?>
     <form method="post" action="<?php
         $aUri = explode("?", $_SERVER["REQUEST_URI"]);
-        echo reset($aUri) . "?page=" . $_GET['page'];
+        $sUri = reset($aUri);
+        echo htmlspecialchars($sUri) . "?page=" . $_GET['page'];
     ?>">
     <?php
     wp_nonce_field('uamInsertUpdateGroup', 'uamInsertUpdateGroupNonce');
@@ -308,7 +309,7 @@ if (($postAction == 'updateGroup' || $postAction == 'addGroup')
 if (!$editGroup) {
     ?>
     <div class="wrap">
-        <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["REQUEST_URI"]); ?>">
             <?php wp_nonce_field('uamDeleteGroup', 'uamDeleteGroupNonce'); ?>
             <input type="hidden" value="delgroup" name="action" />
             <h2><?php echo TXT_UAM_MANAGE_GROUP; ?></h2>
