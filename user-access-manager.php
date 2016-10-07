@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
  * Author URI: http://www.gm-alex.de/
- * Version: 1.2.6.9
+ * Version: 1.2.6.10
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 

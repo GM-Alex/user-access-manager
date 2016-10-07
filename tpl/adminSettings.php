@@ -31,6 +31,7 @@ if (isset($_POST['update_uam_settings'])) {
     }
     
     update_option($oUserAccessManager->getAdminOptionsName(), $aUamOptions);
+    $aUamOptions = array_map('htmlentities', $aUamOptions);
     
     if ($_POST['uam_lock_file'] == 'false') {
         $oUserAccessManager->deleteHtaccessFiles();
