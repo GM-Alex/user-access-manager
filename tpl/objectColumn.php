@@ -30,7 +30,7 @@ if ($aUamUserGroups != array()) {
         ?> 
         <li>
             <a class="uam_group_info_link">
-                <?php echo $oUamUserGroup->getGroupName(); ?>
+                <?php echo htmlentities($oUamUserGroup->getGroupName()); ?>
             </a>
         <?php
         include 'groupInfo.php';
