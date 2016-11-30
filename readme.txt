@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.0
 Tested up to: 4.5.3
-Stable tag: 1.2.6.10
+Stable tag: 1.2.7.0
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -12,9 +12,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible and writable for the specified group. This plugin is useful if you need a member area or a private section at your blog or you want that other people can write at your blog but not everywhere.
 
-Check out the [User Access Manager - NextGEN Gallery Extension](http://wordpress.org/extend/plugins/user-access-manager-nextgen-gallery-extension/).
-
-Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and report the issue here: [http://mantis.gm-alex.de](http://mantis.gm-alex.de). That is the only way to find bugs and see if the plugin works proper. Thanks.
+Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and write me. That is the only way to find bugs and see if the plugin works proper. Thanks.
 
 <em>Feature list</em>
 
@@ -56,7 +54,7 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 
 Some language files are really old, if you are a native speaker it would be nice if you update a language file or make one for a language which is not translated jet.
 
-For a German description visit my page at [GMAlex](http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/ "GMAlex - deviant design and development"). If you have any problem, suggestions or make a translation please visit the bug tracker [http://mantis.gm-alex.de](http://mantis.gm-alex.de), register and report your issue. To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
+To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
 == Installation ==
@@ -71,6 +69,9 @@ For a German description visit my page at [GMAlex](http://www.gm-alex.de/project
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    1.2.7.0     2016/11/30  Add experimental nginx support
+                            Fix redirect issue (Thanks to Laurence Shaw for the hint and James Riordon for the fix)
 
     1.2.6.10    2016/10/07  Again a security fix
 
