@@ -1,0 +1,42 @@
+/*
+uamLoginForm.css
+
+The file for the login form style.
+Modify this file to change the style of the login form.
+*/
+
+.uam_login_link {
+
+}
+
+.uam_login_form {
+    position:relative;
+}
+
+.uam_login_form .input {
+    display:block;
+}
+
+.uam_login_form .input_label {
+    display:block;
+}
+
+.uam_login_form .checkbox {
+
+}
+
+.uam_login_form .checkbox_label {
+    left:20px;
+}
+
+.uam_login_form .button {
+    display:block;
+}
+
+.uam_login_options {
+
+}
+
+.uam_login_options a {
+
+}

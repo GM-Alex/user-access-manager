@@ -1,0 +1,747 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: User Access Manager 1.1.1.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-10-02 10:32+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Team Blogos <wordpress@blogos.dk>\n"
+"Language-Team: Team Blogos <wordpress@blogos.dk>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2;plural=n != 1;\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;__ngettext:1,2;__ngettext_noop:1,2;_nc:4c,1,2;_nx:4c,1,2;_n_noop:1,2;_nx_noop:4c,1,2;_x:1,2c;_c;esc_html__;esc_html_e;esc_html_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c\n"
+"X-Poedit-Basepath: d:\\wordpress\\plugins\\user-access-manager\n"
+"X-Poedit-SearchPath-0: d:\\wordpress\\plugins\\user-access-manager\n"
+
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:516
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:529
+msgid "No rights!"
+msgstr "Ingen rettigheder!"
+
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:518
+msgid "Sorry you have no rights to view this post!"
+msgstr "Beklager, men du har ingen rettigheder til at se dette indlæg!"
+
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:524
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:537
+msgid "Sorry no rights to view comments!"
+msgstr "Beklager, men du har ingen rettigheder til at se kommentarer!"
+
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:531
+msgid "Sorry you have no rights to view this page!"
+msgstr "Beklager, men du har ingen rettigheder til at se denne side!"
+
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:834
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:1048
+msgid "Access"
+msgstr "Adgang"
+
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:971
+msgid "uam user groups"
+msgstr "uam brugergrupper"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:19
+#, php-format
+msgid "Sorry you need at least PHP version 5.0 to use the User Access Manager. Your current PHP version is %s."
+msgstr "Beklager, men du skal mindst have PHP version 5.0 for at kunne bruge User Access Manager. Din aktuelle PHP-version er %s."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:20
+#, php-format
+msgid "Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s."
+msgstr "Beklager, men du skal bruger WordPress version 3.0 eller nyere for at kunne bruge User Access Manager. Din aktuelle WordPress-version er %s."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:21
+#, php-format
+msgid "Please update the database of the User Access Manager. <a href=\"%s\">Click here to proceed</a>"
+msgstr "Opdatér venligst User Access Managers database. <a href=\"%s\">Klik her for at fortsætte</a>"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:24
+msgid "all"
+msgstr "alle"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:25
+msgid "only group users"
+msgstr "kun gruppebrugere"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:26
+msgid "Yes"
+msgstr "Ja"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:27
+msgid "No"
+msgstr "Nej"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:31
+msgid "Settings"
+msgstr "Indstillinger"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:34
+msgid "Post settings"
+msgstr "Indstillinger for indlæg"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:35
+msgid "Set up the behaviour of locked posts"
+msgstr "Indstil, hvordan låste indlæg skal opføre sig"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:36
+msgid "Post title"
+msgstr "Titel på indlæg"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:37
+msgid "Displayed text as post title if user has no access"
+msgstr "Tekst, der skal vises som titel på indlæg, hvis bruger ikke har adgang"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:38
+msgid "Hide post title"
+msgstr "Skjul titel på indlæg"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:39
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:49
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:59
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:67
+#, php-format
+msgid "Selecting \"Yes\" will show the text which is defined at \"%s\" if user has no access."
+msgstr "Vælges \"Ja\", vises teksten, som er defineret som \"%s\", hvis brugeren ikke har adgang."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:40
+msgid "Post content"
+msgstr "Indlægs-indhold"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:41
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single posts, otherwise a link will shown."
+msgstr "Indhold, der vises, hvis bruger ikke har adgang. Du kan tilføje en login-formular ved at tilføje nøgleordet <b>[LOGIN-FORM]</b>. Denne formular vises på enkelt-indlæg. I øvrige tilfælde vises et link."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:42
+msgid "Show post content before &lt;!--more--&gt; tag"
+msgstr "Vis indlæggets indhold før &lt;!--more--&gt; tag"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:43
+#, php-format
+msgid "Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at \"%s\". If no &lt;!--more--&gt; is set he defined text at \"%s\" will shown."
+msgstr "Viser indlæggets indhold før &lt;!--more--&gt;-tagget og derefter teksten defineret ud for \"%s\". Hvis der ikke er nogen &lt;!--more--&gt; vil teksten defineret ud for \"%s\" blive vist."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:44
+msgid "Hide complete posts"
+msgstr "Skjul indlæg i deres helhed"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:45
+msgid "Selecting \"Yes\" will hide posts if the user has no access."
+msgstr "Vælges \"Ja\", skjules indlæg, hvis brugeren ikke har adgang."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:46
+msgid "Post comment text"
+msgstr "Tekst for indlægskommentar"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:47
+msgid "Displayed text as post comment text if user has no access"
+msgstr "Tekst, der vises som indlægskommentartekst, hvis bruger ikke har adgang"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:48
+msgid "Hide post comments"
+msgstr "Skjul indlægskommentarer"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:50
+msgid "Allow post comments"
+msgstr "Tillad indlægskommentarer"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:51
+msgid "Selecting \"yes\" allows users to comment on locked posts"
+msgstr "Vælges \"Ja\", tillades brugere at kommentere på låste indlæg "
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:54
+msgid "Page settings"
+msgstr "Indstillinger for sider"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:55
+msgid "Set up the behaviour of locked pages"
+msgstr "Definér, hvordan låste sider skal fremtræde"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:56
+msgid "Page title"
+msgstr "Sidetitel"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:57
+msgid "Displayed text as page title if user has no access"
+msgstr "Tekst, der vises som sidetitel, hvis en bruger ikke har adgang"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:58
+msgid "Hide page title"
+msgstr "Skjul sidetitel"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:60
+msgid "Page content"
+msgstr "Side-indhold"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:61
+msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <b>[LOGIN_FORM]</b>. This form will shown on single pages, otherwise a link will shown."
+msgstr "Indhold, der vises, hvis bruger ikke har adgang. Du kan tilføje en login-formular ved at tilføje nøgleordet <b>[LOGIN-FORM]</b>. Denne formular vises på enkelt-sider. I øvrige tilfælde vises et link."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:62
+msgid "Hide complete pages"
+msgstr "Skjul sider i deres helhed"
+
+# tjah
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:63
+msgid "Selecting \"Yes\" will hide pages if the user has no access. Pages will also hide in the navigation."
+msgstr "Vælges \"Ja\", skjules sider, hvis brugeren ikke har adgang. Sider vil også blive skjult i navigationen."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:64
+msgid "Page comment text"
+msgstr "Tekst for sidekommentar"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:65
+msgid "Displayed text as page comment text if user has no access"
+msgstr "Tekst, der vises som sidekommentartekst, hvis bruger ikke har adgang"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:66
+msgid "Hide page comments"
+msgstr "Skjul sidekommentarer"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:68
+msgid "Allow page comments"
+msgstr "Tillad sidekommentarer"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:69
+msgid "Selecting \"yes\" allows users to comment on locked pages"
+msgstr "Vælges \"Ja\", tillades brugere at kommentere på låste sider"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:72
+msgid "File settings"
+msgstr "Fil-indstsillinger"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:73
+msgid "Set up the behaviour of files"
+msgstr "Definér, hvordan filer skal fremtræde"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:74
+msgid "Lock files"
+msgstr "Lås filer"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:75
+msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style=\"color:red;\">Note: If you activate this option the plugin will overwirte a '.htaccess' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>"
+msgstr "Hvis du vælger \"Ja\", låses alle filer med en .htaccess-fil og kun brugere med adgang kan downloade filer. <br/><strong style=\"color:red;\">Bemærk: Hvis du aktiverer denne indstilling, vil pluginnet overskrive en '.htaccess'-fil i upload-mappen, hvis du allerede bruger en til at beskytte dine filer. Hvis du ikke har aktiveret permalinks, vil din upload-mappe blive beskyttet med en '.htaccess'-fil med et tilfældigt kodeord, og alle mediefiler, der er indsat i tidligere indlæg og sider, vil ikke længere kunne bruges. Du er nødt til at opdatere dine indlæg/sider (det er ikke nødvendigt, hvis du har aktiveret permalinks).</strong>"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:76
+msgid "Filetypes to lock: "
+msgstr "Filtyper, der skal låses: "
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:77
+msgid "Filetypes not to lock: "
+msgstr "Filtyper, der ikke skal låses: "
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:78
+msgid "Locked file types"
+msgstr "Låste filtyper"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:79
+msgid "Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <b>Note:</b> If you have no problems use all to get the maximum security."
+msgstr "Lås alle filer, indtast filtyper, som du vil låse, hvis indlægget/siden er låst, eller definér filtyper, som ikke skal låses. <b>Bemærk:</b> Hvis du ingen problemer har, så lås alle for at opnå størst sikkerhed."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:80
+msgid ".htaccess password"
+msgstr ".htaccess-adgangskode"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:81
+msgid "Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files."
+msgstr "Definér adgangskoden for adgangen til .htaccess-filen. Denne adgangskode er kun nødvendig, hvis du skal bruge direkte adgang til dine filer."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:82
+msgid "Use a random generated pass word."
+msgstr "Brug en tilfældigt genereret adgangskode."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:83
+msgid "Use the password of the current logged in admin."
+msgstr "Brug adgangskoden for den aktuelt indloggede admin."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:84
+msgid "Download type"
+msgstr "Download-type"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:85
+msgid "Selecting the type for downloading. <strong>Note:</strong> For using fopen you need \"safe_mode = off\"."
+msgstr "Vælger downloadmetoden. <strong>Bemærk:</strong> For at bruge fopen skal \"safe_mode\" være sat til \"off\"."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:86
+msgid "Normal"
+msgstr "Normal"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:87
+msgid "fopen"
+msgstr "fopen"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:90
+msgid "Authors settings"
+msgstr "Forfatterindstillinger"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:91
+msgid "Here you will find the settings for authors"
+msgstr "Her findes indstillingerne for forfattere"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:92
+msgid "Authors always has access to own posts/pages"
+msgstr "Forfattere har altid adgang til egne indlæg/sider"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:93
+msgid "If \"Yes\" is selected author will always have full access to ther own posts or pages."
+msgstr "Hvis \"Ja\" er valgt, vil forfattere altid have fuld adgang til deres egne indlæg og sider."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:94
+msgid "Authors can add content to there own groups"
+msgstr "Forfattere kan tilføje indhold til deres egne grupper"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:95
+msgid "If \"Yes\" is selected author are able to restrict the content by adding it to there groups."
+msgstr "Hvis \"Ja\" er valgt, kan forfattere indskrænke adgang til indholdet ved at tilføje det til deres grupper."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:96
+msgid "Minimum user role with full access"
+msgstr "Laveste brugerrole med fuld adgang"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:97
+msgid "All user with a role equal or higher to this has full access."
+msgstr "Alle brugere med rolle lig med eller højere end dette har fuld adgang."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:98
+msgid "Administrator"
+msgstr "Administrator"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:99
+msgid "Editor"
+msgstr "Redaktør"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:100
+msgid "Author"
+msgstr "Forfatter"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:101
+msgid "Contributor"
+msgstr "Bidragyder"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:102
+msgid "Subscriber"
+msgstr "Abonnent"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:105
+msgid "Other settings"
+msgstr "Andre indstillinger"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:106
+msgid "Here you will find all other settings"
+msgstr "Her findes alle andre indstillinger"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:107
+msgid "Protect Feed"
+msgstr "Beskyt feed"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:108
+msgid "Selecting \"Yes\" will also protect your feed entries."
+msgstr "Vælges \"Ja\", beskyttes dine indlæg via feed også."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:109
+msgid "Hide empty categories"
+msgstr "Skjul tomme kategorier"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:110
+msgid "Selecting \"Yes\" will hide empty categories which are containing only empty childs or no childs."
+msgstr "Vælges \"Ja\", skjules tomme kategorier, som kun indeholder tomme underkategorier eller ingen underkategorier."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:111
+msgid "Redirect user"
+msgstr "Viderestil bruger"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:112
+msgid "Setup what happen if a user visit a post/page with no access."
+msgstr "Definér, hvad der sker, hvis en bruger besøger et indlæg/side, som der ikke er adgang til."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:113
+msgid "To blog startpage"
+msgstr "Til bloggens startside"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:114
+msgid "Custom page: "
+msgstr "Brugerdefineret side: "
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:115
+msgid "Custom URL: "
+msgstr "Brugerdefineret URL: "
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:116
+msgid "Lock recursive"
+msgstr "Rekursiv låsning"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:117
+msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgstr "Vælges \"Ja\", låser alle underindlæg/-sider, hvis en bruger ikke har adgang til deres over-indlæg/-side. Bemærk: Vælges \"Nej\", kan det ødelægge den hierarkiske visningsstruktur, som udløser visningsfejl."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:118
+msgid "Admin hint text"
+msgstr "Tiptekst for administratorer"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:119
+msgid "The text which will shown behinde the post/page."
+msgstr "Teksten, som vises bag indlægget/siden."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:120
+msgid "Show admin hint at Posts"
+msgstr "Vis admin-tips for indlæg"
+
+# "he" or "a visitor"?
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:121
+#, php-format
+msgid "Selecting \"Yes\" will show the defined text at \"%s\" behinde the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
+msgstr "Vælges \"Ja\", vises den tekst, der er defineret ud for \"%s\" bag indlægget/siden, for en indlogget administrator for at vise ham, hvilke sider/indlæg der er låst, hvis han besøger bloggen."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:124
+msgid "Update settings"
+msgstr "Opdatér indstillinger"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:125
+msgid "Settings updated."
+msgstr "Indstillinger opdateret."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:129
+msgid "Manage user user groups"
+msgstr "Håndtér bruger-brugergrupper"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:130
+msgid "Role affiliation"
+msgstr "Rolle-tilknytning"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:131
+msgid "Name"
+msgstr "Navn"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:132
+msgid "Description"
+msgstr "Beskrivelse"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:133
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:146
+msgid "Read access"
+msgstr "Læseadgang"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:134
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:148
+msgid "Write access"
+msgstr "Skriveadgang"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:135
+msgid "Delete"
+msgstr "Slet"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:136
+msgid "Update group"
+msgstr "Opdatér gruppe"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:137
+msgid "Add"
+msgstr "Tilføj"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:138
+msgid "Add user group"
+msgstr "Tilføj brugergruppe"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:139
+msgid "Edit user group"
+msgstr "Redigér brugergruppe"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:140
+msgid "User group name"
+msgstr "Navn på brugergruppe"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:141
+msgid "The name is used to identify the access user group."
+msgstr "Navnet bruges til at identificere brugeradgangs-gruppen"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:142
+msgid "User group description"
+msgstr "Beskrivelse for brugergruppe"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:143
+msgid "The description of the group."
+msgstr "Beskrivelsen af gruppen."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:144
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:155
+msgid "IP range"
+msgstr "IP-interval"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:145
+msgid "Type in the IP ranges of users which are join these groups by there IP address without loggin. Set ranges like \"BEGIN\"-\"END\", seperate ranges by using \";\", single IPs are also allowded. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgstr "Indtast IP-områderne for brugere, som kan tilslutte sig disse grupper ud fra deres IP-adresse uden login. Angiv intervallerne som \"BEGIN\"-\"END\"; adskil forskellige intervaller med semikolon: \";\". Enkelt-IP-adresser accepteres også. Eksempel: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:147
+msgid "The read access."
+msgstr "Læse-adgangen."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:149
+msgid "The write access."
+msgstr "Skrive-adgangen."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:150
+msgid "Group was added successfully."
+msgstr "Gruppe blev tilføjet."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:151
+msgid "Group name can not be empty."
+msgstr "Gruppenavn må ikke bestå af ingenting."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:152
+msgid "Group(s) was deleted successfully."
+msgstr "Gruppe(r) blev slettet."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:153
+msgid "none"
+msgstr "ingen"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:154
+msgid "User group edit successfully."
+msgstr "Brugergruppe blev redigeret som ønsket."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:159
+msgid "Setup"
+msgstr "Opsætning"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:160
+msgid "Reset User Access Manager"
+msgstr "Nulstil User Access Manager"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:161
+msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
+msgstr "Advarsel: Nulstilling af User Access Manger kan ikke fortrydes. Alle indstillinger og brugergrupper vil være permanent tabt."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:162
+msgid "reset"
+msgstr "nulstil"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:163
+msgid "Update User Access Manager database"
+msgstr "Opdatér User Access Managers database"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:164
+msgid "Updates the database of the User Access Manager. Please backup your database before you perform the update."
+msgstr "Opdaterer User Access Managers database. Tag venligst en sikkerhedskopi af din database, før du opdaterer."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:165
+msgid "update"
+msgstr "opdatér"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:166
+msgid "User Access Manager was reset successfully"
+msgstr "User Access Manager blev nulstillet som ønsket"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:167
+msgid "User Access Manager database was updated successfully"
+msgstr "User Access Managers database blev opdateret som ønsket"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:171
+msgid "About"
+msgstr "Om"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:174
+msgid "How to support me?"
+msgstr "Hvordan kan du støtte mig?"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:175
+msgid "<strong>Send me bug reports, bugfixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
+msgstr "<strong>Send mig bugrapporter, bugfixes, kodeændringer eller dine ideer.</strong><br/>Hjælp mig med at forbedre pluginnet."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:176
+msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
+msgstr "<strong>Oversæt pluginnet.</strong><br/>Det kan give andre brugere tillid til, at de kan hjælpe mig med at oversætte pluginnet til alle sprog."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:177
+msgid "<strong>Donate via paypal</strong>"
+msgstr "<strong>Donér med PayPal</strong>"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:178
+msgid "<strong>Place a link to the plugin in your blog/webpage.</strong>"
+msgstr "<strong>Indsæt et link til pluginnet på din blog/webside.</strong>"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:181
+msgid "Thanks"
+msgstr "Tak"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:182
+msgid "Special thanks go out to my girlfriend for giving me the time to develop this plugin."
+msgstr "En særlig tak til min kæreste, fordi jeg får tid til at udvikle dette plugin."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:183
+msgid "I would like to thank all the guys which has helped me with this plugin:"
+msgstr "Jeg vil gerne takke alle dem, der har hjulpet mig med dette plugin:"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:184
+msgid "all beta testers and all others I forgot"
+msgstr "alle betatestere og alle andre, jeg måtte have glemt"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:188
+msgid "Full access"
+msgstr "Fuld adgang"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:189
+msgid "Member of other user groups"
+msgstr "Medlemmer af andre brugergrupper"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:190
+msgid "<strong>Note:</strong> An administrator has allways access to all posts/pages."
+msgstr "<strong>Bemærk:</strong> En administrator har altid adgang til alle indlæg/sider."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:191
+msgid "Please create a user group first."
+msgstr "Vær venlig først at oprette en brugergruppe."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:192
+msgid "No user group available."
+msgstr "Ingen brugergrupper tilgængelig."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:193
+msgid "You have no rights to access this content."
+msgstr "Beklager, men du har ingen rettigheder til at se dette indhold."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:194
+msgid "User Groups"
+msgstr "Brugergrupper"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:195
+msgid "Set up usergroups"
+msgstr "Definér brugergrupper"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:199
+msgid "Info"
+msgstr "Info"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:200
+msgid "Group infos"
+msgstr "Gruppe-info"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:201
+msgid "Group membership given by posts"
+msgstr "Gruppemedlemskab i kraft af indlæg"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:202
+msgid "Group membership given by categories"
+msgstr "Gruppemedlemskab i kraft af kategorier"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:203
+msgid "Group membership given by role"
+msgstr "Gruppemedlemskab i kraft af rolle"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:204
+msgid "Assigned groups"
+msgstr "Tilknyttede grupper"
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:208
+msgid "Opening fileinfo database failed."
+msgstr "Åbningen af fileinfo-databasen mislykkedes."
+
+#: d:\wordpress\plugins\user-access-manager/includes/language.define.php:209
+msgid "Error: File not found."
+msgstr "Fejl: Filen blev ikke fundet."
+
+#: d:\wordpress\plugins\user-access-manager/tpl/loginBar.php:20
+#: d:\wordpress\plugins\user-access-manager/tpl/loginBar.php:34
+msgid "Login"
+msgstr "Log ind"
+
+#: d:\wordpress\plugins\user-access-manager/tpl/loginBar.php:28
+msgid "Username:"
+msgstr "Brugernavn:"
+
+#: d:\wordpress\plugins\user-access-manager/tpl/loginBar.php:30
+msgid "Password:"
+msgstr "Adgangskode:"
+
+#: d:\wordpress\plugins\user-access-manager/tpl/loginBar.php:33
+msgid "Remember me"
+msgstr "Husk mig"
+
+#: d:\wordpress\plugins\user-access-manager/tpl/loginBar.php:41
+msgid "Register"
+msgstr "Registrér"
+
+#: d:\wordpress\plugins\user-access-manager/tpl/loginBar.php:45
+msgid "Password Lost and Found"
+msgstr "Mistet og fundet adgangskode"
+
+#: d:\wordpress\plugins\user-access-manager/tpl/loginBar.php:45
+msgid "Lost your password?"
+msgstr "Glemt din adgangskode?"
+
+#~ msgid ""
+#~ "If you select \"Yes\" all files will locked by a .htaccess file and only "
+#~ "users with access can download files."
+#~ msgstr ""
+#~ "Hvis du vælger \"Ja\", låses alle filer med en .htaccess-fil og kun "
+#~ "brugere med adgang kan downloade filer."
+
+#~ msgid "Core modifications installed?"
+#~ msgstr "Er kernemodifikationerne installeret?"
+
+#~ msgid "If you installed the core modifications activated this option."
+#~ msgstr ""
+#~ "Hvis du har installeret kernemodifikationerne, så aktivér denne "
+#~ "indstilling."
+
+#~ msgid "Posts"
+#~ msgstr "Indlæg"
+
+#~ msgid "Pages"
+#~ msgstr "Sider"
+
+#~ msgid "Files"
+#~ msgstr "Filer"
+
+#~ msgid "Categories"
+#~ msgstr "Kategorier"
+
+#~ msgid "Users"
+#~ msgstr "Brugere"
+
+#~ msgid "Contains %1$s of %2$s posts"
+#~ msgstr "Indeholder %1$s af %2$s indlæg"
+
+#~ msgid "Contains %1$s of %2$s pages"
+#~ msgstr "Indeholder %1$s af %2$s sider"
+
+#~ msgid "Contains %1$s of %2$s files"
+#~ msgstr "Indeholder %1$s af %2$s filer"
+
+#~ msgid "Contains %1$s of %2$s categories"
+#~ msgstr "Indeholder %1$s af %2$s kategorier"
+
+#~ msgid "Contains %1$s of %2$s users"
+#~ msgstr "Indeholder %1$s af %2$s brugere"
+
+#~ msgid "No group"
+#~ msgstr "Ingen grupper"
+
+#~ msgid "Set access"
+#~ msgstr "Definér adgang"
+
+#~ msgid "Date"
+#~ msgstr "Dato"
+
+#~ msgid "Title"
+#~ msgstr "Titel"
+
+#~ msgid "Group access"
+#~ msgstr "Gruppe-adgang"
+
+#~ msgid "Username"
+#~ msgstr "Brugernavn"
+
+#~ msgid "E-mail"
+#~ msgstr "E-mail"
+
+#~ msgid "Set post access"
+#~ msgstr "Definér adgang til indlæg"
+
+#~ msgid "Set page access"
+#~ msgstr "Definér adgang til sider"
+
+#~ msgid "Set user access"
+#~ msgstr "Definér bruger-adgang"
