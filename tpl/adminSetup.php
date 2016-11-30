@@ -86,7 +86,7 @@ if ($sPostAction == 'reset_uam') {
             <tr valign="top">
                 <th scope="row"><?php echo TXT_UAM_RESET_UAM; ?></th>
                 <td>
-                    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["REQUEST_URI"]); ?>">
                         <?php wp_nonce_field('uamSetupReset', 'uamSetupResetNonce'); ?>
                         <input type="hidden" value="reset_uam" name="action" />
                         <label for="uam_reset_yes">
@@ -108,7 +108,7 @@ if ($sPostAction == 'reset_uam') {
 if ($oUserAccessManager->isDatabaseUpdateNecessary()) {
                 ?>
                 <tr valign="top">
-                    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["REQUEST_URI"]); ?>">
                         <?php wp_nonce_field('uamSetupUpdate', 'uamSetupUpdateNonce'); ?>
                         <input type="hidden" value="update_db" name="action" />
                         <th scope="row"><?php echo TXT_UAM_UPDATE_UAM_DB; ?></th>
