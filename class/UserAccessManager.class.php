@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.7.0";
+    protected $_sUamVersion = "1.2.7.1";
     protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
