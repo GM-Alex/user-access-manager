@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.7.2";
+    protected $_sUamVersion = "1.2.7.3";
     protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -1803,24 +1803,30 @@ class UserAccessManager
     /**
      * The function for the get_terms filter.
      * 
-     * @param array $aTerms The terms.
-     * @param array $aArgs  The given arguments.
-     * 
+     * @param array         $aTerms      The terms.
+     * @param array         $aTaxonomies The given arguments.
+     * @param array         $aArgs       The given arguments.
+     * @param WP_Term_Query $oTermQuery  The term query.
+     *
      * @return array
      */
-    public function showTerms($aTerms = array(), $aArgs = array())
+    public function showTerms($aTerms = array(), $aTaxonomies = array(), $aArgs = array(), $oTermQuery = null)
     {
         $aShowTerms = array();
 
         foreach ($aTerms as $oTerm) {
-            if (isset($this->_aProcessedTerms[$oTerm->term_id])) {
-                continue;
-            }
-
-            $this->_aProcessedTerms[$oTerm->term_id] = true;
-
             if (!is_object($oTerm)) {
                 return $aTerms;
+            }
+
+            if (isset($this->_aProcessedTerms[$oTerm->term_id])) {
+                if ($this->_aProcessedTerms[$oTerm->term_id] !== false) {
+                    $aShowTerms[$oTerm->term_id] = $this->_aProcessedTerms[$oTerm->term_id];
+                }
+
+                continue;
+            } else {
+                $this->_aProcessedTerms[$oTerm->term_id] = false;
             }
 
             if ($oTerm->taxonomy == 'category'  || $oTerm->taxonomy == 'post_tag') {
@@ -1829,6 +1835,7 @@ class UserAccessManager
 
             if ($oTerm !== null && (!isset($oTerm->isEmpty) || !$oTerm->isEmpty)) {
                 $aShowTerms[$oTerm->term_id] = $oTerm;
+                $this->_aProcessedTerms[$oTerm->term_id] = $oTerm;
             }
         }
         
