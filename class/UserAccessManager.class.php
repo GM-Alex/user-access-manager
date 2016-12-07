@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2013 Alexander Schneider
+ * @copyright 2008-2016 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.7.1";
+    protected $_sUamVersion = "1.2.7.2";
     protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -38,6 +38,7 @@ class UserAccessManager
     protected $_aPosts = array();
     protected $_aCategories = array();
     protected $_aWpOptions = array();
+    protected $_aProcessedTerms = array();
     
     /**
      * Constructor.
@@ -1812,6 +1813,12 @@ class UserAccessManager
         $aShowTerms = array();
 
         foreach ($aTerms as $oTerm) {
+            if (isset($this->_aProcessedTerms[$oTerm->term_id])) {
+                continue;
+            }
+
+            $this->_aProcessedTerms[$oTerm->term_id] = true;
+
             if (!is_object($oTerm)) {
                 return $aTerms;
             }

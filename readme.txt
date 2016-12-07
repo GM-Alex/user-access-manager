@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.4.0
-Tested up to: 4.6.1
-Stable tag: 1.2.7.1
+Tested up to: 4.7.0
+Stable tag: 1.2.7.2
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -69,6 +69,8 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    1.2.7.2     2016/12/07  Hot fix for Wordpress 4.7
 
     1.2.7.1     2016/12/04  Remove deprecated function get_currentuserinfo
 
