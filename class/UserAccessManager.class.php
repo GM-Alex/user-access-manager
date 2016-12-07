@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2013 Alexander Schneider
+ * @copyright 2008-2016 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.6.6";
+    protected $_sUamVersion = "1.2.7.2";
     protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -38,6 +38,7 @@ class UserAccessManager
     protected $_aPosts = array();
     protected $_aCategories = array();
     protected $_aWpOptions = array();
+    protected $_aProcessedTerms = array();
     
     /**
      * Constructor.
@@ -158,8 +159,6 @@ class UserAccessManager
     
     /**
      * Installs the user access manager.
-     * 
-     * @return null;
      */
     public function install()
     {
@@ -167,7 +166,7 @@ class UserAccessManager
         $aBlogIds = $this->_getBlogIds();
  
         if (isset($_GET['networkwide'])
-            && ($_GET['networkwide'] == 1)
+            && ((int)$_GET['networkwide'] === 1)
         ) {
             $iCurrentBlogId = $wpdb->blogid;
             
@@ -186,8 +185,6 @@ class UserAccessManager
     
     /**
      * Creates the needed tables at the database and adds the options
-     * 
-     * @return null;
      */
     protected function _installUam()
     {
@@ -277,8 +274,6 @@ class UserAccessManager
      * Updates the user access manager if an old version was installed.
      * 
      * @param boolean $blNetworkWide If true update network wide
-     * 
-     * @return null;
      */
     public function update($blNetworkWide)
     {
@@ -304,8 +299,6 @@ class UserAccessManager
     
     /**
      * Updates the user access manager if an old version was installed.
-     * 
-     * @return null;
      */
     protected function _updateUam()
     {
@@ -445,8 +438,6 @@ class UserAccessManager
     
     /**
      * Clean up wordpress if the plugin will be uninstalled.
-     * 
-     * @return null
      */
     public function uninstall()
     {
@@ -463,7 +454,7 @@ class UserAccessManager
         delete_option($this->_sAdminOptionsName);
         delete_option('uam_version');
         delete_option('uam_db_version');
-        $this->deleteHtaccessFiles();
+        $this->deleteFileProtectionFiles();
     }
     
     /**
@@ -493,12 +484,10 @@ class UserAccessManager
     
     /**
      * Remove the htaccess file if the plugin is deactivated.
-     * 
-     * @return null
      */
     public function deactivate()
     {
-        $this->deleteHtaccessFiles();
+        $this->deleteFileProtectionFiles();
     }
 
     /**
@@ -562,75 +551,109 @@ class UserAccessManager
 
         return implode('|', $aValidFileTypes);
     }
+
+    /**
+     * Returns true if web server is nginx.
+     *
+     * @return bool
+     */
+    public function isNginx()
+    {
+        global $is_nginx;
+        return $is_nginx;
+    }
     
     /**
      * Creates a htaccess file.
      * 
      * @param string $sDir        The destination directory.
      * @param string $sObjectType The object type.
-     * 
-     * @return null.
      */
-    public function createHtaccess($sDir = null, $sObjectType = null)
+    public function createFileProtection($sDir = null, $sObjectType = null)
     {
+        $blNginx = $this->isNginx();
+
         if ($sDir === null) {
             $aWordpressUploadDir = wp_upload_dir();
-            
+
             if (empty($aWordpressUploadDir['error'])) {
                 $sDir = $aWordpressUploadDir['basedir'] . "/";
             }
         }
-        
-        if ($sObjectType === null) {
-            $sObjectType = 'attachment';
-        }
-        
+
+        $sFileName = ($blNginx === true) ? "uam.conf" : ".htaccess";
+
         if ($sDir !== null) {
+            $sFile = "";
+            $sAreaName = "WP-Files";
+            $aUamOptions = $this->getAdminOptions();
+
             if (!$this->isPermalinksActive()) {
-                $sAreaName = "WP-Files";
-                $aUamOptions = $this->getAdminOptions();
-    
-                // make .htaccess and .htpasswd
-                $sHtaccessTxt = "";
-                
+                $sFileTypes = null;
+
                 if ($aUamOptions['lock_file_types'] == 'selected') {
                     $sFileTypes = $this->_cleanUpFileTypesForHtaccess($aUamOptions['locked_file_types']);
-                    $sHtaccessTxt .= "<FilesMatch '\.(".$sFileTypes.")'>\n";
-                } elseif ($aUamOptions['lock_file_types'] == 'not_selected') {
+                    $sFileTypes = "\.(".$sFileTypes.")";
+                } elseif ($blNginx === false && $aUamOptions['lock_file_types'] == 'not_selected') {
                     $sFileTypes = $this->_cleanUpFileTypesForHtaccess($aUamOptions['not_locked_file_types']);
-                    $sHtaccessTxt .= "<FilesMatch '^\.(".$sFileTypes.")'>\n";
+                    $sFileTypes = "^\.(".$sFileTypes.")";
                 }
 
-                $sHtaccessTxt .= "AuthType Basic" . "\n";
-                $sHtaccessTxt .= "AuthName \"" . $sAreaName . "\"" . "\n";
-                $sHtaccessTxt .= "AuthUserFile " . $sDir . ".htpasswd" . "\n";
-                $sHtaccessTxt .= "require valid-user" . "\n";
-                
-                if ($aUamOptions['lock_file_types'] == 'selected'
-                    || $aUamOptions['lock_file_types'] == 'not_selected'
-                ) {
-                    $sHtaccessTxt.= "</FilesMatch>\n";
-                }
-            } else {
-                $aHomeRoot = parse_url(home_url());
-                if (isset($aHomeRoot['path'])) {
-                    $aHomeRoot = trailingslashit($aHomeRoot['path']);
+                if ($blNginx === true) {
+                    $sFile = "location " . str_replace(ABSPATH, '/', $sDir) . " {\n";
+
+                    if ($sFileTypes !== null) {
+                        $sFile .= "location ~ $sFileTypes {\n";
+                    }
+
+                    $sFile .= "auth_basic \"" . $sAreaName . "\";" . "\n";
+                    $sFile .= "auth_basic_user_file ". $sDir . ".htpasswd;" . "\n";
+                    $sFile .= "}\n";
+
+                    if ($sFileTypes !== null) {
+                        $sFile .= "}\n";
+                    }
                 } else {
-                    $aHomeRoot = '/';
+                    // make .htaccess and .htpasswd
+                    $sFile .= "AuthType Basic" . "\n";
+                    $sFile .= "AuthName \"" . $sAreaName . "\"" . "\n";
+                    $sFile .= "AuthUserFile " . $sDir . ".htpasswd" . "\n";
+                    $sFile .= "require valid-user" . "\n";
+
+                    if ($sFileTypes !== null) {
+                        $sFile = "<FilesMatch '" . $sFileTypes . "'>\n" . $sFile . "</FilesMatch>\n";
+                    }
                 }
-                
-                $sHtaccessTxt = "<IfModule mod_rewrite.c>\n";
-                $sHtaccessTxt .= "RewriteEngine On\n";
-                $sHtaccessTxt .= "RewriteBase ".$aHomeRoot."\n";
-                $sHtaccessTxt .= "RewriteRule ^index\.php$ - [L]\n";
-                $sHtaccessTxt .= "RewriteRule (.*) ";
-                $sHtaccessTxt .= $aHomeRoot."index.php?uamfiletype=".$sObjectType."&uamgetfile=$1 [L]\n";
-                $sHtaccessTxt .= "</IfModule>\n";
+
+                $this->createHtpasswd(true);
+            } else {
+                if ($sObjectType === null) {
+                    $sObjectType = 'attachment';
+                }
+
+                if ($blNginx === true) {
+                    $sFile = "location " . str_replace(ABSPATH, '/', $sDir) . " {" . "\n";
+                    $sFile .= "rewrite ^(.*)$ /index.php?uamfiletype=" . $sObjectType . "&uamgetfile=$1 last;" . "\n";
+                    $sFile .= "}" . "\n";
+                } else {
+                    $aHomeRoot = parse_url(home_url());
+                    $sHomeRoot = (isset($aHomeRoot['path'])) ? trailingslashit($aHomeRoot['path']) : '/';
+
+                    $sFile = "<IfModule mod_rewrite.c>\n";
+                    $sFile .= "RewriteEngine On\n";
+                    $sFile .= "RewriteBase " . $sHomeRoot . "\n";
+                    $sFile .= "RewriteRule ^index\.php$ - [L]\n";
+                    $sFile .= "RewriteRule (.*) ";
+                    $sFile .= $sHomeRoot . "index.php?uamfiletype=" . $sObjectType . "&uamgetfile=$1 [L]\n";
+                    $sFile .= "</IfModule>\n";
+                }
             }
-            
+
             // save files
-            $oFileHandler = fopen($sDir.".htaccess", "w");
-            fwrite($oFileHandler, $sHtaccessTxt);
+            $sFileWithPath = ($blNginx === true) ? ABSPATH.$sFileName : $sDir.$sFileName;
+
+            $oFileHandler = fopen($sFileWithPath, "w");
+            fwrite($oFileHandler, $sFile);
             fclose($oFileHandler);
         }
     }
@@ -640,8 +663,6 @@ class UserAccessManager
      * 
      * @param boolean $blCreateNew Force to create new file.
      * @param string  $sDir       The destination directory.
-     * 
-     * @return null
      */
     public function createHtpasswd($blCreateNew = false, $sDir = null)
     {
@@ -688,10 +709,8 @@ class UserAccessManager
      * Deletes the htaccess files.
      * 
      * @param string $sDir The destination directory.
-     * 
-     * @return null
      */
-    public function deleteHtaccessFiles($sDir = null)
+    public function deleteFileProtectionFiles($sDir = null)
     {
         if ($sDir === null) {
             $aWordpressUploadDir = wp_upload_dir();
@@ -702,8 +721,11 @@ class UserAccessManager
         }
 
         if ($sDir !== null) {
-            if (file_exists($sDir.".htaccess")) {
-                unlink($sDir.".htaccess");
+            $blNginx = $this->isNginx();
+            $sFileName = ($blNginx === true) ? ABSPATH."uam.conf" : $sDir.".htaccess";
+
+            if (file_exists($sFileName)) {
+                unlink($sFileName);
             }
             
             if (file_exists($sDir.".htpasswd")) {
@@ -878,8 +900,6 @@ class UserAccessManager
     
     /**
      * Sets the atAdminPanel var to true.
-     * 
-     * @return null
      */
     public function setAtAdminPanel()
     {
@@ -911,8 +931,6 @@ class UserAccessManager
     
     /**
      * The function for the wp_print_styles action.
-     * 
-     * @return null
      */
     public function addStyles()
     {
@@ -935,8 +953,6 @@ class UserAccessManager
     
     /**
      * The function for the wp_print_scripts action.
-     * 
-     * @return null
      */
     public function addScripts()
     {
@@ -949,8 +965,6 @@ class UserAccessManager
     
     /**
      * Prints the admin page.
-     * 
-     * @return null
      */
     public function printAdminPage()
     {
@@ -971,8 +985,6 @@ class UserAccessManager
     
     /**
      * Shows the error if the user has no rights to edit the content.
-     * 
-     * @return null
      */
     public function noRightsToEditContent()
     {
@@ -1000,8 +1012,6 @@ class UserAccessManager
     /**
      * The function for the wp_dashboard_setup action.
      * Removes widgets to which a user should not have access.
-     * 
-     * @return null
      */
     public function setupAdminDashboard()
     {
@@ -1014,13 +1024,10 @@ class UserAccessManager
     
     /**
      * The function for the update_option_permalink_structure action.
-     * 
-     * @return null
      */
     public function updatePermalink()
     {
-        $this->createHtaccess();
-        $this->createHtpasswd();
+        $this->createFileProtection();
     }
     
     
@@ -1034,8 +1041,6 @@ class UserAccessManager
      * @param string  $sObjectType The object type.
      * @param integer $iObjectId   The _iId of the object.
      * @param array   $aUserGroups The new usergroups for the object.
-     * 
-     * @return null
      */
     protected function _saveObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {        
@@ -1054,7 +1059,8 @@ class UserAccessManager
             || $oUamOptions['authors_can_add_posts_to_groups'] == 'true')
         ) {
             if ($aUserGroups === null) {
-                $aUserGroups = isset($aFormData['uam_usergroups']) ? $aFormData['uam_usergroups'] : array();
+                $aUserGroups = (isset($aFormData['uam_usergroups']) && is_array($aFormData['uam_usergroups']))
+                    ? $aFormData['uam_usergroups'] : array();
             }
 
             $aAddUserGroups = array_flip($aUserGroups);
@@ -1111,8 +1117,6 @@ class UserAccessManager
      * 
      * @param string  $sColumnName The column name.
      * @param integer $iId         The _iId.
-     * 
-     * @return string
      */
     public function addPostColumn($sColumnName, $iId)
     {
@@ -1126,8 +1130,6 @@ class UserAccessManager
      * The function for the uma_post_access metabox.
      * 
      * @param object $oPost The post.
-     * 
-     * @return null;
      */
     public function editPostContent($oPost)
     {
@@ -1146,8 +1148,6 @@ class UserAccessManager
      * The function for the save_post action.
      * 
      * @param mixed $mPostParam The post _iId or a array of a post.
-     * 
-     * @return null
      */    
     public function savePostData($mPostParam)
     {
@@ -1189,8 +1189,6 @@ class UserAccessManager
      * The function for the delete_post action.
      * 
      * @param integer $iPostId The post _iId.
-     * 
-     * @return null
      */
     public function removePostData($iPostId)
     {
@@ -1266,8 +1264,6 @@ class UserAccessManager
     
     /**
      * The function for the edit_user_profile action.
-     * 
-     * @return null
      */
     public function showUserProfile()
     {
@@ -1278,8 +1274,6 @@ class UserAccessManager
      * The function for the profile_update action.
      * 
      * @param integer $iUserId The user _iId.
-     * 
-     * @return null
      */
     public function saveUserData($iUserId)
     {        
@@ -1290,8 +1284,6 @@ class UserAccessManager
      * The function for the delete_user action.
      * 
      * @param integer $iUserId The user _iId.
-     * 
-     * @return null
      */
     public function removeUserData($iUserId)
     {
@@ -1347,8 +1339,6 @@ class UserAccessManager
      * The function for the edit_category_form action.
      * 
      * @param object $oCategory The category.
-     * 
-     * @return null
      */
     public function showCategoryEditForm($oCategory)
     {
@@ -1359,8 +1349,6 @@ class UserAccessManager
      * The function for the edit_category action.
      * 
      * @param integer $iCategoryId The category _iId.
-     * 
-     * @return null
      */
     public function saveCategoryData($iCategoryId)
     {
@@ -1371,8 +1359,6 @@ class UserAccessManager
      * The function for the delete_category action.
      * 
      * @param integer $iCategoryId The _iId of the category.
-     * 
-     * @return null
      */
     public function removeCategoryData($iCategoryId)
     {
@@ -1399,8 +1385,6 @@ class UserAccessManager
      * @param string  $sObjectType The name of the pluggable object.
      * @param integer $iObjectId   The pluggable object _iId.
      * @param array      $aUserGroups The user groups for the object.
-     * 
-     * @return null
      */
     public function savePlObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {
@@ -1412,8 +1396,6 @@ class UserAccessManager
      * 
      * @param string  $sObjectName The name of the pluggable object.
      * @param integer $iObjectId   The pluggable object _iId.
-     * 
-     * @return null
      */
     public function removePlObjectData($sObjectName, $iObjectId)
     {
@@ -1478,8 +1460,6 @@ class UserAccessManager
      * Manipulates the wordpress query object to filter content.
      * 
      * @param object $oWpQuery The wordpress query object.
-     * 
-     * @return null
      */
     public function parseQuery($oWpQuery)
     {
@@ -1833,6 +1813,12 @@ class UserAccessManager
         $aShowTerms = array();
 
         foreach ($aTerms as $oTerm) {
+            if (isset($this->_aProcessedTerms[$oTerm->term_id])) {
+                continue;
+            }
+
+            $this->_aProcessedTerms[$oTerm->term_id] = true;
+
             if (!is_object($oTerm)) {
                 return $aTerms;
             }
@@ -1934,7 +1920,7 @@ class UserAccessManager
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
             
             foreach ($aGroups as $oGroup) {
-                $sLink .= $oGroup->getGroupName().', ';
+                $sLink .= htmlentities($oGroup->getGroupName()).', ';
             }
             
             $sLink = rtrim($sLink, ', ');
@@ -2031,7 +2017,7 @@ class UserAccessManager
                     $iObjectId = $oObject->ID;
                 }
             } elseif (isset($oPageParams->query_vars['pagename'])) {
-                $oObject = get_page_by_title($oPageParams->query_vars['pagename']);
+                $oObject = get_page_by_path($oPageParams->query_vars['pagename']);
 
                 if ($oObject !== null) {
                     $oObjectType = $oObject->post_type;
@@ -2074,8 +2060,6 @@ class UserAccessManager
      * Redirects the user to his destination.
      * 
      * @param object $oObject The current object we want to access.
-     * 
-     * @return null
      */
     public function redirectUser($oObject = null)
     {
@@ -2119,7 +2103,7 @@ class UserAccessManager
      * 
      * @param string $sObjectType The type of the requested file.
      * @param string $sObjectUrl  The file url.
-     * 
+     *
      * @return null
      */
     public function getFile($sObjectType, $sObjectUrl)
@@ -2203,6 +2187,7 @@ class UserAccessManager
             }
         } else {
             wp_die(TXT_UAM_FILE_NOT_FOUND_ERROR);
+            return null;
         }
     }
     
@@ -2220,14 +2205,11 @@ class UserAccessManager
 
         if ($sObjectType == 'attachment') {
             $aUploadDir = wp_upload_dir();
-
-            $sMultiPath = str_replace(ABSPATH, '/', $aUploadDir['basedir']);
-            $sMultiPath = str_replace('/files', $sMultiPath, $aUploadDir['baseurl']);
-            
-            if ($this->isPermalinksActive()) {
-                $sObjectUrl = $sMultiPath.'/'.$sObjectUrl;
-            }
-            
+            $sUploadDir = str_replace(ABSPATH, '/', $aUploadDir['basedir']);
+            $sRegex = '/.*'.str_replace('/', '\/', $sUploadDir).'\//i';
+            $sCleanObjectUrl = preg_replace($sRegex, '', $sObjectUrl);
+            $sUploadUrl = str_replace('/files', $sUploadDir, $aUploadDir['baseurl']);
+            $sObjectUrl = $sUploadUrl.'/'.ltrim($sCleanObjectUrl, '/');
             $oPost = $this->getPost($this->getPostIdByUrl($sObjectUrl));
     
             if ($oPost !== null
@@ -2237,6 +2219,7 @@ class UserAccessManager
                 $oObject->id = $oPost->ID;
                 $oObject->isImage = wp_attachment_is_image($oPost->ID);
                 $oObject->type = $sObjectType;
+                $sMultiPath = str_replace('/files', $sUploadDir, $aUploadDir['baseurl']);
                 $oObject->file = $aUploadDir['basedir'].str_replace($sMultiPath, '', $sObjectUrl );
             }
         } else {
@@ -2314,12 +2297,15 @@ class UserAccessManager
          */
         global $wpdb;
 
-        $oDbPost = $wpdb->get_row(
+        $sSql = $wpdb->prepare(
             "SELECT ID
             FROM ".$wpdb->prefix."posts
-            WHERE guid = '" . $sNewUrl . "'
-            LIMIT 1"
+            WHERE guid = %s
+            LIMIT 1",
+            $sNewUrl
         );
+
+        $oDbPost = $wpdb->get_row($sSql);
         
         if ($oDbPost) {
             $this->_aPostUrls[$sUrl] = $oDbPost->ID;
@@ -2340,5 +2326,25 @@ class UserAccessManager
     {
         $this->_aPostUrls[$sUrl] = $oPost->ID;
         return $sUrl;
+    }
+
+    /**
+     * Filter for Yoast SEO Plugin
+     *
+     * Hides the url from the site map if the user is not allowed
+     *
+     * @param string $url
+     * @param string $type
+     * @param object $object
+     * @return false|string
+     */
+    function wp_seo_url($url, $type, $object)
+    {
+        $uaManager = new UserAccessManager();
+        $handler = $uaManager->getAccessHandler();
+        if($handler->checkObjectAccess($type, $object->ID)){
+            return $url;
+        }
+        return false;
     }
 }
