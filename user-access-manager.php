@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: User Access Manager
- * Plugin URI: http://www.gm-alex.de/projects/wordpress/plugins/user-access-manager/
- * Author URI: http://www.gm-alex.de/
- * Version: 1.2.6.6
+ * Plugin URI: https://wordpress.org/plugins/user-access-manager/
+ * Author URI: https://twitter.com/GM_Alex
+ * Version: 1.2.7.3
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -14,7 +14,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2013 Alexander Schneider
+ * @copyright 2008-2016 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -121,8 +121,7 @@ if (!function_exists("userAccessManagerAP")) {
             );
         }
 
-        get_currentuserinfo();
-        $oCurUserData = get_userdata($oCurrentUser->ID);
+        $oCurUserData = wp_get_current_user();
         $oUamAccessHandler = $oUserAccessManager->getAccessHandler();
         $aTaxonomies = get_taxonomies(array('public' => true, '_builtin' => false));
 
@@ -343,6 +342,7 @@ if (isset($oUserAccessManager)) {
         add_filter('edit_post_link', array($oUserAccessManager, 'showGroupMembership'), 10, 2);
         add_filter('parse_query', array($oUserAccessManager, 'parseQuery'));
         add_filter('getarchives_where', array($oUserAccessManager, 'showPostSql'));
+        add_filter('wpseo_sitemap_entry', array($oUserAccessManager, 'wp_seo_url'), 1, 3); // Yaost Sitemap Plugin
     }
 }
 

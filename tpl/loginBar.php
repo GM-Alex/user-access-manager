@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2013 Alexander Schneider
+ * @copyright 2008-2016 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -38,7 +38,7 @@ if (!is_single() && !is_page()) {
     $sLoginForm .= '<input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" />';
     $sLoginForm .= '<label class="checkbox_label" for="rememberme">'.__('Remember me', 'user-access-manager').'</label>';
     $sLoginForm .= '<input class="button" type="submit" name="wp-submit" id="wp-submit" value="'.__('Login', 'user-access-manager').' &raquo;" />';
-    $sLoginForm .= '<input type="hidden" name="redirect_to" value="'.$_SERVER['REQUEST_URI'].'" />';
+    $sLoginForm .= '<input type="hidden" name="redirect_to" value="'.htmlspecialchars($_SERVER['REQUEST_URI']).'" />';
     $sLoginForm .= '</form>';
     $sLoginForm .= '<div class="uam_login_options">';
 

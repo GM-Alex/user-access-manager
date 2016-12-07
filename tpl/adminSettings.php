@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2013 Alexander Schneider
+ * @copyright 2008-2016 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -31,12 +31,12 @@ if (isset($_POST['update_uam_settings'])) {
     }
     
     update_option($oUserAccessManager->getAdminOptionsName(), $aUamOptions);
+    $aUamOptions = array_map('htmlentities', $aUamOptions);
     
     if ($_POST['uam_lock_file'] == 'false') {
-        $oUserAccessManager->deleteHtaccessFiles();
+        $oUserAccessManager->deleteFileProtectionFiles();
     } else {
-        $oUserAccessManager->createHtaccess();
-        $oUserAccessManager->createHtpasswd(true);
+        $oUserAccessManager->createFileProtection();
     }
     
     do_action('uam_update_options', $aUamOptions);
@@ -49,7 +49,7 @@ if (isset($_POST['update_uam_settings'])) {
 ?>
 
 <div class="wrap">
-    <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["REQUEST_URI"]); ?>">
         <?php wp_nonce_field('uamUpdateSettings', 'uamUpdateSettingsNonce'); ?>
         <h2><?php echo TXT_UAM_SETTINGS; ?></h2>
         <h3><?php echo TXT_UAM_POST_SETTING; ?></h3>
@@ -361,7 +361,8 @@ if (empty($sPermanentLinkStructure)) {
             <td>
                 <label for="uam_lock_file_types_all">
                     <input type="radio" id="uam_lock_file_types_all" name="uam_lock_file_types" value="all" <?php
-    if ($aUamOptions['lock_file_types'] == "all") {
+                    global $is_nginx;
+    if ($aUamOptions['lock_file_types'] == "all" || $is_nginx && $aUamOptions['lock_file_types'] == "not_selected") {
         echo 'checked="checked"';
     }                   ?> />
                     <?php echo TXT_UAM_ALL; ?>
@@ -375,16 +376,24 @@ if (empty($sPermanentLinkStructure)) {
                     <?php echo TXT_UAM_SELECTED_FILE_TYPES; ?>
                 </label>
                 <input name="uam_locked_file_types" value="<?php echo $aUamOptions['locked_file_types']; ?>" />
-                <label for="uam_lock_file_types_not_selected">
-                    <input type="radio" id="uam_lock_file_types_not_selected" name="uam_lock_file_types" value="not_selected" <?php
-    if ($aUamOptions['lock_file_types'] == "not_selected") {
-        echo 'checked="checked"';
-    } 
-                    ?> />
-                    <?php echo TXT_UAM_NOT_SELECTED_FILE_TYPES; ?>
-                </label>
-                <input name="uam_not_locked_file_types" value="<?php echo $aUamOptions['not_locked_file_types']; ?>" /> <br />
-                <?php echo TXT_UAM_DOWNLOAD_FILE_TYPE_DESC; ?>
+                <?php
+                if (!$is_nginx) {
+                    ?>
+                    <label for="uam_lock_file_types_not_selected">
+                        <input type="radio" id="uam_lock_file_types_not_selected" name="uam_lock_file_types"
+                               value="not_selected" <?php
+                        if ($aUamOptions['lock_file_types'] == "not_selected") {
+                            echo 'checked="checked"';
+                        }
+                        ?> />
+                        <?php echo TXT_UAM_NOT_SELECTED_FILE_TYPES; ?>
+                    </label>
+                    <input name="uam_not_locked_file_types"
+                           value="<?php echo $aUamOptions['not_locked_file_types']; ?>"/> <br/>
+                    <?php echo TXT_UAM_DOWNLOAD_FILE_TYPE_DESC; ?>
+                    <?php
+                }
+                ?>
             </td>
         </tr>
         <tr>
