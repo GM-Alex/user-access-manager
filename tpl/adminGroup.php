@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2013 Alexander Schneider
+ * @copyright 2008-2016 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -50,9 +50,9 @@ function insertUpdateGroup($iUserGroupId)
 
     $oUamUserGroup->unsetObjects('role', true);
     
-    if ($aRoles) {
+    if ($aRoles && is_array($aRoles)) {
         foreach ($aRoles as $sRole) {
-            $oUamUserGroup->addObject('role', $sRole);
+            $oUamUserGroup->addObject('role', htmlentities($sRole));
         }
     }
 
@@ -75,7 +75,8 @@ function getPrintEditGroup($sGroupId = null)
     ?>
     <form method="post" action="<?php
         $aUri = explode("?", $_SERVER["REQUEST_URI"]);
-        echo reset($aUri) . "?page=" . $_GET['page'];
+        $sUri = reset($aUri);
+        echo htmlspecialchars($sUri) . "?page=" . $_GET['page'];
     ?>">
     <?php
     wp_nonce_field('uamInsertUpdateGroup', 'uamInsertUpdateGroupNonce');
@@ -98,7 +99,7 @@ function getPrintEditGroup($sGroupId = null)
                     <td>
                         <input type="text" size="40" value="<?php
     if (isset($sGroupId)) {
-        echo $oUamUserGroup->getGroupName();
+        echo htmlentities($oUamUserGroup->getGroupName());
     } 
                         ?>" id="userGroupName" name="userGroupName" /><br />
                         <?php echo TXT_UAM_GROUP_NAME_DESC; ?>
@@ -109,7 +110,7 @@ function getPrintEditGroup($sGroupId = null)
                     <td>
                         <input type="text" size="40" value="<?php
     if (isset($sGroupId)) {
-        echo $oUamUserGroup->getGroupDesc();
+        echo htmlentities($oUamUserGroup->getGroupDesc());
     } 
                         ?>" id="userGroupDescription" name="userGroupDescription" /><br />
                         <?php echo TXT_UAM_GROUP_DESC_DESC; ?>
@@ -119,7 +120,7 @@ function getPrintEditGroup($sGroupId = null)
                     <th valign="top" scope="row"><?php echo TXT_UAM_GROUP_IP_RANGE; ?></th>
                     <td><input type="text" size="40" value="<?php
     if (isset($sGroupId)) {
-        echo $oUamUserGroup->getIpRange('string');
+        echo htmlentities($oUamUserGroup->getIpRange('string'));
     } 
                         ?>" id="ipRange" name="ipRange" /><br />
                         <?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?>
@@ -259,15 +260,11 @@ if ($postAction == 'delgroup') {
     ) {
          wp_die(TXT_UAM_NONCE_FAILURE);
     }
-    
-    if (isset($_POST['delete'])) {
-        $delIds = $_POST['delete'];
-    }
 
-    if (isset($delIds)) {
+    if (isset($_POST['delete']) && is_array($_POST['delete'])) {
         global $oUserAccessManager;
         
-        foreach ($delIds as $delId) {
+        foreach ($_POST['delete'] as $delId) {
             $oUserAccessManager->getAccessHandler()->deleteUserGroup($delId);
         }
         ?>
@@ -312,7 +309,7 @@ if (($postAction == 'updateGroup' || $postAction == 'addGroup')
 if (!$editGroup) {
     ?>
     <div class="wrap">
-        <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["REQUEST_URI"]); ?>">
             <?php wp_nonce_field('uamDeleteGroup', 'uamDeleteGroupNonce'); ?>
             <input type="hidden" value="delgroup" name="action" />
             <h2><?php echo TXT_UAM_MANAGE_GROUP; ?></h2>
@@ -352,11 +349,11 @@ if (!$editGroup) {
                     <td>
                         <strong>
                             <a href="?page=<?php echo $sCurAdminPage; ?>&amp;action=editGroup&amp;id=<?php echo $oUamUserGroup->getId(); ?>">
-                                <?php echo $oUamUserGroup->getGroupName(); ?>
+                                <?php echo htmlentities($oUamUserGroup->getGroupName()); ?>
                             </a>
                         </strong>
                     </td>
-                    <td><?php echo $oUamUserGroup->getGroupDesc() ?></td>
+                    <td><?php echo htmlentities($oUamUserGroup->getGroupDesc()) ?></td>
                     <td>
             <?php 
             if ($oUamUserGroup->getReadAccess() == "all") {
@@ -408,7 +405,7 @@ if (!$editGroup) {
                     ?>
                             <li>
                     <?php
-                    echo $sIpRange;
+                    echo htmlentities($sIpRange);
                     ?>
                             </li>
                     <?php

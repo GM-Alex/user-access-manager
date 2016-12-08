@@ -9,7 +9,7 @@
  * @category  UserAccessManager
  * @package   UserAccessManager
  * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2013 Alexander Schneider
+ * @copyright 2008-2016 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -55,23 +55,3 @@ if (count($aUamUserGroups) > 0) {
         </tr>
     </tbody>
 </table>
-<?php
-if (isset($_GET['action'])) {
-    $sAction = $_GET['action'];
-} else {
-    $sAction = null;
-}
-
-if ($sAction != 'edit') {
-    ?>
-    <style type="text/css">
-        .submit {
-            display: none;
-            position: relative;
-        }
-    </style>
-    <p class="submit" style="display: block; position: relative;">
-        <input class="button" type="submit" value="Add New Category" name="submit" />
-    </p>
-    <?php
-}
