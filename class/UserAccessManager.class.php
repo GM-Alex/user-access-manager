@@ -28,7 +28,7 @@ class UserAccessManager
 {
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.7.3";
+    protected $_sUamVersion = "1.2.7.4";
     protected $_sUamDbVersion = "1.3";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
@@ -38,7 +38,7 @@ class UserAccessManager
     protected $_aPosts = array();
     protected $_aCategories = array();
     protected $_aWpOptions = array();
-    protected $_aProcessedTerms = array();
+    protected $_aTerms = array();
     
     /**
      * Constructor.
@@ -1725,79 +1725,84 @@ class UserAccessManager
      */
     protected function _getTerm($sTermType, $oTerm)
     {
-        $aUamOptions = $this->getAdminOptions();
-        $oUamAccessHandler = $this->getAccessHandler();
-        
-        $oTerm->isEmpty = false;
-        
-        $oTerm->name .= $this->adminOutput('term', $oTerm->term_id);
-        
-        if ($sTermType == 'post_tag'
-            || ( $sTermType == 'category' || $sTermType == $oTerm->taxonomy)
-            && $oUamAccessHandler->checkObjectAccess('category', $oTerm->term_id)
-        ) {
-            if ($this->atAdminPanel() == false
-                && ($aUamOptions['hide_post'] == 'true'
-                || $aUamOptions['hide_page'] == 'true')
-            ) {
-                $iTermRequest = $oTerm->term_id;
-                $sTermRequestType = $sTermType;
-                
-                if ($sTermType == 'post_tag') {
-                    $iTermRequest = $oTerm->slug;
-                    $sTermRequestType = 'tag';
-                }
-                
-                $aArgs = array(
-                    'numberposts' => - 1,
-                    $sTermRequestType => $iTermRequest
-                );
-                
-                $aTermPosts = get_posts($aArgs);
-                $oTerm->count = count($aTermPosts);
-                
-                if (isset($aTermPosts)) {
-                    foreach ($aTermPosts as $oPost) {
-                        if ($aUamOptions['hide_'.$oPost->post_type] == 'true'
-                            && !$oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)
-                        ) {
-                            $oTerm->count--;
-                        }
-                    }
-                }
-                
-                //For post_tags
-                if ($sTermType == 'post_tag' && $oTerm->count <= 0) {
-                    return null;
-                }
-                
-                //For categories
-                if ($oTerm->count <= 0
-                    && $aUamOptions['hide_empty_categories'] == 'true'
-                    && ($oTerm->taxonomy == "term"
-                    || $oTerm->taxonomy == "category")
-                ) {
-                    $oTerm->isEmpty = true;
-                }
-                
-                if ($aUamOptions['lock_recursive'] == 'false') {
-                    $oCurCategory = $oTerm;
-                    
-                    while ($oCurCategory->parent != 0) {
-                        $oCurCategory = get_term($oCurCategory->parent, 'category');
-                        
-                        if ($oUamAccessHandler->checkObjectAccess('term', $oCurCategory->term_id)) {
-                            $oTerm->parent = $oCurCategory->term_id;
-                            break;
-                        }
-                    }
-                }
-            }
+        $sKey = $sTermType.'|'.$oTerm->term_id;
 
-            return $oTerm;
+        if (!isset($this->_aTerms[$sKey])) {
+            $this->_aTerms[$sKey] = false;
+            $aUamOptions = $this->getAdminOptions();
+            $oUamAccessHandler = $this->getAccessHandler();
+
+            $oTerm->isEmpty = false;
+
+            $oTerm->name .= $this->adminOutput('term', $oTerm->term_id);
+
+            if ($sTermType == 'post_tag'
+                || ( $sTermType == 'category' || $sTermType == $oTerm->taxonomy)
+                && $oUamAccessHandler->checkObjectAccess('category', $oTerm->term_id)
+            ) {
+                if ($this->atAdminPanel() == false
+                    && ($aUamOptions['hide_post'] == 'true'
+                        || $aUamOptions['hide_page'] == 'true')
+                ) {
+                    $iTermRequest = $oTerm->term_id;
+                    $sTermRequestType = $sTermType;
+
+                    if ($sTermType == 'post_tag') {
+                        $iTermRequest = $oTerm->slug;
+                        $sTermRequestType = 'tag';
+                    }
+
+                    $aArgs = array(
+                        'numberposts' => - 1,
+                        $sTermRequestType => $iTermRequest
+                    );
+
+                    $aTermPosts = get_posts($aArgs);
+                    $oTerm->count = count($aTermPosts);
+
+                    if (isset($aTermPosts)) {
+                        foreach ($aTermPosts as $oPost) {
+                            if ($aUamOptions['hide_'.$oPost->post_type] == 'true'
+                                && !$oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)
+                            ) {
+                                $oTerm->count--;
+                            }
+                        }
+                    }
+
+                    //For post_tags
+                    if ($sTermType == 'post_tag' && $oTerm->count <= 0) {
+                        return null;
+                    }
+
+                    //For categories
+                    if ($oTerm->count <= 0
+                        && $aUamOptions['hide_empty_categories'] == 'true'
+                        && ($oTerm->taxonomy == "term"
+                            || $oTerm->taxonomy == "category")
+                    ) {
+                        $oTerm->isEmpty = true;
+                    }
+
+                    if ($aUamOptions['lock_recursive'] == 'false') {
+                        $oCurCategory = $oTerm;
+
+                        while ($oCurCategory->parent != 0) {
+                            $oCurCategory = get_term($oCurCategory->parent, 'category');
+
+                            if ($oUamAccessHandler->checkObjectAccess('term', $oCurCategory->term_id)) {
+                                $oTerm->parent = $oCurCategory->term_id;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                $this->_aTerms[$sKey] = $oTerm;
+            }
         }
-        
-        return null;
+
+        return ($this->_aTerms[$sKey] !== false) ? $this->_aTerms[$sKey] : null;
     }
     
     /**
@@ -1814,19 +1819,10 @@ class UserAccessManager
     {
         $aShowTerms = array();
 
+        remove_filter('get_terms', array($this, 'showTerms'), 10);
         foreach ($aTerms as $oTerm) {
             if (!is_object($oTerm)) {
                 return $aTerms;
-            }
-
-            if (isset($this->_aProcessedTerms[$oTerm->term_id])) {
-                if ($this->_aProcessedTerms[$oTerm->term_id] !== false) {
-                    $aShowTerms[$oTerm->term_id] = $this->_aProcessedTerms[$oTerm->term_id];
-                }
-
-                continue;
-            } else {
-                $this->_aProcessedTerms[$oTerm->term_id] = false;
             }
 
             if ($oTerm->taxonomy == 'category'  || $oTerm->taxonomy == 'post_tag') {
@@ -1835,9 +1831,9 @@ class UserAccessManager
 
             if ($oTerm !== null && (!isset($oTerm->isEmpty) || !$oTerm->isEmpty)) {
                 $aShowTerms[$oTerm->term_id] = $oTerm;
-                $this->_aProcessedTerms[$oTerm->term_id] = $oTerm;
             }
         }
+        add_filter('get_terms', array($this, 'showTerms'), 10, 2);
         
         foreach ($aTerms as $sKey => $oTerm) {
             if (!isset($aShowTerms[$oTerm->term_id])) {

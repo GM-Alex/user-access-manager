@@ -55,23 +55,3 @@ if (count($aUamUserGroups) > 0) {
         </tr>
     </tbody>
 </table>
-<?php
-if (isset($_GET['action'])) {
-    $sAction = $_GET['action'];
-} else {
-    $sAction = null;
-}
-
-if ($sAction != 'edit') {
-    ?>
-    <style type="text/css">
-        .submit {
-            display: none;
-            position: relative;
-        }
-    </style>
-    <p class="submit" style="display: block; position: relative;">
-        <input class="button" type="submit" value="Add New Category" name="submit" />
-    </p>
-    <?php
-}
