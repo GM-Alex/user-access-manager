@@ -29,16 +29,16 @@ class UserAccessManager
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
     protected $_sUamVersion = "1.2.7.4";
-    protected $_sUamDbVersion = "1.3";
+    protected $_sUamDbVersion = "1.4";
     protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
     protected $_aMimeTypes = null;
     protected $_aCache = array();
     protected $_aPosts = array();
-    protected $_aCategories = array();
+    protected $_aTerm = array();
     protected $_aWpOptions = array();
-    protected $_aTerms = array();
+    protected $_aProcessedTerms = array();
     
     /**
      * Constructor.
@@ -119,19 +119,20 @@ class UserAccessManager
     }
 
     /**
-     * Returns a category.
+     * Returns a term.
      *
-     * @param string $sId The category id.
+     * @param string $sId       The term id.
+     * @param string $sTaxonomy The taxonomy.
      *
      * @return mixed
      */
-    public function getCategory($sId)
+    public function getTerm($sId, $sTaxonomy = '')
     {
-        if (!isset($this->_aCategories[$sId])) {
-            $this->_aCategories[$sId] = get_category($sId);
+        if (!isset($this->_aTerm[$sId])) {
+            $this->_aTerm[$sId] = get_term($sId, $sTaxonomy);
         }
 
-        return $this->_aCategories[$sId];
+        return $this->_aTerm[$sId];
     }
     
     /**
@@ -992,7 +993,7 @@ class UserAccessManager
         
         if (isset($_GET['post']) && is_numeric($_GET['post'])) {
             $oPost = $this->getPost($_GET['post']);
-            $blNoRights = !$this->getAccessHandler()->checkObjectAccess( $oPost->post_type, $oPost->ID );
+            $blNoRights = !$this->getAccessHandler()->checkObjectAccess($oPost->post_type, $oPost->ID);
         }
         
         if (isset($_GET['attachment_id']) && is_numeric($_GET['attachment_id']) && !$blNoRights) {
@@ -1092,6 +1093,26 @@ class UserAccessManager
             }
         }
     }
+
+    /**
+     * Removes the object data.
+     * 
+     * @param string $sObjectType The object type.
+     * @param int    $iId         The object id.
+     */
+    protected function _removeObjectData($sObjectType, $iId)
+    {
+        /**
+         * @var wpdb $wpdb
+         */
+        global $wpdb;
+
+        $wpdb->query(
+            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
+            WHERE object_id = {$iId}
+                AND object_type = '{$sObjectType}'"
+        );
+    }
     
     
     /*
@@ -1116,7 +1137,7 @@ class UserAccessManager
      * The function for the manage_users_custom_column action.
      * 
      * @param string  $sColumnName The column name.
-     * @param integer $iId         The _iId.
+     * @param integer $iId         The id.
      */
     public function addPostColumn($sColumnName, $iId)
     {
@@ -1174,7 +1195,7 @@ class UserAccessManager
      * We have to use this because the attachment actions work
      * not in the way we need.
      * 
-     * @param object $oAttachment The attachment _iId.
+     * @param object $oAttachment The attachment id.
      * 
      * @return object
      */    
@@ -1188,7 +1209,7 @@ class UserAccessManager
     /**
      * The function for the delete_post action.
      * 
-     * @param integer $iPostId The post _iId.
+     * @param integer $iPostId The post id.
      */
     public function removePostData($iPostId)
     {
@@ -1249,7 +1270,7 @@ class UserAccessManager
      * 
      * @param string  $sReturn     The normal return value.
      * @param string  $sColumnName The column name.
-     * @param integer $iId         The _iId.
+     * @param integer $iId         The id.
      * 
      * @return string|null
      */
@@ -1273,7 +1294,7 @@ class UserAccessManager
     /**
      * The function for the profile_update action.
      * 
-     * @param integer $iUserId The user _iId.
+     * @param integer $iUserId The user id.
      */
     public function saveUserData($iUserId)
     {        
@@ -1283,25 +1304,16 @@ class UserAccessManager
     /**
      * The function for the delete_user action.
      * 
-     * @param integer $iUserId The user _iId.
+     * @param integer $iUserId The user id.
      */
     public function removeUserData($iUserId)
     {
-        /**
-         * @var wpdb $wpdb
-         */
-        global $wpdb;
-
-        $wpdb->query(
-            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . "
-            WHERE object_id = ".$iUserId."
-                AND object_type = 'user'"
-        );
+        $this->_removeObjectData('user', $iUserId);
     }
-    
+
     
     /*
-     * Functions for the category actions.
+     * Functions for the term actions.
      */
     
     /**
@@ -1311,7 +1323,7 @@ class UserAccessManager
      * 
      * @return array
      */
-    public function addCategoryColumnsHeader($aDefaults)
+    public function addTermColumnsHeader($aDefaults)
     {
         $aDefaults['uam_access'] = __('Access', 'user-access-manager');
         return $aDefaults;
@@ -1322,11 +1334,11 @@ class UserAccessManager
      * 
      * @param string  $sEmpty      An empty string from wordpress? What the hell?!?
      * @param string  $sColumnName The column name.
-     * @param integer $iId         The _iId.
+     * @param integer $iId         The id.
      * 
      * @return string|null
      */
-    public function addCategoryColumn($sEmpty, $sColumnName, $iId)
+    public function addTermColumn($sEmpty, $sColumnName, $iId)
     {
         if ($sColumnName == 'uam_access') {
             return $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, 'category');
@@ -1336,42 +1348,33 @@ class UserAccessManager
     }
     
     /**
-     * The function for the edit_category_form action.
+     * The function for the edit_{term}_form action.
      * 
-     * @param object $oCategory The category.
+     * @param object $oTerm The term.
      */
-    public function showCategoryEditForm($oCategory)
+    public function showTermEditForm($oTerm)
     {
-        include UAM_REALPATH.'tpl/categoryEditForm.php';
+        include UAM_REALPATH.'tpl/termEditForm.php';
     }
     
     /**
-     * The function for the edit_category action.
+     * The function for the edit_{term} action.
      * 
-     * @param integer $iCategoryId The category _iId.
+     * @param integer $iTermId The term id.
      */
-    public function saveCategoryData($iCategoryId)
+    public function saveTermData($iTermId)
     {
-        $this->_saveObjectData('category', $iCategoryId);
+        $this->_saveObjectData('category', $iTermId);
     }
     
     /**
-     * The function for the delete_category action.
+     * The function for the delete_{term} action.
      * 
-     * @param integer $iCategoryId The _iId of the category.
+     * @param integer $iTermId The id of the term.
      */
-    public function removeCategoryData($iCategoryId)
+    public function removeTermData($iTermId)
     {
-        /**
-         * @var wpdb $wpdb
-         */
-        global $wpdb;
-        
-        $wpdb->query(
-            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-            WHERE object_id = ".$iCategoryId."
-                AND object_type = 'category'"
-        );
+        $this->_removeObjectData('category', $iTermId);
     }
     
 
@@ -1383,7 +1386,7 @@ class UserAccessManager
      * The function for the pluggable save action.
      * 
      * @param string  $sObjectType The name of the pluggable object.
-     * @param integer $iObjectId   The pluggable object _iId.
+     * @param integer $iObjectId   The pluggable object id.
      * @param array      $aUserGroups The user groups for the object.
      */
     public function savePlObjectData($sObjectType, $iObjectId, $aUserGroups = null)
@@ -1395,24 +1398,15 @@ class UserAccessManager
      * The function for the pluggable remove action.
      * 
      * @param string  $sObjectName The name of the pluggable object.
-     * @param integer $iObjectId   The pluggable object _iId.
+     * @param integer $iObjectId   The pluggable object id.
      */
     public function removePlObjectData($sObjectName, $iObjectId)
     {
-        /**
-         * @var wpdb $wpdb
-         */
-        global $wpdb;
-
-        $wpdb->query(
-            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-            WHERE object_id = ".$iObjectId."
-                AND object_type = ".$sObjectName
-        );
+        $this->_removeObjectData($sObjectName, $iObjectId);
     }
     
     /**
-     * Returns the group selection form for pluggable _aObjects.
+     * Returns the group selection form for pluggable objects.
      * 
      * @param string  $sObjectType     The object type.
      * @param integer $iObjectId       The _iId of the object.
@@ -1442,7 +1436,7 @@ class UserAccessManager
      * Returns the column for a pluggable object.
      * 
      * @param string  $sObjectType The object type.
-     * @param integer $iObjectId   The object _iId.
+     * @param integer $iObjectId   The object id.
      * 
      * @return string
      */
@@ -1619,8 +1613,8 @@ class UserAccessManager
                     }
                 }
             } elseif ($oItem->object == 'category') {
-                $oObject = $this->getCategory($oItem->object_id);
-                $oCategory = $this->_getTerm('category', $oObject);
+                $oObject = $this->getTerm($oItem->object_id);
+                $oCategory = $this->_processTerm($oObject);
 
                 if ($oCategory !== null && !$oCategory->isEmpty) {
                     $oItem->title .= $this->adminOutput($oItem->object, $oItem->object_id);
@@ -1717,37 +1711,33 @@ class UserAccessManager
     
     /**
      * Modifies the content of the term by the given settings.
-     * 
-     * @param string $sTermType The type of the term.
+     *
      * @param object $oTerm     The current term.
      * 
      * @return object|null
      */
-    protected function _getTerm($sTermType, $oTerm)
+    protected function _processTerm($oTerm)
     {
-        $sKey = $sTermType.'|'.$oTerm->term_id;
+        if ($this->atAdminPanel() === true) {
+            return $oTerm;
+        }
 
-        if (!isset($this->_aTerms[$sKey])) {
-            $this->_aTerms[$sKey] = false;
+        $sKey = $oTerm->taxonomy.'|'.$oTerm->term_id;
+
+        if (!isset($this->_aProcessedTerms[$sKey])) {
+            $this->_aProcessedTerms[$sKey] = $oTerm;
+            $oTerm->name .= $this->adminOutput('category', $oTerm->term_id);
             $aUamOptions = $this->getAdminOptions();
             $oUamAccessHandler = $this->getAccessHandler();
 
             $oTerm->isEmpty = false;
 
-            $oTerm->name .= $this->adminOutput('term', $oTerm->term_id);
-
-            if ($sTermType == 'post_tag'
-                || ( $sTermType == 'category' || $sTermType == $oTerm->taxonomy)
-                && $oUamAccessHandler->checkObjectAccess('category', $oTerm->term_id)
-            ) {
-                if ($this->atAdminPanel() == false
-                    && ($aUamOptions['hide_post'] == 'true'
-                        || $aUamOptions['hide_page'] == 'true')
-                ) {
+            if ($oUamAccessHandler->checkObjectAccess('category', $oTerm->term_id)) {
+                if ($aUamOptions['hide_post'] == 'true' || $aUamOptions['hide_page'] == 'true') {
                     $iTermRequest = $oTerm->term_id;
-                    $sTermRequestType = $sTermType;
+                    $sTermRequestType = $oTerm->taxonomy;
 
-                    if ($sTermType == 'post_tag') {
+                    if ($oTerm->taxonomy == 'post_tag') {
                         $iTermRequest = $oTerm->slug;
                         $sTermRequestType = 'tag';
                     }
@@ -1771,7 +1761,7 @@ class UserAccessManager
                     }
 
                     //For post_tags
-                    if ($sTermType == 'post_tag' && $oTerm->count <= 0) {
+                    if ($oTerm->taxonomy == 'post_tag' && $oTerm->count <= 0) {
                         return null;
                     }
 
@@ -1785,26 +1775,40 @@ class UserAccessManager
                     }
 
                     if ($aUamOptions['lock_recursive'] == 'false') {
-                        $oCurCategory = $oTerm;
+                        $oCurrentTerm = $oTerm;
 
-                        while ($oCurCategory->parent != 0) {
-                            $oCurCategory = get_term($oCurCategory->parent, 'category');
+                        while ($oCurrentTerm->parent != 0) {
+                            $oCurrentTerm = get_term($oCurrentTerm->parent);
 
-                            if ($oUamAccessHandler->checkObjectAccess('term', $oCurCategory->term_id)) {
-                                $oTerm->parent = $oCurCategory->term_id;
+                            if ($oUamAccessHandler->checkObjectAccess('term', $oCurrentTerm->term_id)) {
+                                $oTerm->parent = $oCurrentTerm->term_id;
                                 break;
                             }
                         }
                     }
                 }
 
-                $this->_aTerms[$sKey] = $oTerm;
+                $this->_aProcessedTerms[$sKey] = $oTerm;
+            } else {
+                $this->_aProcessedTerms[$sKey] = false;
             }
         }
 
-        return ($this->_aTerms[$sKey] !== false) ? $this->_aTerms[$sKey] : null;
+        return ($this->_aProcessedTerms[$sKey] === false) ? null : $this->_aProcessedTerms[$sKey];
     }
-    
+
+    /**
+     * The function for the get_term filter.
+     *
+     * @param object $oTerm
+     *
+     * @return null|object
+     */
+    public function showTerm($oTerm)
+    {
+        return $this->_processTerm($oTerm);
+    }
+
     /**
      * The function for the get_terms filter.
      * 
@@ -1819,21 +1823,22 @@ class UserAccessManager
     {
         $aShowTerms = array();
 
-        remove_filter('get_terms', array($this, 'showTerms'), 10);
+        $iPriority = has_filter('get_terms', array($this, 'showTerms'));
+        remove_filter('get_terms', array($this, 'showTerms'), $iPriority);
+
         foreach ($aTerms as $oTerm) {
             if (!is_object($oTerm)) {
-                return $aTerms;
+                continue;
             }
 
-            if ($oTerm->taxonomy == 'category'  || $oTerm->taxonomy == 'post_tag') {
-                $oTerm = $this->_getTerm($oTerm->taxonomy, $oTerm);
-            }
+            $oTerm = $this->_processTerm($oTerm);
 
             if ($oTerm !== null && (!isset($oTerm->isEmpty) || !$oTerm->isEmpty)) {
                 $aShowTerms[$oTerm->term_id] = $oTerm;
             }
         }
-        add_filter('get_terms', array($this, 'showTerms'), 10, 2);
+
+        add_filter('get_terms', array($this, 'showTerms'), $iPriority, 2);
         
         foreach ($aTerms as $sKey => $oTerm) {
             if (!isset($aShowTerms[$oTerm->term_id])) {
@@ -1873,7 +1878,7 @@ class UserAccessManager
      * Returns the admin hint.
      * 
      * @param string  $sObjectType The object type.
-     * @param integer $iObjectId   The object _iId we want to check.
+     * @param integer $iObjectId   The object id we want to check.
      * 
      * @return string
      */
@@ -1995,7 +2000,7 @@ class UserAccessManager
                 $oObjectType = $oObject->post_type;
                 $iObjectId = $oObject->ID;
             } elseif (isset($oPageParams->query_vars['cat_id'])) {
-                $oObject = $this->getCategory($oPageParams->query_vars['cat_id']);
+                $oObject = $this->getTerm($oPageParams->query_vars['cat_id']);
                 $oObjectType = 'category';
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
@@ -2303,7 +2308,7 @@ class UserAccessManager
         $sSql = $wpdb->prepare(
             "SELECT ID
             FROM ".$wpdb->prefix."posts
-            WHERE guid = %s
+            WHERE guid = '%s'
             LIMIT 1",
             $sNewUrl
         );
@@ -2323,7 +2328,7 @@ class UserAccessManager
      * @param string $sUrl  The url of the post.
      * @param object $oPost The post object.
      * 
-     * @return null
+     * @return string
      */
     public function cachePostLinks($sUrl, $oPost)
     {

@@ -92,11 +92,12 @@ if (class_exists("UserAccessManager")) {
 if (!function_exists("userAccessManagerAP")) {
     /**
      * Creates the filters and actions for the admin panel
-     * 
-     * @return null;
      */
     function userAccessManagerAP()
     {
+        /**
+         * @var UserAccessManager $oUserAccessManager
+         */
         global $oUserAccessManager;
         $oCurrentUser = $oUserAccessManager->getCurrentUser();
 
@@ -121,9 +122,14 @@ if (!function_exists("userAccessManagerAP")) {
             );
         }
 
-        $oCurUserData = wp_get_current_user();
         $oUamAccessHandler = $oUserAccessManager->getAccessHandler();
         $aTaxonomies = get_taxonomies(array('public' => true, '_builtin' => true));
+
+        if (isset($_POST['taxonomy'])) {
+            $aTaxonomies[$_POST['taxonomy']] = $_POST['taxonomy'];
+        } elseif (isset($_GET['taxonomy'])) {
+            $aTaxonomies[$_GET['taxonomy']] = $_GET['taxonomy'];
+        }
 
         if ($oUamAccessHandler->checkUserAccess()
             || $aUamOptions['authors_can_add_posts_to_groups'] == 'true'
@@ -146,20 +152,15 @@ if (!function_exists("userAccessManagerAP")) {
                 add_action('edit_user_profile', array($oUserAccessManager, 'showUserProfile'));
                 add_action('profile_update', array($oUserAccessManager, 'saveUserData'));
 
-                add_action('create_category', array($oUserAccessManager, 'saveCategoryData'));
-                add_action('edit_category', array($oUserAccessManager, 'saveCategoryData'));
-
                 add_action('bulk_edit_custom_box', array($oUserAccessManager, 'addBulkAction'));
-
+                add_action('create_term', array($oUserAccessManager, 'saveTermData'));
+                add_action('edit_term', array($oUserAccessManager, 'saveTermData'));
 
                 //Taxonomies
                 foreach ($aTaxonomies as $sTaxonomy) {
-                    add_filter('manage_edit-'.$sTaxonomy.'_columns', array($oUserAccessManager, 'addCategoryColumnsHeader'));
-                    add_action('manage_'.$sTaxonomy.'_custom_column', array($oUserAccessManager, 'addCategoryColumn'), 10, 3);
-                    add_action($sTaxonomy.'_add_form_fields', array($oUserAccessManager, 'showCategoryEditForm'));
-                    add_action($sTaxonomy.'_edit_form_fields', array($oUserAccessManager, 'showCategoryEditForm'));
-                    add_action('create_'.$sTaxonomy, array($oUserAccessManager, 'saveCategoryData'));
-                    add_action('edit_'.$sTaxonomy, array($oUserAccessManager, 'saveCategoryData'));
+                    add_action('manage_'.$sTaxonomy.'_custom_column', array($oUserAccessManager, 'addTermColumn'), 10, 3);
+                    add_action($sTaxonomy.'_add_form_fields', array($oUserAccessManager, 'showTermEditForm'));
+                    add_action($sTaxonomy.'_edit_form_fields', array($oUserAccessManager, 'showTermEditForm'));
                 }
             }
 
@@ -174,8 +175,9 @@ if (!function_exists("userAccessManagerAP")) {
                 add_filter('manage_users_columns', array($oUserAccessManager, 'addUserColumnsHeader'), 10);
                 add_filter('manage_users_custom_column', array($oUserAccessManager, 'addUserColumn'), 10, 3);
 
-                add_filter('manage_edit-category_columns', array($oUserAccessManager, 'addCategoryColumnsHeader'));
-                add_filter('manage_category_custom_column', array($oUserAccessManager, 'addCategoryColumn'), 10, 3);
+                foreach ($aTaxonomies as $sTaxonomy) {
+                    add_filter('manage_edit-'.$sTaxonomy.'_columns', array($oUserAccessManager, 'addTermColumnsHeader'));
+                }
             }
 
             if ($aUamOptions['lock_file'] == 'true') {
@@ -191,13 +193,7 @@ if (!function_exists("userAccessManagerAP")) {
             add_action('delete_post', array($oUserAccessManager, 'removePostData'));
             add_action('delete_attachment', array($oUserAccessManager, 'removePostData'));
             add_action('delete_user', array($oUserAccessManager, 'removeUserData'));
-            add_action('delete_category', array($oUserAccessManager, 'removeCategoryData'), 10, 2);
-
-            // taxonomies
-
-            foreach ($aTaxonomies as $sTaxonomy) {
-                add_action('delete_'.$sTaxonomy, array($oUserAccessManager, 'removeCategoryData'));
-            }
+            add_action('delete_term', array($oUserAccessManager, 'removeTermData'));
         }
         
         $oUserAccessManager->noRightsToEditContent();
@@ -207,11 +203,12 @@ if (!function_exists("userAccessManagerAP")) {
 if (!function_exists("userAccessManagerAPMenu")) {
     /**
      * Creates the menu at the admin panel
-     * 
-     * @return null;
      */
     function userAccessManagerAPMenu()
     {
+        /**
+         * @var UserAccessManager $oUserAccessManager
+         */
         global $oUserAccessManager;
         $oCurrentUser = $oUserAccessManager->getCurrentUser();
         
@@ -235,7 +232,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
             );
         }
         
-        $oCurUserData = get_userdata($oCurrentUser->ID);
+        get_userdata($oCurrentUser->ID);
         $oUamAccessHandler = $oUserAccessManager->getAccessHandler();
         
         if ($oUamAccessHandler->checkUserAccess()) {
@@ -334,7 +331,8 @@ if (isset($oUserAccessManager)) {
         add_filter('comments_array', array($oUserAccessManager, 'showComment'));
         add_filter('the_comments', array($oUserAccessManager, 'showComment'));
         add_filter('get_pages', array($oUserAccessManager, 'showPage'));
-        add_filter('get_terms', array($oUserAccessManager, 'showTerms'), 10, 2);
+        add_filter('get_terms', array($oUserAccessManager, 'showTerms'), 20, 2);
+        add_filter('get_term', array($oUserAccessManager, 'showTerm'), 20, 2);
         add_filter('get_next_post_where', array($oUserAccessManager, 'showNextPreviousPost'));
         add_filter('get_previous_post_where', array($oUserAccessManager, 'showNextPreviousPost'));
         add_filter('post_link', array($oUserAccessManager, 'cachePostLinks'), 10, 2);

@@ -47,6 +47,9 @@ if (!function_exists('walkPath')) {
 <div class="tooltip">
 <ul class="uam_group_info">
 <?php
+/**
+ * @var UserAccessManager $oUserAccessManager
+ */
 global $oUserAccessManager;
 
 foreach ($oUserAccessManager->getAccessHandler()->getAllObjectTypes() as $sCurObjectType) {
