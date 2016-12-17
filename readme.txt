@@ -70,6 +70,10 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    1.2.7.5     2016/??/??  Improve taxonomy handling.
+                            Improve performance.
+                            Add missing wp-cli.php file.
+
     1.2.7.4     2016/12/08  Fix some issues related to Wordpress 4.7
 
     1.2.7.3     2016/12/08  Fix empty category issue.

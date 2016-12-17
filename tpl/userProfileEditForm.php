@@ -22,7 +22,7 @@ $sObjectType = 'user';
 
 if (isset($_GET['user_id'])) {
     $iObjectId = $_GET['user_id'];
-    $oEditUserData = get_userdata($iObjectId);
+    $oEditUserData = $oUserAccessManager->getUser($iObjectId);
     
     $aUserGroupsForObject = $oUserAccessManager->getAccessHandler()->getUserGroupsForObject(
         $sObjectType,
