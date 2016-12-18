@@ -91,7 +91,7 @@ class Groups_Command extends \WP_CLI\CommandWithDBObject
                 'groupdesc' => $oUamUserGroup->getGroupDesc(),
                 'read_access' => $oUamUserGroup->getReadAccess(),
                 'write_access' => $oUamUserGroup->getWriteAccess(),
-                'roles' => implode(',', array_keys($oUamUserGroup->getObjectsFromType('role'))),
+                'roles' => implode(',', array_keys($oUamUserGroup->getObjectsFromType(UserAccessManager::ROLE_OBJECT_TYPE))),
                 'ip_range' => $oUamUserGroup->getIpRange() === null ? '' : $oUamUserGroup->getIpRange()
             );
 
@@ -209,10 +209,10 @@ class Groups_Command extends \WP_CLI\CommandWithDBObject
         if (isset($assoc_args['roles'])) {
             $roles = explode(',', $assoc_args['roles']);
 
-            $oUamUserGroup->unsetObjects('role', true);
+            $oUamUserGroup->unsetObjects(UserAccessManager::ROLE_OBJECT_TYPE, true);
 
             foreach ($roles as $role) {
-                $oUamUserGroup->addObject('role', $role);
+                $oUamUserGroup->addObject(UserAccessManager::ROLE_OBJECT_TYPE, $role);
             }
         }
 

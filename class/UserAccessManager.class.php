@@ -26,6 +26,13 @@
  */
 class UserAccessManager
 {
+    const USER_OBJECT_TYPE = 'user';
+    const POST_OBJECT_TYPE = 'post';
+    const PAGE_OBJECT_TYPE = 'page';
+    const TERM_OBJECT_TYPE = 'term';
+    const ROLE_OBJECT_TYPE = 'role';
+    const ATTACHMENT_OBJECT_TYPE = 'attachment';
+
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
     protected $_sUamVersion = "1.2.7.5";
@@ -41,7 +48,9 @@ class UserAccessManager
     protected $_aWpOptions = array();
     protected $_aProcessedTerms = array();
     protected $_aTermPostMap = array();
-    
+    protected $_aPostTypes = null;
+    protected $_aTaxonomies = null;
+
     /**
      * Constructor.
      */
@@ -77,6 +86,34 @@ class UserAccessManager
     {
         global $wpdb;
         return $wpdb;
+    }
+
+    /**
+     * Returns all post types.
+     *
+     * @return array
+     */
+    public function getPostTypes()
+    {
+        if ($this->_aPostTypes === null) {
+            $this->_aPostTypes = get_post_types(array('publicly_queryable' => true));
+        }
+
+        return $this->_aPostTypes;
+    }
+
+    /**
+     * Returns the taxonomies.
+     *
+     * @return array
+     */
+    public function getTaxonomies()
+    {
+        if ($this->_aTaxonomies === null) {
+            $this->_aTaxonomies = get_taxonomies();
+        }
+
+        return $this->_aTaxonomies;
     }
 
     /**
@@ -453,20 +490,17 @@ class UserAccessManager
                 $oDatabase->query($sSql);
             }
 
-            /*if (version_compare($sCurrentDbVersion, "1.3", '<=')) {
-                $sDbTermTaxonomy = $oDatabase->prefix.'term_taxonomy';
+            if (version_compare($sCurrentDbVersion, "1.3", '<=')) {
                 $sDbAccessGroupToObject = $oDatabase->prefix.'uam_accessgroup_to_object';
+                $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
 
                 $sSql = "
                     UPDATE `{$sDbAccessGroupToObject}` AS ag2o
-                    SET ag2o.`object_type` = (
-                      SELECT taxonomy FROM `{$sDbTermTaxonomy}` as tt
-                      WHERE tt.ID = ag2o.object_id
-                      LIMIT 1
-                    )";
+                    SET ag2o.`object_type` = '{$sTermType}'
+                    WHERE `object_type` = 'category'";
 
                 $oDatabase->query($sSql);
-            }*/
+            }
             
             update_option('uam_db_version', $this->_sUamDbVersion);
         }
@@ -661,7 +695,7 @@ class UserAccessManager
                 $this->createHtpasswd(true);
             } else {
                 if ($sObjectType === null) {
-                    $sObjectType = 'attachment';
+                    $sObjectType = UserAccessManager::ATTACHMENT_OBJECT_TYPE;
                 }
 
                 if ($blNginx === true) {
@@ -1034,7 +1068,7 @@ class UserAccessManager
         }
         
         if (isset($_GET['tag_ID']) && is_numeric($_GET['tag_ID']) && !$blNoRights) {
-            $blNoRights = !$this->getAccessHandler()->checkObjectAccess('category', $_GET['tag_ID']);
+            $blNoRights = !$this->getAccessHandler()->checkObjectAccess(self::TERM_OBJECT_TYPE, $_GET['tag_ID']);
         }
 
         if ($blNoRights) {
@@ -1303,7 +1337,7 @@ class UserAccessManager
     public function addUserColumn($sReturn, $sColumnName, $iId)
     {
         if ($sColumnName == 'uam_access') {
-            return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php', $iId, 'user');
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php', $iId, self::USER_OBJECT_TYPE);
         }
 
         return $sReturn;
@@ -1324,7 +1358,7 @@ class UserAccessManager
      */
     public function saveUserData($iUserId)
     {        
-        $this->_saveObjectData('user', $iUserId);
+        $this->_saveObjectData(self::USER_OBJECT_TYPE, $iUserId);
     }
     
     /**
@@ -1334,7 +1368,7 @@ class UserAccessManager
      */
     public function removeUserData($iUserId)
     {
-        $this->_removeObjectData('user', $iUserId);
+        $this->_removeObjectData(self::USER_OBJECT_TYPE, $iUserId);
     }
 
     
@@ -1367,7 +1401,7 @@ class UserAccessManager
     public function addTermColumn($sEmpty, $sColumnName, $iId)
     {
         if ($sColumnName == 'uam_access') {
-            return $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, 'category');
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, self::TERM_OBJECT_TYPE);
         }
 
         return null;
@@ -1390,7 +1424,7 @@ class UserAccessManager
      */
     public function saveTermData($iTermId)
     {
-        $this->_saveObjectData('category', $iTermId);
+        $this->_saveObjectData(self::TERM_OBJECT_TYPE, $iTermId);
     }
     
     /**
@@ -1400,7 +1434,7 @@ class UserAccessManager
      */
     public function removeTermData($iTermId)
     {
-        $this->_removeObjectData('category', $iTermId);
+        $this->_removeObjectData(self::TERM_OBJECT_TYPE, $iTermId);
     }
     
 
@@ -1512,9 +1546,14 @@ class UserAccessManager
         
         $sPostType = $oPost->post_type;
 
-        if ($this->getAccessHandler()->isPostableType($sPostType) && $sPostType != 'post' && $sPostType != 'page') {
-            $sPostType = 'post';
-        } elseif ($sPostType != 'post' && $sPostType != 'page') {
+        if ($this->getAccessHandler()->isPostableType($sPostType)
+            && $sPostType != UserAccessManager::POST_OBJECT_TYPE
+            && $sPostType != UserAccessManager::PAGE_OBJECT_TYPE
+        ) {
+            $sPostType = UserAccessManager::POST_OBJECT_TYPE;
+        } elseif ($sPostType != UserAccessManager::POST_OBJECT_TYPE
+            && $sPostType != UserAccessManager::PAGE_OBJECT_TYPE
+        ) {
             return $oPost;
         }
         
@@ -1621,9 +1660,12 @@ class UserAccessManager
     public function showCustomMenu($aItems)
     {
         $aShowItems = array();
+        $aTaxonomies = $this->getTaxonomies();
         
         foreach ($aItems as $oItem) {
-            if ($oItem->object == 'post' || $oItem->object == 'page') {
+            if ($oItem->object == UserAccessManager::POST_OBJECT_TYPE
+                || $oItem->object == UserAccessManager::PAGE_OBJECT_TYPE
+            ) {
                 $oObject = $this->getPost($oItem->object_id);
               
                 if ($oObject !== null) {
@@ -1638,7 +1680,7 @@ class UserAccessManager
                         $aShowItems[] = $oItem;
                     }
                 }
-            } elseif ($oItem->object == 'category') {
+            } elseif (isset($aTaxonomies[$oItem->object])) {
                 $oObject = $this->getTerm($oItem->object_id);
                 $oCategory = $this->_processTerm($oObject);
 
@@ -1782,13 +1824,13 @@ class UserAccessManager
 
         if (!isset($this->_aProcessedTerms[$sKey])) {
             $this->_aProcessedTerms[$sKey] = $oTerm;
-            $oTerm->name .= $this->adminOutput('category', $oTerm->term_id);
+            $oTerm->name .= $this->adminOutput(self::TERM_OBJECT_TYPE, $oTerm->term_id);
             $aUamOptions = $this->getAdminOptions();
             $oUamAccessHandler = $this->getAccessHandler();
 
             $oTerm->isEmpty = false;
 
-            if ($oUamAccessHandler->checkObjectAccess('category', $oTerm->term_id)) {
+            if ($oUamAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $oTerm->term_id)) {
                 if ($aUamOptions['hide_post'] == 'true' || $aUamOptions['hide_page'] == 'true') {
                     $iTermRequest = $oTerm->term_id;
 
@@ -1818,8 +1860,7 @@ class UserAccessManager
                     //For categories
                     if ($oTerm->count <= 0
                         && $aUamOptions['hide_empty_categories'] == 'true'
-                        && ($oTerm->taxonomy == "term"
-                            || $oTerm->taxonomy == "category")
+                        && ($oTerm->taxonomy == 'term' || $oTerm->taxonomy == 'category')
                     ) {
                         $oTerm->isEmpty = true;
                     }
@@ -1830,7 +1871,7 @@ class UserAccessManager
                         while ($oCurrentTerm->parent != 0) {
                             $oCurrentTerm = $this->getTerm($oCurrentTerm->parent);
 
-                            if ($oUamAccessHandler->checkObjectAccess('term', $oCurrentTerm->term_id)) {
+                            if ($oUamAccessHandler->checkObjectAccess(UserAccessManager::TERM_OBJECT_TYPE, $oCurrentTerm->term_id)) {
                                 $oTerm->parent = $oCurrentTerm->term_id;
                                 break;
                             }
@@ -1863,7 +1904,7 @@ class UserAccessManager
      * The function for the get_terms filter.
      * 
      * @param array         $aTerms      The terms.
-     * @param array         $aTaxonomies The given arguments.
+     * @param array         $aTaxonomies The taxonomies.
      * @param array         $aArgs       The given arguments.
      * @param WP_Term_Query $oTermQuery  The term query.
      *
@@ -1873,25 +1914,20 @@ class UserAccessManager
     {
         $aShowTerms = array();
 
-        $iPriority = has_filter('get_terms', array($this, 'showTerms'));
-        remove_filter('get_terms', array($this, 'showTerms'), $iPriority);
-
-        foreach ($aTerms as $oTerm) {
-            if (!is_object($oTerm)) {
-                continue;
+        foreach ($aTerms as $mTerm) {
+            if (!is_object($mTerm) && is_numeric($mTerm)) {
+                $mTerm = $this->getTerm($mTerm);
             }
 
-            $oTerm = $this->_processTerm($oTerm);
+            $mTerm = $this->_processTerm($mTerm);
 
-            if ($oTerm !== null && (!isset($oTerm->isEmpty) || !$oTerm->isEmpty)) {
-                $aShowTerms[$oTerm->term_id] = $oTerm;
+            if ($mTerm !== null && (!isset($mTerm->isEmpty) || !$mTerm->isEmpty)) {
+                $aShowTerms[$mTerm->term_id] = $mTerm;
             }
         }
-
-        add_filter('get_terms', array($this, 'showTerms'), $iPriority, 2);
         
-        foreach ($aTerms as $sKey => $oTerm) {
-            if (!isset($aShowTerms[$oTerm->term_id])) {
+        foreach ($aTerms as $sKey => $mTerm) {
+            if (!isset($aShowTerms[$mTerm->term_id])) {
                 unset($aTerms[$sKey]);
             }
         }
@@ -1971,7 +2007,7 @@ class UserAccessManager
     public function showGroupMembership($sLink, $iPostId)
     {
         $oUamAccessHandler = $this->getAccessHandler();
-        $aGroups = $oUamAccessHandler->getUserGroupsForObject('post', $iPostId);
+        $aGroups = $oUamAccessHandler->getUserGroupsForObject(self::POST_OBJECT_TYPE, $iPostId);
         
         if (count($aGroups) > 0) {
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
@@ -2050,16 +2086,19 @@ class UserAccessManager
                 $iObjectId = $oObject->ID;
             } elseif (isset($oPageParams->query_vars['cat_id'])) {
                 $oObject = $this->getTerm($oPageParams->query_vars['cat_id']);
-                $oObjectType = 'category';
+                $oObjectType = self::TERM_OBJECT_TYPE;
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
                 $oDatabase = $this->getDatabase();
+
+                $sPostType = UserAccessManager::POST_OBJECT_TYPE;
+                $sPageType = UserAccessManager::PAGE_OBJECT_TYPE;
 
                 $sQuery = $oDatabase->prepare(
                     "SELECT ID
                     FROM {$oDatabase->posts}
                     WHERE post_name = %s
-                    AND post_type IN ('post', 'page')",
+                    AND post_type IN ('{$sPostType}', '{$sPageType}')",
                     $oPageParams->query_vars['name']
                 );
 
@@ -2260,7 +2299,7 @@ class UserAccessManager
     {
         $oObject = null;
 
-        if ($sObjectType == 'attachment') {
+        if ($sObjectType == UserAccessManager::ATTACHMENT_OBJECT_TYPE) {
             $aUploadDir = wp_upload_dir();
             $sUploadDir = str_replace(ABSPATH, '/', $aUploadDir['basedir']);
             $sRegex = '/.*'.str_replace('/', '\/', $sUploadDir).'\//i';
@@ -2270,7 +2309,7 @@ class UserAccessManager
             $oPost = $this->getPost($this->getPostIdByUrl($sObjectUrl));
     
             if ($oPost !== null
-                && $oPost->post_type == 'attachment'
+                && $oPost->post_type == UserAccessManager::ATTACHMENT_OBJECT_TYPE
             ) {
                 $oObject = new stdClass();
                 $oObject->id = $oPost->ID;

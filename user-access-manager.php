@@ -123,7 +123,7 @@ if (!function_exists("userAccessManagerAP")) {
         }
 
         $oUamAccessHandler = $oUserAccessManager->getAccessHandler();
-        $aTaxonomies = get_taxonomies(array('public' => true, '_builtin' => true));
+        $aTaxonomies = $oUserAccessManager->getPostTypes();
 
         if (isset($_POST['taxonomy'])) {
             $aTaxonomies[$_POST['taxonomy']] = $_POST['taxonomy'];
@@ -135,7 +135,7 @@ if (!function_exists("userAccessManagerAP")) {
             || $aUamOptions['authors_can_add_posts_to_groups'] == 'true'
         ) {
             //Admin actions
-            if (function_exists('add_action')) {
+           if (function_exists('add_action')) {
                 add_action('admin_print_styles', array($oUserAccessManager, 'addStyles'));
                 add_action('wp_print_scripts', array($oUserAccessManager, 'addScripts'));
 
@@ -272,9 +272,6 @@ if (!function_exists("userAccessManagerAPMenu")) {
                 foreach ($aPostableTypes as $sPostableType) {
                     add_meta_box('uma_post_access', 'Access', array($oUserAccessManager, 'editPostContent'), $sPostableType, 'side');
                 }
-                
-                /*add_meta_box('uma_post_access', 'Access', array($oUserAccessManager, 'editPostContent'), 'post', 'side');
-                add_meta_box('uma_post_access', 'Access', array($oUserAccessManager, 'editPostContent'), 'page', 'side');*/
             }
         }
     }

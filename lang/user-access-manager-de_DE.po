@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/user-access-"
 "manager\n"
 "POT-Creation-Date: 2016-12-17 23:31+0100\n"
-"PO-Revision-Date: 2016-12-17 23:40+0100\n"
+"PO-Revision-Date: 2016-12-18 01:35+0100\n"
 "Last-Translator: Alexander Schneider <alexanderschneider85@gmail.com>\n"
 "Language-Team: Alexander Schneider <alexanderschneider85@googlemail.com>\n"
 "Language: de_DE\n"
@@ -651,7 +651,7 @@ msgstr ""
 
 #: includes/language.define.php:166
 msgid "update"
-msgstr "Datum"
+msgstr "Update"
 
 #: includes/language.define.php:167
 msgid "User Access Manager was reset successfully"

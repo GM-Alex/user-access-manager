@@ -17,7 +17,7 @@
 
 if (!function_exists('walkPath')) {
     /**
-     * Retruns the html code for the recursive access.
+     * Returns the html code for the recursive access.
      * 
      * @param mixed  $oObject     The object.
      * @param string $sObjectType The type of the object.
@@ -97,10 +97,10 @@ if ($oUamUserGroup->getWriteAccess()  == "all") {
             </li>
             <li>
                 <?php echo TXT_UAM_GROUP_ROLE; ?>: <?php
-if ($oUamUserGroup->getObjectsFromType('role')) {
+if ($oUamUserGroup->getObjectsFromType(UserAccessManager::ROLE_OBJECT_TYPE)) {
     $sOut = '';
     
-    foreach ($oUamUserGroup->getObjectsFromType('role') as $sKey => $sRole) {
+    foreach ($oUamUserGroup->getObjectsFromType(UserAccessManager::ROLE_OBJECT_TYPE) as $sKey => $sRole) {
         $sOut .= trim($sKey).', ';
     }
     

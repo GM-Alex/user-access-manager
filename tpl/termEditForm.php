@@ -1,6 +1,6 @@
 <?php
 /**
- * categoryEditForm.php
+ * termEditForm.php
  * 
  * Shows the setup page at the admin panel.
  * 
@@ -19,7 +19,7 @@ global $oUserAccessManager;
 $aUamUserGroups = $oUserAccessManager->getAccessHandler()->getUserGroups();
 
 $iObjectId = null;
-$sObjectType = 'category';
+$sObjectType = UserAccessManager::TERM_OBJECT_TYPE;
 
 if (isset($_GET['tag_ID'])) {
     $iObjectId = $_GET['tag_ID'];
