@@ -55,6 +55,7 @@ class UamConfig
      */
     protected function _getStringOption($sOptionName)
     {
+        $aOptions = $this->getAdminOptions();
         return isset($aOptions[$sOptionName]) ? (string)$aOptions[$sOptionName] : '';
     }
 
@@ -67,7 +68,7 @@ class UamConfig
      */
     protected function _getBooleanOption($sOptionName)
     {
-        $aOptions = $this->_getAdminOptions();
+        $aOptions = $this->getAdminOptions();
         return (isset($aOptions[$sOptionName]) && $aOptions[$sOptionName] === 'true');
     }
 
@@ -76,7 +77,7 @@ class UamConfig
      *
      * @return array
      */
-    protected function _getAdminOptions()
+    public function getAdminOptions()
     {
         if ($this->_aAdminOptions === null) {
             $aUamAdminOptions = array(
@@ -139,6 +140,84 @@ class UamConfig
         }
 
         return $this->_aAdminOptions;
+    }
+
+    /**
+     * Returns the option value if the option exists otherwise true.
+     *
+     * @param string $sOptionName
+     *
+     * @return bool
+     */
+    protected function _hideObject($sOptionName)
+    {
+        $aOptions = $this->getAdminOptions();
+
+        if (isset($aOptions[$sOptionName])) {
+            return $this->_getBooleanOption($sOptionName);
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $sObjectType
+     *
+     * @return bool
+     */
+    public function hideObjectType($sObjectType)
+    {
+        return $this->_hideObject('hide_'.$sObjectType);
+    }
+
+    /**
+     * @param string $sObjectType
+     *
+     * @return bool
+     */
+    public function hideObjectTypeTitle($sObjectType)
+    {
+        return $this->_hideObject('hide_'.$sObjectType.'_title');
+    }
+
+    /**
+     * @param string $sObjectType
+     *
+     * @return bool
+     */
+    public function hideObjectTypeComments($sObjectType)
+    {
+        return $this->_hideObject($sObjectType.'_comments_locked');
+    }
+
+    /**
+     * @param string $sObjectType
+     *
+     * @return string
+     */
+    public function getObjectTypeTitle($sObjectType)
+    {
+        return $this->_getStringOption($sObjectType.'_title');
+    }
+
+    /**
+     * @param string $sObjectType
+     *
+     * @return string
+     */
+    public function getObjectTypeContent($sObjectType)
+    {
+        return $this->_getStringOption($sObjectType.'_content');
+    }
+
+    /**
+     * @param string $sObjectType
+     *
+     * @return string
+     */
+    public function getObjectTypeCommentContent($sObjectType)
+    {
+        return $this->_getStringOption($sObjectType . '_comment_content');
     }
 
     /**
@@ -254,17 +333,17 @@ class UamConfig
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function redirect()
+    public function getRedirect()
     {
-        return $this->_getBooleanOption('redirect');
+        return $this->_getStringOption('redirect');
     }
 
     /**
      * @return string
      */
-    public function redirectCustomPage()
+    public function getRedirectCustomPage()
     {
         return $this->_getStringOption('redirect_custom_page');
     }
@@ -272,7 +351,7 @@ class UamConfig
     /**
      * @return string
      */
-    public function redirectCustomUrl()
+    public function getRedirectCustomUrl()
     {
         return $this->_getStringOption('redirect_custom_url');
     }
@@ -360,7 +439,7 @@ class UamConfig
     /**
      * @return string
      */
-    public function getblogAdminHintText()
+    public function getBlogAdminHintText()
     {
         return $this->_getStringOption('blog_admin_hint_text');
     }

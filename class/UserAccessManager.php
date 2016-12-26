@@ -33,11 +33,11 @@ class UserAccessManager
     const ROLE_OBJECT_TYPE = 'role';
     const ATTACHMENT_OBJECT_TYPE = 'attachment';
 
+    protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
     protected $_sAdminOptionsName = "uamAdminOptions";
     protected $_sUamVersion = "1.2.7.5";
     protected $_sUamDbVersion = "1.4";
-    protected $_aAdminOptions = null;
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
     protected $_aMimeTypes = null;
@@ -57,16 +57,6 @@ class UserAccessManager
     public function __construct()
     {
         do_action('uam_init', $this);
-    }
-
-    /**
-     * Returns the admin options name for the uam.
-     *
-     * @return string
-     */
-    public function getAdminOptionsName()
-    {
-        return $this->_sAdminOptionsName;
     }
 
     /**
@@ -141,15 +131,6 @@ class UserAccessManager
         }
 
         return null;
-    }
-
-    public function getWpOption($sOption)
-    {
-        if (!isset($this->_aWpOptions[$sOption])) {
-            $this->_aWpOptions[$sOption] = get_option($sOption);
-        }
-
-        return $this->_aWpOptions[$sOption];
     }
 
     /**
@@ -324,7 +305,7 @@ class UserAccessManager
             }
         }
 
-        $sCurrentDbVersion = $this->getWpOption('uam_db_version');
+        $sCurrentDbVersion = get_option('uam_db_version');
         return version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<');
     }
     
@@ -361,13 +342,13 @@ class UserAccessManager
     protected function _updateUam()
     {
         $oDatabase = $this->getDatabase();
-        $sCurrentDbVersion = $this->getWpOption("uam_db_version");
+        $sCurrentDbVersion = get_option('uam_db_version');
         
         if (empty($sCurrentDbVersion)) {
             $this->install();
         }
         
-        if (!$this->getWpOption('uam_version') || version_compare($this->getWpOption('uam_version'), "1.0", '<')) {
+        if (!get_option('uam_version') || version_compare(get_option('uam_version'), "1.0", '<')) {
             delete_option('allow_comments_locked');
         }
         
@@ -650,16 +631,16 @@ class UserAccessManager
         if ($sDir !== null) {
             $sFile = "";
             $sAreaName = "WP-Files";
-            $aUamOptions = $this->getAdminOptions();
+            $oConfig = $this->getConfig();
 
             if (!$this->isPermalinksActive()) {
                 $sFileTypes = null;
 
-                if ($aUamOptions['lock_file_types'] == 'selected') {
-                    $sFileTypes = $this->_cleanUpFileTypesForHtaccess($aUamOptions['locked_file_types']);
+                if ($oConfig->getLockedFileTypes() == 'selected') {
+                    $sFileTypes = $this->_cleanUpFileTypesForHtaccess($oConfig->getLockedFileTypes());
                     $sFileTypes = "\.(".$sFileTypes.")";
-                } elseif ($blNginx === false && $aUamOptions['lock_file_types'] == 'not_selected') {
-                    $sFileTypes = $this->_cleanUpFileTypesForHtaccess($aUamOptions['not_locked_file_types']);
+                } elseif ($blNginx === false && $oConfig->getLockedFileTypes() == 'not_selected') {
+                    $sFileTypes = $this->_cleanUpFileTypesForHtaccess($oConfig->getLockedFileTypes());
                     $sFileTypes = "^\.(".$sFileTypes.")";
                 }
 
@@ -735,7 +716,7 @@ class UserAccessManager
             include_once ABSPATH.'wp-includes/pluggable.php';
         }
         
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
 
         // get url
         if ($sDir === null) {
@@ -750,7 +731,7 @@ class UserAccessManager
             $oUserData = $this->getUser($oCurrentUser->ID);
             
             if (!file_exists($sDir.".htpasswd") || $blCreateNew) {
-                if ($aUamOptions['file_pass_type'] == 'random') {
+                if ($oConfig->getFilePassType() === 'random') {
                     $sPassword = md5($this->getRandomPassword());
                 } else {
                     $sPassword = $oUserData->user_pass;
@@ -834,75 +815,19 @@ class UserAccessManager
         
         return $sPassword;
     }
-    
+
     /**
-     * Returns the current settings
-     * 
-     * @return array
+     * Returns the current config.
+     *
+     * @return UamConfig
      */
-    public function getAdminOptions()
+    public function getConfig()
     {
-        if ($this->_aAdminOptions === null) {
-            $aUamAdminOptions = array(
-                'hide_post_title' => 'false', 
-                'post_title' => __('No rights!', 'user-access-manager'),
-                'post_content' => __(
-                    'Sorry you have no rights to view this post!', 
-                    'user-access-manager'
-                ),
-                'hide_post' => 'false', 
-                'hide_post_comment' => 'false', 
-                'post_comment_content' => __(
-                    'Sorry no rights to view comments!', 
-                    'user-access-manager'
-                ), 
-                'post_comments_locked' => 'false',
-                'hide_page_title' => 'false', 
-                'page_title' => __('No rights!', 'user-access-manager'), 
-                'page_content' => __(
-                    'Sorry you have no rights to view this page!', 
-                    'user-access-manager'
-                ), 
-                'hide_page' => 'false',
-                'hide_page_comment' => 'false', 
-                'page_comment_content' => __(
-                    'Sorry no rights to view comments!', 
-                    'user-access-manager'
-                ), 
-                'page_comments_locked' => 'false',
-                'redirect' => 'false', 
-                'redirect_custom_page' => '', 
-                'redirect_custom_url' => '', 
-                'lock_recursive' => 'true',
-                'authors_has_access_to_own' => 'true',
-                'authors_can_add_posts_to_groups' => 'false',
-                'lock_file' => 'false', 
-                'file_pass_type' => 'random', 
-                'lock_file_types' => 'all', 
-                'download_type' => 'fopen', 
-                'locked_file_types' => 'zip,rar,tar,gz',
-                'not_locked_file_types' => 'gif,jpg,jpeg,png', 
-                'blog_admin_hint' => 'true', 
-                'blog_admin_hint_text' => '[L]',
-                'hide_empty_categories' => 'true', 
-                'protect_feed' => 'true', 
-                'show_post_content_before_more' => 'false', 
-                'full_access_role' => 'administrator'
-            );
-            
-            $aUamOptions = $this->getWpOption($this->_sAdminOptionsName);
-            
-            if (!empty($aUamOptions)) {
-                foreach ($aUamOptions as $sKey => $mOption) {
-                    $aUamAdminOptions[$sKey] = $mOption;
-                }
-            }
-            
-            update_option($this->_sAdminOptionsName, $aUamAdminOptions);
-            $this->_aAdminOptions = $aUamAdminOptions;
+        if ($this->_oConfig === null) {
+            $this->_oConfig = new UamConfig();
         }
 
-        return $this->_aAdminOptions;
+        return $this->_oConfig;
     }
 
     /**
@@ -1036,13 +961,13 @@ class UserAccessManager
             $sAdminPage = $_GET['page'];
 
             if ($sAdminPage == 'uam_settings') {
-                include UAM_REALPATH."tpl/adminSettings.php";
+                include UAM_REALPATH.'tpl/adminSettings.php';
             } elseif ($sAdminPage == 'uam_usergroup') {
-                include UAM_REALPATH."tpl/adminGroup.php";
+                include UAM_REALPATH.'tpl/adminGroup.php';
             } elseif ($sAdminPage == 'uam_setup') {
-                include UAM_REALPATH."tpl/adminSetup.php";
+                include UAM_REALPATH.'tpl/adminSetup.php';
             } elseif ($sAdminPage == 'uam_about') {
-                include UAM_REALPATH."tpl/about.php";
+                include UAM_REALPATH.'tpl/about.php';
             }
         }
     }
@@ -1102,14 +1027,14 @@ class UserAccessManager
     /**
      * Saves the object data to the database.
      * 
-     * @param string  $sObjectType The object type.
-     * @param integer $iObjectId   The _iId of the object.
-     * @param array   $aUserGroups The new usergroups for the object.
+     * @param string         $sObjectType The object type.
+     * @param integer        $iObjectId   The _iId of the object.
+     * @param UamUserGroup[] $aUserGroups The new usergroups for the object.
      */
     protected function _saveObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {
         $oUamAccessHandler = $this->getAccessHandler();
-        $oUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         $aFormData = array();
 
         if (isset($_POST['uam_update_groups'])) {
@@ -1120,7 +1045,7 @@ class UserAccessManager
 
         if (isset($aFormData['uam_update_groups'])
             && ($oUamAccessHandler->checkUserAccess('manage_user_groups')
-            || $oUamOptions['authors_can_add_posts_to_groups'] == 'true')
+            || $oConfig->authorsCanAddPostsToGroups() === true)
         ) {
             if ($aUserGroups === null) {
                 $aUserGroups = (isset($aFormData['uam_usergroups']) && is_array($aFormData['uam_usergroups']))
@@ -1514,9 +1439,9 @@ class UserAccessManager
      */
     public function parseQuery($oWpQuery)
     {
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         
-        if ($aUamOptions['hide_post'] == 'true') {
+        if ($oConfig->hidePost() === true) {
             $oUamAccessHandler = $this->getAccessHandler();
             $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
             
@@ -1538,7 +1463,7 @@ class UserAccessManager
      */
     protected function _getPost($oPost)
     {
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         $oUamAccessHandler = $this->getAccessHandler();
         
         $sPostType = $oPost->post_type;
@@ -1553,8 +1478,8 @@ class UserAccessManager
         ) {
             return $oPost;
         }
-        
-        if ($aUamOptions['hide_'.$sPostType] == 'true' || $this->atAdminPanel()) {
+
+        if ($oConfig->hideObjectType($sPostType) === true || $this->atAdminPanel()) {
             if ($oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
                 $oPost->post_title .= $this->adminOutput($oPost->post_type, $oPost->ID);
                 return $oPost;
@@ -1562,20 +1487,20 @@ class UserAccessManager
         } else {
             if (!$oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
                 $oPost->isLocked = true;
+
+                $sUamPostContent = $oConfig->getObjectTypeContent($sPostType);
+                $sUamPostContent = str_replace('[LOGIN_FORM]',  $this->getLoginBarHtml(), $sUamPostContent);
                 
-                $sUamPostContent = $aUamOptions[$sPostType.'_content'];
-                $sUamPostContent = str_replace("[LOGIN_FORM]",  $this->getLoginBarHtml(), $sUamPostContent);
-                
-                if ($aUamOptions['hide_'.$sPostType.'_title'] == 'true') {
-                    $oPost->post_title = $aUamOptions[$sPostType.'_title'];
+                if ($oConfig->hideObjectTypeTitle($sPostType) === true) {
+                    $oPost->post_title = $oConfig->getObjectTypeTitle($sPostType);
                 }
                 
-                if ($aUamOptions[$sPostType.'_comments_locked'] == 'false') {
+                if ($oConfig->hideObjectTypeComments($sPostType) === false) {
                     $oPost->comment_status = 'close';
                 }
 
-                if ($aUamOptions['show_post_content_before_more'] == 'true'
-                    && $sPostType == "post"
+                if ($sPostType === 'post'
+                    && $oConfig->showPostContentBeforeMore() === true
                     && preg_match('/<!--more(.*?)?-->/', $oPost->post_content, $aMatches)
                 ) {
                     $oPost->post_content = explode($aMatches[0], $oPost->post_content, 2);
@@ -1603,9 +1528,9 @@ class UserAccessManager
     public function showPost($aPosts = array())
     {
         $aShowPosts = array();
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         
-        if (!is_feed() || ($aUamOptions['protect_feed'] == 'true' && is_feed())) {
+        if (!is_feed() || ($oConfig->protectFeed() === true && is_feed())) {
             foreach ($aPosts as $iPostId) {
                 if ($iPostId !== null) {
                     $oPost = $this->_getPost($iPostId);
@@ -1632,9 +1557,9 @@ class UserAccessManager
     public function showPostSql($sSql)
     {   
         $oUamAccessHandler = $this->getAccessHandler();
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         
-        if ($aUamOptions['hide_post'] == 'true') {
+        if ($oConfig->hidePost() === true) {
             $oDatabase = $this->getDatabase();
             $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
             
@@ -1703,15 +1628,15 @@ class UserAccessManager
     public function showComment($aComments = array())
     {
         $aShowComments = array();
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         $oUamAccessHandler = $this->getAccessHandler();
         
         foreach ($aComments as $oComment) {
             $oPost = $this->getPost($oComment->comment_post_ID);
             $sPostType = $oPost->post_type;
             
-            if ($aUamOptions['hide_'.$sPostType.'_comment'] == 'true'
-                || $aUamOptions['hide_'.$sPostType] == 'true'
+            if ($oConfig->hideObjectTypeComments($sPostType) === true
+                || $oConfig->hideObjectType($sPostType) === true
                 || $this->atAdminPanel()
             ) {
                 if ($oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
@@ -1719,7 +1644,7 @@ class UserAccessManager
                 }
             } else {
                 if (!$oUamAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
-                    $oComment->comment_content = $aUamOptions[$sPostType.'_comment_content'];
+                    $oComment->comment_content = $oConfig->getObjectTypeCommentContent($sPostType);
                 }
                 
                 $aShowComments[] = $oComment;
@@ -1741,11 +1666,11 @@ class UserAccessManager
     public function showPage($aPages = array())
     {
         $aShowPages = array();
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         $oUamAccessHandler = $this->getAccessHandler();
         
         foreach ($aPages as $oPage) {
-            if ($aUamOptions['hide_page'] == 'true'
+            if ($oConfig->hidePage() === true
                 || $this->atAdminPanel()
             ) {
                 if ($oUamAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID)) {
@@ -1757,11 +1682,11 @@ class UserAccessManager
                 }
             } else {
                 if (!$oUamAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID)) {
-                    if ($aUamOptions['hide_page_title'] == 'true') {
-                        $oPage->post_title = $aUamOptions['page_title'];
+                    if ($oConfig->hidePageTitle() === true) {
+                        $oPage->post_title = $oConfig->getPageTitle();
                     }
 
-                    $oPage->post_content = $aUamOptions['page_content'];
+                    $oPage->post_content = $oConfig->getPageContent();
                 }
 
                 $oPage->post_title .= $this->adminOutput($oPage->post_type, $oPage->ID);
@@ -1822,13 +1747,13 @@ class UserAccessManager
         if (!isset($this->_aProcessedTerms[$sKey])) {
             $this->_aProcessedTerms[$sKey] = $oTerm;
             $oTerm->name .= $this->adminOutput(self::TERM_OBJECT_TYPE, $oTerm->term_id);
-            $aUamOptions = $this->getAdminOptions();
+            $oConfig = $this->getConfig();
             $oUamAccessHandler = $this->getAccessHandler();
 
             $oTerm->isEmpty = false;
 
             if ($oUamAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $oTerm->term_id)) {
-                if ($aUamOptions['hide_post'] == 'true' || $aUamOptions['hide_page'] == 'true') {
+                if ($oConfig->hidePost() === true || $oConfig->hidePage() === true) {
                     $iTermRequest = $oTerm->term_id;
 
                     if ($oTerm->taxonomy == 'post_tag') {
@@ -1841,7 +1766,7 @@ class UserAccessManager
                         $oTerm->count = count($aTermPostMap[$iTermRequest]);
 
                         foreach ($aTermPostMap[$iTermRequest] as $iPostId => $sPostType) {
-                            if ($aUamOptions['hide_'.$sPostType] == 'true'
+                            if ($oConfig->hideObjectType($sPostType) === true
                                 && !$oUamAccessHandler->checkObjectAccess($sPostType, $iPostId)
                             ) {
                                 $oTerm->count--;
@@ -1856,13 +1781,13 @@ class UserAccessManager
 
                     //For categories
                     if ($oTerm->count <= 0
-                        && $aUamOptions['hide_empty_categories'] == 'true'
+                        && $oConfig->hideEmptyCategories() === true
                         && ($oTerm->taxonomy == 'term' || $oTerm->taxonomy == 'category')
                     ) {
                         $oTerm->isEmpty = true;
                     }
 
-                    if ($aUamOptions['lock_recursive'] == 'false') {
+                    if ($oConfig->lockRecursive() === false) {
                         $oCurrentTerm = $oTerm;
 
                         while ($oCurrentTerm->parent != 0) {
@@ -1943,9 +1868,9 @@ class UserAccessManager
     public function showNextPreviousPost($sSql)
     {
         $oUamAccessHandler = $this->getAccessHandler();
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         
-        if ($aUamOptions['hide_post'] == 'true') {
+        if ($oConfig->hidePost() === true) {
             $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
             
             if (count($aExcludedPosts) > 0) {
@@ -1970,9 +1895,9 @@ class UserAccessManager
         $sOutput = "";
         
         if (!$this->atAdminPanel()) {
-            $aUamOptions = $this->getAdminOptions();
+            $oConfig = $this->getConfig();
             
-            if ($aUamOptions['blog_admin_hint'] == 'true') {
+            if ($oConfig->blogAdminHint() === true) {
                 $oCurrentUser = $this->getCurrentUser();
                 $oUserData = $this->getUser($oCurrentUser->ID);
 
@@ -1985,7 +1910,7 @@ class UserAccessManager
                 if ($oUamAccessHandler->userIsAdmin($oCurrentUser->ID)
                     && count($oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId)) > 0
                 ) {
-                    $sOutput .= $aUamOptions['blog_admin_hint_text'];
+                    $sOutput .= $oConfig->getBlogAdminHintText();
                 }
             }
         }
@@ -2045,13 +1970,8 @@ class UserAccessManager
      */
     public function isPermalinksActive()
     {
-        $sPermalinkStructure = $this->getWpOption('permalink_structure');
-            
-        if (empty($sPermalinkStructure)) {
-            return false;
-        } else {
-            return true;
-        }
+        $sPermalinkStructure = $this->getConfig()->getWpOption('permalink_structure');
+        return !empty($sPermalinkStructure);
     }
     
     /**
@@ -2064,13 +1984,13 @@ class UserAccessManager
      */
     public function redirect($sHeaders, $oPageParams)
     {
-        $oUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
         
         if (isset($_GET['uamgetfile']) && isset($_GET['uamfiletype'])) {
             $sFileUrl = $_GET['uamgetfile'];
             $sFileType = $_GET['uamfiletype'];
             $this->getFile($sFileType, $sFileUrl);
-        } elseif (!$this->atAdminPanel() && $oUamOptions['redirect'] !== 'false') {
+        } elseif (!$this->atAdminPanel() && $oConfig->getRedirect() !== 'false') {
             $oObject = null;
 
             if (isset($oPageParams->query_vars['p'])) {
@@ -2171,15 +2091,16 @@ class UserAccessManager
         }
         
         if (!$blPostToShow) {
-            $aUamOptions = $this->getAdminOptions();
+            $oConfig = $this->getConfig();
             $sPermalink = null;
 
-            if ($aUamOptions['redirect'] == 'custom_page') {
-                $oPost = $this->getPost($aUamOptions['redirect_custom_page']);
+            if ($oConfig->getRedirect() === 'custom_page') {
+                $sRedirectCustomPage = $oConfig->getRedirectCustomPage();
+                $oPost = $this->getPost($sRedirectCustomPage);
                 $sUrl = $oPost->guid;
                 $sPermalink = get_page_link($oPost);
-            } elseif ($aUamOptions['redirect'] == 'custom_url') {
-                $sUrl = $aUamOptions['redirect_custom_url'];
+            } elseif ($oConfig->getRedirect() === 'custom_url') {
+                $sUrl = $oConfig->getRedirectCustomUrl();
             } else {
                 $sUrl = home_url('/');
             }
@@ -2252,9 +2173,9 @@ class UserAccessManager
             header('Content-Transfer-Encoding: binary');
             header('Content-Length: '.filesize($sFile));
 
-            $aUamOptions = $this->getAdminOptions();
+            $oConfig = $this->getConfig();
             
-            if ($aUamOptions['download_type'] == 'fopen'
+            if ($oConfig->getDownloadType() === 'fopen'
                 && !$oObject->isImage
             ) {
                 $oHandler = fopen($sFile, 'r');
@@ -2336,15 +2257,15 @@ class UserAccessManager
      */
     public function getFileUrl($sUrl, $iId)
     {
-        $aUamOptions = $this->getAdminOptions();
+        $oConfig = $this->getConfig();
             
-        if (!$this->isPermalinksActive() && $aUamOptions['lock_file'] == 'true') {
+        if (!$this->isPermalinksActive() && $oConfig->lockFile() === true) {
             $oPost = &$this->getPost($iId);
             $aType = explode("/", $oPost->post_mime_type);
             $sType = $aType[1];
-            $aFileTypes = explode(',', $aUamOptions['locked_file_types']);
+            $aFileTypes = explode(',', $oConfig->getLockedFileTypes());
             
-            if ($aUamOptions['lock_file_types'] == 'all' || in_array($sType, $aFileTypes)) {
+            if ($oConfig->getLockedFileTypes() === 'all' || in_array($sType, $aFileTypes)) {
                 $sUrl = home_url('/').'?uamfiletype=attachment&uamgetfile='.$sUrl;
             }
         }
