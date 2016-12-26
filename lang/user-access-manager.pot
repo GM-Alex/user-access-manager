@@ -13,28 +13,28 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: class/UserAccessManager.class.php:784 class/UserAccessManager.class.php:797
+#: class/UserAccessManager.php:784 class/UserAccessManager.php:797
 msgid "No rights!"
 msgstr ""
 
-#: class/UserAccessManager.class.php:785
+#: class/UserAccessManager.php:785
 msgid "Sorry you have no rights to view this post!"
 msgstr ""
 
-#: class/UserAccessManager.class.php:791 class/UserAccessManager.class.php:804
+#: class/UserAccessManager.php:791 class/UserAccessManager.php:804
 msgid "Sorry no rights to view comments!"
 msgstr ""
 
-#: class/UserAccessManager.class.php:798
+#: class/UserAccessManager.php:798
 msgid "Sorry you have no rights to view this page!"
 msgstr ""
 
-#: class/UserAccessManager.class.php:1111
-#: class/UserAccessManager.class.php:1316
+#: class/UserAccessManager.php:1111
+#: class/UserAccessManager.php:1316
 msgid "Access"
 msgstr ""
 
-#: class/UserAccessManager.class.php:1243
+#: class/UserAccessManager.php:1243
 msgid "uam user groups"
 msgstr ""
 

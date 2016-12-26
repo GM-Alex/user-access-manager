@@ -1,6 +1,6 @@
 <?php
 /**
- * UamUserGroup.class.php
+ * UamUserGroup.php
  * 
  * The UamUserGroup class file.
  * 

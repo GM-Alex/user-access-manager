@@ -374,8 +374,8 @@ msgstr "žádný"
 msgid "Full access"
 msgstr "Plný přístup"
 
-#: class/UserAccessManager.class.php:834
-#: class/UserAccessManager.class.php:1048
+#: class/UserAccessManager.php:834
+#: class/UserAccessManager.php:1048
 #@ default
 msgid "Access"
 msgstr "Přístup"
@@ -410,29 +410,29 @@ msgstr "všichni"
 msgid "only group users"
 msgstr "pouze uživatelé ze skupiny"
 
-#: class/UserAccessManager.class.php:516
-#: class/UserAccessManager.class.php:529
+#: class/UserAccessManager.php:516
+#: class/UserAccessManager.php:529
 #@ user-access-manager
 msgid "No rights!"
 msgstr "Bez oprávnění!"
 
-#: class/UserAccessManager.class.php:524
-#: class/UserAccessManager.class.php:537
+#: class/UserAccessManager.php:524
+#: class/UserAccessManager.php:537
 #@ user-access-manager
 msgid "Sorry no rights to view comments!"
 msgstr "Promiňte, nemáte právo na zobrazení komentářů!"
 
-#: class/UserAccessManager.class.php:531
+#: class/UserAccessManager.php:531
 #@ user-access-manager
 msgid "Sorry you have no rights to view this page!"
 msgstr "Promiňte, nemáte právo na prohlížení této stránky!"
 
-#: class/UserAccessManager.class.php:518
+#: class/UserAccessManager.php:518
 #@ user-access-manager
 msgid "Sorry you have no rights to view this post!"
 msgstr "Promiňte, nemáte právo na prohlížení tohoto příspěvku!"
 
-#: class/UserAccessManager.class.php:971
+#: class/UserAccessManager.php:971
 #@ default
 msgid "uam user groups"
 msgstr "UAM skupiny uživatelů"

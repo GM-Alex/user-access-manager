@@ -1,6 +1,6 @@
 <?php
 /**
- * UamAccessHandler.class.php
+ * UamAccessHandler.php
  * 
  * The UamUserGroup class file.
  * 
@@ -436,10 +436,10 @@ class UamAccessHandler
             ) {
                 $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
             } else {
-                $aCurIp = explode(".", $_SERVER['REMOTE_ADDR']);
+                $aCurIp = explode('.', $_SERVER['REMOTE_ADDR']);
 
                 foreach ($aMembership as $sKey => $oUserGroup) {
-                    if ($this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
+                    if ($sObjectType === UserAccessManager::USER_OBJECT_TYPE && $this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
                         || $oUserGroup->objectIsMember(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID)
                     ) {
                         $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
@@ -625,30 +625,27 @@ class UamAccessHandler
     /**
      * Checks if the given ip matches with the range.
      * 
-     * @param array $aCurIp    The ip of the current user.
+     * @param array $aCurrentIp    The ip of the current user.
      * @param array $aIpRanges The ip ranges.
      * 
      * @return boolean
      */
-    public function checkUserIp($aCurIp, $aIpRanges)
+    public function checkUserIp($aCurrentIp, $aIpRanges)
     {
         if (isset($aIpRanges)) {
-            foreach ($aIpRanges as $aIpRange) {
-                $aIpRange = explode("-", $aIpRange);
-                $aRangeBegin = explode(".", $aIpRange[0]);
-                
-                if (isset($aIpRange[1])) {
-                    $aRangeEnd = explode(".", $aIpRange[1]);
-                } else {
-                    $aRangeEnd = explode(".", $aIpRange[0]);
-                }
+            foreach ($aIpRanges as $sIpRange) {
+                $aIpRange = explode('-', $sIpRange);
+                $aRangeBegin = explode('.', $aIpRange[0]);
+                $aRangeEnd = isset($aIpRange[1]) ? explode('.', $aIpRange[1]) : explode('.', $aIpRange[0]);
 
-                $iCurIp = ($aCurIp[0] << 24) + ($aCurIp[1] << 16) + ($aCurIp[2] << 8) + $aCurIp[3];
-                $iRangeBegin = ($aRangeBegin[0] << 24) + ($aRangeBegin[1] << 16) + ($aRangeBegin[2] << 8) + $aRangeBegin[3];
-                $iRangeEnd = ($aRangeEnd[0] << 24) + ($aRangeEnd[1]  << 16) + ($aRangeEnd[2]   << 8) + $aRangeEnd[3];
+                if (count($aRangeBegin) === 4 && count($aRangeEnd) === 4) {
+                    $iCurIp = ($aCurrentIp[0] << 24) + ($aCurrentIp[1] << 16) + ($aCurrentIp[2] << 8) + $aCurrentIp[3];
+                    $iRangeBegin = ($aRangeBegin[0] << 24) + ($aRangeBegin[1] << 16) + ($aRangeBegin[2] << 8) + $aRangeBegin[3];
+                    $iRangeEnd = ($aRangeEnd[0] << 24) + ($aRangeEnd[1] << 16) + ($aRangeEnd[2] << 8) + $aRangeEnd[3];
 
-                if ($iRangeBegin <= $iCurIp && $iCurIp <= $iRangeEnd) {
-                    return true;
+                    if ($iRangeBegin <= $iCurIp && $iCurIp <= $iRangeEnd) {
+                        return true;
+                    }
                 }
             }
         }
