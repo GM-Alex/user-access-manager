@@ -339,7 +339,7 @@ if (isset($oUserAccessManager)) {
         add_filter('edit_post_link', array($oUserAccessManager, 'showGroupMembership'), 10, 2);
         add_filter('parse_query', array($oUserAccessManager, 'parseQuery'));
         add_filter('getarchives_where', array($oUserAccessManager, 'showPostSql'));
-        add_filter('wpseo_sitemap_entry', array($oUserAccessManager, 'wp_seo_url'), 1, 3); // Yaost Sitemap Plugin
+        add_filter('wpseo_sitemap_entry', array($oUserAccessManager, 'wpSeoUrl'), 1, 3); // Yaost Sitemap Plugin
     }
 }
 

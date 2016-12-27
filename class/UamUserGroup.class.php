@@ -55,17 +55,13 @@ class UamUserGroup
         $this->_oAccessHandler = $oUamAccessHandler;
 
         if ($iId !== null) {
-            /**
-             * @var wpdb $wpdb
-             */
-            global $wpdb;
-            
+            $oDatabase = $this->_oAccessHandler->getUserAccessManager()->getDatabase();
             $this->_iId = $iId;
             
-            $aDbUserGroup = $wpdb->get_row(
+            $aDbUserGroup = $oDatabase->get_row(
                 "SELECT *
                 FROM ".DB_ACCESSGROUP."
-                WHERE ID = ".$this->getId()."
+                WHERE ID = {$this->getId()}
                 LIMIT 1",
                 ARRAY_A
             );
@@ -112,14 +108,11 @@ class UamUserGroup
             return false;
         }
 
-        /**
-         * @var wpdb $wpdb
-         */
-        global $wpdb;
+        $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
         
-        $wpdb->query(
+        $oDatabase->query(
             "DELETE FROM " . DB_ACCESSGROUP . "
-            WHERE ID = $this->_iId LIMIT 1"
+            WHERE ID = {$this->_iId} LIMIT 1"
         );
         
         foreach ($this->getAllObjectTypes() as $sObjectType) {
@@ -136,13 +129,10 @@ class UamUserGroup
      */
     public function save($blRemoveOldAssignments = true)
     {
-        /**
-         * @var wpdb $wpdb
-         */
-        global $wpdb;
+        $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
         
         if ($this->_iId == null) {
-            $wpdb->query(
+            $oDatabase->query(
                 "INSERT INTO " . DB_ACCESSGROUP . " (
                     ID,
                     groupname,
@@ -161,9 +151,9 @@ class UamUserGroup
                 )"
             );
             
-            $this->_iId = $wpdb->insert_id;
+            $this->_iId = $oDatabase->insert_id;
         } else {
-            $wpdb->query(
+            $oDatabase->query(
                 "UPDATE " . DB_ACCESSGROUP . "
                 SET groupname = '" . $this->_sGroupName . "',
                     groupdesc = '" . $this->_sGroupDesc . "',
@@ -186,7 +176,7 @@ class UamUserGroup
 
             if (count($aKeys) > 0) {
                 $sSql = $this->_getSqlQuery($sObjectType, 'insert', $aKeys);
-                $wpdb->query($sSql);
+                $oDatabase->query($sSql);
             }
         }
     }
@@ -431,12 +421,12 @@ class UamUserGroup
         $iObjectId = $aArguments[0];
         
         if ($sPrefix == 'add') {
-            return $this->addObject(
+            $this->addObject(
                 $sObjectType, 
                 $iObjectId
             );
         } elseif ($sPrefix == 'remove') {
-            return $this->removeObject(
+            $this->removeObject(
                 $sObjectType, 
                 $iObjectId
             );
@@ -560,12 +550,9 @@ class UamUserGroup
         if ($aAssignedObjects !== null) {
             $this->_aAssignedObjects[$sObjectType] = $aAssignedObjects;
         } else {
-            /**
-             * @var wpdb $wpdb
-             */
-            global $wpdb;
+            $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
 
-            $aDbObjects = $wpdb->get_results(
+            $aDbObjects = $oDatabase->get_results(
                 $this->_getSqlQuery($sObjectType, 'select')
             );
 
@@ -629,13 +616,10 @@ class UamUserGroup
     protected function _deleteObjectsFromDb($sObjectType)
     {
         if (isset($this->_iId)) {
-            /**
-             * @var wpdb $wpdb
-             */
-            global $wpdb;
+            $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
 
             $sQuery = $this->_getSqlQuery($sObjectType, 'delete');
-            $wpdb->query($sQuery);
+            $oDatabase->query($sQuery);
         }
     }
     
@@ -788,12 +772,11 @@ class UamUserGroup
     {
         $aIsRecursiveMember = array();
         
-        global $wpdb;
+        $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
+        $oCurUserData = $this->getAccessHandler()->getUserAccessManager()->getUser($iObjectId);
         
-        $oCurUserData = get_userdata($iObjectId);
-        
-        if (isset($oCurUserData->{$wpdb->prefix . "capabilities"})) {
-            $aCapabilities = $oCurUserData->{$wpdb->prefix . "capabilities"};
+        if (isset($oCurUserData->{$oDatabase->prefix . "capabilities"})) {
+            $aCapabilities = $oCurUserData->{$oDatabase->prefix . "capabilities"};
         } else {
             $aCapabilities = array();
         }
@@ -826,14 +809,11 @@ class UamUserGroup
         $aFullUsers = $oUserAccessManager->getFromCache($sCacheKey);
 
         if ($aFullUsers === null) {
-            /**
-             * @var wpdb $wpdb
-             */
-            global $wpdb;
+            $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
 
-            $aDbUsers = $wpdb->get_results(
+            $aDbUsers = $oDatabase->get_results(
                 "SELECT ID, user_nicename
-                FROM ".$wpdb->users
+                FROM ".$oDatabase->users
             );
 
             $aFullUsers = array();
@@ -974,14 +954,11 @@ class UamUserGroup
             $aObjectsInCategory = $oUserAccessManager->getFromCache($sCacheKey);
 
             if ($aObjectsInCategory === null) {
-                /**
-                 * @var wpdb $wpdb
-                 */
-                global $wpdb;
+                $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
 
-                $aDbObjects = $wpdb->get_results(
+                $aDbObjects = $oDatabase->get_results(
                     "SELECT tr.object_id AS objectId, tr.term_taxonomy_id AS termId
-                    FROM ".$wpdb->term_relationships." AS tr"
+                    FROM ".$oDatabase->term_relationships." AS tr"
                 );
 
                 foreach ($aDbObjects as $oDbObject) {
