@@ -19,3 +19,4 @@ global $wpdb;
 
 define('DB_ACCESSGROUP', $wpdb->prefix . 'uam_accessgroups');
 define('DB_ACCESSGROUP_TO_OBJECT', $wpdb->prefix . 'uam_accessgroup_to_object');
+$wpdb->options;

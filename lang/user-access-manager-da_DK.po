@@ -17,30 +17,30 @@ msgstr ""
 "X-Poedit-Basepath: d:\\wordpress\\plugins\\user-access-manager\n"
 "X-Poedit-SearchPath-0: d:\\wordpress\\plugins\\user-access-manager\n"
 
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:516
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:529
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:516
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:529
 msgid "No rights!"
 msgstr "Ingen rettigheder!"
 
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:518
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:518
 msgid "Sorry you have no rights to view this post!"
 msgstr "Beklager, men du har ingen rettigheder til at se dette indlæg!"
 
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:524
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:537
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:524
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:537
 msgid "Sorry no rights to view comments!"
 msgstr "Beklager, men du har ingen rettigheder til at se kommentarer!"
 
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:531
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:531
 msgid "Sorry you have no rights to view this page!"
 msgstr "Beklager, men du har ingen rettigheder til at se denne side!"
 
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:834
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:1048
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:834
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:1048
 msgid "Access"
 msgstr "Adgang"
 
-#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.class.php:971
+#: d:\wordpress\plugins\user-access-manager/class/UserAccessManager.php:971
 msgid "uam user groups"
 msgstr "uam brugergrupper"
 

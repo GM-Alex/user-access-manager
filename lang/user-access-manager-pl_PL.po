@@ -19,30 +19,30 @@ msgstr ""
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-Basepath: ..\n"
 
-#: class/UserAccessManager.class.php:633
-#: class/UserAccessManager.class.php:646
+#: class/UserAccessManager.php:633
+#: class/UserAccessManager.php:646
 msgid "No rights!"
 msgstr "Brak uprawnień"
 
-#: class/UserAccessManager.class.php:635
+#: class/UserAccessManager.php:635
 msgid "Sorry you have no rights to view this post!"
 msgstr "Niestety nie ma praw, by zobaczyć ten wpis !"
 
-#: class/UserAccessManager.class.php:641
-#: class/UserAccessManager.class.php:654
+#: class/UserAccessManager.php:641
+#: class/UserAccessManager.php:654
 msgid "Sorry no rights to view comments!"
 msgstr "Niestety nie ma praw, by zobaczyć ten komentarz !"
 
-#: class/UserAccessManager.class.php:648
+#: class/UserAccessManager.php:648
 msgid "Sorry you have no rights to view this page!"
 msgstr "Niestety nie ma praw, by zobaczyć tą stronę !"
 
-#: class/UserAccessManager.class.php:956
-#: class/UserAccessManager.class.php:1170
+#: class/UserAccessManager.php:956
+#: class/UserAccessManager.php:1170
 msgid "Access"
 msgstr "Dostęp dla"
 
-#: class/UserAccessManager.class.php:1093
+#: class/UserAccessManager.php:1093
 msgid "uam user groups"
 msgstr "UAM Grupy użytkowników"
 

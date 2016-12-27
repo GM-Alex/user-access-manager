@@ -13,29 +13,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7.1\n"
 
-#: class/UserAccessManager.class.php:784 class/UserAccessManager.class.php:797
+#: class/UserAccessManager.php:784 class/UserAccessManager.php:797
 msgid "No rights!"
 msgstr "Keine Berechtigung!"
 
-#: class/UserAccessManager.class.php:785
+#: class/UserAccessManager.php:785
 msgid "Sorry you have no rights to view this post!"
 msgstr "Entschuldigung aber du hast nicht die Rechte um dieses Post zu sehen!"
 
-#: class/UserAccessManager.class.php:791 class/UserAccessManager.class.php:804
+#: class/UserAccessManager.php:791 class/UserAccessManager.php:804
 msgid "Sorry no rights to view comments!"
 msgstr ""
 "Entschuldigung aber du hast nicht die Rechte um diese Kommentare zu sehen!"
 
-#: class/UserAccessManager.class.php:798
+#: class/UserAccessManager.php:798
 msgid "Sorry you have no rights to view this page!"
 msgstr "Entschuldigung aber du hast nicht die Rechte um diese Seite zu sehen!"
 
-#: class/UserAccessManager.class.php:1111
-#: class/UserAccessManager.class.php:1316
+#: class/UserAccessManager.php:1111
+#: class/UserAccessManager.php:1316
 msgid "Access"
 msgstr "Zugriff"
 
-#: class/UserAccessManager.class.php:1243
+#: class/UserAccessManager.php:1243
 msgid "uam user groups"
 msgstr "uam Nutzergruppen"
 

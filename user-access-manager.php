@@ -80,9 +80,10 @@ if ($blStop) {
 
 
 //Classes
-require_once 'class/UserAccessManager.class.php';
-require_once 'class/UamUserGroup.class.php';
-require_once 'class/UamAccessHandler.class.php';
+require_once 'class/UamConfig.php';
+require_once 'class/UserAccessManager.php';
+require_once 'class/UamUserGroup.php';
+require_once 'class/UamAccessHandler.php';
 
 if (class_exists("UserAccessManager")) {
     $oUserAccessManager = new UserAccessManager();
@@ -218,7 +219,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
         
         $aUamOptions = $oUserAccessManager->getAdminOptions();
         
-        if (ini_get('safe_mode') 
+        if (ini_get('safe_mode')
             && $aUamOptions['download_type'] == 'fopen'
         ) {
             add_action(

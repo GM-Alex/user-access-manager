@@ -1,6 +1,6 @@
 <?php
 /**
- * UserAccessManager.class.php
+ * UserAccessManager.php
  *
  * The UserAccessManager class file.
  *
@@ -301,33 +301,30 @@ class UserAccessManager
     
     /**
      * Checks if a database update is necessary.
-     * 
+     *
      * @return boolean
      */
     public function isDatabaseUpdateNecessary()
     {
         $oDatabase = $this->getDatabase();
-        $sBlogIds = $this->_getBlogIds();
- 
-        if ($sBlogIds !== array()
+        $aBlogIds = $this->_getBlogIds();
+
+        if ($aBlogIds !== array()
             && is_super_admin()
         ) {
-            $iCurrentBlogId = $oDatabase->blogid;
-            
-            foreach ($sBlogIds as $iBlogId) {
-                switch_to_blog($iBlogId);
-                $sCurrentDbVersion = $this->getWpOption("uam_db_version");
-                
+            foreach ($aBlogIds as $iBlogId) {
+                $sTable = $oDatabase->get_blog_prefix($iBlogId).'options';
+                $sSelect = "SELECT option_value FROM {$sTable} WHERE option_name = %s LIMIT 1";
+                $sSelect = $oDatabase->prepare($sSelect, 'uam_db_version');
+                $sCurrentDbVersion = $oDatabase->get_var($sSelect);
+
                 if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<')) {
-                    switch_to_blog($iCurrentBlogId);
                     return true;
                 }
             }
-            
-            switch_to_blog($iCurrentBlogId);
         }
-        
-        $sCurrentDbVersion = $this->getWpOption("uam_db_version");
+
+        $sCurrentDbVersion = $this->getWpOption('uam_db_version');
         return version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<');
     }
     
@@ -1110,7 +1107,7 @@ class UserAccessManager
      * @param array   $aUserGroups The new usergroups for the object.
      */
     protected function _saveObjectData($sObjectType, $iObjectId, $aUserGroups = null)
-    {        
+    {
         $oUamAccessHandler = $this->getAccessHandler();
         $oUamOptions = $this->getAdminOptions();
         $aFormData = array();
@@ -1816,7 +1813,7 @@ class UserAccessManager
      */
     protected function _processTerm($oTerm)
     {
-        if ($this->atAdminPanel() === true) {
+        if ($oTerm === null || $this->atAdminPanel() === true) {
             return $oTerm;
         }
 
@@ -1927,7 +1924,7 @@ class UserAccessManager
         }
         
         foreach ($aTerms as $sKey => $mTerm) {
-            if (!isset($aShowTerms[$mTerm->term_id])) {
+            if ($mTerm === null || is_object($mTerm) && !isset($aShowTerms[$mTerm->term_id])) {
                 unset($aTerms[$sKey]);
             }
         }
@@ -1952,8 +1949,8 @@ class UserAccessManager
             $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
             
             if (count($aExcludedPosts) > 0) {
-                $sExcludedPosts = implode(",", $aExcludedPosts);
-                $sSql.= " AND p.ID NOT IN($sExcludedPosts) ";
+                $sExcludedPosts = implode(',', $aExcludedPosts);
+                $sSql.= " AND p.ID NOT IN({$sExcludedPosts}) ";
             }
         }
         
