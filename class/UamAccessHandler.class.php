@@ -26,25 +26,27 @@
  */
 class UamAccessHandler
 {
+    const OBJECTS_FILTERED = 'filtered';
+    const OBJECTS_NONE_FILTERED = 'noneFiltered';
+
     protected $_oUserAccessManager = null;
     protected $_aObjectUserGroups = array();
     protected $_aObjectAccess = array();
     protected $_aUserGroups = array(
-        'filtered' => array(),
-        'noneFiltered' => array(),
+        self::OBJECTS_FILTERED => array(),
+        self::OBJECTS_NONE_FILTERED => array(),
     );
     protected $_aPlObjects = array();
     protected $_aObjectTypes = array(
-        'category',
-        'user',
-        'role',
+        UserAccessManager::TERM_OBJECT_TYPE => UserAccessManager::TERM_OBJECT_TYPE,
+        UserAccessManager::USER_OBJECT_TYPE => UserAccessManager::USER_OBJECT_TYPE,
+        UserAccessManager::ROLE_OBJECT_TYPE => UserAccessManager::ROLE_OBJECT_TYPE
     );
     protected $_aPostableTypes = array(
-        'post',
-        'page',
-        'attachment',
+        UserAccessManager::POST_OBJECT_TYPE => UserAccessManager::POST_OBJECT_TYPE,
+        UserAccessManager::PAGE_OBJECT_TYPE => UserAccessManager::PAGE_OBJECT_TYPE,
+        UserAccessManager::ATTACHMENT_OBJECT_TYPE => UserAccessManager::ATTACHMENT_OBJECT_TYPE
     );
-    protected $_aPostableTypesMap = array();
     protected $_aAllObjectTypes = null;
     protected $_aAllObjectTypesMap = null;
     protected $_aSqlResults = array();
@@ -58,10 +60,8 @@ class UamAccessHandler
     public function __construct(UserAccessManager &$oUserAccessManager)
     {
         $this->_oUserAccessManager = $oUserAccessManager;
-        $this->_aPostableTypes = array_merge($this->_aPostableTypes, get_post_types(array('publicly_queryable' => true), 'names'));
-        $this->_aPostableTypes = array_unique($this->_aPostableTypes);
-        $this->_aPostableTypesMap = array_flip($this->_aPostableTypes);
-        $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes);
+        $this->_aPostableTypes = array_merge($this->_aPostableTypes, $oUserAccessManager->getPostTypes());
+        $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes, $oUserAccessManager->getTaxonomies());
         add_action('registered_post_type', array( &$this, 'registeredPostType'), 10, 2);
     }
 
@@ -69,16 +69,15 @@ class UamAccessHandler
      * used for adding custom post types using the registered_post_type hook
      * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
      *
-     * @param string    $post_type The string for the new post_type
+     * @param string    $sPostType The string for the new post_type
      * @param stdClass  $oArgs     The array of arguments used to create the post_type
      *
      */
-    public function registeredPostType($post_type, $oArgs)
+    public function registeredPostType($sPostType, $oArgs)
     {
         if ($oArgs->publicly_queryable) {
-            $this->_aPostableTypes[] = $oArgs->name;
+            $this->_aPostableTypes[$oArgs->name] = $oArgs->name;
             $this->_aPostableTypes = array_unique($this->_aPostableTypes);
-            $this->_aPostableTypesMap = array_flip($this->_aPostableTypes);
             $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes);
             $this->_aAllObjectTypes = null;
             $this->_aAllObjectTypesMap = null;
@@ -95,7 +94,7 @@ class UamAccessHandler
      */
     public function isPostableType($sType)
     {
-        return isset($this->_aPostableTypesMap[$sType]);
+        return isset($this->_aPostableTypes[$sType]);
     }
     
     /**
@@ -212,7 +211,7 @@ class UamAccessHandler
             && $this->getUserAccessManager()->atAdminPanel()
         ) {
             $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
-            $aUserGroupsForUser = $this->getUserGroupsForObject('user', $oCurrentUser->ID);
+            $aUserGroupsForUser = $this->getUserGroupsForObject(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID);
             
             foreach ($aUserGroups as $sKey => $oUamUserGroup) {
                 if (!isset($aUserGroupsForUser[$oUamUserGroup->getId()])) {
@@ -256,7 +255,7 @@ class UamAccessHandler
      */
     public function getUserGroups($iUserGroupId = null, $blFilter = true)
     {
-        $sFilterAttr = ($blFilter === true) ? 'filtered' :  'noneFiltered';
+        $sFilterAttr = ($blFilter === true) ? self::OBJECTS_FILTERED :  self::OBJECTS_NONE_FILTERED;
 
         if ($iUserGroupId === null
             && $this->_aUserGroups[$sFilterAttr] != array()
@@ -316,8 +315,8 @@ class UamAccessHandler
     public function addUserGroup($oUserGroup)
     {
         $this->getUserGroups();
-        $this->_aUserGroups['noneFiltered'][$oUserGroup->getId()] = $oUserGroup;
-        $this->_aUserGroups['filtered'] = array();
+        $this->_aUserGroups[self::OBJECTS_NONE_FILTERED][$oUserGroup->getId()] = $oUserGroup;
+        $this->_aUserGroups[self::OBJECTS_FILTERED] = array();
     }
     
     /**
@@ -329,8 +328,8 @@ class UamAccessHandler
     {
         if ($this->getUserGroups($iUserGroupId) != null) {
             $this->getUserGroups($iUserGroupId)->delete();
-            unset($this->_aUserGroups['noneFiltered'][$iUserGroupId]);
-            $this->_aUserGroups['filtered'] = array();
+            unset($this->_aUserGroups[self::OBJECTS_NONE_FILTERED][$iUserGroupId]);
+            $this->_aUserGroups[self::OBJECTS_FILTERED] = array();
         }
     }
     
@@ -349,7 +348,7 @@ class UamAccessHandler
             return array();
         }
 
-        $sFilterAttr = ($blFilter && $sObjectType !== 'user') ? 'filtered' : 'noneFiltered';
+        $sFilterAttr = ($blFilter && $sObjectType !== UserAccessManager::USER_OBJECT_TYPE) ? self::OBJECTS_FILTERED : self::OBJECTS_NONE_FILTERED;
 
         if (!isset($this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId])) {
             $sCacheKey = 'getUserGroupsForObject|' . $sObjectType . '|' . $sFilterAttr . '|' . $iObjectId;
@@ -369,7 +368,7 @@ class UamAccessHandler
                         $mObjectMembership = $oUserGroup->objectIsMember($sObjectType, $iObjectId, true);
 
                         if ($mObjectMembership !== false
-                            || $sObjectType == 'user' && $this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
+                            || $sObjectType === UserAccessManager::USER_OBJECT_TYPE && $this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
                         ) {
                             if (is_array($mObjectMembership)) {
                                 $oUserGroup->setRecursiveMembership($sObjectType, $iObjectId, $mObjectMembership);
@@ -441,7 +440,7 @@ class UamAccessHandler
 
                 foreach ($aMembership as $sKey => $oUserGroup) {
                     if ($this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
-                        || $oUserGroup->objectIsMember('user', $oCurrentUser->ID)
+                        || $oUserGroup->objectIsMember(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID)
                     ) {
                         $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
                         break;
@@ -475,7 +474,7 @@ class UamAccessHandler
     {
         if (!isset($this->_aSqlResults['groupsForUser'])) {
             $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
-            $aUserUserGroups = $this->getUserGroupsForObject('user', $oCurrentUser->ID, false);
+            $aUserUserGroups = $this->getUserGroupsForObject(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID, false);
             $aUserUserGroupIds = array();
 
             foreach ($aUserUserGroups as $oUserUserGroup) {
@@ -499,22 +498,24 @@ class UamAccessHandler
      * 
      * @return array
      */
-    public function getCategoriesForUser()
+    public function getTermsForUser()
     {
         $oDatabase = $this->getUserAccessManager()->getDatabase();
         
-        if (!isset($this->_aSqlResults['categoriesAssignedToUser'])) {
+        if (!isset($this->_aSqlResults['termsAssignedToUser'])) {
             $sUserUserGroups = $this->_getUserGroupsForUserAsSqlString();
+            $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
 
-            $sCategoriesAssignedToUserSql = "
+            $sTermsAssignedToUserSql = "
                 SELECT igc.object_id
                 FROM " . DB_ACCESSGROUP_TO_OBJECT . " AS igc
-                WHERE igc.object_type = 'category'
+                WHERE igc.object_type = '{$sTermType}'
                 AND igc.group_id IN ({$sUserUserGroups})";
 
-            $this->_aSqlResults['categoriesAssignedToUser'] = $oDatabase->get_col($sCategoriesAssignedToUserSql);
+            $this->_aSqlResults['termsAssignedToUser'] = $oDatabase->get_col($sTermsAssignedToUserSql);
         }
-        return $this->_aSqlResults['categoriesAssignedToUser'];
+
+        return $this->_aSqlResults['termsAssignedToUser'];
     }
     
     /**
@@ -561,7 +562,7 @@ class UamAccessHandler
                 $sAccessType = "read";
             }
 
-            $aCategoriesAssignedToUser = $this->getCategoriesForUser();
+            $aCategoriesAssignedToUser = $this->getTermsForUser();
 
             if ($aCategoriesAssignedToUser !== array()) {
                 $sCategoriesAssignedToUser = implode(', ', $aCategoriesAssignedToUser);
@@ -577,6 +578,9 @@ class UamAccessHandler
                 $sPostAssignedToUser = "''";
             }
 
+            $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
+            $sPostType = UserAccessManager::POST_OBJECT_TYPE;
+
             $sPostSql = "SELECT DISTINCT p.ID
                 FROM {$oDatabase->posts} AS p
                 INNER JOIN {$oDatabase->term_relationships} AS tr
@@ -589,7 +593,7 @@ class UamAccessHandler
                   FROM " . DB_ACCESSGROUP . " iag
                   INNER JOIN " . DB_ACCESSGROUP_TO_OBJECT . " AS gc
                     ON iag.id = gc.group_id
-                  WHERE gc.object_type = 'category'
+                  WHERE gc.object_type = '{$sTermType}'
                   AND iag.{$sAccessType}_access != 'all'
                   AND gc.object_id  NOT IN ({$sCategoriesAssignedToUser})
                 ) AND p.ID NOT IN ({$sPostAssignedToUser})
@@ -602,7 +606,7 @@ class UamAccessHandler
                   ON gp.object_id  = tr.object_id
                 INNER JOIN {$oDatabase->term_taxonomy} tt
                   ON tr.term_taxonomy_id = tt.term_taxonomy_id
-                WHERE gp.object_type = 'post'
+                WHERE gp.object_type = '{$sPostType}'
                 AND ag.{$sAccessType}_access != 'all'
                 AND gp.object_id  NOT IN ({$sPostAssignedToUser})
                 AND tt.term_id NOT IN ({$sCategoriesAssignedToUser})";

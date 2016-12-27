@@ -18,7 +18,7 @@
 global $oUserAccessManager, $wpdb;
 $aUamUserGroups = $oUserAccessManager->getAccessHandler()->getUserGroups();
     
-$sObjectType = 'user';
+$sObjectType = UserAccessManager::USER_OBJECT_TYPE;
 
 if (isset($_GET['user_id'])) {
     $iObjectId = $_GET['user_id'];

@@ -46,11 +46,11 @@ function insertUpdateGroup($iUserGroupId)
         $aRoles = null;
     }
 
-    $oUamUserGroup->unsetObjects('role', true);
+    $oUamUserGroup->unsetObjects(UserAccessManager::ROLE_OBJECT_TYPE, true);
     
     if ($aRoles && is_array($aRoles)) {
         foreach ($aRoles as $sRole) {
-            $oUamUserGroup->addObject('role', htmlentities($sRole));
+            $oUamUserGroup->addObject(UserAccessManager::ROLE_OBJECT_TYPE, htmlentities($sRole));
         }
     }
 
@@ -190,11 +190,11 @@ function getPrintEditGroup($sGroupId = null)
     global $wp_roles;
     
     if (isset($sGroupId)) {
-        $aGroupRoles = $oUamUserGroup->getObjectsFromType('role');
+        $aGroupRoles = $oUamUserGroup->getObjectsFromType(UserAccessManager::ROLE_OBJECT_TYPE);
     }
     
     foreach ($wp_roles->role_names as $role => $name) {
-        if ($role != "administrator") {
+        if ($role != 'administrator') {
             ?>
                             <li class="selectit">
                                 <input id="role-<?php echo $role; ?>" type="checkbox"
@@ -370,11 +370,11 @@ if (!$editGroup) {
                     </td>
                                         <td>
             <?php
-            if ($oUamUserGroup->getObjectsFromType('role')) {
+            if ($oUamUserGroup->getObjectsFromType(UserAccessManager::ROLE_OBJECT_TYPE)) {
                 ?>
                         <ul>
                 <?php
-                foreach ($oUamUserGroup->getObjectsFromType('role') as $sKey => $sRole) {
+                foreach ($oUamUserGroup->getObjectsFromType(UserAccessManager::ROLE_OBJECT_TYPE) as $sKey => $sRole) {
                     ?>
                             <li>
                     <?php
