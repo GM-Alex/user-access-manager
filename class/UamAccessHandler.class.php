@@ -323,8 +323,6 @@ class UamAccessHandler
      * Adds a user group.
      * 
      * @param UamUserGroup $oUserGroup The user group which we want to add.
-     * 
-     * @return null
      */
     public function addUserGroup($oUserGroup)
     {
@@ -337,8 +335,6 @@ class UamAccessHandler
      * Deletes a user group.
      * 
      * @param integer $iUserGroupId The user group _iId which we want to delete.
-     * 
-     * @return null
      */
     public function deleteUserGroup($iUserGroupId)
     {
@@ -420,8 +416,6 @@ class UamAccessHandler
     
     /**
      * Unset the user groups for _aObjects.
-     * 
-     * @return null
      */
     public function unsetUserGroupsForObject()
     {
@@ -698,7 +692,7 @@ class UamAccessHandler
     /**
      * Return the role of the user.
      * 
-     * @param integer $iUserId The user _iId.
+     * @param integer $iUserId The user id.
      * 
      * @return array
      */
@@ -728,7 +722,7 @@ class UamAccessHandler
     /**
      * Checks if the user is an admin user
      * 
-     * @param integer $iUserId The user _iId.
+     * @param integer $iUserId The user id.
      * 
      * @return boolean
      */
@@ -800,7 +794,7 @@ class UamAccessHandler
     }
     
     /**
-     * Registers object that should be handelt by the user access manager.
+     * Registers object that should be handel by the user access manager.
      * 
      * @param array $oObject The object which you want to register.
      * 

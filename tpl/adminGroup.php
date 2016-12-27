@@ -19,8 +19,6 @@
  * Inserts or update a user group.
  * 
  * @param integer $iUserGroupId The _iId of the user group.
- * 
- * @return null
  */
 function insertUpdateGroup($iUserGroupId)
 {
@@ -64,9 +62,7 @@ function insertUpdateGroup($iUserGroupId)
 /**
  * Prints the group form.
  * 
- * @param integer $sGroupId The given group _iId.
- * 
- * @return null
+ * @param integer $sGroupId The given group id.
  */
 function getPrintEditGroup($sGroupId = null)
 {
