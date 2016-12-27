@@ -204,9 +204,9 @@ class UamAccessHandler
      */
     protected function _filterUserGroups($aUserGroups)
     {
-        $aUamOptions = $this->getUserAccessManager()->getAdminOptions();
+        $oConfig = $this->getUserAccessManager()->getConfig();
         
-        if ($aUamOptions['authors_can_add_posts_to_groups'] == 'true'
+        if ($oConfig->authorsCanAddPostsToGroups() === true
             && !$this->checkUserAccess('manage_user_groups')
             && $this->getUserAccessManager()->atAdminPanel()
         ) {
@@ -426,13 +426,13 @@ class UamAccessHandler
                 $sAuthorId = -1;
             }
 
-            $aUamOptions = $this->getUserAccessManager()->getAdminOptions();
+            $oConfig = $this->getUserAccessManager()->getConfig();
             $aMembership = $this->getUserGroupsForObject($sObjectType, $iObjectId, false);
 
             if ($aMembership == array()
                 || $this->checkUserAccess('manage_user_groups')
                 || $oCurrentUser->ID == $sAuthorId
-                && $aUamOptions['authors_has_access_to_own'] == 'true'
+                && $oConfig->authorsHasAccessToOwn() === true
             ) {
                 $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
             } else {
@@ -708,7 +708,7 @@ class UamAccessHandler
     public function checkUserAccess($sAllowedCapability = false)
     {
         $oCurrentUser = $this->getUserAccessManager()->getCurrentUser();
-        $aUamOptions = $this->getUserAccessManager()->getAdminOptions();
+        $oConfig = $this->getUserAccessManager()->getConfig();
         
         $aRoles = $this->_getUserRole($oCurrentUser->ID);
         $aRolesMap = array_keys($aRoles);
@@ -723,7 +723,9 @@ class UamAccessHandler
             }
         }
 
-        if ($iRightsLevel >= $aOrderedRoles[$aUamOptions['full_access_role']]
+        $sFullAccessRole = $oConfig->getFullAccessRole();
+
+        if ($iRightsLevel >= $aOrderedRoles[$sFullAccessRole]
             || isset($aRolesMap['administrator'])
             || is_super_admin($oCurrentUser->ID)
             || ($sAllowedCapability && $oCurrentUser->has_cap($sAllowedCapability))

@@ -15,7 +15,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 global $oUserAccessManager;
-$aUamOptions = $oUserAccessManager->getAdminOptions();
+$aUamOptions = $oUserAccessManager->getConfig()->getAdminOptions();
 
 if (isset($_POST['update_uam_settings'])) {
     if (empty($_POST) 
@@ -30,7 +30,7 @@ if (isset($_POST['update_uam_settings'])) {
         }
     }
     
-    update_option($oUserAccessManager->getAdminOptionsName(), $aUamOptions);
+    update_option(UamConfig::ADMIN_OPTIONS_NAME, $aUamOptions);
     $aUamOptions = array_map('htmlentities', $aUamOptions);
     
     if ($_POST['uam_lock_file'] == 'false') {

@@ -23,12 +23,7 @@
 //Paths
 load_plugin_textdomain('user-access-manager', false, 'user-access-manager/lang');
 define('UAM_URLPATH', plugins_url('', __FILE__).'/');
-
-if (defined('UAM_LOCAL_DEBUG')) {
-    define('UAM_REALPATH', plugin_basename(dirname(__FILE__)).'/'); //ONLY FOR MY LOCAL DEBUG
-} else {
-    define('UAM_REALPATH', WP_PLUGIN_DIR.'/'.plugin_basename(dirname(__FILE__)).'/');
-}
+define('UAM_REALPATH', WP_PLUGIN_DIR.'/'.plugin_basename(dirname(__FILE__)).'/');
 
 
 //Defines
@@ -107,7 +102,7 @@ if (!function_exists("userAccessManagerAP")) {
         }
 
         $oUserAccessManager->setAtAdminPanel();
-        $aUamOptions = $oUserAccessManager->getAdminOptions();
+        $oConfig = $oUserAccessManager->getConfig();
 
         if ($oUserAccessManager->isDatabaseUpdateNecessary()) {
             $sLink = 'admin.php?page=uam_setup';
@@ -133,7 +128,7 @@ if (!function_exists("userAccessManagerAP")) {
         }
 
         if ($oUamAccessHandler->checkUserAccess()
-            || $aUamOptions['authors_can_add_posts_to_groups'] == 'true'
+            || $oConfig->authorsCanAddPostsToGroups() === true
         ) {
             //Admin actions
            if (function_exists('add_action')) {
@@ -181,7 +176,7 @@ if (!function_exists("userAccessManagerAP")) {
                 }
             }
 
-            if ($aUamOptions['lock_file'] == 'true') {
+            if ($oConfig->lockFile() === true) {
                 add_action('media_meta', array($oUserAccessManager, 'showMediaFile'), 10, 2);
                 add_filter('manage_media_columns', array($oUserAccessManager, 'addPostColumnsHeader'));
             }
@@ -217,10 +212,10 @@ if (!function_exists("userAccessManagerAPMenu")) {
             return;
         }
         
-        $aUamOptions = $oUserAccessManager->getAdminOptions();
+        $oConfig = $oUserAccessManager->getConfig();
         
         if (ini_get('safe_mode')
-            && $aUamOptions['download_type'] == 'fopen'
+            && $oConfig->getDownloadType() === 'fopen'
         ) {
             add_action(
                 'admin_notices',
@@ -264,7 +259,7 @@ if (!function_exists("userAccessManagerAPMenu")) {
         }
         
         if ($oUamAccessHandler->checkUserAccess()
-            || $aUamOptions['authors_can_add_posts_to_groups'] == 'true'
+            || $oConfig->authorsCanAddPostsToGroups() === true
         ) {
             //Admin meta boxes
             if (function_exists('add_meta_box')) {
@@ -305,9 +300,9 @@ if (isset($oUserAccessManager)) {
     }
     
     //Redirect
-    $aUamOptions = $oUserAccessManager->getAdminOptions();
+    $oConfig = $oUserAccessManager->getConfig();
     
-    if ($aUamOptions['redirect'] != 'false' || isset($_GET['uamgetfile'])) {
+    if ($oConfig->getRedirect() !== 'false' || isset($_GET['uamgetfile'])) {
         add_filter('wp_headers', array($oUserAccessManager, 'redirect'), 10, 2);
     }
 

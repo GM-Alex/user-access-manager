@@ -864,9 +864,9 @@ class UamUserGroup
         $aIsRecursiveMember = array();
         
         $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $aUamOptions = $oUserAccessManager->getAdminOptions();
+        $oConfig = $oUserAccessManager->getConfig();
 
-        if ($aUamOptions['lock_recursive'] == 'true'
+        if ($oConfig->lockRecursive() === true
             && isset($oTerm->parent)
             && !is_null($oTerm->parent)
         ) {
@@ -896,11 +896,11 @@ class UamUserGroup
     public function getFullTerms($aTerms)
     {
         $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $aUamOptions = $oUserAccessManager->getAdminOptions();
+        $oConfig = $oUserAccessManager->getConfig();
 
         foreach ($aTerms as $oTerm) {
             if ($oTerm !== null) {
-                if ($aUamOptions['lock_recursive'] == 'true') {
+                if ($oConfig->lockRecursive() === true) {
                     $iPriority = has_filter('get_terms', array($this, 'showTerms'));
 
                     //We have to remove the filter to get all categories
@@ -993,7 +993,7 @@ class UamUserGroup
     {
         $aIsRecursiveMember = array();
         $oPost = $this->getAccessHandler()->getUserAccessManager()->getPost($iObjectId);
-        $aUamOptions = $this->getAccessHandler()->getUserAccessManager()->getAdminOptions();
+        $oConfig = $this->getAccessHandler()->getUserAccessManager()->getConfig();
         $aTerms = $this->getObjectsFromType(UserAccessManager::TERM_OBJECT_TYPE, self::OBJECTS_FULL);
 
         foreach ($aTerms as $oTerm) {
@@ -1007,16 +1007,16 @@ class UamUserGroup
         
         if ($oPost->post_parent == 0
             && $oPost->post_type === UserAccessManager::POST_OBJECT_TYPE
-            && $this->getAccessHandler()->getUserAccessManager()->getWpOption('show_on_front') == UserAccessManager::PAGE_OBJECT_TYPE
-            && $this->getAccessHandler()->getUserAccessManager()->getWpOption('page_for_posts') != $iObjectId
+            && $oConfig->getWpOption('show_on_front') == UserAccessManager::PAGE_OBJECT_TYPE
+            && $oConfig->getWpOption('page_for_posts') != $iObjectId
         ) {
-            $iParentId = $this->getAccessHandler()->getUserAccessManager()->getWpOption('page_for_posts');
+            $iParentId = $oConfig->getWpOption('page_for_posts');
         } else {
             $iParentId = $oPost->post_parent;
         }
 
         if ($iParentId != 0
-            && $aUamOptions['lock_recursive'] == 'true'
+            && $oConfig->lockRecursive() === true
         ) {
             $oParent = $this->getAccessHandler()->getUserAccessManager()->getPost($iParentId);
             
