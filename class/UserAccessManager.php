@@ -35,9 +35,8 @@ class UserAccessManager
 
     protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
-    protected $_sAdminOptionsName = "uamAdminOptions";
-    protected $_sUamVersion = "1.2.7.5";
-    protected $_sUamDbVersion = "1.4";
+    protected $_sUamVersion = '1.2.7.6';
+    protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
     protected $_aMimeTypes = null;
@@ -46,7 +45,6 @@ class UserAccessManager
     protected $_aPosts = array();
     protected $_aTerms = array();
     protected $_aWpOptions = array();
-    protected $_aProcessedTerms = array();
     protected $_aTermPostMap = array();
     protected $_aPostTypes = null;
     protected $_aTaxonomies = null;
@@ -496,7 +494,7 @@ class UserAccessManager
                 ".DB_ACCESSGROUP_TO_OBJECT
         );
         
-        delete_option($this->_sAdminOptionsName);
+        delete_option(UamConfig::ADMIN_OPTIONS_NAME);
         delete_option('uam_version');
         delete_option('uam_db_version');
         $this->deleteFileProtectionFiles();
@@ -1728,7 +1726,7 @@ class UserAccessManager
 
         return $this->_aTermPostMap;
     }
-    
+
     /**
      * Modifies the content of the term by the given settings.
      *
@@ -1738,76 +1736,94 @@ class UserAccessManager
      */
     protected function _processTerm($oTerm)
     {
-        if ($oTerm === null || $this->atAdminPanel() === true) {
+        if (is_object($oTerm) === false || $this->atAdminPanel() === true) {
             return $oTerm;
         }
 
-        $sKey = $oTerm->taxonomy.'|'.$oTerm->term_id;
+        $oTerm->name .= $this->adminOutput(self::TERM_OBJECT_TYPE, $oTerm->term_id);
+        $oConfig = $this->getConfig();
+        $oUamAccessHandler = $this->getAccessHandler();
 
-        if (!isset($this->_aProcessedTerms[$sKey])) {
-            $this->_aProcessedTerms[$sKey] = $oTerm;
-            $oTerm->name .= $this->adminOutput(self::TERM_OBJECT_TYPE, $oTerm->term_id);
-            $oConfig = $this->getConfig();
-            $oUamAccessHandler = $this->getAccessHandler();
+        $oTerm->isEmpty = false;
 
-            $oTerm->isEmpty = false;
+        if ($oUamAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $oTerm->term_id)) {
+            if ($oConfig->hidePost() === true || $oConfig->hidePage() === true) {
+                $iTermRequest = $oTerm->term_id;
 
-            if ($oUamAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $oTerm->term_id)) {
-                if ($oConfig->hidePost() === true || $oConfig->hidePage() === true) {
-                    $iTermRequest = $oTerm->term_id;
+                if ($oTerm->taxonomy == 'post_tag') {
+                    $iTermRequest = $oTerm->slug;
+                }
 
-                    if ($oTerm->taxonomy == 'post_tag') {
-                        $iTermRequest = $oTerm->slug;
-                    }
+                $aTermPostMap = $this->getTermPostMap();
 
-                    $aTermPostMap = $this->getTermPostMap();
+                if (isset($aTermPostMap[$iTermRequest])) {
+                    $oTerm->count = count($aTermPostMap[$iTermRequest]);
 
-                    if (isset($aTermPostMap[$iTermRequest])) {
-                        $oTerm->count = count($aTermPostMap[$iTermRequest]);
-
-                        foreach ($aTermPostMap[$iTermRequest] as $iPostId => $sPostType) {
-                            if ($oConfig->hideObjectType($sPostType) === true
-                                && !$oUamAccessHandler->checkObjectAccess($sPostType, $iPostId)
-                            ) {
-                                $oTerm->count--;
-                            }
-                        }
-                    }
-
-                    //For post_tags
-                    if ($oTerm->taxonomy == 'post_tag' && $oTerm->count <= 0) {
-                        return null;
-                    }
-
-                    //For categories
-                    if ($oTerm->count <= 0
-                        && $oConfig->hideEmptyCategories() === true
-                        && ($oTerm->taxonomy == 'term' || $oTerm->taxonomy == 'category')
-                    ) {
-                        $oTerm->isEmpty = true;
-                    }
-
-                    if ($oConfig->lockRecursive() === false) {
-                        $oCurrentTerm = $oTerm;
-
-                        while ($oCurrentTerm->parent != 0) {
-                            $oCurrentTerm = $this->getTerm($oCurrentTerm->parent);
-
-                            if ($oUamAccessHandler->checkObjectAccess(UserAccessManager::TERM_OBJECT_TYPE, $oCurrentTerm->term_id)) {
-                                $oTerm->parent = $oCurrentTerm->term_id;
-                                break;
-                            }
+                    foreach ($aTermPostMap[$iTermRequest] as $iPostId => $sPostType) {
+                        if ($oConfig->hideObjectType($sPostType) === true
+                            && !$oUamAccessHandler->checkObjectAccess($sPostType, $iPostId)
+                        ) {
+                            $oTerm->count--;
                         }
                     }
                 }
 
-                $this->_aProcessedTerms[$sKey] = $oTerm;
-            } else {
-                $this->_aProcessedTerms[$sKey] = false;
+                //For post_tags
+                if ($oTerm->taxonomy == 'post_tag' && $oTerm->count <= 0) {
+                    return null;
+                }
+
+                //For categories
+                if ($oTerm->count <= 0
+                    && $oConfig->hideEmptyCategories() === true
+                    && ($oTerm->taxonomy == 'term' || $oTerm->taxonomy == 'category')
+                ) {
+                    $oTerm->isEmpty = true;
+                }
+
+                if ($oConfig->lockRecursive() === false) {
+                    $oCurrentTerm = $oTerm;
+
+                    while ($oCurrentTerm->parent != 0) {
+                        $oCurrentTerm = $this->getTerm($oCurrentTerm->parent);
+
+                        if ($oUamAccessHandler->checkObjectAccess(UserAccessManager::TERM_OBJECT_TYPE, $oCurrentTerm->term_id)) {
+                            $oTerm->parent = $oCurrentTerm->term_id;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return $oTerm;
+        }
+
+        return null;
+    }
+
+    /**
+     * The function for the get_ancestors filter.
+     *
+     * @param array  $aAncestors
+     * @param int    $sObjectId
+     * @param string $sObjectType
+     * @param string $sResourceType
+     *
+     * @return array
+     */
+    public function showAncestors($aAncestors, $sObjectId, $sObjectType, $sResourceType)
+    {
+        if ($sResourceType === 'taxonomy') {
+            $oUamAccessHandler = $this->getAccessHandler();
+
+            foreach ($aAncestors as $sKey => $aAncestorId) {
+                if (!$oUamAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $aAncestorId)) {
+                    unset($aAncestors[$sKey]);
+                }
             }
         }
 
-        return ($this->_aProcessedTerms[$sKey] === false) ? null : $this->_aProcessedTerms[$sKey];
+        return $aAncestors;
     }
 
     /**

@@ -348,7 +348,8 @@ class UamAccessHandler
             return array();
         }
 
-        $sFilterAttr = ($blFilter && $sObjectType !== UserAccessManager::USER_OBJECT_TYPE) ? self::OBJECTS_FILTERED : self::OBJECTS_NONE_FILTERED;
+        $blFilter = ($sObjectType === UserAccessManager::USER_OBJECT_TYPE) ? false : $blFilter;
+        $sFilterAttr = ($blFilter === true) ? self::OBJECTS_FILTERED : self::OBJECTS_NONE_FILTERED;
 
         if (!isset($this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId])) {
             $sCacheKey = 'getUserGroupsForObject|' . $sObjectType . '|' . $sFilterAttr . '|' . $iObjectId;
@@ -361,15 +362,11 @@ class UamAccessHandler
                 $aObjectUserGroups = array();
                 $aUserGroups = $this->getUserGroups(null, $blFilter);
 
-                $aCurIp = explode(".", $_SERVER['REMOTE_ADDR']);
-
-                if (isset($aUserGroups)) {
+                if (is_array($aUserGroups)) {
                     foreach ($aUserGroups as $oUserGroup) {
                         $mObjectMembership = $oUserGroup->objectIsMember($sObjectType, $iObjectId, true);
 
-                        if ($mObjectMembership !== false
-                            || $sObjectType === UserAccessManager::USER_OBJECT_TYPE && $this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
-                        ) {
+                        if ($mObjectMembership !== false) {
                             if (is_array($mObjectMembership)) {
                                 $oUserGroup->setRecursiveMembership($sObjectType, $iObjectId, $mObjectMembership);
                             }
@@ -431,16 +428,15 @@ class UamAccessHandler
 
             if ($aMembership == array()
                 || $this->checkUserAccess('manage_user_groups')
-                || $oCurrentUser->ID == $sAuthorId
-                && $oConfig->authorsHasAccessToOwn() === true
+                || $oCurrentUser->ID === $sAuthorId && $oConfig->authorsHasAccessToOwn() === true
             ) {
                 $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
             } else {
-                $aCurIp = explode('.', $_SERVER['REMOTE_ADDR']);
+                $aCurrentIp = explode('.', $_SERVER['REMOTE_ADDR']);
 
                 foreach ($aMembership as $sKey => $oUserGroup) {
-                    if ($sObjectType === UserAccessManager::USER_OBJECT_TYPE && $this->checkUserIp($aCurIp, $oUserGroup->getIpRange())
-                        || $oUserGroup->objectIsMember(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID)
+                    if ($oUserGroup->objectIsMember(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID)
+                        || $this->checkUserIp($aCurrentIp, $oUserGroup->getIpRange())
                     ) {
                         $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
                         break;
@@ -557,9 +553,9 @@ class UamAccessHandler
             $oDatabase = $this->getUserAccessManager()->getDatabase();
 
             if ($this->getUserAccessManager()->atAdminPanel()) {
-                $sAccessType = "write";
+                $sAccessType = 'write';
             } else {
-                $sAccessType = "read";
+                $sAccessType = 'read';
             }
 
             $aCategoriesAssignedToUser = $this->getTermsForUser();
