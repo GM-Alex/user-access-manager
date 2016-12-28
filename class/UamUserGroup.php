@@ -999,7 +999,10 @@ class UamUserGroup
         foreach ($aTerms as $oTerm) {
             if ($this->_isPostInTerm($oPost->ID, $oTerm->id)) {
                 $oTermObject = $this->getAccessHandler()->getUserAccessManager()->getTerm($oTerm->id);
-                $oTerm->name = $oTermObject->name;
+
+                if ($oTermObject !== null) {
+                    $oTerm->name = $oTermObject->name;
+                }
                 
                 $aIsRecursiveMember[UserAccessManager::TERM_OBJECT_TYPE][] = $oTermObject;
             }
