@@ -513,6 +513,38 @@ class UamAccessHandler
 
         return $this->_aSqlResults['termsAssignedToUser'];
     }
+
+    /**
+     * Returns the excluded terms for a user.
+     *
+     * @return array
+     */
+    public function getExcludedTerms()
+    {
+        if ($this->checkUserAccess('manage_user_groups')) {
+            $this->_aSqlResults['excludedTerms'] = array();
+        }
+
+        if (!isset($this->_aSqlResults['excludedTerms'])) {
+            $oDatabase = $this->getUserAccessManager()->getDatabase();
+            $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
+            $sAccessType = ($this->getUserAccessManager()->atAdminPanel() === true) ? 'write' : 'read';
+            $aCategoriesAssignedToUser = $this->getTermsForUser();
+            $sCategoriesAssignedToUser = ($aCategoriesAssignedToUser !== array()) ? implode(', ', $aCategoriesAssignedToUser) : "''";
+
+            $sTermSql = "SELECT agto.object_id
+                FROM " . DB_ACCESSGROUP_TO_OBJECT . " agto
+                LEFT JOIN " . DB_ACCESSGROUP . " AS ag
+                  ON agto.group_id = ag.id 
+                WHERE agto.object_type = '{$sTermType}'
+                  AND agto.object_id NOT IN ({$sCategoriesAssignedToUser})
+                  AND ag.{$sAccessType}_access != 'all'";
+
+            $this->_aSqlResults['excludedTerms'] = $oDatabase->get_col($sTermSql);
+        }
+
+        return $this->_aSqlResults['excludedTerms'];
+    }
     
     /**
      * Returns the posts assigned to the user.
@@ -584,15 +616,16 @@ class UamAccessHandler
                 INNER JOIN {$oDatabase->term_taxonomy} AS tt
                   ON tr.term_taxonomy_id = tt.term_taxonomy_id
                 WHERE tt.taxonomy = 'category' 
-                AND tt.term_id IN (
-                  SELECT gc.object_id
-                  FROM " . DB_ACCESSGROUP . " iag
-                  INNER JOIN " . DB_ACCESSGROUP_TO_OBJECT . " AS gc
-                    ON iag.id = gc.group_id
-                  WHERE gc.object_type = '{$sTermType}'
-                  AND iag.{$sAccessType}_access != 'all'
-                  AND gc.object_id  NOT IN ({$sCategoriesAssignedToUser})
-                ) AND p.ID NOT IN ({$sPostAssignedToUser})
+                  AND tt.term_id IN (
+                    SELECT gc.object_id
+                    FROM " . DB_ACCESSGROUP . " iag
+                    INNER JOIN " . DB_ACCESSGROUP_TO_OBJECT . " AS gc
+                      ON iag.id = gc.group_id
+                    WHERE gc.object_type = '{$sTermType}'
+                      AND iag.{$sAccessType}_access != 'all'
+                      AND gc.object_id NOT IN ({$sCategoriesAssignedToUser})
+                  ) 
+                  AND p.ID NOT IN ({$sPostAssignedToUser})
                 UNION
                 SELECT DISTINCT gp.object_id
                 FROM " . DB_ACCESSGROUP . " AS ag
@@ -603,9 +636,9 @@ class UamAccessHandler
                 INNER JOIN {$oDatabase->term_taxonomy} tt
                   ON tr.term_taxonomy_id = tt.term_taxonomy_id
                 WHERE gp.object_type = '{$sPostType}'
-                AND ag.{$sAccessType}_access != 'all'
-                AND gp.object_id  NOT IN ({$sPostAssignedToUser})
-                AND tt.term_id NOT IN ({$sCategoriesAssignedToUser})";
+                  AND ag.{$sAccessType}_access != 'all'
+                  AND gp.object_id NOT IN ({$sPostAssignedToUser})
+                  AND tt.term_id NOT IN ({$sCategoriesAssignedToUser})";
 
             $this->_aSqlResults['excludedPosts'] = $oDatabase->get_col($sPostSql);
         }

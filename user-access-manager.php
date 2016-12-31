@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: https://wordpress.org/plugins/user-access-manager/
  * Author URI: https://twitter.com/GM_Alex
- * Version: 1.2.7.6
+ * Version: 1.2.8
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -37,7 +37,7 @@ $blStop = false;
 //Check php version
 $sPhpVersion = phpversion();
 
-if (version_compare($sPhpVersion, "5.0") === -1) {
+if (version_compare($sPhpVersion, '5.3') === -1) {
     add_action(
         'admin_notices',
         create_function(
@@ -54,7 +54,7 @@ if (version_compare($sPhpVersion, "5.0") === -1) {
 //Check wordpress version
 global $wp_version;
 
-if (version_compare($wp_version, "3.0") === -1) {
+if (version_compare($wp_version, '3.4') === -1) {
     add_action(
         'admin_notices',
         create_function(
@@ -320,6 +320,7 @@ if (isset($oUserAccessManager)) {
         add_filter('wp_get_attachment_url', array($oUserAccessManager, 'getFileUrl'), 10, 2);
         add_filter('the_posts', array($oUserAccessManager, 'showPost'));
         add_filter('posts_where_paged', array($oUserAccessManager, 'showPostSql'));
+        add_filter('get_terms_args', array($oUserAccessManager, 'getTermArguments'));
         add_filter('wp_get_nav_menu_items', array($oUserAccessManager, 'showCustomMenu'));
         add_filter('comments_array', array($oUserAccessManager, 'showComment'));
         add_filter('the_comments', array($oUserAccessManager, 'showComment'));
