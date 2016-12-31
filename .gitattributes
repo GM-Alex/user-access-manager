@@ -1,0 +1,5 @@
+. svn-properties=svn:ignore=tests
+. svn-properties=svn:ignore=vendor
+. svn-properties=svn:ignore=composer.json
+. svn-properties=svn:ignore=composer.lock
+. svn-properties=svn:ignore=phpunit.xml.dist
