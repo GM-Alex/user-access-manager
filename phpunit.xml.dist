@@ -1,0 +1,18 @@
+<phpunit bootstrap="tests/bootstrap.php" colors="true">
+    <testsuites>
+        <testsuite name="UserAccessManager Test Suite">
+            <directory suffix=".php">./tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <blacklist>
+            <directory>./tests</directory>
+        </blacklist>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./class</directory>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-html" target="./tmp/coverage" charset="UTF-8" />
+    </logging>
+</phpunit>
