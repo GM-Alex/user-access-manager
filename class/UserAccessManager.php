@@ -1095,7 +1095,7 @@ class UserAccessManager
 
     /**
      * Removes the object data.
-     * 
+     *
      * @param string $sObjectType The object type.
      * @param int    $iId         The object id.
      */
@@ -1109,7 +1109,7 @@ class UserAccessManager
                 AND object_type = '{$sObjectType}'"
         );
     }
-    
+
     
     /*
      * Functions for the post actions.
@@ -1621,7 +1621,7 @@ class UserAccessManager
     {
         $aShowItems = array();
         $aTaxonomies = $this->getTaxonomies();
-        
+
         foreach ($aItems as $oItem) {
             if ($oItem->object == UserAccessManager::POST_OBJECT_TYPE
                 || $oItem->object == UserAccessManager::PAGE_OBJECT_TYPE
