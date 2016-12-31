@@ -1,6 +1,6 @@
 <?php
 /**
- * UamAccessHandler.php
+ * UamConfig.php
  *
  * The UamConfig class file.
  *

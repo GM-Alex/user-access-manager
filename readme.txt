@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.4.0
 Tested up to: 4.7.0
-Stable tag: 1.2.7.6
+Stable tag: 1.2.8
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -70,8 +70,12 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
-    1.2.7.5     2016/12/28  Fix ip restriction issue.
+    1.2.8       2016/12/31  Fix wrong term behavior for the backend.
+                            Require at least PHP 5.3
+
+    1.2.7.6     2016/12/28  Fix ip restriction issue.
                             Fix missing categories issue.
+
     1.2.7.5     2016/12/27  Improve taxonomy handling.
                             Improve performance.
                             Add missing wp-cli.php file.

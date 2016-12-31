@@ -35,7 +35,7 @@ class UserAccessManager
 
     protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
-    protected $_sUamVersion = '1.2.7.6';
+    protected $_sUamVersion = '1.2.8';
     protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
@@ -45,7 +45,8 @@ class UserAccessManager
     protected $_aPosts = array();
     protected $_aTerms = array();
     protected $_aWpOptions = array();
-    protected $_aTermPostMap = array();
+    protected $_aTermPostMap = null;
+    protected $_aTermTreeMap = null;
     protected $_aPostTypes = null;
     protected $_aTaxonomies = null;
 
@@ -908,9 +909,21 @@ class UserAccessManager
      */
     public function startsWith($sHaystack, $sNeedle)
     {
-        return strpos($sHaystack, $sNeedle) === 0;
+        return $sNeedle === '' || strpos($sHaystack, $sNeedle) === 0;
     }
-    
+
+    /**
+     * Checks if a string ends with the given needle.
+     *
+     * @param string $sHaystack
+     * @param string $sNeedle
+     *
+     * @return bool
+     */
+    public function endsWith($sHaystack, $sNeedle)
+    {
+        return $sNeedle === '' || substr($sHaystack, -strlen($sNeedle)) === $sNeedle;
+    }
     
     /*
      * Functions for the admin panel content.
@@ -1438,7 +1451,7 @@ class UserAccessManager
     public function parseQuery($oWpQuery)
     {
         $oConfig = $this->getConfig();
-        
+
         if ($oConfig->hidePost() === true) {
             $oUamAccessHandler = $this->getAccessHandler();
             $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
@@ -1569,7 +1582,34 @@ class UserAccessManager
         
         return $sSql;
     }
-    
+
+    /**
+     * Sets the excluded terms as argument.
+     *
+     * @param array $aArguments
+     *
+     * @return array
+     */
+    public function getTermArguments($aArguments)
+    {
+        $aExclude = (isset($aArguments['exclude'])) ? wp_parse_id_list($aArguments['exclude']) : array();
+        $aExcludedTerms = $this->getAccessHandler()->getExcludedTerms();
+
+        if ($this->getConfig()->lockRecursive() === true) {
+            $aTermTreeMap = $this->getTermTreeMap();
+
+            foreach ($aExcludedTerms as $sTermId) {
+                if (isset($aTermTreeMap[$sTermId])) {
+                    $aExcludedTerms = array_merge($aExcludedTerms, $aTermTreeMap[$sTermId]);
+                }
+            }
+        }
+
+        $aArguments['exclude'] = array_merge($aExclude, $aExcludedTerms);
+
+        return $aArguments;
+    }
+
     /**
      * The function for the wp_get_nav_menu_items filter.
      * 
@@ -1700,7 +1740,7 @@ class UserAccessManager
     /**
      * Returns the term post map.
      *
-     * @return array|null
+     * @return array
      */
     protected function getTermPostMap()
     {
@@ -1710,7 +1750,7 @@ class UserAccessManager
 
             $sSelect = "
                 SELECT tr.object_id, tr.term_taxonomy_id, p.post_type
-                FROM {$oDatabase->prefix}term_relationships AS tr LEFT JOIN {$oDatabase->prefix}posts as p
+                FROM {$oDatabase->term_relationships} AS tr LEFT JOIN {$oDatabase->posts} as p
                   ON (tr.object_id = p.ID)";
 
             $aResults = $oDatabase->get_results($sSelect);
@@ -1728,6 +1768,36 @@ class UserAccessManager
     }
 
     /**
+     * Returns the term tree map.
+     *
+     * @return array
+     */
+    protected function getTermTreeMap()
+    {
+        if ($this->_aTermTreeMap === null) {
+            $this->_aTermTreeMap = array();
+            $oDatabase = $this->getDatabase();
+
+            $sSelect = "
+                SELECT term_id, parent
+                FROM {$oDatabase->term_taxonomy}
+                  WHERE parent != 0";
+
+            $aResults = $oDatabase->get_results($sSelect);
+
+            foreach ($aResults as $oResult) {
+                if (!isset($this->_aTermTreeMap[$oResult->parent])) {
+                    $this->_aTermTreeMap[$oResult->parent] = array();
+                }
+
+                $this->_aTermTreeMap[$oResult->parent][] = $oResult->term_id;
+            }
+        }
+
+        return $this->_aTermTreeMap;
+    }
+
+    /**
      * Modifies the content of the term by the given settings.
      *
      * @param object $oTerm     The current term.
@@ -1736,11 +1806,11 @@ class UserAccessManager
      */
     protected function _processTerm($oTerm)
     {
-        if (is_object($oTerm) === false || $this->atAdminPanel() === true) {
+        if (is_object($oTerm) === false) {
             return $oTerm;
         }
 
-        $oTerm->name .= $this->adminOutput(self::TERM_OBJECT_TYPE, $oTerm->term_id);
+        $oTerm->name .= $this->adminOutput(self::TERM_OBJECT_TYPE, $oTerm->term_id, $oTerm->name);
         $oConfig = $this->getConfig();
         $oUamAccessHandler = $this->getAccessHandler();
 
@@ -1854,6 +1924,10 @@ class UserAccessManager
 
         foreach ($aTerms as $mTerm) {
             if (!is_object($mTerm) && is_numeric($mTerm)) {
+                if ((int)$mTerm === 0) {
+                    continue;
+                }
+
                 $mTerm = $this->getTerm($mTerm);
             }
 
@@ -1903,17 +1977,24 @@ class UserAccessManager
      * 
      * @param string  $sObjectType The object type.
      * @param integer $iObjectId   The object id we want to check.
-     * 
+     * @param string  $sText       The text on which we want to append the hint.
+     *
      * @return string
      */
-    public function adminOutput($sObjectType, $iObjectId)
+    public function adminOutput($sObjectType, $iObjectId, $sText = null)
     {
-        $sOutput = "";
+        $sOutput = '';
         
         if (!$this->atAdminPanel()) {
             $oConfig = $this->getConfig();
             
             if ($oConfig->blogAdminHint() === true) {
+                $sHintText = $oConfig->getBlogAdminHintText();
+
+                if ($sText !== null && $this->endsWith($sText, $sHintText)) {
+                    return $sOutput;
+                }
+
                 $oCurrentUser = $this->getCurrentUser();
                 $oUserData = $this->getUser($oCurrentUser->ID);
 
@@ -1926,7 +2007,7 @@ class UserAccessManager
                 if ($oUamAccessHandler->userIsAdmin($oCurrentUser->ID)
                     && count($oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId)) > 0
                 ) {
-                    $sOutput .= $oConfig->getBlogAdminHintText();
+                    $sOutput .= $sHintText;
                 }
             }
         }
