@@ -545,7 +545,7 @@ class UamAccessHandler
 
         return $this->_aSqlResults['excludedTerms'];
     }
-    
+
     /**
      * Returns the posts assigned to the user.
      * 
