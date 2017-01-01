@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: https://wordpress.org/plugins/user-access-manager/
  * Author URI: https://twitter.com/GM_Alex
- * Version: 1.2.8
+ * Version: 1.2.9
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -318,13 +318,13 @@ if (isset($oUserAccessManager)) {
     if (function_exists('add_filter')) {
         add_filter('wp_get_attachment_thumb_url', array($oUserAccessManager, 'getFileUrl'), 10, 2);
         add_filter('wp_get_attachment_url', array($oUserAccessManager, 'getFileUrl'), 10, 2);
-        add_filter('the_posts', array($oUserAccessManager, 'showPost'));
+        add_filter('the_posts', array($oUserAccessManager, 'showPosts'));
         add_filter('posts_where_paged', array($oUserAccessManager, 'showPostSql'));
         add_filter('get_terms_args', array($oUserAccessManager, 'getTermArguments'));
         add_filter('wp_get_nav_menu_items', array($oUserAccessManager, 'showCustomMenu'));
         add_filter('comments_array', array($oUserAccessManager, 'showComment'));
         add_filter('the_comments', array($oUserAccessManager, 'showComment'));
-        add_filter('get_pages', array($oUserAccessManager, 'showPage'));
+        add_filter('get_pages', array($oUserAccessManager, 'showPages'), 20);
         add_filter('get_terms', array($oUserAccessManager, 'showTerms'), 20, 2);
         add_filter('get_term', array($oUserAccessManager, 'showTerm'), 20, 2);
         add_filter('get_ancestors', array($oUserAccessManager, 'showAncestors'), 20, 4);
@@ -334,6 +334,7 @@ if (isset($oUserAccessManager)) {
         add_filter('edit_post_link', array($oUserAccessManager, 'showGroupMembership'), 10, 2);
         add_filter('parse_query', array($oUserAccessManager, 'parseQuery'));
         add_filter('getarchives_where', array($oUserAccessManager, 'showPostSql'));
+        add_filter('wp_count_posts', array($oUserAccessManager, 'showPostCount'), 10, 2);
         add_filter('wpseo_sitemap_entry', array($oUserAccessManager, 'wpSeoUrl'), 1, 3); // Yaost Sitemap Plugin
     }
 }

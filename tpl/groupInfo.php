@@ -44,7 +44,7 @@ if (!function_exists('walkPath')) {
     }
 }
 ?>
-<div class="tooltip">
+<div class="uam_tooltip">
 <ul class="uam_group_info">
 <?php
 /**
