@@ -578,69 +578,119 @@ class UamAccessHandler
     public function getExcludedPosts()
     {
         if ($this->checkUserAccess('manage_user_groups')) {
-            $this->_aSqlResults['excludedPosts'] = array();
+            $this->_aSqlResults['excludedPosts'] = array(
+                'all' => array()
+            );
         }
         
         if (!isset($this->_aSqlResults['excludedPosts'])) {
             $oDatabase = $this->getUserAccessManager()->getDatabase();
+            $oUserAccessManager = $this->getUserAccessManager();
 
-            if ($this->getUserAccessManager()->atAdminPanel()) {
-                $sAccessType = 'write';
-            } else {
-                $sAccessType = 'read';
-            }
+            $sAccessType = ($oUserAccessManager->atAdminPanel()) ? 'write' : 'read';
 
             $aCategoriesAssignedToUser = $this->getTermsForUser();
-
-            if ($aCategoriesAssignedToUser !== array()) {
-                $sCategoriesAssignedToUser = implode(', ', $aCategoriesAssignedToUser);
-            } else {
-                $sCategoriesAssignedToUser = "''";
-            }
+            $sCategoriesAssignedToUser = ($aCategoriesAssignedToUser !== array()) ?
+                implode(', ', $aCategoriesAssignedToUser) : null;
 
             $aPostAssignedToUser = $this->getPostsForUser();
-
-            if ($aPostAssignedToUser !== array()) {
-                $sPostAssignedToUser = implode(', ', $aPostAssignedToUser);
-            } else {
-                $sPostAssignedToUser = "''";
-            }
+            $sPostAssignedToUser = ($aPostAssignedToUser !== array()) ? implode(', ', $aPostAssignedToUser) : null;
 
             $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
-            $sPostType = UserAccessManager::POST_OBJECT_TYPE;
+            $aPostableTypes = $this->getPostableTypes();
 
-            $sPostSql = "SELECT DISTINCT p.ID
+            if (!$oUserAccessManager->atAdminPanel()) {
+                $oConfig = $oUserAccessManager->getConfig();
+
+                foreach ($aPostableTypes as $sKey =>$sType) {
+                    if ($oConfig->hideObjectType($sType) === false) {
+                        unset($aPostableTypes[$sKey]);
+                    }
+                }
+            }
+
+            $sPostableTypes = "'" . implode("','", $aPostableTypes) . "'";
+
+            $sTermSql = "SELECT gc.object_id
+                    FROM " . DB_ACCESSGROUP . " iag
+                    INNER JOIN " . DB_ACCESSGROUP_TO_OBJECT . " AS gc
+                      ON iag.id = gc.group_id
+                    WHERE gc.object_type = '{$sTermType}'
+                      AND iag.{$sAccessType}_access != 'all'";
+
+            if ($sCategoriesAssignedToUser !== null) {
+                $sTermSql .= " AND gc.object_id NOT IN ({$sCategoriesAssignedToUser})";
+            }
+
+            $sObjectQuery = "SELECT DISTINCT gp.object_id AS id, gp.object_type AS type
+                FROM " . DB_ACCESSGROUP . " AS ag
+                INNER JOIN " . DB_ACCESSGROUP_TO_OBJECT . " AS gp
+                  ON ag.id = gp.group_id
+                LEFT JOIN {$oDatabase->term_relationships} AS tr
+                  ON gp.object_id  = tr.object_id
+                LEFT JOIN {$oDatabase->term_taxonomy} tt
+                  ON tr.term_taxonomy_id = tt.term_taxonomy_id
+                WHERE gp.object_type IN ({$sPostableTypes})
+                  AND ag.{$sAccessType}_access != 'all'";
+
+            if ($sPostAssignedToUser !== null) {
+                $sObjectQuery .= "AND gp.object_id NOT IN ({$sPostAssignedToUser})";
+            }
+
+            if ($sCategoriesAssignedToUser !== null) {
+                $sObjectQuery .= "AND tt.term_id NOT IN ({$sCategoriesAssignedToUser})";
+            }
+
+            if (isset($aPostableTypes['post'])) {
+                $sPostQuery = "SELECT DISTINCT p.ID AS id, post_type AS type
                 FROM {$oDatabase->posts} AS p
                 INNER JOIN {$oDatabase->term_relationships} AS tr
                   ON p.ID = tr.object_id
                 INNER JOIN {$oDatabase->term_taxonomy} AS tt
                   ON tr.term_taxonomy_id = tt.term_taxonomy_id
-                WHERE tt.taxonomy = 'category' 
-                  AND tt.term_id IN (
-                    SELECT gc.object_id
-                    FROM " . DB_ACCESSGROUP . " iag
-                    INNER JOIN " . DB_ACCESSGROUP_TO_OBJECT . " AS gc
-                      ON iag.id = gc.group_id
-                    WHERE gc.object_type = '{$sTermType}'
-                      AND iag.{$sAccessType}_access != 'all'
-                      AND gc.object_id NOT IN ({$sCategoriesAssignedToUser})
-                  ) 
-                  AND p.ID NOT IN ({$sPostAssignedToUser})
-                UNION
-                SELECT DISTINCT gp.object_id
-                FROM " . DB_ACCESSGROUP . " AS ag
-                INNER JOIN " . DB_ACCESSGROUP_TO_OBJECT . " AS gp
-                  ON ag.id = gp.group_id
-                INNER JOIN {$oDatabase->term_relationships} AS tr
-                  ON gp.object_id  = tr.object_id
-                INNER JOIN {$oDatabase->term_taxonomy} tt
-                  ON tr.term_taxonomy_id = tt.term_taxonomy_id
-                WHERE gp.object_type = '{$sPostType}'
-                  AND ag.{$sAccessType}_access != 'all'
-                  AND gp.object_id NOT IN ({$sPostAssignedToUser})
-                  AND tt.term_id NOT IN ({$sCategoriesAssignedToUser})";
+                WHERE p.post_type != 'revision'
+                  AND tt.taxonomy = 'category' 
+                  AND tt.term_id IN ({$sTermSql})";
 
-            $this->_aSqlResults['excludedPosts'] = $oDatabase->get_col($sPostSql);
+                if ($sPostAssignedToUser !== null) {
+                    $sPostQuery .= " AND p.ID NOT IN ({$sPostAssignedToUser})";
+                }
+
+                $sFullQuery = "{$sPostQuery} UNION {$sObjectQuery}";
+            } else {
+                $sFullQuery = $sObjectQuery;
+            }
+
+            $aResult = $oDatabase->get_results($sFullQuery);
+            $aExcludedPosts = array(
+                'all' => array()
+            );
+
+            foreach ($aResult as $oExcludedPost) {
+                if (!isset($aExcludedPosts[$oExcludedPost->type])) {
+                    $aExcludedPosts[$oExcludedPost->type] = array();
+                }
+
+                $aExcludedPosts[$oExcludedPost->type][$oExcludedPost->id] = $oExcludedPost->id;
+            }
+
+            $aPostTreeMap = $oUserAccessManager->getPostTreeMap();
+
+            foreach ($aExcludedPosts as $sType => $aIds) {
+                if ($sType !== 'all') {
+                    if ($oUserAccessManager->isPostTypeHierarchical($sType)) {
+                        foreach ($aIds as $iId) {
+                            if (isset($aPostTreeMap[$iId])) {
+                                $aExcludedPosts[$sType] = $aExcludedPosts[$sType] + $aPostTreeMap[$iId];
+                            }
+                        }
+                    }
+
+                    $aExcludedPosts['all'] = $aExcludedPosts['all'] + $aExcludedPosts[$sType];
+                }
+            }
+
+            $this->_aSqlResults['excludedPosts'] = $aExcludedPosts;
         }
 
         return $this->_aSqlResults['excludedPosts'];

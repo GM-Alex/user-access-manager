@@ -35,7 +35,7 @@ class UserAccessManager
 
     protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
-    protected $_sUamVersion = '1.2.8';
+    protected $_sUamVersion = '1.2.9';
     protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
@@ -47,6 +47,7 @@ class UserAccessManager
     protected $_aWpOptions = array();
     protected $_aTermPostMap = null;
     protected $_aTermTreeMap = null;
+    protected $_aPostTreeMap = null;
     protected $_aPostTypes = null;
     protected $_aTaxonomies = null;
 
@@ -89,6 +90,18 @@ class UserAccessManager
         }
 
         return $this->_aPostTypes;
+    }
+
+    /**
+     * Wrapper for is_post_type_hierarchical
+     *
+     * @param string $sType
+     *
+     * @return bool
+     */
+    public function isPostTypeHierarchical($sType)
+    {
+        return is_post_type_hierarchical($sType);
     }
 
     /**
@@ -175,7 +188,14 @@ class UserAccessManager
     public function getTerm($sId, $sTaxonomy = '')
     {
         if (!isset($this->_aTerms[$sId])) {
+            $iPriority = has_filter('get_term', array($this, 'showTerm'));
+            $blRemoveSuccess = remove_filter('get_term', array($this, 'showTerm'), $iPriority);
+
             $this->_aTerms[$sId] = get_term($sId, $sTaxonomy);
+
+            if ($blRemoveSuccess === true) {
+                add_filter('get_term', array($this, 'showTerm'), $iPriority, 2);
+            }
         }
 
         return $this->_aTerms[$sId];
@@ -1450,18 +1470,15 @@ class UserAccessManager
      */
     public function parseQuery($oWpQuery)
     {
-        $oConfig = $this->getConfig();
+        $oUamAccessHandler = $this->getAccessHandler();
+        $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
+        $aAllExcludedPosts = $aExcludedPosts['all'];
 
-        if ($oConfig->hidePost() === true) {
-            $oUamAccessHandler = $this->getAccessHandler();
-            $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
-            
-            if (count($aExcludedPosts) > 0) {
-                $oWpQuery->query_vars['post__not_in'] = array_merge(
-                    $oWpQuery->query_vars['post__not_in'],
-                    $aExcludedPosts
-                );
-            }
+        if (count($aAllExcludedPosts) > 0) {
+            $oWpQuery->query_vars['post__not_in'] = array_merge(
+                $oWpQuery->query_vars['post__not_in'],
+                $aAllExcludedPosts
+            );
         }
     }
     
@@ -1536,7 +1553,7 @@ class UserAccessManager
      * 
      * @return array
      */
-    public function showPost($aPosts = array())
+    public function showPosts($aPosts = array())
     {
         $aShowPosts = array();
         $oConfig = $this->getConfig();
@@ -1566,21 +1583,37 @@ class UserAccessManager
      * @return string
      */
     public function showPostSql($sSql)
-    {   
+    {
         $oUamAccessHandler = $this->getAccessHandler();
-        $oConfig = $this->getConfig();
-        
-        if ($oConfig->hidePost() === true) {
-            $oDatabase = $this->getDatabase();
-            $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
-            
-            if (count($aExcludedPosts) > 0) {
-                $sExcludedPostsStr = implode(",", $aExcludedPosts);
-                $sSql .= " AND $oDatabase->posts.ID NOT IN($sExcludedPostsStr) ";
-            }
+        $oDatabase = $this->getDatabase();
+        $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
+        $aAllExcludedPosts = $aExcludedPosts['all'];
+
+        if (count($aAllExcludedPosts) > 0) {
+            $sExcludedPostsStr = implode(',', $aAllExcludedPosts);
+            $sSql .= " AND $oDatabase->posts.ID NOT IN($sExcludedPostsStr) ";
         }
         
         return $sSql;
+    }
+
+    /**
+     * Function for the wp_count_posts filter.
+     *
+     * @param stdClass $oCounts
+     * @param string   $sType
+     *
+     * @return stdClass
+     */
+    public function showPostCount($oCounts, $sType)
+    {
+        $aExcludedPosts = $this->getAccessHandler()->getExcludedPosts();
+
+        if (isset($aExcludedPosts[$sType])) {
+            $oCounts->publish -= count($aExcludedPosts[$sType]);
+        }
+
+        return $oCounts;
     }
 
     /**
@@ -1701,12 +1734,12 @@ class UserAccessManager
      * 
      * @return array
      */
-    public function showPage($aPages = array())
+    public function showPages($aPages = array())
     {
         $aShowPages = array();
         $oConfig = $this->getConfig();
         $oUamAccessHandler = $this->getAccessHandler();
-        
+
         foreach ($aPages as $oPage) {
             if ($oConfig->hidePage() === true
                 || $this->atAdminPanel()
@@ -1738,11 +1771,81 @@ class UserAccessManager
     }
 
     /**
+     * Resolves all sub elements
+     *
+     * @param array  $aTree
+     * @param string $iId
+     *
+     * @return array
+     */
+    protected function _processTreeMapSiblings(&$aTree, $iId)
+    {
+        foreach ($aTree[$iId] as $iChildId) {
+            if (isset($aTree[$iChildId])) {
+                $aSiblings = $this->_processTreeMapSiblings($aTree, $iChildId);
+                $aTree[$iId] = $aTree[$iId] + $aSiblings;
+            }
+        }
+
+        return $aTree[$iId];
+    }
+
+    /**
+     * Returns the tree map for the query.
+     *
+     * @param string $sSelect
+     *
+     * @return array
+     */
+    protected function _getTreeMap($sSelect)
+    {
+        $aTree = array();
+        $oDatabase = $this->getDatabase();
+        $aResults = $oDatabase->get_results($sSelect);
+
+        foreach ($aResults as $oResult) {
+            if (!isset($aTree[$oResult->parentId])) {
+                $aTree[$oResult->parentId] = array();
+            }
+
+            $aTree[$oResult->parentId][$oResult->id] = $oResult->id;
+        }
+
+        //Add siblings
+        foreach ($aTree as $iParentId => $aChildren) {
+            $this->_processTreeMapSiblings($aTree, $iParentId);
+        }
+
+        return $aTree;
+    }
+
+    /**
+     * Returns the post tree map.
+     *
+     * @return array
+     */
+    public function getPostTreeMap()
+    {
+        if ($this->_aPostTreeMap === null) {
+            $oDatabase = $this->getDatabase();
+
+            $sSelect = "
+                SELECT ID AS id, post_parent AS parentId
+                FROM {$oDatabase->posts}
+                  WHERE post_parent != 0";
+
+            $this->_aPostTreeMap = $this->_getTreeMap($sSelect);
+        }
+
+        return $this->_aPostTreeMap;
+    }
+
+    /**
      * Returns the term post map.
      *
      * @return array
      */
-    protected function getTermPostMap()
+    public function getTermPostMap()
     {
         if ($this->_aTermPostMap === null) {
             $this->_aTermPostMap = array();
@@ -1756,7 +1859,7 @@ class UserAccessManager
             $aResults = $oDatabase->get_results($sSelect);
 
             foreach ($aResults as $oResult) {
-                if (isset($this->_aTermPostMap[$oResult->term_taxonomy_id])) {
+                if (!isset($this->_aTermPostMap[$oResult->term_taxonomy_id])) {
                     $this->_aTermPostMap[$oResult->term_taxonomy_id] = array();
                 }
 
@@ -1772,26 +1875,16 @@ class UserAccessManager
      *
      * @return array
      */
-    protected function getTermTreeMap()
+    public function getTermTreeMap()
     {
         if ($this->_aTermTreeMap === null) {
-            $this->_aTermTreeMap = array();
             $oDatabase = $this->getDatabase();
-
             $sSelect = "
-                SELECT term_id, parent
+                SELECT term_id AS id, parent AS parentId
                 FROM {$oDatabase->term_taxonomy}
                   WHERE parent != 0";
 
-            $aResults = $oDatabase->get_results($sSelect);
-
-            foreach ($aResults as $oResult) {
-                if (!isset($this->_aTermTreeMap[$oResult->parent])) {
-                    $this->_aTermTreeMap[$oResult->parent] = array();
-                }
-
-                $this->_aTermTreeMap[$oResult->parent][] = $oResult->term_id;
-            }
+            $this->_aTermTreeMap = $this->_getTreeMap($sSelect);
         }
 
         return $this->_aTermTreeMap;
@@ -1845,6 +1938,7 @@ class UserAccessManager
 
                 //For categories
                 if ($oTerm->count <= 0
+                    && $this->atAdminPanel() === false
                     && $oConfig->hideEmptyCategories() === true
                     && ($oTerm->taxonomy == 'term' || $oTerm->taxonomy == 'category')
                 ) {
@@ -1958,15 +2052,12 @@ class UserAccessManager
     public function showNextPreviousPost($sSql)
     {
         $oUamAccessHandler = $this->getAccessHandler();
-        $oConfig = $this->getConfig();
-        
-        if ($oConfig->hidePost() === true) {
-            $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
+        $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
+        $aAllExcludedPosts = $aExcludedPosts['all'];
             
-            if (count($aExcludedPosts) > 0) {
-                $sExcludedPosts = implode(',', $aExcludedPosts);
-                $sSql.= " AND p.ID NOT IN({$sExcludedPosts}) ";
-            }
+        if (count($aAllExcludedPosts) > 0) {
+            $sExcludedPosts = implode(',', $aAllExcludedPosts);
+            $sSql.= " AND p.ID NOT IN({$sExcludedPosts}) ";
         }
         
         return $sSql;
@@ -2104,15 +2195,13 @@ class UserAccessManager
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
                 $oDatabase = $this->getDatabase();
-
-                $sPostType = UserAccessManager::POST_OBJECT_TYPE;
-                $sPageType = UserAccessManager::PAGE_OBJECT_TYPE;
+                $sPostableTypes = "'" . implode("','", $this->getAccessHandler()->getPostableTypes()) . "'";
 
                 $sQuery = $oDatabase->prepare(
                     "SELECT ID
                     FROM {$oDatabase->posts}
                     WHERE post_name = %s
-                    AND post_type IN ('{$sPostType}', '{$sPageType}')",
+                      AND post_type IN ({$sPostableTypes})",
                     $oPageParams->query_vars['name']
                 );
 
@@ -2135,7 +2224,9 @@ class UserAccessManager
                 }
             }
             
-            if ($oObject === null || $oObject !== null && isset($oObjectType) && isset($iObjectId)
+            if ($oObject !== null
+                && isset($oObjectType)
+                && isset($iObjectId)
                 && !$this->getAccessHandler()->checkObjectAccess($oObjectType, $iObjectId)
             ) {
                 $this->redirectUser($oObject);
@@ -2187,7 +2278,7 @@ class UserAccessManager
             }
         }
         
-        if (!$blPostToShow) {
+        if ($blPostToShow === false) {
             $oConfig = $this->getConfig();
             $sPermalink = null;
 

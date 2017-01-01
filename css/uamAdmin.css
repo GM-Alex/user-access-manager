@@ -57,7 +57,7 @@ The file needed for the group info boxes style.
     vertical-align:middle;
 }
 
-.tooltip {
+.uam_tooltip {
     z-index:1000;
     display:none;
     min-width:200px;
@@ -68,6 +68,6 @@ The file needed for the group info boxes style.
     position: absolute;
 }
 
-.uam_group_info_link:hover + .tooltip {
+.uam_group_info_link:hover + .uam_tooltip {
     display: block;
 }
