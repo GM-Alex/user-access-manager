@@ -638,30 +638,29 @@ class UamAccessHandler
             }
 
             if ($sCategoriesAssignedToUser !== null) {
-                $sObjectQuery .= "AND tt.term_id NOT IN ({$sCategoriesAssignedToUser})";
+                $sObjectQuery .= "AND (tt.term_id NOT IN ({$sCategoriesAssignedToUser}) OR tt.term_id IS NULL)";
             }
 
-            if (isset($aPostableTypes['post'])) {
-                $sPostQuery = "SELECT DISTINCT p.ID AS id, post_type AS type
+            $aObjectResult = $oDatabase->get_results($sObjectQuery);
+
+            $sPostQuery = "SELECT DISTINCT p.ID AS id, post_type AS type
                 FROM {$oDatabase->posts} AS p
                 INNER JOIN {$oDatabase->term_relationships} AS tr
                   ON p.ID = tr.object_id
                 INNER JOIN {$oDatabase->term_taxonomy} AS tt
                   ON tr.term_taxonomy_id = tt.term_taxonomy_id
                 WHERE p.post_type != 'revision'
+                  AND p.post_type IN ({$sPostableTypes})
                   AND tt.taxonomy = 'category' 
                   AND tt.term_id IN ({$sTermSql})";
 
-                if ($sPostAssignedToUser !== null) {
-                    $sPostQuery .= " AND p.ID NOT IN ({$sPostAssignedToUser})";
-                }
-
-                $sFullQuery = "{$sPostQuery} UNION {$sObjectQuery}";
-            } else {
-                $sFullQuery = $sObjectQuery;
+            if ($sPostAssignedToUser !== null) {
+                $sPostQuery .= " AND p.ID NOT IN ({$sPostAssignedToUser})";
             }
 
-            $aResult = $oDatabase->get_results($sFullQuery);
+            $aPostResult = $oDatabase->get_results($sPostQuery);
+            $aResult = array_merge($aObjectResult, $aPostResult);
+
             $aExcludedPosts = array(
                 'all' => array()
             );
@@ -681,7 +680,11 @@ class UamAccessHandler
                     if ($oUserAccessManager->isPostTypeHierarchical($sType)) {
                         foreach ($aIds as $iId) {
                             if (isset($aPostTreeMap[$iId])) {
-                                $aExcludedPosts[$sType] = $aExcludedPosts[$sType] + $aPostTreeMap[$iId];
+                                foreach ($aPostTreeMap[$iId] as $iPostId => $sPostType) {
+                                    if ($sPostType == $sType) {
+                                        $aExcludedPosts[$sType][$iPostId] = $iPostId;
+                                    }
+                                }
                             }
                         }
                     }

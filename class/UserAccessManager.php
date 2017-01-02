@@ -35,7 +35,7 @@ class UserAccessManager
 
     protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
-    protected $_sUamVersion = '1.2.9';
+    protected $_sUamVersion = '1.2.10';
     protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
@@ -1780,7 +1780,7 @@ class UserAccessManager
      */
     protected function _processTreeMapSiblings(&$aTree, $iId)
     {
-        foreach ($aTree[$iId] as $iChildId) {
+        foreach ($aTree[$iId] as $iChildId => $sType) {
             if (isset($aTree[$iChildId])) {
                 $aSiblings = $this->_processTreeMapSiblings($aTree, $iChildId);
                 $aTree[$iId] = $aTree[$iId] + $aSiblings;
@@ -1808,7 +1808,7 @@ class UserAccessManager
                 $aTree[$oResult->parentId] = array();
             }
 
-            $aTree[$oResult->parentId][$oResult->id] = $oResult->id;
+            $aTree[$oResult->parentId][$oResult->id] = $oResult->type;
         }
 
         //Add siblings
@@ -1830,7 +1830,7 @@ class UserAccessManager
             $oDatabase = $this->getDatabase();
 
             $sSelect = "
-                SELECT ID AS id, post_parent AS parentId
+                SELECT ID AS id, post_parent AS parentId, post_type AS type 
                 FROM {$oDatabase->posts}
                   WHERE post_parent != 0";
 
@@ -1880,7 +1880,7 @@ class UserAccessManager
         if ($this->_aTermTreeMap === null) {
             $oDatabase = $this->getDatabase();
             $sSelect = "
-                SELECT term_id AS id, parent AS parentId
+                SELECT term_id AS id, parent AS parentId, taxonomy as type
                 FROM {$oDatabase->term_taxonomy}
                   WHERE parent != 0";
 
