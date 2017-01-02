@@ -35,7 +35,7 @@ class UserAccessManager
 
     protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
-    protected $_sUamVersion = '1.2.10';
+    protected $_sUamVersion = '1.2.11';
     protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
@@ -1633,7 +1633,7 @@ class UserAccessManager
 
             foreach ($aExcludedTerms as $sTermId) {
                 if (isset($aTermTreeMap[$sTermId])) {
-                    $aExcludedTerms = array_merge($aExcludedTerms, $aTermTreeMap[$sTermId]);
+                    $aExcludedTerms = array_merge($aExcludedTerms, array_keys($aTermTreeMap[$sTermId]));
                 }
             }
         }
@@ -1891,6 +1891,31 @@ class UserAccessManager
     }
 
     /**
+     * Returns the post count for the term.
+     *
+     * @param int $iTermId
+     *
+     * @return int
+     */
+    protected function _getVisibleElementsCount($iTermId)
+    {
+        $iCount = 0;
+        $aTermPostMap = $this->getTermPostMap();
+
+        if (isset($aTermPostMap[$iTermId])) {
+            foreach ($aTermPostMap[$iTermId] as $iPostId => $sPostType) {
+                if ($this->getConfig()->hideObjectType($sPostType) === false
+                    || $this->getAccessHandler()->checkObjectAccess($sPostType, $iPostId)
+                ) {
+                    $iCount++;
+                }
+            }
+        }
+
+        return $iCount;
+    }
+
+    /**
      * Modifies the content of the term by the given settings.
      *
      * @param object $oTerm     The current term.
@@ -1917,27 +1942,32 @@ class UserAccessManager
                     $iTermRequest = $oTerm->slug;
                 }
 
-                $aTermPostMap = $this->getTermPostMap();
+                $oTerm->count = $this->_getVisibleElementsCount($iTermRequest);
+                $iFullCount = $oTerm->count;
 
-                if (isset($aTermPostMap[$iTermRequest])) {
-                    $oTerm->count = count($aTermPostMap[$iTermRequest]);
+                if ($iFullCount <= 0) {
+                    //For post_tags
+                    if ($oTerm->taxonomy == 'post_tag') {
+                        return null;
+                    }
 
-                    foreach ($aTermPostMap[$iTermRequest] as $iPostId => $sPostType) {
-                        if ($oConfig->hideObjectType($sPostType) === true
-                            && !$oUamAccessHandler->checkObjectAccess($sPostType, $iPostId)
-                        ) {
-                            $oTerm->count--;
+                    $aTermTreeMap = $this->getTermTreeMap();
+
+                    if (isset($aTermTreeMap[$iTermRequest])) {
+                        foreach ($aTermTreeMap[$iTermRequest] as $iTermId => $sType) {
+                            if ($oTerm->taxonomy === $sType) {
+                                $iFullCount += $this->_getVisibleElementsCount($iTermId);
+
+                                if ($iFullCount > 0) {
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
 
-                //For post_tags
-                if ($oTerm->taxonomy == 'post_tag' && $oTerm->count <= 0) {
-                    return null;
-                }
-
                 //For categories
-                if ($oTerm->count <= 0
+                if ($iFullCount <= 0
                     && $this->atAdminPanel() === false
                     && $oConfig->hideEmptyCategories() === true
                     && ($oTerm->taxonomy == 'term' || $oTerm->taxonomy == 'category')
