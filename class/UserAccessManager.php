@@ -35,7 +35,7 @@ class UserAccessManager
 
     protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
-    protected $_sUamVersion = '1.2.11';
+    protected $_sUamVersion = '1.2.12';
     protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
@@ -1946,11 +1946,6 @@ class UserAccessManager
                 $iFullCount = $oTerm->count;
 
                 if ($iFullCount <= 0) {
-                    //For post_tags
-                    if ($oTerm->taxonomy == 'post_tag') {
-                        return null;
-                    }
-
                     $aTermTreeMap = $this->getTermTreeMap();
 
                     if (isset($aTermTreeMap[$iTermRequest])) {
