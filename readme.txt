@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 3.4.0
 Tested up to: 4.7.0
-Stable tag: 1.2.11
+Stable tag: 1.2.12
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -70,9 +70,12 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
-    1.2.11      2017/02/02  Restore hide categories behaviour.
+    1.2.12      2017/01/03  Fix tag issue.
+                            Improve usability of the setup page.
 
-    1.2.10      2017/02/02  Improve mysql query to prevent against possible collations issue.
+    1.2.11      2017/01/02  Restore hide categories behaviour.
+
+    1.2.10      2017/01/02  Improve mysql query to prevent against possible collations issue.
 
     1.2.9       2017/01/01  Fix wrong category count.
                             Hide pages without access at the administration panel.

@@ -158,13 +158,15 @@ define('TXT_UAM_IP_RANGE', __('IP range', 'user-access-manager'));
 
 // --- Setup page ---
 define('TXT_UAM_SETUP', __('Setup', 'user-access-manager'));
+define('TXT_UAM_SETUP_DANGER_ZONE', __('Danger Zone', 'user-access-manager'));
 define('TXT_UAM_RESET_UAM', __('Reset User Access Manager', 'user-access-manager'));
-define('TXT_UAM_RESET_UAM_DESC', __('Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost.', 'user-access-manager'));
-define('TXT_UAM_RESET', __('reset', 'user-access-manager'));
+define('TXT_UAM_RESET_UAM_DESC', __('Type \'reset\' in the input field to reset the User Access Manager.', 'user-access-manager'));
+define('TXT_UAM_RESET_UAM_DESC_WARNING', __('Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost.', 'user-access-manager'));
+define('TXT_UAM_RESET', __('reset now', 'user-access-manager'));
 define('TXT_UAM_UPDATE_UAM_DB', __('Update User Access Manager database', 'user-access-manager'));
 define('TXT_UAM_UPDATE_UAM_DB_DESC', __('Updates the database of the User Access Manager. Please backup your database before you perform the update.', 'user-access-manager'));
-define('TXT_UAM_UPDATE', __('update', 'user-access-manager'));
-define('TXT_UAM_UAM_RESET_SUC', __('User Access Manager was reset successfully', 'user-access-manager'));
+define('TXT_UAM_UPDATE', __('update now', 'user-access-manager'));
+define('TXT_UAM_UAM_RESET_SUCCSESS', __('User Access Manager was reset successfully', 'user-access-manager'));
 define('TXT_UAM_UAM_DB_UPDATE_SUC', __('User Access Manager database was updated successfully', 'user-access-manager'));
 define('TXT_UAM_UPDATE_BLOG', __('Update current blog', 'user-access-manager'));
 define('TXT_UAM_UPDATE_NETWORK', __('Update network wide', 'user-access-manager'));
