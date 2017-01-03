@@ -453,18 +453,19 @@ class UserAccessManager
                     $aDbObjects = $oDatabase->get_results($sSql);
                     
                     foreach ($aDbObjects as $oDbObject) {
-                        $sSql = "INSERT INTO {$sDbAccessGroupToObject} (
-                                group_id, 
-                                object_id,
-                                object_type
-                            ) 
-                            VALUES(
-                                '{$oDbObject->groupId}',
-                                '{$oDbObject->id}',
-                                '{$sObjectType}'
-                            )";
-                        
-                        $oDatabase->query($sSql);
+                        $oDatabase->insert(
+                            $sDbAccessGroupToObject,
+                            array(
+                                'group_id' => $oDbObject->groupId,
+                                'object_id' => $oDbObject->id,
+                                'object_type' => $sObjectType,
+                            ),
+                            array(
+                                '%d',
+                                '%d',
+                                '%s',
+                            )
+                        );
                     } 
                 }
                 
@@ -490,13 +491,21 @@ class UserAccessManager
             if (version_compare($sCurrentDbVersion, "1.3", '<=')) {
                 $sDbAccessGroupToObject = $oDatabase->prefix.'uam_accessgroup_to_object';
                 $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
-
-                $sSql = "
-                    UPDATE `{$sDbAccessGroupToObject}` AS ag2o
-                    SET ag2o.`object_type` = '{$sTermType}'
-                    WHERE `object_type` = 'category'";
-
-                $oDatabase->query($sSql);
+                $oDatabase->update(
+                    $sDbAccessGroupToObject,
+                    array(
+                        'object_type' => $sTermType,
+                    ),
+                    array(
+                        'object_type' => 'category',
+                    ),
+                    array(
+                        '%s',
+                    ),
+                    array(
+                        '%s',
+                    ),
+                );
             }
             
             update_option('uam_db_version', $this->_sUamDbVersion);
@@ -1123,10 +1132,16 @@ class UserAccessManager
     {
         $oDatabase = $this->getDatabase();
 
-        $oDatabase->query(
-            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-            WHERE object_id = {$iId}
-                AND object_type = '{$sObjectType}'"
+        $oDatabase->delete(
+            DB_ACCESSGROUP_TO_OBJECT,
+            array(
+                'object_id' => $iId ,
+                'object_type' => $sObjectType,
+            ),
+            array(
+                '%d',
+                '%s',
+            )
         );
     }
 
@@ -1232,10 +1247,16 @@ class UserAccessManager
         $oDatabase = $this->getDatabase();
         $oPost = $this->getPost($iPostId);
         
-        $oDatabase->query(
-            "DELETE FROM " . DB_ACCESSGROUP_TO_OBJECT . " 
-            WHERE object_id = '".$iPostId."'
-                AND object_type = '".$oPost->post_type."'"
+        $oDatabase->delete(
+            DB_ACCESSGROUP_TO_OBJECT,
+            array(
+                'object_id' => $iPostId,
+                'object_type' => $oPost->post_type,
+            ),
+            array(
+                '%d',
+                '%s',
+            )
         );
     }
     

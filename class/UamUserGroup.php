@@ -113,9 +113,9 @@ class UamUserGroup
 
         $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
         
-        $oDatabase->query(
-            "DELETE FROM " . DB_ACCESSGROUP . "
-            WHERE ID = {$this->_iId} LIMIT 1"
+        $oDatabase->delete(
+            DB_ACCESSGROUP,
+            array( 'ID' => $this->_iId)
         );
         
         foreach ($this->getAllObjectTypes() as $sObjectType) {
@@ -135,39 +135,44 @@ class UamUserGroup
         $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
         
         if ($this->_iId == null) {
-            $sInsertQuery = "
-                INSERT INTO " . DB_ACCESSGROUP . " (
-                    ID,
-                    groupname,
-                    groupdesc,
-                    read_access,
-                    write_access,
-                    ip_range
+            $oDatabase->insert(
+                DB_ACCESSGROUP,
+                array(
+                    'groupname'    => $this->_sGroupName,
+                    'groupdesc'    => $this->_sGroupDesc,
+                    'read_access'  => $this->_sReadAccess,
+                    'write_access' => $this->_sWriteAccess,
+                    'ip_range'     => $this->_sIpRange
+                ),
+                array(
+                    '%s',
+                    '%s',
+                    '%s',
+                    '%s',
+                    '%s',
                 )
-                VALUES (
-                    NULL,
-                    '{$this->_sGroupName}',
-                    '{$this->_sGroupDesc}',
-                    '{$this->_sReadAccess}',
-                    '{$this->_sWriteAccess}',
-                    '{$this->_sIpRange}'
-                )";
-
-            $oDatabase->query($sInsertQuery);
+            );
             
             $this->_iId = $oDatabase->insert_id;
         } else {
-            $sAccessGroupTable = DB_ACCESSGROUP;
-            $sUpdateQuery = "
-                UPDATE {$sAccessGroupTable} 
-                SET groupname = '{$this->_sGroupName}',
-                    groupdesc = '{$this->_sGroupDesc}',
-                    read_access = '{$this->_sReadAccess}',
-                    write_access = '{$this->_sWriteAccess}',
-                    ip_range = '{$this->_sIpRange}'
-                WHERE ID = {$this->_iId}";
-
-            $oDatabase->query($sUpdateQuery);
+            $oDatabase->update(
+                DB_ACCESSGROUP,
+                array(
+                    'groupname'    => $this->_sGroupName,
+                    'groupdesc'    => $this->_sGroupDesc,
+                    'read_access'  => $this->_sReadAccess,
+                    'write_access' => $this->_sWriteAccess,
+                    'ip_range'     => $this->_sIpRange
+                ),
+                array( 'ID' => $this->_iId),
+                array(
+                    '%s',
+                    '%s',
+                    '%s',
+                    '%s',
+                    '%s',
+                )
+            );
 
             if ($blRemoveOldAssignments === true) {
                 foreach ($this->getAllObjectTypes() as $sObjectType) {
