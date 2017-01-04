@@ -35,7 +35,7 @@ class UserAccessManager
 
     protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
-    protected $_sUamVersion = '1.2.12';
+    protected $_sUamVersion = '1.2.13';
     protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
@@ -1489,7 +1489,7 @@ class UserAccessManager
      * 
      * @return object|null
      */
-    protected function _getPost($oPost)
+    protected function _processPost($oPost)
     {
         $oConfig = $this->getConfig();
         $oUamAccessHandler = $this->getAccessHandler();
@@ -1561,7 +1561,7 @@ class UserAccessManager
         if (!is_feed() || ($oConfig->protectFeed() === true && is_feed())) {
             foreach ($aPosts as $iPostId) {
                 if ($iPostId !== null) {
-                    $oPost = $this->_getPost($iPostId);
+                    $oPost = $this->_processPost($iPostId);
 
                     if ($oPost !== null) {
                         $aShowPosts[] = $oPost;
@@ -1662,7 +1662,7 @@ class UserAccessManager
                 $oObject = $this->getPost($oItem->object_id);
               
                 if ($oObject !== null) {
-                    $oPost = $this->_getPost($oObject);
+                    $oPost = $this->_processPost($oObject);
 
                     if ($oPost !== null) {
                         if (isset($oPost->isLocked)) {
@@ -1937,11 +1937,6 @@ class UserAccessManager
         if ($oUamAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $oTerm->term_id)) {
             if ($oConfig->hidePost() === true || $oConfig->hidePage() === true) {
                 $iTermRequest = $oTerm->term_id;
-
-                if ($oTerm->taxonomy == 'post_tag') {
-                    $iTermRequest = $oTerm->slug;
-                }
-
                 $oTerm->count = $this->_getVisibleElementsCount($iTermRequest);
                 $iFullCount = $oTerm->count;
 
