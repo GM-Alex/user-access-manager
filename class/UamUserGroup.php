@@ -143,13 +143,6 @@ class UamUserGroup
                     'read_access'  => $this->_sReadAccess,
                     'write_access' => $this->_sWriteAccess,
                     'ip_range'     => $this->_sIpRange
-                ),
-                array(
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
                 )
             );
             
@@ -164,14 +157,7 @@ class UamUserGroup
                     'write_access' => $this->_sWriteAccess,
                     'ip_range'     => $this->_sIpRange
                 ),
-                array( 'ID' => $this->_iId),
-                array(
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                )
+                array( 'ID' => $this->_iId)
             );
 
             if ($blRemoveOldAssignments === true) {

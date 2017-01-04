@@ -498,13 +498,7 @@ class UserAccessManager
                     ),
                     array(
                         'object_type' => 'category',
-                    ),
-                    array(
-                        '%s',
-                    ),
-                    array(
-                        '%s',
-                    ),
+                    )
                 );
             }
             
