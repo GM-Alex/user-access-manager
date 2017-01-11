@@ -33,6 +33,13 @@ class UserAccessManager
     const ROLE_OBJECT_TYPE = 'role';
     const ATTACHMENT_OBJECT_TYPE = 'attachment';
 
+    /**
+     * names of style and script handles
+     */
+    CONST HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';
+    CONST HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
+    CONST HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
+
     protected $_oConfig = null;
     protected $_blAtAdminPanel = false;
     protected $_sUamVersion = '1.2.14';
@@ -953,38 +960,66 @@ class UserAccessManager
      */
     
     /**
-     * The function for the wp_print_styles action.
+     * Register styles and scripts with handle for admin panel.
      */
-    public function addStyles()
-    {
-        wp_enqueue_style(
-            'UserAccessManagerAdmin', 
-            UAM_URLPATH . "css/uamAdmin.css",
+    protected function registerAdminStylesAndScripts() {
+        wp_register_style(
+            self::HANDLE_STYLE_ADMIN,
+            UAM_URLPATH . 'css/uamAdmin.css',
             array() ,
-            '1.0',
+            $this->_sUamVersion,
             'screen'
         );
-        
-        wp_enqueue_style(
-            'UserAccessManagerLoginForm', 
-            UAM_URLPATH . "css/uamLoginForm.css",
-            array() ,
-            '1.0',
-            'screen'
+        wp_register_script(
+            self::HANDLE_SCRIPT_ADMIN,
+            UAM_URLPATH . 'js/functions.js',
+            array('jquery'),
+            $this->_sUamVersion
         );
     }
-    
+
     /**
-     * The function for the wp_print_scripts action.
+     * The function for the admin_enqueue_scripts action for styles and scripts.
+     *
+     * @param string $sHook 
      */
-    public function addScripts()
+    public function enqueueAdminStylesAndScripts($sHook)
     {
-        wp_enqueue_script(
-            'UserAccessManagerFunctions', 
-            UAM_URLPATH . 'js/functions.js', 
-            array('jquery')
+        $this->registerAdminStylesAndScripts();
+        wp_enqueue_style(self::HANDLE_STYLE_ADMIN);
+
+        if ($sHook == 'uam_page_uam_settings') {
+            wp_enqueue_script(self::HANDLE_SCRIPT_ADMIN);
+        }
+    }
+
+    /**
+     * Functions for other content.
+     */
+
+    /**
+     * Register all other styles.
+     */
+    protected function registerStylesAndScripts()
+    {
+        wp_register_style(
+            self::HANDLE_STYLE_LOGIN_FORM,
+            UAM_URLPATH . 'css/uamLoginForm.css',
+            array(),
+            $this->_sUamVersion,
+            'screen'
         );
     }
+
+    /**
+     * The function for the wp_enqueue_scripts action.
+     */
+    public function enqueueStylesAndScripts()
+    {
+        $this->registerStylesAndScripts();
+        wp_enqueue_style(self::HANDLE_STYLE_LOGIN_FORM);
+    }
+
     
     /**
      * Prints the admin page.
