@@ -131,9 +131,6 @@ if (!function_exists("userAccessManagerAP")) {
         ) {
             //Admin actions
            if (function_exists('add_action')) {
-                add_action('admin_print_styles', array($oUserAccessManager, 'addStyles'));
-                add_action('wp_print_scripts', array($oUserAccessManager, 'addScripts'));
-
                 add_action('manage_posts_custom_column', array($oUserAccessManager, 'addPostColumn'), 10, 2);
                 add_action('manage_pages_custom_column', array($oUserAccessManager, 'addPostColumn'), 10, 2);
 
@@ -314,8 +311,8 @@ if (isset($oUserAccessManager)) {
 
     //Actions
     if (function_exists('add_action')) {
-        add_action('wp_print_scripts', array($oUserAccessManager, 'addScripts'));
-        add_action('wp_print_styles', array($oUserAccessManager, 'addStyles'));
+        add_action('admin_enqueue_scripts', array($oUserAccessManager,'enqueueAdminStylesAndScripts'));
+        add_action('wp_enqueue_scripts', array($oUserAccessManager, 'enqueueStylesAndScripts'));
         add_action('admin_init', 'userAccessManagerAP');
         add_action('admin_menu', 'userAccessManagerAPMenu');
     }
