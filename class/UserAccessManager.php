@@ -980,13 +980,13 @@ class UserAccessManager
 
     /**
      * The function for the admin_enqueue_scripts action for styles and scripts.
-     * @param string $hook 
+     * @param string $sHook 
      */
-    public function enqueueAdminStylesAndScripts($hook)
+    public function enqueueAdminStylesAndScripts($sHook)
     {
         $this->registerAdminStylesAndScripts();
         wp_enqueue_style(self::HANDLE_STYLE_ADMIN);
-        if ($hook == 'uam_page_uam_settings') {
+        if ($sHook == 'uam_page_uam_settings') {
             wp_enqueue_script(self::HANDLE_SCRIPT_ADMIN);
         }
     }
