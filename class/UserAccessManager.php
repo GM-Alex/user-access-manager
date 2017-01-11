@@ -155,9 +155,6 @@ class UserAccessManager
     public function getUser($sId)
     {
         if (!isset($this->_aUsers[$sId])) {
-            if (!function_exists('get_userdata')) {
-                include_once ABSPATH.'wp-includes/pluggable.php';
-            }
             $this->_aUsers[$sId] = get_userdata($sId);
         }
 
@@ -567,10 +564,6 @@ class UserAccessManager
      */
     public function getCurrentUser()
     {
-        if (!function_exists('get_userdata')) {
-            include_once ABSPATH.'wp-includes/pluggable.php';
-        }
-
         //Force user information
         return wp_get_current_user();
     }
