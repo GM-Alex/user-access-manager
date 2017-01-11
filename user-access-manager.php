@@ -312,7 +312,7 @@ if (isset($oUserAccessManager)) {
     //Actions
     if (function_exists('add_action')) {
         add_action('admin_enqueue_scripts', array($oUserAccessManager,'enqueueAdminStylesAndScripts'));
-        add_action('wp_enqueue_scripts', array($oUserAccessManager, 'enqueueStyles'));
+        add_action('wp_enqueue_scripts', array($oUserAccessManager, 'enqueueStylesAndScripts'));
         add_action('admin_init', 'userAccessManagerAP');
         add_action('admin_menu', 'userAccessManagerAPMenu');
     }

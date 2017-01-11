@@ -1011,7 +1011,7 @@ class UserAccessManager
     /**
      * The function for the wp_enqueue_scripts action.
      */
-    public function enqueueStyles()
+    public function enqueueStylesAndScripts()
     {
         $this->registerStyles();
         wp_enqueue_style(self::HANDLE_STYLE_LOGIN_FORM);
