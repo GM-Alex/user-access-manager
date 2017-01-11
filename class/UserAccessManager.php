@@ -980,12 +980,14 @@ class UserAccessManager
 
     /**
      * The function for the admin_enqueue_scripts action for styles and scripts.
+     *
      * @param string $sHook 
      */
     public function enqueueAdminStylesAndScripts($sHook)
     {
         $this->registerAdminStylesAndScripts();
         wp_enqueue_style(self::HANDLE_STYLE_ADMIN);
+
         if ($sHook == 'uam_page_uam_settings') {
             wp_enqueue_script(self::HANDLE_SCRIPT_ADMIN);
         }
@@ -998,7 +1000,8 @@ class UserAccessManager
     /**
      * Register all other styles.
      */
-    protected function registerStyles() {
+    protected function registerStyles()
+    {
         wp_register_style(
             self::HANDLE_STYLE_LOGIN_FORM,
             UAM_URLPATH . 'css/uamLoginForm.css',
