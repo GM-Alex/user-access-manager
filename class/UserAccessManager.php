@@ -571,10 +571,6 @@ class UserAccessManager
      */
     public function getCurrentUser()
     {
-        if (!function_exists('get_userdata')) {
-            include_once ABSPATH.'wp-includes/pluggable.php';
-        }
-
         //Force user information
         return wp_get_current_user();
     }
@@ -741,9 +737,6 @@ class UserAccessManager
     public function createHtpasswd($blCreateNew = false, $sDir = null)
     {
         $oCurrentUser = $this->getCurrentUser();
-        if (!function_exists('get_userdata')) {
-            include_once ABSPATH.'wp-includes/pluggable.php';
-        }
         
         $oConfig = $this->getConfig();
 
@@ -757,16 +750,14 @@ class UserAccessManager
         }
         
         if ($sDir !== null) {
-            $oUserData = $this->getUser($oCurrentUser->ID);
-            
             if (!file_exists($sDir.".htpasswd") || $blCreateNew) {
                 if ($oConfig->getFilePassType() === 'random') {
                     $sPassword = md5($this->getRandomPassword());
                 } else {
-                    $sPassword = $oUserData->user_pass;
+                    $sPassword = $oCurrentUser->user_pass;
                 }
               
-                $sUser = $oUserData->user_login;
+                $sUser = $oCurrentUser->user_login;
 
                 // make .htpasswd
                 $sHtpasswdTxt = "$sUser:" . $sPassword . "\n";
@@ -2157,9 +2148,8 @@ class UserAccessManager
                 }
 
                 $oCurrentUser = $this->getCurrentUser();
-                $oUserData = $this->getUser($oCurrentUser->ID);
 
-                if (!isset($oUserData->user_level)) {
+                if (!isset($oCurrentUser->user_level)) {
                     return $sOutput;
                 }
 
