@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: https://wordpress.org/plugins/user-access-manager/
  * Author URI: https://twitter.com/GM_Alex
- * Version: 1.2.13
+ * Version: 1.2.14
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
  * 
@@ -95,7 +95,6 @@ if (!function_exists("userAccessManagerAP")) {
          * @var UserAccessManager $oUserAccessManager
          */
         global $oUserAccessManager;
-        $oCurrentUser = $oUserAccessManager->getCurrentUser();
 
         if (!isset($oUserAccessManager)) {
             return;
@@ -137,9 +136,8 @@ if (!function_exists("userAccessManagerAP")) {
 
                 add_action('manage_posts_custom_column', array($oUserAccessManager, 'addPostColumn'), 10, 2);
                 add_action('manage_pages_custom_column', array($oUserAccessManager, 'addPostColumn'), 10, 2);
-                add_action('save_post', array($oUserAccessManager, 'savePostData'));
 
-                add_action('manage_media_custom_column', array($oUserAccessManager, 'addPostColumn'), 10, 2);
+                add_action('save_post', array($oUserAccessManager, 'savePostData'));
 
                 //Actions are only called when the attachment content is modified so we can't use it.
                 //add_action('add_attachment', array($oUserAccessManager, 'savePostData'));
@@ -158,6 +156,11 @@ if (!function_exists("userAccessManagerAP")) {
                     add_action($sTaxonomy.'_add_form_fields', array($oUserAccessManager, 'showTermEditForm'));
                     add_action($sTaxonomy.'_edit_form_fields', array($oUserAccessManager, 'showTermEditForm'));
                 }
+                if ($oConfig->lockFile() === true) {
+                    add_action('manage_media_custom_column', array($oUserAccessManager, 'addPostColumn'), 10, 2);
+                    add_action('media_meta', array($oUserAccessManager, 'showMediaFile'), 10, 2);
+                }
+
             }
 
             //Admin filters
@@ -174,11 +177,10 @@ if (!function_exists("userAccessManagerAP")) {
                 foreach ($aTaxonomies as $sTaxonomy) {
                     add_filter('manage_edit-'.$sTaxonomy.'_columns', array($oUserAccessManager, 'addTermColumnsHeader'));
                 }
-            }
 
-            if ($oConfig->lockFile() === true) {
-                add_action('media_meta', array($oUserAccessManager, 'showMediaFile'), 10, 2);
-                add_filter('manage_media_columns', array($oUserAccessManager, 'addPostColumnsHeader'));
+                if ($oConfig->lockFile() === true) {
+                    add_filter('manage_media_columns', array($oUserAccessManager, 'addPostColumnsHeader'));
+                }
             }
         }
 
@@ -266,7 +268,11 @@ if (!function_exists("userAccessManagerAPMenu")) {
                 $aPostableTypes = $oUamAccessHandler->getPostableTypes();
                 
                 foreach ($aPostableTypes as $sPostableType) {
-                    add_meta_box('uma_post_access', 'Access', array($oUserAccessManager, 'editPostContent'), $sPostableType, 'side');
+                    // there is no need for a metabox for attachments if files are locked
+                    if ($sPostableType == 'attachment' && $oConfig->lockFile() !== true) {
+                        continue;
+                    }
+                    add_meta_box('uma_post_access', __('Access', 'user-access-manager'), array($oUserAccessManager, 'editPostContent'), $sPostableType, 'side');
                 }
             }
         }

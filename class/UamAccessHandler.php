@@ -473,8 +473,19 @@ class UamAccessHandler
             $aUserUserGroups = $this->getUserGroupsForObject(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID, false);
             $aUserUserGroupIds = array();
 
-            foreach ($aUserUserGroups as $oUserUserGroup) {
-                $aUserUserGroupIds[] = $oUserUserGroup->getId();
+            foreach ($aUserUserGroups as $oUserGroup) {
+                $aUserUserGroupIds[$oUserGroup->getId()] = $oUserGroup->getId();
+            }
+
+            $aCurrentIp = explode('.', $_SERVER['REMOTE_ADDR']);
+            $aUserGroups = $this->getUserGroups();
+
+            foreach ($aUserGroups as $oUserGroup) {
+                if (!isset($aUserUserGroupIds[$oUserGroup->getId()])
+                    && $this->checkUserIp($aCurrentIp, $oUserGroup->getIpRange())
+                ) {
+                    $aUserUserGroupIds[$oUserGroup->getId()] = $oUserGroup->getId();
+                }
             }
 
             if ($aUserUserGroupIds !== array()) {
