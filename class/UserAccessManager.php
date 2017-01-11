@@ -1000,7 +1000,7 @@ class UserAccessManager
     /**
      * Register all other styles.
      */
-    protected function registerStyles()
+    protected function registerStylesAndScripts()
     {
         wp_register_style(
             self::HANDLE_STYLE_LOGIN_FORM,
@@ -1016,7 +1016,7 @@ class UserAccessManager
      */
     public function enqueueStylesAndScripts()
     {
-        $this->registerStyles();
+        $this->registerStylesAndScripts();
         wp_enqueue_style(self::HANDLE_STYLE_LOGIN_FORM);
     }
 
