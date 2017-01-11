@@ -1392,19 +1392,19 @@ class UserAccessManager
     /**
      * The function for the manage_categories_custom_column action.
      * 
-     * @param string  $sEmpty      An empty string from wordpress? What the hell?!?
+     * @param string  $sContent    Content for the column. Multiple filter calls are possible, so we need to append.
      * @param string  $sColumnName The column name.
      * @param integer $iId         The id.
      * 
-     * @return string|null
+     * @return string $sContent with content appended for 'uam_access' column
      */
-    public function addTermColumn($sEmpty, $sColumnName, $iId)
+    public function addTermColumn($sContent, $sColumnName, $iId)
     {
         if ($sColumnName == 'uam_access') {
-            return $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, self::TERM_OBJECT_TYPE);
+            $sContent .= $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, self::TERM_OBJECT_TYPE);
         }
 
-        return null;
+        return $sContent;
     }
     
     /**
