@@ -1,9 +1,27 @@
 <?php
+/**
+ * Database.php
+ *
+ * The Database class file.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
 
 namespace UserAccessManager\Database;
 
 use UserAccessManager\Wrapper\Wordpress;
 
+/**
+ * Class Database
+ *
+ * @package UserAccessManager\Database
+ */
 class Database
 {
     CONST USER_GROUP_TABLE_NAME = 'uam_accessgroups';
@@ -248,5 +266,49 @@ class Database
     public function getResults($sQuery = null, $sOutput = OBJECT)
     {
         return $this->_oWpDatabase->get_results($sQuery, $sOutput);
+    }
+
+    /**
+     * @see \wpdb::insert()
+     *
+     * @param string       $sTable
+     * @param array        $aData
+     * @param array|string $sFormat
+     *
+     * @return false|int
+     */
+    public function insert($sTable, array $aData, $sFormat = null)
+    {
+        return $this->_oWpDatabase->insert($sTable, $aData, $sFormat);
+    }
+
+    /**
+     * @see \wpdb::update()
+     *
+     * @param string       $sTable
+     * @param array        $aData
+     * @param array        $aWhere
+     * @param array|string $mFormat
+     * @param array|string $mWhereFormat
+     *
+     * @return false|int
+     */
+    public function update($sTable, array $aData, array $aWhere, $mFormat = null, $mWhereFormat = null)
+    {
+        return $this->_oWpDatabase->update($sTable, $aData, $aWhere, $mFormat, $mWhereFormat);
+    }
+
+    /**
+     * @see \wpdb::delete()
+     *
+     * @param string       $sTable
+     * @param array        $aWhere
+     * @param array|string $mWhereFormat
+     *
+     * @return false|int
+     */
+    public function delete($sTable, array $aWhere, $mWhereFormat = null)
+    {
+        return $this->_oWpDatabase->delete($sTable, $aWhere, $mWhereFormat);
     }
 }

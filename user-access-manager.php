@@ -310,6 +310,7 @@ if (isset($oUserAccessManager)) {
 
     //Actions
     if (function_exists('add_action')) {
+        add_action('registered_post_type', array(&$this, 'registeredPostType'), 10, 2); //TODO object handler
         add_action('admin_enqueue_scripts', array($oUserAccessManager,'enqueueAdminStylesAndScripts'));
         add_action('wp_enqueue_scripts', array($oUserAccessManager, 'enqueueStylesAndScripts'));
         add_action('admin_init', 'userAccessManagerAP');

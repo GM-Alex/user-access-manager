@@ -1,37 +1,33 @@
 <?php
 /**
  * AccessHandler.php
- * 
+ *
  * The AccessHandler class file.
- * 
+ *
  * PHP versions 5
- * 
- * @category  UserAccessManager
- * @package   UserAccessManager
- * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2016 Alexander Schneider
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
 namespace UserAccessManager\AccessHandler;
+
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
+use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Service\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
- * The access handler class.
- * 
- * @category UserAccessManager
- * @package  UserAccessManager
- * @author   Alexander Schneider <alexanderschneider85@gmail.com>
- * @license  http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @link     http://wordpress.org/extend/plugins/user-access-manager/
+ * Class AccessHandler
+ *
+ * @package UserAccessManager\AccessHandler
  */
 class AccessHandler
 {
@@ -59,6 +55,11 @@ class AccessHandler
     protected $_oDatabase;
 
     /**
+     * @var ObjectHandler
+     */
+    protected $_oObjectHandler;
+
+    /**
      * @var Util
      */
     protected $_oUtil;
@@ -71,133 +72,40 @@ class AccessHandler
     protected $_aObjectUserGroups = array();
     protected $_aObjectAccess = array();
     protected $_aUserGroups = array();
-    protected $_aPlObjects = array();
-    protected $_aObjectTypes = array(
-        UserAccessManager::TERM_OBJECT_TYPE => UserAccessManager::TERM_OBJECT_TYPE,
-        UserAccessManager::USER_OBJECT_TYPE => UserAccessManager::USER_OBJECT_TYPE,
-        UserAccessManager::ROLE_OBJECT_TYPE => UserAccessManager::ROLE_OBJECT_TYPE
-    );
-    protected $_aPostableTypes = array(
-        UserAccessManager::POST_OBJECT_TYPE => UserAccessManager::POST_OBJECT_TYPE,
-        UserAccessManager::PAGE_OBJECT_TYPE => UserAccessManager::PAGE_OBJECT_TYPE,
-        UserAccessManager::ATTACHMENT_OBJECT_TYPE => UserAccessManager::ATTACHMENT_OBJECT_TYPE
-    );
-    protected $_aAllObjectTypes = null;
-    protected $_aAllObjectTypesMap = null;
-    protected $_aValidObjectTypes = array();
-    
+
     /**
      * The constructor
-     * 
-     * @param Wordpress $oWrapper
-     * @param Config    $oConfig
-     * @param Cache     $oCache
-     * @param Database  $oDatabase
-     * @param Util      $oUtil
+     *
+     * @param Wordpress     $oWrapper
+     * @param Config        $oConfig
+     * @param Cache         $oCache
+     * @param Database      $oDatabase
+     * @param ObjectHandler $oObjectHandler
+     * @param Util          $oUtil
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, Cache $oCache, Database $oDatabase, Util $oUtil)
+    public function __construct(
+        Wordpress $oWrapper,
+        Config $oConfig,
+        Cache $oCache,
+        Database $oDatabase,
+        ObjectHandler $oObjectHandler,
+        Util $oUtil
+    )
     {
         $this->_oWrapper = $oWrapper;
         $this->_oConfig = $oConfig;
         $this->_oCache = $oCache;
         $this->_oDatabase = $oDatabase;
+        $this->_oObjectHandler = $oObjectHandler;
         $this->_oUtil = $oUtil;
-        $this->_aPostableTypes = array_merge($this->_aPostableTypes, $this->_oCache->getPostTypes());
-        $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes, $this->_oCache->getTaxonomies());
-        $this->_oWrapper->addAction('registered_post_type', array(&$this, 'registeredPostType'), 10, 2);
     }
 
-    /**
-     * used for adding custom post types using the registered_post_type hook
-     * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
-     *
-     * @param string    $sPostType  The string for the new post_type
-     * @param \stdClass $oArguments The array of arguments used to create the post_type
-     *
-     */
-    public function registeredPostType($sPostType, $oArguments)
-    {
-        if ($oArguments->publicly_queryable) {
-            $this->_aPostableTypes[$oArguments->name] = $oArguments->name;
-            $this->_aPostableTypes = array_unique($this->_aPostableTypes);
-            $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes);
-            $this->_aAllObjectTypes = null;
-            $this->_aAllObjectTypesMap = null;
-            $this->_aValidObjectTypes = null;
-        }
-    }
-
-    /**
-     * Checks if type is postable.
-     *
-     * @param string $sType
-     *
-     * @return bool
-     */
-    public function isPostableType($sType)
-    {
-        return isset($this->_aPostableTypes[$sType]);
-    }
-
-    /**
-     * Returns the predefined object types.
-     * 
-     * @return array
-     */
-    public function getObjectTypes()
-    {
-        return $this->_aObjectTypes;
-    }
-    
-    /**
-     * Returns the predefined object types.
-     * 
-     * @return array;
-     */
-    public function getPostableTypes()
-    {
-        return $this->_aPostableTypes;
-    }
-    
-    /**
-     * Returns all objects types.
-     * 
-     * @return array
-     */
-    public function getAllObjectTypes()
-    {
-        if ($this->_aAllObjectTypes === null) {
-            $aPlObjects = $this->getPlObjects();
-
-            $this->_aAllObjectTypes = array_merge(
-                $this->_aObjectTypes,
-                array_keys($aPlObjects)
-            );
-        }
-        
-        return $this->_aAllObjectTypes;
-    }
-
-    /**
-     * Returns all objects types as map.
-     *
-     * @return array
-     */
-    public function getAllObjectTypesMap()
-    {
-        if ($this->_aAllObjectTypesMap === null) {
-            $this->_aAllObjectTypesMap = array_flip($this->getAllObjectTypes());
-        }
-
-        return $this->_aAllObjectTypesMap;
-    }
-    
     /**
      * Magic method getter.
-     * 
+     *
      * @param string $sName      The name of the function
      * @param array  $aArguments The arguments for the function
-     * 
+     *
      * @return mixed
      */
     public function __call($sName, $aArguments)
@@ -225,13 +133,13 @@ class AccessHandler
 
         return null;
     }
-    
+
     /**
      * Filter the user groups of an object if authors_can_add_posts_to_groups
      * option is enabled
-     * 
+     *
      * @param UserGroup[] $aUserGroups The user groups.
-     * 
+     *
      * @return array
      */
     protected function _filterUserGroups($aUserGroups)
@@ -242,49 +150,27 @@ class AccessHandler
         ) {
             $oCurrentUser = $this->_oWrapper->getCurrentUser();
             $aUserGroupsForUser = $this->getUserGroupsForObject(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID);
-            
+
             foreach ($aUserGroups as $sKey => $oUamUserGroup) {
                 if (!isset($aUserGroupsForUser[$oUamUserGroup->getId()])) {
                     unset($aUserGroups[$sKey]);
                 }
             }
         }
-        
+
         return $aUserGroups;
     }
 
     /**
-     * Checks if the object type is a valid one.
-     *
-     * @param string $sObjectType The object type to check.
-     *
-     * @return boolean
-     */
-    public function isValidObjectType($sObjectType)
-    {
-        if (!isset($this->_aValidObjectTypes[$sObjectType])) {
-            $aObjectTypesMap = $this->getAllObjectTypesMap();
-
-            if (isset($aObjectTypesMap[$sObjectType])) {
-                $this->_aValidObjectTypes[$sObjectType] = true;
-            } else {
-                $this->_aValidObjectTypes[$sObjectType] = false;
-            }
-        }
-
-        return $this->_aValidObjectTypes[$sObjectType];
-    }
-    
-    /**
      * Returns all user groups or one requested by the user group id.
      *
-     * @param boolean $blFilter     Filter the groups.
-     * 
+     * @param boolean $blFilter Filter the groups.
+     *
      * @return UserGroup[]
      */
     public function getUserGroups($blFilter = true)
     {
-        $sFilterAttr = ($blFilter === true) ? self::OBJECTS_FILTERED :  self::OBJECTS_NONE_FILTERED;
+        $sFilterAttr = ($blFilter === true) ? self::OBJECTS_FILTERED : self::OBJECTS_NONE_FILTERED;
 
         if (!isset($this->_aUserGroups[$sFilterAttr])) {
             $this->_aUserGroups[$sFilterAttr] = array();
@@ -308,10 +194,10 @@ class AccessHandler
 
         return $this->_aUserGroups[$sFilterAttr];
     }
-    
+
     /**
      * Adds a user group.
-     * 
+     *
      * @param UserGroup $oUserGroup The user group which we want to add.
      */
     public function addUserGroup($oUserGroup)
@@ -320,10 +206,10 @@ class AccessHandler
         $this->_aUserGroups[self::OBJECTS_NONE_FILTERED][$oUserGroup->getId()] = $oUserGroup;
         unset($this->_aUserGroups[self::OBJECTS_FILTERED]);
     }
-    
+
     /**
      * Deletes a user group.
-     * 
+     *
      * @param integer $iUserGroupId The user group _iId which we want to delete.
      */
     public function deleteUserGroup($iUserGroupId)
@@ -336,19 +222,19 @@ class AccessHandler
             unset($this->_aUserGroups[self::OBJECTS_FILTERED]);
         }
     }
-    
+
     /**
      * Returns the user groups for the given object.
-     * 
+     *
      * @param string  $sObjectType The object type.
      * @param integer $iObjectId   The _iId of the object.
      * @param boolean $blFilter    Filter the groups.
-     * 
+     *
      * @return UserGroup[]
      */
     public function getUserGroupsForObject($sObjectType, $iObjectId, $blFilter = true)
     {
-        if (!$this->isValidObjectType($sObjectType)) {
+        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)) {
             return array();
         }
 
@@ -395,7 +281,7 @@ class AccessHandler
 
         return $this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId];
     }
-    
+
     /**
      * Unset the user groups for _aObjects.
      */
@@ -403,27 +289,27 @@ class AccessHandler
     {
         $this->_aObjectUserGroups = array();
     }
-    
+
     /**
      * Checks if the current_user has access to the given post.
-     * 
+     *
      * @param string  $sObjectType The object type which should be checked.
      * @param integer $iObjectId   The _iId of the object.
-     * 
+     *
      * @return boolean
      */
     public function checkObjectAccess($sObjectType, $iObjectId)
     {
-        if (!$this->isValidObjectType($sObjectType)) {
+        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)) {
             return true;
         }
-        
+
         if (!isset($this->_aObjectAccess[$sObjectType][$iObjectId])) {
             $this->_aObjectAccess[$sObjectType][$iObjectId] = false;
             $oCurrentUser = $this->_oWrapper->getCurrentUser();
 
-            if ($this->isPostableType($sObjectType)) {
-                $oPost = $this->_oCache->getPost($iObjectId);
+            if ($this->_oObjectHandler->isPostableType($sObjectType)) {
+                $oPost = $this->_oObjectHandler->getPost($iObjectId);
                 $sAuthorId = $oPost->post_author;
             } else {
                 $sAuthorId = -1;
@@ -457,7 +343,7 @@ class AccessHandler
                 }
             }
         }
-        
+
         return $this->_aObjectAccess[$sObjectType][$iObjectId];
     }
 
@@ -487,14 +373,14 @@ class AccessHandler
 
         return $this->_aGroupsForUser;
     }
-    
+
     /*
      * SQL functions.
      */
-    
+
     /**
      * Returns the categories assigned to the user.
-     * 
+     *
      * @return array
      */
     public function getTermsForUser()
@@ -510,7 +396,7 @@ class AccessHandler
                 WHERE igc.object_type = '{$sTermType}'
                 AND igc.group_id IN ({$sUserUserGroups})";
 
-            $this->_aTermsAssignedToUser  = $this->_oDatabase->getColumn($sTermsAssignedToUserSql);
+            $this->_aTermsAssignedToUser = $this->_oDatabase->getColumn($sTermsAssignedToUserSql);
         }
 
         return $this->_aTermsAssignedToUser;
@@ -549,7 +435,7 @@ class AccessHandler
 
     /**
      * Returns the posts assigned to the user.
-     * 
+     *
      * @return array
      */
     public function getPostsForUser()
@@ -557,7 +443,7 @@ class AccessHandler
         if ($this->_aPostsAssignedToUser === null) {
             $aUserUserGroups = $this->_getUserGroupsForUser();
             $sUserUserGroups = $this->_oDatabase->generateSqlIdList(array_keys($aUserUserGroups));
-            $sPostableTypes = '\''.implode('\', \'', $this->getPostableTypes()).'\'';
+            $sPostableTypes = '\''.implode('\', \'', $this->_oObjectHandler->getPostableTypes()).'\'';
 
             $sPostAssignedToUserSql = "
                 SELECT object_id
@@ -667,10 +553,10 @@ class AccessHandler
 
         return (array)$this->_oDatabase->getResults($sPostQuery);
     }
-    
-     /**
+
+    /**
      * Returns the excluded posts.
-     * 
+     *
      * @return array
      */
     public function getExcludedPosts()
@@ -680,7 +566,7 @@ class AccessHandler
                 'all' => array()
             );
         }
-        
+
         if ($this->_aExcludedPosts === null) {
             $sAccessType = ($this->_oConfig->atAdminPanel() === true) ? 'write' : 'read';
 
@@ -691,10 +577,10 @@ class AccessHandler
             $aPostAssignedToUser = $this->getPostsForUser();
             $sPostAssignedToUser = ($aPostAssignedToUser !== array()) ? implode(', ', $aPostAssignedToUser) : null;
 
-            $aPostableTypes = $this->getPostableTypes();
+            $aPostableTypes = $this->_oObjectHandler->getPostableTypes();
 
             if (!$this->_oConfig->atAdminPanel()) {
-                foreach ($aPostableTypes as $sKey =>$sType) {
+                foreach ($aPostableTypes as $sKey => $sType) {
                     if ($this->_oConfig->hideObjectType($sType) === false) {
                         unset($aPostableTypes[$sKey]);
                     }
@@ -729,11 +615,11 @@ class AccessHandler
                 $aExcludedPosts[$oExcludedPost->type][$oExcludedPost->id] = $oExcludedPost->id;
             }
 
-            $aPostTreeMap = $oUserAccessManager->getPostTreeMap();
+            $aPostTreeMap = $this->_oObjectHandler->getPostTreeMap();
 
             foreach ($aExcludedPosts as $sType => $aIds) {
                 if ($sType !== 'all') {
-                    if ($oUserAccessManager->isPostTypeHierarchical($sType)) {
+                    if ($this->_oWrapper->isPostTypeHierarchical($sType)) {
                         foreach ($aIds as $iId) {
                             if (isset($aPostTreeMap[$iId])) {
                                 foreach ($aPostTreeMap[$iId] as $iPostId => $sPostType) {
@@ -754,8 +640,8 @@ class AccessHandler
 
         return $this->_aExcludedPosts;
     }
-    
-    
+
+
     /*
      * Other functions
      */
@@ -771,13 +657,13 @@ class AccessHandler
     {
         return ($aIp[0] << 24) + ($aIp[1] << 16) + ($aIp[2] << 8) + $aIp[3];
     }
-    
+
     /**
      * Checks if the given ip matches with the range.
-     * 
-     * @param array $aCurrentIp    The ip of the current user.
-     * @param array $aIpRanges The ip ranges.
-     * 
+     *
+     * @param array $aCurrentIp The ip of the current user.
+     * @param array $aIpRanges  The ip ranges.
+     *
      * @return boolean
      */
     public function checkUserIp(array $aCurrentIp, array $aIpRanges)
@@ -798,49 +684,49 @@ class AccessHandler
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Return the role of the user.
-     * 
+     *
      * @param integer $iUserId The user id.
-     * 
+     *
      * @return array
      */
     protected function _getUserRole($iUserId)
     {
-        $oUserData = $this->_oCache->getUser($iUserId);
-        
+        $oUserData = $this->_oObjectHandler->getUser($iUserId);
+
         if (!empty($oUserData->user_level) && !isset($oUserData->user_level)) {
             $oUserData->user_level = null;
         }
-        
+
         if (isset($oUserData->{$this->_oDatabase->getPrefix().'capabilities'})) {
             $aCapabilities = (array)$oUserData->{$this->_oDatabase->getPrefix().'capabilities'};
         } else {
             $aCapabilities = array();
         }
-        
+
         return (count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
     }
-    
+
     /**
      * Checks if the user is an admin user
-     * 
+     *
      * @param integer $iUserId The user id.
-     * 
+     *
      * @return boolean
      */
     public function userIsAdmin($iUserId)
     {
         $aRoles = $this->_getUserRole($iUserId);
         $aRolesMap = array_keys($aRoles);
-        
+
         return (isset($aRolesMap['administrator']) || $this->_oWrapper->isSuperAdmin($iUserId));
     }
-    
+
     /**
      * Checks the user access by user level.
      *
@@ -851,7 +737,7 @@ class AccessHandler
     public function checkUserAccess($mAllowedCapability = false)
     {
         $oCurrentUser = $this->_oWrapper->getCurrentUser();
-        
+
         $aRoles = $this->_getUserRole($oCurrentUser->ID);
         $aRolesMap = array_keys($aRoles);
         $aOrderedRoles = $this->getRolesOrdered();
@@ -871,10 +757,10 @@ class AccessHandler
             || ($mAllowedCapability !== true && $oCurrentUser->has_cap($mAllowedCapability))
         );
     }
-    
+
     /**
      * Returns the roles as associative array.
-     * 
+     *
      * @return array
      */
     public function getRolesOrdered()
@@ -887,53 +773,7 @@ class AccessHandler
             'editor' => 4,
             'administrator' => 5
         );
-        
+
         return $aOrderedRoles;
-    }
-    
-    /**
-     * Registers object that should be handel by the user access manager.
-     * 
-     * @param array $oObject The object which you want to register.
-     * 
-     * @return boolean
-     */
-    public function registerPlObject($oObject)
-    {
-        if (!isset($oObject['name']) || !isset($oObject['reference'])
-            || !isset($oObject['getFull']) || !isset($oObject['getFullObjects'])
-        ) {
-            return false;
-        }
-        
-        $this->_aPlObjects[$oObject['name']] = $oObject;
-        
-        return true;
-    }
-    
-    /**
-     * Returns a registered pluggable object.
-     * 
-     * @param string $sObjectName The name of the object which should be returned.
-     * 
-     * @return array
-     */
-    public function getPlObject($sObjectName)
-    {
-        if (isset($this->_aPlObjects[$sObjectName])) {
-            return $this->_aPlObjects[$sObjectName];
-        }
-        
-        return array();
-    }
-    
-    /**
-     * Returns all registered pluggable objects.
-     * 
-     * @return array
-     */
-    public function getPlObjects()
-    {
-        return $this->_aPlObjects;
     }
 }

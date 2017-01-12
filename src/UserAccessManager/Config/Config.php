@@ -6,10 +6,8 @@
  *
  * PHP versions 5
  *
- * @category  UserAccessManager
- * @package   UserAccessManager
- * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2016 Alexander Schneider
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -20,13 +18,9 @@ namespace UserAccessManager\Config;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
- * The config class.
+ * Class Config
  *
- * @category UserAccessManager
- * @package  UserAccessManager
- * @author   Alexander Schneider <alexanderschneider85@gmail.com>
- * @license  http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @link     http://wordpress.org/extend/plugins/user-access-manager/
+ * @package UserAccessManager\Config
  */
 class Config
 {
@@ -249,7 +243,7 @@ class Config
      */
     public function getObjectTypeCommentContent($sObjectType)
     {
-        return $this->_getStringOption($sObjectType . '_comment_content');
+        return $this->_getStringOption($sObjectType.'_comment_content');
     }
 
     /**
@@ -524,5 +518,16 @@ class Config
     public function setAtAdminPanel()
     {
         $this->_blAtAdminPanel = true;
+    }
+
+    /**
+     * Returns true if permalinks are active otherwise false.
+     *
+     * @return boolean
+     */
+    public function isPermalinksActive()
+    {
+        $sPermalinkStructure = $this->getWpOption('permalink_structure');
+        return !empty($sPermalinkStructure);
     }
 }

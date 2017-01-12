@@ -15,6 +15,17 @@ class Wordpress
     }
 
     /**
+     * Returns true if web server is nginx.
+     *
+     * @return bool
+     */
+    public function isNginx()
+    {
+        global $is_nginx;
+        return $is_nginx;
+    }
+
+    /**
      * @see is_post_type_hierarchical()
      *
      * @param string $sType
@@ -69,7 +80,7 @@ class Wordpress
     /**
      * @see get_post()
      *
-     * @param string $sId     The post id.
+     * @param string $sId The post id.
      * @param string $sOutput
      * @param string $sFilter
      *
@@ -264,12 +275,75 @@ class Wordpress
     }
 
     /**
-     * Returns the current user.
+     * @see wp_get_current_user()
      *
      * @return \WP_User
      */
     public function getCurrentUser()
     {
         return wp_get_current_user();
+    }
+
+    /**
+     * @see get_allowed_mime_types()
+     *
+     * @param int|\WP_User $mUser
+     *
+     * @return array
+     */
+    public function getAllowedMimeTypes($mUser = null)
+    {
+        return get_allowed_mime_types($mUser);
+    }
+
+    /**
+     * @see wp_upload_dir()
+     *
+     * @param string $sTime
+     * @param bool   $blCreateDir
+     * @param bool   $blRefreshCache
+     *
+     * @return array
+     */
+    public function getUploadDir($sTime = null, $blCreateDir = true, $blRefreshCache = false)
+    {
+        return wp_upload_dir($sTime, $blCreateDir, $blRefreshCache);
+    }
+
+    /**
+     * @see home_url()
+     *
+     * @param string $sPath
+     * @param string   $sScheme
+     *
+     * @return string
+     */
+    public function getHomeUrl($sPath = '', $sScheme = null)
+    {
+        return home_url($sPath, $sScheme);
+    }
+
+    /**
+     * @see wp_parse_id_list()
+     *
+     * @param array|string $mList
+     *
+     * @return array
+     */
+    public function parseIdList($mList)
+    {
+        return wp_parse_id_list($mList);
+    }
+
+    /**
+     * @see wp_die()
+     *
+     * @param string $sMessage
+     * @param string $sTitle
+     * @param array  $aArguments
+     */
+    public function wpDie($sMessage = '', $sTitle = '', array $aArguments = array())
+    {
+        wp_die($sMessage, $sTitle, $aArguments);
     }
 }
