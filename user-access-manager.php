@@ -27,7 +27,6 @@ define('UAM_REALPATH', WP_PLUGIN_DIR.'/'.plugin_basename(dirname(__FILE__)).'/')
 
 
 //Defines
-require_once 'includes/database.define.php';
 require_once 'includes/language.define.php';
 
 

@@ -1,8 +1,8 @@
 <?php
 /**
- * UamUserGroup.php
+ * UserGroup.php
  * 
- * The UamUserGroup class file.
+ * The UserGroup class file.
  * 
  * PHP versions 5
  * 
@@ -15,6 +15,10 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
+namespace UserAccessManager\UserGroup;
+
+use UserAccessManager\AccessHandler\AccessHandler;
+
 /**
  * The user group class.
  * 
@@ -25,7 +29,7 @@
  * @link     http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-class UamUserGroup
+class UserGroup
 {
     const OBJECTS_FULL = 'full';
     const OBJECTS_REAL = 'real';
@@ -50,10 +54,10 @@ class UamUserGroup
     /**
      * Constructor
      *
-     * @param UamAccessHandler $oUamAccessHandler The access handler object.
-     * @param integer          $iId               The id of the user group.
+     * @param AccessHandler $oUamAccessHandler The access handler object.
+     * @param integer       $iId               The id of the user group.
      */
-    public function __construct(UamAccessHandler &$oUamAccessHandler, $iId = null)
+    public function __construct(AccessHandler &$oUamAccessHandler, $iId = null)
     {
         $this->_oAccessHandler = $oUamAccessHandler;
 
@@ -744,7 +748,7 @@ class UamUserGroup
             if ($aIsRecursiveMember != array()
                 || $this->_isObjectAssignedToGroup($sObjectType, $iObjectId)
             ) {
-                $oObject = new stdClass();
+                $oObject = new \stdClass();
                 $oObject->id = $iObjectId;
 
                 if ($aIsRecursiveMember != array()) {

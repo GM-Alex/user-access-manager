@@ -15,6 +15,11 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
+namespace UserAccessManager\Service;
+use UserAccessManager\Config\Config;
+use UserAccessManager\Database\Database;
+use UserAccessManager\Wrapper\Wordpress;
+
 /**
  * The user user access manager class.
  * 
@@ -26,6 +31,9 @@
  */
 class UserAccessManager
 {
+    const VERSION = '1.2.14';
+    const DB_VERSION = '1.4';
+
     const USER_OBJECT_TYPE = 'user';
     const POST_OBJECT_TYPE = 'post';
     const PAGE_OBJECT_TYPE = 'page';
@@ -36,18 +44,32 @@ class UserAccessManager
     /**
      * names of style and script handles
      */
-    CONST HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';
-    CONST HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
-    CONST HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
+    const HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';
+    const HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
+    const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
 
-    protected $_oConfig = null;
+    /**
+     * @var Wordpress
+     */
+    protected $_oWrapper;
+
+    /**
+     * @var Config
+     */
+    protected $_oConfig;
+
+    /**
+     * @var Database
+     */
+    protected $oDatabase;
+
+    /**
+     * @var bool
+     */
     protected $_blAtAdminPanel = false;
-    protected $_sUamVersion = '1.2.14';
-    protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
     protected $_aPostUrls = array();
     protected $_aMimeTypes = null;
-    protected $_aCache = array();
     protected $_aUsers = array();
     protected $_aPosts = array();
     protected $_aTerms = array();
@@ -59,153 +81,18 @@ class UserAccessManager
     protected $_aTaxonomies = null;
 
     /**
-     * Constructor.
+     * UserAccessManager constructor.
+     *
+     * @param Wordpress $oWrapper
+     * @param Config    $oConfig
+     * @param Database  $oDatabase
      */
-    public function __construct()
+    public function __construct(Wordpress $oWrapper, Config $oConfig, Database $oDatabase)
     {
-        do_action('uam_init', $this);
-    }
-
-    /**
-     * Flushes the cache.
-     */
-    public function flushCache()
-    {
-        $this->_aCache = array();
-    }
-
-    /**
-     * Returns the database.
-     *
-     * @return wpdb
-     */
-    public function getDatabase()
-    {
-        global $wpdb;
-        return $wpdb;
-    }
-
-    /**
-     * Returns all post types.
-     *
-     * @return array
-     */
-    public function getPostTypes()
-    {
-        if ($this->_aPostTypes === null) {
-            $this->_aPostTypes = get_post_types(array('publicly_queryable' => true));
-        }
-
-        return $this->_aPostTypes;
-    }
-
-    /**
-     * Wrapper for is_post_type_hierarchical
-     *
-     * @param string $sType
-     *
-     * @return bool
-     */
-    public function isPostTypeHierarchical($sType)
-    {
-        return is_post_type_hierarchical($sType);
-    }
-
-    /**
-     * Returns the taxonomies.
-     *
-     * @return array
-     */
-    public function getTaxonomies()
-    {
-        if ($this->_aTaxonomies === null) {
-            $this->_aTaxonomies = get_taxonomies();
-        }
-
-        return $this->_aTaxonomies;
-    }
-
-    /**
-     * Adds the variable to the cache.
-     *
-     * @param string $sKey   The cache key
-     * @param mixed  $mValue The value.
-     */
-    public function addToCache($sKey, $mValue)
-    {
-        $this->_aCache[$sKey] = $mValue;
-    }
-
-    /**
-     * Returns a value from the cache by the given key.
-     *
-     * @param string $sKey
-     *
-     * @return mixed
-     */
-    public function getFromCache($sKey)
-    {
-        if (isset($this->_aCache[$sKey])) {
-            return $this->_aCache[$sKey];
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns a user.
-     *
-     * @param string $sId The user id.
-     *
-     * @return mixed
-     */
-    public function getUser($sId)
-    {
-        if (!isset($this->_aUsers[$sId])) {
-            $this->_aUsers[$sId] = get_userdata($sId);
-        }
-
-        return $this->_aUsers[$sId];
-    }
-
-    /**
-     * Returns a post.
-     *
-     * @param string $sId The post id.
-     *
-     * @return mixed
-     */
-    public function getPost($sId)
-    {
-        if (!isset($this->_aPosts[$sId])) {
-            $this->_aPosts[$sId] = get_post($sId);
-        }
-
-        return $this->_aPosts[$sId];
-    }
-
-    /**
-     * Returns a term.
-     *
-     * @param string $sId       The term id.
-     * @param string $sTaxonomy The taxonomy.
-     *
-     * @return mixed
-     */
-    public function getTerm($sId, $sTaxonomy = '')
-    {
-        if (!isset($this->_aTerms[$sId])) {
-            $iPriority = has_filter('get_term', array($this, 'showTerm'));
-            $blRemoveSuccess = remove_filter('get_term', array($this, 'showTerm'), $iPriority);
-
-            $this->_aTerms[$sId] = get_term($sId, $sTaxonomy);
-
-            if ($blRemoveSuccess === true) {
-                add_filter('get_term', array($this, 'showTerm'), $iPriority, 2);
-            }
-        }
-
-        return $this->_aTerms[$sId];
+        $this->_oWrapper = $oWrapper;
+        $this->_oConfig = $oConfig;
+        $this->_oDatabase = $oDatabase;
+        $this->_oWrapper->doAction('uam_init', $this);
     }
     
     /**
@@ -215,13 +102,12 @@ class UserAccessManager
      */
     protected function _getBlogIds()
     {
-        $oDatabase = $this->getDatabase();
         $aBlogIds = array();
 
-        if (is_multisite()) {
-            $aBlogIds = $oDatabase->get_col(
+        if ($this->_oWrapper->isMultiSite()) {
+            $aBlogIds = $this->_oDatabase->getColumn(
                 "SELECT blog_id
-                FROM ".$oDatabase->blogs
+                FROM ".$this->_oDatabase->getBlogsTable()
             );
         }
 
@@ -230,28 +116,25 @@ class UserAccessManager
     
     /**
      * Installs the user access manager.
+     *
+     * @param bool $blNetworkWide
      */
-    public function install()
+    public function install($blNetworkWide = false)
     {
-        $oDatabase = $this->getDatabase();
         $aBlogIds = $this->_getBlogIds();
  
-        if (isset($_GET['networkwide'])
-            && ((int)$_GET['networkwide'] === 1)
-        ) {
-            $iCurrentBlogId = $oDatabase->blogid;
-            
+        if ($blNetworkWide === true) {
+            $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
+
             foreach ($aBlogIds as $iBlogId) {
-                switch_to_blog($iBlogId);
+                $this->_oWrapper->switchToBlog($iBlogId);
                 $this->_installUam();
             }
-            
-            switch_to_blog($iCurrentBlogId);
-            
-            return null;
+
+            $this->_oWrapper->switchToBlog($iCurrentBlogId);
+        } else {
+            $this->_installUam();
         }
-        
-        $this->_installUam();
     }
     
     /**
@@ -259,21 +142,19 @@ class UserAccessManager
      */
     protected function _installUam()
     {
-        $oDatabase = $this->getDatabase();
         include_once ABSPATH.'wp-admin/includes/upgrade.php';
   
-        $sCharsetCollate = $this->_getCharset();
+        $sCharsetCollate = $this->_oDatabase->getCharset();
+        $sDbAccessGroupTable = $this->_oDatabase->getUserGroupTable();
         
-        $sDbAccessGroupTable = $oDatabase->prefix.'uam_accessgroups';
-        
-        $sDbUserGroup = $oDatabase->get_var(
+        $sDbUserGroup = $this->_oDatabase->getVariable(
             "SHOW TABLES 
-            LIKE '".$sDbAccessGroupTable."'"
+            LIKE '{$sDbAccessGroupTable}'"
         );
         
-        if ($sDbUserGroup != $sDbAccessGroupTable) {
-            dbDelta(
-                "CREATE TABLE ".$sDbAccessGroupTable." (
+        if ($sDbUserGroup !== $sDbAccessGroupTable) {
+            $this->_oDatabase->dbDelta(
+                "CREATE TABLE {$sDbAccessGroupTable} (
                     ID int(11) NOT NULL auto_increment,
                     groupname tinytext NOT NULL,
                     groupdesc text NOT NULL,
@@ -281,29 +162,29 @@ class UserAccessManager
                     write_access tinytext NOT NULL,
                     ip_range mediumtext NULL,
                     PRIMARY KEY (ID)
-                ) $sCharsetCollate;"
+                ) {$sCharsetCollate};"
             );
         }
 
-        $sDbAccessGroupToObjectTable = $oDatabase->prefix.'uam_accessgroup_to_object';
+        $sDbAccessGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();
 
-        $sDbAccessGroupToObject = $oDatabase->get_var(
+        $sDbAccessGroupToObject = $this->_oDatabase->getVariable(
             "SHOW TABLES 
             LIKE '".$sDbAccessGroupToObjectTable."'"
         );
         
-        if ($sDbAccessGroupToObject != $sDbAccessGroupToObjectTable) {
-            dbDelta(
-                "CREATE TABLE " . $sDbAccessGroupToObjectTable . " (
+        if ($sDbAccessGroupToObject !== $sDbAccessGroupToObjectTable) {
+            $this->_oDatabase->dbDelta(
+                "CREATE TABLE {$sDbAccessGroupToObjectTable} (
                     object_id VARCHAR(64) NOT NULL,
                     object_type varchar(64) NOT NULL,
                     group_id int(11) NOT NULL,
                     PRIMARY KEY (object_id,object_type,group_id)
-                ) $sCharsetCollate;"
+                ) {$sCharsetCollate};"
             );
         }
         
-        add_option("uam_db_version", $this->_sUamDbVersion);
+        $this->_oWrapper->addOption('uam_db_version', self::DB_VERSION);
     }
     
     /**
@@ -313,26 +194,25 @@ class UserAccessManager
      */
     public function isDatabaseUpdateNecessary()
     {
-        $oDatabase = $this->getDatabase();
         $aBlogIds = $this->_getBlogIds();
 
         if ($aBlogIds !== array()
-            && is_super_admin()
+            && $this->_oWrapper->isSuperAdmin()
         ) {
             foreach ($aBlogIds as $iBlogId) {
-                $sTable = $oDatabase->get_blog_prefix($iBlogId).'options';
+                $sTable = $this->_oDatabase->getBlogPrefix($iBlogId).'options';
                 $sSelect = "SELECT option_value FROM {$sTable} WHERE option_name = %s LIMIT 1";
-                $sSelect = $oDatabase->prepare($sSelect, 'uam_db_version');
-                $sCurrentDbVersion = $oDatabase->get_var($sSelect);
+                $sSelect = $this->_oDatabase->prepare($sSelect, 'uam_db_version');
+                $sCurrentDbVersion = $this->_oDatabase->getVariable($sSelect);
 
-                if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<')) {
+                if (version_compare($sCurrentDbVersion, self::DB_VERSION, '<')) {
                     return true;
                 }
             }
         }
 
         $sCurrentDbVersion = get_option('uam_db_version');
-        return version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<');
+        return version_compare($sCurrentDbVersion, self::DB_VERSION, '<');
     }
     
     /**
@@ -342,21 +222,20 @@ class UserAccessManager
      */
     public function update($blNetworkWide)
     {
-        $oDatabase = $this->getDatabase();
         $aBlogIds = $this->_getBlogIds();
  
         if ($blNetworkWide
             && $aBlogIds !== array()
         ) {
-            $iCurrentBlogId = $oDatabase->blogid;
+            $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
             
             foreach ($aBlogIds as $iBlogId) {
-                switch_to_blog($iBlogId);
+                $this->_oWrapper->switchToBlog($iBlogId);
                 $this->_installUam();
                 $this->_updateUam();
             }
             
-            switch_to_blog($iCurrentBlogId);
+            $this->_oWrapper->switchToBlog($iCurrentBlogId);
         } else {
             $this->_updateUam();
         }
@@ -367,50 +246,51 @@ class UserAccessManager
      */
     protected function _updateUam()
     {
-        $oDatabase = $this->getDatabase();
-        $sCurrentDbVersion = get_option('uam_db_version');
+        $sCurrentDbVersion = $this->_oWrapper->getOption('uam_db_version');
         
         if (empty($sCurrentDbVersion)) {
             $this->install();
         }
+
+        $sUamVersion = $this->_oWrapper->getOption('uam_version');
         
-        if (!get_option('uam_version') || version_compare(get_option('uam_version'), "1.0", '<')) {
-            delete_option('allow_comments_locked');
+        if (!$sUamVersion || version_compare($sUamVersion, "1.0", '<')) {
+            $this->_oWrapper->deleteOption('allow_comments_locked');
         }
         
-        $sDbAccessGroup = $oDatabase->prefix.'uam_accessgroups';
+        $sDbAccessGroup = $this->_oDatabase->getUserGroupTable();
         
-        $sDbUserGroup = $oDatabase->get_var(
+        $sDbUserGroup = $this->_oDatabase->getVariable(
             "SHOW TABLES 
             LIKE '".$sDbAccessGroup."'"
         );
         
-        if (version_compare($sCurrentDbVersion, $this->_sUamDbVersion, '<')) {
-            $sCharsetCollate = $this->_getCharset();
+        if (version_compare($sCurrentDbVersion, self::DB_VERSION, '<')) {
+            $sCharsetCollate = $this->_oDatabase->getCharset();
 
             if (version_compare($sCurrentDbVersion, "1.0", '<=')) {
                 if ($sDbUserGroup == $sDbAccessGroup) {
-                    $oDatabase->query(
+                    $this->_oDatabase->query(
                         "ALTER TABLE ".$sDbAccessGroup."
                         ADD read_access TINYTEXT NOT NULL DEFAULT '', 
                         ADD write_access TINYTEXT NOT NULL DEFAULT '', 
                         ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                     );
                     
-                    $oDatabase->query(
+                    $this->_oDatabase->query(
                         "UPDATE ".$sDbAccessGroup."
                         SET read_access = 'group', 
                             write_access = 'group'"
                     );
                     
-                    $sDbIpRange = $oDatabase->get_var(
+                    $sDbIpRange = $this->_oDatabase->getVariable(
                         "SHOW columns 
                         FROM ".$sDbAccessGroup."
                         LIKE 'ip_range'"
                     );
             
                     if ($sDbIpRange != 'ip_range') {
-                        $oDatabase->query(
+                        $this->_oDatabase->query(
                             "ALTER TABLE ".$sDbAccessGroup."
                             ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
                         );
@@ -423,7 +303,7 @@ class UserAccessManager
                 $sDbAccessGroupToCategory = $oDatabase->prefix.'uam_accessgroup_to_category';
                 $sDbAccessGroupToRole = $oDatabase->prefix.'uam_accessgroup_to_role';
                 
-                $oDatabase->query(
+                $this->_oDatabase->query(
                     "ALTER TABLE '{$sDbAccessGroupToObject}'
                     CHANGE 'object_id' 'object_id' VARCHAR(64)
                     ".$sCharsetCollate
@@ -476,7 +356,7 @@ class UserAccessManager
                     } 
                 }
                 
-                $oDatabase->query(
+                $this->_oDatabase->query(
                     "DROP TABLE {$sDbAccessGroupToPost},
                         {$sDbAccessGroupToUser},
                         {$sDbAccessGroupToCategory},
@@ -492,7 +372,7 @@ class UserAccessManager
                     CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
                     CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL";
 
-                $oDatabase->query($sSql);
+                $this->_oDatabase->query($sSql);
             }
 
             if (version_compare($sCurrentDbVersion, "1.3", '<=')) {
@@ -509,7 +389,7 @@ class UserAccessManager
                 );
             }
             
-            update_option('uam_db_version', $this->_sUamDbVersion);
+            update_option('uam_db_version', self::DB_VERSION);
         }
     }    
     
@@ -518,42 +398,15 @@ class UserAccessManager
      */
     public function uninstall()
     {
-        $oDatabase = $this->getDatabase();
-
-        $oDatabase->query(
+        $this->_oDatabase->query(
             "DROP TABLE ".DB_ACCESSGROUP.", 
                 ".DB_ACCESSGROUP_TO_OBJECT
         );
         
-        delete_option(UamConfig::ADMIN_OPTIONS_NAME);
-        delete_option('uam_version');
-        delete_option('uam_db_version');
+        $this->_oWrapper->deleteOption(Config::ADMIN_OPTIONS_NAME);
+        $this->_oWrapper->deleteOption('uam_version');
+        $this->_oWrapper->deleteOption('uam_db_version');
         $this->deleteFileProtectionFiles();
-    }
-    
-    /**
-     * Returns the database charset.
-     * 
-     * @return string
-     */
-    protected function _getCharset()
-    {
-        $oDatabase = $this->getDatabase();
-        $sCharsetCollate = '';
-
-        $sMySlqVersion = $oDatabase->get_var("SELECT VERSION() as mysql_version");
-        
-        if (version_compare($sMySlqVersion, '4.1.0', '>=')) {
-            if (!empty($oDatabase->charset)) {
-                $sCharsetCollate = "DEFAULT CHARACTER SET $oDatabase->charset";
-            }
-            
-            if (!empty($oDatabase->collate)) {
-                $sCharsetCollate.= " COLLATE $oDatabase->collate";
-            }
-        }
-        
-        return $sCharsetCollate;
     }
     
     /**
@@ -562,17 +415,6 @@ class UserAccessManager
     public function deactivate()
     {
         $this->deleteFileProtectionFiles();
-    }
-
-    /**
-     * Returns the current user.
-     *
-     * @return WP_User
-     */
-    public function getCurrentUser()
-    {
-        //Force user information
-        return wp_get_current_user();
     }
 
     /**
@@ -839,14 +681,10 @@ class UserAccessManager
     /**
      * Returns the current config.
      *
-     * @return UamConfig
+     * @return Config
      */
     public function getConfig()
     {
-        if ($this->_oConfig === null) {
-            $this->_oConfig = new UamConfig();
-        }
-
         return $this->_oConfig;
     }
 
@@ -886,65 +724,7 @@ class UserAccessManager
         
         return $this->_oAccessHandler;
     }
-    
-    /**
-     * Returns the current version of the user access manager.
-     * 
-     * @return string
-     */
-    public function getVersion()
-    {
-        return $this->_sUamVersion;
-    }
-    
-    /**
-     * Returns true if a user is at the admin panel.
-     * 
-     * @return boolean
-     */
-    public function atAdminPanel()
-    {
-        return $this->_blAtAdminPanel;
-    }
-    
-    /**
-     * Sets the atAdminPanel var to true.
-     */
-    public function setAtAdminPanel()
-    {
-        $this->_blAtAdminPanel = true;
-    }
-    
-    
-    /*
-     * Helper functions.
-     */
-    
-    /**
-     * Checks if a string starts with the given needle.
-     * 
-     * @param string $sHaystack The haystack.
-     * @param string $sNeedle   The needle.
-     * 
-     * @return boolean
-     */
-    public function startsWith($sHaystack, $sNeedle)
-    {
-        return $sNeedle === '' || strpos($sHaystack, $sNeedle) === 0;
-    }
 
-    /**
-     * Checks if a string ends with the given needle.
-     *
-     * @param string $sHaystack
-     * @param string $sNeedle
-     *
-     * @return bool
-     */
-    public function endsWith($sHaystack, $sNeedle)
-    {
-        return $sNeedle === '' || substr($sHaystack, -strlen($sNeedle)) === $sNeedle;
-    }
     
     /*
      * Functions for the admin panel content.
@@ -2265,7 +2045,7 @@ class UserAccessManager
                     $oPageParams->query_vars['name']
                 );
 
-                $sObjectId = $oDatabase->get_var($sQuery);
+                $sObjectId = $this->_oDatabase->getVariable($sQuery);
 
                 if ($sObjectId) {
                     $oObject = get_post($sObjectId);

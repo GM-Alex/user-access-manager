@@ -1,8 +1,8 @@
 <?php
 /**
- * UamConfig.php
+ * Config.php
  *
- * The UamConfig class file.
+ * The Config class file.
  *
  * PHP versions 5
  *
@@ -15,6 +15,10 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
+namespace UserAccessManager\Config;
+
+use UserAccessManager\Wrapper\Wordpress;
+
 /**
  * The config class.
  *
@@ -24,11 +28,39 @@
  * @license  http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @link     http://wordpress.org/extend/plugins/user-access-manager/
  */
-class UamConfig
+class Config
 {
     const ADMIN_OPTIONS_NAME = 'uamAdminOptions';
+
+    /**
+     * @var Wordpress
+     */
+    protected $_oWrapper;
+
+    /**
+     * @var array
+     */
     protected $_aAdminOptions = null;
+
+    /**
+     * @var array
+     */
     protected $_aWpOptions = array();
+
+    /**
+     * @var bool
+     */
+    protected $_blAtAdminPanel = false;
+
+    /**
+     * Config constructor.
+     *
+     * @param Wordpress $oWrapper
+     */
+    public function __construct(Wordpress $oWrapper)
+    {
+        $this->_oWrapper = $oWrapper;
+    }
 
     /**
      * Returns the WordPress options.
@@ -40,7 +72,7 @@ class UamConfig
     public function getWpOption($sOption)
     {
         if (!isset($this->_aWpOptions[$sOption])) {
-            $this->_aWpOptions[$sOption] = get_option($sOption);
+            $this->_aWpOptions[$sOption] = $this->_oWrapper->getOption($sOption);
         }
 
         return $this->_aWpOptions[$sOption];
@@ -135,7 +167,7 @@ class UamConfig
                 }
             }
 
-            update_option(self::ADMIN_OPTIONS_NAME, $aUamAdminOptions);
+            $this->_oWrapper->updateOption(self::ADMIN_OPTIONS_NAME, $aUamAdminOptions);
             $this->_aAdminOptions = $aUamAdminOptions;
         }
 
@@ -474,5 +506,23 @@ class UamConfig
     public function getFullAccessRole()
     {
         return $this->_getStringOption('full_access_role');
+    }
+
+    /**
+     * Returns true if a user is at the admin panel.
+     *
+     * @return boolean
+     */
+    public function atAdminPanel()
+    {
+        return $this->_blAtAdminPanel;
+    }
+
+    /**
+     * Sets the atAdminPanel var to true.
+     */
+    public function setAtAdminPanel()
+    {
+        $this->_blAtAdminPanel = true;
     }
 }
