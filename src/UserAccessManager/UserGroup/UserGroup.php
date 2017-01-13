@@ -6,42 +6,103 @@
  *
  * PHP versions 5
  *
- * @category  UserAccessManager
- * @package   UserAccessManager
- * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2016 Alexander Schneider
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 namespace UserAccessManager\UserGroup;
 
 use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Cache\Cache;
+use UserAccessManager\Config\Config;
+use UserAccessManager\Database\Database;
+use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Service\UserAccessManager;
+use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Wordpress;
 
 /**
- * The user group class.
+ * Class UserGroup
  *
- * @category UserAccessManager
- * @package  UserAccessManager
- * @author   Alexander Schneider <alexanderschneider85@gmail.com>
- * @license  http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @link     http://wordpress.org/extend/plugins/user-access-manager/
+ * @package UserAccessManager\UserGroup
  */
 class UserGroup
 {
     const OBJECTS_FULL = 'full';
     const OBJECTS_REAL = 'real';
 
-    protected $_oAccessHandler = null;
+    /**
+     * @var Wordpress
+     */
+    protected $_oWrapper;
+
+    /**
+     * @var Database
+     */
+    protected $_oDatabase;
+
+    /**
+     * @var Config
+     */
+    protected $_oConfig;
+    
+    /**
+     * @var Cache
+     */
+    protected $_oCache;
+
+    /**
+     * @var Util
+     */
+    protected $_oUtil;
+
+    /**
+     * @var ObjectHandler
+     */
+    protected $_oObjectHandler;
+
+    /**
+     * @var AccessHandler
+     */
+    protected $_oAccessHandler;
+
+    /**
+     * @var int
+     */
     protected $_iId = null;
+
+    /**
+     * @var string
+     */
     protected $_sGroupName = null;
+
+    /**
+     * @var string
+     */
     protected $_sGroupDesc = null;
+
+    /**
+     * @var string
+     */
     protected $_sReadAccess = null;
+
+    /**
+     * @var string
+     */
     protected $_sWriteAccess = null;
+
+    /**
+     * @var string
+     */
     protected $_sIpRange = null;
+
+    /**
+     * @var array
+     */
     protected $_aRoles = array();
+
     protected $_aObjects = null;
     protected $_aSingleObjects = null;
     protected $_aAssignedObjects = null;
@@ -52,22 +113,42 @@ class UserGroup
     protected $_aObjectIsMember = array();
 
     /**
-     * Constructor
+     * UserGroup constructor.
      *
-     * @param AccessHandler $oUamAccessHandler The access handler object.
-     * @param integer       $iId               The id of the user group.
+     * @param Wordpress     $oWrapper
+     * @param Database      $oDatabase
+     * @param Config        $oConfig
+     * @param Cache         $oCache
+     * @param Util          $oUtil
+     * @param ObjectHandler $oObjectHandler
+     * @param AccessHandler $oAccessHandler
+     * @param null          $iId
      */
-    public function __construct(AccessHandler &$oUamAccessHandler, $iId = null)
+    public function __construct(
+        Wordpress $oWrapper,
+        Database $oDatabase,
+        Config $oConfig,
+        Cache $oCache,
+        Util $oUtil,
+        ObjectHandler $oObjectHandler,
+        AccessHandler $oAccessHandler,
+        $iId = null
+    )
     {
-        $this->_oAccessHandler = $oUamAccessHandler;
+        $this->_oWrapper = $oWrapper;
+        $this->_oDatabase = $oDatabase;
+        $this->_oConfig = $oConfig;
+        $this->_oCache = $oCache;
+        $this->_oUtil = $oUtil;
+        $this->_oObjectHandler = $oObjectHandler;
+        $this->_oAccessHandler = $oAccessHandler;
 
         if ($iId !== null) {
-            $oDatabase = $this->_oAccessHandler->getUserAccessManager()->getDatabase();
             $this->_iId = $iId;
 
-            $aDbUserGroup = $oDatabase->get_row(
+            $aDbUserGroup = $this->_oDatabase->getRow(
                 "SELECT *
-                FROM ".DB_ACCESSGROUP."
+                FROM {$this->_oDatabase->getUserGroupTable()}
                 WHERE ID = {$this->getId()}
                 LIMIT 1",
                 ARRAY_A
@@ -81,7 +162,9 @@ class UserGroup
         }
 
         //Create default values for the objects.
-        foreach ($this->getAllObjectTypes() as $sObjectType) {
+        $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
+        
+        foreach ($aAllObjectTypes as $sObjectType) {
             $this->_aAssignedObjects[$sObjectType] = null;
             $this->_aObjects[$sObjectType] = array(
                 self::OBJECTS_REAL => -1,
@@ -95,16 +178,6 @@ class UserGroup
     }
 
     /**
-     * Returns the user access handler object.
-     *
-     * @return UamAccessHandler
-     */
-    public function &getAccessHandler()
-    {
-        return $this->_oAccessHandler;
-    }
-
-    /**
      * Deletes the user group.
      *
      * @return boolean
@@ -115,14 +188,14 @@ class UserGroup
             return false;
         }
 
-        $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
-
-        $oDatabase->delete(
-            DB_ACCESSGROUP,
+        $this->_oDatabase->delete(
+            $this->_oDatabase->getUserGroupTable(),
             array('ID' => $this->_iId)
         );
 
-        foreach ($this->getAllObjectTypes() as $sObjectType) {
+        $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
+
+        foreach ($aAllObjectTypes as $sObjectType) {
             $this->_deleteObjectsFromDb($sObjectType);
         }
 
@@ -136,11 +209,11 @@ class UserGroup
      */
     public function save($blRemoveOldAssignments = true)
     {
-        $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
-
+        $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
+        
         if ($this->_iId == null) {
-            $oDatabase->insert(
-                DB_ACCESSGROUP,
+            $this->_oDatabase->insert(
+                $this->_oDatabase->getUserGroupTable(),
                 array(
                     'groupname' => $this->_sGroupName,
                     'groupdesc' => $this->_sGroupDesc,
@@ -150,10 +223,10 @@ class UserGroup
                 )
             );
 
-            $this->_iId = $oDatabase->insert_id;
+            $this->_iId = $this->_oDatabase->getLastInsertId();
         } else {
-            $oDatabase->update(
-                DB_ACCESSGROUP,
+            $this->_oDatabase->update(
+                $this->_oDatabase->getUserGroupTable(),
                 array(
                     'groupname' => $this->_sGroupName,
                     'groupdesc' => $this->_sGroupDesc,
@@ -165,19 +238,19 @@ class UserGroup
             );
 
             if ($blRemoveOldAssignments === true) {
-                foreach ($this->getAllObjectTypes() as $sObjectType) {
+                foreach ($aAllObjectTypes as $sObjectType) {
                     //Delete form database
                     $this->_deleteObjectsFromDb($sObjectType);
                 }
             }
         }
 
-        foreach ($this->getAllObjectTypes() as $sObjectType) {
+        foreach ($aAllObjectTypes as $sObjectType) {
             $aKeys = $this->_getAssignedObjects($sObjectType);
 
             if (count($aKeys) > 0) {
                 $sSql = $this->_getSqlQuery($sObjectType, 'insert', $aKeys);
-                $oDatabase->query($sSql);
+                $this->_oDatabase->query($sSql);
             }
         }
     }
@@ -292,7 +365,7 @@ class UserGroup
 
         $aIpRange = explode(';', $this->_sIpRange);
 
-        if ($aIpRange[0] == null) {
+        if (!isset($aIpRange[0])) {
             return null;
         }
 
@@ -311,28 +384,6 @@ class UserGroup
         }
 
         $this->_sIpRange = $mIpRange;
-    }
-
-    /**
-     * Returns all _aObjects types.
-     *
-     * @return array
-     */
-    public function getAllObjectTypes()
-    {
-        return $this->getAccessHandler()->getAllObjectTypes();
-    }
-
-    /**
-     * Checks if the object type is a valid one.
-     *
-     * @param string $sObjectType The object type to check.
-     *
-     * @return boolean
-     */
-    public function isValidObjectType($sObjectType)
-    {
-        return $this->getAccessHandler()->isValidObjectType($sObjectType);
     }
 
     /**
@@ -404,15 +455,13 @@ class UserGroup
      */
     public function __call($sName, $aArguments)
     {
-        $oUam = $this->getAccessHandler()->getUserAccessManager();
-
         $sPrefix = '';
 
-        if ($oUam->startsWith($sName, 'add')) {
+        if ($this->_oUtil->startsWith($sName, 'add')) {
             $sPrefix = 'add';
-        } elseif ($oUam->startsWith($sName, 'remove')) {
+        } elseif ($this->_oUtil->startsWith($sName, 'remove')) {
             $sPrefix = 'remove';
-        } elseif ($oUam->startsWith($sName, 'isMember')) {
+        } elseif ($this->_oUtil->startsWith($sName, 'isMember')) {
             $sPrefix = 'isMember';
         }
 
@@ -456,22 +505,22 @@ class UserGroup
     protected function _getSqlQuery($sObjectType, $sAction, $aKeys = array())
     {
         $sSql = '';
-        $sAccessGroupToObjectTable = DB_ACCESSGROUP_TO_OBJECT;
+        $sUserGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();
 
         if ($sAction == 'select') {
             $sSql = "
                 SELECT object_id as id
-                FROM {$sAccessGroupToObjectTable}
+                FROM {$sUserGroupToObjectTable}
                 WHERE group_id = {$this->getId()}
                   AND object_type = '{$sObjectType}'";
         } elseif ($sAction == 'delete') {
             $sSql = "
-                DELETE FROM {$sAccessGroupToObjectTable}
+                DELETE FROM {$sUserGroupToObjectTable}
                 WHERE group_id = {$this->getId()}
                   AND object_type = '{$sObjectType}'";
         } elseif ($sAction == 'insert') {
             $sSql = "
-                INSERT INTO {$sAccessGroupToObjectTable} (
+                INSERT INTO {$sUserGroupToObjectTable} (
                     group_id,
                     object_id,
                     object_type
@@ -497,14 +546,14 @@ class UserGroup
      */
     public function addObject($sObjectType, $iObjectId)
     {
-        if (!$this->isValidObjectType($sObjectType)) {
+        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)) {
             return;
         }
 
-        $this->getAccessHandler()->unsetUserGroupsForObject();
+        $this->_oAccessHandler->unsetUserGroupsForObject();
         $this->getObjectsFromType($sObjectType);
 
-        $oObject = new stdClass();
+        $oObject = new \stdClass();
         $oObject->iId = $iObjectId;
 
         $this->_aObjects[$sObjectType][self::OBJECTS_REAL][$iObjectId] = $oObject;
@@ -521,11 +570,11 @@ class UserGroup
      */
     public function removeObject($sObjectType, $sObjectId)
     {
-        if (!$this->isValidObjectType($sObjectType)) {
+        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)) {
             return;
         }
 
-        $this->getAccessHandler()->unsetUserGroupsForObject();
+        $this->_oAccessHandler->unsetUserGroupsForObject();
         $this->getObjectsFromType($sObjectType);
 
         unset($this->_aObjects[$sObjectType][self::OBJECTS_REAL][$sObjectId]);
@@ -548,16 +597,13 @@ class UserGroup
             return $this->_aAssignedObjects[$sObjectType];
         }
 
-        $sCacheKey = '_getAssignedObjects|'.$sObjectType.'|'.$this->getId();
-        $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $aAssignedObjects = $oUserAccessManager->getFromCache($sCacheKey);
+        $sCacheKey = $this->_oCache->generateCacheKey('_getAssignedObjects', $sObjectType, $this->getId());
+        $aAssignedObjects = $this->_oCache->getFromCache($sCacheKey);
 
         if ($aAssignedObjects !== null) {
             $this->_aAssignedObjects[$sObjectType] = $aAssignedObjects;
         } else {
-            $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
-
-            $aDbObjects = $oDatabase->get_results(
+            $aDbObjects = $this->_oDatabase->getResults(
                 $this->_getSqlQuery($sObjectType, 'select')
             );
 
@@ -567,7 +613,7 @@ class UserGroup
                 $this->_aAssignedObjects[$sObjectType][$oDbObject->id] = $oDbObject->id;
             }
 
-            $oUserAccessManager->addToCache($sCacheKey, $this->_aAssignedObjects[$sObjectType]);
+            $this->_oCache->addToCache($sCacheKey, $this->_aAssignedObjects[$sObjectType]);
         }
 
         return $this->_aAssignedObjects[$sObjectType];
@@ -595,7 +641,7 @@ class UserGroup
      */
     public function unsetObjects($sObjectType, $blPlusRemove = false)
     {
-        if (!$this->isValidObjectType($sObjectType)) {
+        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)) {
             return;
         }
 
@@ -604,7 +650,7 @@ class UserGroup
         }
 
         $this->_aAssignedObjects[$sObjectType] = array();
-        $this->getAccessHandler()->getUserAccessManager()->flushCache();
+        $this->_oCache->flushCache();
 
         $this->_aObjects[$sObjectType] = array(
             self::OBJECTS_REAL => array(),
@@ -620,10 +666,8 @@ class UserGroup
     protected function _deleteObjectsFromDb($sObjectType)
     {
         if (isset($this->_iId)) {
-            $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
-
             $sQuery = $this->_getSqlQuery($sObjectType, 'delete');
-            $oDatabase->query($sQuery);
+            $this->_oDatabase->query($sQuery);
         }
     }
 
@@ -644,7 +688,7 @@ class UserGroup
         if (!isset($this->_aObjectIsMember[$sCacheKey])) {
             $this->_aObjectIsMember[$sCacheKey] = false;
 
-            if ($this->isValidObjectType($sObjectType)) {
+            if ($this->_oObjectHandler->isValidObjectType($sObjectType)) {
                 $oObject = $this->_getSingleObject($sObjectType, $iObjectId, self::OBJECTS_FULL);
 
                 if ($oObject !== null) {
@@ -670,7 +714,7 @@ class UserGroup
      */
     public function getObjectsFromType($sObjectType, $sType = self::OBJECTS_REAL)
     {
-        if (!$this->isValidObjectType($sObjectType)
+        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)
             || $this->_iId == null
             || $sType != self::OBJECTS_REAL && $sType != self::OBJECTS_FULL
         ) {
@@ -697,7 +741,7 @@ class UserGroup
         }
 
         if ($sType == self::OBJECTS_FULL
-            && $this->getAccessHandler()->isPostableType($sObjectType)
+            && $this->_oObjectHandler->isPostableType($sObjectType)
             && $sObjectType != UserAccessManager::ROLE_OBJECT_TYPE
         ) {
             if ($sObjectType === UserAccessManager::TERM_OBJECT_TYPE) {
@@ -705,7 +749,7 @@ class UserGroup
             } elseif ($sObjectType === UserAccessManager::USER_OBJECT_TYPE) {
                 $this->_aObjects[$sObjectType][$sType] = $this->getFullUsers();
             } else {
-                $oPlObject = $this->getAccessHandler()->getPlObject($sObjectType);
+                $oPlObject = $this->_oObjectHandler->getPlObject($sObjectType);
                 $this->_aObjects[$sObjectType][$sType] = $oPlObject['reference']->{$oPlObject['getFullObjects']}(
                     $this->_aObjects[$sObjectType][$sType],
                     $this
@@ -738,8 +782,8 @@ class UserGroup
                     $aIsRecursiveMember = $this->_getFullTerm($iObjectId);
                 } elseif ($sObjectType == UserAccessManager::USER_OBJECT_TYPE) {
                     $aIsRecursiveMember = $this->_getFullUser($iObjectId);
-                } elseif ($this->getAccessHandler()->isPostableType($sObjectType)) {
-                    $aIsRecursiveMember = $this->_getFullPost($sObjectType, $iObjectId);
+                } elseif ($this->_oObjectHandler->isPostableType($sObjectType)) {
+                    $aIsRecursiveMember = $this->_getFullPost($iObjectId);
                 } else {
                     $aIsRecursiveMember = $this->_getFullPlObject($sObjectType, $iObjectId);
                 }
@@ -777,12 +821,11 @@ class UserGroup
     protected function _getFullUser($iObjectId)
     {
         $aIsRecursiveMember = array();
+        $oCurUserData = $this->_oObjectHandler->getUser($iObjectId);
+        $sCapabilitiesTable = $this->_oDatabase->getCapabilitiesTable();
 
-        $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
-        $oCurUserData = $this->getAccessHandler()->getUserAccessManager()->getUser($iObjectId);
-
-        if (isset($oCurUserData->{$oDatabase->prefix."capabilities"})) {
-            $aCapabilities = $oCurUserData->{$oDatabase->prefix."capabilities"};
+        if (isset($oCurUserData->{$sCapabilitiesTable})) {
+            $aCapabilities = $oCurUserData->{$sCapabilitiesTable};
         } else {
             $aCapabilities = array();
         }
@@ -792,7 +835,7 @@ class UserGroup
 
         foreach ($aRoles as $sRole) {
             if (isset($aObjects[$sRole])) {
-                $oRoleObject = new stdClass();
+                $oRoleObject = new \stdClass();
                 $oRoleObject->name = $sRole;
 
                 $aIsRecursiveMember = array(UserAccessManager::ROLE_OBJECT_TYPE => array());
@@ -811,15 +854,12 @@ class UserGroup
     public function getFullUsers()
     {
         $sCacheKey = 'getFullUsers';
-        $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $aFullUsers = $oUserAccessManager->getFromCache($sCacheKey);
+        $aFullUsers = $this->_oCache->getFromCache($sCacheKey);
 
         if ($aFullUsers === null) {
-            $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
-
-            $aDbUsers = $oDatabase->get_results(
+            $aDbUsers = $this->_oDatabase->getResults(
                 "SELECT ID, user_nicename
-                FROM ".$oDatabase->users
+                FROM {$this->_oDatabase->getUsersTable()}"
             );
 
             $aFullUsers = array();
@@ -834,7 +874,7 @@ class UserGroup
                 }
             }
 
-            $oUserAccessManager->addToCache($sCacheKey, $aFullUsers);
+            $this->_oCache->addToCache($sCacheKey, $aFullUsers);
         }
 
         return $aFullUsers;
@@ -854,14 +894,11 @@ class UserGroup
      */
     protected function _getFullTerm($iObjectId)
     {
-        $oTerm = $this->getAccessHandler()->getUserAccessManager()->getTerm($iObjectId);
+        $oTerm = $this->_oObjectHandler->getTerm($iObjectId);
 
         $aIsRecursiveMember = array();
 
-        $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $oConfig = $oUserAccessManager->getConfig();
-
-        if ($oConfig->lockRecursive() === true
+        if ($this->_oConfig->lockRecursive() === true
             && isset($oTerm->parent)
             && !is_null($oTerm->parent)
         ) {
@@ -872,7 +909,7 @@ class UserGroup
             );
 
             if ($oParentTerm !== null) {
-                $oCurrentTerm = $this->getAccessHandler()->getUserAccessManager()->getTerm($iObjectId);
+                $oCurrentTerm = $this->_oObjectHandler->getTerm($iObjectId);
                 $oParentTerm->name = $oCurrentTerm->name;
                 $aIsRecursiveMember[UserAccessManager::TERM_OBJECT_TYPE][] = $oParentTerm;
             }
@@ -890,12 +927,10 @@ class UserGroup
      */
     public function getFullTerms($aTerms)
     {
-        $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-        $oConfig = $oUserAccessManager->getConfig();
-
         foreach ($aTerms as $oTerm) {
             if ($oTerm !== null) {
-                if ($oConfig->lockRecursive() === true) {
+                //TODO refactor
+                /*if ($this->_oConfig->lockRecursive() === true) {
                     $iPriority = has_filter('get_terms', array($this, 'showTerms'));
 
                     //We have to remove the filter to get all categories
@@ -907,7 +942,7 @@ class UserGroup
                             'hide_empty' => false
                         );
 
-                        $aTermChildren = get_terms($aArgs);
+                        $aTermChildren = get_terms($aArgs); //TODO
                         add_filter('get_terms', array($oUserAccessManager, 'showTerms'), $iPriority, 2);
 
                         foreach ($aTermChildren as $oTermChild) {
@@ -920,7 +955,7 @@ class UserGroup
                             $aTerms[$oCurrentTermChild->id] = $oCurrentTermChild;
                         }
                     }
-                }
+                }*/
 
                 $aTerms[$oTerm->id] = $oTerm;
             }
@@ -947,15 +982,12 @@ class UserGroup
         if ($this->_aObjectsInTerm === null) {
             $this->_aObjectsInTerm = array();
             $sCacheKey = '_isPostInTerm';
-            $oUserAccessManager = $this->getAccessHandler()->getUserAccessManager();
-            $aObjectsInCategory = $oUserAccessManager->getFromCache($sCacheKey);
+            $aObjectsInCategory = $this->_oCache->getFromCache($sCacheKey);
 
             if ($aObjectsInCategory === null) {
-                $oDatabase = $this->getAccessHandler()->getUserAccessManager()->getDatabase();
-
-                $aDbObjects = $oDatabase->get_results(
+                $aDbObjects = $this->_oDatabase->getResults(
                     "SELECT tr.object_id AS objectId, tr.term_taxonomy_id AS termId
-                    FROM ".$oDatabase->term_relationships." AS tr"
+                    FROM {$this->_oDatabase->getTermRelationshipsTable()} AS tr"
                 );
 
                 foreach ($aDbObjects as $oDbObject) {
@@ -966,7 +998,7 @@ class UserGroup
                     $this->_aObjectsInTerm[$oDbObject->objectId][$oDbObject->termId] = $oDbObject->termId;
                 }
 
-                $oUserAccessManager->addToCache($sCacheKey, $this->_aObjectsInTerm);
+                $this->_oCache->addToCache($sCacheKey, $this->_aObjectsInTerm);
             } else {
                 $this->_aObjectsInTerm = $aObjectsInCategory;
             }
@@ -979,21 +1011,19 @@ class UserGroup
     /**
      * Returns the membership of a single post.
      *
-     * @param string  $sPostType The post type needed for the intern representation.
      * @param integer $iObjectId The object id.
      *
      * @return array
      */
-    protected function _getFullPost($sPostType, $iObjectId)
+    protected function _getFullPost($iObjectId)
     {
         $aIsRecursiveMember = array();
-        $oPost = $this->getAccessHandler()->getUserAccessManager()->getPost($iObjectId);
-        $oConfig = $this->getAccessHandler()->getUserAccessManager()->getConfig();
+        $oPost = $this->_oObjectHandler->getPost($iObjectId);
         $aTerms = $this->getObjectsFromType(UserAccessManager::TERM_OBJECT_TYPE, self::OBJECTS_FULL);
 
         foreach ($aTerms as $oTerm) {
             if ($this->_isPostInTerm($oPost->ID, $oTerm->id)) {
-                $oTermObject = $this->getAccessHandler()->getUserAccessManager()->getTerm($oTerm->id);
+                $oTermObject = $this->_oObjectHandler->getTerm($oTerm->id);
 
                 if ($oTermObject !== null) {
                     $oTerm->name = $oTermObject->name;
@@ -1005,18 +1035,18 @@ class UserGroup
 
         if ($oPost->post_parent == 0
             && $oPost->post_type === UserAccessManager::POST_OBJECT_TYPE
-            && $oConfig->getWpOption('show_on_front') == UserAccessManager::PAGE_OBJECT_TYPE
-            && $oConfig->getWpOption('page_for_posts') != $iObjectId
+            && $this->_oConfig->getWpOption('show_on_front') == UserAccessManager::PAGE_OBJECT_TYPE
+            && $this->_oConfig->getWpOption('page_for_posts') != $iObjectId
         ) {
-            $iParentId = $oConfig->getWpOption('page_for_posts');
+            $iParentId = $this->_oConfig->getWpOption('page_for_posts');
         } else {
             $iParentId = $oPost->post_parent;
         }
 
         if ($iParentId != 0
-            && $oConfig->lockRecursive() === true
+            && $this->_oConfig->lockRecursive() === true
         ) {
-            $oParent = $this->getAccessHandler()->getUserAccessManager()->getPost($iParentId);
+            $oParent = $this->_oObjectHandler->getPost($iParentId);
 
             $oParentPost = $this->_getSingleObject(
                 $oParent->post_type,
@@ -1025,7 +1055,7 @@ class UserGroup
             );
 
             if ($oParentPost !== null) {
-                $oPostObject = $this->getAccessHandler()->getUserAccessManager()->getPost($oParentPost->id);
+                $oPostObject = $this->_oObjectHandler->getPost($oParentPost->id);
                 $oParentPost->name = $oPostObject->post_title;
 
                 $aIsRecursiveMember[$oParent->post_type][] = $oParentPost;
@@ -1052,7 +1082,7 @@ class UserGroup
     {
         $blIsRecursiveMember = array();
 
-        $oPlObject = $this->getAccessHandler()->getPlObject($sObjectType);
+        $oPlObject = $this->_oObjectHandler->getPlObject($sObjectType);
 
         if (isset($oPlObject['reference'])
             && isset($oPlObject['getFull'])

@@ -21,6 +21,7 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Service\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -64,6 +65,11 @@ class AccessHandler
      */
     protected $_oUtil;
 
+    /**
+     * @var UserGroupFactory
+     */
+    protected $_oUserGroupFactory;
+
     protected $_aGroupsForUser = null;
     protected $_aTermsAssignedToUser = null;
     protected $_aExcludedTerms = null;
@@ -76,12 +82,13 @@ class AccessHandler
     /**
      * The constructor
      *
-     * @param Wordpress     $oWrapper
-     * @param Config        $oConfig
-     * @param Cache         $oCache
-     * @param Database      $oDatabase
-     * @param ObjectHandler $oObjectHandler
-     * @param Util          $oUtil
+     * @param Wordpress        $oWrapper
+     * @param Config           $oConfig
+     * @param Cache            $oCache
+     * @param Database         $oDatabase
+     * @param ObjectHandler    $oObjectHandler
+     * @param Util             $oUtil
+     * @param UserGroupFactory $oUserGroupFactory
      */
     public function __construct(
         Wordpress $oWrapper,
@@ -89,7 +96,8 @@ class AccessHandler
         Cache $oCache,
         Database $oDatabase,
         ObjectHandler $oObjectHandler,
-        Util $oUtil
+        Util $oUtil,
+        UserGroupFactory $oUserGroupFactory
     )
     {
         $this->_oWrapper = $oWrapper;
@@ -98,6 +106,7 @@ class AccessHandler
         $this->_oDatabase = $oDatabase;
         $this->_oObjectHandler = $oObjectHandler;
         $this->_oUtil = $oUtil;
+        $this->_oUserGroupFactory = $oUserGroupFactory;
     }
 
     /**
@@ -183,7 +192,8 @@ class AccessHandler
 
 
             foreach ($aUserGroupsDb as $aUserGroupDb) {
-                $this->_aUserGroups[$sFilterAttr][$aUserGroupDb['ID']] = new UserGroup($this, $aUserGroupDb['ID']);
+                $this->_aUserGroups[$sFilterAttr][$aUserGroupDb['ID']]
+                    = $this->_oUserGroupFactory->createUserGroup($aUserGroupDb['ID']);
             }
 
             //Filter the user groups

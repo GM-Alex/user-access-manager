@@ -155,6 +155,26 @@ class Database
     }
 
     /**
+     * Returns the users table name.
+     *
+     * @return string
+     */
+    public function getUsersTable()
+    {
+        return $this->_oWpDatabase->users;
+    }
+
+    /**
+     * Returns the capabilities table name.
+     *
+     * @return string
+     */
+    public function getCapabilitiesTable()
+    {
+        return $this->_oWpDatabase->prefix.'capabilities';
+    }
+
+    /**
      * @see \wpdb::get_col()
      *
      * @param string $sQuery
@@ -310,5 +330,15 @@ class Database
     public function delete($sTable, array $aWhere, $mWhereFormat = null)
     {
         return $this->_oWpDatabase->delete($sTable, $aWhere, $mWhereFormat);
+    }
+
+    /**
+     * Returns the last insert id.
+     *
+     * @return int
+     */
+    public function getLastInsertId()
+    {
+        return $this->_oWpDatabase->insert_id;
     }
 }

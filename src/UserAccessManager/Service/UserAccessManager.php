@@ -1177,7 +1177,9 @@ class UserAccessManager
     {
         $aShowPosts = array();
         
-        if (!is_feed() || ($this->_oConfig->protectFeed() === true && is_feed())) { //TODO
+        if ($this->_oWrapper->isFeed() === false
+            || ($this->_oConfig->protectFeed() === true && $this->_oWrapper->isFeed()) === true
+        ) {
             foreach ($aPosts as $iPostId) {
                 if ($iPostId !== null) {
                     $oPost = $this->_processPost($iPostId);
@@ -1642,7 +1644,7 @@ class UserAccessManager
      */
     public function getLoginBarHtml()
     {
-        if (!is_user_logged_in()) { //TODO
+        if ($this->_oWrapper->isUserLoggedIn() === false) {
             return $this->getIncludeContents(UAM_REALPATH.'tpl/loginBar.php');
         }
 
@@ -1705,7 +1707,7 @@ class UserAccessManager
                     $iObjectId = $oObject->ID;
                 }
             } elseif (isset($oPageParams->query_vars['pagename'])) {
-                $oObject = get_page_by_path($oPageParams->query_vars['pagename']); //TODO
+                $oObject = $this->_oWrapper->getPageByPath($oPageParams->query_vars['pagename']);
 
                 if ($oObject !== null) {
                     $oObjectType = $oObject->post_type;
@@ -1732,10 +1734,8 @@ class UserAccessManager
      */
     public function redirectUser($oObject = null)
     {
-        global $wp_query; // TODO
-
         $blPostToShow = false;
-        $aPosts = $wp_query->get_posts();
+        $aPosts = $this->_oWrapper->getWpQuery()->get_posts();
 
         if ($oObject === null && isset($aPosts)) {
             foreach ($aPosts as $oPost) {
@@ -1753,17 +1753,17 @@ class UserAccessManager
                 $sRedirectCustomPage = $this->_oConfig->getRedirectCustomPage();
                 $oPost = $this->_oObjectHandler->getPost($sRedirectCustomPage);
                 $sUrl = $oPost->guid;
-                $sPermalink = get_page_link($oPost);
+                $sPermalink = $this->_oWrapper->getPageLink($oPost);
             } elseif ($this->_oConfig->getRedirect() === 'custom_url') {
                 $sUrl = $this->_oConfig->getRedirectCustomUrl();
             } else {
-                $sUrl = home_url('/');
+                $sUrl = $this->_oWrapper->getHomeUrl('/');
             }
 
             $sCurrentUrl = $this->_oUtil->getCurrentUrl();
 
             if ($sUrl != $sCurrentUrl && $sPermalink != $sCurrentUrl) {
-                wp_redirect($sUrl); //TODO
+                $this->_oWrapper->wpRedirect($sUrl);
                 exit;
             }
         }

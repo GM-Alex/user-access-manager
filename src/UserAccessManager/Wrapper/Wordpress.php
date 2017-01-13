@@ -346,4 +346,76 @@ class Wordpress
     {
         wp_die($sMessage, $sTitle, $aArguments);
     }
+
+    /**
+     * @see is_feed()
+     *
+     * @param string|array $mFeeds
+     *
+     * @return bool
+     */
+    public function isFeed($mFeeds = '')
+    {
+        return is_feed($mFeeds);
+    }
+
+    /**
+     * @see is_user_logged_in()
+     *
+     * @return bool
+     */
+    public function isUserLoggedIn()
+    {
+        return is_user_logged_in();
+    }
+
+    /**
+     * @see get_page_by_path()
+     *
+     * @param string $sPagePath
+     * @param string $sOutput
+     * @param string $sPostType
+     *
+     * @return array|null|\WP_Post
+     */
+    public function getPageByPath($sPagePath, $sOutput = OBJECT, $sPostType = 'page')
+    {
+        return get_page_by_path($sPagePath, $sOutput, $sPostType);
+    }
+
+    /**
+     * @see wp_redirect()
+     *
+     * @param string $sLocation
+     * @param int    $iStatus
+     *
+     * @return bool
+     */
+    public function wpRedirect($sLocation, $iStatus = 302)
+    {
+        return wp_redirect($sLocation, $iStatus);
+    }
+
+    /**
+     * @param bool|int|\WP_Post $mPost
+     * @param bool              $blLeaveName
+     * @param bool              $blSample
+     *
+     * @return string The page permalink.
+     */
+    public function getPageLink($mPost = false, $blLeaveName = false, $blSample = false)
+    {
+        return get_page_link($mPost, $blLeaveName, $blSample);
+    }
+
+    /**
+     * Returns the wp_query object.
+     *
+     * @return \WP_Query
+     */
+    public function getWpQuery()
+    {
+        global $wp_query;
+        return $wp_query;
+    }
 }
