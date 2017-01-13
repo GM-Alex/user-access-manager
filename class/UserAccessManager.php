@@ -87,8 +87,9 @@ class UserAccessManager
 
     /**
      * Returns all post types.
+     * Includes only names of post types, that are publicly queryable.
      *
-     * @return array
+     * @return string[] post_type names
      */
     public function getPostTypes()
     {
@@ -102,7 +103,7 @@ class UserAccessManager
     /**
      * Wrapper for is_post_type_hierarchical
      *
-     * @param string $sType
+     * @param string $sType a valid post_type name
      *
      * @return bool
      */
@@ -113,8 +114,9 @@ class UserAccessManager
 
     /**
      * Returns the taxonomies.
+     * Taxonomies represented by their names.
      *
-     * @return array
+     * @return string[] taxonomy names
      */
     public function getTaxonomies()
     {
@@ -138,6 +140,7 @@ class UserAccessManager
 
     /**
      * Returns a value from the cache by the given key.
+     * If their is no cache entry, returns null.
      *
      * @param string $sKey
      *
@@ -153,11 +156,12 @@ class UserAccessManager
     }
 
     /**
-     * Returns a user.
+     * Returns a user by id, and caches them for future requests.
+     * If there is no user with that id, returns false.
      *
      * @param string $sId The user id.
      *
-     * @return mixed
+     * @return bool|WP_User
      */
     public function getUser($sId)
     {
@@ -169,11 +173,12 @@ class UserAccessManager
     }
 
     /**
-     * Returns a post.
+     * Returns a post by id, and caches them for future requests.
+     * If there is no post with that id, returns null.
      *
      * @param string $sId The post id.
      *
-     * @return mixed
+     * @return WP_Post|null
      */
     public function getPost($sId)
     {
@@ -209,9 +214,9 @@ class UserAccessManager
     }
     
     /**
-     * Returns all blog of the network.
+     * Returns all blog ids of the network.
      * 
-     * @return array()
+     * @return int[]
      */
     protected function _getBlogIds()
     {
@@ -576,9 +581,9 @@ class UserAccessManager
     }
 
     /**
-     * Returns the full supported mine types.
+     * Returns the full supported mime types.
      *
-     * @return array
+     * @return string[] key: file extension; value: mime type
      */
     protected function _getMimeTypes()
     {
@@ -586,11 +591,11 @@ class UserAccessManager
             $aMimeTypes = get_allowed_mime_types();
             $aFullMimeTypes = array();
 
-            foreach ($aMimeTypes as $sExtensions => $sMineType) {
+            foreach ($aMimeTypes as $sExtensions => $sMimeType) {
                 $aExtension = explode('|', $sExtensions);
 
                 foreach ($aExtension as $sExtension) {
-                    $aFullMimeTypes[$sExtension] = $sMineType;
+                    $aFullMimeTypes[$sExtension] = $sMimeType;
                 }
             }
 
@@ -945,7 +950,8 @@ class UserAccessManager
     {
         return $sNeedle === '' || substr($sHaystack, -strlen($sNeedle)) === $sNeedle;
     }
-    
+
+
     /*
      * Functions for the admin panel content.
      */
@@ -983,6 +989,7 @@ class UserAccessManager
             wp_enqueue_script(self::HANDLE_SCRIPT_ADMIN);
         }
     }
+
 
     /**
      * Functions for other content.
@@ -1209,6 +1216,9 @@ class UserAccessManager
         include UAM_REALPATH.'tpl/postEditForm.php';
     }
 
+    /**
+     * The function for the bulk_edit_custom_box action.
+     */
     public function addBulkAction($sColumnName)
     {
         if ($sColumnName == 'uam_access') {
@@ -1246,15 +1256,16 @@ class UserAccessManager
      * We have to use this because the attachment actions work
      * not in the way we need.
      * 
-     * @param object $oAttachment The attachment id.
+     * @param array $aPostAttributes The post attributes.
+     * @param array $aAttachmentAttributes The attachment attributes.
      * 
-     * @return object
+     * @return array post attributes
      */    
-    public function saveAttachmentData($oAttachment)
+    public function saveAttachmentData($aPostAttributes,$aAttachmentAttributes)
     {
-        $this->savePostData($oAttachment['ID']);
+        $this->savePostData($aPostAttributes['ID']);
         
-        return $oAttachment;
+        return $aPostAttributes;
     }
     
     /**
@@ -1326,7 +1337,7 @@ class UserAccessManager
      * @param string  $sColumnName The column name.
      * @param integer $iId         The id.
      * 
-     * @return string|null
+     * @return string
      */
     public function addUserColumn($sReturn, $sColumnName, $iId)
     {
@@ -1466,7 +1477,7 @@ class UserAccessManager
      * @param integer $iObjectId       The _iId of the object.
      * @param string  $aGroupsFormName The name of the form which contains the groups.
      * 
-     * @return string;
+     * @return string
      */
     public function showPlGroupSelectionForm($sObjectType, $iObjectId, $aGroupsFormName = null)
     {
@@ -1507,7 +1518,7 @@ class UserAccessManager
     /**
      * Manipulates the wordpress query object to filter content.
      * 
-     * @param object $oWpQuery The wordpress query object.
+     * @param WP_Query $oWpQuery The wordpress query object.
      */
     public function parseQuery($oWpQuery)
     {
@@ -1526,9 +1537,9 @@ class UserAccessManager
     /**
      * Modifies the content of the post by the given settings.
      * 
-     * @param object $oPost The current post.
+     * @param WP_Post $oPost The current post.
      * 
-     * @return object|null
+     * @return WP_Post|null
      */
     protected function _processPost($oPost)
     {
