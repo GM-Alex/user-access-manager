@@ -436,8 +436,8 @@ class UamAccessHandler
                     ) {
                         $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
                         break;
-                    } elseif ($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all'
-                        || !$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all'
+                    } elseif (($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all')
+                        || (!$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all')
                     ) {
                         unset($aMembership[$sKey]);
                     }
