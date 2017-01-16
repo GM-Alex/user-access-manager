@@ -34,7 +34,7 @@ if (isset($iObjectId)) {
     $aUserGroupsForObject = array();
 }
 
-if (count($aUamUserGroups) > 0) {
+if (!empty($aUamUserGroups)) {
     include 'groupSelectionForm.php';
 } elseif ($oUserAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>

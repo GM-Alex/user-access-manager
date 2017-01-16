@@ -1515,7 +1515,7 @@ class UserAccessManager
         $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
         $aAllExcludedPosts = $aExcludedPosts['all'];
 
-        if (count($aAllExcludedPosts) > 0) {
+        if (!empty($aAllExcludedPosts)) {
             $oWpQuery->query_vars['post__not_in'] = array_merge(
                 $oWpQuery->query_vars['post__not_in'],
                 $aAllExcludedPosts
@@ -1630,7 +1630,7 @@ class UserAccessManager
         $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
         $aAllExcludedPosts = $aExcludedPosts['all'];
 
-        if (count($aAllExcludedPosts) > 0) {
+        if (!empty($aAllExcludedPosts)) {
             $sExcludedPostsStr = implode(',', $aAllExcludedPosts);
             $sSql .= " AND $oDatabase->posts.ID NOT IN($sExcludedPostsStr) ";
         }
@@ -2116,7 +2116,7 @@ class UserAccessManager
         $aExcludedPosts = $oUamAccessHandler->getExcludedPosts();
         $aAllExcludedPosts = $aExcludedPosts['all'];
             
-        if (count($aAllExcludedPosts) > 0) {
+        if (!empty($aAllExcludedPosts)) {
             $sExcludedPosts = implode(',', $aAllExcludedPosts);
             $sSql.= " AND p.ID NOT IN({$sExcludedPosts}) ";
         }
@@ -2156,7 +2156,7 @@ class UserAccessManager
                 $oUamAccessHandler = $this->getAccessHandler();
 
                 if ($oUamAccessHandler->userIsAdmin($oCurrentUser->ID)
-                    && count($oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId)) > 0
+                    && !empty($oUamAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId))
                 ) {
                     $sOutput .= $sHintText;
                 }
@@ -2179,7 +2179,7 @@ class UserAccessManager
         $oUamAccessHandler = $this->getAccessHandler();
         $aGroups = $oUamAccessHandler->getUserGroupsForObject(self::POST_OBJECT_TYPE, $iPostId);
         
-        if (count($aGroups) > 0) {
+        if (!empty($aGroups)) {
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
             
             foreach ($aGroups as $oGroup) {

@@ -171,7 +171,7 @@ class UamUserGroup
         foreach ($this->getAllObjectTypes() as $sObjectType) {
             $aKeys = $this->_getAssignedObjects($sObjectType);
 
-            if (count($aKeys) > 0) {
+            if (!empty($aKeys)) {
                 $sSql = $this->_getSqlQuery($sObjectType, 'insert', $aKeys);
                 $oDatabase->query($sSql);
             }
@@ -783,7 +783,7 @@ class UamUserGroup
             $aCapabilities = array();
         }
         
-        $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
+        $aRoles = (is_array($aCapabilities) && !empty($aCapabilities)) ? array_keys($aCapabilities) : array('norole');
         $aObjects = $this->getObjectsFromType('role');
 
         foreach ($aRoles as $sRole) {
