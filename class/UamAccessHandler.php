@@ -426,6 +426,7 @@ class UamAccessHandler
             $oConfig = $this->getUserAccessManager()->getConfig();
             $aMembership = $this->getUserGroupsForObject($sObjectType, $iObjectId, false);
 
+            // object is not assigned to a group, the user can manager user groups or the post is owned by the user and users are configured to access their own - grant access
             if ($aMembership == array()
                 || $this->checkUserAccess('manage_user_groups')
                 || $oCurrentUser->ID === $sAuthorId && $oConfig->authorsHasAccessToOwn() === true
@@ -435,18 +436,22 @@ class UamAccessHandler
                 $aCurrentIp = explode('.', $_SERVER['REMOTE_ADDR']);
 
                 foreach ($aMembership as $sKey => $oUserGroup) {
+                    // is the current user member of the group or is the request ip in that group - grant access
                     if ($oUserGroup->objectIsMember(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID)
                         || $this->checkUserIp($aCurrentIp, $oUserGroup->getIpRange())
                     ) {
                         $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
                         break;
-                    } elseif ($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all'
-                        || !$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all'
+                    }
+                    // if the group grants write access to all on admin panel, or read access to all remove the group from the object
+                    elseif (($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all')
+                        || (!$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all')
                     ) {
                         unset($aMembership[$sKey]);
                     }
                 }
 
+                // if the object has no membership, the access to the object is granted
                 if ($aMembership == array()) {
                     $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
                 }
@@ -610,9 +615,9 @@ class UamAccessHandler
             $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
             $aPostableTypes = $this->getPostableTypes();
 
-            if (!$oUserAccessManager->atAdminPanel()) {
-                $oConfig = $oUserAccessManager->getConfig();
+            $oConfig = $oUserAccessManager->getConfig();
 
+            if (!$oUserAccessManager->atAdminPanel()) {
                 foreach ($aPostableTypes as $sKey =>$sType) {
                     if ($oConfig->hideObjectType($sType) === false) {
                         unset($aPostableTypes[$sKey]);
@@ -684,24 +689,31 @@ class UamAccessHandler
                 $aExcludedPosts[$oExcludedPost->type][$oExcludedPost->id] = $oExcludedPost->id;
             }
 
-            $aPostTreeMap = $oUserAccessManager->getPostTreeMap();
-
-            foreach ($aExcludedPosts as $sType => $aIds) {
-                if ($sType !== 'all') {
-                    if ($oUserAccessManager->isPostTypeHierarchical($sType)) {
-                        foreach ($aIds as $iId) {
-                            if (isset($aPostTreeMap[$iId])) {
-                                foreach ($aPostTreeMap[$iId] as $iPostId => $sPostType) {
-                                    if ($sPostType == $sType) {
-                                        $aExcludedPosts[$sType][$iPostId] = $iPostId;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    $aExcludedPosts['all'] = $aExcludedPosts['all'] + $aExcludedPosts[$sType];
+            foreach ($aExcludedPosts as $sType => $aExcludedIds) {
+                if ($oConfig->lockRecursive() !== true) {
+                    continue;
                 }
+
+                if ($sType === 'all') {
+                    continue;
+                }
+
+                if (!$oUserAccessManager->isPostTypeHierarchical($sType)) {
+                    continue;
+                }
+
+                // get posts with ancestors, that are not already excluded
+                $aPostAncestorsMap = array_diff($oUserAccessManager->getPostAncestorsMap($sType),$aExcludedIds);
+
+                // exclude a post, if non of the ancestors is a post assigned to that user and one of the ancestors is an excluded post
+                foreach ($aPostAncestorsMap as $iPostId => $aAncestorIds) {
+                    // non of the ancestors is assigned to that user and one or more of the ancestors is an excluded post
+                    if (empty(array_intersect($aPostAssignedToUser,$aAncestorIds)) && !empty(array_intersect($aExcludedIds,$aAncestorIds))) {
+                        $aExcludedPosts[$sType][$iPostId] = $iPostId;
+                    }
+                }
+
+                $aExcludedPosts['all'] = array_merge($aExcludedPosts['all'],$aExcludedPosts[$sType]);
             }
 
             $this->_aSqlResults['excludedPosts'] = $aExcludedPosts;

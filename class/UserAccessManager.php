@@ -55,6 +55,9 @@ class UserAccessManager
     protected $_aTermPostMap = null;
     protected $_aTermTreeMap = null;
     protected $_aPostTreeMap = null;
+
+    protected $_aPostAncestorsMap = array();
+
     protected $_aPostTypes = null;
     protected $_aTaxonomies = null;
 
@@ -1882,6 +1885,77 @@ class UserAccessManager
     }
 
     /**
+     * Returns the ancestors map for the query.
+     * Maps post_id to a list of direct or indirect parents (i.e. parent of parent of ...).
+     *
+     * @param string $sSelect
+     *
+     * @return array
+     */
+    protected function _getAncestorsMap($sSelect)
+    {
+        $aChildParent = array();
+        $oDatabase = $this->getDatabase();
+        $aResults = $oDatabase->get_results($sSelect);
+
+        foreach ($aResults as $oResult) {
+            // add the direct parent
+            $aChildParent[intval($oResult->id)] = intval($oResult->parentId);
+        }
+
+        $aTree = array();
+
+        // all parents without a parent, i.e. root nodes, get an empty array of ancestors
+        $aCurrentNodes = array_diff($aChildParent,array_keys($aChildParent));
+        foreach ($aCurrentNodes as $iChildId => $iParentId) {
+            // a parent without ancestors
+            $aTree[$iParentId] = array();
+        }
+
+        $iLevel = 0;
+        while (!empty($aChildParent) && $iLevel < 50) {
+            // all nodes where the value (parent) cannot be found as key (child) which is the current level in the graph and of the recursion
+            $aCurrentNodes = array_intersect($aChildParent,array_keys($aTree));
+
+            foreach ($aCurrentNodes as $iChildId => $iParentId) {
+                // add the current nodes, with their parent and the known ancestors of that parent
+                $aTree[$iChildId] = array_merge(array($iParentId),$aTree[$iParentId]);
+            
+                // now that the child knows all its ancestors, it is not needed anymore
+                unset($aChildParent[$iChildId]);
+            }
+            ++$iLevel;
+        }
+        
+        return $aTree;
+    }
+
+
+    /**
+     * Returns the post tree map.
+     *
+     * @param string $sType post type
+     *
+     * @return array
+     */
+    public function getPostAncestorsMap($sType)
+    {
+        if (!isset($this->_aPostAncestorsMap[$sType])) {
+            $oDatabase = $this->getDatabase();
+
+            $sSelect = "
+                SELECT ID AS id, post_parent AS parentId, post_type AS type 
+                FROM {$oDatabase->posts}
+                WHERE post_parent != 0
+                  AND post_type = '{$sType}'";
+
+            $this->_aPostAncestorsMap[$sType] = $this->_getAncestorsMap($sSelect);
+        }
+
+        return $this->_aPostAncestorsMap[$sType];
+    }
+
+    /**
      * Returns the term post map.
      *
      * @return array
@@ -2328,7 +2402,7 @@ class UserAccessManager
         
         $blPostToShow = false;
         $aPosts = $wp_query->get_posts();
-        
+
         if ($oObject === null && isset($aPosts)) {
             foreach ($aPosts as $oPost) {
                 if ($this->getAccessHandler()->checkObjectAccess($oPost->post_type, $oPost->ID)) {
