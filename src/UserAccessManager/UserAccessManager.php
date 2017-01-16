@@ -15,13 +15,14 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-namespace UserAccessManager\Service;
+namespace UserAccessManager;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileProtectionFactory;
+use UserAccessManager\FileHandler\NginxFileProtection;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Util\Util;
@@ -131,6 +132,152 @@ class UserAccessManager
         $this->_oWrapper->doAction('uam_init', $this);
     }
 
+    /**
+     * Register the admin actions and filters
+     */
+    public function registerAdminActionsAndFilters()
+    {
+        if (ini_get('safe_mode') && $this->_oConfig->getDownloadType() === 'fopen') {
+            add_action(
+                'admin_notices',
+                create_function(
+                    '',
+                    'echo \'<div id="message" class="error"><p><strong>'.
+                    TXT_UAM_FOPEN_WITHOUT_SAVEMODE_OFF.
+                    '</strong></p></div>\';'
+                )
+            );
+        }
+        
+        if ($this->isDatabaseUpdateNecessary()) {
+            $sLink = 'admin.php?page=uam_setup';
+
+            add_action(
+                'admin_notices',
+                create_function(
+                    '',
+                    'echo \'<div id="message" class="error"><p><strong>'.
+                    sprintf(TXT_UAM_NEED_DATABASE_UPDATE, $sLink).
+                    '</strong></p></div>\';'
+                )
+            );
+        }
+
+        $aTaxonomies = $this->_oObjectHandler->getPostTypes();
+
+        if (isset($_POST['taxonomy'])) {
+            $aTaxonomies[$_POST['taxonomy']] = $_POST['taxonomy'];
+        } elseif (isset($_GET['taxonomy'])) {
+            $aTaxonomies[$_GET['taxonomy']] = $_GET['taxonomy'];
+        }
+
+        if ($this->_oAccessHandler->checkUserAccess() 
+            || $this->_oConfig->authorsCanAddPostsToGroups() === true
+        ) {
+            //Admin actions
+            $this->_oWrapper->addAction('manage_posts_custom_column', array($this, 'addPostColumn'), 10, 2);
+            $this->_oWrapper->addAction('manage_pages_custom_column', array($this, 'addPostColumn'), 10, 2);
+            $this->_oWrapper->addAction('save_post', array($this, 'savePostData'));
+            $this->_oWrapper->addAction('edit_user_profile', array($this, 'showUserProfile'));
+            $this->_oWrapper->addAction('profile_update', array($this, 'saveUserData'));
+
+            $this->_oWrapper->addAction('bulk_edit_custom_box', array($this, 'addBulkAction'));
+            $this->_oWrapper->addAction('create_term', array($this, 'saveTermData'));
+            $this->_oWrapper->addAction('edit_term', array($this, 'saveTermData'));
+
+            //Taxonomies
+            foreach ($aTaxonomies as $sTaxonomy) {
+                $this->_oWrapper->addAction('manage_'.$sTaxonomy.'_custom_column', array($this, 'addTermColumn'), 10, 3);
+                $this->_oWrapper->addAction($sTaxonomy.'_add_form_fields', array($this, 'showTermEditForm'));
+                $this->_oWrapper->addAction($sTaxonomy.'_edit_form_fields', array($this, 'showTermEditForm'));
+            }
+
+            if ($this->_oConfig->lockFile() === true) {
+                $this->_oWrapper->addAction('manage_media_custom_column', array($this, 'addPostColumn'), 10, 2);
+                $this->_oWrapper->addAction('media_meta', array($this, 'showMediaFile'), 10, 2);
+            }
+
+            //Admin filters
+            //The filter we use instead of add|edit_attachment action, reason see top
+            $this->_oWrapper->addFilter('attachment_fields_to_save', array($this, 'saveAttachmentData'));
+
+            $this->_oWrapper->addFilter('manage_posts_columns', array($this, 'addPostColumnsHeader'));
+            $this->_oWrapper->addFilter('manage_pages_columns', array($this, 'addPostColumnsHeader'));
+
+            $this->_oWrapper->addFilter('manage_users_columns', array($this, 'addUserColumnsHeader'), 10);
+            $this->_oWrapper->addFilter('manage_users_custom_column', array($this, 'addUserColumn'), 10, 3);
+
+            foreach ($aTaxonomies as $sTaxonomy) {
+                $this->_oWrapper->addFilter('manage_edit-'.$sTaxonomy.'_columns', array($this, 'addTermColumnsHeader'));
+            }
+
+            if ($this->_oConfig->lockFile() === true) {
+                $this->_oWrapper->addFilter('manage_media_columns', array($this, 'addPostColumnsHeader'));
+            }
+        }
+
+        //Clean up at deleting should always be done.
+        $this->_oWrapper->addAction('update_option_permalink_structure', array($this, 'updatePermalink'));
+        $this->_oWrapper->addAction('wp_dashboard_setup', array($this, 'setupAdminDashboard'));
+        $this->_oWrapper->addAction('delete_post', array($this, 'removePostData'));
+        $this->_oWrapper->addAction('delete_attachment', array($this, 'removePostData'));
+        $this->_oWrapper->addAction('delete_user', array($this, 'removeUserData'));
+        $this->_oWrapper->addAction('delete_term', array($this, 'removeTermData'));
+
+        $this->noRightsToEditContent();
+    }
+
+    /**
+     * Resister the administration menu.
+     */
+    public function registerAdminMenu()
+    {
+        if ($this->_oAccessHandler->checkUserAccess()) {
+            //TODO
+            /**
+             * --- BOF ---
+             * Not the best way to handle full user access. Capabilities seems
+             * to be the right way, but it is way difficult.
+             */
+            //Admin main menu
+            add_menu_page('User Access Manager', 'UAM', 'manage_options', 'uam_usergroup', array($this, 'printAdminPage'), 'div');
+
+            //Admin sub menus
+            add_submenu_page('uam_usergroup', TXT_UAM_MANAGE_GROUP, TXT_UAM_MANAGE_GROUP, 'read', 'uam_usergroup', array($this, 'printAdminPage'));
+            add_submenu_page('uam_usergroup', TXT_UAM_SETTINGS, TXT_UAM_SETTINGS, 'read', 'uam_settings', array($this, 'printAdminPage'));
+            add_submenu_page('uam_usergroup', TXT_UAM_SETUP, TXT_UAM_SETUP, 'read', 'uam_setup', array($this, 'printAdminPage'));
+            add_submenu_page('uam_usergroup', TXT_UAM_ABOUT, TXT_UAM_ABOUT, 'read', 'uam_about', array($this, 'printAdminPage'));
+
+            $this->_oWrapper->doAction('uam_add_submenu');
+
+            /**
+             * --- EOF ---
+             */
+        }
+
+        if ($this->_oAccessHandler->checkUserAccess()
+            || $this->_oConfig->authorsCanAddPostsToGroups() === true
+        ) {
+            //Admin meta boxes
+            $aPostableTypes = $this->_oObjectHandler->getPostableTypes();
+
+            foreach ($aPostableTypes as $sPostableType) {
+                // there is no need for a metabox for attachments if files are locked
+                if ($sPostableType === 'attachment' && $this->_oConfig->lockFile() !== true) {
+                    continue;
+                }
+
+                add_meta_box(
+                    'uma_post_access',
+                    __('Access', 'user-access-manager'),
+                    array($this, 'editPostContent'),
+                    $sPostableType,
+                    'side'
+                );
+            }
+        }
+    }
+    
     /**
      * Returns all blog of the network.
      *
@@ -297,8 +444,7 @@ class UserAccessManager
         $sDbAccessGroup = $this->_oDatabase->getUserGroupTable();
 
         $sDbUserGroup = $this->_oDatabase->getVariable(
-            "SHOW TABLES 
-            LIKE '".$sDbAccessGroup."'"
+            "SHOW TABLES LIKE '{$sDbAccessGroup}'"
         );
 
         if (version_compare($sCurrentDbVersion, self::DB_VERSION, '<')) {
@@ -307,30 +453,23 @@ class UserAccessManager
 
             if (version_compare($sCurrentDbVersion, '1.0', '<=')) {
                 if ($sDbUserGroup == $sDbAccessGroup) {
-                    $this->_oDatabase->query(
-                        "ALTER TABLE ".$sDbAccessGroup."
+                    $sAlterQuery = "ALTER TABLE {$sDbAccessGroup}
                         ADD read_access TINYTEXT NOT NULL DEFAULT '', 
                         ADD write_access TINYTEXT NOT NULL DEFAULT '', 
-                        ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
-                    );
+                        ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+                    $this->_oDatabase->query($sAlterQuery);
 
-                    $this->_oDatabase->query(
-                        "UPDATE ".$sDbAccessGroup."
-                        SET read_access = 'group', 
-                            write_access = 'group'"
-                    );
+                    $sUpdateQuery = "UPDATE {$sDbAccessGroup}
+                        SET read_access = 'group', write_access = 'group'";
+                    $this->_oDatabase->query($sUpdateQuery);
 
-                    $sDbIpRange = $this->_oDatabase->getVariable(
-                        "SHOW columns 
-                        FROM ".$sDbAccessGroup."
-                        LIKE 'ip_range'"
-                    );
+                    $sSelectQuery = "SHOW columns FROM {$sDbAccessGroup} LIKE 'ip_range'";
+                    $sDbIpRange = $this->_oDatabase->getVariable($sSelectQuery);
 
                     if ($sDbIpRange != 'ip_range') {
-                        $this->_oDatabase->query(
-                            "ALTER TABLE ".$sDbAccessGroup."
-                            ADD ip_range MEDIUMTEXT NULL DEFAULT ''"
-                        );
+                        $sAlterQuery = "ALTER TABLE ".$sDbAccessGroup."
+                            ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+                        $this->_oDatabase->query($sAlterQuery);
                     }
                 }
 
@@ -340,11 +479,9 @@ class UserAccessManager
                 $sDbAccessGroupToCategory = $sPrefix.'uam_accessgroup_to_category';
                 $sDbAccessGroupToRole = $sPrefix.'uam_accessgroup_to_role';
 
-                $this->_oDatabase->query(
-                    "ALTER TABLE '{$sDbAccessGroupToObject}'
-                    CHANGE 'object_id' 'object_id' VARCHAR(64)
-                    ".$sCharsetCollate
-                );
+                $sAlterQuery = "ALTER TABLE '{$sDbAccessGroupToObject}'
+                    CHANGE 'object_id' 'object_id' VARCHAR(64) {$sCharsetCollate}";
+                $this->_oDatabase->query($sAlterQuery);
 
                 $aObjectTypes = $this->_oObjectHandler->getObjectTypes();
 
@@ -393,12 +530,12 @@ class UserAccessManager
                     }
                 }
 
-                $this->_oDatabase->query(
-                    "DROP TABLE {$sDbAccessGroupToPost},
-                        {$sDbAccessGroupToUser},
-                        {$sDbAccessGroupToCategory},
-                        {$sDbAccessGroupToRole}"
-                );
+                $sDropQuery = "DROP TABLE {$sDbAccessGroupToPost},
+                    {$sDbAccessGroupToUser},
+                    {$sDbAccessGroupToCategory},
+                    {$sDbAccessGroupToRole}";
+
+                $this->_oDatabase->query($sDropQuery);
             }
 
             if (version_compare($sCurrentDbVersion, '1.2', '<=')) {
@@ -433,17 +570,40 @@ class UserAccessManager
     /**
      * Clean up wordpress if the plugin will be uninstalled.
      */
-    public function uninstall()
+    public static function uninstall()
     {
-        $this->_oDatabase->query(
-            "DROP TABLE {$this->_oDatabase->getUserGroupTable()}, 
-              {$this->_oDatabase->getUserGroupToObjectTable()}"
-        );
+        global $wpdb;
 
-        $this->_oWrapper->deleteOption(Config::ADMIN_OPTIONS_NAME);
-        $this->_oWrapper->deleteOption('uam_version');
-        $this->_oWrapper->deleteOption('uam_db_version');
-        $this->deleteFileProtectionFiles();
+        $aSites = get_sites();
+
+        foreach ($aSites as $oSite) {
+            switch_to_blog($oSite->blog_id);
+            $sPrefix = $wpdb->prefix;
+            $sUserGroupTable = $sPrefix.Database::USER_GROUP_TABLE_NAME;
+            $sUserGroupToObjectTable = $sPrefix.Database::USER_GROUP_TO_OBJECT_TABLE_NAME;
+
+            $sDropQuery = "DROP TABLE {$sUserGroupTable}, {$sUserGroupToObjectTable}";
+            $wpdb->query($sDropQuery);
+
+            delete_option(Config::ADMIN_OPTIONS_NAME);
+            delete_option(Config::ADMIN_OPTIONS_NAME);
+            delete_option('uam_version');
+            delete_option('uam_db_version');
+        }
+
+        //TODO
+        $sDir = '';
+        $sNginxFileName = $sDir.NginxFileProtection::FILE_NAME;
+
+        if (file_exists($sNginxFileName)) {
+            unlink($sNginxFileName);
+        }
+
+        $sPasswordFile = $sDir.NginxFileProtection::PASSWORD_FILE_NAME;
+
+        if (file_exists($sPasswordFile)) {
+            unlink($sPasswordFile);
+        }
     }
 
     /**
@@ -455,22 +615,6 @@ class UserAccessManager
     }
 
     /**
-     * Returns the upload dirctory.
-     *
-     * @return null|string
-     */
-    protected function _getUploadDirectory()
-    {
-        $aWordpressUploadDir = $this->_oWrapper->getUploadDir();
-
-        if (empty($aWordpressUploadDir['error'])) {
-            return $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
-        }
-
-        return null;
-    }
-
-    /**
      * Creates a protection file.
      *
      * @param string $sDir        The destination directory.
@@ -478,7 +622,7 @@ class UserAccessManager
      */
     public function createFileProtection($sDir = null, $sObjectType = null)
     {
-        $sDir = ($sDir === null) ? $this->_getUploadDirectory() : $sDir;
+        $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
 
         if ($sDir !== null) {
             if ($this->_oWrapper->isNginx() === true) {
@@ -497,7 +641,7 @@ class UserAccessManager
      */
     public function deleteFileProtectionFiles($sDir = null)
     {
-        $sDir = ($sDir === null) ? $this->_getUploadDirectory() : $sDir;
+        $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
 
         if ($sDir !== null) {
             if ($this->_oWrapper->isNginx() === true) {
@@ -567,7 +711,7 @@ class UserAccessManager
         $this->registerAdminStylesAndScripts();
         wp_enqueue_style(self::HANDLE_STYLE_ADMIN);
 
-        if ($sHook == 'uam_page_uam_settings') {
+        if ($sHook === 'uam_page_uam_settings') {
             wp_enqueue_script(self::HANDLE_SCRIPT_ADMIN);
         }
     }
@@ -680,7 +824,6 @@ class UserAccessManager
      */
     protected function _saveObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {
-        $oUamAccessHandler = $this->_oAccessHandler;
         $aFormData = array();
 
         if (isset($_POST['uam_update_groups'])) {
@@ -725,6 +868,8 @@ class UserAccessManager
 
                 $oUamUserGroup->save($blRemoveOldAssignments);
             }
+
+            $this->_oAccessHandler->unsetUserGroupsForObject();
         }
     }
 

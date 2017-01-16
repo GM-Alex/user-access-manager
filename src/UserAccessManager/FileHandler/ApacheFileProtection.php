@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\FileHandler;
 
-use UserAccessManager\Service\UserAccessManager;
+use UserAccessManager\UserAccessManager;
 
 /**
  * Class ApacheFileProtection

@@ -59,11 +59,6 @@ class UserGroupFactory
     protected $_oObjectHandler;
 
     /**
-     * @var AccessHandler
-     */
-    protected $_oAccessHandler;
-
-    /**
      * UserGroupFactory constructor.
      *
      * @param Wordpress     $oWrapper
@@ -72,7 +67,6 @@ class UserGroupFactory
      * @param Cache         $oCache
      * @param Util          $oUtil
      * @param ObjectHandler $oObjectHandler
-     * @param AccessHandler $oAccessHandler
      */
     public function __construct(
         Wordpress $oWrapper,
@@ -80,8 +74,7 @@ class UserGroupFactory
         Config $oConfig,
         Cache $oCache,
         Util $oUtil,
-        ObjectHandler $oObjectHandler,
-        AccessHandler $oAccessHandler
+        ObjectHandler $oObjectHandler
     )
     {
         $this->_oWrapper = $oWrapper;
@@ -90,7 +83,6 @@ class UserGroupFactory
         $this->_oCache = $oCache;
         $this->_oUtil = $oUtil;
         $this->_oObjectHandler = $oObjectHandler;
-        $this->_oAccessHandler = $oAccessHandler;
     }
 
     /**
@@ -109,7 +101,6 @@ class UserGroupFactory
             $this->_oCache,
             $this->_oUtil,
             $this->_oObjectHandler,
-            $this->_oAccessHandler,
             $sId
         );
     }

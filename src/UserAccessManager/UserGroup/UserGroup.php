@@ -14,12 +14,11 @@
  */
 namespace UserAccessManager\UserGroup;
 
-use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\Service\UserAccessManager;
+use UserAccessManager\UserAccessManager;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -62,11 +61,6 @@ class UserGroup
      * @var ObjectHandler
      */
     protected $_oObjectHandler;
-
-    /**
-     * @var AccessHandler
-     */
-    protected $_oAccessHandler;
 
     /**
      * @var int
@@ -121,7 +115,6 @@ class UserGroup
      * @param Cache         $oCache
      * @param Util          $oUtil
      * @param ObjectHandler $oObjectHandler
-     * @param AccessHandler $oAccessHandler
      * @param null          $iId
      */
     public function __construct(
@@ -131,7 +124,6 @@ class UserGroup
         Cache $oCache,
         Util $oUtil,
         ObjectHandler $oObjectHandler,
-        AccessHandler $oAccessHandler,
         $iId = null
     )
     {
@@ -141,7 +133,6 @@ class UserGroup
         $this->_oCache = $oCache;
         $this->_oUtil = $oUtil;
         $this->_oObjectHandler = $oObjectHandler;
-        $this->_oAccessHandler = $oAccessHandler;
 
         if ($iId !== null) {
             $this->_iId = $iId;
@@ -550,7 +541,6 @@ class UserGroup
             return;
         }
 
-        $this->_oAccessHandler->unsetUserGroupsForObject();
         $this->getObjectsFromType($sObjectType);
 
         $oObject = new \stdClass();
@@ -574,7 +564,6 @@ class UserGroup
             return;
         }
 
-        $this->_oAccessHandler->unsetUserGroupsForObject();
         $this->getObjectsFromType($sObjectType);
 
         unset($this->_aObjects[$sObjectType][self::OBJECTS_REAL][$sObjectId]);

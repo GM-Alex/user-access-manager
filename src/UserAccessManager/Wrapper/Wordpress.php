@@ -418,4 +418,14 @@ class Wordpress
         global $wp_query;
         return $wp_query;
     }
+
+    /**
+     * @see is_admin()
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return is_admin();
+    }
 }

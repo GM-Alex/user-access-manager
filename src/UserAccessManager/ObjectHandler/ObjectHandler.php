@@ -16,7 +16,7 @@
 namespace UserAccessManager\ObjectHandler;
 
 use UserAccessManager\Database\Database;
-use UserAccessManager\Service\UserAccessManager;
+use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -317,9 +317,9 @@ class ObjectHandler
     public function registeredPostType($sPostType, $oArguments)
     {
         if ($oArguments->publicly_queryable) {
+            $this->_aPostableTypes = $this->getPostableTypes();
             $this->_aPostableTypes[$oArguments->name] = $oArguments->name;
-            $this->_aPostableTypes = array_unique($this->_aPostableTypes);
-            $this->_aObjectTypes = array_merge($this->_aPostableTypes, $this->_aObjectTypes);
+            $this->_aObjectTypes = null;
             $this->_aAllObjectTypes = null;
             $this->_aAllObjectTypesMap = null;
             $this->_aValidObjectTypes = null;
@@ -412,10 +412,11 @@ class ObjectHandler
     public function getAllObjectTypes()
     {
         if ($this->_aAllObjectTypes === null) {
+            $aObjectTypes = $this->getObjectTypes();
             $aPlObjects = $this->getPlObjects();
 
             $this->_aAllObjectTypes = array_merge(
-                $this->_aObjectTypes,
+                $aObjectTypes,
                 array_keys($aPlObjects)
             );
         }

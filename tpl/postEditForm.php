@@ -24,19 +24,17 @@ if (isset($_GET['attachment_id'])) {
 $oPost = get_post($iObjectId);
 $sObjectType = $oPost->post_type;
 
-global $oUserAccessManager;
-
-$aUamUserGroups = $oUserAccessManager->getAccessHandler()->getUserGroups();
+$aUamUserGroups = $this->_oAccessHandler->getUserGroups();
 
 if (isset($iObjectId)) {
-    $aUserGroupsForObject = $oUserAccessManager->getAccessHandler()->getUserGroupsForObject($sObjectType, $iObjectId);
+    $aUserGroupsForObject = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
 } else {
     $aUserGroupsForObject = array();
 }
 
 if (count($aUamUserGroups) > 0) {
     include 'groupSelectionForm.php';
-} elseif ($oUserAccessManager->getAccessHandler()->checkUserAccess()) {
+} elseif ($this->_oAccessHandler->checkUserAccess()) {
     ?>
     <a href='admin.php?page=uam_usergroup'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
     <?php

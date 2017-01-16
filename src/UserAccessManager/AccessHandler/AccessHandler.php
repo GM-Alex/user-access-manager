@@ -19,7 +19,7 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\Service\UserAccessManager;
+use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;

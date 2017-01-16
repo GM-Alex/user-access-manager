@@ -509,15 +509,7 @@ class Config
      */
     public function atAdminPanel()
     {
-        return $this->_blAtAdminPanel;
-    }
-
-    /**
-     * Sets the atAdminPanel var to true.
-     */
-    public function setAtAdminPanel()
-    {
-        $this->_blAtAdminPanel = true;
+        return $this->_oWrapper->isAdmin();
     }
 
     /**
@@ -529,5 +521,23 @@ class Config
     {
         $sPermalinkStructure = $this->getWpOption('permalink_structure');
         return !empty($sPermalinkStructure);
+    }
+
+
+
+    /**
+     * Returns the upload directory.
+     *
+     * @return null|string
+     */
+    public function getUploadDirectory()
+    {
+        $aWordpressUploadDir = $this->_oWrapper->getUploadDir();
+
+        if (empty($aWordpressUploadDir['error'])) {
+            return $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
+        }
+
+        return null;
     }
 }
