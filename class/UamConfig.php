@@ -129,10 +129,8 @@ class UamConfig
 
             $aUamOptions = $this->getWpOption(self::ADMIN_OPTIONS_NAME);
 
-            if (!empty($aUamOptions)) {
-                foreach ($aUamOptions as $sKey => $mOption) {
-                    $aUamAdminOptions[$sKey] = $mOption;
-                }
+            foreach ($aUamOptions as $sKey => $mOption) {
+                $aUamAdminOptions[$sKey] = $mOption;
             }
 
             update_option(self::ADMIN_OPTIONS_NAME, $aUamAdminOptions);
