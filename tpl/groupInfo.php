@@ -56,7 +56,7 @@ foreach ($oUserAccessManager->getAccessHandler()->getAllObjectTypes() as $sCurOb
     if (isset($aUserGroups[$oUamUserGroup->getId()])) {
         $aRecursiveMembership = $aUserGroups[$oUamUserGroup->getId()]->getRecursiveMembershipForObjectType($sObjectType, $iObjectId, $sCurObjectType);
 
-        if (count($aRecursiveMembership) > 0) {
+        if (!empty($aRecursiveMembership)) {
             ?>
             <li  class="uam_group_info_head">
             <?php echo constant('TXT_UAM_GROUP_MEMBERSHIP_BY_'.strtoupper($sCurObjectType)); ?>:

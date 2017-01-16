@@ -41,7 +41,7 @@ if (isset($_GET['tag_ID'])) {
             </th>
             <td>
 <?php
-if (count($aUamUserGroups) > 0) {
+if (!empty($aUamUserGroups)) {
     include 'groupSelectionForm.php';
 } elseif ($oUserAccessManager->getAccessHandler()->checkUserAccess()) {
     ?>

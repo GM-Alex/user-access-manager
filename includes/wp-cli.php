@@ -118,7 +118,7 @@ class Groups_Command extends \WP_CLI\CommandWithDBObject
      */
     public function del($_, $assoc_args)
     {
-        if (count($_) < 1) {
+        if (empty($_)) {
             WP_CLI::error('Expected: wp uam groups del <id> ..');
         }
 

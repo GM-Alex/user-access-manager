@@ -768,7 +768,7 @@ class UamAccessHandler
             $aCapabilities = array();
         }
         
-        $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
+        $aRoles = (is_array($aCapabilities) && !empty($aCapabilities)) ? array_keys($aCapabilities) : array('norole');
         return $aRoles;
     }
     
