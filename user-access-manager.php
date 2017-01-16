@@ -100,7 +100,6 @@ if (!function_exists("userAccessManagerAP")) {
             return;
         }
 
-        $oUserAccessManager->setAtAdminPanel();
         $oConfig = $oUserAccessManager->getConfig();
 
         if ($oUserAccessManager->isDatabaseUpdateNecessary()) {
