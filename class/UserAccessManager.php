@@ -41,7 +41,6 @@ class UserAccessManager
     CONST HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
 
     protected $_oConfig = null;
-    protected $_blAtAdminPanel = false;
     protected $_sUamVersion = '1.2.14';
     protected $_sUamDbVersion = '1.4';
     protected $_oAccessHandler = null;
@@ -904,18 +903,9 @@ class UserAccessManager
      */
     public function atAdminPanel()
     {
-        return $this->_blAtAdminPanel;
+        return is_admin();
     }
-    
-    /**
-     * Sets the atAdminPanel var to true.
-     */
-    public function setAtAdminPanel()
-    {
-        $this->_blAtAdminPanel = true;
-    }
-    
-    
+
     /*
      * Helper functions.
      */
