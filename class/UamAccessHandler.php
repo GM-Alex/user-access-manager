@@ -235,11 +235,7 @@ class UamAccessHandler
         if (!isset($this->_aValidObjectTypes[$sObjectType])) {
             $aObjectTypesMap = $this->getAllObjectTypesMap();
 
-            if (isset($aObjectTypesMap[$sObjectType])) {
-                $this->_aValidObjectTypes[$sObjectType] = true;
-            } else {
-                $this->_aValidObjectTypes[$sObjectType] = false;
-            }
+            $this->_aValidObjectTypes[$sObjectType] = isset($aObjectTypesMap[$sObjectType]);
         }
 
         return $this->_aValidObjectTypes[$sObjectType];
@@ -440,8 +436,8 @@ class UamAccessHandler
                     ) {
                         $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
                         break;
-                    } elseif ($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all'
-                        || !$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all'
+                    } elseif (($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all')
+                        || (!$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all')
                     ) {
                         unset($aMembership[$sKey]);
                     }
