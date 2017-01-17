@@ -1,6 +1,24 @@
 <?php
+/**
+ * Wordpress.php
+ *
+ * The Wordpress class file.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
 namespace UserAccessManager\Wrapper;
 
+/**
+ * Class Wordpress
+ *
+ * @package UserAccessManager\Wrapper
+ */
 class Wordpress
 {
     /**
@@ -427,5 +445,56 @@ class Wordpress
     public function isAdmin()
     {
         return is_admin();
+    }
+
+    /**
+     * @see wp_create_nonce()
+     *
+     * @param int|string $mAction
+     *
+     * @return string
+     */
+    public function createNonce($mAction)
+    {
+        return wp_create_nonce($mAction);
+    }
+
+    /**
+     * @see wp_nonce_field()
+     *
+     * @param int|string $mAction
+     * @param string     $sName
+     * @param bool       $blReferrer
+     * @param bool       $blEcho
+     *
+     * @return string
+     */
+    public function getNonceField($mAction = -1, $sName = '_wpnonce', $blReferrer = true , $blEcho = true)
+    {
+        return wp_nonce_field($mAction, $sName , $blReferrer, $blEcho);
+    }
+
+    /**
+     * @see wp_verify_nonce()
+     *
+     * @param string     $sNonce
+     * @param string|int $mAction
+     *
+     * @return false|int
+     */
+    public function verifyNonce($sNonce, $mAction = -1)
+    {
+        return wp_verify_nonce($sNonce, $mAction);
+    }
+
+    /**
+     * Returns the wordpress roles.
+     *
+     * @return \WP_Roles
+     */
+    public function getRoles()
+    {
+        global $wp_roles;
+        return $wp_roles;
     }
 }

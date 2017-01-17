@@ -76,6 +76,7 @@ require_once 'includes/language.define.php';
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
+use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileProtectionFactory;
@@ -109,6 +110,7 @@ $oAccessHandler = new AccessHandler(
     $oUserGroupFactory
 );
 $oFileHandler = new FileHandler($oWrapper, $oConfig);
+$oControllerFactory = new ControllerFactory($oWrapper, $oAccessHandler, $oUserGroupFactory);
 $oFileProtectionFactory = new FileProtectionFactory(
     $oWrapper,
     $oConfig,
@@ -123,6 +125,7 @@ $oUserAccessManager = new UserAccessManager(
     $oAccessHandler,
     $oFileHandler,
     $oUtil,
+    $oControllerFactory,
     $oFileProtectionFactory
 );
 

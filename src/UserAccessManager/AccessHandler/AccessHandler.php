@@ -12,14 +12,12 @@
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 namespace UserAccessManager\AccessHandler;
 
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
@@ -158,7 +156,7 @@ class AccessHandler
             && !$this->checkUserAccess('manage_user_groups')
         ) {
             $oCurrentUser = $this->_oWrapper->getCurrentUser();
-            $aUserGroupsForUser = $this->getUserGroupsForObject(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID);
+            $aUserGroupsForUser = $this->getUserGroupsForObject(ObjectHandler::USER_OBJECT_TYPE, $oCurrentUser->ID);
 
             foreach ($aUserGroups as $sKey => $oUamUserGroup) {
                 if (!isset($aUserGroupsForUser[$oUamUserGroup->getId()])) {
@@ -248,7 +246,7 @@ class AccessHandler
             return array();
         }
 
-        $blFilter = ($sObjectType === UserAccessManager::USER_OBJECT_TYPE) ? false : $blFilter;
+        $blFilter = ($sObjectType === ObjectHandler::USER_OBJECT_TYPE) ? false : $blFilter;
         $sFilterAttr = ($blFilter === true) ? self::OBJECTS_FILTERED : self::OBJECTS_NONE_FILTERED;
 
         if (!isset($this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId])) {
@@ -336,7 +334,7 @@ class AccessHandler
                 $aCurrentIp = explode('.', $_SERVER['REMOTE_ADDR']);
 
                 foreach ($aMembership as $sKey => $oUserGroup) {
-                    if ($oUserGroup->objectIsMember(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID)
+                    if ($oUserGroup->objectIsMember(ObjectHandler::USER_OBJECT_TYPE, $oCurrentUser->ID)
                         || $this->checkUserIp($aCurrentIp, $oUserGroup->getIpRange())
                     ) {
                         $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
@@ -366,7 +364,7 @@ class AccessHandler
     {
         if (!isset($this->_aGroupsForUser)) {
             $oCurrentUser = $this->_oWrapper->getCurrentUser();
-            $aUserGroupsForUser = $this->getUserGroupsForObject(UserAccessManager::USER_OBJECT_TYPE, $oCurrentUser->ID, false);
+            $aUserGroupsForUser = $this->getUserGroupsForObject(ObjectHandler::USER_OBJECT_TYPE, $oCurrentUser->ID, false);
             $aCurrentIp = explode('.', $_SERVER['REMOTE_ADDR']);
             $aUserGroups = $this->getUserGroups();
 
@@ -398,7 +396,7 @@ class AccessHandler
         if ($this->_aTermsAssignedToUser === null) {
             $aUserUserGroups = $this->_getUserGroupsForUser();
             $sUserUserGroups = $this->_oDatabase->generateSqlIdList(array_keys($aUserUserGroups));
-            $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
+            $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
 
             $sTermsAssignedToUserSql = "
                 SELECT igc.object_id
@@ -424,7 +422,7 @@ class AccessHandler
         }
 
         if ($this->_aExcludedTerms === null) {
-            $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
+            $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
             $sAccessType = ($this->_oConfig->atAdminPanel() === true) ? 'write' : 'read';
             $aCategoriesAssignedToUser = $this->getTermsForUser();
             $sCategoriesAssignedToUser = $this->_oDatabase->generateSqlIdList($aCategoriesAssignedToUser);
@@ -528,7 +526,7 @@ class AccessHandler
         $sPostAssignedToUser
     )
     {
-        $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
+        $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
         $sPostTable = $this->_oDatabase->getPostsTable();
         $sUserGroupTable = $this->_oDatabase->getUserGroupTable();
         $sUserGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();

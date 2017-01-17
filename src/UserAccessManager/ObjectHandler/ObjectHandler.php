@@ -12,11 +12,9 @@
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 namespace UserAccessManager\ObjectHandler;
 
 use UserAccessManager\Database\Database;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -26,6 +24,13 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class ObjectHandler
 {
+    const USER_OBJECT_TYPE = 'user';
+    const POST_OBJECT_TYPE = 'post';
+    const PAGE_OBJECT_TYPE = 'page';
+    const TERM_OBJECT_TYPE = 'term';
+    const ROLE_OBJECT_TYPE = 'role';
+    const ATTACHMENT_OBJECT_TYPE = 'attachment';
+
     /**
      * @var Wordpress
      */
@@ -370,9 +375,9 @@ class ObjectHandler
     {
         if ($this->_aPostableTypes === null) {
             $aStaticPostableTypes = array(
-                UserAccessManager::POST_OBJECT_TYPE => UserAccessManager::POST_OBJECT_TYPE,
-                UserAccessManager::PAGE_OBJECT_TYPE => UserAccessManager::PAGE_OBJECT_TYPE,
-                UserAccessManager::ATTACHMENT_OBJECT_TYPE => UserAccessManager::ATTACHMENT_OBJECT_TYPE
+                self::POST_OBJECT_TYPE => self::POST_OBJECT_TYPE,
+                self::PAGE_OBJECT_TYPE => self::PAGE_OBJECT_TYPE,
+                self::ATTACHMENT_OBJECT_TYPE => self::ATTACHMENT_OBJECT_TYPE
             );
             $this->_aPostableTypes = array_merge($aStaticPostableTypes, $this->getPostTypes());
         }
@@ -389,9 +394,9 @@ class ObjectHandler
     {
         if ($this->_aObjectTypes === null) {
             $aStaticObjectTypes = array(
-                UserAccessManager::TERM_OBJECT_TYPE => UserAccessManager::TERM_OBJECT_TYPE,
-                UserAccessManager::USER_OBJECT_TYPE => UserAccessManager::USER_OBJECT_TYPE,
-                UserAccessManager::ROLE_OBJECT_TYPE => UserAccessManager::ROLE_OBJECT_TYPE
+                self::TERM_OBJECT_TYPE => self::TERM_OBJECT_TYPE,
+                self::USER_OBJECT_TYPE => self::USER_OBJECT_TYPE,
+                self::ROLE_OBJECT_TYPE => self::ROLE_OBJECT_TYPE
             );
 
             $this->_aObjectTypes = array_merge(

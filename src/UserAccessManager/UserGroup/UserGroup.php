@@ -18,7 +18,6 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -197,13 +196,15 @@ class UserGroup
      * Saves the user group.
      *
      * @param boolean $blRemoveOldAssignments If false we will not remove old entries.
+     *
+     * @return bool
      */
     public function save($blRemoveOldAssignments = true)
     {
         $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
         
         if ($this->_iId == null) {
-            $this->_oDatabase->insert(
+            $mReturn = $this->_oDatabase->insert(
                 $this->_oDatabase->getUserGroupTable(),
                 array(
                     'groupname' => $this->_sGroupName,
@@ -216,7 +217,7 @@ class UserGroup
 
             $this->_iId = $this->_oDatabase->getLastInsertId();
         } else {
-            $this->_oDatabase->update(
+            $mReturn = $this->_oDatabase->update(
                 $this->_oDatabase->getUserGroupTable(),
                 array(
                     'groupname' => $this->_sGroupName,
@@ -244,6 +245,8 @@ class UserGroup
                 $this->_oDatabase->query($sSql);
             }
         }
+
+        return ($mReturn !== false);
     }
 
 
@@ -731,11 +734,11 @@ class UserGroup
 
         if ($sType == self::OBJECTS_FULL
             && $this->_oObjectHandler->isPostableType($sObjectType)
-            && $sObjectType != UserAccessManager::ROLE_OBJECT_TYPE
+            && $sObjectType != ObjectHandler::ROLE_OBJECT_TYPE
         ) {
-            if ($sObjectType === UserAccessManager::TERM_OBJECT_TYPE) {
+            if ($sObjectType === ObjectHandler::TERM_OBJECT_TYPE) {
                 $this->_aObjects[$sObjectType][$sType] = $this->getFullTerms($this->_aObjects[$sObjectType][$sType]);
-            } elseif ($sObjectType === UserAccessManager::USER_OBJECT_TYPE) {
+            } elseif ($sObjectType === ObjectHandler::USER_OBJECT_TYPE) {
                 $this->_aObjects[$sObjectType][$sType] = $this->getFullUsers();
             } else {
                 $oPlObject = $this->_oObjectHandler->getPlObject($sObjectType);
@@ -766,10 +769,10 @@ class UserGroup
             $this->_aSingleObjects[$sObjectType][$iObjectId] = null;
             $aIsRecursiveMember = array();
 
-            if ($sType == self::OBJECTS_FULL && $sObjectType != UserAccessManager::ROLE_OBJECT_TYPE) {
-                if ($sObjectType === UserAccessManager::TERM_OBJECT_TYPE) {
+            if ($sType == self::OBJECTS_FULL && $sObjectType != ObjectHandler::ROLE_OBJECT_TYPE) {
+                if ($sObjectType === ObjectHandler::TERM_OBJECT_TYPE) {
                     $aIsRecursiveMember = $this->_getFullTerm($iObjectId);
-                } elseif ($sObjectType == UserAccessManager::USER_OBJECT_TYPE) {
+                } elseif ($sObjectType == ObjectHandler::USER_OBJECT_TYPE) {
                     $aIsRecursiveMember = $this->_getFullUser($iObjectId);
                 } elseif ($this->_oObjectHandler->isPostableType($sObjectType)) {
                     $aIsRecursiveMember = $this->_getFullPost($iObjectId);
@@ -827,8 +830,8 @@ class UserGroup
                 $oRoleObject = new \stdClass();
                 $oRoleObject->name = $sRole;
 
-                $aIsRecursiveMember = array(UserAccessManager::ROLE_OBJECT_TYPE => array());
-                $aIsRecursiveMember[UserAccessManager::ROLE_OBJECT_TYPE][] = $oRoleObject;
+                $aIsRecursiveMember = array(ObjectHandler::ROLE_OBJECT_TYPE => array());
+                $aIsRecursiveMember[ObjectHandler::ROLE_OBJECT_TYPE][] = $oRoleObject;
             }
         }
 
@@ -855,7 +858,7 @@ class UserGroup
 
             if (isset($aDbUsers)) {
                 foreach ($aDbUsers as $oDbUser) {
-                    $oUser = $this->_getSingleObject(UserAccessManager::USER_OBJECT_TYPE, $oDbUser->ID, self::OBJECTS_FULL);
+                    $oUser = $this->_getSingleObject(ObjectHandler::USER_OBJECT_TYPE, $oDbUser->ID, self::OBJECTS_FULL);
 
                     if ($oUser !== null) {
                         $aFullUsers[$oUser->id] = $oUser;
@@ -892,7 +895,7 @@ class UserGroup
             && !is_null($oTerm->parent)
         ) {
             $oParentTerm = $this->_getSingleObject(
-                UserAccessManager::TERM_OBJECT_TYPE,
+                ObjectHandler::TERM_OBJECT_TYPE,
                 $oTerm->parent,
                 self::OBJECTS_FULL
             );
@@ -900,7 +903,7 @@ class UserGroup
             if ($oParentTerm !== null) {
                 $oCurrentTerm = $this->_oObjectHandler->getTerm($iObjectId);
                 $oParentTerm->name = $oCurrentTerm->name;
-                $aIsRecursiveMember[UserAccessManager::TERM_OBJECT_TYPE][] = $oParentTerm;
+                $aIsRecursiveMember[ObjectHandler::TERM_OBJECT_TYPE][] = $oParentTerm;
             }
         }
 
@@ -939,8 +942,8 @@ class UserGroup
                             $oCurrentTermChild->id = $oTermChild->term_id;
                             $oCurrentTermChild->name = $oTermChild->name;
 
-                            $oCurrentTermChild->recursiveMember = array(UserAccessManager::TERM_OBJECT_TYPE => array());
-                            $oCurrentTermChild->recursiveMember[UserAccessManager::TERM_OBJECT_TYPE][] = $oTermChild;
+                            $oCurrentTermChild->recursiveMember = array(ObjectHandler::TERM_OBJECT_TYPE => array());
+                            $oCurrentTermChild->recursiveMember[ObjectHandler::TERM_OBJECT_TYPE][] = $oTermChild;
                             $aTerms[$oCurrentTermChild->id] = $oCurrentTermChild;
                         }
                     }
@@ -1008,7 +1011,7 @@ class UserGroup
     {
         $aIsRecursiveMember = array();
         $oPost = $this->_oObjectHandler->getPost($iObjectId);
-        $aTerms = $this->getObjectsFromType(UserAccessManager::TERM_OBJECT_TYPE, self::OBJECTS_FULL);
+        $aTerms = $this->getObjectsFromType(ObjectHandler::TERM_OBJECT_TYPE, self::OBJECTS_FULL);
 
         foreach ($aTerms as $oTerm) {
             if ($this->_isPostInTerm($oPost->ID, $oTerm->id)) {
@@ -1018,13 +1021,13 @@ class UserGroup
                     $oTerm->name = $oTermObject->name;
                 }
 
-                $aIsRecursiveMember[UserAccessManager::TERM_OBJECT_TYPE][] = $oTermObject;
+                $aIsRecursiveMember[ObjectHandler::TERM_OBJECT_TYPE][] = $oTermObject;
             }
         }
 
         if ($oPost->post_parent == 0
-            && $oPost->post_type === UserAccessManager::POST_OBJECT_TYPE
-            && $this->_oConfig->getWpOption('show_on_front') == UserAccessManager::PAGE_OBJECT_TYPE
+            && $oPost->post_type === ObjectHandler::POST_OBJECT_TYPE
+            && $this->_oConfig->getWpOption('show_on_front') == ObjectHandler::PAGE_OBJECT_TYPE
             && $this->_oConfig->getWpOption('page_for_posts') != $iObjectId
         ) {
             $iParentId = $this->_oConfig->getWpOption('page_for_posts');

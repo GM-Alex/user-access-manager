@@ -12,7 +12,6 @@
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 namespace UserAccessManager\Cache;
 
 /**

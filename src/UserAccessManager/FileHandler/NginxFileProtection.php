@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NginxFileProtection.php
  *
@@ -15,7 +14,7 @@
  */
 namespace UserAccessManager\FileHandler;
 
-use UserAccessManager\UserAccessManager;
+use UserAccessManager\ObjectHandler\ObjectHandler;
 
 /**
  * Class NginxFileProtection
@@ -63,7 +62,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
             $this->createPasswordFile(true);
         } else {
             if ($sObjectType === null) {
-                $sObjectType = UserAccessManager::ATTACHMENT_OBJECT_TYPE;
+                $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
             $sFile = "location ".str_replace(ABSPATH, '/', $sDir)." {\n";

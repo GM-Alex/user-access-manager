@@ -19,6 +19,7 @@ namespace UserAccessManager;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\Config;
+use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileProtectionFactory;
@@ -41,13 +42,6 @@ class UserAccessManager
 {
     const VERSION = '1.2.14';
     const DB_VERSION = '1.4';
-
-    const USER_OBJECT_TYPE = 'user';
-    const POST_OBJECT_TYPE = 'post';
-    const PAGE_OBJECT_TYPE = 'page';
-    const TERM_OBJECT_TYPE = 'term';
-    const ROLE_OBJECT_TYPE = 'role';
-    const ATTACHMENT_OBJECT_TYPE = 'attachment';
 
     /**
      * names of style and script handles
@@ -92,10 +86,16 @@ class UserAccessManager
     protected $_oUtil;
 
     /**
+     * @var ControllerFactory
+     */
+    protected $_oControllerFactory;
+
+    /**
      * @var FileProtectionFactory
      */
     protected $_oFileProtectionFactory;
 
+    // TODO move
     protected $_aPostUrls = array();
 
     /**
@@ -108,6 +108,7 @@ class UserAccessManager
      * @param AccessHandler         $oAccessHandler
      * @param FileHandler           $oFileHandler
      * @param Util                  $oUtil
+     * @param ControllerFactory     $oControllerFactory,
      * @param FileProtectionFactory $oFileProtectionFactory
      */
     public function __construct(
@@ -118,6 +119,7 @@ class UserAccessManager
         AccessHandler $oAccessHandler,
         FileHandler $oFileHandler,
         Util $oUtil,
+        ControllerFactory $oControllerFactory,
         FileProtectionFactory $oFileProtectionFactory
     )
     {
@@ -128,6 +130,7 @@ class UserAccessManager
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oUtil = $oUtil;
         $this->_oFileHandler = $oFileHandler;
+        $this->_oControllerFactory = $oControllerFactory;
         $this->_oFileProtectionFactory = $oFileProtectionFactory;
         $this->_oWrapper->doAction('uam_init', $this);
     }
@@ -240,13 +243,42 @@ class UserAccessManager
              * to be the right way, but it is way difficult.
              */
             //Admin main menu
-            add_menu_page('User Access Manager', 'UAM', 'manage_options', 'uam_usergroup', array($this, 'printAdminPage'), 'div');
+            add_menu_page('User Access Manager', 'UAM', 'manage_options', 'uam_usergroup', null, 'div');
 
             //Admin sub menus
-            add_submenu_page('uam_usergroup', TXT_UAM_MANAGE_GROUP, TXT_UAM_MANAGE_GROUP, 'read', 'uam_usergroup', array($this, 'printAdminPage'));
+
+
+            $oAdminUserGroupController = $this->_oControllerFactory->createAdminUserGroupController();
+            add_submenu_page(
+                'uam_usergroup',
+                TXT_UAM_MANAGE_GROUP,
+                TXT_UAM_MANAGE_GROUP,
+                'read',
+                'uam_usergroup',
+                array($oAdminUserGroupController, 'render')
+            );
+
             add_submenu_page('uam_usergroup', TXT_UAM_SETTINGS, TXT_UAM_SETTINGS, 'read', 'uam_settings', array($this, 'printAdminPage'));
-            add_submenu_page('uam_usergroup', TXT_UAM_SETUP, TXT_UAM_SETUP, 'read', 'uam_setup', array($this, 'printAdminPage'));
-            add_submenu_page('uam_usergroup', TXT_UAM_ABOUT, TXT_UAM_ABOUT, 'read', 'uam_about', array($this, 'printAdminPage'));
+
+            $oAdminSetupController = $this->_oControllerFactory->createAdminSetupController($this);
+            add_submenu_page(
+                'uam_usergroup',
+                TXT_UAM_SETUP,
+                TXT_UAM_SETUP,
+                'read',
+                'uam_setup',
+                array($oAdminSetupController, 'render')
+            );
+
+            $oAdminAboutController = $this->_oControllerFactory->createAdminAboutController();
+            add_submenu_page(
+                'uam_usergroup',
+                TXT_UAM_ABOUT,
+                TXT_UAM_ABOUT,
+                'read',
+                'uam_about',
+                array($oAdminAboutController, 'render')
+            );
 
             $this->_oWrapper->doAction('uam_add_submenu');
 
@@ -551,7 +583,7 @@ class UserAccessManager
 
             if (version_compare($sCurrentDbVersion, '1.3', '<=')) {
                 $sDbAccessGroupToObject = $this->_oDatabase->getUserGroupToObjectTable();
-                $sTermType = UserAccessManager::TERM_OBJECT_TYPE;
+                $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
                 $this->_oDatabase->update(
                     $sDbAccessGroupToObject,
                     array(
@@ -568,9 +600,12 @@ class UserAccessManager
     }
 
     /**
+     * TODO
      * Clean up wordpress if the plugin will be uninstalled.
+     *
+     * @param bool $blNetworkWide
      */
-    public static function uninstall()
+    public static function uninstall($blNetworkWide = false)
     {
         global $wpdb;
 
@@ -652,28 +687,6 @@ class UserAccessManager
         }
     }
 
-    /**
-     * Returns the content of the excluded php file.
-     *
-     * @param string  $sFileName   The file name
-     * @param integer $iObjectId   The _iId if needed.
-     * @param string  $sObjectType The object type if needed.
-     *
-     * @return string
-     */
-    public function getIncludeContents($sFileName, $iObjectId = null, $sObjectType = null)
-    {
-        if (is_file($sFileName)) {
-            ob_start();
-            include $sFileName;
-            $sContents = ob_get_contents();
-            ob_end_clean();
-
-            return $sContents;
-        }
-
-        return '';
-    }
 
 
     /*
@@ -687,7 +700,7 @@ class UserAccessManager
     {
         wp_register_style(
             self::HANDLE_STYLE_ADMIN,
-            UAM_URLPATH.'css/uamAdmin.css',
+            UAM_URLPATH.'assets/css/uamAdmin.css',
             array(),
             self::VERSION,
             'screen'
@@ -695,7 +708,7 @@ class UserAccessManager
         
         wp_register_script(
             self::HANDLE_SCRIPT_ADMIN,
-            UAM_URLPATH.'js/functions.js',
+            UAM_URLPATH.'assets/js/functions.js',
             array('jquery'),
             self::VERSION
         );
@@ -711,7 +724,7 @@ class UserAccessManager
         $this->registerAdminStylesAndScripts();
         wp_enqueue_style(self::HANDLE_STYLE_ADMIN);
 
-        if ($sHook === 'uam_page_uam_settings') {
+        if ($sHook === 'uam_page_uam_settings' || $sHook === 'uam_page_uam_setup') {
             wp_enqueue_script(self::HANDLE_SCRIPT_ADMIN);
         }
     }
@@ -727,7 +740,7 @@ class UserAccessManager
     {
         wp_register_style(
             self::HANDLE_STYLE_LOGIN_FORM,
-            UAM_URLPATH.'css/uamLoginForm.css',
+            UAM_URLPATH.'assets/css/uamLoginForm.css',
             array(),
             self::VERSION,
             'screen'
@@ -741,26 +754,6 @@ class UserAccessManager
     {
         $this->registerStylesAndScripts();
         wp_enqueue_style(self::HANDLE_STYLE_LOGIN_FORM);
-    }
-    
-    /**
-     * Prints the admin page.
-     */
-    public function printAdminPage()
-    {
-        if (isset($_GET['page'])) {
-            $sAdminPage = $_GET['page'];
-
-            if ($sAdminPage == 'uam_settings') {
-                include UAM_REALPATH.'tpl/adminSettings.php';
-            } elseif ($sAdminPage == 'uam_usergroup') {
-                include UAM_REALPATH.'tpl/adminGroup.php';
-            } elseif ($sAdminPage == 'uam_setup') {
-                include UAM_REALPATH.'tpl/adminSetup.php';
-            } elseif ($sAdminPage == 'uam_about') {
-                include UAM_REALPATH.'tpl/about.php';
-            }
-        }
     }
 
     /**
@@ -781,7 +774,7 @@ class UserAccessManager
         }
 
         if (isset($_GET['tag_ID']) && is_numeric($_GET['tag_ID']) && !$blNoRights) {
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $_GET['tag_ID']);
+            $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $_GET['tag_ID']);
         }
 
         if ($blNoRights) {
@@ -1059,7 +1052,7 @@ class UserAccessManager
     public function addUserColumn($sReturn, $sColumnName, $iId)
     {
         if ($sColumnName == 'uam_access') {
-            return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php', $iId, self::USER_OBJECT_TYPE);
+            return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php', $iId, ObjectHandler::USER_OBJECT_TYPE);
         }
 
         return $sReturn;
@@ -1080,7 +1073,7 @@ class UserAccessManager
      */
     public function saveUserData($iUserId)
     {
-        $this->_saveObjectData(self::USER_OBJECT_TYPE, $iUserId);
+        $this->_saveObjectData(ObjectHandler::USER_OBJECT_TYPE, $iUserId);
     }
 
     /**
@@ -1090,7 +1083,7 @@ class UserAccessManager
      */
     public function removeUserData($iUserId)
     {
-        $this->_removeObjectData(self::USER_OBJECT_TYPE, $iUserId);
+        $this->_removeObjectData(ObjectHandler::USER_OBJECT_TYPE, $iUserId);
     }
 
 
@@ -1123,7 +1116,7 @@ class UserAccessManager
     public function addTermColumn($sContent, $sColumnName, $iId)
     {
         if ($sColumnName == 'uam_access') {
-            $sContent .= $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, self::TERM_OBJECT_TYPE);
+            $sContent .= $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, ObjectHandler::TERM_OBJECT_TYPE);
         }
 
         return $sContent;
@@ -1146,7 +1139,7 @@ class UserAccessManager
      */
     public function saveTermData($iTermId)
     {
-        $this->_saveObjectData(self::TERM_OBJECT_TYPE, $iTermId);
+        $this->_saveObjectData(ObjectHandler::TERM_OBJECT_TYPE, $iTermId);
     }
 
     /**
@@ -1156,7 +1149,7 @@ class UserAccessManager
      */
     public function removeTermData($iTermId)
     {
-        $this->_removeObjectData(self::TERM_OBJECT_TYPE, $iTermId);
+        $this->_removeObjectData(ObjectHandler::TERM_OBJECT_TYPE, $iTermId);
     }
 
 
@@ -1262,12 +1255,12 @@ class UserAccessManager
         $sPostType = $oPost->post_type;
 
         if ($this->_oObjectHandler->isPostableType($sPostType)
-            && $sPostType != UserAccessManager::POST_OBJECT_TYPE
-            && $sPostType != UserAccessManager::PAGE_OBJECT_TYPE
+            && $sPostType != ObjectHandler::POST_OBJECT_TYPE
+            && $sPostType != ObjectHandler::PAGE_OBJECT_TYPE
         ) {
-            $sPostType = UserAccessManager::POST_OBJECT_TYPE;
-        } elseif ($sPostType != UserAccessManager::POST_OBJECT_TYPE
-            && $sPostType != UserAccessManager::PAGE_OBJECT_TYPE
+            $sPostType = ObjectHandler::POST_OBJECT_TYPE;
+        } elseif ($sPostType != ObjectHandler::POST_OBJECT_TYPE
+            && $sPostType != ObjectHandler::PAGE_OBJECT_TYPE
         ) {
             return $oPost;
         }
@@ -1420,8 +1413,8 @@ class UserAccessManager
         $aTaxonomies = $this->_oObjectHandler->getTaxonomies();
 
         foreach ($aItems as $oItem) {
-            if ($oItem->object == UserAccessManager::POST_OBJECT_TYPE
-                || $oItem->object == UserAccessManager::PAGE_OBJECT_TYPE
+            if ($oItem->object == ObjectHandler::POST_OBJECT_TYPE
+                || $oItem->object == ObjectHandler::PAGE_OBJECT_TYPE
             ) {
                 $oObject = $this->_oObjectHandler->getPost($oItem->object_id);
 
@@ -1568,11 +1561,11 @@ class UserAccessManager
             return $oTerm;
         }
 
-        $oTerm->name .= $this->adminOutput(self::TERM_OBJECT_TYPE, $oTerm->term_id, $oTerm->name);
+        $oTerm->name .= $this->adminOutput(ObjectHandler::TERM_OBJECT_TYPE, $oTerm->term_id, $oTerm->name);
 
         $oTerm->isEmpty = false;
 
-        if ($this->_oAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $oTerm->term_id)) {
+        if ($this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $oTerm->term_id)) {
             if ($this->_oConfig->hidePost() === true || $this->_oConfig->hidePage() === true) {
                 $iTermRequest = $oTerm->term_id;
                 $oTerm->count = $this->_getVisibleElementsCount($iTermRequest);
@@ -1609,7 +1602,7 @@ class UserAccessManager
                     while ($oCurrentTerm->parent != 0) {
                         $oCurrentTerm = $this->_oObjectHandler->getTerm($oCurrentTerm->parent);
 
-                        if ($this->_oAccessHandler->checkObjectAccess(UserAccessManager::TERM_OBJECT_TYPE, $oCurrentTerm->term_id)) {
+                        if ($this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $oCurrentTerm->term_id)) {
                             $oTerm->parent = $oCurrentTerm->term_id;
                             break;
                         }
@@ -1637,7 +1630,7 @@ class UserAccessManager
     {
         if ($sResourceType === 'taxonomy') {
             foreach ($aAncestors as $sKey => $aAncestorId) {
-                if (!$this->_oAccessHandler->checkObjectAccess(self::TERM_OBJECT_TYPE, $aAncestorId)) {
+                if (!$this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $aAncestorId)) {
                     unset($aAncestors[$sKey]);
                 }
             }
@@ -1767,7 +1760,7 @@ class UserAccessManager
      */
     public function showGroupMembership($sLink, $iPostId)
     {
-        $aGroups = $this->_oAccessHandler->getUserGroupsForObject(self::POST_OBJECT_TYPE, $iPostId);
+        $aGroups = $this->_oAccessHandler->getUserGroupsForObject(ObjectHandler::POST_OBJECT_TYPE, $iPostId);
 
         if (count($aGroups) > 0) {
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
@@ -1828,7 +1821,7 @@ class UserAccessManager
                 $iObjectId = $oObject->ID;
             } elseif (isset($oPageParams->query_vars['cat_id'])) {
                 $oObject = $this->_oObjectHandler->getTerm($oPageParams->query_vars['cat_id']);
-                $oObjectType = self::TERM_OBJECT_TYPE;
+                $oObjectType = ObjectHandler::TERM_OBJECT_TYPE;
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
                 $sPostableTypes = "'".implode("','", $this->_oObjectHandler->getPostableTypes())."'";
@@ -1958,7 +1951,7 @@ class UserAccessManager
     {
         $oObject = null;
 
-        if ($sObjectType == UserAccessManager::ATTACHMENT_OBJECT_TYPE) {
+        if ($sObjectType == ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
             $aUploadDir = wp_upload_dir();
             $sUploadDir = str_replace(ABSPATH, '/', $aUploadDir['basedir']);
             $sRegex = '/.*'.str_replace('/', '\/', $sUploadDir).'\//i';
@@ -1968,7 +1961,7 @@ class UserAccessManager
             $oPost = $this->_oObjectHandler->getPost($this->getPostIdByUrl($sObjectUrl));
 
             if ($oPost !== null
-                && $oPost->post_type == UserAccessManager::ATTACHMENT_OBJECT_TYPE
+                && $oPost->post_type == ObjectHandler::ATTACHMENT_OBJECT_TYPE
             ) {
                 $oObject = new \stdClass();
                 $oObject->id = $oPost->ID;

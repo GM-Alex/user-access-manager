@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\FileHandler;
 
-use UserAccessManager\UserAccessManager;
+use UserAccessManager\ObjectHandler\ObjectHandler;
 
 /**
  * Class ApacheFileProtection
@@ -62,7 +62,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
             $this->createPasswordFile(true);
         } else {
             if ($sObjectType === null) {
-                $sObjectType = UserAccessManager::ATTACHMENT_OBJECT_TYPE;
+                $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
             $aHomeRoot = parse_url($this->_oWrapper->getHomeUrl());

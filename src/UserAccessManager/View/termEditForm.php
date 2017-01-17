@@ -19,7 +19,7 @@ global $oUserAccessManager;
 $aUamUserGroups = $oUserAccessManager->getAccessHandler()->getUserGroups();
 
 $iObjectId = null;
-$sObjectType = UserAccessManager::TERM_OBJECT_TYPE;
+$sObjectType = ObjectHandler::TERM_OBJECT_TYPE;
 
 if (isset($_GET['tag_ID'])) {
     $iObjectId = $_GET['tag_ID'];

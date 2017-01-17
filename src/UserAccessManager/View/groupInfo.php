@@ -97,10 +97,10 @@ if ($oUamUserGroup->getWriteAccess()  == "all") {
             </li>
             <li>
                 <?php echo TXT_UAM_GROUP_ROLE; ?>: <?php
-if ($oUamUserGroup->getObjectsFromType(UserAccessManager::ROLE_OBJECT_TYPE)) {
+if ($oUamUserGroup->getObjectsFromType(ObjectHandler::ROLE_OBJECT_TYPE)) {
     $sOut = '';
     
-    foreach ($oUamUserGroup->getObjectsFromType(UserAccessManager::ROLE_OBJECT_TYPE) as $sKey => $sRole) {
+    foreach ($oUamUserGroup->getObjectsFromType(ObjectHandler::ROLE_OBJECT_TYPE) as $sKey => $sRole) {
         $sOut .= trim($sKey).', ';
     }
     
