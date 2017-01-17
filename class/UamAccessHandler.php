@@ -444,8 +444,8 @@ class UamAccessHandler
                         break;
                     }
                     // if the group grants write access to all on admin panel, or read access to all remove the group from the object
-                    elseif (($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all')
-                        || (!$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all')
+                    elseif ($this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getWriteAccess() == 'all'
+                        || !$this->getUserAccessManager()->atAdminPanel() && $oUserGroup->getReadAccess() == 'all'
                     ) {
                         unset($aMembership[$sKey]);
                     }
