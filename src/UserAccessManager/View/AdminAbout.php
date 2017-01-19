@@ -11,7 +11,6 @@
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
- *
  */
 ?>
 <div class="wrap">

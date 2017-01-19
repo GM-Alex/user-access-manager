@@ -76,6 +76,7 @@ require_once 'includes/language.define.php';
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
+use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
@@ -88,7 +89,8 @@ use UserAccessManager\Wrapper\Wordpress;
 
 $oWrapper = new Wordpress();
 $oUtil = new Util();
-$oConfig = new Config($oWrapper);
+$oConfigParameterFactory = new ConfigParameterFactory();
+$oConfig = new Config($oWrapper, $oConfigParameterFactory);
 $oCache = new Cache();
 $oDatabase = new Database($oWrapper);
 $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
@@ -110,7 +112,7 @@ $oAccessHandler = new AccessHandler(
     $oUserGroupFactory
 );
 $oFileHandler = new FileHandler($oWrapper, $oConfig);
-$oControllerFactory = new ControllerFactory($oWrapper, $oAccessHandler, $oUserGroupFactory);
+$oControllerFactory = new ControllerFactory($oWrapper, $oConfig, $oAccessHandler, $oUserGroupFactory);
 $oFileProtectionFactory = new FileProtectionFactory(
     $oWrapper,
     $oConfig,

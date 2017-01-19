@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Config\Config;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Wordpress;
@@ -26,9 +27,10 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class ControllerFactory
 {
-    public function __construct(Wordpress $oWrapper, AccessHandler $oAccessHandler, UserGroupFactory $oUserGroupFactory)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, AccessHandler $oAccessHandler, UserGroupFactory $oUserGroupFactory)
     {
         $this->_oWrapper = $oWrapper;
+        $this->_oConfig = $oConfig;
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oUserGroupFactory = $oUserGroupFactory;
     }
@@ -41,6 +43,18 @@ class ControllerFactory
     public function createAdminAboutController()
     {
         return new AdminAboutController($this->_oWrapper);
+    }
+
+    /**
+     * Creates and returns a new admin setup controller.
+     *
+     * @param UserAccessManager $oUserAccessManager
+     *
+     * @return AdminSetupController
+     */
+    public function createAdminSettingController(UserAccessManager $oUserAccessManager)
+    {
+        return new AdminSettingsController($this->_oWrapper, $this->_oConfig, $oUserAccessManager);
     }
 
     /**

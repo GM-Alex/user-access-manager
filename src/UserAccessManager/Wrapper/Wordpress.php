@@ -497,4 +497,39 @@ class Wordpress
         global $wp_roles;
         return $wp_roles;
     }
+
+    /**
+     * @see add_menu_page()
+     *
+     * @param string $sPageTitle
+     * @param string $sMenuTitle
+     * @param string $sCapability
+     * @param string $sMenuSlug
+     * @param mixed  $cFunction
+     * @param string $sIconUrl
+     * @param null   $iPosition
+     *
+     * @return string
+     */
+    public function addMenuPage($sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction = '', $sIconUrl = '', $iPosition = null)
+    {
+        return add_menu_page($sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction, $sIconUrl, $iPosition);
+    }
+
+    /**
+     * @see add_submenu_page()
+     *
+     * @param        $sParentSlug
+     * @param        $sPageTitle
+     * @param        $sMenuTitle
+     * @param        $sCapability
+     * @param        $sMenuSlug
+     * @param string $cFunction
+     *
+     * @return false|string
+     */
+    public function addSubMenuPage($sParentSlug, $sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction = '')
+    {
+        return add_submenu_page($sParentSlug, $sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction);
+    }
 }

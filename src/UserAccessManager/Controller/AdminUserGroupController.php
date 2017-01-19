@@ -37,6 +37,13 @@ class AdminUserGroupController extends Controller
      */
     protected $_sTemplate = 'AdminUserGroup.php';
 
+    /**
+     * AdminUserGroupController constructor.
+     *
+     * @param Wordpress        $oWrapper
+     * @param AccessHandler    $oAccessHandler
+     * @param UserGroupFactory $oUserGroupFactory
+     */
     public function __construct(Wordpress $oWrapper, AccessHandler $oAccessHandler, UserGroupFactory $oUserGroupFactory)
     {
         parent::__construct($oWrapper);

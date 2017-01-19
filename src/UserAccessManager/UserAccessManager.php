@@ -243,13 +243,11 @@ class UserAccessManager
              * to be the right way, but it is way difficult.
              */
             //Admin main menu
-            add_menu_page('User Access Manager', 'UAM', 'manage_options', 'uam_usergroup', null, 'div');
+            $this->_oWrapper->addMenuPage('User Access Manager', 'UAM', 'manage_options', 'uam_usergroup', null, 'div');
 
             //Admin sub menus
-
-
             $oAdminUserGroupController = $this->_oControllerFactory->createAdminUserGroupController();
-            add_submenu_page(
+            $this->_oWrapper->addSubmenuPage(
                 'uam_usergroup',
                 TXT_UAM_MANAGE_GROUP,
                 TXT_UAM_MANAGE_GROUP,
@@ -258,10 +256,18 @@ class UserAccessManager
                 array($oAdminUserGroupController, 'render')
             );
 
-            add_submenu_page('uam_usergroup', TXT_UAM_SETTINGS, TXT_UAM_SETTINGS, 'read', 'uam_settings', array($this, 'printAdminPage'));
+            $oAdminSetupController = $this->_oControllerFactory->createAdminSettingController($this);
+            $this->_oWrapper->addSubmenuPage(
+                'uam_usergroup',
+                TXT_UAM_SETTINGS,
+                TXT_UAM_SETTINGS,
+                'read',
+                'uam_settings',
+                array($oAdminSetupController, 'render')
+            );
 
             $oAdminSetupController = $this->_oControllerFactory->createAdminSetupController($this);
-            add_submenu_page(
+            $this->_oWrapper->addSubmenuPage(
                 'uam_usergroup',
                 TXT_UAM_SETUP,
                 TXT_UAM_SETUP,
@@ -271,7 +277,7 @@ class UserAccessManager
             );
 
             $oAdminAboutController = $this->_oControllerFactory->createAdminAboutController();
-            add_submenu_page(
+            $this->_oWrapper->addSubmenuPage(
                 'uam_usergroup',
                 TXT_UAM_ABOUT,
                 TXT_UAM_ABOUT,
@@ -426,7 +432,7 @@ class UserAccessManager
             }
         }
 
-        $sCurrentDbVersion = get_option('uam_db_version');
+        $sCurrentDbVersion = $this->_oWrapper->getOption('uam_db_version');
         return version_compare($sCurrentDbVersion, self::DB_VERSION, '<');
     }
 
@@ -698,6 +704,7 @@ class UserAccessManager
      */
     protected function registerAdminStylesAndScripts()
     {
+        //TODO wrapper
         wp_register_style(
             self::HANDLE_STYLE_ADMIN,
             UAM_URLPATH.'assets/css/uamAdmin.css',
@@ -778,7 +785,7 @@ class UserAccessManager
         }
 
         if ($blNoRights) {
-            wp_die(TXT_UAM_NO_RIGHTS);
+            $this->_oWrapper->wpDie(TXT_UAM_NO_RIGHTS);
         }
     }
 
