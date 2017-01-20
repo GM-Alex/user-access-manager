@@ -107,6 +107,11 @@ class Config
                     __('No rights!', 'user-access-manager')
                 );
 
+                if ($sObject === 'post') {
+                    $sId = "show_{$sObject}_content_before_more";
+                    $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
+                }
+
                 $sId = "{$sObject}_content";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter(
                     $sId,
@@ -142,14 +147,12 @@ class Config
             $sId = 'lock_recursive';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId, true);
 
-
             $sId = 'authors_has_access_to_own';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId, true);
 
 
             $sId = 'authors_can_add_posts_to_groups';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
-
 
             $sId = 'lock_file';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
@@ -161,18 +164,18 @@ class Config
                 array('random', 'user')
             );
 
-            $sId = 'lock_file_types';
-            $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
-                $sId,
-                'all',
-                array('all', 'selected', 'not_selected')
-            );
-            
             $sId = 'download_type';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
                 $sId,
                 'fopen',
                 array('fopen', 'normal')
+            );
+
+            $sId = 'lock_file_types';
+            $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
+                $sId,
+                'all',
+                array('all', 'selected', 'not_selected')
             );
 
             $sId = 'locked_file_types';

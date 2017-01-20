@@ -1,36 +1,29 @@
 jQuery(document).ready(function() {
     //Functions for the setting page
+    var toggleGroup = function (groupName) {
+        var $group = jQuery(groupName);
+        var $firstElement = jQuery('tr:first input', $group);
+        var toggleElements = function (element) {
+            var $element = jQuery(element);
 
-    if(jQuery('.uam_hide_page:checked').val() == 'true'){
-        jQuery('#uam_page_settings').css('display', 'none');
-        jQuery(this).toggleClass('active');
-    }
+            if ($element.val() === 'true') {
+                jQuery('tr:not(:first)', $group).hide();
+            } else {
+                jQuery('tr:not(:first)', $group).show();
+            }
+        };
 
-    jQuery('.uam_hide_page').change(function() {
-        jQuery('#uam_page_settings').toggle();
-        jQuery(this).toggleClass('active');
-    });
+        $firstElement.change(function() {
+            toggleElements(this);
+        });
+        toggleElements($firstElement);
+    };
 
-    if(jQuery('.uam_hide_post:checked').val() == 'true'){
-        jQuery('#uam_post_settings').css('display', 'none');
-        jQuery(this).toggleClass('active');
-    }
+    toggleGroup('#uam_settings_group_post');
+    toggleGroup('#uam_settings_group_page');
+    toggleGroup('#uam_settings_group_file');
 
-    jQuery('.uam_hide_post').change(function() {
-        jQuery('#uam_post_settings').toggle();
-        jQuery(this).toggleClass('active');
-    });
-
-    if(jQuery('.uam_lock_file:checked').val() == 'false'){
-        jQuery('#uam_file_settings').css('display', 'none');
-        jQuery(this).toggleClass('active');
-    }
-
-    jQuery('.uam_lock_file').change(function() {
-        jQuery('#uam_file_settings').toggle();
-        jQuery(this).toggleClass('active');
-    });
-    
+    // Functions for the setup page
     jQuery('#uam_reset_confirm').on('change paste keyup', function () {
         var $button = jQuery('#uam_reset_submit');
         

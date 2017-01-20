@@ -1564,6 +1564,7 @@ class UserAccessManager
      */
     protected function _processTerm($oTerm)
     {
+        return $oTerm;
         if (is_object($oTerm) === false) {
             return $oTerm;
         }

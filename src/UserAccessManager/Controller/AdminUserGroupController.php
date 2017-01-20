@@ -38,6 +38,11 @@ class AdminUserGroupController extends Controller
     protected $_sTemplate = 'AdminUserGroup.php';
 
     /**
+     * @var \UserAccessManager\UserGroup\UserGroup
+     */
+    protected $_oUserGroup = null;
+
+    /**
      * AdminUserGroupController constructor.
      *
      * @param Wordpress        $oWrapper
@@ -58,8 +63,12 @@ class AdminUserGroupController extends Controller
      */
     public function getUserGroup()
     {
-        $iUserGroupId = $this->getRequestParameter('userGroupId');
-        return $this->_oUserGroupFactory->createUserGroup($iUserGroupId);
+        if ($this->_oUserGroup === null) {
+            $iUserGroupId = $this->getRequestParameter('userGroupId');
+            $this->_oUserGroup = $this->_oUserGroupFactory->createUserGroup($iUserGroupId);
+        }
+
+        return $this->_oUserGroup;
     }
 
     /**
@@ -125,6 +134,7 @@ class AdminUserGroupController extends Controller
 
         if ($oUserGroup->save() === true) {
             if ($iUserGroupId === null) {
+                $this->_oUserGroup = $oUserGroup;
                 $this->_setUpdateMessage(TXT_UAM_GROUP_ADDED);
             } else {
                 $this->_setUpdateMessage(TXT_UAM_ACCESS_GROUP_EDIT_SUC);

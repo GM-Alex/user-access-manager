@@ -36,6 +36,42 @@ class AdminSettingsController extends Controller
         $this->_oUserAccessManager = $oUserAccessManager;
     }
 
+    /**
+     * Returns true if the server is a nginx server.
+     *
+     * @return bool
+     */
+    public function isNginx()
+    {
+        return $this->_oWrapper->isNginx();
+    }
+
+    /**
+     * Returns the pages.
+     *
+     * @return array
+     */
+    public function getPages()
+    {
+        $aPages = $this->_oWrapper->getPages('sort_column=menu_order');
+        return is_array($aPages) !== false ? $aPages : array();
+    }
+
+    /**
+     * Returns the config parameters.
+     *
+     * @return \UserAccessManager\Config\ConfigParameter[]
+     */
+    public function getConfigParameters()
+    {
+        return $this->_oConfig->getConfigParameters();
+    }
+
+    /**
+     * Returns the grouped config parameters.
+     *
+     * @return array
+     */
     public function getGroupedConfigParameters()
     {
         $aConfigParameters = $this->_oConfig->getConfigParameters();
@@ -44,6 +80,7 @@ class AdminSettingsController extends Controller
                 $aConfigParameters['hide_post'],
                 $aConfigParameters['hide_post_title'],
                 $aConfigParameters['post_title'],
+                $aConfigParameters['show_post_content_before_more'],
                 $aConfigParameters['post_content'],
                 $aConfigParameters['hide_post_comment'],
                 $aConfigParameters['post_comment_content'],
@@ -60,10 +97,7 @@ class AdminSettingsController extends Controller
             ),
             'file' => array(
                 $aConfigParameters['lock_file'],
-                $aConfigParameters['download_type'],
-                $aConfigParameters['locked_file_types'],
-                $aConfigParameters['not_locked_file_types'],
-                $aConfigParameters['file_pass_type']
+                $aConfigParameters['download_type']
             ),
             'author' => array(
                 $aConfigParameters['authors_has_access_to_own'],
@@ -74,10 +108,16 @@ class AdminSettingsController extends Controller
                 $aConfigParameters['lock_recursive'],
                 $aConfigParameters['hide_empty_categories'],
                 $aConfigParameters['protect_feed'],
+                $aConfigParameters['redirect'],
                 $aConfigParameters['blog_admin_hint'],
                 $aConfigParameters['blog_admin_hint_text'],
             )
         );
+
+        if ($this->_oConfig->isPermalinksActive() === true) {
+            $aGroupedConfigParameters['file'][] = $aConfigParameters['lock_file_types'];
+            $aGroupedConfigParameters['file'][] = $aConfigParameters['file_pass_type'];
+        }
 
         return$aGroupedConfigParameters;
     }

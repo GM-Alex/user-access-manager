@@ -535,10 +535,10 @@ class UserGroup
     /**
      * Adds a object of the given type.
      *
-     * @param string  $sObjectType The object type.
-     * @param integer $iObjectId   The object id.
+     * @param string $sObjectType The object type.
+     * @param string $sObjectId   The object id.
      */
-    public function addObject($sObjectType, $iObjectId)
+    public function addObject($sObjectType, $sObjectId)
     {
         if (!$this->_oObjectHandler->isValidObjectType($sObjectType)) {
             return;
@@ -547,12 +547,12 @@ class UserGroup
         $this->getObjectsFromType($sObjectType);
 
         $oObject = new \stdClass();
-        $oObject->iId = $iObjectId;
+        $oObject->sId = $sObjectId;
 
-        $this->_aObjects[$sObjectType][self::OBJECTS_REAL][$iObjectId] = $oObject;
+        $this->_aObjects[$sObjectType][self::OBJECTS_REAL][$sObjectId] = $oObject;
         $this->_aObjects[$sObjectType][self::OBJECTS_FULL] = -1;
 
-        $this->_aAssignedObjects[$sObjectType][$iObjectId] = $iObjectId;
+        $this->_aAssignedObjects[$sObjectType][$sObjectId] = $sObjectId;
     }
 
     /**

@@ -2,7 +2,7 @@
 /**
  * AdminSetup.php
  *
- * Shows the setup page at the admin panel.
+ * Shows the admin setup page at the admin panel.
  *
  * PHP versions 5
  *

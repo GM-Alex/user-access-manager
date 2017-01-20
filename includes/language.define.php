@@ -74,18 +74,18 @@ define('TXT_UAM_FILE_SETTING', __('File settings', 'user-access-manager'));
 define('TXT_UAM_FILE_SETTING_DESC', __('Set up the behaviour of files', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE', __('Lock files', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style="color:red;">Note: If you activate this option the plugin will overwrite a \'.htaccess\' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a \'.htaccess\' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>', 'user-access-manager'));
+define('TXT_UAM_LOCK_FILE_TYPES', __('Locked file types', 'user-access-manager'));
+define('TXT_UAM_LOCK_FILE_TYPES_DESC', __('Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <strong>Note:</strong> If you have no problems use all to get the maximum security.', 'user-access-manager'));
 define('TXT_UAM_LOCKED_FILE_TYPES', __('File types to lock: ', 'user-access-manager'));
 define('TXT_UAM_NOT_LOCKED_FILE_TYPES', __('File types not to lock: ', 'user-access-manager'));
-define('TXT_UAM_DOWNLOAD_FILE_TYPE', __('Locked file types', 'user-access-manager'));
-define('TXT_UAM_DOWNLOAD_FILE_TYPE_DESC', __('Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <strong>Note:</strong> If you have no problems use all to get the maximum security.', 'user-access-manager'));
 define('TXT_UAM_FILE_PASS_TYPE', __('.htaccess password', 'user-access-manager'));
 define('TXT_UAM_FILE_PASS_TYPE_DESC', __('Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files.', 'user-access-manager'));
-define('TXT_UAM_RANDOM_PASS', __('Use a random generated pass word.', 'user-access-manager'));
-define('TXT_UAM_CURRENT_LOGGEDIN_ADMIN_PASS', __('Use the password of the current logged in admin.', 'user-access-manager'));
+define('TXT_UAM_FILE_PASS_TYPE_RANDOM', __('Use a random generated pass word.', 'user-access-manager'));
+define('TXT_UAM_FILE_PASS_TYPE_USER', __('Use the password of the current logged in admin.', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE', __('Download type', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".', 'user-access-manager'));
-define('TXT_UAM_NORMAL', __('Normal', 'user-access-manager'));
-define('TXT_UAM_FOPEN', __('fopen', 'user-access-manager'));
+define('TXT_UAM_DOWNLOAD_TYPE_NORMAL', __('Normal', 'user-access-manager'));
+define('TXT_UAM_DOWNLOAD_TYPE_FOPEN', __('fopen', 'user-access-manager'));
 
 // --- Setting Page -> editor settings ---
 define('TXT_UAM_AUTHOR_SETTING', __('Authors settings', 'user-access-manager'));

@@ -2,7 +2,7 @@
 /**
  * AdminUserGroup.php
  *
- * Shows the about page at the admin panel.
+ * Shows the admin user group page at the admin panel.
  *
  * PHP versions 5
  *
@@ -24,7 +24,7 @@ if ($this->hasUpdateMessage()) {
     <?php
 }
 
-if ($this->getRequestParameter('uam_action') === null) {
+if ($this->getRequestParameter('uam_action') === null || $this->getRequestParameter('uam_action') === 'delete_user_group') {
     ?>
     <div class="wrap">
         <form method="post" action="<?php echo $this->getRequestUrl(); ?>">
@@ -38,7 +38,6 @@ if ($this->getRequestParameter('uam_action') === null) {
                 </div>
                 <br class="clear"/>
             </div>
-            <br class="clear"/>
             <table class="widefat">
                 <thead>
                 <tr class="thead">
@@ -89,14 +88,16 @@ if ($this->getRequestParameter('uam_action') === null) {
                         </td>
                         <td>
                             <?php
-                            $aObjectTypes = $oUserGroup->getObjectsFromType(\UserAccessManager\ObjectHandler\ObjectHandler::ROLE_OBJECT_TYPE);
-                            if (count($aObjectTypes) > 0) {
+                            $aRoleNames = $this->getRoleNames();
+                            $aGroupRoles = $oUserGroup->getObjectsFromType(\UserAccessManager\ObjectHandler\ObjectHandler::ROLE_OBJECT_TYPE);
+
+                            if (count($aGroupRoles) > 0) {
                                 ?>
-                                <ul>
+                                <ul style="margin: 0;">
                                     <?php
-                                    foreach ($aObjectTypes as $sKey => $sRole) {
+                                    foreach ($aGroupRoles as $sKey => $sRole) {
                                         ?>
-                                        <li><?php echo $sKey; ?></li>
+                                        <li><?php echo isset($aRoleNames[$sKey]) ? $aRoleNames[$sKey] : $sKey; ?></li>
                                         <?php
                                     }
                                     ?>
@@ -132,6 +133,13 @@ if ($this->getRequestParameter('uam_action') === null) {
                 ?>
                 </tbody>
             </table>
+            <div class="tablenav">
+                <div class="alignleft">
+                    <input type="submit" class="button-secondary delete" name="deleteit"
+                           value="<?php echo TXT_UAM_DELETE; ?>"/>
+                </div>
+                <br class="clear"/>
+            </div>
         </form>
     </div>
     <?php
@@ -256,9 +264,9 @@ if ($this->getRequestParameter('uam_action') === null) {
                                             echo 'checked="checked"';
                                         }
                                         ?>
-                                           value="<?php echo $sRole; ?> " name="roles[]"/>
+                                           value="<?php echo $sRole; ?>" name="roles[]"/>
                                     <label for="role-<?php echo $sRole; ?>">
-                                        <?php echo $sRole; ?>
+                                        <?php echo $sName; ?>
                                     </label>
                                 </li>
                                 <?php

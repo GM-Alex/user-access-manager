@@ -532,4 +532,16 @@ class Wordpress
     {
         return add_submenu_page($sParentSlug, $sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction);
     }
+
+    /**
+     * @see get_pages()
+     *
+     * @param array|string $mArguments
+     *
+     * @return array|false
+     */
+    public function getPages($mArguments)
+    {
+        return get_pages($mArguments);
+    }
 }
