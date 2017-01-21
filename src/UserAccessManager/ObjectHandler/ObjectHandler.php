@@ -149,9 +149,9 @@ class ObjectHandler
     /**
      * Returns a user.
      *
-     * @param string $sId The user id.
+     * @param int|string $sId The user id.
      *
-     * @return mixed
+     * @return \WP_User|false
      */
     public function getUser($sId)
     {

@@ -53,14 +53,12 @@ abstract class FileProtection
      * @param Wordpress   $oWrapper
      * @param Config      $oConfig
      * @param Util        $oUtil
-     * @param FileHandler $oFileHandler
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil, FileHandler $oFileHandler)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil)
     {
         $this->_oWrapper = $oWrapper;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;
-        $this->_oFileHandler = $oFileHandler;
     }
 
     /**
@@ -74,7 +72,7 @@ abstract class FileProtection
     {
         $aValidFileTypes = array();
         $aFileTypes = explode(',', $sFileTypes);
-        $aMimeTypes = $this->_oFileHandler->getMimeTypes();
+        $aMimeTypes = $this->_oConfig->getMimeTypes();
 
         foreach ($aFileTypes as $sFileType) {
             $sCleanFileType = trim($sFileType);

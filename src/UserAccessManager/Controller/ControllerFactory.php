@@ -16,6 +16,9 @@ namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\Config;
+use UserAccessManager\Database\Database;
+use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Wordpress;
@@ -27,12 +30,23 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class ControllerFactory
 {
-    public function __construct(Wordpress $oWrapper, Config $oConfig, AccessHandler $oAccessHandler, UserGroupFactory $oUserGroupFactory)
+    public function __construct(
+        Wordpress $oWrapper,
+        Database $oDatabase,
+        Config $oConfig,
+        ObjectHandler $oObjectHandler,
+        AccessHandler $oAccessHandler,
+        UserGroupFactory $oUserGroupFactory,
+        FileHandler $oFileHandler
+    )
     {
         $this->_oWrapper = $oWrapper;
+        $this->_oDatabase = $oDatabase;
         $this->_oConfig = $oConfig;
+        $this->_oObjectHandler = $oObjectHandler;
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oUserGroupFactory = $oUserGroupFactory;
+        $this->_oFileHandler = $oFileHandler;
     }
 
     /**
@@ -46,15 +60,29 @@ class ControllerFactory
     }
 
     /**
+     * Creates and returns a new admin about controller.
+     *
+     * @return AdminObjectController
+     */
+    public function createAdminObjectController()
+    {
+        return new AdminObjectController(
+            $this->_oWrapper,
+            $this->_oDatabase,
+            $this->_oConfig,
+            $this->_oObjectHandler,
+            $this->_oAccessHandler
+        );
+    }
+
+    /**
      * Creates and returns a new admin setup controller.
      *
-     * @param UserAccessManager $oUserAccessManager
-     *
-     * @return AdminSetupController
+     * @return AdminSettingsController
      */
-    public function createAdminSettingController(UserAccessManager $oUserAccessManager)
+    public function createAdminSettingController()
     {
-        return new AdminSettingsController($this->_oWrapper, $this->_oConfig, $oUserAccessManager);
+        return new AdminSettingsController($this->_oWrapper, $this->_oConfig, $this->_oFileHandler);
     }
 
     /**

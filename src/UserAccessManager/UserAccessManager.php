@@ -25,7 +25,6 @@ use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileProtectionFactory;
 use UserAccessManager\FileHandler\NginxFileProtection;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -132,7 +131,6 @@ class UserAccessManager
         $this->_oFileHandler = $oFileHandler;
         $this->_oControllerFactory = $oControllerFactory;
         $this->_oFileProtectionFactory = $oFileProtectionFactory;
-        $this->_oWrapper->doAction('uam_init', $this);
     }
 
     /**
@@ -141,7 +139,7 @@ class UserAccessManager
     public function registerAdminActionsAndFilters()
     {
         if (ini_get('safe_mode') && $this->_oConfig->getDownloadType() === 'fopen') {
-            add_action(
+            $this->_oWrapper->addAction(
                 'admin_notices',
                 create_function(
                     '',
@@ -155,7 +153,7 @@ class UserAccessManager
         if ($this->isDatabaseUpdateNecessary()) {
             $sLink = 'admin.php?page=uam_setup';
 
-            add_action(
+            $this->_oWrapper->addAction(
                 'admin_notices',
                 create_function(
                     '',
@@ -174,60 +172,84 @@ class UserAccessManager
             $aTaxonomies[$_GET['taxonomy']] = $_GET['taxonomy'];
         }
 
+        $oAdminObjectController = $this->_oControllerFactory->createAdminObjectController();
+
         if ($this->_oAccessHandler->checkUserAccess() 
             || $this->_oConfig->authorsCanAddPostsToGroups() === true
         ) {
             //Admin actions
-            $this->_oWrapper->addAction('manage_posts_custom_column', array($this, 'addPostColumn'), 10, 2);
-            $this->_oWrapper->addAction('manage_pages_custom_column', array($this, 'addPostColumn'), 10, 2);
-            $this->_oWrapper->addAction('save_post', array($this, 'savePostData'));
-            $this->_oWrapper->addAction('edit_user_profile', array($this, 'showUserProfile'));
-            $this->_oWrapper->addAction('profile_update', array($this, 'saveUserData'));
+            $this->_oWrapper->addAction('manage_posts_custom_column', array($oAdminObjectController, 'addPostColumn'), 10, 2);
+            $this->_oWrapper->addAction('manage_pages_custom_column', array($oAdminObjectController, 'addPostColumn'), 10, 2);
+            $this->_oWrapper->addAction('save_post', array($oAdminObjectController, 'savePostData'));
+            $this->_oWrapper->addAction('edit_user_profile', array($oAdminObjectController, 'showUserProfile'));
+            $this->_oWrapper->addAction('profile_update', array($oAdminObjectController, 'saveUserData'));
 
-            $this->_oWrapper->addAction('bulk_edit_custom_box', array($this, 'addBulkAction'));
-            $this->_oWrapper->addAction('create_term', array($this, 'saveTermData'));
-            $this->_oWrapper->addAction('edit_term', array($this, 'saveTermData'));
+            $this->_oWrapper->addAction('bulk_edit_custom_box', array($oAdminObjectController, 'addBulkAction'));
+            $this->_oWrapper->addAction('create_term', array($oAdminObjectController, 'saveTermData'));
+            $this->_oWrapper->addAction('edit_term', array($oAdminObjectController, 'saveTermData'));
 
             //Taxonomies
             foreach ($aTaxonomies as $sTaxonomy) {
-                $this->_oWrapper->addAction('manage_'.$sTaxonomy.'_custom_column', array($this, 'addTermColumn'), 10, 3);
-                $this->_oWrapper->addAction($sTaxonomy.'_add_form_fields', array($this, 'showTermEditForm'));
-                $this->_oWrapper->addAction($sTaxonomy.'_edit_form_fields', array($this, 'showTermEditForm'));
+                $this->_oWrapper->addAction('manage_'.$sTaxonomy.'_custom_column', array($oAdminObjectController, 'addTermColumn'), 10, 3);
+                $this->_oWrapper->addAction($sTaxonomy.'_add_form_fields', array($oAdminObjectController, 'showTermEditForm'));
+                $this->_oWrapper->addAction($sTaxonomy.'_edit_form_fields', array($oAdminObjectController, 'showTermEditForm'));
             }
 
             if ($this->_oConfig->lockFile() === true) {
-                $this->_oWrapper->addAction('manage_media_custom_column', array($this, 'addPostColumn'), 10, 2);
-                $this->_oWrapper->addAction('media_meta', array($this, 'showMediaFile'), 10, 2);
+                $this->_oWrapper->addAction('manage_media_custom_column', array($oAdminObjectController, 'addPostColumn'), 10, 2);
+                $this->_oWrapper->addAction('media_meta', array($oAdminObjectController, 'showMediaFile'), 10, 2);
             }
 
             //Admin filters
             //The filter we use instead of add|edit_attachment action, reason see top
-            $this->_oWrapper->addFilter('attachment_fields_to_save', array($this, 'saveAttachmentData'));
+            $this->_oWrapper->addFilter('attachment_fields_to_save', array($oAdminObjectController, 'saveAttachmentData'));
 
-            $this->_oWrapper->addFilter('manage_posts_columns', array($this, 'addPostColumnsHeader'));
-            $this->_oWrapper->addFilter('manage_pages_columns', array($this, 'addPostColumnsHeader'));
+            $this->_oWrapper->addFilter('manage_posts_columns', array($oAdminObjectController, 'addPostColumnsHeader'));
+            $this->_oWrapper->addFilter('manage_pages_columns', array($oAdminObjectController, 'addPostColumnsHeader'));
 
-            $this->_oWrapper->addFilter('manage_users_columns', array($this, 'addUserColumnsHeader'), 10);
-            $this->_oWrapper->addFilter('manage_users_custom_column', array($this, 'addUserColumn'), 10, 3);
+            $this->_oWrapper->addFilter('manage_users_columns', array($oAdminObjectController, 'addUserColumnsHeader'), 10);
+            $this->_oWrapper->addFilter('manage_users_custom_column', array($oAdminObjectController, 'addUserColumn'), 10, 3);
 
             foreach ($aTaxonomies as $sTaxonomy) {
-                $this->_oWrapper->addFilter('manage_edit-'.$sTaxonomy.'_columns', array($this, 'addTermColumnsHeader'));
+                $this->_oWrapper->addFilter('manage_edit-'.$sTaxonomy.'_columns', array($oAdminObjectController, 'addTermColumnsHeader'));
             }
 
             if ($this->_oConfig->lockFile() === true) {
-                $this->_oWrapper->addFilter('manage_media_columns', array($this, 'addPostColumnsHeader'));
+                $this->_oWrapper->addFilter('manage_media_columns', array($oAdminObjectController, 'addPostColumnsHeader'));
             }
         }
 
         //Clean up at deleting should always be done.
-        $this->_oWrapper->addAction('update_option_permalink_structure', array($this, 'updatePermalink'));
-        $this->_oWrapper->addAction('wp_dashboard_setup', array($this, 'setupAdminDashboard'));
-        $this->_oWrapper->addAction('delete_post', array($this, 'removePostData'));
-        $this->_oWrapper->addAction('delete_attachment', array($this, 'removePostData'));
-        $this->_oWrapper->addAction('delete_user', array($this, 'removeUserData'));
-        $this->_oWrapper->addAction('delete_term', array($this, 'removeTermData'));
+        $this->_oWrapper->addAction('update_option_permalink_structure', array($oAdminObjectController, 'updatePermalink'));
+        $this->_oWrapper->addAction('wp_dashboard_setup', array($oAdminObjectController, 'setupAdminDashboard'));
+        $this->_oWrapper->addAction('delete_post', array($oAdminObjectController, 'removePostData'));
+        $this->_oWrapper->addAction('delete_attachment', array($oAdminObjectController, 'removePostData'));
+        $this->_oWrapper->addAction('delete_user', array($oAdminObjectController, 'removeUserData'));
+        $this->_oWrapper->addAction('delete_term', array($oAdminObjectController, 'removeTermData'));
 
-        $this->noRightsToEditContent();
+        if ($this->_oAccessHandler->checkUserAccess()
+            || $this->_oConfig->authorsCanAddPostsToGroups() === true
+        ) {
+            //Admin meta boxes
+            $aPostableTypes = $this->_oObjectHandler->getPostableTypes();
+
+            foreach ($aPostableTypes as $sPostableType) {
+                // there is no need for a metabox for attachments if files are locked
+                if ($sPostableType === 'attachment' && $this->_oConfig->lockFile() !== true) {
+                    continue;
+                }
+
+                $this->_oWrapper->addMetaBox(
+                    'uma_post_access',
+                    __('Access', 'user-access-manager'),
+                    array($oAdminObjectController, 'editPostContent'),
+                    $sPostableType,
+                    'side'
+                );
+            }
+        }
+
+        $oAdminObjectController->noRightsToEditContent();
     }
 
     /**
@@ -243,22 +265,22 @@ class UserAccessManager
              * to be the right way, but it is way difficult.
              */
             //Admin main menu
-            $this->_oWrapper->addMenuPage('User Access Manager', 'UAM', 'manage_options', 'uam_usergroup', null, 'div');
+            $this->_oWrapper->addMenuPage('User Access Manager', 'UAM', 'manage_options', 'uam_user_group', null, 'div');
 
             //Admin sub menus
             $oAdminUserGroupController = $this->_oControllerFactory->createAdminUserGroupController();
             $this->_oWrapper->addSubmenuPage(
-                'uam_usergroup',
+                'uam_user_group',
                 TXT_UAM_MANAGE_GROUP,
                 TXT_UAM_MANAGE_GROUP,
                 'read',
-                'uam_usergroup',
+                'uam_user_group',
                 array($oAdminUserGroupController, 'render')
             );
 
-            $oAdminSetupController = $this->_oControllerFactory->createAdminSettingController($this);
+            $oAdminSetupController = $this->_oControllerFactory->createAdminSettingController();
             $this->_oWrapper->addSubmenuPage(
-                'uam_usergroup',
+                'uam_user_group',
                 TXT_UAM_SETTINGS,
                 TXT_UAM_SETTINGS,
                 'read',
@@ -268,7 +290,7 @@ class UserAccessManager
 
             $oAdminSetupController = $this->_oControllerFactory->createAdminSetupController($this);
             $this->_oWrapper->addSubmenuPage(
-                'uam_usergroup',
+                'uam_user_group',
                 TXT_UAM_SETUP,
                 TXT_UAM_SETUP,
                 'read',
@@ -278,7 +300,7 @@ class UserAccessManager
 
             $oAdminAboutController = $this->_oControllerFactory->createAdminAboutController();
             $this->_oWrapper->addSubmenuPage(
-                'uam_usergroup',
+                'uam_user_group',
                 TXT_UAM_ABOUT,
                 TXT_UAM_ABOUT,
                 'read',
@@ -291,28 +313,6 @@ class UserAccessManager
             /**
              * --- EOF ---
              */
-        }
-
-        if ($this->_oAccessHandler->checkUserAccess()
-            || $this->_oConfig->authorsCanAddPostsToGroups() === true
-        ) {
-            //Admin meta boxes
-            $aPostableTypes = $this->_oObjectHandler->getPostableTypes();
-
-            foreach ($aPostableTypes as $sPostableType) {
-                // there is no need for a metabox for attachments if files are locked
-                if ($sPostableType === 'attachment' && $this->_oConfig->lockFile() !== true) {
-                    continue;
-                }
-
-                add_meta_box(
-                    'uma_post_access',
-                    __('Access', 'user-access-manager'),
-                    array($this, 'editPostContent'),
-                    $sPostableType,
-                    'side'
-                );
-            }
         }
     }
     
@@ -601,7 +601,7 @@ class UserAccessManager
                 );
             }
 
-            update_option('uam_db_version', self::DB_VERSION);
+            $this->_oWrapper->updateOption('uam_db_version', self::DB_VERSION);
         }
     }
 
@@ -654,45 +654,6 @@ class UserAccessManager
     {
         $this->deleteFileProtectionFiles();
     }
-
-    /**
-     * Creates a protection file.
-     *
-     * @param string $sDir        The destination directory.
-     * @param string $sObjectType The object type.
-     */
-    public function createFileProtection($sDir = null, $sObjectType = null)
-    {
-        $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
-
-        if ($sDir !== null) {
-            if ($this->_oWrapper->isNginx() === true) {
-                $this->_oFileProtectionFactory->createNginxFileProtection()->create($sDir, $sObjectType);
-            } else {
-                $this->_oFileProtectionFactory->createApacheFileProtection()->create($sDir, $sObjectType);
-            }
-        }
-    }
-
-
-    /**
-     * Deletes the protection files.
-     *
-     * @param string $sDir The destination directory.
-     */
-    public function deleteFileProtectionFiles($sDir = null)
-    {
-        $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
-
-        if ($sDir !== null) {
-            if ($this->_oWrapper->isNginx() === true) {
-                $this->_oFileProtectionFactory->createNginxFileProtection()->delete($sDir);
-            } else {
-                $this->_oFileProtectionFactory->createApacheFileProtection()->delete($sDir);
-            }
-        }
-    }
-
 
 
     /*
@@ -763,31 +724,7 @@ class UserAccessManager
         wp_enqueue_style(self::HANDLE_STYLE_LOGIN_FORM);
     }
 
-    /**
-     * Shows the error if the user has no rights to edit the content.
-     */
-    public function noRightsToEditContent()
-    {
-        $blNoRights = false;
 
-        if (isset($_GET['post']) && is_numeric($_GET['post'])) {
-            $oPost = $this->_oObjectHandler->getPost($_GET['post']);
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID);
-        }
-
-        if (isset($_GET['attachment_id']) && is_numeric($_GET['attachment_id']) && !$blNoRights) {
-            $oPost = $this->_oObjectHandler->getPost($_GET['attachment_id']);
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID);
-        }
-
-        if (isset($_GET['tag_ID']) && is_numeric($_GET['tag_ID']) && !$blNoRights) {
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $_GET['tag_ID']);
-        }
-
-        if ($blNoRights) {
-            $this->_oWrapper->wpDie(TXT_UAM_NO_RIGHTS);
-        }
-    }
 
     /**
      * The function for the wp_dashboard_setup action.
@@ -808,355 +745,6 @@ class UserAccessManager
     public function updatePermalink()
     {
         $this->createFileProtection();
-    }
-
-
-    /*
-     * Meta functions
-     */
-
-    /**
-     * Saves the object data to the database.
-     *
-     * @param string         $sObjectType The object type.
-     * @param integer        $iObjectId   The _iId of the object.
-     * @param UserGroup[]    $aUserGroups The new usergroups for the object.
-     */
-    protected function _saveObjectData($sObjectType, $iObjectId, $aUserGroups = null)
-    {
-        $aFormData = array();
-
-        if (isset($_POST['uam_update_groups'])) {
-            $aFormData = $_POST;
-        } elseif (isset($_GET['uam_update_groups'])) {
-            $aFormData = $_GET;
-        }
-
-        if (isset($aFormData['uam_update_groups'])
-            && ($this->_oAccessHandler->checkUserAccess('manage_user_groups')
-                || $this->_oConfig->authorsCanAddPostsToGroups() === true)
-        ) {
-            if ($aUserGroups === null) {
-                $aUserGroups = (isset($aFormData['uam_usergroups']) && is_array($aFormData['uam_usergroups']))
-                    ? $aFormData['uam_usergroups'] : array();
-            }
-
-            $aAddUserGroups = array_flip($aUserGroups);
-            $aRemoveUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
-            $aUamUserGroups = $this->_oAccessHandler->getUserGroups();
-            $blRemoveOldAssignments = true;
-
-            if (isset($aFormData['uam_bulk_type'])) {
-                $sBulkType = $aFormData['uam_bulk_type'];
-
-                if ($sBulkType === 'add') {
-                    $blRemoveOldAssignments = false;
-                } elseif ($sBulkType === 'remove') {
-                    $aRemoveUserGroups = $aAddUserGroups;
-                    $aAddUserGroups = array();
-                }
-            }
-
-            foreach ($aUamUserGroups as $sGroupId => $oUamUserGroup) {
-                if (isset($aRemoveUserGroups[$sGroupId])) {
-                    $oUamUserGroup->removeObject($sObjectType, $iObjectId);
-                }
-
-                if (isset($aAddUserGroups[$sGroupId])) {
-                    $oUamUserGroup->addObject($sObjectType, $iObjectId);
-                }
-
-                $oUamUserGroup->save($blRemoveOldAssignments);
-            }
-
-            $this->_oAccessHandler->unsetUserGroupsForObject();
-        }
-    }
-
-    /**
-     * Removes the object data.
-     *
-     * @param string $sObjectType The object type.
-     * @param int    $iId         The object id.
-     */
-    protected function _removeObjectData($sObjectType, $iId)
-    {
-        $this->_oDatabase->delete(
-            $this->_oDatabase->getUserGroupToObjectTable(),
-            array(
-                'object_id' => $iId,
-                'object_type' => $sObjectType,
-            ),
-            array(
-                '%d',
-                '%s',
-            )
-        );
-    }
-
-
-    /*
-     * Functions for the post actions.
-     */
-
-    /**
-     * The function for the manage_posts_columns and
-     * the manage_pages_columns filter.
-     *
-     * @param array $aDefaults The table headers.
-     *
-     * @return array
-     */
-    public function addPostColumnsHeader($aDefaults)
-    {
-        $aDefaults['uam_access'] = __('Access', 'user-access-manager');
-        return $aDefaults;
-    }
-
-    /**
-     * The function for the manage_users_custom_column action.
-     *
-     * @param string  $sColumnName The column name.
-     * @param integer $iId         The id.
-     */
-    public function addPostColumn($sColumnName, $iId)
-    {
-        if ($sColumnName == 'uam_access') {
-            $oPost = $this->_oObjectHandler->getPost($iId);
-            echo $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $oPost->ID, $oPost->post_type);
-        }
-    }
-
-    /**
-     * The function for the uma_post_access metabox.
-     *
-     * @param object $oPost The post.
-     */
-    public function editPostContent($oPost)
-    {
-        $iObjectId = $oPost->ID;
-        include UAM_REALPATH.'tpl/postEditForm.php';
-    }
-
-    public function addBulkAction($sColumnName)
-    {
-        if ($sColumnName == 'uam_access') {
-            include UAM_REALPATH.'tpl/bulkEditForm.php';
-        }
-    }
-
-    /**
-     * The function for the save_post action.
-     *
-     * @param mixed $mPostParam The post _iId or a array of a post.
-     */
-    public function savePostData($mPostParam)
-    {
-        if (is_array($mPostParam)) {
-            $oPost = $this->_oObjectHandler->getPost($mPostParam['ID']);
-        } else {
-            $oPost = $this->_oObjectHandler->getPost($mPostParam);
-        }
-
-        $iPostId = $oPost->ID;
-        $sPostType = $oPost->post_type;
-
-        if ($sPostType == 'revision') {
-            $iPostId = $oPost->post_parent;
-            $oParentPost = $this->_oObjectHandler->getPost($iPostId);
-            $sPostType = $oParentPost->post_type;
-        }
-
-        $this->_saveObjectData($sPostType, $iPostId);
-    }
-
-    /**
-     * The function for the attachment_fields_to_save filter.
-     * We have to use this because the attachment actions work
-     * not in the way we need.
-     *
-     * @param object $oAttachment The attachment id.
-     *
-     * @return object
-     */
-    public function saveAttachmentData($oAttachment)
-    {
-        $this->savePostData($oAttachment['ID']);
-
-        return $oAttachment;
-    }
-
-    /**
-     * The function for the delete_post action.
-     *
-     * @param integer $iPostId The post id.
-     */
-    public function removePostData($iPostId)
-    {
-        $oPost = $this->_oObjectHandler->getPost($iPostId);
-
-        $this->_oDatabase->delete(
-            $this->_oDatabase->getUserGroupToObjectTable(),
-            array(
-                'object_id' => $iPostId,
-                'object_type' => $oPost->post_type,
-            ),
-            array(
-                '%d',
-                '%s',
-            )
-        );
-    }
-
-    /**
-     * The function for the media_meta action.
-     *
-     * @param string $sMeta The meta.
-     * @param object $oPost The post.
-     *
-     * @return string
-     */
-    public function showMediaFile($sMeta = '', $oPost = null)
-    {
-        $sContent = $sMeta;
-        $sContent .= '</td></tr><tr>';
-        $sContent .= '<th class="label">';
-        $sContent .= '<label>'.TXT_UAM_SET_UP_USERGROUPS.'</label>';
-        $sContent .= '</th>';
-        $sContent .= '<td class="field">';
-        $sContent .= $this->getIncludeContents(UAM_REALPATH.'tpl/postEditForm.php', $oPost->ID);
-
-        return $sContent;
-    }
-
-
-    /*
-     * Functions for the user actions.
-     */
-
-    /**
-     * The function for the manage_users_columns filter.
-     *
-     * @param array $aDefaults The table headers.
-     *
-     * @return array
-     */
-    public function addUserColumnsHeader($aDefaults)
-    {
-        $aDefaults['uam_access'] = __('uam user groups');
-        return $aDefaults;
-    }
-
-    /**
-     * The function for the manage_users_custom_column action.
-     *
-     * @param string  $sReturn     The normal return value.
-     * @param string  $sColumnName The column name.
-     * @param integer $iId         The id.
-     *
-     * @return string|null
-     */
-    public function addUserColumn($sReturn, $sColumnName, $iId)
-    {
-        if ($sColumnName == 'uam_access') {
-            return $this->getIncludeContents(UAM_REALPATH.'tpl/userColumn.php', $iId, ObjectHandler::USER_OBJECT_TYPE);
-        }
-
-        return $sReturn;
-    }
-
-    /**
-     * The function for the edit_user_profile action.
-     */
-    public function showUserProfile()
-    {
-        echo $this->getIncludeContents(UAM_REALPATH.'tpl/userProfileEditForm.php');
-    }
-
-    /**
-     * The function for the profile_update action.
-     *
-     * @param integer $iUserId The user id.
-     */
-    public function saveUserData($iUserId)
-    {
-        $this->_saveObjectData(ObjectHandler::USER_OBJECT_TYPE, $iUserId);
-    }
-
-    /**
-     * The function for the delete_user action.
-     *
-     * @param integer $iUserId The user id.
-     */
-    public function removeUserData($iUserId)
-    {
-        $this->_removeObjectData(ObjectHandler::USER_OBJECT_TYPE, $iUserId);
-    }
-
-
-    /*
-     * Functions for the term actions.
-     */
-
-    /**
-     * The function for the manage_categories_columns filter.
-     *
-     * @param array $aDefaults The table headers.
-     *
-     * @return array
-     */
-    public function addTermColumnsHeader($aDefaults)
-    {
-        $aDefaults['uam_access'] = __('Access', 'user-access-manager');
-        return $aDefaults;
-    }
-
-    /**
-     * The function for the manage_categories_custom_column action.
-     *
-     * @param string  $sContent    Content for the column. Multiple filter calls are possible, so we need to append.
-     * @param string  $sColumnName The column name.
-     * @param integer $iId         The id.
-     *
-     * @return string $sContent with content appended for 'uam_access' column
-     */
-    public function addTermColumn($sContent, $sColumnName, $iId)
-    {
-        if ($sColumnName == 'uam_access') {
-            $sContent .= $this->getIncludeContents(UAM_REALPATH.'tpl/objectColumn.php', $iId, ObjectHandler::TERM_OBJECT_TYPE);
-        }
-
-        return $sContent;
-    }
-
-    /**
-     * The function for the edit_{term}_form action.
-     *
-     * @param object $oTerm The term.
-     */
-    public function showTermEditForm($oTerm)
-    {
-        include UAM_REALPATH.'tpl/termEditForm.php';
-    }
-
-    /**
-     * The function for the edit_{term} action.
-     *
-     * @param integer $iTermId The term id.
-     */
-    public function saveTermData($iTermId)
-    {
-        $this->_saveObjectData(ObjectHandler::TERM_OBJECT_TYPE, $iTermId);
-    }
-
-    /**
-     * The function for the delete_{term} action.
-     *
-     * @param integer $iTermId The id of the term.
-     */
-    public function removeTermData($iTermId)
-    {
-        $this->_removeObjectData(ObjectHandler::TERM_OBJECT_TYPE, $iTermId);
     }
 
 

@@ -519,11 +519,11 @@ class Wordpress
     /**
      * @see add_submenu_page()
      *
-     * @param        $sParentSlug
-     * @param        $sPageTitle
-     * @param        $sMenuTitle
-     * @param        $sCapability
-     * @param        $sMenuSlug
+     * @param string $sParentSlug
+     * @param string $sPageTitle
+     * @param string $sMenuTitle
+     * @param string $sCapability
+     * @param string $sMenuSlug
      * @param string $cFunction
      *
      * @return false|string
@@ -531,6 +531,30 @@ class Wordpress
     public function addSubMenuPage($sParentSlug, $sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction = '')
     {
         return add_submenu_page($sParentSlug, $sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction);
+    }
+
+    /**
+     * @see add_meta_box()
+     *
+     * @param string                  $sId
+     * @param string                  $sTitle
+     * @param callable                $cCallback
+     * @param string|array|\WP_Screen $mScreen
+     * @param string                  $sContext
+     * @param string                  $sPriority
+     * @param array                   $aCallbackArguments
+     */
+    public function addMetaBox(
+        $sId,
+        $sTitle,
+        $cCallback,
+        $mScreen = null,
+        $sContext = 'advanced',
+        $sPriority = 'default',
+        $aCallbackArguments = null
+    )
+    {
+        return add_meta_box($sId, $sTitle, $cCallback, $mScreen, $sContext, $sPriority, $aCallbackArguments);
     }
 
     /**

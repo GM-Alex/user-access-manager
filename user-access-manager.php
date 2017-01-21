@@ -89,11 +89,11 @@ use UserAccessManager\Wrapper\Wordpress;
 
 $oWrapper = new Wordpress();
 $oUtil = new Util();
-$oConfigParameterFactory = new ConfigParameterFactory();
-$oConfig = new Config($oWrapper, $oConfigParameterFactory);
 $oCache = new Cache();
+$oConfigParameterFactory = new ConfigParameterFactory();
 $oDatabase = new Database($oWrapper);
 $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+$oConfig = new Config($oWrapper, $oConfigParameterFactory);
 $oUserGroupFactory = new UserGroupFactory(
     $oWrapper,
     $oDatabase,
@@ -111,12 +111,23 @@ $oAccessHandler = new AccessHandler(
     $oUtil,
     $oUserGroupFactory
 );
-$oFileHandler = new FileHandler($oWrapper, $oConfig);
-$oControllerFactory = new ControllerFactory($oWrapper, $oConfig, $oAccessHandler, $oUserGroupFactory);
 $oFileProtectionFactory = new FileProtectionFactory(
     $oWrapper,
     $oConfig,
-    $oUtil,
+    $oUtil
+);
+$oFileHandler = new FileHandler(
+    $oWrapper,
+    $oConfig,
+    $oFileProtectionFactory
+);
+$oControllerFactory = new ControllerFactory(
+    $oWrapper,
+    $oDatabase,
+    $oConfig,
+    $oObjectHandler,
+    $oAccessHandler,
+    $oUserGroupFactory,
     $oFileHandler
 );
 $oUserAccessManager = new UserAccessManager(
@@ -130,6 +141,22 @@ $oUserAccessManager = new UserAccessManager(
     $oControllerFactory,
     $oFileProtectionFactory
 );
+
+$oWrapper->doAction('uam_init', array(
+    $oWrapper,
+    $oUtil,
+    $oCache,
+    $oConfigParameterFactory,
+    $oDatabase,
+    $oObjectHandler,
+    $oConfig,
+    $oUserGroupFactory,
+    $oAccessHandler,
+    $oFileProtectionFactory,
+    $oFileHandler,
+    $oControllerFactory,
+    $oUserAccessManager
+));
 
 if (isset($oUserAccessManager)) {
     //install

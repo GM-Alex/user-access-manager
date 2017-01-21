@@ -51,6 +51,11 @@ class Config
     protected $_blAtAdminPanel = false;
 
     /**
+     * @var array
+     */
+    protected $_aMimeTypes = null;
+
+    /**
      * Config constructor.
      *
      * @param Wordpress              $oWrapper
@@ -627,8 +632,6 @@ class Config
         return !empty($sPermalinkStructure);
     }
 
-
-
     /**
      * Returns the upload directory.
      *
@@ -643,5 +646,30 @@ class Config
         }
 
         return null;
+    }
+
+    /**
+     * Returns the full supported mine types.
+     *
+     * @return array
+     */
+    public function getMimeTypes()
+    {
+        if ($this->_aMimeTypes === null) {
+            $aMimeTypes = $this->_oWrapper->getAllowedMimeTypes();
+            $aFullMimeTypes = array();
+
+            foreach ($aMimeTypes as $sExtensions => $sMineType) {
+                $aExtension = explode('|', $sExtensions);
+
+                foreach ($aExtension as $sExtension) {
+                    $aFullMimeTypes[$sExtension] = $sMineType;
+                }
+            }
+
+            $this->_aMimeTypes = $aFullMimeTypes;
+        }
+
+        return $this->_aMimeTypes;
     }
 }

@@ -35,45 +35,22 @@ class FileHandler
     protected $_oConfig;
 
     /**
-     * @var array
+     * @var FileProtectionFactory
      */
-    protected $_aMimeTypes = null;
+    protected $_oFileProtectionFactory;
 
     /**
      * FileHandler constructor.
      *
-     * @param Wordpress $oWrapper
-     * @param Config    $oConfig
+     * @param Wordpress             $oWrapper
+     * @param Config                $oConfig
+     * @param FileProtectionFactory $oFileProtectionFactory
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, FileProtectionFactory $oFileProtectionFactory)
     {
         $this->_oWrapper = $oWrapper;
         $this->_oConfig = $oConfig;
-    }
-
-    /**
-     * Returns the full supported mine types.
-     *
-     * @return array
-     */
-    public function getMimeTypes()
-    {
-        if ($this->_aMimeTypes === null) {
-            $aMimeTypes = $this->_oWrapper->getAllowedMimeTypes();
-            $aFullMimeTypes = array();
-
-            foreach ($aMimeTypes as $sExtensions => $sMineType) {
-                $aExtension = explode('|', $sExtensions);
-
-                foreach ($aExtension as $sExtension) {
-                    $aFullMimeTypes[$sExtension] = $sMineType;
-                }
-            }
-
-            $this->_aMimeTypes = $aFullMimeTypes;
-        }
-
-        return $this->_aMimeTypes;
+        $this->_oFileProtectionFactory = $oFileProtectionFactory;
     }
 
     /**
@@ -96,7 +73,7 @@ class FileHandler
              * provides the same functionality (and more) in a much cleaner way.
              */
             $sFileExt = strtolower(array_pop(explode('.', $sFileName)));
-            $aMimeTypes = $this->getMimeTypes();
+            $aMimeTypes = $this->_oConfig->getMimeTypes();
 
             if (function_exists('finfo_open')) {
                 $sFileInfo = finfo_open(FILEINFO_MIME);
@@ -148,6 +125,44 @@ class FileHandler
         } else {
             $this->_oWrapper->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
             return null;
+        }
+    }
+
+    /**
+     * Creates a protection file.
+     *
+     * @param string $sDir        The destination directory.
+     * @param string $sObjectType The object type.
+     */
+    public function createFileProtection($sDir = null, $sObjectType = null)
+    {
+        $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
+
+        if ($sDir !== null) {
+            if ($this->_oWrapper->isNginx() === true) {
+                $this->_oFileProtectionFactory->createNginxFileProtection()->create($sDir, $sObjectType);
+            } else {
+                $this->_oFileProtectionFactory->createApacheFileProtection()->create($sDir, $sObjectType);
+            }
+        }
+    }
+
+
+    /**
+     * Deletes the protection files.
+     *
+     * @param string $sDir The destination directory.
+     */
+    public function deleteFileProtectionFiles($sDir = null)
+    {
+        $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
+
+        if ($sDir !== null) {
+            if ($this->_oWrapper->isNginx() === true) {
+                $this->_oFileProtectionFactory->createNginxFileProtection()->delete($sDir);
+            } else {
+                $this->_oFileProtectionFactory->createApacheFileProtection()->delete($sDir);
+            }
         }
     }
 }

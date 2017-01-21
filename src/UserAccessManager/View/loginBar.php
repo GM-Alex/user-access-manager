@@ -32,7 +32,7 @@ if (!is_single() && !is_page()) {
    
     $sLoginForm = '<form action="'.$sLoginUrl.'" method="post" class="uam_login_form">';
     $sLoginForm .= '<label class="input_label" for="user_login">'.__('Username:', 'user-access-manager').'</label>';
-    $sLoginForm .= '<input name="log" value="'.esc_html(stripslashes($userLogin), 1).'" class="input" id="user_login" type="text" />';
+    $sLoginForm .= '<input name="log" value="'.esc_html(stripslashes($userLogin)).'" class="input" id="user_login" type="text" />';
     $sLoginForm .= '<label class="input_label" for="user_pass">'.__('Password:', 'user-access-manager').'</label>';
     $sLoginForm .= '<input name="pwd" class="input" id="user_pass" type="password" />';
     $sLoginForm .= '<input name="rememberme" class="checkbox" id="rememberme" value="forever" type="checkbox" />';

@@ -2,7 +2,7 @@
 /**
  * AdminAbout.php
  * 
- * Shows the admin about page at the admin panel.
+ * Shows the about page at the admin panel.
  * 
  * PHP versions 5
  *

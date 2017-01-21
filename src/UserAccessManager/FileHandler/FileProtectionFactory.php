@@ -51,14 +51,12 @@ class FileProtectionFactory
      * @param Wordpress   $oWrapper
      * @param Config      $oConfig
      * @param Util        $oUtil
-     * @param FileHandler $oFileHandler
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil, FileHandler $oFileHandler)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil)
     {
         $this->_oWrapper = $oWrapper;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;
-        $this->_oFileHandler = $oFileHandler;
     }
 
     /**
@@ -68,7 +66,7 @@ class FileProtectionFactory
      */
     public function createApacheFileProtection()
     {
-        return new ApacheFileProtection($this->_oWrapper, $this->_oConfig, $this->_oUtil, $this->_oFileHandler);
+        return new ApacheFileProtection($this->_oWrapper, $this->_oConfig, $this->_oUtil);
     }
 
     /**
@@ -78,6 +76,6 @@ class FileProtectionFactory
      */
     public function createNginxFileProtection()
     {
-        return new NginxFileProtection($this->_oWrapper, $this->_oConfig, $this->_oUtil, $this->_oFileHandler);
+        return new NginxFileProtection($this->_oWrapper, $this->_oConfig, $this->_oUtil);
     }
 }

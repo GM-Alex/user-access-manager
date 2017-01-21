@@ -2,7 +2,7 @@
 /**
  * AdminSettings.php
  *
- * Shows the admin settings page at the admin panel.
+ * Shows the settings page at the admin panel.
  *
  * PHP versions 5
  *

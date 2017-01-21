@@ -1,15 +1,21 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 16.01.17
- * Time: 23:21
+ * AdminSettingsController.php
+ *
+ * The AdminSettingsController class file.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
 
-
 use UserAccessManager\Config\Config;
-use UserAccessManager\UserAccessManager;
+use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
 class AdminSettingsController extends Controller
@@ -20,20 +26,27 @@ class AdminSettingsController extends Controller
     protected $_oConfig;
 
     /**
-     * @var UserAccessManager
+     * @var FileHandler
      */
-    protected $_oUserAccessManager;
+    protected $_oFileHandler;
 
     /**
      * @var string
      */
     protected $_sTemplate = 'AdminSettings.php';
 
-    public function __construct(Wordpress $oWrapper, Config $oConfig, UserAccessManager $oUserAccessManager)
+    /**
+     * AdminSettingsController constructor.
+     *
+     * @param Wordpress   $oWrapper
+     * @param Config      $oConfig
+     * @param FileHandler $oFileHandler
+     */
+    public function __construct(Wordpress $oWrapper, Config $oConfig, FileHandler $oFileHandler)
     {
         parent::__construct($oWrapper);
         $this->_oConfig = $oConfig;
-        $this->_oUserAccessManager = $oUserAccessManager;
+        $this->_oFileHandler = $oFileHandler;
     }
 
     /**
@@ -134,9 +147,9 @@ class AdminSettingsController extends Controller
         $this->_oConfig->setConfigParameters($aNewConfigParameters);
 
         if ($this->_oConfig->lockFile() === false) {
-            $this->_oUserAccessManager->deleteFileProtectionFiles();
+            $this->_oFileHandler->deleteFileProtectionFiles();
         } else {
-            $this->_oUserAccessManager->createFileProtection();
+            $this->_oFileHandler->createFileProtection();
         }
 
         $this->_oWrapper->doAction('uam_update_options', $this->_oConfig);

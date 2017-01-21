@@ -68,6 +68,30 @@ abstract class Controller
     }
 
     /**
+     * Returns the content of the excluded php file.
+     *
+     * @param string $sFileName The view file name
+     *
+     * @return string
+     */
+    protected function _getIncludeContents($sFileName)
+    {
+        $sContents = '';
+        $aPath = array(UAM_REALPATH, 'src', 'UserAccessManager', 'View');
+        $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
+        $sFileWithPath = $sPath.$sFileName;
+
+        if (is_file($sFileWithPath)) {
+            ob_start();
+            include $sFileWithPath;
+            $sContents = ob_get_contents();
+            ob_end_clean();
+        }
+
+        return $sContents;
+    }
+
+    /**
      * Renders the given template
      */
     public function render()
@@ -75,8 +99,7 @@ abstract class Controller
         $this->_processAction();
 
         if ($this->_sTemplate !== null) {
-            $sTemplateFile = UAM_REALPATH.DIRECTORY_SEPARATOR.'src/UserAccessManager/View/'.$this->_sTemplate;
-            include $sTemplateFile;
+            echo $this->_getIncludeContents($this->_sTemplate);
         }
     }
 
@@ -175,28 +198,5 @@ abstract class Controller
     public function hasUpdateMessage()
     {
         return $this->_sUpdateMessage !== null;
-    }
-
-    /**
-     * Returns the content of the excluded php file.
-     *
-     * @param string  $sFileName   The file name
-     * @param integer $iObjectId   The _iId if needed.
-     * @param string  $sObjectType The object type if needed.
-     *
-     * @return string
-     */
-    public function getIncludeContents($sFileName, $iObjectId = null, $sObjectType = null)
-    {
-        if (is_file($sFileName)) {
-            ob_start();
-            include $sFileName;
-            $sContents = ob_get_contents();
-            ob_end_clean();
-
-            return $sContents;
-        }
-
-        return '';
     }
 }

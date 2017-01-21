@@ -2,7 +2,7 @@
 /**
  * AdminUserGroup.php
  *
- * Shows the admin user group page at the admin panel.
+ * Shows the user group page at the admin panel.
  *
  * PHP versions 5
  *
