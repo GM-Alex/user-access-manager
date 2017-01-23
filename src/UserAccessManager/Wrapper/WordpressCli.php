@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Wrapper;
 
-use \WP_CLI\Formatter;
+use WP_CLI\Formatter;
 
 /**
  * Class WordpressCli

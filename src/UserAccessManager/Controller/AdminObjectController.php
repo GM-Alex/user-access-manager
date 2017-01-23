@@ -19,7 +19,7 @@ use UserAccessManager\Wrapper\Wordpress;
 class AdminObjectController extends Controller
 {
     const COLUMN_NAME = 'uam_access';
-    
+
     /**
      * @var Database
      */
@@ -207,9 +207,9 @@ class AdminObjectController extends Controller
     /**
      * Saves the object data to the database.
      *
-     * @param string         $sObjectType The object type.
-     * @param integer        $iObjectId   The _iId of the object.
-     * @param UserGroup[]    $aUserGroups The new user groups for the object.
+     * @param string      $sObjectType The object type.
+     * @param integer     $iObjectId   The _iId of the object.
+     * @param UserGroup[] $aUserGroups The new user groups for the object.
      */
     protected function _saveObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {
@@ -588,7 +588,7 @@ class AdminObjectController extends Controller
 
         $sTagId = $this->getRequestParameter('tag_ID');
 
-        if ($blNoRights === false && is_numeric($sTagId) ) {
+        if ($blNoRights === false && is_numeric($sTagId)) {
             $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $sTagId);
         }
 
@@ -627,8 +627,8 @@ class AdminObjectController extends Controller
     /**
      * Returns the group selection form for pluggable objects.
      *
-     * @param string $sObjectType     The object type.
-     * @param string $sObjectId       The _iId of the object.
+     * @param string $sObjectType The object type.
+     * @param string $sObjectId   The id of the object.
      *
      * @return string;
      */

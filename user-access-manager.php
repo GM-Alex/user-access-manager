@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: User Access Manager
  * Plugin URI: https://wordpress.org/plugins/user-access-manager/
@@ -6,20 +7,19 @@
  * Version: 1.2.14
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
- * 
+ *
  * user-access-manager.php
  *
+ * The the user access manager main file.
+ *
  * PHP versions 5
- * 
- * @category  UserAccessManager
- * @package   UserAccessManager
+ *
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2016 Alexander Schneider
+ * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
-*/
-
+ */
 //Defines
 require_once 'includes/language.php';
 require_once 'autoloader.php';
@@ -40,7 +40,7 @@ if (version_compare($sPhpVersion, '5.3') === -1) {
             '</strong></p></div>\';'
         )
     );
-    
+
     $blStop = true;
 }
 
@@ -57,7 +57,7 @@ if (version_compare($wp_version, '4.6') === -1) {
             '</strong></p></div>\';'
         )
     );
-    
+
     $blStop = true;
 }
 
@@ -81,8 +81,8 @@ use UserAccessManager\FileHandler\FileProtectionFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserAccessManager;
-use UserAccessManager\Util\Util;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
 $oWrapper = new Wordpress();

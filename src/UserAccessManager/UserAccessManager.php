@@ -6,15 +6,12 @@
  *
  * PHP versions 5
  *
- * @category  UserAccessManager
- * @package   UserAccessManager
- * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2016 Alexander Schneider
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 namespace UserAccessManager;
 
 use UserAccessManager\AccessHandler\AccessHandler;
@@ -26,13 +23,9 @@ use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
- * The user user access manager class.
+ * Class UserAccessManager
  *
- * @category UserAccessManager
- * @package  UserAccessManager
- * @author   Alexander Schneider <alexanderschneider85@gmail.com>
- * @license  http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @link     http://wordpress.org/extend/plugins/user-access-manager/
+ * @package UserAccessManager
  */
 class UserAccessManager
 {
@@ -77,12 +70,12 @@ class UserAccessManager
     /**
      * UserAccessManager constructor.
      *
-     * @param Wordpress             $oWrapper
-     * @param Config                $oConfig
-     * @param ObjectHandler         $oObjectHandler
-     * @param AccessHandler         $oAccessHandler
-     * @param SetupHandler          $oSetupHandler
-     * @param ControllerFactory     $oControllerFactory
+     * @param Wordpress         $oWrapper
+     * @param Config            $oConfig
+     * @param ObjectHandler     $oObjectHandler
+     * @param AccessHandler     $oAccessHandler
+     * @param SetupHandler      $oSetupHandler
+     * @param ControllerFactory $oControllerFactory
      */
     public function __construct(
         Wordpress $oWrapper,
@@ -177,7 +170,7 @@ class UserAccessManager
         if (ini_get('safe_mode') && $this->_oConfig->getDownloadType() === 'fopen') {
             $this->_oWrapper->addAction('admin_notices', array($oAdminController, 'showFOpenNotice'));
         }
-        
+
         if ($this->_oSetupHandler->isDatabaseUpdateNecessary() === true) {
             $this->_oWrapper->addAction('admin_notices', array($oAdminController, 'showDatabaseNotice'));
         }
@@ -192,7 +185,7 @@ class UserAccessManager
 
         $oAdminObjectController = $this->_oControllerFactory->createAdminObjectController();
 
-        if ($this->_oAccessHandler->checkUserAccess() 
+        if ($this->_oAccessHandler->checkUserAccess()
             || $this->_oConfig->authorsCanAddPostsToGroups() === true
         ) {
             //Admin actions

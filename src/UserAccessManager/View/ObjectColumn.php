@@ -20,20 +20,20 @@ $aObjectUserGroups = $this->getObjectUserGroups();
 if (count($aObjectUserGroups) > 0) {
     ?>
     <ul>
-    <?php
-    foreach ($aObjectUserGroups as $oUserGroup) {
-        ?> 
-        <li>
-            <a class="uam_group_info_link">
-                <?php echo htmlentities($oUserGroup->getGroupName()); ?>
-            </a>
         <?php
-        include 'GroupInfo.php';
-        ?> 
-        </li>
-        <?php
-    }
-    ?>
+        foreach ($aObjectUserGroups as $oUserGroup) {
+            ?>
+            <li>
+                <a class="uam_group_info_link">
+                    <?php echo htmlentities($oUserGroup->getGroupName()); ?>
+                </a>
+                <?php
+                include 'GroupInfo.php';
+                ?>
+            </li>
+            <?php
+        }
+        ?>
     </ul>
     <?php
 } elseif ($this->getUserGroupDiff() > 0) {

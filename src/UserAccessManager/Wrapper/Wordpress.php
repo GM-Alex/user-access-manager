@@ -332,7 +332,7 @@ class Wordpress
      * @see home_url()
      *
      * @param string $sPath
-     * @param string   $sScheme
+     * @param string $sScheme
      *
      * @return string
      */
@@ -469,9 +469,9 @@ class Wordpress
      *
      * @return string
      */
-    public function getNonceField($mAction = -1, $sName = '_wpnonce', $blReferrer = true , $blEcho = true)
+    public function getNonceField($mAction = -1, $sName = '_wpnonce', $blReferrer = true, $blEcho = true)
     {
-        return wp_nonce_field($mAction, $sName , $blReferrer, $blEcho);
+        return wp_nonce_field($mAction, $sName, $blReferrer, $blEcho);
     }
 
     /**
@@ -732,7 +732,7 @@ class Wordpress
      *
      * @return string
      */
-    public function pluginsUrl($sPath = '', $sPlugin = '' )
+    public function pluginsUrl($sPath = '', $sPlugin = '')
     {
         return plugins_url($sPath, $sPlugin);
     }

@@ -81,7 +81,7 @@ class AdminSetupController extends Controller
         $this->_verifyNonce(self::SETUP_UPDATE_NONCE);
         $sUpdate = $this->getRequestParameter('uam_update_db');
 
-        if ($sUpdate === 'blog' || $sUpdate === 'network' ) {
+        if ($sUpdate === 'blog' || $sUpdate === 'network') {
             $blNetwork = ($sUpdate == 'network') ? true : false;
             $this->_oSetupHandler->update($blNetwork);
             $this->_setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUC);

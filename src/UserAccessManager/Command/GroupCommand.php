@@ -213,7 +213,7 @@ class GroupCommand extends CommandWithDBObject
 
         if (!in_array($sReadAccess, self::$aAllowedAccessValues)) {
             if ($blPorcelain === true) {
-                $this->_oWrapper->line('setting read_access to ' . self::$aAllowedAccessValues[0]);
+                $this->_oWrapper->line('setting read_access to '.self::$aAllowedAccessValues[0]);
             }
 
             $sReadAccess = self::$aAllowedAccessValues[0];
@@ -221,7 +221,7 @@ class GroupCommand extends CommandWithDBObject
 
         if (!in_array($sWriteAccess, self::$aAllowedAccessValues)) {
             if ($blPorcelain === true) {
-                $this->_oWrapper->line('setting write_access to ' . self::$aAllowedAccessValues[0]);
+                $this->_oWrapper->line('setting write_access to '.self::$aAllowedAccessValues[0]);
             }
 
             $sWriteAccess = self::$aAllowedAccessValues[0];

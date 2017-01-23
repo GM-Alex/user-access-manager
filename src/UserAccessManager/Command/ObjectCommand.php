@@ -100,7 +100,7 @@ class ObjectCommand extends \WP_CLI_Command
         $aUserGroups = $this->_oAccessHandler->getUserGroups();
 
         $aUserGroupNames = array_map(
-            function($oUserGroup) {
+            function ($oUserGroup) {
                 /**
                  * @var UserGroup $oUserGroup
                  */

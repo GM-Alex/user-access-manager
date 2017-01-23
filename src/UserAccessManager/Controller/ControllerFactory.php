@@ -81,7 +81,7 @@ class ControllerFactory
      * @var SetupHandler
      */
     protected $_oSetupHandler;
-    
+
     /**
      * ControllerFactory constructor.
      *

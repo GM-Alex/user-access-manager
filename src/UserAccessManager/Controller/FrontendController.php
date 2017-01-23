@@ -240,7 +240,7 @@ class FrontendController extends Controller
      * Function for the wp_count_posts filter.
      *
      * @param \stdClass $oCounts
-     * @param string   $sType
+     * @param string    $sType
      *
      * @return \stdClass
      */
@@ -538,7 +538,7 @@ class FrontendController extends Controller
     /**
      * The function for the get_terms filter.
      *
-     * @param array          $aTerms      The terms.
+     * @param array $aTerms The terms.
      *
      * @return array
      */

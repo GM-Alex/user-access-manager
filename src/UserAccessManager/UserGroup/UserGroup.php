@@ -45,7 +45,7 @@ class UserGroup
      * @var Config
      */
     protected $_oConfig;
-    
+
     /**
      * @var Cache
      */
@@ -153,7 +153,7 @@ class UserGroup
 
         //Create default values for the objects.
         $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
-        
+
         foreach ($aAllObjectTypes as $sObjectType) {
             $this->_aAssignedObjects[$sObjectType] = null;
             $this->_aObjects[$sObjectType] = array(
@@ -202,7 +202,7 @@ class UserGroup
     public function save($blRemoveOldAssignments = true)
     {
         $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
-        
+
         if ($this->_iId == null) {
             $mReturn = $this->_oDatabase->insert(
                 $this->_oDatabase->getUserGroupTable(),

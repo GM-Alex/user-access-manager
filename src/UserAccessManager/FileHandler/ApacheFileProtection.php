@@ -29,7 +29,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
      * Generates the htaccess file.
      *
      * @param string $sDir
-     * @param string   $sObjectType
+     * @param string $sObjectType
      *
      * @return bool
      */

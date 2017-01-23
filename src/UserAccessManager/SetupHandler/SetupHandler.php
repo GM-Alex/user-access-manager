@@ -52,10 +52,10 @@ class SetupHandler
     /**
      * SetupHandler constructor.
      *
-     * @param Wordpress             $oWrapper
-     * @param Database              $oDatabase
-     * @param ObjectHandler         $oObjectHandler
-     * @param FileHandler           $oFileHandler
+     * @param Wordpress     $oWrapper
+     * @param Database      $oDatabase
+     * @param ObjectHandler $oObjectHandler
+     * @param FileHandler   $oFileHandler
      */
     public function __construct(
         Wordpress $oWrapper,
@@ -115,8 +115,6 @@ class SetupHandler
      */
     protected function _installUam()
     {
-        include_once ABSPATH.'wp-admin/includes/upgrade.php';
-
         $sCharsetCollate = $this->_oDatabase->getCharset();
         $sDbAccessGroupTable = $this->_oDatabase->getUserGroupTable();
 

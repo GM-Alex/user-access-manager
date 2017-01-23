@@ -211,10 +211,10 @@ class Config
 
             $sId = 'blog_admin_hint_text';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter($sId, '[L]');
-            
+
             $sId = 'hide_empty_categories';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId, true);
-            
+
             $sId = 'protect_feed';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId, true);
 

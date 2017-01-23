@@ -1,4 +1,4 @@
-jQuery(document).ready(function() {
+jQuery(document).ready(function () {
     //Functions for the setting page
     var toggleGroup = function (groupName) {
         var $group = jQuery(groupName);
@@ -13,7 +13,7 @@ jQuery(document).ready(function() {
             }
         };
 
-        $firstElement.change(function() {
+        $firstElement.change(function () {
             toggleElements(this);
         });
         toggleElements($firstElement);
@@ -26,7 +26,7 @@ jQuery(document).ready(function() {
     // Functions for the setup page
     jQuery('#uam_reset_confirm').on('change paste keyup', function () {
         var $button = jQuery('#uam_reset_submit');
-        
+
         if (jQuery(this).val() === 'reset') {
             $button.removeAttr('disabled');
         } else if (typeof $button.attr('disabled') === 'undefined') {

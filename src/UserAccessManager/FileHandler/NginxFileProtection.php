@@ -29,7 +29,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
      * Generates the conf file.
      *
      * @param string $sDir
-     * @param string   $sObjectType
+     * @param string $sObjectType
      *
      * @return bool
      */

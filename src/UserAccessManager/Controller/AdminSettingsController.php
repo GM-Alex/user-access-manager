@@ -126,7 +126,7 @@ class AdminSettingsController extends Controller
             $aGroupedConfigParameters['file'][] = $aConfigParameters['file_pass_type'];
         }
 
-        return$aGroupedConfigParameters;
+        return $aGroupedConfigParameters;
     }
 
     /**

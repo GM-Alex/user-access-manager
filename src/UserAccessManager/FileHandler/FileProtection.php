@@ -50,9 +50,9 @@ abstract class FileProtection
     /**
      * ApacheFileProtection constructor.
      *
-     * @param Wordpress   $oWrapper
-     * @param Config      $oConfig
-     * @param Util        $oUtil
+     * @param Wordpress $oWrapper
+     * @param Config    $oConfig
+     * @param Util      $oUtil
      */
     public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil)
     {

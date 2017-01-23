@@ -1,9 +1,9 @@
 <?php
 /**
  * AdminAbout.php
- * 
+ *
  * Shows the about page at the admin panel.
- * 
+ *
  * PHP versions 5
  *
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
@@ -24,7 +24,8 @@
                 <p>
                     <?php echo TXT_UAM_DONATE; ?><br/>
                     <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052">
-                        <img style="margin:4px 0;" alt="Make payments with PayPal - it's fast, free and secure!" name="submit" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif" />
+                        <img style="margin:4px 0;" alt="Make payments with PayPal - it's fast, free and secure!"
+                             name="submit" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif"/>
                     </a>
                 </p>
                 <p><?php echo TXT_UAM_PLACE_LINK; ?></p>
@@ -36,7 +37,11 @@
                 <p>
                     <strong><?php echo TXT_UAM_SPECIAL_THANKS; ?></strong><br/>
                     <br/>
-                    <?php echo TXT_UAM_THANKS_TO; ?> Luke Crouch, Juan Rodriguez, mkosel, Jan, GeorgWP, Ron Harding, Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska, macbidule, Helmut, -sCo-, Hadi Mostafapour, Diego Valobra, PoleeK, Konsult, Mesut Soylu, ranwaldo, Robert Egger, akiko.pusu, r3d pill, michel.weimerskirch, arjenbreur, jpr105, nwoetzel (https://github.com/nwoetzel) <?php echo TXT_UAM_THANKS_OTHERS; ?>.
+                    <?php echo TXT_UAM_THANKS_TO; ?> Luke Crouch, Juan Rodriguez, mkosel, Jan, GeorgWP, Ron Harding,
+                    Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska,
+                    macbidule, Helmut, -sCo-, Hadi Mostafapour, Diego Valobra, PoleeK, Konsult, Mesut Soylu, ranwaldo,
+                    Robert Egger, akiko.pusu, r3d pill, michel.weimerskirch, arjenbreur, jpr105, nwoetzel
+                    (https://github.com/nwoetzel) <?php echo TXT_UAM_THANKS_OTHERS; ?>.
                 </p>
             </div>
         </div>
