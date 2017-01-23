@@ -38,27 +38,29 @@ abstract class FileProtection
     protected $_oConfig;
 
     /**
-     * @var FileHandler
-     */
-    protected $_oFileHandler;
-
-    /**
      * @var Util
      */
     protected $_oUtil;
 
     /**
+     * @var FileHandler
+     */
+    protected $_oFileHandler;
+
+    /**
      * ApacheFileProtection constructor.
      *
-     * @param Wordpress $oWrapper
-     * @param Config    $oConfig
-     * @param Util      $oUtil
+     * @param Wordpress   $oWrapper
+     * @param Config      $oConfig
+     * @param Util        $oUtil
+     * @param FileHandler $oFileHandler
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil, FileHandler $oFileHandler)
     {
         $this->_oWrapper = $oWrapper;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;
+        $this->_oFileHandler = $oFileHandler;
     }
 
     /**

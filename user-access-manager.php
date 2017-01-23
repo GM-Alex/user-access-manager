@@ -22,7 +22,7 @@
  */
 //Defines
 require_once 'includes/language.php';
-require_once 'autoloader.php';
+require_once 'autoload.php';
 
 //Check requirements
 $blStop = false;

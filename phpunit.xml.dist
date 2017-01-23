@@ -13,7 +13,11 @@
             <directory>./tests</directory>
         </blacklist>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./class</directory>
+            <directory suffix=".php">./src</directory>
+            <exclude>
+                <directory suffix=".php">./src/UserAccessManager/View</directory>
+                <directory suffix=".php">./src/UserAccessManager/Command</directory>
+            </exclude>
         </whitelist>
     </filter>
     <logging>
