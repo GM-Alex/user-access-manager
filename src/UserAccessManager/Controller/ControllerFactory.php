@@ -15,12 +15,14 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\UserAccessManager;
+use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -30,23 +32,103 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class ControllerFactory
 {
+    /**
+     * @var Wordpress
+     */
+    protected $_oWrapper;
+
+    /**
+     * @var Database
+     */
+    protected $_oDatabase;
+
+    /**
+     * @var Config
+     */
+    protected $_oConfig;
+
+    /**
+     * @var Util
+     */
+    protected $_oUtil;
+
+    /**
+     * @var Cache
+     */
+    protected $_oCache;
+
+    /**
+     * @var ObjectHandler
+     */
+    protected $_oObjectHandler;
+
+    /**
+     * @var AccessHandler
+     */
+    protected $_oAccessHandler;
+
+    /**
+     * @var UserGroupFactory
+     */
+    protected $_oUserGroupFactory;
+
+    /**
+     * @var FileHandler
+     */
+    protected $_oFileHandler;
+
+    /**
+     * @var SetupHandler
+     */
+    protected $_oSetupHandler;
+    
+    /**
+     * ControllerFactory constructor.
+     *
+     * @param Wordpress        $oWrapper
+     * @param Database         $oDatabase
+     * @param Config           $oConfig
+     * @param Util             $oUtil
+     * @param Cache            $oCache
+     * @param ObjectHandler    $oObjectHandler
+     * @param AccessHandler    $oAccessHandler
+     * @param UserGroupFactory $oUserGroupFactory
+     * @param FileHandler      $oFileHandler
+     * @param SetupHandler     $oSetupHandler
+     */
     public function __construct(
         Wordpress $oWrapper,
         Database $oDatabase,
         Config $oConfig,
+        Util $oUtil,
+        Cache $oCache,
         ObjectHandler $oObjectHandler,
         AccessHandler $oAccessHandler,
         UserGroupFactory $oUserGroupFactory,
-        FileHandler $oFileHandler
+        FileHandler $oFileHandler,
+        SetupHandler $oSetupHandler
     )
     {
         $this->_oWrapper = $oWrapper;
         $this->_oDatabase = $oDatabase;
         $this->_oConfig = $oConfig;
+        $this->_oUtil = $oUtil;
+        $this->_oCache = $oCache;
         $this->_oObjectHandler = $oObjectHandler;
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oUserGroupFactory = $oUserGroupFactory;
         $this->_oFileHandler = $oFileHandler;
+        $this->_oSetupHandler = $oSetupHandler;
+    }
+
+    /**
+     * Creates and returns a new admin controller.
+     *
+     * @return AdminController
+     */
+    public function createAdminController()
+    {
+        return new AdminController($this->_oWrapper, $this->_oAccessHandler, $this->_oFileHandler);
     }
 
     /**
@@ -88,13 +170,11 @@ class ControllerFactory
     /**
      * Creates and returns a new admin setup controller.
      *
-     * @param UserAccessManager $oUserAccessManager
-     *
      * @return AdminSetupController
      */
-    public function createAdminSetupController(UserAccessManager $oUserAccessManager)
+    public function createAdminSetupController()
     {
-        return new AdminSetupController($this->_oWrapper, $oUserAccessManager);
+        return new AdminSetupController($this->_oWrapper, $this->_oSetupHandler);
     }
 
     /**
@@ -105,5 +185,24 @@ class ControllerFactory
     public function createAdminUserGroupController()
     {
         return new AdminUserGroupController($this->_oWrapper, $this->_oAccessHandler, $this->_oUserGroupFactory);
+    }
+
+    /**
+     * Creates and returns a new frontend controller.
+     *
+     * @return FrontendController
+     */
+    public function createFrontendController()
+    {
+        return new FrontendController(
+            $this->_oWrapper,
+            $this->_oDatabase,
+            $this->_oConfig,
+            $this->_oUtil,
+            $this->_oCache,
+            $this->_oObjectHandler,
+            $this->_oAccessHandler,
+            $this->_oFileHandler
+        );
     }
 }

@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
-use UserAccessManager\UserAccessManager;
+use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -28,9 +28,9 @@ class AdminSetupController extends Controller
     const SETUP_RESET_NONCE = 'uamSetupReset';
 
     /**
-     * @var UserAccessManager
+     * @var SetupHandler
      */
-    protected $_oUserAccessManager;
+    protected $_oSetupHandler;
 
     /**
      * @var string
@@ -40,13 +40,13 @@ class AdminSetupController extends Controller
     /**
      * AdminSetupController constructor.
      *
-     * @param Wordpress         $oWrapper
-     * @param UserAccessManager $oUserAccessManager
+     * @param Wordpress    $oWrapper
+     * @param SetupHandler $oSetupHandler
      */
-    public function __construct(Wordpress $oWrapper, UserAccessManager $oUserAccessManager)
+    public function __construct(Wordpress $oWrapper, SetupHandler $oSetupHandler)
     {
         parent::__construct($oWrapper);
-        $this->_oUserAccessManager = $oUserAccessManager;
+        $this->_oSetupHandler = $oSetupHandler;
     }
 
     /**
@@ -56,7 +56,7 @@ class AdminSetupController extends Controller
      */
     public function isDatabaseUpdateNecessary()
     {
-        return $this->_oUserAccessManager->isDatabaseUpdateNecessary();
+        return $this->_oSetupHandler->isDatabaseUpdateNecessary();
     }
 
     /**
@@ -81,7 +81,7 @@ class AdminSetupController extends Controller
 
         if ($sUpdate === 'blog' || $sUpdate === 'network' ) {
             $blNetwork = ($sUpdate == 'network') ? true : false;
-            $this->_oUserAccessManager->update($blNetwork);
+            $this->_oSetupHandler->update($blNetwork);
             $this->_setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUC);
         }
     }
@@ -95,8 +95,8 @@ class AdminSetupController extends Controller
         $sReset = $this->getRequestParameter('uam_reset');
 
         if ($sReset === 'reset') {
-            $this->_oUserAccessManager->uninstall();
-            $this->_oUserAccessManager->install();
+            $this->_oSetupHandler->uninstall();
+            $this->_oSetupHandler->install();
             $this->_setUpdateMessage(TXT_UAM_UAM_RESET_SUCCSESS);
         }
     }

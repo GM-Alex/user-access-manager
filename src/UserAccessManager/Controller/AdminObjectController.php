@@ -598,8 +598,65 @@ class AdminObjectController extends Controller
             $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $sTagId);
         }
 
-        if ($blNoRights === false) {
+        if ($blNoRights === true) {
             $this->_oWrapper->wpDie(TXT_UAM_NO_RIGHTS);
         }
     }
+
+    /*
+     * Functions for the pluggable object actions.
+     */
+
+    /**
+     * The function for the pluggable save action.
+     *
+     * @param string      $sObjectType The name of the pluggable object.
+     * @param integer     $iObjectId   The pluggable object id.
+     * @param UserGroup[] $aUserGroups The user groups for the object.
+     */
+    public function savePlObjectData($sObjectType, $iObjectId, $aUserGroups = null)
+    {
+        $this->_saveObjectData($sObjectType, $iObjectId, $aUserGroups);
+    }
+
+    /**
+     * The function for the pluggable remove action.
+     *
+     * @param string  $sObjectName The name of the pluggable object.
+     * @param integer $iObjectId   The pluggable object id.
+     */
+    public function removePlObjectData($sObjectName, $iObjectId)
+    {
+        $this->_removeObjectData($sObjectName, $iObjectId);
+    }
+
+    /**
+     * Returns the group selection form for pluggable objects.
+     *
+     * @param string $sObjectType     The object type.
+     * @param string $sObjectId       The _iId of the object.
+     * @param string $sGroupsFormName The name of the form which contains the groups.
+     *
+     * @return string;
+     */
+    public function showPlGroupSelectionForm($sObjectType, $sObjectId, $sGroupsFormName = null)
+    {
+        $this->_setObjectInformation($sObjectType, $sObjectId);
+        return $this->_getIncludeContents('GroupSelectionForm.php');
+    }
+
+    /**
+     * Returns the column for a pluggable object.
+     *
+     * @param string $sObjectType The object type.
+     * @param string $sObjectId   The object id.
+     *
+     * @return string
+     */
+    public function getPlColumn($sObjectType, $sObjectId)
+    {
+        $this->_setObjectInformation($sObjectType, $sObjectId);
+        return $this->_getIncludeContents('ObjectColumn.php');
+    }
+
 }

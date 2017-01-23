@@ -568,4 +568,87 @@ class Wordpress
     {
         return get_pages($mArguments);
     }
+
+    /**
+     * @see wp_register_style()
+     *
+     * @param string           $sHandle
+     * @param string           $sSource
+     * @param array            $aDepends
+     * @param string|bool|null $mVersion
+     * @param string           $sMedia
+     *
+     * @return bool
+     */
+    public function registerStyle($sHandle, $sSource, $aDepends = array(), $mVersion = false, $sMedia = 'all')
+    {
+        return wp_register_style($sHandle, $sSource, $aDepends, $mVersion, $sMedia);
+    }
+
+    /**
+     * @see wp_register_script()
+     *
+     * @param string           $sHandle
+     * @param string           $sSource
+     * @param array            $aDepends
+     * @param string|bool|null $mVersion
+     * @param bool             $blInFooter
+     *
+     * @return bool
+     */
+    public function registerScript($sHandle, $sSource, $aDepends = array(), $mVersion = false, $blInFooter = false)
+    {
+        return wp_register_script($sHandle, $sSource, $aDepends, $mVersion, $blInFooter);
+    }
+
+    /**
+     * @see wp_enqueue_style()
+     *
+     * @param string           $sHandle
+     * @param string           $sSource
+     * @param array            $aDepends
+     * @param string|bool|null $mVersion
+     * @param string           $sMedia
+     */
+    public function enqueueStyle($sHandle, $sSource = '', $aDepends = array(), $mVersion = false, $sMedia = 'all')
+    {
+        wp_enqueue_style($sHandle, $sSource, $aDepends, $mVersion, $sMedia);
+    }
+
+    /**
+     * @see wp_enqueue_script()
+     *
+     * @param string           $sHandle
+     * @param string           $sSource
+     * @param array            $aDepends
+     * @param string|bool|null $mVersion
+     * @param bool             $blInFooter
+     */
+    public function enqueueScript($sHandle, $sSource = '', $aDepends = array(), $mVersion = false, $blInFooter = false)
+    {
+        wp_enqueue_script($sHandle, $sSource, $aDepends, $mVersion, $blInFooter);
+    }
+
+    /**
+     * Returns the wordpress meta boxes.
+     *
+     * @return array
+     */
+    public function getMetaBoxes()
+    {
+        global $wp_meta_boxes;
+        return $wp_meta_boxes;
+    }
+
+    /**
+     * @see get_sites()
+     *
+     * @param array $aArguments
+     *
+     * @return array
+     */
+    public function getSites(array $aArguments = array())
+    {
+        return get_sites($aArguments);
+    }
 }

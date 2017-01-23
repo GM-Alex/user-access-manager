@@ -427,7 +427,7 @@ class AccessHandler
             $aCategoriesAssignedToUser = $this->getTermsForUser();
             $sCategoriesAssignedToUser = $this->_oDatabase->generateSqlIdList($aCategoriesAssignedToUser);
 
-            $sTermSql = "SELECT agto.object_id
+            $sTermSql = "SELECT gto.object_id
                 FROM {$this->_oDatabase->getUserGroupToObjectTable()} gto
                 LEFT JOIN {$this->_oDatabase->getUserGroupTable()} AS g
                   ON gto.group_id = g.id 

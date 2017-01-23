@@ -32,7 +32,7 @@ $aObjectUserGroups = $this->getObjectUserGroups();
                 include 'GroupSelectionForm.php';
             } elseif ($this->checkUserAccess()) {
                 ?>
-                <a href='admin.php?page=uam_user_group'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
+                <a href='?page=uam_user_group'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
                 <?php
             } else {
                 echo TXT_UAM_NO_GROUP_AVAILABLE;
