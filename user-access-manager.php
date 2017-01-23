@@ -20,6 +20,10 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
 */
 
+//Defines
+require_once 'includes/language.php';
+require_once 'autoloader.php';
+
 //Check requirements
 $blStop = false;
 
@@ -58,19 +62,12 @@ if (version_compare($wp_version, '4.6') === -1) {
 }
 
 //If we have a error stop plugin.
-if ($blStop) {
+if ($blStop === true) {
     return;
 }
 
-require_once 'autoloader.php';
-
-//Paths
+//Load language
 load_plugin_textdomain('user-access-manager', false, 'user-access-manager/lang');
-define('UAM_URLPATH', plugins_url('', __FILE__).'/');
-define('UAM_REALPATH', WP_PLUGIN_DIR.'/'.plugin_basename(dirname(__FILE__)).'/');
-
-//Defines
-require_once 'includes/language.define.php';
 
 //Classes
 use UserAccessManager\AccessHandler\AccessHandler;
@@ -94,7 +91,7 @@ $oCache = new Cache();
 $oConfigParameterFactory = new ConfigParameterFactory();
 $oDatabase = new Database($oWrapper);
 $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
-$oConfig = new Config($oWrapper, $oConfigParameterFactory);
+$oConfig = new Config($oWrapper, $oConfigParameterFactory, __FILE__);
 $oUserGroupFactory = new UserGroupFactory(
     $oWrapper,
     $oDatabase,
@@ -187,5 +184,11 @@ $oUserAccessManager->addActionsAndFilters();
 
 //Add the cli interface to the known commands
 if (defined('WP_CLI') && WP_CLI) {
-    include __DIR__.'/includes/wp-cli.php';
+    $oCliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
+
+    $oGroupCommand = new \UserAccessManager\Command\GroupCommand($oCliWrapper, $oAccessHandler, $oUserGroupFactory);
+    WP_CLI::add_command('uam groups', $oGroupCommand);
+
+    $oObjectCommand = new \UserAccessManager\Command\ObjectCommand($oCliWrapper, $oAccessHandler);
+    WP_CLI::add_command('uam objects', $oObjectCommand);
 }

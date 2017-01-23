@@ -24,11 +24,6 @@ class AdminObjectController extends Controller
      * @var Database
      */
     protected $_oDatabase;
-    
-    /**
-     * @var Config
-     */
-    protected $_oConfig;
 
     /**
      * @var ObjectHandler
@@ -69,22 +64,21 @@ class AdminObjectController extends Controller
      * AdminObjectController constructor.
      *
      * @param Wordpress     $oWrapper
-     * @param Database      $oDatabase
      * @param Config        $oConfig
+     * @param Database      $oDatabase
      * @param ObjectHandler $oObjectHandler
      * @param AccessHandler $oAccessHandler
      */
     public function __construct(
         Wordpress $oWrapper,
-        Database $oDatabase,
         Config $oConfig,
+        Database $oDatabase,
         ObjectHandler $oObjectHandler,
         AccessHandler $oAccessHandler
     )
     {
-        parent::__construct($oWrapper);
+        parent::__construct($oWrapper, $oConfig);
         $this->_oDatabase = $oDatabase;
-        $this->_oConfig = $oConfig;
         $this->_oObjectHandler = $oObjectHandler;
         $this->_oAccessHandler = $oAccessHandler;
     }
@@ -303,7 +297,7 @@ class AdminObjectController extends Controller
      */
     public function addPostColumnsHeader($aDefaults)
     {
-        $aDefaults[self::COLUMN_NAME] = __('Access', 'user-access-manager');
+        $aDefaults[self::COLUMN_NAME] = TXT_UAM_COLUMN_ACCESS;
         return $aDefaults;
     }
 
@@ -423,7 +417,7 @@ class AdminObjectController extends Controller
         $sContent = $sMeta;
         $sContent .= '</td></tr><tr>';
         $sContent .= '<th class="label">';
-        $sContent .= '<label>'.TXT_UAM_SET_UP_USERGROUPS.'</label>';
+        $sContent .= '<label>'.TXT_UAM_SET_UP_USER_GROUPS.'</label>';
         $sContent .= '</th>';
         $sContent .= '<td class="field">';
         $sContent .= $this->_getIncludeContents('PostEditForm.php');
@@ -442,7 +436,7 @@ class AdminObjectController extends Controller
      */
     public function addUserColumnsHeader($aDefaults)
     {
-        $aDefaults[self::COLUMN_NAME] = __('uam user groups');
+        $aDefaults[self::COLUMN_NAME] = TXT_UAM_COLUMN_USER_GROUPS;
         return $aDefaults;
     }
 
@@ -514,7 +508,7 @@ class AdminObjectController extends Controller
      */
     public function addTermColumnsHeader($aDefaults)
     {
-        $aDefaults[self::COLUMN_NAME] = __('Access', 'user-access-manager');
+        $aDefaults[self::COLUMN_NAME] = TXT_UAM_COLUMN_ACCESS;
         return $aDefaults;
     }
 
@@ -635,11 +629,10 @@ class AdminObjectController extends Controller
      *
      * @param string $sObjectType     The object type.
      * @param string $sObjectId       The _iId of the object.
-     * @param string $sGroupsFormName The name of the form which contains the groups.
      *
      * @return string;
      */
-    public function showPlGroupSelectionForm($sObjectType, $sObjectId, $sGroupsFormName = null)
+    public function showPlGroupSelectionForm($sObjectType, $sObjectId)
     {
         $this->_setObjectInformation($sObjectType, $sObjectId);
         return $this->_getIncludeContents('GroupSelectionForm.php');

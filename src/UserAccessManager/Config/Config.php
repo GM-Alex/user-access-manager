@@ -36,6 +36,11 @@ class Config
     protected $_oConfigParameterFactory;
 
     /**
+     * @var string
+     */
+    protected $_sBaseFile;
+
+    /**
      * @var array
      */
     protected $_aConfigParameters = null;
@@ -60,11 +65,17 @@ class Config
      *
      * @param Wordpress              $oWrapper
      * @param ConfigParameterFactory $oConfigParameterFactory
+     * @param String                 $sBaseFile
      */
-    public function __construct(Wordpress $oWrapper, ConfigParameterFactory $oConfigParameterFactory)
+    public function __construct(
+        Wordpress $oWrapper,
+        ConfigParameterFactory $oConfigParameterFactory,
+        $sBaseFile
+    )
     {
         $this->_oWrapper = $oWrapper;
         $this->_oConfigParameterFactory = $oConfigParameterFactory;
+        $this->_sBaseFile = $sBaseFile;
     }
 
     /**
@@ -109,7 +120,7 @@ class Config
                 $sId = "{$sObject}_title";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter(
                     $sId,
-                    __('No rights!', 'user-access-manager')
+                    TXT_UAM_SETTING_DEFAULT_NO_RIGHTS
                 );
 
                 if ($sObject === 'post') {
@@ -120,7 +131,7 @@ class Config
                 $sId = "{$sObject}_content";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter(
                     $sId,
-                    sprintf(__('Sorry you have no rights to view this %s!', 'user-access-manager'), $sObject)
+                    TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_ENTRY
                 );
 
                 $sId = "hide_{$sObject}_comment";
@@ -129,7 +140,7 @@ class Config
                 $sId = "{$sObject}_comment_content";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter(
                     $sId,
-                    __('Sorry no rights to view comments!', 'user-access-manager')
+                    TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_COMMENTS
                 );
 
                 $sId = "{$sObject}_comments_locked";
@@ -671,5 +682,19 @@ class Config
         }
 
         return $this->_aMimeTypes;
+    }
+
+
+    public function getUrlPath()
+    {
+        return $this->_oWrapper->pluginsUrl('', $this->_sBaseFile).DIRECTORY_SEPARATOR;
+    }
+
+    public function getRealPath()
+    {
+        $sDirName = dirname($this->_sBaseFile);
+
+        return $this->_oWrapper->getPluginDir().DIRECTORY_SEPARATOR
+            .$this->_oWrapper->pluginBasename($sDirName).DIRECTORY_SEPARATOR;
     }
 }

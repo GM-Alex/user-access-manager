@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
+use UserAccessManager\Config\Config;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -41,11 +42,12 @@ class AdminSetupController extends Controller
      * AdminSetupController constructor.
      *
      * @param Wordpress    $oWrapper
+     * @param Config       $oConfig
      * @param SetupHandler $oSetupHandler
      */
-    public function __construct(Wordpress $oWrapper, SetupHandler $oSetupHandler)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, SetupHandler $oSetupHandler)
     {
-        parent::__construct($oWrapper);
+        parent::__construct($oWrapper, $oConfig);
         $this->_oSetupHandler = $oSetupHandler;
     }
 
@@ -97,7 +99,7 @@ class AdminSetupController extends Controller
         if ($sReset === 'reset') {
             $this->_oSetupHandler->uninstall();
             $this->_oSetupHandler->install();
-            $this->_setUpdateMessage(TXT_UAM_UAM_RESET_SUCCSESS);
+            $this->_setUpdateMessage(TXT_UAM_UAM_RESET_SUCCESS);
         }
     }
 }

@@ -8,6 +8,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Config\Config;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Wordpress;
@@ -46,12 +47,13 @@ class AdminUserGroupController extends Controller
      * AdminUserGroupController constructor.
      *
      * @param Wordpress        $oWrapper
+     * @param Config           $oConfig
      * @param AccessHandler    $oAccessHandler
      * @param UserGroupFactory $oUserGroupFactory
      */
-    public function __construct(Wordpress $oWrapper, AccessHandler $oAccessHandler, UserGroupFactory $oUserGroupFactory)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, AccessHandler $oAccessHandler, UserGroupFactory $oUserGroupFactory)
     {
-        parent::__construct($oWrapper);
+        parent::__construct($oWrapper, $oConfig);
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oUserGroupFactory = $oUserGroupFactory;
     }

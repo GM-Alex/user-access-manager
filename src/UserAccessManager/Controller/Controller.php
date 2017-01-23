@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
+use UserAccessManager\Config\Config;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -32,6 +33,11 @@ abstract class Controller
     protected $_oWrapper;
 
     /**
+     * @var Config
+     */
+    protected $_oConfig;
+
+    /**
      * @var string
      */
     protected $_sTemplate = null;
@@ -45,10 +51,12 @@ abstract class Controller
      * Controller constructor.
      *
      * @param Wordpress $oWrapper
+     * @param Config    $oConfig
      */
-    public function __construct(Wordpress $oWrapper)
+    public function __construct(Wordpress $oWrapper, Config $oConfig)
     {
         $this->_oWrapper = $oWrapper;
+        $this->_oConfig = $oConfig;
     }
 
     /**
@@ -77,12 +85,14 @@ abstract class Controller
     protected function _getIncludeContents($sFileName)
     {
         $sContents = '';
-        $aPath = array(UAM_REALPATH, 'src', 'UserAccessManager', 'View');
+        $sRealPath = $this->_oConfig->getRealPath();
+        $aPath = array($sRealPath, 'src', 'UserAccessManager', 'View');
         $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
         $sFileWithPath = $sPath.$sFileName;
 
         if (is_file($sFileWithPath)) {
             ob_start();
+            /** @noinspection PhpIncludeInspection */
             include $sFileWithPath;
             $sContents = ob_get_contents();
             ob_end_clean();

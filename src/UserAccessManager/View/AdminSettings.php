@@ -26,7 +26,7 @@ if ($this->hasUpdateMessage()) {
 
 ?>
 <div class="wrap">
-    <form method="post" action="<?php echo htmlspecialchars($_SERVER["REQUEST_URI"]); ?>">
+    <form method="post" action="<?php echo $this->getRequestUrl(); ?>">
         <?php $this->createNonceField('uamUpdateSettings'); ?>
         <input type="hidden" name="uam_action" value="update_settings"/>
         <h2><?php echo TXT_UAM_SETTINGS; ?></h2>

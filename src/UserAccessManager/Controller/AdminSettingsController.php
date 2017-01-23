@@ -21,11 +21,6 @@ use UserAccessManager\Wrapper\Wordpress;
 class AdminSettingsController extends Controller
 {
     /**
-     * @var Config
-     */
-    protected $_oConfig;
-
-    /**
      * @var FileHandler
      */
     protected $_oFileHandler;
@@ -44,8 +39,7 @@ class AdminSettingsController extends Controller
      */
     public function __construct(Wordpress $oWrapper, Config $oConfig, FileHandler $oFileHandler)
     {
-        parent::__construct($oWrapper);
-        $this->_oConfig = $oConfig;
+        parent::__construct($oWrapper, $oConfig);
         $this->_oFileHandler = $oFileHandler;
     }
 

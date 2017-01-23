@@ -651,4 +651,101 @@ class Wordpress
     {
         return get_sites($aArguments);
     }
+
+    /**
+     * @see apply_filters()
+     *
+     * @param string $sTag
+     * @param mixed  $mValue
+     *
+     * @return mixed
+     */
+    public function applyFilters($sTag, $mValue)
+    {
+        return apply_filters($sTag, $mValue);
+    }
+
+    /**
+     * @see get_bloginfo()
+     *
+     * @param string $sShow
+     * @param string $sFilter
+     *
+     * @return string
+     */
+    public function getBlogInfo($sShow = '', $sFilter = 'raw')
+    {
+        return get_bloginfo($sShow, $sFilter);
+    }
+
+    /**
+     * @see esc_html()
+     *
+     * @param string $sText
+     *
+     * @return string
+     */
+    public function escHtml($sText)
+    {
+        return esc_html($sText);
+    }
+
+    /**
+     * @see is_single()
+     *
+     * @param int|string|array $mPost
+     *
+     * @return bool
+     */
+    public function isSingle($mPost = '')
+    {
+        return is_single($mPost);
+    }
+
+    /**
+     * @see is_page()
+     *
+     * @param int|string|array $mPage
+     *
+     * @return bool
+     */
+    public function isPage($mPage = '')
+    {
+        return is_page($mPage);
+    }
+
+    /**
+     * @see WP_PLUGIN_DIR
+     *
+     * @return string
+     */
+    public function getPluginDir()
+    {
+        return WP_PLUGIN_DIR;
+    }
+
+    /**
+     * @see plugins_url()
+     *
+     * @param string $sPath
+     * @param string $sPlugin
+     *
+     * @return string
+     */
+    public function pluginsUrl($sPath = '', $sPlugin = '' )
+    {
+        return plugins_url($sPath, $sPlugin);
+    }
+
+    /**
+     * @see plugin_basename()
+     *
+     * @param $sFile
+     *
+     * @return string
+     */
+    public function pluginBasename($sFile)
+    {
+        return plugin_basename($sFile);
+    }
 }

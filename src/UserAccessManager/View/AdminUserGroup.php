@@ -58,7 +58,9 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                     ?>
                     <tr class="alternate" id="group-<?php echo $oUserGroup->getId(); ?>">
                         <th class="check-column" scope="row">
-                            <input type="checkbox" value="<?php echo $oUserGroup->getId(); ?>" name="delete[]"/>
+                            <label>
+                                <input type="checkbox" value="<?php echo $oUserGroup->getId(); ?>" name="delete[]"/>
+                            </label>
                         </th>
                         <td>
                             <strong>

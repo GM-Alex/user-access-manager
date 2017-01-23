@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Config\Config;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Wordpress;
@@ -48,12 +49,19 @@ class AdminController extends Controller
      * AdminController constructor.
      *
      * @param Wordpress     $oWrapper
+     * @param Config        $oConfig
      * @param AccessHandler $oAccessHandler
      * @param FileHandler   $oFileHandler
      */
-    public function __construct(Wordpress $oWrapper, AccessHandler $oAccessHandler, FileHandler $oFileHandler)
+    public function __construct(
+        Wordpress $oWrapper,
+        Config $oConfig,
+        AccessHandler $oAccessHandler,
+        FileHandler $oFileHandler
+    )
     {
-        parent::__construct($oWrapper);
+        parent::__construct($oWrapper, $oConfig);
+        $this->_oConfig = $oConfig;
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oFileHandler = $oFileHandler;
     }
@@ -73,7 +81,7 @@ class AdminController extends Controller
      */
     public function showFOpenNotice()
     {
-        $this->_sNotice = TXT_UAM_FOPEN_WITHOUT_SAVEMODE_OFF;
+        $this->_sNotice = TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF;
         echo $this->_getIncludeContents('AdminNotice.php');
     }
 
@@ -91,9 +99,11 @@ class AdminController extends Controller
      */
     protected function registerStylesAndScripts()
     {
+        $sUrlPath = $this->_oConfig->getUrlPath();
+
         $this->_oWrapper->registerStyle(
             self::HANDLE_STYLE_ADMIN,
-            UAM_URLPATH.'assets/css/uamAdmin.css',
+            $sUrlPath.'assets/css/uamAdmin.css',
             array(),
             UserAccessManager::VERSION,
             'screen'
@@ -101,7 +111,7 @@ class AdminController extends Controller
 
         $this->_oWrapper->registerScript(
             self::HANDLE_SCRIPT_ADMIN,
-            UAM_URLPATH.'assets/js/functions.js',
+            $sUrlPath.'assets/js/functions.js',
             array('jquery'),
             UserAccessManager::VERSION
         );

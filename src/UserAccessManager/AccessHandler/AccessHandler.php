@@ -219,16 +219,21 @@ class AccessHandler
      * Deletes a user group.
      *
      * @param integer $iUserGroupId The user group _iId which we want to delete.
+     *
+     * @return bool
      */
     public function deleteUserGroup($iUserGroupId)
     {
+        $blSuccess = false;
         $aUserGroups = $this->getUserGroups();
 
         if (isset($aUserGroups[$iUserGroupId])) {
-            $aUserGroups[$iUserGroupId]->delete();
+            $blSuccess = $aUserGroups[$iUserGroupId]->delete();
             unset($this->_aUserGroups[self::OBJECTS_NONE_FILTERED][$iUserGroupId]);
             unset($this->_aUserGroups[self::OBJECTS_FILTERED]);
         }
+
+        return $blSuccess;
     }
 
     /**

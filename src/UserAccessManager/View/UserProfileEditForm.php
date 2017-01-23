@@ -25,7 +25,7 @@ $aObjectUserGroups = $this->getObjectUserGroups();
     <tbody>
     <tr>
         <th>
-            <label for="usergroups"><?php echo TXT_UAM_SET_UP_USERGROUPS; ?></label>
+            <label for="user_groups"><?php echo TXT_UAM_SET_UP_USER_GROUPS; ?></label>
         </th>
         <td>
             <?php

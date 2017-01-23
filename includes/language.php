@@ -1,15 +1,13 @@
 <?php
 /**
- * language.define.php
- * 
- * Defines needed for the language
- * 
+ * language.php
+ *
+ * The language definitions.
+ *
  * PHP versions 5
- * 
- * @category  UserAccessManager
- * @package   UserAccessManager
- * @author    Alexander Schneider <alexanderschneider85@googlemail.com>
- * @copyright 2008-2016 Alexander Schneider
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
@@ -18,8 +16,9 @@
 // --- Error Messages ---
 define('TXT_UAM_PHP_VERSION_TO_LOW', __('Sorry you need at least PHP version 5.3 to use the User Access Manager. Your current PHP version is %s.', 'user-access-manager'));
 define('TXT_UAM_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s.', 'user-access-manager'));
+/** @noinspection HtmlUnknownTarget */
 define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the User Access Manager. <a href="%s">Click here to proceed</a>', 'user-access-manager'));
-define('TXT_UAM_FOPEN_WITHOUT_SAVEMODE_OFF', __('You setup fopen as download type for file at the User Access Manager settings, but for this option safe_mode=off is required. Please change the settings.', 'user-access-manager'));
+define('TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF', __('You setup fopen as download type for file at the User Access Manager settings, but for this option safe_mode=off is required. Please change the settings.', 'user-access-manager'));
 
 // --- Multiple use ---
 define('TXT_UAM_ALL', __('all', 'user-access-manager'));
@@ -111,7 +110,7 @@ define('TXT_UAM_HIDE_EMPTY_CATEGORIES', __('Hide empty categories', 'user-access
 define('TXT_UAM_HIDE_EMPTY_CATEGORIES_DESC', __('Selecting "Yes" will hide empty categories which are containing only empty childes or no childes.', 'user-access-manager'));
 define('TXT_UAM_REDIRECT', __('Redirect user', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_DESC', __('Setup what happen if a user visit a post/page with no access.', 'user-access-manager'));
-define('TXT_UAM_REDIRECT_TO_BLOG', __('To blog startpage', 'user-access-manager'));
+define('TXT_UAM_REDIRECT_TO_BLOG', __('To blog start page', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_PAGE', __('Custom page: ', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_URL', __('Custom URL: ', 'user-access-manager'));
 define('TXT_UAM_LOCK_RECURSIVE', __('Lock recursive', 'user-access-manager'));
@@ -120,6 +119,11 @@ define('TXT_UAM_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manage
 define('TXT_UAM_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behind the post/page.', 'user-access-manager'));
 define('TXT_UAM_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
 define('TXT_UAM_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behind the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_UAM_BLOG_ADMIN_HINT_TEXT));
+
+// --- Setting Page -> default values ---
+define('TXT_UAM_SETTING_DEFAULT_NO_RIGHTS', __('No rights!', 'user-access-manager'));
+define('TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_ENTRY', __('Sorry you have no rights to view this entry!', 'user-access-manager'));
+define('TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_COMMENTS', __('Sorry no rights to view comments!', 'user-access-manager'));
 
 // --- Setting Page -> update message ---
 define('TXT_UAM_UPDATE_SETTING', __('Update settings', 'user-access-manager'));
@@ -166,7 +170,7 @@ define('TXT_UAM_RESET', __('reset now', 'user-access-manager'));
 define('TXT_UAM_UPDATE_UAM_DB', __('Update User Access Manager database', 'user-access-manager'));
 define('TXT_UAM_UPDATE_UAM_DB_DESC', __('Updates the database of the User Access Manager. Please backup your database before you perform the update.', 'user-access-manager'));
 define('TXT_UAM_UPDATE', __('update now', 'user-access-manager'));
-define('TXT_UAM_UAM_RESET_SUCCSESS', __('User Access Manager was reset successfully', 'user-access-manager'));
+define('TXT_UAM_UAM_RESET_SUCCESS', __('User Access Manager was reset successfully', 'user-access-manager'));
 define('TXT_UAM_UAM_DB_UPDATE_SUC', __('User Access Manager database was updated successfully', 'user-access-manager'));
 define('TXT_UAM_UPDATE_BLOG', __('Update current blog', 'user-access-manager'));
 define('TXT_UAM_UPDATE_NETWORK', __('Update network wide', 'user-access-manager'));
@@ -179,14 +183,19 @@ define('TXT_UAM_ABOUT', __('About', 'user-access-manager'));
 define('TXT_UAM_HOW_TO_SUPPORT', __('How to support me?', 'user-access-manager'));
 define('TXT_UAM_SEND_REPORTS', __('<strong>Send me bug reports, bug fixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin.', 'user-access-manager'));
 define('TXT_UAM_MAKE_TRANSLATION', __('<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages.', 'user-access-manager'));
-define('TXT_UAM_DONATE', __('<strong>Donate via paypal</strong>', 'user-access-manager'));
-define('TXT_UAM_PLACE_LINK', __('<strong>Place a link to the plugin in your blog/webpage.</strong>', 'user-access-manager'));
+define('TXT_UAM_DONATE', __('<strong>Donate via PayPal</strong>', 'user-access-manager'));
+define('TXT_UAM_PLACE_LINK', __('<strong>Place a link to the plugin in your blog/website.</strong>', 'user-access-manager'));
 
 // --- About page -> thanks ---
 define('TXT_UAM_THANKS', __('Thanks', 'user-access-manager'));
 define('TXT_UAM_SPECIAL_THANKS', __('Special thanks go out to my wife for giving me the time to develop this plugin.', 'user-access-manager'));
 define('TXT_UAM_THANKS_TO', __('I would like to thank all the guys which has helped me with this plugin:', 'user-access-manager'));
 define('TXT_UAM_THANKS_OTHERS', __('all beta testers and all others I forgot', 'user-access-manager'));
+
+
+// --- Columns ---
+define('TXT_UAM_COLUMN_ACCESS', __('Access', 'user-access-manager'));
+define('TXT_UAM_COLUMN_USER_GROUPS', __('UAM User Groups', 'user-access-manager'));
 
 
 // --- Edit forms ---
@@ -197,7 +206,7 @@ define('TXT_UAM_CREATE_GROUP_FIRST', __('Please create a user group first.', 'us
 define('TXT_UAM_NO_GROUP_AVAILABLE', __('No user group available.', 'user-access-manager'));
 define('TXT_UAM_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
 define('TXT_UAM_GROUPS', __('User Groups', 'user-access-manager'));
-define('TXT_UAM_SET_UP_USERGROUPS', __('Set up user groups', 'user-access-manager'));
+define('TXT_UAM_SET_UP_USER_GROUPS', __('Set up user groups', 'user-access-manager'));
 define('TXT_UAM_NONCE_FAILURE', __('Sorry, your nonce did not verify.'));
 
 // --- Group info ---
@@ -211,5 +220,15 @@ define('TXT_UAM_ASSIGNED_GROUPS', __('Assigned groups', 'user-access-manager'));
 
 
 // --- File access ---
-define('TXT_UAM_FILEINFO_DB_ERROR', __('Opening file info database failed.', 'user-access-manager'));
+define('TXT_UAM_FILE_INFO_DB_ERROR', __('Opening file info database failed.', 'user-access-manager'));
 define('TXT_UAM_FILE_NOT_FOUND_ERROR', __('Error: File not found.', 'user-access-manager'));
+
+
+// --- Login form ---
+define('TXT_UAM_LOGIN_FORM_USERNAME', __('Username', 'user-access-manager'));
+define('TXT_UAM_LOGIN_FORM_PASSWORD', __('Password', 'user-access-manager'));
+define('TXT_UAM_LOGIN_FORM_LOGIN', __('Login', 'user-access-manager'));
+define('TXT_UAM_LOGIN_FORM_REGISTER', __('Register', 'user-access-manager'));
+define('TXT_UAM_LOGIN_FORM_LOST_PASSWORD', __('Lost your password?', 'user-access-manager'));
+define('TXT_UAM_LOGIN_FORM_LOST_AND_FOUND_PASSWORD', __('Password Lost and Found', 'user-access-manager'));
+define('TXT_UAM_LOGIN_FORM_REMEMBER_ME', __('Remember me', 'user-access-manager'));

@@ -25,19 +25,9 @@ class FrontendController extends Controller
     const POST_URL_CACHE_KEY = 'PostUrls';
 
     /**
-     * @var Wordpress
-     */
-    protected $_oWrapper;
-
-    /**
      * @var Database
      */
     protected $_oDatabase;
-
-    /**
-     * @var Config
-     */
-    protected $_oConfig;
 
     /**
      * @var Cache
@@ -66,8 +56,8 @@ class FrontendController extends Controller
 
     public function __construct(
         Wordpress $oWrapper,
-        Database $oDatabase,
         Config $oConfig,
+        Database $oDatabase,
         Util $oUtil,
         Cache $oCache,
         ObjectHandler $oObjectHandler,
@@ -75,9 +65,8 @@ class FrontendController extends Controller
         FileHandler $oFileHandler
     )
     {
-        parent::__construct($oWrapper);
+        parent::__construct($oWrapper, $oConfig);
         $this->_oDatabase = $oDatabase;
-        $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;
         $this->_oCache = $oCache;
         $this->_oObjectHandler = $oObjectHandler;
@@ -94,9 +83,11 @@ class FrontendController extends Controller
      */
     protected function registerStylesAndScripts()
     {
+        $sUrlPath = $this->_oConfig->getUrlPath();
+
         $this->_oWrapper->registerStyle(
             self::HANDLE_STYLE_LOGIN_FORM,
-            UAM_URLPATH.'assets/css/uamLoginForm.css',
+            $sUrlPath.'assets/css/uamLoginForm.css',
             array(),
             UserAccessManager::VERSION,
             'screen'
@@ -166,7 +157,7 @@ class FrontendController extends Controller
                 $oPost->isLocked = true;
 
                 $sUamPostContent = $this->_oConfig->getObjectTypeContent($sPostType);
-                $sUamPostContent = str_replace('[LOGIN_FORM]', $this->getLoginBarHtml(), $sUamPostContent);
+                $sUamPostContent = str_replace('[LOGIN_FORM]', $this->getLoginFormHtml(), $sUamPostContent);
 
                 if ($this->_oConfig->hideObjectTypeTitle($sPostType) === true) {
                     $oPost->post_title = $this->_oConfig->getObjectTypeTitle($sPostType);
@@ -520,10 +511,12 @@ class FrontendController extends Controller
     public function showAncestors($aAncestors, $sObjectId, $sObjectType, $sResourceType)
     {
         if ($sResourceType === 'taxonomy') {
-            foreach ($aAncestors as $sKey => $aAncestorId) {
-                if (!$this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $aAncestorId)) {
-                    unset($aAncestors[$sKey]);
-                }
+            $sObjectType = ObjectHandler::TERM_OBJECT_TYPE;
+        }
+
+        foreach ($aAncestors as $sKey => $aAncestorId) {
+            if (!$this->_oAccessHandler->checkObjectAccess($sObjectType, $aAncestorId)) {
+                unset($aAncestors[$sKey]);
             }
         }
 
@@ -546,13 +539,10 @@ class FrontendController extends Controller
      * The function for the get_terms filter.
      *
      * @param array          $aTerms      The terms.
-     * @param array          $aTaxonomies The taxonomies.
-     * @param array          $aArgs       The given arguments.
-     * @param \WP_Term_Query $oTermQuery  The term query.
      *
      * @return array
      */
-    public function showTerms($aTerms = array(), $aTaxonomies = array(), $aArgs = array(), $oTermQuery = null)
+    public function showTerms($aTerms = array())
     {
         $aShowTerms = array();
 
@@ -667,17 +657,62 @@ class FrontendController extends Controller
     }
 
     /**
+     * Checks if we allowed show the login form.
+     *
+     * @return bool
+     */
+    public function showLoginForm()
+    {
+        return $this->_oWrapper->isSingle() || $this->_oWrapper->isPage();
+    }
+
+    /**
+     * Returns the login url.
+     *
+     * @return mixed
+     */
+    public function getLoginUrl()
+    {
+        $sLoginUrl = $this->_oWrapper->getBlogInfo('wpurl').'/wp-login.php';
+        return $this->_oWrapper->applyFilters('uam_login_form_url', $sLoginUrl);
+    }
+
+    /**
+     * Returns the login redirect url.
+     *
+     * @return mixed
+     */
+    public function getRedirectLoginUrl()
+    {
+        $sLoginUrl = $this->getLoginUrl().'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']);
+        return $this->_oWrapper->applyFilters('uam_login_url', $sLoginUrl);
+    }
+
+    /**
+     * Returns the user login name.
+     *
+     * @return string
+     */
+    public function getUserLogin()
+    {
+        $sUserLogin = $this->getRequestParameter('log');
+        return $this->_oWrapper->escHtml(stripslashes($sUserLogin));
+    }
+
+    /**
      * Returns the login bar.
      *
      * @return string
      */
-    public function getLoginBarHtml()
+    public function getLoginFormHtml()
     {
+        $sLoginForm = '';
+
         if ($this->_oWrapper->isUserLoggedIn() === false) {
-            return $this->_getIncludeContents('loginBar.php'); // TODO
+            $sLoginForm = $this->_getIncludeContents('LoginForm.php');
         }
 
-        return '';
+        return $this->_oWrapper->applyFilters('uam_login_form', $sLoginForm);
     }
 
 
@@ -819,7 +854,8 @@ class FrontendController extends Controller
         if ($this->_oAccessHandler->checkObjectAccess($oObject->type, $oObject->id)) {
             $sFile = $oObject->file;
         } elseif ($oObject->isImage) {
-            $sFile = UAM_REALPATH.'gfx/noAccessPic.png';
+            $sRealPath = $this->_oConfig->getRealPath();
+            $sFile = $sRealPath.'gfx/noAccessPic.png';
         } else {
             $this->_oWrapper->wpDie(TXT_UAM_NO_RIGHTS);
         }

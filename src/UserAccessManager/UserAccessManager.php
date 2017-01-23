@@ -157,7 +157,7 @@ class UserAccessManager
                 array($oAdminAboutController, 'render')
             );
 
-            $this->_oWrapper->doAction('uam_add_submenu');
+            $this->_oWrapper->doAction('uam_add_sub_menu');
 
             /**
              * --- EOF ---
@@ -251,14 +251,14 @@ class UserAccessManager
             $aPostableTypes = $this->_oObjectHandler->getPostableTypes();
 
             foreach ($aPostableTypes as $sPostableType) {
-                // there is no need for a metabox for attachments if files are locked
+                // there is no need for a meta box for attachments if files are locked
                 if ($sPostableType === 'attachment' && $this->_oConfig->lockFile() !== true) {
                     continue;
                 }
 
                 $this->_oWrapper->addMetaBox(
                     'uma_post_access',
-                    __('Access', 'user-access-manager'),
+                    TXT_UAM_COLUMN_ACCESS,
                     array($oAdminObjectController, 'editPostContent'),
                     $sPostableType,
                     'side'
@@ -279,7 +279,7 @@ class UserAccessManager
         //Actions
         $this->_oWrapper->addAction('admin_menu', array($this, 'registerAdminMenu'));
         $this->_oWrapper->addAction('admin_init', array($this, 'registerAdminActionsAndFilters'));
-        //$this->_oWrapper->addAction('registered_post_type', array(&$this, 'registeredPostType'), 10, 2); //TODO object handler
+        $this->_oWrapper->addAction('registered_post_type', array($this->_oObjectHandler, 'registeredPostType'), 10, 2);
         $this->_oWrapper->addAction('wp_enqueue_scripts', array($oFrontendController, 'enqueueStylesAndScripts'));
 
         //Filters
@@ -296,7 +296,7 @@ class UserAccessManager
         $this->_oWrapper->addFilter('comments_array', array($oFrontendController, 'showComment'));
         $this->_oWrapper->addFilter('the_comments', array($oFrontendController, 'showComment'));
         $this->_oWrapper->addFilter('get_pages', array($oFrontendController, 'showPages'), 20);
-        $this->_oWrapper->addFilter('get_terms', array($oFrontendController, 'showTerms'), 20, 2);
+        $this->_oWrapper->addFilter('get_terms', array($oFrontendController, 'showTerms'), 20);
         $this->_oWrapper->addFilter('get_term', array($oFrontendController, 'showTerm'), 20, 2);
         $this->_oWrapper->addFilter('get_ancestors', array($oFrontendController, 'showAncestors'), 20, 4);
         $this->_oWrapper->addFilter('get_next_post_where', array($oFrontendController, 'showNextPreviousPost'));

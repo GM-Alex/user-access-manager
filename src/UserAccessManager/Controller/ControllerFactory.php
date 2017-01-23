@@ -128,7 +128,7 @@ class ControllerFactory
      */
     public function createAdminController()
     {
-        return new AdminController($this->_oWrapper, $this->_oAccessHandler, $this->_oFileHandler);
+        return new AdminController($this->_oWrapper, $this->_oConfig, $this->_oAccessHandler, $this->_oFileHandler);
     }
 
     /**
@@ -138,7 +138,7 @@ class ControllerFactory
      */
     public function createAdminAboutController()
     {
-        return new AdminAboutController($this->_oWrapper);
+        return new AdminAboutController($this->_oWrapper, $this->_oConfig);
     }
 
     /**
@@ -150,8 +150,8 @@ class ControllerFactory
     {
         return new AdminObjectController(
             $this->_oWrapper,
-            $this->_oDatabase,
             $this->_oConfig,
+            $this->_oDatabase,
             $this->_oObjectHandler,
             $this->_oAccessHandler
         );
@@ -174,7 +174,7 @@ class ControllerFactory
      */
     public function createAdminSetupController()
     {
-        return new AdminSetupController($this->_oWrapper, $this->_oSetupHandler);
+        return new AdminSetupController($this->_oWrapper, $this->_oConfig, $this->_oSetupHandler);
     }
 
     /**
@@ -184,7 +184,7 @@ class ControllerFactory
      */
     public function createAdminUserGroupController()
     {
-        return new AdminUserGroupController($this->_oWrapper, $this->_oAccessHandler, $this->_oUserGroupFactory);
+        return new AdminUserGroupController($this->_oWrapper, $this->_oConfig, $this->_oAccessHandler, $this->_oUserGroupFactory);
     }
 
     /**
@@ -196,8 +196,8 @@ class ControllerFactory
     {
         return new FrontendController(
             $this->_oWrapper,
-            $this->_oDatabase,
             $this->_oConfig,
+            $this->_oDatabase,
             $this->_oUtil,
             $this->_oCache,
             $this->_oObjectHandler,

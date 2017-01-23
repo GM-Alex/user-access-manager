@@ -19,6 +19,7 @@ function autoload($sClassName)
     $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName).'.php';
 
     if (file_exists($sFileName)) {
+        /** @noinspection PhpIncludeInspection */
         require_once $sFileName;
     }
 }

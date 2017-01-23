@@ -312,18 +312,17 @@ class ObjectHandler
     }
 
     /**
-     * used for adding custom post types using the registered_post_type hook
+     * Used for adding custom post types using the registered_post_type hook
      * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
      *
      * @param string    $sPostType  The string for the new post_type
      * @param \stdClass $oArguments The array of arguments used to create the post_type
-     *
      */
     public function registeredPostType($sPostType, $oArguments)
     {
-        if ($oArguments->publicly_queryable) {
+        if ((bool)$oArguments->publicly_queryable === true) {
             $this->_aPostableTypes = $this->getPostableTypes();
-            $this->_aPostableTypes[$oArguments->name] = $oArguments->name;
+            $this->_aPostableTypes[$sPostType] = $sPostType;
             $this->_aObjectTypes = null;
             $this->_aAllObjectTypes = null;
             $this->_aAllObjectTypesMap = null;
