@@ -31,9 +31,8 @@ interface FileProtectionInterface
      * @param Wordpress   $oWrapper
      * @param Config      $oConfig
      * @param Util        $oUtil
-     * @param FileHandler $oFileHandler
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil, FileHandler $oFileHandler);
+    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil);
 
     /**
      * Creates the file protection.

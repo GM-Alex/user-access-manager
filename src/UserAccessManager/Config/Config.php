@@ -106,6 +106,8 @@ class Config
              * @var ConfigParameter[] $aConfigParameters
              */
             $aConfigParameters = array();
+
+            //TODO fetch all post types
             $aObjects = array(
                 'post', 'page'
             );
@@ -230,10 +232,8 @@ class Config
 
             $aCurrentOptions = (array)$this->getWpOption(self::ADMIN_OPTIONS_NAME);
 
-            if (is_array($aCurrentOptions)) {
-                foreach ($aCurrentOptions as $sKey => $mOption) {
-                    $aConfigParameters[$sKey]->setValue($mOption);
-                }
+            foreach ($aCurrentOptions as $sKey => $mOption) {
+                $aConfigParameters[$sKey]->setValue($mOption);
             }
 
             $this->_aConfigParameters = $aConfigParameters;
@@ -286,6 +286,91 @@ class Config
         }
 
         return $aOptions[$sParameterName]->getValue();
+    }
+
+    /**
+     * Returns true if a user is at the admin panel.
+     *
+     * @return boolean
+     */
+    public function atAdminPanel()
+    {
+        return $this->_oWrapper->isAdmin();
+    }
+
+    /**
+     * Returns true if permalinks are active otherwise false.
+     *
+     * @return boolean
+     */
+    public function isPermalinksActive()
+    {
+        $sPermalinkStructure = $this->getWpOption('permalink_structure');
+        return !empty($sPermalinkStructure);
+    }
+
+    /**
+     * Returns the upload directory.
+     *
+     * @return null|string
+     */
+    public function getUploadDirectory()
+    {
+        $aWordpressUploadDir = $this->_oWrapper->getUploadDir();
+
+        if (empty($aWordpressUploadDir['error'])) {
+            return $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the full supported mine types.
+     *
+     * @return array
+     */
+    public function getMimeTypes()
+    {
+        if ($this->_aMimeTypes === null) {
+            $aMimeTypes = $this->_oWrapper->getAllowedMimeTypes();
+            $aFullMimeTypes = array();
+
+            foreach ($aMimeTypes as $sExtensions => $sMineType) {
+                $aExtension = explode('|', $sExtensions);
+
+                foreach ($aExtension as $sExtension) {
+                    $aFullMimeTypes[$sExtension] = $sMineType;
+                }
+            }
+
+            $this->_aMimeTypes = $aFullMimeTypes;
+        }
+
+        return $this->_aMimeTypes;
+    }
+
+    /**
+     * Returns the module url path.
+     *
+     * @return string
+     */
+    public function getUrlPath()
+    {
+        return $this->_oWrapper->pluginsUrl('', $this->_sBaseFile).DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * Returns the module real path.
+     *
+     * @return string
+     */
+    public function getRealPath()
+    {
+        $sDirName = dirname($this->_sBaseFile);
+
+        return $this->_oWrapper->getPluginDir().DIRECTORY_SEPARATOR
+            .$this->_oWrapper->pluginBasename($sDirName).DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -620,81 +705,5 @@ class Config
     public function getFullAccessRole()
     {
         return $this->_getParameterValue('full_access_role');
-    }
-
-    /**
-     * Returns true if a user is at the admin panel.
-     *
-     * @return boolean
-     */
-    public function atAdminPanel()
-    {
-        return $this->_oWrapper->isAdmin();
-    }
-
-    /**
-     * Returns true if permalinks are active otherwise false.
-     *
-     * @return boolean
-     */
-    public function isPermalinksActive()
-    {
-        $sPermalinkStructure = $this->getWpOption('permalink_structure');
-        return !empty($sPermalinkStructure);
-    }
-
-    /**
-     * Returns the upload directory.
-     *
-     * @return null|string
-     */
-    public function getUploadDirectory()
-    {
-        $aWordpressUploadDir = $this->_oWrapper->getUploadDir();
-
-        if (empty($aWordpressUploadDir['error'])) {
-            return $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns the full supported mine types.
-     *
-     * @return array
-     */
-    public function getMimeTypes()
-    {
-        if ($this->_aMimeTypes === null) {
-            $aMimeTypes = $this->_oWrapper->getAllowedMimeTypes();
-            $aFullMimeTypes = array();
-
-            foreach ($aMimeTypes as $sExtensions => $sMineType) {
-                $aExtension = explode('|', $sExtensions);
-
-                foreach ($aExtension as $sExtension) {
-                    $aFullMimeTypes[$sExtension] = $sMineType;
-                }
-            }
-
-            $this->_aMimeTypes = $aFullMimeTypes;
-        }
-
-        return $this->_aMimeTypes;
-    }
-
-
-    public function getUrlPath()
-    {
-        return $this->_oWrapper->pluginsUrl('', $this->_sBaseFile).DIRECTORY_SEPARATOR;
-    }
-
-    public function getRealPath()
-    {
-        $sDirName = dirname($this->_sBaseFile);
-
-        return $this->_oWrapper->getPluginDir().DIRECTORY_SEPARATOR
-            .$this->_oWrapper->pluginBasename($sDirName).DIRECTORY_SEPARATOR;
     }
 }

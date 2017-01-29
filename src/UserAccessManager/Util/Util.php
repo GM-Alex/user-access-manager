@@ -74,7 +74,7 @@ class Util
             $aChars[] = chr($iCount);
         }
 
-        mt_srand((double)microtime() * 1000000);
+        mt_srand((float)microtime() * 1000000);
         $sPassword = '';
 
         for ($iCount = 1; $iCount <= $iLength; $iCount++) {

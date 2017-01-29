@@ -934,7 +934,7 @@ class UserGroup
                             'hide_empty' => false
                         );
 
-                        $aTermChildren = get_terms($aArgs); //TODO
+                        $aTermChildren = get_terms($aArgs);
                         add_filter('get_terms', array($oUserAccessManager, 'showTerms'), $iPriority, 2);
 
                         foreach ($aTermChildren as $oTermChild) {

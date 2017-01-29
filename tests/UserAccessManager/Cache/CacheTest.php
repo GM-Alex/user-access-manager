@@ -29,7 +29,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $oCache = new Cache();
-        self::assertInstanceOf(get_class(new Cache()), $oCache);
+        self::assertInstanceOf('\UserAccessManager\Cache\Cache', $oCache);
         return $oCache;
     }
 
@@ -103,7 +103,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @covers  \UserAccessManager\Cache\Cache::flushCache()
-     * @depends testGetFromCache
+     * @depends testAddToCache
      *
      * @param Cache $oCache
      */
