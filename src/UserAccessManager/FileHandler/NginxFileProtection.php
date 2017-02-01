@@ -30,54 +30,52 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
      *
      * @param string $sDir
      * @param string $sObjectType
+     * @param string $sAbsPath
      *
      * @return bool
      */
-    public function create($sDir, $sObjectType = null)
+    public function create($sDir, $sObjectType = null, $sAbsPath = ABSPATH)
     {
+        $sDir = rtrim($sDir, '/').'/';
+        $sAbsPath = rtrim($sAbsPath, '/').'/';
         $sAreaName = 'WP-Files';
 
         if ($this->_oConfig->isPermalinksActive() === false) {
             $sFileTypes = null;
 
-            if ($this->_oConfig->getLockedFileTypes() == 'selected') {
+            if ($this->_oConfig->getLockFileTypes() === 'selected') {
                 $sFileTypes = $this->_cleanUpFileTypes($this->_oConfig->getLockedFileTypes());
                 $sFileTypes = "\.({$sFileTypes})";
             }
 
-            $sFile = "location ".str_replace(ABSPATH, '/', $sDir)." {\n";
+            $sContent = "location ".str_replace($sAbsPath, '/', $sDir)." {\n";
 
             if ($sFileTypes !== null) {
-                $sFile .= "location ~ {$sFileTypes} {\n";
+                $sContent .= "location ~ {$sFileTypes} {\n";
             }
 
-            $sFile .= "auth_basic \"{$sAreaName}\";\n";
-            $sFile .= "auth_basic_user_file {$sDir}.htpasswd;\n";
-            $sFile .= "}\n";
+            $sContent .= "auth_basic \"{$sAreaName}\";\n";
+            $sContent .= "auth_basic_user_file {$sDir}.htpasswd;\n";
+            $sContent .= "}\n";
 
             if ($sFileTypes !== null) {
-                $sFile .= "}\n";
+                $sContent .= "}\n";
             }
 
-            $this->createPasswordFile(true);
+            $this->createPasswordFile(true, $sDir);
         } else {
             if ($sObjectType === null) {
                 $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
-            $sFile = "location ".str_replace(ABSPATH, '/', $sDir)." {\n";
-            $sFile .= "rewrite ^(.*)$ /index.php?uamfiletype={$sObjectType}&uamgetfile=$1 last;\n";
-            $sFile .= "}\n";
+            $sContent = "location ".str_replace($sAbsPath, '/', $sDir)." {\n";
+            $sContent .= "rewrite ^(.*)$ /index.php?uamfiletype={$sObjectType}&uamgetfile=$1 last;\n";
+            $sContent .= "}\n";
         }
 
         // save files
-        $sFileWithPath = ABSPATH.self::FILE_NAME;
-
-        $oFileHandler = fopen($sFileWithPath, 'w');
-        fwrite($oFileHandler, $sFile);
-        fclose($oFileHandler);
-
-        return true;
+        $sFileWithPath = $sAbsPath.self::FILE_NAME;
+        return (file_put_contents($sFileWithPath, $sContent) !== false);
     }
 
     /**
@@ -89,18 +87,20 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
      */
     public function delete($sDir)
     {
+        $blSuccess = true;
+        $sDir = rtrim($sDir, '/').'/';
         $sFileName = $sDir.self::FILE_NAME;
 
         if (file_exists($sFileName)) {
-            unlink($sFileName);
+            $blSuccess = unlink($sFileName) && $blSuccess;
         }
 
         $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
 
         if (file_exists($sPasswordFile)) {
-            unlink($sPasswordFile);
+            $blSuccess = unlink($sPasswordFile) && $blSuccess;
         }
 
-        return true;
+        return $blSuccess;
     }
 }

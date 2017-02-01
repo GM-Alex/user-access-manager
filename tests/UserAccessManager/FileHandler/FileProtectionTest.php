@@ -30,7 +30,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
     private $oRoot;
 
     /**
-     * set up test environment
+     * Setup virtual file system.
      */
     public function setUp()
     {
@@ -38,6 +38,9 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         $this->oRoot->mount();
     }
 
+    /**
+     * Tear down virtual file system.
+     */
     public function tearDown()
     {
         $this->oRoot->unmount();

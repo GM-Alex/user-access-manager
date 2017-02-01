@@ -35,55 +35,53 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
      */
     public function create($sDir, $sObjectType = null)
     {
+        $sDir = rtrim($sDir, '/').'/';
         $sContent = '';
         $sAreaName = 'WP-Files';
 
         if ($this->_oConfig->isPermalinksActive() === false) {
             $sFileTypes = null;
+            $sLockFileTypes = $this->_oConfig->getLockFileTypes();
 
-            if ($this->_oConfig->getLockedFileTypes() == 'selected') {
+            if ($sLockFileTypes === 'selected') {
                 $sFileTypes = $this->_cleanUpFileTypes($this->_oConfig->getLockedFileTypes());
-                $sFileTypes = "\.(".$sFileTypes.")";
-            } elseif ($this->_oConfig->getLockedFileTypes() == 'not_selected') {
+                $sFileTypes = "\.({$sFileTypes})";
+            } elseif ($sLockFileTypes === 'not_selected') {
                 $sFileTypes = $this->_cleanUpFileTypes($this->_oConfig->getLockedFileTypes());
-                $sFileTypes = "^\.(".$sFileTypes.")";
+                $sFileTypes = "^\.({$sFileTypes})";
             }
 
             // make .htaccess and .htpasswd
             $sContent .= "AuthType Basic"."\n";
-            $sContent .= "AuthName \"".$sAreaName."\""."\n";
-            $sContent .= "AuthUserFile ".$sDir.".htpasswd"."\n";
+            $sContent .= "AuthName \"{$sAreaName}\""."\n";
+            $sContent .= "AuthUserFile {$sDir}.htpasswd"."\n";
             $sContent .= "require valid-user"."\n";
 
             if ($sFileTypes !== null) {
-                $sContent = "<FilesMatch '".$sFileTypes."'>\n".$sContent."</FilesMatch>\n";
+                $sContent = "<FilesMatch '{$sFileTypes}'>\n{$sContent}</FilesMatch>\n";
             }
 
-            $this->createPasswordFile(true);
+            $this->createPasswordFile(true, $sDir);
         } else {
             if ($sObjectType === null) {
                 $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
             $aHomeRoot = parse_url($this->_oWrapper->getHomeUrl());
-            $sHomeRoot = (isset($aHomeRoot['path'])) ? trailingslashit($aHomeRoot['path']) : '/';
+            $sHomeRoot = (isset($aHomeRoot['path'])) ? trim($aHomeRoot['path'], '/\\').'/' : '/';
 
             $sContent = "<IfModule mod_rewrite.c>\n";
             $sContent .= "RewriteEngine On\n";
             $sContent .= "RewriteBase {$sHomeRoot}\n";
             $sContent .= "RewriteRule ^index\.php$ - [L]\n";
             $sContent .= "RewriteRule (.*) ";
-            $sContent .= $sHomeRoot."index.php?uamfiletype={$sObjectType}&uamgetfile=$1 [L]\n";
+            $sContent .= "{$sHomeRoot}index.php?uamfiletype={$sObjectType}&uamgetfile=$1 [L]\n";
             $sContent .= "</IfModule>\n";
         }
 
         // save files
         $sFileWithPath = $sDir.self::FILE_NAME;
-        $oFileHandler = fopen($sFileWithPath, 'w');
-        fwrite($oFileHandler, $sContent);
-        fclose($oFileHandler);
-
-        return true;
+        return (file_put_contents($sFileWithPath, $sContent) !== false);
     }
 
     /**
@@ -95,18 +93,20 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
      */
     public function delete($sDir)
     {
+        $blSuccess = true;
+        $sDir = rtrim($sDir, '/').'/';
         $sFileName = $sDir.self::FILE_NAME;
 
         if (file_exists($sFileName)) {
-            unlink($sFileName);
+            $blSuccess = unlink($sFileName) && $blSuccess;
         }
 
         $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
 
         if (file_exists($sPasswordFile)) {
-            unlink($sPasswordFile);
+            $blSuccess = unlink($sPasswordFile) && $blSuccess;
         }
 
-        return true;
+        return $blSuccess;
     }
 }
