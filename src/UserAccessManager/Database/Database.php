@@ -69,30 +69,6 @@ class Database
     }
 
     /**
-     * Returns the database charset.
-     *
-     * @return string
-     */
-    public function getCharset()
-    {
-        $sCharsetCollate = '';
-
-        $sMySlqVersion = $this->getVariable('SELECT VERSION() as mysql_version');
-
-        if (version_compare($sMySlqVersion, '4.1.0', '>=')) {
-            if (!empty($this->_oWpDatabase->charset)) {
-                $sCharsetCollate = "DEFAULT CHARACTER SET {$this->_oWpDatabase->charset}";
-            }
-
-            if (!empty($this->_oWpDatabase->collate)) {
-                $sCharsetCollate .= " COLLATE {$this->_oWpDatabase->collate}";
-            }
-        }
-
-        return $sCharsetCollate;
-    }
-
-    /**
      * Returns a id list for sql.
      *
      * @param array $aIds
@@ -102,6 +78,39 @@ class Database
     public function generateSqlIdList(array $aIds)
     {
         return (count($aIds) > 0) ? implode(', ', $aIds) : '\'\'';
+    }
+
+    /**
+     * @see dbDelta()
+     *
+     * @param string $mQueries
+     * @param bool   $blExecute
+     *
+     * @return array
+     */
+    public function dbDelta($mQueries = '', $blExecute = true)
+    {
+        return $this->_oWrapper->dbDelta($mQueries, $blExecute);
+    }
+
+    /**
+     * @see \wpdb::$prefix
+     *
+     * @return string
+     */
+    public function getPrefix()
+    {
+        return $this->_oWpDatabase->prefix;
+    }
+
+    /**
+     * Returns the last insert id.
+     *
+     * @return int
+     */
+    public function getLastInsertId()
+    {
+        return $this->_oWpDatabase->insert_id;
     }
 
     /**
@@ -216,29 +225,6 @@ class Database
     }
 
     /**
-     * @see dbDelta()
-     *
-     * @param string $mQueries
-     * @param bool   $blExecute
-     *
-     * @return array
-     */
-    public function dbDelta($mQueries = '', $blExecute = true)
-    {
-        return $this->_oWrapper->dbDelta($mQueries, $blExecute);
-    }
-
-    /**
-     * @see \wpdb::$prefix
-     *
-     * @return string
-     */
-    public function getPrefix()
-    {
-        return $this->_oWpDatabase->prefix;
-    }
-
-    /**
      * @see \wpdb::get_blog_prefix()
      *
      * @param int $iBlogId
@@ -333,12 +319,27 @@ class Database
     }
 
     /**
-     * Returns the last insert id.
+     * Returns the database charset.
      *
-     * @return int
+     * @return string
      */
-    public function getLastInsertId()
+    public function getCharset()
     {
-        return $this->_oWpDatabase->insert_id;
+        $sCharsetCollate = '';
+
+        $sMySlqVersion = $this->getVariable('SELECT VERSION() as mysql_version');
+
+        if (version_compare($sMySlqVersion, '4.1.0', '>=')) {
+            if (!empty($this->_oWpDatabase->charset)) {
+                $sCharsetCollate = "DEFAULT CHARACTER SET {$this->_oWpDatabase->charset}";
+            }
+
+            if (!empty($this->_oWpDatabase->collate)) {
+                $sCharsetCollate .= " COLLATE {$this->_oWpDatabase->collate}";
+            }
+        }
+
+        return $sCharsetCollate;
     }
+
 }

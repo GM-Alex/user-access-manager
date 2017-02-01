@@ -6,13 +6,13 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     /**
      * Calls a private or protected object method.
      *
-     * @param string $oObject
+     * @param object $oObject
      * @param string $sMethodName
      * @param array  $aArguments
      *
      * @return mixed
      */
-    public static function callMethod($oObject, $sMethodName, array $aArguments = array())
+    public static function callMethod($oObject, $sMethodName, array $aArguments = [])
     {
         $oClass = new \ReflectionClass($oObject);
         $oMethod = $oClass->getMethod($sMethodName);

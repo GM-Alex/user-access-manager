@@ -22,18 +22,13 @@ namespace UserAccessManager\Config;
 class ConfigParameterTest extends \UserAccessManagerTestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameter
      */
-    private $_oStub;
-
-    /**
-     * Create default mocked objects.
-     */
-    public function setUp()
+    private function getStub()
     {
-        $this->_oStub = $this->getMockForAbstractClass(
+        return $this->getMockForAbstractClass(
             '\UserAccessManager\Config\ConfigParameter',
-            array(),
+            [],
             '',
             false,
             true,
@@ -47,12 +42,8 @@ class ConfigParameterTest extends \UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oStub = clone $this->_oStub;
+        $oStub = $this->getStub();
         $oStub->expects($this->exactly(2))->method('isValidValue')->will(self::returnValue(true));
-
-        /**
-         * @var ConfigParameter $oStub
-         */
         $oStub->__construct('testId');
 
         self::assertAttributeEquals('testId', '_sId', $oStub);
@@ -63,7 +54,7 @@ class ConfigParameterTest extends \UserAccessManagerTestCase
         self::assertAttributeEquals('otherId', '_sId', $oStub);
         self::assertAttributeEquals('defaultValue', '_mDefaultValue', $oStub);
 
-        $oStub = clone $this->_oStub;
+        $oStub = $this->getStub();
         $oStub->expects($this->exactly(1))->method('isValidValue')->will(self::returnValue(false));
 
         self::expectException('\Exception');
@@ -76,12 +67,8 @@ class ConfigParameterTest extends \UserAccessManagerTestCase
      */
     public function testGetId()
     {
-        $oStub = clone $this->_oStub;
+        $oStub = $this->getStub();
         $oStub->expects($this->exactly(1))->method('isValidValue')->will(self::returnValue(true));
-
-        /**
-         * @var ConfigParameter $oStub
-         */
         $oStub->__construct('testId');
 
         self::assertEquals('testId', $oStub->getId());
@@ -93,15 +80,15 @@ class ConfigParameterTest extends \UserAccessManagerTestCase
      */
     public function testValidateValue()
     {
-        $oStub = clone $this->_oStub;
+        $oStub = $this->getStub();
         $oStub->expects($this->exactly(2))
             ->method('isValidValue')
             ->will($this->onConsecutiveCalls(true, false));
 
-        self::assertNull(self::callMethod($oStub, '_validateValue', array('value')));
+        self::assertNull(self::callMethod($oStub, '_validateValue', ['value']));
 
         self::expectException('\Exception');
-        self::callMethod($oStub, '_validateValue', array('value'));
+        self::callMethod($oStub, '_validateValue', ['value']);
     }
 
     /**
@@ -112,14 +99,11 @@ class ConfigParameterTest extends \UserAccessManagerTestCase
      */
     public function testSetValue()
     {
-        $oStub = clone $this->_oStub;
+        $oStub = $this->getStub();
         $oStub->expects($this->once())
             ->method('isValidValue')
             ->will($this->returnValue(true));
 
-        /**
-         * @var ConfigParameter $oStub
-         */
         $oStub->setValue('testValue');
 
         self::assertAttributeEquals('testValue', '_mValue', $oStub);

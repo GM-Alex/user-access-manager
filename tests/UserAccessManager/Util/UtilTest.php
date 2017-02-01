@@ -74,7 +74,7 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         $sRandomPassword = $oUtil->getRandomPassword(10);
         self::assertEquals(10, strlen($sRandomPassword));
 
-        $aPasswords = array();
+        $aPasswords = [];
 
         for ($iCount = 0; $iCount < 100; $iCount++) {
             $sRandomPassword = $oUtil->getRandomPassword();

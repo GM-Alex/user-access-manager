@@ -62,13 +62,13 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     public function testAddToCache(Cache $oCache)
     {
         $oCache->addToCache('stringCacheKey', 'testValue');
-        $oCache->addToCache('arrayCacheKey', array('testString', 'testString2'));
+        $oCache->addToCache('arrayCacheKey', ['testString', 'testString2']);
 
         self::assertAttributeEquals(
-            array(
+            [
                 'stringCacheKey' => 'testValue',
-                'arrayCacheKey' => array('testString', 'testString2')
-            ),
+                'arrayCacheKey' => ['testString', 'testString2']
+            ],
             '_aCache',
             $oCache
         );
@@ -89,7 +89,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     {
         self::assertEquals('testValue', $oCache->getFromCache('stringCacheKey'));
         self::assertEquals(
-            array('testString', 'testString2'),
+            ['testString', 'testString2'],
             $oCache->getFromCache('arrayCacheKey')
         );
         self::assertEquals(
@@ -110,16 +110,16 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     public function testFlushCache($oCache)
     {
         self::assertAttributeEquals(
-            array(
+            [
                 'stringCacheKey' => 'testValue',
-                'arrayCacheKey' => array('testString', 'testString2')
-            ),
+                'arrayCacheKey' => ['testString', 'testString2']
+            ],
             '_aCache',
             $oCache
         );
 
         $oCache->flushCache();
 
-        self::assertAttributeEquals(array(), '_aCache', $oCache);
+        self::assertAttributeEquals([], '_aCache', $oCache);
     }
 }

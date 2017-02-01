@@ -55,17 +55,17 @@ class BooleanConfigParameterTest extends \UserAccessManagerTestCase
     {
         self::assertEquals(
             true,
-            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', array('true'))
+            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', ['true'])
         );
 
         self::assertEquals(
             false,
-            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', array('false'))
+            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', ['false'])
         );
 
         self::assertEquals(
             'Test',
-            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', array('Test'))
+            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', ['Test'])
         );
     }
 

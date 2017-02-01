@@ -80,12 +80,12 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
         $oParameter = $oConfigParameterFactory->createSelectionConfigParameter(
             'parameterId',
             'a',
-            array('a', 'b', 'c')
+            ['a', 'b', 'c']
         );
 
         self::assertInstanceOf('\UserAccessManager\Config\SelectionConfigParameter', $oParameter);
         self::assertEquals('parameterId', $oParameter->getId());
         self::assertEquals('a', $oParameter->getValue());
-        self::assertEquals(array('a', 'b', 'c'), $oParameter->getSelections());
+        self::assertEquals(['a', 'b', 'c'], $oParameter->getSelections());
     }
 }

@@ -22,16 +22,6 @@ namespace UserAccessManager\Config;
 class ConfigTest extends \UserAccessManagerTestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress $oWrapper
-     */
-    private $_oDefaultWrapper;
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameterFactory $oConfigParameterFactory
-     */
-    private $_oDefaultConfigParameterFactory;
-
-    /**
      * @var array
      */
     private $_aDefaultValues;
@@ -41,9 +31,7 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function setUp()
     {
-        $this->_oDefaultWrapper = $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-        $this->_oDefaultConfigParameterFactory = $this->createMock('\UserAccessManager\Config\ConfigParameterFactory');
-        $this->_aDefaultValues = array(
+        $this->_aDefaultValues = [
             'hide_post' => 'bool|hide_post|false',
             'hide_post_title' => 'bool|hide_post_title|false',
             'post_title' => 'string|post_title|No rights!',
@@ -76,7 +64,23 @@ class ConfigTest extends \UserAccessManagerTestCase
             'hide_empty_categories' => 'bool|hide_empty_categories|true',
             'protect_feed' => 'bool|protect_feed|true',
             'full_access_role' => 'selection|full_access_role|administrator|administrator|editor|author|contributor|subscriber',
-        );
+        ];
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
+     */
+    private function getWrapper()
+    {
+        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameterFactory
+     */
+    private function getConfigParameterFactory()
+    {
+        return $this->createMock('\UserAccessManager\Config\ConfigParameterFactory');
     }
 
     private function _getFactory($cClosure = null)
@@ -85,16 +89,16 @@ class ConfigTest extends \UserAccessManagerTestCase
             $cClosure = function ($sId) {
                 $oStub = self::getMockForAbstractClass(
                     '\UserAccessManager\Config\ConfigParameter',
-                    array(),
+                    [],
                     '',
                     false,
                     true,
                     true,
-                    array(
+                    [
                         'getId',
                         'setValue',
                         'getValue'
-                    )
+                    ]
                 );
 
                 $oStub->expects(self::any())
@@ -115,7 +119,7 @@ class ConfigTest extends \UserAccessManagerTestCase
         }
 
 
-        $oConfigParameterFactory = clone $this->_oDefaultConfigParameterFactory;
+        $oConfigParameterFactory = $this->getConfigParameterFactory();
         $oConfigParameterFactory->expects($this->any())
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback($cClosure));
@@ -137,7 +141,7 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oConfig = new Config($this->_oDefaultWrapper, $this->_oDefaultConfigParameterFactory, 'baseFile');
+        $oConfig = new Config($this->getWrapper(), $this->getConfigParameterFactory(), 'baseFile');
         self::assertInstanceOf('\UserAccessManager\Config\Config', $oConfig);
     }
 
@@ -150,12 +154,12 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
             ->will($this->onConsecutiveCalls('optionValueOne', 'optionValueTwo'));
 
-        $oConfig = new Config($oWrapper, $this->_oDefaultConfigParameterFactory, 'baseFile');
+        $oConfig = new Config($oWrapper, $this->getConfigParameterFactory(), 'baseFile');
         $mOptionOne = $oConfig->getWpOption('optionOne');
         $mOptionOneAgain = $oConfig->getWpOption('optionOne');
 
@@ -178,12 +182,12 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
             ->will($this->returnValue(null));
 
-        $oConfigParameterFactory = clone $this->_oDefaultConfigParameterFactory;
+        $oConfigParameterFactory = $this->getConfigParameterFactory();
         $oConfigParameterFactory->expects($this->any())
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
@@ -222,7 +226,7 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
             ->will($this->returnValue(array_combine($aOptionKeys, $aTestValues)));
@@ -246,7 +250,7 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
             ->will($this->returnValue(null));
@@ -258,16 +262,16 @@ class ConfigTest extends \UserAccessManagerTestCase
         $cClosure = function ($sId) {
             $oStub = self::getMockForAbstractClass(
                 '\UserAccessManager\Config\ConfigParameter',
-                array(),
+                [],
                 '',
                 false,
                 true,
                 true,
-                array(
+                [
                     'getId',
                     'setValue',
                     'getValue'
-                )
+                ]
             );
 
             $oStub->expects(self::any())
@@ -293,10 +297,10 @@ class ConfigTest extends \UserAccessManagerTestCase
         $oConfig = new Config($oWrapper, $oConfigParameterFactory, 'baseFile');
 
         $oConfig->setConfigParameters(
-            array(
+            [
                 'blog_admin_hint' => 'blog_admin_hint|value',
                 'lock_file' => 'lock_file|value'
-            )
+            ]
         );
     }
 
@@ -309,7 +313,7 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
             ->will($this->returnValue(null));
@@ -317,11 +321,11 @@ class ConfigTest extends \UserAccessManagerTestCase
         $oConfigParameterFactory = $this->_getFactory();
         $oConfig = new Config($oWrapper, $oConfigParameterFactory, 'baseFile');
 
-        $sReturn = self::callMethod($oConfig, '_getParameterValue', array('lock_file'));
+        $sReturn = self::callMethod($oConfig, '_getParameterValue', ['lock_file']);
         self:self::assertEquals('lock_file', $sReturn);
 
         self::expectException('\Exception');
-        self::callMethod($oConfig, '_getParameterValue', array('undefined'));
+        self::callMethod($oConfig, '_getParameterValue', ['undefined']);
     }
 
     /**
@@ -333,12 +337,12 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->exactly(2))
             ->method('isAdmin')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $oConfig = new Config($oWrapper, $this->_oDefaultConfigParameterFactory, 'baseFile');
+        $oConfig = new Config($oWrapper, $this->getConfigParameterFactory(), 'baseFile');
         self::assertEquals(true, $oConfig->atAdminPanel());
         self::assertEquals(false, $oConfig->atAdminPanel());
     }
@@ -352,15 +356,15 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->exactly(2))
             ->method('getOption')
             ->will($this->onConsecutiveCalls('aaa', ''));
 
-        $oConfig = new Config($oWrapper, $this->_oDefaultConfigParameterFactory, 'baseFile');
+        $oConfig = new Config($oWrapper, $this->getConfigParameterFactory(), 'baseFile');
         self::assertEquals(true, $oConfig->isPermalinksActive());
 
-        $oConfig = new Config($oWrapper, $this->_oDefaultConfigParameterFactory, 'baseFile');
+        $oConfig = new Config($oWrapper, $this->getConfigParameterFactory(), 'baseFile');
         self::assertEquals(false, $oConfig->isPermalinksActive());
     }
 
@@ -370,26 +374,23 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetUploadDirectory()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->exactly(2))
             ->method('getUploadDir')
             ->will(
                 $this->onConsecutiveCalls(
-                    array(
+                    [
                         'error' => 'error',
                         'basedir' => 'baseDir'
-                    ),
-                    array(
+                    ],
+                    [
                         'error' => null,
                         'basedir' => 'baseDir'
-                    )
+                    ]
                 )
             );
 
-        $oConfig = new Config($oWrapper, $this->_oDefaultConfigParameterFactory, 'baseFile');
+        $oConfig = new Config($oWrapper, $this->getConfigParameterFactory(), 'baseFile');
         self::assertEquals(null, $oConfig->getUploadDirectory());
         self::assertEquals('baseDir/', $oConfig->getUploadDirectory());
     }
@@ -403,29 +404,29 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->exactly(2))
             ->method('getAllowedMimeTypes')
             ->will(
                 $this->onConsecutiveCalls(
-                    array('a|b' => 'firstType', 'c' => 'secondType'),
-                    array('c|b' => 'firstType', 'a' => 'secondType')
+                    ['a|b' => 'firstType', 'c' => 'secondType'],
+                    ['c|b' => 'firstType', 'a' => 'secondType']
                 )
             );
 
-        $oConfig = new Config($oWrapper, $this->_oDefaultConfigParameterFactory, 'baseFile');
+        $oConfig = new Config($oWrapper, $this->getConfigParameterFactory(), 'baseFile');
         self::assertEquals(
-            array('a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'),
+            ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
             $oConfig->getMimeTypes()
         );
         self::assertEquals(
-            array('a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'),
+            ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
             $oConfig->getMimeTypes()
         );
 
-        $oConfig = new Config($oWrapper, $this->_oDefaultConfigParameterFactory, 'baseFile');
+        $oConfig = new Config($oWrapper, $this->getConfigParameterFactory(), 'baseFile');
         self::assertEquals(
-            array('c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType'),
+            ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType'],
             $oConfig->getMimeTypes()
         );
     }
@@ -439,7 +440,7 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->once())
             ->method('pluginsUrl')
             ->will($this->returnValue('pluginsUrl'));
@@ -461,7 +462,7 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->once())
             ->method('getPluginDir')
             ->will($this->returnValue('pluginDir'));
@@ -489,15 +490,15 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
             ->will($this->returnValue(null));
         $oConfigParameterFactory = $this->_getFactory();
         $oConfig = new Config($oWrapper, $oConfigParameterFactory, 'baseFile');
 
-        self::assertEquals('hide_post', self::callMethod($oConfig, '_hideObject', array('hide_post')));
-        self::assertEquals(true, self::callMethod($oConfig, '_hideObject', array('hide_undefined')));
+        self::assertEquals('hide_post', self::callMethod($oConfig, '_hideObject', ['hide_post']));
+        self::assertEquals(true, self::callMethod($oConfig, '_hideObject', ['hide_undefined']));
 
         self::assertEquals('hide_post', $oConfig->hideObjectType('post'));
         self::assertEquals(true, $oConfig->hideObjectType('undefined'));
@@ -520,7 +521,7 @@ class ConfigTest extends \UserAccessManagerTestCase
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
             ->will($this->returnValue(null));
@@ -571,7 +572,7 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testSimpleGetters()
     {
-        $aMethods = array(
+        $aMethods = [
             'hidePostTitle' => 'hide_post_title',
             'getPostTitle' => 'post_title',
             'getPostContent' => 'post_content',
@@ -604,12 +605,12 @@ class ConfigTest extends \UserAccessManagerTestCase
             'protectFeed' => 'protect_feed',
             'showPostContentBeforeMore' => 'show_post_content_before_more',
             'getFullAccessRole' => 'full_access_role'
-        );
+        ];
 
         /**
          * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
          */
-        $oWrapper = clone $this->_oDefaultWrapper;
+        $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
             ->will($this->returnValue(null));
