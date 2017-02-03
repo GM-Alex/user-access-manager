@@ -492,6 +492,7 @@ class AccessHandler
         $sTermRelationshipsTable = $this->_oDatabase->getTermRelationshipsTable();
         $sTermTaxonomyTable = $this->_oDatabase->getTermTaxonomyTable();
 
+        //TODO Use term_id instead of term_taxonomy_id use join with wp_term_taxonomy
         $sObjectQuery = "SELECT DISTINCT gp.object_id AS id, gp.object_type AS type
                 FROM {$sUserGroupTable} AS ag
                 INNER JOIN {$sUserGroupToObjectTable} AS gp

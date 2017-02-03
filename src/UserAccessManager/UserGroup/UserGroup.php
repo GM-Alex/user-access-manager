@@ -977,6 +977,7 @@ class UserGroup
             $aObjectsInCategory = $this->_oCache->getFromCache($sCacheKey);
 
             if ($aObjectsInCategory === null) {
+                //TODO Use term_id instead of term_taxonomy_id use join with wp_term_taxonomy
                 $aDbObjects = $this->_oDatabase->getResults(
                     "SELECT tr.object_id AS objectId, tr.term_taxonomy_id AS termId
                     FROM {$this->_oDatabase->getTermRelationshipsTable()} AS tr"

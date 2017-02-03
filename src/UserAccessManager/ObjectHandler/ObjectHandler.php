@@ -272,6 +272,7 @@ class ObjectHandler
         if ($this->_aTermPostMap === null) {
             $this->_aTermPostMap = array();
 
+            //TODO Use term_id instead of term_taxonomy_id use join with wp_term_taxonomy
             $sSelect = "
                 SELECT tr.object_id, tr.term_taxonomy_id, p.post_type
                 FROM {$this->_oDatabase->getTermRelationshipsTable()} AS tr 

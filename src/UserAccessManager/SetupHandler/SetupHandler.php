@@ -409,6 +409,6 @@ class SetupHandler
      */
     public function deactivate()
     {
-        $this->_oFileHandler->deleteFileProtectionFiles();
+        $this->_oFileHandler->deleteFileProtection();
     }
 }

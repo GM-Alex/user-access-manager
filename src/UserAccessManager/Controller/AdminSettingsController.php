@@ -141,7 +141,7 @@ class AdminSettingsController extends Controller
         $this->_oConfig->setConfigParameters($aNewConfigParameters);
 
         if ($this->_oConfig->lockFile() === false) {
-            $this->_oFileHandler->deleteFileProtectionFiles();
+            $this->_oFileHandler->deleteFileProtection();
         } else {
             $this->_oFileHandler->createFileProtection();
         }

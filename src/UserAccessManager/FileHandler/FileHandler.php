@@ -72,7 +72,10 @@ class FileHandler
              * mime_content_type has been deprecated as the PECL extension file info
              * provides the same functionality (and more) in a much cleaner way.
              */
-            $sFileExt = strtolower(array_pop(explode('.', $sFileName)));
+            $aFile = explode('.', $sFileName);
+            $sLastElement = array_pop($aFile);
+            $sFileExt = strtolower($sLastElement);
+
             $aMimeTypes = $this->_oConfig->getMimeTypes();
 
             if (function_exists('finfo_open')) {
@@ -114,18 +117,16 @@ class FileHandler
 
                     echo fread($oHandler, 1024);
                 }
-
-                exit;
             } else {
                 ob_clean();
                 flush();
                 readfile($sFile);
-                exit;
             }
         } else {
             $this->_oWrapper->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -133,6 +134,8 @@ class FileHandler
      *
      * @param string $sDir        The destination directory.
      * @param string $sObjectType The object type.
+     *
+     * @return false
      */
     public function createFileProtection($sDir = null, $sObjectType = null)
     {
@@ -140,11 +143,13 @@ class FileHandler
 
         if ($sDir !== null) {
             if ($this->_oWrapper->isNginx() === true) {
-                $this->_oFileProtectionFactory->createNginxFileProtection()->create($sDir, $sObjectType);
+                return $this->_oFileProtectionFactory->createNginxFileProtection()->create($sDir, $sObjectType);
             } else {
-                $this->_oFileProtectionFactory->createApacheFileProtection()->create($sDir, $sObjectType);
+                return $this->_oFileProtectionFactory->createApacheFileProtection()->create($sDir, $sObjectType);
             }
         }
+
+        return false;
     }
 
 
@@ -152,17 +157,21 @@ class FileHandler
      * Deletes the protection files.
      *
      * @param string $sDir The destination directory.
+     *
+     * @return false
      */
-    public function deleteFileProtectionFiles($sDir = null)
+    public function deleteFileProtection($sDir = null)
     {
         $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
 
         if ($sDir !== null) {
             if ($this->_oWrapper->isNginx() === true) {
-                $this->_oFileProtectionFactory->createNginxFileProtection()->delete($sDir);
+                return $this->_oFileProtectionFactory->createNginxFileProtection()->delete($sDir);
             } else {
-                $this->_oFileProtectionFactory->createApacheFileProtection()->delete($sDir);
+                return $this->_oFileProtectionFactory->createApacheFileProtection()->delete($sDir);
             }
         }
+
+        return false;
     }
 }
