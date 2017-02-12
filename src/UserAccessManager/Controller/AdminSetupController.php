@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\Config;
+use UserAccessManager\Database\Database;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -34,6 +35,11 @@ class AdminSetupController extends Controller
     protected $_oSetupHandler;
 
     /**
+     * @var Database
+     */
+    protected $_oDatabase;
+
+    /**
      * @var string
      */
     protected $_sTemplate = 'AdminSetup.php';
@@ -43,11 +49,13 @@ class AdminSetupController extends Controller
      *
      * @param Wordpress    $oWrapper
      * @param Config       $oConfig
+     * @param Database     $oDatabase
      * @param SetupHandler $oSetupHandler
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, SetupHandler $oSetupHandler)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, Database $oDatabase, SetupHandler $oSetupHandler)
     {
         parent::__construct($oWrapper, $oConfig);
+        $this->_oDatabase = $oDatabase;
         $this->_oSetupHandler = $oSetupHandler;
     }
 
@@ -82,8 +90,23 @@ class AdminSetupController extends Controller
         $sUpdate = $this->getRequestParameter('uam_update_db');
 
         if ($sUpdate === 'blog' || $sUpdate === 'network') {
-            $blNetwork = ($sUpdate == 'network') ? true : false;
-            $this->_oSetupHandler->update($blNetwork);
+            if ($sUpdate === 'network') {
+                $aBlogIds = $this->_oSetupHandler->getBlogIds();
+
+                if (count($aBlogIds) > 0) {
+                    $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
+
+                    foreach ($aBlogIds as $iBlogId) {
+                        $this->_oWrapper->switchToBlog($iBlogId);
+                        $this->_oSetupHandler->update();
+                    }
+
+                    $this->_oWrapper->switchToBlog($iCurrentBlogId);
+                }
+            } else {
+                $this->_oSetupHandler->update();
+            }
+
             $this->_setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUC);
         }
     }

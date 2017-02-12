@@ -169,10 +169,14 @@ if (function_exists('register_activation_hook')) {
 
 //uninstall
 if (function_exists('register_uninstall_hook')) {
-    register_uninstall_hook(__FILE__, '\UserAccessManager\SetupHandler\SetupHandler::uninstall()');
+    register_uninstall_hook(__FILE__, function() use ($oSetupHandler) {
+        $oSetupHandler->uninstall();
+    });
 } elseif (function_exists('register_deactivation_hook')) {
     //Fallback
-    register_deactivation_hook(__FILE__, array($oSetupHandler, 'uninstall'));
+    register_deactivation_hook(__FILE__, function() use ($oSetupHandler) {
+        $oSetupHandler->uninstall();
+    });
 }
 
 //deactivation

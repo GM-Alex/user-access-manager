@@ -103,16 +103,16 @@ class ConfigTest extends \UserAccessManagerTestCase
 
                 $oStub->expects(self::any())
                     ->method('getId')
-                    ->will(self::returnValue($sId));
+                    ->will($this->returnValue($sId));
 
                 $oStub->expects(self::any())
                     ->method('setValue')
-                    ->with(self::equalTo($sId.'|value'))
-                    ->will(self::returnValue(null));
+                    ->with($this->equalTo($sId.'|value'))
+                    ->will($this->returnValue(null));
 
                 $oStub->expects(self::any())
                     ->method('getValue')
-                    ->will(self::returnValue($sId));
+                    ->will($this->returnValue($sId));
 
                 return $oStub;
             };
@@ -276,19 +276,16 @@ class ConfigTest extends \UserAccessManagerTestCase
 
             $oStub->expects(self::any())
                 ->method('getId')
-                ->will(self::returnValue($sId));
+                ->will($this->returnValue($sId));
 
             $oStub->expects(self::any())
                 ->method('setValue')
-                ->withConsecutive(
-                    self::equalTo('blog_admin_hint|value'),
-                    self::equalTo('lock_file|value')
-                )
-                ->will(self::returnValue(null));
+                ->with($this->logicalOr('blog_admin_hint|value', 'lock_file|value'))
+                ->will($this->returnValue(null));
 
             $oStub->expects(self::any())
                 ->method('getValue')
-                ->will(self::returnValue($sId));
+                ->will($this->returnValue($sId));
 
             return $oStub;
         };

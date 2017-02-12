@@ -75,7 +75,7 @@ class SetupHandler
      *
      * @return array()
      */
-    protected function _getBlogIds()
+    public function getBlogIds()
     {
         $aBlogIds = array();
         $aSites = $this->_oWrapper->getSites();
@@ -94,26 +94,26 @@ class SetupHandler
      */
     public function install($blNetworkWide = false)
     {
-        $aBlogIds = $this->_getBlogIds();
+        $aBlogIds = $this->getBlogIds();
 
         if ($blNetworkWide === true) {
             $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
 
             foreach ($aBlogIds as $iBlogId) {
                 $this->_oWrapper->switchToBlog($iBlogId);
-                $this->_installUam();
+                $this->_install();
             }
 
             $this->_oWrapper->switchToBlog($iCurrentBlogId);
         } else {
-            $this->_installUam();
+            $this->_install();
         }
     }
 
     /**
      * Creates the needed tables at the database and adds the options
      */
-    protected function _installUam()
+    protected function _install()
     {
         $sCharsetCollate = $this->_oDatabase->getCharset();
         $sDbAccessGroupTable = $this->_oDatabase->getUserGroupTable();
@@ -165,11 +165,9 @@ class SetupHandler
      */
     public function isDatabaseUpdateNecessary()
     {
-        $aBlogIds = $this->_getBlogIds();
+        $aBlogIds = $this->getBlogIds();
 
-        if ($aBlogIds !== array()
-            && $this->_oWrapper->isSuperAdmin()
-        ) {
+        if (count($aBlogIds) > 0 && $this->_oWrapper->isSuperAdmin()) {
             foreach ($aBlogIds as $iBlogId) {
                 $sTable = $this->_oDatabase->getBlogPrefix($iBlogId).'options';
                 $sSelect = "SELECT option_value FROM {$sTable} WHERE option_name = %s LIMIT 1";
@@ -189,38 +187,14 @@ class SetupHandler
     /**
      * Updates the user access manager if an old version was installed.
      *
-     * @param boolean $blNetworkWide If true update network wide
+     * @return true;
      */
-    public function update($blNetworkWide)
-    {
-        $aBlogIds = $this->_getBlogIds();
-
-        if ($blNetworkWide
-            && $aBlogIds !== array()
-        ) {
-            $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
-
-            foreach ($aBlogIds as $iBlogId) {
-                $this->_oWrapper->switchToBlog($iBlogId);
-                $this->_installUam();
-                $this->_updateUam();
-            }
-
-            $this->_oWrapper->switchToBlog($iCurrentBlogId);
-        } else {
-            $this->_updateUam();
-        }
-    }
-
-    /**
-     * Updates the user access manager if an old version was installed.
-     */
-    protected function _updateUam()
+    public function update()
     {
         $sCurrentDbVersion = $this->_oWrapper->getOption('uam_db_version');
 
         if (empty($sCurrentDbVersion)) {
-            $this->install();
+            return false;
         }
 
         $sUamVersion = $this->_oWrapper->getOption('uam_version');
@@ -272,22 +246,23 @@ class SetupHandler
                 $this->_oDatabase->query($sAlterQuery);
 
                 $aObjectTypes = $this->_oObjectHandler->getObjectTypes();
+                $sPostTable = $this->_oDatabase->getPostsTable();
 
                 foreach ($aObjectTypes as $sObjectType) {
                     $sAddition = '';
 
                     if ($this->_oObjectHandler->isPostableType($sObjectType)) {
                         $sDbIdName = 'post_id';
-                        $sDatabase = $sDbAccessGroupToPost.', '.$this->_oDatabase->getPostsTable();
+                        $sDatabase = $sDbAccessGroupToPost.', '.$sPostTable;
                         $sAddition = " WHERE post_id = ID
                             AND post_type = '".$sObjectType."'";
-                    } elseif ($sObjectType == 'category') {
+                    } elseif ($sObjectType === 'category') {
                         $sDbIdName = 'category_id';
                         $sDatabase = $sDbAccessGroupToCategory;
-                    } elseif ($sObjectType == 'user') {
+                    } elseif ($sObjectType === 'user') {
                         $sDbIdName = 'user_id';
                         $sDatabase = $sDbAccessGroupToUser;
-                    } elseif ($sObjectType == 'role') {
+                    } elseif ($sObjectType === 'role') {
                         $sDbIdName = 'role_name';
                         $sDatabase = $sDbAccessGroupToRole;
                     } else {
@@ -299,7 +274,7 @@ class SetupHandler
                     $sSql = "SELECT {$sDbIdName} as id, group_id as groupId
                         FROM {$sFullDatabase}";
 
-                    $aDbObjects = $this->_oDatabase->getResults($sSql);
+                    $aDbObjects = (array)$this->_oDatabase->getResults($sSql);
 
                     foreach ($aDbObjects as $oDbObject) {
                         $this->_oDatabase->insert(
@@ -326,9 +301,9 @@ class SetupHandler
                 $this->_oDatabase->query($sDropQuery);
             }
 
-            if (version_compare($sCurrentDbVersion, '1.2', '<=')) {
-                $sDbAccessGroupToObject = $this->_oDatabase->getUserGroupToObjectTable();
+            $sDbAccessGroupToObject = $this->_oDatabase->getUserGroupToObjectTable();
 
+            if (version_compare($sCurrentDbVersion, '1.2', '<=')) {
                 $sSql = "
                     ALTER TABLE `{$sDbAccessGroupToObject}`
                     CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
@@ -338,7 +313,6 @@ class SetupHandler
             }
 
             if (version_compare($sCurrentDbVersion, '1.3', '<=')) {
-                $sDbAccessGroupToObject = $this->_oDatabase->getUserGroupToObjectTable();
                 $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
                 $this->_oDatabase->update(
                     $sDbAccessGroupToObject,
@@ -353,62 +327,40 @@ class SetupHandler
 
             $this->_oWrapper->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
         }
+
+        return true;
     }
 
     /**
      * Clean up wordpress if the plugin will be uninstalled.
      */
-    public static function uninstall()
+    public function uninstall()
     {
-        global $wpdb;
-        $aSites = get_sites();
+        $aBlogIds = $this->getBlogIds();
 
-        foreach ($aSites as $oSite) {
-            switch_to_blog($oSite->blog_id);
-            $sPrefix = $wpdb->prefix;
-            $sUserGroupTable = $sPrefix.Database::USER_GROUP_TABLE_NAME;
-            $sUserGroupToObjectTable = $sPrefix.Database::USER_GROUP_TO_OBJECT_TABLE_NAME;
+        foreach ($aBlogIds as $iBlogId) {
+            $this->_oWrapper->switchToBlog($iBlogId);
+            $sUserGroupTable = $this->_oDatabase->getUserGroupTable();
+            $sUserGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();
 
             $sDropQuery = "DROP TABLE {$sUserGroupTable}, {$sUserGroupToObjectTable}";
-            $wpdb->query($sDropQuery);
+            $this->_oDatabase->query($sDropQuery);
 
-            delete_option(Config::ADMIN_OPTIONS_NAME);
-            delete_option(Config::ADMIN_OPTIONS_NAME);
-            delete_option('uam_version');
-            delete_option('uam_db_version');
+            $this->_oWrapper->deleteOption(Config::ADMIN_OPTIONS_NAME);
+            $this->_oWrapper->deleteOption('uam_version');
+            $this->_oWrapper->deleteOption('uam_db_version');
         }
 
-        $aWordpressUploadDir = wp_upload_dir();
-        $sDir = $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
-
-        $sNginxFileName = $sDir.NginxFileProtection::FILE_NAME;
-        $sNginxPasswordFile = $sDir.NginxFileProtection::PASSWORD_FILE_NAME;
-
-        if (file_exists($sNginxFileName)) {
-            unlink($sNginxFileName);
-        }
-
-        if (file_exists($sNginxPasswordFile)) {
-            unlink($sNginxPasswordFile);
-        }
-
-        $sApacheFileName = $sDir.ApacheFileProtection::FILE_NAME;
-        $sApachePasswordFile = $sDir.ApacheFileProtection::PASSWORD_FILE_NAME;
-
-        if (file_exists($sApacheFileName)) {
-            unlink($sApacheFileName);
-        }
-
-        if (file_exists($sApachePasswordFile)) {
-            unlink($sApachePasswordFile);
-        }
+        $this->_oFileHandler->deleteFileProtection();
     }
 
     /**
      * Remove the htaccess file if the plugin is deactivated.
+     *
+     * @return bool
      */
     public function deactivate()
     {
-        $this->_oFileHandler->deleteFileProtection();
+        return $this->_oFileHandler->deleteFileProtection();
     }
 }
