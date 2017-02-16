@@ -24,6 +24,8 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class ObjectHandler
 {
+    const TREE_MAP_PARENTS = 'PARENT';
+    const TREE_MAP_CHILDREN = 'CHILDREN';
     const USER_OBJECT_TYPE = 'user';
     const POST_OBJECT_TYPE = 'post';
     const PAGE_OBJECT_TYPE = 'page';
@@ -167,12 +169,13 @@ class ObjectHandler
      *
      * @param string $sId The post id.
      *
-     * @return \WP_Post|array|null
+     * @return \WP_Post|array|false
      */
     public function getPost($sId)
     {
         if (!isset($this->_aPosts[$sId])) {
-            $this->_aPosts[$sId] = $this->_oWrapper->getPost($sId);
+            $oPost = $this->_oWrapper->getPost($sId);
+            $this->_aPosts[$sId] = ($oPost === null) ? false : $oPost;
         }
 
         return $this->_aPosts[$sId];
@@ -184,35 +187,43 @@ class ObjectHandler
      * @param string $sId       The term id.
      * @param string $sTaxonomy The taxonomy.
      *
-     * @return mixed
+     * @return array|false|\WP_Error|\WP_Term
      */
     public function getTerm($sId, $sTaxonomy = '')
     {
-        if (!isset($this->_aTerms[$sId])) {
-            $this->_aTerms[$sId] = $this->_oWrapper->getTerm($sId, $sTaxonomy);
+        $sFullId = $sId.'|'.$sTaxonomy;
+
+        if (!isset($this->_aTerms[$sFullId])) {
+            $oTerm = $this->_oWrapper->getTerm($sId, $sTaxonomy);
+            $this->_aTerms[$sFullId] = ($oTerm === null) ? false : $oTerm;
         }
 
-        return $this->_aTerms[$sId];
+        return $this->_aTerms[$sFullId];
     }
 
     /**
-     * Resolves all sub elements
+     * Resolves all tree map elements
      *
-     * @param array  $aTree
-     * @param string $iId
+     * @param array $aMap
+     * @param int   $iCurrentId
      *
      * @return array
      */
-    protected function _processTreeMapSiblings(&$aTree, $iId)
+    protected function _processTreeMapElements(array &$aMap, $iCurrentId = null)
     {
-        foreach ($aTree[$iId] as $iChildId => $sType) {
-            if (isset($aTree[$iChildId])) {
-                $aSiblings = $this->_processTreeMapSiblings($aTree, $iChildId);
-                $aTree[$iId] = $aTree[$iId] + $aSiblings;
+        if ($iCurrentId === null || isset($aMap[$iCurrentId])) {
+            $aProcess = ($iCurrentId === null) ? $aMap : array($iCurrentId => $aMap[$iCurrentId]);
+
+            foreach ($aProcess as $iId => $aSubIds) {
+                foreach ($aSubIds as $iSubId) {
+                    $aMap[$iId] += $this->_processTreeMapElements($aMap, $iSubId);
+                }
             }
+
+            return ($iCurrentId === null) ? $aMap : $aMap[$iCurrentId];
         }
 
-        return $aTree[$iId];
+        return array();
     }
 
     /**
@@ -224,23 +235,43 @@ class ObjectHandler
      */
     protected function _getTreeMap($sSelect)
     {
-        $aTree = array();
+        $aTreeMap = array(
+            self::TREE_MAP_CHILDREN => array(),
+            self::TREE_MAP_PARENTS => array(),
+        );
+        $aChildrenMap = array();
+        $aParentMap = array();
         $aResults = $this->_oDatabase->getResults($sSelect);
 
         foreach ($aResults as $oResult) {
-            if (!isset($aTree[$oResult->parentId])) {
-                $aTree[$oResult->parentId] = array();
+            if (!isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type])) {
+                $aChildrenMap[$oResult->type] = array();
             }
 
-            $aTree[$oResult->parentId][$oResult->id] = $oResult->type;
+            if (!isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type])) {
+                $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type] = array();
+            }
+
+            if (!isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId])) {
+                $aChildrenMap[$oResult->type][$oResult->parentId] = array();
+            }
+
+            if (!isset($aParentMap[$oResult->type][$oResult->id])) {
+                $aParentMap[$oResult->type][$oResult->id] = array();
+            }
+
+            $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId][$oResult->id] = $oResult->id;
+            $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id][$oResult->parentId] = $oResult->parentId;
         }
 
-        //Add siblings
-        foreach ($aTree as $iParentId => $aChildren) {
-            $this->_processTreeMapSiblings($aTree, $iParentId);
+        //Process elements
+        foreach ($aTreeMap as $sMapType => $aMayTypeMap) {
+            foreach ($aMayTypeMap as $sObjectType => $aMap) {
+                $aTreeMap[$sMapType][$sObjectType] = $this->_processTreeMapElements($aMap);
+            }
         }
 
-        return $aTree;
+        return $aTreeMap;
     }
 
     /**
@@ -274,19 +305,19 @@ class ObjectHandler
 
             //TODO Use term_id instead of term_taxonomy_id use join with wp_term_taxonomy
             $sSelect = "
-                SELECT tr.object_id, tr.term_taxonomy_id, p.post_type
+                SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
                 FROM {$this->_oDatabase->getTermRelationshipsTable()} AS tr 
-                  LEFT JOIN {$this->_oDatabase->getPostsTable()} as p
-                  ON (tr.object_id = p.ID)";
+                  LEFT JOIN {$this->_oDatabase->getPostsTable()} as p ON (tr.object_id = p.ID)
+                  LEFT JOIN {$this->_oDatabase->getTermTaxonomyTable()} as tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
             $aResults = $this->_oDatabase->getResults($sSelect);
 
             foreach ($aResults as $oResult) {
-                if (!isset($this->_aTermPostMap[$oResult->term_taxonomy_id])) {
-                    $this->_aTermPostMap[$oResult->term_taxonomy_id] = array();
+                if (!isset($this->_aTermPostMap[$oResult->termId])) {
+                    $this->_aTermPostMap[$oResult->termId] = array();
                 }
 
-                $this->_aTermPostMap[$oResult->term_taxonomy_id][$oResult->object_id] = $oResult->post_type;
+                $this->_aTermPostMap[$oResult->termId][$oResult->objectId] = $oResult->postType;
             }
         }
 

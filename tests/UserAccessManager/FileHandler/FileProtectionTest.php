@@ -146,6 +146,9 @@ class FileProtectionTest extends \UserAccessManagerTestCase
                 )
             );
 
+        /**
+         * @var \stdClass $oUser
+         */
         $oUser = $this->getMockBuilder('\WP_User')->getMock();
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';

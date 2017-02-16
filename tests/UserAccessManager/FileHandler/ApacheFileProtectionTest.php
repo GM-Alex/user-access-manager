@@ -74,7 +74,6 @@ class ApacheFileProtectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @group  unit
      *
-     * @return FileProtectionFactory
      * @covers \UserAccessManager\FileHandler\ApacheFileProtection::__construct()
      */
     public function testCanCreateInstance()
@@ -100,6 +99,9 @@ class ApacheFileProtectionTest extends \PHPUnit_Framework_TestCase
             ->method('getHomeUrl')
             ->will($this->returnValue('http://www.test.com'));
 
+        /**
+         * @var \stdClass $oUser
+         */
         $oUser = $this->getMockBuilder('\WP_User')->getMock();
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';

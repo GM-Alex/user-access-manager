@@ -74,7 +74,6 @@ class NginxFileProtectionTest extends \PHPUnit_Framework_TestCase
     /**
      * @group  unit
      *
-     * @return FileProtectionFactory
      * @covers \UserAccessManager\FileHandler\NginxFileProtection::__construct()
      */
     public function testCanCreateInstance()
@@ -96,6 +95,9 @@ class NginxFileProtectionTest extends \PHPUnit_Framework_TestCase
     {
         $oWrapper = $this->getWrapper();
 
+        /**
+         * @var \stdClass $oUser
+         */
         $oUser = $this->getMockBuilder('\WP_User')->getMock();
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';

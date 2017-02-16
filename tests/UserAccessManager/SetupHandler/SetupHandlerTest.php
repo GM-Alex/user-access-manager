@@ -83,6 +83,9 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
         $aSites = [];
 
         for ($iCount = 1; $iCount <= $iNumberOfSites; $iCount++) {
+            /**
+             * @var \stdClass $oSite
+             */
             $oSite = $this->getMockBuilder('\WP_Site')->getMock();
             $oSite->blog_id = $iCount;
             $aSites[] = $oSite;
@@ -167,36 +170,44 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
         $oDatabase->expects($this->exactly(4))
             ->method('dbDelta')
             ->withConsecutive(
-                ['CREATE TABLE user_group_table (
-                    ID int(11) NOT NULL auto_increment,
-                    groupname tinytext NOT NULL,
-                    groupdesc text NOT NULL,
-                    read_access tinytext NOT NULL,
-                    write_access tinytext NOT NULL,
-                    ip_range mediumtext NULL,
-                    PRIMARY KEY (ID)
-                ) charset test;'],
-                ['CREATE TABLE user_group_to_object_table (
-                    object_id VARCHAR(64) NOT NULL,
-                    object_type varchar(64) NOT NULL,
-                    group_id int(11) NOT NULL,
-                    PRIMARY KEY (object_id,object_type,group_id)
-                ) charset test;'],
-                ['CREATE TABLE user_group_table (
-                    ID int(11) NOT NULL auto_increment,
-                    groupname tinytext NOT NULL,
-                    groupdesc text NOT NULL,
-                    read_access tinytext NOT NULL,
-                    write_access tinytext NOT NULL,
-                    ip_range mediumtext NULL,
-                    PRIMARY KEY (ID)
-                ) charset test;'],
-                ['CREATE TABLE user_group_to_object_table (
-                    object_id VARCHAR(64) NOT NULL,
-                    object_type varchar(64) NOT NULL,
-                    group_id int(11) NOT NULL,
-                    PRIMARY KEY (object_id,object_type,group_id)
-                ) charset test;']
+                [new MatchIgnoreWhitespace(
+                    'CREATE TABLE user_group_table (
+                        ID int(11) NOT NULL auto_increment,
+                        groupname tinytext NOT NULL,
+                        groupdesc text NOT NULL,
+                        read_access tinytext NOT NULL,
+                        write_access tinytext NOT NULL,
+                        ip_range mediumtext NULL,
+                        PRIMARY KEY (ID)
+                    ) charset test;'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'CREATE TABLE user_group_to_object_table (
+                        object_id VARCHAR(64) NOT NULL,
+                        object_type varchar(64) NOT NULL,
+                        group_id int(11) NOT NULL,
+                        PRIMARY KEY (object_id,object_type,group_id)
+                    ) charset test;'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'CREATE TABLE user_group_table (
+                        ID int(11) NOT NULL auto_increment,
+                        groupname tinytext NOT NULL,
+                        groupdesc text NOT NULL,
+                        read_access tinytext NOT NULL,
+                        write_access tinytext NOT NULL,
+                        ip_range mediumtext NULL,
+                        PRIMARY KEY (ID)
+                    ) charset test;'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'CREATE TABLE user_group_to_object_table (
+                        object_id VARCHAR(64) NOT NULL,
+                        object_type varchar(64) NOT NULL,
+                        group_id int(11) NOT NULL,
+                        PRIMARY KEY (object_id,object_type,group_id)
+                    ) charset test;'
+                )]
             );
 
         $oSetupHandler = new SetupHandler($oWrapper, $oDatabase, $oObjectHandler, $oFileHandler);
@@ -290,7 +301,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
 
         $oDatabase->expects($this->exactly(1))
             ->method('getCharset')
-            ->will($this->returnValue('testCharset'));
+            ->will($this->returnValue('CHARSET testCharset'));
 
         $oDatabase->expects($this->exactly(1))
             ->method('getPostsTable')
@@ -350,7 +361,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                     'ALTER TABLE userGroupTable ADD ip_range MEDIUMTEXT NULL DEFAULT \'\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\' CHANGE \'object_id\' \'object_id\' VARCHAR(64) testCharset'
+                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\' CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
                 )],
                 [new MatchIgnoreWhitespace(
                     'DROP TABLE prefix_uam_accessgroup_to_post,

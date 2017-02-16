@@ -16,9 +16,7 @@ namespace UserAccessManager\SetupHandler;
 
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
-use UserAccessManager\FileHandler\ApacheFileProtection;
 use UserAccessManager\FileHandler\FileHandler;
-use UserAccessManager\FileHandler\NginxFileProtection;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Wordpress;

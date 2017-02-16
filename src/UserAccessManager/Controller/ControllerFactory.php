@@ -174,7 +174,7 @@ class ControllerFactory
      */
     public function createAdminSetupController()
     {
-        return new AdminSetupController($this->_oWrapper, $this->_oConfig, $this->_oSetupHandler);
+        return new AdminSetupController($this->_oWrapper, $this->_oConfig, $this->_oDatabase, $this->_oSetupHandler);
     }
 
     /**

@@ -12,6 +12,7 @@
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 /**
  * @var \UserAccessManager\Controller\AdminObjectController $this
  */
