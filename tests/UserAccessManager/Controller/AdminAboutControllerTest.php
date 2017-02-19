@@ -19,24 +19,8 @@ namespace UserAccessManager\Controller;
  *
  * @package UserAccessManager\Controller
  */
-class AdminAboutControllerTest extends \PHPUnit_Framework_TestCase
+class AdminAboutControllerTest extends \UserAccessManagerTestCase
 {
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
-     */
-    private function getWrapper()
-    {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\Config
-     */
-    private function getConfig()
-    {
-        return $this->createMock('\UserAccessManager\Config\Config');
-    }
-
     /**
      * @group  unit
      */

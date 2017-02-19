@@ -23,7 +23,7 @@ use Vfs\Node\File;
  *
  * @package UserAccessManager\FileHandler
  */
-class NginxFileProtectionTest extends \PHPUnit_Framework_TestCase
+class NginxFileProtectionTest extends \UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -45,30 +45,6 @@ class NginxFileProtectionTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $this->oRoot->unmount();
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
-     */
-    private function getWrapper()
-    {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\Config
-     */
-    private function getConfig()
-    {
-        return $this->createMock('\UserAccessManager\Config\Config');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Util\Util
-     */
-    private function getUtil()
-    {
-        return $this->createMock('\UserAccessManager\Util\Util');
     }
 
     /**

@@ -41,7 +41,7 @@ function function_exists($sFunction)
  *
  * @package UserAccessManager\FileHandler
  */
-class FileHandlerTest extends \PHPUnit_Framework_TestCase
+class FileHandlerTest extends \UserAccessManagerTestCase
 {
     public static $blFInfoOpenExists = true;
     public static $blMimeContentType = true;
@@ -66,22 +66,6 @@ class FileHandlerTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $this->oRoot->unmount();
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
-     */
-    private function getWrapper()
-    {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\Config
-     */
-    private function getConfig()
-    {
-        return $this->createMock('\UserAccessManager\Config\Config');
     }
 
     /**

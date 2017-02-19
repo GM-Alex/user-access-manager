@@ -68,14 +68,6 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
-     */
-    private function getWrapper()
-    {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-    }
-
-    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameterFactory
      */
     private function getConfigParameterFactory()
@@ -151,9 +143,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetWpOption()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
@@ -179,9 +168,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetConfigParameters()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
@@ -223,9 +209,6 @@ class ConfigTest extends \UserAccessManagerTestCase
             return $sElement.'|value';
         }, $aOptionKeys);
 
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
@@ -247,9 +230,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testSetConfigParameters()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
@@ -307,9 +287,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetParameterValue()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
@@ -331,9 +308,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testAtAdminPanel()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->exactly(2))
             ->method('isAdmin')
@@ -350,9 +324,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testIsPermalinksActive()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->exactly(2))
             ->method('getOption')
@@ -398,9 +369,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetMimeTypes()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->exactly(2))
             ->method('getAllowedMimeTypes')
@@ -434,9 +402,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetUrlPath()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->once())
             ->method('pluginsUrl')
@@ -456,9 +421,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetRealPath()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->once())
             ->method('getPluginDir')
@@ -484,9 +446,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testHideObject()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
@@ -515,9 +474,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testObjectGetter()
     {
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')
@@ -604,9 +560,6 @@ class ConfigTest extends \UserAccessManagerTestCase
             'getFullAccessRole' => 'full_access_role'
         ];
 
-        /**
-         * @var \UserAccessManager\Wrapper\Wordpress $oWrapper
-         */
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->any())
             ->method('getOption')

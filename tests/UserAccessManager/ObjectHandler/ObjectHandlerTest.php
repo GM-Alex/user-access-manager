@@ -24,22 +24,6 @@ use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhit
 class ObjectHandlerTest extends \UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
-     */
-    private function getWrapper()
-    {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Database\Database
-     */
-    private function getDatabase()
-    {
-        return $this->createMock('\UserAccessManager\Database\Database');
-    }
-
-    /**
      * @group  unit
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::__construct()
      */
@@ -56,6 +40,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPostTypes()
+     *
+     * @return ObjectHandler
      */
     public function testGetPostTypes()
     {
@@ -73,6 +59,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
         self::assertEquals($aReturn, $oObjectHandler->getPostTypes());
         self::assertEquals($aReturn, $oObjectHandler->getPostTypes());
+
+        return $oObjectHandler;
     }
 
     /**
@@ -360,5 +348,272 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         self::assertEquals($aExpectedResult, $oObjectHandler->getTermPostMap());
         self::assertEquals($aExpectedResult, $oObjectHandler->getTermPostMap());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPostableTypes()
+     * @depends testGetPostTypes
+     *
+     * @param ObjectHandler $oObjectHandler
+     */
+    public function testGetPostableTypes(ObjectHandler $oObjectHandler)
+    {
+        $aExpectedResult = [
+            ObjectHandler::POST_OBJECT_TYPE => ObjectHandler::POST_OBJECT_TYPE,
+            ObjectHandler::PAGE_OBJECT_TYPE => ObjectHandler::PAGE_OBJECT_TYPE,
+            ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE,
+            'a' => 'a1',
+            'b' => 'b1'
+        ];
+
+        self::assertEquals($aExpectedResult, $oObjectHandler->getPostableTypes());
+        self::assertAttributeEquals($aExpectedResult, '_aPostableTypes', $oObjectHandler);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::registeredPostType()
+     * @depends testGetPostTypes
+     *
+     * @param ObjectHandler $oObjectHandler
+     *
+     * @return ObjectHandler
+     */
+    public function testRegisteredPostType(ObjectHandler $oObjectHandler)
+    {
+        /**
+         * @var \stdClass|\WP_Post_Type $oArguments
+         */
+        $oArguments = $this->getMockBuilder('\WP_Post_Type')->getMock();
+        $oArguments->publicly_queryable = false;
+
+        $aExpectedResult = [
+            ObjectHandler::POST_OBJECT_TYPE => ObjectHandler::POST_OBJECT_TYPE,
+            ObjectHandler::PAGE_OBJECT_TYPE => ObjectHandler::PAGE_OBJECT_TYPE,
+            ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE,
+            'a' => 'a1',
+            'b' => 'b1'
+        ];
+
+        $oObjectHandler->registeredPostType('postType', $oArguments);
+        self::assertAttributeEquals($aExpectedResult, '_aPostableTypes', $oObjectHandler);
+
+        $oArguments->publicly_queryable = true;
+        $aExpectedResult['postType'] = 'postType';
+
+        $oObjectHandler->registeredPostType('postType', $oArguments);
+        self::assertAttributeEquals($aExpectedResult, '_aPostableTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, '_aObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, '_aAllObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, '_aAllObjectTypesMap', $oObjectHandler);
+        self::assertAttributeEquals(null, '_aValidObjectTypes', $oObjectHandler);
+
+        return $oObjectHandler;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isPostableType()
+     * @depends testRegisteredPostType
+     *
+     * @param ObjectHandler $oObjectHandler
+     */
+    public function testIsPostableType(ObjectHandler $oObjectHandler)
+    {
+        self::assertTrue($oObjectHandler->isPostableType(ObjectHandler::POST_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isPostableType('postType'));
+        self::assertFalse($oObjectHandler->isPostableType('missing'));
+    }
+
+    /**
+     * @param string                                           $sName
+     * @param \PHPUnit_Framework_MockObject_Matcher_Invocation $oExpectation
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|PluggableObject
+     */
+    private function getPluggableObject($sName, $oExpectation = null)
+    {
+        $oExpectation = ($oExpectation === null) ? $this->any() : $oExpectation;
+
+        /**
+         * @var PluggableObject|\PHPUnit_Framework_MockObject_MockObject $oPluggableObject
+         */
+        $oPluggableObject = $this->createMock('UserAccessManager\ObjectHandler\PluggableObject');
+        $oPluggableObject->expects($oExpectation)
+            ->method('getName')
+            ->will($this->returnValue($sName));
+
+        return $oPluggableObject;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::registerPluggableObject()
+     */
+    public function testRegisterPlObject()
+    {
+        $oWrapper = $this->getWrapper();
+        $oDatabase = $this->getDatabase();
+
+        $oFirstPluggableObject = $this->getPluggableObject('firstObjectName', $this->exactly(1));
+        $oSecondPluggableObject = $this->getPluggableObject('secondObjectName', $this->exactly(1));
+
+        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler->registerPluggableObject($oFirstPluggableObject);
+        $oObjectHandler->registerPluggableObject($oSecondPluggableObject);
+
+        self::assertAttributeEquals([
+                'firstObjectName' => $oFirstPluggableObject,
+                'secondObjectName' => $oSecondPluggableObject
+            ],
+            '_aPluggableObjects',
+            $oObjectHandler
+        );
+
+        return $oObjectHandler;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObject()
+     * @depends testRegisterPlObject
+     *
+     * @param ObjectHandler $oObjectHandler
+     */
+    public function testGetPluggableObject(ObjectHandler $oObjectHandler)
+    {
+        self::assertEquals(
+            $this->getPluggableObject('firstObjectName'),
+            $oObjectHandler->getPluggableObject('firstObjectName')
+        );
+        self::assertEquals(
+            $this->getPluggableObject('secondObjectName'),
+            $oObjectHandler->getPluggableObject('secondObjectName')
+        );
+        self::assertNull($oObjectHandler->getPluggableObject('invalid'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObjects()
+     * @depends testRegisterPlObject
+     *
+     * @param ObjectHandler $oObjectHandler
+     */
+    public function testGetPluggableObjects(ObjectHandler $oObjectHandler)
+    {
+        self::assertEquals(
+            [
+                'firstObjectName' => $this->getPluggableObject('firstObjectName'),
+                'secondObjectName' => $this->getPluggableObject('secondObjectName')
+            ],
+            $oObjectHandler->getPluggableObjects()
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getObjectTypes()
+     *
+     * @return ObjectHandler
+     */
+    public function testGetObjectTypes()
+    {
+        $aTaxonomiesReturn = ['a' => 'a1', 'b' => 'b1'];
+
+        $oWrapper = $this->getWrapper();
+
+        $oWrapper->expects($this->exactly(1))
+            ->method('getTaxonomies')
+            ->will($this->returnValue($aTaxonomiesReturn));
+
+        $aPostTypesReturn = ['c' => 'c1', 'd' => 'd1'];
+
+        $oWrapper->expects($this->exactly(1))
+            ->method('getPostTypes')
+            ->with(['publicly_queryable' => true])
+            ->will($this->returnValue($aPostTypesReturn));
+
+        $oDatabase = $this->getDatabase();
+        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+
+        $aExpectation = [
+            ObjectHandler::TERM_OBJECT_TYPE => ObjectHandler::TERM_OBJECT_TYPE,
+            ObjectHandler::USER_OBJECT_TYPE => ObjectHandler::USER_OBJECT_TYPE,
+            ObjectHandler::ROLE_OBJECT_TYPE => ObjectHandler::ROLE_OBJECT_TYPE,
+            ObjectHandler::POST_OBJECT_TYPE => ObjectHandler::POST_OBJECT_TYPE,
+            ObjectHandler::PAGE_OBJECT_TYPE => ObjectHandler::PAGE_OBJECT_TYPE,
+            ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE,
+            'a' => 'a1',
+            'b' => 'b1',
+            'c' => 'c1',
+            'd' => 'd1'
+        ];
+
+        self::assertEquals($aExpectation, $oObjectHandler->getObjectTypes());
+        self::assertEquals($aExpectation, $oObjectHandler->getObjectTypes());
+
+        return $oObjectHandler;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getAllObjectTypes()
+     * @depends testGetObjectTypes
+     *
+     * @param ObjectHandler $oObjectHandler
+     *
+     * @return ObjectHandler
+     */
+    public function testGetAllObjectTypes(ObjectHandler $oObjectHandler)
+    {
+        $oFirstPluggableObject = $this->getPluggableObject('firstObjectName', $this->exactly(1));
+        $oSecondPluggableObject = $this->getPluggableObject('secondObjectName', $this->exactly(1));
+        $oObjectHandler->registerPluggableObject($oFirstPluggableObject);
+        $oObjectHandler->registerPluggableObject($oSecondPluggableObject);
+
+        $aExpectation = [
+            ObjectHandler::TERM_OBJECT_TYPE => ObjectHandler::TERM_OBJECT_TYPE,
+            ObjectHandler::USER_OBJECT_TYPE => ObjectHandler::USER_OBJECT_TYPE,
+            ObjectHandler::ROLE_OBJECT_TYPE => ObjectHandler::ROLE_OBJECT_TYPE,
+            ObjectHandler::POST_OBJECT_TYPE => ObjectHandler::POST_OBJECT_TYPE,
+            ObjectHandler::PAGE_OBJECT_TYPE => ObjectHandler::PAGE_OBJECT_TYPE,
+            ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE,
+            'a' => 'a1',
+            'b' => 'b1',
+            'c' => 'c1',
+            'd' => 'd1',
+            'firstObjectName' => 'firstObjectName',
+            'secondObjectName' => 'secondObjectName'
+        ];
+
+        self::assertEquals($aExpectation, $oObjectHandler->getAllObjectTypes());
+
+        return $oObjectHandler;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isValidObjectType()
+     * @depends testGetAllObjectTypes
+     *
+     * @param ObjectHandler $oObjectHandler
+     */
+    public function testIsValidObjectType(ObjectHandler $oObjectHandler)
+    {
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::TERM_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::USER_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::ROLE_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::POST_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::PAGE_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType('a'));
+        self::assertTrue($oObjectHandler->isValidObjectType('b'));
+        self::assertTrue($oObjectHandler->isValidObjectType('c'));
+        self::assertTrue($oObjectHandler->isValidObjectType('d'));
+        self::assertTrue($oObjectHandler->isValidObjectType('firstObjectName'));
+        self::assertTrue($oObjectHandler->isValidObjectType('secondObjectName'));
+        self::assertFalse($oObjectHandler->isValidObjectType('invalid'));
     }
 }

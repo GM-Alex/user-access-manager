@@ -898,7 +898,7 @@ class FrontendController extends Controller
                 $oObject->file = $aUploadDir['basedir'].str_replace($sMultiPath, '', $sObjectUrl);
             }
         } else {
-            $aPlObject = $this->_oObjectHandler->getPlObject($sObjectType);
+            $aPlObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
 
             if (isset($aPlObject) && isset($aPlObject['getFileObject'])) {
                 $oObject = $aPlObject['reference']->{$aPlObject['getFileObject']}($sObjectUrl);

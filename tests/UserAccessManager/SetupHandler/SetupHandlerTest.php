@@ -26,38 +26,6 @@ use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhit
 class SetupHandlerTest extends \UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
-     */
-    private function getWrapper()
-    {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Database\Database
-     */
-    private function getDatabase()
-    {
-        return $this->createMock('\UserAccessManager\Database\Database');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\ObjectHandler\ObjectHandler
-     */
-    private function getObjectHandler()
-    {
-        return $this->createMock('\UserAccessManager\ObjectHandler\ObjectHandler');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\FileHandler\FileHandler
-     */
-    private function getFileHandler()
-    {
-        return $this->createMock('\UserAccessManager\FileHandler\FileHandler');
-    }
-
-    /**
      * @group  unit
      * @covers \UserAccessManager\SetupHandler\SetupHandler::__construct()
      */

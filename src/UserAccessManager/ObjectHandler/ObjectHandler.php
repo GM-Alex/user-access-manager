@@ -81,7 +81,7 @@ class ObjectHandler
     /**
      * @var array
      */
-    protected $_aPlObjects = array();
+    protected $_aPluggableObjects = array();
 
     /**
      * @var array
@@ -97,11 +97,6 @@ class ObjectHandler
      * @var array
      */
     protected $_aAllObjectTypes = null;
-
-    /**
-     * @var array
-     */
-    protected $_aAllObjectTypesMap = null;
 
     /**
      * @var array
@@ -205,25 +200,23 @@ class ObjectHandler
      * Resolves all tree map elements
      *
      * @param array $aMap
-     * @param int   $iCurrentId
+     * @param array $aSubMap
      *
      * @return array
      */
-    protected function _processTreeMapElements(array &$aMap, $iCurrentId = null)
+    protected function _processTreeMapElements(array &$aMap, array $aSubMap = null)
     {
-        if ($iCurrentId === null || isset($aMap[$iCurrentId])) {
-            $aProcess = ($iCurrentId === null) ? $aMap : array($iCurrentId => $aMap[$iCurrentId]);
+        $aProcessMap = ($aSubMap === null) ? $aMap : $aSubMap;
 
-            foreach ($aProcess as $iId => $aSubIds) {
-                foreach ($aSubIds as $iSubId) {
-                    $aMap[$iId] += $this->_processTreeMapElements($aMap, $iSubId);
+        foreach ($aProcessMap as $iId => $aSubIds) {
+            foreach ($aSubIds as $iSubId) {
+                if (isset($aMap[$iSubId])) {
+                    $aMap[$iId] += $this->_processTreeMapElements($aMap, array($iSubId => $aMap[$iSubId]))[$iSubId];
                 }
             }
-
-            return ($iCurrentId === null) ? $aMap : $aMap[$iCurrentId];
         }
 
-        return array();
+        return $aMap;
     }
 
     /**
@@ -303,7 +296,6 @@ class ObjectHandler
         if ($this->_aTermPostMap === null) {
             $this->_aTermPostMap = array();
 
-            //TODO Use term_id instead of term_taxonomy_id use join with wp_term_taxonomy
             $sSelect = "
                 SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
                 FROM {$this->_oDatabase->getTermRelationshipsTable()} AS tr 
@@ -344,60 +336,6 @@ class ObjectHandler
     }
 
     /**
-     * Used for adding custom post types using the registered_post_type hook
-     * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
-     *
-     * @param string    $sPostType  The string for the new post_type
-     * @param \stdClass $oArguments The array of arguments used to create the post_type
-     */
-    public function registeredPostType($sPostType, $oArguments)
-    {
-        if ((bool)$oArguments->publicly_queryable === true) {
-            $this->_aPostableTypes = $this->getPostableTypes();
-            $this->_aPostableTypes[$sPostType] = $sPostType;
-            $this->_aObjectTypes = null;
-            $this->_aAllObjectTypes = null;
-            $this->_aAllObjectTypesMap = null;
-            $this->_aValidObjectTypes = null;
-        }
-    }
-
-    /**
-     * Checks if the object type is a valid one.
-     *
-     * @param string $sObjectType The object type to check.
-     *
-     * @return boolean
-     */
-    public function isValidObjectType($sObjectType)
-    {
-        if (!isset($this->_aValidObjectTypes[$sObjectType])) {
-            $aObjectTypesMap = $this->getAllObjectTypesMap();
-
-            if (isset($aObjectTypesMap[$sObjectType])) {
-                $this->_aValidObjectTypes[$sObjectType] = true;
-            } else {
-                $this->_aValidObjectTypes[$sObjectType] = false;
-            }
-        }
-
-        return $this->_aValidObjectTypes[$sObjectType];
-    }
-
-    /**
-     * Checks if type is postable.
-     *
-     * @param string $sType
-     *
-     * @return bool
-     */
-    public function isPostableType($sType)
-    {
-        $aPostableTypes = $this->getPostableTypes();
-        return isset($aPostableTypes[$sType]);
-    }
-
-    /**
      * Returns the predefined object types.
      *
      * @return array;
@@ -414,6 +352,74 @@ class ObjectHandler
         }
 
         return $this->_aPostableTypes;
+    }
+
+    /**
+     * Used for adding custom post types using the registered_post_type hook
+     * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
+     *
+     * @param string        $sPostType  The string for the new post_type
+     * @param \WP_Post_Type $oArguments The array of arguments used to create the post_type
+     */
+    public function registeredPostType($sPostType, \WP_Post_Type $oArguments)
+    {
+        if ((bool)$oArguments->publicly_queryable === true) {
+            $this->_aPostableTypes = $this->getPostableTypes();
+            $this->_aPostableTypes[$sPostType] = $sPostType;
+            $this->_aObjectTypes = null;
+            $this->_aAllObjectTypes = null;
+            $this->_aAllObjectTypesMap = null;
+            $this->_aValidObjectTypes = null;
+        }
+    }
+
+    /**
+     * Checks if type is postable.
+     *
+     * @param string $sType
+     *
+     * @return bool
+     */
+    public function isPostableType($sType)
+    {
+        $aPostableTypes = $this->getPostableTypes();
+        return isset($aPostableTypes[$sType]);
+    }
+
+    /**
+     * Registers object that should be handel by the user access manager.
+     *
+     * @param PluggableObject $oObject The object which you want to register.
+     */
+    public function registerPluggableObject(PluggableObject $oObject)
+    {
+        $this->_aPluggableObjects[$oObject->getName()] = $oObject;
+    }
+
+    /**
+     * Returns a registered pluggable object.
+     *
+     * @param string $sObjectName The name of the object which should be returned.
+     *
+     * @return PluggableObject
+     */
+    public function getPluggableObject($sObjectName)
+    {
+        if (isset($this->_aPluggableObjects[$sObjectName])) {
+            return $this->_aPluggableObjects[$sObjectName];
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns all registered pluggable objects.
+     *
+     * @return PluggableObject[]
+     */
+    public function getPluggableObjects()
+    {
+        return $this->_aPluggableObjects;
     }
 
     /**
@@ -449,11 +455,13 @@ class ObjectHandler
     {
         if ($this->_aAllObjectTypes === null) {
             $aObjectTypes = $this->getObjectTypes();
-            $aPlObjects = $this->getPlObjects();
+            $aPluggableObjects = $this->getPluggableObjects();
+            $aPluggableObjectKeys = array_keys($aPluggableObjects);
+            $aPluggableObjectKeys = array_combine($aPluggableObjectKeys, $aPluggableObjectKeys);
 
             $this->_aAllObjectTypes = array_merge(
                 $aObjectTypes,
-                array_keys($aPlObjects)
+                $aPluggableObjectKeys
             );
         }
 
@@ -461,64 +469,19 @@ class ObjectHandler
     }
 
     /**
-     * Returns all objects types as map.
+     * Checks if the object type is a valid one.
      *
-     * @return array
-     */
-    public function getAllObjectTypesMap()
-    {
-        if ($this->_aAllObjectTypesMap === null) {
-            $this->_aAllObjectTypesMap = array_flip($this->getAllObjectTypes());
-        }
-
-        return $this->_aAllObjectTypesMap;
-    }
-
-    /**
-     * Registers object that should be handel by the user access manager.
-     *
-     * @param array $oObject The object which you want to register.
+     * @param string $sObjectType The object type to check.
      *
      * @return boolean
      */
-    public function registerPlObject($oObject)
+    public function isValidObjectType($sObjectType)
     {
-        if (!isset($oObject['name'])
-            || !isset($oObject['reference'])
-            || !isset($oObject['getFull'])
-            || !isset($oObject['getFullObjects'])
-        ) {
-            return false;
+        if (!isset($this->_aValidObjectTypes[$sObjectType])) {
+            $aObjectTypesMap = $this->getAllObjectTypes();
+            $this->_aValidObjectTypes[$sObjectType] = isset($aObjectTypesMap[$sObjectType]);
         }
 
-        $this->_aPlObjects[$oObject['name']] = $oObject;
-
-        return true;
-    }
-
-    /**
-     * Returns a registered pluggable object.
-     *
-     * @param string $sObjectName The name of the object which should be returned.
-     *
-     * @return array
-     */
-    public function getPlObject($sObjectName)
-    {
-        if (isset($this->_aPlObjects[$sObjectName])) {
-            return $this->_aPlObjects[$sObjectName];
-        }
-
-        return array();
-    }
-
-    /**
-     * Returns all registered pluggable objects.
-     *
-     * @return array
-     */
-    public function getPlObjects()
-    {
-        return $this->_aPlObjects;
+        return $this->_aValidObjectTypes[$sObjectType];
     }
 }

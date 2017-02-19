@@ -23,7 +23,7 @@ use Vfs\Node\File;
  *
  * @package UserAccessManager\FileHandler
  */
-class ApacheFileProtectionTest extends \PHPUnit_Framework_TestCase
+class ApacheFileProtectionTest extends \UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -48,32 +48,7 @@ class ApacheFileProtectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
-     */
-    private function getWrapper()
-    {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\Config
-     */
-    private function getConfig()
-    {
-        return $this->createMock('\UserAccessManager\Config\Config');
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Util\Util
-     */
-    private function getUtil()
-    {
-        return $this->createMock('\UserAccessManager\Util\Util');
-    }
-
-    /**
      * @group  unit
-     *
      * @covers \UserAccessManager\FileHandler\ApacheFileProtection::__construct()
      */
     public function testCanCreateInstance()

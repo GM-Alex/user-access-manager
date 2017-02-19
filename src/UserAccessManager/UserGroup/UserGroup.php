@@ -241,8 +241,22 @@ class UserGroup
             $aKeys = $this->_getAssignedObjects($sObjectType);
 
             if (count($aKeys) > 0) {
-                $sSql = $this->_getSqlQuery($sObjectType, 'insert', $aKeys);
-                $this->_oDatabase->query($sSql);
+                $aQueryValues = array();
+
+                foreach ($aKeys as $sKey) {
+                    $sKey = trim($sKey);
+                    $aQueryValues[] = " ('{$this->getId()}', '{$sKey}', '{$sObjectType}') ";
+                }
+
+                $sValues = implode(', ', $aQueryValues);
+                $sQuery = "
+                    INSERT INTO {$this->_oDatabase->getUserGroupToObjectTable()} (
+                        group_id,
+                        object_id,
+                        object_type
+                    ) VALUES {$sValues} ON DUPLICATE KEY UPDATE group_id = group_id ";
+
+                $this->_oDatabase->query($sQuery);
             }
         }
 
@@ -440,99 +454,6 @@ class UserGroup
      */
 
     /**
-     * Magic method getter.
-     *
-     * @param string $sName      The name of the function
-     * @param array  $aArguments The arguments for the function
-     *
-     * @return mixed
-     */
-    public function __call($sName, $aArguments)
-    {
-        $sPrefix = '';
-
-        if ($this->_oUtil->startsWith($sName, 'add')) {
-            $sPrefix = 'add';
-        } elseif ($this->_oUtil->startsWith($sName, 'remove')) {
-            $sPrefix = 'remove';
-        } elseif ($this->_oUtil->startsWith($sName, 'isMember')) {
-            $sPrefix = 'isMember';
-        }
-
-        $sObjectType = str_replace($sPrefix, '', $sName);
-        $sObjectType = strtolower($sObjectType);
-
-        $iObjectId = $aArguments[0];
-
-        if ($sPrefix == 'add') {
-            $this->addObject(
-                $sObjectType,
-                $iObjectId
-            );
-        } elseif ($sPrefix == 'remove') {
-            $this->removeObject(
-                $sObjectType,
-                $iObjectId
-            );
-        } elseif ($sPrefix == 'isMember') {
-            $blWithInfo = $aArguments[1];
-
-            return $this->objectIsMember(
-                $sObjectType,
-                $iObjectId,
-                $blWithInfo
-            );
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns the sql query.
-     *
-     * @param string $sObjectType The object type.
-     * @param string $sAction     The sql action.
-     * @param array  $aKeys       The keys for the insert query.
-     *
-     * @return string
-     */
-    protected function _getSqlQuery($sObjectType, $sAction, $aKeys = array())
-    {
-        $sSql = '';
-        $sUserGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();
-
-        if ($sAction == 'select') {
-            $sSql = "
-                SELECT object_id as id
-                FROM {$sUserGroupToObjectTable}
-                WHERE group_id = {$this->getId()}
-                  AND object_type = '{$sObjectType}'";
-        } elseif ($sAction == 'delete') {
-            $sSql = "
-                DELETE FROM {$sUserGroupToObjectTable}
-                WHERE group_id = {$this->getId()}
-                  AND object_type = '{$sObjectType}'";
-        } elseif ($sAction == 'insert') {
-            $sSql = "
-                INSERT INTO {$sUserGroupToObjectTable} (
-                    group_id,
-                    object_id,
-                    object_type
-                ) VALUES ";
-
-            foreach ($aKeys as $sKey) {
-                $sKey = trim($sKey);
-                $sSql .= "('{$this->getId()}', '{$sKey}', '{$sObjectType}'), ";
-            }
-
-            $sSql = rtrim($sSql, ', ');
-            $sSql .= " ON DUPLICATE KEY UPDATE group_id = group_id ";
-        }
-
-        return $sSql;
-    }
-
-    /**
      * Adds a object of the given type.
      *
      * @param string $sObjectType The object type.
@@ -595,10 +516,13 @@ class UserGroup
         if ($aAssignedObjects !== null) {
             $this->_aAssignedObjects[$sObjectType] = $aAssignedObjects;
         } else {
-            $aDbObjects = $this->_oDatabase->getResults(
-                $this->_getSqlQuery($sObjectType, 'select')
-            );
+            $sQuery = "
+                SELECT object_id as id
+                FROM {$this->_oDatabase->getUserGroupToObjectTable()}
+                WHERE group_id = {$this->getId()}
+                  AND object_type = '{$sObjectType}'";
 
+            $aDbObjects = $this->_oDatabase->getResults($sQuery);
             $this->_aAssignedObjects[$sObjectType] = array();
 
             foreach ($aDbObjects as $oDbObject) {
@@ -658,7 +582,11 @@ class UserGroup
     protected function _deleteObjectsFromDb($sObjectType)
     {
         if (isset($this->_iId)) {
-            $sQuery = $this->_getSqlQuery($sObjectType, 'delete');
+            $sQuery = "
+                DELETE FROM {$this->_oDatabase->getUserGroupToObjectTable()}
+                WHERE group_id = {$this->getId()}
+                  AND object_type = '{$sObjectType}'";
+
             $this->_oDatabase->query($sQuery);
         }
     }
@@ -741,7 +669,7 @@ class UserGroup
             } elseif ($sObjectType === ObjectHandler::USER_OBJECT_TYPE) {
                 $this->_aObjects[$sObjectType][$sType] = $this->getFullUsers();
             } else {
-                $oPlObject = $this->_oObjectHandler->getPlObject($sObjectType);
+                $oPlObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
                 $this->_aObjects[$sObjectType][$sType] = $oPlObject['reference']->{$oPlObject['getFullObjects']}(
                     $this->_aObjects[$sObjectType][$sType],
                     $this
@@ -776,8 +704,8 @@ class UserGroup
                     $aIsRecursiveMember = $this->_getFullUser($iObjectId);
                 } elseif ($this->_oObjectHandler->isPostableType($sObjectType)) {
                     $aIsRecursiveMember = $this->_getFullPost($iObjectId);
-                } else {
-                    $aIsRecursiveMember = $this->_getFullPlObject($sObjectType, $iObjectId);
+                } elseif ($this->_oObjectHandler->isValidObjectType($sObjectType)) {
+                    $aIsRecursiveMember = $this->_getFullPluggableObject($sObjectType, $iObjectId);
                 }
             }
 
@@ -880,11 +808,11 @@ class UserGroup
     /**
      * Returns a single category.
      *
-     * @param integer $iObjectId The object id.
+     * @param integer $iTermId The object id.
      *
      * @return object[]
      */
-    protected function _getFullTerm($iObjectId)
+    protected function _getTermParents($iTermId)
     {
         $oTerm = $this->_oObjectHandler->getTerm($iObjectId);
 
@@ -906,6 +834,19 @@ class UserGroup
                 $aIsRecursiveMember[ObjectHandler::TERM_OBJECT_TYPE][] = $oParentTerm;
             }
         }
+
+        /*
+        $aIsRecursiveMember = array();
+
+        if ($this->_oConfig->lockRecursive() === true) {
+            $aTermMap = $this->_oObjectHandler->getTermTreeMap();
+
+            if (isset($aTermMap[ObjectHandler::TREE_MAP_PARENTS][$iTermId])) {
+                $aIsRecursiveMember[ObjectHandler::TERM_OBJECT_TYPE]
+                    = $aTermMap[ObjectHandler::TREE_MAP_PARENTS][$iTermId];
+            }
+        }
+        */
 
         return $aIsRecursiveMember;
     }
@@ -1060,7 +1001,7 @@ class UserGroup
 
 
     /*
-     * Group pluggable _aObjects functions.
+     * Group pluggable objects functions.
      */
 
     /**
@@ -1071,11 +1012,11 @@ class UserGroup
      *
      * @return array
      */
-    protected function _getFullPlObject($sObjectType, $iObjectId)
+    protected function _getFullPluggableObject($sObjectType, $iObjectId)
     {
         $blIsRecursiveMember = array();
 
-        $oPlObject = $this->_oObjectHandler->getPlObject($sObjectType);
+        $oPlObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
 
         if (isset($oPlObject['reference'])
             && isset($oPlObject['getFull'])

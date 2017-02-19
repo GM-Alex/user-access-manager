@@ -19,16 +19,8 @@ namespace UserAccessManager\Database;
  *
  * @package UserAccessManager\Database
  */
-class DatabaseTest extends \PHPUnit_Framework_TestCase
+class DatabaseTest extends \UserAccessManagerTestCase
 {
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
-     */
-    private function getWrapper()
-    {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
-    }
-
     /**
      * @param array $aMethods
      *
