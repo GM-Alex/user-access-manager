@@ -26,13 +26,11 @@ class ObjectHandler
 {
     const TREE_MAP_PARENTS = 'PARENT';
     const TREE_MAP_CHILDREN = 'CHILDREN';
-    const USER_OBJECT_TYPE = 'user';
-    const POST_OBJECT_TYPE = 'post';
-    const PAGE_OBJECT_TYPE = 'page';
-    const TERM_OBJECT_TYPE = 'term';
-    const ROLE_OBJECT_TYPE = 'role';
+    const GENERAL_ROLE_OBJECT_TYPE = '_role_';
+    const GENERAL_USER_OBJECT_TYPE = '_user_';
+    const GENERAL_POST_OBJECT_TYPE = '_post_';
+    const GENERAL_TERM_OBJECT_TYPE = '_term_';
     const ATTACHMENT_OBJECT_TYPE = 'attachment';
-
     /**
      * @var Wordpress
      */
@@ -67,6 +65,11 @@ class ObjectHandler
      * @var array
      */
     protected $_aTermPostMap = null;
+
+    /**
+     * @var array
+     */
+    protected $_aPostTermMap = null;
 
     /**
      * @var array
@@ -123,7 +126,7 @@ class ObjectHandler
     public function getPostTypes()
     {
         if ($this->_aPostTypes === null) {
-            $this->_aPostTypes = $this->_oWrapper->getPostTypes(array('publicly_queryable' => true));
+            $this->_aPostTypes = $this->_oWrapper->getPostTypes(array('public' => true));
         }
 
         return $this->_aPostTypes;
@@ -223,17 +226,20 @@ class ObjectHandler
      * Returns the tree map for the query.
      *
      * @param string $sSelect
+     * @param string $sGeneralType
      *
      * @return array
      */
-    protected function _getTreeMap($sSelect)
+    protected function _getTreeMap($sSelect, $sGeneralType)
     {
         $aTreeMap = array(
-            self::TREE_MAP_CHILDREN => array(),
-            self::TREE_MAP_PARENTS => array(),
+            self::TREE_MAP_CHILDREN => array(
+                $sGeneralType => array()
+            ),
+            self::TREE_MAP_PARENTS => array(
+                $sGeneralType => array()
+            )
         );
-        $aChildrenMap = array();
-        $aParentMap = array();
         $aResults = $this->_oDatabase->getResults($sSelect);
 
         foreach ($aResults as $oResult) {
@@ -246,14 +252,16 @@ class ObjectHandler
             }
 
             if (!isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId])) {
-                $aChildrenMap[$oResult->type][$oResult->parentId] = array();
+                $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId] = array();
             }
 
-            if (!isset($aParentMap[$oResult->type][$oResult->id])) {
-                $aParentMap[$oResult->type][$oResult->id] = array();
+            if (!isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id])) {
+                $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id] = array();
             }
 
+            $aTreeMap[self::TREE_MAP_CHILDREN][$sGeneralType][$oResult->parentId][$oResult->id] = $oResult->id;
             $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId][$oResult->id] = $oResult->id;
+            $aTreeMap[self::TREE_MAP_PARENTS][$sGeneralType][$oResult->id][$oResult->parentId] = $oResult->parentId;
             $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id][$oResult->parentId] = $oResult->parentId;
         }
 
@@ -280,10 +288,29 @@ class ObjectHandler
                 FROM {$this->_oDatabase->getPostsTable()}
                   WHERE post_parent != 0";
 
-            $this->_aPostTreeMap = $this->_getTreeMap($sSelect);
+            $this->_aPostTreeMap = $this->_getTreeMap($sSelect, self::GENERAL_POST_OBJECT_TYPE);
         }
 
         return $this->_aPostTreeMap;
+    }
+
+    /**
+     * Returns the term tree map.
+     *
+     * @return array
+     */
+    public function getTermTreeMap()
+    {
+        if ($this->_aTermTreeMap === null) {
+            $sSelect = "
+                SELECT term_id AS id, parent AS parentId, taxonomy as type
+                FROM {$this->_oDatabase->getTermTaxonomyTable()}
+                  WHERE parent != 0";
+
+            $this->_aTermTreeMap = $this->_getTreeMap($sSelect, self::GENERAL_TERM_OBJECT_TYPE);
+        }
+
+        return $this->_aTermTreeMap;
     }
 
     /**
@@ -317,38 +344,40 @@ class ObjectHandler
     }
 
     /**
-     * Returns the term tree map.
+     * Returns the post term map.
      *
      * @return array
      */
-    public function getTermTreeMap()
+    public function getPostTermMap()
     {
-        if ($this->_aTermTreeMap === null) {
-            $sSelect = "
-                SELECT term_id AS id, parent AS parentId, taxonomy as type
-                FROM {$this->_oDatabase->getTermTaxonomyTable()}
-                  WHERE parent != 0";
+        if ($this->_aPostTermMap === null) {
+            $this->_aPostTermMap = array();
+            $aTermPostMap = $this->getTermPostMap();
 
-            $this->_aTermTreeMap = $this->_getTreeMap($sSelect);
+            foreach ($aTermPostMap as $iTermId => $aPosts) {
+                foreach ($aPosts as $iPostId => $sPostType) {
+                    if (!isset($this->_aPostTermMap[$iPostId])) {
+                        $this->_aPostTermMap[$iPostId] = array();
+                    }
+
+                    $this->_aPostTermMap[$iPostId][$iTermId] = $iTermId;
+                }
+            }
+
         }
 
-        return $this->_aTermTreeMap;
+        return $this->_aPostTermMap;
     }
 
     /**
      * Returns the predefined object types.
      *
-     * @return array;
+     * @return array
      */
     public function getPostableTypes()
     {
         if ($this->_aPostableTypes === null) {
-            $aStaticPostableTypes = array(
-                self::POST_OBJECT_TYPE => self::POST_OBJECT_TYPE,
-                self::PAGE_OBJECT_TYPE => self::PAGE_OBJECT_TYPE,
-                self::ATTACHMENT_OBJECT_TYPE => self::ATTACHMENT_OBJECT_TYPE
-            );
-            $this->_aPostableTypes = array_merge($aStaticPostableTypes, $this->getPostTypes());
+            $this->_aPostableTypes = $this->getPostTypes();
         }
 
         return $this->_aPostableTypes;
@@ -363,12 +392,11 @@ class ObjectHandler
      */
     public function registeredPostType($sPostType, \WP_Post_Type $oArguments)
     {
-        if ((bool)$oArguments->publicly_queryable === true) {
+        if ((bool)$oArguments->public === true) {
             $this->_aPostableTypes = $this->getPostableTypes();
             $this->_aPostableTypes[$sPostType] = $sPostType;
             $this->_aObjectTypes = null;
             $this->_aAllObjectTypes = null;
-            $this->_aAllObjectTypesMap = null;
             $this->_aValidObjectTypes = null;
         }
     }
@@ -384,6 +412,19 @@ class ObjectHandler
     {
         $aPostableTypes = $this->getPostableTypes();
         return isset($aPostableTypes[$sType]);
+    }
+
+    /**
+     * Checks if the taxonomy is a valid one.
+     *
+     * @param string $sTaxonomy
+     *
+     * @return bool
+     */
+    public function isTaxonomy($sTaxonomy)
+    {
+        $aTaxonomies = $this->_oWrapper->getTaxonomies();
+        return in_array($sTaxonomy, $aTaxonomies);
     }
 
     /**
@@ -413,6 +454,18 @@ class ObjectHandler
     }
 
     /**
+     * Returns true if the object is a pluggable object.
+     *
+     * @param string $sObjectName
+     *
+     * @return bool
+     */
+    public function isPluggableObject($sObjectName)
+    {
+        return isset($this->_aPluggableObjects[$sObjectName]);
+    }
+
+    /**
      * Returns all registered pluggable objects.
      *
      * @return PluggableObject[]
@@ -430,15 +483,8 @@ class ObjectHandler
     public function getObjectTypes()
     {
         if ($this->_aObjectTypes === null) {
-            $aStaticObjectTypes = array(
-                self::TERM_OBJECT_TYPE => self::TERM_OBJECT_TYPE,
-                self::USER_OBJECT_TYPE => self::USER_OBJECT_TYPE,
-                self::ROLE_OBJECT_TYPE => self::ROLE_OBJECT_TYPE
-            );
-
             $this->_aObjectTypes = array_merge(
                 $this->getPostableTypes(),
-                $aStaticObjectTypes,
                 $this->getTaxonomies()
             );
         }
@@ -466,6 +512,28 @@ class ObjectHandler
         }
 
         return $this->_aAllObjectTypes;
+    }
+
+    /**
+     * Returns the general object type.
+     *
+     * @param string $sObjectType
+     *
+     * @return string
+     */
+    public function getGeneralObjectType($sObjectType)
+    {
+        if ($sObjectType === self::GENERAL_USER_OBJECT_TYPE
+            ||$sObjectType === self::GENERAL_ROLE_OBJECT_TYPE
+        ) {
+            return $sObjectType;
+        } elseif ($this->isPostableType($sObjectType)) {
+            return self::GENERAL_POST_OBJECT_TYPE;
+        } elseif ($this->isTaxonomy($sObjectType)) {
+            return self::GENERAL_TERM_OBJECT_TYPE;
+        }
+
+        return null;
     }
 
     /**

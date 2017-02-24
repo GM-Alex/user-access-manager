@@ -20,21 +20,24 @@ if (!function_exists('walkPath')) {
     /**
      * Returns the html code for the recursive access.
      *
-     * @param mixed  $oObject     The object.
-     * @param string $sObjectType The type of the object.
+     * @param \UserAccessManager\UserGroup\UserGroup $oUserGroup
+     * @param int                                    $iObjectId
+     * @param string                                 $sObjectType The type of the object.
      *
      * @return string
      */
-    function walkPath($oObject, $sObjectType)
+    function walkPath($oUserGroup, $iObjectId, $sObjectType)
     {
-        $sOut = $oObject->name;
+        $sOut = "$sObjectType: $iObjectId";
 
-        if (isset($oObject->recursiveMember[$sObjectType])) {
+        $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $iObjectId, $sObjectType);
+
+        if (count($aRecursiveMembership) > 0) {
             $sOut .= '<ul>';
 
-            foreach ($oObject->recursiveMember[$sObjectType] as $oRecursiveObject) {
+            foreach ($aRecursiveMembership as $iRecursiveObjectId) {
                 $sOut .= '<li>';
-                $sOut .= walkPath($oRecursiveObject, $sObjectType);
+                $sOut .= walkPath($oUserGroup, $iRecursiveObjectId, $sObjectType);
                 $sOut .= '</li>';
             }
 
@@ -53,7 +56,7 @@ if (!function_exists('walkPath')) {
         $sObjectId = $this->getObjectId();
 
         foreach ($aAllObjectTypes as $sObjectType) {
-            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObjectType($sObjectType, $sObjectId, $sObjectType);
+            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId, $sObjectType);
 
             if (count($aRecursiveMembership) > 0) {
                 ?>
@@ -61,9 +64,9 @@ if (!function_exists('walkPath')) {
                     <?php echo constant('TXT_UAM_GROUP_MEMBERSHIP_BY_'.strtoupper($sObjectType)); ?>:
                     <ul>
                         <?php
-                        foreach ($aRecursiveMembership as $oObject) {
+                        foreach ($aRecursiveMembership as $iObjectId) {
                             ?>
-                            <li class="recursiveTree"><?php echo walkPath($oObject, $sObjectType); ?></li>
+                            <li class="recursiveTree"><?php echo walkPath($oUserGroup, $iObjectId, $sObjectType); ?></li>
                             <?php
                         }
                         ?>
@@ -77,18 +80,18 @@ if (!function_exists('walkPath')) {
             <ul>
                 <li><?php echo TXT_UAM_READ_ACCESS; ?>:
                     <?php
-                    if ($oUserGroup->getReadAccess() == "all") {
+                    if ($oUserGroup->getReadAccess() === "all") {
                         echo TXT_UAM_ALL;
-                    } elseif ($oUserGroup->getReadAccess() == "group") {
+                    } elseif ($oUserGroup->getReadAccess() === "group") {
                         echo TXT_UAM_ONLY_GROUP_USERS;
                     }
                     ?>
                 </li>
                 <li><?php echo TXT_UAM_WRITE_ACCESS; ?>:
                     <?php
-                    if ($oUserGroup->getWriteAccess() == "all") {
+                    if ($oUserGroup->getWriteAccess() === "all") {
                         echo TXT_UAM_ALL;
-                    } elseif ($oUserGroup->getWriteAccess() == "group") {
+                    } elseif ($oUserGroup->getWriteAccess() === "group") {
                         echo TXT_UAM_ONLY_GROUP_USERS;
                     }
                     ?>
@@ -97,7 +100,7 @@ if (!function_exists('walkPath')) {
                     <?php
                     $sContent = TXT_UAM_GROUP_ROLE.': ';
                     $aRoleNames = $this->getRoleNames();
-                    $aGroupRoles = $oUserGroup->getObjectsFromType(\UserAccessManager\ObjectHandler\ObjectHandler::ROLE_OBJECT_TYPE);
+                    $aGroupRoles = $oUserGroup->getObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
                     if (count($aGroupRoles) > 0) {
                         $aCleanGroupRoles = array();

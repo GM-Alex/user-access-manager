@@ -146,6 +146,7 @@ class SetupHandler
             $this->_oDatabase->dbDelta(
                 "CREATE TABLE {$sDbAccessGroupToObjectTable} (
                     object_id VARCHAR(64) NOT NULL,
+                    general_object_type varchar(64) NOT NULL,
                     object_type varchar(64) NOT NULL,
                     group_id int(11) NOT NULL,
                     PRIMARY KEY (object_id,object_type,group_id)
@@ -168,7 +169,7 @@ class SetupHandler
         if (count($aBlogIds) > 0 && $this->_oWrapper->isSuperAdmin()) {
             foreach ($aBlogIds as $iBlogId) {
                 $sTable = $this->_oDatabase->getBlogPrefix($iBlogId).'options';
-                $sSelect = "SELECT option_value FROM {$sTable} WHERE option_name = %s LIMIT 1";
+                $sSelect = "SELECT option_value FROM {$sTable} WHERE option_name = '%s' LIMIT 1";
                 $sSelect = $this->_oDatabase->prepare($sSelect, 'uam_db_version');
                 $sCurrentDbVersion = $this->_oDatabase->getVariable($sSelect);
 
@@ -212,7 +213,7 @@ class SetupHandler
             $sCharsetCollate = $this->_oDatabase->getCharset();
 
             if (version_compare($sCurrentDbVersion, '1.0', '<=')) {
-                if ($sDbUserGroup == $sDbAccessGroup) {
+                if ($sDbUserGroup === $sDbAccessGroup) {
                     $sAlterQuery = "ALTER TABLE {$sDbAccessGroup}
                         ADD read_access TINYTEXT NOT NULL DEFAULT '', 
                         ADD write_access TINYTEXT NOT NULL DEFAULT '', 
@@ -227,8 +228,9 @@ class SetupHandler
                     $sDbIpRange = $this->_oDatabase->getVariable($sSelectQuery);
 
                     if ($sDbIpRange != 'ip_range') {
-                        $sAlterQuery = "ALTER TABLE ".$sDbAccessGroup."
+                        $sAlterQuery = "ALTER TABLE {$sDbAccessGroup}
                             ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+
                         $this->_oDatabase->query($sAlterQuery);
                     }
                 }
@@ -269,10 +271,10 @@ class SetupHandler
 
                     $sFullDatabase = $sDatabase.$sAddition;
 
-                    $sSql = "SELECT {$sDbIdName} as id, group_id as groupId
+                    $sQuery = "SELECT {$sDbIdName} as id, group_id as groupId
                         FROM {$sFullDatabase}";
 
-                    $aDbObjects = (array)$this->_oDatabase->getResults($sSql);
+                    $aDbObjects = (array)$this->_oDatabase->getResults($sQuery);
 
                     foreach ($aDbObjects as $oDbObject) {
                         $this->_oDatabase->insert(
@@ -302,25 +304,76 @@ class SetupHandler
             $sDbAccessGroupToObject = $this->_oDatabase->getUserGroupToObjectTable();
 
             if (version_compare($sCurrentDbVersion, '1.2', '<=')) {
-                $sSql = "
+                $sQuery = "
                     ALTER TABLE `{$sDbAccessGroupToObject}`
                     CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
                     CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL";
 
-                $this->_oDatabase->query($sSql);
+                $this->_oDatabase->query($sQuery);
             }
 
             if (version_compare($sCurrentDbVersion, '1.3', '<=')) {
-                $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
+                $sGeneralTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
                 $this->_oDatabase->update(
                     $sDbAccessGroupToObject,
                     array(
-                        'object_type' => $sTermType,
+                        'object_type' => $sGeneralTermType,
                     ),
                     array(
                         'object_type' => 'category',
                     )
                 );
+            }
+
+            if (version_compare($sCurrentDbVersion, '1.4', '<=')) {
+                $sAlterQuery = "ALTER TABLE {$sDbAccessGroupToObject}
+                    ADD general_object_type varchar(64) NOT NULL AFTER object_id";
+
+                $this->_oDatabase->query($sAlterQuery);
+
+                // Update post entries
+                $sGeneralPostType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+
+                $sQuery = "UPDATE {$sDbAccessGroupToObject}
+                    SET general_object_type = '{$sGeneralPostType}'
+                    WHERE object_type IN ('post', 'page', 'attachment')";
+
+                $this->_oDatabase->query($sQuery);
+
+                // Update role entries
+                $sGeneralRoleType = ObjectHandler::GENERAL_ROLE_OBJECT_TYPE;
+
+                $sQuery = "UPDATE {$sDbAccessGroupToObject}
+                    SET general_object_type = '{$sGeneralRoleType}'
+                    WHERE object_type = 'role'";
+
+                $this->_oDatabase->query($sQuery);
+
+                // Update user entries
+                $sGeneralUserType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
+
+                $sQuery = "UPDATE {$sDbAccessGroupToObject}
+                    SET general_object_type = '{$sGeneralUserType}'
+                    WHERE object_type = 'user'";
+
+                $this->_oDatabase->query($sQuery);
+
+                // Update term entries
+                $sGeneralTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
+
+                $sQuery = "UPDATE {$sDbAccessGroupToObject}
+                    SET general_object_type = '{$sGeneralTermType}'
+                    WHERE object_type = 'term'";
+
+                $this->_oDatabase->query($sQuery);
+
+                $sQuery = "UPDATE {$sDbAccessGroupToObject} AS gto
+                    LEFT JOIN {$this->_oDatabase->getTermTaxonomyTable()} AS tt 
+                      ON gto.object_id = tt.term_id
+                    SET gto.object_type = tt.taxonomy
+                    WHERE gto.general_object_type = '{$sGeneralTermType}'";
+
+                $this->_oDatabase->query($sQuery);
             }
 
             $this->_oWrapper->updateOption('uam_db_version', UserAccessManager::DB_VERSION);

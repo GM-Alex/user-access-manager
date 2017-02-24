@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\UserGroup;
 
-use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -28,9 +27,6 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserGroup
 {
-    const OBJECTS_FULL = 'full';
-    const OBJECTS_REAL = 'real';
-
     /**
      * @var Wordpress
      */
@@ -45,11 +41,6 @@ class UserGroup
      * @var Config
      */
     protected $_oConfig;
-
-    /**
-     * @var Cache
-     */
-    protected $_oCache;
 
     /**
      * @var Util
@@ -96,14 +87,20 @@ class UserGroup
      */
     protected $_aRoles = array();
 
-    protected $_aObjects = null;
-    protected $_aSingleObjects = null;
-    protected $_aAssignedObjects = null;
-    protected $_aPlObjects = array();
-    protected $_aSetRecursive = array();
-    protected $_aValidObjectTypes = array();
-    protected $_aObjectsInTerm = null;
-    protected $_aObjectIsMember = array();
+    /**
+     * @var array
+     */
+    protected $_aAssignedObjects = array();
+
+    /**
+     * @var array
+     */
+    protected $_aObjectMembership = array();
+
+    /**
+     * @var array
+     */
+    protected $_aFullObjects = array();
 
     /**
      * UserGroup constructor.
@@ -111,7 +108,6 @@ class UserGroup
      * @param Wordpress     $oWrapper
      * @param Database      $oDatabase
      * @param Config        $oConfig
-     * @param Cache         $oCache
      * @param Util          $oUtil
      * @param ObjectHandler $oObjectHandler
      * @param null          $iId
@@ -120,7 +116,6 @@ class UserGroup
         Wordpress $oWrapper,
         Database $oDatabase,
         Config $oConfig,
-        Cache $oCache,
         Util $oUtil,
         ObjectHandler $oObjectHandler,
         $iId = null
@@ -129,140 +124,13 @@ class UserGroup
         $this->_oWrapper = $oWrapper;
         $this->_oDatabase = $oDatabase;
         $this->_oConfig = $oConfig;
-        $this->_oCache = $oCache;
         $this->_oUtil = $oUtil;
         $this->_oObjectHandler = $oObjectHandler;
 
         if ($iId !== null) {
-            $this->_iId = $iId;
-
-            $aDbUserGroup = $this->_oDatabase->getRow(
-                "SELECT *
-                FROM {$this->_oDatabase->getUserGroupTable()}
-                WHERE ID = {$this->getId()}
-                LIMIT 1",
-                ARRAY_A
-            );
-
-            $this->_sGroupName = $aDbUserGroup['groupname'];
-            $this->_sGroupDesc = $aDbUserGroup['groupdesc'];
-            $this->_sReadAccess = $aDbUserGroup['read_access'];
-            $this->_sWriteAccess = $aDbUserGroup['write_access'];
-            $this->_sIpRange = $aDbUserGroup['ip_range'];
-        }
-
-        //Create default values for the objects.
-        $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
-
-        foreach ($aAllObjectTypes as $sObjectType) {
-            $this->_aAssignedObjects[$sObjectType] = null;
-            $this->_aObjects[$sObjectType] = array(
-                self::OBJECTS_REAL => -1,
-                self::OBJECTS_FULL => -1
-            );
-
-            if ($iId !== null) {
-                $this->getObjectsFromType($sObjectType);
-            }
+            $this->load($iId);
         }
     }
-
-    /**
-     * Deletes the user group.
-     *
-     * @return boolean
-     */
-    public function delete()
-    {
-        if ($this->_iId == null) {
-            return false;
-        }
-
-        $this->_oDatabase->delete(
-            $this->_oDatabase->getUserGroupTable(),
-            array('ID' => $this->_iId)
-        );
-
-        $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
-
-        foreach ($aAllObjectTypes as $sObjectType) {
-            $this->_deleteObjectsFromDb($sObjectType);
-        }
-
-        return true;
-    }
-
-    /**
-     * Saves the user group.
-     *
-     * @param boolean $blRemoveOldAssignments If false we will not remove old entries.
-     *
-     * @return bool
-     */
-    public function save($blRemoveOldAssignments = true)
-    {
-        $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
-
-        if ($this->_iId == null) {
-            $mReturn = $this->_oDatabase->insert(
-                $this->_oDatabase->getUserGroupTable(),
-                array(
-                    'groupname' => $this->_sGroupName,
-                    'groupdesc' => $this->_sGroupDesc,
-                    'read_access' => $this->_sReadAccess,
-                    'write_access' => $this->_sWriteAccess,
-                    'ip_range' => $this->_sIpRange
-                )
-            );
-
-            $this->_iId = $this->_oDatabase->getLastInsertId();
-        } else {
-            $mReturn = $this->_oDatabase->update(
-                $this->_oDatabase->getUserGroupTable(),
-                array(
-                    'groupname' => $this->_sGroupName,
-                    'groupdesc' => $this->_sGroupDesc,
-                    'read_access' => $this->_sReadAccess,
-                    'write_access' => $this->_sWriteAccess,
-                    'ip_range' => $this->_sIpRange
-                ),
-                array('ID' => $this->_iId)
-            );
-
-            if ($blRemoveOldAssignments === true) {
-                foreach ($aAllObjectTypes as $sObjectType) {
-                    //Delete form database
-                    $this->_deleteObjectsFromDb($sObjectType);
-                }
-            }
-        }
-
-        foreach ($aAllObjectTypes as $sObjectType) {
-            $aKeys = $this->_getAssignedObjects($sObjectType);
-
-            if (count($aKeys) > 0) {
-                $aQueryValues = array();
-
-                foreach ($aKeys as $sKey) {
-                    $sKey = trim($sKey);
-                    $aQueryValues[] = " ('{$this->getId()}', '{$sKey}', '{$sObjectType}') ";
-                }
-
-                $sValues = implode(', ', $aQueryValues);
-                $sQuery = "
-                    INSERT INTO {$this->_oDatabase->getUserGroupToObjectTable()} (
-                        group_id,
-                        object_id,
-                        object_type
-                    ) VALUES {$sValues} ON DUPLICATE KEY UPDATE group_id = group_id ";
-
-                $this->_oDatabase->query($sQuery);
-            }
-        }
-
-        return ($mReturn !== false);
-    }
-
 
     /*
      * Primary values.
@@ -367,17 +235,11 @@ class UserGroup
      */
     public function getIpRange($sType = null)
     {
-        if ($sType == 'string') {
+        if ($sType === 'string') {
             return $this->_sIpRange;
         }
 
-        $aIpRange = explode(';', $this->_sIpRange);
-
-        if (!isset($aIpRange[0])) {
-            return null;
-        }
-
-        return $aIpRange;
+        return explode(';', $this->_sIpRange);
     }
 
     /**
@@ -395,19 +257,242 @@ class UserGroup
     }
 
     /**
-     * Sets the recursive object membership.
+     * Loads the user group.
      *
-     * @param string  $sObjectType       The object type.
-     * @param integer $iObjectId         The object id.
-     * @param array   $aObjectMembership The membership.
+     * @param $iId
+     *
+     * @return bool
      */
-    public function setRecursiveMembership($sObjectType, $iObjectId, $aObjectMembership)
+    public function load($iId)
     {
-        if (!isset($this->_aSetRecursive[$sObjectType])) {
-            $this->_aSetRecursive[$sObjectType] = array();
+        $sQuery = $this->_oDatabase->prepare(
+            "SELECT *
+            FROM {$this->_oDatabase->getUserGroupTable()}
+            WHERE ID = %s
+            LIMIT 1",
+            $iId
+        );
+
+        $oDbUserGroup = $this->_oDatabase->getRow($sQuery);
+
+        if ($oDbUserGroup !== null) {
+            $this->_iId = $iId;
+            $this->_sGroupName = $oDbUserGroup->groupname;
+            $this->_sGroupDesc = $oDbUserGroup->groupdesc;
+            $this->_sReadAccess = $oDbUserGroup->read_access;
+            $this->_sWriteAccess = $oDbUserGroup->write_access;
+            $this->_sIpRange = $oDbUserGroup->ip_range;
+
+            return true;
         }
 
-        $this->_aSetRecursive[$sObjectType][$iObjectId] = $aObjectMembership;
+        return false;
+    }
+
+    /**
+     * Saves the user group.
+     *
+     * @return bool
+     */
+    public function save()
+    {
+        if ($this->_iId === null) {
+            $mReturn = $this->_oDatabase->insert(
+                $this->_oDatabase->getUserGroupTable(),
+                array(
+                    'groupname' => $this->_sGroupName,
+                    'groupdesc' => $this->_sGroupDesc,
+                    'read_access' => $this->_sReadAccess,
+                    'write_access' => $this->_sWriteAccess,
+                    'ip_range' => $this->_sIpRange
+                )
+            );
+
+            $this->_iId = $this->_oDatabase->getLastInsertId();
+        } else {
+            $mReturn = $this->_oDatabase->update(
+                $this->_oDatabase->getUserGroupTable(),
+                array(
+                    'groupname' => $this->_sGroupName,
+                    'groupdesc' => $this->_sGroupDesc,
+                    'read_access' => $this->_sReadAccess,
+                    'write_access' => $this->_sWriteAccess,
+                    'ip_range' => $this->_sIpRange
+                ),
+                array('ID' => $this->_iId)
+            );
+        }
+
+        return ($mReturn !== false);
+    }
+
+    /**
+     * Removes all objects from the user group.
+     *
+     * @param string $sObjectType The object type.
+     *
+     * @return bool
+     */
+    protected function _deleteObjectsFromDb($sObjectType)
+    {
+        if ($this->_iId !== null) {
+            $sQuery = $this->_oDatabase->prepare(
+                "DELETE FROM {$this->_oDatabase->getUserGroupToObjectTable()}
+                WHERE group_id = %d
+                  AND (general_object_type = '%s' OR object_type = '%s')",
+                array(
+                    $this->_iId,
+                    $sObjectType,
+                    $sObjectType
+                )
+            );
+
+            return ($this->_oDatabase->query($sQuery) !== false);
+        }
+
+        return false;
+    }
+
+    /**
+     * Deletes the user group.
+     *
+     * @return boolean
+     */
+    public function delete()
+    {
+        if ($this->_iId === null) {
+            return false;
+        }
+
+        $blSuccess = $this->_oDatabase->delete(
+            $this->_oDatabase->getUserGroupTable(),
+            array('ID' => $this->_iId)
+        );
+
+        if ($blSuccess !== false) {
+            $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
+
+            foreach ($aAllObjectTypes as $sObjectType) {
+                $this->_deleteObjectsFromDb($sObjectType);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns the assigned objects.
+     *
+     * @param string $sObjectType The object type.
+     *
+     * @return array
+     */
+    protected function _getAssignedObjects($sObjectType)
+    {
+        if (isset($this->_aAssignedObjects[$sObjectType]) === false) {
+            $sQuery = $this->_oDatabase->prepare(
+                "SELECT object_id as id
+                FROM {$this->_oDatabase->getUserGroupToObjectTable()}
+                WHERE group_id = %d
+                  AND (general_object_type = '%s' OR object_type = '%s')",
+                array(
+                    $this->getId(),
+                    $sObjectType,
+                    $sObjectType
+                )
+            );
+
+            $aDbObjects = $this->_oDatabase->getResults($sQuery);
+            $this->_aAssignedObjects[$sObjectType] = array();
+
+            foreach ($aDbObjects as $oDbObject) {
+                $this->_aAssignedObjects[$sObjectType][$oDbObject->id] = $oDbObject->id;
+            }
+        }
+
+        return $this->_aAssignedObjects[$sObjectType];
+    }
+
+    /**
+     * Adds a object of the given type.
+     *
+     * @param string $sObjectType The object type.
+     * @param string $iObjectId   The object id.
+     *                            
+     * @return bool
+     */
+    public function addObject($sObjectType, $iObjectId)
+    {
+        $sGeneralObjectType = $this->_oObjectHandler->getGeneralObjectType($sObjectType);
+
+        if ($sGeneralObjectType === null
+            || $this->_oObjectHandler->isValidObjectType($sObjectType) === false
+        ) {
+            return false;
+        }
+
+
+
+        $mReturn = $this->_oDatabase->insert(
+            $this->_oDatabase->getUserGroupToObjectTable(),
+            array(
+                'group_id' => $this->_iId,
+                'object_id' => $iObjectId,
+                'general_object_type' => $sGeneralObjectType,
+                'object_type' => $sObjectType
+            ),
+            array(
+                '%d',
+                '%d',
+                '%s',
+                '%s'
+            )
+        );
+
+        if ($mReturn !== false) {
+            $this->_aAssignedObjects = array();
+            $this->_aObjectMembership = array();
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Removes a object of the given type.
+     *
+     * @param string  $sObjectType The object type.
+     * @param integer $iObjectId   The object id.
+     *
+     * @return bool
+     */
+    public function removeObject($sObjectType, $iObjectId)
+    {
+        if ($this->_oObjectHandler->isValidObjectType($sObjectType) === false) {
+            return false;
+        }
+
+        $sQuery = $this->_oDatabase->prepare(
+            "DELETE FROM {$this->_oDatabase->getUserGroupToObjectTable()}
+                WHERE group_id = %d
+                  AND object_id = %d
+                  AND (general_object_type = '%s' OR object_type = '%s')",
+            array(
+                $this->_iId,
+                $iObjectId,
+                $sObjectType,
+                $sObjectType
+            )
+        );
+
+        $blSuccess = ($this->_oDatabase->query($sQuery) !== false);
+
+        if ($blSuccess === true) {
+            $this->_aAssignedObjects = array();
+            $this->_aObjectMembership = array();
+        }
+
+        return $blSuccess;
     }
 
     /**
@@ -419,13 +504,14 @@ class UserGroup
      *
      * @return array
      */
-    public function getRecursiveMembershipForObjectType($sObjectType, $iObjectId, $sCurObjectType)
+    public function getRecursiveMembershipForObject($sObjectType, $iObjectId, $sCurObjectType)
     {
-        if (isset($this->_aSetRecursive[$sObjectType])
-            && isset($this->_aSetRecursive[$sObjectType][$iObjectId])
-            && isset($this->_aSetRecursive[$sObjectType][$iObjectId][$sCurObjectType])
+        $aRecursiveMembership = array();
+
+        if ($this->isObjectMember($sObjectType, $iObjectId, $aRecursiveMembership) === true
+            && isset($aRecursiveMembership[$sCurObjectType])
         ) {
-            return $this->_aSetRecursive[$sObjectType][$iObjectId][$sCurObjectType];
+            return $aRecursiveMembership[$sCurObjectType];
         }
 
         return array();
@@ -441,98 +527,13 @@ class UserGroup
      */
     public function isLockedRecursive($sObjectType, $iObjectId)
     {
-        if (isset($this->_aSetRecursive[$sObjectType]) && isset($this->_aSetRecursive[$sObjectType][$iObjectId])) {
-            return true;
+        $aRecursiveMembership = array();
+
+        if ($this->isObjectMember($sObjectType, $iObjectId, $aRecursiveMembership) === true) {
+            return (count($aRecursiveMembership) > 0);
         }
 
         return false;
-    }
-
-
-    /*
-     * Meta functions.
-     */
-
-    /**
-     * Adds a object of the given type.
-     *
-     * @param string $sObjectType The object type.
-     * @param string $sObjectId   The object id.
-     */
-    public function addObject($sObjectType, $sObjectId)
-    {
-        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)) {
-            return;
-        }
-
-        $this->getObjectsFromType($sObjectType);
-
-        $oObject = new \stdClass();
-        $oObject->sId = $sObjectId;
-
-        $this->_aObjects[$sObjectType][self::OBJECTS_REAL][$sObjectId] = $oObject;
-        $this->_aObjects[$sObjectType][self::OBJECTS_FULL] = -1;
-
-        $this->_aAssignedObjects[$sObjectType][$sObjectId] = $sObjectId;
-    }
-
-    /**
-     * Removes a object of the given type.
-     *
-     * @param string  $sObjectType The object type.
-     * @param integer $sObjectId   The object id.
-     */
-    public function removeObject($sObjectType, $sObjectId)
-    {
-        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)) {
-            return;
-        }
-
-        $this->getObjectsFromType($sObjectType);
-
-        unset($this->_aObjects[$sObjectType][self::OBJECTS_REAL][$sObjectId]);
-        $this->_aObjects[$sObjectType][self::OBJECTS_FULL] = -1;
-
-        unset($this->_aSingleObjects[$sObjectType][$sObjectId]);
-        unset($this->_aAssignedObjects[$sObjectType][$sObjectId]);
-    }
-
-    /**
-     * Returns the assigned _aObjects.
-     *
-     * @param string $sObjectType The object type.
-     *
-     * @return array
-     */
-    protected function _getAssignedObjects($sObjectType)
-    {
-        if ($this->_aAssignedObjects[$sObjectType] !== null) {
-            return $this->_aAssignedObjects[$sObjectType];
-        }
-
-        $sCacheKey = $this->_oCache->generateCacheKey('_getAssignedObjects', $sObjectType, $this->getId());
-        $aAssignedObjects = $this->_oCache->getFromCache($sCacheKey);
-
-        if ($aAssignedObjects !== null) {
-            $this->_aAssignedObjects[$sObjectType] = $aAssignedObjects;
-        } else {
-            $sQuery = "
-                SELECT object_id as id
-                FROM {$this->_oDatabase->getUserGroupToObjectTable()}
-                WHERE group_id = {$this->getId()}
-                  AND object_type = '{$sObjectType}'";
-
-            $aDbObjects = $this->_oDatabase->getResults($sQuery);
-            $this->_aAssignedObjects[$sObjectType] = array();
-
-            foreach ($aDbObjects as $oDbObject) {
-                $this->_aAssignedObjects[$sObjectType][$oDbObject->id] = $oDbObject->id;
-            }
-
-            $this->_oCache->addToCache($sCacheKey, $this->_aAssignedObjects[$sObjectType]);
-        }
-
-        return $this->_aAssignedObjects[$sObjectType];
     }
 
     /**
@@ -561,169 +562,85 @@ class UserGroup
             return;
         }
 
-        if ($blPlusRemove) {
+        unset($this->_aAssignedObjects[$sObjectType]);
+        unset($this->_aObjectMembership);
+
+        if ($blPlusRemove === true) {
             $this->_deleteObjectsFromDb($sObjectType);
         }
-
-        $this->_aAssignedObjects[$sObjectType] = array();
-        $this->_oCache->flushCache();
-
-        $this->_aObjects[$sObjectType] = array(
-            self::OBJECTS_REAL => array(),
-            self::OBJECTS_FULL => array(),
-        );
-    }
-
-    /**
-     * Removes all _aObjects from the user group.
-     *
-     * @param string $sObjectType The object type.
-     */
-    protected function _deleteObjectsFromDb($sObjectType)
-    {
-        if (isset($this->_iId)) {
-            $sQuery = "
-                DELETE FROM {$this->_oDatabase->getUserGroupToObjectTable()}
-                WHERE group_id = {$this->getId()}
-                  AND object_type = '{$sObjectType}'";
-
-            $this->_oDatabase->query($sQuery);
-        }
-    }
-
-    /**
-     * Checks if the given object is a member of the group.
-     *
-     * @param string  $sObjectType The object type.
-     * @param integer $iObjectId   The _iId of the object which should be checked.
-     * @param boolean $blWithInfo  If true then we return additional info.
-     *
-     * @return boolean|array
-     */
-    public function objectIsMember($sObjectType, $iObjectId, $blWithInfo = false)
-    {
-        $sCacheKey = $sObjectType.'|'.$iObjectId;
-        $sCacheKey .= ($blWithInfo) ? '|wi' : '|ni';
-
-        if (!isset($this->_aObjectIsMember[$sCacheKey])) {
-            $this->_aObjectIsMember[$sCacheKey] = false;
-
-            if ($this->_oObjectHandler->isValidObjectType($sObjectType)) {
-                $oObject = $this->_getSingleObject($sObjectType, $iObjectId, self::OBJECTS_FULL);
-
-                if ($oObject !== null) {
-                    if ($blWithInfo && isset($oObject->recursiveMember)) {
-                        $this->_aObjectIsMember[$sCacheKey] = $oObject->recursiveMember;
-                    } else {
-                        $this->_aObjectIsMember[$sCacheKey] = true;
-                    }
-                }
-            }
-        }
-
-        return $this->_aObjectIsMember[$sCacheKey];
     }
 
     /**
      * Returns all objects of the given type.
      *
      * @param string $sObjectType The object type.
-     * @param string $sType       The return type, could be real or full.
      *
      * @return array
      */
-    public function getObjectsFromType($sObjectType, $sType = self::OBJECTS_REAL)
+    public function getObjectsByType($sObjectType)
     {
-        if (!$this->_oObjectHandler->isValidObjectType($sObjectType)
-            || $this->_iId == null
-            || $sType != self::OBJECTS_REAL && $sType != self::OBJECTS_FULL
+        if ($sObjectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
+            return $this->_getAssignedObjects($sObjectType);
+        } elseif ($sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+            return $this->getFullUsers();
+        } elseif ($sObjectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
+            || $this->_oObjectHandler->isTaxonomy($sObjectType)
         ) {
-            return array();
-        }
-
-        if (isset($this->_aObjects[$sObjectType])
-            && isset($this->_aObjects[$sObjectType][$sType])
-            && $this->_aObjects[$sObjectType][$sType] != -1
+            return $this->getFullTerms($sObjectType);
+        } elseif ($sObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
+            || $this->_oObjectHandler->isPostableType($sObjectType) === true
         ) {
-            return $this->_aObjects[$sObjectType][$sType];
-        } else {
-            $this->_aObjects[$sObjectType][$sType] = array();
+            return $this->getFullPosts($sObjectType);
+        } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType)) {
+            $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
+            return $oPluggableObject->getFullObjects($this);
         }
 
-        $aObjectIds = $this->_getAssignedObjects($sObjectType);
-
-        foreach ($aObjectIds as $sObjectId) {
-            $oObject = $this->_getSingleObject($sObjectType, $sObjectId, $sType);
-
-            if ($oObject !== null) {
-                $this->_aObjects[$sObjectType][$sType][$oObject->id] = $oObject;
-            }
-        }
-
-        if ($sType == self::OBJECTS_FULL
-            && $this->_oObjectHandler->isPostableType($sObjectType)
-            && $sObjectType != ObjectHandler::ROLE_OBJECT_TYPE
-        ) {
-            if ($sObjectType === ObjectHandler::TERM_OBJECT_TYPE) {
-                $this->_aObjects[$sObjectType][$sType] = $this->getFullTerms($this->_aObjects[$sObjectType][$sType]);
-            } elseif ($sObjectType === ObjectHandler::USER_OBJECT_TYPE) {
-                $this->_aObjects[$sObjectType][$sType] = $this->getFullUsers();
-            } else {
-                $oPlObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
-                $this->_aObjects[$sObjectType][$sType] = $oPlObject['reference']->{$oPlObject['getFullObjects']}(
-                    $this->_aObjects[$sObjectType][$sType],
-                    $this
-                );
-            }
-        }
-
-        return $this->_aObjects[$sObjectType][$sType];
+        return array();
     }
 
     /**
      * Returns a single object.
      *
-     * @param string  $sObjectType The object type.
-     * @param integer $iObjectId   The _iId of the object which should be checked.
-     * @param string  $sType       The return type. Can be real or full.
+     * @param string  $sObjectType          The object type.
+     * @param int     $iObjectId            The id of the object which should be checked.
+     * @param array   $aRecursiveMembership The recursive membership.
      *
-     * @return object
+     * @return bool
      */
-    protected function _getSingleObject($sObjectType, $iObjectId, $sType)
+    public function isObjectMember($sObjectType, $iObjectId, array &$aRecursiveMembership = array())
     {
-        if (!isset($this->_aSingleObjects[$sObjectType])
-            || !isset($this->_aSingleObjects[$sObjectType][$iObjectId])
-        ) {
-            $this->_aSingleObjects[$sObjectType][$iObjectId] = null;
-            $aIsRecursiveMember = array();
-
-            if ($sType == self::OBJECTS_FULL && $sObjectType != ObjectHandler::ROLE_OBJECT_TYPE) {
-                if ($sObjectType === ObjectHandler::TERM_OBJECT_TYPE) {
-                    $aIsRecursiveMember = $this->_getFullTerm($iObjectId);
-                } elseif ($sObjectType == ObjectHandler::USER_OBJECT_TYPE) {
-                    $aIsRecursiveMember = $this->_getFullUser($iObjectId);
-                } elseif ($this->_oObjectHandler->isPostableType($sObjectType)) {
-                    $aIsRecursiveMember = $this->_getFullPost($iObjectId);
-                } elseif ($this->_oObjectHandler->isValidObjectType($sObjectType)) {
-                    $aIsRecursiveMember = $this->_getFullPluggableObject($sObjectType, $iObjectId);
-                }
-            }
-
-            if ($aIsRecursiveMember != array()
-                || $this->_isObjectAssignedToGroup($sObjectType, $iObjectId)
-            ) {
-                $oObject = new \stdClass();
-                $oObject->id = $iObjectId;
-
-                if ($aIsRecursiveMember != array()) {
-                    $oObject->recursiveMember = $aIsRecursiveMember;
-                }
-
-                $this->_aSingleObjects[$sObjectType][$iObjectId] = $oObject;
-            }
+        if (isset($this->_aObjectMembership[$sObjectType]) === false) {
+            $this->_aObjectMembership[$sObjectType] = array();
         }
 
-        return $this->_aSingleObjects[$sObjectType][$iObjectId];
+        if (isset($this->_aObjectMembership[$sObjectType][$iObjectId]) === false) {
+            $blIsMember = false;
+            $aRecursiveMembership = array();
+
+            if ($sObjectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
+                $blIsMember = $this->_isObjectAssignedToGroup($sObjectType, $iObjectId);
+            } elseif ($sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+                $blIsMember = $this->_isUserMember($iObjectId, $aRecursiveMembership);
+            } elseif ($sObjectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
+                || $this->_oObjectHandler->isTaxonomy($sObjectType) === true
+            ) {
+                $blIsMember = $this->_isTermMember($iObjectId, $aRecursiveMembership);
+            } elseif ($sObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
+                || $this->_oObjectHandler->isPostableType($sObjectType) === true
+            ) {
+                $blIsMember = $this->_isPostMember($iObjectId, $aRecursiveMembership);
+            } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType)) {
+                $blIsMember = $this->_isPluggableObjectMember($sObjectType, $iObjectId, $aRecursiveMembership);
+            }
+
+            $this->_aObjectMembership[$sObjectType][$iObjectId] = ($blIsMember === true) ? $aRecursiveMembership : false;
+        }
+
+        $aRecursiveMembership = ($this->_aObjectMembership[$sObjectType][$iObjectId] !== false) ?
+            $this->_aObjectMembership[$sObjectType][$iObjectId] : array();
+
+        return ($this->_aObjectMembership[$sObjectType][$iObjectId] !== false);
     }
 
 
@@ -734,70 +651,58 @@ class UserGroup
     /**
      * Returns a single user.
      *
-     * @param integer $iObjectId The object id.
+     * @param integer $iUserId              The user id.
+     * @param array   $aRecursiveMembership The recursive membership array.
      *
-     * @return array
+     * @return bool
      */
-    protected function _getFullUser($iObjectId)
+    private function _isUserMember($iUserId, array &$aRecursiveMembership = array())
     {
-        $aIsRecursiveMember = array();
-        $oCurUserData = $this->_oObjectHandler->getUser($iObjectId);
+        $aRecursiveMembership = array();
+        $oUser = $this->_oObjectHandler->getUser($iUserId);
         $sCapabilitiesTable = $this->_oDatabase->getCapabilitiesTable();
 
-        if (isset($oCurUserData->{$sCapabilitiesTable})) {
-            $aCapabilities = $oCurUserData->{$sCapabilitiesTable};
-        } else {
-            $aCapabilities = array();
-        }
-
+        $aCapabilities = (isset($oUser->{$sCapabilitiesTable})) ? $oUser->{$sCapabilitiesTable}: array();
         $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
-        $aObjects = $this->getObjectsFromType('role');
+        $aRoleObjects = $this->getObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
         foreach ($aRoles as $sRole) {
-            if (isset($aObjects[$sRole])) {
+            if (isset($aRoleObjects[$sRole])) {
                 $oRoleObject = new \stdClass();
                 $oRoleObject->name = $sRole;
 
-                $aIsRecursiveMember = array(ObjectHandler::ROLE_OBJECT_TYPE => array());
-                $aIsRecursiveMember[ObjectHandler::ROLE_OBJECT_TYPE][] = $oRoleObject;
+                $aRecursiveMembership = array(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => array());
+                $aRecursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE][] = $oRoleObject;
             }
         }
 
-        return $aIsRecursiveMember;
+        return $this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId)
+            || count($aRecursiveMembership) > 0;
     }
 
     /**
-     * Returns the users in the group
+     * Returns the users assigned to the group.
      *
      * @return array
      */
     public function getFullUsers()
     {
-        $sCacheKey = 'getFullUsers';
-        $aFullUsers = $this->_oCache->getFromCache($sCacheKey);
+        if (isset($this->_aFullObjects[ObjectHandler::GENERAL_USER_OBJECT_TYPE]) === false) {
+            $this->_aFullObjects[ObjectHandler::GENERAL_USER_OBJECT_TYPE] = array();
 
-        if ($aFullUsers === null) {
-            $aDbUsers = $this->_oDatabase->getResults(
+            $aDatabaseUsers = (array)$this->_oDatabase->getResults(
                 "SELECT ID, user_nicename
                 FROM {$this->_oDatabase->getUsersTable()}"
             );
 
-            $aFullUsers = array();
-
-            if (isset($aDbUsers)) {
-                foreach ($aDbUsers as $oDbUser) {
-                    $oUser = $this->_getSingleObject(ObjectHandler::USER_OBJECT_TYPE, $oDbUser->ID, self::OBJECTS_FULL);
-
-                    if ($oUser !== null) {
-                        $aFullUsers[$oUser->id] = $oUser;
-                    }
+            foreach ($aDatabaseUsers as $oUser) {
+                if ($this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $oUser->ID) === true) {
+                    $this->_aFullObjects[ObjectHandler::GENERAL_USER_OBJECT_TYPE][$oUser->ID] = $oUser->ID;
                 }
             }
-
-            $this->_oCache->addToCache($sCacheKey, $aFullUsers);
         }
 
-        return $aFullUsers;
+        return $this->_aFullObjects[ObjectHandler::GENERAL_USER_OBJECT_TYPE];
     }
 
 
@@ -806,95 +711,73 @@ class UserGroup
      */
 
     /**
-     * Returns a single category.
+     * Checks if the term is a group member.
      *
-     * @param integer $iTermId The object id.
+     * @param int   $iTermId
+     * @param array $aRecursiveMembership
      *
-     * @return object[]
+     * @return bool
      */
-    protected function _getTermParents($iTermId)
+    private function _isTermMember($iTermId, array &$aRecursiveMembership = array())
     {
-        $oTerm = $this->_oObjectHandler->getTerm($iObjectId);
-
-        $aIsRecursiveMember = array();
-
-        if ($this->_oConfig->lockRecursive() === true
-            && isset($oTerm->parent)
-            && !is_null($oTerm->parent)
-        ) {
-            $oParentTerm = $this->_getSingleObject(
-                ObjectHandler::TERM_OBJECT_TYPE,
-                $oTerm->parent,
-                self::OBJECTS_FULL
-            );
-
-            if ($oParentTerm !== null) {
-                $oCurrentTerm = $this->_oObjectHandler->getTerm($iObjectId);
-                $oParentTerm->name = $oCurrentTerm->name;
-                $aIsRecursiveMember[ObjectHandler::TERM_OBJECT_TYPE][] = $oParentTerm;
-            }
-        }
-
-        /*
-        $aIsRecursiveMember = array();
+        // Reset value to prevent errors
+        $aRecursiveMembership = array();
 
         if ($this->_oConfig->lockRecursive() === true) {
             $aTermMap = $this->_oObjectHandler->getTermTreeMap();
+            $aGeneralMap = isset($aTermMap[ObjectHandler::TREE_MAP_PARENTS][ObjectHandler::GENERAL_TERM_OBJECT_TYPE]) ?
+                $aTermMap[ObjectHandler::TREE_MAP_PARENTS][ObjectHandler::GENERAL_TERM_OBJECT_TYPE] : array();
 
-            if (isset($aTermMap[ObjectHandler::TREE_MAP_PARENTS][$iTermId])) {
-                $aIsRecursiveMember[ObjectHandler::TERM_OBJECT_TYPE]
-                    = $aTermMap[ObjectHandler::TREE_MAP_PARENTS][$iTermId];
+            if (isset($aGeneralMap[$iTermId])) {
+                foreach ($aGeneralMap[$iTermId] as $iParentId) {
+                    if ($this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iParentId)) {
+                        $aRecursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$iParentId] = $iParentId;
+                        return true;
+                    }
+                }
             }
         }
-        */
 
-        return $aIsRecursiveMember;
+        return $this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iTermId)
+            || count($aRecursiveMembership) > 0;
     }
 
     /**
-     * Returns the terms in the group
+     * Returns the terms assigned to the group.
      *
-     * @param array $aTerms The real terms.
+     * @param string $sTermType The term type.
      *
      * @return array
      */
-    public function getFullTerms($aTerms)
+    public function getFullTerms($sTermType = null)
     {
-        foreach ($aTerms as $oTerm) {
-            if ($oTerm !== null) {
-                //TODO refactor
-                /*if ($this->_oConfig->lockRecursive() === true) {
-                    $iPriority = has_filter('get_terms', array($this, 'showTerms'));
-
-                    //We have to remove the filter to get all categories
-                    $blRemoveSuccess = remove_filter('get_terms', array($oUserAccessManager, 'showTerms'), $iPriority);
-
-                    if ($blRemoveSuccess) {
-                        $aArgs = array(
-                            'child_of' => $oTerm->id,
-                            'hide_empty' => false
-                        );
-
-                        $aTermChildren = get_terms($aArgs);
-                        add_filter('get_terms', array($oUserAccessManager, 'showTerms'), $iPriority, 2);
-
-                        foreach ($aTermChildren as $oTermChild) {
-                            $oCurrentTermChild = new \stdClass();
-                            $oCurrentTermChild->id = $oTermChild->term_id;
-                            $oCurrentTermChild->name = $oTermChild->name;
-
-                            $oCurrentTermChild->recursiveMember = array(ObjectHandler::TERM_OBJECT_TYPE => array());
-                            $oCurrentTermChild->recursiveMember[ObjectHandler::TERM_OBJECT_TYPE][] = $oTermChild;
-                            $aTerms[$oCurrentTermChild->id] = $oCurrentTermChild;
-                        }
-                    }
-                }*/
-
-                $aTerms[$oTerm->id] = $oTerm;
-            }
+        if (isset($this->_aFullObjects[ObjectHandler::GENERAL_TERM_OBJECT_TYPE]) === false) {
+            $this->_aFullObjects[ObjectHandler::GENERAL_TERM_OBJECT_TYPE] = array();
         }
 
-        return $aTerms;
+        if (isset($this->_aFullObjects[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$sTermType]) === false) {
+            $sTermType = ($sTermType === null) ? ObjectHandler::GENERAL_TERM_OBJECT_TYPE : $sTermType;
+            $aTerms = $this->_getAssignedObjects($sTermType);
+
+            if ($this->_oConfig->lockRecursive() === true) {
+                $aTermTreeMap = $this->_oObjectHandler->getTermTreeMap();
+                $aTermTreeMap = isset($aTermTreeMap[ObjectHandler::TREE_MAP_PARENTS][$sTermType]) ?
+                    $aTermTreeMap[ObjectHandler::TREE_MAP_PARENTS][$sTermType] : array();
+                $aTermTreeMap = array_intersect_key($aTermTreeMap, $aTerms);
+
+                foreach ($aTermTreeMap as $aParentIds) {
+                    foreach ($aParentIds as $iParentId) {
+                        if ($this->isObjectMember($sTermType, $iParentId)) {
+                            $aTerms[$iParentId] = $iParentId;
+                        }
+                    }
+                }
+            }
+
+            $this->_aFullObjects[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$sTermType] = $aTerms;
+        }
+
+        return $this->_aFullObjects[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$sTermType];
     }
 
 
@@ -903,100 +786,92 @@ class UserGroup
      */
 
     /**
-     * Checks if the give post in the give term.
+     * Checks if the post is a group member
      *
-     * @param integer $iPostId The post id.
-     * @param integer $iTermId The term id.
+     * @param int   $iPostId
+     * @param array $aRecursiveMembership
      *
-     * @return boolean
+     * @return bool
      */
-    protected function _isPostInTerm($iPostId, $iTermId)
+    protected function _isPostMember($iPostId, array &$aRecursiveMembership = array())
     {
-        if ($this->_aObjectsInTerm === null) {
-            $this->_aObjectsInTerm = array();
-            $sCacheKey = '_isPostInTerm';
-            $aObjectsInCategory = $this->_oCache->getFromCache($sCacheKey);
+        // Reset value to prevent errors
+        $aRecursiveMembership = array();
 
-            if ($aObjectsInCategory === null) {
-                //TODO Use term_id instead of term_taxonomy_id use join with wp_term_taxonomy
-                $aDbObjects = $this->_oDatabase->getResults(
-                    "SELECT tr.object_id AS objectId, tr.term_taxonomy_id AS termId
-                    FROM {$this->_oDatabase->getTermRelationshipsTable()} AS tr"
-                );
+        if ($this->_oConfig->lockRecursive() === true) {
+            $aPostMap = $this->_oObjectHandler->getPostTreeMap();
+            $aGeneralMap = isset($aPostMap[ObjectHandler::TREE_MAP_PARENTS][ObjectHandler::GENERAL_POST_OBJECT_TYPE]) ?
+                $aPostMap[ObjectHandler::TREE_MAP_PARENTS][ObjectHandler::GENERAL_POST_OBJECT_TYPE] : array();
 
-                foreach ($aDbObjects as $oDbObject) {
-                    if (!isset($this->_aObjectsInTerm[$oDbObject->objectId])) {
-                        $this->_aObjectsInTerm[$oDbObject->objectId] = array();
+            if (isset($aGeneralMap[$iPostId])) {
+                foreach ($aGeneralMap[$iPostId] as $iParentId) {
+                    if ($this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $iParentId)) {
+                        $aRecursiveMembership[ObjectHandler::GENERAL_POST_OBJECT_TYPE][$iParentId] = $iParentId;
+                        break;
                     }
-
-                    $this->_aObjectsInTerm[$oDbObject->objectId][$oDbObject->termId] = $oDbObject->termId;
                 }
+            }
 
-                $this->_oCache->addToCache($sCacheKey, $this->_aObjectsInTerm);
-            } else {
-                $this->_aObjectsInTerm = $aObjectsInCategory;
+            $aPostTermMap = $this->_oObjectHandler->getPostTermMap();
+
+            if (isset($aPostTermMap[$iPostId])) {
+                foreach ($aPostTermMap[$iPostId] as $iTermId) {
+                    if ($this->_isTermMember($iTermId)) {
+                        $aRecursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$iTermId] = $iTermId;
+                    }
+                }
             }
         }
 
-        return (isset($this->_aObjectsInTerm[$iPostId])
-            && isset($this->_aObjectsInTerm[$iPostId][$iTermId]));
+        /** TODO
+        $oPost->post_parent === 0
+        && $oPost->post_type === ObjectHandler::POST_OBJECT_TYPE
+        && $this->_oConfig->getWpOption('show_on_front') === ObjectHandler::PAGE_OBJECT_TYPE
+        && $this->_oConfig->getWpOption('page_for_posts') != $iObjectId
+         */
+
+        return $this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $iPostId)
+            || count($aRecursiveMembership) > 0;
     }
 
     /**
-     * Returns the membership of a single post.
+     * Returns the posts assigned to the group.
      *
-     * @param integer $iObjectId The object id.
+     * @param string $sPostType The post type.
      *
      * @return array
      */
-    protected function _getFullPost($iObjectId)
+    public function getFullPosts($sPostType = null)
     {
-        $aIsRecursiveMember = array();
-        $oPost = $this->_oObjectHandler->getPost($iObjectId);
-        $aTerms = $this->getObjectsFromType(ObjectHandler::TERM_OBJECT_TYPE, self::OBJECTS_FULL);
+        if (isset($this->_aFullObjects[ObjectHandler::GENERAL_POST_OBJECT_TYPE]) === false) {
+            $this->_aFullObjects[ObjectHandler::GENERAL_POST_OBJECT_TYPE] = array();
+        }
 
-        foreach ($aTerms as $oTerm) {
-            if ($this->_isPostInTerm($oPost->ID, $oTerm->id)) {
-                $oTermObject = $this->_oObjectHandler->getTerm($oTerm->id);
+        if (isset($this->_aFullObjects[ObjectHandler::GENERAL_POST_OBJECT_TYPE][$sPostType]) === false) {
+            $sPostType = ($sPostType === null) ? ObjectHandler::GENERAL_POST_OBJECT_TYPE : $sPostType;
+            $aPosts = $this->_getAssignedObjects($sPostType);
 
-                if ($oTermObject !== null) {
-                    $oTerm->name = $oTermObject->name;
+            if ($this->_oConfig->lockRecursive() === true) {
+                $aPostTreeMap = $this->_oObjectHandler->getPostTreeMap();
+                $aPostTreeMap = isset($aPostTreeMap[ObjectHandler::TREE_MAP_PARENTS][$sPostType]) ?
+                    $aPostTreeMap[ObjectHandler::TREE_MAP_PARENTS][$sPostType] : array();
+                $aPostTreeMap = array_intersect_key($aPostTreeMap, $aPosts);
+
+                foreach ($aPostTreeMap as $aParentIds) {
+                    foreach ($aParentIds as $iParentId) {
+                        if ($this->isObjectMember($sPostType, $iParentId)) {
+                            $aTerms[$iParentId] = $iParentId;
+                        }
+                    }
                 }
 
-                $aIsRecursiveMember[ObjectHandler::TERM_OBJECT_TYPE][] = $oTermObject;
+                //TODO add terms
             }
+
+            $this->_aFullObjects[ObjectHandler::GENERAL_POST_OBJECT_TYPE][$sPostType] = $aPosts;
         }
 
-        if ($oPost->post_parent == 0
-            && $oPost->post_type === ObjectHandler::POST_OBJECT_TYPE
-            && $this->_oConfig->getWpOption('show_on_front') == ObjectHandler::PAGE_OBJECT_TYPE
-            && $this->_oConfig->getWpOption('page_for_posts') != $iObjectId
-        ) {
-            $iParentId = $this->_oConfig->getWpOption('page_for_posts');
-        } else {
-            $iParentId = $oPost->post_parent;
-        }
-
-        if ($iParentId != 0
-            && $this->_oConfig->lockRecursive() === true
-        ) {
-            $oParent = $this->_oObjectHandler->getPost($iParentId);
-
-            $oParentPost = $this->_getSingleObject(
-                $oParent->post_type,
-                $iParentId,
-                self::OBJECTS_FULL
-            );
-
-            if ($oParentPost !== null) {
-                $oPostObject = $this->_oObjectHandler->getPost($oParentPost->id);
-                $oParentPost->name = $oPostObject->post_title;
-
-                $aIsRecursiveMember[$oParent->post_type][] = $oParentPost;
-            }
-        }
-
-        return $aIsRecursiveMember;
+        return $this->_aFullObjects[ObjectHandler::GENERAL_POST_OBJECT_TYPE][$sPostType];
     }
 
 
@@ -1007,30 +882,19 @@ class UserGroup
     /**
      * Returns a the recursive membership for a pluggable object.
      *
-     * @param string  $sObjectType The pluggable object type.
-     * @param integer $iObjectId   The object id.
+     * @param string $sObjectType           The pluggable object type.
+     * @param int    $iObjectId             The object id.
+     * @param array  $aRecursiveMembership  The object id.
      *
-     * @return array
+     * @return bool
      */
-    protected function _getFullPluggableObject($sObjectType, $iObjectId)
+    protected function _isPluggableObjectMember($sObjectType, $iObjectId, array &$aRecursiveMembership = array())
     {
-        $blIsRecursiveMember = array();
+        $aRecursiveMembership = array();
+        $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
+        $aRecursiveMembership = $oPluggableObject->getRecursiveMemberShip($this);
 
-        $oPlObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
-
-        if (isset($oPlObject['reference'])
-            && isset($oPlObject['getFull'])
-        ) {
-            $aPlRecMember = $oPlObject['reference']->{$oPlObject['getFull']}(
-                $iObjectId,
-                $this
-            );
-
-            if (is_array($aPlRecMember)) {
-                $blIsRecursiveMember = $aPlRecMember;
-            }
-        }
-
-        return $blIsRecursiveMember;
+        return $this->_isObjectAssignedToGroup($sObjectType, $iObjectId)
+            || count($aRecursiveMembership) > 0;
     }
 }

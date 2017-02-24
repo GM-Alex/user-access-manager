@@ -38,7 +38,6 @@ class UserGroupFactoryTest extends \UserAccessManagerTestCase
             $this->getWrapper(),
             $this->getDatabase(),
             $this->getConfig(),
-            $this->getCache(),
             $this->getUtil(),
             $oObjectHandler
         );

@@ -46,13 +46,25 @@ class Wordpress
     /**
      * @see is_post_type_hierarchical()
      *
-     * @param string $sType
+     * @param string $sPostType
      *
      * @return bool
      */
-    public function isPostTypeHierarchical($sType)
+    public function isPostTypeHierarchical($sPostType)
     {
-        return is_post_type_hierarchical($sType);
+        return is_post_type_hierarchical($sPostType);
+    }
+
+    /**
+     * @see is_taxonomy_hierarchical()
+     *
+     * @param string $sTaxonomy
+     *
+     * @return bool
+     */
+    public function isTaxonomyHierarchical($sTaxonomy)
+    {
+        return is_taxonomy_hierarchical($sTaxonomy);
     }
 
     /**

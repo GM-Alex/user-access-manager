@@ -51,7 +51,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         $oWrapper->expects($this->exactly(1))
             ->method('getPostTypes')
-            ->with(['publicly_queryable' => true])
+            ->with(['public' => true])
             ->will($this->returnValue($aReturn));
 
         $oDatabase = $this->getDatabase();
@@ -196,6 +196,61 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
+     * @param string $sGeneralType
+     *
+     * @return array
+     */
+    private function getExpectedMapResult($sGeneralType)
+    {
+        return [
+            ObjectHandler::TREE_MAP_CHILDREN => [
+                'post' => [
+                    0 => [1 => 1, 2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
+                    1 => [2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
+                    2 => [3 => 3, 4 => 4, 123 => 123, 321 => 321],
+                    3 => [123 => 123, 321 => 321]
+                ],
+                'page' => [
+                    6 => [7 => 7, 8 => 8],
+                    7 => [8 => 8]
+                ],
+                $sGeneralType => [
+                    0 => [1 => 1, 2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
+                    1 => [2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
+                    2 => [3 => 3, 4 => 4, 123 => 123, 321 => 321],
+                    3 => [123 => 123, 321 => 321],
+                    6 => [7 => 7, 8 => 8],
+                    7 => [8 => 8]
+                ]
+            ],
+            ObjectHandler::TREE_MAP_PARENTS => [
+                'post' => [
+                    1 => [0 => 0],
+                    2 => [0 => 0, 1 => 1],
+                    3 => [0 => 0, 1 => 1, 2 => 2],
+                    4 => [0 => 0, 1 => 1, 2 => 2],
+                    123 => [0 => 0, 1 => 1, 2 => 2, 3 => 3],
+                    321 => [0 => 0, 1 => 1, 2 => 2, 3 => 3]
+                ],
+                'page' => [
+                    7 => [6 => 6],
+                    8 => [6 => 6, 7 => 7]
+                ],
+                $sGeneralType => [
+                    1 => [0 => 0],
+                    2 => [0 => 0, 1 => 1],
+                    3 => [0 => 0, 1 => 1, 2 => 2],
+                    4 => [0 => 0, 1 => 1, 2 => 2],
+                    123 => [0 => 0, 1 => 1, 2 => 2, 3 => 3],
+                    321 => [0 => 0, 1 => 1, 2 => 2, 3 => 3],
+                    7 => [6 => 6],
+                    8 => [6 => 6, 7 => 7]
+                ]
+            ]
+        ];
+    }
+
+    /**
      * @group  unit
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::_processTreeMapElements()
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::_getTreeMap()
@@ -241,40 +296,13 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
             )->will($this->returnValue($aDatabaseResult));
 
         $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $aExpectedPostResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_POST_OBJECT_TYPE);
+        $aExpectedTermResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_TERM_OBJECT_TYPE);
 
-        $aExpectedResult = [
-            ObjectHandler::TREE_MAP_CHILDREN => [
-                'post' => [
-                    0 => [1 => 1, 2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    1 => [2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    2 => [3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    3 => [123 => 123, 321 => 321]
-                ],
-                'page' => [
-                    6 => [7 => 7, 8 => 8],
-                    7 => [8 => 8]
-                ]
-            ],
-            ObjectHandler::TREE_MAP_PARENTS => [
-                'post' => [
-                    1 => [0 => 0],
-                    2 => [0 => 0, 1 => 1],
-                    3 => [0 => 0, 1 => 1, 2 => 2],
-                    4 => [0 => 0, 1 => 1, 2 => 2],
-                    123 => [0 => 0, 1 => 1, 2 => 2, 3 => 3],
-                    321 => [0 => 0, 1 => 1, 2 => 2, 3 => 3]
-                ],
-                'page' => [
-                    7 => [6 => 6],
-                    8 => [6 => 6, 7 => 7]
-                ]
-            ]
-        ];
-
-        self::assertEquals($aExpectedResult, $oObjectHandler->getPostTreeMap());
-        self::assertEquals($aExpectedResult, $oObjectHandler->getPostTreeMap());
-        self::assertEquals($aExpectedResult, $oObjectHandler->getTermTreeMap());
-        self::assertEquals($aExpectedResult, $oObjectHandler->getTermTreeMap());
+        self::assertEquals($aExpectedPostResult, $oObjectHandler->getPostTreeMap());
+        self::assertEquals($aExpectedPostResult, $oObjectHandler->getPostTreeMap());
+        self::assertEquals($aExpectedTermResult, $oObjectHandler->getTermTreeMap());
+        self::assertEquals($aExpectedTermResult, $oObjectHandler->getTermTreeMap());
     }
 
     /**
@@ -298,11 +326,12 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      * @group  unit
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTermPostMap()
      */
-    public function testTermPostMap()
+    public function testGetTermPostMap()
     {
         $aDatabaseResult = [];
         $aDatabaseResult[] = $this->createTermMapDbResultElement(1, 1);
         $aDatabaseResult[] = $this->createTermMapDbResultElement(2, 1);
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(1, 2);
         $aDatabaseResult[] = $this->createTermMapDbResultElement(3, 2);
         $aDatabaseResult[] = $this->createTermMapDbResultElement(4, 2);
         $aDatabaseResult[] = $this->createTermMapDbResultElement(123, 3);
@@ -340,7 +369,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         $aExpectedResult = [
             1 => [1 => 'post', 2 => 'post'],
-            2 => [3 => 'post', 4 => 'post'],
+            2 => [1 => 'post', 3 => 'post', 4 => 'post'],
             3 => [123 => 'post', 321 => 'post'],
             6 => [7 => 'page'],
             7 => [8 => 'page']
@@ -348,6 +377,31 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         self::assertEquals($aExpectedResult, $oObjectHandler->getTermPostMap());
         self::assertEquals($aExpectedResult, $oObjectHandler->getTermPostMap());
+
+        return $oObjectHandler;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPostTermMap()
+     * @depends testGetTermPostMap
+     *
+     * @param ObjectHandler $oObjectHandler
+     */
+    public function testGetPostTermMap(ObjectHandler $oObjectHandler)
+    {
+        $aExpectedResult = [
+            1 => [1 => 1, 2 => 2],
+            2 => [1 => 1],
+            3 => [2 => 2],
+            4 => [2 => 2],
+            123 => [3 => 3],
+            321 => [3 => 3],
+            7 => [6 => 6],
+            8 => [7 => 7]
+        ];
+
+        self::assertEquals($aExpectedResult, $oObjectHandler->getPostTermMap());
     }
 
     /**
@@ -360,9 +414,6 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     public function testGetPostableTypes(ObjectHandler $oObjectHandler)
     {
         $aExpectedResult = [
-            ObjectHandler::POST_OBJECT_TYPE => ObjectHandler::POST_OBJECT_TYPE,
-            ObjectHandler::PAGE_OBJECT_TYPE => ObjectHandler::PAGE_OBJECT_TYPE,
-            ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE,
             'a' => 'a1',
             'b' => 'b1'
         ];
@@ -386,12 +437,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
          * @var \stdClass|\WP_Post_Type $oArguments
          */
         $oArguments = $this->getMockBuilder('\WP_Post_Type')->getMock();
-        $oArguments->publicly_queryable = false;
+        $oArguments->public = false;
 
         $aExpectedResult = [
-            ObjectHandler::POST_OBJECT_TYPE => ObjectHandler::POST_OBJECT_TYPE,
-            ObjectHandler::PAGE_OBJECT_TYPE => ObjectHandler::PAGE_OBJECT_TYPE,
-            ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE,
             'a' => 'a1',
             'b' => 'b1'
         ];
@@ -399,14 +447,13 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler->registeredPostType('postType', $oArguments);
         self::assertAttributeEquals($aExpectedResult, '_aPostableTypes', $oObjectHandler);
 
-        $oArguments->publicly_queryable = true;
+        $oArguments->public = true;
         $aExpectedResult['postType'] = 'postType';
 
         $oObjectHandler->registeredPostType('postType', $oArguments);
         self::assertAttributeEquals($aExpectedResult, '_aPostableTypes', $oObjectHandler);
         self::assertAttributeEquals(null, '_aObjectTypes', $oObjectHandler);
         self::assertAttributeEquals(null, '_aAllObjectTypes', $oObjectHandler);
-        self::assertAttributeEquals(null, '_aAllObjectTypesMap', $oObjectHandler);
         self::assertAttributeEquals(null, '_aValidObjectTypes', $oObjectHandler);
 
         return $oObjectHandler;
@@ -421,9 +468,71 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      */
     public function testIsPostableType(ObjectHandler $oObjectHandler)
     {
-        self::assertTrue($oObjectHandler->isPostableType(ObjectHandler::POST_OBJECT_TYPE));
         self::assertTrue($oObjectHandler->isPostableType('postType'));
         self::assertFalse($oObjectHandler->isPostableType('missing'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isTaxonomy()
+     */
+    public function testIsTaxonomy()
+    {
+        $oWrapper = $this->getWrapper();
+
+        $oWrapper->expects($this->exactly(3))
+            ->method('getTaxonomies')
+            ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
+
+        $oDatabase = $this->getDatabase();
+
+        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+
+        self::assertTrue($oObjectHandler->isTaxonomy('taxonomyOne'));
+        self::assertTrue($oObjectHandler->isTaxonomy('taxonomyTwo'));
+        self::assertFalse($oObjectHandler->isTaxonomy('invalid'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getGeneralObjectType()
+     */
+    public function testGetGeneralObjectType()
+    {
+        $oWrapper = $this->getWrapper();
+
+        $oWrapper->expects($this->exactly(1))
+            ->method('getPostTypes')
+            ->with(['public' => true])
+            ->will($this->returnValue(['a' => 'a1', 'b' => 'b1']));
+
+        $oWrapper->expects($this->exactly(3))
+            ->method('getTaxonomies')
+            ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
+
+        $oDatabase = $this->getDatabase();
+
+        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+
+        self::assertEquals(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $oObjectHandler->getGeneralObjectType('a'));
+        self::assertEquals(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $oObjectHandler->getGeneralObjectType('b'));
+        self::assertEquals(
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+            $oObjectHandler->getGeneralObjectType('taxonomyOne')
+        );
+        self::assertEquals(
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+            $oObjectHandler->getGeneralObjectType('taxonomyTwo')
+        );
+        self::assertEquals(
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            $oObjectHandler->getGeneralObjectType(ObjectHandler::GENERAL_USER_OBJECT_TYPE)
+        );
+        self::assertEquals(
+            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
+            $oObjectHandler->getGeneralObjectType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)
+        );
+        self::assertNull($oObjectHandler->getGeneralObjectType('invalid'));
     }
 
     /**
@@ -496,6 +605,20 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isPluggableObject()
+     * @depends testRegisterPlObject
+     *
+     * @param ObjectHandler $oObjectHandler
+     */
+    public function testIsPluggableObject(ObjectHandler $oObjectHandler)
+    {
+        self::assertTrue($oObjectHandler->isPluggableObject('firstObjectName'));
+        self::assertTrue($oObjectHandler->isPluggableObject('secondObjectName'));
+        self::assertFalse($oObjectHandler->isPluggableObject('invalid'));
+    }
+
+    /**
+     * @group  unit
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObjects()
      * @depends testRegisterPlObject
      *
@@ -532,19 +655,13 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         $oWrapper->expects($this->exactly(1))
             ->method('getPostTypes')
-            ->with(['publicly_queryable' => true])
+            ->with(['public' => true])
             ->will($this->returnValue($aPostTypesReturn));
 
         $oDatabase = $this->getDatabase();
         $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
 
         $aExpectation = [
-            ObjectHandler::TERM_OBJECT_TYPE => ObjectHandler::TERM_OBJECT_TYPE,
-            ObjectHandler::USER_OBJECT_TYPE => ObjectHandler::USER_OBJECT_TYPE,
-            ObjectHandler::ROLE_OBJECT_TYPE => ObjectHandler::ROLE_OBJECT_TYPE,
-            ObjectHandler::POST_OBJECT_TYPE => ObjectHandler::POST_OBJECT_TYPE,
-            ObjectHandler::PAGE_OBJECT_TYPE => ObjectHandler::PAGE_OBJECT_TYPE,
-            ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE,
             'a' => 'a1',
             'b' => 'b1',
             'c' => 'c1',
@@ -574,12 +691,6 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler->registerPluggableObject($oSecondPluggableObject);
 
         $aExpectation = [
-            ObjectHandler::TERM_OBJECT_TYPE => ObjectHandler::TERM_OBJECT_TYPE,
-            ObjectHandler::USER_OBJECT_TYPE => ObjectHandler::USER_OBJECT_TYPE,
-            ObjectHandler::ROLE_OBJECT_TYPE => ObjectHandler::ROLE_OBJECT_TYPE,
-            ObjectHandler::POST_OBJECT_TYPE => ObjectHandler::POST_OBJECT_TYPE,
-            ObjectHandler::PAGE_OBJECT_TYPE => ObjectHandler::PAGE_OBJECT_TYPE,
-            ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE,
             'a' => 'a1',
             'b' => 'b1',
             'c' => 'c1',
@@ -602,12 +713,6 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      */
     public function testIsValidObjectType(ObjectHandler $oObjectHandler)
     {
-        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::TERM_OBJECT_TYPE));
-        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::USER_OBJECT_TYPE));
-        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::ROLE_OBJECT_TYPE));
-        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::POST_OBJECT_TYPE));
-        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::PAGE_OBJECT_TYPE));
-        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
         self::assertTrue($oObjectHandler->isValidObjectType('a'));
         self::assertTrue($oObjectHandler->isValidObjectType('b'));
         self::assertTrue($oObjectHandler->isValidObjectType('c'));

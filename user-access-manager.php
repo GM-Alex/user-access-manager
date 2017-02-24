@@ -30,7 +30,7 @@ $blStop = false;
 //Check php version
 $sPhpVersion = phpversion();
 
-if (version_compare($sPhpVersion, '5.3') === -1) {
+if (version_compare($sPhpVersion, '5.4') === -1) {
     add_action(
         'admin_notices',
         create_function(
@@ -96,7 +96,6 @@ $oUserGroupFactory = new UserGroupFactory(
     $oWrapper,
     $oDatabase,
     $oConfig,
-    $oCache,
     $oUtil,
     $oObjectHandler
 );
@@ -167,16 +166,43 @@ if (function_exists('register_activation_hook')) {
     register_activation_hook(__FILE__, array($oSetupHandler, 'install'));
 }
 
+if (!function_exists("userAccessManagerUninstall")) {
+    function userAccessManagerUninstall()
+    {
+        $oWrapper = new Wordpress();
+        $oUtil = new Util();
+        $oConfigParameterFactory = new ConfigParameterFactory();
+        $oDatabase = new Database($oWrapper);
+        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oConfig = new Config($oWrapper, $oConfigParameterFactory, __FILE__);
+
+        $oFileProtectionFactory = new FileProtectionFactory(
+            $oWrapper,
+            $oConfig,
+            $oUtil
+        );
+        $oFileHandler = new FileHandler(
+            $oWrapper,
+            $oConfig,
+            $oFileProtectionFactory
+        );
+        $oSetupHandler = new SetupHandler(
+            $oWrapper,
+            $oDatabase,
+            $oObjectHandler,
+            $oFileHandler
+        );
+
+        $oSetupHandler->uninstall();
+    }
+}
+
 //uninstall
 if (function_exists('register_uninstall_hook')) {
-    register_uninstall_hook(__FILE__, function() use ($oSetupHandler) {
-        $oSetupHandler->uninstall();
-    });
+    register_uninstall_hook(__FILE__, 'userAccessManagerUninstall');
 } elseif (function_exists('register_deactivation_hook')) {
     //Fallback
-    register_deactivation_hook(__FILE__, function() use ($oSetupHandler) {
-        $oSetupHandler->uninstall();
-    });
+    register_deactivation_hook(__FILE__, 'userAccessManagerUninstall');
 }
 
 //deactivation

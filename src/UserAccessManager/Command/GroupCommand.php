@@ -125,7 +125,7 @@ class GroupCommand extends CommandWithDBObject
                 'group_desc' => $oUserGroup->getGroupDesc(),
                 'read_access' => $oUserGroup->getReadAccess(),
                 'write_access' => $oUserGroup->getWriteAccess(),
-                'roles' => implode(',', array_keys($oUserGroup->getObjectsFromType(ObjectHandler::ROLE_OBJECT_TYPE))),
+                'roles' => implode(',', array_keys($oUserGroup->getObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))),
                 'ip_range' => $oUserGroup->getIpRange() === null ? '' : $oUserGroup->getIpRange()
             );
 
@@ -237,10 +237,10 @@ class GroupCommand extends CommandWithDBObject
         if (isset($aAssocArguments['roles'])) {
             $roles = explode(',', $aAssocArguments['roles']);
 
-            $oUserGroup->unsetObjects(ObjectHandler::ROLE_OBJECT_TYPE, true);
+            $oUserGroup->unsetObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, true);
 
             foreach ($roles as $role) {
-                $oUserGroup->addObject(ObjectHandler::ROLE_OBJECT_TYPE, $role);
+                $oUserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $role);
             }
         }
 

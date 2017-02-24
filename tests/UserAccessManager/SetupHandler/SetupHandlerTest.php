@@ -152,6 +152,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 [new MatchIgnoreWhitespace(
                     'CREATE TABLE user_group_to_object_table (
                         object_id VARCHAR(64) NOT NULL,
+                        general_object_type varchar(64) NOT NULL,
                         object_type varchar(64) NOT NULL,
                         group_id int(11) NOT NULL,
                         PRIMARY KEY (object_id,object_type,group_id)
@@ -171,6 +172,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 [new MatchIgnoreWhitespace(
                     'CREATE TABLE user_group_to_object_table (
                         object_id VARCHAR(64) NOT NULL,
+                        general_object_type varchar(64) NOT NULL,
                         object_type varchar(64) NOT NULL,
                         group_id int(11) NOT NULL,
                         PRIMARY KEY (object_id,object_type,group_id)
@@ -213,7 +215,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
 
         $oDatabase->expects($this->exactly(2))
             ->method('prepare')
-            ->with('SELECT option_value FROM prefix_options WHERE option_name = %s LIMIT 1', 'uam_db_version')
+            ->with('SELECT option_value FROM prefix_options WHERE option_name = \'%s\' LIMIT 1', 'uam_db_version')
             ->will($this->returnValue('preparedStatement'));
 
         $oDatabase->expects($this->exactly(2))
@@ -275,6 +277,10 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->method('getPostsTable')
             ->will($this->returnValue('postsTable'));
 
+        $oDatabase->expects($this->exactly(1))
+            ->method('getTermTaxonomyTable')
+            ->will($this->returnValue('termTaxonomyTable'));
+
         $oDatabase->expects($this->exactly(2))
             ->method('getVariable')
             ->withConsecutive(
@@ -313,7 +319,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 [$oDbObject], [], [], []
             ));
 
-        $oDatabase->expects($this->exactly(6))
+        $oDatabase->expects($this->exactly(12))
             ->method('query')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -341,6 +347,37 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                     'ALTER TABLE `userGroupToObjectTable`
                     CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
                     CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'ALTER TABLE userGroupToObjectTable
+                    ADD general_object_type varchar(64) NOT NULL AFTER object_id'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'UPDATE userGroupToObjectTable
+                    SET general_object_type = \'_post_\'
+                    WHERE object_type IN (\'post\', \'page\', \'attachment\')'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'UPDATE userGroupToObjectTable
+                    SET general_object_type = \'_role_\'
+                    WHERE object_type = \'role\''
+                )],
+                [new MatchIgnoreWhitespace(
+                    'UPDATE userGroupToObjectTable
+                    SET general_object_type = \'_user_\'
+                    WHERE object_type = \'user\''
+                )],
+                [new MatchIgnoreWhitespace(
+                    'UPDATE userGroupToObjectTable
+                    SET general_object_type = \'_term_\'
+                    WHERE object_type = \'term\''
+                )],
+                [new MatchIgnoreWhitespace(
+                    'UPDATE userGroupToObjectTable AS gto
+                    LEFT JOIN termTaxonomyTable AS tt 
+                      ON gto.object_id = tt.term_id
+                    SET gto.object_type = tt.taxonomy
+                    WHERE gto.general_object_type = \'_term_\''
                 )]
             )
             ->will($this->onConsecutiveCalls(

@@ -64,7 +64,6 @@ class UserGroupFactory
      * @param Wordpress     $oWrapper
      * @param Database      $oDatabase
      * @param Config        $oConfig
-     * @param Cache         $oCache
      * @param Util          $oUtil
      * @param ObjectHandler $oObjectHandler
      */
@@ -72,7 +71,6 @@ class UserGroupFactory
         Wordpress $oWrapper,
         Database $oDatabase,
         Config $oConfig,
-        Cache $oCache,
         Util $oUtil,
         ObjectHandler $oObjectHandler
     )
@@ -80,7 +78,6 @@ class UserGroupFactory
         $this->_oWrapper = $oWrapper;
         $this->_oDatabase = $oDatabase;
         $this->_oConfig = $oConfig;
-        $this->_oCache = $oCache;
         $this->_oUtil = $oUtil;
         $this->_oObjectHandler = $oObjectHandler;
     }
@@ -98,7 +95,6 @@ class UserGroupFactory
             $this->_oWrapper,
             $this->_oDatabase,
             $this->_oConfig,
-            $this->_oCache,
             $this->_oUtil,
             $this->_oObjectHandler,
             $sId

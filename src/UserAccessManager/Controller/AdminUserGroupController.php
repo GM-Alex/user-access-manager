@@ -128,10 +128,10 @@ class AdminUserGroupController extends Controller
 
         $aRoles = $this->getRequestParameter('roles', array());
 
-        $oUserGroup->unsetObjects(ObjectHandler::ROLE_OBJECT_TYPE, true);
+        $oUserGroup->unsetObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, true);
 
         foreach ($aRoles as $sRole) {
-            $oUserGroup->addObject(ObjectHandler::ROLE_OBJECT_TYPE, htmlentities($sRole));
+            $oUserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, htmlentities($sRole));
         }
 
         if ($oUserGroup->save() === true) {

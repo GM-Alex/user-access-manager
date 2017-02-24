@@ -156,7 +156,7 @@ class AccessHandler
             && !$this->checkUserAccess('manage_user_groups')
         ) {
             $oCurrentUser = $this->_oWrapper->getCurrentUser();
-            $aUserGroupsForUser = $this->getUserGroupsForObject(ObjectHandler::USER_OBJECT_TYPE, $oCurrentUser->ID);
+            $aUserGroupsForUser = $this->getUserGroupsForObject(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $oCurrentUser->ID);
 
             foreach ($aUserGroups as $sKey => $oUamUserGroup) {
                 if (!isset($aUserGroupsForUser[$oUamUserGroup->getId()])) {
@@ -251,7 +251,7 @@ class AccessHandler
             return array();
         }
 
-        $blFilter = ($sObjectType === ObjectHandler::USER_OBJECT_TYPE) ? false : $blFilter;
+        $blFilter = ($sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) ? false : $blFilter;
         $sFilterAttr = ($blFilter === true) ? self::OBJECTS_FILTERED : self::OBJECTS_NONE_FILTERED;
 
         if (!isset($this->_aObjectUserGroups[$sObjectType][$sFilterAttr][$iObjectId])) {
@@ -270,19 +270,13 @@ class AccessHandler
                 $aUserGroups = $this->getUserGroups($blFilter);
 
                 foreach ($aUserGroups as $oUserGroup) {
-                    $mObjectMembership = $oUserGroup->objectIsMember($sObjectType, $iObjectId, true);
-
-                    if ($mObjectMembership !== false) {
-                        if (is_array($mObjectMembership)) {
-                            $oUserGroup->setRecursiveMembership($sObjectType, $iObjectId, $mObjectMembership);
-                        }
-
+                    if ($oUserGroup->isObjectMember($sObjectType, $iObjectId) === true) {
                         $aObjectUserGroups[$oUserGroup->getId()] = $oUserGroup;
                     }
                 }
 
                 //Filter the user groups
-                if ($blFilter) {
+                if ($blFilter === true) {
                     $aObjectUserGroups = $this->_filterUserGroups($aObjectUserGroups);
                 }
 
@@ -330,7 +324,7 @@ class AccessHandler
 
             $aMembership = $this->getUserGroupsForObject($sObjectType, $iObjectId, false);
 
-            if ($aMembership == array()
+            if ($aMembership === array()
                 || $this->checkUserAccess('manage_user_groups')
                 || $oCurrentUser->ID === $sAuthorId && $this->_oConfig->authorsHasAccessToOwn() === true
             ) {
@@ -339,7 +333,7 @@ class AccessHandler
                 $aCurrentIp = explode('.', $_SERVER['REMOTE_ADDR']);
 
                 foreach ($aMembership as $sKey => $oUserGroup) {
-                    if ($oUserGroup->objectIsMember(ObjectHandler::USER_OBJECT_TYPE, $oCurrentUser->ID)
+                    if ($oUserGroup->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $oCurrentUser->ID)
                         || $this->checkUserIp($aCurrentIp, $oUserGroup->getIpRange())
                     ) {
                         $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
@@ -351,7 +345,7 @@ class AccessHandler
                     }
                 }
 
-                if ($aMembership == array()) {
+                if ($aMembership === array()) {
                     $this->_aObjectAccess[$sObjectType][$iObjectId] = true;
                 }
             }
@@ -369,7 +363,7 @@ class AccessHandler
     {
         if (!isset($this->_aGroupsForUser)) {
             $oCurrentUser = $this->_oWrapper->getCurrentUser();
-            $aUserGroupsForUser = $this->getUserGroupsForObject(ObjectHandler::USER_OBJECT_TYPE, $oCurrentUser->ID, false);
+            $aUserGroupsForUser = $this->getUserGroupsForObject(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $oCurrentUser->ID, false);
             $aCurrentIp = explode('.', $_SERVER['REMOTE_ADDR']);
             $aUserGroups = $this->getUserGroups();
 
@@ -401,7 +395,7 @@ class AccessHandler
         if ($this->_aTermsAssignedToUser === null) {
             $aUserUserGroups = $this->_getUserGroupsForUser();
             $sUserUserGroups = $this->_oDatabase->generateSqlIdList(array_keys($aUserUserGroups));
-            $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
+            $sTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
 
             $sTermsAssignedToUserSql = "
                 SELECT igc.object_id
@@ -427,7 +421,7 @@ class AccessHandler
         }
 
         if ($this->_aExcludedTerms === null) {
-            $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
+            $sTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
             $sAccessType = ($this->_oConfig->atAdminPanel() === true) ? 'write' : 'read';
             $aCategoriesAssignedToUser = $this->getTermsForUser();
             $sCategoriesAssignedToUser = $this->_oDatabase->generateSqlIdList($aCategoriesAssignedToUser);
@@ -532,7 +526,7 @@ class AccessHandler
         $sPostAssignedToUser
     )
     {
-        $sTermType = ObjectHandler::TERM_OBJECT_TYPE;
+        $sTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
         $sPostTable = $this->_oDatabase->getPostsTable();
         $sUserGroupTable = $this->_oDatabase->getUserGroupTable();
         $sUserGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();

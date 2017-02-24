@@ -214,7 +214,7 @@ define('TXT_UAM_INFO', __('Info', 'user-access-manager'));
 define('TXT_UAM_GROUP_INFO', __('Group info', 'user-access-manager'));
 define('TXT_UAM_GROUP_MEMBERSHIP_BY_POST', __('Group membership given by posts', 'user-access-manager'));
 define('TXT_UAM_GROUP_MEMBERSHIP_BY_PAGE', __('Group membership given by pages', 'user-access-manager'));
-define('TXT_UAM_GROUP_MEMBERSHIP_BY_CATEGORY', __('Group membership given by categories', 'user-access-manager'));
+define('TXT_UAM_GROUP_MEMBERSHIP_BY_TERM', __('Group membership given by term', 'user-access-manager'));
 define('TXT_UAM_GROUP_MEMBERSHIP_BY_ROLE', __('Group membership given by role', 'user-access-manager'));
 define('TXT_UAM_ASSIGNED_GROUPS', __('Assigned groups', 'user-access-manager'));
 

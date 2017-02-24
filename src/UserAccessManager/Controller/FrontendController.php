@@ -110,7 +110,7 @@ class FrontendController extends Controller
     /**
      * Manipulates the wordpress query object to filter content.
      *
-     * @param object $oWpQuery The wordpress query object.
+     * @param \WP_Query $oWpQuery The wordpress query object.
      */
     public function parseQuery($oWpQuery)
     {
@@ -135,17 +135,6 @@ class FrontendController extends Controller
     protected function _processPost($oPost)
     {
         $sPostType = $oPost->post_type;
-
-        if ($this->_oObjectHandler->isPostableType($sPostType)
-            && $sPostType != ObjectHandler::POST_OBJECT_TYPE
-            && $sPostType != ObjectHandler::PAGE_OBJECT_TYPE
-        ) {
-            $sPostType = ObjectHandler::POST_OBJECT_TYPE;
-        } elseif ($sPostType != ObjectHandler::POST_OBJECT_TYPE
-            && $sPostType != ObjectHandler::PAGE_OBJECT_TYPE
-        ) {
-            return $oPost;
-        }
 
         if ($this->_oConfig->hideObjectType($sPostType) === true || $this->_oConfig->atAdminPanel()) {
             if ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
@@ -219,21 +208,21 @@ class FrontendController extends Controller
     /**
      * The function for the posts_where_paged filter.
      *
-     * @param string $sSql The where sql statement.
+     * @param string $sQuery The where sql statement.
      *
      * @return string
      */
-    public function showPostSql($sSql)
+    public function showPostSql($sQuery)
     {
         $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
         $aAllExcludedPosts = $aExcludedPosts['all'];
 
         if (count($aAllExcludedPosts) > 0) {
             $sExcludedPostsStr = implode(',', $aAllExcludedPosts);
-            $sSql .= " AND {$this->_oDatabase->getPostsTable()}.ID NOT IN($sExcludedPostsStr) ";
+            $sQuery .= " AND {$this->_oDatabase->getPostsTable()}.ID NOT IN($sExcludedPostsStr) ";
         }
 
-        return $sSql;
+        return $sQuery;
     }
 
     /**
@@ -295,9 +284,7 @@ class FrontendController extends Controller
         $aTaxonomies = $this->_oObjectHandler->getTaxonomies();
 
         foreach ($aItems as $oItem) {
-            if ($oItem->object == ObjectHandler::POST_OBJECT_TYPE
-                || $oItem->object == ObjectHandler::PAGE_OBJECT_TYPE
-            ) {
+            if ($this->_oObjectHandler->isPostableType($oItem->object)) {
                 $oObject = $this->_oObjectHandler->getPost($oItem->object_id);
 
                 if ($oObject !== null) {
@@ -312,7 +299,7 @@ class FrontendController extends Controller
                         $aShowItems[] = $oItem;
                     }
                 }
-            } elseif (isset($aTaxonomies[$oItem->object])) {
+            } elseif ($this->_oObjectHandler->isTaxonomy($oItem->object)) {
                 $oObject = $this->_oObjectHandler->getTerm($oItem->object_id);
                 $oCategory = $this->_processTerm($oObject);
 
@@ -433,7 +420,7 @@ class FrontendController extends Controller
     /**
      * Modifies the content of the term by the given settings.
      *
-     * @param object $oTerm The current term.
+     * @param \WP_Term $oTerm The current term.
      *
      * @return object|null
      */
@@ -443,11 +430,11 @@ class FrontendController extends Controller
             return $oTerm;
         }
 
-        $oTerm->name .= $this->adminOutput(ObjectHandler::TERM_OBJECT_TYPE, $oTerm->term_id, $oTerm->name);
+        $oTerm->name .= $this->adminOutput($oTerm->taxonomy, $oTerm->term_id, $oTerm->name);
 
         $oTerm->isEmpty = false;
 
-        if ($this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $oTerm->term_id)) {
+        if ($this->_oAccessHandler->checkObjectAccess($oTerm->taxonomy, $oTerm->term_id)) {
             if ($this->_oConfig->hidePost() === true || $this->_oConfig->hidePage() === true) {
                 $iTermRequest = $oTerm->term_id;
                 $oTerm->count = $this->_getVisibleElementsCount($iTermRequest);
@@ -473,7 +460,7 @@ class FrontendController extends Controller
                 if ($iFullCount <= 0
                     && $this->_oConfig->atAdminPanel() === false
                     && $this->_oConfig->hideEmptyCategories() === true
-                    && ($oTerm->taxonomy == 'term' || $oTerm->taxonomy == 'category')
+                    && ($oTerm->taxonomy === 'term' || $oTerm->taxonomy === 'category')
                 ) {
                     $oTerm->isEmpty = true;
                 }
@@ -484,7 +471,7 @@ class FrontendController extends Controller
                     while ($oCurrentTerm->parent != 0) {
                         $oCurrentTerm = $this->_oObjectHandler->getTerm($oCurrentTerm->parent);
 
-                        if ($this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $oCurrentTerm->term_id)) {
+                        if ($this->_oAccessHandler->checkObjectAccess($oCurrentTerm->taxonomy, $oCurrentTerm->term_id)) {
                             $oTerm->parent = $oCurrentTerm->term_id;
                             break;
                         }
@@ -504,16 +491,11 @@ class FrontendController extends Controller
      * @param array  $aAncestors
      * @param int    $sObjectId
      * @param string $sObjectType
-     * @param string $sResourceType
      *
      * @return array
      */
-    public function showAncestors($aAncestors, $sObjectId, $sObjectType, $sResourceType)
+    public function showAncestors($aAncestors, $sObjectId, $sObjectType)
     {
-        if ($sResourceType === 'taxonomy') {
-            $sObjectType = ObjectHandler::TERM_OBJECT_TYPE;
-        }
-
         foreach ($aAncestors as $sKey => $aAncestorId) {
             if (!$this->_oAccessHandler->checkObjectAccess($sObjectType, $aAncestorId)) {
                 unset($aAncestors[$sKey]);
@@ -575,21 +557,21 @@ class FrontendController extends Controller
      * The function for the get_previous_post_where and
      * the get_next_post_where filter.
      *
-     * @param string $sSql The current sql string.
+     * @param string $sQuery The current sql string.
      *
      * @return string
      */
-    public function showNextPreviousPost($sSql)
+    public function showNextPreviousPost($sQuery)
     {
         $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
         $aAllExcludedPosts = $aExcludedPosts['all'];
 
         if (count($aAllExcludedPosts) > 0) {
             $sExcludedPosts = implode(',', $aAllExcludedPosts);
-            $sSql .= " AND p.ID NOT IN({$sExcludedPosts}) ";
+            $sQuery .= " AND p.ID NOT IN({$sExcludedPosts}) ";
         }
 
-        return $sSql;
+        return $sQuery;
     }
 
     /**
@@ -641,7 +623,7 @@ class FrontendController extends Controller
      */
     public function showGroupMembership($sLink, $iPostId)
     {
-        $aGroups = $this->_oAccessHandler->getUserGroupsForObject(ObjectHandler::POST_OBJECT_TYPE, $iPostId);
+        $aGroups = $this->_oAccessHandler->getUserGroupsForObject(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $iPostId);
 
         if (count($aGroups) > 0) {
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
@@ -747,7 +729,7 @@ class FrontendController extends Controller
                 $iObjectId = $oObject->ID;
             } elseif (isset($oPageParams->query_vars['cat_id'])) {
                 $oObject = $this->_oObjectHandler->getTerm($oPageParams->query_vars['cat_id']);
-                $oObjectType = ObjectHandler::TERM_OBJECT_TYPE;
+                $oObjectType = $oObject->taxonomy;
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
                 $sPostableTypes = "'".implode("','", $this->_oObjectHandler->getPostableTypes())."'";
@@ -878,7 +860,7 @@ class FrontendController extends Controller
     {
         $oObject = null;
 
-        if ($sObjectType == ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+        if ($sObjectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
             $aUploadDir = wp_upload_dir();
             $sUploadDir = str_replace(ABSPATH, '/', $aUploadDir['basedir']);
             $sRegex = '/.*'.str_replace('/', '\/', $sUploadDir).'\//i';
@@ -888,7 +870,7 @@ class FrontendController extends Controller
             $oPost = $this->_oObjectHandler->getPost($this->getPostIdByUrl($sObjectUrl));
 
             if ($oPost !== null
-                && $oPost->post_type == ObjectHandler::ATTACHMENT_OBJECT_TYPE
+                && $oPost->post_type === ObjectHandler::ATTACHMENT_OBJECT_TYPE
             ) {
                 $oObject = new \stdClass();
                 $oObject->id = $oPost->ID;
@@ -952,7 +934,7 @@ class FrontendController extends Controller
         //Filter edit string
         $sNewUrl = preg_split("/-e[0-9]{1,}/", $sUrl);
 
-        if (count($sNewUrl) == 2) {
+        if (count($sNewUrl) === 2) {
             $sNewUrl = $sNewUrl[0].$sNewUrl[1];
         } else {
             $sNewUrl = $sNewUrl[0];
@@ -961,13 +943,13 @@ class FrontendController extends Controller
         //Filter size
         $sNewUrl = preg_split("/-[0-9]{1,}x[0-9]{1,}/", $sNewUrl);
 
-        if (count($sNewUrl) == 2) {
+        if (count($sNewUrl) === 2) {
             $sNewUrl = $sNewUrl[0].$sNewUrl[1];
         } else {
             $sNewUrl = $sNewUrl[0];
         }
 
-        $sSql = $this->_oDatabase->prepare(
+        $sQuery = $this->_oDatabase->prepare(
             "SELECT ID
             FROM {$this->_oDatabase->getPostsTable()}
             WHERE guid = '%s'
@@ -975,7 +957,7 @@ class FrontendController extends Controller
             $sNewUrl
         );
 
-        $oDbPost = $this->_oDatabase->getRow($sSql);
+        $oDbPost = $this->_oDatabase->getRow($sQuery);
 
         if ($oDbPost !== null) {
             $aPostUrls[$sUrl] = $oDbPost->ID;

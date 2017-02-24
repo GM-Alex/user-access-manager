@@ -60,18 +60,4 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
     {
         self::assertEquals('nameValue', $oStub->getName());
     }
-
-
-
-    /**
-     * @group   unit
-     * @covers  \UserAccessManager\ObjectHandler\PluggableObject::getReference()
-     * @depends testCanCreateInstance
-     *
-     * @param PluggableObject $oStub
-     */
-    public function testGetReference(PluggableObject $oStub)
-    {
-        self::assertEquals('referenceValue', $oStub->getReference());
-    }
 }

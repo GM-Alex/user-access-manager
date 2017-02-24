@@ -91,7 +91,7 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                         <td>
                             <?php
                             $aRoleNames = $this->getRoleNames();
-                            $aGroupRoles = $oUserGroup->getObjectsFromType(\UserAccessManager\ObjectHandler\ObjectHandler::ROLE_OBJECT_TYPE);
+                            $aGroupRoles = $oUserGroup->getObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
                             if (count($aGroupRoles) > 0) {
                                 ?>
@@ -253,7 +253,7 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                 <td>
                     <ul class='uam_role'>
                         <?php
-                        $aGroupRoles = $oUserGroup->getObjectsFromType(\UserAccessManager\ObjectHandler\ObjectHandler::ROLE_OBJECT_TYPE);
+                        $aGroupRoles = $oUserGroup->getObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
                         $aRoleNames = $this->getRoleNames();
 
                         foreach ($aRoleNames as $sRole => $sName) {

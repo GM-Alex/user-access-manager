@@ -87,14 +87,14 @@ class AdminObjectController extends Controller
      * Sets the current object type, the object id and the user groups.
      *
      * @param string $sObjectType
-     * @param string $sObjectId
+     * @param string $iObjectId
      */
-    protected function _setObjectInformation($sObjectType, $sObjectId)
+    protected function _setObjectInformation($sObjectType, $iObjectId)
     {
         $this->_sObjectType = $sObjectType;
-        $this->_sObjectId = $sObjectId;
-        $this->_aFullObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId, false);
-        $this->_aObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId);
+        $this->_sObjectId = $iObjectId;
+        $this->_aFullObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId, false);
+        $this->_aObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
         $this->_iUserGroupDiff = count($this->_aFullObjectUserGroups) - count($this->_aObjectUserGroups);
     }
 
@@ -160,7 +160,7 @@ class AdminObjectController extends Controller
      */
     public function isCurrentUserAdmin()
     {
-        if ($this->_sObjectType !== ObjectHandler::USER_OBJECT_TYPE
+        if ($this->_sObjectType !== ObjectHandler::GENERAL_USER_OBJECT_TYPE
             && $this->_sObjectId !== null
         ) {
             return $this->_oAccessHandler->userIsAdmin($this->_sObjectId);
@@ -198,6 +198,11 @@ class AdminObjectController extends Controller
     public function checkUserAccess()
     {
         return $this->_oAccessHandler->checkUserAccess();
+    }
+
+    public function getRecursiveMemberShip()
+    {
+        //TODO
     }
 
     /*
@@ -451,7 +456,7 @@ class AdminObjectController extends Controller
      */
     public function addUserColumn($sReturn, $sColumnName, $iId)
     {
-        $this->_setObjectInformation(ObjectHandler::USER_OBJECT_TYPE, $iId);
+        $this->_setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iId);
 
         if ($sColumnName === self::COLUMN_NAME) {
             $sReturn .= $this->_getIncludeContents('UserColumn.php');
@@ -468,7 +473,7 @@ class AdminObjectController extends Controller
         $sUserId = $this->getRequestParameter('user_id');
 
         if ($sUserId !== null) {
-            $this->_setObjectInformation(ObjectHandler::USER_OBJECT_TYPE, $sUserId);
+            $this->_setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $sUserId);
         }
 
         echo $this->_getIncludeContents('UserProfileEditForm.php');
@@ -481,7 +486,7 @@ class AdminObjectController extends Controller
      */
     public function saveUserData($iUserId)
     {
-        $this->_saveObjectData(ObjectHandler::USER_OBJECT_TYPE, $iUserId);
+        $this->_saveObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId);
     }
 
     /**
@@ -491,7 +496,7 @@ class AdminObjectController extends Controller
      */
     public function removeUserData($iUserId)
     {
-        $this->_removeObjectData(ObjectHandler::USER_OBJECT_TYPE, $iUserId);
+        $this->_removeObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId);
     }
 
 
@@ -524,7 +529,7 @@ class AdminObjectController extends Controller
     public function addTermColumn($sContent, $sColumnName, $iId)
     {
         if ($sColumnName === self::COLUMN_NAME) {
-            $this->_setObjectInformation(ObjectHandler::TERM_OBJECT_TYPE, $iId);
+            $this->_setObjectInformation(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iId);
             $sContent .= $this->_getIncludeContents('ObjectColumn.php');
         }
 
@@ -539,7 +544,7 @@ class AdminObjectController extends Controller
     public function showTermEditForm($oTerm)
     {
         if ($oTerm instanceof \WP_Term) {
-            $this->_setObjectInformation(ObjectHandler::TERM_OBJECT_TYPE, $oTerm->term_id);
+            $this->_setObjectInformation($oTerm->taxonomy, $oTerm->term_id);
         }
 
         echo $this->_getIncludeContents('TermEditForm.php');
@@ -552,7 +557,7 @@ class AdminObjectController extends Controller
      */
     public function saveTermData($iTermId)
     {
-        $this->_saveObjectData(ObjectHandler::TERM_OBJECT_TYPE, $iTermId);
+        $this->_saveObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iTermId);
     }
 
     /**
@@ -562,7 +567,7 @@ class AdminObjectController extends Controller
      */
     public function removeTermData($iTermId)
     {
-        $this->_removeObjectData(ObjectHandler::TERM_OBJECT_TYPE, $iTermId);
+        $this->_removeObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iTermId);
     }
 
     /**
@@ -589,7 +594,7 @@ class AdminObjectController extends Controller
         $sTagId = $this->getRequestParameter('tag_ID');
 
         if ($blNoRights === false && is_numeric($sTagId)) {
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::TERM_OBJECT_TYPE, $sTagId);
+            $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $sTagId);
         }
 
         if ($blNoRights === true) {
@@ -628,13 +633,13 @@ class AdminObjectController extends Controller
      * Returns the group selection form for pluggable objects.
      *
      * @param string $sObjectType The object type.
-     * @param string $sObjectId   The id of the object.
+     * @param string $iObjectId   The id of the object.
      *
      * @return string;
      */
-    public function showPlGroupSelectionForm($sObjectType, $sObjectId)
+    public function showPlGroupSelectionForm($sObjectType, $iObjectId)
     {
-        $this->_setObjectInformation($sObjectType, $sObjectId);
+        $this->_setObjectInformation($sObjectType, $iObjectId);
         return $this->_getIncludeContents('GroupSelectionForm.php');
     }
 
@@ -642,13 +647,13 @@ class AdminObjectController extends Controller
      * Returns the column for a pluggable object.
      *
      * @param string $sObjectType The object type.
-     * @param string $sObjectId   The object id.
+     * @param string $iObjectId   The object id.
      *
      * @return string
      */
-    public function getPlColumn($sObjectType, $sObjectId)
+    public function getPlColumn($sObjectType, $iObjectId)
     {
-        $this->_setObjectInformation($sObjectType, $sObjectId);
+        $this->_setObjectInformation($sObjectType, $iObjectId);
         return $this->_getIncludeContents('ObjectColumn.php');
     }
 

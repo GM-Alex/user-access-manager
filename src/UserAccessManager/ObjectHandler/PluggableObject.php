@@ -13,6 +13,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroup;
 
 /**
  * Class PluggableObject
@@ -25,11 +26,6 @@ abstract class PluggableObject
      * @var string
      */
     protected $_sName;
-
-    /**
-     * @var string
-     */
-    protected $_sReference;
 
     public function __construct($sName, $sReference)
     {
@@ -46,13 +42,16 @@ abstract class PluggableObject
     }
 
     /**
-     * @return string
+     * @param UserGroup $oUserGroup
+     *
+     * @return array
      */
-    public function getReference()
-    {
-        return $this->_sReference;
-    }
+    abstract public function getRecursiveMemberShip(UserGroup $oUserGroup);
 
-    abstract public function getFull();
-    abstract public function getFullObjects();
+    /**
+     * @param UserGroup $oUserGroup
+     *
+     * @return array
+     */
+    abstract public function getFullObjects(UserGroup $oUserGroup);
 }
