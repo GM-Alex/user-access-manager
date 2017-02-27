@@ -238,14 +238,11 @@ class AdminObjectController extends Controller
             $aAddUserGroups = array_flip($aUserGroups);
             $aRemoveUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
             $aUamUserGroups = $this->_oAccessHandler->getUserGroups();
-            $blRemoveOldAssignments = true;
 
             if (isset($aFormData['uam_bulk_type'])) {
                 $sBulkType = $aFormData['uam_bulk_type'];
 
-                if ($sBulkType === 'add') {
-                    $blRemoveOldAssignments = false;
-                } elseif ($sBulkType === 'remove') {
+                if ($sBulkType === 'remove') {
                     $aRemoveUserGroups = $aAddUserGroups;
                     $aAddUserGroups = array();
                 }
@@ -260,7 +257,7 @@ class AdminObjectController extends Controller
                     $oUamUserGroup->addObject($sObjectType, $iObjectId);
                 }
 
-                $oUamUserGroup->save($blRemoveOldAssignments);
+                $oUamUserGroup->save();
             }
 
             $this->_oAccessHandler->unsetUserGroupsForObject();

@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Config;
 
+use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -29,6 +30,11 @@ class Config
      * @var Wordpress
      */
     protected $_oWrapper;
+
+    /**
+     * @var ObjectHandler
+     */
+    protected $_oObjectHandler;
 
     /**
      * @var ConfigParameterFactory
@@ -64,16 +70,19 @@ class Config
      * Config constructor.
      *
      * @param Wordpress              $oWrapper
+     * @param ObjectHandler          $oObjectHandler
      * @param ConfigParameterFactory $oConfigParameterFactory
      * @param String                 $sBaseFile
      */
     public function __construct(
         Wordpress $oWrapper,
+        ObjectHandler $oObjectHandler,
         ConfigParameterFactory $oConfigParameterFactory,
         $sBaseFile
     )
     {
         $this->_oWrapper = $oWrapper;
+        $this->_oObjectHandler = $oObjectHandler;
         $this->_oConfigParameterFactory = $oConfigParameterFactory;
         $this->_sBaseFile = $sBaseFile;
     }
@@ -95,6 +104,14 @@ class Config
     }
 
     /**
+     * Flushes the config parameters.
+     */
+    public function flushConfigParameters()
+    {
+        $this->_aConfigParameters = null;
+    }
+
+    /**
      * Returns the current settings
      *
      * @return ConfigParameter[]
@@ -107,46 +124,52 @@ class Config
              */
             $aConfigParameters = array();
 
-            //TODO fetch all post types
-            $aObjects = array(
-                'post', 'page'
-            );
+            $aPostTypes = $this->_oObjectHandler->getPostTypes();
 
-            foreach ($aObjects as $sObject) {
-                $sId = "hide_{$sObject}";
+            foreach ($aPostTypes as $sPostType) {
+                if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+                    continue;
+                }
+
+                $sId = "hide_{$sPostType}";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
 
-                $sId = "hide_{$sObject}_title";
+                $sId = "hide_{$sPostType}_title";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
 
-                $sId = "{$sObject}_title";
+                $sId = "{$sPostType}_title";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter(
                     $sId,
                     TXT_UAM_SETTING_DEFAULT_NO_RIGHTS
                 );
 
-                if ($sObject === 'post') {
-                    $sId = "show_{$sObject}_content_before_more";
+                if ($sPostType === 'post') {
+                    $sId = "show_{$sPostType}_content_before_more";
                     $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
                 }
 
-                $sId = "{$sObject}_content";
+                $sId = "{$sPostType}_content";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter(
                     $sId,
                     TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_ENTRY
                 );
 
-                $sId = "hide_{$sObject}_comment";
+                $sId = "hide_{$sPostType}_comment";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
 
-                $sId = "{$sObject}_comment_content";
+                $sId = "{$sPostType}_comment_content";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter(
                     $sId,
                     TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_COMMENTS
                 );
 
-                $sId = "{$sObject}_comments_locked";
+                $sId = "{$sPostType}_comments_locked";
                 $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
+
+                if ($sPostType === 'post') {
+                    $sId = "show_{$sPostType}_content_before_more";
+                    $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
+                }
             }
 
             $sId = 'redirect';
@@ -214,14 +237,15 @@ class Config
             $sId = 'blog_admin_hint_text';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createStringConfigParameter($sId, '[L]');
 
-            $sId = 'hide_empty_categories';
-            $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId, true);
+            $aTaxonomies = $this->_oObjectHandler->getTaxonomies();
+
+            foreach ($aTaxonomies as $sTaxonomy) {
+                $sId = 'hide_empty_'.$sTaxonomy;
+                $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId, true);
+            }
 
             $sId = 'protect_feed';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId, true);
-
-            $sId = 'show_post_content_before_more';
-            $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createBooleanConfigParameter($sId);
 
             $sId = 'full_access_role';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
@@ -233,7 +257,9 @@ class Config
             $aCurrentOptions = (array)$this->getWpOption(self::ADMIN_OPTIONS_NAME);
 
             foreach ($aCurrentOptions as $sKey => $mOption) {
-                $aConfigParameters[$sKey]->setValue($mOption);
+                if (isset($aConfigParameters[$sKey])) {
+                    $aConfigParameters[$sKey]->setValue($mOption);
+                }
             }
 
             $this->_aConfigParameters = $aConfigParameters;
@@ -452,118 +478,6 @@ class Config
     }
 
     /**
-     * @return bool
-     */
-    public function hidePostTitle()
-    {
-        return $this->_getParameterValue('hide_post_title');
-    }
-
-    /**
-     * @return string
-     */
-    public function getPostTitle()
-    {
-        return $this->_getParameterValue('post_title');
-    }
-
-    /**
-     * @return string
-     */
-    public function getPostContent()
-    {
-        return $this->_getParameterValue('post_content');
-    }
-
-    /**
-     * @return bool
-     */
-    public function hidePost()
-    {
-        return $this->_getParameterValue('hide_post');
-    }
-
-    /**
-     * @return bool
-     */
-    public function hidePostComment()
-    {
-        return $this->_getParameterValue('hide_post_comment');
-    }
-
-    /**
-     * @return string
-     */
-    public function getPostCommentContent()
-    {
-        return $this->_getParameterValue('post_comment_content');
-    }
-
-    /**
-     * @return bool
-     */
-    public function isPostCommentsLocked()
-    {
-        return $this->_getParameterValue('post_comments_locked');
-    }
-
-    /**
-     * @return bool
-     */
-    public function hidePageTitle()
-    {
-        return $this->_getParameterValue('hide_page_title');
-    }
-
-    /**
-     * @return string
-     */
-    public function getPageTitle()
-    {
-        return $this->_getParameterValue('page_title');
-    }
-
-    /**
-     * @return string
-     */
-    public function getPageContent()
-    {
-        return $this->_getParameterValue('page_content');
-    }
-
-    /**
-     * @return bool
-     */
-    public function hidePage()
-    {
-        return $this->_getParameterValue('hide_page');
-    }
-
-    /**
-     * @return bool
-     */
-    public function hidePageComment()
-    {
-        return $this->_getParameterValue('hide_page_comment');
-    }
-
-    /**
-     * @return string
-     */
-    public function getPageCommentContent()
-    {
-        return $this->_getParameterValue('page_comment_content');
-    }
-
-    /**
-     * @return bool
-     */
-    public function isPageCommentsLocked()
-    {
-        return $this->_getParameterValue('page_comments_locked');
-    }
-
-    /**
      * @return string
      */
     public function getRedirect()
@@ -680,7 +594,7 @@ class Config
      */
     public function hideEmptyCategories()
     {
-        return $this->_getParameterValue('hide_empty_categories');
+        return $this->_getParameterValue('hide_empty_category');
     }
 
     /**

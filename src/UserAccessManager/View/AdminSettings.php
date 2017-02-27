@@ -38,9 +38,10 @@ if ($this->hasUpdateMessage()) {
          */
         foreach ($aGroupedConfigParameters as $sGroupKey => $aGroupParameters) {
             ?>
-            <h3><?php echo constant('TXT_UAM_'.strtoupper($sGroupKey).'_SETTING'); ?></h3>
-            <p><?php echo constant('TXT_UAM_'.strtoupper($sGroupKey).'_SETTING_DESC'); ?></p>
-            <table id="uam_settings_group_<?php echo $sGroupKey; ?>" class="form-table">
+            <h3><?php echo $this->getSectionText($sGroupKey); ?></h3>
+            <p><?php echo $this->getSectionText($sGroupKey, true); ?></p>
+            <table id="uam_settings_group_<?php echo $sGroupKey; ?>"
+                   class="form-table<?php if ($this->isPostTypeGroup($sGroupKey)) { echo ' uam_settings_group_post_type'; }?>">
                 <tbody>
                 <?php
                 $aConfigParameters = $this->getConfigParameters();
@@ -172,7 +173,7 @@ if ($this->hasUpdateMessage()) {
                             ?>
                             <th scope="row">
                                 <label for="uam_<?php echo $oGroupParameter->getId(); ?>">
-                                    <?php echo constant('TXT_UAM_'.strtoupper($oGroupParameter->getId())); ?>
+                                    <?php echo $this->getParameterText($sGroupKey, $oGroupParameter); ?>
                                 </label>
                             </th>
                             <td>
@@ -204,12 +205,12 @@ if ($this->hasUpdateMessage()) {
                                 </select>
 
                                 <br/>
-                                <p><?php echo constant('TXT_UAM_'.strtoupper($oGroupParameter->getId()).'_DESC'); ?></p>
+                                <p><?php echo $this->getParameterText($sGroupKey, $oGroupParameter, true); ?></p>
                             </td>
                             <?php
                         } elseif ($oGroupParameter instanceof \UserAccessManager\Config\BooleanConfigParameter) {
                             ?>
-                            <th scope="row"><?php echo constant('TXT_UAM_'.strtoupper($oGroupParameter->getId())); ?></th>
+                            <th scope="row"><?php echo $this->getParameterText($sGroupKey, $oGroupParameter); ?></th>
                             <td>
                                 <label for="uam_<?php echo $oGroupParameter->getId(); ?>_yes">
                                     <input id="uam_<?php echo $oGroupParameter->getId(); ?>_yes"
@@ -234,14 +235,14 @@ if ($this->hasUpdateMessage()) {
                                     <?php echo TXT_UAM_NO; ?>
                                 </label>
                                 <br/>
-                                <p><?php echo constant('TXT_UAM_'.strtoupper($oGroupParameter->getId()).'_DESC'); ?></p>
+                                <p><?php echo $this->getParameterText($sGroupKey, $oGroupParameter, true); ?></p>
                             </td>
                             <?php
                         } elseif ($oGroupParameter instanceof \UserAccessManager\Config\StringConfigParameter) {
                             ?>
                             <th scope="row">
                                 <label for="uam_<?php echo $oGroupParameter->getId(); ?>">
-                                    <?php echo constant('TXT_UAM_'.strtoupper($oGroupParameter->getId())); ?>
+                                    <?php echo $this->getParameterText($sGroupKey, $oGroupParameter); ?>
                                 </label>
                             </th>
                             <td>
@@ -249,12 +250,12 @@ if ($this->hasUpdateMessage()) {
                                        name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
                                        value="<?php echo $oGroupParameter->getValue(); ?>"/>
                                 <br/>
-                                <p><?php echo constant('TXT_UAM_'.strtoupper($oGroupParameter->getId()).'_DESC'); ?></p>
+                                <p><?php echo $this->getParameterText($sGroupKey, $oGroupParameter, true); ?></p>
                             </td>
                             <?php
                         } elseif ($oGroupParameter instanceof \UserAccessManager\Config\SelectionConfigParameter) {
                             ?>
-                            <th scope="row"><?php echo constant('TXT_UAM_'.strtoupper($oGroupParameter->getId())); ?></th>
+                            <th scope="row"><?php echo $this->getParameterText($sGroupKey, $oGroupParameter); ?></th>
                             <td>
                                 <?php
                                 $aSelections = $oGroupParameter->getSelections();
@@ -284,7 +285,7 @@ if ($this->hasUpdateMessage()) {
                                 }
                                 ?>
                                 <br/>
-                                <p><?php echo constant('TXT_UAM_'.strtoupper($oGroupParameter->getId()).'_DESC'); ?></p>
+                                <p><?php echo $this->getParameterText($sGroupKey, $oGroupParameter, true); ?></p>
                             </td>
                             <?php
                         }

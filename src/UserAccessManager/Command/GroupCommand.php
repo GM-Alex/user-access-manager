@@ -237,7 +237,7 @@ class GroupCommand extends CommandWithDBObject
         if (isset($aAssocArguments['roles'])) {
             $roles = explode(',', $aAssocArguments['roles']);
 
-            $oUserGroup->unsetObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, true);
+            $oUserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
             foreach ($roles as $role) {
                 $oUserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $role);

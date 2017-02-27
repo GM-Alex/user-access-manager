@@ -30,43 +30,25 @@ define('TXT_UAM_NO', __('No', 'user-access-manager'));
 // --- Setting Page ---
 define('TXT_UAM_SETTINGS', __('Settings', 'user-access-manager'));
 
-// --- Setting Page -> post settings ---
-define('TXT_UAM_POST_SETTING', __('Post settings', 'user-access-manager'));
-define('TXT_UAM_POST_SETTING_DESC', __('Set up the behaviour of locked posts', 'user-access-manager'));
-define('TXT_UAM_POST_TITLE', __('Post title', 'user-access-manager'));
-define('TXT_UAM_POST_TITLE_DESC', __('Displayed text as post title if user has no access', 'user-access-manager'));
-define('TXT_UAM_HIDE_POST_TITLE', __('Hide post title', 'user-access-manager'));
-define('TXT_UAM_HIDE_POST_TITLE_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_UAM_POST_TITLE));
-define('TXT_UAM_POST_CONTENT', __('Post content', 'user-access-manager'));
-define('TXT_UAM_POST_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single posts, otherwise a link will shown.', 'user-access-manager'));
-define('TXT_UAM_SHOW_POST_CONTENT_BEFORE_MORE', __('Show post content before &lt;!--more--&gt; tag', 'user-access-manager'));
-define('TXT_UAM_SHOW_POST_CONTENT_BEFORE_MORE_DESC', sprintf(__('Shows the post content before the &lt;!--more--&gt; tag and after that the defined text at "%s". If no &lt;!--more--&gt; is set he defined text at "%s" will shown.', 'user-access-manager'), TXT_UAM_POST_CONTENT, TXT_UAM_POST_CONTENT));
-define('TXT_UAM_HIDE_POST', __('Hide complete posts', 'user-access-manager'));
-define('TXT_UAM_HIDE_POST_DESC', __('Selecting "Yes" will hide posts if the user has no access.', 'user-access-manager'));
-define('TXT_UAM_POST_COMMENT_CONTENT', __('Post comment text', 'user-access-manager'));
-define('TXT_UAM_POST_COMMENT_CONTENT_DESC', __('Displayed text as post comment text if user has no access', 'user-access-manager'));
-define('TXT_UAM_HIDE_POST_COMMENT', __('Hide post comments', 'user-access-manager'));
-define('TXT_UAM_HIDE_POST_COMMENT_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_UAM_POST_COMMENT_CONTENT));
-define('TXT_UAM_POST_COMMENTS_LOCKED', __('Allow post comments', 'user-access-manager'));
-define('TXT_UAM_POST_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked posts', 'user-access-manager'));
-
-// --- Setting Page -> page settings ---
-define('TXT_UAM_PAGE_SETTING', __('Page settings', 'user-access-manager'));
-define('TXT_UAM_PAGE_SETTING_DESC', __('Set up the behaviour of locked pages', 'user-access-manager'));
-define('TXT_UAM_PAGE_TITLE', __('Page title', 'user-access-manager'));
-define('TXT_UAM_PAGE_TITLE_DESC', __('Displayed text as page title if user has no access', 'user-access-manager'));
-define('TXT_UAM_HIDE_PAGE_TITLE', __('Hide page title', 'user-access-manager'));
-define('TXT_UAM_HIDE_PAGE_TITLE_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_UAM_POST_TITLE));
-define('TXT_UAM_PAGE_CONTENT', __('Page content', 'user-access-manager'));
-define('TXT_UAM_PAGE_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single pages, otherwise a link will shown.', 'user-access-manager'));
-define('TXT_UAM_HIDE_PAGE', __('Hide complete pages', 'user-access-manager'));
-define('TXT_UAM_HIDE_PAGE_DESC', __('Selecting "Yes" will hide pages if the user has no access. Pages will also hide in the navigation.', 'user-access-manager'));
-define('TXT_UAM_PAGE_COMMENT_CONTENT', __('Page comment text', 'user-access-manager'));
-define('TXT_UAM_PAGE_COMMENT_CONTENT_DESC', __('Displayed text as page comment text if user has no access', 'user-access-manager'));
-define('TXT_UAM_HIDE_PAGE_COMMENT', __('Hide page comments', 'user-access-manager'));
-define('TXT_UAM_HIDE_PAGE_COMMENT_DESC', sprintf(__('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'), TXT_UAM_PAGE_COMMENT_CONTENT));
-define('TXT_UAM_PAGE_COMMENTS_LOCKED', __('Allow page comments', 'user-access-manager'));
-define('TXT_UAM_PAGE_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked pages', 'user-access-manager'));
+// --- Setting Page -> object settings ---
+define('TXT_UAM_OBJECT_SETTING', __('%s settings', 'user-access-manager'));
+define('TXT_UAM_OBJECT_SETTING_DESC', __('Set up the behaviour if the %s is locked', 'user-access-manager'));
+define('TXT_UAM_OBJECT_TITLE', __('%s title', 'user-access-manager'));
+define('TXT_UAM_OBJECT_TITLE_DESC', __('Displayed text as %s title if user has no access', 'user-access-manager'));
+define('TXT_UAM_HIDE_OBJECT_TITLE', __('Hide %s title', 'user-access-manager'));
+define('TXT_UAM_HIDE_OBJECT_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'));
+define('TXT_UAM_OBJECT_CONTENT', __('%s content', 'user-access-manager'));
+define('TXT_UAM_OBJECT_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single %s, otherwise a link will shown.', 'user-access-manager'));
+define('TXT_UAM_HIDE_OBJECT', __('Hide complete %s', 'user-access-manager'));
+define('TXT_UAM_HIDE_OBJECT_DESC', __('Selecting "Yes" will hide %s if the user has no access.', 'user-access-manager'));
+define('TXT_UAM_OBJECT_COMMENT_CONTENT', __('%s comment text', 'user-access-manager'));
+define('TXT_UAM_OBJECT_COMMENT_CONTENT_DESC', __('Displayed text as %s comment text if user has no access', 'user-access-manager'));
+define('TXT_UAM_HIDE_OBJECT_COMMENT', __('Hide %s comments', 'user-access-manager'));
+define('TXT_UAM_HIDE_OBJECT_COMMENT_DESC', __('Selecting "Yes" will show the text which is defined at "%s comment text" if user has no access.', 'user-access-manager'));
+define('TXT_UAM_OBJECT_COMMENTS_LOCKED', __('Allow %s comments', 'user-access-manager'));
+define('TXT_UAM_OBJECT_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked %s', 'user-access-manager'));
+define('TXT_UAM_SHOW_OBJECT_CONTENT_BEFORE_MORE', __('Show %s content before &lt;!--more--&gt; tag', 'user-access-manager'));
+define('TXT_UAM_SHOW_OBJECT_CONTENT_BEFORE_MORE_DESC', __('Shows the %s content before the &lt;!--more--&gt; tag and after that the defined text at "%s content". If no &lt;!--more--&gt; is set the defined text at "%s content" will shown.', 'user-access-manager')); //TODO
 
 // --- Setting Page -> file settings ---
 define('TXT_UAM_FILE_SETTING', __('File settings', 'user-access-manager'));
@@ -101,13 +83,17 @@ define('TXT_UAM_AUTHOR', __('Author', 'user-access-manager'));
 define('TXT_UAM_CONTRIBUTOR', __('Contributor', 'user-access-manager'));
 define('TXT_UAM_SUBSCRIBER', __('Subscriber', 'user-access-manager'));
 
+// --- Settings Page -> taxonomies ---
+define('TXT_UAM_TAXONOMY_SETTING', __('Taxonomy settings', 'user-access-manager'));
+define('TXT_UAM_TAXONOMY_SETTING_DESC', __('Set up the behaviour if a taxonomy is locked', 'user-access-manager'));
+define('TXT_UAM_HIDE_EMPTY_OBJECT', __('Hide empty %s', 'user-access-manager'));
+define('TXT_UAM_HIDE_EMPTY_OBJECT_DESC', __('Selecting "Yes" will hide empty %s which are containing only empty childes or no childes.', 'user-access-manager'));
+
 // --- Setting Page -> other settings ---
 define('TXT_UAM_OTHER_SETTING', __('Other settings', 'user-access-manager'));
 define('TXT_UAM_OTHER_SETTING_DESC', __('Here you will find all other settings', 'user-access-manager'));
 define('TXT_UAM_PROTECT_FEED', __('Protect Feed', 'user-access-manager'));
 define('TXT_UAM_PROTECT_FEED_DESC', __('Selecting "Yes" will also protect your feed entries.', 'user-access-manager'));
-define('TXT_UAM_HIDE_EMPTY_CATEGORIES', __('Hide empty categories', 'user-access-manager'));
-define('TXT_UAM_HIDE_EMPTY_CATEGORIES_DESC', __('Selecting "Yes" will hide empty categories which are containing only empty childes or no childes.', 'user-access-manager'));
 define('TXT_UAM_REDIRECT', __('Redirect user', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_DESC', __('Setup what happen if a user visit a post/page with no access.', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_BLOG', __('To blog start page', 'user-access-manager'));

@@ -31,6 +31,8 @@ class ObjectHandler
     const GENERAL_POST_OBJECT_TYPE = '_post_';
     const GENERAL_TERM_OBJECT_TYPE = '_term_';
     const ATTACHMENT_OBJECT_TYPE = 'attachment';
+    const POST_OBJECT_TYPE = 'post';
+    const PAGE_OBJECT_TYPE = 'page';
     /**
      * @var Wordpress
      */
@@ -94,11 +96,6 @@ class ObjectHandler
     /**
      * @var array
      */
-    protected $_aPostableTypes = null;
-
-    /**
-     * @var array
-     */
     protected $_aAllObjectTypes = null;
 
     /**
@@ -140,7 +137,7 @@ class ObjectHandler
     public function getTaxonomies()
     {
         if ($this->_aTaxonomies === null) {
-            $this->_aTaxonomies = $this->_oWrapper->getTaxonomies();
+            $this->_aTaxonomies = $this->_oWrapper->getTaxonomies(array('public' => true));
         }
 
         return $this->_aTaxonomies;
@@ -336,7 +333,7 @@ class ObjectHandler
                     $this->_aTermPostMap[$oResult->termId] = array();
                 }
 
-                $this->_aTermPostMap[$oResult->termId][$oResult->objectId] = $oResult->postType;
+                $this->_aTermPostMap[$oResult->termId][$oResult->objectId] = $oResult->objectId;
             }
         }
 
@@ -370,20 +367,6 @@ class ObjectHandler
     }
 
     /**
-     * Returns the predefined object types.
-     *
-     * @return array
-     */
-    public function getPostableTypes()
-    {
-        if ($this->_aPostableTypes === null) {
-            $this->_aPostableTypes = $this->getPostTypes();
-        }
-
-        return $this->_aPostableTypes;
-    }
-
-    /**
      * Used for adding custom post types using the registered_post_type hook
      * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
      *
@@ -393,8 +376,26 @@ class ObjectHandler
     public function registeredPostType($sPostType, \WP_Post_Type $oArguments)
     {
         if ((bool)$oArguments->public === true) {
-            $this->_aPostableTypes = $this->getPostableTypes();
-            $this->_aPostableTypes[$sPostType] = $sPostType;
+            $this->_aPostTypes = $this->getPostTypes();
+            $this->_aPostTypes[$sPostType] = $sPostType;
+            $this->_aObjectTypes = null;
+            $this->_aAllObjectTypes = null;
+            $this->_aValidObjectTypes = null;
+        }
+    }
+
+    /**
+     * Adds an custom taxonomy.
+     *
+     * @param string $sTaxonomy
+     * @param string $sObjectType
+     * @param array  $aArguments
+     */
+    public function registeredTaxonomy($sTaxonomy, $sObjectType, array $aArguments)
+    {
+        if ((bool)$aArguments['public'] === true) {
+            $this->_aTaxonomies = $this->getTaxonomies();
+            $this->_aTaxonomies[$sTaxonomy] = $sTaxonomy;
             $this->_aObjectTypes = null;
             $this->_aAllObjectTypes = null;
             $this->_aValidObjectTypes = null;
@@ -408,9 +409,9 @@ class ObjectHandler
      *
      * @return bool
      */
-    public function isPostableType($sType)
+    public function isPostType($sType)
     {
-        $aPostableTypes = $this->getPostableTypes();
+        $aPostableTypes = $this->getPostTypes();
         return isset($aPostableTypes[$sType]);
     }
 
@@ -423,7 +424,7 @@ class ObjectHandler
      */
     public function isTaxonomy($sTaxonomy)
     {
-        $aTaxonomies = $this->_oWrapper->getTaxonomies();
+        $aTaxonomies = $this->getTaxonomies();
         return in_array($sTaxonomy, $aTaxonomies);
     }
 
@@ -484,7 +485,7 @@ class ObjectHandler
     {
         if ($this->_aObjectTypes === null) {
             $this->_aObjectTypes = array_merge(
-                $this->getPostableTypes(),
+                $this->getPostTypes(),
                 $this->getTaxonomies()
             );
         }
@@ -506,6 +507,12 @@ class ObjectHandler
             $aPluggableObjectKeys = array_combine($aPluggableObjectKeys, $aPluggableObjectKeys);
 
             $this->_aAllObjectTypes = array_merge(
+                [
+                    self::GENERAL_ROLE_OBJECT_TYPE => self::GENERAL_ROLE_OBJECT_TYPE,
+                    self::GENERAL_USER_OBJECT_TYPE => self::GENERAL_USER_OBJECT_TYPE,
+                    self::GENERAL_POST_OBJECT_TYPE => self::GENERAL_POST_OBJECT_TYPE,
+                    self::GENERAL_TERM_OBJECT_TYPE => self::GENERAL_TERM_OBJECT_TYPE
+                ],
                 $aObjectTypes,
                 $aPluggableObjectKeys
             );
@@ -527,7 +534,7 @@ class ObjectHandler
             ||$sObjectType === self::GENERAL_ROLE_OBJECT_TYPE
         ) {
             return $sObjectType;
-        } elseif ($this->isPostableType($sObjectType)) {
+        } elseif ($this->isPostType($sObjectType)) {
             return self::GENERAL_POST_OBJECT_TYPE;
         } elseif ($this->isTaxonomy($sObjectType)) {
             return self::GENERAL_TERM_OBJECT_TYPE;

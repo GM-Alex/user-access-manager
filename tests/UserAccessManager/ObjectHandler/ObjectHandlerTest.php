@@ -66,6 +66,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTaxonomies()
+     *
+     * @return ObjectHandler
      */
     public function testGetTaxonomies()
     {
@@ -82,6 +84,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
         self::assertEquals($aReturn, $oObjectHandler->getTaxonomies());
         self::assertEquals($aReturn, $oObjectHandler->getTaxonomies());
+
+        return $oObjectHandler;
     }
 
     /**
@@ -368,11 +372,11 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
 
         $aExpectedResult = [
-            1 => [1 => 'post', 2 => 'post'],
-            2 => [1 => 'post', 3 => 'post', 4 => 'post'],
-            3 => [123 => 'post', 321 => 'post'],
-            6 => [7 => 'page'],
-            7 => [8 => 'page']
+            1 => [1 => 1, 2 => 2],
+            2 => [1 => 1, 3 => 3, 4 => 4],
+            3 => [123 => 123, 321 => 321],
+            6 => [7 => 7],
+            7 => [8 => 8]
         ];
 
         self::assertEquals($aExpectedResult, $oObjectHandler->getTermPostMap());
@@ -406,24 +410,6 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPostableTypes()
-     * @depends testGetPostTypes
-     *
-     * @param ObjectHandler $oObjectHandler
-     */
-    public function testGetPostableTypes(ObjectHandler $oObjectHandler)
-    {
-        $aExpectedResult = [
-            'a' => 'a1',
-            'b' => 'b1'
-        ];
-
-        self::assertEquals($aExpectedResult, $oObjectHandler->getPostableTypes());
-        self::assertAttributeEquals($aExpectedResult, '_aPostableTypes', $oObjectHandler);
-    }
-
-    /**
-     * @group  unit
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::registeredPostType()
      * @depends testGetPostTypes
      *
@@ -445,13 +431,13 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         ];
 
         $oObjectHandler->registeredPostType('postType', $oArguments);
-        self::assertAttributeEquals($aExpectedResult, '_aPostableTypes', $oObjectHandler);
+        self::assertAttributeEquals($aExpectedResult, '_aPostTypes', $oObjectHandler);
 
         $oArguments->public = true;
         $aExpectedResult['postType'] = 'postType';
 
         $oObjectHandler->registeredPostType('postType', $oArguments);
-        self::assertAttributeEquals($aExpectedResult, '_aPostableTypes', $oObjectHandler);
+        self::assertAttributeEquals($aExpectedResult, '_aPostTypes', $oObjectHandler);
         self::assertAttributeEquals(null, '_aObjectTypes', $oObjectHandler);
         self::assertAttributeEquals(null, '_aAllObjectTypes', $oObjectHandler);
         self::assertAttributeEquals(null, '_aValidObjectTypes', $oObjectHandler);
@@ -461,15 +447,47 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isPostableType()
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::registeredTaxonomy()
+     * @depends testGetTaxonomies
+     *
+     * @param ObjectHandler $oObjectHandler
+     *
+     * @return ObjectHandler
+     */
+    public function testRegisteredTaxonomy(ObjectHandler $oObjectHandler)
+    {
+        $aArguments = ['public' => false];
+        $aExpectedResult = [
+            'a' => 'a1',
+            'b' => 'b1'
+        ];
+
+        $oObjectHandler->registeredTaxonomy('taxonomy', 'objectType', $aArguments);
+        self::assertAttributeEquals($aExpectedResult, '_aTaxonomies', $oObjectHandler);
+
+        $aArguments = ['public' => true];
+        $aExpectedResult['taxonomy'] = 'taxonomy';
+
+        $oObjectHandler->registeredTaxonomy('taxonomy', 'objectType', $aArguments);
+        self::assertAttributeEquals($aExpectedResult, '_aTaxonomies', $oObjectHandler);
+        self::assertAttributeEquals(null, '_aObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, '_aAllObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, '_aValidObjectTypes', $oObjectHandler);
+
+        return $oObjectHandler;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isPostType()
      * @depends testRegisteredPostType
      *
      * @param ObjectHandler $oObjectHandler
      */
-    public function testIsPostableType(ObjectHandler $oObjectHandler)
+    public function testIsPostType(ObjectHandler $oObjectHandler)
     {
-        self::assertTrue($oObjectHandler->isPostableType('postType'));
-        self::assertFalse($oObjectHandler->isPostableType('missing'));
+        self::assertTrue($oObjectHandler->isPostType('postType'));
+        self::assertFalse($oObjectHandler->isPostType('missing'));
     }
 
     /**
@@ -480,7 +498,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     {
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(3))
+        $oWrapper->expects($this->exactly(1))
             ->method('getTaxonomies')
             ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
 
@@ -506,7 +524,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
             ->with(['public' => true])
             ->will($this->returnValue(['a' => 'a1', 'b' => 'b1']));
 
-        $oWrapper->expects($this->exactly(3))
+        $oWrapper->expects($this->exactly(1))
             ->method('getTaxonomies')
             ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
 
@@ -691,6 +709,10 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler->registerPluggableObject($oSecondPluggableObject);
 
         $aExpectation = [
+            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE => ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE => ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
             'a' => 'a1',
             'b' => 'b1',
             'c' => 'c1',
@@ -713,6 +735,10 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      */
     public function testIsValidObjectType(ObjectHandler $oObjectHandler)
     {
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::GENERAL_USER_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::GENERAL_POST_OBJECT_TYPE));
+        self::assertTrue($oObjectHandler->isValidObjectType(ObjectHandler::GENERAL_TERM_OBJECT_TYPE));
         self::assertTrue($oObjectHandler->isValidObjectType('a'));
         self::assertTrue($oObjectHandler->isValidObjectType('b'));
         self::assertTrue($oObjectHandler->isValidObjectType('c'));

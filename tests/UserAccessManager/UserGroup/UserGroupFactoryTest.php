@@ -29,17 +29,12 @@ class UserGroupFactoryTest extends \UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oObjectHandler = $this->getObjectHandler();
-        $oObjectHandler->expects($this->any())
-            ->method('getAllObjectTypes')
-            ->will($this->returnValue([]));
-
         $oUserGroupFactory = new UserGroupFactory(
             $this->getWrapper(),
             $this->getDatabase(),
             $this->getConfig(),
             $this->getUtil(),
-            $oObjectHandler
+            $this->getObjectHandler()
         );
 
         self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroupFactory', $oUserGroupFactory);

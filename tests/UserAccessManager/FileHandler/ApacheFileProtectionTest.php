@@ -70,7 +70,7 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
     {
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->any())
+        $oWrapper->expects($this->exactly(2))
             ->method('getHomeUrl')
             ->will($this->returnValue('http://www.test.com'));
 
@@ -81,14 +81,14 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';
 
-        $oWrapper->expects($this->any())
+        $oWrapper->expects($this->exactly(3))
             ->method('getCurrentUser')
             ->will($this->returnValue($oUser));
 
         $oConfig = $this->getConfig();
         $oUtil = $this->getUtil();
 
-        $oConfig->expects($this->any())
+        $oConfig->expects($this->exactly(5))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(false, false, false, true, true));
 
@@ -104,7 +104,7 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
-        $oConfig->expects($this->any())
+        $oConfig->expects($this->exactly(3))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 

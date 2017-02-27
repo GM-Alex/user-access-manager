@@ -123,7 +123,6 @@ class ObjectCommand extends \WP_CLI_Command
         }
 
         $aRemoveUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId);
-        $blRemoveOldAssignments = ($sOperation === 'add') ? false : true;
 
         if ($sOperation === 'remove') {
             $aRemoveUserGroups = $aAddUserGroups;
@@ -139,7 +138,7 @@ class ObjectCommand extends \WP_CLI_Command
                 $oUamUserGroup->addObject($sObjectType, $sObjectId);
             }
 
-            $oUamUserGroup->save($blRemoveOldAssignments);
+            $oUamUserGroup->save();
         }
 
         switch ($sOperation) {

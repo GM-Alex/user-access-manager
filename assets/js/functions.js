@@ -1,27 +1,31 @@
 jQuery(document).ready(function () {
     //Functions for the setting page
     var toggleGroup = function (groupName) {
-        var $group = jQuery(groupName);
-        var $firstElement = jQuery('tr:first input', $group);
-        var toggleElements = function (element) {
-            var $element = jQuery(element);
+        var $groups = jQuery(groupName);
 
-            if ($element.val() === 'true') {
-                jQuery('tr:not(:first)', $group).hide();
-            } else {
-                jQuery('tr:not(:first)', $group).show();
-            }
-        };
+        jQuery.each($groups, function (key, group) {
+            var $group = jQuery(group);
+            var $firstElements = jQuery('tr:first input', $group);
 
-        $firstElement.change(function () {
-            toggleElements(this);
+            var toggleElements = function (element) {
+                var $element = jQuery(element);
+
+                if ($element.val() === 'true') {
+                    jQuery('tr:not(:first)', $group).hide();
+                } else {
+                    jQuery('tr:not(:first)', $group).show();
+                }
+            };
+
+            $firstElements.change(function () {
+                toggleElements(this);
+            });
+
+            toggleElements(jQuery('tr:first input:checked', $group));
         });
-        toggleElements($firstElement);
     };
 
-    toggleGroup('#uam_settings_group_post');
-    toggleGroup('#uam_settings_group_page');
-    toggleGroup('#uam_settings_group_file');
+    toggleGroup('.uam_settings_group_post_type');
 
     // Functions for the setup page
     jQuery('#uam_reset_confirm').on('change paste keyup', function () {

@@ -78,14 +78,14 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';
 
-        $oWrapper->expects($this->any())
+        $oWrapper->expects($this->exactly(2))
             ->method('getCurrentUser')
             ->will($this->returnValue($oUser));
 
         $oConfig = $this->getConfig();
         $oUtil = $this->getUtil();
 
-        $oConfig->expects($this->any())
+        $oConfig->expects($this->exactly(4))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(false, false, true, true));
 
@@ -101,7 +101,7 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
-        $oConfig->expects($this->any())
+        $oConfig->expects($this->exactly(2))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 

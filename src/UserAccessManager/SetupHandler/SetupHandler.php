@@ -251,7 +251,7 @@ class SetupHandler
                 foreach ($aObjectTypes as $sObjectType) {
                     $sAddition = '';
 
-                    if ($this->_oObjectHandler->isPostableType($sObjectType)) {
+                    if ($this->_oObjectHandler->isPostType($sObjectType)) {
                         $sDbIdName = 'post_id';
                         $sDatabase = $sDbAccessGroupToPost.', '.$sPostTable;
                         $sAddition = " WHERE post_id = ID

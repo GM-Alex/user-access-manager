@@ -241,11 +241,11 @@ class UserAccessManager
             || $this->_oConfig->authorsCanAddPostsToGroups() === true
         ) {
             //Admin meta boxes
-            $aPostableTypes = $this->_oObjectHandler->getPostableTypes();
+            $aPostTypes = $this->_oObjectHandler->getPostTypes();
 
-            foreach ($aPostableTypes as $sPostableType) {
+            foreach ($aPostTypes as $sPostType) {
                 // there is no need for a meta box for attachments if files are locked
-                if ($sPostableType === 'attachment' && $this->_oConfig->lockFile() !== true) {
+                if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE && $this->_oConfig->lockFile() !== true) {
                     continue;
                 }
 
@@ -253,7 +253,7 @@ class UserAccessManager
                     'uma_post_access',
                     TXT_UAM_COLUMN_ACCESS,
                     array($oAdminObjectController, 'editPostContent'),
-                    $sPostableType,
+                    $sPostType,
                     'side'
                 );
             }
@@ -273,6 +273,9 @@ class UserAccessManager
         $this->_oWrapper->addAction('admin_menu', array($this, 'registerAdminMenu'));
         $this->_oWrapper->addAction('admin_init', array($this, 'registerAdminActionsAndFilters'));
         $this->_oWrapper->addAction('registered_post_type', array($this->_oObjectHandler, 'registeredPostType'), 10, 2);
+        $this->_oWrapper->addAction('registered_taxonomy', array($this->_oObjectHandler, 'registeredTaxonomy'), 10, 3);
+        $this->_oWrapper->addAction('registered_post_type', array($this->_oConfig, 'flushConfigParameters'));
+        $this->_oWrapper->addAction('registered_taxonomy', array($this->_oConfig, 'flushConfigParameters'));
         $this->_oWrapper->addAction('wp_enqueue_scripts', array($oFrontendController, 'enqueueStylesAndScripts'));
 
         //Filters

@@ -21,6 +21,21 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Sets a private property
+     *
+     * @param object $oObject
+     * @param string $sValueName
+     * @param mixed  $mValue
+     */
+    public static function setValue($oObject, $sValueName, $mValue)
+    {
+        $oReflection = new \ReflectionClass($oObject);
+        $oProperty = $oReflection->getProperty($sValueName);
+        $oProperty->setAccessible(true);
+        $oProperty->setValue($oObject, $mValue);
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
      */
     protected function getWrapper()

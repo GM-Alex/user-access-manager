@@ -392,7 +392,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue(['post', 'category', 'user', 'role', 'nothing']));
 
         $oObjectHandler->expects($this->exactly(5))
-            ->method('isPostableType')
+            ->method('isPostType')
             ->withConsecutive(['post'], ['category'], ['user'], ['role'], ['nothing'])
             ->will($this->onConsecutiveCalls(true, false, false, false, false));
 

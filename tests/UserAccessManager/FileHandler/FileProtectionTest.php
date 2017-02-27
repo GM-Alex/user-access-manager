@@ -129,18 +129,18 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';
 
-        $oWrapper->expects($this->any())
+        $oWrapper->expects($this->exactly(4))
             ->method('getCurrentUser')
             ->will($this->returnValue($oUser));
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->any())
+        $oConfig->expects($this->exactly(2))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 
         $oUtil = $this->getUtil();
 
-        $oUtil->expects($this->any())
+        $oUtil->expects($this->exactly(2))
             ->method('getRandomPassword')
             ->will($this->returnValue('randomPassword'));
 
@@ -162,7 +162,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         self::assertEquals($sContent, file_get_contents($sFirstTestFile));
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->any())
+        $oConfig->expects($this->exactly(2))
             ->method('getFilePassType')
             ->will($this->returnValue('random'));
 

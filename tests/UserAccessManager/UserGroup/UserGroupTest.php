@@ -179,4 +179,180 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $oUserGroup->setIpRange(['ipRangeNew', 'ipRangeNew2']);
         self::assertAttributeEquals('ipRangeNew;ipRangeNew2', '_sIpRange', $oUserGroup);
     }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::save()
+     */
+    public function testSave()
+    {
+        $oDatabase = $this->getDatabase();
+
+        $oDatabase->expects($this->exactly(4))
+            ->method('getUserGroupTable')
+            ->will($this->returnValue('userGroupTable'));
+
+        $oDatabase->expects($this->exactly(2))
+            ->method('insert')
+            ->with(
+                'userGroupTable',
+                [
+                    'groupname' => 'groupName',
+                    'groupdesc' => 'groupDesc',
+                    'read_access' => 'readAccess',
+                    'write_access' => 'writeAccess',
+                    'ip_range' => 'ipRange;ipRange2'
+                ]
+            )
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oDatabase->expects($this->exactly(1))
+            ->method('getLastInsertId')
+            ->will($this->returnValue(123));
+
+        $oDatabase->expects($this->exactly(2))
+            ->method('update')
+            ->with(
+                'userGroupTable',
+                [
+                    'groupname' => 'groupName',
+                    'groupdesc' => 'groupDesc',
+                    'read_access' => 'readAccess',
+                    'write_access' => 'writeAccess',
+                    'ip_range' => 'ipRange;ipRange2'
+                ],
+                ['ID' => 2]
+            )
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $this->getConfig(),
+            $this->getUtil(),
+            $this->getObjectHandler()
+        );
+        
+        $oUserGroup->setGroupName('groupName');
+        $oUserGroup->setGroupDesc('groupDesc');
+        $oUserGroup->setReadAccess('readAccess');
+        $oUserGroup->setWriteAccess('writeAccess');
+        $oUserGroup->setIpRange(['ipRange', 'ipRange2']);
+
+        self::assertFalse($oUserGroup->save());
+        self::assertNull($oUserGroup->getId());
+        self::assertTrue($oUserGroup->save());
+        self::assertEquals(123, $oUserGroup->getId());
+
+        self::setValue($oUserGroup, '_iId', 2);
+        self::assertFalse($oUserGroup->save());
+        self::assertTrue($oUserGroup->save());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::delete()
+     * @covers \UserAccessManager\UserGroup\UserGroup::removeObject()
+     */
+    public function testDelete()
+    {
+        $oDatabase = $this->getDatabase();
+
+        $oDatabase->expects($this->exactly(2))
+            ->method('getUserGroupTable')
+            ->will($this->returnValue('userGroupTable'));
+
+        $oDatabase->expects($this->exactly(2))
+            ->method('delete')
+            ->with(
+                'userGroupTable',
+                ['ID' => 123]
+            )
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oDatabase->expects($this->exactly(4))
+            ->method('prepare')
+            ->withConsecutive(
+                [
+                    new MatchIgnoreWhitespace(
+                        'DELETE FROM 
+                        WHERE group_id = %d
+                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                    ),
+                    [123, 'objectType', 'objectType']
+                ],
+                [
+                    new MatchIgnoreWhitespace(
+                        'DELETE FROM 
+                        WHERE group_id = %d
+                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                    ),
+                    [123, 'objectType', 'objectType']
+                ],
+                [
+                    new MatchIgnoreWhitespace(
+                        'DELETE FROM 
+                            WHERE group_id = %d
+                              AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                    ),
+                    [123, 'objectType', 'objectType']
+                ],
+                [
+                    new MatchIgnoreWhitespace(
+                        'DELETE FROM 
+                            WHERE group_id = %d
+                              AND (general_object_type = \'%s\' OR object_type = \'%s\')
+                              AND object_id = %d'
+                    ),
+                    [123, 'objectType', 'objectType', 1]
+                ]
+            )
+            ->will($this->returnValue('preparedQuery'));
+
+        $oDatabase->expects($this->exactly(4))
+            ->method('query')
+            ->with('preparedQuery')
+            ->will($this->onConsecutiveCalls(true, false, true, true));
+
+        $oObjectHandler = $this->getObjectHandler();
+
+        $oObjectHandler->expects($this->exactly(1))
+            ->method('getAllObjectTypes')
+            ->will($this->returnValue(['objectType']));
+
+        $oObjectHandler->expects($this->exactly(5))
+            ->method('isValidObjectType')
+            ->withConsecutive(['objectType'], ['invalid'], ['objectType'], ['objectType'], ['objectType'])
+            ->will($this->onConsecutiveCalls(true, false, true));
+
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $this->getConfig(),
+            $this->getUtil(),
+            $oObjectHandler
+        );
+
+        self::assertFalse($oUserGroup->delete());
+        self::setValue($oUserGroup, '_iId', 123);
+        self::assertFalse($oUserGroup->delete());
+        self::assertTrue($oUserGroup->delete());
+        self::assertFalse($oUserGroup->removeObject('invalid'));
+        self::assertFalse($oUserGroup->removeObject('objectType'));
+        self::assertTrue($oUserGroup->removeObject('objectType'));
+        self::assertTrue($oUserGroup->removeObject('objectType', 1));
+
+        self::assertAttributeEquals([], '_aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals([], '_aObjectMembership', $oUserGroup);
+        self::assertAttributeEquals([], '_aFullObjects', $oUserGroup);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::addObject()
+     */
+    public function testAddObject()
+    {
+
+    }
 }

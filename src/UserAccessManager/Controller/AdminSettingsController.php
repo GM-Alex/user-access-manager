@@ -15,11 +15,18 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\Config;
+use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
 class AdminSettingsController extends Controller
 {
+    /**
+     * @var ObjectHandler
+     */
+    protected $_oObjectHandler;
+
     /**
      * @var FileHandler
      */
@@ -33,13 +40,15 @@ class AdminSettingsController extends Controller
     /**
      * AdminSettingsController constructor.
      *
-     * @param Wordpress   $oWrapper
-     * @param Config      $oConfig
-     * @param FileHandler $oFileHandler
+     * @param Wordpress     $oWrapper
+     * @param Config        $oConfig
+     * @param ObjectHandler $oObjectHandler
+     * @param FileHandler   $oFileHandler
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, FileHandler $oFileHandler)
+    public function __construct(Wordpress $oWrapper, Config $oConfig, ObjectHandler $oObjectHandler, FileHandler $oFileHandler)
     {
         parent::__construct($oWrapper, $oConfig);
+        $this->_oObjectHandler = $oObjectHandler;
         $this->_oFileHandler = $oFileHandler;
     }
 
@@ -75,6 +84,26 @@ class AdminSettingsController extends Controller
     }
 
     /**
+     * Returns the post types as object.
+     *
+     * @return \WP_Post_Type[]
+     */
+    protected function _getPostTypes()
+    {
+        return $this->_oWrapper->getPostTypes(array('public' => true), 'objects');
+    }
+
+    /**
+     * Returns the taxonomies as objects.
+     *
+     * @return \WP_Taxonomy[]
+     */
+    protected function _getTaxonomies()
+    {
+        return $this->_oWrapper->getTaxonomies(array('public' => true), 'objects');
+    }
+
+    /**
      * Returns the grouped config parameters.
      *
      * @return array
@@ -82,43 +111,53 @@ class AdminSettingsController extends Controller
     public function getGroupedConfigParameters()
     {
         $aConfigParameters = $this->_oConfig->getConfigParameters();
-        $aGroupedConfigParameters = array(
-            'post' => array(
-                $aConfigParameters['hide_post'],
-                $aConfigParameters['hide_post_title'],
-                $aConfigParameters['post_title'],
-                $aConfigParameters['show_post_content_before_more'],
-                $aConfigParameters['post_content'],
-                $aConfigParameters['hide_post_comment'],
-                $aConfigParameters['post_comment_content'],
-                $aConfigParameters['post_comments_locked']
-            ),
-            'page' => array(
-                $aConfigParameters['hide_page'],
-                $aConfigParameters['hide_page_title'],
-                $aConfigParameters['page_title'],
-                $aConfigParameters['page_content'],
-                $aConfigParameters['hide_page_comment'],
-                $aConfigParameters['page_comment_content'],
-                $aConfigParameters['page_comments_locked']
-            ),
-            'file' => array(
-                $aConfigParameters['lock_file'],
-                $aConfigParameters['download_type']
-            ),
-            'author' => array(
-                $aConfigParameters['authors_has_access_to_own'],
-                $aConfigParameters['authors_can_add_posts_to_groups'],
-                $aConfigParameters['full_access_role'],
-            ),
-            'other' => array(
-                $aConfigParameters['lock_recursive'],
-                $aConfigParameters['hide_empty_categories'],
-                $aConfigParameters['protect_feed'],
-                $aConfigParameters['redirect'],
-                $aConfigParameters['blog_admin_hint'],
-                $aConfigParameters['blog_admin_hint_text'],
-            )
+
+        $aGroupedConfigParameters = array();
+        $aPostTypes = $this->_getPostTypes();
+
+        foreach ($aPostTypes as $sPostType => $oPostType) {
+            if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+                continue;
+            }
+
+            $aGroupedConfigParameters[$sPostType] = array(
+                $aConfigParameters["hide_{$sPostType}"],
+                $aConfigParameters["hide_{$sPostType}_title"],
+                $aConfigParameters["{$sPostType}_title"],
+                $aConfigParameters["{$sPostType}_content"],
+                $aConfigParameters["hide_{$sPostType}_comment"],
+                $aConfigParameters["{$sPostType}_comment_content"],
+                $aConfigParameters["{$sPostType}_comments_locked"]
+            );
+
+            if ($sPostType === 'post') {
+                $aGroupedConfigParameters[$sPostType][] = $aConfigParameters["show_{$sPostType}_content_before_more"];
+            }
+        }
+
+        $aTaxonomies = $this->_getTaxonomies();
+
+        foreach ($aTaxonomies as $sTaxonomy => $oTaxonomy) {
+            $aGroupedConfigParameters[$sTaxonomy][] = $aConfigParameters["hide_empty_{$sTaxonomy}"];
+        }
+
+        $aGroupedConfigParameters['file'] = array(
+            $aConfigParameters['lock_file'],
+            $aConfigParameters['download_type']
+        );
+
+        $aGroupedConfigParameters['author'] = array(
+            $aConfigParameters['authors_has_access_to_own'],
+            $aConfigParameters['authors_can_add_posts_to_groups'],
+            $aConfigParameters['full_access_role'],
+        );
+
+        $aGroupedConfigParameters['other'] = array(
+            $aConfigParameters['lock_recursive'],
+            $aConfigParameters['protect_feed'],
+            $aConfigParameters['redirect'],
+            $aConfigParameters['blog_admin_hint'],
+            $aConfigParameters['blog_admin_hint_text'],
         );
 
         if ($this->_oConfig->isPermalinksActive() === true) {
@@ -148,5 +187,100 @@ class AdminSettingsController extends Controller
 
         $this->_oWrapper->doAction('uam_update_options', $this->_oConfig);
         $this->_setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
+    }
+
+    /**
+     * Checks if the group is a post type.
+     *
+     * @param string $sGroupKey
+     *
+     * @return bool
+     */
+    public function isPostTypeGroup($sGroupKey)
+    {
+        $aPostTypes = $this->_getPostTypes();
+
+        return isset($aPostTypes[$sGroupKey]);
+    }
+
+    protected function getObjectText($sGroupKey, $sIdent, $blDescription = false)
+    {
+        $aObjects = $this->_getPostTypes() + $this->_getTaxonomies();
+        $sIdent .= ($blDescription === true) ? '_DESC' : '';
+
+        if (isset($aObjects[$sGroupKey]) === true) {
+            $sIdent = str_replace(strtoupper($sGroupKey), 'OBJECT', $sIdent);
+            $sText = constant($sIdent);
+            $iCount = substr_count($sText, '%s');
+            $aArguments = array_fill(0, $iCount, $aObjects[$sGroupKey]->labels->name);
+            return vsprintf($sText, $aArguments);
+        }
+
+        return constant($sIdent);
+    }
+
+    /**
+     * @param string $sGroupKey
+     * @param bool   $blDescription
+     *
+     * @return string
+     */
+    public function getSectionText($sGroupKey, $blDescription = false)
+    {
+        return $this->getObjectText(
+            $sGroupKey,
+            'TXT_UAM_'.strtoupper($sGroupKey).'_SETTING',
+            $blDescription
+        );
+
+        /*$aArguments = array();
+        $sIdent = 'TXT_UAM_'.strtoupper($sGroupKey).'_SETTING';
+        $aObjects = $this->_getPostTypes() + $this->_getTaxonomies();
+
+        if (isset($aObjects[$sGroupKey]) === true) {
+            $sIdent = 'TXT_UAM_OBJECT_SETTING';
+            $sName = $aObjects[$sGroupKey]->labels->name;
+            $iCount = substr_count('%s', $sIdent);
+            $aArguments = array_fill(0, $iCount, $sName);
+        }
+
+        $sIdent .= ($blDescription === true) ? '_DESC' : '';
+
+        return vsprintf(constant($sIdent), $aArguments);*/
+    }
+
+    /**
+     * Returns the label for the parameter.
+     *
+     * @param string          $sGroupKey
+     * @param ConfigParameter $oConfigParameter
+     * @param bool            $blDescription
+     *
+     * @return string
+     */
+    public function getParameterText($sGroupKey, ConfigParameter $oConfigParameter, $blDescription = false)
+    {
+        $sIdent = 'TXT_UAM_'.strtoupper($oConfigParameter->getId());
+
+        return $this->getObjectText(
+            $sGroupKey,
+            $sIdent,
+            $blDescription
+        );
+
+        /*$aArguments = array();
+        $sIdent = 'TXT_UAM_'.strtoupper($oConfigParameter->getId());
+        $aObjects = $this->_getPostTypes() + $this->_getTaxonomies();
+
+        if (isset($aObjects[$sGroupKey]) === true) {
+            $sIdent = str_replace(strtoupper($sGroupKey), 'OBJECT', $sIdent);
+            $sName = $aObjects[$sGroupKey]->labels->singular_name;
+            $iCount = substr_count('%s', $sIdent);
+            $aArguments = array_fill(0, $iCount, $sName);
+        }
+
+        $sIdent .= ($blDescription === true) ? '_DESC' : '';
+
+        return vsprintf(constant($sIdent), $aArguments);*/
     }
 }

@@ -185,10 +185,10 @@ class FileHandlerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true));
 
         $oFileProtectionFactory = $this->getFileProtectionFactory();
-        $oFileProtectionFactory->expects($this->any())
+        $oFileProtectionFactory->expects($this->exactly(3))
             ->method('createApacheFileProtection')
             ->will($this->returnValue($oApacheFileProtection));
-        $oFileProtectionFactory->expects($this->any())
+        $oFileProtectionFactory->expects($this->exactly(3))
             ->method('createNginxFileProtection')
             ->will($this->returnValue($oNginxFileProtection));
 
@@ -236,10 +236,10 @@ class FileHandlerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true));
 
         $oFileProtectionFactory = $this->getFileProtectionFactory();
-        $oFileProtectionFactory->expects($this->any())
+        $oFileProtectionFactory->expects($this->exactly(3))
             ->method('createApacheFileProtection')
             ->will($this->returnValue($oApacheFileProtection));
-        $oFileProtectionFactory->expects($this->any())
+        $oFileProtectionFactory->expects($this->exactly(3))
             ->method('createNginxFileProtection')
             ->will($this->returnValue($oNginxFileProtection));
 

@@ -281,10 +281,9 @@ class FrontendController extends Controller
     public function showCustomMenu($aItems)
     {
         $aShowItems = array();
-        $aTaxonomies = $this->_oObjectHandler->getTaxonomies();
 
         foreach ($aItems as $oItem) {
-            if ($this->_oObjectHandler->isPostableType($oItem->object)) {
+            if ($this->_oObjectHandler->isPostType($oItem->object)) {
                 $oObject = $this->_oObjectHandler->getPost($oItem->object_id);
 
                 if ($oObject !== null) {
@@ -354,7 +353,7 @@ class FrontendController extends Controller
     /**
      * The function for the get_pages filter.
      *
-     * @param array $aPages The pages.
+     * @param \WP_Post[] $aPages The pages.
      *
      * @return array
      */
@@ -363,7 +362,7 @@ class FrontendController extends Controller
         $aShowPages = array();
 
         foreach ($aPages as $oPage) {
-            if ($this->_oConfig->hidePage() === true
+            if ($this->_oConfig->hideObjectType($oPage->post_type) === true
                 || $this->_oConfig->atAdminPanel()
             ) {
                 if ($this->_oAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID)) {
@@ -375,11 +374,11 @@ class FrontendController extends Controller
                 }
             } else {
                 if (!$this->_oAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID)) {
-                    if ($this->_oConfig->hidePageTitle() === true) {
-                        $oPage->post_title = $this->_oConfig->getPageTitle();
+                    if ($this->_oConfig->hideObjectTypeTitle($oPage->post_type) === true) {
+                        $oPage->post_title = $this->_oConfig->getObjectTypeTitle($oPage->post_type);
                     }
 
-                    $oPage->post_content = $this->_oConfig->getPageContent();
+                    $oPage->post_content = $this->_oConfig->getObjectTypeContent($oPage->post_type);
                 }
 
                 $oPage->post_title .= $this->adminOutput($oPage->post_type, $oPage->ID);
@@ -435,7 +434,9 @@ class FrontendController extends Controller
         $oTerm->isEmpty = false;
 
         if ($this->_oAccessHandler->checkObjectAccess($oTerm->taxonomy, $oTerm->term_id)) {
-            if ($this->_oConfig->hidePost() === true || $this->_oConfig->hidePage() === true) {
+            if ($this->_oConfig->hideObjectType(ObjectHandler::POST_OBJECT_TYPE) === true
+                || $this->_oConfig->hideObjectType(ObjectHandler::PAGE_OBJECT_TYPE) === true
+            ) {
                 $iTermRequest = $oTerm->term_id;
                 $oTerm->count = $this->_getVisibleElementsCount($iTermRequest);
                 $iFullCount = $oTerm->count;
@@ -508,7 +509,7 @@ class FrontendController extends Controller
     /**
      * The function for the get_term filter.
      *
-     * @param object $oTerm
+     * @param \WP_Term $oTerm
      *
      * @return null|object
      */
@@ -732,7 +733,7 @@ class FrontendController extends Controller
                 $oObjectType = $oObject->taxonomy;
                 $iObjectId = $oObject->term_id;
             } elseif (isset($oPageParams->query_vars['name'])) {
-                $sPostableTypes = "'".implode("','", $this->_oObjectHandler->getPostableTypes())."'";
+                $sPostableTypes = "'".implode("','", $this->_oObjectHandler->getPostTypes())."'";
 
                 $sQuery = $this->_oDatabase->prepare(
                     "SELECT ID

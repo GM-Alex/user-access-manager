@@ -91,7 +91,7 @@ $oCache = new Cache();
 $oConfigParameterFactory = new ConfigParameterFactory();
 $oDatabase = new Database($oWrapper);
 $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
-$oConfig = new Config($oWrapper, $oConfigParameterFactory, __FILE__);
+$oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, __FILE__);
 $oUserGroupFactory = new UserGroupFactory(
     $oWrapper,
     $oDatabase,
@@ -174,7 +174,7 @@ if (!function_exists("userAccessManagerUninstall")) {
         $oConfigParameterFactory = new ConfigParameterFactory();
         $oDatabase = new Database($oWrapper);
         $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
-        $oConfig = new Config($oWrapper, $oConfigParameterFactory, __FILE__);
+        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, __FILE__);
 
         $oFileProtectionFactory = new FileProtectionFactory(
             $oWrapper,

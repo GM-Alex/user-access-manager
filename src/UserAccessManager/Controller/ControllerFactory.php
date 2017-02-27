@@ -164,7 +164,7 @@ class ControllerFactory
      */
     public function createAdminSettingController()
     {
-        return new AdminSettingsController($this->_oWrapper, $this->_oConfig, $this->_oFileHandler);
+        return new AdminSettingsController($this->_oWrapper, $this->_oConfig, $this->_oObjectHandler, $this->_oFileHandler);
     }
 
     /**
