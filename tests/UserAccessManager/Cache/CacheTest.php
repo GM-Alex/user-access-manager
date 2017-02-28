@@ -35,8 +35,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Cache\Cache::generateCacheKey()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Cache\Cache::generateCacheKey()
      *
      * @param Cache $oCache
      */
@@ -52,8 +52,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Cache\Cache::addToCache()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Cache\Cache::addToCache()
      *
      * @param Cache $oCache
      *
@@ -78,8 +78,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Cache\Cache::getFromCache()
      * @depends testAddToCache
+     * @covers  \UserAccessManager\Cache\Cache::getFromCache()
      *
      * @param Cache $oCache
      *
@@ -102,8 +102,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Cache\Cache::flushCache()
      * @depends testAddToCache
+     * @covers  \UserAccessManager\Cache\Cache::flushCache()
      *
      * @param Cache $oCache
      */

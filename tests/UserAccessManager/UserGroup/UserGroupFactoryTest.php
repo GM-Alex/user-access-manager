@@ -43,9 +43,9 @@ class UserGroupFactoryTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroupFactory::createUserGroup()
+     * @group   unit
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\UserGroup\UserGroupFactory::createUserGroup()
      *
      * @param UserGroupFactory $oUserGroupFactory
      */

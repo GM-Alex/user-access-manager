@@ -113,8 +113,8 @@ class ConfigParameterTest extends \UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameter::getValue()
      * @depends testSetValue
+     * @covers  \UserAccessManager\Config\ConfigParameter::getValue()
      *
      * @param ConfigParameter $oStub
      */

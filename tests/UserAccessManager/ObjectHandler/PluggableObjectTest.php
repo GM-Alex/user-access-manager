@@ -51,8 +51,8 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\ObjectHandler\PluggableObject::getName()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\ObjectHandler\PluggableObject::getName()
      *
      * @param PluggableObject $oStub
      */

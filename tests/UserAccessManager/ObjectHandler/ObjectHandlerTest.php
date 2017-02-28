@@ -293,7 +293,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
                     WHERE post_parent != 0'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT term_id AS id, parent AS parentId, taxonomy as type
+                    'SELECT term_id AS id, parent AS parentId, taxonomy AS type
                     FROM termTaxonomyTable
                     WHERE parent != 0'
                 )]
@@ -364,8 +364,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
                 new MatchIgnoreWhitespace(
                     'SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
                     FROM termRelationshipsTable AS tr 
-                    LEFT JOIN postTable as p ON (tr.object_id = p.ID)
-                    LEFT JOIN termTaxonomyTable as tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
+                    LEFT JOIN postTable AS p ON (tr.object_id = p.ID)
+                    LEFT JOIN termTaxonomyTable AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
                 )
             )->will($this->returnValue($aDatabaseResult));
 
@@ -386,9 +386,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPostTermMap()
+     * @group   unit
      * @depends testGetTermPostMap
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getPostTermMap()
      *
      * @param ObjectHandler $oObjectHandler
      */
@@ -409,9 +409,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::registeredPostType()
+     * @group   unit
      * @depends testGetPostTypes
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::registeredPostType()
      *
      * @param ObjectHandler $oObjectHandler
      *
@@ -446,9 +446,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::registeredTaxonomy()
+     * @group   unit
      * @depends testGetTaxonomies
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::registeredTaxonomy()
      *
      * @param ObjectHandler $oObjectHandler
      *
@@ -478,9 +478,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isPostType()
+     * @group   unit
      * @depends testRegisteredPostType
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::isPostType()
      *
      * @param ObjectHandler $oObjectHandler
      */
@@ -591,9 +591,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler->registerPluggableObject($oSecondPluggableObject);
 
         self::assertAttributeEquals([
-                'firstObjectName' => $oFirstPluggableObject,
-                'secondObjectName' => $oSecondPluggableObject
-            ],
+            'firstObjectName' => $oFirstPluggableObject,
+            'secondObjectName' => $oSecondPluggableObject
+        ],
             '_aPluggableObjects',
             $oObjectHandler
         );
@@ -602,9 +602,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObject()
+     * @group   unit
      * @depends testRegisterPlObject
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObject()
      *
      * @param ObjectHandler $oObjectHandler
      */
@@ -622,9 +622,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isPluggableObject()
+     * @group   unit
      * @depends testRegisterPlObject
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::isPluggableObject()
      *
      * @param ObjectHandler $oObjectHandler
      */
@@ -636,9 +636,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObjects()
+     * @group   unit
      * @depends testRegisterPlObject
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObjects()
      *
      * @param ObjectHandler $oObjectHandler
      */
@@ -693,9 +693,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getAllObjectTypes()
+     * @group   unit
      * @depends testGetObjectTypes
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getAllObjectTypes()
      *
      * @param ObjectHandler $oObjectHandler
      *
@@ -727,9 +727,9 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isValidObjectType()
+     * @group   unit
      * @depends testGetAllObjectTypes
+     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::isValidObjectType()
      *
      * @param ObjectHandler $oObjectHandler
      */

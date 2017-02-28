@@ -148,7 +148,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::__construct()
      */
     public function testCanCreateInstance()
@@ -158,7 +158,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::getWpOption()
      */
     public function testGetWpOption()
@@ -183,7 +183,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::getConfigParameters()
      *
      * @return Config
@@ -251,9 +251,9 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group   unit
      * @depends testGetConfigParameters
-     * @covers \UserAccessManager\Config\Config::flushConfigParameters()
+     * @covers  \UserAccessManager\Config\Config::flushConfigParameters()
      *
      * @param Config $oConfig
      */
@@ -265,7 +265,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::setConfigParameters()
      */
     public function testSetConfigParameters()
@@ -323,7 +323,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::_getParameterValue()
      */
     public function testGetParameterValue()
@@ -338,14 +338,15 @@ class ConfigTest extends \UserAccessManagerTestCase
         $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, 'baseFile');
 
         $sReturn = self::callMethod($oConfig, '_getParameterValue', ['lock_file']);
-        self:self::assertEquals('lock_file', $sReturn);
+        self:
+        self::assertEquals('lock_file', $sReturn);
 
         self::expectException('\Exception');
         self::callMethod($oConfig, '_getParameterValue', ['undefined']);
     }
 
     /**
-     * @group unit
+     * @group   unit
      * @covers  \UserAccessManager\Config\Config::atAdminPanel()
      */
     public function testAtAdminPanel()
@@ -361,7 +362,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::isPermalinksActive()
      */
     public function testIsPermalinksActive()
@@ -379,7 +380,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::getUploadDirectory()
      */
     public function testGetUploadDirectory()
@@ -406,7 +407,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::getMimeTypes()
      */
     public function testGetMimeTypes()
@@ -439,7 +440,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::getUrlPath()
      */
     public function testGetUrlPath()
@@ -458,7 +459,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::getRealPath()
      */
     public function testGetRealPath()
@@ -480,7 +481,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::_hideObject()
      * @covers \UserAccessManager\Config\Config::hideObjectType()
      * @covers \UserAccessManager\Config\Config::hideObjectTypeTitle()
@@ -511,7 +512,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::getObjectTypeTitle()
      * @covers \UserAccessManager\Config\Config::getObjectTypeContent()
      * @covers \UserAccessManager\Config\Config::getObjectTypeCommentContent()
@@ -532,7 +533,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::getRedirect
      * @covers \UserAccessManager\Config\Config::getRedirectCustomPage
      * @covers \UserAccessManager\Config\Config::getRedirectCustomUrl

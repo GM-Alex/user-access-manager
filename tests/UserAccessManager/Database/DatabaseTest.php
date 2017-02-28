@@ -49,7 +49,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::__construct()
      */
     public function testCanCreateInstance()
@@ -59,7 +59,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::getUserGroupTable()
      */
     public function testGetUserGroupTable()
@@ -78,7 +78,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::getUserGroupToObjectTable()
      */
     public function testGetUserGroupToObjectTable()
@@ -92,7 +92,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::generateSqlIdList()
      */
     public function testGenerateSqlIdList()
@@ -105,7 +105,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::dbDelta()
      */
     public function testDbDelta()
@@ -123,7 +123,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::getPrefix()
      * @covers \UserAccessManager\Database\Database::getLastInsertId()
      * @covers \UserAccessManager\Database\Database::getCurrentBlogId()
@@ -161,7 +161,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::getColumn()
      * @covers \UserAccessManager\Database\Database::getRow()
      * @covers \UserAccessManager\Database\Database::getVariable()
@@ -261,7 +261,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group unit
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::getCharset()
      */
     public function testGetCharset()

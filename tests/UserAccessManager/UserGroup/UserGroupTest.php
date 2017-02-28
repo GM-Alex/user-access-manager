@@ -78,14 +78,14 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $oDatabase->expects($this->exactly(2))
             ->method('prepare')
             ->withConsecutive([
-                    new MatchIgnoreWhitespace(
-                        'SELECT *
+                new MatchIgnoreWhitespace(
+                    'SELECT *
                         FROM userGroupTable
                         WHERE ID = %s
                         LIMIT 1'
-                    ),
-                    1
-                ],
+                ),
+                1
+            ],
                 [
                     new MatchIgnoreWhitespace(
                         'SELECT *
@@ -125,7 +125,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::assertAttributeEquals(null, '_sReadAccess', $oUserGroup);
         self::assertAttributeEquals(null, '_sWriteAccess', $oUserGroup);
         self::assertAttributeEquals(null, '_sIpRange', $oUserGroup);
-        
+
         self::assertTrue($oUserGroup->load(2));
         self::assertAttributeEquals(2, '_iId', $oUserGroup);
         self::assertAttributeEquals('groupName', '_sGroupName', $oUserGroup);
@@ -138,20 +138,20 @@ class UserGroupTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
+     * @group   unit
      * @depends testLoad
-     * @covers \UserAccessManager\UserGroup\UserGroup::getId()
-     * @covers \UserAccessManager\UserGroup\UserGroup::getGroupName()
-     * @covers \UserAccessManager\UserGroup\UserGroup::getGroupDesc()
-     * @covers \UserAccessManager\UserGroup\UserGroup::getReadAccess()
-     * @covers \UserAccessManager\UserGroup\UserGroup::getWriteAccess()
-     * @covers \UserAccessManager\UserGroup\UserGroup::getIpRange()
-     * @covers \UserAccessManager\UserGroup\UserGroup::setGroupName()
-     * @covers \UserAccessManager\UserGroup\UserGroup::setGroupDesc()
-     * @covers \UserAccessManager\UserGroup\UserGroup::setReadAccess()
-     * @covers \UserAccessManager\UserGroup\UserGroup::setWriteAccess()
-     * @covers \UserAccessManager\UserGroup\UserGroup::setIpRange()
-     * 
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getId()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getGroupName()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getGroupDesc()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getReadAccess()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getWriteAccess()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getIpRange()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::setGroupName()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::setGroupDesc()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::setReadAccess()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::setWriteAccess()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::setIpRange()
+     *
      * @param UserGroup $oUserGroup
      */
     public function testSimpleGetterSetter(UserGroup $oUserGroup)
@@ -232,7 +232,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler()
         );
-        
+
         $oUserGroup->setGroupName('groupName');
         $oUserGroup->setGroupDesc('groupDesc');
         $oUserGroup->setReadAccess('readAccess');
@@ -262,6 +262,10 @@ class UserGroupTest extends \UserAccessManagerTestCase
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
+        $oDatabase->expects($this->exactly(4))
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
         $oDatabase->expects($this->exactly(2))
             ->method('delete')
             ->with(
@@ -275,7 +279,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
             ->withConsecutive(
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM 
+                        'DELETE FROM userGroupToObjectTable
                         WHERE group_id = %d
                           AND (general_object_type = \'%s\' OR object_type = \'%s\')'
                     ),
@@ -283,7 +287,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM 
+                        'DELETE FROM userGroupToObjectTable
                         WHERE group_id = %d
                           AND (general_object_type = \'%s\' OR object_type = \'%s\')'
                     ),
@@ -291,7 +295,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM 
+                        'DELETE FROM userGroupToObjectTable
                             WHERE group_id = %d
                               AND (general_object_type = \'%s\' OR object_type = \'%s\')'
                     ),
@@ -299,7 +303,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM 
+                        'DELETE FROM userGroupToObjectTable
                             WHERE group_id = %d
                               AND (general_object_type = \'%s\' OR object_type = \'%s\')
                               AND object_id = %d'
@@ -353,6 +357,177 @@ class UserGroupTest extends \UserAccessManagerTestCase
      */
     public function testAddObject()
     {
+        $oDatabase = $this->getDatabase();
 
+        $oDatabase->expects($this->exactly(2))
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $oDatabase->expects($this->exactly(2))
+            ->method('insert')
+            ->with(
+                'userGroupToObjectTable',
+                [
+                    'group_id' => 123,
+                    'object_id' => 321,
+                    'general_object_type' => 'generalObjectType',
+                    'object_type' => 'objectType'
+                ],
+                ['%d', '%s', '%s', '%s']
+            )
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oObjectHandler = $this->getObjectHandler();
+
+        $oObjectHandler->expects($this->exactly(5))
+            ->method('getGeneralObjectType')
+            ->withConsecutive(['invalid'], ['generalObjectType'], ['notValidObjectType'], ['objectType'], ['objectType'])
+            ->will($this->onConsecutiveCalls(null, null, 'generalNotValidObjectType', 'generalObjectType', 'generalObjectType'));
+
+        $oObjectHandler->expects($this->exactly(3))
+            ->method('isValidObjectType')
+            ->withConsecutive(['notValidObjectType'], ['objectType'], ['objectType'])
+            ->will($this->onConsecutiveCalls(false, true, true));
+
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $this->getConfig(),
+            $this->getUtil(),
+            $oObjectHandler
+        );
+
+        self::setValue($oUserGroup, '_iId', 123);
+        self::setValue($oUserGroup, '_aAssignedObjects', [1 => 1, 2 => 2]);
+        self::setValue($oUserGroup, '_aObjectMembership', [1 => 1, 2 => 2]);
+        self::setValue($oUserGroup, '_aFullObjects', [1 => 1, 2 => 2]);
+
+        self::assertFalse($oUserGroup->addObject('invalid', 321));
+        self::assertFalse($oUserGroup->addObject('generalObjectType', 321));
+        self::assertFalse($oUserGroup->addObject('notValidObjectType', 321));
+        self::assertFalse($oUserGroup->addObject('objectType', 321));
+        self::assertTrue($oUserGroup->addObject('objectType', 321));
+
+        self::assertAttributeEquals([], '_aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals([], '_aObjectMembership', $oUserGroup);
+        self::assertAttributeEquals([], '_aFullObjects', $oUserGroup);
+    }
+
+    /**
+     * Generates return values.
+     *
+     * @param int $iNumber
+     *
+     * @return array
+     */
+    private function generateReturn($iNumber)
+    {
+        $aReturn = [];
+
+        for ($iCounter = 1; $iCounter <= $iNumber; $iCounter++) {
+            $oReturn = new \stdClass();
+            $oReturn->id = $iCounter;
+            $aReturn[] = $oReturn;
+        }
+
+        return $aReturn;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::_getAssignedObjects()
+     *
+     * @return UserGroup
+     */
+    public function testGetAssignedObject()
+    {
+        $oDatabase = $this->getDatabase();
+
+        $oDatabase->expects($this->exactly(2))
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $oDatabase->expects($this->exactly(2))
+            ->method('prepare')
+            ->withConsecutive(
+                [
+                    new MatchIgnoreWhitespace(
+                        'SELECT object_id AS id
+                        FROM userGroupToObjectTable
+                        WHERE group_id = %d
+                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                    ),
+                    [123, 'noResultObjectType', 'noResultObjectType']
+                ],
+                [
+                    new MatchIgnoreWhitespace(
+                        'SELECT object_id AS id
+                        FROM userGroupToObjectTable
+                        WHERE group_id = %d
+                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                    ),
+                    [123, 'objectType', 'objectType']
+                ]
+            )
+            ->will($this->onConsecutiveCalls('nonResultPreparedQuery', 'preparedQuery'));
+
+        $oDatabase->expects($this->exactly(2))
+            ->method('getResults')
+            ->withConsecutive(
+                ['nonResultPreparedQuery'],
+                ['preparedQuery']
+            )
+            ->will($this->onConsecutiveCalls(null, $this->generateReturn(3)));
+
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $this->getConfig(),
+            $this->getUtil(),
+            $this->getObjectHandler()
+        );
+
+        self::setValue($oUserGroup, '_iId', 123);
+
+        $aResult = self::callMethod($oUserGroup, '_getAssignedObjects', ['noResultObjectType']);
+        self::assertEquals([], $aResult);
+        self::assertAttributeEquals(['noResultObjectType' => []], '_aAssignedObjects', $oUserGroup);
+
+        $aResult = self::callMethod($oUserGroup, '_getAssignedObjects', ['objectType']);
+        self::assertEquals([1 => 1, 2 => 2, 3 => 3], $aResult);
+        self::assertAttributeEquals(
+            ['noResultObjectType' => [], 'objectType' => [1 => 1, 2 => 2, 3 => 3]],
+            '_aAssignedObjects',
+            $oUserGroup
+        );
+
+        $aResult = self::callMethod($oUserGroup, '_getAssignedObjects', ['objectType']);
+        self::assertEquals([1 => 1, 2 => 2, 3 => 3], $aResult);
+
+        return $oUserGroup;
+    }
+
+    /**
+     * @group   unit
+     * @depends testGetAssignedObject
+     * @covers  \UserAccessManager\UserGroup\UserGroup::_isObjectAssignedToGroup()
+     *
+     * @param UserGroup $oUserGroup
+     */
+    public function testIsObjectAssignedToGroup($oUserGroup)
+    {
+        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 1]);
+        self::assertTrue($blResult);
+        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 2]);
+        self::assertTrue($blResult);
+        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 3]);
+        self::assertTrue($blResult);
+
+        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 4]);
+        self::assertFalse($blResult);
+        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['noResultObjectType', 1]);
+        self::assertFalse($blResult);
+        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['something', 1]);
+        self::assertFalse($blResult);
     }
 }

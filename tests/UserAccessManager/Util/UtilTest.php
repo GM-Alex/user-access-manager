@@ -35,8 +35,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Util\Util::startsWith()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Util\Util::startsWith()
      *
      * @param Util $oUtil
      */
@@ -48,8 +48,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Util\Util::endsWith()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Util\Util::endsWith()
      *
      * @param Util $oUtil
      */
@@ -61,8 +61,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Util\Util::getRandomPassword()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Util\Util::getRandomPassword()
      *
      * @param Util $oUtil
      */
@@ -86,8 +86,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Util\Util::getCurrentUrl()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Util\Util::getCurrentUrl()
      *
      * @param Util $oUtil
      */
@@ -102,23 +102,23 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         $_SERVER['SERVER_PROTOCOL'] = 'http';
         $_SERVER['SERVER_PORT'] = '88';
 
-        self::assertEquals('https://serverName:88/phpSelf' ,$oUtil->getCurrentUrl());
+        self::assertEquals('https://serverName:88/phpSelf', $oUtil->getCurrentUrl());
 
         $_SERVER['REQUEST_URI'] = '/requestUri';
 
-        self::assertEquals('https://serverName:88/requestUri' ,$oUtil->getCurrentUrl());
+        self::assertEquals('https://serverName:88/requestUri', $oUtil->getCurrentUrl());
 
         $_SERVER['HTTPS'] = 'off';
 
-        self::assertEquals('http://serverName:88/requestUri' ,$oUtil->getCurrentUrl());
+        self::assertEquals('http://serverName:88/requestUri', $oUtil->getCurrentUrl());
 
         $_SERVER['SERVER_PORT'] = '80';
 
-        self::assertEquals('http://serverName/requestUri' ,$oUtil->getCurrentUrl());
+        self::assertEquals('http://serverName/requestUri', $oUtil->getCurrentUrl());
 
         $_SERVER['SERVER_PROTOCOL'] = 'ftp';
 
-        self::assertEquals('ftp://serverName/requestUri' ,$oUtil->getCurrentUrl());
+        self::assertEquals('ftp://serverName/requestUri', $oUtil->getCurrentUrl());
 
         $_SERVER = $aServerTemp;
     }

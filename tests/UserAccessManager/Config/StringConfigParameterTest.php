@@ -22,7 +22,7 @@ namespace UserAccessManager\Config;
 class StringConfigParameterTest extends \UserAccessManagerTestCase
 {
     /**
-     * @group unit
+     * @group   unit
      * @covers  \UserAccessManager\Config\StringConfigParameter::__construct()
      *
      * @return StringConfigParameter
@@ -46,8 +46,8 @@ class StringConfigParameterTest extends \UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\StringConfigParameter::isValidValue()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Config\StringConfigParameter::isValidValue()
      *
      * @param StringConfigParameter $oStringConfigParameter
      */

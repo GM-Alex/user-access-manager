@@ -22,7 +22,7 @@ namespace UserAccessManager\Config;
 class SelectionConfigParameterTest extends \UserAccessManagerTestCase
 {
     /**
-     * @group unit
+     * @group   unit
      * @covers  \UserAccessManager\Config\SelectionConfigParameter::__construct()
      *
      * @return SelectionConfigParameter
@@ -41,8 +41,8 @@ class SelectionConfigParameterTest extends \UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\SelectionConfigParameter::isValidValue()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Config\SelectionConfigParameter::isValidValue()
      *
      * @param SelectionConfigParameter $oSelectionConfigParameter
      */
@@ -55,8 +55,8 @@ class SelectionConfigParameterTest extends \UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\SelectionConfigParameter::getSelections()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Config\SelectionConfigParameter::getSelections()
      *
      * @param SelectionConfigParameter $oSelectionConfigParameter
      */

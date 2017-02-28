@@ -124,12 +124,12 @@ class SetupHandler
         if ($sDbUserGroup !== $sDbAccessGroupTable) {
             $this->_oDatabase->dbDelta(
                 "CREATE TABLE {$sDbAccessGroupTable} (
-                    ID int(11) NOT NULL auto_increment,
-                    groupname tinytext NOT NULL,
-                    groupdesc text NOT NULL,
-                    read_access tinytext NOT NULL,
-                    write_access tinytext NOT NULL,
-                    ip_range mediumtext NULL,
+                    ID INT(11) NOT NULL AUTO_INCREMENT,
+                    groupname TINYTEXT NOT NULL,
+                    groupdesc TEXT NOT NULL,
+                    read_access TINYTEXT NOT NULL,
+                    write_access TINYTEXT NOT NULL,
+                    ip_range MEDIUMTEXT NULL,
                     PRIMARY KEY (ID)
                 ) {$sCharsetCollate};"
             );
@@ -146,9 +146,9 @@ class SetupHandler
             $this->_oDatabase->dbDelta(
                 "CREATE TABLE {$sDbAccessGroupToObjectTable} (
                     object_id VARCHAR(64) NOT NULL,
-                    general_object_type varchar(64) NOT NULL,
-                    object_type varchar(64) NOT NULL,
-                    group_id int(11) NOT NULL,
+                    general_object_type VARCHAR(64) NOT NULL,
+                    object_type VARCHAR(64) NOT NULL,
+                    group_id INT(11) NOT NULL,
                     PRIMARY KEY (object_id,object_type,group_id)
                 ) {$sCharsetCollate};"
             );
@@ -271,7 +271,7 @@ class SetupHandler
 
                     $sFullDatabase = $sDatabase.$sAddition;
 
-                    $sQuery = "SELECT {$sDbIdName} as id, group_id as groupId
+                    $sQuery = "SELECT {$sDbIdName} AS id, group_id AS groupId
                         FROM {$sFullDatabase}";
 
                     $aDbObjects = (array)$this->_oDatabase->getResults($sQuery);
@@ -327,7 +327,7 @@ class SetupHandler
 
             if (version_compare($sCurrentDbVersion, '1.4', '<=')) {
                 $sAlterQuery = "ALTER TABLE {$sDbAccessGroupToObject}
-                    ADD general_object_type varchar(64) NOT NULL AFTER object_id";
+                    ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id";
 
                 $this->_oDatabase->query($sAlterQuery);
 

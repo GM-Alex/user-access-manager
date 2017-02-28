@@ -169,7 +169,7 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(5))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
-                null, 'uploadDirectory', 'uploadDirectory' ,'uploadDirectory', 'uploadDirectory'
+                null, 'uploadDirectory', 'uploadDirectory', 'uploadDirectory', 'uploadDirectory'
             ));
 
         $oApacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
@@ -220,7 +220,7 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(5))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
-                null, 'uploadDirectory', 'uploadDirectory' ,'uploadDirectory', 'uploadDirectory'
+                null, 'uploadDirectory', 'uploadDirectory', 'uploadDirectory', 'uploadDirectory'
             ));
 
         $oApacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');

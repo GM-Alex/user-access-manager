@@ -14,9 +14,9 @@
  */
 namespace UserAccessManager\SetupHandler;
 
+use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Config\Config;
 use UserAccessManager\UserAccessManager;
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 
 /**
  * Class SetupHandlerTest
@@ -80,7 +80,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
 
         $oSetupHandler = new SetupHandler($oWrapper, $oDatabase, $oObjectHandler, $oFileHandler);
         $aBlogIds = $oSetupHandler->getBlogIds();
-        self::assertEquals([1 => 1,  2 => 2,  3 => 3], $aBlogIds);
+        self::assertEquals([1 => 1, 2 => 2, 3 => 3], $aBlogIds);
     }
 
     /**
@@ -107,7 +107,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
         $oDatabase = $this->getDatabase();
         $oDatabase->expects($this->exactly(3))
             ->method('getCharset')
-            ->will($this->returnValue('charset test'));
+            ->will($this->returnValue('CHARSET test'));
 
         $oDatabase->expects($this->exactly(3))
             ->method('getUserGroupTable')
@@ -140,43 +140,43 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
                     'CREATE TABLE user_group_table (
-                        ID int(11) NOT NULL auto_increment,
-                        groupname tinytext NOT NULL,
-                        groupdesc text NOT NULL,
-                        read_access tinytext NOT NULL,
-                        write_access tinytext NOT NULL,
-                        ip_range mediumtext NULL,
+                        ID INT(11) NOT NULL AUTO_INCREMENT,
+                        groupname TINYTEXT NOT NULL,
+                        groupdesc TEXT NOT NULL,
+                        read_access TINYTEXT NOT NULL,
+                        write_access TINYTEXT NOT NULL,
+                        ip_range MEDIUMTEXT NULL,
                         PRIMARY KEY (ID)
-                    ) charset test;'
+                    ) CHARSET test;'
                 )],
                 [new MatchIgnoreWhitespace(
                     'CREATE TABLE user_group_to_object_table (
                         object_id VARCHAR(64) NOT NULL,
-                        general_object_type varchar(64) NOT NULL,
-                        object_type varchar(64) NOT NULL,
-                        group_id int(11) NOT NULL,
+                        general_object_type VARCHAR(64) NOT NULL,
+                        object_type VARCHAR(64) NOT NULL,
+                        group_id INT(11) NOT NULL,
                         PRIMARY KEY (object_id,object_type,group_id)
-                    ) charset test;'
+                    ) CHARSET test;'
                 )],
                 [new MatchIgnoreWhitespace(
                     'CREATE TABLE user_group_table (
-                        ID int(11) NOT NULL auto_increment,
-                        groupname tinytext NOT NULL,
-                        groupdesc text NOT NULL,
-                        read_access tinytext NOT NULL,
-                        write_access tinytext NOT NULL,
-                        ip_range mediumtext NULL,
+                        ID INT(11) NOT NULL AUTO_INCREMENT,
+                        groupname TINYTEXT NOT NULL,
+                        groupdesc TEXT NOT NULL,
+                        read_access TINYTEXT NOT NULL,
+                        write_access TINYTEXT NOT NULL,
+                        ip_range MEDIUMTEXT NULL,
                         PRIMARY KEY (ID)
-                    ) charset test;'
+                    ) CHARSET test;'
                 )],
                 [new MatchIgnoreWhitespace(
                     'CREATE TABLE user_group_to_object_table (
                         object_id VARCHAR(64) NOT NULL,
-                        general_object_type varchar(64) NOT NULL,
-                        object_type varchar(64) NOT NULL,
-                        group_id int(11) NOT NULL,
+                        general_object_type VARCHAR(64) NOT NULL,
+                        object_type VARCHAR(64) NOT NULL,
+                        group_id INT(11) NOT NULL,
                         PRIMARY KEY (object_id,object_type,group_id)
-                    ) charset test;'
+                    ) CHARSET test;'
                 )]
             );
 
@@ -300,19 +300,19 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
-                    'SELECT post_id as id, group_id as groupId
+                    'SELECT post_id AS id, group_id AS groupId
                     FROM prefix_uam_accessgroup_to_post, postsTable WHERE post_id = ID
                     AND post_type = \'post\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT category_id as id, group_id as groupId
+                    'SELECT category_id AS id, group_id AS groupId
                     FROM prefix_uam_accessgroup_to_category'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT user_id as id, group_id as groupId FROM prefix_uam_accessgroup_to_user'
+                    'SELECT user_id AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_user'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT role_name as id, group_id as groupId FROM prefix_uam_accessgroup_to_role'
+                    'SELECT role_name AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_role'
                 )]
             )
             ->will($this->onConsecutiveCalls(
@@ -350,7 +350,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 )],
                 [new MatchIgnoreWhitespace(
                     'ALTER TABLE userGroupToObjectTable
-                    ADD general_object_type varchar(64) NOT NULL AFTER object_id'
+                    ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id'
                 )],
                 [new MatchIgnoreWhitespace(
                     'UPDATE userGroupToObjectTable

@@ -300,7 +300,7 @@ class ObjectHandler
     {
         if ($this->_aTermTreeMap === null) {
             $sSelect = "
-                SELECT term_id AS id, parent AS parentId, taxonomy as type
+                SELECT term_id AS id, parent AS parentId, taxonomy AS type
                 FROM {$this->_oDatabase->getTermTaxonomyTable()}
                   WHERE parent != 0";
 
@@ -323,8 +323,8 @@ class ObjectHandler
             $sSelect = "
                 SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
                 FROM {$this->_oDatabase->getTermRelationshipsTable()} AS tr 
-                  LEFT JOIN {$this->_oDatabase->getPostsTable()} as p ON (tr.object_id = p.ID)
-                  LEFT JOIN {$this->_oDatabase->getTermTaxonomyTable()} as tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
+                  LEFT JOIN {$this->_oDatabase->getPostsTable()} AS p ON (tr.object_id = p.ID)
+                  LEFT JOIN {$this->_oDatabase->getTermTaxonomyTable()} AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
             $aResults = $this->_oDatabase->getResults($sSelect);
 

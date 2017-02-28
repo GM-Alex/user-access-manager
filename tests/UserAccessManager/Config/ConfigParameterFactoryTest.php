@@ -34,8 +34,8 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createBooleanConfigParameter()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createBooleanConfigParameter()
      *
      * @param ConfigParameterFactory $oConfigParameterFactory
      */
@@ -52,8 +52,8 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createStringConfigParameter()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createStringConfigParameter()
      *
      * @param ConfigParameterFactory $oConfigParameterFactory
      */
@@ -70,8 +70,8 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createSelectionConfigParameter()
      * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createSelectionConfigParameter()
      *
      * @param ConfigParameterFactory $oConfigParameterFactory
      */
