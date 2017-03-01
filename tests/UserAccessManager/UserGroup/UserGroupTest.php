@@ -15,6 +15,7 @@
 namespace UserAccessManager\UserGroup;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use UserAccessManager\ObjectHandler\ObjectHandler;
 
 /**
  * Class UserGroupTest
@@ -436,48 +437,38 @@ class UserGroupTest extends \UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\UserGroup::_getAssignedObjects()
-     *
-     * @return UserGroup
+     * @covers  \UserAccessManager\UserGroup\UserGroup::_isObjectAssignedToGroup()
      */
-    public function testGetAssignedObject()
+    public function testAssignedObject()
     {
         $oDatabase = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(2))
+        $oDatabase->expects($this->exactly(3))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $oDatabase->expects($this->exactly(2))
+        $sQuery = 'SELECT object_id AS id
+            FROM userGroupToObjectTable
+            WHERE group_id = %d
+              AND (general_object_type = \'%s\' OR object_type = \'%s\')';
+
+        $oDatabase->expects($this->exactly(3))
             ->method('prepare')
             ->withConsecutive(
-                [
-                    new MatchIgnoreWhitespace(
-                        'SELECT object_id AS id
-                        FROM userGroupToObjectTable
-                        WHERE group_id = %d
-                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
-                    ),
-                    [123, 'noResultObjectType', 'noResultObjectType']
-                ],
-                [
-                    new MatchIgnoreWhitespace(
-                        'SELECT object_id AS id
-                        FROM userGroupToObjectTable
-                        WHERE group_id = %d
-                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
-                    ),
-                    [123, 'objectType', 'objectType']
-                ]
+                [new MatchIgnoreWhitespace($sQuery), [123, 'noResultObjectType', 'noResultObjectType']],
+                [new MatchIgnoreWhitespace($sQuery), [123, 'objectType', 'objectType']],
+                [new MatchIgnoreWhitespace($sQuery), [123, 'something', 'something']]
             )
-            ->will($this->onConsecutiveCalls('nonResultPreparedQuery', 'preparedQuery'));
+            ->will($this->onConsecutiveCalls('nonResultPreparedQuery', 'preparedQuery', 'nonResultSomethingPreparedQuery'));
 
-        $oDatabase->expects($this->exactly(2))
+        $oDatabase->expects($this->exactly(3))
             ->method('getResults')
             ->withConsecutive(
                 ['nonResultPreparedQuery'],
-                ['preparedQuery']
+                ['preparedQuery'],
+                ['nonResultSomethingPreparedQuery']
             )
-            ->will($this->onConsecutiveCalls(null, $this->generateReturn(3)));
+            ->will($this->onConsecutiveCalls(null, $this->generateReturn(3), null));
 
         $oUserGroup = new UserGroup(
             $this->getWrapper(),
@@ -504,18 +495,6 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $aResult = self::callMethod($oUserGroup, '_getAssignedObjects', ['objectType']);
         self::assertEquals([1 => 1, 2 => 2, 3 => 3], $aResult);
 
-        return $oUserGroup;
-    }
-
-    /**
-     * @group   unit
-     * @depends testGetAssignedObject
-     * @covers  \UserAccessManager\UserGroup\UserGroup::_isObjectAssignedToGroup()
-     *
-     * @param UserGroup $oUserGroup
-     */
-    public function testIsObjectAssignedToGroup($oUserGroup)
-    {
         $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 1]);
         self::assertTrue($blResult);
         $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 2]);
@@ -529,5 +508,168 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::assertFalse($blResult);
         $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['something', 1]);
         self::assertFalse($blResult);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::_isUserMember()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::_isTermMember()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::_isPostMember()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::_isPluggableObjectMember()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::isObjectMember()
+     */
+    public function testIsMember()
+    {
+        $oDatabase = $this->getDatabase();
+
+        $oDatabase->expects($this->exactly(3))
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $oDatabase->expects($this->exactly(3))
+            ->method('getCapabilitiesTable')
+            ->will($this->returnValue('capabilitiesTable'));
+
+        $sQuery = 'SELECT object_id AS id
+            FROM userGroupToObjectTable
+            WHERE group_id = %d
+              AND (general_object_type = \'%s\' OR object_type = \'%s\')';
+
+        $oDatabase->expects($this->exactly(3))
+            ->method('prepare')
+            ->withConsecutive(
+                [new MatchIgnoreWhitespace($sQuery), [123, '_role_', '_role_']],
+                [new MatchIgnoreWhitespace($sQuery), [123, '_user_', '_user_']],
+                [new MatchIgnoreWhitespace($sQuery), [123, '_term_', '_term_']],
+                [new MatchIgnoreWhitespace($sQuery), [123, '_post_', '_post_']]
+            )
+            ->will($this->onConsecutiveCalls(
+                'rolePreparedQuery',
+                'userPreparedQuery',
+                'termPreparedQuery',
+                'postPreparedQuery'
+            ));
+
+        $oDatabase->expects($this->exactly(3))
+            ->method('getResults')
+            ->withConsecutive(
+                ['rolePreparedQuery'],
+                ['userPreparedQuery'],
+                ['termPreparedQuery'],
+                ['postPreparedQuery']
+            )
+            ->will($this->onConsecutiveCalls(
+                $this->generateReturn(3),
+                $this->generateReturn(2),
+                $this->generateReturn(3),
+                $this->generateReturn(3)
+            ));
+
+        $oConfig = $this->getConfig();
+
+        $oConfig->expects($this->exactly(5))
+            ->method('lockRecursive')
+            ->will($this->onConsecutiveCalls(false, true, true, true, true));
+
+        $oObjectHandler = $this->getObjectHandler();
+
+        /**
+         * @var \stdClass $oFirstUser
+         */
+        $oFirstUser = $this->getMockBuilder('\WP_User')->getMock();
+        $oFirstUser->capabilitiesTable = [1 => 1, 2 => 2];
+
+        /**
+         * @var \stdClass $oSecondUser
+         */
+        $oSecondUser = $this->getMockBuilder('\WP_User')->getMock();
+        $oSecondUser->capabilitiesTable = 'invalide';
+
+        $oObjectHandler->expects($this->exactly(3))
+            ->method('getUser')
+            ->withConsecutive([1], [2], [3])
+            ->will($this->onConsecutiveCalls($oFirstUser, $oSecondUser, null));
+
+        $oObjectHandler->expects($this->exactly(1))
+            ->method('isTaxonomy')
+            ->withConsecutive(['termObjectType'])
+            ->will($this->onConsecutiveCalls(true));
+
+        $oObjectHandler->expects($this->exactly(4))
+            ->method('getTermTreeMap')
+            ->will($this->returnValue([
+                ObjectHandler::TREE_MAP_PARENTS => [
+                    ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [
+                        1 => [3 => 3],
+                        2 => [3 => 3],
+                        4 => [1 => 1]
+                    ]
+                ]
+            ]));
+
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $oConfig,
+            $this->getUtil(),
+            $oObjectHandler
+        );
+
+        self::setValue($oUserGroup, '_iId', 123);
+        $aRecursiveMembership = [];
+
+        // role tests
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 1, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 4, $aRecursiveMembership);
+        self::assertFalse($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        // user tests
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([
+                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [1 => 1, 2 => 2]
+            ],
+            $aRecursiveMembership
+        );
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 3, $aRecursiveMembership);
+        self::assertFalse($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        // term tests
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([],
+            $aRecursiveMembership
+        );
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 2, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]
+        ], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isObjectMember('termObjectType', 3, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 4, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => 1]
+        ], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5, $aRecursiveMembership);
+        self::assertFalse($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
     }
 }

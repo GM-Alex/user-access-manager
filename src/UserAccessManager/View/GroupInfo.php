@@ -100,7 +100,7 @@ if (!function_exists('walkPath')) {
                     <?php
                     $sContent = TXT_UAM_GROUP_ROLE.': ';
                     $aRoleNames = $this->getRoleNames();
-                    $aGroupRoles = $oUserGroup->getObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+                    $aGroupRoles = $oUserGroup->getAssignedObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
                     if (count($aGroupRoles) > 0) {
                         $aCleanGroupRoles = array();

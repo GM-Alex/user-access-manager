@@ -125,7 +125,7 @@ class GroupCommand extends CommandWithDBObject
                 'group_desc' => $oUserGroup->getGroupDesc(),
                 'read_access' => $oUserGroup->getReadAccess(),
                 'write_access' => $oUserGroup->getWriteAccess(),
-                'roles' => implode(',', array_keys($oUserGroup->getObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))),
+                'roles' => implode(',', array_keys($oUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))),
                 'ip_range' => $oUserGroup->getIpRange() === null ? '' : $oUserGroup->getIpRange()
             );
 

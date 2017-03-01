@@ -489,6 +489,153 @@ class UserGroup
     }
 
     /**
+     * Returns the recursive membership.
+     *
+     * @param \Closure $cMapFunction
+     * @param string   $sObjectType
+     * @param string   $sObjectId
+     * @param array    $aRecursiveMembership
+     *
+     * @return bool
+     */
+    protected function _isObjectRecursiveMember(
+        $cMapFunction,
+        $sObjectType,
+        $sObjectId,
+        array &$aRecursiveMembership = array()
+    )
+    {
+        // Reset value to prevent errors
+        $aRecursiveMembership = array();
+
+        if ($this->_oConfig->lockRecursive() === true) {
+            $aMap = $cMapFunction();
+            $aGeneralMap = isset($aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType]) ?
+                $aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType] : array();
+
+            if (isset($aGeneralMap[$sObjectId])) {
+                foreach ($aGeneralMap[$sObjectId] as $iParentId) {
+                    if ($this->_isObjectAssignedToGroup($sObjectType, $iParentId)) {
+                        $aRecursiveMembership[$sObjectType][$iParentId] = $iParentId;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->_isObjectAssignedToGroup($sObjectType, $sObjectId)
+            || count($aRecursiveMembership) > 0;
+    }
+    /**
+     * Checks if the user is a group member.
+     *
+     * @param integer $iUserId              The user id.
+     * @param array   $aRecursiveMembership The recursive membership array.
+     *
+     * @return bool
+     */
+    public function _isUserMember($iUserId, array &$aRecursiveMembership = array())
+    {
+        $aRecursiveMembership = array();
+        $oUser = $this->_oObjectHandler->getUser($iUserId);
+
+        if ($oUser !== false) {
+            $sCapabilitiesTable = $this->_oDatabase->getCapabilitiesTable();
+
+            $aCapabilities = (isset($oUser->{$sCapabilitiesTable})) ? $oUser->{$sCapabilitiesTable} : array();
+            $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ?
+                array_keys($aCapabilities) : array('norole');
+
+            $aAssignedRoles = $this->_getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+            $aRecursiveRoles = array_intersect($aRoles, $aAssignedRoles);
+
+            if (count($aRecursiveRoles) > 0) {
+                $aRecursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE] =
+                    array_combine($aRecursiveRoles, $aRecursiveRoles);
+            }
+        }
+
+        return $this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId)
+            || count($aRecursiveMembership) > 0;
+    }
+
+    /**
+     * Checks if the term is a group member.
+     *
+     * @param int   $iTermId
+     * @param array $aRecursiveMembership
+     *
+     * @return bool
+     */
+    public function _isTermMember($iTermId, array &$aRecursiveMembership = array())
+    {
+        return $this->_isObjectRecursiveMember(
+            function () {
+                return $this->_oObjectHandler->getTermTreeMap();
+            },
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+            $iTermId,
+            $aRecursiveMembership
+        );
+    }
+
+    /**
+     * Checks if the post is a group member
+     *
+     * @param int   $iPostId
+     * @param array $aRecursiveMembership
+     *
+     * @return bool
+     */
+    public function _isPostMember($iPostId, array &$aRecursiveMembership = array())
+    {
+        $blIsMember = $this->_isObjectRecursiveMember(
+            function () {
+                return $this->_oObjectHandler->getPostTreeMap();
+            },
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            $iPostId,
+            $aRecursiveMembership
+        );
+
+        if ($blIsMember === false && $this->_oConfig->lockRecursive() === true) {
+            $aPostTermMap = $this->_oObjectHandler->getPostTermMap();
+
+            if (isset($aPostTermMap[$iPostId])) {
+                foreach ($aPostTermMap[$iPostId] as $iTermId) {
+                    if ($this->_isTermMember($iTermId) === true) {
+                        $aRecursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$iTermId] = $iTermId;
+                        break;
+                    }
+                }
+            }
+
+            $blIsMember = count($aRecursiveMembership) > 0;
+        }
+
+        return $blIsMember;
+    }
+
+    /**
+     * Returns a the recursive membership for a pluggable object.
+     *
+     * @param string $sObjectType           The pluggable object type.
+     * @param string $sObjectId             The object id.
+     * @param array  $aRecursiveMembership  The object id.
+     *
+     * @return bool
+     */
+    public function _isPluggableObjectMember($sObjectType, $sObjectId, array &$aRecursiveMembership = array())
+    {
+        $aRecursiveMembership = array();
+        $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
+        $aRecursiveMembership = $oPluggableObject->getRecursiveMemberShip($this);
+
+        return $this->_isObjectAssignedToGroup($sObjectType, $sObjectId)
+            || count($aRecursiveMembership) > 0;
+    }
+
+    /**
      * Returns a single object.
      *
      * @param string  $sObjectType          The object type.
@@ -574,74 +721,6 @@ class UserGroup
     }
 
     /**
-     * Returns all objects of the given type.
-     *
-     * @param string $sObjectType The object type.
-     *
-     * @return array
-     */
-    public function getObjectsByType($sObjectType)
-    {
-        if ($sObjectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
-            return $this->_getAssignedObjects($sObjectType);
-        } elseif ($sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
-            return $this->getFullUsers();
-        } elseif ($sObjectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
-            || $this->_oObjectHandler->isTaxonomy($sObjectType)
-        ) {
-            return $this->getFullTerms($sObjectType);
-        } elseif ($sObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
-            || $this->_oObjectHandler->isPostType($sObjectType) === true
-        ) {
-            return $this->getFullPosts($sObjectType);
-        } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType)) {
-            $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
-            return $oPluggableObject->getFullObjects($this);
-        }
-
-        return array();
-    }
-
-    /**
-     * Returns the recursive membership.
-     *
-     * @param \Closure $cMapFunction
-     * @param string   $sObjectType
-     * @param string   $sObjectId
-     * @param array    $aRecursiveMembership
-     *
-     * @return bool
-     */
-    protected function _isObjectRecursiveMember(
-        $cMapFunction,
-        $sObjectType,
-        $sObjectId,
-        array &$aRecursiveMembership = array()
-    )
-    {
-        // Reset value to prevent errors
-        $aRecursiveMembership = array();
-
-        if ($this->_oConfig->lockRecursive() === true) {
-            $aMap = $cMapFunction();
-            $aGeneralMap = isset($aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType]) ?
-                $aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType] : array();
-
-            if (isset($aGeneralMap[$sObjectId])) {
-                foreach ($aGeneralMap[$sObjectId] as $iParentId) {
-                    if ($this->_isObjectAssignedToGroup($sObjectType, $iParentId)) {
-                        $aRecursiveMembership[$sObjectType][$iParentId] = $iParentId;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return $this->_isObjectAssignedToGroup($sObjectType, $sObjectId)
-            || count($aRecursiveMembership) > 0;
-    }
-
-    /**
      * Returns the objects by the given type including the children.
      *
      * @param \Closure $cMapFunction
@@ -671,43 +750,6 @@ class UserGroup
         return $aObjects;
     }
 
-
-    /*
-     * Group users functions.
-     */
-
-    /**
-     * Returns a single user.
-     *
-     * @param integer $iUserId              The user id.
-     * @param array   $aRecursiveMembership The recursive membership array.
-     *
-     * @return bool
-     */
-    protected function _isUserMember($iUserId, array &$aRecursiveMembership = array())
-    {
-        $aRecursiveMembership = array();
-        $oUser = $this->_oObjectHandler->getUser($iUserId);
-        $sCapabilitiesTable = $this->_oDatabase->getCapabilitiesTable();
-
-        $aCapabilities = (isset($oUser->{$sCapabilitiesTable})) ? $oUser->{$sCapabilitiesTable}: array();
-        $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ? array_keys($aCapabilities) : array('norole');
-        $aRoleObjects = $this->getObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
-
-        foreach ($aRoles as $sRole) {
-            if (isset($aRoleObjects[$sRole])) {
-                $oRoleObject = new \stdClass();
-                $oRoleObject->name = $sRole;
-
-                $aRecursiveMembership = array(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => array());
-                $aRecursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE][] = $oRoleObject;
-            }
-        }
-
-        return $this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId)
-            || count($aRecursiveMembership) > 0;
-    }
-
     /**
      * Returns the users assigned to the group.
      *
@@ -733,31 +775,6 @@ class UserGroup
         return $this->_aFullObjects[ObjectHandler::GENERAL_USER_OBJECT_TYPE];
     }
 
-
-    /*
-     * Group term functions.
-     */
-
-    /**
-     * Checks if the term is a group member.
-     *
-     * @param int   $iTermId
-     * @param array $aRecursiveMembership
-     *
-     * @return bool
-     */
-    protected function _isTermMember($iTermId, array &$aRecursiveMembership = array())
-    {
-        return $this->_isObjectRecursiveMember(
-            function() {
-                return $this->_oObjectHandler->getTermTreeMap();
-            },
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-            $iTermId,
-            $aRecursiveMembership
-        );
-    }
-
     /**
      * Returns the terms assigned to the group.
      *
@@ -771,7 +788,7 @@ class UserGroup
             $sTermType = ($sTermType === null) ? ObjectHandler::GENERAL_TERM_OBJECT_TYPE : $sTermType;
 
             $this->_aFullObjects[$sTermType] = $this->_getFullObjects(
-                function() {
+                function () {
                     return $this->_oObjectHandler->getTermTreeMap();
                 },
                 $sTermType
@@ -779,48 +796,6 @@ class UserGroup
         }
 
         return $this->_aFullObjects[$sTermType];
-    }
-
-
-    /*
-     * Group posts functions.
-     */
-
-    /**
-     * Checks if the post is a group member
-     *
-     * @param int   $iPostId
-     * @param array $aRecursiveMembership
-     *
-     * @return bool
-     */
-    protected function _isPostMember($iPostId, array &$aRecursiveMembership = array())
-    {
-        $blIsMember = $this->_isObjectRecursiveMember(
-            function() {
-                return $this->_oObjectHandler->getPostTreeMap();
-            },
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-            $iPostId,
-            $aRecursiveMembership
-        );
-
-        if ($blIsMember === false && $this->_oConfig->lockRecursive() === true) {
-            $aPostTermMap = $this->_oObjectHandler->getPostTermMap();
-
-            if (isset($aPostTermMap[$iPostId])) {
-                foreach ($aPostTermMap[$iPostId] as $iTermId) {
-                    if ($this->_isTermMember($iTermId) === true) {
-                        $aRecursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$iTermId] = $iTermId;
-                        break;
-                    }
-                }
-            }
-
-            $blIsMember = count($aRecursiveMembership) > 0;
-        }
-
-        return $blIsMember;
     }
 
     /**
@@ -835,7 +810,7 @@ class UserGroup
         if (isset($this->_aFullObjects[$sPostType]) === false) {
             $sPostType = ($sPostType === null) ? ObjectHandler::GENERAL_POST_OBJECT_TYPE : $sPostType;
             $aPosts = $this->_getFullObjects(
-                function() {
+                function () {
                     return $this->_oObjectHandler->getPostTreeMap();
                 },
                 $sPostType
@@ -858,27 +833,32 @@ class UserGroup
         return $this->_aFullObjects[$sPostType];
     }
 
-
-    /*
-     * Group pluggable objects functions.
-     */
-
     /**
-     * Returns a the recursive membership for a pluggable object.
+     * Returns all objects of the given type.
      *
-     * @param string $sObjectType           The pluggable object type.
-     * @param string $sObjectId             The object id.
-     * @param array  $aRecursiveMembership  The object id.
+     * @param string $sObjectType The object type.
      *
-     * @return bool
+     * @return array
      */
-    protected function _isPluggableObjectMember($sObjectType, $sObjectId, array &$aRecursiveMembership = array())
+    public function getAssignedObjectsByType($sObjectType)
     {
-        $aRecursiveMembership = array();
-        $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
-        $aRecursiveMembership = $oPluggableObject->getRecursiveMemberShip($this);
+        if ($sObjectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
+            return $this->_getAssignedObjects($sObjectType);
+        } elseif ($sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+            return $this->getFullUsers();
+        } elseif ($sObjectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
+            || $this->_oObjectHandler->isTaxonomy($sObjectType)
+        ) {
+            return $this->getFullTerms($sObjectType);
+        } elseif ($sObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
+            || $this->_oObjectHandler->isPostType($sObjectType) === true
+        ) {
+            return $this->getFullPosts($sObjectType);
+        } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType)) {
+            $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
+            return $oPluggableObject->getFullObjects($this);
+        }
 
-        return $this->_isObjectAssignedToGroup($sObjectType, $sObjectId)
-            || count($aRecursiveMembership) > 0;
+        return array();
     }
 }
