@@ -523,7 +523,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
     {
         $oDatabase = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(3))
+        $oDatabase->expects($this->exactly(4))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
@@ -536,7 +536,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
             WHERE group_id = %d
               AND (general_object_type = \'%s\' OR object_type = \'%s\')';
 
-        $oDatabase->expects($this->exactly(3))
+        $oDatabase->expects($this->exactly(4))
             ->method('prepare')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace($sQuery), [123, '_role_', '_role_']],
@@ -551,7 +551,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 'postPreparedQuery'
             ));
 
-        $oDatabase->expects($this->exactly(3))
+        $oDatabase->expects($this->exactly(4))
             ->method('getResults')
             ->withConsecutive(
                 ['rolePreparedQuery'],
@@ -568,9 +568,13 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         $oConfig = $this->getConfig();
 
-        $oConfig->expects($this->exactly(5))
+        $oConfig->expects($this->exactly(16))
             ->method('lockRecursive')
-            ->will($this->onConsecutiveCalls(false, true, true, true, true));
+            ->will($this->onConsecutiveCalls(
+                false, true, true, true, true,
+                false, true, true, true, true,
+                true, true, true, true, true, true
+            ));
 
         $oObjectHandler = $this->getObjectHandler();
 
@@ -591,12 +595,12 @@ class UserGroupTest extends \UserAccessManagerTestCase
             ->withConsecutive([1], [2], [3])
             ->will($this->onConsecutiveCalls($oFirstUser, $oSecondUser, null));
 
-        $oObjectHandler->expects($this->exactly(1))
+        $oObjectHandler->expects($this->exactly(6))
             ->method('isTaxonomy')
-            ->withConsecutive(['termObjectType'])
-            ->will($this->onConsecutiveCalls(true));
+            ->withConsecutive(['termObjectType'], ['_post_'], ['_post_'], ['postObjectType'], ['_post_'], ['_post_'])
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
 
-        $oObjectHandler->expects($this->exactly(4))
+        $oObjectHandler->expects($this->exactly(5))
             ->method('getTermTreeMap')
             ->will($this->returnValue([
                 ObjectHandler::TREE_MAP_PARENTS => [
@@ -606,6 +610,29 @@ class UserGroupTest extends \UserAccessManagerTestCase
                         4 => [1 => 1]
                     ]
                 ]
+            ]));
+
+        $oObjectHandler->expects($this->exactly(1))
+            ->method('isPostType')
+            ->withConsecutive(['postObjectType'])
+            ->will($this->onConsecutiveCalls(true));
+
+        $oObjectHandler->expects($this->exactly(4))
+            ->method('getPostTreeMap')
+            ->will($this->returnValue([
+                ObjectHandler::TREE_MAP_PARENTS => [
+                    ObjectHandler::GENERAL_POST_OBJECT_TYPE => [
+                        1 => [3 => 3],
+                        2 => [3 => 3],
+                        4 => [1 => 1]
+                    ]
+                ]
+            ]));
+
+        $oObjectHandler->expects($this->exactly(5))
+            ->method('getPostTermMap')
+            ->will($this->returnValue([
+                2 => [3 => 3]
             ]));
 
         $oUserGroup = new UserGroup(
@@ -669,6 +696,34 @@ class UserGroupTest extends \UserAccessManagerTestCase
         ], $aRecursiveMembership);
 
         $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5, $aRecursiveMembership);
+        self::assertFalse($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        // post tests
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([],
+            $aRecursiveMembership
+        );
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 3],
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]
+        ], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isObjectMember('postObjectType', 3, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 4, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => 1]
+        ], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 5, $aRecursiveMembership);
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
     }

@@ -1,0 +1,17 @@
+{
+  "chdir": ".",
+  "timeout": 10,
+  "source": {
+    "directories": [
+      "."
+    ],
+    "excludes": [
+      "vendor",
+      "tests"
+    ]
+  },
+  "logs": {
+    "text": "humbuglog.txt",
+    "json": "humbuglog.json"
+  }
+}

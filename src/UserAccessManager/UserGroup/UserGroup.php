@@ -598,7 +598,7 @@ class UserGroup
             $aRecursiveMembership
         );
 
-        if ($blIsMember === false && $this->_oConfig->lockRecursive() === true) {
+        if ($this->_oConfig->lockRecursive() === true) {
             $aPostTermMap = $this->_oObjectHandler->getPostTermMap();
 
             if (isset($aPostTermMap[$iPostId])) {
@@ -610,7 +610,7 @@ class UserGroup
                 }
             }
 
-            $blIsMember = count($aRecursiveMembership) > 0;
+            $blIsMember = $blIsMember || count($aRecursiveMembership) > 0;
         }
 
         return $blIsMember;
