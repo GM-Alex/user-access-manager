@@ -43,10 +43,11 @@ abstract class PluggableObject
 
     /**
      * @param UserGroup $oUserGroup
+     * @param string    $sObjectId
      *
      * @return array
      */
-    abstract public function getRecursiveMemberShip(UserGroup $oUserGroup);
+    abstract public function getRecursiveMembership(UserGroup $oUserGroup, $sObjectId);
 
     /**
      * @param UserGroup $oUserGroup
