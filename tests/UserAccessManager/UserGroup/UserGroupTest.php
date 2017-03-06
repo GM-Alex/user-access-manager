@@ -520,77 +520,102 @@ class UserGroupTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::isRoleMember()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::isUserMember()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::isTermMember()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::isPostMember()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::isPluggableObjectMember()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::isObjectMember()
+     * Returns the database mock for the member tests
+     *
+     * @param array $aTypes
+     * @param array $aNumberOfReturns
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Database\Database
      */
-    public function testIsMember()
+    private function getDatabaseMockForMemberTests(array $aTypes, array $aNumberOfReturns)
     {
+        $iCallCount = count($aTypes);
         $oDatabase = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(5))
+        $oDatabase->expects($this->exactly($iCallCount))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
-
-        $oDatabase->expects($this->exactly(3))
-            ->method('getCapabilitiesTable')
-            ->will($this->returnValue('capabilitiesTable'));
 
         $sQuery = 'SELECT object_id AS id
             FROM userGroupToObjectTable
             WHERE group_id = %d
               AND (general_object_type = \'%s\' OR object_type = \'%s\')';
 
-        $oDatabase->expects($this->exactly(5))
+        $aPrepareWith = [];
+        $aPrepareWill = [];
+        $aGetResultsWith = [];
+        $aGetResultsWill = [];
+
+        foreach ($aTypes as $sType) {
+            $aPrepareWith[] = [new MatchIgnoreWhitespace($sQuery), [123, "_{$sType}_", "_{$sType}_"]];
+            $aPrepareWill[] = "{$sType}PreparedQuery";
+            $aGetResultsWith[] = ["{$sType}PreparedQuery"];
+        }
+
+        foreach ($aNumberOfReturns as $iNumberOfReturn) {
+            $aGetResultsWill[] = $this->generateReturn($iNumberOfReturn);
+        }
+
+        $oDatabase->expects($this->exactly($iCallCount))
             ->method('prepare')
-            ->withConsecutive(
-                [new MatchIgnoreWhitespace($sQuery), [123, '_role_', '_role_']],
-                [new MatchIgnoreWhitespace($sQuery), [123, '_user_', '_user_']],
-                [new MatchIgnoreWhitespace($sQuery), [123, '_term_', '_term_']],
-                [new MatchIgnoreWhitespace($sQuery), [123, '_post_', '_post_']],
-                [new MatchIgnoreWhitespace($sQuery), [123, 'pluggableObject', 'pluggableObject']]
-            )
-            ->will($this->onConsecutiveCalls(
-                'rolePreparedQuery',
-                'userPreparedQuery',
-                'termPreparedQuery',
-                'postPreparedQuery',
-                'pluggableObjectPreparedQuery'
-            ));
+            ->withConsecutive(...$aPrepareWith)
+            ->will($this->onConsecutiveCalls(...$aPrepareWill));
 
-        $oDatabase->expects($this->exactly(5))
+        $oDatabase->expects($this->exactly($iCallCount))
             ->method('getResults')
-            ->withConsecutive(
-                ['rolePreparedQuery'],
-                ['userPreparedQuery'],
-                ['termPreparedQuery'],
-                ['postPreparedQuery'],
-                ['pluggableObjectPreparedQuery']
-            )
-            ->will($this->onConsecutiveCalls(
-                $this->generateReturn(3),
-                $this->generateReturn(2),
-                $this->generateReturn(3),
-                $this->generateReturn(3),
-                $this->generateReturn(2)
-            ));
+            ->withConsecutive(...$aGetResultsWith)
+            ->will($this->onConsecutiveCalls(...$aGetResultsWill));
 
-        $oConfig = $this->getConfig();
+        return $oDatabase;
+    }
 
-        $oConfig->expects($this->exactly(15))
-            ->method('lockRecursive')
-            ->will($this->onConsecutiveCalls(
-                false, true, true, true, true,
-                false, true, true, true, true,
-                true, true, true, true, true
-            ));
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isRoleMember()
+     *
+     * @return UserGroup
+     */
+    public function testIsRoleMember()
+    {
+        $oDatabase = $this->getDatabaseMockForMemberTests(['role'], [3]);
 
-        $oObjectHandler = $this->getObjectHandler();
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $this->getConfig(),
+            $this->getUtil(),
+            $this->getObjectHandler()
+        );
+
+        self::setValue($oUserGroup, '_iId', 123);
+        $aRecursiveMembership = [];
+
+        $blReturn = $oUserGroup->isRoleMember(1, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isRoleMember(4, $aRecursiveMembership);
+        self::assertFalse($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        return $oUserGroup;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isUserMember()
+     *
+     * @return UserGroup
+     */
+    public function testIsUserMember()
+    {
+        $oDatabase = $this->getDatabaseMockForMemberTests(['role', 'user'], [3, 2]);
+
+        $oDatabase->expects($this->exactly(3))
+            ->method('getCapabilitiesTable')
+            ->will($this->returnValue('capabilitiesTable'));
 
         /**
          * @var \stdClass $oFirstUser
@@ -602,18 +627,57 @@ class UserGroupTest extends \UserAccessManagerTestCase
          * @var \stdClass $oSecondUser
          */
         $oSecondUser = $this->getMockBuilder('\WP_User')->getMock();
-        $oSecondUser->capabilitiesTable = 'invalide';
+        $oSecondUser->capabilitiesTable = 'invalid';
 
+        $oObjectHandler = $this->getObjectHandler();
         $oObjectHandler->expects($this->exactly(3))
             ->method('getUser')
             ->withConsecutive([1], [2], [3])
             ->will($this->onConsecutiveCalls($oFirstUser, $oSecondUser, null));
 
-        $oObjectHandler->expects($this->exactly(9))
-            ->method('isTaxonomy')
-            ->withConsecutive(['termObjectType'], ['_post_'], ['_post_'], ['postObjectType'], ['_post_'], ['_post_'])
-            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false, false));
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $this->getConfig(),
+            $this->getUtil(),
+            $oObjectHandler
+        );
 
+        self::setValue($oUserGroup, '_iId', 123);
+        $aRecursiveMembership = [];
+
+        // user tests
+        $blReturn = $oUserGroup->isUserMember(1, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([
+            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [1 => 1, 2 => 2]
+        ],
+            $aRecursiveMembership
+        );
+
+        $blReturn = $oUserGroup->isUserMember(2, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isUserMember(3, $aRecursiveMembership);
+        self::assertFalse($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        return $oUserGroup;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isTermMember()
+     *
+     * @return UserGroup
+     */
+    public function testIsTermMember()
+    {
+        $oDatabase = $this->getDatabaseMockForMemberTests(['term'], [3]);
+
+        $oObjectHandler = $this->getObjectHandler();
         $oObjectHandler->expects($this->exactly(4))
             ->method('getTermTreeMap')
             ->will($this->returnValue([
@@ -626,12 +690,92 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 ]
             ]));
 
-        $oObjectHandler->expects($this->exactly(4))
-            ->method('isPostType')
-            ->withConsecutive(['postObjectType'])
-            ->will($this->onConsecutiveCalls(true, false, false, false));
+        $oObjectHandler->expects($this->any())
+            ->method('isTaxonomy')
+            ->will($this->returnCallback(function ($sObjectType) {
+                return ($sObjectType === 'termObjectType');
+            }));
 
-        $oObjectHandler->expects($this->exactly(4))
+        $oConfig = $this->getConfig();
+        $oConfig->expects($this->exactly(5))
+            ->method('lockRecursive')
+            ->will($this->onConsecutiveCalls(false, true, true, true, true));
+
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $oConfig,
+            $this->getUtil(),
+            $oObjectHandler
+        );
+
+        self::setValue($oUserGroup, '_iId', 123);
+        $aRecursiveMembership = [];
+
+        // term tests
+        $blReturn = $oUserGroup->isTermMember(1, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([],$aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isTermMember(2, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isTermMember(3, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isTermMember(4, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => 1]], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isTermMember(5, $aRecursiveMembership);
+        self::assertFalse($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        return $oUserGroup;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isPostMember()
+     *
+     * @return UserGroup
+     */
+    public function testIsPostMember()
+    {
+        $oDatabase = $this->getDatabaseMockForMemberTests(['post', 'term'], [3, 3]);
+        $oConfig = $this->getConfig();
+
+        $oConfig->expects($this->exactly(11))
+            ->method('lockRecursive')
+            ->will($this->onConsecutiveCalls(
+                false, true, true, true, true,
+                false, true, true, true, true,
+                true
+            ));
+
+        $oObjectHandler = $this->getObjectHandler();
+        $oObjectHandler->expects($this->exactly(1))
+            ->method('getTermTreeMap')
+            ->will($this->returnValue([
+                ObjectHandler::TREE_MAP_PARENTS => [
+                    ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [
+                        1 => [3 => 3],
+                        2 => [3 => 3],
+                        4 => [1 => 1]
+                    ]
+                ]
+            ]));
+
+        $oObjectHandler->expects($this->any())
+            ->method('isPostType')
+            ->will($this->returnCallback(function ($sObjectType) {
+                return ($sObjectType === 'postObjectType');
+            }));
+
+        $oObjectHandler->expects($this->exactly(3))
             ->method('getPostTreeMap')
             ->will($this->returnValue([
                 ObjectHandler::TREE_MAP_PARENTS => [
@@ -649,26 +793,6 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 2 => [3 => 3]
             ]));
 
-        $oObjectHandler->expects($this->exactly(3))
-            ->method('isPluggableObject')
-            ->withConsecutive(['noPluggableObject'], ['pluggableObject'], ['pluggableObject'])
-            ->will($this->onConsecutiveCalls(false, true, true));
-
-        $oPluggableObject = $this->getMockForAbstractClass(
-            '\UserAccessManager\ObjectHandler\PluggableObject',
-            [],
-            '',
-            false
-        );
-        $oPluggableObject->expects($this->exactly(1))
-            ->method('getRecursiveMembership')
-            ->will($this->returnValue(['pluggableObject' => [1 => 1]]));
-
-        $oObjectHandler->expects($this->exactly(2))
-            ->method('getPluggableObject')
-            ->withConsecutive(['pluggableObject'])
-            ->will($this->onConsecutiveCalls($oPluggableObject));
-
         $oUserGroup = new UserGroup(
             $this->getWrapper(),
             $oDatabase,
@@ -680,93 +804,84 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::setValue($oUserGroup, '_iId', 123);
         $aRecursiveMembership = [];
 
-        // role tests
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 1, $aRecursiveMembership);
-        self::assertTrue($blReturn);
-        self::assertEquals([], $aRecursiveMembership);
-
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 4, $aRecursiveMembership);
-        self::assertFalse($blReturn);
-        self::assertEquals([], $aRecursiveMembership);
-
-        // user tests
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1, $aRecursiveMembership);
-        self::assertTrue($blReturn);
-        self::assertEquals([
-                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [1 => 1, 2 => 2]
-            ],
-            $aRecursiveMembership
-        );
-
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2, $aRecursiveMembership);
-        self::assertTrue($blReturn);
-        self::assertEquals([], $aRecursiveMembership);
-
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 3, $aRecursiveMembership);
-        self::assertFalse($blReturn);
-        self::assertEquals([], $aRecursiveMembership);
-
-        // term tests
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1, $aRecursiveMembership);
-        self::assertTrue($blReturn);
-        self::assertEquals([],
-            $aRecursiveMembership
-        );
-
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 2, $aRecursiveMembership);
-        self::assertTrue($blReturn);
-        self::assertEquals([
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]
-        ], $aRecursiveMembership);
-
-        $blReturn = $oUserGroup->isObjectMember('termObjectType', 3, $aRecursiveMembership);
-        self::assertTrue($blReturn);
-        self::assertEquals([], $aRecursiveMembership);
-
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 4, $aRecursiveMembership);
-        self::assertTrue($blReturn);
-        self::assertEquals([
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => 1]
-        ], $aRecursiveMembership);
-
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5, $aRecursiveMembership);
-        self::assertFalse($blReturn);
-        self::assertEquals([], $aRecursiveMembership);
-
         // post tests
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1, $aRecursiveMembership);
+        $blReturn = $oUserGroup->isPostMember(1, $aRecursiveMembership);
         self::assertTrue($blReturn);
-        self::assertEquals([],
+        self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isPostMember(2, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals(
+            [ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 3], ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]],
             $aRecursiveMembership
         );
 
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2, $aRecursiveMembership);
-        self::assertTrue($blReturn);
-        self::assertEquals([
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 3],
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]
-        ], $aRecursiveMembership);
-
-        $blReturn = $oUserGroup->isObjectMember('postObjectType', 3, $aRecursiveMembership);
+        $blReturn = $oUserGroup->isPostMember(3, $aRecursiveMembership);
         self::assertTrue($blReturn);
         self::assertEquals([], $aRecursiveMembership);
 
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 4, $aRecursiveMembership);
+        $blReturn = $oUserGroup->isPostMember( 4, $aRecursiveMembership);
         self::assertTrue($blReturn);
-        self::assertEquals([
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => 1]
-        ], $aRecursiveMembership);
+        self::assertEquals([ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => 1]], $aRecursiveMembership);
 
-        $blReturn = $oUserGroup->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 5, $aRecursiveMembership);
+        $blReturn = $oUserGroup->isPostMember(5, $aRecursiveMembership);
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
+
+        return $oUserGroup;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isPluggableObjectMember()
+     *
+     * @return UserGroup
+     */
+    public function testIsPluggableObjectMember()
+    {
+        $oDatabase = $this->getDatabaseMockForMemberTests(['pluggableObject'], [2]);
+
+        $oPluggableObject = $this->getMockForAbstractClass(
+            '\UserAccessManager\ObjectHandler\PluggableObject',
+            [],
+            '',
+            false
+        );
+
+        $oPluggableObject->expects($this->exactly(2))
+            ->method('getRecursiveMembership')
+            ->will($this->onConsecutiveCalls(['pluggableObject' => [1 => 1]], []));
+
+        $oObjectHandler = $this->getObjectHandler();
+        $oObjectHandler->expects($this->exactly(3))
+            ->method('getPluggableObject')
+            ->withConsecutive(['noPluggableObject'], ['_pluggableObject_'], ['_pluggableObject_'])
+            ->will($this->onConsecutiveCalls(null, $oPluggableObject, $oPluggableObject));
+
+        $oObjectHandler->expects($this->any())
+            ->method('isPluggableObject')
+            ->will($this->returnCallback(function ($sObjectType) {
+                return ($sObjectType === '_pluggableObject_');
+            }));
+
+        $oUserGroup = new UserGroup(
+            $this->getWrapper(),
+            $oDatabase,
+            $oConfig = $this->getConfig(),
+            $this->getUtil(),
+            $oObjectHandler
+        );
+
+        self::setValue($oUserGroup, '_iId', 123);
+        $aRecursiveMembership = [];
 
         // pluggable object tests
-        $blReturn = $oUserGroup->isObjectMember('noPluggableObject', 1, $aRecursiveMembership);
+        $blReturn = $oUserGroup->isPluggableObjectMember('noPluggableObject', 1, $aRecursiveMembership);
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
 
-        $blReturn = $oUserGroup->isObjectMember('pluggableObject', 1, $aRecursiveMembership);
+        $blReturn = $oUserGroup->isPluggableObjectMember('_pluggableObject_', 1, $aRecursiveMembership);
         self::assertTrue($blReturn);
         self::assertEquals(
             [
@@ -775,8 +890,137 @@ class UserGroupTest extends \UserAccessManagerTestCase
             $aRecursiveMembership
         );
 
-        $blReturn = $oUserGroup->isObjectMember('pluggableObject', 3, $aRecursiveMembership);
+        $blReturn = $oUserGroup->isPluggableObjectMember('_pluggableObject_', 3, $aRecursiveMembership);
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
+
+        return $oUserGroup;
+    }
+
+    /**
+     * Assertion helper for testIsMemberFunctions
+     *
+     * @param UserGroup $oUserGroup
+     * @param bool      $blExpectedReturn
+     * @param array     $aExpectedRecursiveMembership
+     * @param string    $sObjectType
+     * @param string    $sObjectId
+     * @param string    $sRecursiveMembershipObjectType
+     */
+    private function memberFunctionAssertions(
+        UserGroup $oUserGroup,
+        $blExpectedReturn,
+        array $aExpectedRecursiveMembership,
+        $sObjectType,
+        $sObjectId,
+        $sRecursiveMembershipObjectType = null
+    )
+    {
+        $aRecursiveMembership = [];
+        $blReturn = $oUserGroup->isObjectMember($sObjectType, $sObjectId, $aRecursiveMembership);
+        $sRecursiveMembershipObjectType = ($sRecursiveMembershipObjectType === null) ?
+            $sObjectType : $sRecursiveMembershipObjectType;
+
+        self::assertEquals($blExpectedReturn, $blReturn);
+        self::assertEquals($aExpectedRecursiveMembership, $aRecursiveMembership);
+
+        $aExpectedMembership = isset($aExpectedRecursiveMembership[$sRecursiveMembershipObjectType]) ?
+            $aExpectedRecursiveMembership[$sRecursiveMembershipObjectType] : [];
+
+        self::assertEquals(
+            $aExpectedMembership,
+            $oUserGroup->getRecursiveMembershipForObject(
+                $sObjectType,
+                $sObjectId,
+                $sRecursiveMembershipObjectType
+            )
+        );
+
+        self::assertEquals(
+            count($aExpectedRecursiveMembership) > 0,
+            $oUserGroup->isLockedRecursive($sObjectType, $sObjectId)
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testIsRoleMember
+     * @depends testIsUserMember
+     * @depends testIsTermMember
+     * @depends testIsPostMember
+     * @depends testIsPluggableObjectMember
+     * @covers  \UserAccessManager\UserGroup\UserGroup::isObjectMember()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getRecursiveMembershipForObject()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::isLockedRecursive()
+     *
+     * @param UserGroup $oRoleUserGroup
+     * @param UserGroup $oUserUserGroup
+     * @param UserGroup $oTermUserGroup
+     * @param UserGroup $oPostUserGroup
+     * @param UserGroup $oPluggableObjectUserGroup
+     */
+    public function testIsMemberFunctions(
+        UserGroup $oRoleUserGroup,
+        UserGroup $oUserUserGroup,
+        UserGroup $oTermUserGroup,
+        UserGroup $oPostUserGroup,
+        UserGroup $oPluggableObjectUserGroup
+    )
+    {
+        // role tests
+        $this->memberFunctionAssertions($oRoleUserGroup, true, [], ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 1);
+        $this->memberFunctionAssertions($oRoleUserGroup, false, [], ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 4);
+
+        // user tests
+        $this->memberFunctionAssertions(
+            $oUserUserGroup, true, [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [1 => 1, 2 => 2]],
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+        );
+        $this->memberFunctionAssertions($oUserUserGroup, true, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2);
+        $this->memberFunctionAssertions($oUserUserGroup, false, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 3);
+
+        // term tests
+        $this->memberFunctionAssertions($oTermUserGroup, true, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1);
+        $this->memberFunctionAssertions(
+            $oTermUserGroup, true, [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]],
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 2
+        );
+        $this->memberFunctionAssertions($oTermUserGroup, true, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 3);
+        $this->memberFunctionAssertions(
+            $oTermUserGroup, true, [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => 1]],
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 4
+        );
+        $this->memberFunctionAssertions($oTermUserGroup, false, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5);
+
+        // post tests
+        $this->memberFunctionAssertions($oPostUserGroup, true, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1);
+        $this->memberFunctionAssertions(
+            $oPostUserGroup, true, [
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 3],
+                ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]
+            ],
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2, ObjectHandler::GENERAL_POST_OBJECT_TYPE
+        );
+        $this->memberFunctionAssertions(
+            $oPostUserGroup, true, [
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 3],
+                ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]
+            ],
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2, ObjectHandler::GENERAL_TERM_OBJECT_TYPE
+        );
+        $this->memberFunctionAssertions($oPostUserGroup, true, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3);
+        $this->memberFunctionAssertions(
+            $oPostUserGroup, true, [ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => 1]],
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 4
+        );
+        $this->memberFunctionAssertions($oPostUserGroup, false, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 5);
+
+        // pluggable object tests
+        $this->memberFunctionAssertions($oPluggableObjectUserGroup, false, [], 'noPluggableObject', 1);
+        $this->memberFunctionAssertions(
+            $oPluggableObjectUserGroup, true, ['pluggableObject' => [1 => 1]],
+            '_pluggableObject_', 1, 'pluggableObject'
+        );
+        $this->memberFunctionAssertions($oPluggableObjectUserGroup, false, [], '_pluggableObject_', 3);
     }
 }
