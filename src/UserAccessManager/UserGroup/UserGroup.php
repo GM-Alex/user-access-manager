@@ -927,7 +927,7 @@ class UserGroup
             return $this->getFullPosts($sObjectType);
         } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType)) {
             $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
-            return $oPluggableObject->getFullObjects($this);
+            return ($oPluggableObject !== null) ? $oPluggableObject->getFullObjects($this) : [];
         }
 
         return array();
