@@ -624,12 +624,15 @@ class FrontendController extends Controller
      */
     public function showGroupMembership($sLink, $iPostId)
     {
-        $aGroups = $this->_oAccessHandler->getUserGroupsForObject(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $iPostId);
+        $aUserGroups = $this->_oAccessHandler->getFilteredUserGroupsForObject(
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            $iPostId
+        );
 
-        if (count($aGroups) > 0) {
+        if (count($aUserGroups) > 0) {
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
 
-            foreach ($aGroups as $oGroup) {
+            foreach ($aUserGroups as $oGroup) {
                 $sLink .= htmlentities($oGroup->getGroupName()).', ';
             }
 

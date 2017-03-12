@@ -93,8 +93,8 @@ class AdminObjectController extends Controller
     {
         $this->_sObjectType = $sObjectType;
         $this->_sObjectId = $iObjectId;
-        $this->_aFullObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId, false);
-        $this->_aObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
+        $this->_aFullObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
+        $this->_aObjectUserGroups = $this->_oAccessHandler->getFilteredUserGroupsForObject($sObjectType, $iObjectId);
         $this->_iUserGroupDiff = count($this->_aFullObjectUserGroups) - count($this->_aObjectUserGroups);
     }
 
@@ -236,7 +236,7 @@ class AdminObjectController extends Controller
             }
 
             $aAddUserGroups = array_flip($aUserGroups);
-            $aRemoveUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
+            $aRemoveUserGroups = $this->_oAccessHandler->getFilteredUserGroupsForObject($sObjectType, $iObjectId);
             $aUamUserGroups = $this->_oAccessHandler->getUserGroups();
 
             if (isset($aFormData['uam_bulk_type'])) {

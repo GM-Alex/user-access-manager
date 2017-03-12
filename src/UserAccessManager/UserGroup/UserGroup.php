@@ -27,6 +27,8 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserGroup
 {
+    const NONE_ROLE = '_none-role_';
+
     /**
      * @var Wordpress
      */
@@ -590,7 +592,7 @@ class UserGroup
 
                 $aCapabilities = (isset($oUser->{$sCapabilitiesTable})) ? $oUser->{$sCapabilitiesTable} : array();
                 $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ?
-                    array_keys($aCapabilities) : array('norole');
+                    array_keys($aCapabilities) : array(self::NONE_ROLE);
 
                 $aAssignedRoles = $this->_getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
                 $aRecursiveRoles = array_intersect($aRoles, $aAssignedRoles);
