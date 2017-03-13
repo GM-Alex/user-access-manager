@@ -60,6 +60,25 @@ abstract class Controller
     }
 
     /**
+     * Returns the request parameter.
+     *
+     * @param string $sName
+     * @param mixed  $mDefault
+     *
+     * @return mixed
+     */
+    public function getRequestParameter($sName, $mDefault = null)
+    {
+        $mReturn = isset($_POST[$sName]) ? $_POST[$sName] : null;
+
+        if ($mReturn === null) {
+            $mReturn = isset($_GET[$sName]) ? $_GET[$sName] : $mDefault;
+        }
+
+        return $mReturn;
+    }
+
+    /**
      * Process the action.
      */
     protected function _processAction()
@@ -85,7 +104,7 @@ abstract class Controller
     protected function _getIncludeContents($sFileName)
     {
         $sContents = '';
-        $sRealPath = $this->_oConfig->getRealPath();
+        $sRealPath = $this->_oConfig->getRealPath(); //TODO
         $aPath = array($sRealPath, 'src', 'UserAccessManager', 'View');
         $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
         $sFileWithPath = $sPath.$sFileName;
@@ -121,25 +140,6 @@ abstract class Controller
     public function getRequestUrl()
     {
         return htmlspecialchars($_SERVER['REQUEST_URI']);
-    }
-
-    /**
-     * Returns the request parameter.
-     *
-     * @param string $sName
-     * @param mixed  $mDefault
-     *
-     * @return mixed
-     */
-    public function getRequestParameter($sName, $mDefault = null)
-    {
-        $mReturn = isset($_POST[$sName]) ? $_POST[$sName] : null;
-
-        if ($mReturn === null) {
-            $mReturn = isset($_GET[$sName]) ? $_GET[$sName] : $mDefault;
-        }
-
-        return $mReturn;
     }
 
     /**

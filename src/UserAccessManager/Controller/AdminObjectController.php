@@ -200,9 +200,19 @@ class AdminObjectController extends Controller
         return $this->_oAccessHandler->checkUserAccess();
     }
 
-    public function getRecursiveMemberShip()
+    /**
+     * Returns the recursive object membership.
+     *
+     * @param $oUserGroup
+     */
+    public function getRecursiveMemberShip(UserGroup $oUserGroup)
     {
-        //TODO
+        $aAllObjectTypes = $this->getAllObjectTypes();
+        $sObjectId = $this->getObjectId();
+
+        foreach ($aAllObjectTypes as $sObjectType) {
+            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId, $sObjectType);
+        }
     }
 
     /*

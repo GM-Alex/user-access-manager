@@ -61,7 +61,7 @@ if (!function_exists('walkPath')) {
             if (count($aRecursiveMembership) > 0) {
                 ?>
                 <li class="uam_group_info_head">
-                    <?php echo constant('TXT_UAM_GROUP_MEMBERSHIP_BY_'.strtoupper($sObjectType)); ?>:
+                    <?php echo sprintf(TXT_UAM_GROUP_MEMBERSHIP_BY, $sObjectType); ?>:
                     <ul>
                         <?php
                         foreach ($aRecursiveMembership as $iObjectId) {

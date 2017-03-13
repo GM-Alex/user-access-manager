@@ -1019,21 +1019,15 @@ class UserGroupTest extends \UserAccessManagerTestCase
     {
         $aRecursiveMembership = [];
         $blReturn = $oUserGroup->isObjectMember($sObjectType, $sObjectId, $aRecursiveMembership);
-        $sRecursiveMembershipObjectType = ($sRecursiveMembershipObjectType === null) ?
-            $sObjectType : $sRecursiveMembershipObjectType;
 
         self::assertEquals($blExpectedReturn, $blReturn);
         self::assertEquals($aExpectedRecursiveMembership, $aRecursiveMembership);
 
-        $aExpectedMembership = isset($aExpectedRecursiveMembership[$sRecursiveMembershipObjectType]) ?
-            $aExpectedRecursiveMembership[$sRecursiveMembershipObjectType] : [];
-
         self::assertEquals(
-            $aExpectedMembership,
+            $aExpectedRecursiveMembership,
             $oUserGroup->getRecursiveMembershipForObject(
                 $sObjectType,
-                $sObjectId,
-                $sRecursiveMembershipObjectType
+                $sObjectId
             )
         );
 

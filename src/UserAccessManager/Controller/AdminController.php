@@ -139,7 +139,7 @@ class AdminController extends Controller
      */
     public function setupAdminDashboard()
     {
-        if (!$this->_oAccessHandler->checkUserAccess('manage_user_groups')) {
+        if ($this->_oAccessHandler->checkUserAccess('manage_user_groups') === false) {
             $aMetaBoxes = $this->_oWrapper->getMetaBoxes();
             unset($aMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
         }

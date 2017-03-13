@@ -232,21 +232,6 @@ class AdminSettingsController extends Controller
             'TXT_UAM_'.strtoupper($sGroupKey).'_SETTING',
             $blDescription
         );
-
-        /*$aArguments = array();
-        $sIdent = 'TXT_UAM_'.strtoupper($sGroupKey).'_SETTING';
-        $aObjects = $this->_getPostTypes() + $this->_getTaxonomies();
-
-        if (isset($aObjects[$sGroupKey]) === true) {
-            $sIdent = 'TXT_UAM_OBJECT_SETTING';
-            $sName = $aObjects[$sGroupKey]->labels->name;
-            $iCount = substr_count('%s', $sIdent);
-            $aArguments = array_fill(0, $iCount, $sName);
-        }
-
-        $sIdent .= ($blDescription === true) ? '_DESC' : '';
-
-        return vsprintf(constant($sIdent), $aArguments);*/
     }
 
     /**
@@ -267,20 +252,5 @@ class AdminSettingsController extends Controller
             $sIdent,
             $blDescription
         );
-
-        /*$aArguments = array();
-        $sIdent = 'TXT_UAM_'.strtoupper($oConfigParameter->getId());
-        $aObjects = $this->_getPostTypes() + $this->_getTaxonomies();
-
-        if (isset($aObjects[$sGroupKey]) === true) {
-            $sIdent = str_replace(strtoupper($sGroupKey), 'OBJECT', $sIdent);
-            $sName = $aObjects[$sGroupKey]->labels->singular_name;
-            $iCount = substr_count('%s', $sIdent);
-            $aArguments = array_fill(0, $iCount, $sName);
-        }
-
-        $sIdent .= ($blDescription === true) ? '_DESC' : '';
-
-        return vsprintf(constant($sIdent), $aArguments);*/
     }
 }

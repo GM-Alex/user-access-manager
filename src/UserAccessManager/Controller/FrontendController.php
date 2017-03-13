@@ -115,12 +115,11 @@ class FrontendController extends Controller
     public function parseQuery($oWpQuery)
     {
         $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
-        $aAllExcludedPosts = $aExcludedPosts['all'];
 
-        if (count($aAllExcludedPosts) > 0) {
+        if (count($aExcludedPosts) > 0) {
             $oWpQuery->query_vars['post__not_in'] = array_merge(
                 $oWpQuery->query_vars['post__not_in'],
-                $aAllExcludedPosts
+                $aExcludedPosts
             );
         }
     }
@@ -215,10 +214,9 @@ class FrontendController extends Controller
     public function showPostSql($sQuery)
     {
         $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
-        $aAllExcludedPosts = $aExcludedPosts['all'];
 
-        if (count($aAllExcludedPosts) > 0) {
-            $sExcludedPostsStr = implode(',', $aAllExcludedPosts);
+        if (count($aExcludedPosts) > 0) {
+            $sExcludedPostsStr = implode(',', $aExcludedPosts);
             $sQuery .= " AND {$this->_oDatabase->getPostsTable()}.ID NOT IN($sExcludedPostsStr) ";
         }
 

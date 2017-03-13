@@ -757,18 +757,15 @@ class UserGroup
      *
      * @param string $sObjectType    The object type.
      * @param string $sObjectId      The object id.
-     * @param string $sCurObjectType The current object type.
      *
      * @return array
      */
-    public function getRecursiveMembershipForObject($sObjectType, $sObjectId, $sCurObjectType)
+    public function getRecursiveMembershipForObject($sObjectType, $sObjectId)
     {
         $aRecursiveMembership = array();
 
-        if ($this->isObjectMember($sObjectType, $sObjectId, $aRecursiveMembership) === true
-            && isset($aRecursiveMembership[$sCurObjectType])
-        ) {
-            return $aRecursiveMembership[$sCurObjectType];
+        if ($this->isObjectMember($sObjectType, $sObjectId, $aRecursiveMembership) === true) {
+            return $aRecursiveMembership;
         }
 
         return array();

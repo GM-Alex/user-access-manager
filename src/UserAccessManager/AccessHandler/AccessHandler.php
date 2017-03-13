@@ -32,14 +32,6 @@ class AccessHandler
 {
     const OBJECTS_FILTERED = 'filtered';
     const OBJECTS_NONE_FILTERED = 'noneFiltered';
-    const ORDERED_ROLES = array(
-        UserGroup::NONE_ROLE => 0,
-        'subscriber' => 1,
-        'contributor' => 2,
-        'author' => 3,
-        'editor' => 4,
-        'administrator' => 5
-    );
 
     /**
      * @var Wordpress
@@ -360,7 +352,14 @@ class AccessHandler
 
         $aRoles = $this->_getUserRole($oCurrentUser);
         $aRolesMap = array_flip($aRoles);
-        $aOrderedRoles = self::ORDERED_ROLES;
+        $aOrderedRoles = array(
+            UserGroup::NONE_ROLE => 0,
+            'subscriber' => 1,
+            'contributor' => 2,
+            'author' => 3,
+            'editor' => 4,
+            'administrator' => 5
+        );
         $iRightsLevel = 0;
 
         foreach ($aRoles as $sRole) {
