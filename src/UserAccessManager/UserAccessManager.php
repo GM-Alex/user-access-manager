@@ -99,7 +99,7 @@ class UserAccessManager
      */
     public function registerAdminMenu()
     {
-        if ($this->_oAccessHandler->checkUserAccess()) {
+        if ($this->_oAccessHandler->checkUserAccess() === true) {
             //TODO
             /**
              * --- BOF ---
@@ -167,7 +167,7 @@ class UserAccessManager
         $this->_oWrapper->addAction('admin_enqueue_scripts', array($oAdminController, 'enqueueStylesAndScripts'));
         $this->_oWrapper->addAction('wp_dashboard_setup', array($oAdminController, 'setupAdminDashboard'));
 
-        if (ini_get('safe_mode') && $this->_oConfig->getDownloadType() === 'fopen') {
+        if (ini_get('safe_mode') === true && $this->_oConfig->getDownloadType() === 'fopen') {
             $this->_oWrapper->addAction('admin_notices', array($oAdminController, 'showFOpenNotice'));
         }
 
@@ -175,7 +175,7 @@ class UserAccessManager
             $this->_oWrapper->addAction('admin_notices', array($oAdminController, 'showDatabaseNotice'));
         }
 
-        $aTaxonomies = $this->_oObjectHandler->getPostTypes();
+        $aTaxonomies = $this->_oObjectHandler->getTaxonomies();
 
         if (isset($_POST['taxonomy'])) {
             $aTaxonomies[$_POST['taxonomy']] = $_POST['taxonomy'];
@@ -185,7 +185,7 @@ class UserAccessManager
 
         $oAdminObjectController = $this->_oControllerFactory->createAdminObjectController();
 
-        if ($this->_oAccessHandler->checkUserAccess()
+        if ($this->_oAccessHandler->checkUserAccess() === true
             || $this->_oConfig->authorsCanAddPostsToGroups() === true
         ) {
             //Admin actions
@@ -228,18 +228,7 @@ class UserAccessManager
             if ($this->_oConfig->lockFile() === true) {
                 $this->_oWrapper->addFilter('manage_media_columns', array($oAdminObjectController, 'addPostColumnsHeader'));
             }
-        }
 
-        //Clean up at deleting should always be done.
-        $this->_oWrapper->addAction('update_option_permalink_structure', array($oAdminObjectController, 'updatePermalink'));
-        $this->_oWrapper->addAction('delete_post', array($oAdminObjectController, 'removePostData'));
-        $this->_oWrapper->addAction('delete_attachment', array($oAdminObjectController, 'removePostData'));
-        $this->_oWrapper->addAction('delete_user', array($oAdminObjectController, 'removeUserData'));
-        $this->_oWrapper->addAction('delete_term', array($oAdminObjectController, 'removeTermData'));
-
-        if ($this->_oAccessHandler->checkUserAccess()
-            || $this->_oConfig->authorsCanAddPostsToGroups() === true
-        ) {
             //Admin meta boxes
             $aPostTypes = $this->_oObjectHandler->getPostTypes();
 
@@ -258,6 +247,13 @@ class UserAccessManager
                 );
             }
         }
+
+        //Clean up at deleting should always be done.
+        $this->_oWrapper->addAction('update_option_permalink_structure', array($oAdminObjectController, 'updatePermalink'));
+        $this->_oWrapper->addAction('delete_post', array($oAdminObjectController, 'removePostData'));
+        $this->_oWrapper->addAction('delete_attachment', array($oAdminObjectController, 'removePostData'));
+        $this->_oWrapper->addAction('delete_user', array($oAdminObjectController, 'removeUserData'));
+        $this->_oWrapper->addAction('delete_term', array($oAdminObjectController, 'removeTermData'));
 
         $oAdminObjectController->noRightsToEditContent();
     }

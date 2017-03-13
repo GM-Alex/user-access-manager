@@ -14,6 +14,12 @@
  */
 namespace UserAccessManager;
 
+use UserAccessManager\ObjectHandler\ObjectHandler;
+
+function ini_get($sVariable) {
+    return ($sVariable === 'safe_mode');
+}
+
 /**
  * Class UserAccessManagerTest
  *
@@ -37,5 +43,165 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
         );
 
         self::assertInstanceOf('\UserAccessManager\UserAccessManager', $oObjectHandler);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserAccessManager::registerAdminMenu()
+     */
+    public function testRegisterAdminMenu()
+    {
+        $oWrapper = $this->getWrapper();
+        $oWrapper->expects($this->exactly(1))
+            ->method('addMenuPage');
+        $oWrapper->expects($this->exactly(4))
+            ->method('addSubmenuPage');
+        $oWrapper->expects($this->exactly(1))
+            ->method('doAction');
+
+        $oAccessHandler = $this->getAccessHandler();
+        $oAccessHandler->expects($this->exactly(2))
+            ->method('checkUserAccess')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oControllerFactory = $this->getControllerFactory();
+        $oControllerFactory->expects($this->exactly(1))
+            ->method('createAdminUserGroupController');
+
+        $oControllerFactory->expects($this->exactly(1))
+            ->method('createAdminSettingController');
+
+        $oControllerFactory->expects($this->exactly(1))
+            ->method('createAdminSetupController');
+
+        $oControllerFactory->expects($this->exactly(1))
+            ->method('createAdminAboutController');
+
+        $oObjectHandler = new UserAccessManager(
+            $oWrapper,
+            $this->getConfig(),
+            $this->getObjectHandler(),
+            $oAccessHandler,
+            $this->getSetupHandler(),
+            $oControllerFactory
+        );
+
+        $oObjectHandler->registerAdminMenu();
+        $oObjectHandler->registerAdminMenu();
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserAccessManager::registerAdminActionsAndFilters()
+     */
+    public function testRegisterAdminActionsAndFilters()
+    {
+        $oWrapper = $this->getWrapper();
+        $oWrapper->expects($this->exactly(57))
+            ->method('addAction');
+
+        $oWrapper->expects($this->exactly(16))
+            ->method('addFilter');
+
+        $oWrapper->expects($this->exactly(3))
+            ->method('addMetaBox');
+
+        $oConfig = $this->getConfig();
+        $oConfig->expects($this->exactly(3))
+            ->method('getDownloadType')
+            ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen'));
+
+        $oConfig->expects($this->exactly(2))
+            ->method('authorsCanAddPostsToGroups')
+            ->will($this->onConsecutiveCalls(true, false));
+
+        $oConfig->expects($this->exactly(6))
+            ->method('lockFile')
+            ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
+
+
+        $oObjectHandler = $this->getObjectHandler();
+        $oObjectHandler->expects($this->exactly(3))
+            ->method('getTaxonomies')
+            ->will($this->returnValue(['a', 'b']));
+
+        $oObjectHandler->expects($this->exactly(2))
+            ->method('getPostTypes')
+            ->will($this->returnValue(['a', ObjectHandler::ATTACHMENT_OBJECT_TYPE]));
+
+        $oAccessHandler = $this->getAccessHandler();
+        $oAccessHandler->expects($this->exactly(3))
+            ->method('checkUserAccess')
+            ->will($this->onConsecutiveCalls(true, false, false));
+
+        $oSetupHandler = $this->getSetupHandler();
+        $oSetupHandler->expects($this->exactly(3))
+            ->method('isDatabaseUpdateNecessary')
+            ->will($this->onConsecutiveCalls(false, true, false));
+
+        $oControllerFactory = $this->getControllerFactory();
+        $oControllerFactory->expects($this->exactly(3))
+            ->method('createAdminController');
+
+        $oControllerFactory->expects($this->exactly(3))
+            ->method('createAdminObjectController')
+            ->will($this->returnCallback(function() {
+                $oAdminObjectController = $this->createMock('UserAccessManager\Controller\AdminObjectController');
+                $oAdminObjectController->expects($this->any())
+                    ->method('noRightsToEditContent');
+                return $oAdminObjectController;
+            }));
+
+        $oObjectHandler = new UserAccessManager(
+            $oWrapper,
+            $oConfig,
+            $oObjectHandler,
+            $oAccessHandler,
+            $oSetupHandler,
+            $oControllerFactory
+        );
+
+        $oObjectHandler->registerAdminActionsAndFilters();
+
+        $_POST['taxonomy'] = 'c';
+        $oObjectHandler->registerAdminActionsAndFilters();
+
+        unset($_POST['taxonomy']);
+        $_GET['taxonomy'] = 'c';
+        $oObjectHandler->registerAdminActionsAndFilters();
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserAccessManager::addActionsAndFilters()
+     */
+    public function testAddActionsAndFilters()
+    {
+        $oWrapper = $this->getWrapper();
+        $oWrapper->expects($this->exactly(21))
+            ->method('addAction');
+
+        $oWrapper->expects($this->exactly(62))
+            ->method('addFilter');
+
+        $oConfig = $this->getConfig();
+        $oConfig->expects($this->exactly(3))
+            ->method('getRedirect')
+            ->will($this->onConsecutiveCalls(false, false, true));
+
+        $oObjectHandler = new UserAccessManager(
+            $oWrapper,
+            $oConfig,
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getSetupHandler(),
+            $this->getControllerFactory()
+        );
+
+        $oObjectHandler->addActionsAndFilters();
+
+        $_GET['uamgetfile'] = 'someThing';
+        $oObjectHandler->addActionsAndFilters();
+        $oObjectHandler->addActionsAndFilters();
     }
 }
