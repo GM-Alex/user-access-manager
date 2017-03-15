@@ -120,7 +120,7 @@ class UserAccessManager
                 array($oAdminUserGroupController, 'render')
             );
 
-            $oAdminSetupController = $this->_oControllerFactory->createAdminSettingController();
+            $oAdminSetupController = $this->_oControllerFactory->createAdminSettingsController();
             $this->_oWrapper->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_SETTINGS,

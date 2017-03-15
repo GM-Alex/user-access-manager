@@ -1013,8 +1013,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $blExpectedReturn,
         array $aExpectedRecursiveMembership,
         $sObjectType,
-        $sObjectId,
-        $sRecursiveMembershipObjectType = null
+        $sObjectId
     )
     {
         $aRecursiveMembership = [];

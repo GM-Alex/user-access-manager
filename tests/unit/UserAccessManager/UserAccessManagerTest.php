@@ -69,7 +69,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             ->method('createAdminUserGroupController');
 
         $oControllerFactory->expects($this->exactly(1))
-            ->method('createAdminSettingController');
+            ->method('createAdminSettingsController');
 
         $oControllerFactory->expects($this->exactly(1))
             ->method('createAdminSetupController');

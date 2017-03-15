@@ -67,16 +67,6 @@ class AdminController extends Controller
     }
 
     /**
-     * Returns the set notice.
-     *
-     * @return string
-     */
-    public function getNotice()
-    {
-        return $this->_sNotice;
-    }
-
-    /**
      * Shows the fopen notice.
      */
     public function showFOpenNotice()
@@ -95,9 +85,19 @@ class AdminController extends Controller
     }
 
     /**
+     * Returns the set notice.
+     *
+     * @return string
+     */
+    public function getNotice()
+    {
+        return $this->_sNotice;
+    }
+
+    /**
      * Register styles and scripts with handle for admin panel.
      */
-    protected function registerStylesAndScripts()
+    protected function _registerStylesAndScripts()
     {
         $sUrlPath = $this->_oConfig->getUrlPath();
 
@@ -124,7 +124,7 @@ class AdminController extends Controller
      */
     public function enqueueStylesAndScripts($sHook)
     {
-        $this->registerStylesAndScripts();
+        $this->_registerStylesAndScripts();
         $this->_oWrapper->enqueueStyle(self::HANDLE_STYLE_ADMIN);
 
         if ($sHook === 'uam_page_uam_settings' || $sHook === 'uam_page_uam_setup') {

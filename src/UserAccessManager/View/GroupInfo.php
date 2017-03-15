@@ -30,7 +30,7 @@ if (!function_exists('walkPath')) {
     {
         $sOut = "$sObjectType: $iObjectId";
 
-        $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $iObjectId, $sObjectType);
+        $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $iObjectId);
 
         if (count($aRecursiveMembership) > 0) {
             $sOut .= '<ul>';
@@ -56,7 +56,7 @@ if (!function_exists('walkPath')) {
         $sObjectId = $this->getObjectId();
 
         foreach ($aAllObjectTypes as $sObjectType) {
-            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId, $sObjectType);
+            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId);
 
             if (count($aRecursiveMembership) > 0) {
                 ?>

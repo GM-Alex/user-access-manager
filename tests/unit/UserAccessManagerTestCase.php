@@ -1,6 +1,7 @@
 <?php
-
-
+/**
+ * Class UserAccessManagerTestCase
+ */
 class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 {
     /**

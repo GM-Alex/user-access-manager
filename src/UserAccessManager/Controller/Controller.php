@@ -79,60 +79,6 @@ abstract class Controller
     }
 
     /**
-     * Process the action.
-     */
-    protected function _processAction()
-    {
-        $sPostAction = $this->getRequestParameter(self::ACTION_PARAMETER);
-        $aPostAction = explode('_', $sPostAction);
-        $sPostAction = array_shift($aPostAction);
-        $sPostAction .= implode('', array_map('ucfirst', $aPostAction));
-        $sActionMethod = $sPostAction.self::ACTION_SUFFIX;
-
-        if (method_exists($this, $sActionMethod)) {
-            $this->{$sActionMethod}();
-        }
-    }
-
-    /**
-     * Returns the content of the excluded php file.
-     *
-     * @param string $sFileName The view file name
-     *
-     * @return string
-     */
-    protected function _getIncludeContents($sFileName)
-    {
-        $sContents = '';
-        $sRealPath = $this->_oConfig->getRealPath(); //TODO
-        $aPath = array($sRealPath, 'src', 'UserAccessManager', 'View');
-        $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
-        $sFileWithPath = $sPath.$sFileName;
-
-        if (is_file($sFileWithPath)) {
-            ob_start();
-            /** @noinspection PhpIncludeInspection */
-            include $sFileWithPath;
-            $sContents = ob_get_contents();
-            ob_end_clean();
-        }
-
-        return $sContents;
-    }
-
-    /**
-     * Renders the given template
-     */
-    public function render()
-    {
-        $this->_processAction();
-
-        if ($this->_sTemplate !== null) {
-            echo $this->_getIncludeContents($this->_sTemplate);
-        }
-    }
-
-    /**
      * Returns the current request url.
      *
      * @return string
@@ -208,5 +154,59 @@ abstract class Controller
     public function hasUpdateMessage()
     {
         return $this->_sUpdateMessage !== null;
+    }
+
+    /**
+     * Process the action.
+     */
+    protected function _processAction()
+    {
+        $sPostAction = $this->getRequestParameter(self::ACTION_PARAMETER);
+        $aPostAction = explode('_', $sPostAction);
+        $sPostAction = array_shift($aPostAction);
+        $sPostAction .= implode('', array_map('ucfirst', $aPostAction));
+        $sActionMethod = $sPostAction.self::ACTION_SUFFIX;
+
+        if (method_exists($this, $sActionMethod)) {
+            $this->{$sActionMethod}();
+        }
+    }
+
+    /**
+     * Returns the content of the excluded php file.
+     *
+     * @param string $sFileName The view file name
+     *
+     * @return string
+     */
+    protected function _getIncludeContents($sFileName)
+    {
+        $sContents = '';
+        $sRealPath = $this->_oConfig->getRealPath();
+        $aPath = array($sRealPath, 'src', 'UserAccessManager', 'View');
+        $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
+        $sFileWithPath = $sPath.$sFileName;
+
+        if (is_file($sFileWithPath)) {
+            ob_start();
+            /** @noinspection PhpIncludeInspection */
+            include $sFileWithPath;
+            $sContents = ob_get_contents();
+            ob_end_clean();
+        }
+
+        return $sContents;
+    }
+
+    /**
+     * Renders the given template
+     */
+    public function render()
+    {
+        $this->_processAction();
+
+        if ($this->_sTemplate !== null) {
+            echo $this->_getIncludeContents($this->_sTemplate);
+        }
     }
 }

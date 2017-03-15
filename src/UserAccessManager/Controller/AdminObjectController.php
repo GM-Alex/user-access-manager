@@ -211,7 +211,7 @@ class AdminObjectController extends Controller
         $sObjectId = $this->getObjectId();
 
         foreach ($aAllObjectTypes as $sObjectType) {
-            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId, $sObjectType);
+            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId);
         }
     }
 

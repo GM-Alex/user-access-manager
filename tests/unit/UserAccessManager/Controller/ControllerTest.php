@@ -41,6 +41,8 @@ class ControllerTest extends \UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  \UserAccessManager\Controller\Controller::__construct()
+     *
+     * @return Controller
      */
     public function testCanCreateInstance()
     {
@@ -51,6 +53,163 @@ class ControllerTest extends \UserAccessManagerTestCase
         );
 
         self::assertInstanceOf('\UserAccessManager\Controller\Controller', $oStub);
+
+        return $oStub;
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Controller\Controller::getRequestParameter()
+     *
+     * @param Controller $oStub
+     */
+    public function testGetRequestParameter(Controller $oStub)
+    {
+        $_POST['postParam'] = 'postValue';
+        $_GET['postParam'] = 'getValue';
+        $_GET['getParam'] = 'getValue';
+
+        self::assertEquals('postValue', $oStub->getRequestParameter('postParam', 'default'));
+        self::assertEquals('getValue', $oStub->getRequestParameter('getParam', 'default'));
+        self::assertEquals('default', $oStub->getRequestParameter('invalid', 'default'));
+        self::assertNull($oStub->getRequestParameter('invalid'));
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Controller\Controller::getRequestUrl()
+     *
+     * @param Controller $oStub
+     */
+    public function testGetRequestUrl(Controller $oStub)
+    {
+        $_SERVER['REQUEST_URI'] = 'https://test.domain?id=<a href=\'evil\'>evil</a>';
+
+        self::assertEquals('https://test.domain?id=&lt;a href=\'evil\'&gt;evil&lt;/a&gt;', $oStub->getRequestUrl());
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Controller\Controller::createNonceField()
+     */
+    public function testCreateNonceField()
+    {
+        $oWrapper = $this->getWrapper();
+        $oWrapper->expects($this->exactly(1))
+            ->method('getNonceField')
+            ->with('test', 'testNonce')
+            ->will($this->returnValue('return'));
+
+        $oStub = $this->getStub();
+        $oStub->__construct(
+            $oWrapper,
+            $this->getConfig()
+        );
+
+        self::assertEquals('return', $oStub->createNonceField('test'));
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Controller\Controller::getNonce()
+     */
+    public function testGetNonce()
+    {
+        $oWrapper = $this->getWrapper();
+        $oWrapper->expects($this->exactly(1))
+            ->method('createNonce')
+            ->with('test')
+            ->will($this->returnValue('return'));
+
+        $oStub = $this->getStub();
+        $oStub->__construct(
+            $oWrapper,
+            $this->getConfig()
+        );
+
+        self::assertEquals('return', $oStub->getNonce('test'));
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Controller\Controller::_verifyNonce()
+     */
+    public function testVerifyNonce()
+    {
+        $_GET['testNonce'] = 'testNonceValue';
+
+        $oWrapper = $this->getWrapper();
+        $oWrapper->expects($this->exactly(2))
+            ->method('verifyNonce')
+            ->withConsecutive(['testNonceValue', 'test'] ,['testNonceValue', 'test'])
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oWrapper->expects($this->exactly(1))
+            ->method('wpDie');
+
+        $oStub = $this->getStub();
+        $oStub->__construct(
+            $oWrapper,
+            $this->getConfig()
+        );
+
+        self::callMethod($oStub, '_verifyNonce', ['test']);
+        self::callMethod($oStub, '_verifyNonce', ['test']);
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Controller\Controller::_setUpdateMessage()
+     *
+     * @param Controller $oStub
+     *
+     * @return Controller
+     */
+    public function testSetUpdateMessage(Controller $oStub)
+    {
+        self::assertAttributeEquals(null, '_sUpdateMessage', $oStub);
+        self::callMethod($oStub, '_setUpdateMessage', ['updateMessage']);
+        self::assertAttributeEquals('updateMessage', '_sUpdateMessage', $oStub);
+
+        return $oStub;
+    }
+
+    /**
+     * @group   unit
+     * @depends testSetUpdateMessage
+     * @covers  \UserAccessManager\Controller\Controller::getUpdateMessage()
+     *
+     * @param Controller $oStub
+     */
+    public function testGetUpdateMessage(Controller $oStub)
+    {
+        self::assertEquals('updateMessage', $oStub->getUpdateMessage());
+    }
+
+    /**
+     * @group   unit
+     * @depends testSetUpdateMessage
+     * @covers  \UserAccessManager\Controller\Controller::hasUpdateMessage()
+     *
+     * @param Controller $oStub
+     */
+    public function testHasUpdateMessage(Controller $oStub)
+    {
+        self::assertTrue($oStub->hasUpdateMessage());
+
+        $oStub = $this->getStub();
+        $oStub->__construct(
+            $this->getWrapper(),
+            $this->getConfig()
+        );
+
+        self::assertFalse($oStub->hasUpdateMessage());
     }
 
     /**
@@ -74,7 +233,7 @@ class ControllerTest extends \UserAccessManagerTestCase
         );
 
         $_GET['uam_action'] = 'test';
-        self::setValue($oDummyController, '_sTemplate', 'testView.php');
+        self::setValue($oDummyController, '_sTemplate', 'TestView.php');
         $oDummyController->render();
         self::expectOutputString('testAction'.'testContent');
     }
