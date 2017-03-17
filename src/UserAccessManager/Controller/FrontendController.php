@@ -495,8 +495,14 @@ class FrontendController extends Controller
      */
     public function showAncestors($aAncestors, $sObjectId, $sObjectType)
     {
+        if ($this->_oConfig->lockRecursive() === true
+            && $this->_oAccessHandler->checkObjectAccess($sObjectType, $sObjectId) === false
+        ) {
+            return [];
+        }
+
         foreach ($aAncestors as $sKey => $aAncestorId) {
-            if (!$this->_oAccessHandler->checkObjectAccess($sObjectType, $aAncestorId)) {
+            if (!$this->_oAccessHandler->checkObjectAccess($sObjectType, $aAncestorId) === false) {
                 unset($aAncestors[$sKey]);
             }
         }

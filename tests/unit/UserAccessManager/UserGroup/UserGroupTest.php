@@ -1006,7 +1006,6 @@ class UserGroupTest extends \UserAccessManagerTestCase
      * @param array     $aExpectedRecursiveMembership
      * @param string    $sObjectType
      * @param string    $sObjectId
-     * @param string    $sRecursiveMembershipObjectType
      */
     private function memberFunctionAssertions(
         UserGroup $oUserGroup,
@@ -1068,7 +1067,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         // user tests
         $this->memberFunctionAssertions(
             $oUserUserGroup, true, [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [1 => 1, 2 => 2]],
-            ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1
         );
         $this->memberFunctionAssertions($oUserUserGroup, true, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2);
         $this->memberFunctionAssertions($oUserUserGroup, false, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 3);
@@ -1093,14 +1092,14 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 3],
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]
             ],
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2, ObjectHandler::GENERAL_POST_OBJECT_TYPE
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2
         );
         $this->memberFunctionAssertions(
             $oPostUserGroup, true, [
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 3],
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 3]
             ],
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2, ObjectHandler::GENERAL_TERM_OBJECT_TYPE
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2
         );
         $this->memberFunctionAssertions($oPostUserGroup, true, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3);
         $this->memberFunctionAssertions(
@@ -1113,7 +1112,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $this->memberFunctionAssertions($oPluggableObjectUserGroup, false, [], 'noPluggableObject', 1);
         $this->memberFunctionAssertions(
             $oPluggableObjectUserGroup, true, ['pluggableObject' => [1 => 1]],
-            '_pluggableObject_', 1, 'pluggableObject'
+            '_pluggableObject_', 1
         );
         $this->memberFunctionAssertions($oPluggableObjectUserGroup, false, [], '_pluggableObject_', 3);
     }

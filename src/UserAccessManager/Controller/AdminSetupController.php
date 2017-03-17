@@ -28,6 +28,8 @@ class AdminSetupController extends Controller
 {
     const SETUP_UPDATE_NONCE = 'uamSetupUpdate';
     const SETUP_RESET_NONCE = 'uamSetupReset';
+    const UPDATE_BLOG = 'blog';
+    const UPDATE_NETWORK = 'network';
 
     /**
      * @var SetupHandler
@@ -89,8 +91,8 @@ class AdminSetupController extends Controller
         $this->_verifyNonce(self::SETUP_UPDATE_NONCE);
         $sUpdate = $this->getRequestParameter('uam_update_db');
 
-        if ($sUpdate === 'blog' || $sUpdate === 'network') {
-            if ($sUpdate === 'network') {
+        if ($sUpdate === self::UPDATE_BLOG || $sUpdate === self::UPDATE_NETWORK) {
+            if ($sUpdate === self::UPDATE_NETWORK) {
                 $aBlogIds = $this->_oSetupHandler->getBlogIds();
 
                 if (count($aBlogIds) > 0) {
@@ -107,7 +109,7 @@ class AdminSetupController extends Controller
                 $this->_oSetupHandler->update();
             }
 
-            $this->_setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUC);
+            $this->_setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS);
         }
     }
 

@@ -203,7 +203,16 @@ class AdminSettingsController extends Controller
         return isset($aPostTypes[$sGroupKey]);
     }
 
-    protected function getObjectText($sGroupKey, $sIdent, $blDescription = false)
+    /**
+     * Returns the right translation string.
+     *
+     * @param string $sGroupKey
+     * @param string $sIdent
+     * @param bool   $blDescription
+     *
+     * @return mixed|string
+     */
+    protected function _getObjectText($sGroupKey, $sIdent, $blDescription = false)
     {
         $aObjects = $this->_getPostTypes() + $this->_getTaxonomies();
         $sIdent .= ($blDescription === true) ? '_DESC' : '';
@@ -227,7 +236,7 @@ class AdminSettingsController extends Controller
      */
     public function getSectionText($sGroupKey, $blDescription = false)
     {
-        return $this->getObjectText(
+        return $this->_getObjectText(
             $sGroupKey,
             'TXT_UAM_'.strtoupper($sGroupKey).'_SETTING',
             $blDescription
@@ -247,7 +256,7 @@ class AdminSettingsController extends Controller
     {
         $sIdent = 'TXT_UAM_'.strtoupper($oConfigParameter->getId());
 
-        return $this->getObjectText(
+        return $this->_getObjectText(
             $sGroupKey,
             $sIdent,
             $blDescription

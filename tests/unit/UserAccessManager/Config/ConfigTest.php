@@ -34,18 +34,18 @@ class ConfigTest extends \UserAccessManagerTestCase
         $this->_aDefaultValues = [
             'hide_post' => 'bool|hide_post|false',
             'hide_post_title' => 'bool|hide_post_title|false',
-            'post_title' => 'string|post_title|No rights!',
+            'post_title' => 'string|post_title|No rights!|user-access-manager',
             'show_post_content_before_more' => 'bool|show_post_content_before_more|false',
-            'post_content' => 'string|post_content|Sorry you have no rights to view this entry!',
+            'post_content' => 'string|post_content|Sorry you have no rights to view this entry!|user-access-manager',
             'hide_post_comment' => 'bool|hide_post_comment|false',
-            'post_comment_content' => 'string|post_comment_content|Sorry no rights to view comments!',
+            'post_comment_content' => 'string|post_comment_content|Sorry no rights to view comments!|user-access-manager',
             'post_comments_locked' => 'bool|post_comments_locked|false',
             'hide_page' => 'bool|hide_page|false',
             'hide_page_title' => 'bool|hide_page_title|false',
-            'page_title' => 'string|page_title|No rights!',
-            'page_content' => 'string|page_content|Sorry you have no rights to view this entry!',
+            'page_title' => 'string|page_title|No rights!|user-access-manager',
+            'page_content' => 'string|page_content|Sorry you have no rights to view this entry!|user-access-manager',
             'hide_page_comment' => 'bool|hide_page_comment|false',
-            'page_comment_content' => 'string|page_comment_content|Sorry no rights to view comments!',
+            'page_comment_content' => 'string|page_comment_content|Sorry no rights to view comments!|user-access-manager',
             'page_comments_locked' => 'bool|page_comments_locked|false',
             'redirect' => 'selection|redirect|false|false|custom_page|custom_url',
             'redirect_custom_page' => 'string|redirect_custom_page|',
@@ -190,6 +190,7 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetConfigParameters()
     {
+        //$this->markTestSkipped();
         $oWrapper = $this->getWrapper();
         $oWrapper->expects($this->exactly(1))
             ->method('getOption')

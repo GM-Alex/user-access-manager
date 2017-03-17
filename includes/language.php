@@ -157,7 +157,7 @@ define('TXT_UAM_UPDATE_UAM_DB', __('Update User Access Manager database', 'user-
 define('TXT_UAM_UPDATE_UAM_DB_DESC', __('Updates the database of the User Access Manager. Please backup your database before you perform the update.', 'user-access-manager'));
 define('TXT_UAM_UPDATE', __('update now', 'user-access-manager'));
 define('TXT_UAM_UAM_RESET_SUCCESS', __('User Access Manager was reset successfully', 'user-access-manager'));
-define('TXT_UAM_UAM_DB_UPDATE_SUC', __('User Access Manager database was updated successfully', 'user-access-manager'));
+define('TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS', __('User Access Manager database was updated successfully', 'user-access-manager'));
 define('TXT_UAM_UPDATE_BLOG', __('Update current blog', 'user-access-manager'));
 define('TXT_UAM_UPDATE_NETWORK', __('Update network wide', 'user-access-manager'));
 

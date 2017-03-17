@@ -58,6 +58,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
             $sContent .= "require valid-user"."\n";
 
             if ($sFileTypes !== null) {
+                /** @noinspection */
                 $sContent = "<FilesMatch '{$sFileTypes}'>\n{$sContent}</FilesMatch>\n";
             }
 
