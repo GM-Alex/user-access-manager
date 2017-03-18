@@ -22,5 +22,6 @@
     </filter>
     <logging>
         <log type="coverage-html" target="./tmp/coverage" charset="UTF-8"/>
+        <log type="coverage-text" target="php://stdout" showUncoveredFiles="true"/>
     </logging>
 </phpunit>
