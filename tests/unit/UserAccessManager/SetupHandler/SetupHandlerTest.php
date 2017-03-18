@@ -75,12 +75,20 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue($this->getSites()));
 
         $oDatabase = $this->getDatabase();
-        $oObjectHandler = $this->getObjectHandler();
-        $oFileHandler = $this->getFileHandler();
 
-        $oSetupHandler = new SetupHandler($oWrapper, $oDatabase, $oObjectHandler, $oFileHandler);
+        $oDatabase->expects($this->exactly(1))
+            ->method('getCurrentBlogId')
+            ->will($this->returnValue(123));
+
+        $oSetupHandler = new SetupHandler(
+            $oWrapper,
+            $oDatabase,
+            $this->getObjectHandler(),
+            $this->getFileHandler()
+        );
+
         $aBlogIds = $oSetupHandler->getBlogIds();
-        self::assertEquals([1 => 1, 2 => 2, 3 => 3], $aBlogIds);
+        self::assertEquals([123 => 123, 1 => 1, 2 => 2, 3 => 3], $aBlogIds);
     }
 
     /**
@@ -92,7 +100,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
     {
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(3))
+        $oWrapper->expects($this->exactly(1))
             ->method('getSites')
             ->will($this->returnValue($this->getSites(1)));
 
@@ -102,7 +110,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
 
         $oWrapper->expects(($this->exactly(2)))
             ->method('switchToBlog')
-            ->withConsecutive([1], [123]);
+            ->withConsecutive([1], [1]);
 
         $oDatabase = $this->getDatabase();
         $oDatabase->expects($this->exactly(3))
@@ -128,9 +136,9 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 'invalid_table'
             ));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->exactly(2))
             ->method('getCurrentBlogId')
-            ->will($this->returnValue(123));
+            ->will($this->returnValue(1));
 
         $oObjectHandler = $this->getObjectHandler();
         $oFileHandler = $this->getFileHandler();
@@ -430,6 +438,10 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
         $oDatabase = $this->getDatabase();
 
         $oDatabase->expects($this->exactly(1))
+            ->method('getCurrentBlogId')
+            ->will($this->returnValue(1));
+
+        $oDatabase->expects($this->exactly(1))
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
@@ -443,12 +455,16 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 'DROP TABLE userGroupTable, userGroupToObjectTable'
             ));
 
-        $oObjectHandler = $this->getObjectHandler();
         $oFileHandler = $this->getFileHandler();
         $oFileHandler->expects($this->exactly(1))
             ->method('deleteFileProtection');
 
-        $oSetupHandler = new SetupHandler($oWrapper, $oDatabase, $oObjectHandler, $oFileHandler);
+        $oSetupHandler = new SetupHandler(
+            $oWrapper,
+            $oDatabase,
+            $this->getObjectHandler(),
+            $oFileHandler
+        );
         $oSetupHandler->uninstall();
     }
 

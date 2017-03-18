@@ -75,7 +75,11 @@ class SetupHandler
      */
     public function getBlogIds()
     {
-        $aBlogIds = array();
+        $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
+        $aBlogIds = array(
+            $iCurrentBlogId => $iCurrentBlogId
+        );
+
         $aSites = $this->_oWrapper->getSites();
 
         foreach ($aSites as $oSite) {
@@ -92,9 +96,8 @@ class SetupHandler
      */
     public function install($blNetworkWide = false)
     {
-        $aBlogIds = $this->getBlogIds();
-
         if ($blNetworkWide === true) {
+            $aBlogIds = $this->getBlogIds();
             $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
 
             foreach ($aBlogIds as $iBlogId) {

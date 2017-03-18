@@ -663,7 +663,11 @@ class Wordpress
      */
     public function getSites(array $aArguments = array())
     {
-        return \get_sites($aArguments);
+        if (function_exists('get_sites')) {
+            return \get_sites($aArguments);
+        }
+
+        return [];
     }
 
     /**

@@ -125,7 +125,7 @@ class AdminObjectController extends Controller
      */
     public function getFullObjectUserGroups()
     {
-        return $this->_aObjectUserGroups;
+        return $this->_aFullObjectUserGroups;
     }
 
     /**
@@ -165,7 +165,7 @@ class AdminObjectController extends Controller
      */
     public function isCurrentUserAdmin()
     {
-        if ($this->_sObjectType !== ObjectHandler::GENERAL_USER_OBJECT_TYPE
+        if ($this->_sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE
             && $this->_sObjectId !== null
         ) {
             return $this->_oAccessHandler->userIsAdmin($this->_sObjectId);
@@ -210,7 +210,7 @@ class AdminObjectController extends Controller
      *
      * @param $oUserGroup
      */
-    public function getRecursiveMemberShip(UserGroup $oUserGroup)
+    public function getRecursiveMembership(UserGroup $oUserGroup)
     {
         $aAllObjectTypes = $this->getAllObjectTypes();
         $sObjectId = $this->getObjectId();
