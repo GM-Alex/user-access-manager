@@ -140,9 +140,9 @@ define('TXT_UAM_GROUP_WRITE_ACCESS', __('Write access', 'user-access-manager'));
 define('TXT_UAM_GROUP_WRITE_ACCESS_DESC', __('The write access.', 'user-access-manager'));
 define('TXT_UAM_GROUP_ADDED', __('Group was added successfully.', 'user-access-manager'));
 define('TXT_UAM_GROUP_NAME_ERROR', __('Group name can not be empty.', 'user-access-manager'));
-define('TXT_UAM_DEL_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
+define('TXT_UAM_DELETE_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
 define('TXT_UAM_NONE', __('none', 'user-access-manager'));
-define('TXT_UAM_ACCESS_GROUP_EDIT_SUC', __('User group edit successfully.', 'user-access-manager'));
+define('TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS', __('User group edit successfully.', 'user-access-manager'));
 define('TXT_UAM_IP_RANGE', __('IP range', 'user-access-manager'));
 
 

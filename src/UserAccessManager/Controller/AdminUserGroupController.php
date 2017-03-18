@@ -107,12 +107,13 @@ class AdminUserGroupController extends Controller
 
         // Assign parameters
         $sGroupName = $this->getRequestParameter('userGroupName');
-        $oUserGroup->setGroupName($sGroupName);
 
         if (trim($sGroupName) === '') {
             $this->_setUpdateMessage(TXT_UAM_GROUP_NAME_ERROR);
             return;
         }
+
+        $oUserGroup->setGroupName($sGroupName);
 
         $sUserGroupDescription = $this->getRequestParameter('userGroupDescription');
         $oUserGroup->setGroupDesc($sUserGroupDescription);
@@ -139,7 +140,7 @@ class AdminUserGroupController extends Controller
                 $this->_oUserGroup = $oUserGroup;
                 $this->_setUpdateMessage(TXT_UAM_GROUP_ADDED);
             } else {
-                $this->_setUpdateMessage(TXT_UAM_ACCESS_GROUP_EDIT_SUC);
+                $this->_setUpdateMessage(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS);
             }
 
             $this->_oAccessHandler->addUserGroup($oUserGroup);
@@ -158,6 +159,6 @@ class AdminUserGroupController extends Controller
             $this->_oAccessHandler->deleteUserGroup($sId);
         }
 
-        $this->_setUpdateMessage(TXT_UAM_DEL_GROUP);
+        $this->_setUpdateMessage(TXT_UAM_DELETE_GROUP);
     }
 }

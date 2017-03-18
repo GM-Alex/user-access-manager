@@ -30,9 +30,6 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class AccessHandler
 {
-    const OBJECTS_FILTERED = 'filtered';
-    const OBJECTS_NONE_FILTERED = 'noneFiltered';
-
     /**
      * @var Wordpress
      */

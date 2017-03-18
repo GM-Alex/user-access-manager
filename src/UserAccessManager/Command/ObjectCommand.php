@@ -26,6 +26,10 @@ use UserAccessManager\Wrapper\WordpressCli;
  */
 class ObjectCommand extends \WP_CLI_Command
 {
+    const ACTION_ADD = 'add';
+    const ACTION_UPDATE = 'update';
+    const ACTION_REMOVE = 'remove';
+
     /**
      * @var WordpressCli
      */
@@ -67,8 +71,8 @@ class ObjectCommand extends \WP_CLI_Command
      *
      * ## EXAMPLES
      *
-     * wp uam object add    user     1      --groups=fighters,loosers
-     * wp uam object remove role     author --groups=figthers
+     * wp uam object add    user     1      --groups=fighters,losers
+     * wp uam object remove role     author --groups=fighters
      * wp uam object update category 5      --groups=controller
      *
      * @param array $aArguments
@@ -82,11 +86,11 @@ class ObjectCommand extends \WP_CLI_Command
 
         // check that operation is valid
         switch ($sOperation) {
-            case "add":
+            case self::ACTION_ADD:
                 break;
-            case "update":
+            case self::ACTION_UPDATE:
                 break;
-            case "remove":
+            case self::ACTION_REMOVE:
                 break;
             default:
                 $this->_oWrapper->error("operation is not valid: {$sOperation}");
@@ -100,10 +104,7 @@ class ObjectCommand extends \WP_CLI_Command
         $aUserGroups = $this->_oAccessHandler->getUserGroups();
 
         $aUserGroupNames = array_map(
-            function ($oUserGroup) {
-                /**
-                 * @var UserGroup $oUserGroup
-                 */
+            function (UserGroup $oUserGroup) {
                 return $oUserGroup->getGroupName();
             },
             $aUserGroups
@@ -124,7 +125,7 @@ class ObjectCommand extends \WP_CLI_Command
 
         $aRemoveUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId);
 
-        if ($sOperation === 'remove') {
+        if ($sOperation === self::ACTION_REMOVE) {
             $aRemoveUserGroups = $aAddUserGroups;
             $aAddUserGroups = array();
         }
@@ -142,17 +143,17 @@ class ObjectCommand extends \WP_CLI_Command
         }
 
         switch ($sOperation) {
-            case "add":
+            case self::ACTION_ADD:
                 $this->_oWrapper->error(
                     "Groups {$aAssocArguments['groups']} successfully added to {$sObjectType} {$sObjectId}"
                 );
                 break;
-            case "update":
+            case self::ACTION_UPDATE:
                 $this->_oWrapper->error(
                     "Successfully updated {$sObjectType} {$sObjectId} with groups {$aAssocArguments['groups']}"
                 );
                 break;
-            case "remove":
+            case self::ACTION_REMOVE:
                 $this->_oWrapper->error(
                     "Successfully removed groups: {$aAssocArguments['groups']} from {$sObjectType} {$sObjectId}"
                 );

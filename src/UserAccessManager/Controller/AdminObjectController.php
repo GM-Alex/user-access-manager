@@ -138,6 +138,11 @@ class AdminObjectController extends Controller
         return $this->_aObjectUserGroups;
     }
 
+    /**
+     * Returns the user group count diff.
+     *
+     * @return int
+     */
     public function getUserGroupDiff()
     {
         return $this->_iUserGroupDiff;
@@ -435,7 +440,9 @@ class AdminObjectController extends Controller
         $sContent .= $this->_getIncludeContents('PostEditForm.php');
 
         return $sContent;
-    } /*
+    }
+
+    /*
      * Functions for the user actions.
      */
 

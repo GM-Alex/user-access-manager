@@ -123,4 +123,59 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     {
         return $this->createMock('\UserAccessManager\UserGroup\UserGroupFactory');
     }
+
+    /**
+     * @param int    $iId
+     * @param bool   $blDeletable
+     * @param bool   $blObjectIsMember
+     * @param array  $aIpRange
+     * @param string $sReadAccess
+     * @param string $sWriteAccess
+     * @param array  $aPosts
+     *
+     * @return \UserAccessManager\UserGroup\UserGroup|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getUserGroup(
+        $iId,
+        $blDeletable = true,
+        $blObjectIsMember = false,
+        array $aIpRange = [''],
+        $sReadAccess = 'none',
+        $sWriteAccess = 'none',
+        array $aPosts = array()
+    )
+    {
+        $oUserGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
+        self::setValue($oUserGroup, '_iId', $iId);
+
+        $oUserGroup->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue($iId));
+
+        $oUserGroup->expects($this->any())
+            ->method('delete')
+            ->will($this->returnValue($blDeletable));
+
+        $oUserGroup->expects($this->any())
+            ->method('isObjectMember')
+            ->will($this->returnValue($blObjectIsMember));
+
+        $oUserGroup->expects($this->any())
+            ->method('getIpRange')
+            ->will($this->returnValue($aIpRange));
+
+        $oUserGroup->expects($this->any())
+            ->method('getReadAccess')
+            ->will($this->returnValue($sReadAccess));
+
+        $oUserGroup->expects($this->any())
+            ->method('getWriteAccess')
+            ->will($this->returnValue($sWriteAccess));
+
+        $oUserGroup->expects($this->any())
+            ->method('getFullPosts')
+            ->will($this->returnValue($aPosts));
+
+        return $oUserGroup;
+    }
 }
