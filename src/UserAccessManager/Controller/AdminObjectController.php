@@ -48,12 +48,12 @@ class AdminObjectController extends Controller
     /**
      * @var UserGroup[]
      */
-    protected $_aFullObjectUserGroups = array();
+    protected $_aObjectUserGroups = array();
 
     /**
      * @var UserGroup[]
      */
-    protected $_aObjectUserGroups = array();
+    protected $_aFilteredObjectUserGroups = array();
 
     /**
      * @var int
@@ -93,9 +93,9 @@ class AdminObjectController extends Controller
     {
         $this->_sObjectType = $sObjectType;
         $this->_sObjectId = $iObjectId;
-        $this->_aFullObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
-        $this->_aObjectUserGroups = $this->_oAccessHandler->getFilteredUserGroupsForObject($sObjectType, $iObjectId);
-        $this->_iUserGroupDiff = count($this->_aFullObjectUserGroups) - count($this->_aObjectUserGroups);
+        $this->_aObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
+        $this->_aFilteredObjectUserGroups = $this->_oAccessHandler->getFilteredUserGroupsForObject($sObjectType, $iObjectId);
+        $this->_iUserGroupDiff = count($this->_aObjectUserGroups) - count($this->_aFilteredObjectUserGroups);
     }
 
     /**
@@ -123,9 +123,9 @@ class AdminObjectController extends Controller
      *
      * @return UserGroup[]
      */
-    public function getFullObjectUserGroups()
+    public function getObjectUserGroups()
     {
-        return $this->_aFullObjectUserGroups;
+        return $this->_aObjectUserGroups;
     }
 
     /**
@@ -133,9 +133,9 @@ class AdminObjectController extends Controller
      *
      * @return UserGroup[]
      */
-    public function getObjectUserGroups()
+    public function getFilteredObjectUserGroups()
     {
-        return $this->_aObjectUserGroups;
+        return $this->_aFilteredObjectUserGroups;
     }
 
     /**
@@ -156,6 +156,16 @@ class AdminObjectController extends Controller
     public function getUserGroups()
     {
         return $this->_oAccessHandler->getUserGroups();
+    }
+
+    /**
+     * Returns the filtered user groups.
+     *
+     * @return UserGroup[]
+     */
+    public function getFilteredUserGroups()
+    {
+        return $this->_oAccessHandler->getFilteredUserGroups();
     }
 
     /**
@@ -224,6 +234,7 @@ class AdminObjectController extends Controller
             foreach ($aObjectIds as $sObjectId) {
                 $sObjectName = $sObjectId;
                 $sGeneralType = $this->_oObjectHandler->getGeneralObjectType($sRecursiveType);
+                $sTypeName = $sGeneralType;
 
                 if ($sGeneralType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
                     $sObjectName = isset($aRoles[$sObjectId]) ? $aRoles[$sObjectId] : $sObjectId;
@@ -232,13 +243,23 @@ class AdminObjectController extends Controller
                     $sObjectName = ($oUser !== false) ? $oUser->display_name : $sObjectId;
                 } elseif ($sGeneralType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
                     $oTerm = $this->_oObjectHandler->getTerm($sObjectId);
-                    $sObjectName = ($oTerm !== false) ? $oTerm->name : $sObjectId;
+
+                    if ($oTerm !== false) {
+                        $oTaxonomy = $this->_oWrapper->getTaxonomy($oTerm->taxonomy);
+                        $sTypeName = ($oTaxonomy !== false) ? $oTaxonomy->labels->name : $sTypeName;
+                        $sObjectName = $oTerm->name;
+                    }
                 } elseif ($sGeneralType === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
                     $oPost = $this->_oObjectHandler->getPost($sObjectId);
-                    $sObjectName = ($oPost !== false) ? $oPost->post_title : $sObjectId;
+
+                    if ($oPost !== false) {
+                        $oPostTypeObject = $this->_oWrapper->getPostTypeObject($oPost->post_type);
+                        $sTypeName = ($oPostTypeObject !== null) ? $oPostTypeObject->labels->name : $sTypeName;
+                        $sObjectName = $oPost->post_title;
+                    }
                 }
 
-                $aRecursiveMembership[$sGeneralType][$sObjectId] = $sObjectName;
+                $aRecursiveMembership[$sTypeName][$sObjectId] = $sObjectName;
             }
         }
 

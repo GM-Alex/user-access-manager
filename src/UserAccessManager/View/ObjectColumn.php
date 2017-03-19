@@ -16,9 +16,10 @@
 /**
  * @var \UserAccessManager\Controller\AdminObjectController $this
  */
-$aObjectUserGroups = $this->getObjectUserGroups();
+$aObjectUserGroups = $this->getFilteredObjectUserGroups();
+$iUserGroupDiff = $this->getUserGroupDiff();
 
-if (count($aObjectUserGroups) > 0) {
+if (count($aObjectUserGroups) > 0 || $iUserGroupDiff > 0) {
     ?>
     <ul>
         <?php
@@ -34,11 +35,15 @@ if (count($aObjectUserGroups) > 0) {
             </li>
             <?php
         }
+
+        if ($iUserGroupDiff > 0) {
+            ?>
+            <li><?php echo sprintf(TXT_UAM_MEMBER_OF_OTHER_GROUPS, $iUserGroupDiff);?></li>
+            <?php
+        }
         ?>
     </ul>
     <?php
-} elseif ($this->getUserGroupDiff() > 0) {
-    echo TXT_UAM_MEMBER_OF_OTHER_GROUPS;
 } else {
     echo TXT_UAM_FULL_ACCESS;
 }

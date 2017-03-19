@@ -214,6 +214,43 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         return $oAccessHandler;
     }
 
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\AccessHandler\AccessHandler::getFilteredUserGroups()
+     */
+    public function testGetFilteredUserGroups()
+    {
+        $oAccessHandler = new AccessHandler(
+            $this->getWrapper(),
+            $this->getConfig(),
+            $this->getCache(),
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $this->getUtil(),
+            $this->getUserGroupFactory()
+        );
+
+        $aUserGroups = [
+            0 => $this->getUserGroup(0),
+            1 => $this->getUserGroup(1, true, false, ['1.1.1.1']),
+            2 => $this->getUserGroup(2, true, false, [''], 'all'),
+            3 => $this->getUserGroup(3, true, false, [''], 'none', 'all'),
+            4 => $this->getUserGroup(4),
+            5 => $this->getUserGroup(5),
+            6 => $this->getUserGroup(6)
+        ];
+
+        self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
+
+        $aUserUserGroups = $aUserGroups;
+        unset($aUserUserGroups[4]);
+        unset($aUserUserGroups[6]);
+
+        self::setValue($oAccessHandler, '_aUserGroupsForUser', $aUserUserGroups);
+        self::assertEquals($aUserUserGroups, $oAccessHandler->getFilteredUserGroups());
+    }
+
     /**
      * @group   unit
      * @depends testGetUserGroups
@@ -394,13 +431,18 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
      */
     public function testGetUserGroupsForUser()
     {
+        $oWrapper = $this->getWrapper();
+        $oWrapper->expects($this->exactly(2))
+            ->method('isSuperAdmin')
+            ->will($this->onConsecutiveCalls(false, true));
+
         $oConfig = $this->getConfig();
         $oConfig->expects($this->exactly(7))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(false, true, true, false, false, false, false));
 
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $oWrapper,
             $oConfig,
             $this->getCache(),
             $this->getDatabase(),
@@ -438,6 +480,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         unset($aExpected[4]);
         unset($aExpected[6]);
         self::assertEquals($aExpected, $oAccessHandler->getUserGroupsForUser());
+        self::assertEquals($aUserGroups, $oAccessHandler->getUserGroupsForUser());
     }
 
     /**

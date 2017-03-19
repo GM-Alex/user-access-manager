@@ -81,8 +81,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
 
         self::assertAttributeEquals('objectType', '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals('objectId', '_sObjectId', $oAdminObjectController);
-        self::assertAttributeEquals($aFullGroups, '_aFullObjectUserGroups', $oAdminObjectController);
-        self::assertAttributeEquals($aFilteredGroups, '_aObjectUserGroups', $oAdminObjectController);
+        self::assertAttributeEquals($aFullGroups, '_aObjectUserGroups', $oAdminObjectController);
+        self::assertAttributeEquals($aFilteredGroups, '_aFilteredObjectUserGroups', $oAdminObjectController);
         self::assertAttributeEquals(1, '_iUserGroupDiff', $oAdminObjectController);
 
         return $oAdminObjectController;
@@ -114,7 +114,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminObjectController::getFullObjectUserGroups()
+     * @covers  \UserAccessManager\Controller\AdminObjectController::getObjectUserGroups()
      * @depends testSetObjectInformation
      *
      * @param AdminObjectController $oAdminObjectController
@@ -123,20 +123,20 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
     {
         self::assertEquals(
             [1 => $this->getUserGroup(1), 2 => $this->getUserGroup(2)],
-            $oAdminObjectController->getFullObjectUserGroups()
+            $oAdminObjectController->getObjectUserGroups()
         );
     }
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminObjectController::getObjectUserGroups()
+     * @covers  \UserAccessManager\Controller\AdminObjectController::getFilteredObjectUserGroups()
      * @depends testSetObjectInformation
      *
      * @param AdminObjectController $oAdminObjectController
      */
     public function testGetObjectUserGroups(AdminObjectController $oAdminObjectController)
     {
-        self::assertEquals([1 => $this->getUserGroup(1)], $oAdminObjectController->getObjectUserGroups());
+        self::assertEquals([1 => $this->getUserGroup(1)], $oAdminObjectController->getFilteredObjectUserGroups());
     }
 
     /**
@@ -164,7 +164,6 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         ];
 
         $oAccessHandler = $this->getAccessHandler();
-
         $oAccessHandler->expects($this->once())
             ->method('getUserGroups')
             ->will($this->returnValue($aUserGroups));
@@ -178,6 +177,33 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         );
 
         self::assertEquals($aUserGroups, $oAdminObjectController->getUserGroups());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::getFilteredUserGroups()
+     */
+    public function testGetFilteredUserGroups()
+    {
+        $aUserGroups = [
+            1 => $this->getUserGroup(1),
+            2 => $this->getUserGroup(2)
+        ];
+
+        $oAccessHandler = $this->getAccessHandler();
+        $oAccessHandler->expects($this->once())
+            ->method('getFilteredUserGroups')
+            ->will($this->returnValue($aUserGroups));
+
+        $oAdminObjectController = new AdminObjectController(
+            $this->getWrapper(),
+            $this->getConfig(),
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $oAccessHandler
+        );
+
+        self::assertEquals($aUserGroups, $oAdminObjectController->getFilteredUserGroups());
     }
 
     /**

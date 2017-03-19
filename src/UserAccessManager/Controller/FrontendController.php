@@ -544,7 +544,7 @@ class FrontendController extends Controller
 
             $mTerm = $this->_processTerm($mTerm);
 
-            if ($mTerm !== null && (!isset($mTerm->isEmpty) || !$mTerm->isEmpty)) {
+            if ($mTerm !== null && is_object($mTerm) && (!isset($mTerm->isEmpty) || !$mTerm->isEmpty)) {
                 $aShowTerms[$mTerm->term_id] = $mTerm;
             }
         }
@@ -569,10 +569,9 @@ class FrontendController extends Controller
     public function showNextPreviousPost($sQuery)
     {
         $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
-        $aAllExcludedPosts = $aExcludedPosts['all'];
 
-        if (count($aAllExcludedPosts) > 0) {
-            $sExcludedPosts = implode(',', $aAllExcludedPosts);
+        if (count($aExcludedPosts) > 0) {
+            $sExcludedPosts = implode(',', $aExcludedPosts);
             $sQuery .= " AND p.ID NOT IN({$sExcludedPosts}) ";
         }
 

@@ -108,6 +108,18 @@ class Wordpress
     }
 
     /**
+     * @see \get_taxonomy()
+     *
+     * @param string $sTaxonomy
+     *
+     * @return false|\WP_Taxonomy
+     */
+    public function getTaxonomy($sTaxonomy)
+    {
+        return \get_taxonomy($sTaxonomy);
+    }
+
+    /**
      * @see \get_post()
      *
      * @param string $sId The post id.
@@ -119,6 +131,18 @@ class Wordpress
     public function getPost($sId, $sOutput = OBJECT, $sFilter = 'raw')
     {
         return \get_post($sId, $sOutput, $sFilter);
+    }
+
+    /**
+     * @see \get_post_type_object()
+     *
+     * @param string $sPostType
+     *
+     * @return null|\WP_Post_Type
+     */
+    public function getPostTypeObject($sPostType)
+    {
+        return \get_post_type_object($sPostType);
     }
 
     /**

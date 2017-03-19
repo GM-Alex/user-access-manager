@@ -135,6 +135,18 @@ class AccessHandler
     }
 
     /**
+     * Returns the user groups filtered by the user user groups.
+     *
+     * @return UserGroup[]
+     */
+    public function getFilteredUserGroups()
+    {
+        $aUserGroups = $this->getUserGroups();
+        $aUserUserGroups = $this->getUserGroupsForUser();
+        return array_intersect_key($aUserGroups, $aUserUserGroups);
+    }
+
+    /**
      * Adds a user group.
      *
      * @param UserGroup $oUserGroup The user group which we want to add.
@@ -272,6 +284,10 @@ class AccessHandler
      */
     public function getUserGroupsForUser()
     {
+        if ($this->checkUserAccess('manage_user_groups') === true) {
+            return $this->getUserGroups();
+        }
+
         if ($this->_aUserGroupsForUser === null) {
             $oCurrentUser = $this->_oWrapper->getCurrentUser();
             $aUserGroupsForUser = $this->getUserGroupsForObject(

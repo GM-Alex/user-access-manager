@@ -16,7 +16,7 @@
 /**
  * @var \UserAccessManager\Controller\AdminObjectController $this
  */
-$aObjectUserGroups = $this->getObjectUserGroups();
+$aObjectUserGroups = $this->getFilteredObjectUserGroups();
 
 if (count($aObjectUserGroups) > 0) {
     ?>
