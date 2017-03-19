@@ -52,11 +52,11 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
     public function testRegisterAdminMenu()
     {
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('addMenuPage');
         $oWrapper->expects($this->exactly(4))
             ->method('addSubmenuPage');
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('doAction');
 
         $oAccessHandler = $this->getAccessHandler();
@@ -65,16 +65,16 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $oControllerFactory = $this->getControllerFactory();
-        $oControllerFactory->expects($this->exactly(1))
+        $oControllerFactory->expects($this->once())
             ->method('createAdminUserGroupController');
 
-        $oControllerFactory->expects($this->exactly(1))
+        $oControllerFactory->expects($this->once())
             ->method('createAdminSettingsController');
 
-        $oControllerFactory->expects($this->exactly(1))
+        $oControllerFactory->expects($this->once())
             ->method('createAdminSetupController');
 
-        $oControllerFactory->expects($this->exactly(1))
+        $oControllerFactory->expects($this->once())
             ->method('createAdminAboutController');
 
         $oObjectHandler = new UserAccessManager(

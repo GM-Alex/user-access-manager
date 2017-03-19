@@ -44,10 +44,10 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
         $oParameter = $oConfigParameterFactory->createBooleanConfigParameter('parameterId');
         self::assertInstanceOf('\UserAccessManager\Config\BooleanConfigParameter', $oParameter);
         self::assertEquals('parameterId', $oParameter->getId());
-        self::assertEquals(false, $oParameter->getValue());
+        self::assertFalse($oParameter->getValue());
 
         $oParameter = $oConfigParameterFactory->createBooleanConfigParameter('parameterId', true);
-        self::assertEquals(true, $oParameter->getValue());
+        self::assertTrue($oParameter->getValue());
     }
 
     /**

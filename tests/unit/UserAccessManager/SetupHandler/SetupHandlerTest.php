@@ -70,13 +70,13 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
     {
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites()));
 
         $oDatabase = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getCurrentBlogId')
             ->will($this->returnValue(123));
 
@@ -100,7 +100,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
     {
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites(1)));
 
@@ -256,36 +256,36 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(null, '0.0', '0.0'));
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('deleteOption')
             ->with('allow_comments_locked');
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('updateOption')
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
 
         $oDatabase = $this->getDatabase();
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getPrefix')
             ->will($this->returnValue('prefix_'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getCharset')
             ->will($this->returnValue('CHARSET testCharset'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getPostsTable')
             ->will($this->returnValue('postsTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getTermTaxonomyTable')
             ->will($this->returnValue('termTaxonomyTable'));
 
@@ -395,7 +395,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
 
         $oObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(1))
+        $oObjectHandler->expects($this->once())
             ->method('getObjectTypes')
             ->will($this->returnValue(['post', 'category', 'user', 'role', 'nothing']));
 
@@ -419,7 +419,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
     {
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites(1)));
 
@@ -431,32 +431,32 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 ['uam_db_version']
             );
 
-        $oWrapper->expects(($this->exactly(1)))
+        $oWrapper->expects(($this->once()))
             ->method('switchToBlog')
             ->withConsecutive([1]);
 
         $oDatabase = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('query')
             ->with(new MatchIgnoreWhitespace(
                 'DROP TABLE userGroupTable, userGroupToObjectTable'
             ));
 
         $oFileHandler = $this->getFileHandler();
-        $oFileHandler->expects($this->exactly(1))
+        $oFileHandler->expects($this->once())
             ->method('deleteFileProtection');
 
         $oSetupHandler = new SetupHandler(

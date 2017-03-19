@@ -100,8 +100,8 @@ class BooleanConfigParameterTest extends \UserAccessManagerTestCase
      */
     public function testIsValidValue($oBooleanConfigParameter)
     {
-        self::assertEquals(true, $oBooleanConfigParameter->isValidValue(true));
-        self::assertEquals(true, $oBooleanConfigParameter->isValidValue(false));
-        self::assertEquals(false, $oBooleanConfigParameter->isValidValue('string'));
+        self::assertTrue($oBooleanConfigParameter->isValidValue(true));
+        self::assertTrue($oBooleanConfigParameter->isValidValue(false));
+        self::assertFalse($oBooleanConfigParameter->isValidValue('string'));
     }
 }

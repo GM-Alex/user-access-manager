@@ -209,15 +209,40 @@ class AdminObjectController extends Controller
      * Returns the recursive object membership.
      *
      * @param $oUserGroup
+     *
+     * @return array
      */
     public function getRecursiveMembership(UserGroup $oUserGroup)
     {
-        $aAllObjectTypes = $this->getAllObjectTypes();
+        $aRecursiveMembership = array();
         $sObjectId = $this->getObjectId();
+        $sObjectType = $this->getObjectType();
+        $aRoles = $this->getRoleNames();
+        $aRecursiveMembershipForObject = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId);
 
-        foreach ($aAllObjectTypes as $sObjectType) {
-            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId);
+        foreach ($aRecursiveMembershipForObject as $sRecursiveType => $aObjectIds) {
+            foreach ($aObjectIds as $sObjectId) {
+                $sObjectName = $sObjectId;
+                $sGeneralType = $this->_oObjectHandler->getGeneralObjectType($sRecursiveType);
+
+                if ($sGeneralType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
+                    $sObjectName = isset($aRoles[$sObjectId]) ? $aRoles[$sObjectId] : $sObjectId;
+                } elseif ($sGeneralType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+                    $oUser = $this->_oObjectHandler->getUser($sObjectId);
+                    $sObjectName = ($oUser !== false) ? $oUser->display_name : $sObjectId;
+                } elseif ($sGeneralType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
+                    $oTerm = $this->_oObjectHandler->getTerm($sObjectId);
+                    $sObjectName = ($oTerm !== false) ? $oTerm->name : $sObjectId;
+                } elseif ($sGeneralType === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
+                    $oPost = $this->_oObjectHandler->getPost($sObjectId);
+                    $sObjectName = ($oPost !== false) ? $oPost->post_title : $sObjectId;
+                }
+
+                $aRecursiveMembership[$sGeneralType][$sObjectId] = $sObjectName;
+            }
         }
+
+        return $aRecursiveMembership;
     }
 
     /*

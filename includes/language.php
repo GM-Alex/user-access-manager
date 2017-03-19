@@ -200,6 +200,10 @@ define('TXT_UAM_INFO', __('Info', 'user-access-manager'));
 define('TXT_UAM_GROUP_INFO', __('Group info', 'user-access-manager'));
 define('TXT_UAM_GROUP_MEMBERSHIP_BY', __('Group membership given by %s', 'user-access-manager'));
 define('TXT_UAM_ASSIGNED_GROUPS', __('Assigned groups', 'user-access-manager'));
+define('TXT_UAM_GROUP_TYPE__ROLE_', __('Role', 'user-access-manager'));
+define('TXT_UAM_GROUP_TYPE__USER_', __('User', 'user-access-manager'));
+define('TXT_UAM_GROUP_TYPE__TERM_', __('Term', 'user-access-manager'));
+define('TXT_UAM_GROUP_TYPE__POST_', __('Post', 'user-access-manager'));
 
 
 // --- File access ---

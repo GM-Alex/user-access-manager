@@ -542,7 +542,6 @@ class UserGroup
                 foreach ($aGeneralMap[$sObjectId] as $iParentId) {
                     if ($this->_isObjectAssignedToGroup($sObjectType, $iParentId)) {
                         $aRecursiveMembership[$sObjectType][$iParentId] = $iParentId;
-                        break;
                     }
                 }
             }
@@ -669,7 +668,6 @@ class UserGroup
                     foreach ($aPostTermMap[$iPostId] as $iTermId) {
                         if ($this->isTermMember($iTermId) === true) {
                             $aRecursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$iTermId] = $iTermId;
-                            break;
                         }
                     }
                 }

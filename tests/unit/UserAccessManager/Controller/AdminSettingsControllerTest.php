@@ -105,7 +105,7 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
     public function testGetConfigParameters()
     {
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(1))
+        $oConfig->expects($this->once())
             ->method('getConfigParameters')
             ->will($this->returnValue(['a' => 'a']));
 

@@ -93,11 +93,11 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
             ->method('getLockFileTypes')
             ->will($this->onConsecutiveCalls(null, 'selected'));
 
-        $oConfig->expects($this->exactly(1))
+        $oConfig->expects($this->once())
             ->method('getLockedFileTypes')
             ->will($this->returnValue('png,jpg'));
 
-        $oConfig->expects($this->exactly(1))
+        $oConfig->expects($this->once())
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 

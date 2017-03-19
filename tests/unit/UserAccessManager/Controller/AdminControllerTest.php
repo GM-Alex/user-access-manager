@@ -50,7 +50,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
         $sPath = realpath(__DIR__.'/../../../fixtures');
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(1))
+        $oConfig->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue($sPath));
 
@@ -79,7 +79,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
         $sPath = realpath(__DIR__.'/../../../fixtures');
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(1))
+        $oConfig->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue($sPath));
 
@@ -194,7 +194,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
         $aOriginalMetaBoxes = $aMetaBoxes;
 
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getMetaBoxes')
             ->will($this->returnCallback(function () {
                 global $aMetaBoxes;

@@ -153,7 +153,12 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oConfig = new Config($this->getWrapper(), $this->getObjectHandler(), $this->getConfigParameterFactory(), 'baseFile');
+        $oConfig = new Config(
+            $this->getWrapper(),
+            $this->getObjectHandler(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
         self::assertInstanceOf('\UserAccessManager\Config\Config', $oConfig);
     }
 
@@ -168,7 +173,12 @@ class ConfigTest extends \UserAccessManagerTestCase
             ->method('getOption')
             ->will($this->onConsecutiveCalls('optionValueOne', 'optionValueTwo'));
 
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $this->getConfigParameterFactory(), 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $this->getObjectHandler(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
         $mOptionOne = $oConfig->getWpOption('optionOne');
         $mOptionOneAgain = $oConfig->getWpOption('optionOne');
 
@@ -192,7 +202,7 @@ class ConfigTest extends \UserAccessManagerTestCase
     {
         //$this->markTestSkipped();
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
@@ -225,7 +235,12 @@ class ConfigTest extends \UserAccessManagerTestCase
                 }
             ));
 
-        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $oObjectHandler,
+            $oConfigParameterFactory,
+            'baseFile'
+        );
 
         self::assertEquals($this->_aDefaultValues, $oConfig->getConfigParameters());
 
@@ -235,12 +250,17 @@ class ConfigTest extends \UserAccessManagerTestCase
         }, $aOptionKeys);
 
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(array_combine($aOptionKeys, $aTestValues)));
 
         $oConfigParameterFactory = $this->_getFactory();
-        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $oObjectHandler,
+            $oConfigParameterFactory,
+            'baseFile'
+        );
 
         $aParameters = $oConfig->getConfigParameters();
 
@@ -272,11 +292,11 @@ class ConfigTest extends \UserAccessManagerTestCase
     public function testSetConfigParameters()
     {
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('updateOption')
             ->with(Config::ADMIN_OPTIONS_NAME);
 
@@ -313,7 +333,12 @@ class ConfigTest extends \UserAccessManagerTestCase
 
         $oObjectHandler = $this->getDefaultObjectHandler(1);
         $oConfigParameterFactory = $this->_getFactory($cClosure);
-        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $oObjectHandler,
+            $oConfigParameterFactory,
+            'baseFile'
+        );
 
         $oConfig->setConfigParameters(
             [
@@ -330,16 +355,20 @@ class ConfigTest extends \UserAccessManagerTestCase
     public function testGetParameterValue()
     {
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
         $oObjectHandler = $this->getDefaultObjectHandler(1);
         $oConfigParameterFactory = $this->_getFactory();
-        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $oObjectHandler,
+            $oConfigParameterFactory,
+            'baseFile'
+        );
 
         $sReturn = self::callMethod($oConfig, '_getParameterValue', ['lock_file']);
-        self:
         self::assertEquals('lock_file', $sReturn);
 
         self::expectException('\Exception');
@@ -357,9 +386,14 @@ class ConfigTest extends \UserAccessManagerTestCase
             ->method('isAdmin')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $this->getConfigParameterFactory(), 'baseFile');
-        self::assertEquals(true, $oConfig->atAdminPanel());
-        self::assertEquals(false, $oConfig->atAdminPanel());
+        $oConfig = new Config(
+            $oWrapper,
+            $this->getObjectHandler(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
+        self::assertTrue($oConfig->atAdminPanel());
+        self::assertFalse($oConfig->atAdminPanel());
     }
 
     /**
@@ -373,11 +407,17 @@ class ConfigTest extends \UserAccessManagerTestCase
             ->method('getOption')
             ->will($this->onConsecutiveCalls('aaa', ''));
 
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $this->getConfigParameterFactory(), 'baseFile');
-        self::assertEquals(true, $oConfig->isPermalinksActive());
+        $oConfig = new Config(
+            $oWrapper,
+            $this->getObjectHandler(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
 
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $this->getConfigParameterFactory(), 'baseFile');
-        self::assertEquals(false, $oConfig->isPermalinksActive());
+        self::assertTrue($oConfig->isPermalinksActive());
+
+        self::setValue($oConfig, '_aWpOptions', []);
+        self::assertFalse($oConfig->isPermalinksActive());
     }
 
     /**
@@ -402,7 +442,12 @@ class ConfigTest extends \UserAccessManagerTestCase
                 )
             );
 
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $this->getConfigParameterFactory(), 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $this->getObjectHandler(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
         self::assertEquals(null, $oConfig->getUploadDirectory());
         self::assertEquals('baseDir/', $oConfig->getUploadDirectory());
     }
@@ -423,7 +468,12 @@ class ConfigTest extends \UserAccessManagerTestCase
                 )
             );
 
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $this->getConfigParameterFactory(), 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $this->getObjectHandler(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
         self::assertEquals(
             ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
             $oConfig->getMimeTypes()
@@ -433,7 +483,12 @@ class ConfigTest extends \UserAccessManagerTestCase
             $oConfig->getMimeTypes()
         );
 
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $this->getConfigParameterFactory(), 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $this->getObjectHandler(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
         self::assertEquals(
             ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType'],
             $oConfig->getMimeTypes()
@@ -452,7 +507,12 @@ class ConfigTest extends \UserAccessManagerTestCase
             ->will($this->returnValue('pluginsUrl'));
 
         $oConfigParameterFactory = $this->_getFactory();
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $this->getObjectHandler(),
+            $oConfigParameterFactory,
+            'baseFile'
+        );
         self::assertEquals(
             'pluginsUrl'.DIRECTORY_SEPARATOR,
             $oConfig->getUrlPath()
@@ -474,7 +534,12 @@ class ConfigTest extends \UserAccessManagerTestCase
             ->will($this->returnValue('pluginBasename'));
 
         $oConfigParameterFactory = $this->_getFactory();
-        $oConfig = new Config($oWrapper, $this->getObjectHandler(), $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $this->getObjectHandler(),
+            $oConfigParameterFactory,
+            'baseFile'
+        );
         self::assertEquals(
             'pluginDir'.DIRECTORY_SEPARATOR.'pluginBasename'.DIRECTORY_SEPARATOR,
             $oConfig->getRealPath()
@@ -491,25 +556,30 @@ class ConfigTest extends \UserAccessManagerTestCase
     public function testHideObject()
     {
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
         $oObjectHandler = $this->getDefaultObjectHandler(1);
         $oConfigParameterFactory = $this->_getFactory();
-        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $oObjectHandler,
+            $oConfigParameterFactory,
+            'baseFile'
+        );
 
         self::assertEquals('hide_post', self::callMethod($oConfig, '_hideObject', ['hide_post']));
-        self::assertEquals(true, self::callMethod($oConfig, '_hideObject', ['hide_undefined']));
+        self::assertTrue(self::callMethod($oConfig, '_hideObject', ['hide_undefined']));
 
         self::assertEquals('hide_post', $oConfig->hideObjectType('post'));
-        self::assertEquals(true, $oConfig->hideObjectType('undefined'));
+        self::assertTrue($oConfig->hideObjectType('undefined'));
 
         self::assertEquals('hide_post_title', $oConfig->hideObjectTypeTitle('post'));
-        self::assertEquals(true, $oConfig->hideObjectTypeTitle('undefined'));
+        self::assertTrue($oConfig->hideObjectTypeTitle('undefined'));
 
         self::assertEquals('post_comments_locked', $oConfig->hideObjectTypeComments('post'));
-        self::assertEquals(true, $oConfig->hideObjectTypeComments('undefined'));
+        self::assertTrue($oConfig->hideObjectTypeComments('undefined'));
     }
 
     /**
@@ -521,12 +591,17 @@ class ConfigTest extends \UserAccessManagerTestCase
     public function testObjectGetter()
     {
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
         $oObjectHandler = $this->getDefaultObjectHandler(1);
         $oConfigParameterFactory = $this->_getFactory();
-        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $oObjectHandler,
+            $oConfigParameterFactory,
+            'baseFile'
+        );
 
         self::assertEquals('post_title', $oConfig->getObjectTypeTitle('post'));
         self::assertEquals('post_content', $oConfig->getObjectTypeContent('post'));
@@ -578,12 +653,17 @@ class ConfigTest extends \UserAccessManagerTestCase
         ];
 
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
         $oObjectHandler = $this->getDefaultObjectHandler(1);
         $oConfigParameterFactory = $this->_getFactory();
-        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, 'baseFile');
+        $oConfig = new Config(
+            $oWrapper,
+            $oObjectHandler,
+            $oConfigParameterFactory,
+            'baseFile'
+        );
 
         foreach ($aMethods as $sMethod => $sExpected) {
             self::assertEquals($sExpected, $oConfig->{$sMethod}());

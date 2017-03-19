@@ -53,8 +53,8 @@ class StringConfigParameterTest extends \UserAccessManagerTestCase
      */
     public function testIsValidValue($oStringConfigParameter)
     {
-        self::assertEquals(true, $oStringConfigParameter->isValidValue('string'));
-        self::assertEquals(false, $oStringConfigParameter->isValidValue(true));
-        self::assertEquals(false, $oStringConfigParameter->isValidValue([]));
+        self::assertTrue($oStringConfigParameter->isValidValue('string'));
+        self::assertFalse($oStringConfigParameter->isValidValue(true));
+        self::assertFalse($oStringConfigParameter->isValidValue([]));
     }
 }

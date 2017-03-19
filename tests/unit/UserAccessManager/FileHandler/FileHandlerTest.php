@@ -99,7 +99,7 @@ class FileHandlerTest extends \UserAccessManagerTestCase
     public function testGetFile()
     {
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('wpDie')
             ->with(TXT_UAM_FILE_NOT_FOUND_ERROR)
             ->will($this->returnValue(null));

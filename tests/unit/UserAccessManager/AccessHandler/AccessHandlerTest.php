@@ -175,7 +175,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
 
         $sQuery = 'SELECT ID FROM getUserGroupTable';
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace($sQuery)]

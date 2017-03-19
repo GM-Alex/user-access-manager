@@ -531,7 +531,9 @@ class ObjectHandler
     public function getGeneralObjectType($sObjectType)
     {
         if ($sObjectType === self::GENERAL_USER_OBJECT_TYPE
-            ||$sObjectType === self::GENERAL_ROLE_OBJECT_TYPE
+            || $sObjectType === self::GENERAL_ROLE_OBJECT_TYPE
+            || $sObjectType === self::GENERAL_TERM_OBJECT_TYPE
+            || $sObjectType === self::GENERAL_POST_OBJECT_TYPE
         ) {
             return $sObjectType;
         } elseif ($this->isPostType($sObjectType)) {

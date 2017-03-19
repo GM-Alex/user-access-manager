@@ -55,7 +55,7 @@ class ConfigParameterTest extends \UserAccessManagerTestCase
         self::assertAttributeEquals('defaultValue', '_mDefaultValue', $oStub);
 
         $oStub = $this->getStub();
-        $oStub->expects($this->exactly(1))->method('isValidValue')->will($this->returnValue(false));
+        $oStub->expects($this->once())->method('isValidValue')->will($this->returnValue(false));
 
         self::expectException('\Exception');
         $oStub->__construct('otherId', 'defaultValue');
@@ -68,7 +68,7 @@ class ConfigParameterTest extends \UserAccessManagerTestCase
     public function testGetId()
     {
         $oStub = $this->getStub();
-        $oStub->expects($this->exactly(1))->method('isValidValue')->will($this->returnValue(true));
+        $oStub->expects($this->once())->method('isValidValue')->will($this->returnValue(true));
         $oStub->__construct('testId');
 
         self::assertEquals('testId', $oStub->getId());

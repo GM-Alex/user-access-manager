@@ -41,13 +41,13 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroup', $oUserGroup);
 
         $oDatabase = $this->getDatabase();
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('prepare');
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getUserGroupTable');
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getRow');
 
         $oUserGroup = new UserGroup(
@@ -207,7 +207,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getLastInsertId')
             ->will($this->returnValue(123));
 
@@ -321,7 +321,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         $oObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(1))
+        $oObjectHandler->expects($this->once())
             ->method('getAllObjectTypes')
             ->will($this->returnValue(['objectType']));
 

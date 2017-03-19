@@ -49,7 +49,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getPostTypes')
             ->with(['public' => true])
             ->will($this->returnValue($aReturn));
@@ -75,7 +75,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getTaxonomies')
             ->will($this->returnValue($aReturn));
 
@@ -276,11 +276,11 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oWrapper = $this->getWrapper();
         $oDatabase = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getTermTaxonomyTable')
             ->will($this->returnValue('termTaxonomyTable'));
 
@@ -346,19 +346,19 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oWrapper = $this->getWrapper();
         $oDatabase = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getTermTaxonomyTable')
             ->will($this->returnValue('termTaxonomyTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getTermRelationshipsTable')
             ->will($this->returnValue('termRelationshipsTable'));
 
-        $oDatabase->expects($this->exactly(1))
+        $oDatabase->expects($this->once())
             ->method('getResults')
             ->with(
                 new MatchIgnoreWhitespace(
@@ -498,7 +498,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     {
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getTaxonomies')
             ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
 
@@ -519,12 +519,12 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     {
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getPostTypes')
             ->with(['public' => true])
             ->will($this->returnValue(['a' => 'a1', 'b' => 'b1']));
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getTaxonomies')
             ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
 
@@ -583,8 +583,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oWrapper = $this->getWrapper();
         $oDatabase = $this->getDatabase();
 
-        $oFirstPluggableObject = $this->getPluggableObject('firstObjectName', $this->exactly(1));
-        $oSecondPluggableObject = $this->getPluggableObject('secondObjectName', $this->exactly(1));
+        $oFirstPluggableObject = $this->getPluggableObject('firstObjectName', $this->once());
+        $oSecondPluggableObject = $this->getPluggableObject('secondObjectName', $this->once());
 
         $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
         $oObjectHandler->registerPluggableObject($oFirstPluggableObject);
@@ -665,13 +665,13 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         $oWrapper = $this->getWrapper();
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getTaxonomies')
             ->will($this->returnValue($aTaxonomiesReturn));
 
         $aPostTypesReturn = ['c' => 'c1', 'd' => 'd1'];
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getPostTypes')
             ->with(['public' => true])
             ->will($this->returnValue($aPostTypesReturn));
@@ -703,8 +703,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      */
     public function testGetAllObjectTypes(ObjectHandler $oObjectHandler)
     {
-        $oFirstPluggableObject = $this->getPluggableObject('firstObjectName', $this->exactly(1));
-        $oSecondPluggableObject = $this->getPluggableObject('secondObjectName', $this->exactly(1));
+        $oFirstPluggableObject = $this->getPluggableObject('firstObjectName', $this->once());
+        $oSecondPluggableObject = $this->getPluggableObject('secondObjectName', $this->once());
         $oObjectHandler->registerPluggableObject($oFirstPluggableObject);
         $oObjectHandler->registerPluggableObject($oSecondPluggableObject);
 

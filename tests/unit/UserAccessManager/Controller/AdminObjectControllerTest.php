@@ -14,6 +14,8 @@
  */
 namespace UserAccessManager\Controller;
 
+use UserAccessManager\ObjectHandler\ObjectHandler;
+
 /**
  * Class AdminObjectControllerTest
  *
@@ -184,7 +186,29 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
      */
     public function testIsCurrentUserAdmin()
     {
+        $oAccessHandler = $this->getAccessHandler();
 
+        $oAccessHandler->expects($this->exactly(2))
+            ->method('userIsAdmin')
+            ->with('objectId')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oAdminObjectController = new AdminObjectController(
+            $this->getWrapper(),
+            $this->getConfig(),
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $oAccessHandler
+        );
+
+        self::assertFalse($oAdminObjectController->isCurrentUserAdmin());
+
+        self::setValue($oAdminObjectController, '_sObjectType', ObjectHandler::GENERAL_USER_OBJECT_TYPE);
+        self::assertFalse($oAdminObjectController->isCurrentUserAdmin());
+
+        self::setValue($oAdminObjectController, '_sObjectId', 'objectId');
+        self::assertFalse($oAdminObjectController->isCurrentUserAdmin());
+        self::assertTrue($oAdminObjectController->isCurrentUserAdmin());
     }
 
     /**
@@ -218,7 +242,21 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
      */
     public function testGetAllObjectTypes()
     {
+        $oObjectHandler = $this->getObjectHandler();
 
+        $oObjectHandler->expects($this->once())
+            ->method('getAllObjectTypes')
+            ->will($this->returnValue([1 => 1, 2 => 2]));
+
+        $oAdminObjectController = new AdminObjectController(
+            $this->getWrapper(),
+            $this->getConfig(),
+            $this->getDatabase(),
+            $oObjectHandler,
+            $this->getAccessHandler()
+        );
+
+        self:self::assertEquals([1 => 1, 2 => 2], $oAdminObjectController->getAllObjectTypes());
     }
 
     /**
@@ -227,6 +265,21 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
      */
     public function testCheckUserAccess()
     {
+        $oAccessHandler = $this->getAccessHandler();
 
+        $oAccessHandler->expects($this->exactly(2))
+            ->method('checkUserAccess')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oAdminObjectController = new AdminObjectController(
+            $this->getWrapper(),
+            $this->getConfig(),
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $oAccessHandler
+        );
+
+        self::assertFalse($oAdminObjectController->checkUserAccess());
+        self::assertTrue($oAdminObjectController->checkUserAccess());
     }
 }

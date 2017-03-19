@@ -98,7 +98,7 @@ class ControllerTest extends \UserAccessManagerTestCase
     public function testCreateNonceField()
     {
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('getNonceField')
             ->with('test', 'testNonce')
             ->will($this->returnValue('return'));
@@ -120,7 +120,7 @@ class ControllerTest extends \UserAccessManagerTestCase
     public function testGetNonce()
     {
         $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('createNonce')
             ->with('test')
             ->will($this->returnValue('return'));
@@ -149,7 +149,7 @@ class ControllerTest extends \UserAccessManagerTestCase
             ->withConsecutive(['testNonceValue', 'test'] ,['testNonceValue', 'test'])
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oWrapper->expects($this->exactly(1))
+        $oWrapper->expects($this->once())
             ->method('wpDie');
 
         $oStub = $this->getStub();
@@ -223,7 +223,7 @@ class ControllerTest extends \UserAccessManagerTestCase
         $sPath = realpath(__DIR__.'/../../../fixtures');
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(1))
+        $oConfig->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue($sPath));
 

@@ -42,8 +42,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
      */
     public function testStartsWith($oUtil)
     {
-        self::assertEquals(true, $oUtil->startsWith('prefixTestSuffix', 'prefix'));
-        self::assertEquals(false, $oUtil->startsWith('prefixTestSuffix', 'prefIx'));
+        self::assertTrue($oUtil->startsWith('prefixTestSuffix', 'prefix'));
+        self::assertFalse($oUtil->startsWith('prefixTestSuffix', 'prefIx'));
     }
 
     /**
@@ -55,8 +55,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
      */
     public function testEndsWith($oUtil)
     {
-        self::assertEquals(true, $oUtil->endsWith('prefixTestSuffix', 'Suffix'));
-        self::assertEquals(false, $oUtil->endsWith('prefixTestSuffix', 'suffix'));
+        self::assertTrue($oUtil->endsWith('prefixTestSuffix', 'Suffix'));
+        self::assertFalse($oUtil->endsWith('prefixTestSuffix', 'suffix'));
     }
 
     /**

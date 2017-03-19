@@ -16,64 +16,29 @@
 /**
  * @var \UserAccessManager\Controller\AdminObjectController $this
  */
-if (!function_exists('walkPath')) {
-    /**
-     * Returns the html code for the recursive access.
-     *
-     * @param \UserAccessManager\UserGroup\UserGroup $oUserGroup
-     * @param int                                    $iObjectId
-     * @param string                                 $sObjectType The type of the object.
-     *
-     * @return string
-     */
-    function walkPath($oUserGroup, $iObjectId, $sObjectType)
-    {
-        $sOut = "$sObjectType: $iObjectId";
-
-        $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $iObjectId);
-
-        if (count($aRecursiveMembership) > 0) {
-            $sOut .= '<ul>';
-
-            foreach ($aRecursiveMembership as $iRecursiveObjectId) {
-                $sOut .= '<li>';
-                $sOut .= walkPath($oUserGroup, $iRecursiveObjectId, $sObjectType);
-                $sOut .= '</li>';
-            }
-
-            $sOut .= '</ul>';
-        }
-
-        return $sOut;
-    }
-}
 ?>
 <div class="uam_tooltip">
     <ul class="uam_group_info">
         <?php
-        $aAllObjectTypes = $this->getAllObjectTypes();
-        $sObjectType = $this->getObjectType();
-        $sObjectId = $this->getObjectId();
+        $aRecursiveMembership = $this->getRecursiveMembership($oUserGroup);
 
-        foreach ($aAllObjectTypes as $sObjectType) {
-            $aRecursiveMembership = $oUserGroup->getRecursiveMembershipForObject($sObjectType, $sObjectId);
-
-            if (count($aRecursiveMembership) > 0) {
-                ?>
-                <li class="uam_group_info_head">
-                    <?php echo sprintf(TXT_UAM_GROUP_MEMBERSHIP_BY, $sObjectType); ?>:
-                    <ul>
-                        <?php
-                        foreach ($aRecursiveMembership as $iObjectId) {
-                            ?>
-                            <li class="recursiveTree"><?php echo walkPath($oUserGroup, $iObjectId, $sObjectType); ?></li>
-                            <?php
-                        }
+        foreach ($aRecursiveMembership as $sObjectType => $aObjects) {
+            $sTypeKey = 'TXT_UAM_GROUP_TYPE_'.strtoupper($sObjectType);
+            $sType = defined($sTypeKey) ? strtolower(constant($sTypeKey)) : $sObjectType;
+            ?>
+            <li class="uam_group_info_head">
+                <?php echo sprintf(TXT_UAM_GROUP_MEMBERSHIP_BY, $sType); ?>:
+                <ul>
+                    <?php
+                    foreach ($aObjects as $sObjectName) {
                         ?>
-                    </ul>
-                </li>
-                <?php
-            }
+                        <li class="recursiveTree"><?php echo $sObjectName; ?></li>
+                        <?php
+                    }
+                    ?>
+                </ul>
+            </li>
+            <?php
         }
         ?>
         <li class="uam_group_info_head"><?php echo TXT_UAM_GROUP_INFO; ?>:
