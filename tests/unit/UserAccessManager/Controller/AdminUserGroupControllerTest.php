@@ -30,7 +30,8 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oAdminUserGroupController = new AdminUserGroupController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
@@ -54,7 +55,8 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue($oUserGroup));
 
         $oAdminUserGroupController = new AdminUserGroupController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getAccessHandler(),
             $oUserGroupFactory
@@ -82,7 +84,8 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue($aUserGroups));
 
         $oAdminUserGroupController = new AdminUserGroupController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $oAccessHandler,
             $this->getUserGroupFactory()
@@ -100,13 +103,14 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
         $oRoles = new \stdClass();
         $oRoles->role_names = 'roleNames';
 
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('getRoles')
             ->will($this->returnValue($oRoles));
 
         $oAdminUserGroupController = new AdminUserGroupController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
@@ -123,8 +127,8 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
     {
         $_GET[AdminUserGroupController::INSERT_UPDATE_GROUP_NONCE.'Nonce'] = 'insertUpdateNonce';
 
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(4))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(4))
             ->method('verifyNonce')
             ->with('insertUpdateNonce')
             ->will($this->returnValue(true));
@@ -182,7 +186,8 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
             ->with($oUserGroup);
 
         $oAdminUserGroupController = new AdminUserGroupController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $oAccessHandler,
             $oUserGroupFactory
@@ -217,8 +222,8 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
     public function testDeleteUserGroupAction()
     {
         $_GET[AdminUserGroupController::DELETE_GROUP_NONCE.'Nonce'] = 'deleteNonce';
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('verifyNonce')
             ->with('deleteNonce')
             ->will($this->returnValue(true));
@@ -229,7 +234,8 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
             ->withConsecutive([1], [2]);
 
         $oAdminUserGroupController = new AdminUserGroupController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $oAccessHandler,
             $this->getUserGroupFactory()

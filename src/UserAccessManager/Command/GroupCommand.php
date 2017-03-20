@@ -33,7 +33,7 @@ class GroupCommand extends CommandWithDBObject
     /**
      * @var WordpressCli
      */
-    protected $_oWrapper;
+    protected $_oWordpressCli;
 
     /**
      * @var AccessHandler
@@ -48,17 +48,17 @@ class GroupCommand extends CommandWithDBObject
     /**
      * ObjectCommand constructor.
      *
-     * @param WordpressCli     $oWrapper
+     * @param WordpressCli     $oWordpressCli
      * @param AccessHandler    $oAccessHandler
      * @param UserGroupFactory $oUserGroupFactory
      */
     public function __construct(
-        WordpressCli $oWrapper,
+        WordpressCli $oWordpressCli,
         AccessHandler $oAccessHandler,
         UserGroupFactory $oUserGroupFactory
     )
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpressCli = $oWordpressCli;
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oUserGroupFactory = $oUserGroupFactory;
     }
@@ -72,7 +72,7 @@ class GroupCommand extends CommandWithDBObject
      */
     protected function _getFormatter(&$aAssocArguments)
     {
-        return $this->_oWrapper->createFormatter(
+        return $this->_oWordpressCli->createFormatter(
             $aAssocArguments,
             array(
                 'ID',
@@ -107,13 +107,13 @@ class GroupCommand extends CommandWithDBObject
     public function ls(array $aArguments, array $aAssocArguments)
     {
         if (count($aArguments) > 0) {
-            $this->_oWrapper->error('Now arguments excepted. Please use the format option.');
+            $this->_oWordpressCli->error('Now arguments excepted. Please use the format option.');
         }
 
         $aUserGroups = $this->_oAccessHandler->getUserGroups();
 
         if (count($aUserGroups) <= 0) {
-            $this->_oWrapper->error('No groups defined yet!');
+            $this->_oWordpressCli->error('No groups defined yet!');
         }
 
         $aGroups = array();
@@ -155,14 +155,14 @@ class GroupCommand extends CommandWithDBObject
     public function del(array $aArguments)
     {
         if (count($aArguments) < 1) {
-            $this->_oWrapper->error('Expected: wp uam groups del \<id\> ...');
+            $this->_oWordpressCli->error('Expected: wp uam groups del \<id\> ...');
         }
 
         foreach ($aArguments as $sUserGroupId) {
             if ($this->_oAccessHandler->deleteUserGroup($sUserGroupId) === true) {
-                $this->_oWrapper->success("Successfully deleted group with id '{$sUserGroupId}'.");
+                $this->_oWordpressCli->success("Successfully deleted group with id '{$sUserGroupId}'.");
             } else {
-                $this->_oWrapper->error("Group id '{$sUserGroupId}' doesn't exists.");
+                $this->_oWordpressCli->error("Group id '{$sUserGroupId}' doesn't exists.");
             }
         }
     }
@@ -200,7 +200,7 @@ class GroupCommand extends CommandWithDBObject
 
         foreach ($aUserGroups as $oUserGroup) {
             if ($oUserGroup->getGroupName() === $sGroupName) {
-                $this->_oWrapper->error("Group with the same name '{$sGroupName}' already exists: {$oUserGroup->getId()}");
+                $this->_oWordpressCli->error("Group with the same name '{$sGroupName}' already exists: {$oUserGroup->getId()}");
             }
         }
 
@@ -213,7 +213,7 @@ class GroupCommand extends CommandWithDBObject
 
         if (!in_array($sReadAccess, self::$aAllowedAccessValues)) {
             if ($blPorcelain === true) {
-                $this->_oWrapper->line('setting read_access to '.self::$aAllowedAccessValues[0]);
+                $this->_oWordpressCli->line('setting read_access to '.self::$aAllowedAccessValues[0]);
             }
 
             $sReadAccess = self::$aAllowedAccessValues[0];
@@ -221,7 +221,7 @@ class GroupCommand extends CommandWithDBObject
 
         if (!in_array($sWriteAccess, self::$aAllowedAccessValues)) {
             if ($blPorcelain === true) {
-                $this->_oWrapper->line('setting write_access to '.self::$aAllowedAccessValues[0]);
+                $this->_oWordpressCli->line('setting write_access to '.self::$aAllowedAccessValues[0]);
             }
 
             $sWriteAccess = self::$aAllowedAccessValues[0];
@@ -249,9 +249,9 @@ class GroupCommand extends CommandWithDBObject
         $this->_oAccessHandler->addUserGroup($oUserGroup);
 
         if ($blPorcelain === true) {
-            $this->_oWrapper->line($oUserGroup->getId());
+            $this->_oWordpressCli->line($oUserGroup->getId());
         } else {
-            $this->_oWrapper->success("Added new group '{$sGroupName}' with id {$oUserGroup->getId()}.");
+            $this->_oWordpressCli->success("Added new group '{$sGroupName}' with id {$oUserGroup->getId()}.");
         }
     }
 }

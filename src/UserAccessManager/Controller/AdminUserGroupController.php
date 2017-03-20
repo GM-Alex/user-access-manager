@@ -11,6 +11,7 @@ use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\Config;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -46,14 +47,21 @@ class AdminUserGroupController extends Controller
     /**
      * AdminUserGroupController constructor.
      *
-     * @param Wordpress        $oWrapper
+     * @param Php              $oPhp
+     * @param Wordpress        $oWordpress
      * @param Config           $oConfig
      * @param AccessHandler    $oAccessHandler
      * @param UserGroupFactory $oUserGroupFactory
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, AccessHandler $oAccessHandler, UserGroupFactory $oUserGroupFactory)
+    public function __construct(
+        Php $oPhp,
+        Wordpress $oWordpress,
+        Config $oConfig,
+        AccessHandler $oAccessHandler,
+        UserGroupFactory $oUserGroupFactory
+    )
     {
-        parent::__construct($oWrapper, $oConfig);
+        parent::__construct($oPhp, $oWordpress, $oConfig);
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oUserGroupFactory = $oUserGroupFactory;
     }
@@ -90,7 +98,7 @@ class AdminUserGroupController extends Controller
      */
     public function getRoleNames()
     {
-        $oRoles = $this->_oWrapper->getRoles();
+        $oRoles = $this->_oWordpress->getRoles();
         return $oRoles->role_names;
     }
 

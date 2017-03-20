@@ -47,17 +47,17 @@ class FileProtectionTest extends \UserAccessManagerTestCase
     }
 
     /**
-     * @param $oWrapper
+     * @param $oWordpress
      * @param $oConfig
      * @param $oUtil
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|FileProtection
      */
-    private function getStub($oWrapper, $oConfig, $oUtil)
+    private function getStub($oWordpress, $oConfig, $oUtil)
     {
         return $this->getMockForAbstractClass(
             '\UserAccessManager\FileHandler\FileProtection',
-            [$oWrapper, $oConfig, $oUtil]
+            [$oWordpress, $oConfig, $oUtil]
         );
     }
 
@@ -67,10 +67,10 @@ class FileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
         $oConfig = $this->getConfig();
         $oUtil = $this->getUtil();
-        $oStub = $this->getStub($oWrapper, $oConfig, $oUtil);
+        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
         self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtection', $oStub);
     }
 
@@ -80,7 +80,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testCleanUpFileTypes()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
         $oConfig = $this->getConfig();
         $oConfig->expects($this->exactly(2))
             ->method('getMimeTypes')
@@ -89,7 +89,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
                 ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType']
             ));
         $oUtil = $this->getUtil();
-        $oStub = $this->getStub($oWrapper, $oConfig, $oUtil);
+        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
 
         self::assertEquals('a|c', self::callMethod($oStub, '_cleanUpFileTypes', ['a,c']));
         self::assertEquals('b', self::callMethod($oStub, '_cleanUpFileTypes', ['b,f']));
@@ -108,8 +108,8 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         $oRootDir->add('firstTestDir', new Directory());
         $oRootDir->add('secondTestDir', new Directory());
 
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(6))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(6))
             ->method('getUploadDir')
             ->will(
                 $this->onConsecutiveCalls(
@@ -129,7 +129,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';
 
-        $oWrapper->expects($this->exactly(4))
+        $oWordpress->expects($this->exactly(4))
             ->method('getCurrentUser')
             ->will($this->returnValue($oUser));
 
@@ -144,7 +144,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
             ->method('getRandomPassword')
             ->will($this->returnValue('randomPassword'));
 
-        $oStub = $this->getStub($oWrapper, $oConfig, $oUtil);
+        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
 
         $sFirstTestFile = 'vfs://firstTestDir/'.FileProtection::PASSWORD_FILE_NAME;
         $oStub->createPasswordFile();
@@ -166,7 +166,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
             ->method('getFilePassType')
             ->will($this->returnValue('random'));
 
-        $oStub = $this->getStub($oWrapper, $oConfig, $oUtil);
+        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
         $oStub->createPasswordFile();
         self::assertEquals($sContent, file_get_contents($sFirstTestFile));
 

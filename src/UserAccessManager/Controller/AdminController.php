@@ -18,6 +18,7 @@ use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\Config;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -48,19 +49,22 @@ class AdminController extends Controller
     /**
      * AdminController constructor.
      *
-     * @param Wordpress     $oWrapper
+     *
+     * @param Php           $oPhp
+     * @param Wordpress     $oWordpress
      * @param Config        $oConfig
      * @param AccessHandler $oAccessHandler
      * @param FileHandler   $oFileHandler
      */
     public function __construct(
-        Wordpress $oWrapper,
+        Php $oPhp,
+        Wordpress $oWordpress,
         Config $oConfig,
         AccessHandler $oAccessHandler,
         FileHandler $oFileHandler
     )
     {
-        parent::__construct($oWrapper, $oConfig);
+        parent::__construct($oPhp, $oWordpress, $oConfig);
         $this->_oConfig = $oConfig;
         $this->_oAccessHandler = $oAccessHandler;
         $this->_oFileHandler = $oFileHandler;
@@ -101,7 +105,7 @@ class AdminController extends Controller
     {
         $sUrlPath = $this->_oConfig->getUrlPath();
 
-        $this->_oWrapper->registerStyle(
+        $this->_oWordpress->registerStyle(
             self::HANDLE_STYLE_ADMIN,
             $sUrlPath.'assets/css/uamAdmin.css',
             array(),
@@ -109,7 +113,7 @@ class AdminController extends Controller
             'screen'
         );
 
-        $this->_oWrapper->registerScript(
+        $this->_oWordpress->registerScript(
             self::HANDLE_SCRIPT_ADMIN,
             $sUrlPath.'assets/js/functions.js',
             array('jquery'),
@@ -125,10 +129,10 @@ class AdminController extends Controller
     public function enqueueStylesAndScripts($sHook)
     {
         $this->_registerStylesAndScripts();
-        $this->_oWrapper->enqueueStyle(self::HANDLE_STYLE_ADMIN);
+        $this->_oWordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
 
         if ($sHook === 'uam_page_uam_settings' || $sHook === 'uam_page_uam_setup') {
-            $this->_oWrapper->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
+            $this->_oWordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
         }
     }
 
@@ -140,7 +144,7 @@ class AdminController extends Controller
     public function setupAdminDashboard()
     {
         if ($this->_oAccessHandler->checkUserAccess('manage_user_groups') === false) {
-            $aMetaBoxes = $this->_oWrapper->getMetaBoxes();
+            $aMetaBoxes = $this->_oWordpress->getMetaBoxes();
             unset($aMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
         }
     }

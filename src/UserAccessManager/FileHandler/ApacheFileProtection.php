@@ -68,7 +68,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
                 $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
-            $aHomeRoot = parse_url($this->_oWrapper->getHomeUrl());
+            $aHomeRoot = parse_url($this->_oWordpress->getHomeUrl());
             $sHomeRoot = (isset($aHomeRoot['path'])) ? trim($aHomeRoot['path'], '/\\').'/' : '/';
 
             $sContent = "<IfModule mod_rewrite.c>\n";

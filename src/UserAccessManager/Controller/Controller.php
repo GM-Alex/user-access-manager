@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\Config;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -28,9 +29,14 @@ abstract class Controller
     const ACTION_SUFFIX = 'Action';
 
     /**
+     * @var Php
+     */
+    protected $_oPhp;
+
+    /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var Config
@@ -50,12 +56,14 @@ abstract class Controller
     /**
      * Controller constructor.
      *
-     * @param Wordpress $oWrapper
+     * @param Php       $oPhp
+     * @param Wordpress $oWordpress
      * @param Config    $oConfig
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig)
+    public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig)
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oPhp = $oPhp;
+        $this->_oWordpress = $oWordpress;
         $this->_oConfig = $oConfig;
     }
 
@@ -97,7 +105,7 @@ abstract class Controller
      */
     public function createNonceField($sName)
     {
-        return $this->_oWrapper->getNonceField($sName, $sName.'Nonce');
+        return $this->_oWordpress->getNonceField($sName, $sName.'Nonce');
     }
 
     /**
@@ -109,7 +117,7 @@ abstract class Controller
      */
     public function getNonce($sName)
     {
-        return $this->_oWrapper->createNonce($sName);
+        return $this->_oWordpress->createNonce($sName);
     }
 
     /**
@@ -121,8 +129,8 @@ abstract class Controller
     {
         $sNonce = $this->getRequestParameter($sName.'Nonce');
 
-        if ($this->_oWrapper->verifyNonce($sNonce, $sName) === false) {
-            $this->_oWrapper->wpDie(TXT_UAM_NONCE_FAILURE);
+        if ($this->_oWordpress->verifyNonce($sNonce, $sName) === false) {
+            $this->_oWordpress->wpDie(TXT_UAM_NONCE_FAILURE);
         }
     }
 
@@ -189,8 +197,7 @@ abstract class Controller
 
         if (is_file($sFileWithPath)) {
             ob_start();
-            /** @noinspection PhpIncludeInspection */
-            include $sFileWithPath;
+            $this->_oPhp->includeFile($sFileWithPath);
             $sContents = ob_get_contents();
             ob_end_clean();
         }

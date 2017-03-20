@@ -30,7 +30,7 @@ abstract class FileProtection
     /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var Config
@@ -45,13 +45,13 @@ abstract class FileProtection
     /**
      * ApacheFileProtection constructor.
      *
-     * @param Wordpress   $oWrapper
+     * @param Wordpress   $oWordpress
      * @param Config      $oConfig
      * @param Util        $oUtil
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, Util $oUtil)
+    public function __construct(Wordpress $oWordpress, Config $oConfig, Util $oUtil)
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpress = $oWordpress;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;
     }
@@ -90,7 +90,7 @@ abstract class FileProtection
     {
         // get url
         if ($sDir === null) {
-            $aWordpressUploadDir = $this->_oWrapper->getUploadDir();
+            $aWordpressUploadDir = $this->_oWordpress->getUploadDir();
 
             if (empty($aWordpressUploadDir['error'])) {
                 $sDir = $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
@@ -102,7 +102,7 @@ abstract class FileProtection
         if ($sDir !== null
             && (!file_exists($sFile) || $blCreateNew)
         ) {
-            $oCurrentUser = $this->_oWrapper->getCurrentUser();
+            $oCurrentUser = $this->_oWordpress->getCurrentUser();
 
             if ($this->_oConfig->getFilePassType() === 'random') {
                 $sPassword = md5($this->_oUtil->getRandomPassword());

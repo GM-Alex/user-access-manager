@@ -40,12 +40,12 @@ class DatabaseTest extends \UserAccessManagerTestCase
      */
     private function getWrapperWithWpDatabase($oWpDatabase)
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('getDatabase')
             ->will($this->returnValue($oWpDatabase));
 
-        return $oWrapper;
+        return $oWordpress;
     }
 
     /**
@@ -54,7 +54,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oDatabase = new Database($this->getWrapper());
+        $oDatabase = new Database($this->getWordpress());
         self::assertInstanceOf('\UserAccessManager\Database\Database', $oDatabase);
     }
 
@@ -67,12 +67,12 @@ class DatabaseTest extends \UserAccessManagerTestCase
         $oSimpleWpDatabase = new \stdClass();
         $oSimpleWpDatabase->prefix = 'wp_';
 
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('getDatabase')
             ->will($this->returnValue($oSimpleWpDatabase));
 
-        $oDatabase = new Database($oWrapper);
+        $oDatabase = new Database($oWordpress);
 
         self::assertEquals('wp_uam_accessgroups', $oDatabase->getUserGroupTable());
     }
@@ -85,8 +85,8 @@ class DatabaseTest extends \UserAccessManagerTestCase
     {
         $oWpDatabase = $this->getWpDatabase();
         $oWpDatabase->prefix = 'wp_';
-        $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-        $oDatabase = new Database($oWrapper);
+        $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+        $oDatabase = new Database($oWordpress);
 
         self::assertEquals('wp_uam_accessgroup_to_object', $oDatabase->getUserGroupToObjectTable());
     }
@@ -97,8 +97,8 @@ class DatabaseTest extends \UserAccessManagerTestCase
      */
     public function testGenerateSqlIdList()
     {
-        $oWrapper = $this->getWrapper();
-        $oDatabase = new Database($oWrapper);
+        $oWordpress = $this->getWordpress();
+        $oDatabase = new Database($oWordpress);
 
         self::assertEquals('\'\'', $oDatabase->generateSqlIdList([]));
         self::assertEquals('1, 3, 5', $oDatabase->generateSqlIdList([1, 3, 5]));
@@ -111,13 +111,13 @@ class DatabaseTest extends \UserAccessManagerTestCase
     public function testDbDelta()
     {
         $oWpDatabase = $this->getWpDatabase();
-        $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+        $oWordpress->expects($this->exactly(2))
             ->method('dbDelta')
             ->withConsecutive(['', true], ['query', false])
             ->will($this->onConsecutiveCalls('firstReturn', 'secondReturn'));
 
-        $oDatabase = new Database($oWrapper);
+        $oDatabase = new Database($oWordpress);
         self::assertEquals('firstReturn', $oDatabase->dbDelta());
         self::assertEquals('secondReturn', $oDatabase->dbDelta('query', false));
     }
@@ -146,8 +146,8 @@ class DatabaseTest extends \UserAccessManagerTestCase
         $oWpDatabase->term_taxonomy = 'term_taxonomy';
         $oWpDatabase->users = 'users';
 
-        $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-        $oDatabase = new Database($oWrapper);
+        $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+        $oDatabase = new Database($oWordpress);
 
         self::assertEquals('prefix_', $oDatabase->getPrefix());
         self::assertEquals('insert_id', $oDatabase->getLastInsertId());
@@ -250,8 +250,8 @@ class DatabaseTest extends \UserAccessManagerTestCase
                 ->withConsecutive(...$aExpectedArguments)
                 ->will($this->onConsecutiveCalls(...$aExpectedResults));
 
-            $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-            $oDatabase = new Database($oWrapper);
+            $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+            $oDatabase = new Database($oWordpress);
 
             foreach ($aExpectedResults as $sKey => $mExpectedValue) {
                 self::assertEquals($mExpectedValue, $oDatabase->{$sFunctionName}(...$aArguments[$sKey]));
@@ -273,8 +273,8 @@ class DatabaseTest extends \UserAccessManagerTestCase
             ->method('get_var')
             ->with('SELECT VERSION() as mysql_version')
             ->will($this->returnValue('4.0.0'));
-        $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-        $oDatabase = new Database($oWrapper);
+        $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+        $oDatabase = new Database($oWordpress);
 
         self::assertEquals('', $oDatabase->getCharset());
 
@@ -283,25 +283,25 @@ class DatabaseTest extends \UserAccessManagerTestCase
             ->method('get_var')
             ->with('SELECT VERSION() as mysql_version')
             ->will($this->returnValue('4.1.0'));
-        $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-        $oDatabase = new Database($oWrapper);
+        $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+        $oDatabase = new Database($oWordpress);
 
         self::assertEquals('', $oDatabase->getCharset());
 
         $oWpDatabase->charset = 'testCharset';
-        $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-        $oDatabase = new Database($oWrapper);
+        $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+        $oDatabase = new Database($oWordpress);
         self::assertEquals('DEFAULT CHARACTER SET testCharset', $oDatabase->getCharset());
 
         $oWpDatabase->charset = 'testCharset';
         $oWpDatabase->collate = 'testCollate';
-        $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-        $oDatabase = new Database($oWrapper);
+        $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+        $oDatabase = new Database($oWordpress);
         self::assertEquals('DEFAULT CHARACTER SET testCharset COLLATE testCollate', $oDatabase->getCharset());
 
         $oWpDatabase->charset = null;
-        $oWrapper = $this->getWrapperWithWpDatabase($oWpDatabase);
-        $oDatabase = new Database($oWrapper);
+        $oWordpress = $this->getWrapperWithWpDatabase($oWpDatabase);
+        $oDatabase = new Database($oWordpress);
         self::assertEquals(' COLLATE testCollate', $oDatabase->getCharset());
     }
 }

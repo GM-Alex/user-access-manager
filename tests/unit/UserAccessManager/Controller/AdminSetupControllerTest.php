@@ -28,7 +28,8 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oAdminSetupController = new AdminSetupController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $this->getSetupHandler()
@@ -49,7 +50,8 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(true, false));
 
         $oAdminSetupController = new AdminSetupController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $oSetupHandler
@@ -65,13 +67,14 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
      */
     public function testShowNetworkUpdate()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(4))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(4))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, false, false, true));
 
         $oAdminSetupController = new AdminSetupController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $this->getDatabase(),
             $this->getSetupHandler()
@@ -95,13 +98,13 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
     public function testUpdateDatabaseAction()
     {
         $_GET[AdminSetupController::SETUP_UPDATE_NONCE.'Nonce'] = 'updateNonce';
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(3))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(3))
             ->method('verifyNonce')
             ->with('updateNonce')
             ->will($this->returnValue(true));
 
-        $oWrapper->expects($this->exactly(4))
+        $oWordpress->expects($this->exactly(4))
             ->method('switchToBlog')
             ->withConsecutive([1], [2], [3], [1]);
 
@@ -118,7 +121,8 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue(1));
 
         $oAdminSetupController = new AdminSetupController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $oDatabase,
             $oSetupHandler
@@ -144,8 +148,8 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
     public function testResetUamAction()
     {
         $_GET[AdminSetupController::SETUP_RESET_NONCE.'Nonce'] = 'resetNonce';
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
             ->method('verifyNonce')
             ->with('resetNonce')
             ->will($this->returnValue(true));
@@ -157,7 +161,8 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
             ->method('install');
 
         $oAdminSetupController = new AdminSetupController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $this->getDatabase(),
             $oSetupHandler

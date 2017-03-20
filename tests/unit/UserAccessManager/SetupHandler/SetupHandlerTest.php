@@ -32,7 +32,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oSetupHandler = new SetupHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getFileHandler()
@@ -68,9 +68,9 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
      */
     public function testGetBlogIds()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites()));
 
@@ -81,7 +81,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue(123));
 
         $oSetupHandler = new SetupHandler(
-            $oWrapper,
+            $oWordpress,
             $oDatabase,
             $this->getObjectHandler(),
             $this->getFileHandler()
@@ -98,17 +98,17 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
      */
     public function testInstall()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites(1)));
 
-        $oWrapper->expects(($this->exactly(3)))
+        $oWordpress->expects(($this->exactly(3)))
             ->method('addOption')
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
 
-        $oWrapper->expects(($this->exactly(2)))
+        $oWordpress->expects(($this->exactly(2)))
             ->method('switchToBlog')
             ->withConsecutive([1], [1]);
 
@@ -188,7 +188,13 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 )]
             );
 
-        $oSetupHandler = new SetupHandler($oWrapper, $oDatabase, $oObjectHandler, $oFileHandler);
+        $oSetupHandler = new SetupHandler(
+            $oWordpress,
+            $oDatabase,
+            $oObjectHandler,
+            $oFileHandler
+        );
+
         $oSetupHandler->install();
         $oSetupHandler->install();
         $oSetupHandler->install(true);
@@ -200,18 +206,18 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
      */
     public function testIsDatabaseUpdateNecessary()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(3))
             ->method('getSites')
             ->will($this->returnValue($this->getSites()));
 
-        $oWrapper->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(3))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, false, true));
 
 
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(2))
             ->method('getOption')
             ->with('uam_db_version')
             ->will($this->onConsecutiveCalls('1000.0.0', '0.0'));
@@ -234,7 +240,13 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler = $this->getObjectHandler();
         $oFileHandler = $this->getFileHandler();
 
-        $oSetupHandler = new SetupHandler($oWrapper, $oDatabase, $oObjectHandler, $oFileHandler);
+        $oSetupHandler = new SetupHandler(
+            $oWordpress,
+            $oDatabase,
+            $oObjectHandler,
+            $oFileHandler
+        );
+
         self::assertFalse($oSetupHandler->isDatabaseUpdateNecessary());
         self::assertTrue($oSetupHandler->isDatabaseUpdateNecessary());
         self::assertTrue($oSetupHandler->isDatabaseUpdateNecessary());
@@ -246,8 +258,8 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
      */
     public function testUpdate()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(3))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(3))
             ->method('getOption')
             ->withConsecutive(
                 ['uam_db_version', false],
@@ -256,11 +268,11 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(null, '0.0', '0.0'));
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('deleteOption')
             ->with('allow_comments_locked');
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('updateOption')
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
 
@@ -406,7 +418,13 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
 
         $oFileHandler = $this->getFileHandler();
 
-        $oSetupHandler = new SetupHandler($oWrapper, $oDatabase, $oObjectHandler, $oFileHandler);
+        $oSetupHandler = new SetupHandler(
+            $oWordpress,
+            $oDatabase,
+            $oObjectHandler,
+            $oFileHandler
+        );
+
         self::assertFalse($oSetupHandler->update());
         self::assertTrue($oSetupHandler->update());
     }
@@ -417,13 +435,13 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
      */
     public function testUninstall()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites(1)));
 
-        $oWrapper->expects(($this->exactly(3)))
+        $oWordpress->expects(($this->exactly(3)))
             ->method('deleteOption')
             ->withConsecutive(
                 [Config::ADMIN_OPTIONS_NAME],
@@ -431,7 +449,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 ['uam_db_version']
             );
 
-        $oWrapper->expects(($this->once()))
+        $oWordpress->expects(($this->once()))
             ->method('switchToBlog')
             ->withConsecutive([1]);
 
@@ -460,11 +478,12 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->method('deleteFileProtection');
 
         $oSetupHandler = new SetupHandler(
-            $oWrapper,
+            $oWordpress,
             $oDatabase,
             $this->getObjectHandler(),
             $oFileHandler
         );
+
         $oSetupHandler->uninstall();
     }
 
@@ -474,7 +493,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
      */
     public function testDeactivate()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
         $oDatabase = $this->getDatabase();
         $oObjectHandler = $this->getObjectHandler();
         $oFileHandler = $this->getFileHandler();
@@ -483,7 +502,13 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->method('deleteFileProtection')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oSetupHandler = new SetupHandler($oWrapper, $oDatabase, $oObjectHandler, $oFileHandler);
+        $oSetupHandler = new SetupHandler(
+            $oWordpress,
+            $oDatabase,
+            $oObjectHandler,
+            $oFileHandler
+        );
+
         self::assertFalse($oSetupHandler->deactivate());
         self::assertTrue($oSetupHandler->deactivate());
     }

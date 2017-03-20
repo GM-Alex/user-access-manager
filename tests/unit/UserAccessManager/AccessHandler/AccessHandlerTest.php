@@ -27,7 +27,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -92,17 +92,17 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
      */
-    protected function getWrapper(array $aCapabilities = null)
+    protected function getWordpress(array $aCapabilities = null)
     {
-        $oWrapper = parent::getWrapper();
+        $oWordpress = parent::getWordpress();
 
-        $oWrapper->expects($this->any())
+        $oWordpress->expects($this->any())
             ->method('getCurrentUser')
             ->will($this->returnCallback(function () use ($aCapabilities) {
                 return $this->getUser($aCapabilities);
             }));
 
-        return $oWrapper;
+        return $oWordpress;
     }
 
     /**
@@ -192,7 +192,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             }));
 
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
             $oDatabase,
@@ -222,7 +222,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
     public function testGetFilteredUserGroups()
     {
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -331,7 +331,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             ));
 
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $oCache,
             $this->getDatabase(),
@@ -408,7 +408,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         ];
 
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -431,8 +431,8 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
      */
     public function testGetUserGroupsForUser()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, true));
 
@@ -442,7 +442,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true, false, false, false, false));
 
         $oAccessHandler = new AccessHandler(
-            $oWrapper,
+            $oWordpress,
             $oConfig,
             $this->getCache(),
             $this->getDatabase(),
@@ -490,7 +490,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
     public function testGetFilteredUserGroupsForObject()
     {
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -546,8 +546,8 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
      */
     public function testCheckUserAccess()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(3))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(3))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(true, false, false));
 
@@ -557,7 +557,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue('administrator'));
 
         $oAccessHandler = new AccessHandler(
-            $oWrapper,
+            $oWordpress,
             $oConfig,
             $this->getCache(),
             $this->getDatabase(),
@@ -570,8 +570,8 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         self::assertTrue($oAccessHandler->checkUserAccess('user_cap'));
         self::assertFalse($oAccessHandler->checkUserAccess());
 
-        $oWrapper = $this->getWrapper(['author' => true]);
-        $oWrapper->expects($this->any())
+        $oWordpress = $this->getWordpress(['author' => true]);
+        $oWordpress->expects($this->any())
             ->method('isSuperAdmin')
             ->will($this->returnValue(false));
 
@@ -581,7 +581,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls('administrator', 'author'));
 
         $oAccessHandler = new AccessHandler(
-            $oWrapper,
+            $oWordpress,
             $oConfig,
             $this->getCache(),
             $this->getDatabase(),
@@ -601,7 +601,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
     public function testCheckObjectAccess()
     {
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(['manage_user_groups']),
+            $this->getWordpress(['manage_user_groups']),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -620,7 +620,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(true, true, false, false));
 
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $oConfig,
             $this->getCache(),
             $this->getDatabase(),
@@ -669,7 +669,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
     public function testGetExcludedTerms()
     {
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(['manage_user_groups']),
+            $this->getWordpress(['manage_user_groups']),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -681,7 +681,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         self::assertEquals([], $oAccessHandler->getExcludedTerms());
 
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -715,7 +715,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
     public function testGetExcludedPosts()
     {
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(['manage_user_groups']),
+            $this->getWordpress(['manage_user_groups']),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -727,7 +727,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         self::assertEquals([], $oAccessHandler->getExcludedPosts());
 
         $oAccessHandler = new AccessHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -761,8 +761,8 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
      */
     public function testUserIsAdmin()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, true));
 
@@ -774,7 +774,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             }));
 
         $oAccessHandler = new AccessHandler(
-            $oWrapper,
+            $oWordpress,
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
@@ -786,8 +786,8 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         self::assertFalse($oAccessHandler->userIsAdmin(1));
         self::assertTrue($oAccessHandler->userIsAdmin(1));
 
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->never())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->never())
             ->method('isSuperAdmin')
             ->will($this->returnValue(false));
 
@@ -799,7 +799,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             }));
 
         $oAccessHandler = new AccessHandler(
-            $oWrapper,
+            $oWordpress,
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),

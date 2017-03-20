@@ -30,7 +30,7 @@ class SetupHandler
     /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var Database
@@ -50,19 +50,19 @@ class SetupHandler
     /**
      * SetupHandler constructor.
      *
-     * @param Wordpress     $oWrapper
+     * @param Wordpress     $oWordpress
      * @param Database      $oDatabase
      * @param ObjectHandler $oObjectHandler
      * @param FileHandler   $oFileHandler
      */
     public function __construct(
-        Wordpress $oWrapper,
+        Wordpress $oWordpress,
         Database $oDatabase,
         ObjectHandler $oObjectHandler,
         FileHandler $oFileHandler
     )
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpress = $oWordpress;
         $this->_oDatabase = $oDatabase;
         $this->_oObjectHandler = $oObjectHandler;
         $this->_oFileHandler = $oFileHandler;
@@ -80,7 +80,7 @@ class SetupHandler
             $iCurrentBlogId => $iCurrentBlogId
         );
 
-        $aSites = $this->_oWrapper->getSites();
+        $aSites = $this->_oWordpress->getSites();
 
         foreach ($aSites as $oSite) {
             $aBlogIds[$oSite->blog_id] = $oSite->blog_id;
@@ -101,11 +101,11 @@ class SetupHandler
             $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
 
             foreach ($aBlogIds as $iBlogId) {
-                $this->_oWrapper->switchToBlog($iBlogId);
+                $this->_oWordpress->switchToBlog($iBlogId);
                 $this->_install();
             }
 
-            $this->_oWrapper->switchToBlog($iCurrentBlogId);
+            $this->_oWordpress->switchToBlog($iCurrentBlogId);
         } else {
             $this->_install();
         }
@@ -157,7 +157,7 @@ class SetupHandler
             );
         }
 
-        $this->_oWrapper->addOption('uam_db_version', UserAccessManager::DB_VERSION);
+        $this->_oWordpress->addOption('uam_db_version', UserAccessManager::DB_VERSION);
     }
 
     /**
@@ -169,7 +169,7 @@ class SetupHandler
     {
         $aBlogIds = $this->getBlogIds();
 
-        if (count($aBlogIds) > 0 && $this->_oWrapper->isSuperAdmin()) {
+        if (count($aBlogIds) > 0 && $this->_oWordpress->isSuperAdmin()) {
             foreach ($aBlogIds as $iBlogId) {
                 $sTable = $this->_oDatabase->getBlogPrefix($iBlogId).'options';
                 $sSelect = "SELECT option_value FROM {$sTable} WHERE option_name = '%s' LIMIT 1";
@@ -182,7 +182,7 @@ class SetupHandler
             }
         }
 
-        $sCurrentDbVersion = $this->_oWrapper->getOption('uam_db_version');
+        $sCurrentDbVersion = $this->_oWordpress->getOption('uam_db_version');
         return version_compare($sCurrentDbVersion, UserAccessManager::DB_VERSION, '<');
     }
 
@@ -193,16 +193,16 @@ class SetupHandler
      */
     public function update()
     {
-        $sCurrentDbVersion = $this->_oWrapper->getOption('uam_db_version');
+        $sCurrentDbVersion = $this->_oWordpress->getOption('uam_db_version');
 
         if (empty($sCurrentDbVersion)) {
             return false;
         }
 
-        $sUamVersion = $this->_oWrapper->getOption('uam_version');
+        $sUamVersion = $this->_oWordpress->getOption('uam_version');
 
         if (!$sUamVersion || version_compare($sUamVersion, "1.0", '<')) {
-            $this->_oWrapper->deleteOption('allow_comments_locked');
+            $this->_oWordpress->deleteOption('allow_comments_locked');
         }
 
         $sDbAccessGroup = $this->_oDatabase->getUserGroupTable();
@@ -379,7 +379,7 @@ class SetupHandler
                 $this->_oDatabase->query($sQuery);
             }
 
-            $this->_oWrapper->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
+            $this->_oWordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
         }
 
         return true;
@@ -393,16 +393,16 @@ class SetupHandler
         $aBlogIds = $this->getBlogIds();
 
         foreach ($aBlogIds as $iBlogId) {
-            $this->_oWrapper->switchToBlog($iBlogId);
+            $this->_oWordpress->switchToBlog($iBlogId);
             $sUserGroupTable = $this->_oDatabase->getUserGroupTable();
             $sUserGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();
 
             $sDropQuery = "DROP TABLE {$sUserGroupTable}, {$sUserGroupToObjectTable}";
             $this->_oDatabase->query($sDropQuery);
 
-            $this->_oWrapper->deleteOption(Config::ADMIN_OPTIONS_NAME);
-            $this->_oWrapper->deleteOption('uam_version');
-            $this->_oWrapper->deleteOption('uam_db_version');
+            $this->_oWordpress->deleteOption(Config::ADMIN_OPTIONS_NAME);
+            $this->_oWordpress->deleteOption('uam_version');
+            $this->_oWordpress->deleteOption('uam_db_version');
         }
 
         $this->_oFileHandler->deleteFileProtection();

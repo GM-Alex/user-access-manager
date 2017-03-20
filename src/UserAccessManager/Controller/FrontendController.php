@@ -1,13 +1,18 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 22.01.17
- * Time: 23:28
+ * FrontendController.php
+ *
+ * The FrontendController class file.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 namespace UserAccessManager\Controller;
-
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
@@ -17,8 +22,14 @@ use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
+/**
+ * Class FrontendController
+ *
+ * @package UserAccessManager\Controller
+ */
 class FrontendController extends Controller
 {
     const HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
@@ -54,8 +65,22 @@ class FrontendController extends Controller
      */
     protected $_oAccessHandler;
 
+    /**
+     * FrontendController constructor.
+     *
+     * @param Php           $oPhp
+     * @param Wordpress     $oWordpress
+     * @param Config        $oConfig
+     * @param Database      $oDatabase
+     * @param Util          $oUtil
+     * @param Cache         $oCache
+     * @param ObjectHandler $oObjectHandler
+     * @param AccessHandler $oAccessHandler
+     * @param FileHandler   $oFileHandler
+     */
     public function __construct(
-        Wordpress $oWrapper,
+        Php $oPhp,
+        Wordpress $oWordpress,
         Config $oConfig,
         Database $oDatabase,
         Util $oUtil,
@@ -65,7 +90,7 @@ class FrontendController extends Controller
         FileHandler $oFileHandler
     )
     {
-        parent::__construct($oWrapper, $oConfig);
+        parent::__construct($oPhp, $oWordpress, $oConfig);
         $this->_oDatabase = $oDatabase;
         $this->_oUtil = $oUtil;
         $this->_oCache = $oCache;
@@ -85,7 +110,7 @@ class FrontendController extends Controller
     {
         $sUrlPath = $this->_oConfig->getUrlPath();
 
-        $this->_oWrapper->registerStyle(
+        $this->_oWordpress->registerStyle(
             self::HANDLE_STYLE_LOGIN_FORM,
             $sUrlPath.'assets/css/uamLoginForm.css',
             array(),
@@ -185,8 +210,8 @@ class FrontendController extends Controller
     {
         $aShowPosts = array();
 
-        if ($this->_oWrapper->isFeed() === false
-            || ($this->_oConfig->protectFeed() === true && $this->_oWrapper->isFeed()) === true
+        if ($this->_oWordpress->isFeed() === false
+            || ($this->_oConfig->protectFeed() === true && $this->_oWordpress->isFeed()) === true
         ) {
             foreach ($aPosts as $iPostId) {
                 if ($iPostId !== null) {
@@ -251,7 +276,7 @@ class FrontendController extends Controller
      */
     public function getTermArguments($aArguments)
     {
-        $aExclude = (isset($aArguments['exclude'])) ? $this->_oWrapper->parseIdList($aArguments['exclude']) : array();
+        $aExclude = (isset($aArguments['exclude'])) ? $this->_oWordpress->parseIdList($aArguments['exclude']) : array();
         $aExcludedTerms = $this->_oAccessHandler->getExcludedTerms();
 
         if ($this->_oConfig->lockRecursive() === true) {
@@ -600,7 +625,7 @@ class FrontendController extends Controller
                 return $sOutput;
             }
 
-            $oCurrentUser = $this->_oWrapper->getCurrentUser();
+            $oCurrentUser = $this->_oWordpress->getCurrentUser();
 
             if (!isset($oCurrentUser->user_level)) {
                 return $sOutput;
@@ -652,7 +677,7 @@ class FrontendController extends Controller
      */
     public function showLoginForm()
     {
-        return $this->_oWrapper->isSingle() || $this->_oWrapper->isPage();
+        return $this->_oWordpress->isSingle() || $this->_oWordpress->isPage();
     }
 
     /**
@@ -662,8 +687,8 @@ class FrontendController extends Controller
      */
     public function getLoginUrl()
     {
-        $sLoginUrl = $this->_oWrapper->getBlogInfo('wpurl').'/wp-login.php';
-        return $this->_oWrapper->applyFilters('uam_login_form_url', $sLoginUrl);
+        $sLoginUrl = $this->_oWordpress->getBlogInfo('wpurl').'/wp-login.php';
+        return $this->_oWordpress->applyFilters('uam_login_form_url', $sLoginUrl);
     }
 
     /**
@@ -674,7 +699,7 @@ class FrontendController extends Controller
     public function getRedirectLoginUrl()
     {
         $sLoginUrl = $this->getLoginUrl().'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']);
-        return $this->_oWrapper->applyFilters('uam_login_url', $sLoginUrl);
+        return $this->_oWordpress->applyFilters('uam_login_url', $sLoginUrl);
     }
 
     /**
@@ -685,7 +710,7 @@ class FrontendController extends Controller
     public function getUserLogin()
     {
         $sUserLogin = $this->getRequestParameter('log');
-        return $this->_oWrapper->escHtml(stripslashes($sUserLogin));
+        return $this->_oWordpress->escHtml(stripslashes($sUserLogin));
     }
 
     /**
@@ -697,11 +722,11 @@ class FrontendController extends Controller
     {
         $sLoginForm = '';
 
-        if ($this->_oWrapper->isUserLoggedIn() === false) {
+        if ($this->_oWordpress->isUserLoggedIn() === false) {
             $sLoginForm = $this->_getIncludeContents('LoginForm.php');
         }
 
-        return $this->_oWrapper->applyFilters('uam_login_form', $sLoginForm);
+        return $this->_oWordpress->applyFilters('uam_login_form', $sLoginForm);
     }
 
 
@@ -760,7 +785,7 @@ class FrontendController extends Controller
                     $iObjectId = $oObject->ID;
                 }
             } elseif (isset($oPageParams->query_vars['pagename'])) {
-                $oObject = $this->_oWrapper->getPageByPath($oPageParams->query_vars['pagename']);
+                $oObject = $this->_oWordpress->getPageByPath($oPageParams->query_vars['pagename']);
 
                 if ($oObject !== null) {
                     $oObjectType = $oObject->post_type;
@@ -788,7 +813,7 @@ class FrontendController extends Controller
     public function redirectUser($oObject = null)
     {
         $blPostToShow = false;
-        $aPosts = $this->_oWrapper->getWpQuery()->get_posts();
+        $aPosts = $this->_oWordpress->getWpQuery()->get_posts();
 
         if ($oObject === null && isset($aPosts)) {
             foreach ($aPosts as $oPost) {
@@ -806,17 +831,17 @@ class FrontendController extends Controller
                 $sRedirectCustomPage = $this->_oConfig->getRedirectCustomPage();
                 $oPost = $this->_oObjectHandler->getPost($sRedirectCustomPage);
                 $sUrl = $oPost->guid;
-                $sPermalink = $this->_oWrapper->getPageLink($oPost);
+                $sPermalink = $this->_oWordpress->getPageLink($oPost);
             } elseif ($this->_oConfig->getRedirect() === 'custom_url') {
                 $sUrl = $this->_oConfig->getRedirectCustomUrl();
             } else {
-                $sUrl = $this->_oWrapper->getHomeUrl('/');
+                $sUrl = $this->_oWordpress->getHomeUrl('/');
             }
 
             $sCurrentUrl = $this->_oUtil->getCurrentUrl();
 
             if ($sUrl != $sCurrentUrl && $sPermalink != $sCurrentUrl) {
-                $this->_oWrapper->wpRedirect($sUrl);
+                $this->_oWordpress->wpRedirect($sUrl);
                 exit;
             }
         }
@@ -846,7 +871,7 @@ class FrontendController extends Controller
             $sRealPath = $this->_oConfig->getRealPath();
             $sFile = $sRealPath.'gfx/noAccessPic.png';
         } else {
-            $this->_oWrapper->wpDie(TXT_UAM_NO_RIGHTS);
+            $this->_oWordpress->wpDie(TXT_UAM_NO_RIGHTS);
         }
 
         $blIsImage = $oObject->isFile;
@@ -914,7 +939,7 @@ class FrontendController extends Controller
             $aFileTypes = explode(',', $this->_oConfig->getLockedFileTypes());
 
             if ($this->_oConfig->getLockedFileTypes() === 'all' || in_array($sType, $aFileTypes)) {
-                $sUrl = $this->_oWrapper->getHomeUrl('/').'?uamfiletype=attachment&uamgetfile='.$sUrl;
+                $sUrl = $this->_oWordpress->getHomeUrl('/').'?uamfiletype=attachment&uamgetfile='.$sUrl;
             }
         }
 

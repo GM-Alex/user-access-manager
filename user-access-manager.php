@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: User Access Manager
  * Plugin URI: https://wordpress.org/plugins/user-access-manager/
@@ -83,24 +82,26 @@ use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-$oWrapper = new Wordpress();
+$oPhp = new Php();
+$oWordpress = new Wordpress();
 $oUtil = new Util();
 $oCache = new Cache();
 $oConfigParameterFactory = new ConfigParameterFactory();
-$oDatabase = new Database($oWrapper);
-$oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
-$oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, __FILE__);
+$oDatabase = new Database($oWordpress);
+$oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
+$oConfig = new Config($oWordpress, $oObjectHandler, $oConfigParameterFactory, __FILE__);
 $oUserGroupFactory = new UserGroupFactory(
-    $oWrapper,
+    $oWordpress,
     $oDatabase,
     $oConfig,
     $oUtil,
     $oObjectHandler
 );
 $oAccessHandler = new AccessHandler(
-    $oWrapper,
+    $oWordpress,
     $oConfig,
     $oCache,
     $oDatabase,
@@ -109,23 +110,25 @@ $oAccessHandler = new AccessHandler(
     $oUserGroupFactory
 );
 $oFileProtectionFactory = new FileProtectionFactory(
-    $oWrapper,
+    $oWordpress,
     $oConfig,
     $oUtil
 );
 $oFileHandler = new FileHandler(
-    $oWrapper,
+    $oPhp,
+    $oWordpress,
     $oConfig,
     $oFileProtectionFactory
 );
 $oSetupHandler = new SetupHandler(
-    $oWrapper,
+    $oWordpress,
     $oDatabase,
     $oObjectHandler,
     $oFileHandler
 );
 $oControllerFactory = new ControllerFactory(
-    $oWrapper,
+    $oPhp,
+    $oWordpress,
     $oDatabase,
     $oConfig,
     $oUtil,
@@ -137,7 +140,7 @@ $oControllerFactory = new ControllerFactory(
     $oSetupHandler
 );
 $oUserAccessManager = new UserAccessManager(
-    $oWrapper,
+    $oWordpress,
     $oConfig,
     $oObjectHandler,
     $oAccessHandler,
@@ -145,8 +148,8 @@ $oUserAccessManager = new UserAccessManager(
     $oControllerFactory
 );
 
-$oWrapper->doAction('uam_init', array(
-    $oWrapper,
+$oWordpress->doAction('uam_init', array(
+    $oWordpress,
     $oUtil,
     $oCache,
     $oConfigParameterFactory,
@@ -169,25 +172,27 @@ if (function_exists('register_activation_hook')) {
 if (!function_exists("userAccessManagerUninstall")) {
     function userAccessManagerUninstall()
     {
-        $oWrapper = new Wordpress();
+        $oPhp = new Php();
+        $oWordpress = new Wordpress();
         $oUtil = new Util();
         $oConfigParameterFactory = new ConfigParameterFactory();
-        $oDatabase = new Database($oWrapper);
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
-        $oConfig = new Config($oWrapper, $oObjectHandler, $oConfigParameterFactory, __FILE__);
+        $oDatabase = new Database($oWordpress);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
+        $oConfig = new Config($oWordpress, $oObjectHandler, $oConfigParameterFactory, __FILE__);
 
         $oFileProtectionFactory = new FileProtectionFactory(
-            $oWrapper,
+            $oWordpress,
             $oConfig,
             $oUtil
         );
         $oFileHandler = new FileHandler(
-            $oWrapper,
+            $oPhp,
+            $oWordpress,
             $oConfig,
             $oFileProtectionFactory
         );
         $oSetupHandler = new SetupHandler(
-            $oWrapper,
+            $oWordpress,
             $oDatabase,
             $oObjectHandler,
             $oFileHandler

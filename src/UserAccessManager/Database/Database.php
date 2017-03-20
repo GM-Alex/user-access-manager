@@ -35,17 +35,17 @@ class Database
     /**
      * @var Database
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * Database constructor.
      *
-     * @param Wordpress $oWrapper
+     * @param Wordpress $oWordpress
      */
-    public function __construct(Wordpress $oWrapper)
+    public function __construct(Wordpress $oWordpress)
     {
-        $this->_oWrapper = $oWrapper;
-        $this->_oWpDatabase = $oWrapper->getDatabase();
+        $this->_oWordpress = $oWordpress;
+        $this->_oWpDatabase = $oWordpress->getDatabase();
     }
 
     /**
@@ -90,7 +90,7 @@ class Database
      */
     public function dbDelta($mQueries = '', $blExecute = true)
     {
-        return $this->_oWrapper->dbDelta($mQueries, $blExecute);
+        return $this->_oWordpress->dbDelta($mQueries, $blExecute);
     }
 
     /**

@@ -31,7 +31,7 @@ class UserGroupFactory
     /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var Database
@@ -61,21 +61,21 @@ class UserGroupFactory
     /**
      * UserGroupFactory constructor.
      *
-     * @param Wordpress     $oWrapper
+     * @param Wordpress     $oWordpress
      * @param Database      $oDatabase
      * @param Config        $oConfig
      * @param Util          $oUtil
      * @param ObjectHandler $oObjectHandler
      */
     public function __construct(
-        Wordpress $oWrapper,
+        Wordpress $oWordpress,
         Database $oDatabase,
         Config $oConfig,
         Util $oUtil,
         ObjectHandler $oObjectHandler
     )
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpress = $oWordpress;
         $this->_oDatabase = $oDatabase;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;
@@ -92,7 +92,7 @@ class UserGroupFactory
     public function createUserGroup($sId = null)
     {
         return new UserGroup(
-            $this->_oWrapper,
+            $this->_oWordpress,
             $this->_oDatabase,
             $this->_oConfig,
             $this->_oUtil,

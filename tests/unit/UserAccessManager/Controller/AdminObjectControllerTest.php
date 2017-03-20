@@ -30,7 +30,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oAdminObjectController = new AdminObjectController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -70,7 +71,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue($aFilteredGroups));
 
         $oAdminObjectController = new AdminObjectController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -169,7 +171,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue($aUserGroups));
 
         $oAdminObjectController = new AdminObjectController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -196,7 +199,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue($aUserGroups));
 
         $oAdminObjectController = new AdminObjectController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -220,7 +224,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $oAdminObjectController = new AdminObjectController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -246,13 +251,14 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oRoles = new \stdClass();
         $oRoles->role_names = 'roleNames';
 
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('getRoles')
             ->will($this->returnValue($oRoles));
 
         $oAdminObjectController = new AdminObjectController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -275,7 +281,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue([1 => 1, 2 => 2]));
 
         $oAdminObjectController = new AdminObjectController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $oObjectHandler,
@@ -298,7 +305,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $oAdminObjectController = new AdminObjectController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),

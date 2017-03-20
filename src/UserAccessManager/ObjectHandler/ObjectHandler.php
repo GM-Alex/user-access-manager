@@ -36,7 +36,7 @@ class ObjectHandler
     /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var array
@@ -106,12 +106,12 @@ class ObjectHandler
     /**
      * Cache constructor.
      *
-     * @param Wordpress $oWrapper
+     * @param Wordpress $oWordpress
      * @param Database  $oDatabase
      */
-    public function __construct(Wordpress $oWrapper, Database $oDatabase)
+    public function __construct(Wordpress $oWordpress, Database $oDatabase)
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpress = $oWordpress;
         $this->_oDatabase = $oDatabase;
     }
 
@@ -123,7 +123,7 @@ class ObjectHandler
     public function getPostTypes()
     {
         if ($this->_aPostTypes === null) {
-            $this->_aPostTypes = $this->_oWrapper->getPostTypes(array('public' => true));
+            $this->_aPostTypes = $this->_oWordpress->getPostTypes(array('public' => true));
         }
 
         return $this->_aPostTypes;
@@ -137,7 +137,7 @@ class ObjectHandler
     public function getTaxonomies()
     {
         if ($this->_aTaxonomies === null) {
-            $this->_aTaxonomies = $this->_oWrapper->getTaxonomies(array('public' => true));
+            $this->_aTaxonomies = $this->_oWordpress->getTaxonomies(array('public' => true));
         }
 
         return $this->_aTaxonomies;
@@ -153,7 +153,7 @@ class ObjectHandler
     public function getUser($sId)
     {
         if (!isset($this->_aUsers[$sId])) {
-            $this->_aUsers[$sId] = $this->_oWrapper->getUserData($sId);
+            $this->_aUsers[$sId] = $this->_oWordpress->getUserData($sId);
         }
 
         return $this->_aUsers[$sId];
@@ -169,7 +169,7 @@ class ObjectHandler
     public function getPost($sId)
     {
         if (!isset($this->_aPosts[$sId])) {
-            $oPost = $this->_oWrapper->getPost($sId);
+            $oPost = $this->_oWordpress->getPost($sId);
             $this->_aPosts[$sId] = ($oPost === null) ? false : $oPost;
         }
 
@@ -189,7 +189,7 @@ class ObjectHandler
         $sFullId = $sId.'|'.$sTaxonomy;
 
         if (!isset($this->_aTerms[$sFullId])) {
-            $oTerm = $this->_oWrapper->getTerm($sId, $sTaxonomy);
+            $oTerm = $this->_oWordpress->getTerm($sId, $sTaxonomy);
             $this->_aTerms[$sFullId] = ($oTerm === null) ? false : $oTerm;
         }
 

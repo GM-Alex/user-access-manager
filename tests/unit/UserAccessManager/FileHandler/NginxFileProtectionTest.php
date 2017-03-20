@@ -55,7 +55,7 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oNginxFileProtection = new NginxFileProtection(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );
@@ -69,7 +69,7 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testCreate()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
         /**
          * @var \stdClass $oUser
@@ -78,7 +78,7 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';
 
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(2))
             ->method('getCurrentUser')
             ->will($this->returnValue($oUser));
 
@@ -112,7 +112,7 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
         $oRootDir->add('testDir', new Directory());
         $sTestDir = 'vfs://testDir';
 
-        $oNginxFileProtection = new NginxFileProtection($oWrapper, $oConfig, $oUtil);
+        $oNginxFileProtection = new NginxFileProtection($oWordpress, $oConfig, $oUtil);
         $sFile = 'vfs://testDir/'.NginxFileProtection::FILE_NAME;
         $sPasswordFile = 'vfs://testDir/'.NginxFileProtection::PASSWORD_FILE_NAME;
 
@@ -154,10 +154,10 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testDelete()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
         $oConfig = $this->getConfig();
         $oUtil = $this->getUtil();
-        $oNginxFileProtection = new NginxFileProtection($oWrapper, $oConfig, $oUtil);
+        $oNginxFileProtection = new NginxFileProtection($oWordpress, $oConfig, $oUtil);
 
         /**
          * @var Directory $oRootDir

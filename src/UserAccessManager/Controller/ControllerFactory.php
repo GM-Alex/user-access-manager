@@ -23,6 +23,7 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -33,9 +34,14 @@ use UserAccessManager\Wrapper\Wordpress;
 class ControllerFactory
 {
     /**
+     * @var Php
+     */
+    protected $_oPhp;
+
+    /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var Database
@@ -85,7 +91,8 @@ class ControllerFactory
     /**
      * ControllerFactory constructor.
      *
-     * @param Wordpress        $oWrapper
+     * @param Php              $oPhp
+     * @param Wordpress        $oWordpress
      * @param Database         $oDatabase
      * @param Config           $oConfig
      * @param Util             $oUtil
@@ -97,7 +104,8 @@ class ControllerFactory
      * @param SetupHandler     $oSetupHandler
      */
     public function __construct(
-        Wordpress $oWrapper,
+        Php $oPhp,
+        Wordpress $oWordpress,
         Database $oDatabase,
         Config $oConfig,
         Util $oUtil,
@@ -109,7 +117,8 @@ class ControllerFactory
         SetupHandler $oSetupHandler
     )
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oPhp = $oPhp;
+        $this->_oWordpress = $oWordpress;
         $this->_oDatabase = $oDatabase;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;
@@ -128,7 +137,13 @@ class ControllerFactory
      */
     public function createAdminController()
     {
-        return new AdminController($this->_oWrapper, $this->_oConfig, $this->_oAccessHandler, $this->_oFileHandler);
+        return new AdminController(
+            $this->_oPhp,
+            $this->_oWordpress,
+            $this->_oConfig,
+            $this->_oAccessHandler,
+            $this->_oFileHandler
+        );
     }
 
     /**
@@ -138,7 +153,11 @@ class ControllerFactory
      */
     public function createAdminAboutController()
     {
-        return new AdminAboutController($this->_oWrapper, $this->_oConfig);
+        return new AdminAboutController(
+            $this->_oPhp,
+            $this->_oWordpress,
+            $this->_oConfig
+        );
     }
 
     /**
@@ -149,7 +168,8 @@ class ControllerFactory
     public function createAdminObjectController()
     {
         return new AdminObjectController(
-            $this->_oWrapper,
+            $this->_oPhp,
+            $this->_oWordpress,
             $this->_oConfig,
             $this->_oDatabase,
             $this->_oObjectHandler,
@@ -164,7 +184,13 @@ class ControllerFactory
      */
     public function createAdminSettingsController()
     {
-        return new AdminSettingsController($this->_oWrapper, $this->_oConfig, $this->_oObjectHandler, $this->_oFileHandler);
+        return new AdminSettingsController(
+            $this->_oPhp,
+            $this->_oWordpress,
+            $this->_oConfig,
+            $this->_oObjectHandler,
+            $this->_oFileHandler
+        );
     }
 
     /**
@@ -174,7 +200,13 @@ class ControllerFactory
      */
     public function createAdminSetupController()
     {
-        return new AdminSetupController($this->_oWrapper, $this->_oConfig, $this->_oDatabase, $this->_oSetupHandler);
+        return new AdminSetupController(
+            $this->_oPhp,
+            $this->_oWordpress,
+            $this->_oConfig,
+            $this->_oDatabase,
+            $this->_oSetupHandler
+        );
     }
 
     /**
@@ -184,7 +216,13 @@ class ControllerFactory
      */
     public function createAdminUserGroupController()
     {
-        return new AdminUserGroupController($this->_oWrapper, $this->_oConfig, $this->_oAccessHandler, $this->_oUserGroupFactory);
+        return new AdminUserGroupController(
+            $this->_oPhp,
+            $this->_oWordpress,
+            $this->_oConfig,
+            $this->_oAccessHandler,
+            $this->_oUserGroupFactory
+        );
     }
 
     /**
@@ -195,7 +233,8 @@ class ControllerFactory
     public function createFrontendController()
     {
         return new FrontendController(
-            $this->_oWrapper,
+            $this->_oPhp,
+            $this->_oWordpress,
             $this->_oConfig,
             $this->_oDatabase,
             $this->_oUtil,

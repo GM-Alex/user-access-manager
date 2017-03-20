@@ -32,7 +32,7 @@ class UserGroup
     /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var Database
@@ -122,7 +122,7 @@ class UserGroup
     /**
      * UserGroup constructor.
      *
-     * @param Wordpress     $oWrapper
+     * @param Wordpress     $oWordpress
      * @param Database      $oDatabase
      * @param Config        $oConfig
      * @param Util          $oUtil
@@ -130,7 +130,7 @@ class UserGroup
      * @param null          $iId
      */
     public function __construct(
-        Wordpress $oWrapper,
+        Wordpress $oWordpress,
         Database $oDatabase,
         Config $oConfig,
         Util $oUtil,
@@ -138,7 +138,7 @@ class UserGroup
         $iId = null
     )
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpress = $oWordpress;
         $this->_oDatabase = $oDatabase;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;

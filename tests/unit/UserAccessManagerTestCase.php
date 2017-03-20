@@ -37,9 +37,17 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Php
+     */
+    protected function getPhp()
+    {
+        return $this->createMock('\UserAccessManager\Wrapper\Php');
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
      */
-    protected function getWrapper()
+    protected function getWordpress()
     {
         return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
     }

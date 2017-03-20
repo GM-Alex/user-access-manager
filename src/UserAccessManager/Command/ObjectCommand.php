@@ -33,7 +33,7 @@ class ObjectCommand extends \WP_CLI_Command
     /**
      * @var WordpressCli
      */
-    protected $_oWrapper;
+    protected $_oWordpressCli;
 
     /**
      * @var AccessHandler
@@ -43,12 +43,12 @@ class ObjectCommand extends \WP_CLI_Command
     /**
      * ObjectCommand constructor.
      *
-     * @param WordpressCli  $oWrapper
+     * @param WordpressCli  $oWordpressCli
      * @param AccessHandler $oAccessHandler
      */
-    public function __construct(WordpressCli $oWrapper, AccessHandler $oAccessHandler)
+    public function __construct(WordpressCli $oWordpressCli, AccessHandler $oAccessHandler)
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpressCli = $oWordpressCli;
         $this->_oAccessHandler = $oAccessHandler;
     }
 
@@ -93,7 +93,7 @@ class ObjectCommand extends \WP_CLI_Command
             case self::ACTION_REMOVE:
                 break;
             default:
-                $this->_oWrapper->error("operation is not valid: {$sOperation}");
+                $this->_oWordpressCli->error("operation is not valid: {$sOperation}");
         }
 
         // groups passes
@@ -119,7 +119,7 @@ class ObjectCommand extends \WP_CLI_Command
                 $aAddUserGroups[$sUserGroupId] = $aUamUserGroups[$sUserGroupId];
             } else {
                 $sType = is_numeric($sIdentifier) ? 'id' : 'name';
-                $this->_oWrapper->error("there is no group with the {$sType}: {$sIdentifier}");
+                $this->_oWordpressCli->error("there is no group with the {$sType}: {$sIdentifier}");
             }
         }
 
@@ -144,17 +144,17 @@ class ObjectCommand extends \WP_CLI_Command
 
         switch ($sOperation) {
             case self::ACTION_ADD:
-                $this->_oWrapper->error(
+                $this->_oWordpressCli->error(
                     "Groups {$aAssocArguments['groups']} successfully added to {$sObjectType} {$sObjectId}"
                 );
                 break;
             case self::ACTION_UPDATE:
-                $this->_oWrapper->error(
+                $this->_oWordpressCli->error(
                     "Successfully updated {$sObjectType} {$sObjectId} with groups {$aAssocArguments['groups']}"
                 );
                 break;
             case self::ACTION_REMOVE:
-                $this->_oWrapper->error(
+                $this->_oWordpressCli->error(
                     "Successfully removed groups: {$aAssocArguments['groups']} from {$sObjectType} {$sObjectId}"
                 );
                 break;

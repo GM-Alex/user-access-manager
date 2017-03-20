@@ -19,33 +19,12 @@ use Vfs\Node\Directory;
 use Vfs\Node\File;
 
 /**
- * function_exists mock.
- *
- * @param $sFunction
- *
- * @return bool
- */
-function function_exists($sFunction)
-{
-    if ($sFunction === 'finfo_open') {
-        return FileHandlerTest::$blFInfoOpenExists;
-    } elseif ($sFunction === 'mime_content_type') {
-        return FileHandlerTest::$blMimeContentType;
-    }
-
-    return \function_exists($sFunction);
-}
-
-/**
  * Class FileHandlerTest
  *
  * @package UserAccessManager\FileHandler
  */
 class FileHandlerTest extends \UserAccessManagerTestCase
 {
-    public static $blFInfoOpenExists = true;
-    public static $blMimeContentType = true;
-
     /**
      * @var FileSystem
      */
@@ -83,7 +62,8 @@ class FileHandlerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oFileHandler = new FileHandler(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getFileProtectionFactory()
         );
@@ -98,8 +78,22 @@ class FileHandlerTest extends \UserAccessManagerTestCase
      */
     public function testGetFile()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(9))
+            ->method('functionExists')
+            ->withConsecutive(
+                ['finfo_open'], ['finfo_open'], ['finfo_open'],
+                ['finfo_open'], ['mime_content_type'],
+                ['finfo_open'], ['mime_content_type'], ['finfo_open'], ['mime_content_type']
+            )
+            ->will($this->onConsecutiveCalls(
+                true, true, true,
+                false, true,
+                false, false, false, false
+            ));
+
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('wpDie')
             ->with(TXT_UAM_FILE_NOT_FOUND_ERROR)
             ->will($this->returnValue(null));
@@ -116,8 +110,12 @@ class FileHandlerTest extends \UserAccessManagerTestCase
             ->method('getDownloadType')
             ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen', 'fopen', 'fopen', 'fopen'));
 
-        $oFileProtectionFactory = $this->getFileProtectionFactory();
-        $oFileHandler = new FileHandler($oWrapper, $oConfig, $oFileProtectionFactory);
+        $oFileHandler = new FileHandler(
+            $oPhp,
+            $oWordpress,
+            $oConfig,
+            $this->getFileProtectionFactory()
+        );
 
         /**
          * @var Directory $oRootDir
@@ -142,11 +140,9 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $oFileHandler->getFile($sTestFile, false);
         self::expectOutputString('Test text');
 
-        self::$blFInfoOpenExists = false;
         $oFileHandler->getFile($sTestFile, false);
         self::expectOutputString('Test text');
 
-        self::$blMimeContentType = false;
         $oFileHandler->getFile($sTestFile, false);
         self::expectOutputString('Test text');
 
@@ -160,8 +156,8 @@ class FileHandlerTest extends \UserAccessManagerTestCase
      */
     public function testCreateFileProtection()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(6))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(6))
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
 
@@ -192,7 +188,12 @@ class FileHandlerTest extends \UserAccessManagerTestCase
             ->method('createNginxFileProtection')
             ->will($this->returnValue($oNginxFileProtection));
 
-        $oFileHandler = new FileHandler($oWrapper, $oConfig, $oFileProtectionFactory);
+        $oFileHandler = new FileHandler(
+            $this->getPhp(),
+            $oWordpress,
+            $oConfig,
+            $oFileProtectionFactory
+        );
 
         self::assertFalse($oFileHandler->createFileProtection());
 
@@ -211,8 +212,8 @@ class FileHandlerTest extends \UserAccessManagerTestCase
      */
     public function testDeleteFileProtection()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(6))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(6))
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
 
@@ -243,7 +244,12 @@ class FileHandlerTest extends \UserAccessManagerTestCase
             ->method('createNginxFileProtection')
             ->will($this->returnValue($oNginxFileProtection));
 
-        $oFileHandler = new FileHandler($oWrapper, $oConfig, $oFileProtectionFactory);
+        $oFileHandler = new FileHandler(
+            $this->getPhp(),
+            $oWordpress,
+            $oConfig,
+            $oFileProtectionFactory
+        );
 
         self::assertFalse($oFileHandler->deleteFileProtection());
 

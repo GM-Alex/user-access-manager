@@ -33,7 +33,7 @@ class AccessHandler
     /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var Config
@@ -86,7 +86,7 @@ class AccessHandler
     /**
      * The constructor
      *
-     * @param Wordpress        $oWrapper
+     * @param Wordpress        $oWordpress
      * @param Config           $oConfig
      * @param Cache            $oCache
      * @param Database         $oDatabase
@@ -95,7 +95,7 @@ class AccessHandler
      * @param UserGroupFactory $oUserGroupFactory
      */
     public function __construct(
-        Wordpress $oWrapper,
+        Wordpress $oWordpress,
         Config $oConfig,
         Cache $oCache,
         Database $oDatabase,
@@ -104,7 +104,7 @@ class AccessHandler
         UserGroupFactory $oUserGroupFactory
     )
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpress = $oWordpress;
         $this->_oConfig = $oConfig;
         $this->_oCache = $oCache;
         $this->_oDatabase = $oDatabase;
@@ -289,7 +289,7 @@ class AccessHandler
         }
 
         if ($this->_aUserGroupsForUser === null) {
-            $oCurrentUser = $this->_oWrapper->getCurrentUser();
+            $oCurrentUser = $this->_oWordpress->getCurrentUser();
             $aUserGroupsForUser = $this->getUserGroupsForObject(
                 ObjectHandler::GENERAL_USER_OBJECT_TYPE,
                 $oCurrentUser->ID
@@ -355,9 +355,9 @@ class AccessHandler
      */
     public function checkUserAccess($mAllowedCapability = false)
     {
-        $oCurrentUser = $this->_oWrapper->getCurrentUser();
+        $oCurrentUser = $this->_oWordpress->getCurrentUser();
 
-        if ($this->_oWrapper->isSuperAdmin($oCurrentUser->ID) === true
+        if ($this->_oWordpress->isSuperAdmin($oCurrentUser->ID) === true
             || $mAllowedCapability !== false && $oCurrentUser->has_cap($mAllowedCapability)
         ) {
             return true;
@@ -400,7 +400,7 @@ class AccessHandler
         $aRoles = $this->_getUserRole($oUser);
         $aRolesMap = array_flip($aRoles);
 
-        return (isset($aRolesMap['administrator']) || $this->_oWrapper->isSuperAdmin($iUserId));
+        return (isset($aRolesMap['administrator']) || $this->_oWordpress->isSuperAdmin($iUserId));
     }
 
     /**
@@ -421,7 +421,7 @@ class AccessHandler
 
         if (isset($this->_aObjectAccess[$sObjectType][$iObjectId]) === false) {
             $blAccess = false;
-            $oCurrentUser = $this->_oWrapper->getCurrentUser();
+            $oCurrentUser = $this->_oWordpress->getCurrentUser();
 
             if ($this->checkUserAccess('manage_user_groups') === true) {
                 $blAccess = true;
@@ -429,7 +429,7 @@ class AccessHandler
                 && $this->_oObjectHandler->isPostType($sObjectType)
             ) {
                 $oPost = $this->_oObjectHandler->getPost($iObjectId);
-                $sAuthorId = ($oPost !== false) ? $oPost->post_author : -1;
+                $sAuthorId = ($oPost !== false) ? (int)$oPost->post_author : -1;
                 $blAccess = ($oCurrentUser->ID === $sAuthorId);
             }
 

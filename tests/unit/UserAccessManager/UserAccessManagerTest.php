@@ -34,7 +34,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oObjectHandler = new UserAccessManager(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
@@ -51,12 +51,12 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
      */
     public function testRegisterAdminMenu()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('addMenuPage');
-        $oWrapper->expects($this->exactly(4))
+        $oWordpress->expects($this->exactly(4))
             ->method('addSubmenuPage');
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('doAction');
 
         $oAccessHandler = $this->getAccessHandler();
@@ -78,7 +78,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             ->method('createAdminAboutController');
 
         $oObjectHandler = new UserAccessManager(
-            $oWrapper,
+            $oWordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $oAccessHandler,
@@ -96,14 +96,14 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
      */
     public function testRegisterAdminActionsAndFilters()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(57))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(57))
             ->method('addAction');
 
-        $oWrapper->expects($this->exactly(16))
+        $oWordpress->expects($this->exactly(16))
             ->method('addFilter');
 
-        $oWrapper->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(3))
             ->method('addMetaBox');
 
         $oConfig = $this->getConfig();
@@ -153,7 +153,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             }));
 
         $oObjectHandler = new UserAccessManager(
-            $oWrapper,
+            $oWordpress,
             $oConfig,
             $oObjectHandler,
             $oAccessHandler,
@@ -177,11 +177,11 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
      */
     public function testAddActionsAndFilters()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(21))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(21))
             ->method('addAction');
 
-        $oWrapper->expects($this->exactly(62))
+        $oWordpress->expects($this->exactly(62))
             ->method('addFilter');
 
         $oConfig = $this->getConfig();
@@ -190,7 +190,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, false, true));
 
         $oObjectHandler = new UserAccessManager(
-            $oWrapper,
+            $oWordpress,
             $oConfig,
             $this->getObjectHandler(),
             $this->getAccessHandler(),

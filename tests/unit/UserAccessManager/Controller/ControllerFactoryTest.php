@@ -30,7 +30,8 @@ class ControllerFactoryTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oControllerFactory = new ControllerFactory(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getDatabase(),
             $this->getConfig(),
             $this->getUtil(),

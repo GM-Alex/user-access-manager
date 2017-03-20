@@ -15,6 +15,7 @@
 namespace UserAccessManager\FileHandler;
 
 use UserAccessManager\Config\Config;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -25,9 +26,14 @@ use UserAccessManager\Wrapper\Wordpress;
 class FileHandler
 {
     /**
+     * @var Php
+     */
+    protected $_oPhp;
+
+    /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var Config
@@ -42,13 +48,15 @@ class FileHandler
     /**
      * FileHandler constructor.
      *
-     * @param Wordpress             $oWrapper
+     * @param Php                   $oPhp
+     * @param Wordpress             $oWordpress
      * @param Config                $oConfig
      * @param FileProtectionFactory $oFileProtectionFactory
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, FileProtectionFactory $oFileProtectionFactory)
+    public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig, FileProtectionFactory $oFileProtectionFactory)
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oPhp = $oPhp;
+        $this->_oWordpress = $oWordpress;
         $this->_oConfig = $oConfig;
         $this->_oFileProtectionFactory = $oFileProtectionFactory;
     }
@@ -78,11 +86,11 @@ class FileHandler
 
             $aMimeTypes = $this->_oConfig->getMimeTypes();
 
-            if (function_exists('finfo_open')) {
+            if ($this->_oPhp->functionExists('finfo_open')) {
                 $sFileInfo = finfo_open(FILEINFO_MIME);
                 $sFileMimeType = finfo_file($sFileInfo, $sFile);
                 finfo_close($sFileInfo);
-            } elseif (function_exists('mime_content_type')) {
+            } elseif ($this->_oPhp->functionExists('mime_content_type')) {
                 $sFileMimeType = mime_content_type($sFile);
             } elseif (isset($aMimeTypes[$sFileExt])) {
                 $sFileMimeType = $aMimeTypes[$sFileExt];
@@ -123,7 +131,7 @@ class FileHandler
                 readfile($sFile);
             }
         } else {
-            $this->_oWrapper->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
+            $this->_oWordpress->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
         }
 
         return null;
@@ -142,7 +150,7 @@ class FileHandler
         $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
 
         if ($sDir !== null) {
-            if ($this->_oWrapper->isNginx() === true) {
+            if ($this->_oWordpress->isNginx() === true) {
                 return $this->_oFileProtectionFactory->createNginxFileProtection()->create($sDir, $sObjectType);
             } else {
                 return $this->_oFileProtectionFactory->createApacheFileProtection()->create($sDir, $sObjectType);
@@ -165,7 +173,7 @@ class FileHandler
         $sDir = ($sDir === null) ? $this->_oConfig->getUploadDirectory() : $sDir;
 
         if ($sDir !== null) {
-            if ($this->_oWrapper->isNginx() === true) {
+            if ($this->_oWordpress->isNginx() === true) {
                 return $this->_oFileProtectionFactory->createNginxFileProtection()->delete($sDir);
             } else {
                 return $this->_oFileProtectionFactory->createApacheFileProtection()->delete($sDir);

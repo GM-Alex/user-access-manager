@@ -17,6 +17,7 @@ namespace UserAccessManager\Controller;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\SetupHandler\SetupHandler;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -49,14 +50,21 @@ class AdminSetupController extends Controller
     /**
      * AdminSetupController constructor.
      *
-     * @param Wordpress    $oWrapper
+     * @param Php          $oPhp
+     * @param Wordpress    $oWordpress
      * @param Config       $oConfig
      * @param Database     $oDatabase
      * @param SetupHandler $oSetupHandler
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, Database $oDatabase, SetupHandler $oSetupHandler)
+    public function __construct(
+        Php $oPhp,
+        Wordpress $oWordpress,
+        Config $oConfig,
+        Database $oDatabase,
+        SetupHandler $oSetupHandler
+    )
     {
-        parent::__construct($oWrapper, $oConfig);
+        parent::__construct($oPhp, $oWordpress, $oConfig);
         $this->_oDatabase = $oDatabase;
         $this->_oSetupHandler = $oSetupHandler;
     }
@@ -78,7 +86,7 @@ class AdminSetupController extends Controller
      */
     public function showNetworkUpdate()
     {
-        return $this->_oWrapper->isSuperAdmin() === true
+        return $this->_oWordpress->isSuperAdmin() === true
             && defined('MULTISITE') === true && MULTISITE === true
             && defined('WP_ALLOW_MULTISITE') === true && WP_ALLOW_MULTISITE === true;
     }
@@ -99,11 +107,11 @@ class AdminSetupController extends Controller
                     $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
 
                     foreach ($aBlogIds as $iBlogId) {
-                        $this->_oWrapper->switchToBlog($iBlogId);
+                        $this->_oWordpress->switchToBlog($iBlogId);
                         $this->_oSetupHandler->update();
                     }
 
-                    $this->_oWrapper->switchToBlog($iCurrentBlogId);
+                    $this->_oWordpress->switchToBlog($iCurrentBlogId);
                 }
             } else {
                 $this->_oSetupHandler->update();

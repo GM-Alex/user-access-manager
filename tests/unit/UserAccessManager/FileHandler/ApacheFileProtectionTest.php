@@ -54,7 +54,7 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oApacheFileProtection = new ApacheFileProtection(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );
@@ -68,9 +68,9 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testCreate()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(2))
             ->method('getHomeUrl')
             ->will($this->returnValue('http://www.test.com'));
 
@@ -81,7 +81,7 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';
 
-        $oWrapper->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(3))
             ->method('getCurrentUser')
             ->will($this->returnValue($oUser));
 
@@ -115,7 +115,7 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
         $oRootDir->add('testDir', new Directory());
         $sTestDir = 'vfs://testDir';
 
-        $oApacheFileProtection = new ApacheFileProtection($oWrapper, $oConfig, $oUtil);
+        $oApacheFileProtection = new ApacheFileProtection($oWordpress, $oConfig, $oUtil);
 
         $sFile = 'vfs://testDir/'.ApacheFileProtection::FILE_NAME;
         $sPasswordFile = 'vfs://testDir/'.ApacheFileProtection::PASSWORD_FILE_NAME;
@@ -167,10 +167,10 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testDelete()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
         $oConfig = $this->getConfig();
         $oUtil = $this->getUtil();
-        $oApacheFileProtection = new ApacheFileProtection($oWrapper, $oConfig, $oUtil);
+        $oApacheFileProtection = new ApacheFileProtection($oWordpress, $oConfig, $oUtil);
 
         /**
          * @var Directory $oRootDir

@@ -30,7 +30,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oAdminSettingController = new AdminSettingsController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()
@@ -59,13 +60,14 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
      */
     public function testIsNginx()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, true));
 
         $oAdminSettingController = new AdminSettingsController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()
@@ -81,14 +83,15 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
      */
     public function testGetPages()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
             ->method('getPages')
             ->with('sort_column=menu_order')
             ->will($this->onConsecutiveCalls(false, ['a' => 'a']));
 
         $oAdminSettingController = new AdminSettingsController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()
@@ -110,7 +113,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue(['a' => 'a']));
 
         $oAdminSettingController = new AdminSettingsController(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $oConfig,
             $this->getObjectHandler(),
             $this->getFileHandler()
@@ -127,8 +131,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
      */
     public function testGetGroupedConfigParameters()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -137,7 +141,7 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(2))
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -189,7 +193,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $oAdminSettingController = new AdminSettingsController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $oConfig,
             $this->getObjectHandler(),
             $this->getFileHandler()
@@ -264,12 +269,12 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
             ->method('lockFile')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
             ->method('verifyNonce')
             ->will($this->returnValue(true));
 
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(2))
             ->method('doAction')
             ->with('uam_update_options', $oConfig);
 
@@ -287,7 +292,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
         ];
 
         $oAdminSettingController = new AdminSettingsController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $oConfig,
             $this->getObjectHandler(),
             $oFileHandler
@@ -305,8 +311,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
      */
     public function testIsPostTypeGroup()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(4))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(4))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -316,7 +322,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
             ]));
 
         $oAdminSettingController = new AdminSettingsController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()
@@ -336,8 +343,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
      */
     public function testGetText()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(8))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(8))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -346,7 +353,7 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $oWrapper->expects($this->exactly(8))
+        $oWordpress->expects($this->exactly(8))
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -354,7 +361,8 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
             ]));
 
         $oAdminSettingController = new AdminSettingsController(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()

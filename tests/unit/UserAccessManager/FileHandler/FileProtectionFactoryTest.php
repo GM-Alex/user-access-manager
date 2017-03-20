@@ -30,7 +30,7 @@ class FileProtectionFactoryTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oFileProtectionFactory = new FileProtectionFactory(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );

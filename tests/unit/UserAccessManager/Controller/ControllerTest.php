@@ -14,7 +14,11 @@
  */
 namespace UserAccessManager\Controller;
 
-require_once __DIR__.'/../../../fixtures/src/UserAccessManager/Controller/DummyController.php';
+require_once __DIR__.'/../../../fixtures/DummyController.php';
+
+use Vfs\FileSystem;
+use Vfs\Node\Directory;
+use Vfs\Node\File;
 
 /**
  * Class ControllerTest
@@ -23,6 +27,28 @@ require_once __DIR__.'/../../../fixtures/src/UserAccessManager/Controller/DummyC
  */
 class ControllerTest extends \UserAccessManagerTestCase
 {
+    /**
+     * @var FileSystem
+     */
+    private $oRoot;
+
+    /**
+     * Setup virtual file system.
+     */
+    public function setUp()
+    {
+        $this->oRoot = FileSystem::factory('vfs://');
+        $this->oRoot->mount();
+    }
+
+    /**
+     * Tear down virtual file system.
+     */
+    public function tearDown()
+    {
+        $this->oRoot->unmount();
+    }
+
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|Controller
      */
@@ -48,7 +74,8 @@ class ControllerTest extends \UserAccessManagerTestCase
     {
         $oStub = $this->getStub();
         $oStub->__construct(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig()
         );
 
@@ -97,15 +124,16 @@ class ControllerTest extends \UserAccessManagerTestCase
      */
     public function testCreateNonceField()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('getNonceField')
             ->with('test', 'testNonce')
             ->will($this->returnValue('return'));
 
         $oStub = $this->getStub();
         $oStub->__construct(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig()
         );
 
@@ -119,15 +147,16 @@ class ControllerTest extends \UserAccessManagerTestCase
      */
     public function testGetNonce()
     {
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->once())
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->once())
             ->method('createNonce')
             ->with('test')
             ->will($this->returnValue('return'));
 
         $oStub = $this->getStub();
         $oStub->__construct(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig()
         );
 
@@ -143,18 +172,19 @@ class ControllerTest extends \UserAccessManagerTestCase
     {
         $_GET['testNonce'] = 'testNonceValue';
 
-        $oWrapper = $this->getWrapper();
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
             ->method('verifyNonce')
             ->withConsecutive(['testNonceValue', 'test'] ,['testNonceValue', 'test'])
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('wpDie');
 
         $oStub = $this->getStub();
         $oStub->__construct(
-            $oWrapper,
+            $this->getPhp(),
+            $oWordpress,
             $this->getConfig()
         );
 
@@ -205,7 +235,8 @@ class ControllerTest extends \UserAccessManagerTestCase
 
         $oStub = $this->getStub();
         $oStub->__construct(
-            $this->getWrapper(),
+            $this->getPhp(),
+            $this->getWordpress(),
             $this->getConfig()
         );
 
@@ -220,15 +251,34 @@ class ControllerTest extends \UserAccessManagerTestCase
      */
     public function testRender()
     {
-        $sPath = realpath(__DIR__.'/../../../fixtures');
+        /**
+         * @var Directory $oRootDir
+         */
+        $oRootDir = $this->oRoot->get('/');
+        $oRootDir->add('src', new Directory([
+            'UserAccessManager'  => new Directory([
+                'View'  => new Directory([
+                    'TestView.php' => new File('<?php echo \'testContent\';')
+                ])
+            ])
+        ]));
+
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->once())
+            ->method('includeFile')
+            ->with('vfs://src/UserAccessManager/View/TestView.php')
+            ->will($this->returnCallback(function () {
+                echo 'testContent';
+            }));
 
         $oConfig = $this->getConfig();
         $oConfig->expects($this->once())
             ->method('getRealPath')
-            ->will($this->returnValue($sPath));
+            ->will($this->returnValue('vfs:/'));
 
         $oDummyController = new DummyController(
-            $this->getWrapper(),
+            $oPhp,
+            $this->getWordpress(),
             $oConfig
         );
 

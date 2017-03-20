@@ -18,6 +18,7 @@ use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 class AdminSettingsController extends Controller
@@ -40,14 +41,21 @@ class AdminSettingsController extends Controller
     /**
      * AdminSettingsController constructor.
      *
-     * @param Wordpress     $oWrapper
+     * @param Php           $oPhp
+     * @param Wordpress     $oWordpress
      * @param Config        $oConfig
      * @param ObjectHandler $oObjectHandler
      * @param FileHandler   $oFileHandler
      */
-    public function __construct(Wordpress $oWrapper, Config $oConfig, ObjectHandler $oObjectHandler, FileHandler $oFileHandler)
+    public function __construct(
+        Php $oPhp,
+        Wordpress $oWordpress,
+        Config $oConfig,
+        ObjectHandler $oObjectHandler,
+        FileHandler $oFileHandler
+    )
     {
-        parent::__construct($oWrapper, $oConfig);
+        parent::__construct($oPhp, $oWordpress, $oConfig);
         $this->_oObjectHandler = $oObjectHandler;
         $this->_oFileHandler = $oFileHandler;
     }
@@ -59,7 +67,7 @@ class AdminSettingsController extends Controller
      */
     public function isNginx()
     {
-        return $this->_oWrapper->isNginx();
+        return $this->_oWordpress->isNginx();
     }
 
     /**
@@ -69,7 +77,7 @@ class AdminSettingsController extends Controller
      */
     public function getPages()
     {
-        $aPages = $this->_oWrapper->getPages('sort_column=menu_order');
+        $aPages = $this->_oWordpress->getPages('sort_column=menu_order');
         return is_array($aPages) !== false ? $aPages : array();
     }
 
@@ -90,7 +98,7 @@ class AdminSettingsController extends Controller
      */
     protected function _getPostTypes()
     {
-        return $this->_oWrapper->getPostTypes(array('public' => true), 'objects');
+        return $this->_oWordpress->getPostTypes(array('public' => true), 'objects');
     }
 
     /**
@@ -100,7 +108,7 @@ class AdminSettingsController extends Controller
      */
     protected function _getTaxonomies()
     {
-        return $this->_oWrapper->getTaxonomies(array('public' => true), 'objects');
+        return $this->_oWordpress->getTaxonomies(array('public' => true), 'objects');
     }
 
     /**
@@ -185,7 +193,7 @@ class AdminSettingsController extends Controller
             $this->_oFileHandler->createFileProtection();
         }
 
-        $this->_oWrapper->doAction('uam_update_options', $this->_oConfig);
+        $this->_oWordpress->doAction('uam_update_options', $this->_oConfig);
         $this->_setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
     }
 

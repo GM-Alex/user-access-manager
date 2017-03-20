@@ -29,7 +29,7 @@ class Config
     /**
      * @var Wordpress
      */
-    protected $_oWrapper;
+    protected $_oWordpress;
 
     /**
      * @var ObjectHandler
@@ -69,19 +69,19 @@ class Config
     /**
      * Config constructor.
      *
-     * @param Wordpress              $oWrapper
+     * @param Wordpress              $oWordpress
      * @param ObjectHandler          $oObjectHandler
      * @param ConfigParameterFactory $oConfigParameterFactory
      * @param String                 $sBaseFile
      */
     public function __construct(
-        Wordpress $oWrapper,
+        Wordpress $oWordpress,
         ObjectHandler $oObjectHandler,
         ConfigParameterFactory $oConfigParameterFactory,
         $sBaseFile
     )
     {
-        $this->_oWrapper = $oWrapper;
+        $this->_oWordpress = $oWordpress;
         $this->_oObjectHandler = $oObjectHandler;
         $this->_oConfigParameterFactory = $oConfigParameterFactory;
         $this->_sBaseFile = $sBaseFile;
@@ -97,7 +97,7 @@ class Config
     public function getWpOption($sOption)
     {
         if (!isset($this->_aWpOptions[$sOption])) {
-            $this->_aWpOptions[$sOption] = $this->_oWrapper->getOption($sOption);
+            $this->_aWpOptions[$sOption] = $this->_oWordpress->getOption($sOption);
         }
 
         return $this->_aWpOptions[$sOption];
@@ -291,7 +291,7 @@ class Config
             $aSimpleConfigParameters[$oParameter->getId()] = $oParameter->getValue();
         }
 
-        $this->_oWrapper->updateOption(self::ADMIN_OPTIONS_NAME, $aSimpleConfigParameters);
+        $this->_oWordpress->updateOption(self::ADMIN_OPTIONS_NAME, $aSimpleConfigParameters);
     }
 
     /**
@@ -321,7 +321,7 @@ class Config
      */
     public function atAdminPanel()
     {
-        return $this->_oWrapper->isAdmin();
+        return $this->_oWordpress->isAdmin();
     }
 
     /**
@@ -342,7 +342,7 @@ class Config
      */
     public function getUploadDirectory()
     {
-        $aWordpressUploadDir = $this->_oWrapper->getUploadDir();
+        $aWordpressUploadDir = $this->_oWordpress->getUploadDir();
 
         if (empty($aWordpressUploadDir['error'])) {
             return $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
@@ -359,7 +359,7 @@ class Config
     public function getMimeTypes()
     {
         if ($this->_aMimeTypes === null) {
-            $aMimeTypes = $this->_oWrapper->getAllowedMimeTypes();
+            $aMimeTypes = $this->_oWordpress->getAllowedMimeTypes();
             $aFullMimeTypes = array();
 
             foreach ($aMimeTypes as $sExtensions => $sMineType) {
@@ -383,7 +383,7 @@ class Config
      */
     public function getUrlPath()
     {
-        return $this->_oWrapper->pluginsUrl('', $this->_sBaseFile).DIRECTORY_SEPARATOR;
+        return $this->_oWordpress->pluginsUrl('', $this->_sBaseFile).DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -395,8 +395,8 @@ class Config
     {
         $sDirName = dirname($this->_sBaseFile);
 
-        return $this->_oWrapper->getPluginDir().DIRECTORY_SEPARATOR
-            .$this->_oWrapper->pluginBasename($sDirName).DIRECTORY_SEPARATOR;
+        return $this->_oWordpress->getPluginDir().DIRECTORY_SEPARATOR
+            .$this->_oWordpress->pluginBasename($sDirName).DIRECTORY_SEPARATOR;
     }
 
     /**

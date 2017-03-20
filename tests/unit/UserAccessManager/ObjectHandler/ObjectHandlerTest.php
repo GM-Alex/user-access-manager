@@ -30,7 +30,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oObjectHandler = new ObjectHandler(
-            $this->getWrapper(),
+            $this->getWordpress(),
             $this->getDatabase()
         );
 
@@ -47,16 +47,16 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     {
         $aReturn = ['a' => 'a1', 'b' => 'b1'];
 
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getPostTypes')
             ->with(['public' => true])
             ->will($this->returnValue($aReturn));
 
         $oDatabase = $this->getDatabase();
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
         self::assertEquals($aReturn, $oObjectHandler->getPostTypes());
         self::assertEquals($aReturn, $oObjectHandler->getPostTypes());
 
@@ -73,15 +73,15 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     {
         $aReturn = ['a' => 'a1', 'b' => 'b1'];
 
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getTaxonomies')
             ->will($this->returnValue($aReturn));
 
         $oDatabase = $this->getDatabase();
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
         self::assertEquals($aReturn, $oObjectHandler->getTaxonomies());
         self::assertEquals($aReturn, $oObjectHandler->getTaxonomies());
 
@@ -100,16 +100,16 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oUser = $this->createMock('\WP_User');
         $oUser->id = 1;
 
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(2))
             ->method('getUserData')
             ->withConsecutive([123], [321])
             ->will($this->onConsecutiveCalls($oUser, false));
 
         $oDatabase = $this->getDatabase();
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
         self::assertEquals($oUser, $oObjectHandler->getUser(123));
         self::assertEquals($oUser, $oObjectHandler->getUser(123));
         self::assertFalse($oObjectHandler->getUser(321));
@@ -128,16 +128,16 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oPost = $this->getMockBuilder('\WP_Post')->getMock();
         $oPost->id = 1;
 
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(3))
             ->method('getPost')
             ->withConsecutive([123], [321], [231])
             ->will($this->onConsecutiveCalls($oPost, null, ['id' => 2]));
 
         $oDatabase = $this->getDatabase();
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
 
         self::assertEquals($oPost, $oObjectHandler->getPost(123));
         self::assertEquals($oPost, $oObjectHandler->getPost(123));
@@ -161,16 +161,16 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         $oError = $this->getMockBuilder('\WP_Error')->getMock();
 
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->exactly(4))
+        $oWordpress->expects($this->exactly(4))
             ->method('getTerm')
             ->withConsecutive([123, ''], [321, 'firstTax'], [231, 'secondTax'], [231])
             ->will($this->onConsecutiveCalls($oTerm, null, ['id' => 2], $oError));
 
         $oDatabase = $this->getDatabase();
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
 
         self::assertEquals($oTerm, $oObjectHandler->getTerm(123));
         self::assertEquals($oTerm, $oObjectHandler->getTerm(123));
@@ -273,7 +273,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $aDatabaseResult[] = $this->createTreeMapDbResultElement(7, 6, 'page');
         $aDatabaseResult[] = $this->createTreeMapDbResultElement(8, 7, 'page');
 
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
         $oDatabase = $this->getDatabase();
 
         $oDatabase->expects($this->once())
@@ -299,7 +299,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
                 )]
             )->will($this->returnValue($aDatabaseResult));
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
         $aExpectedPostResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_POST_OBJECT_TYPE);
         $aExpectedTermResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_TERM_OBJECT_TYPE);
 
@@ -343,7 +343,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $aDatabaseResult[] = $this->createTermMapDbResultElement(7, 6, 'page');
         $aDatabaseResult[] = $this->createTermMapDbResultElement(8, 7, 'page');
 
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
         $oDatabase = $this->getDatabase();
 
         $oDatabase->expects($this->once())
@@ -369,7 +369,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
                 )
             )->will($this->returnValue($aDatabaseResult));
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
 
         $aExpectedResult = [
             1 => [1 => 1, 2 => 2],
@@ -496,15 +496,15 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      */
     public function testIsTaxonomy()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getTaxonomies')
             ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
 
         $oDatabase = $this->getDatabase();
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
 
         self::assertTrue($oObjectHandler->isTaxonomy('taxonomyOne'));
         self::assertTrue($oObjectHandler->isTaxonomy('taxonomyTwo'));
@@ -517,20 +517,20 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      */
     public function testGetGeneralObjectType()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getPostTypes')
             ->with(['public' => true])
             ->will($this->returnValue(['a' => 'a1', 'b' => 'b1']));
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getTaxonomies')
             ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
 
         $oDatabase = $this->getDatabase();
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
 
         self::assertEquals(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $oObjectHandler->getGeneralObjectType('a'));
         self::assertEquals(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $oObjectHandler->getGeneralObjectType('b'));
@@ -580,13 +580,13 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      */
     public function testRegisterPlObject()
     {
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
         $oDatabase = $this->getDatabase();
 
         $oFirstPluggableObject = $this->getPluggableObject('firstObjectName', $this->once());
         $oSecondPluggableObject = $this->getPluggableObject('secondObjectName', $this->once());
 
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
         $oObjectHandler->registerPluggableObject($oFirstPluggableObject);
         $oObjectHandler->registerPluggableObject($oSecondPluggableObject);
 
@@ -663,21 +663,21 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     {
         $aTaxonomiesReturn = ['a' => 'a1', 'b' => 'b1'];
 
-        $oWrapper = $this->getWrapper();
+        $oWordpress = $this->getWordpress();
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getTaxonomies')
             ->will($this->returnValue($aTaxonomiesReturn));
 
         $aPostTypesReturn = ['c' => 'c1', 'd' => 'd1'];
 
-        $oWrapper->expects($this->once())
+        $oWordpress->expects($this->once())
             ->method('getPostTypes')
             ->with(['public' => true])
             ->will($this->returnValue($aPostTypesReturn));
 
         $oDatabase = $this->getDatabase();
-        $oObjectHandler = new ObjectHandler($oWrapper, $oDatabase);
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
 
         $aExpectation = [
             'a' => 'a1',

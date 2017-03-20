@@ -14,6 +14,7 @@ use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 class AdminObjectController extends Controller
@@ -63,21 +64,23 @@ class AdminObjectController extends Controller
     /**
      * AdminObjectController constructor.
      *
-     * @param Wordpress     $oWrapper
+     * @param Php           $oPhp
+     * @param Wordpress     $oWordpress
      * @param Config        $oConfig
      * @param Database      $oDatabase
      * @param ObjectHandler $oObjectHandler
      * @param AccessHandler $oAccessHandler
      */
     public function __construct(
-        Wordpress $oWrapper,
+        Php $oPhp,
+        Wordpress $oWordpress,
         Config $oConfig,
         Database $oDatabase,
         ObjectHandler $oObjectHandler,
         AccessHandler $oAccessHandler
     )
     {
-        parent::__construct($oWrapper, $oConfig);
+        parent::__construct($oPhp, $oWordpress, $oConfig);
         $this->_oDatabase = $oDatabase;
         $this->_oObjectHandler = $oObjectHandler;
         $this->_oAccessHandler = $oAccessHandler;
@@ -191,7 +194,7 @@ class AdminObjectController extends Controller
      */
     public function getRoleNames()
     {
-        $oRoles = $this->_oWrapper->getRoles();
+        $oRoles = $this->_oWordpress->getRoles();
         return $oRoles->role_names;
     }
 
@@ -245,7 +248,7 @@ class AdminObjectController extends Controller
                     $oTerm = $this->_oObjectHandler->getTerm($sObjectId);
 
                     if ($oTerm !== false) {
-                        $oTaxonomy = $this->_oWrapper->getTaxonomy($oTerm->taxonomy);
+                        $oTaxonomy = $this->_oWordpress->getTaxonomy($oTerm->taxonomy);
                         $sTypeName = ($oTaxonomy !== false) ? $oTaxonomy->labels->name : $sTypeName;
                         $sObjectName = $oTerm->name;
                     }
@@ -253,10 +256,14 @@ class AdminObjectController extends Controller
                     $oPost = $this->_oObjectHandler->getPost($sObjectId);
 
                     if ($oPost !== false) {
-                        $oPostTypeObject = $this->_oWrapper->getPostTypeObject($oPost->post_type);
+                        $oPostTypeObject = $this->_oWordpress->getPostTypeObject($oPost->post_type);
                         $sTypeName = ($oPostTypeObject !== null) ? $oPostTypeObject->labels->name : $sTypeName;
                         $sObjectName = $oPost->post_title;
                     }
+                } elseif ($this->_oObjectHandler->isPluggableObject($sRecursiveType)) {
+                    $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sRecursiveType);
+                    $sTypeName = $oPluggableObject->getName();
+                    $sObjectName = $oPluggableObject->getObjectName($sObjectId);
                 }
 
                 $aRecursiveMembership[$sTypeName][$sObjectId] = $sObjectName;
@@ -658,7 +665,7 @@ class AdminObjectController extends Controller
         }
 
         if ($blNoRights === true) {
-            $this->_oWrapper->wpDie(TXT_UAM_NO_RIGHTS);
+            $this->_oWordpress->wpDie(TXT_UAM_NO_RIGHTS);
         }
     }
 

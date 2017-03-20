@@ -42,6 +42,20 @@ abstract class PluggableObject
     }
 
     /**
+     * @param string $sObjectId
+     *
+     * @return object|null
+     */
+    abstract public function getObject($sObjectId);
+
+    /**
+     * @param string $sObjectId
+     *
+     * @return string
+     */
+    abstract public function getObjectName($sObjectId);
+
+    /**
      * @param UserGroup $oUserGroup
      * @param string    $sObjectId
      *
