@@ -418,7 +418,7 @@ class UamAccessHandler
 
             if ($this->isPostableType($sObjectType)) {
                 $oPost = $this->getUserAccessManager()->getPost($iObjectId);
-                $sAuthorId = $oPost->post_author;
+                $sAuthorId = (int) $oPost->post_author;
             } else {
                 $sAuthorId = -1;
             }
