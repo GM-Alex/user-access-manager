@@ -20,6 +20,7 @@ use UserAccessManager\Wrapper\Wordpress;
 class AdminObjectController extends Controller
 {
     const COLUMN_NAME = 'uam_access';
+    const BULK_REMOVE = 'remove';
 
     /**
      * @var Database
@@ -236,15 +237,14 @@ class AdminObjectController extends Controller
         foreach ($aRecursiveMembershipForObject as $sRecursiveType => $aObjectIds) {
             foreach ($aObjectIds as $sObjectId) {
                 $sObjectName = $sObjectId;
-                $sGeneralType = $this->_oObjectHandler->getGeneralObjectType($sRecursiveType);
-                $sTypeName = $sGeneralType;
+                $sTypeName = $this->_oObjectHandler->getGeneralObjectType($sRecursiveType);
 
-                if ($sGeneralType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
+                if ($sTypeName === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
                     $sObjectName = isset($aRoles[$sObjectId]) ? $aRoles[$sObjectId] : $sObjectId;
-                } elseif ($sGeneralType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+                } elseif ($sTypeName === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
                     $oUser = $this->_oObjectHandler->getUser($sObjectId);
                     $sObjectName = ($oUser !== false) ? $oUser->display_name : $sObjectId;
-                } elseif ($sGeneralType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
+                } elseif ($sTypeName === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
                     $oTerm = $this->_oObjectHandler->getTerm($sObjectId);
 
                     if ($oTerm !== false) {
@@ -252,7 +252,7 @@ class AdminObjectController extends Controller
                         $sTypeName = ($oTaxonomy !== false) ? $oTaxonomy->labels->name : $sTypeName;
                         $sObjectName = $oTerm->name;
                     }
-                } elseif ($sGeneralType === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
+                } elseif ($sTypeName === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
                     $oPost = $this->_oObjectHandler->getPost($sObjectId);
 
                     if ($oPost !== false) {
@@ -260,18 +260,50 @@ class AdminObjectController extends Controller
                         $sTypeName = ($oPostTypeObject !== null) ? $oPostTypeObject->labels->name : $sTypeName;
                         $sObjectName = $oPost->post_title;
                     }
-                } elseif ($this->_oObjectHandler->isPluggableObject($sRecursiveType)) {
+                } elseif ($this->_oObjectHandler->isPluggableObject($sRecursiveType) === true) {
                     $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sRecursiveType);
                     $sTypeName = $oPluggableObject->getName();
                     $sObjectName = $oPluggableObject->getObjectName($sObjectId);
                 }
 
-                $aRecursiveMembership[$sTypeName][$sObjectId] = $sObjectName;
+                if ($sTypeName !== null) {
+                    $aRecursiveMembership[$sTypeName][$sObjectId] = $sObjectName;
+                }
             }
         }
 
         return $aRecursiveMembership;
     }
+
+    /**
+     * Shows the error if the user has no rights to edit the content.
+     */
+    public function checkRightsToEditContent()
+    {
+        $blNoRights = false;
+
+        $sPostId = $this->getRequestParameter('post');
+        $sPostId = is_numeric($sPostId) === false ? $this->getRequestParameter('attachment_id') : $sPostId;
+
+        if (is_numeric($sPostId) === true) {
+            $oPost = $this->_oObjectHandler->getPost($sPostId);
+
+            if ($oPost !== false) {
+                $blNoRights = !$this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID);
+            }
+        }
+
+        $sTagId = $this->getRequestParameter('tag_ID');
+
+        if ($blNoRights === false && is_numeric($sTagId)) {
+            $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $sTagId);
+        }
+
+        if ($blNoRights === true) {
+            $this->_oWordpress->wpDie(TXT_UAM_NO_RIGHTS);
+        }
+    }
+
 
     /*
      * Meta functions
@@ -284,48 +316,40 @@ class AdminObjectController extends Controller
      * @param integer     $iObjectId   The _iId of the object.
      * @param UserGroup[] $aUserGroups The new user groups for the object.
      */
-    protected function _saveObjectData($sObjectType, $iObjectId, $aUserGroups = null)
+    protected function _saveObjectData($sObjectType, $iObjectId, array $aUserGroups = null)
     {
-        $aFormData = array();
-
-        if (isset($_POST['uam_update_groups'])) {
-            $aFormData = $_POST;
-        } elseif (isset($_GET['uam_update_groups'])) {
-            $aFormData = $_GET;
-        }
-
-        if (isset($aFormData['uam_update_groups'])
-            && ($this->_oAccessHandler->checkUserAccess('manage_user_groups')
-                || $this->_oConfig->authorsCanAddPostsToGroups() === true)
+        if ($this->_oAccessHandler->checkUserAccess('manage_user_groups') === true
+            || $this->_oConfig->authorsCanAddPostsToGroups() === true
         ) {
             if ($aUserGroups === null) {
-                $aUserGroups = (isset($aFormData['uam_user_groups']) && is_array($aFormData['uam_user_groups']))
-                    ? $aFormData['uam_user_groups'] : array();
+                $aUpdateGroups = $this->getRequestParameter('uam_update_groups', array());
+                $aUserGroups = (is_array($aUpdateGroups) === true) ? $aUpdateGroups : array();
             }
 
             $aAddUserGroups = array_flip($aUserGroups);
-            $aRemoveUserGroups = $this->_oAccessHandler->getFilteredUserGroupsForObject($sObjectType, $iObjectId);
-            $aUamUserGroups = $this->_oAccessHandler->getUserGroups();
+            $aFilteredUserGroupsForObject = $this->_oAccessHandler->getFilteredUserGroupsForObject(
+                $sObjectType,
+                $iObjectId
+            );
+            $aRemoveUserGroups = array_flip(array_keys($aFilteredUserGroupsForObject));
+            $aFilteredUserGroups = $this->_oAccessHandler->getFilteredUserGroups();
+            $sBulkType = $this->getRequestParameter('uam_bulk_type');
 
-            if (isset($aFormData['uam_bulk_type'])) {
-                $sBulkType = $aFormData['uam_bulk_type'];
-
-                if ($sBulkType === 'remove') {
-                    $aRemoveUserGroups = $aAddUserGroups;
-                    $aAddUserGroups = array();
-                }
+            if ($sBulkType === self::BULK_REMOVE) {
+                $aRemoveUserGroups = $aAddUserGroups;
+                $aAddUserGroups = array();
             }
 
-            foreach ($aUamUserGroups as $sGroupId => $oUamUserGroup) {
-                if (isset($aRemoveUserGroups[$sGroupId])) {
-                    $oUamUserGroup->removeObject($sObjectType, $iObjectId);
+            foreach ($aFilteredUserGroups as $sGroupId => $oUserGroup) {
+                if (isset($aRemoveUserGroups[$sGroupId]) === true) {
+                    $oUserGroup->removeObject($sObjectType, $iObjectId);
                 }
 
-                if (isset($aAddUserGroups[$sGroupId])) {
-                    $oUamUserGroup->addObject($sObjectType, $iObjectId);
+                if (isset($aAddUserGroups[$sGroupId]) === true) {
+                    $oUserGroup->addObject($sObjectType, $iObjectId);
                 }
 
-                $oUamUserGroup->save();
+                $oUserGroup->save();
             }
 
             $this->_oAccessHandler->unsetUserGroupsForObject();
@@ -348,7 +372,7 @@ class AdminObjectController extends Controller
             ),
             array(
                 '%d',
-                '%s',
+                '%s'
             )
         );
     }
@@ -415,18 +439,14 @@ class AdminObjectController extends Controller
     /**
      * The function for the save_post action.
      *
-     * @param mixed $mPostParam The post _iId or a array of a post.
+     * @param mixed $mPostParam The post id or a array of a post.
      */
     public function savePostData($mPostParam)
     {
-        if (is_array($mPostParam)) {
-            $oPost = $this->_oObjectHandler->getPost($mPostParam['ID']);
-        } else {
-            $oPost = $this->_oObjectHandler->getPost($mPostParam);
-        }
-
-        $iPostId = $oPost->ID;
+        $iPostId = is_array($mPostParam) ? $mPostParam['ID'] : $mPostParam;
+        $oPost = $this->_oObjectHandler->getPost($iPostId);
         $sPostType = $oPost->post_type;
+        $iPostId = $oPost->ID;
 
         if ($sPostType === 'revision') {
             $iPostId = $oPost->post_parent;
@@ -523,9 +543,8 @@ class AdminObjectController extends Controller
      */
     public function addUserColumn($sReturn, $sColumnName, $iId)
     {
-        $this->_setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iId);
-
         if ($sColumnName === self::COLUMN_NAME) {
+            $this->_setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iId);
             $sReturn .= $this->_getIncludeContents('UserColumn.php');
         }
 
@@ -637,38 +656,6 @@ class AdminObjectController extends Controller
         $this->_removeObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iTermId);
     }
 
-    /**
-     * Shows the error if the user has no rights to edit the content.
-     */
-    public function noRightsToEditContent()
-    {
-        $blNoRights = false;
-
-        $sPostId = $this->getRequestParameter('post');
-
-        if (is_numeric($sPostId)) {
-            $oPost = $this->_oObjectHandler->getPost($sPostId);
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID);
-        }
-
-        $sAttachmentId = $this->getRequestParameter('attachment_id');
-
-        if ($blNoRights === false && is_numeric($sAttachmentId)) {
-            $oPost = $this->_oObjectHandler->getPost($sAttachmentId);
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID);
-        }
-
-        $sTagId = $this->getRequestParameter('tag_ID');
-
-        if ($blNoRights === false && is_numeric($sTagId)) {
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $sTagId);
-        }
-
-        if ($blNoRights === true) {
-            $this->_oWordpress->wpDie(TXT_UAM_NO_RIGHTS);
-        }
-    }
-
     /*
      * Functions for the pluggable object actions.
      */
@@ -680,7 +667,7 @@ class AdminObjectController extends Controller
      * @param integer     $iObjectId   The pluggable object id.
      * @param UserGroup[] $aUserGroups The user groups for the object.
      */
-    public function savePlObjectData($sObjectType, $iObjectId, $aUserGroups = null)
+    public function savePluggableObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {
         $this->_saveObjectData($sObjectType, $iObjectId, $aUserGroups);
     }
@@ -691,7 +678,7 @@ class AdminObjectController extends Controller
      * @param string  $sObjectName The name of the pluggable object.
      * @param integer $iObjectId   The pluggable object id.
      */
-    public function removePlObjectData($sObjectName, $iObjectId)
+    public function removePluggableObjectData($sObjectName, $iObjectId)
     {
         $this->_removeObjectData($sObjectName, $iObjectId);
     }
@@ -704,7 +691,7 @@ class AdminObjectController extends Controller
      *
      * @return string;
      */
-    public function showPlGroupSelectionForm($sObjectType, $iObjectId)
+    public function showPluggableGroupSelectionForm($sObjectType, $iObjectId)
     {
         $this->_setObjectInformation($sObjectType, $iObjectId);
         return $this->_getIncludeContents('GroupSelectionForm.php');
@@ -718,7 +705,7 @@ class AdminObjectController extends Controller
      *
      * @return string
      */
-    public function getPlColumn($sObjectType, $iObjectId)
+    public function getPluggableColumn($sObjectType, $iObjectId)
     {
         $this->_setObjectInformation($sObjectType, $iObjectId);
         return $this->_getIncludeContents('ObjectColumn.php');

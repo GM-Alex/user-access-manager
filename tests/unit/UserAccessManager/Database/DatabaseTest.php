@@ -26,7 +26,7 @@ class DatabaseTest extends \UserAccessManagerTestCase
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|\wpdb
      */
-    private function getWpDatabase(array $aMethods = array())
+    private function getWpDatabase(array $aMethods = [])
     {
         return $this->getMockBuilder('\wpdb')
             ->setMethods($aMethods)

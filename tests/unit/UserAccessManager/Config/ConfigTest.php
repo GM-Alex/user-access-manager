@@ -202,7 +202,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      */
     public function testGetConfigParameters()
     {
-        //$this->markTestSkipped();
         $oWordpress = $this->getWordpress();
         $oWordpress->expects($this->once())
             ->method('getOption')

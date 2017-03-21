@@ -176,11 +176,10 @@ class UserAccessManager
         }
 
         $aTaxonomies = $this->_oObjectHandler->getTaxonomies();
+        $sTaxonomy = $oAdminController->getRequestParameter('taxonomy');
 
-        if (isset($_POST['taxonomy'])) {
-            $aTaxonomies[$_POST['taxonomy']] = $_POST['taxonomy'];
-        } elseif (isset($_GET['taxonomy'])) {
-            $aTaxonomies[$_GET['taxonomy']] = $_GET['taxonomy'];
+        if ($sTaxonomy !== null) {
+            $aTaxonomies[$sTaxonomy] = $sTaxonomy;
         }
 
         $oAdminObjectController = $this->_oControllerFactory->createAdminObjectController();
@@ -255,7 +254,7 @@ class UserAccessManager
         $this->_oWordpress->addAction('delete_user', array($oAdminObjectController, 'removeUserData'));
         $this->_oWordpress->addAction('delete_term', array($oAdminObjectController, 'removeTermData'));
 
-        $oAdminObjectController->noRightsToEditContent();
+        $oAdminObjectController->checkRightsToEditContent();
     }
 
     /**
@@ -275,7 +274,9 @@ class UserAccessManager
         $this->_oWordpress->addAction('wp_enqueue_scripts', array($oFrontendController, 'enqueueStylesAndScripts'));
 
         //Filters
-        if ($this->_oConfig->getRedirect() !== false || isset($_GET['uamgetfile'])) {
+        $sGetFile = $oFrontendController->getRequestParameter('uamgetfile');
+
+        if ($this->_oConfig->getRedirect() !== false || $sGetFile !== null) {
             $this->_oWordpress->addFilter('wp_headers', array($oFrontendController, 'redirect'), 10, 2);
         }
 

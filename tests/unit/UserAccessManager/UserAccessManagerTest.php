@@ -139,16 +139,27 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             ->method('isDatabaseUpdateNecessary')
             ->will($this->onConsecutiveCalls(false, true, false));
 
+        $oAdminController = $this->createMock('UserAccessManager\Controller\AdminController');
+        $oAdminController->expects($this->exactly(3))
+            ->method('getRequestParameter')
+            ->will($this->onConsecutiveCalls(null, 'c', 'c'));
+
         $oControllerFactory = $this->getControllerFactory();
         $oControllerFactory->expects($this->exactly(3))
-            ->method('createAdminController');
+            ->method('createAdminController')
+            ->will($this->returnValue($oAdminController));
 
         $oControllerFactory->expects($this->exactly(3))
             ->method('createAdminObjectController')
             ->will($this->returnCallback(function() {
                 $oAdminObjectController = $this->createMock('UserAccessManager\Controller\AdminObjectController');
                 $oAdminObjectController->expects($this->any())
-                    ->method('noRightsToEditContent');
+                    ->method('checkRightsToEditContent');
+
+                $oAdminObjectController->expects($this->any())
+                    ->method('getRequestParameter')
+                    ->will($this->returnValue('c'));
+
                 return $oAdminObjectController;
             }));
 
@@ -162,12 +173,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
         );
 
         $oObjectHandler->registerAdminActionsAndFilters();
-
-        $_POST['taxonomy'] = 'c';
         $oObjectHandler->registerAdminActionsAndFilters();
-
-        unset($_POST['taxonomy']);
-        $_GET['taxonomy'] = 'c';
         $oObjectHandler->registerAdminActionsAndFilters();
     }
 
@@ -177,6 +183,16 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
      */
     public function testAddActionsAndFilters()
     {
+        $oFrontendController = $this->createMock('UserAccessManager\Controller\FrontendController');
+        $oFrontendController->expects($this->exactly(3))
+            ->method('getRequestParameter')
+            ->will($this->onConsecutiveCalls(null, true, true));
+
+        $oControllerFactory = $this->getControllerFactory();
+        $oControllerFactory->expects($this->exactly(3))
+            ->method('createFrontendController')
+            ->will($this->returnValue($oFrontendController));
+
         $oWordpress = $this->getWordpress();
         $oWordpress->expects($this->exactly(21))
             ->method('addAction');
@@ -195,12 +211,10 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             $this->getObjectHandler(),
             $this->getAccessHandler(),
             $this->getSetupHandler(),
-            $this->getControllerFactory()
+            $oControllerFactory
         );
 
         $oObjectHandler->addActionsAndFilters();
-
-        $_GET['uamgetfile'] = 'someThing';
         $oObjectHandler->addActionsAndFilters();
         $oObjectHandler->addActionsAndFilters();
     }

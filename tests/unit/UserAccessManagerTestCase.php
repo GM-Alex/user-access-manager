@@ -150,7 +150,7 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         array $aIpRange = [''],
         $sReadAccess = 'none',
         $sWriteAccess = 'none',
-        array $aPosts = array()
+        array $aPosts = []
     )
     {
         $oUserGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');

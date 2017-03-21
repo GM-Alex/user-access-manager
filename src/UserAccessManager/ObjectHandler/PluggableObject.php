@@ -13,6 +13,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\ObjectHandler;
+
 use UserAccessManager\UserGroup\UserGroup;
 
 /**
