@@ -15,6 +15,9 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use Vfs\FileSystem;
+use Vfs\Node\Directory;
+use Vfs\Node\File;
 
 /**
  * Class AdminObjectControllerTest
@@ -23,6 +26,27 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
  */
 class AdminObjectControllerTest extends \UserAccessManagerTestCase
 {
+    /**
+     * @var FileSystem
+     */
+    private $oRoot;
+
+    /**
+     * Setup virtual file system.
+     */
+    public function setUp()
+    {
+        $this->oRoot = FileSystem::factory('vfs://');
+        $this->oRoot->mount();
+    }
+
+    /**
+     * Tear down virtual file system.
+     */
+    public function tearDown()
+    {
+        $this->oRoot->unmount();
+    }
     /**
      * @param int   $iId
      * @param array $aWithAdd
@@ -864,5 +888,173 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oAdminObjectController->addUserColumn('return', AdminObjectController::COLUMN_NAME, 1);
         $oAdminObjectController->addTermColumn('content', AdminObjectController::COLUMN_NAME, 1);
         $oAdminObjectController->getPluggableColumn('objectType', 'objectId');
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::editPostContent()
+     * @covers \UserAccessManager\Controller\AdminObjectController::addBulkAction()
+     * @covers \UserAccessManager\Controller\AdminObjectController::showMediaFile()
+     * @covers \UserAccessManager\Controller\AdminObjectController::showUserProfile()
+     * @covers \UserAccessManager\Controller\AdminObjectController::showTermEditForm()
+     * @covers \UserAccessManager\Controller\AdminObjectController::showPluggableGroupSelectionForm()
+     */
+    public function testEditForm()
+    {
+        /**
+         * @var Directory $oRootDir
+         */
+        $oRootDir = $this->oRoot->get('/');
+        $oRootDir->add('src', new Directory([
+            'UserAccessManager'  => new Directory([
+                'View'  => new Directory([
+                    'PostEditForm.php' => new File('<?php echo \'PostEditForm\';'),
+                    'BulkEditForm.php' => new File('<?php echo \'BulkEditForm\';'),
+                    'UserProfileEditForm.php' => new File('<?php echo \'UserProfileEditForm\';'),
+                    'TermEditForm.php' => new File('<?php echo \'TermEditForm\';'),
+                    'GroupSelectionForm.php' => new File('<?php echo \'GroupSelectionForm\';')
+                ])
+            ])
+        ]));
+
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(11))
+            ->method('includeFile')
+            ->withConsecutive(
+                ['vfs://src/UserAccessManager/View/PostEditForm.php'],
+                ['vfs://src/UserAccessManager/View/PostEditForm.php'],
+                ['vfs://src/UserAccessManager/View/BulkEditForm.php'],
+                ['vfs://src/UserAccessManager/View/PostEditForm.php'],
+                ['vfs://src/UserAccessManager/View/PostEditForm.php'],
+                ['vfs://src/UserAccessManager/View/PostEditForm.php'],
+                ['vfs://src/UserAccessManager/View/UserProfileEditForm.php'],
+                ['vfs://src/UserAccessManager/View/UserProfileEditForm.php'],
+                ['vfs://src/UserAccessManager/View/TermEditForm.php'],
+                ['vfs://src/UserAccessManager/View/TermEditForm.php'],
+                ['vfs://src/UserAccessManager/View/GroupSelectionForm.php']
+            )
+            ->will($this->returnCallback(function ($sFile) {
+                echo '!'.$sFile.'!';
+            }));
+
+        $oConfig = $this->getConfig();
+        $oConfig->expects($this->exactly(11))
+            ->method('getRealPath')
+            ->will($this->returnValue('vfs:/'));
+
+        $oAccessHandler = $this->getAccessHandler();
+
+        $oAccessHandler->expects($this->exactly(6))
+            ->method('getUserGroupsForObject')
+            ->withConsecutive(
+                ['post', 1],
+                ['post', 1],
+                ['attachment', 3],
+                [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 4],
+                ['category', 5],
+                ['objectType', 'objectId']
+            )
+            ->will($this->returnValue([]));
+
+        $oAccessHandler->expects($this->exactly(6))
+            ->method('getFilteredUserGroupsForObject')
+            ->withConsecutive(
+                ['post', 1],
+                ['post', 1],
+                ['attachment', 3],
+                [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 4],
+                ['category', 5],
+                ['objectType', 'objectId']
+            )
+            ->will($this->returnValue([]));
+
+        $oAdminObjectController = new AdminObjectController(
+            $oPhp,
+            $this->getWordpress(),
+            $oConfig,
+            $this->getDatabase(),
+            $this->getObjectHandlerWithPosts(),
+            $oAccessHandler
+        );
+
+        $oAdminObjectController->editPostContent(null);
+        self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
+
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $oPost
+         */
+        $oPost = $this->getMockBuilder('\WP_Post')->getMock();
+        $oPost->ID = 1;
+        $oPost->post_type = 'post';
+
+        $oAdminObjectController->editPostContent($oPost);
+        //self::expectOutputString('!vfs://src/UserAccessManager/View/PostEditForm.php!');
+        self::assertAttributeEquals('post', '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(1, '_sObjectId', $oAdminObjectController);
+        self::setValue($oAdminObjectController, '_sObjectType', null);
+        self::setValue($oAdminObjectController, '_sObjectId', null);
+
+        $oAdminObjectController->addBulkAction('invalid');
+        self::assertFalse(self::hasOutput());
+
+        $oAdminObjectController->addBulkAction(AdminObjectController::COLUMN_NAME);
+        //self::expectOutputString('!vfs://src/UserAccessManager/View/BulkEditForm.php!');
+
+        $sExpected = 'meta</td></tr><tr><th class="label"><label>'.TXT_UAM_SET_UP_USER_GROUPS.
+            '</label></th><td class="field">!vfs://src/UserAccessManager/View/PostEditForm.php!';
+
+        $sReturn = $oAdminObjectController->showMediaFile('meta');
+        self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
+        self::assertEquals($sExpected, $sReturn);
+
+        $sReturn = $oAdminObjectController->showMediaFile('meta', $oPost);
+        self::assertAttributeEquals('post', '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(1, '_sObjectId', $oAdminObjectController);
+        self::assertEquals($sExpected, $sReturn);
+        self::setValue($oAdminObjectController, '_sObjectType', null);
+        self::setValue($oAdminObjectController, '_sObjectId', null);
+
+        $_GET['attachment_id'] = 3;
+        $sReturn = $oAdminObjectController->showMediaFile('meta', $oPost);
+        self::assertAttributeEquals('attachment', '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(3, '_sObjectId', $oAdminObjectController);
+        self::assertEquals($sExpected, $sReturn);
+        self::setValue($oAdminObjectController, '_sObjectType', null);
+        self::setValue($oAdminObjectController, '_sObjectId', null);
+
+        $oAdminObjectController->showUserProfile();
+        self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
+
+        $_GET['user_id'] = 4;
+        $oAdminObjectController->showUserProfile();
+        self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(4, '_sObjectId', $oAdminObjectController);
+        self::setValue($oAdminObjectController, '_sObjectType', null);
+        self::setValue($oAdminObjectController, '_sObjectId', null);
+        unset($_GET['user_id']);
+
+        $oAdminObjectController->showTermEditForm(null);
+        self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
+
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass|\WP_Term $oTerm
+         */
+        $oTerm = $this->getMockBuilder('\WP_Term')->getMock();
+        $oTerm->term_id = 5;
+        $oTerm->taxonomy = 'category';
+        $oAdminObjectController->showTermEditForm($oTerm);
+
+        self::assertAttributeEquals('category', '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(5, '_sObjectId', $oAdminObjectController);
+        self::setValue($oAdminObjectController, '_sObjectType', null);
+        self::setValue($oAdminObjectController, '_sObjectId', null);
+
+        $oAdminObjectController->showPluggableGroupSelectionForm('objectType', 'objectId');
+        self::assertAttributeEquals('objectType', '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals('objectId', '_sObjectId', $oAdminObjectController);
     }
 }
