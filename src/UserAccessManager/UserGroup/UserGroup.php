@@ -188,7 +188,7 @@ class UserGroup
      *
      * @return string
      */
-    public function getGroupDesc()
+    public function getGroupDescription()
     {
         return $this->_sGroupDesc;
     }
@@ -246,17 +246,13 @@ class UserGroup
     /**
      * Returns the ip range.
      *
-     * @param string $sType The return type.
+     * @param bool $blString If true return it as string.
      *
      * @return array|string
      */
-    public function getIpRange($sType = null)
+    public function getIpRange($blString = false)
     {
-        if ($sType === 'string') {
-            return $this->_sIpRange;
-        }
-
-        return explode(';', $this->_sIpRange);
+        return ($blString === true) ? $this->_sIpRange : explode(';', $this->_sIpRange);
     }
 
     /**
@@ -266,11 +262,7 @@ class UserGroup
      */
     public function setIpRange($mIpRange)
     {
-        if (is_array($mIpRange)) {
-            $mIpRange = implode(';', $mIpRange);
-        }
-
-        $this->_sIpRange = $mIpRange;
+        $this->_sIpRange = (is_array($mIpRange) === true) ? implode(';', $mIpRange) : $mIpRange;
     }
 
     /**

@@ -143,7 +143,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
      * @depends testLoad
      * @covers  \UserAccessManager\UserGroup\UserGroup::getId()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getGroupName()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getGroupDesc()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getGroupDescription()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getReadAccess()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getWriteAccess()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getIpRange()
@@ -159,11 +159,11 @@ class UserGroupTest extends \UserAccessManagerTestCase
     {
         self::assertEquals(2, $oUserGroup->getId());
         self::assertEquals('groupName', $oUserGroup->getGroupName());
-        self::assertEquals('groupDesc', $oUserGroup->getGroupDesc());
+        self::assertEquals('groupDesc', $oUserGroup->getGroupDescription());
         self::assertEquals('readAccess', $oUserGroup->getReadAccess());
         self::assertEquals('writeAccess', $oUserGroup->getWriteAccess());
         self::assertEquals(['ipRange', 'ipRange2'], $oUserGroup->getIpRange());
-        self::assertEquals('ipRange;ipRange2', $oUserGroup->getIpRange('string'));
+        self::assertEquals('ipRange;ipRange2', $oUserGroup->getIpRange(true));
 
         $oUserGroup->setGroupName('groupNameNew');
         self::assertAttributeEquals('groupNameNew', '_sGroupName', $oUserGroup);

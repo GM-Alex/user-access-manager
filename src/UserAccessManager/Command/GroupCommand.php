@@ -28,6 +28,11 @@ use WP_CLI\CommandWithDBObject;
  */
 class GroupCommand extends CommandWithDBObject
 {
+    const FORMATTER_PREFIX = 'uam_user_groups';
+
+    /**
+     * @var array
+     */
     private static $aAllowedAccessValues = array('group', 'all');
 
     /**
@@ -74,7 +79,7 @@ class GroupCommand extends CommandWithDBObject
     {
         return $this->_oWordpressCli->createFormatter(
             $aAssocArguments,
-            array(
+            [
                 'ID',
                 'group_name',
                 'group_desc',
@@ -82,8 +87,8 @@ class GroupCommand extends CommandWithDBObject
                 'write_access',
                 'roles',
                 'ip_range',
-            ),
-            'uam_accessgroup'
+            ],
+            self::FORMATTER_PREFIX
         );
     }
 
@@ -107,30 +112,30 @@ class GroupCommand extends CommandWithDBObject
     public function ls(array $aArguments, array $aAssocArguments)
     {
         if (count($aArguments) > 0) {
-            $this->_oWordpressCli->error('Now arguments excepted. Please use the format option.');
+            $this->_oWordpressCli->error('No arguments excepted. Please use the format option.');
+            return;
         }
 
         $aUserGroups = $this->_oAccessHandler->getUserGroups();
+        echo count($aUserGroups);
 
         if (count($aUserGroups) <= 0) {
             $this->_oWordpressCli->error('No groups defined yet!');
+            return;
         }
 
-        $aGroups = array();
+        $aGroups = [];
 
         foreach ($aUserGroups as $oUserGroup) {
-            $aGroup = array(
+            $aGroups[$oUserGroup->getId()] = [
                 'ID' => $oUserGroup->getId(),
                 'group_name' => $oUserGroup->getGroupName(),
-                'group_desc' => $oUserGroup->getGroupDesc(),
+                'group_desc' => $oUserGroup->getGroupDescription(),
                 'read_access' => $oUserGroup->getReadAccess(),
                 'write_access' => $oUserGroup->getWriteAccess(),
                 'roles' => implode(',', array_keys($oUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))),
-                'ip_range' => $oUserGroup->getIpRange() === null ? '' : $oUserGroup->getIpRange()
-            );
-
-            // add current group
-            $aGroups[] = $aGroup;
+                'ip_range' => $oUserGroup->getIpRange(true) === null ? '' : $oUserGroup->getIpRange(true)
+            ];
         }
 
         $oFormatter = $this->_getFormatter($aAssocArguments);

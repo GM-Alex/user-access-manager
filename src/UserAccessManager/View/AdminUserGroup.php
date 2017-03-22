@@ -69,7 +69,7 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                                 </a>
                             </strong>
                         </td>
-                        <td><?php echo htmlentities($oUserGroup->getGroupDesc()) ?></td>
+                        <td><?php echo htmlentities($oUserGroup->getGroupDescription()) ?></td>
                         <td>
                             <?php
                             if ($oUserGroup->getReadAccess() === 'all') {
@@ -182,14 +182,14 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                 <th valign="top" scope="row"><label for="userGroupDescription"><?php echo TXT_UAM_GROUP_DESC; ?></label>
                 </th>
                 <td>
-                    <input type="text" size="40" value="<?php echo htmlentities($oUserGroup->getGroupDesc()); ?>"
+                    <input type="text" size="40" value="<?php echo htmlentities($oUserGroup->getGroupDescription()); ?>"
                            id="userGroupDescription" name="userGroupDescription"/><br/>
                     <?php echo TXT_UAM_GROUP_DESC_DESC; ?>
                 </td>
             </tr>
             <tr class="form-field form-required">
                 <th valign="top" scope="row"><label for="ipRange"><?php echo TXT_UAM_GROUP_IP_RANGE; ?></label></th>
-                <td><input type="text" size="40" value="<?php echo htmlentities($oUserGroup->getIpRange('string')); ?>"
+                <td><input type="text" size="40" value="<?php echo htmlentities($oUserGroup->getIpRange(true)); ?>"
                            id="ipRange" name="ipRange"/><br/>
                     <?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?>
                 </td>

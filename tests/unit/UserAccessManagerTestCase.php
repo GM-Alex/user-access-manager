@@ -53,6 +53,14 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\WordpressCli
+     */
+    protected function getWordpressCli()
+    {
+        return $this->createMock('\UserAccessManager\Wrapper\WordpressCli');
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\Config
      */
     protected function getConfig()
@@ -170,7 +178,9 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
         $oUserGroup->expects($this->any())
             ->method('getIpRange')
-            ->will($this->returnValue($aIpRange));
+            ->will($this->returnCallback(function ($blString) use ($aIpRange) {
+                return ($blString === false) ? $aIpRange : implode(';', $aIpRange);
+            }));
 
         $oUserGroup->expects($this->any())
             ->method('getReadAccess')

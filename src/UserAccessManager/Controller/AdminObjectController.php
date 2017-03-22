@@ -1,13 +1,18 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: alex
- * Date: 20.01.17
- * Time: 01:34
+ * AdminObjectController.php
+ *
+ * The AdminObjectController class file.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $Id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-
 namespace UserAccessManager\Controller;
-
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\Config;
@@ -17,6 +22,11 @@ use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
+/**
+ * Class AdminObjectController
+ *
+ * @package UserAccessManager\Controller
+ */
 class AdminObjectController extends Controller
 {
     const COLUMN_NAME = 'uam_access';
