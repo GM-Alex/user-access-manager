@@ -148,7 +148,7 @@ $oUserAccessManager = new UserAccessManager(
     $oControllerFactory
 );
 
-$oWordpress->doAction('uam_init', array(
+$oWordpress->doAction('uam_init', [
     $oWordpress,
     $oUtil,
     $oCache,
@@ -162,11 +162,11 @@ $oWordpress->doAction('uam_init', array(
     $oFileHandler,
     $oControllerFactory,
     $oUserAccessManager
-));
+]);
 
 //install
 if (function_exists('register_activation_hook')) {
-    register_activation_hook(__FILE__, array($oSetupHandler, 'install'));
+    register_activation_hook(__FILE__, [$oSetupHandler, 'install']);
 }
 
 if (!function_exists("userAccessManagerUninstall")) {
@@ -212,7 +212,7 @@ if (function_exists('register_uninstall_hook')) {
 
 //deactivation
 if (function_exists('register_deactivation_hook')) {
-    register_deactivation_hook(__FILE__, array($oSetupHandler, 'deactivate'));
+    register_deactivation_hook(__FILE__, [$oSetupHandler, 'deactivate']);
 }
 
 $oUserAccessManager->addActionsAndFilters();

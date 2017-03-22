@@ -100,7 +100,7 @@ class ObjectCommand extends \WP_CLI_Command
         $sObjectId = $aArguments[2];
 
         // convert the string to and associative array of index and group
-        $aAddUserGroups = array();
+        $aAddUserGroups = [];
         $aUserGroups = $this->_oAccessHandler->getUserGroups();
 
         $aUserGroupNames = array_map(
@@ -134,11 +134,11 @@ class ObjectCommand extends \WP_CLI_Command
         }
 
         $aRemoveUserGroups = ($sOperation === self::ACTION_UPDATE) ?
-            $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId) : array();
+            $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId) : [];
 
         if ($sOperation === self::ACTION_REMOVE) {
             $aRemoveUserGroups = $aAddUserGroups;
-            $aAddUserGroups = array();
+            $aAddUserGroups = [];
         }
 
         foreach ($aUserGroups as $sGroupId => $oUamUserGroup) {

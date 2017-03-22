@@ -33,7 +33,7 @@ class GroupCommand extends CommandWithDBObject
     /**
      * @var array
      */
-    private static $aAllowedAccessValues = array('group', 'all');
+    private static $aAllowedAccessValues = ['group', 'all'];
 
     /**
      * @var WordpressCli

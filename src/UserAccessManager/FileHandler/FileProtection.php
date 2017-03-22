@@ -65,7 +65,7 @@ abstract class FileProtection
      */
     protected function _cleanUpFileTypes($sFileTypes)
     {
-        $aValidFileTypes = array();
+        $aValidFileTypes = [];
         $aFileTypes = explode(',', $sFileTypes);
         $aMimeTypes = $this->_oConfig->getMimeTypes();
 

@@ -191,7 +191,7 @@ abstract class Controller
     {
         $sContents = '';
         $sRealPath = $this->_oConfig->getRealPath();
-        $aPath = array($sRealPath, 'src', 'UserAccessManager', 'View');
+        $aPath = [$sRealPath, 'src', 'UserAccessManager', 'View'];
         $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
         $sFileWithPath = $sPath.$sFileName;
 

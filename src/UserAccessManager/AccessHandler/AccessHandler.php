@@ -80,8 +80,8 @@ class AccessHandler
     protected $_aExcludedTerms = null;
     protected $_aPostsAssignedToUser = null;
     protected $_aExcludedPosts = null;
-    protected $_aObjectUserGroups = array();
-    protected $_aObjectAccess = array();
+    protected $_aObjectUserGroups = [];
+    protected $_aObjectAccess = [];
 
     /**
      * The constructor
@@ -121,7 +121,7 @@ class AccessHandler
     public function getUserGroups()
     {
         if ($this->_aUserGroups === null) {
-            $this->_aUserGroups = array();
+            $this->_aUserGroups = [];
 
             $sQuery = "SELECT ID FROM {$this->_oDatabase->getUserGroupTable()}";
             $aUserGroupsDb = (array)$this->_oDatabase->getResults($sQuery);
@@ -192,9 +192,9 @@ class AccessHandler
     public function getUserGroupsForObject($sObjectType, $iObjectId)
     {
         if ($this->_oObjectHandler->isValidObjectType($sObjectType) === false) {
-            return array();
+            return [];
         } elseif (isset($this->_aObjectUserGroups[$sObjectType]) === false) {
-            $this->_aObjectUserGroups[$sObjectType] = array();
+            $this->_aObjectUserGroups[$sObjectType] = [];
         }
 
         if (isset($this->_aObjectUserGroups[$sObjectType][$iObjectId]) === false) {
@@ -208,7 +208,7 @@ class AccessHandler
             if ($aObjectUserGroups !== null) {
                 $this->_aObjectUserGroups[$sObjectType][$iObjectId] = $aObjectUserGroups;
             } else {
-                $aObjectUserGroups = array();
+                $aObjectUserGroups = [];
                 $aUserGroups = $this->getUserGroups();
 
                 foreach ($aUserGroups as $oUserGroup) {
@@ -231,7 +231,7 @@ class AccessHandler
      */
     public function unsetUserGroupsForObject()
     {
-        $this->_aObjectUserGroups = array();
+        $this->_aObjectUserGroups = [];
     }
 
     /**
@@ -340,10 +340,10 @@ class AccessHandler
         if (isset($oUser->{$this->_oDatabase->getPrefix().'capabilities'})) {
             $aCapabilities = (array)$oUser->{$this->_oDatabase->getPrefix().'capabilities'};
         } else {
-            $aCapabilities = array();
+            $aCapabilities = [];
         }
 
-        return (count($aCapabilities) > 0) ? array_keys($aCapabilities) : array(UserGroup::NONE_ROLE);
+        return (count($aCapabilities) > 0) ? array_keys($aCapabilities) : [UserGroup::NONE_ROLE];
     }
 
     /**
@@ -365,14 +365,14 @@ class AccessHandler
 
         $aRoles = $this->_getUserRole($oCurrentUser);
         $aRolesMap = array_flip($aRoles);
-        $aOrderedRoles = array(
+        $aOrderedRoles = [
             UserGroup::NONE_ROLE => 0,
             'subscriber' => 1,
             'contributor' => 2,
             'author' => 3,
             'editor' => 4,
             'administrator' => 5
-        );
+        ];
         $iRightsLevel = 0;
 
         foreach ($aRoles as $sRole) {
@@ -416,7 +416,7 @@ class AccessHandler
         if ($this->_oObjectHandler->isValidObjectType($sObjectType) === false) {
             return true;
         } elseif (isset($this->_aObjectAccess[$sObjectType]) === false) {
-            $this->_aObjectAccess[$sObjectType] = array();
+            $this->_aObjectAccess[$sObjectType] = [];
         }
 
         if (isset($this->_aObjectAccess[$sObjectType][$iObjectId]) === false) {
@@ -464,7 +464,7 @@ class AccessHandler
     public function getExcludedTerms()
     {
         if ($this->checkUserAccess('manage_user_groups')) {
-            $this->_aExcludedTerms = array();
+            $this->_aExcludedTerms = [];
         }
 
         if ($this->_aExcludedTerms === null) {
@@ -495,7 +495,7 @@ class AccessHandler
     public function getExcludedPosts()
     {
         if ($this->checkUserAccess('manage_user_groups')) {
-            $this->_aExcludedPosts = array();
+            $this->_aExcludedPosts = [];
         }
 
         if ($this->_aExcludedPosts === null) {

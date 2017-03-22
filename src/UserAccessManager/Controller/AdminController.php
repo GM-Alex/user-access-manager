@@ -108,7 +108,7 @@ class AdminController extends Controller
         $this->_oWordpress->registerStyle(
             self::HANDLE_STYLE_ADMIN,
             $sUrlPath.'assets/css/uamAdmin.css',
-            array(),
+            [],
             UserAccessManager::VERSION,
             'screen'
         );
@@ -116,7 +116,7 @@ class AdminController extends Controller
         $this->_oWordpress->registerScript(
             self::HANDLE_SCRIPT_ADMIN,
             $sUrlPath.'assets/js/functions.js',
-            array('jquery'),
+            ['jquery'],
             UserAccessManager::VERSION
         );
     }

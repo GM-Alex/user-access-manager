@@ -24,7 +24,7 @@ class Cache
     /**
      * @var array
      */
-    protected $_aCache = array();
+    protected $_aCache = [];
 
     /**
      * Returns a generated cache key.
@@ -70,6 +70,6 @@ class Cache
      */
     public function flushCache()
     {
-        $this->_aCache = array();
+        $this->_aCache = [];
     }
 }

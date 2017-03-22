@@ -60,12 +60,12 @@ class AdminObjectController extends Controller
     /**
      * @var UserGroup[]
      */
-    protected $_aObjectUserGroups = array();
+    protected $_aObjectUserGroups = [];
 
     /**
      * @var UserGroup[]
      */
-    protected $_aFilteredObjectUserGroups = array();
+    protected $_aFilteredObjectUserGroups = [];
 
     /**
      * @var int
@@ -238,7 +238,7 @@ class AdminObjectController extends Controller
      */
     public function getRecursiveMembership(UserGroup $oUserGroup)
     {
-        $aRecursiveMembership = array();
+        $aRecursiveMembership = [];
         $sObjectId = $this->getObjectId();
         $sObjectType = $this->getObjectType();
         $aRoles = $this->getRoleNames();
@@ -332,8 +332,8 @@ class AdminObjectController extends Controller
             || $this->_oConfig->authorsCanAddPostsToGroups() === true
         ) {
             if ($aUserGroups === null) {
-                $aUpdateGroups = $this->getRequestParameter('uam_update_groups', array());
-                $aUserGroups = (is_array($aUpdateGroups) === true) ? $aUpdateGroups : array();
+                $aUpdateGroups = $this->getRequestParameter('uam_update_groups', []);
+                $aUserGroups = (is_array($aUpdateGroups) === true) ? $aUpdateGroups : [];
             }
 
             $aAddUserGroups = array_flip($aUserGroups);
@@ -347,7 +347,7 @@ class AdminObjectController extends Controller
 
             if ($sBulkType === self::BULK_REMOVE) {
                 $aRemoveUserGroups = $aAddUserGroups;
-                $aAddUserGroups = array();
+                $aAddUserGroups = [];
             }
 
             foreach ($aFilteredUserGroups as $sGroupId => $oUserGroup) {
@@ -376,14 +376,14 @@ class AdminObjectController extends Controller
     {
         $this->_oDatabase->delete(
             $this->_oDatabase->getUserGroupToObjectTable(),
-            array(
+            [
                 'object_id' => $iId,
                 'object_type' => $sObjectType,
-            ),
-            array(
+            ],
+            [
                 '%d',
                 '%s'
-            )
+            ]
         );
     }
 

@@ -88,7 +88,7 @@ class Wordpress
      *
      * @return array
      */
-    public function getPostTypes(array $aArguments = array(), $sOutput = 'names', $sOperator = 'and')
+    public function getPostTypes(array $aArguments = [], $sOutput = 'names', $sOperator = 'and')
     {
         return \get_post_types($aArguments, $sOutput, $sOperator);
     }
@@ -102,7 +102,7 @@ class Wordpress
      *
      * @return array
      */
-    public function getTaxonomies(array $aArguments = array(), $sOutput = 'names', $sOperator = 'and')
+    public function getTaxonomies(array $aArguments = [], $sOutput = 'names', $sOperator = 'and')
     {
         return \get_taxonomies($aArguments, $sOutput, $sOperator);
     }
@@ -398,7 +398,7 @@ class Wordpress
      * @param string $sTitle
      * @param array  $aArguments
      */
-    public function wpDie($sMessage = '', $sTitle = '', array $aArguments = array())
+    public function wpDie($sMessage = '', $sTitle = '', array $aArguments = [])
     {
         \wp_die($sMessage, $sTitle, $aArguments);
     }
@@ -618,7 +618,7 @@ class Wordpress
      *
      * @return bool
      */
-    public function registerStyle($sHandle, $sSource, $aDepends = array(), $mVersion = false, $sMedia = 'all')
+    public function registerStyle($sHandle, $sSource, $aDepends = [], $mVersion = false, $sMedia = 'all')
     {
         return \wp_register_style($sHandle, $sSource, $aDepends, $mVersion, $sMedia);
     }
@@ -634,7 +634,7 @@ class Wordpress
      *
      * @return bool
      */
-    public function registerScript($sHandle, $sSource, $aDepends = array(), $mVersion = false, $blInFooter = false)
+    public function registerScript($sHandle, $sSource, $aDepends = [], $mVersion = false, $blInFooter = false)
     {
         return \wp_register_script($sHandle, $sSource, $aDepends, $mVersion, $blInFooter);
     }
@@ -648,7 +648,7 @@ class Wordpress
      * @param string|bool|null $mVersion
      * @param string           $sMedia
      */
-    public function enqueueStyle($sHandle, $sSource = '', $aDepends = array(), $mVersion = false, $sMedia = 'all')
+    public function enqueueStyle($sHandle, $sSource = '', $aDepends = [], $mVersion = false, $sMedia = 'all')
     {
         \wp_enqueue_style($sHandle, $sSource, $aDepends, $mVersion, $sMedia);
     }
@@ -662,7 +662,7 @@ class Wordpress
      * @param string|bool|null $mVersion
      * @param bool             $blInFooter
      */
-    public function enqueueScript($sHandle, $sSource = '', $aDepends = array(), $mVersion = false, $blInFooter = false)
+    public function enqueueScript($sHandle, $sSource = '', $aDepends = [], $mVersion = false, $blInFooter = false)
     {
         \wp_enqueue_script($sHandle, $sSource, $aDepends, $mVersion, $blInFooter);
     }
@@ -685,7 +685,7 @@ class Wordpress
      *
      * @return array
      */
-    public function getSites(array $aArguments = array())
+    public function getSites(array $aArguments = [])
     {
         if (function_exists('get_sites')) {
             return \get_sites($aArguments);

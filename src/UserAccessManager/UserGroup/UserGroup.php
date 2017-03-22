@@ -87,37 +87,37 @@ class UserGroup
     /**
      * @var array
      */
-    protected $_aAssignedObjects = array();
+    protected $_aAssignedObjects = [];
 
     /**
      * @var array
      */
-    protected $_aRoleMembership = array();
+    protected $_aRoleMembership = [];
 
     /**
      * @var array
      */
-    protected $_aUserMembership = array();
+    protected $_aUserMembership = [];
 
     /**
      * @var array
      */
-    protected $_aTermMembership = array();
+    protected $_aTermMembership = [];
 
     /**
      * @var array
      */
-    protected $_aPostMembership = array();
+    protected $_aPostMembership = [];
 
     /**
      * @var array
      */
-    protected $_aPluggableObjectMembership = array();
+    protected $_aPluggableObjectMembership = [];
 
     /**
      * @var array
      */
-    protected $_aFullObjectMembership = array();
+    protected $_aFullObjectMembership = [];
 
     /**
      * UserGroup constructor.
@@ -308,13 +308,13 @@ class UserGroup
         if ($this->_iId === null) {
             $mReturn = $this->_oDatabase->insert(
                 $this->_oDatabase->getUserGroupTable(),
-                array(
+                [
                     'groupname' => $this->_sName,
                     'groupdesc' => $this->_sDescription,
                     'read_access' => $this->_sReadAccess,
                     'write_access' => $this->_sWriteAccess,
                     'ip_range' => $this->_sIpRange
-                )
+                ]
             );
 
             if ($mReturn !== false) {
@@ -323,14 +323,14 @@ class UserGroup
         } else {
             $mReturn = $this->_oDatabase->update(
                 $this->_oDatabase->getUserGroupTable(),
-                array(
+                [
                     'groupname' => $this->_sName,
                     'groupdesc' => $this->_sDescription,
                     'read_access' => $this->_sReadAccess,
                     'write_access' => $this->_sWriteAccess,
                     'ip_range' => $this->_sIpRange
-                ),
-                array('ID' => $this->_iId)
+                ],
+                ['ID' => $this->_iId]
             );
         }
 
@@ -350,7 +350,7 @@ class UserGroup
 
         $blSuccess = $this->_oDatabase->delete(
             $this->_oDatabase->getUserGroupTable(),
-            array('ID' => $this->_iId)
+            ['ID' => $this->_iId]
         );
 
         if ($blSuccess !== false) {
@@ -384,28 +384,28 @@ class UserGroup
 
         $mReturn = $this->_oDatabase->insert(
             $this->_oDatabase->getUserGroupToObjectTable(),
-            array(
+            [
                 'group_id' => $this->_iId,
                 'object_id' => $sObjectId,
                 'general_object_type' => $sGeneralObjectType,
                 'object_type' => $sObjectType
-            ),
-            array(
+            ],
+            [
                 '%d',
                 '%s',
                 '%s',
                 '%s'
-            )
+            ]
         );
 
         if ($mReturn !== false) {
-            $this->_aAssignedObjects = array();
-            $this->_aRoleMembership = array();
-            $this->_aUserMembership = array();
-            $this->_aTermMembership = array();
-            $this->_aPostMembership = array();
-            $this->_aPluggableObjectMembership = array();
-            $this->_aFullObjectMembership = array();
+            $this->_aAssignedObjects = [];
+            $this->_aRoleMembership = [];
+            $this->_aUserMembership = [];
+            $this->_aTermMembership = [];
+            $this->_aPostMembership = [];
+            $this->_aPluggableObjectMembership = [];
+            $this->_aFullObjectMembership = [];
 
             return true;
         }
@@ -431,11 +431,11 @@ class UserGroup
             WHERE group_id = %d
               AND (general_object_type = '%s' OR object_type = '%s')";
 
-        $aValues = array(
+        $aValues = [
             $this->_iId,
             $sObjectType,
             $sObjectType
-        );
+        ];
 
         if ($sObjectId !== null) {
             $sQuery .= ' AND object_id = %d';
@@ -446,13 +446,13 @@ class UserGroup
         $blSuccess = ($this->_oDatabase->query($sQuery) !== false);
 
         if ($blSuccess === true) {
-            $this->_aAssignedObjects = array();
-            $this->_aRoleMembership = array();
-            $this->_aUserMembership = array();
-            $this->_aTermMembership = array();
-            $this->_aPostMembership = array();
-            $this->_aPluggableObjectMembership = array();
-            $this->_aFullObjectMembership = array();
+            $this->_aAssignedObjects = [];
+            $this->_aRoleMembership = [];
+            $this->_aUserMembership = [];
+            $this->_aTermMembership = [];
+            $this->_aPostMembership = [];
+            $this->_aPluggableObjectMembership = [];
+            $this->_aFullObjectMembership = [];
         }
 
         return $blSuccess;
@@ -473,15 +473,15 @@ class UserGroup
                 FROM {$this->_oDatabase->getUserGroupToObjectTable()}
                 WHERE group_id = %d
                   AND (general_object_type = '%s' OR object_type = '%s')",
-                array(
+                [
                     $this->getId(),
                     $sObjectType,
                     $sObjectType
-                )
+                ]
             );
 
             $aDbObjects = (array)$this->_oDatabase->getResults($sQuery);
-            $this->_aAssignedObjects[$sObjectType] = array();
+            $this->_aAssignedObjects[$sObjectType] = [];
 
             foreach ($aDbObjects as $oDbObject) {
                 $this->_aAssignedObjects[$sObjectType][$oDbObject->id] = $oDbObject->id;
@@ -519,16 +519,16 @@ class UserGroup
         $cMapFunction,
         $sObjectType,
         $sObjectId,
-        array &$aRecursiveMembership = array()
+        array &$aRecursiveMembership = []
     )
     {
         // Reset value to prevent errors
-        $aRecursiveMembership = array();
+        $aRecursiveMembership = [];
 
         if ($this->_oConfig->lockRecursive() === true) {
             $aMap = $cMapFunction();
             $aGeneralMap = isset($aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType]) ?
-                $aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType] : array();
+                $aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType] : [];
 
             if (isset($aGeneralMap[$sObjectId])) {
                 foreach ($aGeneralMap[$sObjectId] as $iParentId) {
@@ -551,15 +551,15 @@ class UserGroup
      *
      * @return bool
      */
-    public function isRoleMember($sRoleId, array &$aRecursiveMembership = array())
+    public function isRoleMember($sRoleId, array &$aRecursiveMembership = [])
     {
         if (isset($this->_aRoleMembership[$sRoleId]) === false) {
-            $aRecursiveMembership = array();
+            $aRecursiveMembership = [];
             $blIsMember = $this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $sRoleId);
             $this->_aRoleMembership[$sRoleId] = ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aRoleMembership[$sRoleId] !== false) ? $this->_aRoleMembership[$sRoleId] : array();
+        $aRecursiveMembership = ($this->_aRoleMembership[$sRoleId] !== false) ? $this->_aRoleMembership[$sRoleId] : [];
 
         return ($this->_aRoleMembership[$sRoleId] !== false);
     }
@@ -572,18 +572,18 @@ class UserGroup
      *
      * @return bool
      */
-    public function isUserMember($iUserId, array &$aRecursiveMembership = array())
+    public function isUserMember($iUserId, array &$aRecursiveMembership = [])
     {
         if (isset($this->_aUserMembership[$iUserId]) === false) {
-            $aRecursiveMembership = array();
+            $aRecursiveMembership = [];
             $oUser = $this->_oObjectHandler->getUser($iUserId);
 
             if ($oUser !== false) {
                 $sCapabilitiesTable = $this->_oDatabase->getCapabilitiesTable();
 
-                $aCapabilities = (isset($oUser->{$sCapabilitiesTable})) ? $oUser->{$sCapabilitiesTable} : array();
+                $aCapabilities = (isset($oUser->{$sCapabilitiesTable})) ? $oUser->{$sCapabilitiesTable} : [];
                 $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ?
-                    array_keys($aCapabilities) : array(self::NONE_ROLE);
+                    array_keys($aCapabilities) : [self::NONE_ROLE];
 
                 $aAssignedRoles = $this->_getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
                 $aRecursiveRoles = array_intersect($aRoles, $aAssignedRoles);
@@ -600,7 +600,7 @@ class UserGroup
             $this->_aUserMembership[$iUserId] = ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aUserMembership[$iUserId] !== false) ? $this->_aUserMembership[$iUserId] : array();
+        $aRecursiveMembership = ($this->_aUserMembership[$iUserId] !== false) ? $this->_aUserMembership[$iUserId] : [];
 
         return ($this->_aUserMembership[$iUserId] !== false);
     }
@@ -613,7 +613,7 @@ class UserGroup
      *
      * @return bool
      */
-    public function isTermMember($iTermId, array &$aRecursiveMembership = array())
+    public function isTermMember($iTermId, array &$aRecursiveMembership = [])
     {
         if (isset($this->_aTermMembership[$iTermId]) === false) {
             $blIsMember = $this->_isObjectRecursiveMember(
@@ -628,7 +628,7 @@ class UserGroup
             $this->_aTermMembership[$iTermId] = ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aTermMembership[$iTermId] !== false) ? $this->_aTermMembership[$iTermId] : array();
+        $aRecursiveMembership = ($this->_aTermMembership[$iTermId] !== false) ? $this->_aTermMembership[$iTermId] : [];
 
         return ($this->_aTermMembership[$iTermId] !== false);
     }
@@ -641,7 +641,7 @@ class UserGroup
      *
      * @return bool
      */
-    public function isPostMember($iPostId, array &$aRecursiveMembership = array())
+    public function isPostMember($iPostId, array &$aRecursiveMembership = [])
     {
         if (isset($this->_aPostMembership[$iPostId]) === false) {
             $blIsMember = $this->_isObjectRecursiveMember(
@@ -670,7 +670,7 @@ class UserGroup
             $this->_aPostMembership[$iPostId] = ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aPostMembership[$iPostId] !== false) ? $this->_aPostMembership[$iPostId] : array();
+        $aRecursiveMembership = ($this->_aPostMembership[$iPostId] !== false) ? $this->_aPostMembership[$iPostId] : [];
 
         return ($this->_aPostMembership[$iPostId] !== false);
     }
@@ -684,10 +684,10 @@ class UserGroup
      *
      * @return bool
      */
-    public function isPluggableObjectMember($sObjectType, $sObjectId, array &$aRecursiveMembership = array())
+    public function isPluggableObjectMember($sObjectType, $sObjectId, array &$aRecursiveMembership = [])
     {
         if (isset($this->_aPluggableObjectMembership[$sObjectType]) === false) {
-            $this->_aPluggableObjectMembership[$sObjectType] = array();
+            $this->_aPluggableObjectMembership[$sObjectType] = [];
         }
 
         if (isset($this->_aPluggableObjectMembership[$sObjectType][$sObjectId]) === false) {
@@ -704,7 +704,7 @@ class UserGroup
         }
 
         $aRecursiveMembership = ($this->_aPluggableObjectMembership[$sObjectType][$sObjectId] !== false) ?
-            $this->_aPluggableObjectMembership[$sObjectType][$sObjectId] : array();
+            $this->_aPluggableObjectMembership[$sObjectType][$sObjectId] : [];
 
         return ($this->_aPluggableObjectMembership[$sObjectType][$sObjectId] !== false);
     }
@@ -718,10 +718,10 @@ class UserGroup
      *
      * @return bool
      */
-    public function isObjectMember($sObjectType, $sObjectId, array &$aRecursiveMembership = array())
+    public function isObjectMember($sObjectType, $sObjectId, array &$aRecursiveMembership = [])
     {
         $blIsMember = false;
-        $aRecursiveMembership = array();
+        $aRecursiveMembership = [];
 
         if ($sObjectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
             $blIsMember = $this->isRoleMember($sObjectId, $aRecursiveMembership);
@@ -752,13 +752,13 @@ class UserGroup
      */
     public function getRecursiveMembershipForObject($sObjectType, $sObjectId)
     {
-        $aRecursiveMembership = array();
+        $aRecursiveMembership = [];
 
         if ($this->isObjectMember($sObjectType, $sObjectId, $aRecursiveMembership) === true) {
             return $aRecursiveMembership;
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -771,7 +771,7 @@ class UserGroup
      */
     public function isLockedRecursive($sObjectType, $sObjectId)
     {
-        $aRecursiveMembership = array();
+        $aRecursiveMembership = [];
 
         if ($this->isObjectMember($sObjectType, $sObjectId, $aRecursiveMembership) === true) {
             return (count($aRecursiveMembership) > 0);
@@ -795,7 +795,7 @@ class UserGroup
         if ($this->_oConfig->lockRecursive() === true) {
             $aMap = $cMapFunction();
             $aMap = isset($aMap[ObjectHandler::TREE_MAP_CHILDREN][$sObjectType]) ?
-                $aMap[ObjectHandler::TREE_MAP_CHILDREN][$sObjectType] : array();
+                $aMap[ObjectHandler::TREE_MAP_CHILDREN][$sObjectType] : [];
             $aMap = array_intersect_key($aMap, $aObjects);
 
             foreach ($aMap as $aChildrenIds) {
@@ -818,7 +818,7 @@ class UserGroup
     public function getFullUsers()
     {
         if (isset($this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE]) === false) {
-            $this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE] = array();
+            $this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE] = [];
 
             $aDatabaseUsers = (array)$this->_oDatabase->getResults(
                 "SELECT ID, user_nicename
@@ -919,6 +919,6 @@ class UserGroup
             return ($oPluggableObject !== null) ? $oPluggableObject->getFullObjects($this) : [];
         }
 
-        return array();
+        return [];
     }
 }

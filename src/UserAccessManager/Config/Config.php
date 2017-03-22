@@ -54,7 +54,7 @@ class Config
     /**
      * @var array
      */
-    protected $_aWpOptions = array();
+    protected $_aWpOptions = [];
 
     /**
      * @var bool
@@ -122,7 +122,7 @@ class Config
             /**
              * @var ConfigParameter[] $aConfigParameters
              */
-            $aConfigParameters = array();
+            $aConfigParameters = [];
 
             $aPostTypes = $this->_oObjectHandler->getPostTypes();
 
@@ -176,7 +176,7 @@ class Config
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
                 $sId,
                 'false',
-                array('false', 'custom_page', 'custom_url')
+                ['false', 'custom_page', 'custom_url']
             );
 
             $sId = 'redirect_custom_page';
@@ -202,21 +202,21 @@ class Config
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
                 $sId,
                 'random',
-                array('random', 'user')
+                ['random', 'user']
             );
 
             $sId = 'download_type';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
                 $sId,
                 'fopen',
-                array('fopen', 'normal')
+                ['fopen', 'normal']
             );
 
             $sId = 'lock_file_types';
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
                 $sId,
                 'all',
-                array('all', 'selected', 'not_selected')
+                ['all', 'selected', 'not_selected']
             );
 
             $sId = 'locked_file_types';
@@ -251,7 +251,7 @@ class Config
             $aConfigParameters[$sId] = $this->_oConfigParameterFactory->createSelectionConfigParameter(
                 $sId,
                 'administrator',
-                array('administrator', 'editor', 'author', 'contributor', 'subscriber')
+                ['administrator', 'editor', 'author', 'contributor', 'subscriber']
             );
 
             $aCurrentOptions = (array)$this->getWpOption(self::ADMIN_OPTIONS_NAME);
@@ -285,7 +285,7 @@ class Config
 
         $this->_aConfigParameters = $aConfigParameters;
 
-        $aSimpleConfigParameters = array();
+        $aSimpleConfigParameters = [];
 
         foreach ($aConfigParameters as $oParameter) {
             $aSimpleConfigParameters[$oParameter->getId()] = $oParameter->getValue();
@@ -360,7 +360,7 @@ class Config
     {
         if ($this->_aMimeTypes === null) {
             $aMimeTypes = $this->_oWordpress->getAllowedMimeTypes();
-            $aFullMimeTypes = array();
+            $aFullMimeTypes = [];
 
             foreach ($aMimeTypes as $sExtensions => $sMineType) {
                 $aExtension = explode('|', $sExtensions);

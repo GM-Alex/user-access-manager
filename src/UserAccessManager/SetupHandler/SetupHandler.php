@@ -76,9 +76,9 @@ class SetupHandler
     public function getBlogIds()
     {
         $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
-        $aBlogIds = array(
+        $aBlogIds = [
             $iCurrentBlogId => $iCurrentBlogId
-        );
+        ];
 
         $aSites = $this->_oWordpress->getSites();
 
@@ -282,16 +282,16 @@ class SetupHandler
                     foreach ($aDbObjects as $oDbObject) {
                         $this->_oDatabase->insert(
                             $sDbAccessGroupToObject,
-                            array(
+                            [
                                 'group_id' => $oDbObject->groupId,
                                 'object_id' => $oDbObject->id,
                                 'object_type' => $sObjectType,
-                            ),
-                            array(
+                            ],
+                            [
                                 '%d',
                                 '%d',
                                 '%s',
-                            )
+                            ]
                         );
                     }
                 }
@@ -319,12 +319,12 @@ class SetupHandler
                 $sGeneralTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
                 $this->_oDatabase->update(
                     $sDbAccessGroupToObject,
-                    array(
+                    [
                         'object_type' => $sGeneralTermType,
-                    ),
-                    array(
+                    ],
+                    [
                         'object_type' => 'category',
-                    )
+                    ]
                 );
             }
 

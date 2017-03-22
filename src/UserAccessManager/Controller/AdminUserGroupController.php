@@ -142,7 +142,7 @@ class AdminUserGroupController extends Controller
         $sIpRange = $this->getRequestParameter('ipRange');
         $oUserGroup->setIpRange($sIpRange);
 
-        $aRoles = $this->getRequestParameter('roles', array());
+        $aRoles = $this->getRequestParameter('roles', []);
 
         $oUserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
@@ -168,7 +168,7 @@ class AdminUserGroupController extends Controller
     public function deleteUserGroupAction()
     {
         $this->_verifyNonce(self::DELETE_GROUP_NONCE);
-        $aUserGroups = $this->getRequestParameter('delete', array());
+        $aUserGroups = $this->getRequestParameter('delete', []);
 
         foreach ($aUserGroups as $sId) {
             $this->_oAccessHandler->deleteUserGroup($sId);

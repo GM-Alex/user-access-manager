@@ -57,7 +57,7 @@ class Util
     public function getRandomPassword($iLength = 32)
     {
         //create password
-        $aChars = array();
+        $aChars = [];
 
         // Numbers
         for ($iCount = 48; $iCount < 58; $iCount++) {

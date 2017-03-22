@@ -78,7 +78,7 @@ class AdminSettingsController extends Controller
     public function getPages()
     {
         $aPages = $this->_oWordpress->getPages('sort_column=menu_order');
-        return is_array($aPages) !== false ? $aPages : array();
+        return is_array($aPages) !== false ? $aPages : [];
     }
 
     /**
@@ -98,7 +98,7 @@ class AdminSettingsController extends Controller
      */
     protected function _getPostTypes()
     {
-        return $this->_oWordpress->getPostTypes(array('public' => true), 'objects');
+        return $this->_oWordpress->getPostTypes(['public' => true], 'objects');
     }
 
     /**
@@ -108,7 +108,7 @@ class AdminSettingsController extends Controller
      */
     protected function _getTaxonomies()
     {
-        return $this->_oWordpress->getTaxonomies(array('public' => true), 'objects');
+        return $this->_oWordpress->getTaxonomies(['public' => true], 'objects');
     }
 
     /**
@@ -120,7 +120,7 @@ class AdminSettingsController extends Controller
     {
         $aConfigParameters = $this->_oConfig->getConfigParameters();
 
-        $aGroupedConfigParameters = array();
+        $aGroupedConfigParameters = [];
         $aPostTypes = $this->_getPostTypes();
 
         foreach ($aPostTypes as $sPostType => $oPostType) {
@@ -128,7 +128,7 @@ class AdminSettingsController extends Controller
                 continue;
             }
 
-            $aGroupedConfigParameters[$sPostType] = array(
+            $aGroupedConfigParameters[$sPostType] = [
                 $aConfigParameters["hide_{$sPostType}"],
                 $aConfigParameters["hide_{$sPostType}_title"],
                 $aConfigParameters["{$sPostType}_title"],
@@ -136,7 +136,7 @@ class AdminSettingsController extends Controller
                 $aConfigParameters["hide_{$sPostType}_comment"],
                 $aConfigParameters["{$sPostType}_comment_content"],
                 $aConfigParameters["{$sPostType}_comments_locked"]
-            );
+            ];
 
             if ($sPostType === 'post') {
                 $aGroupedConfigParameters[$sPostType][] = $aConfigParameters["show_{$sPostType}_content_before_more"];
@@ -149,24 +149,24 @@ class AdminSettingsController extends Controller
             $aGroupedConfigParameters[$sTaxonomy][] = $aConfigParameters["hide_empty_{$sTaxonomy}"];
         }
 
-        $aGroupedConfigParameters['file'] = array(
+        $aGroupedConfigParameters['file'] = [
             $aConfigParameters['lock_file'],
             $aConfigParameters['download_type']
-        );
+        ];
 
-        $aGroupedConfigParameters['author'] = array(
+        $aGroupedConfigParameters['author'] = [
             $aConfigParameters['authors_has_access_to_own'],
             $aConfigParameters['authors_can_add_posts_to_groups'],
             $aConfigParameters['full_access_role'],
-        );
+        ];
 
-        $aGroupedConfigParameters['other'] = array(
+        $aGroupedConfigParameters['other'] = [
             $aConfigParameters['lock_recursive'],
             $aConfigParameters['protect_feed'],
             $aConfigParameters['redirect'],
             $aConfigParameters['blog_admin_hint'],
             $aConfigParameters['blog_admin_hint_text'],
-        );
+        ];
 
         if ($this->_oConfig->isPermalinksActive() === true) {
             $aGroupedConfigParameters['file'][] = $aConfigParameters['lock_file_types'];

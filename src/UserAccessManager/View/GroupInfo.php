@@ -68,7 +68,7 @@
                     $aGroupRoles = $oUserGroup->getAssignedObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
                     if (count($aGroupRoles) > 0) {
-                        $aCleanGroupRoles = array();
+                        $aCleanGroupRoles = [];
 
                         foreach ($aGroupRoles as $sKey => $sRole) {
                             $aCleanGroupRoles[] = isset($aRoleNames[$sKey]) ? $aRoleNames[$sKey] : $sKey;

@@ -113,7 +113,7 @@ class FrontendController extends Controller
         $this->_oWordpress->registerStyle(
             self::HANDLE_STYLE_LOGIN_FORM,
             $sUrlPath.'assets/css/uamLoginForm.css',
-            array(),
+            [],
             UserAccessManager::VERSION,
             'screen'
         );
@@ -206,9 +206,9 @@ class FrontendController extends Controller
      *
      * @return array
      */
-    public function showPosts($aPosts = array())
+    public function showPosts($aPosts = [])
     {
-        $aShowPosts = array();
+        $aShowPosts = [];
 
         if ($this->_oWordpress->isFeed() === false
             || ($this->_oConfig->protectFeed() === true && $this->_oWordpress->isFeed()) === true
@@ -276,7 +276,7 @@ class FrontendController extends Controller
      */
     public function getTermArguments($aArguments)
     {
-        $aExclude = (isset($aArguments['exclude'])) ? $this->_oWordpress->parseIdList($aArguments['exclude']) : array();
+        $aExclude = (isset($aArguments['exclude'])) ? $this->_oWordpress->parseIdList($aArguments['exclude']) : [];
         $aExcludedTerms = $this->_oAccessHandler->getExcludedTerms();
 
         if ($this->_oConfig->lockRecursive() === true) {
@@ -303,7 +303,7 @@ class FrontendController extends Controller
      */
     public function showCustomMenu($aItems)
     {
-        $aShowItems = array();
+        $aShowItems = [];
 
         foreach ($aItems as $oItem) {
             if ($this->_oObjectHandler->isPostType($oItem->object)) {
@@ -344,9 +344,9 @@ class FrontendController extends Controller
      *
      * @return array
      */
-    public function showComment($aComments = array())
+    public function showComment($aComments = [])
     {
-        $aShowComments = array();
+        $aShowComments = [];
 
         foreach ($aComments as $oComment) {
             $oPost = $this->_oObjectHandler->getPost($oComment->comment_post_ID);
@@ -380,9 +380,9 @@ class FrontendController extends Controller
      *
      * @return array
      */
-    public function showPages($aPages = array())
+    public function showPages($aPages = [])
     {
-        $aShowPages = array();
+        $aShowPages = [];
 
         foreach ($aPages as $oPage) {
             if ($this->_oConfig->hideObjectType($oPage->post_type) === true
@@ -554,9 +554,9 @@ class FrontendController extends Controller
      *
      * @return array
      */
-    public function showTerms($aTerms = array())
+    public function showTerms($aTerms = [])
     {
-        $aShowTerms = array();
+        $aShowTerms = [];
 
         foreach ($aTerms as $mTerm) {
             if (!is_object($mTerm) && is_numeric($mTerm)) {

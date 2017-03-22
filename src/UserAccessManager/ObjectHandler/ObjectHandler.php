@@ -86,7 +86,7 @@ class ObjectHandler
     /**
      * @var array
      */
-    protected $_aPluggableObjects = array();
+    protected $_aPluggableObjects = [];
 
     /**
      * @var array
@@ -101,7 +101,7 @@ class ObjectHandler
     /**
      * @var array
      */
-    protected $_aValidObjectTypes = array();
+    protected $_aValidObjectTypes = [];
 
     /**
      * Cache constructor.
@@ -123,7 +123,7 @@ class ObjectHandler
     public function getPostTypes()
     {
         if ($this->_aPostTypes === null) {
-            $this->_aPostTypes = $this->_oWordpress->getPostTypes(array('public' => true));
+            $this->_aPostTypes = $this->_oWordpress->getPostTypes(['public' => true]);
         }
 
         return $this->_aPostTypes;
@@ -137,7 +137,7 @@ class ObjectHandler
     public function getTaxonomies()
     {
         if ($this->_aTaxonomies === null) {
-            $this->_aTaxonomies = $this->_oWordpress->getTaxonomies(array('public' => true));
+            $this->_aTaxonomies = $this->_oWordpress->getTaxonomies(['public' => true]);
         }
 
         return $this->_aTaxonomies;
@@ -211,7 +211,7 @@ class ObjectHandler
         foreach ($aProcessMap as $iId => $aSubIds) {
             foreach ($aSubIds as $iSubId) {
                 if (isset($aMap[$iSubId])) {
-                    $aMap[$iId] += $this->_processTreeMapElements($aMap, array($iSubId => $aMap[$iSubId]))[$iSubId];
+                    $aMap[$iId] += $this->_processTreeMapElements($aMap, [$iSubId => $aMap[$iSubId]])[$iSubId];
                 }
             }
         }
@@ -229,31 +229,31 @@ class ObjectHandler
      */
     protected function _getTreeMap($sSelect, $sGeneralType)
     {
-        $aTreeMap = array(
-            self::TREE_MAP_CHILDREN => array(
-                $sGeneralType => array()
-            ),
-            self::TREE_MAP_PARENTS => array(
-                $sGeneralType => array()
-            )
-        );
+        $aTreeMap = [
+            self::TREE_MAP_CHILDREN => [
+                $sGeneralType => []
+            ],
+            self::TREE_MAP_PARENTS => [
+                $sGeneralType => []
+            ]
+        ];
         $aResults = $this->_oDatabase->getResults($sSelect);
 
         foreach ($aResults as $oResult) {
             if (!isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type])) {
-                $aChildrenMap[$oResult->type] = array();
+                $aChildrenMap[$oResult->type] = [];
             }
 
             if (!isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type])) {
-                $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type] = array();
+                $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type] = [];
             }
 
             if (!isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId])) {
-                $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId] = array();
+                $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId] = [];
             }
 
             if (!isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id])) {
-                $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id] = array();
+                $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id] = [];
             }
 
             $aTreeMap[self::TREE_MAP_CHILDREN][$sGeneralType][$oResult->parentId][$oResult->id] = $oResult->id;
@@ -318,7 +318,7 @@ class ObjectHandler
     public function getTermPostMap()
     {
         if ($this->_aTermPostMap === null) {
-            $this->_aTermPostMap = array();
+            $this->_aTermPostMap = [];
 
             $sSelect = "
                 SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
@@ -330,7 +330,7 @@ class ObjectHandler
 
             foreach ($aResults as $oResult) {
                 if (!isset($this->_aTermPostMap[$oResult->termId])) {
-                    $this->_aTermPostMap[$oResult->termId] = array();
+                    $this->_aTermPostMap[$oResult->termId] = [];
                 }
 
                 $this->_aTermPostMap[$oResult->termId][$oResult->objectId] = $oResult->objectId;
@@ -348,13 +348,13 @@ class ObjectHandler
     public function getPostTermMap()
     {
         if ($this->_aPostTermMap === null) {
-            $this->_aPostTermMap = array();
+            $this->_aPostTermMap = [];
             $aTermPostMap = $this->getTermPostMap();
 
             foreach ($aTermPostMap as $iTermId => $aPosts) {
                 foreach ($aPosts as $iPostId => $sPostType) {
                     if (!isset($this->_aPostTermMap[$iPostId])) {
-                        $this->_aPostTermMap[$iPostId] = array();
+                        $this->_aPostTermMap[$iPostId] = [];
                     }
 
                     $this->_aPostTermMap[$iPostId][$iTermId] = $iTermId;
