@@ -661,7 +661,7 @@ class FrontendController extends Controller
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
 
             foreach ($aUserGroups as $oGroup) {
-                $sLink .= htmlentities($oGroup->getGroupName()).', ';
+                $sLink .= htmlentities($oGroup->getName()).', ';
             }
 
             $sLink = rtrim($sLink, ', ');

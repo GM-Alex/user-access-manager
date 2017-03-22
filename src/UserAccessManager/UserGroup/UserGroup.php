@@ -62,12 +62,12 @@ class UserGroup
     /**
      * @var string
      */
-    protected $_sGroupName = null;
+    protected $_sName = null;
 
     /**
      * @var string
      */
-    protected $_sGroupDesc = null;
+    protected $_sDescription = null;
 
     /**
      * @var string
@@ -168,19 +168,19 @@ class UserGroup
      *
      * @return string
      */
-    public function getGroupName()
+    public function getName()
     {
-        return $this->_sGroupName;
+        return $this->_sName;
     }
 
     /**
      * Sets the group name.
      *
-     * @param string $sGroupName The new group name.
+     * @param string $sName The new group name.
      */
-    public function setGroupName($sGroupName)
+    public function setName($sName)
     {
-        $this->_sGroupName = $sGroupName;
+        $this->_sName = $sName;
     }
 
     /**
@@ -188,19 +188,19 @@ class UserGroup
      *
      * @return string
      */
-    public function getGroupDescription()
+    public function getDescription()
     {
-        return $this->_sGroupDesc;
+        return $this->_sDescription;
     }
 
     /**
      * Sets the group description.
      *
-     * @param string $sGroupDesc The new group description.
+     * @param string $sDescription The new group description.
      */
-    public function setGroupDesc($sGroupDesc)
+    public function setDescription($sDescription)
     {
-        $this->_sGroupDesc = $sGroupDesc;
+        $this->_sDescription = $sDescription;
     }
 
     /**
@@ -286,8 +286,8 @@ class UserGroup
 
         if ($oDbUserGroup !== null) {
             $this->_iId = $iId;
-            $this->_sGroupName = $oDbUserGroup->groupname;
-            $this->_sGroupDesc = $oDbUserGroup->groupdesc;
+            $this->_sName = $oDbUserGroup->groupname;
+            $this->_sDescription = $oDbUserGroup->groupdesc;
             $this->_sReadAccess = $oDbUserGroup->read_access;
             $this->_sWriteAccess = $oDbUserGroup->write_access;
             $this->_sIpRange = $oDbUserGroup->ip_range;
@@ -309,8 +309,8 @@ class UserGroup
             $mReturn = $this->_oDatabase->insert(
                 $this->_oDatabase->getUserGroupTable(),
                 array(
-                    'groupname' => $this->_sGroupName,
-                    'groupdesc' => $this->_sGroupDesc,
+                    'groupname' => $this->_sName,
+                    'groupdesc' => $this->_sDescription,
                     'read_access' => $this->_sReadAccess,
                     'write_access' => $this->_sWriteAccess,
                     'ip_range' => $this->_sIpRange
@@ -324,8 +324,8 @@ class UserGroup
             $mReturn = $this->_oDatabase->update(
                 $this->_oDatabase->getUserGroupTable(),
                 array(
-                    'groupname' => $this->_sGroupName,
-                    'groupdesc' => $this->_sGroupDesc,
+                    'groupname' => $this->_sName,
+                    'groupdesc' => $this->_sDescription,
                     'read_access' => $this->_sReadAccess,
                     'write_access' => $this->_sWriteAccess,
                     'ip_range' => $this->_sIpRange

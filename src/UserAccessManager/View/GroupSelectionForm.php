@@ -55,7 +55,7 @@
                    value="<?php echo $oUserGroup->getId(); ?>" name="<?php echo $sGroupsFormName; ?>[]"/>
             <label for="<?php echo $sGroupsFormName; ?>-<?php echo $oUserGroup->getId(); ?>" class="selectit"
                    style="display:inline;">
-                <?php echo htmlentities($oUserGroup->getGroupName()).$sAddition; ?>
+                <?php echo htmlentities($oUserGroup->getName()).$sAddition; ?>
             </label>
             <a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
             <?php include 'GroupInfo.php'; ?>

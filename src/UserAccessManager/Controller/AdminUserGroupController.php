@@ -128,10 +128,10 @@ class AdminUserGroupController extends Controller
             return;
         }
 
-        $oUserGroup->setGroupName($sGroupName);
+        $oUserGroup->setName($sGroupName);
 
         $sUserGroupDescription = $this->getRequestParameter('userGroupDescription');
-        $oUserGroup->setGroupDesc($sUserGroupDescription);
+        $oUserGroup->setDescription($sUserGroupDescription);
 
         $sReadAccess = $this->getRequestParameter('readAccess');
         $oUserGroup->setReadAccess($sReadAccess);

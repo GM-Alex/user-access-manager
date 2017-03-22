@@ -121,16 +121,16 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         self::assertFalse($oUserGroup->load(1));
         self::assertAttributeEquals(null, '_iId', $oUserGroup);
-        self::assertAttributeEquals(null, '_sGroupName', $oUserGroup);
-        self::assertAttributeEquals(null, '_sGroupDesc', $oUserGroup);
+        self::assertAttributeEquals(null, '_sName', $oUserGroup);
+        self::assertAttributeEquals(null, '_sDescription', $oUserGroup);
         self::assertAttributeEquals(null, '_sReadAccess', $oUserGroup);
         self::assertAttributeEquals(null, '_sWriteAccess', $oUserGroup);
         self::assertAttributeEquals(null, '_sIpRange', $oUserGroup);
 
         self::assertTrue($oUserGroup->load(2));
         self::assertAttributeEquals(2, '_iId', $oUserGroup);
-        self::assertAttributeEquals('groupName', '_sGroupName', $oUserGroup);
-        self::assertAttributeEquals('groupDesc', '_sGroupDesc', $oUserGroup);
+        self::assertAttributeEquals('groupName', '_sName', $oUserGroup);
+        self::assertAttributeEquals('groupDesc', '_sDescription', $oUserGroup);
         self::assertAttributeEquals('readAccess', '_sReadAccess', $oUserGroup);
         self::assertAttributeEquals('writeAccess', '_sWriteAccess', $oUserGroup);
         self::assertAttributeEquals('ipRange;ipRange2', '_sIpRange', $oUserGroup);
@@ -142,13 +142,13 @@ class UserGroupTest extends \UserAccessManagerTestCase
      * @group   unit
      * @depends testLoad
      * @covers  \UserAccessManager\UserGroup\UserGroup::getId()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getGroupName()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getGroupDescription()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getName()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getDescription()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getReadAccess()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getWriteAccess()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getIpRange()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::setGroupName()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::setGroupDesc()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::setName()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::setDescription()
      * @covers  \UserAccessManager\UserGroup\UserGroup::setReadAccess()
      * @covers  \UserAccessManager\UserGroup\UserGroup::setWriteAccess()
      * @covers  \UserAccessManager\UserGroup\UserGroup::setIpRange()
@@ -158,18 +158,18 @@ class UserGroupTest extends \UserAccessManagerTestCase
     public function testSimpleGetterSetter(UserGroup $oUserGroup)
     {
         self::assertEquals(2, $oUserGroup->getId());
-        self::assertEquals('groupName', $oUserGroup->getGroupName());
-        self::assertEquals('groupDesc', $oUserGroup->getGroupDescription());
+        self::assertEquals('groupName', $oUserGroup->getName());
+        self::assertEquals('groupDesc', $oUserGroup->getDescription());
         self::assertEquals('readAccess', $oUserGroup->getReadAccess());
         self::assertEquals('writeAccess', $oUserGroup->getWriteAccess());
         self::assertEquals(['ipRange', 'ipRange2'], $oUserGroup->getIpRange());
         self::assertEquals('ipRange;ipRange2', $oUserGroup->getIpRange(true));
 
-        $oUserGroup->setGroupName('groupNameNew');
-        self::assertAttributeEquals('groupNameNew', '_sGroupName', $oUserGroup);
+        $oUserGroup->setName('groupNameNew');
+        self::assertAttributeEquals('groupNameNew', '_sName', $oUserGroup);
 
-        $oUserGroup->setGroupDesc('groupDescNew');
-        self::assertAttributeEquals('groupDescNew', '_sGroupDesc', $oUserGroup);
+        $oUserGroup->setDescription('groupDescNew');
+        self::assertAttributeEquals('groupDescNew', '_sDescription', $oUserGroup);
 
         $oUserGroup->setReadAccess('readAccessNew');
         self::assertAttributeEquals('readAccessNew', '_sReadAccess', $oUserGroup);
@@ -234,8 +234,8 @@ class UserGroupTest extends \UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        $oUserGroup->setGroupName('groupName');
-        $oUserGroup->setGroupDesc('groupDesc');
+        $oUserGroup->setName('groupName');
+        $oUserGroup->setDescription('groupDesc');
         $oUserGroup->setReadAccess('readAccess');
         $oUserGroup->setWriteAccess('writeAccess');
         $oUserGroup->setIpRange(['ipRange', 'ipRange2']);

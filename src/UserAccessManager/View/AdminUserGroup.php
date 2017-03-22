@@ -65,11 +65,11 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                         <td>
                             <strong>
                                 <a href="?page=<?php echo $sCurrentAdminPage; ?>&amp;uam_action=edit_user_group&amp;userGroupId=<?php echo $oUserGroup->getId(); ?>">
-                                    <?php echo htmlentities($oUserGroup->getGroupName()); ?>
+                                    <?php echo htmlentities($oUserGroup->getName()); ?>
                                 </a>
                             </strong>
                         </td>
-                        <td><?php echo htmlentities($oUserGroup->getGroupDescription()) ?></td>
+                        <td><?php echo htmlentities($oUserGroup->getDescription()) ?></td>
                         <td>
                             <?php
                             if ($oUserGroup->getReadAccess() === 'all') {
@@ -173,7 +173,7 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
             <tr class="form-field form-required">
                 <th valign="top" scope="row"><label for="userGroupName"><?php echo TXT_UAM_GROUP_NAME; ?></label></th>
                 <td>
-                    <input type="text" size="40" value="<?php echo htmlentities($oUserGroup->getGroupName()); ?>"
+                    <input type="text" size="40" value="<?php echo htmlentities($oUserGroup->getName()); ?>"
                            id="userGroupName" name="userGroupName"/><br/>
                     <?php echo TXT_UAM_GROUP_NAME_DESC; ?>
                 </td>
@@ -182,7 +182,7 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                 <th valign="top" scope="row"><label for="userGroupDescription"><?php echo TXT_UAM_GROUP_DESC; ?></label>
                 </th>
                 <td>
-                    <input type="text" size="40" value="<?php echo htmlentities($oUserGroup->getGroupDescription()); ?>"
+                    <input type="text" size="40" value="<?php echo htmlentities($oUserGroup->getDescription()); ?>"
                            id="userGroupDescription" name="userGroupDescription"/><br/>
                     <?php echo TXT_UAM_GROUP_DESC_DESC; ?>
                 </td>

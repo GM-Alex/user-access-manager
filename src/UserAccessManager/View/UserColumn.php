@@ -26,7 +26,7 @@ if (count($aObjectUserGroups) > 0) {
             ?>
             <li>
                 <a class="uam_group_info_link">
-                    <?php echo htmlentities($oUserGroup->getGroupName()); ?>
+                    <?php echo htmlentities($oUserGroup->getName()); ?>
                 </a>
                 <?php
                 include 'GroupInfo.php';

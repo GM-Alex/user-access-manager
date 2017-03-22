@@ -47,11 +47,11 @@ class GroupCommandTest extends \UserAccessManagerTestCase
         $oUserGroup = $this->getUserGroup($iId, true, false, $aIpRanges, $sReadAccess, $sWriteAccess);
 
         $oUserGroup->expects($this->any())
-            ->method('getGroupName')
+            ->method('getName')
             ->will($this->returnValue($sName));
 
         $oUserGroup->expects($this->any())
-            ->method('getGroupDescription')
+            ->method('getDescription')
             ->will($this->returnValue($sDescription));
 
         $oUserGroup->expects($this->any())
@@ -258,11 +258,11 @@ class GroupCommandTest extends \UserAccessManagerTestCase
 
         $oCreatedUserGroup = $this->getUserGroup(3);
         $oCreatedUserGroup->expects($this->exactly(2))
-            ->method('setGroupName')
+            ->method('setName')
             ->withConsecutive(['newGroupName'], ['otherNewGroupName']);
 
         $oCreatedUserGroup->expects($this->exactly(2))
-            ->method('setGroupDesc')
+            ->method('setDescription')
             ->withConsecutive([''], ['newGroupDesc']);
 
         $oCreatedUserGroup->expects($this->exactly(2))

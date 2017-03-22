@@ -129,8 +129,8 @@ class GroupCommand extends CommandWithDBObject
         foreach ($aUserGroups as $oUserGroup) {
             $aGroups[$oUserGroup->getId()] = [
                 'ID' => $oUserGroup->getId(),
-                'group_name' => $oUserGroup->getGroupName(),
-                'group_desc' => $oUserGroup->getGroupDescription(),
+                'group_name' => $oUserGroup->getName(),
+                'group_desc' => $oUserGroup->getDescription(),
                 'read_access' => $oUserGroup->getReadAccess(),
                 'write_access' => $oUserGroup->getWriteAccess(),
                 'roles' => implode(',', array_keys($oUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))),
@@ -209,7 +209,7 @@ class GroupCommand extends CommandWithDBObject
         $aUserGroups = $this->_oAccessHandler->getUserGroups();
 
         foreach ($aUserGroups as $oUserGroup) {
-            if ($oUserGroup->getGroupName() === $sGroupName) {
+            if ($oUserGroup->getName() === $sGroupName) {
                 $this->_oWordpressCli->error("Group with the same name '{$sGroupName}' already exists: {$oUserGroup->getId()}");
                 return;
             }
@@ -238,8 +238,8 @@ class GroupCommand extends CommandWithDBObject
         }
 
         $oUserGroup = $this->_oUserGroupFactory->createUserGroup();
-        $oUserGroup->setGroupName($sGroupName);
-        $oUserGroup->setGroupDesc($sGroupDescription);
+        $oUserGroup->setName($sGroupName);
+        $oUserGroup->setDescription($sGroupDescription);
         $oUserGroup->setIpRange($sIpRange);
         $oUserGroup->setReadAccess($sReadAccess);
         $oUserGroup->setWriteAccess($sWriteAccess);

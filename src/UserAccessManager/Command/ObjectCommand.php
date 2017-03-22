@@ -66,38 +66,38 @@ class ObjectCommand extends \WP_CLI_Command
      * <object_id>
      * : the id of the object (string for role)
      *
-     * [--groups=<list>]
-     * : comma separated list of group names or ids to add,remove of update to for the object
+     * <user_groups>
+     * : comma separated list of group names or ids to add, remove of update to for the object
      *
      * ## EXAMPLES
      *
-     * wp uam object add    user     1      --groups=fighters,losers
-     * wp uam object remove role     author --groups=fighters
-     * wp uam object update category 5      --groups=controller
+     * wp uam object add    user     1      fighters,losers
+     * wp uam object remove role     author fighters
+     * wp uam object update category 5      controller
      *
      * @param array $aArguments
      * @param array $aAssocArguments
      */
     public function __invoke(array $aArguments, array $aAssocArguments)
     {
-        $sOperation = $aArguments[0];
-        $sObjectType = $aArguments[1];
-        $sObjectId = $aArguments[2];
-
-        // check that operation is valid
-        switch ($sOperation) {
-            case self::ACTION_ADD:
-                break;
-            case self::ACTION_UPDATE:
-                break;
-            case self::ACTION_REMOVE:
-                break;
-            default:
-                $this->_oWordpressCli->error("operation is not valid: {$sOperation}");
+        if (count($aArguments) < 4) {
+            $this->_oWordpressCli->error('<operation>, <object_type>, <object_id> and <user_groups> are required');
+            return;
         }
 
-        // groups passes
-        $aUserGroupIds = array_unique(explode(',', $aAssocArguments['groups']));
+        $sOperation = $aArguments[0];
+
+        // check that operation is valid
+        if ($sOperation !== self::ACTION_ADD
+            && $sOperation !== self::ACTION_UPDATE
+            && $sOperation !== self::ACTION_REMOVE
+        ) {
+            $this->_oWordpressCli->error("Operation is not valid: {$sOperation}");
+            return;
+        }
+
+        $sObjectType = $aArguments[1];
+        $sObjectId = $aArguments[2];
 
         // convert the string to and associative array of index and group
         $aAddUserGroups = array();
@@ -105,25 +105,36 @@ class ObjectCommand extends \WP_CLI_Command
 
         $aUserGroupNames = array_map(
             function (UserGroup $oUserGroup) {
-                return $oUserGroup->getGroupName();
+                return $oUserGroup->getName();
             },
             $aUserGroups
         );
+
+        foreach ($aUserGroups as $oUserGroup) {
+            $aUserGroupNames[$oUserGroup->getId()] = $oUserGroup->getName();
+        }
+
         $aNamesMap = array_flip($aUserGroupNames);
+
+        // groups passes
+        $sUserGroups = $aArguments[3];
+        $aUserGroupIds = array_unique(explode(',', $sUserGroups));
 
         // find the UserGroup object for the ids or strings given on the commandline
         foreach ($aUserGroupIds as $sIdentifier) {
             $sUserGroupId = isset($aNamesMap[$sIdentifier]) ? $aNamesMap[$sIdentifier] : $sIdentifier;
 
-            if (isset($aUamUserGroups[$sUserGroupId])) {
-                $aAddUserGroups[$sUserGroupId] = $aUamUserGroups[$sUserGroupId];
+            if (isset($aUserGroups[$sUserGroupId])) {
+                $aAddUserGroups[$sUserGroupId] = $aUserGroups[$sUserGroupId];
             } else {
-                $sType = is_numeric($sIdentifier) ? 'id' : 'name';
-                $this->_oWordpressCli->error("there is no group with the {$sType}: {$sIdentifier}");
+                $sType = (is_numeric($sIdentifier) === true) ? 'id' : 'name';
+                $this->_oWordpressCli->error("There is no group with the {$sType}: {$sIdentifier}");
+                return;
             }
         }
 
-        $aRemoveUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId);
+        $aRemoveUserGroups = ($sOperation === self::ACTION_UPDATE) ?
+            $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId) : array();
 
         if ($sOperation === self::ACTION_REMOVE) {
             $aRemoveUserGroups = $aAddUserGroups;
@@ -142,24 +153,18 @@ class ObjectCommand extends \WP_CLI_Command
             $oUamUserGroup->save();
         }
 
-        switch ($sOperation) {
-            case self::ACTION_ADD:
-                $this->_oWordpressCli->error(
-                    "Groups {$aAssocArguments['groups']} successfully added to {$sObjectType} {$sObjectId}"
-                );
-                break;
-            case self::ACTION_UPDATE:
-                $this->_oWordpressCli->error(
-                    "Successfully updated {$sObjectType} {$sObjectId} with groups {$aAssocArguments['groups']}"
-                );
-                break;
-            case self::ACTION_REMOVE:
-                $this->_oWordpressCli->error(
-                    "Successfully removed groups: {$aAssocArguments['groups']} from {$sObjectType} {$sObjectId}"
-                );
-                break;
-            default:
-                break;
+        if ($sOperation === self::ACTION_ADD) {
+            $this->_oWordpressCli->success(
+                "Groups {$sUserGroups} successfully added to {$sObjectType} {$sObjectId}"
+            );
+        } elseif ($sOperation === self::ACTION_UPDATE) {
+            $this->_oWordpressCli->success(
+                "Successfully updated {$sObjectType} {$sObjectId} with groups {$sUserGroups}"
+            );
+        } elseif ($sOperation === self::ACTION_REMOVE) {
+            $this->_oWordpressCli->success(
+                "Successfully removed groups: {$sUserGroups} from {$sObjectType} {$sObjectId}"
+            );
         }
     }
 }

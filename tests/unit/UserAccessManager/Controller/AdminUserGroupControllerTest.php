@@ -136,11 +136,11 @@ class AdminUserGroupControllerTest extends \UserAccessManagerTestCase
         $oUserGroup = $this->getUserGroup(1);
 
         $oUserGroup->expects($this->exactly(3))
-            ->method('setGroupName')
+            ->method('setName')
             ->with('userGroupNameValue');
 
         $oUserGroup->expects($this->exactly(3))
-            ->method('setGroupDesc')
+            ->method('setDescription')
             ->with('userGroupDescriptionValue');
 
         $oUserGroup->expects($this->exactly(3))
