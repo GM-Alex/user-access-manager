@@ -980,6 +980,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oAdminObjectController->editPostContent(null);
         self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
+        $sExpectedOutput = '!vfs://src/UserAccessManager/View/PostEditForm.php!';
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $oPost
@@ -989,17 +990,17 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oPost->post_type = 'post';
 
         $oAdminObjectController->editPostContent($oPost);
-        //self::expectOutputString('!vfs://src/UserAccessManager/View/PostEditForm.php!');
         self::assertAttributeEquals('post', '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(1, '_sObjectId', $oAdminObjectController);
+        $sExpectedOutput .= '!vfs://src/UserAccessManager/View/PostEditForm.php!';
         self::setValue($oAdminObjectController, '_sObjectType', null);
         self::setValue($oAdminObjectController, '_sObjectId', null);
 
         $oAdminObjectController->addBulkAction('invalid');
-        self::assertFalse(self::hasOutput());
+        $sExpectedOutput .= '';
 
         $oAdminObjectController->addBulkAction(AdminObjectController::COLUMN_NAME);
-        //self::expectOutputString('!vfs://src/UserAccessManager/View/BulkEditForm.php!');
+        $sExpectedOutput .= '!vfs://src/UserAccessManager/View/BulkEditForm.php!';
 
         $sExpected = 'meta</td></tr><tr><th class="label"><label>'.TXT_UAM_SET_UP_USER_GROUPS.
             '</label></th><td class="field">!vfs://src/UserAccessManager/View/PostEditForm.php!';
@@ -1008,11 +1009,13 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
         self::assertEquals($sExpected, $sReturn);
+        $sExpectedOutput .= '';
 
         $sReturn = $oAdminObjectController->showMediaFile('meta', $oPost);
         self::assertAttributeEquals('post', '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(1, '_sObjectId', $oAdminObjectController);
         self::assertEquals($sExpected, $sReturn);
+        $sExpectedOutput .= '';
         self::setValue($oAdminObjectController, '_sObjectType', null);
         self::setValue($oAdminObjectController, '_sObjectId', null);
 
@@ -1021,17 +1024,20 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         self::assertAttributeEquals('attachment', '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(3, '_sObjectId', $oAdminObjectController);
         self::assertEquals($sExpected, $sReturn);
+        $sExpectedOutput .= '';
         self::setValue($oAdminObjectController, '_sObjectType', null);
         self::setValue($oAdminObjectController, '_sObjectId', null);
 
         $oAdminObjectController->showUserProfile();
         self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
+        $sExpectedOutput .= '!vfs://src/UserAccessManager/View/UserProfileEditForm.php!';
 
         $_GET['user_id'] = 4;
         $oAdminObjectController->showUserProfile();
         self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(4, '_sObjectId', $oAdminObjectController);
+        $sExpectedOutput .= '!vfs://src/UserAccessManager/View/UserProfileEditForm.php!';
         self::setValue($oAdminObjectController, '_sObjectType', null);
         self::setValue($oAdminObjectController, '_sObjectId', null);
         unset($_GET['user_id']);
@@ -1039,6 +1045,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oAdminObjectController->showTermEditForm(null);
         self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
+        $sExpectedOutput .= '!vfs://src/UserAccessManager/View/TermEditForm.php!';
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass|\WP_Term $oTerm
@@ -1050,11 +1057,16 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
 
         self::assertAttributeEquals('category', '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(5, '_sObjectId', $oAdminObjectController);
+        $sExpectedOutput .= '!vfs://src/UserAccessManager/View/TermEditForm.php!';
         self::setValue($oAdminObjectController, '_sObjectType', null);
         self::setValue($oAdminObjectController, '_sObjectId', null);
 
-        $oAdminObjectController->showPluggableGroupSelectionForm('objectType', 'objectId');
+        $sReturn = $oAdminObjectController->showPluggableGroupSelectionForm('objectType', 'objectId');
+        self::assertEquals('!vfs://src/UserAccessManager/View/GroupSelectionForm.php!', $sReturn);
         self::assertAttributeEquals('objectType', '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals('objectId', '_sObjectId', $oAdminObjectController);
+        $sExpectedOutput .= '';
+
+        self::expectOutputString($sExpectedOutput);
     }
 }
