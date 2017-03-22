@@ -141,6 +141,7 @@ class GroupCommandTest extends \UserAccessManagerTestCase
             ['roleOne' => 'roleOne', 'roleTwo' => 'roleTwo'],
             [1, 2]
         );
+
         $oSecondUserGroup = $this->getExtendedUserGroup(
             2,
             'secondGroupName',
@@ -165,5 +166,148 @@ class GroupCommandTest extends \UserAccessManagerTestCase
         $oGroupCommand->ls(['arguments'], ['a' => 'b']);
         $oGroupCommand->ls([], ['a' => 'b']);
         $oGroupCommand->ls([], ['a' => 'b']);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Command\GroupCommand::del()
+     */
+    public function testDel()
+    {
+        $oWordpressCli = $this->getWordpressCli();
+        $oWordpressCli->expects($this->exactly(2))
+            ->method('error')
+            ->withConsecutive(
+                ['Expected: wp uam groups del \<id\> ...'],
+                ['Group id \'3\' doesn\'t exists.']
+            );
+
+        $oWordpressCli->expects($this->exactly(2))
+            ->method('success')
+            ->withConsecutive(
+                ['Successfully deleted group with id \'1\'.'],
+                ['Successfully deleted group with id \'2\'.']
+            );
+
+        $oAccessHandler = $this->getAccessHandler();
+        $oAccessHandler->expects($this->exactly(3))
+            ->method('deleteUserGroup')
+            ->withConsecutive([1], [2], [3])
+            ->will($this->onConsecutiveCalls(true, true, false));
+
+        $oGroupCommand = new GroupCommand(
+            $oWordpressCli,
+            $oAccessHandler,
+            $this->getUserGroupFactory()
+        );
+
+        $oGroupCommand->del([]);
+        $oGroupCommand->del([1, 2, 3]);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Command\GroupCommand::add()
+     */
+    public function testAdd()
+    {
+        $oWordpressCli = $this->getWordpressCli();
+        $oWordpressCli->expects($this->exactly(2))
+            ->method('error')
+            ->withConsecutive(
+                ['Please provide a group name.'],
+                ['Group with the same name \'firstGroupName\' already exists: 1']
+            );
+
+        $oWordpressCli->expects($this->once())
+            ->method('success')
+            ->with('Added new group \'otherNewGroupName\' with id 3.');
+
+        $oWordpressCli->expects($this->exactly(3))
+            ->method('line')
+            ->withConsecutive(
+                ['setting read_access to group'],
+                ['setting write_access to group'],
+                [3]
+            );
+
+        $oFirstUserGroup = $this->getExtendedUserGroup(
+            1,
+            'firstGroupName',
+            'firstGroupDescription',
+            'all',
+            'none',
+            ['roleOne' => 'roleOne', 'roleTwo' => 'roleTwo'],
+            [1, 2]
+        );
+
+        $oSecondUserGroup = $this->getExtendedUserGroup(
+            2,
+            'secondGroupName',
+            'secondGroupDescription',
+            'none',
+            'all',
+            ['roleThree' => 'roleThree', 'roleFour' => 'roleFour'],
+            [3, 4]
+        );
+
+        $oAccessHandler = $this->getAccessHandler();
+        $oAccessHandler->expects($this->exactly(3))
+            ->method('getUserGroups')
+            ->will($this->returnValue([1 => $oFirstUserGroup, 2 => $oSecondUserGroup]));
+
+        $oCreatedUserGroup = $this->getUserGroup(3);
+        $oCreatedUserGroup->expects($this->exactly(2))
+            ->method('setGroupName')
+            ->withConsecutive(['newGroupName'], ['otherNewGroupName']);
+
+        $oCreatedUserGroup->expects($this->exactly(2))
+            ->method('setGroupDesc')
+            ->withConsecutive([''], ['newGroupDesc']);
+
+        $oCreatedUserGroup->expects($this->exactly(2))
+            ->method('setIpRange')
+            ->withConsecutive([''], ['ipRange']);
+
+        $oCreatedUserGroup->expects($this->exactly(2))
+            ->method('setReadAccess')
+            ->withConsecutive(['group'], ['all']);
+
+        $oCreatedUserGroup->expects($this->exactly(2))
+            ->method('setWriteAccess')
+            ->withConsecutive(['group'], ['all']);
+
+        $oCreatedUserGroup->expects($this->once())
+            ->method('removeObject')
+            ->with(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+
+        $oCreatedUserGroup->expects($this->exactly(2))
+            ->method('addObject')
+            ->withConsecutive(
+                [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleOne'],
+                [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleTwo']
+            );
+
+        $oUserGroupFactory = $this->getUserGroupFactory();
+        $oUserGroupFactory->expects($this->exactly(2))
+            ->method('createUserGroup')
+            ->will($this->returnValue($oCreatedUserGroup));
+
+        $oGroupCommand = new GroupCommand(
+            $oWordpressCli,
+            $oAccessHandler,
+            $oUserGroupFactory
+        );
+
+        $oGroupCommand->add([], []);
+        $oGroupCommand->add(['firstGroupName'], []);
+        $oGroupCommand->add(['newGroupName'], ['porcelain' => 1]);
+        $oGroupCommand->add(['otherNewGroupName'], [
+            'desc' => 'newGroupDesc',
+            'ip_range' => 'ipRange',
+            'read_access' => 'all',
+            'write_access' => 'all',
+            'roles' => 'roleOne, roleTwo',
+        ]);
     }
 }
