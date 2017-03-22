@@ -117,7 +117,6 @@ class GroupCommand extends CommandWithDBObject
         }
 
         $aUserGroups = $this->_oAccessHandler->getUserGroups();
-        echo count($aUserGroups);
 
         if (count($aUserGroups) <= 0) {
             $this->_oWordpressCli->error('No groups defined yet!');
