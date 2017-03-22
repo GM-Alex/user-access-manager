@@ -161,6 +161,7 @@ class GroupCommand extends CommandWithDBObject
     {
         if (count($aArguments) < 1) {
             $this->_oWordpressCli->error('Expected: wp uam groups del \<id\> ...');
+            return;
         }
 
         foreach ($aArguments as $sUserGroupId) {
@@ -183,11 +184,11 @@ class GroupCommand extends CommandWithDBObject
      * : Output just the new post id.
      *
      * [--roles=<list>]
-     * : comma seperated list of group associated roles
+     * : comma separated list of group associated roles
      *
      * [--<field>=<value>]
      * : Associative args for new UamUserGroup object
-     * allowed fields and values are: group_desc="", read_access={group,all*}, write_access={group,all*}, ip_range="192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+     * allowed fields and values are: desc="", read_access={group,all*}, write_access={group,all*}, ip_range="192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
      * *=default
      *
      * ## EXAMPLES
@@ -199,22 +200,26 @@ class GroupCommand extends CommandWithDBObject
      */
     public function add(array $aArguments, array $aAssocArguments)
     {
-        $blPorcelain = isset($aAssocArguments['porcelain']);
+        if (isset($aArguments[0]) === false) {
+            $this->_oWordpressCli->error("Please provide a group name.");
+            return;
+        }
+
         $sGroupName = $aArguments[0];
         $aUserGroups = $this->_oAccessHandler->getUserGroups();
 
         foreach ($aUserGroups as $oUserGroup) {
             if ($oUserGroup->getGroupName() === $sGroupName) {
                 $this->_oWordpressCli->error("Group with the same name '{$sGroupName}' already exists: {$oUserGroup->getId()}");
+                return;
             }
         }
 
-        $sGroupDescription = $aAssocArguments['groupdesc'];
-        $sReadAccess = $aAssocArguments['read_access'];
-        $sWriteAccess = $aAssocArguments['write_access'];
-        $sIpRange = $aAssocArguments['ip_range'];
-
-        $oUserGroup = $this->_oUserGroupFactory->createUserGroup();
+        $sGroupDescription = (isset($aAssocArguments['desc']) === true) ? $aAssocArguments['desc'] : '';
+        $sIpRange = (isset($aAssocArguments['ip_range']) === true) ? $aAssocArguments['ip_range'] : '';
+        $sReadAccess = (isset($aAssocArguments['read_access']) === true) ? $aAssocArguments['read_access'] : '';
+        $sWriteAccess = (isset($aAssocArguments['write_access']) === true) ? $aAssocArguments['write_access'] : '';
+        $blPorcelain = isset($aAssocArguments['porcelain']);
 
         if (!in_array($sReadAccess, self::$aAllowedAccessValues)) {
             if ($blPorcelain === true) {
@@ -232,20 +237,21 @@ class GroupCommand extends CommandWithDBObject
             $sWriteAccess = self::$aAllowedAccessValues[0];
         }
 
+        $oUserGroup = $this->_oUserGroupFactory->createUserGroup();
         $oUserGroup->setGroupName($sGroupName);
         $oUserGroup->setGroupDesc($sGroupDescription);
+        $oUserGroup->setIpRange($sIpRange);
         $oUserGroup->setReadAccess($sReadAccess);
         $oUserGroup->setWriteAccess($sWriteAccess);
-        $oUserGroup->setIpRange($sIpRange);
 
         // add roles
         if (isset($aAssocArguments['roles'])) {
-            $roles = explode(',', $aAssocArguments['roles']);
+            $aRoles = explode(',', $aAssocArguments['roles']);
 
             $oUserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
-            foreach ($roles as $role) {
-                $oUserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $role);
+            foreach ($aRoles as $sRole) {
+                $oUserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($sRole));
             }
         }
 
