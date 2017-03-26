@@ -513,18 +513,20 @@ class AccessHandler
                 $aExcludedPosts = array_diff_key($aExcludedPosts, $oUserGroups->getFullPosts());
             }
 
-            $aNoneHiddenPostTypes = [];
-            $aPostTypes = $this->_oObjectHandler->getPostTypes();
+            if ($this->_oWordpress->isAdmin() === false) {
+                $aNoneHiddenPostTypes = [];
+                $aPostTypes = $this->_oObjectHandler->getPostTypes();
 
-            foreach ($aPostTypes as $sPostType) {
-                if ($this->_oConfig->hidePostType($sPostType) === false) {
-                    $aNoneHiddenPostTypes[$sPostType] = $sPostType;
+                foreach ($aPostTypes as $sPostType) {
+                    if ($this->_oConfig->hidePostType($sPostType) === false) {
+                        $aNoneHiddenPostTypes[$sPostType] = $sPostType;
+                    }
                 }
-            }
 
-            foreach ($aExcludedPosts as $iPostId => $sType) {
-                if (isset($aNoneHiddenPostTypes[$sType])) {
-                    unset($aExcludedPosts[$iPostId]);
+                foreach ($aExcludedPosts as $iPostId => $sType) {
+                    if (isset($aNoneHiddenPostTypes[$sType])) {
+                        unset($aExcludedPosts[$iPostId]);
+                    }
                 }
             }
 

@@ -730,6 +730,11 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
 
         $oObjectHandler = $this->getObjectHandler();
 
+        $oWordpress = $this->getWordpress();
+        $oWordpress->expects($this->exactly(2))
+            ->method('isAdmin')
+            ->will($this->onConsecutiveCalls(false, true));
+
         $oConfig = $this->getConfig();
         $oConfig->expects($this->exactly(2))
             ->method('hidePostType')
@@ -741,7 +746,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             ->will($this->returnValue(['post', 'page']));
 
         $oAccessHandler = new AccessHandler(
-            $this->getWordpress(),
+            $oWordpress,
             $oConfig,
             $this->getCache(),
             $this->getDatabase(),
@@ -767,6 +772,10 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
 
         self::assertEquals([4 => 4, 6 => 6], $oAccessHandler->getExcludedPosts());
         self::assertAttributeEquals([4 => 4, 6 => 6], '_aExcludedPosts', $oAccessHandler);
+
+        $this->setValue($oAccessHandler, '_aExcludedPosts', null);
+        self::assertEquals([2 => 2, 4 => 4, 6 => 6], $oAccessHandler->getExcludedPosts());
+        self::assertAttributeEquals([2 => 2, 4 => 4, 6 => 6], '_aExcludedPosts', $oAccessHandler);
     }
 
     /**

@@ -82,15 +82,15 @@ class Wordpress
     /**
      * @see \get_post_types()
      *
-     * @param array  $aArguments
-     * @param string $sOutput
-     * @param string $sOperator
+     * @param string|array $mArguments
+     * @param string       $sOutput
+     * @param string       $sOperator
      *
      * @return array
      */
-    public function getPostTypes(array $aArguments = [], $sOutput = 'names', $sOperator = 'and')
+    public function getPostTypes($mArguments = [], $sOutput = 'names', $sOperator = 'and')
     {
-        return \get_post_types($aArguments, $sOutput, $sOperator);
+        return \get_post_types($mArguments, $sOutput, $sOperator);
     }
 
     /**
@@ -802,4 +802,17 @@ class Wordpress
     {
         return wp_attachment_is_image($mPost);
     }
+
+    /**
+     * @see current_user_can()
+     *
+     * @param string $sCapability
+     *
+     * @return bool
+     */
+    public function currentUserCan($sCapability)
+    {
+        return current_user_can($sCapability);
+    }
+
 }

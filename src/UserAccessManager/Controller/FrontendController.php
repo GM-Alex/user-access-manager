@@ -35,6 +35,7 @@ class FrontendController extends Controller
 {
     const HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
     const POST_URL_CACHE_KEY = 'PostUrls';
+    const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
 
     /**
      * @var Database
@@ -243,18 +244,55 @@ class FrontendController extends Controller
      *
      * @param \stdClass $oCounts
      * @param string    $sType
+     * @param string    $sPerm
      *
      * @return \stdClass
      */
-    public function showPostCount($oCounts, $sType)
+    public function showPostCount($oCounts, $sType, $sPerm)
     {
-        $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
+        $oCachedCounts = $this->_oCache->getFromCache(self::POST_COUNTS_CACHE_KEY);
 
-        if (isset($aExcludedPosts[$sType])) {
-            $oCounts->publish -= count($aExcludedPosts[$sType]);
+        if ($oCachedCounts === null) {
+            $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
+
+            if (count($aExcludedPosts) > 0) {
+                $sExcludedPosts = implode('\', \'', $aExcludedPosts);
+
+                $sQuery = "SELECT post_status, COUNT(*) AS num_posts 
+                FROM {$this->_oDatabase->getPostsTable()} 
+                WHERE post_type = %s
+                  AND ID NOT IN ('{$sExcludedPosts}')";
+
+                if ('readable' === $sPerm && $this->_oWordpress->isUserLoggedIn() === true) {
+                    $oPostTypeObject = $this->_oWordpress->getPostTypeObject($sType);
+
+                    if ($this->_oWordpress->currentUserCan($oPostTypeObject->cap->read_private_posts) === false) {
+                        $sQuery .= $this->_oDatabase->prepare(
+                            ' AND (post_status != \'private\' OR (post_author = %d AND post_status = \'private\'))',
+                            $this->_oWordpress->getCurrentUser()->ID
+                        );
+                    }
+                }
+
+                $sQuery .= ' GROUP BY post_status';
+
+                $aResults = (array)$this->_oDatabase->getResults(
+                    $this->_oDatabase->prepare($sQuery, $sType),
+                    ARRAY_A
+                );
+
+                foreach ($aResults as $aResult) {
+                    if (isset($oCounts->{$aResult['post_status']})) {
+                        $oCounts->{$aResult['post_status']} = $aResult['num_posts'];
+                    }
+                }
+            }
+
+            $oCachedCounts = $oCounts;
+            $this->_oCache->addToCache(self::POST_COUNTS_CACHE_KEY, $oCachedCounts);
         }
 
-        return $oCounts;
+        return $oCachedCounts;
     }
 
     /**
