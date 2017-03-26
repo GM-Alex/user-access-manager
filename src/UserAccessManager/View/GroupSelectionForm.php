@@ -17,7 +17,7 @@
 <ul class="uam_group_selection">
     <?php
     /**
-     * @var \UserAccessManager\Controller\AdminObjectController $this
+     * @var \UserAccessManager\Controller\AdminObjectController $oController
      */
     if (!isset($sGroupsFormName)
         || $sGroupsFormName === null
@@ -25,8 +25,8 @@
         $sGroupsFormName = 'uam_user_groups';
     }
 
-    $sObjectType = $this->getObjectType();
-    $sObjectId = $this->getObjectId();
+    $sObjectType = $oController->getObjectType();
+    $sObjectId = $oController->getObjectId();
 
     /**
      * @var \UserAccessManager\UserGroup\UserGroup[] $aUserGroups

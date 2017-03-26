@@ -14,10 +14,10 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $this
+ * @var \UserAccessManager\Controller\AdminObjectController $oController
  */
-$aUserGroups = $this->getFilteredUserGroups();
-$aObjectUserGroups = $this->getFilteredObjectUserGroups();
+$aUserGroups = $oController->getFilteredUserGroups();
+$aObjectUserGroups = $oController->getFilteredObjectUserGroups();
 
 ?>
 <h3><?php echo TXT_UAM_GROUPS; ?></h3>
@@ -29,7 +29,7 @@ $aObjectUserGroups = $this->getFilteredObjectUserGroups();
         </th>
         <td>
             <?php
-            if ($this->isCurrentUserAdmin() === false) {
+            if ($oController->isCurrentUserAdmin() === false) {
                 include 'GroupSelectionForm.php';
             } else {
                 echo TXT_UAM_ADMIN_HINT;

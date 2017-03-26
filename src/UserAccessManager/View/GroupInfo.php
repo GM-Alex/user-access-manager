@@ -14,13 +14,13 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $this
+ * @var \UserAccessManager\Controller\AdminObjectController $oController
  */
 ?>
 <div class="uam_tooltip">
     <ul class="uam_group_info">
         <?php
-        $aRecursiveMembership = $this->getRecursiveMembership($oUserGroup);
+        $aRecursiveMembership = $oController->getRecursiveMembership($oUserGroup);
 
         foreach ($aRecursiveMembership as $sObjectType => $aObjects) {
             $sTypeKey = 'TXT_UAM_GROUP_TYPE_'.strtoupper($sObjectType);
@@ -64,7 +64,7 @@
                 <li>
                     <?php
                     $sContent = TXT_UAM_GROUP_ROLE.': ';
-                    $aRoleNames = $this->getRoleNames();
+                    $aRoleNames = $oController->getRoleNames();
                     $aGroupRoles = $oUserGroup->getAssignedObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
                     if (count($aGroupRoles) > 0) {

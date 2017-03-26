@@ -17,6 +17,7 @@
     "phpunit/phpunit": "~5.7",
     "etsy/phpunit-extensions": "~0.7",
     "wp-cli/wp-cli": "~1.0",
-    "adlawson/vfs": "~0.12"
+    "adlawson/vfs": "~0.12",
+    "humbug/humbug": "~1.0@dev"
   }
 }

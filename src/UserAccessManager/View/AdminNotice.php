@@ -14,7 +14,7 @@
  */
 
 /**
- * @var UserAccessManager\Controller\AdminController $this
+ * @var UserAccessManager\Controller\AdminController $oController
  */
 ?>
-<div id="message" class="error"><p><strong><?php echo $this->getNotice() ?></strong></p></div>
+<div id="message" class="error"><p><strong><?php echo $oController->getNotice() ?></strong></p></div>

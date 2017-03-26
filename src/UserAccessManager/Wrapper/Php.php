@@ -14,6 +14,8 @@
  */
 namespace UserAccessManager\Wrapper;
 
+use UserAccessManager\Controller\Controller;
+
 /**
  * Class Php
  *
@@ -32,9 +34,10 @@ class Php
     }
 
     /**
-     * @param $sFile
+     * @param Controller $oController
+     * @param string     $sFile
      */
-    public function includeFile($sFile)
+    public function includeFile(Controller &$oController, $sFile)
     {
         /** @noinspection PhpIncludeInspection */
         include $sFile;

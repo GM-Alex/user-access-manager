@@ -93,19 +93,6 @@ class DatabaseTest extends \UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::generateSqlIdList()
-     */
-    public function testGenerateSqlIdList()
-    {
-        $oWordpress = $this->getWordpress();
-        $oDatabase = new Database($oWordpress);
-
-        self::assertEquals('\'\'', $oDatabase->generateSqlIdList([]));
-        self::assertEquals('1, 3, 5', $oDatabase->generateSqlIdList([1, 3, 5]));
-    }
-
-    /**
-     * @group  unit
      * @covers \UserAccessManager\Database\Database::dbDelta()
      */
     public function testDbDelta()

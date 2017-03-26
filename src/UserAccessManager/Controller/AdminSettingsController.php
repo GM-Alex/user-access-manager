@@ -184,7 +184,12 @@ class AdminSettingsController extends Controller
         $this->_verifyNonce('uamUpdateSettings');
 
         $aNewConfigParameters = $this->getRequestParameter('config_parameters');
-        $aNewConfigParameters = array_map('htmlentities', $aNewConfigParameters);
+        $aNewConfigParameters = array_map(
+            function($sEntry) {
+                return htmlentities(str_replace('\\', '', $sEntry));
+            },
+            $aNewConfigParameters
+        );
         $this->_oConfig->setConfigParameters($aNewConfigParameters);
 
         if ($this->_oConfig->lockFile() === false) {

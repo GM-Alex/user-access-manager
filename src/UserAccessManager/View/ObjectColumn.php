@@ -14,10 +14,10 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $this
+ * @var \UserAccessManager\Controller\AdminObjectController $oController
  */
-$aObjectUserGroups = $this->getFilteredObjectUserGroups();
-$iUserGroupDiff = $this->getUserGroupDiff();
+$aObjectUserGroups = $oController->getFilteredObjectUserGroups();
+$iUserGroupDiff = $oController->getUserGroupDiff();
 
 if (count($aObjectUserGroups) > 0 || $iUserGroupDiff > 0) {
     ?>

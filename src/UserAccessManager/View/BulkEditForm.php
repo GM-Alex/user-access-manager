@@ -14,10 +14,10 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $this
+ * @var \UserAccessManager\Controller\AdminObjectController $oController
  */
-$aUserGroups = $this->getFilteredUserGroups();
-$aObjectUserGroups = $this->getFilteredObjectUserGroups();
+$aUserGroups = $oController->getFilteredUserGroups();
+$aObjectUserGroups = $oController->getFilteredObjectUserGroups();
 ?>
 <table class="form-table">
     <tbody>

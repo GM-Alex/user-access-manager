@@ -418,63 +418,63 @@ class Config
     }
 
     /**
-     * @param string $sObjectType
+     * @param string $sPostType
      *
      * @return bool
      */
-    public function hideObjectType($sObjectType)
+    public function hidePostType($sPostType)
     {
-        return $this->_hideObject('hide_'.$sObjectType);
+        return $this->_hideObject('hide_'.$sPostType);
     }
 
     /**
-     * @param string $sObjectType
+     * @param string $sPostType
      *
      * @return bool
      */
-    public function hideObjectTypeTitle($sObjectType)
+    public function hidePostTypeTitle($sPostType)
     {
-        return $this->_hideObject('hide_'.$sObjectType.'_title');
+        return $this->_hideObject('hide_'.$sPostType.'_title');
     }
 
     /**
-     * @param string $sObjectType
+     * @param string $sPostType
      *
      * @return bool
      */
-    public function hideObjectTypeComments($sObjectType)
+    public function hidePostTypeComments($sPostType)
     {
-        return $this->_hideObject($sObjectType.'_comments_locked');
+        return $this->_hideObject($sPostType.'_comments_locked');
     }
 
     /**
-     * @param string $sObjectType
+     * @param string $sPostType
      *
      * @return string
      */
-    public function getObjectTypeTitle($sObjectType)
+    public function getPostTypeTitle($sPostType)
     {
-        return $this->_getParameterValue($sObjectType.'_title');
+        return $this->_getParameterValue($sPostType.'_title');
     }
 
     /**
-     * @param string $sObjectType
+     * @param string $sPostType
      *
      * @return string
      */
-    public function getObjectTypeContent($sObjectType)
+    public function getPostTypeContent($sPostType)
     {
-        return $this->_getParameterValue($sObjectType.'_content');
+        return $this->_getParameterValue($sPostType.'_content');
     }
 
     /**
-     * @param string $sObjectType
+     * @param string $sPostType
      *
      * @return string
      */
-    public function getObjectTypeCommentContent($sObjectType)
+    public function getPostTypeCommentContent($sPostType)
     {
-        return $this->_getParameterValue($sObjectType.'_comment_content');
+        return $this->_getParameterValue($sPostType.'_comment_content');
     }
 
     /**
@@ -590,11 +590,13 @@ class Config
     }
 
     /**
+     * @param string $sTaxonomy
+     *
      * @return bool
      */
-    public function hideEmptyCategories()
+    public function hideEmptyTaxonomy($sTaxonomy)
     {
-        return $this->_getParameterValue('hide_empty_category');
+        return $this->_hideObject('hide_empty_'.$sTaxonomy);
     }
 
     /**

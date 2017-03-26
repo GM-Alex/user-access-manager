@@ -69,18 +69,6 @@ class Database
     }
 
     /**
-     * Returns a id list for sql.
-     *
-     * @param array $aIds
-     *
-     * @return string
-     */
-    public function generateSqlIdList(array $aIds)
-    {
-        return (count($aIds) > 0) ? implode(', ', $aIds) : '\'\'';
-    }
-
-    /**
      * @see dbDelta()
      *
      * @param string $mQueries

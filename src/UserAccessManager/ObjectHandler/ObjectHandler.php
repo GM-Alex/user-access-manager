@@ -209,7 +209,7 @@ class ObjectHandler
         $aProcessMap = ($aSubMap === null) ? $aMap : $aSubMap;
 
         foreach ($aProcessMap as $iId => $aSubIds) {
-            foreach ($aSubIds as $iSubId) {
+            foreach ($aSubIds as $iSubId => $sType) {
                 if (isset($aMap[$iSubId])) {
                     $aMap[$iId] += $this->_processTreeMapElements($aMap, [$iSubId => $aMap[$iSubId]])[$iSubId];
                 }
@@ -256,10 +256,10 @@ class ObjectHandler
                 $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id] = [];
             }
 
-            $aTreeMap[self::TREE_MAP_CHILDREN][$sGeneralType][$oResult->parentId][$oResult->id] = $oResult->id;
-            $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId][$oResult->id] = $oResult->id;
-            $aTreeMap[self::TREE_MAP_PARENTS][$sGeneralType][$oResult->id][$oResult->parentId] = $oResult->parentId;
-            $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id][$oResult->parentId] = $oResult->parentId;
+            $aTreeMap[self::TREE_MAP_CHILDREN][$sGeneralType][$oResult->parentId][$oResult->id] = $oResult->type;
+            $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId][$oResult->id] = $oResult->type;
+            $aTreeMap[self::TREE_MAP_PARENTS][$sGeneralType][$oResult->id][$oResult->parentId] = $oResult->type;
+            $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id][$oResult->parentId] = $oResult->type;
         }
 
         //Process elements
@@ -333,7 +333,7 @@ class ObjectHandler
                     $this->_aTermPostMap[$oResult->termId] = [];
                 }
 
-                $this->_aTermPostMap[$oResult->termId][$oResult->objectId] = $oResult->objectId;
+                $this->_aTermPostMap[$oResult->termId][$oResult->objectId] = $oResult->postType;
             }
         }
 
@@ -349,18 +349,21 @@ class ObjectHandler
     {
         if ($this->_aPostTermMap === null) {
             $this->_aPostTermMap = [];
-            $aTermPostMap = $this->getTermPostMap();
 
-            foreach ($aTermPostMap as $iTermId => $aPosts) {
-                foreach ($aPosts as $iPostId => $sPostType) {
-                    if (!isset($this->_aPostTermMap[$iPostId])) {
-                        $this->_aPostTermMap[$iPostId] = [];
-                    }
+            $sSelect = "
+                SELECT tr.object_id AS objectId, tt.term_id AS termId, tt.taxonomy AS termType
+                FROM {$this->_oDatabase->getTermRelationshipsTable()} AS tr 
+                  LEFT JOIN {$this->_oDatabase->getTermTaxonomyTable()} AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
-                    $this->_aPostTermMap[$iPostId][$iTermId] = $iTermId;
+            $aResults = $this->_oDatabase->getResults($sSelect);
+
+            foreach ($aResults as $oResult) {
+                if (!isset($this->_aPostTermMap[$oResult->objectId])) {
+                    $this->_aPostTermMap[$oResult->objectId] = [];
                 }
-            }
 
+                $this->_aPostTermMap[$oResult->objectId][$oResult->termId] = $oResult->termType;
+            }
         }
 
         return $this->_aPostTermMap;

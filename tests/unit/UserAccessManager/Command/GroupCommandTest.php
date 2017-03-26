@@ -182,18 +182,19 @@ class GroupCommandTest extends \UserAccessManagerTestCase
                 ['Group id \'3\' doesn\'t exists.']
             );
 
-        $oWordpressCli->expects($this->exactly(2))
+        $oWordpressCli->expects($this->exactly(3))
             ->method('success')
             ->withConsecutive(
+                ['Successfully deleted group with id \'1\'.'],
                 ['Successfully deleted group with id \'1\'.'],
                 ['Successfully deleted group with id \'2\'.']
             );
 
         $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(3))
+        $oAccessHandler->expects($this->exactly(4))
             ->method('deleteUserGroup')
-            ->withConsecutive([1], [2], [3])
-            ->will($this->onConsecutiveCalls(true, true, false));
+            ->withConsecutive([1], [1], [2], [3])
+            ->will($this->onConsecutiveCalls(true, true, true, false));
 
         $oGroupCommand = new GroupCommand(
             $oWordpressCli,
@@ -202,6 +203,7 @@ class GroupCommandTest extends \UserAccessManagerTestCase
         );
 
         $oGroupCommand->del([]);
+        $oGroupCommand->del([1]);
         $oGroupCommand->del([1, 2, 3]);
     }
 

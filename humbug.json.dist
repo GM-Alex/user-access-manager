@@ -1,13 +1,23 @@
 {
-  "chdir": ".",
   "timeout": 10,
   "source": {
     "directories": [
-      "."
+      "src/UserAccessManager/AccessHandler",
+      "src/UserAccessManager/Cache",
+      "src/UserAccessManager/Command",
+      "src/UserAccessManager/Config",
+      "src/UserAccessManager/Database",
+      "src/UserAccessManager/FileHandler",
+      "src/UserAccessManager/ObjectHandler",
+      "src/UserAccessManager/SetupHandler",
+      "src/UserAccessManager/UserGroup",
+      "src/UserAccessManager/Util"
     ],
     "excludes": [
       "vendor",
-      "tests"
+      "tests",
+      "src/UserAccessManager/View",
+      "src/UserAccessManager/Wrapper"
     ]
   },
   "logs": {

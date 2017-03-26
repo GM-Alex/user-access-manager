@@ -790,4 +790,16 @@ class Wordpress
     {
         return \plugin_basename($sFile);
     }
+
+    /**
+     * @see wp_attachment_is_image()
+     *
+     * @param int|\WP_Post $mPost
+     *
+     * @return bool
+     */
+    public function attachmentIsImage($mPost)
+    {
+        return wp_attachment_is_image($mPost);
+    }
 }

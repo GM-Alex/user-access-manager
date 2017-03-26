@@ -469,7 +469,7 @@ class UserGroup
     {
         if (isset($this->_aAssignedObjects[$sObjectType]) === false) {
             $sQuery = $this->_oDatabase->prepare(
-                "SELECT object_id AS id
+                "SELECT object_id AS id, object_type AS objectType
                 FROM {$this->_oDatabase->getUserGroupToObjectTable()}
                 WHERE group_id = %d
                   AND (general_object_type = '%s' OR object_type = '%s')",
@@ -480,11 +480,11 @@ class UserGroup
                 ]
             );
 
-            $aDbObjects = (array)$this->_oDatabase->getResults($sQuery);
+            $aResults = (array)$this->_oDatabase->getResults($sQuery);
             $this->_aAssignedObjects[$sObjectType] = [];
 
-            foreach ($aDbObjects as $oDbObject) {
-                $this->_aAssignedObjects[$sObjectType][$oDbObject->id] = $oDbObject->id;
+            foreach ($aResults as $oResult) {
+                $this->_aAssignedObjects[$sObjectType][$oResult->id] = $oResult->objectType;
             }
         }
 
@@ -531,9 +531,9 @@ class UserGroup
                 $aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType] : [];
 
             if (isset($aGeneralMap[$sObjectId])) {
-                foreach ($aGeneralMap[$sObjectId] as $iParentId) {
+                foreach ($aGeneralMap[$sObjectId] as $iParentId => $sType) {
                     if ($this->_isObjectAssignedToGroup($sObjectType, $iParentId)) {
-                        $aRecursiveMembership[$sObjectType][$iParentId] = $iParentId;
+                        $aRecursiveMembership[$sObjectType][$iParentId] = $sType;
                     }
                 }
             }
@@ -586,11 +586,17 @@ class UserGroup
                     array_keys($aCapabilities) : [self::NONE_ROLE];
 
                 $aAssignedRoles = $this->_getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
-                $aRecursiveRoles = array_intersect($aRoles, $aAssignedRoles);
+                $aRecursiveRoles = array_intersect($aRoles, array_keys($aAssignedRoles));
 
                 if (count($aRecursiveRoles) > 0) {
-                    $aRecursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE] =
-                        array_combine($aRecursiveRoles, $aRecursiveRoles);
+                    $aRecursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE] = array_combine(
+                        $aRecursiveRoles,
+                        array_fill(
+                            0,
+                            count($aRecursiveRoles),
+                            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                        )
+                    );
                 }
             }
 
@@ -657,9 +663,9 @@ class UserGroup
                 $aPostTermMap = $this->_oObjectHandler->getPostTermMap();
 
                 if (isset($aPostTermMap[$iPostId])) {
-                    foreach ($aPostTermMap[$iPostId] as $iTermId) {
+                    foreach ($aPostTermMap[$iPostId] as $iTermId => $sType) {
                         if ($this->isTermMember($iTermId) === true) {
-                            $aRecursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$iTermId] = $iTermId;
+                            $aRecursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$iTermId] = $sType;
                         }
                     }
                 }
@@ -799,9 +805,9 @@ class UserGroup
             $aMap = array_intersect_key($aMap, $aObjects);
 
             foreach ($aMap as $aChildrenIds) {
-                foreach ($aChildrenIds as $iParentId) {
+                foreach ($aChildrenIds as $iParentId => $sType) {
                     if ($this->isObjectMember($sObjectType, $iParentId)) {
-                        $aObjects[$iParentId] = $iParentId;
+                        $aObjects[$iParentId] = $sType;
                     }
                 }
             }
@@ -827,7 +833,8 @@ class UserGroup
 
             foreach ($aDatabaseUsers as $oUser) {
                 if ($this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $oUser->ID) === true) {
-                    $this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE][$oUser->ID] = $oUser->ID;
+                    $this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE][$oUser->ID] =
+                        ObjectHandler::GENERAL_USER_OBJECT_TYPE;
                 }
             }
         }
@@ -880,7 +887,7 @@ class UserGroup
                 $aTermsPostMap = $this->_oObjectHandler->getTermPostMap();
                 $aTerms = $this->getFullTerms();
 
-                foreach ($aTerms as $iTermId) {
+                foreach ($aTerms as $iTermId => $sTerm) {
                     if (isset($aTermsPostMap[$iTermId])) {
                         $aPosts += $aTermsPostMap[$iTermId];
                     }

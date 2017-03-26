@@ -264,12 +264,6 @@ class ControllerTest extends \UserAccessManagerTestCase
         ]));
 
         $oPhp = $this->getPhp();
-        $oPhp->expects($this->once())
-            ->method('includeFile')
-            ->with('vfs://src/UserAccessManager/View/TestView.php')
-            ->will($this->returnCallback(function () {
-                echo 'testContent';
-            }));
 
         $oConfig = $this->getConfig();
         $oConfig->expects($this->once())
@@ -281,6 +275,13 @@ class ControllerTest extends \UserAccessManagerTestCase
             $this->getWordpress(),
             $oConfig
         );
+
+        $oPhp->expects($this->once())
+            ->method('includeFile')
+            ->with($oDummyController, 'vfs://src/UserAccessManager/View/TestView.php')
+            ->will($this->returnCallback(function () {
+                echo 'testContent';
+            }));
 
         $_GET['uam_action'] = 'test';
         self::setValue($oDummyController, '_sTemplate', 'TestView.php');

@@ -474,14 +474,15 @@ class AccessHandler
             $aUserUserGroups = $this->getUserGroupsForUser();
 
             foreach ($aUserGroups as $oUserGroups) {
-                $aExcludedTerms += $oUserGroups->getFullPosts();
+                $aExcludedTerms += $oUserGroups->getFullTerms();
             }
 
             foreach ($aUserUserGroups as $oUserGroups) {
-                $aExcludedTerms = array_diff_key($aExcludedTerms, $oUserGroups->getFullPosts());
+                $aExcludedTerms = array_diff_key($aExcludedTerms, $oUserGroups->getFullTerms());
             }
 
-            $this->_aExcludedTerms = $aExcludedTerms;
+            $aTermIds = array_keys($aExcludedTerms);
+            $this->_aExcludedTerms = array_combine($aTermIds, $aTermIds);
         }
 
         return $this->_aExcludedTerms;
@@ -512,7 +513,23 @@ class AccessHandler
                 $aExcludedPosts = array_diff_key($aExcludedPosts, $oUserGroups->getFullPosts());
             }
 
-            $this->_aExcludedPosts = $aExcludedPosts;
+            $aNoneHiddenPostTypes = [];
+            $aPostTypes = $this->_oObjectHandler->getPostTypes();
+
+            foreach ($aPostTypes as $sPostType) {
+                if ($this->_oConfig->hidePostType($sPostType) === false) {
+                    $aNoneHiddenPostTypes[$sPostType] = $sPostType;
+                }
+            }
+
+            foreach ($aExcludedPosts as $iPostId => $sType) {
+                if (isset($aNoneHiddenPostTypes[$sType])) {
+                    unset($aExcludedPosts[$iPostId]);
+                }
+            }
+
+            $aPostIds = array_keys($aExcludedPosts);
+            $this->_aExcludedPosts = array_combine($aPostIds, $aPostIds);
         }
 
         return $this->_aExcludedPosts;

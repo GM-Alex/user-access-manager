@@ -14,12 +14,12 @@
  */
 
 /**
- * @var UserAccessManager\Controller\AdminSetupController $this
+ * @var UserAccessManager\Controller\AdminSetupController $oController
  */
-if ($this->hasUpdateMessage()) {
+if ($oController->hasUpdateMessage()) {
     ?>
     <div class="updated">
-        <p><strong><?php echo $this->getUpdateMessage(); ?></strong></p>
+        <p><strong><?php echo $oController->getUpdateMessage(); ?></strong></p>
     </div>
     <?php
 }
@@ -27,18 +27,18 @@ if ($this->hasUpdateMessage()) {
 <div class="wrap">
     <h2><?php echo TXT_UAM_SETUP; ?></h2>
     <?php
-    if ($this->isDatabaseUpdateNecessary()) {
+    if ($oController->isDatabaseUpdateNecessary()) {
         ?>
         <table class="form-table">
             <tbody>
             <tr valign="top">
                 <th scope="row"><?php echo TXT_UAM_UPDATE_UAM_DB; ?></th>
                 <td>
-                    <form method="post" action="<?php echo $this->getRequestUrl(); ?>">
-                        <?php $this->createNonceField('uamSetupUpdate'); ?>
+                    <form method="post" action="<?php echo $oController->getRequestUrl(); ?>">
+                        <?php $oController->createNonceField('uamSetupUpdate'); ?>
                         <input type="hidden" value="update_database" name="uam_action"/>
                         <?php
-                        if ($this->showNetworkUpdate() === true) {
+                        if ($oController->showNetworkUpdate() === true) {
                             ?>
                             <input type="radio" id="uam_update_db_network" class="uam_update_db_network"
                                    name="uam_update_db" value="network"/>
@@ -72,8 +72,8 @@ if ($this->hasUpdateMessage()) {
         <tr valign="top">
             <th scope="row"><label for="uam_reset_confirm"><?php echo TXT_UAM_RESET_UAM; ?></label></th>
             <td>
-                <form method="post" action="<?php echo $this->getRequestUrl(); ?>">
-                    <?php $this->createNonceField('uamSetupReset'); ?>
+                <form method="post" action="<?php echo $oController->getRequestUrl(); ?>">
+                    <?php $oController->createNonceField('uamSetupReset'); ?>
                     <input type="hidden" value="reset_uam" name="uam_action"/>
                     <input id="uam_reset_confirm" class="uam_reset_confirm" name="uam_reset"/>
                     <input id="uam_reset_submit"

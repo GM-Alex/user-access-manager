@@ -14,21 +14,21 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminUserGroupController $this
+ * @var \UserAccessManager\Controller\AdminUserGroupController $oController
  */
-if ($this->hasUpdateMessage()) {
+if ($oController->hasUpdateMessage()) {
     ?>
     <div class="updated">
-        <p><strong><?php echo $this->getUpdateMessage(); ?></strong></p>
+        <p><strong><?php echo $oController->getUpdateMessage(); ?></strong></p>
     </div>
     <?php
 }
 
-if ($this->getRequestParameter('uam_action') === null || $this->getRequestParameter('uam_action') === 'delete_user_group') {
+if ($oController->getRequestParameter('uam_action') === null || $oController->getRequestParameter('uam_action') === 'delete_user_group') {
     ?>
     <div class="wrap">
-        <form method="post" action="<?php echo $this->getRequestUrl(); ?>">
-            <?php $this->createNonceField('uamDeleteGroup'); ?>
+        <form method="post" action="<?php echo $oController->getRequestUrl(); ?>">
+            <?php $oController->createNonceField('uamDeleteGroup'); ?>
             <input type="hidden" value="delete_user_group" name="uam_action"/>
             <h2><?php echo TXT_UAM_MANAGE_GROUP; ?></h2>
             <div class="tablenav">
@@ -52,8 +52,8 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                 </thead>
                 <tbody>
                 <?php
-                $sCurrentAdminPage = $this->getRequestParameter('page');
-                $aUserGroups = $this->getUserGroups();
+                $sCurrentAdminPage = $oController->getRequestParameter('page');
+                $aUserGroups = $oController->getUserGroups();
                 foreach ($aUserGroups as $oUserGroup) {
                     ?>
                     <tr class="alternate" id="group-<?php echo $oUserGroup->getId(); ?>">
@@ -90,7 +90,7 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                         </td>
                         <td>
                             <?php
-                            $aRoleNames = $this->getRoleNames();
+                            $aRoleNames = $oController->getRoleNames();
                             $aGroupRoles = $oUserGroup->getAssignedObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
                             if (count($aGroupRoles) > 0) {
@@ -150,18 +150,18 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
 <div class="wrap">
     <h2>
         <?php
-        if ($this->getRequestParameter('uam_action') === 'editGroup') {
+        if ($oController->getRequestParameter('uam_action') === 'editGroup') {
             echo TXT_UAM_EDIT_GROUP;
         } else {
             echo TXT_UAM_ADD_GROUP;
         }
         ?>
     </h2>
-    <form method="post" action="<?php echo $this->getRequestUrl(); ?>">
+    <form method="post" action="<?php echo $oController->getRequestUrl(); ?>">
         <input type="hidden" value="insert_update_user_group" name="uam_action"/>
         <?php
-        $oUserGroup = $this->getUserGroup();
-        $this->createNonceField('uamInsertUpdateGroup');
+        $oUserGroup = $oController->getUserGroup();
+        $oController->createNonceField('uamInsertUpdateGroup');
         if ($oUserGroup->getId() !== null) {
             ?>
             <input type="hidden" value="<?php echo $oUserGroup->getId(); ?>" name="userGroupId"/>
@@ -254,7 +254,7 @@ if ($this->getRequestParameter('uam_action') === null || $this->getRequestParame
                     <ul class='uam_role'>
                         <?php
                         $aGroupRoles = $oUserGroup->getAssignedObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
-                        $aRoleNames = $this->getRoleNames();
+                        $aRoleNames = $oController->getRoleNames();
 
                         foreach ($aRoleNames as $sRole => $sName) {
                             if ($sRole !== 'administrator') {

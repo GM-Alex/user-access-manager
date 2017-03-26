@@ -21,6 +21,7 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -106,7 +107,7 @@ class FrontendController extends Controller
     /**
      * Register all other styles.
      */
-    protected function registerStylesAndScripts()
+    protected function _registerStylesAndScripts()
     {
         $sUrlPath = $this->_oConfig->getUrlPath();
 
@@ -124,8 +125,8 @@ class FrontendController extends Controller
      */
     public function enqueueStylesAndScripts()
     {
-        $this->registerStylesAndScripts();
-        wp_enqueue_style(self::HANDLE_STYLE_LOGIN_FORM);
+        $this->_registerStylesAndScripts();
+        $this->_oWordpress->enqueueStyle(self::HANDLE_STYLE_LOGIN_FORM);
     }
 
     /*
@@ -142,9 +143,8 @@ class FrontendController extends Controller
         $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
 
         if (count($aExcludedPosts) > 0) {
-            $oWpQuery->query_vars['post__not_in'] = array_merge(
-                $oWpQuery->query_vars['post__not_in'],
-                $aExcludedPosts
+            $oWpQuery->query_vars['post__not_in'] = array_unique(
+                array_merge($oWpQuery->query_vars['post__not_in'], $aExcludedPosts)
             );
         }
     }
@@ -152,51 +152,45 @@ class FrontendController extends Controller
     /**
      * Modifies the content of the post by the given settings.
      *
-     * @param object $oPost The current post.
+     * @param \WP_Post $oPost    The current post.
+     * @param bool     $blLocked
      *
      * @return object|null
      */
-    protected function _processPost($oPost)
+    protected function _processPost(\WP_Post $oPost, &$blLocked = null)
     {
-        $sPostType = $oPost->post_type;
+        $oPost->post_title .= $this->adminOutput($oPost->post_type, $oPost->ID);
+        $blLocked = ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID) === false);
 
-        if ($this->_oConfig->hideObjectType($sPostType) === true || $this->_oConfig->atAdminPanel()) {
-            if ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
-                $oPost->post_title .= $this->adminOutput($oPost->post_type, $oPost->ID);
-                return $oPost;
-            }
-        } else {
-            if (!$this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
-                $oPost->isLocked = true;
-
-                $sUamPostContent = $this->_oConfig->getObjectTypeContent($sPostType);
-                $sUamPostContent = str_replace('[LOGIN_FORM]', $this->getLoginFormHtml(), $sUamPostContent);
-
-                if ($this->_oConfig->hideObjectTypeTitle($sPostType) === true) {
-                    $oPost->post_title = $this->_oConfig->getObjectTypeTitle($sPostType);
-                }
-
-                if ($this->_oConfig->hideObjectTypeComments($sPostType) === false) {
-                    $oPost->comment_status = 'close';
-                }
-
-                if ($sPostType === 'post'
-                    && $this->_oConfig->showPostContentBeforeMore() === true
-                    && preg_match('/<!--more(.*?)?-->/', $oPost->post_content, $aMatches)
-                ) {
-                    $oPost->post_content = explode($aMatches[0], $oPost->post_content, 2);
-                    $sUamPostContent = $oPost->post_content[0]." ".$sUamPostContent;
-                }
-
-                $oPost->post_content = stripslashes($sUamPostContent);
+        if ($blLocked === true) {
+            if ($this->_oConfig->hidePostType($oPost->post_type) === true
+                || $this->_oConfig->atAdminPanel() === true
+            ) {
+                return null;
             }
 
-            $oPost->post_title .= $this->adminOutput($oPost->post_type, $oPost->ID);
+            $sUamPostContent = $this->_oConfig->getPostTypeContent($oPost->post_type);
+            $sUamPostContent = str_replace('[LOGIN_FORM]', $this->getLoginFormHtml(), $sUamPostContent);
 
-            return $oPost;
+            if ($oPost->post_type === 'post'
+                && $this->_oConfig->showPostContentBeforeMore() === true
+                && preg_match('/<!--more(.*?)?-->/', $oPost->post_content, $aMatches)
+            ) {
+                $sUamPostContent = explode($aMatches[0], $oPost->post_content, 2)[0]." ".$sUamPostContent;
+            }
+
+            $oPost->post_content = stripslashes($sUamPostContent);
+
+            if ($this->_oConfig->hidePostTypeTitle($oPost->post_type) === true) {
+                $oPost->post_title = $this->_oConfig->getPostTypeTitle($oPost->post_type);
+            }
+
+            if ($this->_oConfig->hidePostTypeComments($oPost->post_type) === false) {
+                $oPost->comment_status = 'close';
+            }
         }
 
-        return null;
+        return $oPost;
     }
 
     /**
@@ -210,9 +204,7 @@ class FrontendController extends Controller
     {
         $aShowPosts = [];
 
-        if ($this->_oWordpress->isFeed() === false
-            || ($this->_oConfig->protectFeed() === true && $this->_oWordpress->isFeed()) === true
-        ) {
+        if ($this->_oWordpress->isFeed() === false || $this->_oConfig->protectFeed() === true) {
             foreach ($aPosts as $iPostId) {
                 if ($iPostId !== null) {
                     $oPost = $this->_processPost($iPostId);
@@ -222,11 +214,9 @@ class FrontendController extends Controller
                     }
                 }
             }
-
-            $aPosts = $aShowPosts;
         }
 
-        return $aPosts;
+        return $aShowPosts;
     }
 
     /**
@@ -276,20 +266,9 @@ class FrontendController extends Controller
      */
     public function getTermArguments($aArguments)
     {
-        $aExclude = (isset($aArguments['exclude'])) ? $this->_oWordpress->parseIdList($aArguments['exclude']) : [];
-        $aExcludedTerms = $this->_oAccessHandler->getExcludedTerms();
-
-        if ($this->_oConfig->lockRecursive() === true) {
-            $aTermTreeMap = $this->_oObjectHandler->getTermTreeMap();
-
-            foreach ($aExcludedTerms as $sTermId) {
-                if (isset($aTermTreeMap[$sTermId])) {
-                    $aExcludedTerms = array_merge($aExcludedTerms, array_keys($aTermTreeMap[$sTermId]));
-                }
-            }
-        }
-
-        $aArguments['exclude'] = array_merge($aExclude, $aExcludedTerms);
+        $aExclude = (isset($aArguments['exclude']) === true) ?
+            $this->_oWordpress->parseIdList($aArguments['exclude']) : [];
+        $aArguments['exclude'] = array_merge($aExclude, $this->_oAccessHandler->getExcludedTerms());
 
         return $aArguments;
     }
@@ -306,27 +285,27 @@ class FrontendController extends Controller
         $aShowItems = [];
 
         foreach ($aItems as $oItem) {
-            if ($this->_oObjectHandler->isPostType($oItem->object)) {
-                $oObject = $this->_oObjectHandler->getPost($oItem->object_id);
+            $oItem->title .= $this->adminOutput($oItem->object, $oItem->object_id);
 
-                if ($oObject !== null) {
-                    $oPost = $this->_processPost($oObject);
+            if ($this->_oObjectHandler->isPostType($oItem->object) === true) {
+                if ($this->_oAccessHandler->checkObjectAccess($oItem->object, $oItem->object_id) === false) {
+                    if ($this->_oConfig->hidePostType($oItem->object) === true
+                        || $this->_oConfig->atAdminPanel()
+                    ) {
+                        continue;
+                    }
 
-                    if ($oPost !== null) {
-                        if (isset($oPost->isLocked)) {
-                            $oItem->title = $oPost->post_title;
-                        }
-
-                        $oItem->title .= $this->adminOutput($oItem->object, $oItem->object_id);
-                        $aShowItems[] = $oItem;
+                    if ($this->_oConfig->hidePostTypeTitle($oItem->object) === true) {
+                        $oItem->title = $this->_oConfig->getPostTypeTitle($oItem->object);
                     }
                 }
-            } elseif ($this->_oObjectHandler->isTaxonomy($oItem->object)) {
-                $oObject = $this->_oObjectHandler->getTerm($oItem->object_id);
-                $oCategory = $this->_processTerm($oObject);
 
-                if ($oCategory !== null && !$oCategory->isEmpty) {
-                    $oItem->title .= $this->adminOutput($oItem->object, $oItem->object_id);
+                $aShowItems[] = $oItem;
+            } elseif ($this->_oObjectHandler->isTaxonomy($oItem->object) === true) {
+                $oObject = $this->_oObjectHandler->getTerm($oItem->object_id);
+                $oCategory = $this->_processTerm($oObject, $blIsEmpty);
+
+                if ($oCategory !== null && $blIsEmpty === false) {
                     $aShowItems[] = $oItem;
                 }
             } else {
@@ -340,7 +319,7 @@ class FrontendController extends Controller
     /**
      * The function for the comments_array filter.
      *
-     * @param array $aComments The comments.
+     * @param \WP_Comment[] $aComments The comments.
      *
      * @return array
      */
@@ -350,27 +329,22 @@ class FrontendController extends Controller
 
         foreach ($aComments as $oComment) {
             $oPost = $this->_oObjectHandler->getPost($oComment->comment_post_ID);
-            $sPostType = $oPost->post_type;
 
-            if ($this->_oConfig->hideObjectTypeComments($sPostType) === true
-                || $this->_oConfig->hideObjectType($sPostType) === true
-                || $this->_oConfig->atAdminPanel()
-            ) {
-                if ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
-                    $aShowComments[] = $oComment;
-                }
-            } else {
-                if (!$this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
-                    $oComment->comment_content = $this->_oConfig->getObjectTypeCommentContent($sPostType);
+            if ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID) === false) {
+                if ($this->_oConfig->hidePostTypeComments($oPost->post_type) === true
+                    || $this->_oConfig->hidePostType($oPost->post_type) === true
+                    || $this->_oConfig->atAdminPanel() === true
+                ) {
+                    continue;
                 }
 
-                $aShowComments[] = $oComment;
+                $oComment->comment_content = $this->_oConfig->getPostTypeCommentContent($oPost->post_type);
             }
+
+            $aShowComments[] = $oComment;
         }
 
-        $aComments = $aShowComments;
-
-        return $aComments;
+        return $aShowComments;
     }
 
     /**
@@ -385,26 +359,20 @@ class FrontendController extends Controller
         $aShowPages = [];
 
         foreach ($aPages as $oPage) {
-            if ($this->_oConfig->hideObjectType($oPage->post_type) === true
-                || $this->_oConfig->atAdminPanel()
-            ) {
-                if ($this->_oAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID)) {
-                    $oPage->post_title .= $this->adminOutput(
-                        $oPage->post_type,
-                        $oPage->ID
-                    );
-                    $aShowPages[] = $oPage;
-                }
-            } else {
-                if (!$this->_oAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID)) {
-                    if ($this->_oConfig->hideObjectTypeTitle($oPage->post_type) === true) {
-                        $oPage->post_title = $this->_oConfig->getObjectTypeTitle($oPage->post_type);
-                    }
+            $oPage->post_title .= $this->adminOutput($oPage->post_type, $oPage->ID);
 
-                    $oPage->post_content = $this->_oConfig->getObjectTypeContent($oPage->post_type);
+            if ($this->_oAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID) === false) {
+                if ($this->_oConfig->hidePostType($oPage->post_type) === true
+                    || $this->_oConfig->atAdminPanel() === true
+                ) {
+                    continue;
                 }
 
-                $oPage->post_title .= $this->adminOutput($oPage->post_type, $oPage->ID);
+                if ($this->_oConfig->hidePostTypeTitle($oPage->post_type) === true) {
+                    $oPage->post_title = $this->_oConfig->getPostTypeTitle($oPage->post_type);
+                }
+
+                $oPage->post_content = $this->_oConfig->getPostTypeContent($oPage->post_type);
                 $aShowPages[] = $oPage;
             }
         }
@@ -417,22 +385,38 @@ class FrontendController extends Controller
     /**
      * Returns the post count for the term.
      *
-     * @param int $iTermId
+     * @param string $sTermType
+     * @param int    $iTermId
      *
      * @return int
      */
-    protected function _getVisibleElementsCount($iTermId)
+    protected function _getVisibleElementsCount($sTermType, $iTermId)
     {
         $iCount = 0;
+
+        $aTerms = [$iTermId => $iTermId];
+        $aTermTreeMap = $this->_oObjectHandler->getTermTreeMap();
+
+        if (isset($aTermTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$sTermType]) === true
+            && isset($aTermTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$sTermType][$iTermId]) === true
+        ) {
+            $aTerms += $aTermTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$sTermType][$iTermId];
+        }
+
+        $aPosts = [];
         $aTermPostMap = $this->_oObjectHandler->getTermPostMap();
 
-        if (isset($aTermPostMap[$iTermId])) {
-            foreach ($aTermPostMap[$iTermId] as $iPostId => $sPostType) {
-                if ($this->_oConfig->hideObjectType($sPostType) === false
-                    || $this->_oAccessHandler->checkObjectAccess($sPostType, $iPostId)
-                ) {
-                    $iCount++;
-                }
+        foreach ($aTerms as $iTermId) {
+            if (isset($aTermPostMap[$iTermId]) === true) {
+                $aPosts += $aTermPostMap[$iTermId];
+            }
+        }
+
+        foreach ($aPosts as $iPostId => $sPostType) {
+            if ($this->_oConfig->hidePostType($sPostType) === false
+                || $this->_oAccessHandler->checkObjectAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $iPostId) === true
+            ) {
+                $iCount++;
             }
         }
 
@@ -442,71 +426,48 @@ class FrontendController extends Controller
     /**
      * Modifies the content of the term by the given settings.
      *
-     * @param \WP_Term $oTerm The current term.
+     * @param \WP_Term $oTerm     The current term.
+     * @param bool     $blIsEmpty
      *
      * @return object|null
      */
-    protected function _processTerm($oTerm)
+    protected function _processTerm($oTerm, &$blIsEmpty = null)
     {
-        if (is_object($oTerm) === false) {
+        $blIsEmpty = false;
+
+        if (($oTerm instanceof \WP_Term) === false) {
             return $oTerm;
+        }
+
+        if ($this->_oAccessHandler->checkObjectAccess($oTerm->taxonomy, $oTerm->term_id) === false) {
+            return null;
         }
 
         $oTerm->name .= $this->adminOutput($oTerm->taxonomy, $oTerm->term_id, $oTerm->name);
+        $oTerm->count = $this->_getVisibleElementsCount($oTerm->taxonomy, $oTerm->term_id);
 
-        $oTerm->isEmpty = false;
-
-        if ($this->_oAccessHandler->checkObjectAccess($oTerm->taxonomy, $oTerm->term_id)) {
-            if ($this->_oConfig->hideObjectType(ObjectHandler::POST_OBJECT_TYPE) === true
-                || $this->_oConfig->hideObjectType(ObjectHandler::PAGE_OBJECT_TYPE) === true
-            ) {
-                $iTermRequest = $oTerm->term_id;
-                $oTerm->count = $this->_getVisibleElementsCount($iTermRequest);
-                $iFullCount = $oTerm->count;
-
-                if ($iFullCount <= 0) {
-                    $aTermTreeMap = $this->_oObjectHandler->getTermTreeMap();
-
-                    if (isset($aTermTreeMap[$iTermRequest])) {
-                        foreach ($aTermTreeMap[$iTermRequest] as $iTermId => $sType) {
-                            if ($oTerm->taxonomy === $sType) {
-                                $iFullCount += $this->_getVisibleElementsCount($iTermId);
-
-                                if ($iFullCount > 0) {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                //For categories
-                if ($iFullCount <= 0
-                    && $this->_oConfig->atAdminPanel() === false
-                    && $this->_oConfig->hideEmptyCategories() === true
-                    && ($oTerm->taxonomy === 'term' || $oTerm->taxonomy === 'category')
-                ) {
-                    $oTerm->isEmpty = true;
-                }
-
-                if ($this->_oConfig->lockRecursive() === false) {
-                    $oCurrentTerm = $oTerm;
-
-                    while ($oCurrentTerm->parent != 0) {
-                        $oCurrentTerm = $this->_oObjectHandler->getTerm($oCurrentTerm->parent);
-
-                        if ($this->_oAccessHandler->checkObjectAccess($oCurrentTerm->taxonomy, $oCurrentTerm->term_id)) {
-                            $oTerm->parent = $oCurrentTerm->term_id;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return $oTerm;
+        //For categories
+        if ($oTerm->count <= 0
+            && $this->_oConfig->atAdminPanel() === false
+            && $this->_oConfig->hideEmptyTaxonomy($oTerm->taxonomy) === true
+        ) {
+            $blIsEmpty = true;
         }
 
-        return null;
+        if ($this->_oConfig->lockRecursive() === false) {
+            $oCurrentTerm = $oTerm;
+
+            while ($oCurrentTerm->parent != 0) {
+                $oCurrentTerm = $this->_oObjectHandler->getTerm($oCurrentTerm->parent);
+
+                if ($this->_oAccessHandler->checkObjectAccess($oCurrentTerm->taxonomy, $oCurrentTerm->term_id)) {
+                    $oTerm->parent = $oCurrentTerm->term_id;
+                    break;
+                }
+            }
+        }
+
+        return $oTerm;
     }
 
     /**
@@ -559,7 +520,7 @@ class FrontendController extends Controller
         $aShowTerms = [];
 
         foreach ($aTerms as $mTerm) {
-            if (!is_object($mTerm) && is_numeric($mTerm)) {
+            if (is_numeric($mTerm)) {
                 if ((int)$mTerm === 0) {
                     continue;
                 }
@@ -567,15 +528,23 @@ class FrontendController extends Controller
                 $mTerm = $this->_oObjectHandler->getTerm($mTerm);
             }
 
-            $mTerm = $this->_processTerm($mTerm);
+            $mTerm = $this->_processTerm($mTerm, $blIsEmpty);
 
-            if ($mTerm !== null && is_object($mTerm) && (!isset($mTerm->isEmpty) || !$mTerm->isEmpty)) {
+            if ($mTerm !== null && $blIsEmpty === false) {
                 $aShowTerms[$mTerm->term_id] = $mTerm;
             }
         }
 
         foreach ($aTerms as $sKey => $mTerm) {
-            if ($mTerm === null || is_object($mTerm) && !isset($aShowTerms[$mTerm->term_id])) {
+            if (is_numeric($mTerm) === true) {
+                $iTermId = $mTerm;
+            } elseif ($mTerm instanceof \WP_Term) {
+                $iTermId = $mTerm->term_id;
+            } else {
+                continue;
+            }
+
+            if (isset($aShowTerms[$iTermId]) === false) {
                 unset($aTerms[$sKey]);
             }
         }
@@ -621,13 +590,15 @@ class FrontendController extends Controller
         ) {
             $sHintText = $this->_oConfig->getBlogAdminHintText();
 
-            if ($sText !== null && $this->_oUtil->endsWith($sText, $sHintText)) {
+            if ($sText !== null && $this->_oUtil->endsWith($sText, $sHintText)
+                || isset($this->_oWordpress->getCurrentUser()->user_level) === false
+            ) {
                 return $sOutput;
             }
 
             $oCurrentUser = $this->_oWordpress->getCurrentUser();
 
-            if (!isset($oCurrentUser->user_level)) {
+            if (isset($this->_oWordpress->getCurrentUser()->user_level) === false) {
                 return $sOutput;
             }
 
@@ -658,13 +629,15 @@ class FrontendController extends Controller
         );
 
         if (count($aUserGroups) > 0) {
+            $aEscapedGroups = array_map(
+                function (UserGroup $oGroup) {
+                    return htmlentities($oGroup->getName());
+                },
+                $aUserGroups
+            );
+
             $sLink .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
-
-            foreach ($aUserGroups as $oGroup) {
-                $sLink .= htmlentities($oGroup->getName()).', ';
-            }
-
-            $sLink = rtrim($sLink, ', ');
+            $sLink .= implode(', ', $aEscapedGroups);
         }
 
         return $sLink;
@@ -677,7 +650,7 @@ class FrontendController extends Controller
      */
     public function showLoginForm()
     {
-        return $this->_oWordpress->isSingle() || $this->_oWordpress->isPage();
+        return $this->_oWordpress->isSingle() === true || $this->_oWordpress->isPage() === true;
     }
 
     /**
@@ -737,6 +710,27 @@ class FrontendController extends Controller
     /**
      * Redirects to a page or to content.
      *
+     * @param string $sHeaders The headers which are given from wordpress.
+     *
+     * @return string
+     */
+    /*public function redirect($sHeaders)
+    {
+        $sFileUrl = $this->getRequestParameter('uamgetfile');
+        $sFileType = $this->getRequestParameter('uamfiletype');
+
+        if ($sFileUrl !== null && $sFileType !== null) {
+            $this->getFile($sFileType, $sFileUrl);
+        } elseif ($this->_oConfig->atAdminPanel() === false && $this->_oConfig->getRedirect() !== 'false') {
+            $this->redirectUser();
+        }
+
+        return $sHeaders;
+    }*/
+
+    /**
+     * Redirects to a page or to content.
+     *
      * @param string $sHeaders    The headers which are given from wordpress.
      * @param object $oPageParams The params of the current page.
      *
@@ -744,47 +738,38 @@ class FrontendController extends Controller
      */
     public function redirect($sHeaders, $oPageParams)
     {
-        if (isset($_GET['uamgetfile']) && isset($_GET['uamfiletype'])) {
-            $sFileUrl = $_GET['uamgetfile'];
-            $sFileType = $_GET['uamfiletype'];
-            $this->getFile($sFileType, $sFileUrl);
-        } elseif (!$this->_oConfig->atAdminPanel() && $this->_oConfig->getRedirect() !== 'false') {
-            $oObject = null;
+        $sFileUrl = $this->getRequestParameter('uamgetfile');
+        $sFileType = $this->getRequestParameter('uamfiletype');
 
-            if (isset($oPageParams->query_vars['p'])) {
-                $oObject = $this->_oObjectHandler->getPost($oPageParams->query_vars['p']);
-                $oObjectType = $oObject->post_type;
-                $iObjectId = $oObject->ID;
-            } elseif (isset($oPageParams->query_vars['page_id'])) {
-                $oObject = $this->_oObjectHandler->getPost($oPageParams->query_vars['page_id']);
-                $oObjectType = $oObject->post_type;
-                $iObjectId = $oObject->ID;
-            } elseif (isset($oPageParams->query_vars['cat_id'])) {
-                $oObject = $this->_oObjectHandler->getTerm($oPageParams->query_vars['cat_id']);
-                $oObjectType = $oObject->taxonomy;
-                $iObjectId = $oObject->term_id;
-            } elseif (isset($oPageParams->query_vars['name'])) {
-                $sPostableTypes = "'".implode("','", $this->_oObjectHandler->getPostTypes())."'";
+        if ($sFileUrl !== null && $sFileType !== null) {
+            $this->getFile($sFileType, $sFileUrl);
+        } elseif ($this->_oConfig->atAdminPanel() === false && $this->_oConfig->getRedirect() !== 'false') {
+            $oObjectType = null;
+            $iObjectId = null;
+
+            if (isset($oPageParams->query_vars['p']) === true) {
+                $oObjectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+                $iObjectId = $oPageParams->query_vars['p'];
+            } elseif (isset($oPageParams->query_vars['page_id']) === true) {
+                $oObjectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+                $iObjectId = $oPageParams->query_vars['page_id'];
+            } elseif (isset($oPageParams->query_vars['cat_id']) === true) {
+                $oObjectType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
+                $iObjectId = $oPageParams->query_vars['cat_id'];
+            } elseif (isset($oPageParams->query_vars['name']) === true) {
+                $sPostableTypes = implode('\',\'', $this->_oObjectHandler->getPostTypes());
 
                 $sQuery = $this->_oDatabase->prepare(
                     "SELECT ID
                     FROM {$this->_oDatabase->getPostsTable()}
                     WHERE post_name = %s
-                      AND post_type IN ({$sPostableTypes})",
+                      AND post_type IN ('{$sPostableTypes}')",
                     $oPageParams->query_vars['name']
                 );
 
-                $sObjectId = $this->_oDatabase->getVariable($sQuery);
-
-                if ($sObjectId) {
-                    $oObject = $this->_oObjectHandler->getPost($sObjectId);
-                }
-
-                if ($oObject !== null) {
-                    $oObjectType = $oObject->post_type;
-                    $iObjectId = $oObject->ID;
-                }
-            } elseif (isset($oPageParams->query_vars['pagename'])) {
+                $oObjectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+                $iObjectId = (int)$this->_oDatabase->getVariable($sQuery);
+            } elseif (isset($oPageParams->query_vars['pagename']) === true) {
                 $oObject = $this->_oWordpress->getPageByPath($oPageParams->query_vars['pagename']);
 
                 if ($oObject !== null) {
@@ -793,12 +778,8 @@ class FrontendController extends Controller
                 }
             }
 
-            if ($oObject !== null
-                && isset($oObjectType)
-                && isset($iObjectId)
-                && !$this->_oAccessHandler->checkObjectAccess($oObjectType, $iObjectId)
-            ) {
-                $this->redirectUser($oObject);
+            if ($this->_oAccessHandler->checkObjectAccess($oObjectType, $iObjectId) === false) {
+                $this->redirectUser(false);
             }
         }
 
@@ -808,14 +789,15 @@ class FrontendController extends Controller
     /**
      * Redirects the user to his destination.
      *
-     * @param object $oObject The current object we want to access.
+     * @param bool $blCheckPosts
      */
-    public function redirectUser($oObject = null)
+    public function redirectUser($blCheckPosts = true)
     {
         $blPostToShow = false;
-        $aPosts = $this->_oWordpress->getWpQuery()->get_posts();
 
-        if ($oObject === null && isset($aPosts)) {
+        if ($blCheckPosts === true) {
+            $aPosts = (array)$this->_oWordpress->getWpQuery()->get_posts();
+
             foreach ($aPosts as $oPost) {
                 if ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
                     $blPostToShow = true;
@@ -840,7 +822,7 @@ class FrontendController extends Controller
 
             $sCurrentUrl = $this->_oUtil->getCurrentUrl();
 
-            if ($sUrl != $sCurrentUrl && $sPermalink != $sCurrentUrl) {
+            if ($sUrl !== $sCurrentUrl && $sPermalink !== $sCurrentUrl) {
                 $this->_oWordpress->wpRedirect($sUrl);
                 exit;
             }
@@ -906,7 +888,7 @@ class FrontendController extends Controller
             ) {
                 $oObject = new \stdClass();
                 $oObject->id = $oPost->ID;
-                $oObject->isImage = wp_attachment_is_image($oPost->ID);
+                $oObject->isImage = $this->_oWordpress->attachmentIsImage($oPost->ID);
                 $oObject->type = $sObjectType;
                 $sMultiPath = str_replace('/files', $sUploadDir, $aUploadDir['baseurl']);
                 $oObject->file = $aUploadDir['basedir'].str_replace($sMultiPath, '', $sObjectUrl);
@@ -935,7 +917,7 @@ class FrontendController extends Controller
         if ($this->_oConfig->isPermalinksActive() === false && $this->_oConfig->lockFile() === true) {
             $oPost = $this->_oObjectHandler->getPost($iId);
             $aType = explode('/', $oPost->post_mime_type);
-            $sType = $aType[1];
+            $sType = isset($aType[1]) === true ? $aType[1] : '';
             $aFileTypes = explode(',', $this->_oConfig->getLockedFileTypes());
 
             if ($this->_oConfig->getLockedFileTypes() === 'all' || in_array($sType, $aFileTypes)) {
@@ -957,20 +939,15 @@ class FrontendController extends Controller
     {
         $aPostUrls = (array)$this->_oCache->getFromCache(self::POST_URL_CACHE_KEY);
 
-        if (isset($aPostUrls[$sUrl])) {
+        if (isset($aPostUrls[$sUrl]) === true) {
             return $aPostUrls[$sUrl];
         }
 
         $aPostUrls[$sUrl] = null;
 
         //Filter edit string
-        $sNewUrl = preg_split("/-e[0-9]{1,}/", $sUrl);
-
-        if (count($sNewUrl) === 2) {
-            $sNewUrl = $sNewUrl[0].$sNewUrl[1];
-        } else {
-            $sNewUrl = $sNewUrl[0];
-        }
+        $aNewUrlPieces = preg_split('/-e[0-9]{1,}/', $sUrl);
+        $sNewUrl = (count($aNewUrlPieces) === 2) ? $aNewUrlPieces[0].$aNewUrlPieces[1] : $aNewUrlPieces[0];
 
         //Filter size
         $sNewUrl = preg_split("/-[0-9]{1,}x[0-9]{1,}/", $sNewUrl);

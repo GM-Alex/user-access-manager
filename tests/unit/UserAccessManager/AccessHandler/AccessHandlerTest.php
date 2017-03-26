@@ -106,9 +106,11 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
     }
 
     /**
+     * @param int $iGetPostsExpect
+     *
      * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
      */
-    protected function getObjectHandler()
+    protected function getObjectHandler($iGetPostsExpect = null)
     {
         $oObjectHandler = parent::getObjectHandler();
 
@@ -126,9 +128,11 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
                 return ($sObjectType === 'postType');
             }));
 
-        $oObjectHandler->expects($this->any())
+        $oPostExpects = ($iGetPostsExpect === null) ? $this->any() : $this->exactly($iGetPostsExpect);
+        $oObjectHandler->expects($oPostExpects)
             ->method('getPost')
             ->will($this->returnCallback(function ($iId) {
+                echo "in";
                 if ($iId === -1) {
                     return false;
                 }
@@ -605,7 +609,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
-            $this->getObjectHandler(),
+            $this->getObjectHandler(0),
             $this->getUtil(),
             $this->getUserGroupFactory()
         );
@@ -624,16 +628,14 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
             $oConfig,
             $this->getCache(),
             $this->getDatabase(),
-            $this->getObjectHandler(),
+            $this->getObjectHandler(2),
             $this->getUtil(),
             $this->getUserGroupFactory()
         );
 
         $aObjectUserGroups = [
             'postType' => [
-                2 => [
-                    0 => $this->getUserGroup(0)
-                ],
+                2 => [0 => $this->getUserGroup(0)],
                 3 => [],
                 4 => [10 => $this->getUserGroup(10)]
             ]
@@ -691,15 +693,15 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         );
 
         $aUserGroups = [
-            0 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 1, 2 => 2, 5 => 5]),
-            1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [3 => 3, 2=> 2, 4 => 4])
+            0 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [1 => 'term', 2 => 'term', 5 => 'term']),
+            1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [3 => 'term', 2 => 'term', 4 => 'term'])
         ];
 
         self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
 
         $aUserGroupsForUser = [
-            3 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 1, 3 => 3]),
-            4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [5 => 5, 3 => 3])
+            3 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [1 => 'term', 3 => 'term']),
+            4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [5 => 'term', 3 => 'term'])
         ];
 
         self::setValue($oAccessHandler, '_aUserGroupsForUser', $aUserGroupsForUser);
@@ -726,33 +728,45 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
 
         self::assertEquals([], $oAccessHandler->getExcludedPosts());
 
+        $oObjectHandler = $this->getObjectHandler();
+
+        $oConfig = $this->getConfig();
+        $oConfig->expects($this->exactly(2))
+            ->method('hidePostType')
+            ->withConsecutive(['post'], ['page'])
+            ->will($this->onConsecutiveCalls(true, false));
+
+        $oObjectHandler->expects($this->once())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['post', 'page']));
+
         $oAccessHandler = new AccessHandler(
             $this->getWordpress(),
-            $this->getConfig(),
+            $oConfig,
             $this->getCache(),
             $this->getDatabase(),
-            $this->getObjectHandler(),
+            $oObjectHandler,
             $this->getUtil(),
             $this->getUserGroupFactory()
         );
 
 
         $aUserGroups = [
-            0 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 1, 2 => 2, 5 => 5]),
-            1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [3 => 3, 2=> 2, 4 => 4])
+            0 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 'post', 2 => 'page', 5 => 'post', 6 => 'post']),
+            1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [3 => 'post', 2 => 'page', 4 => 'post'])
         ];
 
         self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
 
         $aUserGroupsForUser = [
-            3 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 1, 3 => 3]),
-            4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [5 => 5, 3 => 3])
+            3 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 'post', 3 => 'post']),
+            4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [5 => 'post', 3 => 'post'])
         ];
 
         self::setValue($oAccessHandler, '_aUserGroupsForUser', $aUserGroupsForUser);
 
-        self::assertEquals([2 => 2, 4 => 4], $oAccessHandler->getExcludedPosts());
-        self::assertAttributeEquals([2 => 2, 4 => 4], '_aExcludedPosts', $oAccessHandler);
+        self::assertEquals([4 => 4, 6 => 6], $oAccessHandler->getExcludedPosts());
+        self::assertAttributeEquals([4 => 4, 6 => 6], '_aExcludedPosts', $oAccessHandler);
     }
 
     /**

@@ -14,9 +14,9 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $this
+ * @var \UserAccessManager\Controller\AdminObjectController $oController
  */
-$aObjectUserGroups = $this->getFilteredObjectUserGroups();
+$aObjectUserGroups = $oController->getFilteredObjectUserGroups();
 
 if (count($aObjectUserGroups) > 0) {
     ?>
@@ -38,7 +38,7 @@ if (count($aObjectUserGroups) > 0) {
     </ul>
     <?php
 } else {
-    if (!$this->isCurrentUserAdmin()) {
+    if (!$oController->isCurrentUserAdmin()) {
         echo TXT_UAM_NONE;
     } else {
         echo TXT_UAM_ADMIN_HINT;

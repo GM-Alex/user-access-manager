@@ -87,12 +87,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
     public function testShowFOpenNotice()
     {
         $oPhp = $this->getPhp();
-        $oPhp->expects($this->once())
-            ->method('includeFile')
-            ->with('vfs://src/UserAccessManager/View/AdminNotice.php')
-            ->will($this->returnCallback(function () {
-                echo 'FOpenNotice';
-            }));
+
 
         $oConfig = $this->getConfig();
         $oConfig->expects($this->once())
@@ -106,6 +101,13 @@ class AdminControllerTest extends \UserAccessManagerTestCase
             $this->getAccessHandler(),
             $this->getFileHandler()
         );
+
+        $oPhp->expects($this->once())
+            ->method('includeFile')
+            ->with($oAdminController, 'vfs://src/UserAccessManager/View/AdminNotice.php')
+            ->will($this->returnCallback(function () {
+                echo 'FOpenNotice';
+            }));
 
         $oAdminController->showFOpenNotice();
         self::assertAttributeEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, '_sNotice', $oAdminController);
@@ -123,12 +125,6 @@ class AdminControllerTest extends \UserAccessManagerTestCase
     public function testShowDatabaseNotice()
     {
         $oPhp = $this->getPhp();
-        $oPhp->expects($this->once())
-            ->method('includeFile')
-            ->with('vfs://src/UserAccessManager/View/AdminNotice.php')
-            ->will($this->returnCallback(function () {
-                echo 'DatabaseNotice';
-            }));
 
         $oConfig = $this->getConfig();
         $oConfig->expects($this->once())
@@ -143,7 +139,15 @@ class AdminControllerTest extends \UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
+        $oPhp->expects($this->once())
+            ->method('includeFile')
+            ->with($oAdminController, 'vfs://src/UserAccessManager/View/AdminNotice.php')
+            ->will($this->returnCallback(function () {
+                echo 'DatabaseNotice';
+            }));
+
         $oAdminController->showDatabaseNotice();
+
         self::assertAttributeEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
             '_sNotice',

@@ -197,7 +197,7 @@ abstract class Controller
 
         if (is_file($sFileWithPath)) {
             ob_start();
-            $this->_oPhp->includeFile($sFileWithPath);
+            $this->_oPhp->includeFile($this, $sFileWithPath);
             $sContents = ob_get_contents();
             ob_end_clean();
         }

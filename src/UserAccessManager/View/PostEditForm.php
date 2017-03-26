@@ -14,14 +14,14 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $this
+ * @var \UserAccessManager\Controller\AdminObjectController $oController
  */
-$aUserGroups = $this->getFilteredUserGroups();
-$aObjectUserGroups = $this->getFilteredObjectUserGroups();
+$aUserGroups = $oController->getFilteredUserGroups();
+$aObjectUserGroups = $oController->getFilteredObjectUserGroups();
 
 if (count($aUserGroups) > 0) {
     include 'GroupSelectionForm.php';
-} elseif ($this->checkUserAccess()) {
+} elseif ($oController->checkUserAccess()) {
     ?>
     <a href='?page=uam_user_group'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
     <?php

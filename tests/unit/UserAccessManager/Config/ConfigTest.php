@@ -559,9 +559,10 @@ class ConfigTest extends \UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\Config\Config::_hideObject()
-     * @covers \UserAccessManager\Config\Config::hideObjectType()
-     * @covers \UserAccessManager\Config\Config::hideObjectTypeTitle()
-     * @covers \UserAccessManager\Config\Config::hideObjectTypeComments()
+     * @covers \UserAccessManager\Config\Config::hidePostType()
+     * @covers \UserAccessManager\Config\Config::hidePostTypeTitle()
+     * @covers \UserAccessManager\Config\Config::hidePostTypeComments()
+     * @covers \UserAccessManager\Config\Config::hideEmptyTaxonomy()
      */
     public function testHideObject()
     {
@@ -583,21 +584,24 @@ class ConfigTest extends \UserAccessManagerTestCase
         self::assertEquals('hide_post', self::callMethod($oConfig, '_hideObject', ['hide_post']));
         self::assertTrue(self::callMethod($oConfig, '_hideObject', ['hide_undefined']));
 
-        self::assertEquals('hide_post', $oConfig->hideObjectType('post'));
-        self::assertTrue($oConfig->hideObjectType('undefined'));
+        self::assertEquals('hide_post', $oConfig->hidePostType('post'));
+        self::assertTrue($oConfig->hidePostType('undefined'));
 
-        self::assertEquals('hide_post_title', $oConfig->hideObjectTypeTitle('post'));
-        self::assertTrue($oConfig->hideObjectTypeTitle('undefined'));
+        self::assertEquals('hide_post_title', $oConfig->hidePostTypeTitle('post'));
+        self::assertTrue($oConfig->hidePostTypeTitle('undefined'));
 
-        self::assertEquals('post_comments_locked', $oConfig->hideObjectTypeComments('post'));
-        self::assertTrue($oConfig->hideObjectTypeComments('undefined'));
+        self::assertEquals('post_comments_locked', $oConfig->hidePostTypeComments('post'));
+        self::assertTrue($oConfig->hidePostTypeComments('undefined'));
+
+        self::assertEquals('hide_empty_category', $oConfig->hideEmptyTaxonomy('category'));
+        self::assertTrue($oConfig->hideEmptyTaxonomy('undefined'));
     }
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::getObjectTypeTitle()
-     * @covers \UserAccessManager\Config\Config::getObjectTypeContent()
-     * @covers \UserAccessManager\Config\Config::getObjectTypeCommentContent()
+     * @covers \UserAccessManager\Config\Config::getPostTypeTitle()
+     * @covers \UserAccessManager\Config\Config::getPostTypeContent()
+     * @covers \UserAccessManager\Config\Config::getPostTypeCommentContent()
      */
     public function testObjectGetter()
     {
@@ -616,9 +620,9 @@ class ConfigTest extends \UserAccessManagerTestCase
             'baseFile'
         );
 
-        self::assertEquals('post_title', $oConfig->getObjectTypeTitle('post'));
-        self::assertEquals('post_content', $oConfig->getObjectTypeContent('post'));
-        self::assertEquals('post_comment_content', $oConfig->getObjectTypeCommentContent('post'));
+        self::assertEquals('post_title', $oConfig->getPostTypeTitle('post'));
+        self::assertEquals('post_content', $oConfig->getPostTypeContent('post'));
+        self::assertEquals('post_comment_content', $oConfig->getPostTypeCommentContent('post'));
     }
 
     /**
@@ -637,7 +641,6 @@ class ConfigTest extends \UserAccessManagerTestCase
      * @covers \UserAccessManager\Config\Config::getNotLockedFileTypes
      * @covers \UserAccessManager\Config\Config::blogAdminHint
      * @covers \UserAccessManager\Config\Config::getBlogAdminHintText
-     * @covers \UserAccessManager\Config\Config::hideEmptyCategories
      * @covers \UserAccessManager\Config\Config::protectFeed
      * @covers \UserAccessManager\Config\Config::showPostContentBeforeMore
      * @covers \UserAccessManager\Config\Config::getFullAccessRole
@@ -659,7 +662,6 @@ class ConfigTest extends \UserAccessManagerTestCase
             'getNotLockedFileTypes' => 'not_locked_file_types',
             'blogAdminHint' => 'blog_admin_hint',
             'getBlogAdminHintText' => 'blog_admin_hint_text',
-            'hideEmptyCategories' => 'hide_empty_category',
             'protectFeed' => 'protect_feed',
             'showPostContentBeforeMore' => 'show_post_content_before_more',
             'getFullAccessRole' => 'full_access_role'

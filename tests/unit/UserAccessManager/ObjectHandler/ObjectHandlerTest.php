@@ -97,7 +97,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         /**
          * @var \stdClass $oUser
          */
-        $oUser = $this->createMock('\WP_User');
+        $oUser = $this->getMockBuilder('\WP_User')->getMock();
         $oUser->id = 1;
 
         $oWordpress = $this->getWordpress();
@@ -201,57 +201,54 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
     /**
      * @param string $sGeneralType
+     * @param string $sFirstType
+     * @param string $sSecondType
      *
      * @return array
      */
-    private function getExpectedMapResult($sGeneralType)
+    private function getExpectedMapResult($sGeneralType, $sFirstType = 'post', $sSecondType = 'page')
     {
-        return [
+        $aResult = [
             ObjectHandler::TREE_MAP_CHILDREN => [
-                'post' => [
-                    0 => [1 => 1, 2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    1 => [2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    2 => [3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    3 => [123 => 123, 321 => 321]
+                $sFirstType => [
+                    0 => [
+                        1 => $sFirstType, 2 => $sFirstType, 3 => $sFirstType,
+                        4 => $sFirstType, 123 => $sFirstType, 321 => $sFirstType
+                    ],
+                    1 => [2 => $sFirstType, 3 => $sFirstType, 4 => $sFirstType, 123 => $sFirstType, 321 => $sFirstType],
+                    2 => [3 => $sFirstType, 4 => $sFirstType, 123 => $sFirstType, 321 => $sFirstType],
+                    3 => [123 => $sFirstType, 321 => $sFirstType]
                 ],
-                'page' => [
-                    6 => [7 => 7, 8 => 8],
-                    7 => [8 => 8]
-                ],
-                $sGeneralType => [
-                    0 => [1 => 1, 2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    1 => [2 => 2, 3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    2 => [3 => 3, 4 => 4, 123 => 123, 321 => 321],
-                    3 => [123 => 123, 321 => 321],
-                    6 => [7 => 7, 8 => 8],
-                    7 => [8 => 8]
+                $sSecondType => [
+                    6 => [7 => $sSecondType, 8 => $sSecondType],
+                    7 => [8 => $sSecondType]
                 ]
             ],
             ObjectHandler::TREE_MAP_PARENTS => [
-                'post' => [
-                    1 => [0 => 0],
-                    2 => [0 => 0, 1 => 1],
-                    3 => [0 => 0, 1 => 1, 2 => 2],
-                    4 => [0 => 0, 1 => 1, 2 => 2],
-                    123 => [0 => 0, 1 => 1, 2 => 2, 3 => 3],
-                    321 => [0 => 0, 1 => 1, 2 => 2, 3 => 3]
+                $sFirstType => [
+                    1 => [0 => $sFirstType],
+                    2 => [0 => $sFirstType, 1 => $sFirstType],
+                    3 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType],
+                    4 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType],
+                    123 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType, 3 => $sFirstType],
+                    321 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType, 3 => $sFirstType]
                 ],
-                'page' => [
-                    7 => [6 => 6],
-                    8 => [6 => 6, 7 => 7]
-                ],
-                $sGeneralType => [
-                    1 => [0 => 0],
-                    2 => [0 => 0, 1 => 1],
-                    3 => [0 => 0, 1 => 1, 2 => 2],
-                    4 => [0 => 0, 1 => 1, 2 => 2],
-                    123 => [0 => 0, 1 => 1, 2 => 2, 3 => 3],
-                    321 => [0 => 0, 1 => 1, 2 => 2, 3 => 3],
-                    7 => [6 => 6],
-                    8 => [6 => 6, 7 => 7]
+                $sSecondType => [
+                    7 => [6 => $sSecondType],
+                    8 => [6 => $sSecondType, 7 => $sSecondType]
                 ]
             ]
         ];
+
+        $aResult[ObjectHandler::TREE_MAP_CHILDREN][$sGeneralType] =
+            $aResult[ObjectHandler::TREE_MAP_CHILDREN][$sFirstType]
+            + $aResult[ObjectHandler::TREE_MAP_CHILDREN][$sSecondType];
+
+        $aResult[ObjectHandler::TREE_MAP_PARENTS][$sGeneralType] =
+            $aResult[ObjectHandler::TREE_MAP_PARENTS][$sFirstType]
+            + $aResult[ObjectHandler::TREE_MAP_PARENTS][$sSecondType];
+        
+        return $aResult;
     }
 
     /**
@@ -263,15 +260,25 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
      */
     public function testTreeMap()
     {
-        $aDatabaseResult = [];
-        $aDatabaseResult[] = $this->createTreeMapDbResultElement(1);
-        $aDatabaseResult[] = $this->createTreeMapDbResultElement(2, 1);
-        $aDatabaseResult[] = $this->createTreeMapDbResultElement(3, 2);
-        $aDatabaseResult[] = $this->createTreeMapDbResultElement(4, 2);
-        $aDatabaseResult[] = $this->createTreeMapDbResultElement(123, 3);
-        $aDatabaseResult[] = $this->createTreeMapDbResultElement(321, 3);
-        $aDatabaseResult[] = $this->createTreeMapDbResultElement(7, 6, 'page');
-        $aDatabaseResult[] = $this->createTreeMapDbResultElement(8, 7, 'page');
+        $aPostResult = [];
+        $aPostResult[] = $this->createTreeMapDbResultElement(1);
+        $aPostResult[] = $this->createTreeMapDbResultElement(2, 1);
+        $aPostResult[] = $this->createTreeMapDbResultElement(3, 2);
+        $aPostResult[] = $this->createTreeMapDbResultElement(4, 2);
+        $aPostResult[] = $this->createTreeMapDbResultElement(123, 3);
+        $aPostResult[] = $this->createTreeMapDbResultElement(321, 3);
+        $aPostResult[] = $this->createTreeMapDbResultElement(7, 6, 'page');
+        $aPostResult[] = $this->createTreeMapDbResultElement(8, 7, 'page');
+
+        $aTermResult = [];
+        $aTermResult[] = $this->createTreeMapDbResultElement(1, 0, 'category');
+        $aTermResult[] = $this->createTreeMapDbResultElement(2, 1, 'category');
+        $aTermResult[] = $this->createTreeMapDbResultElement(3, 2, 'category');
+        $aTermResult[] = $this->createTreeMapDbResultElement(4, 2, 'category');
+        $aTermResult[] = $this->createTreeMapDbResultElement(123, 3, 'category');
+        $aTermResult[] = $this->createTreeMapDbResultElement(321, 3, 'category');
+        $aTermResult[] = $this->createTreeMapDbResultElement(7, 6, 'term');
+        $aTermResult[] = $this->createTreeMapDbResultElement(8, 7, 'term');
 
         $oWordpress = $this->getWordpress();
         $oDatabase = $this->getDatabase();
@@ -297,11 +304,11 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
                     FROM termTaxonomyTable
                     WHERE parent != 0'
                 )]
-            )->will($this->returnValue($aDatabaseResult));
+            )->will($this->onConsecutiveCalls($aPostResult, $aTermResult));
 
         $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
         $aExpectedPostResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_POST_OBJECT_TYPE);
-        $aExpectedTermResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_TERM_OBJECT_TYPE);
+        $aExpectedTermResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'category', 'term');
 
         self::assertEquals($aExpectedPostResult, $oObjectHandler->getPostTreeMap());
         self::assertEquals($aExpectedPostResult, $oObjectHandler->getPostTreeMap());
@@ -312,16 +319,18 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
     /**
      * @param int    $iObjectId
      * @param int    $iTermId
-     * @param string $sType
+     * @param string $sPostType
+     * @param string $sTermType
      *
      * @return \stdClass
      */
-    private function createTermMapDbResultElement($iObjectId, $iTermId, $sType = 'post')
+    private function createTermMapDbResultElement($iObjectId, $iTermId, $sPostType = 'post', $sTermType = 'category')
     {
         $oElement = new \stdClass();
         $oElement->objectId = $iObjectId;
         $oElement->termId = $iTermId;
-        $oElement->postType = $sType;
+        $oElement->postType = $sPostType;
+        $oElement->termType = $sTermType;
 
         return $oElement;
     }
@@ -372,37 +381,66 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
 
         $aExpectedResult = [
-            1 => [1 => 1, 2 => 2],
-            2 => [1 => 1, 3 => 3, 4 => 4],
-            3 => [123 => 123, 321 => 321],
-            6 => [7 => 7],
-            7 => [8 => 8]
+            1 => [1 => 'post', 2 => 'post'],
+            2 => [1 => 'post', 3 => 'post', 4 => 'post'],
+            3 => [123 => 'post', 321 => 'post'],
+            6 => [7 => 'page'],
+            7 => [8 => 'page']
         ];
 
         self::assertEquals($aExpectedResult, $oObjectHandler->getTermPostMap());
         self::assertEquals($aExpectedResult, $oObjectHandler->getTermPostMap());
-
-        return $oObjectHandler;
     }
 
     /**
      * @group   unit
-     * @depends testGetTermPostMap
      * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getPostTermMap()
-     *
-     * @param ObjectHandler $oObjectHandler
      */
-    public function testGetPostTermMap(ObjectHandler $oObjectHandler)
+    public function testGetPostTermMap()
     {
+        $aDatabaseResult = [];
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(1, 1);
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(2, 1);
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(1, 2);
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(3, 2);
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(4, 2);
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(123, 3);
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(321, 3);
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(7, 6, 'page', 'term');
+        $aDatabaseResult[] = $this->createTermMapDbResultElement(8, 7, 'page', 'term');
+
+        $oWordpress = $this->getWordpress();
+        $oDatabase = $this->getDatabase();
+
+        $oDatabase->expects($this->once())
+            ->method('getTermTaxonomyTable')
+            ->will($this->returnValue('termTaxonomyTable'));
+
+        $oDatabase->expects($this->once())
+            ->method('getTermRelationshipsTable')
+            ->will($this->returnValue('termRelationshipsTable'));
+
+        $oDatabase->expects($this->once())
+            ->method('getResults')
+            ->with(
+                new MatchIgnoreWhitespace(
+                    'SELECT tr.object_id AS objectId, tt.term_id AS termId, tt.taxonomy AS termType
+                    FROM termRelationshipsTable AS tr 
+                    LEFT JOIN termTaxonomyTable AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
+                )
+            )->will($this->returnValue($aDatabaseResult));
+
+        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
+
         $aExpectedResult = [
-            1 => [1 => 1, 2 => 2],
-            2 => [1 => 1],
-            3 => [2 => 2],
-            4 => [2 => 2],
-            123 => [3 => 3],
-            321 => [3 => 3],
-            7 => [6 => 6],
-            8 => [7 => 7]
+            1 => [1 => 'category', 2 => 'category'],
+            2 => [1 => 'category'],
+            3 => [2 => 'category'],
+            4 => [2 => 'category'],
+            123 => [3 => 'category'],
+            321 => [3 => 'category'],
+            7 => [6 => 'term'],
+            8 => [7 => 'term']
         ];
 
         self::assertEquals($aExpectedResult, $oObjectHandler->getPostTermMap());
