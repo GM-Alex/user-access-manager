@@ -133,21 +133,81 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $sTestFile = $sTestDir.'testFile.txt';
         $oFileHandler->getFile($sTestFile, false);
         self::expectOutputString('Test text');
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
 
         $oFileHandler->getFile($sTestFile, true);
         self::expectOutputString('Test text');
+        self::assertEquals(
+            [
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
 
         $oFileHandler->getFile($sTestFile, false);
         self::expectOutputString('Test text');
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
 
         $oFileHandler->getFile($sTestFile, false);
         self::expectOutputString('Test text');
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-type: text/plain;charset=UTF-8',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
 
         $oFileHandler->getFile($sTestFile, false);
         self::expectOutputString('Test text');
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: textFile',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
 
         $oFileHandler->getFile($sTestFile, false);
         self::expectOutputString('Test text');
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: application/octet-stream',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
     }
 
     /**
@@ -157,15 +217,16 @@ class FileHandlerTest extends \UserAccessManagerTestCase
     public function testCreateFileProtection()
     {
         $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(6))
+        $oWordpress->expects($this->exactly(7))
             ->method('isNginx')
-            ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
+            ->will($this->onConsecutiveCalls(false, false, false, true, true, true, true));
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(5))
+        $oConfig->expects($this->exactly(6))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
-                null, 'uploadDirectory', 'uploadDirectory', 'uploadDirectory', 'uploadDirectory'
+                null, 'uploadDirectory', 'uploadDirectory', 'uploadDirectory',
+                'uploadDirectory', 'uploadDirectory', 'uploadDirectory'
             ));
 
         $oApacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
@@ -175,16 +236,19 @@ class FileHandlerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true));
 
         $oNginxFileProtection = $this->createMock('\UserAccessManager\FileHandler\NginxFileProtection');
-        $oNginxFileProtection->expects($this->exactly(3))
+        $oNginxFileProtection->expects($this->exactly(4))
             ->method('create')
-            ->withConsecutive(['uploadDirectory', null], ['uploadDirectory', null], ['otherDirectory', 'objectType'])
-            ->will($this->onConsecutiveCalls(false, true, true));
+            ->withConsecutive(
+                ['uploadDirectory', null], ['uploadDirectory', null],
+                ['uploadDirectory', null], ['otherDirectory', 'objectType']
+            )
+            ->will($this->onConsecutiveCalls(false, true, true, true));
 
         $oFileProtectionFactory = $this->getFileProtectionFactory();
         $oFileProtectionFactory->expects($this->exactly(3))
             ->method('createApacheFileProtection')
             ->will($this->returnValue($oApacheFileProtection));
-        $oFileProtectionFactory->expects($this->exactly(3))
+        $oFileProtectionFactory->expects($this->exactly(4))
             ->method('createNginxFileProtection')
             ->will($this->returnValue($oNginxFileProtection));
 
@@ -203,6 +267,7 @@ class FileHandlerTest extends \UserAccessManagerTestCase
 
         self::assertFalse($oFileHandler->createFileProtection());
         self::assertTrue($oFileHandler->createFileProtection());
+        self::assertTrue($oFileHandler->createFileProtection());
         self::assertTrue($oFileHandler->createFileProtection('otherDirectory', 'objectType'));
     }
 
@@ -213,15 +278,15 @@ class FileHandlerTest extends \UserAccessManagerTestCase
     public function testDeleteFileProtection()
     {
         $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(6))
+        $oWordpress->expects($this->exactly(7))
             ->method('isNginx')
-            ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
+            ->will($this->onConsecutiveCalls(false, false, false, true, true, true, true));
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(5))
+        $oConfig->expects($this->exactly(6))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
-                null, 'uploadDirectory', 'uploadDirectory', 'uploadDirectory', 'uploadDirectory'
+                null, 'uploadDirectory', 'uploadDirectory', 'uploadDirectory', 'uploadDirectory', 'uploadDirectory'
             ));
 
         $oApacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
@@ -231,16 +296,16 @@ class FileHandlerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true));
 
         $oNginxFileProtection = $this->createMock('\UserAccessManager\FileHandler\NginxFileProtection');
-        $oNginxFileProtection->expects($this->exactly(3))
+        $oNginxFileProtection->expects($this->exactly(4))
             ->method('delete')
-            ->withConsecutive(['uploadDirectory'], ['uploadDirectory'], ['otherDirectory'])
-            ->will($this->onConsecutiveCalls(false, true, true));
+            ->withConsecutive(['uploadDirectory'], ['uploadDirectory'], ['uploadDirectory'], ['otherDirectory'])
+            ->will($this->onConsecutiveCalls(false, true, true, true));
 
         $oFileProtectionFactory = $this->getFileProtectionFactory();
         $oFileProtectionFactory->expects($this->exactly(3))
             ->method('createApacheFileProtection')
             ->will($this->returnValue($oApacheFileProtection));
-        $oFileProtectionFactory->expects($this->exactly(3))
+        $oFileProtectionFactory->expects($this->exactly(4))
             ->method('createNginxFileProtection')
             ->will($this->returnValue($oNginxFileProtection));
 
@@ -258,6 +323,7 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         self::assertTrue($oFileHandler->deleteFileProtection('otherDirectory'));
 
         self::assertFalse($oFileHandler->deleteFileProtection());
+        self::assertTrue($oFileHandler->deleteFileProtection());
         self::assertTrue($oFileHandler->deleteFileProtection());
         self::assertTrue($oFileHandler->deleteFileProtection('otherDirectory'));
     }

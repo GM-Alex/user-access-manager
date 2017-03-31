@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f6ee86a88d5a478490d137af199eae21",
-    "content-hash": "cc2c54a0e04db34001ee810f4c2c447c",
+    "hash": "2be9ab6bf3ff847735a36a2d099c4cfb",
+    "content-hash": "8c832aa140883bc3e09b70930a158fee",
     "packages": [],
     "packages-dev": [
         {
@@ -466,13 +466,13 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/padraic/humbug.git",
-                "reference": "06b1c059e432dab8c22c36bc8b6e1ffc7e587c07"
+                "url": "https://github.com/GM-Alex/humbug.git",
+                "reference": "ce6f8559decaa918ea47665311dd50f3335d88b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/padraic/humbug/zipball/06b1c059e432dab8c22c36bc8b6e1ffc7e587c07",
-                "reference": "06b1c059e432dab8c22c36bc8b6e1ffc7e587c07",
+                "url": "https://api.github.com/repos/GM-Alex/humbug/zipball/ce6f8559decaa918ea47665311dd50f3335d88b8",
+                "reference": "ce6f8559decaa918ea47665311dd50f3335d88b8",
                 "shasum": ""
             },
             "require": {
@@ -507,7 +507,16 @@
                     "Humbug\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Humbug\\Test\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
             "license": [
                 "BSD-3-Clause"
             ],
@@ -526,7 +535,11 @@
                 "testing",
                 "unit testing"
             ],
-            "time": "2016-08-01 10:27:00"
+            "support": {
+                "issues": "https://github.com/padraic/humbug/issues",
+                "source": "https://github.com/GM-Alex/humbug/tree/master"
+            },
+            "time": "2017-03-30 10:24:31"
         },
         {
             "name": "justinrainbow/json-schema",

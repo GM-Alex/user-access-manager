@@ -53,36 +53,18 @@ class Util
      * @param int $iLength
      *
      * @return string
+     *
+     * @throws \Exception
      */
     public function getRandomPassword($iLength = 32)
     {
-        //create password
-        $aChars = [];
+        $sBytes = openssl_random_pseudo_bytes($iLength + 1, $blStrong);
 
-        // Numbers
-        for ($iCount = 48; $iCount < 58; $iCount++) {
-            $aChars[] = chr($iCount);
+        if ($sBytes !== false && $blStrong === true) {
+            return substr(preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($sBytes)), 0, $iLength);
+        } else {
+            throw new \Exception('Unable to generate secure token from OpenSSL.');
         }
-
-        // Small chars
-        for ($iCount = 97; $iCount < 122; $iCount++) {
-            $aChars[] = chr($iCount);
-        }
-
-        // Capitals
-        for ($iCount = 65; $iCount < 90; $iCount++) {
-            $aChars[] = chr($iCount);
-        }
-
-        mt_srand((float)microtime() * 1000000);
-        $sPassword = '';
-
-        for ($iCount = 1; $iCount <= $iLength; $iCount++) {
-            $iRandomNumber = mt_rand(0, count($aChars) - 1);
-            $sPassword .= $aChars[$iRandomNumber];
-        }
-
-        return $sPassword;
     }
 
     /**

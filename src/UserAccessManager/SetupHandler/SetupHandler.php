@@ -23,6 +23,7 @@ use UserAccessManager\Wrapper\Wordpress;
 
 /**
  * Class SetupHandler
+ *
  * @package UserAccessManager\SetupHandler
  */
 class SetupHandler
@@ -76,10 +77,7 @@ class SetupHandler
     public function getBlogIds()
     {
         $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
-        $aBlogIds = [
-            $iCurrentBlogId => $iCurrentBlogId
-        ];
-
+        $aBlogIds = [$iCurrentBlogId => $iCurrentBlogId];
         $aSites = $this->_oWordpress->getSites();
 
         foreach ($aSites as $oSite) {
@@ -140,7 +138,7 @@ class SetupHandler
 
         $sDbAccessGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();
 
-        $sDbAccessGroupToObject = $this->_oDatabase->getVariable(
+        $sDbAccessGroupToObject = (string)$this->_oDatabase->getVariable(
             "SHOW TABLES 
             LIKE '".$sDbAccessGroupToObjectTable."'"
         );
@@ -199,9 +197,9 @@ class SetupHandler
             return false;
         }
 
-        $sUamVersion = $this->_oWordpress->getOption('uam_version');
+        $sUamVersion = $this->_oWordpress->getOption('uam_version', '0');
 
-        if (!$sUamVersion || version_compare($sUamVersion, "1.0", '<')) {
+        if (version_compare($sUamVersion, '1.0', '<') === true) {
             $this->_oWordpress->deleteOption('allow_comments_locked');
         }
 
@@ -211,7 +209,7 @@ class SetupHandler
             "SHOW TABLES LIKE '{$sDbAccessGroup}'"
         );
 
-        if (version_compare($sCurrentDbVersion, UserAccessManager::DB_VERSION, '<')) {
+        if (version_compare($sCurrentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
             $sPrefix = $this->_oDatabase->getPrefix();
             $sCharsetCollate = $this->_oDatabase->getCharset();
 
@@ -254,7 +252,7 @@ class SetupHandler
                 foreach ($aObjectTypes as $sObjectType) {
                     $sAddition = '';
 
-                    if ($this->_oObjectHandler->isPostType($sObjectType)) {
+                    if ($this->_oObjectHandler->isPostType($sObjectType) === true) {
                         $sDbIdName = 'post_id';
                         $sDatabase = $sDbAccessGroupToPost.', '.$sPostTable;
                         $sAddition = " WHERE post_id = ID
@@ -306,7 +304,7 @@ class SetupHandler
 
             $sDbAccessGroupToObject = $this->_oDatabase->getUserGroupToObjectTable();
 
-            if (version_compare($sCurrentDbVersion, '1.2', '<=')) {
+            if (version_compare($sCurrentDbVersion, '1.2', '<=') === true) {
                 $sQuery = "
                     ALTER TABLE `{$sDbAccessGroupToObject}`
                     CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
@@ -315,7 +313,7 @@ class SetupHandler
                 $this->_oDatabase->query($sQuery);
             }
 
-            if (version_compare($sCurrentDbVersion, '1.3', '<=')) {
+            if (version_compare($sCurrentDbVersion, '1.3', '<=') === true) {
                 $sGeneralTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
                 $this->_oDatabase->update(
                     $sDbAccessGroupToObject,
@@ -328,7 +326,7 @@ class SetupHandler
                 );
             }
 
-            if (version_compare($sCurrentDbVersion, '1.4', '<=')) {
+            if (version_compare($sCurrentDbVersion, '1.4', '<=') === true) {
                 $sAlterQuery = "ALTER TABLE {$sDbAccessGroupToObject}
                     ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id";
 

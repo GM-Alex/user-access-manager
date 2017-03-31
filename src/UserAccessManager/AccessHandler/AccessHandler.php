@@ -358,7 +358,7 @@ class AccessHandler
         $oCurrentUser = $this->_oWordpress->getCurrentUser();
 
         if ($this->_oWordpress->isSuperAdmin($oCurrentUser->ID) === true
-            || $mAllowedCapability !== false && $oCurrentUser->has_cap($mAllowedCapability)
+            || $mAllowedCapability !== false && $oCurrentUser->has_cap($mAllowedCapability) === true
         ) {
             return true;
         }
@@ -373,18 +373,18 @@ class AccessHandler
             'editor' => 4,
             'administrator' => 5
         ];
-        $iRightsLevel = 0;
+        $iRightsLevel = -1;
 
         foreach ($aRoles as $sRole) {
-            if (isset($aOrderedRoles[$sRole]) && $aOrderedRoles[$sRole] > $iRightsLevel) {
+            if (isset($aOrderedRoles[$sRole]) === true && $aOrderedRoles[$sRole] > $iRightsLevel) {
                 $iRightsLevel = $aOrderedRoles[$sRole];
             }
         }
 
         $sFullAccessRole = $this->_oConfig->getFullAccessRole();
 
-        return (isset($aOrderedRoles[$sFullAccessRole]) && $iRightsLevel >= $aOrderedRoles[$sFullAccessRole]
-            || isset($aRolesMap['administrator']));
+        return (isset($aOrderedRoles[$sFullAccessRole]) === true && $iRightsLevel >= $aOrderedRoles[$sFullAccessRole]
+            || isset($aRolesMap['administrator']) === true);
     }
 
     /**
@@ -429,8 +429,7 @@ class AccessHandler
                 && $this->_oObjectHandler->isPostType($sObjectType)
             ) {
                 $oPost = $this->_oObjectHandler->getPost($iObjectId);
-                $sAuthorId = ($oPost !== false) ? (int)$oPost->post_author : -1;
-                $blAccess = ($oCurrentUser->ID === $sAuthorId);
+                $blAccess = ($oPost !== false && $oCurrentUser->ID === (int)$oPost->post_author);
             }
 
             if ($blAccess === false) {

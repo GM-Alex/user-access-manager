@@ -72,7 +72,7 @@ class FileHandler
     public function getFile($sFile, $blIsImage)
     {
         //Deliver content
-        if (file_exists($sFile)) {
+        if (file_exists($sFile) === true) {
             $sFileName = basename($sFile);
 
             /*
@@ -118,8 +118,8 @@ class FileHandler
                 ob_clean();
                 flush();
 
-                while (!feof($oHandler)) {
-                    if (!ini_get('safe_mode')) {
+                while (feof($oHandler) === false) {
+                    if (ini_get('safe_mode') === false) {
                         set_time_limit(30);
                     }
 

@@ -588,6 +588,14 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
             ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
             $oObjectHandler->getGeneralObjectType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)
         );
+        self::assertEquals(
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+            $oObjectHandler->getGeneralObjectType(ObjectHandler::GENERAL_TERM_OBJECT_TYPE)
+        );
+        self::assertEquals(
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            $oObjectHandler->getGeneralObjectType(ObjectHandler::GENERAL_POST_OBJECT_TYPE)
+        );
         self::assertNull($oObjectHandler->getGeneralObjectType('invalid'));
     }
 
@@ -705,6 +713,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
 
         $oWordpress->expects($this->once())
             ->method('getTaxonomies')
+            ->with(['public' => true])
             ->will($this->returnValue($aTaxonomiesReturn));
 
         $aPostTypesReturn = ['c' => 'c1', 'd' => 'd1'];

@@ -208,13 +208,18 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
     {
         $oWordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(4))
             ->method('getSites')
-            ->will($this->returnValue($this->getSites()));
+            ->will($this->onConsecutiveCalls(
+                $this->getSites(),
+                $this->getSites(),
+                $this->getSites(),
+                []
+            ));
 
-        $oWordpress->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(4))
             ->method('isSuperAdmin')
-            ->will($this->onConsecutiveCalls(false, false, true));
+            ->will($this->onConsecutiveCalls(false, false, true, true));
 
 
         $oWordpress->expects($this->exactly(2))
@@ -223,19 +228,19 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls('1000.0.0', '0.0'));
 
         $oDatabase = $this->getDatabase();
-        $oDatabase->expects($this->exactly(2))
+        $oDatabase->expects($this->exactly(3))
             ->method('getBlogPrefix')
             ->will($this->returnValue('prefix_'));
 
-        $oDatabase->expects($this->exactly(2))
+        $oDatabase->expects($this->exactly(3))
             ->method('prepare')
             ->with('SELECT option_value FROM prefix_options WHERE option_name = \'%s\' LIMIT 1', 'uam_db_version')
             ->will($this->returnValue('preparedStatement'));
 
-        $oDatabase->expects($this->exactly(2))
+        $oDatabase->expects($this->exactly(3))
             ->method('getVariable')
             ->with('preparedStatement')
-            ->will($this->onConsecutiveCalls('1000.0.0', '0.0'));
+            ->will($this->onConsecutiveCalls('1000.0.0', '0.0', '0.0'));
 
         $oObjectHandler = $this->getObjectHandler();
         $oFileHandler = $this->getFileHandler();
@@ -248,6 +253,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
         );
 
         self::assertFalse($oSetupHandler->isDatabaseUpdateNecessary());
+        self::assertTrue($oSetupHandler->isDatabaseUpdateNecessary());
         self::assertTrue($oSetupHandler->isDatabaseUpdateNecessary());
         self::assertTrue($oSetupHandler->isDatabaseUpdateNecessary());
     }
@@ -264,9 +270,9 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
             ->withConsecutive(
                 ['uam_db_version', false],
                 ['uam_db_version', false],
-                ['uam_version', false]
+                ['uam_version', '0']
             )
-            ->will($this->onConsecutiveCalls(null, '0.0', '0.0'));
+            ->will($this->onConsecutiveCalls('0', '0.0', '0.0'));
 
         $oWordpress->expects($this->once())
             ->method('deleteOption')
@@ -409,12 +415,12 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
 
         $oObjectHandler->expects($this->once())
             ->method('getObjectTypes')
-            ->will($this->returnValue(['post', 'category', 'user', 'role', 'nothing']));
+            ->will($this->returnValue(['post', 'nothing', 'category', 'nothing', 'user', 'nothing', 'role', 'nothing']));
 
-        $oObjectHandler->expects($this->exactly(5))
+        $oObjectHandler->expects($this->exactly(8))
             ->method('isPostType')
-            ->withConsecutive(['post'], ['category'], ['user'], ['role'], ['nothing'])
-            ->will($this->onConsecutiveCalls(true, false, false, false, false));
+            ->withConsecutive(['post'], ['nothing'], ['category'], ['nothing'], ['user'], ['nothing'], ['role'], ['nothing'])
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false));
 
         $oFileHandler = $this->getFileHandler();
 

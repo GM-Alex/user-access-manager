@@ -10,6 +10,12 @@
       "email": "alexanderschneider85@gmail.com"
     }
   ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/GM-Alex/humbug"
+    }
+  ],
   "require": {
     "php": ">=5.4"
   },
@@ -18,6 +24,6 @@
     "etsy/phpunit-extensions": "~0.7",
     "wp-cli/wp-cli": "~1.0",
     "adlawson/vfs": "~0.12",
-    "humbug/humbug": "~1.0@dev"
+    "humbug/humbug": "dev-master"
   }
 }

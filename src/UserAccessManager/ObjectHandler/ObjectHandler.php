@@ -240,19 +240,19 @@ class ObjectHandler
         $aResults = $this->_oDatabase->getResults($sSelect);
 
         foreach ($aResults as $oResult) {
-            if (!isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type])) {
+            if (isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type]) === false) {
                 $aChildrenMap[$oResult->type] = [];
             }
 
-            if (!isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type])) {
+            if (isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type]) === false) {
                 $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type] = [];
             }
 
-            if (!isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId])) {
+            if (isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId]) === false) {
                 $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type][$oResult->parentId] = [];
             }
 
-            if (!isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id])) {
+            if (isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id]) === false) {
                 $aTreeMap[self::TREE_MAP_PARENTS][$oResult->type][$oResult->id] = [];
             }
 
