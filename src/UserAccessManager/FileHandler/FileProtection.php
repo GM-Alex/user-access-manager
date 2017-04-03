@@ -100,12 +100,17 @@ abstract class FileProtection
         $sFile = $sDir.self::PASSWORD_FILE_NAME;
 
         if ($sDir !== null
-            && (!file_exists($sFile) || $blCreateNew)
+            && (file_exists($sFile) === false || $blCreateNew)
         ) {
             $oCurrentUser = $this->_oWordpress->getCurrentUser();
 
             if ($this->_oConfig->getFilePassType() === 'random') {
-                $sPassword = md5($this->_oUtil->getRandomPassword());
+                try {
+                    $sRandomPassword = $this->_oUtil->getRandomPassword();
+                    $sPassword = md5($sRandomPassword);
+                } catch (\Exception $oException) {
+                    $sPassword = $oCurrentUser->user_pass;
+                }
             } else {
                 $sPassword = $oCurrentUser->user_pass;
             }

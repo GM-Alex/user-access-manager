@@ -14,6 +14,8 @@
  */
 namespace UserAccessManager\Util;
 
+use UserAccessManager\Wrapper\Php;
+
 /**
  * Class Util
  *
@@ -21,6 +23,21 @@ namespace UserAccessManager\Util;
  */
 class Util
 {
+    /**
+     * @var Php
+     */
+    protected $_oPhp;
+
+    /**
+     * Util constructor.
+     *
+     * @param Php $oPhp
+     */
+    public function __construct(Php $oPhp)
+    {
+        $this->_oPhp = $oPhp;
+    }
+
     /**
      * Checks if a string starts with the given needle.
      *
@@ -58,7 +75,7 @@ class Util
      */
     public function getRandomPassword($iLength = 32)
     {
-        $sBytes = openssl_random_pseudo_bytes($iLength + 1, $blStrong);
+        $sBytes = $this->_oPhp->opensslRandomPseudoBytes($iLength + 1, $blStrong);
 
         if ($sBytes !== false && $blStrong === true) {
             return substr(preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($sBytes)), 0, $iLength);

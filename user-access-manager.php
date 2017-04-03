@@ -87,7 +87,7 @@ use UserAccessManager\Wrapper\Wordpress;
 
 $oPhp = new Php();
 $oWordpress = new Wordpress();
-$oUtil = new Util();
+$oUtil = new Util($oPhp);
 $oCache = new Cache();
 $oConfigParameterFactory = new ConfigParameterFactory();
 $oDatabase = new Database($oWordpress);
@@ -174,7 +174,7 @@ if (!function_exists("userAccessManagerUninstall")) {
     {
         $oPhp = new Php();
         $oWordpress = new Wordpress();
-        $oUtil = new Util();
+        $oUtil = new Util($oPhp);
         $oConfigParameterFactory = new ConfigParameterFactory();
         $oDatabase = new Database($oWordpress);
         $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);

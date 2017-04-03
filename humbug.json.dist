@@ -6,6 +6,7 @@
       "src/UserAccessManager/Cache",
       "src/UserAccessManager/Command",
       "src/UserAccessManager/Config",
+      "src/UserAccessManager/Controller",
       "src/UserAccessManager/Database",
       "src/UserAccessManager/FileHandler",
       "src/UserAccessManager/ObjectHandler",
@@ -15,9 +16,7 @@
     ],
     "excludes": [
       "vendor",
-      "tests",
-      "src/UserAccessManager/View",
-      "src/UserAccessManager/Wrapper"
+      "tests"
     ]
   },
   "logs": {

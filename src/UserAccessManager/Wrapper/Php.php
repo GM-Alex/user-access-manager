@@ -24,6 +24,8 @@ use UserAccessManager\Controller\Controller;
 class Php
 {
     /**
+     * @see function_exists()
+     *
      * @param string $sFunctionName
      *
      * @return bool
@@ -31,6 +33,19 @@ class Php
     public function functionExists($sFunctionName)
     {
         return function_exists($sFunctionName);
+    }
+
+    /**
+     * @see openssl_random_pseudo_bytes()
+     *
+     * @param $iLength
+     * @param $blStrong
+     *
+     * @return string
+     */
+    public function opensslRandomPseudoBytes($iLength, &$blStrong)
+    {
+        return openssl_random_pseudo_bytes($iLength, $blStrong);
     }
 
     /**

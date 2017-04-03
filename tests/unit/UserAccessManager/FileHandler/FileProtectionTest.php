@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\FileHandler;
 
+use Mockery\Exception;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 
@@ -107,6 +108,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         $oRootDir = $this->oRoot->get('/');
         $oRootDir->add('firstTestDir', new Directory());
         $oRootDir->add('secondTestDir', new Directory());
+        $oRootDir->add('thirdTestDir', new Directory());
 
         $oWordpress = $this->getWordpress();
         $oWordpress->expects($this->exactly(6))
@@ -129,7 +131,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         $oUser->user_login = 'userLogin';
         $oUser->user_pass = 'userPass';
 
-        $oWordpress->expects($this->exactly(4))
+        $oWordpress->expects($this->exactly(5))
             ->method('getCurrentUser')
             ->will($this->returnValue($oUser));
 
@@ -162,7 +164,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         self::assertEquals($sContent, file_get_contents($sFirstTestFile));
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(2))
+        $oConfig->expects($this->exactly(3))
             ->method('getFilePassType')
             ->will($this->returnValue('random'));
 
@@ -177,5 +179,19 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         $sSecondTestFile = 'vfs://secondTestDir/'.FileProtection::PASSWORD_FILE_NAME;
         $oStub->createPasswordFile(true, 'vfs://secondTestDir/');
         self::assertEquals("userLogin:".md5('randomPassword')."\n", file_get_contents($sSecondTestFile));
+
+        $oUtil = $this->getUtil();
+        $oUtil->expects($this->exactly(1))
+            ->method('getRandomPassword')
+            ->will($this->returnCallback(function () {
+                throw new \Exception('Unable to generate secure token from OpenSSL.');
+            }));
+
+        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
+
+        $sThirdTestFile = 'vfs://thirdTestDir/'.FileProtection::PASSWORD_FILE_NAME;
+        $oStub->createPasswordFile(true, 'vfs://thirdTestDir/');
+        $sContent = file_get_contents($sThirdTestFile);
+        self::assertEquals("userLogin:userPass\n", $sContent);
     }
 }

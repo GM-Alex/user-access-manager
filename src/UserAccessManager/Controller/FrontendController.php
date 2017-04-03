@@ -151,6 +151,54 @@ class FrontendController extends Controller
     }
 
     /**
+     * Returns the admin hint.
+     *
+     * @param string  $sObjectType The object type.
+     * @param integer $iObjectId   The object id we want to check.
+     * @param string  $sText       The text on which we want to append the hint.
+     *
+     * @return string
+     */
+    public function adminOutput($sObjectType, $iObjectId, $sText = null)
+    {
+        $sOutput = '';
+
+        if ($this->_oConfig->atAdminPanel() === false
+            && $this->_oConfig->blogAdminHint() === true
+        ) {
+            $sHintText = $this->_oConfig->getBlogAdminHintText();
+
+            if ($sText !== null && $this->_oUtil->endsWith($sText, $sHintText) === true) {
+                return $sOutput;
+            }
+
+            if ($this->_oAccessHandler->userIsAdmin($this->_oWordpress->getCurrentUser()->ID) === true
+                && count($this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId)) > 0
+            ) {
+                $sOutput .= $sHintText;
+            }
+        }
+
+        return $sOutput;
+    }
+
+    /**
+     * Returns the login bar.
+     *
+     * @return string
+     */
+    public function getLoginFormHtml()
+    {
+        $sLoginForm = '';
+
+        if ($this->_oWordpress->isUserLoggedIn() === false) {
+            $sLoginForm = $this->_getIncludeContents('LoginForm.php');
+        }
+
+        return $this->_oWordpress->applyFilters('uam_login_form', $sLoginForm);
+    }
+
+    /**
      * Modifies the content of the post by the given settings.
      *
      * @param \WP_Post $oPost    The current post.
@@ -186,7 +234,7 @@ class FrontendController extends Controller
                 $oPost->post_title = $this->_oConfig->getPostTypeTitle($oPost->post_type);
             }
 
-            if ($this->_oConfig->hidePostTypeComments($oPost->post_type) === false) {
+            if ($this->_oConfig->hidePostTypeComments($oPost->post_type) === true) {
                 $oPost->comment_status = 'close';
             }
         }
@@ -206,9 +254,9 @@ class FrontendController extends Controller
         $aShowPosts = [];
 
         if ($this->_oWordpress->isFeed() === false || $this->_oConfig->protectFeed() === true) {
-            foreach ($aPosts as $iPostId) {
-                if ($iPostId !== null) {
-                    $oPost = $this->_processPost($iPostId);
+            foreach ($aPosts as $oPost) {
+                if ($oPost !== null) {
+                    $oPost = $this->_processPost($oPost);
 
                     if ($oPost !== null) {
                         $aShowPosts[] = $oPost;
@@ -218,6 +266,30 @@ class FrontendController extends Controller
         }
 
         return $aShowPosts;
+    }
+
+    /**
+     * The function for the get_pages filter.
+     *
+     * @param \WP_Post[] $aPages The pages.
+     *
+     * @return array
+     */
+    public function showPages($aPages = [])
+    {
+        $aShowPages = [];
+
+        foreach ($aPages as $oPage) {
+            $oPage = $this->_processPost($oPage);
+
+            if ($oPage !== null) {
+                $aShowPages[] = $oPage;
+            }
+        }
+
+        $aPages = $aShowPages;
+
+        return $aPages;
     }
 
     /**
@@ -259,9 +331,9 @@ class FrontendController extends Controller
                 $sExcludedPosts = implode('\', \'', $aExcludedPosts);
 
                 $sQuery = "SELECT post_status, COUNT(*) AS num_posts 
-                FROM {$this->_oDatabase->getPostsTable()} 
-                WHERE post_type = %s
-                  AND ID NOT IN ('{$sExcludedPosts}')";
+                    FROM {$this->_oDatabase->getPostsTable()} 
+                    WHERE post_type = %s
+                      AND ID NOT IN ('{$sExcludedPosts}')";
 
                 if ('readable' === $sPerm && $this->_oWordpress->isUserLoggedIn() === true) {
                     $oPostTypeObject = $this->_oWordpress->getPostTypeObject($sType);
@@ -302,56 +374,14 @@ class FrontendController extends Controller
      *
      * @return array
      */
-    public function getTermArguments($aArguments)
+    public function getTermArguments(array $aArguments)
     {
         $aExclude = (isset($aArguments['exclude']) === true) ?
             $this->_oWordpress->parseIdList($aArguments['exclude']) : [];
         $aArguments['exclude'] = array_merge($aExclude, $this->_oAccessHandler->getExcludedTerms());
+        $aArguments['exclude'] = array_unique($aArguments['exclude']);
 
         return $aArguments;
-    }
-
-    /**
-     * The function for the wp_get_nav_menu_items filter.
-     *
-     * @param array $aItems The menu item.
-     *
-     * @return array
-     */
-    public function showCustomMenu($aItems)
-    {
-        $aShowItems = [];
-
-        foreach ($aItems as $oItem) {
-            $oItem->title .= $this->adminOutput($oItem->object, $oItem->object_id);
-
-            if ($this->_oObjectHandler->isPostType($oItem->object) === true) {
-                if ($this->_oAccessHandler->checkObjectAccess($oItem->object, $oItem->object_id) === false) {
-                    if ($this->_oConfig->hidePostType($oItem->object) === true
-                        || $this->_oConfig->atAdminPanel()
-                    ) {
-                        continue;
-                    }
-
-                    if ($this->_oConfig->hidePostTypeTitle($oItem->object) === true) {
-                        $oItem->title = $this->_oConfig->getPostTypeTitle($oItem->object);
-                    }
-                }
-
-                $aShowItems[] = $oItem;
-            } elseif ($this->_oObjectHandler->isTaxonomy($oItem->object) === true) {
-                $oObject = $this->_oObjectHandler->getTerm($oItem->object_id);
-                $oCategory = $this->_processTerm($oObject, $blIsEmpty);
-
-                if ($oCategory !== null && $blIsEmpty === false) {
-                    $aShowItems[] = $oItem;
-                }
-            } else {
-                $aShowItems[] = $oItem;
-            }
-        }
-
-        return $aShowItems;
     }
 
     /**
@@ -368,7 +398,9 @@ class FrontendController extends Controller
         foreach ($aComments as $oComment) {
             $oPost = $this->_oObjectHandler->getPost($oComment->comment_post_ID);
 
-            if ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID) === false) {
+            if ($oPost !== false
+                && $this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID) === false
+            ) {
                 if ($this->_oConfig->hidePostTypeComments($oPost->post_type) === true
                     || $this->_oConfig->hidePostType($oPost->post_type) === true
                     || $this->_oConfig->atAdminPanel() === true
@@ -386,38 +418,49 @@ class FrontendController extends Controller
     }
 
     /**
-     * The function for the get_pages filter.
+     * The function for the get_ancestors filter.
      *
-     * @param \WP_Post[] $aPages The pages.
+     * @param array  $aAncestors
+     * @param int    $sObjectId
+     * @param string $sObjectType
      *
      * @return array
      */
-    public function showPages($aPages = [])
+    public function showAncestors($aAncestors, $sObjectId, $sObjectType)
     {
-        $aShowPages = [];
+        if ($this->_oConfig->lockRecursive() === true
+            && $this->_oAccessHandler->checkObjectAccess($sObjectType, $sObjectId) === false
+        ) {
+            return [];
+        }
 
-        foreach ($aPages as $oPage) {
-            $oPage->post_title .= $this->adminOutput($oPage->post_type, $oPage->ID);
-
-            if ($this->_oAccessHandler->checkObjectAccess($oPage->post_type, $oPage->ID) === false) {
-                if ($this->_oConfig->hidePostType($oPage->post_type) === true
-                    || $this->_oConfig->atAdminPanel() === true
-                ) {
-                    continue;
-                }
-
-                if ($this->_oConfig->hidePostTypeTitle($oPage->post_type) === true) {
-                    $oPage->post_title = $this->_oConfig->getPostTypeTitle($oPage->post_type);
-                }
-
-                $oPage->post_content = $this->_oConfig->getPostTypeContent($oPage->post_type);
-                $aShowPages[] = $oPage;
+        foreach ($aAncestors as $sKey => $aAncestorId) {
+            if ($this->_oAccessHandler->checkObjectAccess($sObjectType, $aAncestorId) === false) {
+                unset($aAncestors[$sKey]);
             }
         }
 
-        $aPages = $aShowPages;
+        return $aAncestors;
+    }
 
-        return $aPages;
+    /**
+     * The function for the get_previous_post_where and
+     * the get_next_post_where filter.
+     *
+     * @param string $sQuery The current sql string.
+     *
+     * @return string
+     */
+    public function showNextPreviousPost($sQuery)
+    {
+        $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
+
+        if (count($aExcludedPosts) > 0) {
+            $sExcludedPosts = implode(', ', $aExcludedPosts);
+            $sQuery .= " AND p.ID NOT IN ({$sExcludedPosts}) ";
+        }
+
+        return $sQuery;
     }
 
     /**
@@ -498,7 +541,9 @@ class FrontendController extends Controller
             while ($oCurrentTerm->parent != 0) {
                 $oCurrentTerm = $this->_oObjectHandler->getTerm($oCurrentTerm->parent);
 
-                if ($this->_oAccessHandler->checkObjectAccess($oCurrentTerm->taxonomy, $oCurrentTerm->term_id)) {
+                if ($oCurrentTerm !== false
+                    && $this->_oAccessHandler->checkObjectAccess($oCurrentTerm->taxonomy, $oCurrentTerm->term_id) === true
+                ) {
                     $oTerm->parent = $oCurrentTerm->term_id;
                     break;
                 }
@@ -506,32 +551,6 @@ class FrontendController extends Controller
         }
 
         return $oTerm;
-    }
-
-    /**
-     * The function for the get_ancestors filter.
-     *
-     * @param array  $aAncestors
-     * @param int    $sObjectId
-     * @param string $sObjectType
-     *
-     * @return array
-     */
-    public function showAncestors($aAncestors, $sObjectId, $sObjectType)
-    {
-        if ($this->_oConfig->lockRecursive() === true
-            && $this->_oAccessHandler->checkObjectAccess($sObjectType, $sObjectId) === false
-        ) {
-            return [];
-        }
-
-        foreach ($aAncestors as $sKey => $aAncestorId) {
-            if (!$this->_oAccessHandler->checkObjectAccess($sObjectType, $aAncestorId) === false) {
-                unset($aAncestors[$sKey]);
-            }
-        }
-
-        return $aAncestors;
     }
 
     /**
@@ -555,34 +574,23 @@ class FrontendController extends Controller
      */
     public function showTerms($aTerms = [])
     {
-        $aShowTerms = [];
-
-        foreach ($aTerms as $mTerm) {
-            if (is_numeric($mTerm)) {
+        foreach ($aTerms as $sKey => $mTerm) {
+            if (is_numeric($mTerm) === true) {
                 if ((int)$mTerm === 0) {
+                    unset($aTerms[$sKey]);
                     continue;
                 }
 
                 $mTerm = $this->_oObjectHandler->getTerm($mTerm);
+            } elseif (($mTerm instanceof \WP_Term) === false) {
+                continue;
             }
 
             $mTerm = $this->_processTerm($mTerm, $blIsEmpty);
 
             if ($mTerm !== null && $blIsEmpty === false) {
-                $aShowTerms[$mTerm->term_id] = $mTerm;
-            }
-        }
-
-        foreach ($aTerms as $sKey => $mTerm) {
-            if (is_numeric($mTerm) === true) {
-                $iTermId = $mTerm;
-            } elseif ($mTerm instanceof \WP_Term) {
-                $iTermId = $mTerm->term_id;
+                $aTerms[$sKey] = $mTerm;
             } else {
-                continue;
-            }
-
-            if (isset($aShowTerms[$iTermId]) === false) {
                 unset($aTerms[$sKey]);
             }
         }
@@ -591,64 +599,46 @@ class FrontendController extends Controller
     }
 
     /**
-     * The function for the get_previous_post_where and
-     * the get_next_post_where filter.
+     * The function for the wp_get_nav_menu_items filter.
      *
-     * @param string $sQuery The current sql string.
+     * @param array $aItems The menu item.
      *
-     * @return string
+     * @return array
      */
-    public function showNextPreviousPost($sQuery)
+    public function showCustomMenu($aItems)
     {
-        $aExcludedPosts = $this->_oAccessHandler->getExcludedPosts();
+        $aShowItems = [];
 
-        if (count($aExcludedPosts) > 0) {
-            $sExcludedPosts = implode(',', $aExcludedPosts);
-            $sQuery .= " AND p.ID NOT IN({$sExcludedPosts}) ";
-        }
+        foreach ($aItems as $sKey => $oItem) {
+            $oItem->title .= $this->adminOutput($oItem->object, $oItem->object_id, $oItem->title);
 
-        return $sQuery;
-    }
+            if ($this->_oObjectHandler->isPostType($oItem->object) === true) {
+                if ($this->_oAccessHandler->checkObjectAccess($oItem->object, $oItem->object_id) === false) {
+                    if ($this->_oConfig->hidePostType($oItem->object) === true
+                        || $this->_oConfig->atAdminPanel() === true
+                    ) {
+                        continue;
+                    }
 
-    /**
-     * Returns the admin hint.
-     *
-     * @param string  $sObjectType The object type.
-     * @param integer $iObjectId   The object id we want to check.
-     * @param string  $sText       The text on which we want to append the hint.
-     *
-     * @return string
-     */
-    public function adminOutput($sObjectType, $iObjectId, $sText = null)
-    {
-        $sOutput = '';
+                    if ($this->_oConfig->hidePostTypeTitle($oItem->object) === true) {
+                        $oItem->title = $this->_oConfig->getPostTypeTitle($oItem->object);
+                    }
+                }
 
-        if ($this->_oConfig->atAdminPanel() === false
-            && $this->_oConfig->blogAdminHint() === true
-        ) {
-            $sHintText = $this->_oConfig->getBlogAdminHintText();
+                $aShowItems[$sKey] = $oItem;
+            } elseif ($this->_oObjectHandler->isTaxonomy($oItem->object) === true) {
+                $oObject = $this->_oObjectHandler->getTerm($oItem->object_id);
+                $oCategory = $this->_processTerm($oObject, $blIsEmpty);
 
-            if ($sText !== null && $this->_oUtil->endsWith($sText, $sHintText)
-                || isset($this->_oWordpress->getCurrentUser()->user_level) === false
-            ) {
-                return $sOutput;
-            }
-
-            $oCurrentUser = $this->_oWordpress->getCurrentUser();
-
-            if (isset($this->_oWordpress->getCurrentUser()->user_level) === false) {
-                return $sOutput;
-            }
-
-            if ($this->_oAccessHandler->userIsAdmin($oCurrentUser->ID)
-                && count($this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId)) > 0
-            ) {
-                $sOutput .= $sHintText;
+                if ($oCategory !== null && $blIsEmpty === false) {
+                    $aShowItems[$sKey] = $oItem;
+                }
+            } else {
+                $aShowItems[$sKey] = $oItem;
             }
         }
 
-
-        return $sOutput;
+        return $aShowItems;
     }
 
     /**
@@ -709,7 +699,7 @@ class FrontendController extends Controller
      */
     public function getRedirectLoginUrl()
     {
-        $sLoginUrl = $this->getLoginUrl().'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']);
+        $sLoginUrl = $this->_oWordpress->getBlogInfo('wpurl').'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']);
         return $this->_oWordpress->applyFilters('uam_login_url', $sLoginUrl);
     }
 
@@ -724,47 +714,10 @@ class FrontendController extends Controller
         return $this->_oWordpress->escHtml(stripslashes($sUserLogin));
     }
 
-    /**
-     * Returns the login bar.
-     *
-     * @return string
-     */
-    public function getLoginFormHtml()
-    {
-        $sLoginForm = '';
-
-        if ($this->_oWordpress->isUserLoggedIn() === false) {
-            $sLoginForm = $this->_getIncludeContents('LoginForm.php');
-        }
-
-        return $this->_oWordpress->applyFilters('uam_login_form', $sLoginForm);
-    }
-
 
     /*
      * Functions for the redirection and files.
      */
-
-    /**
-     * Redirects to a page or to content.
-     *
-     * @param string $sHeaders The headers which are given from wordpress.
-     *
-     * @return string
-     */
-    /*public function redirect($sHeaders)
-    {
-        $sFileUrl = $this->getRequestParameter('uamgetfile');
-        $sFileType = $this->getRequestParameter('uamfiletype');
-
-        if ($sFileUrl !== null && $sFileType !== null) {
-            $this->getFile($sFileType, $sFileUrl);
-        } elseif ($this->_oConfig->atAdminPanel() === false && $this->_oConfig->getRedirect() !== 'false') {
-            $this->redirectUser();
-        }
-
-        return $sHeaders;
-    }*/
 
     /**
      * Redirects to a page or to content.
@@ -1041,7 +994,7 @@ class FrontendController extends Controller
      *
      * @return false|string
      */
-    function wpSeoUrl($sUrl, $sType, $oObject)
+    public function getWpSeoUrl($sUrl, $sType, $oObject)
     {
         return ($this->_oAccessHandler->checkObjectAccess($sType, $oObject->ID) === true) ? $sUrl : false;
     }

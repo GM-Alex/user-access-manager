@@ -149,6 +149,7 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
      * @param string $sWriteAccess
      * @param array  $aPosts
      * @param array  $aTerms
+     * @param string $sName
      *
      * @return \UserAccessManager\UserGroup\UserGroup|\PHPUnit_Framework_MockObject_MockObject
      */
@@ -160,7 +161,8 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         $sReadAccess = 'none',
         $sWriteAccess = 'none',
         array $aPosts = [],
-        array $aTerms = []
+        array $aTerms = [],
+        $sName = null
     )
     {
         $oUserGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
@@ -169,6 +171,12 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         $oUserGroup->expects($this->any())
             ->method('getId')
             ->will($this->returnValue($iId));
+
+        $sName = ($sName === null) ? "name{$iId}" : $sName;
+
+        $oUserGroup->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue($sName));
 
         $oUserGroup->expects($this->any())
             ->method('delete')

@@ -175,7 +175,7 @@ abstract class Controller
         $sPostAction .= implode('', array_map('ucfirst', $aPostAction));
         $sActionMethod = $sPostAction.self::ACTION_SUFFIX;
 
-        if (method_exists($this, $sActionMethod)) {
+        if (method_exists($this, $sActionMethod) === true) {
             $this->{$sActionMethod}();
         }
     }
@@ -195,7 +195,7 @@ abstract class Controller
         $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
         $sFileWithPath = $sPath.$sFileName;
 
-        if (is_file($sFileWithPath)) {
+        if (is_file($sFileWithPath) === true) {
             ob_start();
             $this->_oPhp->includeFile($this, $sFileWithPath);
             $sContents = ob_get_contents();

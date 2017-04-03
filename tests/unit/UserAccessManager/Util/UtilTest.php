@@ -19,7 +19,7 @@ namespace UserAccessManager\Util;
  *
  * @package UserAccessManager\Util
  */
-class UtilTest extends \PHPUnit_Framework_TestCase
+class UtilTest extends \UserAccessManagerTestCase
 {
     /**
      * @group unit
@@ -28,7 +28,9 @@ class UtilTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanCreateInstance()
     {
-        $oUtil = new Util();
+        $oUtil = new Util(
+            $this->getPhp()
+        );
         self::assertInstanceOf('\UserAccessManager\Util\Util', $oUtil);
         return $oUtil;
     }
@@ -60,19 +62,37 @@ class UtilTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group   unit
-     * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Util\Util::getRandomPassword()
-     *
-     * @param Util $oUtil
+     * @group  unit
+     * @covers \UserAccessManager\Util\Util::getRandomPassword()
      */
-    public function testGetRandomPassword($oUtil)
+    public function testGetRandomPassword()
     {
+        $returnFunction = function($iLength, &$blStrong) {
+            $blStrong = true;
+            return openssl_random_pseudo_bytes($iLength);
+        };
+
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(2))
+            ->method('opensslRandomPseudoBytes')
+            ->withConsecutive([33], [11])
+            ->will($this->returnCallback($returnFunction));
+
+        $oUtil = new Util($oPhp);
+
         $sRandomPassword = $oUtil->getRandomPassword();
         self::assertEquals(32, strlen($sRandomPassword));
 
         $sRandomPassword = $oUtil->getRandomPassword(10);
         self::assertEquals(10, strlen($sRandomPassword));
+
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(100))
+            ->method('opensslRandomPseudoBytes')
+            ->with(33)
+            ->will($this->returnCallback($returnFunction));
+
+        $oUtil = new Util($oPhp);
 
         $aPasswords = [];
 
@@ -82,6 +102,30 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         }
 
         self::assertEquals(100, count($aPasswords));
+    }
+
+    /**
+     * @group                    unit
+     * @covers                   \UserAccessManager\Util\Util::getRandomPassword()
+     * @expectedException        \Exception
+     * @expectedExceptionMessage Unable to generate secure token from OpenSSL.
+     */
+    public function testGetRandomPasswordException()
+    {
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(1))
+            ->method('opensslRandomPseudoBytes')
+            ->with(33, false)
+            ->will($this->returnCallback(function($iLength, &$blStrong) {
+                $blStrong = false;
+                return openssl_random_pseudo_bytes($iLength);
+            }));
+
+        $oUtil = new Util(
+            $oPhp
+        );
+
+        $oUtil->getRandomPassword();
     }
 
     /**

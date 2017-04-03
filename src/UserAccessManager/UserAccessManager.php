@@ -299,6 +299,6 @@ class UserAccessManager
         $this->_oWordpress->addFilter('parse_query', [$oFrontendController, 'parseQuery']);
         $this->_oWordpress->addFilter('getarchives_where', [$oFrontendController, 'showPostSql']);
         $this->_oWordpress->addFilter('wp_count_posts', [$oFrontendController, 'showPostCount'], 10, 3);
-        $this->_oWordpress->addFilter('wpseo_sitemap_entry', [$oFrontendController, 'wpSeoUrl'], 1, 3); // Yaost Sitemap Plugin
+        $this->_oWordpress->addFilter('wpseo_sitemap_entry', [$oFrontendController, 'getWpSeoUrl'], 1, 3); // Yaost Sitemap Plugin
     }
 }

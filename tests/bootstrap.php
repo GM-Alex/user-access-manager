@@ -8,6 +8,7 @@ if (function_exists('__') === false) {
 
 define('OBJECT', 'OBJECT');
 define('ABSPATH', 'ABSPATH');
+define('ARRAY_A', 'ARRAY_A');
 
 require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/../autoload.php';

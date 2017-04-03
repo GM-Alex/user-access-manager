@@ -58,14 +58,7 @@ class ObjectCommandTest extends \UserAccessManagerTestCase
                 ['Successfully removed groups: firstGroupName,secondGroupName from category 3']
             );
 
-        $oFirstUserGroup = $this->getUserGroup(1);
-        $oFirstUserGroup->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('firstGroupName'));
-
-        $oFirstUserGroup->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('firstGroupName'));
+        $oFirstUserGroup = $this->getUserGroup(1, true, false, [''], 'none', 'none', [], [], 'firstGroupName');
 
         $oFirstUserGroup->expects($this->exactly(2))
             ->method('addObject')
@@ -81,10 +74,7 @@ class ObjectCommandTest extends \UserAccessManagerTestCase
                 ['category', 3]
             );
 
-        $oSecondUserGroup = $this->getUserGroup(2);
-        $oSecondUserGroup->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('secondGroupName'));
+        $oSecondUserGroup = $this->getUserGroup(2, true, false, [''], 'none', 'none', [], [], 'secondGroupName');
 
         $oSecondUserGroup->expects($this->exactly(2))
             ->method('addObject')

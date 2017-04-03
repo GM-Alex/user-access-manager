@@ -44,11 +44,7 @@ class GroupCommandTest extends \UserAccessManagerTestCase
         $aIpRanges
     )
     {
-        $oUserGroup = $this->getUserGroup($iId, true, false, $aIpRanges, $sReadAccess, $sWriteAccess);
-
-        $oUserGroup->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue($sName));
+        $oUserGroup = $this->getUserGroup($iId, true, false, $aIpRanges, $sReadAccess, $sWriteAccess, [], [], $sName);
 
         $oUserGroup->expects($this->any())
             ->method('getDescription')
