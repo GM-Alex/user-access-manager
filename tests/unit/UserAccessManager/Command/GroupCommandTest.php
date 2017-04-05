@@ -88,9 +88,21 @@ class GroupCommandTest extends \UserAccessManagerTestCase
             );
 
         $oFormatter = $this->createMock('\WP_CLI\Formatter');
-        $oFormatter->expects($this->once())
+        $oFormatter->expects($this->exactly(2))
             ->method('display_items')
-            ->with([
+            ->withConsecutive(
+                [[
+                    1 => [
+                        'ID' => 1,
+                        'group_name' => 'firstGroupName',
+                        'group_desc' => 'firstGroupDescription',
+                        'read_access' => 'all',
+                        'write_access' => 'none',
+                        'roles' => 'roleOne,roleTwo',
+                        'ip_range' => '1;2'
+                    ]
+                ]],
+                [[
                 1 => [
                     'ID' => 1,
                     'group_name' => 'firstGroupName',
@@ -109,9 +121,9 @@ class GroupCommandTest extends \UserAccessManagerTestCase
                     'roles' => 'roleThree,roleFour',
                     'ip_range' => '3;4'
                 ]
-            ]);
+            ]]);
 
-        $oWordpressCli->expects($this->once())
+        $oWordpressCli->expects($this->exactly(2))
             ->method('createFormatter')
             ->with(
                 ['a' => 'b'],
@@ -149,9 +161,9 @@ class GroupCommandTest extends \UserAccessManagerTestCase
         );
 
         $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(2))
+        $oAccessHandler->expects($this->exactly(3))
             ->method('getUserGroups')
-            ->will($this->onConsecutiveCalls([], [1 => $oFirstUserGroup, 2 => $oSecondUserGroup]));
+            ->will($this->onConsecutiveCalls([], [1 => $oFirstUserGroup] ,[1 => $oFirstUserGroup, 2 => $oSecondUserGroup]));
 
         $oGroupCommand = new GroupCommand(
             $oWordpressCli,
@@ -160,6 +172,7 @@ class GroupCommandTest extends \UserAccessManagerTestCase
         );
 
         $oGroupCommand->ls(['arguments'], ['a' => 'b']);
+        $oGroupCommand->ls([], ['a' => 'b']);
         $oGroupCommand->ls([], ['a' => 'b']);
         $oGroupCommand->ls([], ['a' => 'b']);
     }

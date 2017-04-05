@@ -187,7 +187,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
     public function testStylesAndScripts()
     {
         $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(4))
             ->method('registerStyle')
             ->with(
                 AdminController::HANDLE_STYLE_ADMIN,
@@ -198,7 +198,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
             )
             ->will($this->returnValue('a'));
 
-        $oWordpress->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(4))
             ->method('registerScript')
             ->with(
                 AdminController::HANDLE_SCRIPT_ADMIN,
@@ -207,7 +207,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
                 UserAccessManager::VERSION
             );
 
-        $oWordpress->expects($this->exactly(3))
+        $oWordpress->expects($this->exactly(4))
             ->method('enqueueStyle')
             ->with(AdminController::HANDLE_STYLE_ADMIN);
 
@@ -216,7 +216,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
             ->with(AdminController::HANDLE_SCRIPT_ADMIN);
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(3))
+        $oConfig->expects($this->exactly(4))
             ->method('getUrlPath')
             ->will($this->returnValue('url/'));
 
@@ -228,6 +228,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
+        $oAdminController->enqueueStylesAndScripts('someHook');
         $oAdminController->enqueueStylesAndScripts('someHook');
         $oAdminController->enqueueStylesAndScripts('uam_page_uam_settings');
         $oAdminController->enqueueStylesAndScripts('uam_page_uam_setup');
@@ -259,11 +260,18 @@ class AdminControllerTest extends \UserAccessManagerTestCase
                 return $aMetaBoxes;
             }));
 
+        $oWordpress->expects($this->once())
+            ->method('setMetaBoxes')
+            ->will($this->returnCallback(function ($aNewMetaBoxes) {
+                global $aMetaBoxes;
+                $aMetaBoxes = $aNewMetaBoxes;
+            }));
+
         $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(2))
+        $oAccessHandler->expects($this->exactly(3))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
-            ->will($this->onConsecutiveCalls(true, false));
+            ->will($this->onConsecutiveCalls(true, true, false));
 
         $oAdminController = new AdminController(
             $this->getPhp(),
@@ -275,7 +283,12 @@ class AdminControllerTest extends \UserAccessManagerTestCase
 
         $oAdminController->setupAdminDashboard();
         self::assertEquals($aOriginalMetaBoxes, $aMetaBoxes);
+
         $oAdminController->setupAdminDashboard();
+        self::assertEquals($aOriginalMetaBoxes, $aMetaBoxes);
+
+        $oAdminController->setupAdminDashboard();
+        unset($aOriginalMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
         self::assertEquals($aOriginalMetaBoxes, $aMetaBoxes);
     }
 

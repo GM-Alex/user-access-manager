@@ -225,7 +225,7 @@ class FrontendController extends Controller
                 && $this->_oConfig->showPostContentBeforeMore() === true
                 && preg_match('/<!--more(.*?)?-->/', $oPost->post_content, $aMatches)
             ) {
-                $sUamPostContent = explode($aMatches[0], $oPost->post_content, 2)[0]." ".$sUamPostContent;
+                $sUamPostContent = explode($aMatches[0], $oPost->post_content)[0]." ".$sUamPostContent;
             }
 
             $oPost->post_content = stripslashes($sUamPostContent);

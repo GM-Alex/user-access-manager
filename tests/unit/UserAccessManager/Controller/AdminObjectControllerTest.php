@@ -589,10 +589,10 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oAttachment->post_type = 'attachment';
 
         $oObjectHandler = $this->getObjectHandler();
-        $oObjectHandler->expects($this->exactly(3))
+        $oObjectHandler->expects($this->exactly(4))
             ->method('getPost')
-            ->withConsecutive([1], [2], [3])
-            ->will($this->onConsecutiveCalls($oPost, $oNoAccessPost, $oAttachment));
+            ->withConsecutive([-1], [1], [2], [3])
+            ->will($this->onConsecutiveCalls(false, $oPost, $oNoAccessPost, $oAttachment));
 
         $oAccessHandler = $this->getAccessHandler();
         $oAccessHandler->expects($this->exactly(5))
@@ -615,6 +615,9 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             $oAccessHandler
         );
 
+        $oAdminObjectController->checkRightsToEditContent();
+
+        $_GET['post'] = -1;
         $oAdminObjectController->checkRightsToEditContent();
 
         $_GET['post'] = 1;
@@ -892,6 +895,10 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::addPostColumn()
+     * @covers \UserAccessManager\Controller\AdminObjectController::addUserColumn()
+     * @covers \UserAccessManager\Controller\AdminObjectController::addTermColumn()
+     * @covers \UserAccessManager\Controller\AdminObjectController::getPluggableColumn()
      * @covers \UserAccessManager\Controller\AdminObjectController::editPostContent()
      * @covers \UserAccessManager\Controller\AdminObjectController::addBulkAction()
      * @covers \UserAccessManager\Controller\AdminObjectController::showMediaFile()
@@ -908,6 +915,8 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oRootDir->add('src', new Directory([
             'UserAccessManager'  => new Directory([
                 'View'  => new Directory([
+                    'ObjectColumn.php' => new File('<?php echo \'ObjectColumn\';'),
+                    'UserColumn.php' => new File('<?php echo \'UserColumn\';'),
                     'PostEditForm.php' => new File('<?php echo \'PostEditForm\';'),
                     'BulkEditForm.php' => new File('<?php echo \'BulkEditForm\';'),
                     'UserProfileEditForm.php' => new File('<?php echo \'UserProfileEditForm\';'),
@@ -920,15 +929,19 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oPhp = $this->getPhp();
 
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(11))
+        $oConfig->expects($this->exactly(15))
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
         $oAccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(6))
+        $oAccessHandler->expects($this->exactly(10))
             ->method('getUserGroupsForObject')
             ->withConsecutive(
+                ['post', 1],
+                [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1],
+                ['objectType', 'objectId'],
                 ['post', 1],
                 ['post', 1],
                 ['attachment', 3],
@@ -938,9 +951,13 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             )
             ->will($this->returnValue([]));
 
-        $oAccessHandler->expects($this->exactly(6))
+        $oAccessHandler->expects($this->exactly(10))
             ->method('getFilteredUserGroupsForObject')
             ->withConsecutive(
+                ['post', 1],
+                [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1],
+                ['objectType', 'objectId'],
                 ['post', 1],
                 ['post', 1],
                 ['attachment', 3],
@@ -959,9 +976,13 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             $oAccessHandler
         );
 
-        $oPhp->expects($this->exactly(11))
+        $oPhp->expects($this->exactly(15))
             ->method('includeFile')
             ->withConsecutive(
+                [$oAdminObjectController, 'vfs://src/UserAccessManager/View/ObjectColumn.php'],
+                [$oAdminObjectController, 'vfs://src/UserAccessManager/View/UserColumn.php'],
+                [$oAdminObjectController, 'vfs://src/UserAccessManager/View/ObjectColumn.php'],
+                [$oAdminObjectController, 'vfs://src/UserAccessManager/View/ObjectColumn.php'],
                 [$oAdminObjectController, 'vfs://src/UserAccessManager/View/PostEditForm.php'],
                 [$oAdminObjectController, 'vfs://src/UserAccessManager/View/PostEditForm.php'],
                 [$oAdminObjectController, 'vfs://src/UserAccessManager/View/BulkEditForm.php'],
@@ -978,10 +999,57 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
                 echo '!'.get_class($oController).'|'.$sFile.'!';
             }));
 
+        $oAdminObjectController->addPostColumn('invalid', 1);
+        $oAdminObjectController->addPostColumn('invalid', 1);
+        $oAdminObjectController->addPostColumn(AdminObjectController::COLUMN_NAME, 1);
+        self::assertAttributeEquals('post', '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(1, '_sObjectId', $oAdminObjectController);
+        $sExpectedOutput = '!UserAccessManager\Controller\AdminObjectController|'
+            .'vfs://src/UserAccessManager/View/ObjectColumn.php!';
+
+        self::assertEquals('return', $oAdminObjectController->addUserColumn('return', 'invalid', 1));
+        self::assertEquals('return', $oAdminObjectController->addUserColumn('return', 'invalid', 1));
+
+        $sExpected = 'return!UserAccessManager\Controller\AdminObjectController|'
+            .'vfs://src/UserAccessManager/View/UserColumn.php!';
+
+        self::assertEquals(
+            $sExpected,
+            $oAdminObjectController->addUserColumn('return', AdminObjectController::COLUMN_NAME, 1)
+        );
+        self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(1, '_sObjectId', $oAdminObjectController);
+
+        self::assertEquals('content', $oAdminObjectController->addTermColumn('content', 'invalid', 1));
+        self::assertEquals('content', $oAdminObjectController->addTermColumn('content', 'invalid', 1));
+
+        $sExpected = 'content!UserAccessManager\Controller\AdminObjectController|'
+            .'vfs://src/UserAccessManager/View/ObjectColumn.php!';
+
+        self::assertEquals(
+            $sExpected,
+            $oAdminObjectController->addTermColumn('content', AdminObjectController::COLUMN_NAME, 1)
+        );
+        self::assertAttributeEquals(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals(1, '_sObjectId', $oAdminObjectController);
+
+        $sExpected = '!UserAccessManager\Controller\AdminObjectController|'
+            .'vfs://src/UserAccessManager/View/ObjectColumn.php!';
+
+        self::assertEquals(
+            $sExpected,
+            $oAdminObjectController->getPluggableColumn('objectType', 'objectId')
+        );
+        self::assertAttributeEquals('objectType', '_sObjectType', $oAdminObjectController);
+        self::assertAttributeEquals('objectId', '_sObjectId', $oAdminObjectController);
+
+        self::setValue($oAdminObjectController, '_sObjectType', null);
+        self::setValue($oAdminObjectController, '_sObjectId', null);
+
         $oAdminObjectController->editPostContent(null);
         self::assertAttributeEquals(null, '_sObjectType', $oAdminObjectController);
         self::assertAttributeEquals(null, '_sObjectId', $oAdminObjectController);
-        $sExpectedOutput = '!UserAccessManager\Controller\AdminObjectController|'
+        $sExpectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
             .'vfs://src/UserAccessManager/View/PostEditForm.php!';
 
         /**
@@ -998,6 +1066,9 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             .'vfs://src/UserAccessManager/View/PostEditForm.php!';
         self::setValue($oAdminObjectController, '_sObjectType', null);
         self::setValue($oAdminObjectController, '_sObjectId', null);
+
+        $oAdminObjectController->addBulkAction('invalid');
+        $sExpectedOutput .= '';
 
         $oAdminObjectController->addBulkAction('invalid');
         $sExpectedOutput .= '';

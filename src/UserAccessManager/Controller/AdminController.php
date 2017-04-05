@@ -146,6 +146,7 @@ class AdminController extends Controller
         if ($this->_oAccessHandler->checkUserAccess('manage_user_groups') === false) {
             $aMetaBoxes = $this->_oWordpress->getMetaBoxes();
             unset($aMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
+            $this->_oWordpress->setMetaBoxes($aMetaBoxes);
         }
     }
 

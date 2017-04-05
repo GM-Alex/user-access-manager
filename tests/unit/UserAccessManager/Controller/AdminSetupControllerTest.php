@@ -98,25 +98,30 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
     public function testUpdateDatabaseAction()
     {
         $_GET[AdminSetupController::SETUP_UPDATE_NONCE.'Nonce'] = 'updateNonce';
+
         $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(3))
+
+        $oWordpress->expects($this->exactly(5))
             ->method('verifyNonce')
             ->with('updateNonce')
             ->will($this->returnValue(true));
 
-        $oWordpress->expects($this->exactly(4))
+        $oWordpress->expects($this->exactly(6))
             ->method('switchToBlog')
-            ->withConsecutive([1], [2], [3], [1]);
+            ->withConsecutive([1], [1], [1], [2], [3], [1]);
 
         $oSetupHandler = $this->getSetupHandler();
-        $oSetupHandler->expects($this->exactly(4))
+
+        $oSetupHandler->expects($this->exactly(5))
             ->method('update');
-        $oSetupHandler->expects($this->once())
+
+        $oSetupHandler->expects($this->exactly(3))
             ->method('getBlogIds')
-            ->will($this->returnValue([1, 2, 3]));
+            ->will($this->onConsecutiveCalls([], [1], [1, 2, 3]));
 
         $oDatabase = $this->getDatabase();
-        $oDatabase->expects($this->once())
+
+        $oDatabase->expects($this->exactly(2))
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 
@@ -136,6 +141,14 @@ class AdminSetupControllerTest extends \UserAccessManagerTestCase
         self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, '_sUpdateMessage', $oAdminSetupController);
 
         $_GET['uam_update_db'] = AdminSetupController::UPDATE_NETWORK;
+        self::setValue($oAdminSetupController, '_sUpdateMessage', null);
+        $oAdminSetupController->updateDatabaseAction();
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, '_sUpdateMessage', $oAdminSetupController);
+
+        self::setValue($oAdminSetupController, '_sUpdateMessage', null);
+        $oAdminSetupController->updateDatabaseAction();
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, '_sUpdateMessage', $oAdminSetupController);
+
         self::setValue($oAdminSetupController, '_sUpdateMessage', null);
         $oAdminSetupController->updateDatabaseAction();
         self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, '_sUpdateMessage', $oAdminSetupController);

@@ -365,25 +365,15 @@ class AccessHandler
 
         $aRoles = $this->_getUserRole($oCurrentUser);
         $aRolesMap = array_flip($aRoles);
-        $aOrderedRoles = [
-            UserGroup::NONE_ROLE => 0,
-            'subscriber' => 1,
-            'contributor' => 2,
-            'author' => 3,
-            'editor' => 4,
-            'administrator' => 5
-        ];
-        $iRightsLevel = -1;
 
-        foreach ($aRoles as $sRole) {
-            if (isset($aOrderedRoles[$sRole]) === true && $aOrderedRoles[$sRole] > $iRightsLevel) {
-                $iRightsLevel = $aOrderedRoles[$sRole];
-            }
-        }
+        $aOrderedRoles = [UserGroup::NONE_ROLE, 'subscriber', 'contributor', 'author', 'editor', 'administrator'];
+        $aOrderedRolesMap = array_flip($aOrderedRoles);
 
+        $aUserRoles = array_intersect_key($aOrderedRolesMap, $aRolesMap);
+        $iRightsLevel = (count($aUserRoles) > 0) ? end($aUserRoles) : -1;
         $sFullAccessRole = $this->_oConfig->getFullAccessRole();
 
-        return (isset($aOrderedRoles[$sFullAccessRole]) === true && $iRightsLevel >= $aOrderedRoles[$sFullAccessRole]
+        return (isset($aOrderedRolesMap[$sFullAccessRole]) === true && $iRightsLevel >= $aOrderedRolesMap[$sFullAccessRole]
             || isset($aRolesMap['administrator']) === true);
     }
 

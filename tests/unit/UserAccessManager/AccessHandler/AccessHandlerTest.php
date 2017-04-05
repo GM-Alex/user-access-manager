@@ -692,6 +692,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
     {
         $aObjectUserGroups = [
             'postType' => [
+                -1 => [3 => $this->getUserGroup(11)],
                 1 => [3 => $this->getUserGroup(3)],
                 2 => [0 => $this->getUserGroup(0)],
                 3 => [],
@@ -717,16 +718,16 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
 
         $oConfig = $this->getConfig();
 
-        $oConfig->expects($this->exactly(4))
+        $oConfig->expects($this->exactly(5))
             ->method('authorsHasAccessToOwn')
-            ->will($this->onConsecutiveCalls(true, true, false, false));
+            ->will($this->onConsecutiveCalls(true, true, false, false, true));
 
         $oAccessHandler = new AccessHandler(
             $this->getWordpress(),
             $oConfig,
             $this->getCache(),
             $this->getDatabase(),
-            $this->getObjectHandler(2),
+            $this->getObjectHandler(3),
             $this->getUtil(),
             $this->getUserGroupFactory()
         );
@@ -740,6 +741,7 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         self::assertTrue($oAccessHandler->checkObjectAccess('postType', 2));
         self::assertTrue($oAccessHandler->checkObjectAccess('postType', 3));
         self::assertFalse($oAccessHandler->checkObjectAccess('postType', 4));
+        self::assertFalse($oAccessHandler->checkObjectAccess('postType', -1));
 
         self::assertAttributeEquals(
             [
@@ -747,7 +749,8 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
                     1 => true,
                     2 => true,
                     3 => true,
-                    4 => false
+                    4 => false,
+                    -1 => false
                 ]
             ],
             '_aObjectAccess',

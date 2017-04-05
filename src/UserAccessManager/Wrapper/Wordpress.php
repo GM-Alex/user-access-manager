@@ -679,6 +679,19 @@ class Wordpress
     }
 
     /**
+     * Sets the wordpress meta boxes.
+     *
+     * @param array $aWpMetaBoxes
+     *
+     * @return array
+     */
+    public function setMetaBoxes(array $aWpMetaBoxes)
+    {
+        global $wp_meta_boxes;
+        $wp_meta_boxes= $aWpMetaBoxes;
+    }
+
+    /**
      * @see \get_sites()
      *
      * @param array $aArguments

@@ -133,7 +133,7 @@ class GroupCommand extends CommandWithDBObject
                 'read_access' => $oUserGroup->getReadAccess(),
                 'write_access' => $oUserGroup->getWriteAccess(),
                 'roles' => implode(',', array_keys($oUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))),
-                'ip_range' => $oUserGroup->getIpRange(true) === null ? '' : $oUserGroup->getIpRange(true)
+                'ip_range' => $oUserGroup->getIpRange() !== null ? $oUserGroup->getIpRange(true) : ''
             ];
         }
 
