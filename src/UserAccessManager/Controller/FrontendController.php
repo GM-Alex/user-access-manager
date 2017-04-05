@@ -720,6 +720,160 @@ class FrontendController extends Controller
      */
 
     /**
+     * Returns the post by the given url.
+     *
+     * @param string $sUrl The url of the post(attachment).
+     *
+     * @return object The post.
+     */
+    public function getPostIdByUrl($sUrl)
+    {
+        $aPostUrls = (array)$this->_oCache->getFromCache(self::POST_URL_CACHE_KEY);
+
+        if (isset($aPostUrls[$sUrl]) === true) {
+            return $aPostUrls[$sUrl];
+        }
+
+        $aPostUrls[$sUrl] = null;
+
+        //Filter edit string
+        $aNewUrlPieces = preg_split('/-e[0-9]{1,}/', $sUrl);
+        $sNewUrl = (count($aNewUrlPieces) === 2) ? $aNewUrlPieces[0].$aNewUrlPieces[1] : $aNewUrlPieces[0];
+
+        //Filter size
+        $aNewUrlPieces = preg_split('/-[0-9]{1,}x[0-9]{1,}/', $sNewUrl);
+        $sNewUrl = (count($aNewUrlPieces) === 2) ? $aNewUrlPieces[0].$aNewUrlPieces[1] : $aNewUrlPieces[0];
+
+        $sQuery = $this->_oDatabase->prepare(
+            "SELECT ID
+            FROM {$this->_oDatabase->getPostsTable()}
+            WHERE guid = '%s'
+            LIMIT 1",
+            $sNewUrl
+        );
+
+        $oDbPost = $this->_oDatabase->getRow($sQuery);
+
+        if ($oDbPost !== null) {
+            $aPostUrls[$sUrl] = $oDbPost->ID;
+            $this->_oCache->addToCache(self::POST_URL_CACHE_KEY, $aPostUrls);
+        }
+
+        return $aPostUrls[$sUrl];
+    }
+
+    /**
+     * Returns the file object by the given type and url.
+     *
+     * @param string $sObjectType The type of the requested file.
+     * @param string $sObjectUrl  The file url.
+     *
+     * @return object|null
+     */
+    protected function _getFileSettingsByType($sObjectType, $sObjectUrl)
+    {
+        $oObject = null;
+
+        if ($sObjectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+            $aUploadDir = $this->_oWordpress->getUploadDir();
+            $sUploadDir = str_replace(ABSPATH, '/', $aUploadDir['basedir']);
+            $sRegex = '/.*'.str_replace('/', '\/', $sUploadDir).'\//i';
+            $sCleanObjectUrl = preg_replace($sRegex, '', $sObjectUrl);
+            $sUploadUrl = str_replace('/files', $sUploadDir, $aUploadDir['baseurl']);
+            $sObjectUrl = rtrim($sUploadUrl, '/').'/'.ltrim($sCleanObjectUrl, '/');
+
+            $oPost = $this->_oObjectHandler->getPost($this->getPostIdByUrl($sObjectUrl));
+
+            if ($oPost !== null
+                && $oPost->post_type === ObjectHandler::ATTACHMENT_OBJECT_TYPE
+            ) {
+                $oObject = new \stdClass();
+                $oObject->id = $oPost->ID;
+                $oObject->isImage = $this->_oWordpress->attachmentIsImage($oPost->ID);
+                $oObject->type = $sObjectType;
+                $sMultiPath = str_replace('/files', $sUploadDir, $aUploadDir['baseurl']);
+                $oObject->file = $aUploadDir['basedir'].str_replace($sMultiPath, '', $sObjectUrl);
+            }
+        }
+
+        return $oObject;
+    }
+
+    /**
+     * Delivers the content of the requested file.
+     *
+     * @param string $sObjectType The type of the requested file.
+     * @param string $sObjectUrl  The file url.
+     *
+     * @return null
+     */
+    public function getFile($sObjectType, $sObjectUrl)
+    {
+        $oObject = $this->_getFileSettingsByType($sObjectType, $sObjectUrl);
+
+        if ($oObject === null) {
+            return null;
+        }
+
+        $sFile = null;
+
+        if ($this->_oAccessHandler->checkObjectAccess($oObject->type, $oObject->id) === true) {
+            $sFile = $oObject->file;
+        } elseif ($oObject->isImage === true) {
+            $sRealPath = $this->_oConfig->getRealPath();
+            $sFile = $sRealPath.'gfx/noAccessPic.png';
+        } else {
+            $this->_oWordpress->wpDie(TXT_UAM_NO_RIGHTS);
+            return null;
+        }
+
+        return $this->_oFileHandler->getFile($sFile, $oObject->isImage);
+    }
+
+    /**
+     * Redirects the user to his destination.
+     *
+     * @param bool $blCheckPosts
+     */
+    public function redirectUser($blCheckPosts = true)
+    {
+        if ($blCheckPosts === true) {
+            $aPosts = (array)$this->_oWordpress->getWpQuery()->get_posts();
+
+            foreach ($aPosts as $oPost) {
+                if ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
+                    return;
+                }
+            }
+        }
+
+        $sPermalink = null;
+        $sRedirect = $this->_oConfig->getRedirect();
+
+        if ($sRedirect === 'custom_page') {
+            $sRedirectCustomPage = $this->_oConfig->getRedirectCustomPage();
+            $oPost = $this->_oObjectHandler->getPost($sRedirectCustomPage);
+            $sUrl = null;
+
+            if ($oPost !== false) {
+                $sUrl = $oPost->guid;
+                $sPermalink = $this->_oWordpress->getPageLink($oPost);
+            }
+        } elseif ($sRedirect === 'custom_url') {
+            $sUrl = $this->_oConfig->getRedirectCustomUrl();
+        } else {
+            $sUrl = $this->_oWordpress->getHomeUrl('/');
+        }
+
+        $sCurrentUrl = $this->_oUtil->getCurrentUrl();
+
+        if ($sUrl !== null && $sUrl !== $sCurrentUrl && $sPermalink !== $sCurrentUrl) {
+            $this->_oWordpress->wpRedirect($sUrl);
+            return;
+        }
+    }
+
+    /**
      * Redirects to a page or to content.
      *
      * @param string $sHeaders    The headers which are given from wordpress.
@@ -734,7 +888,9 @@ class FrontendController extends Controller
 
         if ($sFileUrl !== null && $sFileType !== null) {
             $this->getFile($sFileType, $sFileUrl);
-        } elseif ($this->_oConfig->atAdminPanel() === false && $this->_oConfig->getRedirect() !== 'false') {
+        } elseif ($this->_oConfig->atAdminPanel() === false
+            && $this->_oConfig->getRedirect() !== 'false'
+        ) {
             $oObjectType = null;
             $iObjectId = null;
 
@@ -778,124 +934,6 @@ class FrontendController extends Controller
     }
 
     /**
-     * Redirects the user to his destination.
-     *
-     * @param bool $blCheckPosts
-     */
-    public function redirectUser($blCheckPosts = true)
-    {
-        $blPostToShow = false;
-
-        if ($blCheckPosts === true) {
-            $aPosts = (array)$this->_oWordpress->getWpQuery()->get_posts();
-
-            foreach ($aPosts as $oPost) {
-                if ($this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID)) {
-                    $blPostToShow = true;
-                    break;
-                }
-            }
-        }
-
-        if ($blPostToShow === false) {
-            $sPermalink = null;
-
-            if ($this->_oConfig->getRedirect() === 'custom_page') {
-                $sRedirectCustomPage = $this->_oConfig->getRedirectCustomPage();
-                $oPost = $this->_oObjectHandler->getPost($sRedirectCustomPage);
-                $sUrl = $oPost->guid;
-                $sPermalink = $this->_oWordpress->getPageLink($oPost);
-            } elseif ($this->_oConfig->getRedirect() === 'custom_url') {
-                $sUrl = $this->_oConfig->getRedirectCustomUrl();
-            } else {
-                $sUrl = $this->_oWordpress->getHomeUrl('/');
-            }
-
-            $sCurrentUrl = $this->_oUtil->getCurrentUrl();
-
-            if ($sUrl !== $sCurrentUrl && $sPermalink !== $sCurrentUrl) {
-                $this->_oWordpress->wpRedirect($sUrl);
-                exit;
-            }
-        }
-    }
-
-    /**
-     * Delivers the content of the requested file.
-     *
-     * @param string $sObjectType The type of the requested file.
-     * @param string $sObjectUrl  The file url.
-     *
-     * @return null
-     */
-    public function getFile($sObjectType, $sObjectUrl)
-    {
-        $oObject = $this->_getFileSettingsByType($sObjectType, $sObjectUrl);
-
-        if ($oObject === null) {
-            return null;
-        }
-
-        $sFile = null;
-
-        if ($this->_oAccessHandler->checkObjectAccess($oObject->type, $oObject->id)) {
-            $sFile = $oObject->file;
-        } elseif ($oObject->isImage) {
-            $sRealPath = $this->_oConfig->getRealPath();
-            $sFile = $sRealPath.'gfx/noAccessPic.png';
-        } else {
-            $this->_oWordpress->wpDie(TXT_UAM_NO_RIGHTS);
-        }
-
-        $blIsImage = $oObject->isFile;
-
-        $this->_oFileHandler->getFile($sFile, $blIsImage);
-        return null;
-    }
-
-    /**
-     * Returns the file object by the given type and url.
-     *
-     * @param string $sObjectType The type of the requested file.
-     * @param string $sObjectUrl  The file url.
-     *
-     * @return object|null
-     */
-    protected function _getFileSettingsByType($sObjectType, $sObjectUrl)
-    {
-        $oObject = null;
-
-        if ($sObjectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
-            $aUploadDir = wp_upload_dir();
-            $sUploadDir = str_replace(ABSPATH, '/', $aUploadDir['basedir']);
-            $sRegex = '/.*'.str_replace('/', '\/', $sUploadDir).'\//i';
-            $sCleanObjectUrl = preg_replace($sRegex, '', $sObjectUrl);
-            $sUploadUrl = str_replace('/files', $sUploadDir, $aUploadDir['baseurl']);
-            $sObjectUrl = $sUploadUrl.'/'.ltrim($sCleanObjectUrl, '/');
-            $oPost = $this->_oObjectHandler->getPost($this->getPostIdByUrl($sObjectUrl));
-
-            if ($oPost !== null
-                && $oPost->post_type === ObjectHandler::ATTACHMENT_OBJECT_TYPE
-            ) {
-                $oObject = new \stdClass();
-                $oObject->id = $oPost->ID;
-                $oObject->isImage = $this->_oWordpress->attachmentIsImage($oPost->ID);
-                $oObject->type = $sObjectType;
-                $sMultiPath = str_replace('/files', $sUploadDir, $aUploadDir['baseurl']);
-                $oObject->file = $aUploadDir['basedir'].str_replace($sMultiPath, '', $sObjectUrl);
-            }
-        } else {
-            $aPlObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
-
-            if (isset($aPlObject) && isset($aPlObject['getFileObject'])) {
-                $oObject = $aPlObject['reference']->{$aPlObject['getFileObject']}($sObjectUrl);
-            }
-        }
-
-        return $oObject;
-    }
-
-    /**
      * Returns the url for a locked file.
      *
      * @param string  $sUrl The base url.
@@ -907,64 +945,21 @@ class FrontendController extends Controller
     {
         if ($this->_oConfig->isPermalinksActive() === false && $this->_oConfig->lockFile() === true) {
             $oPost = $this->_oObjectHandler->getPost($iId);
-            $aType = explode('/', $oPost->post_mime_type);
-            $sType = isset($aType[1]) === true ? $aType[1] : '';
-            $aFileTypes = explode(',', $this->_oConfig->getLockedFileTypes());
 
-            if ($this->_oConfig->getLockedFileTypes() === 'all' || in_array($sType, $aFileTypes)) {
-                $sUrl = $this->_oWordpress->getHomeUrl('/').'?uamfiletype=attachment&uamgetfile='.$sUrl;
+            if ($oPost !== null) {
+                $aType = explode('/', $oPost->post_mime_type);
+                $sType = (isset($aType[1]) === true) ? $aType[1] : $aType[0];
+
+                $sLockedFileTypes = $this->_oConfig->getLockedFileTypes();
+                $aFileTypes = explode(',', $sLockedFileTypes);
+
+                if ($sLockedFileTypes === 'all' || in_array($sType, $aFileTypes) === true) {
+                    $sUrl = $this->_oWordpress->getHomeUrl('/').'?uamfiletype=attachment&uamgetfile='.$sUrl;
+                }
             }
         }
 
         return $sUrl;
-    }
-
-    /**
-     * Returns the post by the given url.
-     *
-     * @param string $sUrl The url of the post(attachment).
-     *
-     * @return object The post.
-     */
-    public function getPostIdByUrl($sUrl)
-    {
-        $aPostUrls = (array)$this->_oCache->getFromCache(self::POST_URL_CACHE_KEY);
-
-        if (isset($aPostUrls[$sUrl]) === true) {
-            return $aPostUrls[$sUrl];
-        }
-
-        $aPostUrls[$sUrl] = null;
-
-        //Filter edit string
-        $aNewUrlPieces = preg_split('/-e[0-9]{1,}/', $sUrl);
-        $sNewUrl = (count($aNewUrlPieces) === 2) ? $aNewUrlPieces[0].$aNewUrlPieces[1] : $aNewUrlPieces[0];
-
-        //Filter size
-        $sNewUrl = preg_split("/-[0-9]{1,}x[0-9]{1,}/", $sNewUrl);
-
-        if (count($sNewUrl) === 2) {
-            $sNewUrl = $sNewUrl[0].$sNewUrl[1];
-        } else {
-            $sNewUrl = $sNewUrl[0];
-        }
-
-        $sQuery = $this->_oDatabase->prepare(
-            "SELECT ID
-            FROM {$this->_oDatabase->getPostsTable()}
-            WHERE guid = '%s'
-            LIMIT 1",
-            $sNewUrl
-        );
-
-        $oDbPost = $this->_oDatabase->getRow($sQuery);
-
-        if ($oDbPost !== null) {
-            $aPostUrls[$sUrl] = $oDbPost->ID;
-            $this->_oCache->addToCache(self::POST_URL_CACHE_KEY, $aPostUrls);
-        }
-
-        return $aPostUrls[$sUrl];
     }
 
     /**

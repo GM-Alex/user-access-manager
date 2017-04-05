@@ -120,9 +120,9 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
     public function testParseQuery()
     {
         $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->once())
+        $oAccessHandler->expects($this->exactly(3))
             ->method('getExcludedPosts')
-            ->will($this->returnValue([2, 3, 5]));
+            ->will($this->onConsecutiveCalls([], [3], [2, 3, 5]));
 
         $oFrontendController = new FrontendController(
             $this->getPhp(),
@@ -141,8 +141,14 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
          */
         $oWpQuery = $this->getMockBuilder('\WP_Query')->getMock();
         $oWpQuery->query_vars = [
-            'post__not_in' => [1, 2, 4]
+            'post__not_in' => [1, 1, 2, 4]
         ];
+
+        $oFrontendController->parseQuery($oWpQuery);
+        self::assertEquals([1, 1, 2, 4], $oWpQuery->query_vars['post__not_in']);
+
+        $oFrontendController->parseQuery($oWpQuery);
+        self::assertEquals([1, 2, 3, 4], $oWpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
 
         $oFrontendController->parseQuery($oWpQuery);
         self::assertEquals([1, 2, 3, 4, 5], $oWpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
@@ -323,6 +329,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oPost->post_title = ($sTitle === null) ? "title{$iId}" : $sTitle;
         $oPost->post_content = ($sContent === null) ? "[LOGIN_FORM] content{$iId}<!--more-->\\contentAfter" : $sContent;
         $oPost->comment_status = ($blClosed === true) ? 'close' : 'open';
+        $oPost->post_mime_type = 'post/mime/type';
 
         return $oPost;
     }
@@ -1516,6 +1523,484 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $_GET['log'] = '/log\/';
 
         self::assertEquals('escHtml', $oFrontendController->getUserLogin());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::getPostIdByUrl()
+     */
+    public function testGetPostIdByUrl()
+    {
+        $oCache = $this->getCache();
+
+        $oCache->expects($this->exactly(6))
+            ->method('getFromCache')
+            ->with(FrontendController::POST_URL_CACHE_KEY)
+            ->will($this->onConsecutiveCalls(
+                null,
+                null,
+                null,
+                null,
+                null,
+                ['url/part' => 1]
+            ));
+
+        $oCache->expects($this->exactly(4))
+            ->method('addToCache')
+            ->withConsecutive(
+                [FrontendController::POST_URL_CACHE_KEY, ['url/part' => 1]],
+                [FrontendController::POST_URL_CACHE_KEY, ['url-e123/part' => 2]],
+                [FrontendController::POST_URL_CACHE_KEY, ['url-123x321/part' => 3]],
+                [FrontendController::POST_URL_CACHE_KEY, ['url-e123-123x321/part' => 4]]
+            );
+
+        $oDatabase = $this->getDatabase();
+
+        $oDatabase->expects($this->exactly(5))
+            ->method('getPostsTable')
+            ->will($this->returnValue('postTable'));
+
+        $oDatabase->expects($this->exactly(5))
+            ->method('prepare')
+            ->with(
+                new MatchIgnoreWhitespace(
+                    'SELECT ID
+                    FROM postTable
+                    WHERE guid = \'%s\' 
+                    LIMIT 1'
+                ),
+                'url/part'
+            )
+            ->will($this->returnValue('preparedQuery'));
+
+        $oDatabase->expects($this->exactly(5))
+            ->method('getRow')
+            ->with('preparedQuery')
+            ->will($this->onConsecutiveCalls(
+                null,
+                $this->getPost(1),
+                $this->getPost(2),
+                $this->getPost(3),
+                $this->getPost(4)
+            ));
+
+        $oFrontendController = new FrontendController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $oDatabase,
+            $this->getUtil(),
+            $oCache,
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler()
+        );
+
+        self::assertEquals(null, $oFrontendController->getPostIdByUrl('url/part'));
+        self::assertEquals(1, $oFrontendController->getPostIdByUrl('url/part'));
+        self::assertEquals(2, $oFrontendController->getPostIdByUrl('url-e123/part'));
+        self::assertEquals(3, $oFrontendController->getPostIdByUrl('url-123x321/part'));
+        self::assertEquals(4, $oFrontendController->getPostIdByUrl('url-e123-123x321/part'));
+        self::assertEquals(1, $oFrontendController->getPostIdByUrl('url/part'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::getFile()
+     * @covers \UserAccessManager\Controller\FrontendController::_getFileSettingsByType()
+     */
+    public function testGetFile()
+    {
+        $oWordpress = $this->getWordpress();
+
+        $oWordpress->expects($this->exactly(5))
+            ->method('getUploadDir')
+            ->will($this->returnValue([
+                'basedir' => '/baseDirectory/file/pictures/',
+                'baseurl' => 'http://baseUrl/file/pictures/'
+            ]));
+
+        $oWordpress->expects($this->exactly(3))
+            ->method('attachmentIsImage')
+            ->will($this->onConsecutiveCalls(false, true, false));
+
+        $oWordpress->expects($this->once())
+            ->method('wpDie')
+            ->with(TXT_UAM_NO_RIGHTS);
+
+        $oConfig = $this->getConfig();
+
+        $oConfig->expects($this->once())
+            ->method('getRealPath')
+            ->will($this->returnValue('realPath/'));
+
+        $oCache = $this->getCache();
+
+        $oCache->expects($this->exactly(5))
+            ->method('getFromCache')
+            ->with(FrontendController::POST_URL_CACHE_KEY)
+            ->will($this->returnValue(['http://baseUrl/file/pictures/url' => 1]));
+
+        $oObjectHandler = $this->getObjectHandler();
+
+        $oObjectHandler->expects($this->exactly(5))
+            ->method('getPost')
+            ->withConsecutive([1], [1], [1], [1], [1])
+            ->will($this->onConsecutiveCalls(
+                null,
+                $this->getPost(1),
+                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
+                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
+                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE)
+            ));
+
+        $oAccessHandler = $this->getAccessHandler();
+
+        $oAccessHandler->expects($this->exactly(3))
+            ->method('checkObjectAccess')
+            ->withConsecutive(
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1]
+            )
+            ->will($this->onConsecutiveCalls(false, false, true));
+
+        $oFileHandler = $this->getFileHandler();
+
+        $oFileHandler->expects($this->exactly(2))
+            ->method('getFile')
+            ->withConsecutive(
+                ['realPath/gfx/noAccessPic.png', true],
+                ['/baseDirectory/file/pictures/url', false]
+            )
+            ->will($this->returnValue('getFile'));
+
+        $oFrontendController = new FrontendController(
+            $this->getPhp(),
+            $oWordpress,
+            $oConfig,
+            $this->getDatabase(),
+            $this->getUtil(),
+            $oCache,
+            $oObjectHandler,
+            $oAccessHandler,
+            $oFileHandler
+        );
+
+        self::assertEquals(null, $oFrontendController->getFile('type', 'url'));
+        self::assertEquals(null, $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals(null, $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals(null, $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals('getFile', $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals('getFile', $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::redirectUser()
+     */
+    public function testRedirectUser()
+    {
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $oWpQuery
+         */
+        $oWpQuery = $this->getMockBuilder('\WP_Query')->setMethods(['get_posts'])->getMock();
+        $oWpQuery->expects($this->once())
+            ->method('get_posts')
+            ->will($this->returnValue([
+                $this->getPost(1),
+                $this->getPost(2),
+                $this->getPost(3)
+            ]));
+
+        $oPost = $this->getPost(1);
+        $oPost->guid = 'guid';
+
+        $oWordpress = $this->getWordpress();
+
+        $oWordpress->expects($this->once())
+            ->method('getWpQuery')
+            ->will($this->returnValue($oWpQuery));
+
+        $oWordpress->expects($this->exactly(2))
+            ->method('getHomeUrl')
+            ->with('/')
+            ->will($this->returnValue('HomeUrl'));
+
+        $oWordpress->expects($this->exactly(3))
+            ->method('getPageLink')
+            ->with($oPost)
+            ->will($this->returnValue('PageLink'));
+
+        $oWordpress->expects($this->exactly(3))
+            ->method('wpRedirect')
+            ->withConsecutive(['guid'], ['RedirectCustomUrl'], ['HomeUrl']);
+
+        $oConfig = $this->getConfig();
+
+        $oConfig->expects($this->exactly(7))
+            ->method('getRedirect')
+            ->will($this->onConsecutiveCalls(
+                'custom_page', 'custom_page', 'custom_page', 'custom_page', 'custom_url', null, null
+            ));
+
+        $oConfig->expects($this->exactly(4))
+            ->method('getRedirectCustomPage')
+            ->will($this->returnValue('RedirectCustomPage'));
+
+        $oConfig->expects($this->once())
+            ->method('getRedirectCustomUrl')
+            ->will($this->returnValue('RedirectCustomUrl'));
+
+        $oUtil = $this->getUtil();
+
+        $oUtil->expects($this->exactly(7))
+            ->method('getCurrentUrl')
+            ->will($this->onConsecutiveCalls('currentUrl', 'guid', 'PageLink', 'currentUrl', 'currentUrl', 'HomeUrl', 'currentUrl'));
+
+        $oObjectHandler = $this->getObjectHandler();
+
+        $oObjectHandler->expects($this->exactly(4))
+            ->method('getPost')
+            ->withConsecutive(['RedirectCustomPage'], ['RedirectCustomPage'], ['RedirectCustomPage'])
+            ->will($this->onConsecutiveCalls(
+                false,
+                $oPost,
+                $oPost,
+                $oPost
+            ));
+
+        $oAccessHandler = $this->getAccessHandler();
+
+        $oAccessHandler->expects($this->exactly(2))
+            ->method('checkObjectAccess')
+            ->withConsecutive(
+                ['post', 1],
+                ['post', 2]
+            )
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $oFrontendController = new FrontendController(
+            $this->getPhp(),
+            $oWordpress,
+            $oConfig,
+            $this->getDatabase(),
+            $oUtil,
+            $this->getCache(),
+            $oObjectHandler,
+            $oAccessHandler,
+            $this->getFileHandler()
+        );
+
+        $oFrontendController->redirectUser();
+        $oFrontendController->redirectUser(false);
+        $oFrontendController->redirectUser(false);
+        $oFrontendController->redirectUser(false);
+        $oFrontendController->redirectUser(false);
+        $oFrontendController->redirectUser(false);
+        $oFrontendController->redirectUser(false);
+        $oFrontendController->redirectUser(false);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::redirect()
+     */
+    public function testRedirect()
+    {
+        $oWordpress = $this->getWordpress();
+
+        $oWordpress->expects($this->once())
+            ->method('getHomeUrl')
+            ->with('/')
+            ->will($this->returnValue(null));
+
+        $oWordpress->expects($this->exactly(2))
+            ->method('getPageByPath')
+            ->with('pageNameValue')
+            ->will($this->onConsecutiveCalls(null, $this->getPost(2)));
+
+        $oConfig = $this->getConfig();
+
+        $oConfig->expects($this->exactly(9))
+            ->method('atAdminPanel')
+            ->will($this->onConsecutiveCalls(
+                true, false, false, false, false, false, false, false, false, false
+            ));
+
+        $oConfig->expects($this->exactly(9))
+            ->method('getRedirect')
+            ->will($this->onConsecutiveCalls(
+                'false', null, null, null, null, null, null, null, null
+            ));
+
+        $oDatabase = $this->getDatabase();
+
+        $oDatabase->expects($this->once())
+            ->method('getPostsTable')
+            ->will($this->returnValue('postTable'));
+
+        $oDatabase->expects($this->once())
+            ->method('prepare')
+            ->with(
+                new MatchIgnoreWhitespace(
+                    'SELECT ID
+                    FROM postTable
+                    WHERE post_name = %s
+                    AND post_type IN (\'post\',\'page\',\'other\')'
+                ),
+                'nameValue'
+            )
+            ->will($this->returnValue('preparedQuery'));
+
+        $oDatabase->expects($this->once())
+            ->method('getVariable')
+            ->with('preparedQuery')
+            ->will($this->returnValue(1));
+
+        $oUtil = $this->getUtil();
+        $oUtil->expects($this->once())
+            ->method('getCurrentUrl')
+            ->will($this->returnValue('currentUrl'));
+
+        $oObjectHandler = $this->getObjectHandler();
+
+        $oObjectHandler->expects($this->once())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['post', 'page', 'other']));
+
+        $oAccessHandler = $this->getAccessHandler();
+
+        $oAccessHandler->expects($this->exactly(7))
+            ->method('checkObjectAccess')
+            ->withConsecutive(
+                [null, null],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 'pValue'],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 'pageIdValue'],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'catIdValue'],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1],
+                [null, null],
+                ['post', 2]
+            )
+            ->will($this->onConsecutiveCalls(
+                true,
+                false,
+                true,
+                true,
+                true,
+                true,
+                true
+            ));
+
+        $oFrontendController = new FrontendController(
+            $this->getPhp(),
+            $oWordpress,
+            $oConfig,
+            $oDatabase,
+            $oUtil,
+            $this->getCache(),
+            $oObjectHandler,
+            $oAccessHandler,
+            $this->getFileHandler()
+        );
+
+        $oPageParams = new \stdClass();
+
+        $oPageParams->query_vars = [];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $oPageParams->query_vars = [];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $oPageParams->query_vars = [];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $oPageParams->query_vars = ['p' => 'pValue'];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $oPageParams->query_vars = ['page_id' => 'pageIdValue'];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $oPageParams->query_vars = ['cat_id' => 'catIdValue'];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $oPageParams->query_vars = ['name' => 'nameValue'];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $oPageParams->query_vars = ['pagename' => 'pageNameValue'];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $_GET['uamgetfile'] = 'file';
+        $oPageParams->query_vars = ['pagename' => 'pageNameValue'];
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+
+        $_GET['uamfiletype'] = 'fileType';
+        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::getFileUrl()
+     */
+    public function testGetFileUrl()
+    {
+        $oWordpress = $this->getWordpress();
+
+        $oWordpress->expects($this->exactly(2))
+            ->method('getHomeUrl')
+            ->with('/')
+            ->will($this->returnValue('homeUrl'));
+
+        $oConfig = $this->getConfig();
+
+        $oConfig->expects($this->exactly(6))
+            ->method('isPermalinksActive')
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
+
+        $oConfig->expects($this->exactly(5))
+            ->method('lockFile')
+            ->will($this->onConsecutiveCalls(false, true, true, true, true));
+
+        $oConfig->expects($this->exactly(3))
+            ->method('getLockedFileTypes')
+            ->will($this->onConsecutiveCalls('none', 'all', 'aaa,mime'));
+
+        $oObjectHandler = $this->getObjectHandler();
+
+        $oObjectHandler->expects($this->exactly(4))
+            ->method('getPost')
+            ->withConsecutive([1], [1], [1], [1])
+            ->will($this->onConsecutiveCalls(
+                null,
+                $this->getPost(1),
+                $this->getPost(1),
+                $this->getPost(1)
+            ));
+
+        $oFrontendController = new FrontendController(
+            $this->getPhp(),
+            $oWordpress,
+            $oConfig,
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $oObjectHandler,
+            $this->getAccessHandler(),
+            $this->getFileHandler()
+        );
+
+        self::assertEquals('url', $oFrontendController->getFileUrl('url', 1));
+        self::assertEquals('url', $oFrontendController->getFileUrl('url', 1));
+        self::assertEquals('url', $oFrontendController->getFileUrl('url', 1));
+        self::assertEquals('url', $oFrontendController->getFileUrl('url', 1));
+        self::assertEquals(
+            'homeUrl?uamfiletype=attachment&uamgetfile=url',
+            $oFrontendController->getFileUrl('url', 1)
+        );
+        self::assertEquals(
+            'homeUrl?uamfiletype=attachment&uamgetfile=url',
+            $oFrontendController->getFileUrl('url', 1)
+        );
     }
 
     /**
