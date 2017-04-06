@@ -582,21 +582,24 @@ class UserGroup
                 $sCapabilitiesTable = $this->_oDatabase->getCapabilitiesTable();
 
                 $aCapabilities = (isset($oUser->{$sCapabilitiesTable})) ? $oUser->{$sCapabilitiesTable} : [];
-                $aRoles = (is_array($aCapabilities) && count($aCapabilities) > 0) ?
-                    array_keys($aCapabilities) : [self::NONE_ROLE];
 
-                $aAssignedRoles = $this->_getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
-                $aRecursiveRoles = array_intersect($aRoles, array_keys($aAssignedRoles));
-
-                if (count($aRecursiveRoles) > 0) {
-                    $aRecursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE] = array_combine(
-                        $aRecursiveRoles,
-                        array_fill(
-                            0,
-                            count($aRecursiveRoles),
-                            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
-                        )
+                if (is_array($aCapabilities) && count($aCapabilities) > 0) {
+                    $aAssignedRoles = $this->_getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+                    $aRecursiveRoles = array_intersect(
+                        array_keys($aCapabilities),
+                        array_keys($aAssignedRoles)
                     );
+
+                    if (count($aRecursiveRoles) > 0) {
+                        $aRecursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE] = array_combine(
+                            $aRecursiveRoles,
+                            array_fill(
+                                0,
+                                count($aRecursiveRoles),
+                                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                            )
+                        );
+                    }
                 }
             }
 
@@ -702,7 +705,8 @@ class UserGroup
 
             if ($oPluggableObject !== null) {
                 $aRecursiveMembership = $oPluggableObject->getRecursiveMembership($this, $sObjectId);
-                $blIsMember = $this->_isObjectAssignedToGroup($sObjectType, $sObjectId) || count($aRecursiveMembership) > 0;
+                $blIsMember = $this->_isObjectAssignedToGroup($sObjectType, $sObjectId)
+                    || count($aRecursiveMembership) > 0;
             }
 
             $this->_aPluggableObjectMembership[$sObjectType][$sObjectId] =
@@ -741,7 +745,7 @@ class UserGroup
             || $this->_oObjectHandler->isPostType($sObjectType) === true
         ) {
             $blIsMember = $this->isPostMember($sObjectId, $aRecursiveMembership);
-        } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType)) {
+        } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType) === true) {
             $blIsMember = $this->isPluggableObjectMember($sObjectType, $sObjectId, $aRecursiveMembership);
         }
 

@@ -420,10 +420,10 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oTaxonomy->labels = new \stdClass();
         $oTaxonomy->labels->name = 'category';
 
-        $oWordpress->expects($this->once())
+        $oWordpress->expects($this->exactly(2))
             ->method('getTaxonomy')
             ->with('termTaxonomy')
-            ->will($this->returnValue($oTaxonomy));
+            ->will($this->onConsecutiveCalls(false, $oTaxonomy));
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $oPostType
@@ -439,12 +439,12 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
 
 
         $oObjectHandler = $this->getObjectHandler();
-        $oObjectHandler->expects($this->exactly(9))
+        $oObjectHandler->expects($this->exactly(10))
             ->method('getGeneralObjectType')
             ->withConsecutive(
                 ['role'],
                 ['user'], ['user'],
-                ['term'], ['term'],
+                ['term'], ['term'], ['term'],
                 ['post'], ['post'],
                 ['pluggableObject']
             )
@@ -452,6 +452,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
                 ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
                 ObjectHandler::GENERAL_USER_OBJECT_TYPE, ObjectHandler::GENERAL_USER_OBJECT_TYPE,
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE, ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+                ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE, ObjectHandler::GENERAL_POST_OBJECT_TYPE,
                 null,
                 null
@@ -477,11 +478,11 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oTerm->name = 'categoryThree';
         $oTerm->taxonomy = 'termTaxonomy';
 
-        $oObjectHandler->expects($this->exactly(2))
+        $oObjectHandler->expects($this->exactly(3))
             ->method('getTerm')
-            ->withConsecutive([-1], [3])
+            ->withConsecutive([-1], [1], [3])
             ->will($this->onConsecutiveCalls(
-                false, $oTerm
+                false, $oTerm, $oTerm
             ));
 
         /**
@@ -537,7 +538,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             ->willReturn([
                 'role' => [1],
                 'user' => [-1, 2],
-                'term' => [-1, 3],
+                'term' => [-1, 1, 3],
                 'post' => [-1, 4],
                 'pluggableObject' => [5],
                 'invalid' => [-1]
@@ -546,7 +547,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $aExpected = [
             ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [1 => 'roleOne'],
             ObjectHandler::GENERAL_USER_OBJECT_TYPE => [-1 => -1, 2 => 'userTwo'],
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [-1 => -1],
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [-1 => -1, 1 => 'categoryThree'],
             'category' => [3 => 'categoryThree'],
             ObjectHandler::GENERAL_POST_OBJECT_TYPE => [-1 => -1],
             'post' => [4 => 'postFour'],

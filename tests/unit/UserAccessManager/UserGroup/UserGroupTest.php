@@ -340,10 +340,43 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         self::assertFalse($oUserGroup->delete());
         self::setValue($oUserGroup, '_iId', 123);
+
+        self::setValue($oUserGroup, '_aAssignedObjects', [1 => 1]);
+        self::setValue($oUserGroup, '_aRoleMembership', [2 => 2]);
+        self::setValue($oUserGroup, '_aUserMembership', [3 => 3]);
+        self::setValue($oUserGroup, '_aTermMembership', [4 => 4]);
+        self::setValue($oUserGroup, '_aPostMembership', [5 => 5]);
+        self::setValue($oUserGroup, '_aFullObjectMembership', [6 => 6]);
+
         self::assertFalse($oUserGroup->delete());
+
+        self::assertAttributeEquals([1 => 1], '_aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals([2 => 2], '_aRoleMembership', $oUserGroup);
+        self::assertAttributeEquals([3 => 3], '_aUserMembership', $oUserGroup);
+        self::assertAttributeEquals([4 => 4], '_aTermMembership', $oUserGroup);
+        self::assertAttributeEquals([5 => 5], '_aPostMembership', $oUserGroup);
+        self::assertAttributeEquals([6 => 6], '_aFullObjectMembership', $oUserGroup);
+
         self::assertTrue($oUserGroup->delete());
+
+
+        self::setValue($oUserGroup, '_aAssignedObjects', [1 => 1]);
+        self::setValue($oUserGroup, '_aRoleMembership', [2 => 2]);
+        self::setValue($oUserGroup, '_aUserMembership', [3 => 3]);
+        self::setValue($oUserGroup, '_aTermMembership', [4 => 4]);
+        self::setValue($oUserGroup, '_aPostMembership', [5 => 5]);
+        self::setValue($oUserGroup, '_aFullObjectMembership', [6 => 6]);
+
         self::assertFalse($oUserGroup->removeObject('invalid'));
         self::assertFalse($oUserGroup->removeObject('objectType'));
+
+        self::assertAttributeEquals([1 => 1], '_aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals([2 => 2], '_aRoleMembership', $oUserGroup);
+        self::assertAttributeEquals([3 => 3], '_aUserMembership', $oUserGroup);
+        self::assertAttributeEquals([4 => 4], '_aTermMembership', $oUserGroup);
+        self::assertAttributeEquals([5 => 5], '_aPostMembership', $oUserGroup);
+        self::assertAttributeEquals([6 => 6], '_aFullObjectMembership', $oUserGroup);
+
         self::assertTrue($oUserGroup->removeObject('objectType'));
         self::assertTrue($oUserGroup->removeObject('objectType', 1));
 
@@ -606,24 +639,35 @@ class UserGroupTest extends \UserAccessManagerTestCase
     /**
      * Prototype function for the testIsUserMember
      *
+     * @param array $aTypes
      * @param array $aGetResultsWith
      * @param array $aGetResultsWill
+     * @param int   $iExpectGetUsersTable
+     * @param int   $iExpectGetCapabilitiesTable
+     * @param int   $iExpectGetUser
      *
      * @return UserGroup
      */
-    private function getTestIsUserMemberPrototype(array $aGetResultsWith = [], array $aGetResultsWill = [])
+    private function getTestIsUserMemberPrototype(
+        array $aTypes,
+        array $aGetResultsWith,
+        array $aGetResultsWill,
+        $iExpectGetUsersTable,
+        $iExpectGetCapabilitiesTable,
+        $iExpectGetUser
+    )
     {
         $oDatabase = $this->getDatabaseMockForMemberTests(
-            ['role' => 3, 'user' => 2],
+            $aTypes,
             $aGetResultsWith,
             $aGetResultsWill
         );
 
-        $oDatabase->expects($this->any())
+        $oDatabase->expects($this->exactly($iExpectGetUsersTable))
             ->method('getUsersTable')
             ->will($this->returnValue('usersTable'));
 
-        $oDatabase->expects($this->any())
+        $oDatabase->expects($this->exactly($iExpectGetCapabilitiesTable))
             ->method('getCapabilitiesTable')
             ->will($this->returnValue('capabilitiesTable'));
 
@@ -639,17 +683,25 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $oSecondUser = $this->getMockBuilder('\WP_User')->getMock();
         $oSecondUser->capabilitiesTable = 'invalid';
 
+        /**
+         * @var \stdClass $oThirdUser
+         */
+        $oThirdUser = $this->getMockBuilder('\WP_User')->getMock();
+        $oThirdUser->capabilitiesTable = [1 => 1];
+
         $oObjectHandler = $this->getObjectHandler();
-        $oObjectHandler->expects($this->any())
+        $oObjectHandler->expects($this->exactly($iExpectGetUser))
             ->method('getUser')
-            ->will($this->returnCallback(function ($sUserId) use ($oFirstUser, $oSecondUser) {
+            ->will($this->returnCallback(function ($sUserId) use ($oFirstUser, $oSecondUser, $oThirdUser) {
                 if ($sUserId === 1) {
                     return $oFirstUser;
                 } elseif ($sUserId === 2) {
                     return $oSecondUser;
+                } elseif ($sUserId === 3) {
+                    return $oThirdUser;
                 }
 
-                return null;
+                return false;
             }));
 
         $oUserGroup = new UserGroup(
@@ -674,7 +726,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
      */
     public function testIsUserMember()
     {
-        $oUserGroup = $this->getTestIsUserMemberPrototype();
+        $oUserGroup = $this->getTestIsUserMemberPrototype(['role' => 3, 'user' => 2], [], [], 0, 3, 4);
         $aRecursiveMembership = [];
 
         $blReturn = $oUserGroup->isUserMember(1, $aRecursiveMembership);
@@ -693,6 +745,14 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::assertEquals([], $aRecursiveMembership);
 
         $blReturn = $oUserGroup->isUserMember(3, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([
+            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
+                1 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+            ]
+        ], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isUserMember(4, $aRecursiveMembership);
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
 
@@ -861,7 +921,8 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $oObjectHandler->expects($this->any())
             ->method('getPostTermMap')
             ->will($this->returnValue([
-                2 => [3 => 'term', 9 => 'term']
+                2 => [3 => 'term', 9 => 'term'],
+                10 => [3 => 'term']
             ]));
 
         $oObjectHandler->expects($this->any())
@@ -922,6 +983,14 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
 
+        $blReturn = $oUserGroup->isPostMember(10, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']
+            ],
+            $aRecursiveMembership
+        );
+
         return $oUserGroup;
     }
 
@@ -953,7 +1022,8 @@ class UserGroupTest extends \UserAccessManagerTestCase
                             ->method('getRecursiveMembership')
                             ->will($this->returnCallback(
                                 function ($oUserGroup, $iObjectId) {
-                                    return ($iObjectId === 1) ? ['pluggableObject' => [1 => 'pluggableObject']] : [];
+                                    return ($iObjectId === 1 || $iObjectId === 4) ?
+                                        ['pluggableObject' => [1 => 'pluggableObject']] : [];
                                 }
                             ));
 
@@ -992,16 +1062,30 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         $blReturn = $oUserGroup->isPluggableObjectMember('_pluggableObject_', 1, $aRecursiveMembership);
         self::assertTrue($blReturn);
-        self::assertEquals(
-            [
-                'pluggableObject' => [1 => 'pluggableObject']
+        self::assertEquals(['pluggableObject' => [1 => 'pluggableObject']], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isPluggableObjectMember('_pluggableObject_', 2, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals([], $aRecursiveMembership);
+
+        self::assertAttributeEquals([
+                'noPluggableObject' => [1 => false],
+                '_pluggableObject_' => [
+                    1 => ['pluggableObject' => [1 => 'pluggableObject']],
+                    2 => []
+                ]
             ],
-            $aRecursiveMembership
+            '_aPluggableObjectMembership',
+            $oUserGroup
         );
 
         $blReturn = $oUserGroup->isPluggableObjectMember('_pluggableObject_', 3, $aRecursiveMembership);
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
+
+        $blReturn = $oUserGroup->isPluggableObjectMember('_pluggableObject_', 4, $aRecursiveMembership);
+        self::assertTrue($blReturn);
+        self::assertEquals(['pluggableObject' => [1 => 'pluggableObject']], $aRecursiveMembership);
 
         return $oUserGroup;
     }
@@ -1083,13 +1167,20 @@ class UserGroupTest extends \UserAccessManagerTestCase
             ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1
         );
         $this->memberFunctionAssertions($oUserUserGroup, true, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2);
-        $this->memberFunctionAssertions($oUserUserGroup, false, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 3);
+        $this->memberFunctionAssertions($oUserUserGroup, true, [
+                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
+                    1 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                ]
+            ],
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE, 3
+        );
+        $this->memberFunctionAssertions($oUserUserGroup, false, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 4);
 
         // term tests
         $this->memberFunctionAssertions($oTermUserGroup, true, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1);
         $this->memberFunctionAssertions(
             $oTermUserGroup, true, [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']],
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 2
+            'termObjectType', 2
         );
         $this->memberFunctionAssertions($oTermUserGroup, true, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 3);
         $this->memberFunctionAssertions(
@@ -1105,7 +1196,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 'post'],
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']
             ],
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2
+            'postObjectType', 2
         );
         $this->memberFunctionAssertions(
             $oPostUserGroup, true, [
@@ -1161,13 +1252,21 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $sQuery = "SELECT ID, user_nicename FROM usersTable";
 
         $oUserGroup = $this->getTestIsUserMemberPrototype(
+            ['user' => 2, 'role' => 3],
             [[new MatchIgnoreWhitespace($sQuery)]],
-            [$this->generateUserReturn([10 => 10, 1, 2, 3])]
+            [$this->generateUserReturn([10 => 10, 1, 2, 3])],
+            1,
+            3,
+            4
         );
 
         self::assertEquals(
-            [1 => ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2 => ObjectHandler::GENERAL_USER_OBJECT_TYPE],
-                $oUserGroup->getFullUsers()
+            [
+                1 => ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+                2 => ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+                3 => ObjectHandler::GENERAL_USER_OBJECT_TYPE
+            ],
+            $oUserGroup->getFullUsers()
         );
 
         return $oUserGroup;
@@ -1243,7 +1342,11 @@ class UserGroupTest extends \UserAccessManagerTestCase
             $oRoleUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)
         );
         self::assertEquals(
-            [1 => ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2 => ObjectHandler::GENERAL_USER_OBJECT_TYPE],
+            [
+                1 => ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+                2 => ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+                3 => ObjectHandler::GENERAL_USER_OBJECT_TYPE
+            ],
             $oUserUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_USER_OBJECT_TYPE)
         );
         self::assertEquals(

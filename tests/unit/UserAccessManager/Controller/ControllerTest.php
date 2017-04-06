@@ -173,10 +173,10 @@ class ControllerTest extends \UserAccessManagerTestCase
         $_GET['testNonce'] = 'testNonceValue';
 
         $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(3))
             ->method('verifyNonce')
-            ->withConsecutive(['testNonceValue', 'test'] ,['testNonceValue', 'test'])
-            ->will($this->onConsecutiveCalls(false, true));
+            ->withConsecutive(['testNonceValue', 'test'], ['testNonceValue', 'test'], ['testNonceValue', 'test'])
+            ->will($this->onConsecutiveCalls(false, true, true));
 
         $oWordpress->expects($this->once())
             ->method('wpDie');
@@ -188,6 +188,7 @@ class ControllerTest extends \UserAccessManagerTestCase
             $this->getConfig()
         );
 
+        self::callMethod($oStub, '_verifyNonce', ['test']);
         self::callMethod($oStub, '_verifyNonce', ['test']);
         self::callMethod($oStub, '_verifyNonce', ['test']);
     }

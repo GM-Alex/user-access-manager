@@ -1031,13 +1031,15 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
 
         $oConfig = $this->getConfig();
 
-        $oConfig->expects($this->exactly(6))
+        $oConfig->expects($this->exactly(7))
             ->method('lockRecursive')
-            ->will($this->onConsecutiveCalls(true, false, true, true, true, true));
+            ->will($this->onConsecutiveCalls(true, false, false, true, true, false, true));
 
-        $oConfig->expects($this->exactly(10))
+        $oConfig->expects($this->exactly(12))
             ->method('atAdminPanel')
-            ->will($this->onConsecutiveCalls(false, true, false, true, false, true, false, true, true, true));
+            ->will($this->onConsecutiveCalls(
+                false, true, false, true, false, true, false, true, false, true, true, true
+            ));
 
         $oConfig->expects($this->once())
             ->method('blogAdminHint')
@@ -1052,10 +1054,10 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
             ->withConsecutive(['post'], ['post'], ['page'], ['post'], ['post'])
             ->will($this->onConsecutiveCalls(false, true, true, true, true));
 
-        $oConfig->expects($this->exactly(3))
+        $oConfig->expects($this->exactly(4))
             ->method('hideEmptyTaxonomy')
-            ->withConsecutive(['taxonomy'], ['taxonomy'], ['taxonomy'])
-            ->will($this->onConsecutiveCalls(false, true, false));
+            ->withConsecutive(['taxonomy'], ['taxonomy'], ['taxonomy'], ['taxonomy'])
+            ->will($this->onConsecutiveCalls(false, true, true, false));
 
         $oUtil = $this->getUtil();
 
@@ -1066,7 +1068,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
 
         $oObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(6))
+        $oObjectHandler->expects($this->exactly(7))
             ->method('getTermTreeMap')
             ->will($this->returnValue(
                 [
@@ -1078,7 +1080,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
                 ]
             ));
 
-        $oObjectHandler->expects($this->exactly(6))
+        $oObjectHandler->expects($this->exactly(7))
             ->method('getTermPostMap')
             ->will($this->returnValue(
                 [
@@ -1087,11 +1089,13 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
                 ]
             ));
 
-        $oObjectHandler->expects($this->exactly(3))
+        $oObjectHandler->expects($this->exactly(4))
             ->method('getTerm')
             ->will($this->returnCallback(function ($iTermId) {
-                if ($iTermId === 5) {
-                    return $this->getTerm($iTermId, 'taxonomy', null, 0, 1);
+                if ($iTermId === 104) {
+                    return false;
+                } elseif ($iTermId >= 105) {
+                    return $this->getTerm($iTermId, 'taxonomy', null, 0, ($iTermId-1));
                 }
 
                 return $this->getTerm($iTermId);
@@ -1099,7 +1103,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
 
         $oAccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(13))
+        $oAccessHandler->expects($this->exactly(14))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['taxonomy', 1],
@@ -1107,9 +1111,10 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 11],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 12],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 13],
-                ['taxonomy', 4],
-                ['taxonomy', 5],
-                ['taxonomy', 1],
+                ['taxonomy', 107],
+                ['taxonomy', 106],
+                ['taxonomy', 105],
+                ['taxonomy', 105],
                 ['taxonomy', 10],
                 ['taxonomy', 11],
                 ['taxonomy', 12],
@@ -1124,6 +1129,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
                 true,
                 true,
                 false,
+                true,
                 true,
                 true,
                 true,
@@ -1167,8 +1173,11 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
             $oFrontendController->showTerm($oTerm)
         );
 
-        $oTerm = $this->getTerm(4, 'taxonomy', null, 0, 5);
-        self::assertEquals($this->getTerm(4, 'taxonomy', null, 0, 1), $oFrontendController->showTerm($oTerm));
+        $oTerm = $this->getTerm(107, 'taxonomy', null, 0, 106);
+        self::assertEquals($this->getTerm(107, 'taxonomy', null, 0, 105), $oFrontendController->showTerm($oTerm));
+
+        $oTerm = $this->getTerm(105, 'taxonomy', null, 0, 104);
+        self::assertEquals($this->getTerm(105, 'taxonomy', null, 0, 104), $oFrontendController->showTerm($oTerm));
 
         $aTerms = [
             1 => new \stdClass(),
@@ -1930,6 +1939,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
 
         $oPageParams = new \stdClass();
 
+        $_GET['uamfiletype'] = 'fileType';
         $oPageParams->query_vars = [];
         self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
 
@@ -1942,6 +1952,8 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oPageParams->query_vars = ['p' => 'pValue'];
         self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
 
+        unset($_GET['uamfiletype']);
+        $_GET['uamgetfile'] = 'file';
         $oPageParams->query_vars = ['page_id' => 'pageIdValue'];
         self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
 
@@ -1951,12 +1963,9 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oPageParams->query_vars = ['name' => 'nameValue'];
         self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
 
-        $_GET['uamfiletype'] = 'fileType';
         $oPageParams->query_vars = ['pagename' => 'pageNameValue'];
         self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
 
-        unset($_GET['uamfiletype']);
-        $_GET['uamgetfile'] = 'file';
         $oPageParams->query_vars = ['pagename' => 'pageNameValue'];
         self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
 

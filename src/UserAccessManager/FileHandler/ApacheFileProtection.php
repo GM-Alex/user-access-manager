@@ -98,14 +98,14 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $sDir = rtrim($sDir, '/').'/';
         $sFileName = $sDir.self::FILE_NAME;
 
-        if (file_exists($sFileName)) {
-            $blSuccess = unlink($sFileName) && $blSuccess;
+        if (file_exists($sFileName) === true) {
+            $blSuccess = (unlink($sFileName) === true) && $blSuccess;
         }
 
         $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
 
-        if (file_exists($sPasswordFile)) {
-            $blSuccess = unlink($sPasswordFile) && $blSuccess;
+        if (file_exists($sPasswordFile) === true) {
+            $blSuccess = (unlink($sPasswordFile) === true) && $blSuccess;
         }
 
         return $blSuccess;

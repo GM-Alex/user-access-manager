@@ -177,8 +177,8 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
          */
         $oRootDir = $this->oRoot->get('/');
         $oRootDir->add('testDir', new Directory([
-            ApacheFileProtection::FILE_NAME => new File('empty'),
-            ApacheFileProtection::PASSWORD_FILE_NAME => new File('empty')
+            ApacheFileProtection::FILE_NAME => new File('htaccess'),
+            ApacheFileProtection::PASSWORD_FILE_NAME => new File('password')
         ]));
 
         $sTestDir = 'vfs://testDir/';

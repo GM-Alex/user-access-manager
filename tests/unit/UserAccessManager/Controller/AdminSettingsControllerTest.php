@@ -258,29 +258,29 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
     public function testUpdateSettingsAction()
     {
         $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(2))
+        $oConfig->expects($this->exactly(3))
             ->method('setConfigParameters')
             ->with([
                 'b' => '&lt;b&gt;b&lt;/b&gt;',
                 'i' => '&lt;i&gt;i&lt;/i&gt;',
             ]);
 
-        $oConfig->expects($this->exactly(2))
+        $oConfig->expects($this->exactly(3))
             ->method('lockFile')
-            ->will($this->onConsecutiveCalls(false, true));
+            ->will($this->onConsecutiveCalls(false, true, true));
 
         $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(3))
             ->method('verifyNonce')
             ->will($this->returnValue(true));
 
-        $oWordpress->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(3))
             ->method('doAction')
             ->with('uam_update_options', $oConfig);
 
         $oFileHandler = $this->getFileHandler();
 
-        $oFileHandler->expects($this->once())
+        $oFileHandler->expects($this->exactly(2))
             ->method('createFileProtection');
 
         $oFileHandler->expects($this->once())
@@ -299,6 +299,7 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
             $oFileHandler
         );
 
+        $oAdminSettingController->updateSettingsAction();
         $oAdminSettingController->updateSettingsAction();
         $oAdminSettingController->updateSettingsAction();
 
@@ -344,7 +345,7 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
     public function testGetText()
     {
         $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(8))
+        $oWordpress->expects($this->exactly(9))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -353,7 +354,7 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $oWordpress->expects($this->exactly(8))
+        $oWordpress->expects($this->exactly(9))
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -411,6 +412,29 @@ class AdminSettingsControllerTest extends \UserAccessManagerTestCase
         self::assertEquals(
             'TEST_ID_DESC',
             $oAdminSettingController->getParameterText(ObjectHandler::POST_OBJECT_TYPE, $oParameter, true)
+        );
+
+        define('TXT_UAM_TEST', '%s %s');
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter $oParameter
+         */
+        $oParameter = self::getMockForAbstractClass(
+            '\UserAccessManager\Config\ConfigParameter',
+            [],
+            '',
+            false,
+            true,
+            true,
+            ['getId']
+        );
+
+        $oParameter->expects(self::any())
+            ->method('getId')
+            ->will($this->returnValue('test'));
+
+        self::assertEquals(
+            'post post',
+            $oAdminSettingController->getParameterText(ObjectHandler::POST_OBJECT_TYPE, $oParameter)
         );
     }
 }

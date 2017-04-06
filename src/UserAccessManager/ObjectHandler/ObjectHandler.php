@@ -241,7 +241,7 @@ class ObjectHandler
 
         foreach ($aResults as $oResult) {
             if (isset($aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type]) === false) {
-                $aChildrenMap[$oResult->type] = [];
+                $aTreeMap[self::TREE_MAP_CHILDREN][$oResult->type] = [];
             }
 
             if (isset($aTreeMap[self::TREE_MAP_PARENTS][$oResult->type]) === false) {

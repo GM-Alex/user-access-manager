@@ -217,7 +217,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
                     ],
                     1 => [2 => $sFirstType, 3 => $sFirstType, 4 => $sFirstType, 123 => $sFirstType, 321 => $sFirstType],
                     2 => [3 => $sFirstType, 4 => $sFirstType, 123 => $sFirstType, 321 => $sFirstType],
-                    3 => [123 => $sFirstType, 321 => $sFirstType]
+                    3 => [123 => $sFirstType, 321 => $sFirstType, 4 => $sFirstType],
+                    11 => [4 => $sFirstType]
                 ],
                 $sSecondType => [
                     6 => [7 => $sSecondType, 8 => $sSecondType],
@@ -229,7 +230,7 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
                     1 => [0 => $sFirstType],
                     2 => [0 => $sFirstType, 1 => $sFirstType],
                     3 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType],
-                    4 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType],
+                    4 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType, 3 => $sFirstType, 11 => $sFirstType],
                     123 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType, 3 => $sFirstType],
                     321 => [0 => $sFirstType, 1 => $sFirstType, 2 => $sFirstType, 3 => $sFirstType]
                 ],
@@ -265,6 +266,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $aPostResult[] = $this->createTreeMapDbResultElement(2, 1);
         $aPostResult[] = $this->createTreeMapDbResultElement(3, 2);
         $aPostResult[] = $this->createTreeMapDbResultElement(4, 2);
+        $aPostResult[] = $this->createTreeMapDbResultElement(4, 3);
+        $aPostResult[] = $this->createTreeMapDbResultElement(4, 11);
         $aPostResult[] = $this->createTreeMapDbResultElement(123, 3);
         $aPostResult[] = $this->createTreeMapDbResultElement(321, 3);
         $aPostResult[] = $this->createTreeMapDbResultElement(7, 6, 'page');
@@ -275,6 +278,8 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $aTermResult[] = $this->createTreeMapDbResultElement(2, 1, 'category');
         $aTermResult[] = $this->createTreeMapDbResultElement(3, 2, 'category');
         $aTermResult[] = $this->createTreeMapDbResultElement(4, 2, 'category');
+        $aTermResult[] = $this->createTreeMapDbResultElement(4, 3, 'category');
+        $aTermResult[] = $this->createTreeMapDbResultElement(4, 11, 'category');
         $aTermResult[] = $this->createTreeMapDbResultElement(123, 3, 'category');
         $aTermResult[] = $this->createTreeMapDbResultElement(321, 3, 'category');
         $aTermResult[] = $this->createTreeMapDbResultElement(7, 6, 'term');

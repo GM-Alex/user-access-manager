@@ -541,9 +541,9 @@ class FrontendController extends Controller
             while ($oCurrentTerm->parent != 0) {
                 $oCurrentTerm = $this->_oObjectHandler->getTerm($oCurrentTerm->parent);
 
-                if ($oCurrentTerm !== false
-                    && $this->_oAccessHandler->checkObjectAccess($oCurrentTerm->taxonomy, $oCurrentTerm->term_id) === true
-                ) {
+                if ($oCurrentTerm === false) {
+                    break;
+                } elseif ($this->_oAccessHandler->checkObjectAccess($oCurrentTerm->taxonomy, $oCurrentTerm->term_id) === true) {
                     $oTerm->parent = $oCurrentTerm->term_id;
                     break;
                 }
