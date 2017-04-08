@@ -86,7 +86,8 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         try {
             file_put_contents($sFileWithPath, $sContent);
             return true;
-        } catch (\Exception $oException) {}
+        } catch (\Exception $oException) {
+        }
 
         return false;
     }

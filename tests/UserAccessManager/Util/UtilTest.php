@@ -73,7 +73,7 @@ class UtilTest extends \UserAccessManagerTestCase
             ->with(33)
             ->will($this->returnCallback(function($iLength, &$blStrong) {
                 $blStrong = true;
-                return 'testString';
+                return "testString{$iLength}";
             }));
 
         $oUtil = new Util($oPhp);
@@ -153,7 +153,7 @@ class UtilTest extends \UserAccessManagerTestCase
         $oPhp->expects($this->exactly(1))
             ->method('opensslRandomPseudoBytes')
             ->with(33, false)
-            ->will($this->returnCallback(function($iLength, &$blStrong) {
+            ->will($this->returnCallback(function ($iLength, &$blStrong) {
                 $blStrong = true;
                 return false;
             }));

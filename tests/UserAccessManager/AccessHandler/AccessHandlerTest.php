@@ -851,7 +851,15 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
 
 
         $aUserGroups = [
-            0 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 'post', 2 => 'page', 5 => 'post', 6 => 'post']),
+            0 => $this->getUserGroup(
+                0,
+                true,
+                false,
+                [''],
+                'none',
+                'none',
+                [1 => 'post', 2 => 'page', 5 => 'post', 6 => 'post']
+            ),
             1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [3 => 'post', 2 => 'page', 4 => 'post'])
         ];
 

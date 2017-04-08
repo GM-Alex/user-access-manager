@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
-require_once __DIR__.'/../../../fixtures/DummyController.php';
+require_once __DIR__.'/DummyController.php';
 
 use Vfs\FileSystem;
 use Vfs\Node\Directory;

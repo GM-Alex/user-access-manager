@@ -163,7 +163,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oWordpress = $this->getWordpress();
 
         /**
-         * @var \WP_User|\stdClass $oAdminWithLevelUser
+         * @var \WP_User|\stdClass $oAdminUser
          */
         $oAdminUser = $this->getMockBuilder('\WP_User')->getMock();
         $oAdminUser->ID = 1;
