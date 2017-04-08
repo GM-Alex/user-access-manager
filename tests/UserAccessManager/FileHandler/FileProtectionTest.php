@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\FileHandler;
 
+use UserAccessManager\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 
@@ -22,7 +23,7 @@ use Vfs\Node\Directory;
  *
  * @package UserAccessManager\FileHandler
  */
-class FileProtectionTest extends \UserAccessManagerTestCase
+class FileProtectionTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem

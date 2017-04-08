@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -24,7 +25,7 @@ use Vfs\Node\File;
  *
  * @package UserAccessManager\Controller
  */
-class AdminObjectControllerTest extends \UserAccessManagerTestCase
+class AdminObjectControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -443,17 +444,24 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
             ->method('getGeneralObjectType')
             ->withConsecutive(
                 ['role'],
-                ['user'], ['user'],
-                ['term'], ['term'], ['term'],
-                ['post'], ['post'],
+                ['user'],
+                ['user'],
+                ['term'],
+                ['term'],
+                ['term'],
+                ['post'],
+                ['post'],
                 ['pluggableObject']
             )
             ->will($this->onConsecutiveCalls(
                 ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
-                ObjectHandler::GENERAL_USER_OBJECT_TYPE, ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-                ObjectHandler::GENERAL_TERM_OBJECT_TYPE, ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+                ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+                ObjectHandler::GENERAL_USER_OBJECT_TYPE,
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-                ObjectHandler::GENERAL_POST_OBJECT_TYPE, ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+                ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+                ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE,
                 null,
                 null
             ));
@@ -467,9 +475,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oObjectHandler->expects($this->exactly(2))
             ->method('getUser')
             ->withConsecutive([-1], [2])
-            ->will($this->onConsecutiveCalls(
-                false, $oUser
-            ));
+            ->will($this->onConsecutiveCalls(false, $oUser));
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $oTerm
@@ -481,9 +487,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oObjectHandler->expects($this->exactly(3))
             ->method('getTerm')
             ->withConsecutive([-1], [1], [3])
-            ->will($this->onConsecutiveCalls(
-                false, $oTerm, $oTerm
-            ));
+            ->will($this->onConsecutiveCalls(false, $oTerm, $oTerm));
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $oPost
@@ -495,9 +499,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oObjectHandler->expects($this->exactly(2))
             ->method('getPost')
             ->withConsecutive([-1], [4])
-            ->will($this->onConsecutiveCalls(
-                false, $oPost
-            ));
+            ->will($this->onConsecutiveCalls(false, $oPost));
 
         $oObjectHandler->expects($this->exactly(2))
             ->method('isPluggableObject')
@@ -698,9 +700,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oConfig = $this->getConfig();
         $oConfig->expects($this->exactly(2))
             ->method('authorsCanAddPostsToGroups')
-            ->will($this->onConsecutiveCalls(
-                false, true
-            ));
+            ->will($this->onConsecutiveCalls(false, true));
 
         $oObjectHandler = $this->getObjectHandlerWithPosts();
 
@@ -708,9 +708,7 @@ class AdminObjectControllerTest extends \UserAccessManagerTestCase
         $oAccessHandler->expects($this->exactly(9))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
-            ->will($this->onConsecutiveCalls(
-                false, false, true, true, true, true, true, true, true
-            ));
+            ->will($this->onConsecutiveCalls(false, false, true, true, true, true, true, true, true));
 
         $oAccessHandler->expects($this->exactly(8))
             ->method('getFilteredUserGroupsForObject')

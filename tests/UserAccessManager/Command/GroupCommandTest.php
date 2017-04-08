@@ -15,13 +15,14 @@
 namespace UserAccessManager\Command;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserAccessManagerTestCase;
 
 /**
  * Class GroupCommandTest
  *
  * @package UserAccessManager\Command
  */
-class GroupCommandTest extends \UserAccessManagerTestCase
+class GroupCommandTest extends UserAccessManagerTestCase
 {
     /**
      * @param string $iId
@@ -42,8 +43,7 @@ class GroupCommandTest extends \UserAccessManagerTestCase
         $sWriteAccess,
         array $aRoles,
         $aIpRanges
-    )
-    {
+    ) {
         $oUserGroup = $this->getUserGroup($iId, true, false, $aIpRanges, $sReadAccess, $sWriteAccess, [], [], $sName);
 
         $oUserGroup->expects($this->any())
@@ -103,25 +103,26 @@ class GroupCommandTest extends \UserAccessManagerTestCase
                     ]
                 ]],
                 [[
-                1 => [
-                    'ID' => 1,
-                    'group_name' => 'firstGroupName',
-                    'group_desc' => 'firstGroupDescription',
-                    'read_access' => 'all',
-                    'write_access' => 'none',
-                    'roles' => 'roleOne,roleTwo',
-                    'ip_range' => '1;2'
-                ],
-                2 => [
-                    'ID' => 2,
-                    'group_name' => 'secondGroupName',
-                    'group_desc' => 'secondGroupDescription',
-                    'read_access' => 'none',
-                    'write_access' => 'all',
-                    'roles' => 'roleThree,roleFour',
-                    'ip_range' => '3;4'
-                ]
-            ]]);
+                    1 => [
+                        'ID' => 1,
+                        'group_name' => 'firstGroupName',
+                        'group_desc' => 'firstGroupDescription',
+                        'read_access' => 'all',
+                        'write_access' => 'none',
+                        'roles' => 'roleOne,roleTwo',
+                        'ip_range' => '1;2'
+                    ],
+                    2 => [
+                        'ID' => 2,
+                        'group_name' => 'secondGroupName',
+                        'group_desc' => 'secondGroupDescription',
+                        'read_access' => 'none',
+                        'write_access' => 'all',
+                        'roles' => 'roleThree,roleFour',
+                        'ip_range' => '3;4'
+                    ]
+                ]]
+            );
 
         $oWordpressCli->expects($this->exactly(2))
             ->method('createFormatter')
@@ -163,7 +164,11 @@ class GroupCommandTest extends \UserAccessManagerTestCase
         $oAccessHandler = $this->getAccessHandler();
         $oAccessHandler->expects($this->exactly(3))
             ->method('getUserGroups')
-            ->will($this->onConsecutiveCalls([], [1 => $oFirstUserGroup] ,[1 => $oFirstUserGroup, 2 => $oSecondUserGroup]));
+            ->will($this->onConsecutiveCalls(
+                [],
+                [1 => $oFirstUserGroup],
+                [1 => $oFirstUserGroup, 2 => $oSecondUserGroup]
+            ));
 
         $oGroupCommand = new GroupCommand(
             $oWordpressCli,

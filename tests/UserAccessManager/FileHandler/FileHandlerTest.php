@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\FileHandler;
 
+use UserAccessManager\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -23,7 +24,7 @@ use Vfs\Node\File;
  *
  * @package UserAccessManager\FileHandler
  */
-class FileHandlerTest extends \UserAccessManagerTestCase
+class FileHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -82,14 +83,26 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $oPhp->expects($this->exactly(9))
             ->method('functionExists')
             ->withConsecutive(
-                ['finfo_open'], ['finfo_open'], ['finfo_open'],
-                ['finfo_open'], ['mime_content_type'],
-                ['finfo_open'], ['mime_content_type'], ['finfo_open'], ['mime_content_type']
+                ['finfo_open'],
+                ['finfo_open'],
+                ['finfo_open'],
+                ['finfo_open'],
+                ['mime_content_type'],
+                ['finfo_open'],
+                ['mime_content_type'],
+                ['finfo_open'],
+                ['mime_content_type']
             )
             ->will($this->onConsecutiveCalls(
-                true, true, true,
-                false, true,
-                false, false, false, false
+                true,
+                true,
+                true,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false
             ));
 
         $oPhp->expects($this->exactly(4))
@@ -111,8 +124,12 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(6))
             ->method('getMimeTypes')
             ->will($this->onConsecutiveCalls(
-                ['txt' => 'textFile'], ['txt' => 'textFile'], ['txt' => 'textFile'],
-                ['txt' => 'textFile'], ['txt' => 'textFile'], ['jpg' => 'pictureFile']
+                ['txt' => 'textFile'],
+                ['txt' => 'textFile'],
+                ['txt' => 'textFile'],
+                ['txt' => 'textFile'],
+                ['txt' => 'textFile'],
+                ['jpg' => 'pictureFile']
             ));
 
         $oConfig->expects($this->exactly(6))
@@ -234,8 +251,13 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(6))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
-                null, 'uploadDirectory', 'uploadDirectory', 'uploadDirectory',
-                'uploadDirectory', 'uploadDirectory', 'uploadDirectory'
+                null,
+                'uploadDirectory',
+                'uploadDirectory',
+                'uploadDirectory',
+                'uploadDirectory',
+                'uploadDirectory',
+                'uploadDirectory'
             ));
 
         $oApacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
@@ -248,8 +270,10 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $oNginxFileProtection->expects($this->exactly(4))
             ->method('create')
             ->withConsecutive(
-                ['uploadDirectory', null], ['uploadDirectory', null],
-                ['uploadDirectory', null], ['otherDirectory', 'objectType']
+                ['uploadDirectory', null],
+                ['uploadDirectory', null],
+                ['uploadDirectory', null],
+                ['otherDirectory', 'objectType']
             )
             ->will($this->onConsecutiveCalls(false, true, true, true));
 
@@ -295,7 +319,12 @@ class FileHandlerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(6))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
-                null, 'uploadDirectory', 'uploadDirectory', 'uploadDirectory', 'uploadDirectory', 'uploadDirectory'
+                null,
+                'uploadDirectory',
+                'uploadDirectory',
+                'uploadDirectory',
+                'uploadDirectory',
+                'uploadDirectory'
             ));
 
         $oApacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');

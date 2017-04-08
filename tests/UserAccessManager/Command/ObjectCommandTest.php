@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Command;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class ObjectCommandTest
  *
  * @package UserAccessManager\Command
  */
-class ObjectCommandTest extends \UserAccessManagerTestCase
+class ObjectCommandTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit

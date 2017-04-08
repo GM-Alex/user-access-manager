@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -24,7 +25,7 @@ use Vfs\Node\File;
  *
  * @package UserAccessManager\Controller
  */
-class AdminControllerTest extends \UserAccessManagerTestCase
+class AdminControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -50,7 +51,6 @@ class AdminControllerTest extends \UserAccessManagerTestCase
                 ])
             ])
         ]));
-
     }
 
     /**
@@ -170,8 +170,7 @@ class AdminControllerTest extends \UserAccessManagerTestCase
     public function testGetNotice(
         AdminController $oFOpenNoticeAdminController,
         AdminController $oDatabaseNoticeAdminController
-    )
-    {
+    ) {
         self::assertEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, $oFOpenNoticeAdminController->getNotice());
         self::assertEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),

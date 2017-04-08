@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\FileHandler;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class FileProtectionFactoryTest
  *
  * @package UserAccessManager\FileHandler
  */
-class FileProtectionFactoryTest extends \UserAccessManagerTestCase
+class FileProtectionFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit

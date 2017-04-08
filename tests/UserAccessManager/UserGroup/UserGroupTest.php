@@ -16,13 +16,14 @@ namespace UserAccessManager\UserGroup;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserAccessManagerTestCase;
 
 /**
  * Class UserGroupTest
  *
  * @package UserAccessManager\UserGroup
  */
-class UserGroupTest extends \UserAccessManagerTestCase
+class UserGroupTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -78,15 +79,16 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         $oDatabase->expects($this->exactly(2))
             ->method('prepare')
-            ->withConsecutive([
-                new MatchIgnoreWhitespace(
-                    'SELECT *
-                        FROM userGroupTable
-                        WHERE ID = %s
-                        LIMIT 1'
-                ),
-                1
-            ],
+            ->withConsecutive(
+                [
+                    new MatchIgnoreWhitespace(
+                        'SELECT *
+                            FROM userGroupTable
+                            WHERE ID = %s
+                            LIMIT 1'
+                    ),
+                    1
+                ],
                 [
                     new MatchIgnoreWhitespace(
                         'SELECT *
@@ -418,8 +420,20 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         $oObjectHandler->expects($this->exactly(5))
             ->method('getGeneralObjectType')
-            ->withConsecutive(['invalid'], ['generalObjectType'], ['notValidObjectType'], ['objectType'], ['objectType'])
-            ->will($this->onConsecutiveCalls(null, null, 'generalNotValidObjectType', 'generalObjectType', 'generalObjectType'));
+            ->withConsecutive(
+                ['invalid'],
+                ['generalObjectType'],
+                ['notValidObjectType'],
+                ['objectType'],
+                ['objectType']
+            )
+            ->will($this->onConsecutiveCalls(
+                null,
+                null,
+                'generalNotValidObjectType',
+                'generalObjectType',
+                'generalObjectType'
+            ));
 
         $oObjectHandler->expects($this->exactly(3))
             ->method('isValidObjectType')
@@ -503,7 +517,11 @@ class UserGroupTest extends \UserAccessManagerTestCase
                 [new MatchIgnoreWhitespace($sQuery), [123, 'objectType', 'objectType']],
                 [new MatchIgnoreWhitespace($sQuery), [123, 'something', 'something']]
             )
-            ->will($this->onConsecutiveCalls('nonResultPreparedQuery', 'preparedQuery', 'nonResultSomethingPreparedQuery'));
+            ->will($this->onConsecutiveCalls(
+                'nonResultPreparedQuery',
+                'preparedQuery',
+                'nonResultSomethingPreparedQuery'
+            ));
 
         $oDatabase->expects($this->exactly(3))
             ->method('getResults')
@@ -567,8 +585,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         array $aTypes,
         array $aGetResultsWith = [],
         array $aGetResultsWill = []
-    )
-    {
+    ) {
         $sQuery = 'SELECT object_id AS id, object_type AS objectType
             FROM userGroupToObjectTable
             WHERE group_id = %d
@@ -655,8 +672,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         $iExpectGetUsersTable,
         $iExpectGetCapabilitiesTable,
         $iExpectGetUser
-    )
-    {
+    ) {
         $oDatabase = $this->getDatabaseMockForMemberTests(
             $aTypes,
             $aGetResultsWith,
@@ -760,12 +776,13 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         $blReturn = $oUserGroup->isUserMember(1, $aRecursiveMembership);
         self::assertTrue($blReturn);
-        self::assertEquals([
-            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
-                1 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
-                2 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
-            ]
-        ],
+        self::assertEquals(
+            [
+                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
+                    1 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
+                    2 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                ]
+            ],
             $aRecursiveMembership
         );
 
@@ -855,13 +872,13 @@ class UserGroupTest extends \UserAccessManagerTestCase
         // term tests
         $blReturn = $oUserGroup->isTermMember(1, $aRecursiveMembership);
         self::assertTrue($blReturn);
-        self::assertEquals([],$aRecursiveMembership);
+        self::assertEquals([], $aRecursiveMembership);
 
         $blReturn = $oUserGroup->isTermMember(2, $aRecursiveMembership);
         self::assertTrue($blReturn);
         self::assertEquals(
             [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']],
-                $aRecursiveMembership
+            $aRecursiveMembership
         );
 
         $blReturn = $oUserGroup->isTermMember(3, $aRecursiveMembership);
@@ -872,7 +889,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::assertTrue($blReturn);
         self::assertEquals(
             [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => 'term']],
-                $aRecursiveMembership
+            $aRecursiveMembership
         );
 
         $blReturn = $oUserGroup->isTermMember(5, $aRecursiveMembership);
@@ -1014,9 +1031,8 @@ class UserGroupTest extends \UserAccessManagerTestCase
 
         $blReturn = $oUserGroup->isPostMember(10, $aRecursiveMembership);
         self::assertTrue($blReturn);
-        self::assertEquals([
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']
-            ],
+        self::assertEquals(
+            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']],
             $aRecursiveMembership
         );
 
@@ -1097,7 +1113,8 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::assertTrue($blReturn);
         self::assertEquals([], $aRecursiveMembership);
 
-        self::assertAttributeEquals([
+        self::assertAttributeEquals(
+            [
                 'noPluggableObject' => [1 => false],
                 '_pluggableObject_' => [
                     1 => ['pluggableObject' => [1 => 'pluggableObject']],
@@ -1134,8 +1151,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         array $aExpectedRecursiveMembership,
         $sObjectType,
         $sObjectId
-    )
-    {
+    ) {
         $aRecursiveMembership = [];
         $blReturn = $oUserGroup->isObjectMember($sObjectType, $sObjectId, $aRecursiveMembership);
 
@@ -1179,73 +1195,97 @@ class UserGroupTest extends \UserAccessManagerTestCase
         UserGroup $oTermUserGroup,
         UserGroup $oPostUserGroup,
         UserGroup $oPluggableObjectUserGroup
-    )
-    {
+    ) {
         // role tests
         $this->memberFunctionAssertions($oRoleUserGroup, true, [], ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 1);
         $this->memberFunctionAssertions($oRoleUserGroup, false, [], ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 4);
 
         // user tests
         $this->memberFunctionAssertions(
-            $oUserUserGroup, true, [
+            $oUserUserGroup,
+            true,
+            [
                 ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
                     1 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
                     2 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                 ]
             ],
-            ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            1
         );
         $this->memberFunctionAssertions($oUserUserGroup, true, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2);
-        $this->memberFunctionAssertions($oUserUserGroup, true, [
+        $this->memberFunctionAssertions(
+            $oUserUserGroup,
+            true,
+            [
                 ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
                     1 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                 ]
             ],
-            ObjectHandler::GENERAL_USER_OBJECT_TYPE, 3
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            3
         );
         $this->memberFunctionAssertions($oUserUserGroup, false, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 5);
 
         // term tests
         $this->memberFunctionAssertions($oTermUserGroup, true, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1);
         $this->memberFunctionAssertions(
-            $oTermUserGroup, true, [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']],
-            'termObjectType', 2
+            $oTermUserGroup,
+            true,
+            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']],
+            'termObjectType',
+            2
         );
         $this->memberFunctionAssertions($oTermUserGroup, true, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 3);
         $this->memberFunctionAssertions(
-            $oTermUserGroup, true, [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => 'term']],
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 4
+            $oTermUserGroup,
+            true,
+            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => 'term']],
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+            4
         );
         $this->memberFunctionAssertions($oTermUserGroup, false, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5);
 
         // post tests
         $this->memberFunctionAssertions($oPostUserGroup, true, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1);
         $this->memberFunctionAssertions(
-            $oPostUserGroup, true, [
+            $oPostUserGroup,
+            true,
+            [
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 'post'],
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']
             ],
-            'postObjectType', 2
+            'postObjectType',
+            2
         );
         $this->memberFunctionAssertions(
-            $oPostUserGroup, true, [
+            $oPostUserGroup,
+            true,
+            [
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => 'post'],
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => 'term']
             ],
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            2
         );
         $this->memberFunctionAssertions($oPostUserGroup, true, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3);
         $this->memberFunctionAssertions(
-            $oPostUserGroup, true, [ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => 'post']],
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE, 4
+            $oPostUserGroup,
+            true,
+            [ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => 'post']],
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            4
         );
         $this->memberFunctionAssertions($oPostUserGroup, false, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 5);
 
         // pluggable object tests
         $this->memberFunctionAssertions($oPluggableObjectUserGroup, false, [], 'noPluggableObject', 1);
         $this->memberFunctionAssertions(
-            $oPluggableObjectUserGroup, true, ['pluggableObject' => [1 => 'pluggableObject']],
-            '_pluggableObject_', 1
+            $oPluggableObjectUserGroup,
+            true,
+            ['pluggableObject' => [1 => 'pluggableObject']],
+            '_pluggableObject_',
+            1
         );
         $this->memberFunctionAssertions($oPluggableObjectUserGroup, false, [], '_pluggableObject_', 3);
     }
@@ -1337,7 +1377,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         self::setValue($oUserGroup, '_aFullObjectMembership', []);
         self::assertEquals(
             [1 => 'post', 2 => 'post', 3 => 'post', 4 => 'post', 9 => 'post'],
-                $oUserGroup->getFullPosts()
+            $oUserGroup->getFullPosts()
         );
 
         return $oUserGroup;
@@ -1364,8 +1404,7 @@ class UserGroupTest extends \UserAccessManagerTestCase
         UserGroup $oTermUserGroup,
         UserGroup $oPostUserGroup,
         UserGroup $oPluggableObjectUserGroup
-    )
-    {
+    ) {
         self::assertEquals(
             [1 => 'role', 2 => 'role', 3 => 'role'],
             $oRoleUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)

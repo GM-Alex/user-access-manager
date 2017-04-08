@@ -12,11 +12,13 @@
  * @version   SVN: $Id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Controller;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -26,7 +28,7 @@ use Vfs\Node\File;
  *
  * @package UserAccessManager\Controller
  */
-class FrontendControllerTest extends \UserAccessManagerTestCase
+class FrontendControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -242,7 +244,11 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         self::assertEquals('', $oFrontendController->adminOutput('objectType', 'objectId'));
         self::assertEquals('', $oFrontendController->adminOutput('objectType', 'objectId'));
         self::assertEquals('hintText', $oFrontendController->adminOutput('secondObjectType', 'secondObjectId'));
-        self::assertEquals('', $oFrontendController->adminOutput('secondObjectType', 'secondObjectId', 'text hintText'));
+        self::assertEquals('', $oFrontendController->adminOutput(
+            'secondObjectType',
+            'secondObjectId',
+            'text hintText'
+        ));
     }
 
     /**
@@ -256,8 +262,8 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
          */
         $oRootDir = $this->oRoot->get('/');
         $oRootDir->add('src', new Directory([
-            'UserAccessManager'  => new Directory([
-                'View'  => new Directory([
+            'UserAccessManager' => new Directory([
+                'View' => new Directory([
                     'LoginForm.php' => new File('<?php echo \'LoginForm\';')
                 ])
             ])
@@ -326,8 +332,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $sContent = null,
         $blClosed = false,
         $sPostMimeType = 'post/mime/type'
-    )
-    {
+    ) {
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Post $oPost
          */
@@ -335,7 +340,8 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oPost->ID = $iId;
         $oPost->post_type = $sPostType;
         $oPost->post_title = ($sTitle === null) ? "title{$iId}" : $sTitle;
-        $oPost->post_content = ($sContent === null) ? "[LOGIN_FORM] content{$iId}<!--more-->text<!--more-->\\contentAfter" : $sContent;
+        $oPost->post_content = ($sContent === null) ?
+            "[LOGIN_FORM] content{$iId}<!--more-->text<!--more-->\\contentAfter" : $sContent;
         $oPost->comment_status = ($blClosed === true) ? 'close' : 'open';
         $oPost->post_mime_type = $sPostMimeType;
 
@@ -365,14 +371,22 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(7))
             ->method('hidePostType')
             ->withConsecutive(
-                ['post'], ['other'], ['post'],
-                ['other'], ['post'],
-                ['post'], ['other']
+                ['post'],
+                ['other'],
+                ['post'],
+                ['other'],
+                ['post'],
+                ['post'],
+                ['other']
             )
             ->will($this->onConsecutiveCalls(
-                false, true, false,
-                true, false,
-                true, false
+                false,
+                true,
+                false,
+                true,
+                false,
+                true,
+                false
             ));
 
         $oConfig->expects($this->exactly(15))
@@ -384,14 +398,30 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oAccessHandler->expects($this->exactly(11))
             ->method('checkObjectAccess')
             ->withConsecutive(
-                ['post', 1], ['post', 2], ['other', 3], ['post', 4],
-                ['post', 1], ['post', 2], ['other', 3], ['post', 4],
-                ['post', 1], ['page', 2], ['other', 3]
+                ['post', 1],
+                ['post', 2],
+                ['other', 3],
+                ['post', 4],
+                ['post', 1],
+                ['post', 2],
+                ['other', 3],
+                ['post', 4],
+                ['post', 1],
+                ['page', 2],
+                ['other', 3]
             )
             ->will($this->onConsecutiveCalls(
-                false, true, false, false,
-                true, true, false, false,
-                false, true, false
+                false,
+                true,
+                false,
+                false,
+                true,
+                true,
+                false,
+                false,
+                false,
+                true,
+                false
             ));
 
         $oFrontendController = new FrontendController(
@@ -461,14 +491,8 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
 
         $oConfig->expects($this->exactly(6))
             ->method('hidePostType')
-            ->withConsecutive(
-                ['post'], ['other'], ['post'],
-                ['page'], ['post'], ['other']
-            )
-            ->will($this->onConsecutiveCalls(
-                false, false, true,
-                false, false, false
-            ));
+            ->withConsecutive(['post'], ['other'], ['post'], ['page'], ['post'], ['other'])
+            ->will($this->onConsecutiveCalls(false, false, true, false, false, false));
 
         $oConfig->expects($this->exactly(12))
             ->method('atAdminPanel')
@@ -485,42 +509,34 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
 
         $oConfig->expects($this->exactly(5))
             ->method('hidePostTypeTitle')
-            ->withConsecutive(
-                ['post'], ['other'], ['page'], ['post'], ['other']
-            )
-            ->will($this->onConsecutiveCalls(
-                true, false, true, false, true
-            ));
+            ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
+            ->will($this->onConsecutiveCalls(true, false, true, false, true));
 
         $oConfig->expects($this->exactly(3))
             ->method('getPostTypeTitle')
-            ->withConsecutive(
-                ['post'], ['page'], ['other']
-            )
+            ->withConsecutive(['post'], ['page'], ['other'])
             ->will($this->returnValue('postTitle'));
 
 
         $oConfig->expects($this->exactly(5))
             ->method('hidePostTypeComments')
-            ->withConsecutive(
-                ['post'], ['other'], ['page'], ['post'], ['other']
-            )
-            ->will($this->onConsecutiveCalls(
-                false, true, true, false, false
-            ));
+            ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
+            ->will($this->onConsecutiveCalls(false, true, true, false, false));
 
         $oAccessHandler = $this->getAccessHandler();
 
         $oAccessHandler->expects($this->exactly(7))
             ->method('checkObjectAccess')
             ->withConsecutive(
-                ['post', 1], ['post', 2], ['other', 3], ['post', 4],
-                ['page', 1], ['post', 2], ['other', 3]
+                ['post', 1],
+                ['post', 2],
+                ['other', 3],
+                ['post', 4],
+                ['page', 1],
+                ['post', 2],
+                ['other', 3]
             )
-            ->will($this->onConsecutiveCalls(
-                true, false, false, false,
-                false, false, false
-            ));
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false));
 
         $oFrontendController = new FrontendController(
             $this->getPhp(),
@@ -711,9 +727,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oCache->expects($this->exactly(6))
             ->method('getFromCache')
             ->with(FrontendController::POST_COUNTS_CACHE_KEY)
-            ->will($this->onConsecutiveCalls(
-                'cachedResult', null, null, null, null, null
-            ));
+            ->will($this->onConsecutiveCalls('cachedResult', null, null, null, null, null));
 
         $oCache->expects($this->exactly(5))
             ->method('addToCache')
@@ -887,7 +901,8 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
             $this->getComment(6)
         ];
 
-        self::assertEquals([
+        self::assertEquals(
+            [
                 $this->getComment(1),
                 $this->getComment(2),
                 $this->getComment(6, 'PostTypeCommentContent')
@@ -1038,7 +1053,18 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(12))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(
-                false, true, false, true, false, true, false, true, false, true, true, true
+                false,
+                true,
+                false,
+                true,
+                false,
+                true,
+                false,
+                true,
+                false,
+                true,
+                true,
+                true
             ));
 
         $oConfig->expects($this->once())
@@ -1095,7 +1121,7 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
                 if ($iTermId === 104) {
                     return false;
                 } elseif ($iTermId >= 105) {
-                    return $this->getTerm($iTermId, 'taxonomy', null, 0, ($iTermId-1));
+                    return $this->getTerm($iTermId, 'taxonomy', null, 0, ($iTermId - 1));
                 }
 
                 return $this->getTerm($iTermId);
@@ -1187,7 +1213,8 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
             12 => $this->getTerm(12),
             2 => $this->getTerm(2)
         ];
-        self::assertEquals([
+        self::assertEquals(
+            [
                 1 => new \stdClass(),
                 12 => $this->getTerm(12),
                 11 => $this->getTerm(11),
@@ -1237,9 +1264,20 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(14))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(
-                false, true, true, false, true,
-                true, true, true, true, true,
-                false, true, true, true
+                false,
+                true,
+                true,
+                false,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                false,
+                true,
+                true,
+                true
             ));
 
         $oConfig->expects($this->once())
@@ -1286,8 +1324,14 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oObjectHandler->expects($this->exactly(8))
             ->method('isPostType')
             ->withConsecutive(
-                ['other'], ['post'], ['post'], ['post'], ['post'],
-                ['taxonomy'], ['taxonomy'], ['taxonomy']
+                ['other'],
+                ['post'],
+                ['post'],
+                ['post'],
+                ['post'],
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy']
             )
             ->will($this->returnCallback(function ($sType) {
                 return ($sType === 'post');
@@ -1371,7 +1415,8 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
             8 => $this->getItem('taxonomy', 3)
         ];
 
-        self::assertEquals([
+        self::assertEquals(
+            [
                 1 => $this->getItem('other', 1, 'title1BlogAdminHintText'),
                 2 => $this->getItem('post', 1),
                 3 => $this->getItem('post', 2, 'PostTypeTitle'),
@@ -1774,7 +1819,13 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->exactly(7))
             ->method('getRedirect')
             ->will($this->onConsecutiveCalls(
-                'custom_page', 'custom_page', 'custom_page', 'custom_page', 'custom_url', null, null
+                'custom_page',
+                'custom_page',
+                'custom_page',
+                'custom_page',
+                'custom_url',
+                null,
+                null
             ));
 
         $oConfig->expects($this->exactly(4))
@@ -1789,7 +1840,15 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
 
         $oUtil->expects($this->exactly(7))
             ->method('getCurrentUrl')
-            ->will($this->onConsecutiveCalls('currentUrl', 'guid', 'PageLink', 'currentUrl', 'currentUrl', 'HomeUrl', 'currentUrl'));
+            ->will($this->onConsecutiveCalls(
+                'currentUrl',
+                'guid',
+                'PageLink',
+                'currentUrl',
+                'currentUrl',
+                'HomeUrl',
+                'currentUrl'
+            ));
 
         $oObjectHandler = $this->getObjectHandler();
 
@@ -1857,15 +1916,11 @@ class FrontendControllerTest extends \UserAccessManagerTestCase
 
         $oConfig->expects($this->exactly(9))
             ->method('atAdminPanel')
-            ->will($this->onConsecutiveCalls(
-                true, false, false, false, false, false, false, false, false, false
-            ));
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false, false, false));
 
         $oConfig->expects($this->exactly(9))
             ->method('getRedirect')
-            ->will($this->onConsecutiveCalls(
-                'false', null, null, null, null, null, null, null, null
-            ));
+            ->will($this->onConsecutiveCalls('false', null, null, null, null, null, null, null, null));
 
         $oDatabase = $this->getDatabase();
 

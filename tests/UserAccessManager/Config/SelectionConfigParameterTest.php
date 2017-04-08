@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Config;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class SelectionConfigParameterTest
  *
  * @package UserAccessManager\Config
  */
-class SelectionConfigParameterTest extends \UserAccessManagerTestCase
+class SelectionConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
      * @group   unit

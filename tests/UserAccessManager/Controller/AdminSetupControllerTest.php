@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Controller;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class AdminSetupControllerTest
  *
  * @package UserAccessManager\Controller
  */
-class AdminSetupControllerTest extends \UserAccessManagerTestCase
+class AdminSetupControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit

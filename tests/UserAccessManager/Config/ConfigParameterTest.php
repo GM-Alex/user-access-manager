@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Config;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class ConfigParameterTest
  *
  * @package UserAccessManager\Config
  */
-class ConfigParameterTest extends \UserAccessManagerTestCase
+class ConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameter

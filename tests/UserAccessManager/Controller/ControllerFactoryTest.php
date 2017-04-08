@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Controller;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class ControllerFactoryTest
  *
  * @package UserAccessManager\Controller
  */
-class ControllerFactoryTest extends \UserAccessManagerTestCase
+class ControllerFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -57,7 +59,10 @@ class ControllerFactoryTest extends \UserAccessManagerTestCase
      */
     public function testCreateAdminController(ControllerFactory $oControllerFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminController', $oControllerFactory->createAdminController());
+        self::assertInstanceOf(
+            '\UserAccessManager\Controller\AdminController',
+            $oControllerFactory->createAdminController()
+        );
     }
 
     /**
@@ -69,7 +74,10 @@ class ControllerFactoryTest extends \UserAccessManagerTestCase
      */
     public function testCreateAdminAboutController(ControllerFactory $oControllerFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminAboutController', $oControllerFactory->createAdminAboutController());
+        self::assertInstanceOf(
+            '\UserAccessManager\Controller\AdminAboutController',
+            $oControllerFactory->createAdminAboutController()
+        );
     }
 
     /**
@@ -81,7 +89,10 @@ class ControllerFactoryTest extends \UserAccessManagerTestCase
      */
     public function testCreateAdminObjectController(ControllerFactory $oControllerFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminObjectController', $oControllerFactory->createAdminObjectController());
+        self::assertInstanceOf(
+            '\UserAccessManager\Controller\AdminObjectController',
+            $oControllerFactory->createAdminObjectController()
+        );
     }
 
     /**
@@ -93,7 +104,10 @@ class ControllerFactoryTest extends \UserAccessManagerTestCase
      */
     public function testCreateAdminSettingController(ControllerFactory $oControllerFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminSettingsController', $oControllerFactory->createAdminSettingsController());
+        self::assertInstanceOf(
+            '\UserAccessManager\Controller\AdminSettingsController',
+            $oControllerFactory->createAdminSettingsController()
+        );
     }
 
     /**
@@ -105,7 +119,10 @@ class ControllerFactoryTest extends \UserAccessManagerTestCase
      */
     public function testCreateAdminSetupController(ControllerFactory $oControllerFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminSetupController', $oControllerFactory->createAdminSetupController());
+        self::assertInstanceOf(
+            '\UserAccessManager\Controller\AdminSetupController',
+            $oControllerFactory->createAdminSetupController()
+        );
     }
 
     /**
@@ -117,7 +134,10 @@ class ControllerFactoryTest extends \UserAccessManagerTestCase
      */
     public function testCreateAdminUserGroupController(ControllerFactory $oControllerFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminUserGroupController', $oControllerFactory->createAdminUserGroupController());
+        self::assertInstanceOf(
+            '\UserAccessManager\Controller\AdminUserGroupController',
+            $oControllerFactory->createAdminUserGroupController()
+        );
     }
 
     /**
@@ -129,6 +149,9 @@ class ControllerFactoryTest extends \UserAccessManagerTestCase
      */
     public function testCreateFrontendController(ControllerFactory $oControllerFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Controller\FrontendController', $oControllerFactory->createFrontendController());
+        self::assertInstanceOf(
+            '\UserAccessManager\Controller\FrontendController',
+            $oControllerFactory->createFrontendController()
+        );
     }
 }

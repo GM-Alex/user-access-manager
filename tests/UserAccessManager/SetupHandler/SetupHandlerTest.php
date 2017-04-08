@@ -18,13 +18,14 @@ use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhit
 use UserAccessManager\Config\Config;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserAccessManagerTestCase;
 
 /**
  * Class SetupHandlerTest
  *
  * @package UserAccessManager\SetupHandler
  */
-class SetupHandlerTest extends \UserAccessManagerTestCase
+class SetupHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -342,9 +343,7 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                     'SELECT role_name AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_role'
                 )]
             )
-            ->will($this->onConsecutiveCalls(
-                [$oDbObject], [], [], []
-            ));
+            ->will($this->onConsecutiveCalls([$oDbObject], [], [], []));
 
         $oDatabase->expects($this->exactly(12))
             ->method('query')
@@ -362,7 +361,8 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                     'ALTER TABLE userGroupTable ADD ip_range MEDIUMTEXT NULL DEFAULT \'\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\' CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
+                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\'
+                    CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
                 )],
                 [new MatchIgnoreWhitespace(
                     'DROP TABLE prefix_uam_accessgroup_to_post,
@@ -424,11 +424,22 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
 
         $oObjectHandler->expects($this->once())
             ->method('getObjectTypes')
-            ->will($this->returnValue(['post', 'nothing', 'category', 'nothing', 'user', 'nothing', 'role', 'nothing']));
+            ->will($this->returnValue(
+                ['post', 'nothing', 'category', 'nothing', 'user', 'nothing', 'role', 'nothing']
+            ));
 
         $oObjectHandler->expects($this->exactly(8))
             ->method('isPostType')
-            ->withConsecutive(['post'], ['nothing'], ['category'], ['nothing'], ['user'], ['nothing'], ['role'], ['nothing'])
+            ->withConsecutive(
+                ['post'],
+                ['nothing'],
+                ['category'],
+                ['nothing'],
+                ['user'],
+                ['nothing'],
+                ['role'],
+                ['nothing']
+            )
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false));
 
         $oFileHandler = $this->getFileHandler();

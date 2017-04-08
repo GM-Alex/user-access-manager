@@ -15,13 +15,14 @@
 namespace UserAccessManager\ObjectHandler;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use UserAccessManager\UserAccessManagerTestCase;
 
 /**
  * Class ObjectHandlerTest
  *
  * @package UserAccessManager\ObjectHandler
  */
-class ObjectHandlerTest extends \UserAccessManagerTestCase
+class ObjectHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -641,10 +642,11 @@ class ObjectHandlerTest extends \UserAccessManagerTestCase
         $oObjectHandler->registerPluggableObject($oFirstPluggableObject);
         $oObjectHandler->registerPluggableObject($oSecondPluggableObject);
 
-        self::assertAttributeEquals([
-            'firstObjectName' => $oFirstPluggableObject,
-            'secondObjectName' => $oSecondPluggableObject
-        ],
+        self::assertAttributeEquals(
+            [
+                'firstObjectName' => $oFirstPluggableObject,
+                'secondObjectName' => $oSecondPluggableObject
+            ],
             '_aPluggableObjects',
             $oObjectHandler
         );

@@ -16,10 +16,10 @@ namespace UserAccessManager\AccessHandler;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\UserGroup;
 
-
-class AccessHandlerTest extends \UserAccessManagerTestCase
+class AccessHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -597,17 +597,20 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         $oContributorUser = $this->getUser(['contributor' => true], 0);
         $oSubscriberUser = $this->getUser(['subscriber' => true], 0);
 
+        $aUserReturn = [$oAdminUser, $oEditorUser, $oAuthorUser, $oContributorUser, $oSubscriberUser, $oNoneUser];
+
         $oWordpress = parent::getWordpress();
         $oWordpress->expects($this->any())
             ->method('getCurrentUser')
             ->will($this->onConsecutiveCalls(
-                $oUnkownRoleUser, $oMultiRoleUser,
-                $oAdminUser, $oEditorUser, $oAuthorUser, $oContributorUser, $oSubscriberUser, $oNoneUser,
-                $oAdminUser, $oEditorUser, $oAuthorUser, $oContributorUser, $oSubscriberUser, $oNoneUser,
-                $oAdminUser, $oEditorUser, $oAuthorUser, $oContributorUser, $oSubscriberUser, $oNoneUser,
-                $oAdminUser, $oEditorUser, $oAuthorUser, $oContributorUser, $oSubscriberUser, $oNoneUser,
-                $oAdminUser, $oEditorUser, $oAuthorUser, $oContributorUser, $oSubscriberUser, $oNoneUser,
-                $oAdminUser, $oEditorUser, $oAuthorUser, $oContributorUser, $oSubscriberUser, $oNoneUser
+                $oUnkownRoleUser,
+                $oMultiRoleUser,
+                ...$aUserReturn,
+                ...$aUserReturn,
+                ...$aUserReturn,
+                ...$aUserReturn,
+                ...$aUserReturn,
+                ...$aUserReturn
             ));
 
         $oWordpress->expects($this->any())
@@ -618,14 +621,14 @@ class AccessHandlerTest extends \UserAccessManagerTestCase
         $oConfig->expects($this->any())
             ->method('getFullAccessRole')
             ->will($this->onConsecutiveCalls(
-                UserGroup::NONE_ROLE, 'administrator',
-                'administrator', 'administrator', 'administrator', 'administrator', 'administrator', 'administrator',
-                'editor', 'editor', 'editor', 'editor', 'editor', 'editor',
-                'author', 'author', 'author', 'author', 'author', 'author',
-                'contributor', 'contributor', 'contributor', 'contributor', 'contributor', 'contributor',
-                'subscriber', 'subscriber', 'subscriber', 'subscriber', 'subscriber', 'subscriber',
-                UserGroup::NONE_ROLE, UserGroup::NONE_ROLE, UserGroup::NONE_ROLE,
-                UserGroup::NONE_ROLE, UserGroup::NONE_ROLE, UserGroup::NONE_ROLE
+                UserGroup::NONE_ROLE,
+                'administrator',
+                ...array_fill(0, 6, 'administrator'),
+                ...array_fill(0, 6, 'editor'),
+                ...array_fill(0, 6, 'author'),
+                ...array_fill(0, 6, 'contributor'),
+                ...array_fill(0, 6, 'subscriber'),
+                ...array_fill(0, 6, UserGroup::NONE_ROLE)
             ));
 
         $oAccessHandler = new AccessHandler(

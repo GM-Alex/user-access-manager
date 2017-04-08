@@ -21,7 +21,7 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
  *
  * @package UserAccessManager
  */
-class UserAccessManagerTest extends \UserAccessManagerTestCase
+class UserAccessManagerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -154,7 +154,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
 
         $oControllerFactory->expects($this->exactly(3))
             ->method('createAdminObjectController')
-            ->will($this->returnCallback(function() {
+            ->will($this->returnCallback(function () {
                 $oAdminObjectController = $this->createMock('UserAccessManager\Controller\AdminObjectController');
                 $oAdminObjectController->expects($this->any())
                     ->method('checkRightsToEditContent');

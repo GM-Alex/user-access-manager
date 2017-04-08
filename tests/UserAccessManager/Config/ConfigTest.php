@@ -14,38 +14,42 @@
  */
 namespace UserAccessManager\Config;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class ConfigTest
  *
  * @package UserAccessManager\Config
  */
-class ConfigTest extends \UserAccessManagerTestCase
+class ConfigTest extends UserAccessManagerTestCase
 {
     /**
      * @var array
      */
-    private $_aDefaultValues;
+    private $aDefaultValues;
 
     /**
      * Create default mocked objects.
      */
     public function setUp()
     {
-        $this->_aDefaultValues = [
+        $this->aDefaultValues = [
             'hide_post' => 'bool|hide_post|false',
             'hide_post_title' => 'bool|hide_post_title|false',
             'post_title' => 'string|post_title|No rights!|user-access-manager',
             'show_post_content_before_more' => 'bool|show_post_content_before_more|false',
             'post_content' => 'string|post_content|Sorry you have no rights to view this entry!|user-access-manager',
             'hide_post_comment' => 'bool|hide_post_comment|false',
-            'post_comment_content' => 'string|post_comment_content|Sorry no rights to view comments!|user-access-manager',
+            'post_comment_content' => 'string|post_comment_content|'
+                .'Sorry no rights to view comments!|user-access-manager',
             'post_comments_locked' => 'bool|post_comments_locked|false',
             'hide_page' => 'bool|hide_page|false',
             'hide_page_title' => 'bool|hide_page_title|false',
             'page_title' => 'string|page_title|No rights!|user-access-manager',
             'page_content' => 'string|page_content|Sorry you have no rights to view this entry!|user-access-manager',
             'hide_page_comment' => 'bool|hide_page_comment|false',
-            'page_comment_content' => 'string|page_comment_content|Sorry no rights to view comments!|user-access-manager',
+            'page_comment_content' => 'string|page_comment_content|'
+                .'Sorry no rights to view comments!|user-access-manager',
             'page_comments_locked' => 'bool|page_comments_locked|false',
             'redirect' => 'selection|redirect|false|false|custom_page|custom_url',
             'redirect_custom_page' => 'string|redirect_custom_page|',
@@ -63,7 +67,8 @@ class ConfigTest extends \UserAccessManagerTestCase
             'blog_admin_hint_text' => 'string|blog_admin_hint_text|[L]',
             'hide_empty_category' => 'bool|hide_empty_category|true',
             'protect_feed' => 'bool|protect_feed|true',
-            'full_access_role' => 'selection|full_access_role|administrator|administrator|editor|author|contributor|subscriber',
+            'full_access_role' => 'selection|full_access_role|administrator|'
+                .'administrator|editor|author|contributor|subscriber',
         ];
     }
 
@@ -243,9 +248,9 @@ class ConfigTest extends \UserAccessManagerTestCase
             'baseFile'
         );
 
-        self::assertEquals($this->_aDefaultValues, $oConfig->getConfigParameters());
+        self::assertEquals($this->aDefaultValues, $oConfig->getConfigParameters());
 
-        $aOptionKeys = array_keys($this->_aDefaultValues);
+        $aOptionKeys = array_keys($this->aDefaultValues);
         $aTestValues = array_map(function ($sElement) {
             return $sElement.'|value';
         }, $aOptionKeys);

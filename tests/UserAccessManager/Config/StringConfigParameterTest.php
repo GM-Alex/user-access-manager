@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Config;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class StringConfigParameterTest
  *
  * @package UserAccessManager\Config
  */
-class StringConfigParameterTest extends \UserAccessManagerTestCase
+class StringConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
      * @group   unit

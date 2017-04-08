@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Util;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class UtilTest
  *
  * @package UserAccessManager\Util
  */
-class UtilTest extends \UserAccessManagerTestCase
+class UtilTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
@@ -78,7 +80,7 @@ class UtilTest extends \UserAccessManagerTestCase
 
         $oUtil = new Util($oPhp);
 
-        self::assertEquals('dGVzdFN0cmluZw', $oUtil->getRandomPassword());
+        self::assertEquals('dGVzdFN0cmluZzMz', $oUtil->getRandomPassword());
 
         $cReturnFunction = function($iLength, &$blStrong) {
             $blStrong = true;

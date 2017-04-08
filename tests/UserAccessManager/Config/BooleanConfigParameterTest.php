@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Config;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class BooleanConfigParameterTest
  *
  * @package UserAccessManager\Config
  */
-class BooleanConfigParameterTest extends \UserAccessManagerTestCase
+class BooleanConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
      * @group   unit

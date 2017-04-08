@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Database;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class DatabaseTest
  *
  * @package UserAccessManager\Database
  */
-class DatabaseTest extends \UserAccessManagerTestCase
+class DatabaseTest extends UserAccessManagerTestCase
 {
     /**
      * @param array $aMethods
@@ -244,7 +246,6 @@ class DatabaseTest extends \UserAccessManagerTestCase
                 self::assertEquals($mExpectedValue, $oDatabase->{$sFunctionName}(...$aArguments[$sKey]));
             }
         }
-
     }
 
     /**

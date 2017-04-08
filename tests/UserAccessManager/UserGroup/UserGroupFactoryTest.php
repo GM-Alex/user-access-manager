@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\UserGroup;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class UserGroupFactoryTest
  *
  * @package UserAccessManager\UserGroup
  */
-class UserGroupFactoryTest extends \UserAccessManagerTestCase
+class UserGroupFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit

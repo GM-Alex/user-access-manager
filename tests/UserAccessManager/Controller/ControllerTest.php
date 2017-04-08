@@ -14,8 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
-require_once __DIR__.'/DummyController.php';
-
+use UserAccessManager\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -25,7 +24,7 @@ use Vfs\Node\File;
  *
  * @package UserAccessManager\Controller
  */
-class ControllerTest extends \UserAccessManagerTestCase
+class ControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem

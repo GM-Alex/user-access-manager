@@ -15,13 +15,14 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserAccessManagerTestCase;
 
 /**
  * Class AdminSettingsControllerTest
  *
  * @package UserAccessManager\Controller
  */
-class AdminSettingsControllerTest extends \UserAccessManagerTestCase
+class AdminSettingsControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
