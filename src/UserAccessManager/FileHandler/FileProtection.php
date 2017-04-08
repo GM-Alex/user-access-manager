@@ -16,6 +16,7 @@ namespace UserAccessManager\FileHandler;
 
 use UserAccessManager\Config\Config;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -26,6 +27,11 @@ use UserAccessManager\Wrapper\Wordpress;
 abstract class FileProtection
 {
     const PASSWORD_FILE_NAME = '.htpasswd';
+
+    /**
+     * @var Php
+     */
+    protected $_oPhp;
 
     /**
      * @var Wordpress
@@ -45,12 +51,14 @@ abstract class FileProtection
     /**
      * ApacheFileProtection constructor.
      *
+     * @param Php         $oPhp
      * @param Wordpress   $oWordpress
      * @param Config      $oConfig
      * @param Util        $oUtil
      */
-    public function __construct(Wordpress $oWordpress, Config $oConfig, Util $oUtil)
+    public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig, Util $oUtil)
     {
+        $this->_oPhp = $oPhp;
         $this->_oWordpress = $oWordpress;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;

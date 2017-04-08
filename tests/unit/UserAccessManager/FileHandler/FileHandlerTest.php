@@ -92,6 +92,15 @@ class FileHandlerTest extends \UserAccessManagerTestCase
                 false, false, false, false
             ));
 
+        $oPhp->expects($this->exactly(4))
+            ->method('iniGet')
+            ->with('safe_mode')
+            ->will($this->onConsecutiveCalls('On', '', 'On', 'On'));
+
+        $oPhp->expects($this->exactly(3))
+            ->method('setTimeLimit')
+            ->with(30);
+
         $oWordpress = $this->getWordpress();
         $oWordpress->expects($this->once())
             ->method('wpDie')

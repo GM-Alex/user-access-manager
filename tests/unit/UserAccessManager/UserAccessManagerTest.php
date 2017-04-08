@@ -16,10 +16,6 @@ namespace UserAccessManager;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
 
-function ini_get($sVariable) {
-    return ($sVariable === 'safe_mode');
-}
-
 /**
  * Class UserAccessManagerTest
  *
@@ -34,6 +30,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oObjectHandler = new UserAccessManager(
+            $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getObjectHandler(),
@@ -78,6 +75,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             ->method('createAdminAboutController');
 
         $oObjectHandler = new UserAccessManager(
+            $this->getPhp(),
             $oWordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
@@ -96,6 +94,11 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
      */
     public function testRegisterAdminActionsAndFilters()
     {
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(3))
+            ->method('iniGet')
+            ->will($this->returnValue(true));
+
         $oWordpress = $this->getWordpress();
         $oWordpress->expects($this->exactly(57))
             ->method('addAction');
@@ -164,6 +167,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             }));
 
         $oObjectHandler = new UserAccessManager(
+            $oPhp,
             $oWordpress,
             $oConfig,
             $oObjectHandler,
@@ -206,6 +210,7 @@ class UserAccessManagerTest extends \UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, false, true));
 
         $oObjectHandler = new UserAccessManager(
+            $this->getPhp(),
             $oWordpress,
             $oConfig,
             $this->getObjectHandler(),

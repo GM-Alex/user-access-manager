@@ -55,6 +55,7 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oNginxFileProtection = new NginxFileProtection(
+            $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
@@ -83,11 +84,10 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
             ->will($this->returnValue($oUser));
 
         $oConfig = $this->getConfig();
-        $oUtil = $this->getUtil();
 
-        $oConfig->expects($this->exactly(4))
+        $oConfig->expects($this->exactly(5))
             ->method('isPermalinksActive')
-            ->will($this->onConsecutiveCalls(false, false, true, true));
+            ->will($this->onConsecutiveCalls(false, false, true, true, true));
 
         $oConfig->expects($this->exactly(2))
             ->method('getLockFileTypes')
@@ -112,7 +112,12 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
         $oRootDir->add('testDir', new Directory());
         $sTestDir = 'vfs://testDir';
 
-        $oNginxFileProtection = new NginxFileProtection($oWordpress, $oConfig, $oUtil);
+        $oNginxFileProtection = new NginxFileProtection(
+            $this->getPhp(),
+            $oWordpress,
+            $oConfig,
+            $this->getUtil()
+        );
         $sFile = 'vfs://testDir/'.NginxFileProtection::FILE_NAME;
         $sPasswordFile = 'vfs://testDir/'.NginxFileProtection::PASSWORD_FILE_NAME;
 
@@ -146,6 +151,8 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
             "location / {\nrewrite ^(.*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n}\n",
             file_get_contents($sFile)
         );
+
+        self::assertFalse($oNginxFileProtection->create('invalid', 'invalid'));
     }
 
     /**
@@ -154,10 +161,17 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testDelete()
     {
-        $oWordpress = $this->getWordpress();
-        $oConfig = $this->getConfig();
-        $oUtil = $this->getUtil();
-        $oNginxFileProtection = new NginxFileProtection($oWordpress, $oConfig, $oUtil);
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(6))
+            ->method('unlink')
+            ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
+
+        $oNginxFileProtection = new NginxFileProtection(
+            $oPhp,
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getUtil()
+        );
 
         /**
          * @var Directory $oRootDir
@@ -175,7 +189,7 @@ class NginxFileProtectionTest extends \UserAccessManagerTestCase
         self::assertTrue(file_exists($sFile));
         self::assertTrue(file_exists($sPasswordFile));
         self::assertTrue($oNginxFileProtection->delete($sTestDir));
-        self::assertFalse(file_exists($sFile));
-        //seems a bug in vsf self::assertFalse(file_exists($sPasswordFile));
+        self::assertFalse($oNginxFileProtection->delete($sTestDir));
+        self::assertFalse($oNginxFileProtection->delete($sTestDir));
     }
 }

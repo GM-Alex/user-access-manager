@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\FileHandler;
 
-use Mockery\Exception;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 
@@ -48,17 +47,18 @@ class FileProtectionTest extends \UserAccessManagerTestCase
     }
 
     /**
+     * @param $oPhp
      * @param $oWordpress
      * @param $oConfig
      * @param $oUtil
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|FileProtection
      */
-    private function getStub($oWordpress, $oConfig, $oUtil)
+    private function getStub($oPhp, $oWordpress, $oConfig, $oUtil)
     {
         return $this->getMockForAbstractClass(
             '\UserAccessManager\FileHandler\FileProtection',
-            [$oWordpress, $oConfig, $oUtil]
+            [$oPhp, $oWordpress, $oConfig, $oUtil]
         );
     }
 
@@ -68,10 +68,11 @@ class FileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
+        $oPhp = $this->getPhp();
         $oWordpress = $this->getWordpress();
         $oConfig = $this->getConfig();
         $oUtil = $this->getUtil();
-        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
+        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
         self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtection', $oStub);
     }
 
@@ -81,6 +82,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testCleanUpFileTypes()
     {
+        $oPhp = $this->getPhp();
         $oWordpress = $this->getWordpress();
         $oConfig = $this->getConfig();
         $oConfig->expects($this->exactly(2))
@@ -90,7 +92,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
                 ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType']
             ));
         $oUtil = $this->getUtil();
-        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
+        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
 
         self::assertEquals('a|c', self::callMethod($oStub, '_cleanUpFileTypes', ['a,c']));
         self::assertEquals('b', self::callMethod($oStub, '_cleanUpFileTypes', ['b,f']));
@@ -109,6 +111,8 @@ class FileProtectionTest extends \UserAccessManagerTestCase
         $oRootDir->add('firstTestDir', new Directory());
         $oRootDir->add('secondTestDir', new Directory());
         $oRootDir->add('thirdTestDir', new Directory());
+
+        $oPhp = $this->getPhp();
 
         $oWordpress = $this->getWordpress();
         $oWordpress->expects($this->exactly(6))
@@ -146,7 +150,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
             ->method('getRandomPassword')
             ->will($this->returnValue('randomPassword'));
 
-        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
+        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
 
         $sFirstTestFile = 'vfs://firstTestDir/'.FileProtection::PASSWORD_FILE_NAME;
         $oStub->createPasswordFile();
@@ -168,7 +172,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
             ->method('getFilePassType')
             ->will($this->returnValue('random'));
 
-        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
+        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
         $oStub->createPasswordFile();
         self::assertEquals($sContent, file_get_contents($sFirstTestFile));
 
@@ -187,7 +191,7 @@ class FileProtectionTest extends \UserAccessManagerTestCase
                 throw new \Exception('Unable to generate secure token from OpenSSL.');
             }));
 
-        $oStub = $this->getStub($oWordpress, $oConfig, $oUtil);
+        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
 
         $sThirdTestFile = 'vfs://thirdTestDir/'.FileProtection::PASSWORD_FILE_NAME;
         $oStub->createPasswordFile(true, 'vfs://thirdTestDir/');

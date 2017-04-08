@@ -24,6 +24,7 @@
     "etsy/phpunit-extensions": "~0.7",
     "wp-cli/wp-cli": "~1.0",
     "adlawson/vfs": "~0.12",
-    "humbug/humbug": "dev-master"
+    "humbug/humbug": "dev-master",
+    "squizlabs/php_codesniffer": "~2.8"
   }
 }

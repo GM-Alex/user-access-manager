@@ -82,7 +82,13 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
 
         // save files
         $sFileWithPath = $sDir.self::FILE_NAME;
-        return (file_put_contents($sFileWithPath, $sContent) !== false);
+
+        try {
+            file_put_contents($sFileWithPath, $sContent);
+            return true;
+        } catch (\Exception $oException) {}
+
+        return false;
     }
 
     /**
@@ -99,13 +105,13 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $sFileName = $sDir.self::FILE_NAME;
 
         if (file_exists($sFileName) === true) {
-            $blSuccess = (unlink($sFileName) === true) && $blSuccess;
+            $blSuccess = ($this->_oPhp->unlink($sFileName) === true) && $blSuccess;
         }
 
         $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
 
         if (file_exists($sPasswordFile) === true) {
-            $blSuccess = (unlink($sPasswordFile) === true) && $blSuccess;
+            $blSuccess = ($this->_oPhp->unlink($sPasswordFile) === true) && $blSuccess;
         }
 
         return $blSuccess;

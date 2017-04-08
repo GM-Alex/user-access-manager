@@ -75,7 +75,13 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
 
         // save files
         $sFileWithPath = $sAbsPath.self::FILE_NAME;
-        return (file_put_contents($sFileWithPath, $sContent) !== false);
+
+        try {
+            file_put_contents($sFileWithPath, $sContent);
+            return true;
+        } catch (\Exception $oException) {}
+
+        return false;
     }
 
     /**
@@ -91,14 +97,14 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         $sDir = rtrim($sDir, '/').'/';
         $sFileName = $sDir.self::FILE_NAME;
 
-        if (file_exists($sFileName)) {
-            $blSuccess = unlink($sFileName) && $blSuccess;
+        if (file_exists($sFileName) === true) {
+            $blSuccess = ($this->_oPhp->unlink($sFileName) === true) && $blSuccess;
         }
 
         $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
 
-        if (file_exists($sPasswordFile)) {
-            $blSuccess = unlink($sPasswordFile) && $blSuccess;
+        if (file_exists($sPasswordFile) === true) {
+            $blSuccess = ($this->_oPhp->unlink($sPasswordFile) === true) && $blSuccess;
         }
 
         return $blSuccess;

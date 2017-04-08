@@ -119,8 +119,8 @@ class FileHandler
                 flush();
 
                 while (feof($oHandler) === false) {
-                    if (ini_get('safe_mode') === false) {
-                        set_time_limit(30);
+                    if ($this->_oPhp->iniGet('safe_mode') !== '') {
+                        $this->_oPhp->setTimeLimit(30);
                     }
 
                     echo fread($oHandler, 1024);

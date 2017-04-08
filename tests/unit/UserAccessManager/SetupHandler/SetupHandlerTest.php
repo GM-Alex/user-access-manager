@@ -16,6 +16,7 @@ namespace UserAccessManager\SetupHandler;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Config\Config;
+use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 
 /**
@@ -410,6 +411,14 @@ class SetupHandlerTest extends \UserAccessManagerTestCase
                 'userGroupTable',
                 'ip_range'
             ));
+
+        $oDatabase->expects($this->once())
+            ->method('update')
+            ->with(
+                'userGroupToObjectTable',
+                ['object_type' => ObjectHandler::GENERAL_TERM_OBJECT_TYPE],
+                ['object_type' => 'category']
+            );
 
         $oObjectHandler = $this->getObjectHandler();
 

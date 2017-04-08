@@ -167,14 +167,14 @@ class SetupHandler
     {
         $aBlogIds = $this->getBlogIds();
 
-        if (count($aBlogIds) > 0 && $this->_oWordpress->isSuperAdmin()) {
+        if ($this->_oWordpress->isSuperAdmin() === true) {
             foreach ($aBlogIds as $iBlogId) {
                 $sTable = $this->_oDatabase->getBlogPrefix($iBlogId).'options';
                 $sSelect = "SELECT option_value FROM {$sTable} WHERE option_name = '%s' LIMIT 1";
                 $sSelect = $this->_oDatabase->prepare($sSelect, 'uam_db_version');
                 $sCurrentDbVersion = $this->_oDatabase->getVariable($sSelect);
 
-                if (version_compare($sCurrentDbVersion, UserAccessManager::DB_VERSION, '<')) {
+                if (version_compare($sCurrentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
                     return true;
                 }
             }
@@ -213,7 +213,7 @@ class SetupHandler
             $sPrefix = $this->_oDatabase->getPrefix();
             $sCharsetCollate = $this->_oDatabase->getCharset();
 
-            if (version_compare($sCurrentDbVersion, '1.0', '<=')) {
+            if (version_compare($sCurrentDbVersion, '1.0', '<=') === true) {
                 if ($sDbUserGroup === $sDbAccessGroup) {
                     $sAlterQuery = "ALTER TABLE {$sDbAccessGroup}
                         ADD read_access TINYTEXT NOT NULL DEFAULT '', 

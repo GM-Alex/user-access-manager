@@ -110,6 +110,7 @@ $oAccessHandler = new AccessHandler(
     $oUserGroupFactory
 );
 $oFileProtectionFactory = new FileProtectionFactory(
+    $oPhp,
     $oWordpress,
     $oConfig,
     $oUtil
@@ -140,6 +141,7 @@ $oControllerFactory = new ControllerFactory(
     $oSetupHandler
 );
 $oUserAccessManager = new UserAccessManager(
+    $oPhp,
     $oWordpress,
     $oConfig,
     $oObjectHandler,
@@ -181,6 +183,7 @@ if (!function_exists("userAccessManagerUninstall")) {
         $oConfig = new Config($oWordpress, $oObjectHandler, $oConfigParameterFactory, __FILE__);
 
         $oFileProtectionFactory = new FileProtectionFactory(
+            $oPhp,
             $oWordpress,
             $oConfig,
             $oUtil

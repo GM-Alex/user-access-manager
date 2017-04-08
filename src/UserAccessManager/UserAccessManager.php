@@ -20,6 +20,7 @@ use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -31,6 +32,11 @@ class UserAccessManager
 {
     const VERSION = '2.0.0';
     const DB_VERSION = '1.5';
+
+    /**
+     * @var Php
+     */
+    protected $_oPhp;
 
     /**
      * @var Wordpress
@@ -70,6 +76,7 @@ class UserAccessManager
     /**
      * UserAccessManager constructor.
      *
+     * @param Php               $oPhp
      * @param Wordpress         $oWordpress
      * @param Config            $oConfig
      * @param ObjectHandler     $oObjectHandler
@@ -78,6 +85,7 @@ class UserAccessManager
      * @param ControllerFactory $oControllerFactory
      */
     public function __construct(
+        Php $oPhp,
         Wordpress $oWordpress,
         Config $oConfig,
         ObjectHandler $oObjectHandler,
@@ -86,6 +94,7 @@ class UserAccessManager
         ControllerFactory $oControllerFactory
     )
     {
+        $this->_oPhp = $oPhp;
         $this->_oWordpress = $oWordpress;
         $this->_oConfig = $oConfig;
         $this->_oObjectHandler = $oObjectHandler;
@@ -167,7 +176,7 @@ class UserAccessManager
         $this->_oWordpress->addAction('admin_enqueue_scripts', [$oAdminController, 'enqueueStylesAndScripts']);
         $this->_oWordpress->addAction('wp_dashboard_setup', [$oAdminController, 'setupAdminDashboard']);
 
-        if (ini_get('safe_mode') === true && $this->_oConfig->getDownloadType() === 'fopen') {
+        if ($this->_oPhp->iniGet('safe_mode') !== '' && $this->_oConfig->getDownloadType() === 'fopen') {
             $this->_oWordpress->addAction('admin_notices', [$oAdminController, 'showFOpenNotice']);
         }
 

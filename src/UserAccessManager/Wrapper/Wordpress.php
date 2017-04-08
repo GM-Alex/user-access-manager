@@ -682,8 +682,6 @@ class Wordpress
      * Sets the wordpress meta boxes.
      *
      * @param array $aWpMetaBoxes
-     *
-     * @return array
      */
     public function setMetaBoxes(array $aWpMetaBoxes)
     {

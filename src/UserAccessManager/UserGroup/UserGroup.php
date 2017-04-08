@@ -581,9 +581,9 @@ class UserGroup
             if ($oUser !== false) {
                 $sCapabilitiesTable = $this->_oDatabase->getCapabilitiesTable();
 
-                $aCapabilities = (isset($oUser->{$sCapabilitiesTable})) ? $oUser->{$sCapabilitiesTable} : [];
+                $aCapabilities = (isset($oUser->{$sCapabilitiesTable}) === true) ? $oUser->{$sCapabilitiesTable} : [];
 
-                if (is_array($aCapabilities) && count($aCapabilities) > 0) {
+                if (is_array($aCapabilities) === true && count($aCapabilities) > 0) {
                     $aAssignedRoles = $this->_getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
                     $aRecursiveRoles = array_intersect(
                         array_keys($aCapabilities),
@@ -918,7 +918,7 @@ class UserGroup
         } elseif ($sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
             return $this->getFullUsers();
         } elseif ($sObjectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
-            || $this->_oObjectHandler->isTaxonomy($sObjectType)
+            || $this->_oObjectHandler->isTaxonomy($sObjectType) === true
         ) {
             return $this->getFullTerms($sObjectType);
         } elseif ($sObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE

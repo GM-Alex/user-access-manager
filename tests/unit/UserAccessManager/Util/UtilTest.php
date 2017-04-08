@@ -67,7 +67,20 @@ class UtilTest extends \UserAccessManagerTestCase
      */
     public function testGetRandomPassword()
     {
-        $returnFunction = function($iLength, &$blStrong) {
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->once())
+            ->method('opensslRandomPseudoBytes')
+            ->with(33)
+            ->will($this->returnCallback(function($iLength, &$blStrong) {
+                $blStrong = true;
+                return 'testString';
+            }));
+
+        $oUtil = new Util($oPhp);
+
+        self::assertEquals('dGVzdFN0cmluZw', $oUtil->getRandomPassword());
+
+        $cReturnFunction = function($iLength, &$blStrong) {
             $blStrong = true;
             return openssl_random_pseudo_bytes($iLength);
         };
@@ -76,7 +89,7 @@ class UtilTest extends \UserAccessManagerTestCase
         $oPhp->expects($this->exactly(2))
             ->method('opensslRandomPseudoBytes')
             ->withConsecutive([33], [11])
-            ->will($this->returnCallback($returnFunction));
+            ->will($this->returnCallback($cReturnFunction));
 
         $oUtil = new Util($oPhp);
 
@@ -90,7 +103,7 @@ class UtilTest extends \UserAccessManagerTestCase
         $oPhp->expects($this->exactly(100))
             ->method('opensslRandomPseudoBytes')
             ->with(33)
-            ->will($this->returnCallback($returnFunction));
+            ->will($this->returnCallback($cReturnFunction));
 
         $oUtil = new Util($oPhp);
 
@@ -119,6 +132,30 @@ class UtilTest extends \UserAccessManagerTestCase
             ->will($this->returnCallback(function($iLength, &$blStrong) {
                 $blStrong = false;
                 return openssl_random_pseudo_bytes($iLength);
+            }));
+
+        $oUtil = new Util(
+            $oPhp
+        );
+
+        $oUtil->getRandomPassword();
+    }
+
+    /**
+     * @group                    unit
+     * @covers                   \UserAccessManager\Util\Util::getRandomPassword()
+     * @expectedException        \Exception
+     * @expectedExceptionMessage Unable to generate secure token from OpenSSL.
+     */
+    public function testSecondGetRandomPasswordSecondException()
+    {
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(1))
+            ->method('opensslRandomPseudoBytes')
+            ->with(33, false)
+            ->will($this->returnCallback(function($iLength, &$blStrong) {
+                $blStrong = true;
+                return false;
             }));
 
         $oUtil = new Util(

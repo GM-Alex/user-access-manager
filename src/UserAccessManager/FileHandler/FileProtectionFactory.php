@@ -16,6 +16,7 @@ namespace UserAccessManager\FileHandler;
 
 use UserAccessManager\Config\Config;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -25,6 +26,11 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class FileProtectionFactory
 {
+    /**
+     * @var Php
+     */
+    protected $_oPhp;
+
     /**
      * @var Wordpress
      */
@@ -48,12 +54,14 @@ class FileProtectionFactory
     /**
      * FileProtectionFactory constructor.
      *
+     * @param Php       $oPhp
      * @param Wordpress $oWordpress
      * @param Config    $oConfig
      * @param Util      $oUtil
      */
-    public function __construct(Wordpress $oWordpress, Config $oConfig, Util $oUtil)
+    public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig, Util $oUtil)
     {
+        $this->_oPhp = $oPhp;
         $this->_oWordpress = $oWordpress;
         $this->_oConfig = $oConfig;
         $this->_oUtil = $oUtil;
@@ -66,7 +74,7 @@ class FileProtectionFactory
      */
     public function createApacheFileProtection()
     {
-        return new ApacheFileProtection($this->_oWordpress, $this->_oConfig, $this->_oUtil);
+        return new ApacheFileProtection($this->_oPhp, $this->_oWordpress, $this->_oConfig, $this->_oUtil);
     }
 
     /**
@@ -76,6 +84,6 @@ class FileProtectionFactory
      */
     public function createNginxFileProtection()
     {
-        return new NginxFileProtection($this->_oWordpress, $this->_oConfig, $this->_oUtil);
+        return new NginxFileProtection($this->_oPhp, $this->_oWordpress, $this->_oConfig, $this->_oUtil);
     }
 }

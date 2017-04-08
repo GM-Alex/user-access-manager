@@ -49,6 +49,43 @@ class Php
     }
 
     /**
+     * @see unlink()
+     *
+     * @param string   $sFilename
+     * @param resource $rContext
+     *
+     * @return bool
+     */
+    public function unlink($sFilename, $rContext = null)
+    {
+        return unlink($sFilename, $rContext);
+    }
+
+    /**
+     * @see ini_get()
+     *
+     * @param string $sVariableName
+     *
+     * @return string
+     */
+    public function iniGet($sVariableName)
+    {
+        return ini_get($sVariableName);
+    }
+
+    /**
+     * @see set_time_limit()
+     *
+     * @param int $iSeconds
+     *
+     * @return bool
+     */
+    public function setTimeLimit($iSeconds)
+    {
+        return set_time_limit($iSeconds);
+    }
+
+    /**
      * @param Controller $oController
      * @param string     $sFile
      */

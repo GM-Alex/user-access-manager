@@ -54,6 +54,7 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $oApacheFileProtection = new ApacheFileProtection(
+            $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
@@ -70,7 +71,7 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
     {
         $oWordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->exactly(2))
+        $oWordpress->expects($this->exactly(3))
             ->method('getHomeUrl')
             ->will($this->returnValue('http://www.test.com'));
 
@@ -88,9 +89,9 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
         $oConfig = $this->getConfig();
         $oUtil = $this->getUtil();
 
-        $oConfig->expects($this->exactly(5))
+        $oConfig->expects($this->exactly(6))
             ->method('isPermalinksActive')
-            ->will($this->onConsecutiveCalls(false, false, false, true, true));
+            ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
 
         $oConfig->expects($this->exactly(3))
             ->method('getLockFileTypes')
@@ -115,7 +116,12 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
         $oRootDir->add('testDir', new Directory());
         $sTestDir = 'vfs://testDir';
 
-        $oApacheFileProtection = new ApacheFileProtection($oWordpress, $oConfig, $oUtil);
+        $oApacheFileProtection = new ApacheFileProtection(
+            $this->getPhp(),
+            $oWordpress,
+            $oConfig,
+            $oUtil
+        );
 
         $sFile = 'vfs://testDir/'.ApacheFileProtection::FILE_NAME;
         $sPasswordFile = 'vfs://testDir/'.ApacheFileProtection::PASSWORD_FILE_NAME;
@@ -159,6 +165,8 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
             ."RewriteRule (.*) /index.php?uamfiletype=objectType&uamgetfile=$1 [L]\n</IfModule>\n",
             file_get_contents($sFile)
         );
+
+        self::assertFalse($oApacheFileProtection->create('invalid', 'invalid'));
     }
 
     /**
@@ -167,10 +175,17 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
      */
     public function testDelete()
     {
-        $oWordpress = $this->getWordpress();
-        $oConfig = $this->getConfig();
-        $oUtil = $this->getUtil();
-        $oApacheFileProtection = new ApacheFileProtection($oWordpress, $oConfig, $oUtil);
+        $oPhp = $this->getPhp();
+        $oPhp->expects($this->exactly(6))
+            ->method('unlink')
+            ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
+
+        $oApacheFileProtection = new ApacheFileProtection(
+            $oPhp,
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getUtil()
+        );
 
         /**
          * @var Directory $oRootDir
@@ -188,7 +203,7 @@ class ApacheFileProtectionTest extends \UserAccessManagerTestCase
         self::assertTrue(file_exists($sFile));
         self::assertTrue(file_exists($sPasswordFile));
         self::assertTrue($oApacheFileProtection->delete($sTestDir));
-        self::assertFalse(file_exists($sFile));
-        //seems a bug in vsf self::assertFalse(file_exists($sPasswordFile));
+        self::assertFalse($oApacheFileProtection->delete($sTestDir));
+        self::assertFalse($oApacheFileProtection->delete($sTestDir));
     }
 }
