@@ -32,92 +32,92 @@ class UserGroup
     /**
      * @var Wordpress
      */
-    protected $_oWordpress;
+    protected $oWordpress;
 
     /**
      * @var Database
      */
-    protected $_oDatabase;
+    protected $oDatabase;
 
     /**
      * @var Config
      */
-    protected $_oConfig;
+    protected $oConfig;
 
     /**
      * @var Util
      */
-    protected $_oUtil;
+    protected $oUtil;
 
     /**
      * @var ObjectHandler
      */
-    protected $_oObjectHandler;
+    protected $oObjectHandler;
 
     /**
      * @var int
      */
-    protected $_iId = null;
+    protected $iId = null;
 
     /**
      * @var string
      */
-    protected $_sName = null;
+    protected $sName = null;
 
     /**
      * @var string
      */
-    protected $_sDescription = null;
+    protected $sDescription = null;
 
     /**
      * @var string
      */
-    protected $_sReadAccess = null;
+    protected $sReadAccess = null;
 
     /**
      * @var string
      */
-    protected $_sWriteAccess = null;
+    protected $sWriteAccess = null;
 
     /**
      * @var string
      */
-    protected $_sIpRange = null;
+    protected $sIpRange = null;
 
     /**
      * @var array
      */
-    protected $_aAssignedObjects = [];
+    protected $aAssignedObjects = [];
 
     /**
      * @var array
      */
-    protected $_aRoleMembership = [];
+    protected $aRoleMembership = [];
 
     /**
      * @var array
      */
-    protected $_aUserMembership = [];
+    protected $aUserMembership = [];
 
     /**
      * @var array
      */
-    protected $_aTermMembership = [];
+    protected $aTermMembership = [];
 
     /**
      * @var array
      */
-    protected $_aPostMembership = [];
+    protected $aPostMembership = [];
 
     /**
      * @var array
      */
-    protected $_aPluggableObjectMembership = [];
+    protected $aPluggableObjectMembership = [];
 
     /**
      * @var array
      */
-    protected $_aFullObjectMembership = [];
+    protected $aFullObjectMembership = [];
 
     /**
      * UserGroup constructor.
@@ -136,13 +136,12 @@ class UserGroup
         Util $oUtil,
         ObjectHandler $oObjectHandler,
         $iId = null
-    )
-    {
-        $this->_oWordpress = $oWordpress;
-        $this->_oDatabase = $oDatabase;
-        $this->_oConfig = $oConfig;
-        $this->_oUtil = $oUtil;
-        $this->_oObjectHandler = $oObjectHandler;
+    ) {
+        $this->oWordpress = $oWordpress;
+        $this->oDatabase = $oDatabase;
+        $this->oConfig = $oConfig;
+        $this->oUtil = $oUtil;
+        $this->oObjectHandler = $oObjectHandler;
 
         if ($iId !== null) {
             $this->load($iId);
@@ -160,7 +159,7 @@ class UserGroup
      */
     public function getId()
     {
-        return $this->_iId;
+        return $this->iId;
     }
 
     /**
@@ -170,7 +169,7 @@ class UserGroup
      */
     public function getName()
     {
-        return $this->_sName;
+        return $this->sName;
     }
 
     /**
@@ -180,7 +179,7 @@ class UserGroup
      */
     public function setName($sName)
     {
-        $this->_sName = $sName;
+        $this->sName = $sName;
     }
 
     /**
@@ -190,7 +189,7 @@ class UserGroup
      */
     public function getDescription()
     {
-        return $this->_sDescription;
+        return $this->sDescription;
     }
 
     /**
@@ -200,7 +199,7 @@ class UserGroup
      */
     public function setDescription($sDescription)
     {
-        $this->_sDescription = $sDescription;
+        $this->sDescription = $sDescription;
     }
 
     /**
@@ -210,7 +209,7 @@ class UserGroup
      */
     public function getReadAccess()
     {
-        return $this->_sReadAccess;
+        return $this->sReadAccess;
     }
 
     /**
@@ -220,7 +219,7 @@ class UserGroup
      */
     public function setReadAccess($sReadAccess)
     {
-        $this->_sReadAccess = $sReadAccess;
+        $this->sReadAccess = $sReadAccess;
     }
 
     /**
@@ -230,7 +229,7 @@ class UserGroup
      */
     public function getWriteAccess()
     {
-        return $this->_sWriteAccess;
+        return $this->sWriteAccess;
     }
 
     /**
@@ -240,7 +239,7 @@ class UserGroup
      */
     public function setWriteAccess($sWriteAccess)
     {
-        $this->_sWriteAccess = $sWriteAccess;
+        $this->sWriteAccess = $sWriteAccess;
     }
 
     /**
@@ -252,7 +251,7 @@ class UserGroup
      */
     public function getIpRange($blString = false)
     {
-        return ($blString === true) ? $this->_sIpRange : explode(';', $this->_sIpRange);
+        return ($blString === true) ? $this->sIpRange : explode(';', $this->sIpRange);
     }
 
     /**
@@ -262,7 +261,7 @@ class UserGroup
      */
     public function setIpRange($mIpRange)
     {
-        $this->_sIpRange = (is_array($mIpRange) === true) ? implode(';', $mIpRange) : $mIpRange;
+        $this->sIpRange = (is_array($mIpRange) === true) ? implode(';', $mIpRange) : $mIpRange;
     }
 
     /**
@@ -274,23 +273,23 @@ class UserGroup
      */
     public function load($iId)
     {
-        $sQuery = $this->_oDatabase->prepare(
+        $sQuery = $this->oDatabase->prepare(
             "SELECT *
-            FROM {$this->_oDatabase->getUserGroupTable()}
+            FROM {$this->oDatabase->getUserGroupTable()}
             WHERE ID = %s
             LIMIT 1",
             $iId
         );
 
-        $oDbUserGroup = $this->_oDatabase->getRow($sQuery);
+        $oDbUserGroup = $this->oDatabase->getRow($sQuery);
 
         if ($oDbUserGroup !== null) {
-            $this->_iId = $iId;
-            $this->_sName = $oDbUserGroup->groupname;
-            $this->_sDescription = $oDbUserGroup->groupdesc;
-            $this->_sReadAccess = $oDbUserGroup->read_access;
-            $this->_sWriteAccess = $oDbUserGroup->write_access;
-            $this->_sIpRange = $oDbUserGroup->ip_range;
+            $this->iId = $iId;
+            $this->sName = $oDbUserGroup->groupname;
+            $this->sDescription = $oDbUserGroup->groupdesc;
+            $this->sReadAccess = $oDbUserGroup->read_access;
+            $this->sWriteAccess = $oDbUserGroup->write_access;
+            $this->sIpRange = $oDbUserGroup->ip_range;
 
             return true;
         }
@@ -305,32 +304,32 @@ class UserGroup
      */
     public function save()
     {
-        if ($this->_iId === null) {
-            $mReturn = $this->_oDatabase->insert(
-                $this->_oDatabase->getUserGroupTable(),
+        if ($this->iId === null) {
+            $mReturn = $this->oDatabase->insert(
+                $this->oDatabase->getUserGroupTable(),
                 [
-                    'groupname' => $this->_sName,
-                    'groupdesc' => $this->_sDescription,
-                    'read_access' => $this->_sReadAccess,
-                    'write_access' => $this->_sWriteAccess,
-                    'ip_range' => $this->_sIpRange
+                    'groupname' => $this->sName,
+                    'groupdesc' => $this->sDescription,
+                    'read_access' => $this->sReadAccess,
+                    'write_access' => $this->sWriteAccess,
+                    'ip_range' => $this->sIpRange
                 ]
             );
 
             if ($mReturn !== false) {
-                $this->_iId = $this->_oDatabase->getLastInsertId();
+                $this->iId = $this->oDatabase->getLastInsertId();
             }
         } else {
-            $mReturn = $this->_oDatabase->update(
-                $this->_oDatabase->getUserGroupTable(),
+            $mReturn = $this->oDatabase->update(
+                $this->oDatabase->getUserGroupTable(),
                 [
-                    'groupname' => $this->_sName,
-                    'groupdesc' => $this->_sDescription,
-                    'read_access' => $this->_sReadAccess,
-                    'write_access' => $this->_sWriteAccess,
-                    'ip_range' => $this->_sIpRange
+                    'groupname' => $this->sName,
+                    'groupdesc' => $this->sDescription,
+                    'read_access' => $this->sReadAccess,
+                    'write_access' => $this->sWriteAccess,
+                    'ip_range' => $this->sIpRange
                 ],
-                ['ID' => $this->_iId]
+                ['ID' => $this->iId]
             );
         }
 
@@ -344,17 +343,17 @@ class UserGroup
      */
     public function delete()
     {
-        if ($this->_iId === null) {
+        if ($this->iId === null) {
             return false;
         }
 
-        $blSuccess = $this->_oDatabase->delete(
-            $this->_oDatabase->getUserGroupTable(),
-            ['ID' => $this->_iId]
+        $blSuccess = $this->oDatabase->delete(
+            $this->oDatabase->getUserGroupTable(),
+            ['ID' => $this->iId]
         );
 
         if ($blSuccess !== false) {
-            $aAllObjectTypes = $this->_oObjectHandler->getAllObjectTypes();
+            $aAllObjectTypes = $this->oObjectHandler->getAllObjectTypes();
 
             foreach ($aAllObjectTypes as $sObjectType) {
                 $this->removeObject($sObjectType);
@@ -374,18 +373,18 @@ class UserGroup
      */
     public function addObject($sObjectType, $sObjectId)
     {
-        $sGeneralObjectType = $this->_oObjectHandler->getGeneralObjectType($sObjectType);
+        $sGeneralObjectType = $this->oObjectHandler->getGeneralObjectType($sObjectType);
 
         if ($sGeneralObjectType === null
-            || $this->_oObjectHandler->isValidObjectType($sObjectType) === false
+            || $this->oObjectHandler->isValidObjectType($sObjectType) === false
         ) {
             return false;
         }
 
-        $mReturn = $this->_oDatabase->insert(
-            $this->_oDatabase->getUserGroupToObjectTable(),
+        $mReturn = $this->oDatabase->insert(
+            $this->oDatabase->getUserGroupToObjectTable(),
             [
-                'group_id' => $this->_iId,
+                'group_id' => $this->iId,
                 'object_id' => $sObjectId,
                 'general_object_type' => $sGeneralObjectType,
                 'object_type' => $sObjectType
@@ -399,13 +398,13 @@ class UserGroup
         );
 
         if ($mReturn !== false) {
-            $this->_aAssignedObjects = [];
-            $this->_aRoleMembership = [];
-            $this->_aUserMembership = [];
-            $this->_aTermMembership = [];
-            $this->_aPostMembership = [];
-            $this->_aPluggableObjectMembership = [];
-            $this->_aFullObjectMembership = [];
+            $this->aAssignedObjects = [];
+            $this->aRoleMembership = [];
+            $this->aUserMembership = [];
+            $this->aTermMembership = [];
+            $this->aPostMembership = [];
+            $this->aPluggableObjectMembership = [];
+            $this->aFullObjectMembership = [];
 
             return true;
         }
@@ -423,16 +422,16 @@ class UserGroup
      */
     public function removeObject($sObjectType, $sObjectId = null)
     {
-        if ($this->_oObjectHandler->isValidObjectType($sObjectType) === false) {
+        if ($this->oObjectHandler->isValidObjectType($sObjectType) === false) {
             return false;
         }
 
-        $sQuery = "DELETE FROM {$this->_oDatabase->getUserGroupToObjectTable()}
+        $sQuery = "DELETE FROM {$this->oDatabase->getUserGroupToObjectTable()}
             WHERE group_id = %d
               AND (general_object_type = '%s' OR object_type = '%s')";
 
         $aValues = [
-            $this->_iId,
+            $this->iId,
             $sObjectType,
             $sObjectType
         ];
@@ -442,17 +441,17 @@ class UserGroup
             $aValues[] = $sObjectId;
         }
 
-        $sQuery = $this->_oDatabase->prepare($sQuery, $aValues);
-        $blSuccess = ($this->_oDatabase->query($sQuery) !== false);
+        $sQuery = $this->oDatabase->prepare($sQuery, $aValues);
+        $blSuccess = ($this->oDatabase->query($sQuery) !== false);
 
         if ($blSuccess === true) {
-            $this->_aAssignedObjects = [];
-            $this->_aRoleMembership = [];
-            $this->_aUserMembership = [];
-            $this->_aTermMembership = [];
-            $this->_aPostMembership = [];
-            $this->_aPluggableObjectMembership = [];
-            $this->_aFullObjectMembership = [];
+            $this->aAssignedObjects = [];
+            $this->aRoleMembership = [];
+            $this->aUserMembership = [];
+            $this->aTermMembership = [];
+            $this->aPostMembership = [];
+            $this->aPluggableObjectMembership = [];
+            $this->aFullObjectMembership = [];
         }
 
         return $blSuccess;
@@ -465,12 +464,12 @@ class UserGroup
      *
      * @return array
      */
-    protected function _getAssignedObjects($sObjectType)
+    protected function getAssignedObjects($sObjectType)
     {
-        if (isset($this->_aAssignedObjects[$sObjectType]) === false) {
-            $sQuery = $this->_oDatabase->prepare(
+        if (isset($this->aAssignedObjects[$sObjectType]) === false) {
+            $sQuery = $this->oDatabase->prepare(
                 "SELECT object_id AS id, object_type AS objectType
-                FROM {$this->_oDatabase->getUserGroupToObjectTable()}
+                FROM {$this->oDatabase->getUserGroupToObjectTable()}
                 WHERE group_id = %d
                   AND (general_object_type = '%s' OR object_type = '%s')",
                 [
@@ -480,15 +479,15 @@ class UserGroup
                 ]
             );
 
-            $aResults = (array)$this->_oDatabase->getResults($sQuery);
-            $this->_aAssignedObjects[$sObjectType] = [];
+            $aResults = (array)$this->oDatabase->getResults($sQuery);
+            $this->aAssignedObjects[$sObjectType] = [];
 
             foreach ($aResults as $oResult) {
-                $this->_aAssignedObjects[$sObjectType][$oResult->id] = $oResult->objectType;
+                $this->aAssignedObjects[$sObjectType][$oResult->id] = $oResult->objectType;
             }
         }
 
-        return $this->_aAssignedObjects[$sObjectType];
+        return $this->aAssignedObjects[$sObjectType];
     }
 
     /**
@@ -499,9 +498,9 @@ class UserGroup
      *
      * @return boolean
      */
-    protected function _isObjectAssignedToGroup($sObjectType, $sObjectId)
+    protected function isObjectAssignedToGroup($sObjectType, $sObjectId)
     {
-        $aAssignedObjects = $this->_getAssignedObjects($sObjectType);
+        $aAssignedObjects = $this->getAssignedObjects($sObjectType);
         return isset($aAssignedObjects[$sObjectId]);
     }
 
@@ -515,31 +514,30 @@ class UserGroup
      *
      * @return bool
      */
-    protected function _isObjectRecursiveMember(
+    protected function isObjectRecursiveMember(
         $cMapFunction,
         $sObjectType,
         $sObjectId,
         array &$aRecursiveMembership = []
-    )
-    {
+    ) {
         // Reset value to prevent errors
         $aRecursiveMembership = [];
 
-        if ($this->_oConfig->lockRecursive() === true) {
+        if ($this->oConfig->lockRecursive() === true) {
             $aMap = $cMapFunction();
             $aGeneralMap = isset($aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType]) ?
                 $aMap[ObjectHandler::TREE_MAP_PARENTS][$sObjectType] : [];
 
             if (isset($aGeneralMap[$sObjectId])) {
                 foreach ($aGeneralMap[$sObjectId] as $iParentId => $sType) {
-                    if ($this->_isObjectAssignedToGroup($sObjectType, $iParentId)) {
+                    if ($this->isObjectAssignedToGroup($sObjectType, $iParentId)) {
                         $aRecursiveMembership[$sObjectType][$iParentId] = $sType;
                     }
                 }
             }
         }
 
-        return $this->_isObjectAssignedToGroup($sObjectType, $sObjectId)
+        return $this->isObjectAssignedToGroup($sObjectType, $sObjectId)
             || count($aRecursiveMembership) > 0;
     }
 
@@ -553,15 +551,15 @@ class UserGroup
      */
     public function isRoleMember($sRoleId, array &$aRecursiveMembership = [])
     {
-        if (isset($this->_aRoleMembership[$sRoleId]) === false) {
+        if (isset($this->aRoleMembership[$sRoleId]) === false) {
             $aRecursiveMembership = [];
-            $blIsMember = $this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $sRoleId);
-            $this->_aRoleMembership[$sRoleId] = ($blIsMember === true) ? $aRecursiveMembership : false;
+            $blIsMember = $this->isObjectAssignedToGroup(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $sRoleId);
+            $this->aRoleMembership[$sRoleId] = ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aRoleMembership[$sRoleId] !== false) ? $this->_aRoleMembership[$sRoleId] : [];
+        $aRecursiveMembership = ($this->aRoleMembership[$sRoleId] !== false) ? $this->aRoleMembership[$sRoleId] : [];
 
-        return ($this->_aRoleMembership[$sRoleId] !== false);
+        return ($this->aRoleMembership[$sRoleId] !== false);
     }
 
     /**
@@ -574,17 +572,17 @@ class UserGroup
      */
     public function isUserMember($iUserId, array &$aRecursiveMembership = [])
     {
-        if (isset($this->_aUserMembership[$iUserId]) === false) {
+        if (isset($this->aUserMembership[$iUserId]) === false) {
             $aRecursiveMembership = [];
-            $oUser = $this->_oObjectHandler->getUser($iUserId);
+            $oUser = $this->oObjectHandler->getUser($iUserId);
 
             if ($oUser !== false) {
-                $sCapabilitiesTable = $this->_oDatabase->getCapabilitiesTable();
+                $sCapabilitiesTable = $this->oDatabase->getCapabilitiesTable();
 
                 $aCapabilities = (isset($oUser->{$sCapabilitiesTable}) === true) ? $oUser->{$sCapabilitiesTable} : [];
 
                 if (is_array($aCapabilities) === true && count($aCapabilities) > 0) {
-                    $aAssignedRoles = $this->_getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+                    $aAssignedRoles = $this->getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
                     $aRecursiveRoles = array_intersect(
                         array_keys($aCapabilities),
                         array_keys($aAssignedRoles)
@@ -603,15 +601,15 @@ class UserGroup
                 }
             }
 
-            $blIsMember = $this->_isObjectAssignedToGroup(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId)
+            $blIsMember = $this->isObjectAssignedToGroup(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId)
                 || count($aRecursiveMembership) > 0;
 
-            $this->_aUserMembership[$iUserId] = ($blIsMember === true) ? $aRecursiveMembership : false;
+            $this->aUserMembership[$iUserId] = ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aUserMembership[$iUserId] !== false) ? $this->_aUserMembership[$iUserId] : [];
+        $aRecursiveMembership = ($this->aUserMembership[$iUserId] !== false) ? $this->aUserMembership[$iUserId] : [];
 
-        return ($this->_aUserMembership[$iUserId] !== false);
+        return ($this->aUserMembership[$iUserId] !== false);
     }
 
     /**
@@ -624,22 +622,22 @@ class UserGroup
      */
     public function isTermMember($iTermId, array &$aRecursiveMembership = [])
     {
-        if (isset($this->_aTermMembership[$iTermId]) === false) {
-            $blIsMember = $this->_isObjectRecursiveMember(
+        if (isset($this->aTermMembership[$iTermId]) === false) {
+            $blIsMember = $this->isObjectRecursiveMember(
                 function () {
-                    return $this->_oObjectHandler->getTermTreeMap();
+                    return $this->oObjectHandler->getTermTreeMap();
                 },
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
                 $iTermId,
                 $aRecursiveMembership
             );
 
-            $this->_aTermMembership[$iTermId] = ($blIsMember === true) ? $aRecursiveMembership : false;
+            $this->aTermMembership[$iTermId] = ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aTermMembership[$iTermId] !== false) ? $this->_aTermMembership[$iTermId] : [];
+        $aRecursiveMembership = ($this->aTermMembership[$iTermId] !== false) ? $this->aTermMembership[$iTermId] : [];
 
-        return ($this->_aTermMembership[$iTermId] !== false);
+        return ($this->aTermMembership[$iTermId] !== false);
     }
 
     /**
@@ -652,18 +650,18 @@ class UserGroup
      */
     public function isPostMember($iPostId, array &$aRecursiveMembership = [])
     {
-        if (isset($this->_aPostMembership[$iPostId]) === false) {
-            $blIsMember = $this->_isObjectRecursiveMember(
+        if (isset($this->aPostMembership[$iPostId]) === false) {
+            $blIsMember = $this->isObjectRecursiveMember(
                 function () {
-                    return $this->_oObjectHandler->getPostTreeMap();
+                    return $this->oObjectHandler->getPostTreeMap();
                 },
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE,
                 $iPostId,
                 $aRecursiveMembership
             );
 
-            if ($this->_oConfig->lockRecursive() === true) {
-                $aPostTermMap = $this->_oObjectHandler->getPostTermMap();
+            if ($this->oConfig->lockRecursive() === true) {
+                $aPostTermMap = $this->oObjectHandler->getPostTermMap();
 
                 if (isset($aPostTermMap[$iPostId])) {
                     foreach ($aPostTermMap[$iPostId] as $iTermId => $sType) {
@@ -676,12 +674,12 @@ class UserGroup
                 $blIsMember = $blIsMember || count($aRecursiveMembership) > 0;
             }
 
-            $this->_aPostMembership[$iPostId] = ($blIsMember === true) ? $aRecursiveMembership : false;
+            $this->aPostMembership[$iPostId] = ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aPostMembership[$iPostId] !== false) ? $this->_aPostMembership[$iPostId] : [];
+        $aRecursiveMembership = ($this->aPostMembership[$iPostId] !== false) ? $this->aPostMembership[$iPostId] : [];
 
-        return ($this->_aPostMembership[$iPostId] !== false);
+        return ($this->aPostMembership[$iPostId] !== false);
     }
 
     /**
@@ -695,28 +693,28 @@ class UserGroup
      */
     public function isPluggableObjectMember($sObjectType, $sObjectId, array &$aRecursiveMembership = [])
     {
-        if (isset($this->_aPluggableObjectMembership[$sObjectType]) === false) {
-            $this->_aPluggableObjectMembership[$sObjectType] = [];
+        if (isset($this->aPluggableObjectMembership[$sObjectType]) === false) {
+            $this->aPluggableObjectMembership[$sObjectType] = [];
         }
 
-        if (isset($this->_aPluggableObjectMembership[$sObjectType][$sObjectId]) === false) {
+        if (isset($this->aPluggableObjectMembership[$sObjectType][$sObjectId]) === false) {
             $blIsMember = false;
-            $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
+            $oPluggableObject = $this->oObjectHandler->getPluggableObject($sObjectType);
 
             if ($oPluggableObject !== null) {
                 $aRecursiveMembership = $oPluggableObject->getRecursiveMembership($this, $sObjectId);
-                $blIsMember = $this->_isObjectAssignedToGroup($sObjectType, $sObjectId)
+                $blIsMember = $this->isObjectAssignedToGroup($sObjectType, $sObjectId)
                     || count($aRecursiveMembership) > 0;
             }
 
-            $this->_aPluggableObjectMembership[$sObjectType][$sObjectId] =
+            $this->aPluggableObjectMembership[$sObjectType][$sObjectId] =
                 ($blIsMember === true) ? $aRecursiveMembership : false;
         }
 
-        $aRecursiveMembership = ($this->_aPluggableObjectMembership[$sObjectType][$sObjectId] !== false) ?
-            $this->_aPluggableObjectMembership[$sObjectType][$sObjectId] : [];
+        $aRecursiveMembership = ($this->aPluggableObjectMembership[$sObjectType][$sObjectId] !== false) ?
+            $this->aPluggableObjectMembership[$sObjectType][$sObjectId] : [];
 
-        return ($this->_aPluggableObjectMembership[$sObjectType][$sObjectId] !== false);
+        return ($this->aPluggableObjectMembership[$sObjectType][$sObjectId] !== false);
     }
 
     /**
@@ -738,14 +736,14 @@ class UserGroup
         } elseif ($sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
             $blIsMember = $this->isUserMember($sObjectId, $aRecursiveMembership);
         } elseif ($sObjectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
-            || $this->_oObjectHandler->isTaxonomy($sObjectType) === true
+            || $this->oObjectHandler->isTaxonomy($sObjectType) === true
         ) {
             $blIsMember = $this->isTermMember($sObjectId, $aRecursiveMembership);
         } elseif ($sObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
-            || $this->_oObjectHandler->isPostType($sObjectType) === true
+            || $this->oObjectHandler->isPostType($sObjectType) === true
         ) {
             $blIsMember = $this->isPostMember($sObjectId, $aRecursiveMembership);
-        } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType) === true) {
+        } elseif ($this->oObjectHandler->isPluggableObject($sObjectType) === true) {
             $blIsMember = $this->isPluggableObjectMember($sObjectType, $sObjectId, $aRecursiveMembership);
         }
 
@@ -798,11 +796,11 @@ class UserGroup
      *
      * @return array
      */
-    protected function _getFullObjects($cMapFunction, $sObjectType)
+    protected function getFullObjects($cMapFunction, $sObjectType)
     {
-        $aObjects = $this->_getAssignedObjects($sObjectType);
+        $aObjects = $this->getAssignedObjects($sObjectType);
 
-        if ($this->_oConfig->lockRecursive() === true) {
+        if ($this->oConfig->lockRecursive() === true) {
             $aMap = $cMapFunction();
             $aMap = isset($aMap[ObjectHandler::TREE_MAP_CHILDREN][$sObjectType]) ?
                 $aMap[ObjectHandler::TREE_MAP_CHILDREN][$sObjectType] : [];
@@ -827,23 +825,23 @@ class UserGroup
      */
     public function getFullUsers()
     {
-        if (isset($this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE]) === false) {
-            $this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE] = [];
+        if (isset($this->aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE]) === false) {
+            $this->aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE] = [];
 
-            $aDatabaseUsers = (array)$this->_oDatabase->getResults(
+            $aDatabaseUsers = (array)$this->oDatabase->getResults(
                 "SELECT ID, user_nicename
-                FROM {$this->_oDatabase->getUsersTable()}"
+                FROM {$this->oDatabase->getUsersTable()}"
             );
 
             foreach ($aDatabaseUsers as $oUser) {
                 if ($this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $oUser->ID) === true) {
-                    $this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE][$oUser->ID] =
+                    $this->aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE][$oUser->ID] =
                         ObjectHandler::GENERAL_USER_OBJECT_TYPE;
                 }
             }
         }
 
-        return $this->_aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE];
+        return $this->aFullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE];
     }
 
     /**
@@ -855,18 +853,18 @@ class UserGroup
      */
     public function getFullTerms($sTermType = null)
     {
-        if (isset($this->_aFullObjectMembership[$sTermType]) === false) {
+        if (isset($this->aFullObjectMembership[$sTermType]) === false) {
             $sTermType = ($sTermType === null) ? ObjectHandler::GENERAL_TERM_OBJECT_TYPE : $sTermType;
 
-            $this->_aFullObjectMembership[$sTermType] = $this->_getFullObjects(
+            $this->aFullObjectMembership[$sTermType] = $this->getFullObjects(
                 function () {
-                    return $this->_oObjectHandler->getTermTreeMap();
+                    return $this->oObjectHandler->getTermTreeMap();
                 },
                 $sTermType
             );
         }
 
-        return $this->_aFullObjectMembership[$sTermType];
+        return $this->aFullObjectMembership[$sTermType];
     }
 
     /**
@@ -878,17 +876,17 @@ class UserGroup
      */
     public function getFullPosts($sPostType = null)
     {
-        if (isset($this->_aFullObjectMembership[$sPostType]) === false) {
+        if (isset($this->aFullObjectMembership[$sPostType]) === false) {
             $sPostType = ($sPostType === null) ? ObjectHandler::GENERAL_POST_OBJECT_TYPE : $sPostType;
-            $aPosts = $this->_getFullObjects(
+            $aPosts = $this->getFullObjects(
                 function () {
-                    return $this->_oObjectHandler->getPostTreeMap();
+                    return $this->oObjectHandler->getPostTreeMap();
                 },
                 $sPostType
             );
 
-            if ($this->_oConfig->lockRecursive() === true) {
-                $aTermsPostMap = $this->_oObjectHandler->getTermPostMap();
+            if ($this->oConfig->lockRecursive() === true) {
+                $aTermsPostMap = $this->oObjectHandler->getTermPostMap();
                 $aTerms = $this->getFullTerms();
 
                 foreach ($aTerms as $iTermId => $sTerm) {
@@ -898,10 +896,10 @@ class UserGroup
                 }
             }
 
-            $this->_aFullObjectMembership[$sPostType] = $aPosts;
+            $this->aFullObjectMembership[$sPostType] = $aPosts;
         }
 
-        return $this->_aFullObjectMembership[$sPostType];
+        return $this->aFullObjectMembership[$sPostType];
     }
 
     /**
@@ -914,19 +912,19 @@ class UserGroup
     public function getAssignedObjectsByType($sObjectType)
     {
         if ($sObjectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
-            return $this->_getAssignedObjects($sObjectType);
+            return $this->getAssignedObjects($sObjectType);
         } elseif ($sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
             return $this->getFullUsers();
         } elseif ($sObjectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
-            || $this->_oObjectHandler->isTaxonomy($sObjectType) === true
+            || $this->oObjectHandler->isTaxonomy($sObjectType) === true
         ) {
             return $this->getFullTerms($sObjectType);
         } elseif ($sObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
-            || $this->_oObjectHandler->isPostType($sObjectType) === true
+            || $this->oObjectHandler->isPostType($sObjectType) === true
         ) {
             return $this->getFullPosts($sObjectType);
-        } elseif ($this->_oObjectHandler->isPluggableObject($sObjectType)) {
-            $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sObjectType);
+        } elseif ($this->oObjectHandler->isPluggableObject($sObjectType)) {
+            $oPluggableObject = $this->oObjectHandler->getPluggableObject($sObjectType);
             return ($oPluggableObject !== null) ? $oPluggableObject->getFullObjects($this) : [];
         }
 

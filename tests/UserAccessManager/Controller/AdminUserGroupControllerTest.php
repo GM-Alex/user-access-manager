@@ -195,7 +195,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         );
 
         $oAdminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, '_sUpdateMessage', $oAdminUserGroupController);
+        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'sUpdateMessage', $oAdminUserGroupController);
 
         $_POST['userGroupName'] = 'userGroupNameValue';
         $_POST['userGroupDescription'] = 'userGroupDescriptionValue';
@@ -205,15 +205,15 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $_POST['roles'] = ['roleOne', 'roleTwo'];
 
         $oAdminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, '_sUpdateMessage', $oAdminUserGroupController);
+        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'sUpdateMessage', $oAdminUserGroupController);
 
         $oAdminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_ADDED, '_sUpdateMessage', $oAdminUserGroupController);
+        self::assertAttributeEquals(TXT_UAM_GROUP_ADDED, 'sUpdateMessage', $oAdminUserGroupController);
 
         $_POST['userGroupId'] = 1;
 
         $oAdminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS, '_sUpdateMessage', $oAdminUserGroupController);
+        self::assertAttributeEquals(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS, 'sUpdateMessage', $oAdminUserGroupController);
     }
 
     /**
@@ -244,6 +244,6 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
         $_POST['delete'] = [1, 2];
         $oAdminUserGroupController->deleteUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_DELETE_GROUP, '_sUpdateMessage', $oAdminUserGroupController);
+        self::assertAttributeEquals(TXT_UAM_DELETE_GROUP, 'sUpdateMessage', $oAdminUserGroupController);
     }
 }

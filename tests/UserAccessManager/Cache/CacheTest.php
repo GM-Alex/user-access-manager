@@ -69,7 +69,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
                 'stringCacheKey' => 'testValue',
                 'arrayCacheKey' => ['testString', 'testString2']
             ],
-            '_aCache',
+            'aCache',
             $oCache
         );
 
@@ -114,12 +114,12 @@ class CacheTest extends \PHPUnit_Framework_TestCase
                 'stringCacheKey' => 'testValue',
                 'arrayCacheKey' => ['testString', 'testString2']
             ],
-            '_aCache',
+            'aCache',
             $oCache
         );
 
         $oCache->flushCache();
 
-        self::assertAttributeEquals([], '_aCache', $oCache);
+        self::assertAttributeEquals([], 'aCache', $oCache);
     }
 }

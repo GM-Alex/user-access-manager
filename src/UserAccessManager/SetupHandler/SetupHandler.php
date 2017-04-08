@@ -31,22 +31,22 @@ class SetupHandler
     /**
      * @var Wordpress
      */
-    protected $_oWordpress;
+    protected $oWordpress;
 
     /**
      * @var Database
      */
-    protected $_oDatabase;
+    protected $oDatabase;
 
     /**
      * @var ObjectHandler
      */
-    protected $_oObjectHandler;
+    protected $oObjectHandler;
 
     /**
      * @var FileHandler
      */
-    protected $_oFileHandler;
+    protected $oFileHandler;
 
     /**
      * SetupHandler constructor.
@@ -61,12 +61,11 @@ class SetupHandler
         Database $oDatabase,
         ObjectHandler $oObjectHandler,
         FileHandler $oFileHandler
-    )
-    {
-        $this->_oWordpress = $oWordpress;
-        $this->_oDatabase = $oDatabase;
-        $this->_oObjectHandler = $oObjectHandler;
-        $this->_oFileHandler = $oFileHandler;
+    ) {
+        $this->oWordpress = $oWordpress;
+        $this->oDatabase = $oDatabase;
+        $this->oObjectHandler = $oObjectHandler;
+        $this->oFileHandler = $oFileHandler;
     }
 
     /**
@@ -76,9 +75,9 @@ class SetupHandler
      */
     public function getBlogIds()
     {
-        $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
+        $iCurrentBlogId = $this->oDatabase->getCurrentBlogId();
         $aBlogIds = [$iCurrentBlogId => $iCurrentBlogId];
-        $aSites = $this->_oWordpress->getSites();
+        $aSites = $this->oWordpress->getSites();
 
         foreach ($aSites as $oSite) {
             $aBlogIds[$oSite->blog_id] = $oSite->blog_id;
@@ -96,34 +95,34 @@ class SetupHandler
     {
         if ($blNetworkWide === true) {
             $aBlogIds = $this->getBlogIds();
-            $iCurrentBlogId = $this->_oDatabase->getCurrentBlogId();
+            $iCurrentBlogId = $this->oDatabase->getCurrentBlogId();
 
             foreach ($aBlogIds as $iBlogId) {
-                $this->_oWordpress->switchToBlog($iBlogId);
-                $this->_install();
+                $this->oWordpress->switchToBlog($iBlogId);
+                $this->runInstall();
             }
 
-            $this->_oWordpress->switchToBlog($iCurrentBlogId);
+            $this->oWordpress->switchToBlog($iCurrentBlogId);
         } else {
-            $this->_install();
+            $this->runInstall();
         }
     }
 
     /**
      * Creates the needed tables at the database and adds the options
      */
-    protected function _install()
+    protected function runInstall()
     {
-        $sCharsetCollate = $this->_oDatabase->getCharset();
-        $sDbAccessGroupTable = $this->_oDatabase->getUserGroupTable();
+        $sCharsetCollate = $this->oDatabase->getCharset();
+        $sDbAccessGroupTable = $this->oDatabase->getUserGroupTable();
 
-        $sDbUserGroup = $this->_oDatabase->getVariable(
+        $sDbUserGroup = $this->oDatabase->getVariable(
             "SHOW TABLES 
             LIKE '{$sDbAccessGroupTable}'"
         );
 
         if ($sDbUserGroup !== $sDbAccessGroupTable) {
-            $this->_oDatabase->dbDelta(
+            $this->oDatabase->dbDelta(
                 "CREATE TABLE {$sDbAccessGroupTable} (
                     ID INT(11) NOT NULL AUTO_INCREMENT,
                     groupname TINYTEXT NOT NULL,
@@ -136,15 +135,15 @@ class SetupHandler
             );
         }
 
-        $sDbAccessGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();
+        $sDbAccessGroupToObjectTable = $this->oDatabase->getUserGroupToObjectTable();
 
-        $sDbAccessGroupToObject = (string)$this->_oDatabase->getVariable(
+        $sDbAccessGroupToObject = (string)$this->oDatabase->getVariable(
             "SHOW TABLES 
             LIKE '".$sDbAccessGroupToObjectTable."'"
         );
 
         if ($sDbAccessGroupToObject !== $sDbAccessGroupToObjectTable) {
-            $this->_oDatabase->dbDelta(
+            $this->oDatabase->dbDelta(
                 "CREATE TABLE {$sDbAccessGroupToObjectTable} (
                     object_id VARCHAR(64) NOT NULL,
                     general_object_type VARCHAR(64) NOT NULL,
@@ -155,7 +154,7 @@ class SetupHandler
             );
         }
 
-        $this->_oWordpress->addOption('uam_db_version', UserAccessManager::DB_VERSION);
+        $this->oWordpress->addOption('uam_db_version', UserAccessManager::DB_VERSION);
     }
 
     /**
@@ -167,12 +166,12 @@ class SetupHandler
     {
         $aBlogIds = $this->getBlogIds();
 
-        if ($this->_oWordpress->isSuperAdmin() === true) {
+        if ($this->oWordpress->isSuperAdmin() === true) {
             foreach ($aBlogIds as $iBlogId) {
-                $sTable = $this->_oDatabase->getBlogPrefix($iBlogId).'options';
+                $sTable = $this->oDatabase->getBlogPrefix($iBlogId).'options';
                 $sSelect = "SELECT option_value FROM {$sTable} WHERE option_name = '%s' LIMIT 1";
-                $sSelect = $this->_oDatabase->prepare($sSelect, 'uam_db_version');
-                $sCurrentDbVersion = $this->_oDatabase->getVariable($sSelect);
+                $sSelect = $this->oDatabase->prepare($sSelect, 'uam_db_version');
+                $sCurrentDbVersion = $this->oDatabase->getVariable($sSelect);
 
                 if (version_compare($sCurrentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
                     return true;
@@ -180,7 +179,7 @@ class SetupHandler
             }
         }
 
-        $sCurrentDbVersion = $this->_oWordpress->getOption('uam_db_version');
+        $sCurrentDbVersion = $this->oWordpress->getOption('uam_db_version');
         return version_compare($sCurrentDbVersion, UserAccessManager::DB_VERSION, '<');
     }
 
@@ -191,27 +190,27 @@ class SetupHandler
      */
     public function update()
     {
-        $sCurrentDbVersion = $this->_oWordpress->getOption('uam_db_version');
+        $sCurrentDbVersion = $this->oWordpress->getOption('uam_db_version');
 
         if (empty($sCurrentDbVersion)) {
             return false;
         }
 
-        $sUamVersion = $this->_oWordpress->getOption('uam_version', '0');
+        $sUamVersion = $this->oWordpress->getOption('uam_version', '0');
 
         if (version_compare($sUamVersion, '1.0', '<') === true) {
-            $this->_oWordpress->deleteOption('allow_comments_locked');
+            $this->oWordpress->deleteOption('allow_comments_locked');
         }
 
-        $sDbAccessGroup = $this->_oDatabase->getUserGroupTable();
+        $sDbAccessGroup = $this->oDatabase->getUserGroupTable();
 
-        $sDbUserGroup = $this->_oDatabase->getVariable(
+        $sDbUserGroup = $this->oDatabase->getVariable(
             "SHOW TABLES LIKE '{$sDbAccessGroup}'"
         );
 
         if (version_compare($sCurrentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
-            $sPrefix = $this->_oDatabase->getPrefix();
-            $sCharsetCollate = $this->_oDatabase->getCharset();
+            $sPrefix = $this->oDatabase->getPrefix();
+            $sCharsetCollate = $this->oDatabase->getCharset();
 
             if (version_compare($sCurrentDbVersion, '1.0', '<=') === true) {
                 if ($sDbUserGroup === $sDbAccessGroup) {
@@ -219,20 +218,20 @@ class SetupHandler
                         ADD read_access TINYTEXT NOT NULL DEFAULT '', 
                         ADD write_access TINYTEXT NOT NULL DEFAULT '', 
                         ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
-                    $this->_oDatabase->query($sAlterQuery);
+                    $this->oDatabase->query($sAlterQuery);
 
                     $sUpdateQuery = "UPDATE {$sDbAccessGroup}
                         SET read_access = 'group', write_access = 'group'";
-                    $this->_oDatabase->query($sUpdateQuery);
+                    $this->oDatabase->query($sUpdateQuery);
 
                     $sSelectQuery = "SHOW columns FROM {$sDbAccessGroup} LIKE 'ip_range'";
-                    $sDbIpRange = $this->_oDatabase->getVariable($sSelectQuery);
+                    $sDbIpRange = $this->oDatabase->getVariable($sSelectQuery);
 
                     if ($sDbIpRange != 'ip_range') {
                         $sAlterQuery = "ALTER TABLE {$sDbAccessGroup}
                             ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
 
-                        $this->_oDatabase->query($sAlterQuery);
+                        $this->oDatabase->query($sAlterQuery);
                     }
                 }
 
@@ -244,15 +243,15 @@ class SetupHandler
 
                 $sAlterQuery = "ALTER TABLE '{$sDbAccessGroupToObject}'
                     CHANGE 'object_id' 'object_id' VARCHAR(64) {$sCharsetCollate}";
-                $this->_oDatabase->query($sAlterQuery);
+                $this->oDatabase->query($sAlterQuery);
 
-                $aObjectTypes = $this->_oObjectHandler->getObjectTypes();
-                $sPostTable = $this->_oDatabase->getPostsTable();
+                $aObjectTypes = $this->oObjectHandler->getObjectTypes();
+                $sPostTable = $this->oDatabase->getPostsTable();
 
                 foreach ($aObjectTypes as $sObjectType) {
                     $sAddition = '';
 
-                    if ($this->_oObjectHandler->isPostType($sObjectType) === true) {
+                    if ($this->oObjectHandler->isPostType($sObjectType) === true) {
                         $sDbIdName = 'post_id';
                         $sDatabase = $sDbAccessGroupToPost.', '.$sPostTable;
                         $sAddition = " WHERE post_id = ID
@@ -275,10 +274,10 @@ class SetupHandler
                     $sQuery = "SELECT {$sDbIdName} AS id, group_id AS groupId
                         FROM {$sFullDatabase}";
 
-                    $aDbObjects = (array)$this->_oDatabase->getResults($sQuery);
+                    $aDbObjects = (array)$this->oDatabase->getResults($sQuery);
 
                     foreach ($aDbObjects as $oDbObject) {
-                        $this->_oDatabase->insert(
+                        $this->oDatabase->insert(
                             $sDbAccessGroupToObject,
                             [
                                 'group_id' => $oDbObject->groupId,
@@ -299,10 +298,10 @@ class SetupHandler
                     {$sDbAccessGroupToCategory},
                     {$sDbAccessGroupToRole}";
 
-                $this->_oDatabase->query($sDropQuery);
+                $this->oDatabase->query($sDropQuery);
             }
 
-            $sDbAccessGroupToObject = $this->_oDatabase->getUserGroupToObjectTable();
+            $sDbAccessGroupToObject = $this->oDatabase->getUserGroupToObjectTable();
 
             if (version_compare($sCurrentDbVersion, '1.2', '<=') === true) {
                 $sQuery = "
@@ -310,12 +309,12 @@ class SetupHandler
                     CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
                     CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL";
 
-                $this->_oDatabase->query($sQuery);
+                $this->oDatabase->query($sQuery);
             }
 
             if (version_compare($sCurrentDbVersion, '1.3', '<=') === true) {
                 $sGeneralTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-                $this->_oDatabase->update(
+                $this->oDatabase->update(
                     $sDbAccessGroupToObject,
                     [
                         'object_type' => $sGeneralTermType,
@@ -330,7 +329,7 @@ class SetupHandler
                 $sAlterQuery = "ALTER TABLE {$sDbAccessGroupToObject}
                     ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id";
 
-                $this->_oDatabase->query($sAlterQuery);
+                $this->oDatabase->query($sAlterQuery);
 
                 // Update post entries
                 $sGeneralPostType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
@@ -339,7 +338,7 @@ class SetupHandler
                     SET general_object_type = '{$sGeneralPostType}'
                     WHERE object_type IN ('post', 'page', 'attachment')";
 
-                $this->_oDatabase->query($sQuery);
+                $this->oDatabase->query($sQuery);
 
                 // Update role entries
                 $sGeneralRoleType = ObjectHandler::GENERAL_ROLE_OBJECT_TYPE;
@@ -348,7 +347,7 @@ class SetupHandler
                     SET general_object_type = '{$sGeneralRoleType}'
                     WHERE object_type = 'role'";
 
-                $this->_oDatabase->query($sQuery);
+                $this->oDatabase->query($sQuery);
 
                 // Update user entries
                 $sGeneralUserType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
@@ -357,7 +356,7 @@ class SetupHandler
                     SET general_object_type = '{$sGeneralUserType}'
                     WHERE object_type = 'user'";
 
-                $this->_oDatabase->query($sQuery);
+                $this->oDatabase->query($sQuery);
 
                 // Update term entries
                 $sGeneralTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
@@ -366,18 +365,18 @@ class SetupHandler
                     SET general_object_type = '{$sGeneralTermType}'
                     WHERE object_type = 'term'";
 
-                $this->_oDatabase->query($sQuery);
+                $this->oDatabase->query($sQuery);
 
                 $sQuery = "UPDATE {$sDbAccessGroupToObject} AS gto
-                    LEFT JOIN {$this->_oDatabase->getTermTaxonomyTable()} AS tt 
+                    LEFT JOIN {$this->oDatabase->getTermTaxonomyTable()} AS tt 
                       ON gto.object_id = tt.term_id
                     SET gto.object_type = tt.taxonomy
                     WHERE gto.general_object_type = '{$sGeneralTermType}'";
 
-                $this->_oDatabase->query($sQuery);
+                $this->oDatabase->query($sQuery);
             }
 
-            $this->_oWordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
+            $this->oWordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
         }
 
         return true;
@@ -391,19 +390,19 @@ class SetupHandler
         $aBlogIds = $this->getBlogIds();
 
         foreach ($aBlogIds as $iBlogId) {
-            $this->_oWordpress->switchToBlog($iBlogId);
-            $sUserGroupTable = $this->_oDatabase->getUserGroupTable();
-            $sUserGroupToObjectTable = $this->_oDatabase->getUserGroupToObjectTable();
+            $this->oWordpress->switchToBlog($iBlogId);
+            $sUserGroupTable = $this->oDatabase->getUserGroupTable();
+            $sUserGroupToObjectTable = $this->oDatabase->getUserGroupToObjectTable();
 
             $sDropQuery = "DROP TABLE {$sUserGroupTable}, {$sUserGroupToObjectTable}";
-            $this->_oDatabase->query($sDropQuery);
+            $this->oDatabase->query($sDropQuery);
 
-            $this->_oWordpress->deleteOption(Config::ADMIN_OPTIONS_NAME);
-            $this->_oWordpress->deleteOption('uam_version');
-            $this->_oWordpress->deleteOption('uam_db_version');
+            $this->oWordpress->deleteOption(Config::ADMIN_OPTIONS_NAME);
+            $this->oWordpress->deleteOption('uam_version');
+            $this->oWordpress->deleteOption('uam_db_version');
         }
 
-        $this->_oFileHandler->deleteFileProtection();
+        $this->oFileHandler->deleteFileProtection();
     }
 
     /**
@@ -413,6 +412,6 @@ class SetupHandler
      */
     public function deactivate()
     {
-        return $this->_oFileHandler->deleteFileProtection();
+        return $this->oFileHandler->deleteFileProtection();
     }
 }

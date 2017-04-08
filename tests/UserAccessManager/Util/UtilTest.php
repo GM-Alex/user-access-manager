@@ -73,7 +73,7 @@ class UtilTest extends UserAccessManagerTestCase
         $oPhp->expects($this->once())
             ->method('opensslRandomPseudoBytes')
             ->with(33)
-            ->will($this->returnCallback(function($iLength, &$blStrong) {
+            ->will($this->returnCallback(function ($iLength, &$blStrong) {
                 $blStrong = true;
                 return "testString{$iLength}";
             }));
@@ -82,7 +82,7 @@ class UtilTest extends UserAccessManagerTestCase
 
         self::assertEquals('dGVzdFN0cmluZzMz', $oUtil->getRandomPassword());
 
-        $cReturnFunction = function($iLength, &$blStrong) {
+        $cReturnFunction = function ($iLength, &$blStrong) {
             $blStrong = true;
             return openssl_random_pseudo_bytes($iLength);
         };
@@ -131,7 +131,7 @@ class UtilTest extends UserAccessManagerTestCase
         $oPhp->expects($this->exactly(1))
             ->method('opensslRandomPseudoBytes')
             ->with(33, false)
-            ->will($this->returnCallback(function($iLength, &$blStrong) {
+            ->will($this->returnCallback(function ($iLength, &$blStrong) {
                 $blStrong = false;
                 return openssl_random_pseudo_bytes($iLength);
             }));

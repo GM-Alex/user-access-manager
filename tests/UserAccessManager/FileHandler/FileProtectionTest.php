@@ -79,7 +79,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\FileHandler\FileProtection::_cleanUpFileTypes()
+     * @covers  \UserAccessManager\FileHandler\FileProtection::cleanUpFileTypes()
      */
     public function testCleanUpFileTypes()
     {
@@ -95,8 +95,8 @@ class FileProtectionTest extends UserAccessManagerTestCase
         $oUtil = $this->getUtil();
         $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
 
-        self::assertEquals('a|c', self::callMethod($oStub, '_cleanUpFileTypes', ['a,c']));
-        self::assertEquals('b', self::callMethod($oStub, '_cleanUpFileTypes', ['b,f']));
+        self::assertEquals('a|c', self::callMethod($oStub, 'cleanUpFileTypes', ['a,c']));
+        self::assertEquals('b', self::callMethod($oStub, 'cleanUpFileTypes', ['b,f']));
     }
 
     /**

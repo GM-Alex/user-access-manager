@@ -26,12 +26,12 @@ abstract class PluggableObject
     /**
      * @var string
      */
-    protected $_sName;
+    protected $sName;
 
     public function __construct($sName, $sReference)
     {
-        $this->_sName = $sName;
-        $this->_sReference = $sReference;
+        $this->sName = $sName;
+        $this->sReference = $sReference;
     }
 
     /**
@@ -39,7 +39,7 @@ abstract class PluggableObject
      */
     public function getName()
     {
-        return $this->_sName;
+        return $this->sName;
     }
 
     /**

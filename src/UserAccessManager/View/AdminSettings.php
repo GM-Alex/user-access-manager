@@ -37,11 +37,13 @@ if ($oController->hasUpdateMessage()) {
          * @var \UserAccessManager\Config\ConfigParameter[] $aGroupParameters
          */
         foreach ($aGroupedConfigParameters as $sGroupKey => $aGroupParameters) {
+            $sCssClass = $oController->isPostTypeGroup($sGroupKey) ? ' uam_settings_group_post_type' : '';
+
             ?>
             <h3><?php echo $oController->getSectionText($sGroupKey); ?></h3>
             <p><?php echo $oController->getSectionText($sGroupKey, true); ?></p>
             <table id="uam_settings_group_<?php echo $sGroupKey; ?>"
-                   class="form-table<?php if ($oController->isPostTypeGroup($sGroupKey)) { echo ' uam_settings_group_post_type'; }?>">
+                   class="form-table<?php echo $sCssClass; ?>">
                 <tbody>
                 <?php
                 $aConfigParameters = $oController->getConfigParameters();
@@ -51,6 +53,8 @@ if ($oController->hasUpdateMessage()) {
                     <tr valign="top">
                         <?php
                         if ($oGroupParameter->getId() === 'lock_file_types') {
+                            $oLockedFileTypes = $aConfigParameters['locked_file_types'];
+
                             ?>
                             <th><?php
                                 echo TXT_UAM_LOCK_FILE_TYPES; ?></th>
@@ -58,41 +62,51 @@ if ($oController->hasUpdateMessage()) {
                                 <label for="uam_lock_file_types_all">
                                     <input type="radio" id="uam_lock_file_types_all"
                                            name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                           value="all" <?php
-                                    if ($oGroupParameter->getValue() === 'all'
-                                        || $oController->isNginx() && $oGroupParameter->getValue() === 'not_selected'
-                                    ) {
-                                        echo 'checked="checked"';
-                                    } ?> />
+                                           value="all"
+                                            <?php
+                                            if ($oGroupParameter->getValue() === 'all'
+                                                || $oController->isNginx()
+                                                    && $oGroupParameter->getValue() === 'not_selected'
+                                            ) {
+                                                echo 'checked="checked"';
+                                            }
+                                            ?>
+                                    />
                                     <?php echo TXT_UAM_ALL; ?>
                                 </label>&nbsp;&nbsp;&nbsp;
                                 <label for="uam_lock_file_types_selected">
                                     <input type="radio" id="uam_lock_file_types_selected"
                                            name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                           value="selected" <?php
-                                    if ($oGroupParameter->getValue() === 'selected') {
-                                        echo 'checked="checked"';
-                                    }
-                                    ?> />
+                                           value="selected"
+                                            <?php
+                                            if ($oGroupParameter->getValue() === 'selected') {
+                                                echo 'checked="checked"';
+                                            }
+                                            ?>
+                                    />
                                     <?php echo TXT_UAM_LOCKED_FILE_TYPES; ?>
-                                    <input name="config_parameters[<?php echo $aConfigParameters['locked_file_types']->getId(); ?>]"
-                                           value="<?php echo $aConfigParameters['locked_file_types']->getValue(); ?>"/>
+                                    <input name="config_parameters[<?php echo $oLockedFileTypes->getId(); ?>]"
+                                           value="<?php echo $oLockedFileTypes->getValue(); ?>"/>
                                 </label>
                                 &nbsp;&nbsp;&nbsp;
                                 <?php
                                 if ($oController->isNginx() === false) {
+                                    $oNotLockedFileTypes = $aConfigParameters['not_locked_file_types'];
+
                                     ?>
                                     <label for="uam_lock_file_types_not_selected">
                                         <input type="radio" id="uam_lock_file_types_not_selected"
                                                name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                               value="not_selected" <?php
-                                        if ($oGroupParameter->getValue() === 'not_selected') {
-                                            echo 'checked="checked"';
-                                        }
-                                        ?> />
+                                               value="not_selected"
+                                                <?php
+                                                if ($oGroupParameter->getValue() === 'not_selected') {
+                                                    echo 'checked="checked"';
+                                                }
+                                                ?>
+                                        />
                                         <?php echo TXT_UAM_NOT_LOCKED_FILE_TYPES; ?>
-                                        <input name="config_parameters[<?php echo $aConfigParameters['not_locked_file_types']->getId(); ?>]"
-                                               value="<?php echo $aConfigParameters['not_locked_file_types']->getValue(); ?>"/>
+                                        <input name="config_parameters[<?php echo $oNotLockedFileTypes->getId(); ?>]"
+                                               value="<?php echo $oNotLockedFileTypes->getValue(); ?>"/>
                                     </label>
                                     <br/>
                                     <?php echo TXT_UAM_LOCK_FILE_TYPES_DESC; ?>
@@ -102,46 +116,56 @@ if ($oController->hasUpdateMessage()) {
                             </td>
                             <?php
                         } elseif ($oGroupParameter->getId() === 'redirect') {
+                            $oRedirectCustomPage = $aConfigParameters['redirect_custom_page'];
+                            $oRedirectCustomUrl = $aConfigParameters['redirect_custom_url'];
+
                             ?>
                             <th><?php echo TXT_UAM_REDIRECT; ?></th>
                             <td>
                                 <label for="uam_redirect_no">
                                     <input type="radio" id="uam_redirect_no"
                                            name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                           value="false" <?php
-                                    if ($oGroupParameter->getValue() === 'false') {
-                                        echo 'checked="checked"';
-                                    }
-                                    ?> />
+                                           value="false"
+                                            <?php
+                                            if ($oGroupParameter->getValue() === 'false') {
+                                                echo 'checked="checked"';
+                                            }
+                                            ?>
+                                    />
                                     <?php echo TXT_UAM_NO; ?>
                                 </label>&nbsp;&nbsp;&nbsp;&nbsp;
                                 <label for="uam_redirect_blog">
                                     <input type="radio" id="uam_redirect_blog"
                                            name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                           value="blog" <?php
-                                    if ($oGroupParameter->getValue() === 'blog') {
-                                        echo 'checked="checked"';
-                                    }
-                                    ?> />
+                                           value="blog"
+                                            <?php
+                                            if ($oGroupParameter->getValue() === 'blog') {
+                                                echo 'checked="checked"';
+                                            }
+                                            ?>
+                                    />
                                     <?php echo TXT_UAM_REDIRECT_TO_BLOG; ?>
                                 </label>&nbsp;&nbsp;&nbsp;&nbsp;
                                 <label for="uam_redirect_custom_page">
                                     <input type="radio" id="uam_redirect_custom_page"
                                            name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                           value="custom_page" <?php
-                                    if ($oGroupParameter->getValue() === 'custom_page') {
-                                        echo 'checked="checked"';
-                                    }
-                                    ?> />
+                                           value="custom_page"
+                                            <?php
+                                            if ($oGroupParameter->getValue() === 'custom_page') {
+                                                echo 'checked="checked"';
+                                            }
+                                            ?>
+                                    />
                                     <?php echo TXT_UAM_REDIRECT_TO_PAGE; ?>
-                                    <select name="config_parameters[<?php echo $aConfigParameters['redirect_custom_page']->getId(); ?>]">
+                                    <select name="config_parameters[<?php echo $oRedirectCustomPage->getId(); ?>]">
                                         <?php
                                         $aPages = $oController->getPages();
 
                                         foreach ($aPages as $oPage) {
                                             $sOption = "<option value=\"{$oPage->ID}\"";
+                                            $iRedirectValue = (int)$oRedirectCustomPage->getValue();
 
-                                            if ((int)$aConfigParameters['redirect_custom_page']->getValue() === $oPage->ID) {
+                                            if ($iRedirectValue === $oPage->ID) {
                                                 $sOption .= ' selected="selected"';
                                             }
 
@@ -154,14 +178,16 @@ if ($oController->hasUpdateMessage()) {
                                 <label for="uam_redirect_custom_url">
                                     <input type="radio" id="uam_redirect_custom_url"
                                            name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                           value="custom_url" <?php
-                                    if ($oGroupParameter->getValue() === 'custom_url') {
-                                        echo 'checked="checked"';
-                                    }
-                                    ?> />
+                                           value="custom_url"
+                                            <?php
+                                            if ($oGroupParameter->getValue() === 'custom_url') {
+                                                echo 'checked="checked"';
+                                            }
+                                            ?>
+                                    />
                                     <?php echo TXT_UAM_REDIRECT_TO_URL; ?>
-                                    <input name="config_parameters[<?php echo $aConfigParameters['redirect_custom_url']->getId(); ?>]"
-                                           value="<?php echo $aConfigParameters['redirect_custom_url']->getValue(); ?>"/>
+                                    <input name="config_parameters[<?php echo $oRedirectCustomUrl->getId(); ?>]"
+                                           value="<?php echo $oRedirectCustomUrl->getValue(); ?>"/>
                                 </label>
                                 <br/>
                                 <?php echo TXT_UAM_REDIRECT_DESC; ?>
@@ -190,7 +216,8 @@ if ($oController->hasUpdateMessage()) {
                                         }
                                         ?> >
                                             <?php
-                                            $sOptionNameKey = 'TXT_UAM_'.strtoupper($oGroupParameter->getId().'_'.$sSelection);
+                                            $sOptionNameKey = 'TXT_UAM_'
+                                                .strtoupper($oGroupParameter->getId().'_'.$sSelection);
 
                                             if (defined($sOptionNameKey) === true) {
                                                 echo constant($sOptionNameKey);
@@ -209,29 +236,35 @@ if ($oController->hasUpdateMessage()) {
                             </td>
                             <?php
                         } elseif ($oGroupParameter instanceof \UserAccessManager\Config\BooleanConfigParameter) {
+                            $sParameterText = $oController->getParameterText($sGroupKey, $oGroupParameter);
+
                             ?>
-                            <th scope="row"><?php echo $oController->getParameterText($sGroupKey, $oGroupParameter); ?></th>
+                            <th scope="row"><?php echo $sParameterText; ?></th>
                             <td>
                                 <label for="uam_<?php echo $oGroupParameter->getId(); ?>_yes">
                                     <input id="uam_<?php echo $oGroupParameter->getId(); ?>_yes"
                                            type="radio"
                                            name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                           value="true" <?php
-                                    if ($oGroupParameter->getValue() === true) {
-                                        echo 'checked="checked"';
-                                    }
-                                    ?> />
+                                           value="true"
+                                            <?php
+                                            if ($oGroupParameter->getValue() === true) {
+                                                echo 'checked="checked"';
+                                            }
+                                            ?>
+                                    />
                                     <?php echo TXT_UAM_YES; ?>
                                 </label>&nbsp;&nbsp;&nbsp;
                                 <label for="uam_<?php echo $oGroupParameter->getId(); ?>_no">
                                     <input id="uam_<?php echo $oGroupParameter->getId(); ?>_no"
                                            type="radio"
                                            name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                           value="false" <?php
-                                    if ($oGroupParameter->getValue() === false) {
-                                        echo 'checked="checked"';
-                                    }
-                                    ?> />
+                                           value="false"
+                                            <?php
+                                            if ($oGroupParameter->getValue() === false) {
+                                                echo 'checked="checked"';
+                                            }
+                                            ?>
+                                    />
                                     <?php echo TXT_UAM_NO; ?>
                                 </label>
                                 <br/>
@@ -254,8 +287,10 @@ if ($oController->hasUpdateMessage()) {
                             </td>
                             <?php
                         } elseif ($oGroupParameter instanceof \UserAccessManager\Config\SelectionConfigParameter) {
+                            $sParameterText = $oController->getParameterText($sGroupKey, $oGroupParameter);
+
                             ?>
-                            <th scope="row"><?php echo $oController->getParameterText($sGroupKey, $oGroupParameter); ?></th>
+                            <th scope="row"><?php echo $sParameterText; ?></th>
                             <td>
                                 <?php
                                 $aSelections = $oGroupParameter->getSelections();
@@ -266,13 +301,16 @@ if ($oController->hasUpdateMessage()) {
                                         <input id="uam_<?php echo $oGroupParameter->getId(); ?>_yes"
                                                type="radio"
                                                name="config_parameters[<?php echo $oGroupParameter->getId(); ?>]"
-                                               value="<?php echo $sSelection; ?>" <?php
-                                        if ($oGroupParameter->getValue() === $sSelection) {
-                                            echo 'checked="checked"';
-                                        }
-                                        ?> />
+                                               value="<?php echo $sSelection; ?>"
+                                                <?php
+                                                if ($oGroupParameter->getValue() === $sSelection) {
+                                                    echo 'checked="checked"';
+                                                }
+                                                ?>
+                                        />
                                         <?php
-                                        $sOptionNameKey = 'TXT_UAM_'.strtoupper($oGroupParameter->getId().'_'.$sSelection);
+                                        $sOptionNameKey = 'TXT_UAM_'
+                                            .strtoupper($oGroupParameter->getId().'_'.$sSelection);
 
                                         if (defined($sOptionNameKey) === true) {
                                             echo constant($sOptionNameKey);

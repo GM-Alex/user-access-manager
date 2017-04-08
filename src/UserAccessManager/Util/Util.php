@@ -26,7 +26,7 @@ class Util
     /**
      * @var Php
      */
-    protected $_oPhp;
+    protected $oPhp;
 
     /**
      * Util constructor.
@@ -35,7 +35,7 @@ class Util
      */
     public function __construct(Php $oPhp)
     {
-        $this->_oPhp = $oPhp;
+        $this->oPhp = $oPhp;
     }
 
     /**
@@ -75,7 +75,7 @@ class Util
      */
     public function getRandomPassword($iLength = 32)
     {
-        $sBytes = $this->_oPhp->opensslRandomPseudoBytes($iLength + 1, $blStrong);
+        $sBytes = $this->oPhp->opensslRandomPseudoBytes($iLength + 1, $blStrong);
 
         if ($sBytes !== false && $blStrong === true) {
             return substr(preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($sBytes)), 0, $iLength);

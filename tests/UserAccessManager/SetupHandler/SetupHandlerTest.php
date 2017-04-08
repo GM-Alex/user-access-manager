@@ -96,7 +96,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\SetupHandler\SetupHandler::install()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::_install()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::runInstall()
      */
     public function testInstall()
     {

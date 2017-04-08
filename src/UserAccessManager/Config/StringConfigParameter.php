@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\Config;
 
-
 class StringConfigParameter extends ConfigParameter
 {
     /**

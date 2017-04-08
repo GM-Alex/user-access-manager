@@ -127,8 +127,8 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  \UserAccessManager\Controller\AdminSettingsController::getGroupedConfigParameters()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::_getPostTypes()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::_getTaxonomies()
+     * @covers  \UserAccessManager\Controller\AdminSettingsController::getPostTypes()
+     * @covers  \UserAccessManager\Controller\AdminSettingsController::getTaxonomies()
      */
     public function testGetGroupedConfigParameters()
     {
@@ -304,7 +304,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $oAdminSettingController->updateSettingsAction();
         $oAdminSettingController->updateSettingsAction();
 
-        self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, '_sUpdateMessage', $oAdminSettingController);
+        self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, 'sUpdateMessage', $oAdminSettingController);
     }
 
     /**
@@ -341,7 +341,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @covers  \UserAccessManager\Controller\AdminSettingsController::getSectionText()
      * @covers  \UserAccessManager\Controller\AdminSettingsController::getParameterText()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::_getObjectText()
+     * @covers  \UserAccessManager\Controller\AdminSettingsController::getObjectText()
      */
     public function testGetText()
     {

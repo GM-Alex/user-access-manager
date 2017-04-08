@@ -35,42 +35,42 @@ class AdminObjectController extends Controller
     /**
      * @var Database
      */
-    protected $_oDatabase;
+    protected $oDatabase;
 
     /**
      * @var ObjectHandler
      */
-    protected $_oObjectHandler;
+    protected $oObjectHandler;
 
     /**
      * @var AccessHandler
      */
-    protected $_oAccessHandler;
+    protected $oAccessHandler;
 
     /**
      * @var string
      */
-    protected $_sObjectType = null;
+    protected $sObjectType = null;
 
     /**
      * @var string
      */
-    protected $_sObjectId = null;
+    protected $sObjectId = null;
 
     /**
      * @var UserGroup[]
      */
-    protected $_aObjectUserGroups = [];
+    protected $aObjectUserGroups = [];
 
     /**
      * @var UserGroup[]
      */
-    protected $_aFilteredObjectUserGroups = [];
+    protected $aFilteredObjectUserGroups = [];
 
     /**
      * @var int
      */
-    protected $_iUserGroupDiff = 0;
+    protected $iUserGroupDiff = 0;
 
     /**
      * AdminObjectController constructor.
@@ -89,12 +89,11 @@ class AdminObjectController extends Controller
         Database $oDatabase,
         ObjectHandler $oObjectHandler,
         AccessHandler $oAccessHandler
-    )
-    {
+    ) {
         parent::__construct($oPhp, $oWordpress, $oConfig);
-        $this->_oDatabase = $oDatabase;
-        $this->_oObjectHandler = $oObjectHandler;
-        $this->_oAccessHandler = $oAccessHandler;
+        $this->oDatabase = $oDatabase;
+        $this->oObjectHandler = $oObjectHandler;
+        $this->oAccessHandler = $oAccessHandler;
     }
 
     /**
@@ -103,13 +102,16 @@ class AdminObjectController extends Controller
      * @param string $sObjectType
      * @param string $iObjectId
      */
-    protected function _setObjectInformation($sObjectType, $iObjectId)
+    protected function setObjectInformation($sObjectType, $iObjectId)
     {
-        $this->_sObjectType = $sObjectType;
-        $this->_sObjectId = $iObjectId;
-        $this->_aObjectUserGroups = $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
-        $this->_aFilteredObjectUserGroups = $this->_oAccessHandler->getFilteredUserGroupsForObject($sObjectType, $iObjectId);
-        $this->_iUserGroupDiff = count($this->_aObjectUserGroups) - count($this->_aFilteredObjectUserGroups);
+        $this->sObjectType = $sObjectType;
+        $this->sObjectId = $iObjectId;
+        $this->aObjectUserGroups = $this->oAccessHandler->getUserGroupsForObject($sObjectType, $iObjectId);
+        $this->aFilteredObjectUserGroups = $this->oAccessHandler->getFilteredUserGroupsForObject(
+            $sObjectType,
+            $iObjectId
+        );
+        $this->iUserGroupDiff = count($this->aObjectUserGroups) - count($this->aFilteredObjectUserGroups);
     }
 
     /**
@@ -119,7 +121,7 @@ class AdminObjectController extends Controller
      */
     public function getObjectType()
     {
-        return $this->_sObjectType;
+        return $this->sObjectType;
     }
 
     /**
@@ -129,7 +131,7 @@ class AdminObjectController extends Controller
      */
     public function getObjectId()
     {
-        return $this->_sObjectId;
+        return $this->sObjectId;
     }
 
     /**
@@ -139,7 +141,7 @@ class AdminObjectController extends Controller
      */
     public function getObjectUserGroups()
     {
-        return $this->_aObjectUserGroups;
+        return $this->aObjectUserGroups;
     }
 
     /**
@@ -149,7 +151,7 @@ class AdminObjectController extends Controller
      */
     public function getFilteredObjectUserGroups()
     {
-        return $this->_aFilteredObjectUserGroups;
+        return $this->aFilteredObjectUserGroups;
     }
 
     /**
@@ -159,7 +161,7 @@ class AdminObjectController extends Controller
      */
     public function getUserGroupDiff()
     {
-        return $this->_iUserGroupDiff;
+        return $this->iUserGroupDiff;
     }
 
     /**
@@ -169,7 +171,7 @@ class AdminObjectController extends Controller
      */
     public function getUserGroups()
     {
-        return $this->_oAccessHandler->getUserGroups();
+        return $this->oAccessHandler->getUserGroups();
     }
 
     /**
@@ -179,7 +181,7 @@ class AdminObjectController extends Controller
      */
     public function getFilteredUserGroups()
     {
-        return $this->_oAccessHandler->getFilteredUserGroups();
+        return $this->oAccessHandler->getFilteredUserGroups();
     }
 
     /**
@@ -189,10 +191,10 @@ class AdminObjectController extends Controller
      */
     public function isCurrentUserAdmin()
     {
-        if ($this->_sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE
-            && $this->_sObjectId !== null
+        if ($this->sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE
+            && $this->sObjectId !== null
         ) {
-            return $this->_oAccessHandler->userIsAdmin($this->_sObjectId);
+            return $this->oAccessHandler->userIsAdmin($this->sObjectId);
         }
 
         return false;
@@ -205,7 +207,7 @@ class AdminObjectController extends Controller
      */
     public function getRoleNames()
     {
-        $oRoles = $this->_oWordpress->getRoles();
+        $oRoles = $this->oWordpress->getRoles();
         return $oRoles->role_names;
     }
 
@@ -216,7 +218,7 @@ class AdminObjectController extends Controller
      */
     public function getAllObjectTypes()
     {
-        return $this->_oObjectHandler->getAllObjectTypes();
+        return $this->oObjectHandler->getAllObjectTypes();
     }
 
     /**
@@ -226,7 +228,7 @@ class AdminObjectController extends Controller
      */
     public function checkUserAccess()
     {
-        return $this->_oAccessHandler->checkUserAccess();
+        return $this->oAccessHandler->checkUserAccess();
     }
 
     /**
@@ -247,31 +249,31 @@ class AdminObjectController extends Controller
         foreach ($aRecursiveMembershipForObject as $sRecursiveType => $aObjectIds) {
             foreach ($aObjectIds as $sObjectId) {
                 $sObjectName = $sObjectId;
-                $sTypeName = $this->_oObjectHandler->getGeneralObjectType($sRecursiveType);
+                $sTypeName = $this->oObjectHandler->getGeneralObjectType($sRecursiveType);
 
                 if ($sTypeName === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
                     $sObjectName = isset($aRoles[$sObjectId]) ? $aRoles[$sObjectId] : $sObjectId;
                 } elseif ($sTypeName === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
-                    $oUser = $this->_oObjectHandler->getUser($sObjectId);
+                    $oUser = $this->oObjectHandler->getUser($sObjectId);
                     $sObjectName = ($oUser !== false) ? $oUser->display_name : $sObjectId;
                 } elseif ($sTypeName === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
-                    $oTerm = $this->_oObjectHandler->getTerm($sObjectId);
+                    $oTerm = $this->oObjectHandler->getTerm($sObjectId);
 
                     if ($oTerm !== false) {
-                        $oTaxonomy = $this->_oWordpress->getTaxonomy($oTerm->taxonomy);
+                        $oTaxonomy = $this->oWordpress->getTaxonomy($oTerm->taxonomy);
                         $sTypeName = ($oTaxonomy !== false) ? $oTaxonomy->labels->name : $sTypeName;
                         $sObjectName = $oTerm->name;
                     }
                 } elseif ($sTypeName === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
-                    $oPost = $this->_oObjectHandler->getPost($sObjectId);
+                    $oPost = $this->oObjectHandler->getPost($sObjectId);
 
                     if ($oPost !== false) {
-                        $oPostTypeObject = $this->_oWordpress->getPostTypeObject($oPost->post_type);
+                        $oPostTypeObject = $this->oWordpress->getPostTypeObject($oPost->post_type);
                         $sTypeName = ($oPostTypeObject !== null) ? $oPostTypeObject->labels->name : $sTypeName;
                         $sObjectName = $oPost->post_title;
                     }
-                } elseif ($this->_oObjectHandler->isPluggableObject($sRecursiveType) === true) {
-                    $oPluggableObject = $this->_oObjectHandler->getPluggableObject($sRecursiveType);
+                } elseif ($this->oObjectHandler->isPluggableObject($sRecursiveType) === true) {
+                    $oPluggableObject = $this->oObjectHandler->getPluggableObject($sRecursiveType);
                     $sTypeName = $oPluggableObject->getName();
                     $sObjectName = $oPluggableObject->getObjectName($sObjectId);
                 }
@@ -296,21 +298,21 @@ class AdminObjectController extends Controller
         $sPostId = is_numeric($sPostId) === false ? $this->getRequestParameter('attachment_id') : $sPostId;
 
         if (is_numeric($sPostId) === true) {
-            $oPost = $this->_oObjectHandler->getPost($sPostId);
+            $oPost = $this->oObjectHandler->getPost($sPostId);
 
             if ($oPost !== false) {
-                $blNoRights = !$this->_oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID);
+                $blNoRights = !$this->oAccessHandler->checkObjectAccess($oPost->post_type, $oPost->ID);
             }
         }
 
         $sTagId = $this->getRequestParameter('tag_ID');
 
         if ($blNoRights === false && is_numeric($sTagId)) {
-            $blNoRights = !$this->_oAccessHandler->checkObjectAccess(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $sTagId);
+            $blNoRights = !$this->oAccessHandler->checkObjectAccess(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $sTagId);
         }
 
         if ($blNoRights === true) {
-            $this->_oWordpress->wpDie(TXT_UAM_NO_RIGHTS);
+            $this->oWordpress->wpDie(TXT_UAM_NO_RIGHTS);
         }
     }
 
@@ -326,10 +328,10 @@ class AdminObjectController extends Controller
      * @param integer     $iObjectId   The _iId of the object.
      * @param UserGroup[] $aUserGroups The new user groups for the object.
      */
-    protected function _saveObjectData($sObjectType, $iObjectId, array $aUserGroups = null)
+    protected function saveObjectData($sObjectType, $iObjectId, array $aUserGroups = null)
     {
-        if ($this->_oAccessHandler->checkUserAccess('manage_user_groups') === true
-            || $this->_oConfig->authorsCanAddPostsToGroups() === true
+        if ($this->oAccessHandler->checkUserAccess('manage_user_groups') === true
+            || $this->oConfig->authorsCanAddPostsToGroups() === true
         ) {
             if ($aUserGroups === null) {
                 $aUpdateGroups = $this->getRequestParameter('uam_update_groups', []);
@@ -337,12 +339,12 @@ class AdminObjectController extends Controller
             }
 
             $aAddUserGroups = array_flip($aUserGroups);
-            $aFilteredUserGroupsForObject = $this->_oAccessHandler->getFilteredUserGroupsForObject(
+            $aFilteredUserGroupsForObject = $this->oAccessHandler->getFilteredUserGroupsForObject(
                 $sObjectType,
                 $iObjectId
             );
             $aRemoveUserGroups = array_flip(array_keys($aFilteredUserGroupsForObject));
-            $aFilteredUserGroups = $this->_oAccessHandler->getFilteredUserGroups();
+            $aFilteredUserGroups = $this->oAccessHandler->getFilteredUserGroups();
             $sBulkType = $this->getRequestParameter('uam_bulk_type');
 
             if ($sBulkType === self::BULK_REMOVE) {
@@ -362,7 +364,7 @@ class AdminObjectController extends Controller
                 $oUserGroup->save();
             }
 
-            $this->_oAccessHandler->unsetUserGroupsForObject();
+            $this->oAccessHandler->unsetUserGroupsForObject();
         }
     }
 
@@ -372,10 +374,10 @@ class AdminObjectController extends Controller
      * @param string $sObjectType The object type.
      * @param int    $iId         The object id.
      */
-    protected function _removeObjectData($sObjectType, $iId)
+    protected function removeObjectData($sObjectType, $iId)
     {
-        $this->_oDatabase->delete(
-            $this->_oDatabase->getUserGroupToObjectTable(),
+        $this->oDatabase->delete(
+            $this->oDatabase->getUserGroupToObjectTable(),
             [
                 'object_id' => $iId,
                 'object_type' => $sObjectType,
@@ -414,9 +416,9 @@ class AdminObjectController extends Controller
     public function addPostColumn($sColumnName, $iId)
     {
         if ($sColumnName === self::COLUMN_NAME) {
-            $oPost = $this->_oObjectHandler->getPost($iId);
-            $this->_setObjectInformation($oPost->post_type, $oPost->ID);
-            echo $this->_getIncludeContents('ObjectColumn.php');
+            $oPost = $this->oObjectHandler->getPost($iId);
+            $this->setObjectInformation($oPost->post_type, $oPost->ID);
+            echo $this->getIncludeContents('ObjectColumn.php');
         }
     }
 
@@ -428,10 +430,10 @@ class AdminObjectController extends Controller
     public function editPostContent($oPost)
     {
         if ($oPost instanceof \WP_Post) {
-            $this->_setObjectInformation($oPost->post_type, $oPost->ID);
+            $this->setObjectInformation($oPost->post_type, $oPost->ID);
         }
 
-        echo $this->_getIncludeContents('PostEditForm.php');
+        echo $this->getIncludeContents('PostEditForm.php');
     }
 
     /**
@@ -442,7 +444,7 @@ class AdminObjectController extends Controller
     public function addBulkAction($sColumnName)
     {
         if ($sColumnName === self::COLUMN_NAME) {
-            echo $this->_getIncludeContents('BulkEditForm.php');
+            echo $this->getIncludeContents('BulkEditForm.php');
         }
     }
 
@@ -454,17 +456,17 @@ class AdminObjectController extends Controller
     public function savePostData($mPostParam)
     {
         $iPostId = is_array($mPostParam) ? $mPostParam['ID'] : $mPostParam;
-        $oPost = $this->_oObjectHandler->getPost($iPostId);
+        $oPost = $this->oObjectHandler->getPost($iPostId);
         $sPostType = $oPost->post_type;
         $iPostId = $oPost->ID;
 
         if ($sPostType === 'revision') {
             $iPostId = $oPost->post_parent;
-            $oParentPost = $this->_oObjectHandler->getPost($iPostId);
+            $oParentPost = $this->oObjectHandler->getPost($iPostId);
             $sPostType = $oParentPost->post_type;
         }
 
-        $this->_saveObjectData($sPostType, $iPostId);
+        $this->saveObjectData($sPostType, $iPostId);
     }
 
     /**
@@ -490,8 +492,8 @@ class AdminObjectController extends Controller
      */
     public function removePostData($iPostId)
     {
-        $oPost = $this->_oObjectHandler->getPost($iPostId);
-        $this->_removeObjectData($oPost->post_type, $iPostId);
+        $oPost = $this->oObjectHandler->getPost($iPostId);
+        $this->removeObjectData($oPost->post_type, $iPostId);
     }
 
     /**
@@ -507,11 +509,11 @@ class AdminObjectController extends Controller
         $sAttachmentId = $this->getRequestParameter('attachment_id');
 
         if ($sAttachmentId !== null) {
-            $oPost = $this->_oObjectHandler->getPost($sAttachmentId);
+            $oPost = $this->oObjectHandler->getPost($sAttachmentId);
         }
 
         if ($oPost instanceof \WP_Post) {
-            $this->_setObjectInformation($oPost->post_type, $oPost->ID);
+            $this->setObjectInformation($oPost->post_type, $oPost->ID);
         }
 
         $sContent = $sMeta;
@@ -520,7 +522,7 @@ class AdminObjectController extends Controller
         $sContent .= '<label>'.TXT_UAM_SET_UP_USER_GROUPS.'</label>';
         $sContent .= '</th>';
         $sContent .= '<td class="field">';
-        $sContent .= $this->_getIncludeContents('PostEditForm.php');
+        $sContent .= $this->getIncludeContents('PostEditForm.php');
 
         return $sContent;
     }
@@ -554,8 +556,8 @@ class AdminObjectController extends Controller
     public function addUserColumn($sReturn, $sColumnName, $iId)
     {
         if ($sColumnName === self::COLUMN_NAME) {
-            $this->_setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iId);
-            $sReturn .= $this->_getIncludeContents('UserColumn.php');
+            $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iId);
+            $sReturn .= $this->getIncludeContents('UserColumn.php');
         }
 
         return $sReturn;
@@ -569,10 +571,10 @@ class AdminObjectController extends Controller
         $sUserId = $this->getRequestParameter('user_id');
 
         if ($sUserId !== null) {
-            $this->_setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $sUserId);
+            $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $sUserId);
         }
 
-        echo $this->_getIncludeContents('UserProfileEditForm.php');
+        echo $this->getIncludeContents('UserProfileEditForm.php');
     }
 
     /**
@@ -582,7 +584,7 @@ class AdminObjectController extends Controller
      */
     public function saveUserData($iUserId)
     {
-        $this->_saveObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId);
+        $this->saveObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId);
     }
 
     /**
@@ -592,7 +594,7 @@ class AdminObjectController extends Controller
      */
     public function removeUserData($iUserId)
     {
-        $this->_removeObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId);
+        $this->removeObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $iUserId);
     }
 
 
@@ -625,8 +627,8 @@ class AdminObjectController extends Controller
     public function addTermColumn($sContent, $sColumnName, $iId)
     {
         if ($sColumnName === self::COLUMN_NAME) {
-            $this->_setObjectInformation(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iId);
-            $sContent .= $this->_getIncludeContents('ObjectColumn.php');
+            $this->setObjectInformation(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iId);
+            $sContent .= $this->getIncludeContents('ObjectColumn.php');
         }
 
         return $sContent;
@@ -640,10 +642,10 @@ class AdminObjectController extends Controller
     public function showTermEditForm($oTerm)
     {
         if ($oTerm instanceof \WP_Term) {
-            $this->_setObjectInformation($oTerm->taxonomy, $oTerm->term_id);
+            $this->setObjectInformation($oTerm->taxonomy, $oTerm->term_id);
         }
 
-        echo $this->_getIncludeContents('TermEditForm.php');
+        echo $this->getIncludeContents('TermEditForm.php');
     }
 
     /**
@@ -653,7 +655,7 @@ class AdminObjectController extends Controller
      */
     public function saveTermData($iTermId)
     {
-        $this->_saveObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iTermId);
+        $this->saveObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iTermId);
     }
 
     /**
@@ -663,7 +665,7 @@ class AdminObjectController extends Controller
      */
     public function removeTermData($iTermId)
     {
-        $this->_removeObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iTermId);
+        $this->removeObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $iTermId);
     }
 
     /*
@@ -679,7 +681,7 @@ class AdminObjectController extends Controller
      */
     public function savePluggableObjectData($sObjectType, $iObjectId, $aUserGroups = null)
     {
-        $this->_saveObjectData($sObjectType, $iObjectId, $aUserGroups);
+        $this->saveObjectData($sObjectType, $iObjectId, $aUserGroups);
     }
 
     /**
@@ -690,7 +692,7 @@ class AdminObjectController extends Controller
      */
     public function removePluggableObjectData($sObjectName, $iObjectId)
     {
-        $this->_removeObjectData($sObjectName, $iObjectId);
+        $this->removeObjectData($sObjectName, $iObjectId);
     }
 
     /**
@@ -703,8 +705,8 @@ class AdminObjectController extends Controller
      */
     public function showPluggableGroupSelectionForm($sObjectType, $iObjectId)
     {
-        $this->_setObjectInformation($sObjectType, $iObjectId);
-        return $this->_getIncludeContents('GroupSelectionForm.php');
+        $this->setObjectInformation($sObjectType, $iObjectId);
+        return $this->getIncludeContents('GroupSelectionForm.php');
     }
 
     /**
@@ -717,8 +719,7 @@ class AdminObjectController extends Controller
      */
     public function getPluggableColumn($sObjectType, $iObjectId)
     {
-        $this->_setObjectInformation($sObjectType, $iObjectId);
-        return $this->_getIncludeContents('ObjectColumn.php');
+        $this->setObjectInformation($sObjectType, $iObjectId);
+        return $this->getIncludeContents('ObjectColumn.php');
     }
-
 }

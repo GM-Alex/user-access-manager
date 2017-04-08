@@ -24,7 +24,7 @@ class SelectionConfigParameter extends ConfigParameter
     /**
      * @var array
      */
-    protected $_aSelections;
+    protected $aSelections;
 
     /**
      * SelectionConfigParameter constructor.
@@ -35,7 +35,7 @@ class SelectionConfigParameter extends ConfigParameter
      */
     public function __construct($sId, $mDefaultValue, array $aSelections)
     {
-        $this->_aSelections = $aSelections;
+        $this->aSelections = $aSelections;
 
         parent::__construct($sId, $mDefaultValue);
     }
@@ -49,7 +49,7 @@ class SelectionConfigParameter extends ConfigParameter
      */
     public function isValidValue($mValue)
     {
-        $aMap = array_flip($this->_aSelections);
+        $aMap = array_flip($this->aSelections);
         return (isset($aMap[$mValue]) === true);
     }
 
@@ -60,6 +60,6 @@ class SelectionConfigParameter extends ConfigParameter
      */
     public function getSelections()
     {
-        return $this->_aSelections;
+        return $this->aSelections;
     }
 }

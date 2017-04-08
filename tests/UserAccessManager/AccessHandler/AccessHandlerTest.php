@@ -215,7 +215,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         ];
 
         self::assertEquals($aExpected, $oAccessHandler->getUserGroups());
-        self::assertAttributeEquals($aExpected, '_aUserGroups', $oAccessHandler);
+        self::assertAttributeEquals($aExpected, 'aUserGroups', $oAccessHandler);
         self::assertEquals($aExpected, $oAccessHandler->getUserGroups());
 
         return $oAccessHandler;
@@ -248,13 +248,13 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             6 => $this->getUserGroup(6)
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
 
         $aUserUserGroups = $aUserGroups;
         unset($aUserUserGroups[4]);
         unset($aUserUserGroups[6]);
 
-        self::setValue($oAccessHandler, '_aUserGroupsForUser', $aUserUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
         self::assertEquals($aUserUserGroups, $oAccessHandler->getFilteredUserGroups());
     }
 
@@ -276,10 +276,10 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($oAccessHandler, '_aFilteredUserGroups', []);
+        self::setValue($oAccessHandler, 'aFilteredUserGroups', []);
         $oAccessHandler->addUserGroup($this->getUserGroup(4));
-        self::assertAttributeEquals($aExpected, '_aUserGroups', $oAccessHandler);
-        self::assertAttributeEquals(null, '_aFilteredUserGroups', $oAccessHandler);
+        self::assertAttributeEquals($aExpected, 'aUserGroups', $oAccessHandler);
+        self::assertAttributeEquals(null, 'aFilteredUserGroups', $oAccessHandler);
 
         return $oAccessHandler;
     }
@@ -299,14 +299,14 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($oAccessHandler, '_aFilteredUserGroups', []);
+        self::setValue($oAccessHandler, 'aFilteredUserGroups', []);
         self::assertFalse($oAccessHandler->deleteUserGroup(10));
         self::assertFalse($oAccessHandler->deleteUserGroup(3));
-        self::assertAttributeEquals([], '_aFilteredUserGroups', $oAccessHandler);
+        self::assertAttributeEquals([], 'aFilteredUserGroups', $oAccessHandler);
 
         self::assertTrue($oAccessHandler->deleteUserGroup(2));
-        self::assertAttributeEquals($aExpected, '_aUserGroups', $oAccessHandler);
-        self::assertAttributeEquals(null, '_aFilteredUserGroups', $oAccessHandler);
+        self::assertAttributeEquals($aExpected, 'aUserGroups', $oAccessHandler);
+        self::assertAttributeEquals(null, 'aFilteredUserGroups', $oAccessHandler);
     }
 
     /**
@@ -354,7 +354,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
 
         self::assertEquals([], $oAccessHandler->getUserGroupsForObject('invalid', 1));
 
@@ -375,7 +375,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
 
         self::assertEquals(
             [
@@ -397,15 +397,15 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testUnsetUserGroupsForObject(AccessHandler $oAccessHandler)
     {
-        self::assertAttributeNotEquals([], '_aObjectUserGroups', $oAccessHandler);
+        self::assertAttributeNotEquals([], 'aObjectUserGroups', $oAccessHandler);
         $oAccessHandler->unsetUserGroupsForObject();
-        self::assertAttributeEquals([], '_aObjectUserGroups', $oAccessHandler);
+        self::assertAttributeEquals([], 'aObjectUserGroups', $oAccessHandler);
     }
 
     /**
      * @group  unit
      * @covers \UserAccessManager\AccessHandler\AccessHandler::isIpInRange()
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::_calculateIp()
+     * @covers \UserAccessManager\AccessHandler\AccessHandler::calculateIp()
      */
     public function testIsIpInRange()
     {
@@ -426,10 +426,10 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertEquals(1, self::callMethod($oAccessHandler, '_calculateIp', [[0, 0, 0, 1]]));
-        self::assertEquals(256, self::callMethod($oAccessHandler, '_calculateIp', [[0, 0, 1, 0]]));
-        self::assertEquals(65536, self::callMethod($oAccessHandler, '_calculateIp', [[0, 1, 0, 0]]));
-        self::assertEquals(16777216, self::callMethod($oAccessHandler, '_calculateIp', [[1, 0, 0, 0]]));
+        self::assertEquals(1, self::callMethod($oAccessHandler, 'calculateIp', [[0, 0, 0, 1]]));
+        self::assertEquals(256, self::callMethod($oAccessHandler, 'calculateIp', [[0, 0, 1, 0]]));
+        self::assertEquals(65536, self::callMethod($oAccessHandler, 'calculateIp', [[0, 1, 0, 0]]));
+        self::assertEquals(16777216, self::callMethod($oAccessHandler, 'calculateIp', [[1, 0, 0, 0]]));
 
         self::assertTrue($oAccessHandler->isIpInRange('1.1.1.1', $aRanges));
         self::assertTrue($oAccessHandler->isIpInRange('1.1.1.100', $aRanges));
@@ -480,7 +480,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             7 => $this->getUserGroup(7, true, false, [''], 'all', 'all')
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
 
         $aObjectUserGroups = [
             ObjectHandler::GENERAL_USER_OBJECT_TYPE => [
@@ -491,7 +491,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ]
         ];
 
-        self::setValue($oAccessHandler, '_aObjectUserGroups', $aObjectUserGroups);
+        self::setValue($oAccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
 
         $aExpected = $aUserGroups;
         unset($aExpected[4]);
@@ -527,13 +527,13 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             6 => $this->getUserGroup(6)
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
 
         $aUserUserGroups = $aUserGroups;
         unset($aUserUserGroups[4]);
         unset($aUserUserGroups[6]);
 
-        self::setValue($oAccessHandler, '_aUserGroupsForUser', $aUserUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
 
         $aObjectUserGroups = [
             'objectType' => [
@@ -546,7 +546,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ]
         ];
 
-        self::setValue($oAccessHandler, '_aObjectUserGroups', $aObjectUserGroups);
+        self::setValue($oAccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
 
         $aExpected = [
             0 => $this->getUserGroup(0),
@@ -560,7 +560,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\AccessHandler\AccessHandler::checkUserAccess()
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::_getUserRole()
+     * @covers \UserAccessManager\AccessHandler\AccessHandler::getUserRole()
      */
     public function testCheckUserAccess()
     {
@@ -713,8 +713,8 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::setValue($oAccessHandler, '_aObjectUserGroups', $aObjectUserGroups);
-        self::setValue($oAccessHandler, '_aUserGroupsForUser', []);
+        self::setValue($oAccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroupsForUser', []);
 
         self::assertTrue($oAccessHandler->checkObjectAccess('invalid', 1));
         self::assertTrue($oAccessHandler->checkObjectAccess('postType', 2));
@@ -735,10 +735,10 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::setValue($oAccessHandler, '_aObjectUserGroups', $aObjectUserGroups);
+        self::setValue($oAccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
 
         $aUserUserGroups = [0 => $this->getUserGroup(0)];
-        self::setValue($oAccessHandler, '_aUserGroupsForUser', $aUserUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
 
         self::assertTrue($oAccessHandler->checkObjectAccess('postType', 1));
         self::assertTrue($oAccessHandler->checkObjectAccess('postType', 2));
@@ -756,7 +756,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
                     -1 => false
                 ]
             ],
-            '_aObjectAccess',
+            'aObjectAccess',
             $oAccessHandler
         );
     }
@@ -794,17 +794,17 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [3 => 'term', 2 => 'term', 4 => 'term'])
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
 
         $aUserGroupsForUser = [
             3 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [1 => 'term', 3 => 'term']),
             4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [5 => 'term', 3 => 'term'])
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroupsForUser', $aUserGroupsForUser);
+        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserGroupsForUser);
 
         self::assertEquals([2 => 2, 4 => 4], $oAccessHandler->getExcludedTerms());
-        self::assertAttributeEquals([2 => 2, 4 => 4], '_aExcludedTerms', $oAccessHandler);
+        self::assertAttributeEquals([2 => 2, 4 => 4], 'aExcludedTerms', $oAccessHandler);
     }
 
     /**
@@ -866,21 +866,21 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [3 => 'post', 2 => 'page', 4 => 'post'])
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroups', $aUserGroups);
+        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
 
         $aUserGroupsForUser = [
             3 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 'post', 3 => 'post']),
             4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [5 => 'post', 3 => 'post'])
         ];
 
-        self::setValue($oAccessHandler, '_aUserGroupsForUser', $aUserGroupsForUser);
+        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserGroupsForUser);
 
         self::assertEquals([4 => 4, 6 => 6], $oAccessHandler->getExcludedPosts());
-        self::assertAttributeEquals([4 => 4, 6 => 6], '_aExcludedPosts', $oAccessHandler);
+        self::assertAttributeEquals([4 => 4, 6 => 6], 'aExcludedPosts', $oAccessHandler);
 
-        $this->setValue($oAccessHandler, '_aExcludedPosts', null);
+        $this->setValue($oAccessHandler, 'aExcludedPosts', null);
         self::assertEquals([2 => 2, 4 => 4, 6 => 6], $oAccessHandler->getExcludedPosts());
-        self::assertAttributeEquals([2 => 2, 4 => 4, 6 => 6], '_aExcludedPosts', $oAccessHandler);
+        self::assertAttributeEquals([2 => 2, 4 => 4, 6 => 6], 'aExcludedPosts', $oAccessHandler);
     }
 
     /**

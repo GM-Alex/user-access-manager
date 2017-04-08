@@ -165,7 +165,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\Controller::_verifyNonce()
+     * @covers  \UserAccessManager\Controller\Controller::verifyNonce()
      */
     public function testVerifyNonce()
     {
@@ -187,15 +187,15 @@ class ControllerTest extends UserAccessManagerTestCase
             $this->getConfig()
         );
 
-        self::callMethod($oStub, '_verifyNonce', ['test']);
-        self::callMethod($oStub, '_verifyNonce', ['test']);
-        self::callMethod($oStub, '_verifyNonce', ['test']);
+        self::callMethod($oStub, 'verifyNonce', ['test']);
+        self::callMethod($oStub, 'verifyNonce', ['test']);
+        self::callMethod($oStub, 'verifyNonce', ['test']);
     }
 
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\Controller::_setUpdateMessage()
+     * @covers  \UserAccessManager\Controller\Controller::setUpdateMessage()
      *
      * @param Controller $oStub
      *
@@ -203,9 +203,9 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     public function testSetUpdateMessage(Controller $oStub)
     {
-        self::assertAttributeEquals(null, '_sUpdateMessage', $oStub);
-        self::callMethod($oStub, '_setUpdateMessage', ['updateMessage']);
-        self::assertAttributeEquals('updateMessage', '_sUpdateMessage', $oStub);
+        self::assertAttributeEquals(null, 'sUpdateMessage', $oStub);
+        self::callMethod($oStub, 'setUpdateMessage', ['updateMessage']);
+        self::assertAttributeEquals('updateMessage', 'sUpdateMessage', $oStub);
 
         return $oStub;
     }
@@ -246,8 +246,8 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  \UserAccessManager\Controller\Controller::render()
-     * @covers  \UserAccessManager\Controller\Controller::_processAction()
-     * @covers  \UserAccessManager\Controller\Controller::_getIncludeContents()
+     * @covers  \UserAccessManager\Controller\Controller::processAction()
+     * @covers  \UserAccessManager\Controller\Controller::getIncludeContents()
      */
     public function testRender()
     {
@@ -284,7 +284,7 @@ class ControllerTest extends UserAccessManagerTestCase
             }));
 
         $_GET['uam_action'] = 'test';
-        self::setValue($oDummyController, '_sTemplate', 'TestView.php');
+        self::setValue($oDummyController, 'sTemplate', 'TestView.php');
         $oDummyController->render();
         self::expectOutputString('testAction'.'testContent');
     }

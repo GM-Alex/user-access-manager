@@ -24,7 +24,7 @@ class Cache
     /**
      * @var array
      */
-    protected $_aCache = [];
+    protected $aCache = [];
 
     /**
      * Returns a generated cache key.
@@ -46,7 +46,7 @@ class Cache
      */
     public function addToCache($sKey, $mValue)
     {
-        $this->_aCache[$sKey] = $mValue;
+        $this->aCache[$sKey] = $mValue;
     }
 
     /**
@@ -58,8 +58,8 @@ class Cache
      */
     public function getFromCache($sKey)
     {
-        if (isset($this->_aCache[$sKey])) {
-            return $this->_aCache[$sKey];
+        if (isset($this->aCache[$sKey])) {
+            return $this->aCache[$sKey];
         }
 
         return null;
@@ -70,6 +70,6 @@ class Cache
      */
     public function flushCache()
     {
-        $this->_aCache = [];
+        $this->aCache = [];
     }
 }

@@ -43,8 +43,8 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
     {
         $oStub = $this->getStub('nameValue', 'referenceValue');
         self::assertInstanceOf('\UserAccessManager\ObjectHandler\PluggableObject', $oStub);
-        self::assertAttributeEquals('nameValue', '_sName', $oStub);
-        self::assertAttributeEquals('referenceValue', '_sReference', $oStub);
+        self::assertAttributeEquals('nameValue', 'sName', $oStub);
+        self::assertAttributeEquals('referenceValue', 'sReference', $oStub);
 
         return $oStub;
     }

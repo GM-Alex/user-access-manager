@@ -34,14 +34,14 @@ class StringConfigParameterTest extends UserAccessManagerTestCase
         $oStringConfigParameter = new StringConfigParameter('testId');
 
         self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $oStringConfigParameter);
-        self::assertAttributeEquals('testId', '_sId', $oStringConfigParameter);
-        self::assertAttributeEquals('', '_mDefaultValue', $oStringConfigParameter);
+        self::assertAttributeEquals('testId', 'sId', $oStringConfigParameter);
+        self::assertAttributeEquals('', 'mDefaultValue', $oStringConfigParameter);
 
         $oStringConfigParameter = new StringConfigParameter('otherId', 'value');
 
         self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $oStringConfigParameter);
-        self::assertAttributeEquals('otherId', '_sId', $oStringConfigParameter);
-        self::assertAttributeEquals('value', '_mDefaultValue', $oStringConfigParameter);
+        self::assertAttributeEquals('otherId', 'sId', $oStringConfigParameter);
+        self::assertAttributeEquals('value', 'mDefaultValue', $oStringConfigParameter);
 
         return $oStringConfigParameter;
     }

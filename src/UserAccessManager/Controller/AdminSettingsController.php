@@ -26,17 +26,17 @@ class AdminSettingsController extends Controller
     /**
      * @var ObjectHandler
      */
-    protected $_oObjectHandler;
+    protected $oObjectHandler;
 
     /**
      * @var FileHandler
      */
-    protected $_oFileHandler;
+    protected $oFileHandler;
 
     /**
      * @var string
      */
-    protected $_sTemplate = 'AdminSettings.php';
+    protected $sTemplate = 'AdminSettings.php';
 
     /**
      * AdminSettingsController constructor.
@@ -53,11 +53,10 @@ class AdminSettingsController extends Controller
         Config $oConfig,
         ObjectHandler $oObjectHandler,
         FileHandler $oFileHandler
-    )
-    {
+    ) {
         parent::__construct($oPhp, $oWordpress, $oConfig);
-        $this->_oObjectHandler = $oObjectHandler;
-        $this->_oFileHandler = $oFileHandler;
+        $this->oObjectHandler = $oObjectHandler;
+        $this->oFileHandler = $oFileHandler;
     }
 
     /**
@@ -67,7 +66,7 @@ class AdminSettingsController extends Controller
      */
     public function isNginx()
     {
-        return $this->_oWordpress->isNginx();
+        return $this->oWordpress->isNginx();
     }
 
     /**
@@ -77,7 +76,7 @@ class AdminSettingsController extends Controller
      */
     public function getPages()
     {
-        $aPages = $this->_oWordpress->getPages('sort_column=menu_order');
+        $aPages = $this->oWordpress->getPages('sort_column=menu_order');
         return is_array($aPages) !== false ? $aPages : [];
     }
 
@@ -88,7 +87,7 @@ class AdminSettingsController extends Controller
      */
     public function getConfigParameters()
     {
-        return $this->_oConfig->getConfigParameters();
+        return $this->oConfig->getConfigParameters();
     }
 
     /**
@@ -96,9 +95,9 @@ class AdminSettingsController extends Controller
      *
      * @return \WP_Post_Type[]
      */
-    protected function _getPostTypes()
+    protected function getPostTypes()
     {
-        return $this->_oWordpress->getPostTypes(['public' => true], 'objects');
+        return $this->oWordpress->getPostTypes(['public' => true], 'objects');
     }
 
     /**
@@ -106,9 +105,9 @@ class AdminSettingsController extends Controller
      *
      * @return \WP_Taxonomy[]
      */
-    protected function _getTaxonomies()
+    protected function getTaxonomies()
     {
-        return $this->_oWordpress->getTaxonomies(['public' => true], 'objects');
+        return $this->oWordpress->getTaxonomies(['public' => true], 'objects');
     }
 
     /**
@@ -118,10 +117,10 @@ class AdminSettingsController extends Controller
      */
     public function getGroupedConfigParameters()
     {
-        $aConfigParameters = $this->_oConfig->getConfigParameters();
+        $aConfigParameters = $this->oConfig->getConfigParameters();
 
         $aGroupedConfigParameters = [];
-        $aPostTypes = $this->_getPostTypes();
+        $aPostTypes = $this->getPostTypes();
 
         foreach ($aPostTypes as $sPostType => $oPostType) {
             if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
@@ -143,7 +142,7 @@ class AdminSettingsController extends Controller
             }
         }
 
-        $aTaxonomies = $this->_getTaxonomies();
+        $aTaxonomies = $this->getTaxonomies();
 
         foreach ($aTaxonomies as $sTaxonomy => $oTaxonomy) {
             $aGroupedConfigParameters[$sTaxonomy][] = $aConfigParameters["hide_empty_{$sTaxonomy}"];
@@ -168,7 +167,7 @@ class AdminSettingsController extends Controller
             $aConfigParameters['blog_admin_hint_text'],
         ];
 
-        if ($this->_oConfig->isPermalinksActive() === true) {
+        if ($this->oConfig->isPermalinksActive() === true) {
             $aGroupedConfigParameters['file'][] = $aConfigParameters['lock_file_types'];
             $aGroupedConfigParameters['file'][] = $aConfigParameters['file_pass_type'];
         }
@@ -181,25 +180,25 @@ class AdminSettingsController extends Controller
      */
     public function updateSettingsAction()
     {
-        $this->_verifyNonce('uamUpdateSettings');
+        $this->verifyNonce('uamUpdateSettings');
 
         $aNewConfigParameters = $this->getRequestParameter('config_parameters');
         $aNewConfigParameters = array_map(
-            function($sEntry) {
+            function ($sEntry) {
                 return htmlentities(str_replace('\\', '', $sEntry));
             },
             $aNewConfigParameters
         );
-        $this->_oConfig->setConfigParameters($aNewConfigParameters);
+        $this->oConfig->setConfigParameters($aNewConfigParameters);
 
-        if ($this->_oConfig->lockFile() === false) {
-            $this->_oFileHandler->deleteFileProtection();
+        if ($this->oConfig->lockFile() === false) {
+            $this->oFileHandler->deleteFileProtection();
         } else {
-            $this->_oFileHandler->createFileProtection();
+            $this->oFileHandler->createFileProtection();
         }
 
-        $this->_oWordpress->doAction('uam_update_options', $this->_oConfig);
-        $this->_setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
+        $this->oWordpress->doAction('uam_update_options', $this->oConfig);
+        $this->setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
     }
 
     /**
@@ -211,7 +210,7 @@ class AdminSettingsController extends Controller
      */
     public function isPostTypeGroup($sGroupKey)
     {
-        $aPostTypes = $this->_getPostTypes();
+        $aPostTypes = $this->getPostTypes();
 
         return isset($aPostTypes[$sGroupKey]);
     }
@@ -225,9 +224,9 @@ class AdminSettingsController extends Controller
      *
      * @return mixed|string
      */
-    protected function _getObjectText($sGroupKey, $sIdent, $blDescription = false)
+    protected function getObjectText($sGroupKey, $sIdent, $blDescription = false)
     {
-        $aObjects = $this->_getPostTypes() + $this->_getTaxonomies();
+        $aObjects = $this->getPostTypes() + $this->getTaxonomies();
         $sIdent .= ($blDescription === true) ? '_DESC' : '';
 
         if (isset($aObjects[$sGroupKey]) === true) {
@@ -249,7 +248,7 @@ class AdminSettingsController extends Controller
      */
     public function getSectionText($sGroupKey, $blDescription = false)
     {
-        return $this->_getObjectText(
+        return $this->getObjectText(
             $sGroupKey,
             'TXT_UAM_'.strtoupper($sGroupKey).'_SETTING',
             $blDescription
@@ -269,7 +268,7 @@ class AdminSettingsController extends Controller
     {
         $sIdent = 'TXT_UAM_'.strtoupper($oConfigParameter->getId());
 
-        return $this->_getObjectText(
+        return $this->getObjectText(
             $sGroupKey,
             $sIdent,
             $blDescription

@@ -24,17 +24,17 @@ abstract class ConfigParameter implements ConfigParameterInterface
     /**
      * @var string
      */
-    protected $_sId;
+    protected $sId;
 
     /**
      * @var mixed
      */
-    protected $_mDefaultValue = null;
+    protected $mDefaultValue = null;
 
     /**
      * @var mixed
      */
-    protected $_mValue = null;
+    protected $mValue = null;
 
     /**
      * ConfigParameter constructor.
@@ -44,10 +44,10 @@ abstract class ConfigParameter implements ConfigParameterInterface
      */
     public function __construct($sId, $mDefaultValue = null)
     {
-        $this->_sId = $sId;
+        $this->sId = $sId;
 
-        $this->_validateValue($mDefaultValue);
-        $this->_mDefaultValue = $mDefaultValue;
+        $this->validateValue($mDefaultValue);
+        $this->mDefaultValue = $mDefaultValue;
     }
 
     /**
@@ -57,7 +57,7 @@ abstract class ConfigParameter implements ConfigParameterInterface
      */
     public function getId()
     {
-        return $this->_sId;
+        return $this->sId;
     }
 
     /**
@@ -67,10 +67,10 @@ abstract class ConfigParameter implements ConfigParameterInterface
      *
      * @throws \Exception
      */
-    protected function _validateValue($mValue)
+    protected function validateValue($mValue)
     {
         if ($this->isValidValue($mValue) === false) {
-            throw new \Exception("Wrong value '{$mValue}' type given for '{$this->_sId}'.'");
+            throw new \Exception("Wrong value '{$mValue}' type given for '{$this->sId}'.'");
         }
     }
 
@@ -82,7 +82,7 @@ abstract class ConfigParameter implements ConfigParameterInterface
     public function setValue($mValue)
     {
         $this->isValidValue($mValue);
-        $this->_mValue = $mValue;
+        $this->mValue = $mValue;
     }
 
     /**
@@ -92,6 +92,6 @@ abstract class ConfigParameter implements ConfigParameterInterface
      */
     public function getValue()
     {
-        return ($this->_mValue === null) ? $this->_mDefaultValue : $this->_mValue;
+        return ($this->mValue === null) ? $this->mDefaultValue : $this->mValue;
     }
 }

@@ -75,7 +75,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\Command\GroupCommand::ls()
-     * @covers \UserAccessManager\Command\GroupCommand::_getFormatter()
+     * @covers \UserAccessManager\Command\GroupCommand::getFormatter()
      */
     public function testLs()
     {

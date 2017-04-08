@@ -24,7 +24,9 @@ if ($oController->hasUpdateMessage()) {
     <?php
 }
 
-if ($oController->getRequestParameter('uam_action') === null || $oController->getRequestParameter('uam_action') === 'delete_user_group') {
+if ($oController->getRequestParameter('uam_action') === null
+    || $oController->getRequestParameter('uam_action') === 'delete_user_group'
+) {
     ?>
     <div class="wrap">
         <form method="post" action="<?php echo $oController->getRequestUrl(); ?>">
@@ -64,7 +66,11 @@ if ($oController->getRequestParameter('uam_action') === null || $oController->ge
                         </th>
                         <td>
                             <strong>
-                                <a href="?page=<?php echo $sCurrentAdminPage; ?>&amp;uam_action=edit_user_group&amp;userGroupId=<?php echo $oUserGroup->getId(); ?>">
+                                <?php
+                                $sLink = "?page={$sCurrentAdminPage}&amp;uam_action=edit_user_group"
+                                    ."&amp;userGroupId={$oUserGroup->getId()}";
+                                ?>
+                                <a href="<?php echo $sLink; ?>">
                                     <?php echo htmlentities($oUserGroup->getName()); ?>
                                 </a>
                             </strong>
@@ -91,7 +97,9 @@ if ($oController->getRequestParameter('uam_action') === null || $oController->ge
                         <td>
                             <?php
                             $aRoleNames = $oController->getRoleNames();
-                            $aGroupRoles = $oUserGroup->getAssignedObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+                            $aGroupRoles = $oUserGroup->getAssignedObjectsByType(
+                                \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                            );
 
                             if (count($aGroupRoles) > 0) {
                                 ?>
@@ -253,7 +261,9 @@ if ($oController->getRequestParameter('uam_action') === null || $oController->ge
                 <td>
                     <ul class='uam_role'>
                         <?php
-                        $aGroupRoles = $oUserGroup->getAssignedObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+                        $aGroupRoles = $oUserGroup->getAssignedObjectsByType(
+                            \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                        );
                         $aRoleNames = $oController->getRoleNames();
 
                         foreach ($aRoleNames as $sRole => $sName) {

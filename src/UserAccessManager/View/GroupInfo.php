@@ -65,7 +65,9 @@
                     <?php
                     $sContent = TXT_UAM_GROUP_ROLE.': ';
                     $aRoleNames = $oController->getRoleNames();
-                    $aGroupRoles = $oUserGroup->getAssignedObjectsByType(\UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+                    $aGroupRoles = $oUserGroup->getAssignedObjectsByType(
+                        \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                    );
 
                     if (count($aGroupRoles) > 0) {
                         $aCleanGroupRoles = [];

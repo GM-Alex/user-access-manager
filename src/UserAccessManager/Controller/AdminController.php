@@ -34,17 +34,17 @@ class AdminController extends Controller
     /**
      * @var AccessHandler
      */
-    protected $_oAccessHandler;
+    protected $oAccessHandler;
 
     /**
      * @var FileHandler
      */
-    protected $_oFileHandler;
+    protected $oFileHandler;
 
     /**
      * @var string
      */
-    protected $_sNotice = '';
+    protected $sNotice = '';
 
     /**
      * AdminController constructor.
@@ -62,12 +62,11 @@ class AdminController extends Controller
         Config $oConfig,
         AccessHandler $oAccessHandler,
         FileHandler $oFileHandler
-    )
-    {
+    ) {
         parent::__construct($oPhp, $oWordpress, $oConfig);
-        $this->_oConfig = $oConfig;
-        $this->_oAccessHandler = $oAccessHandler;
-        $this->_oFileHandler = $oFileHandler;
+        $this->oConfig = $oConfig;
+        $this->oAccessHandler = $oAccessHandler;
+        $this->oFileHandler = $oFileHandler;
     }
 
     /**
@@ -75,8 +74,8 @@ class AdminController extends Controller
      */
     public function showFOpenNotice()
     {
-        $this->_sNotice = TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF;
-        echo $this->_getIncludeContents('AdminNotice.php');
+        $this->sNotice = TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF;
+        echo $this->getIncludeContents('AdminNotice.php');
     }
 
     /**
@@ -84,8 +83,8 @@ class AdminController extends Controller
      */
     public function showDatabaseNotice()
     {
-        $this->_sNotice = sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup');
-        echo $this->_getIncludeContents('AdminNotice.php');
+        $this->sNotice = sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup');
+        echo $this->getIncludeContents('AdminNotice.php');
     }
 
     /**
@@ -95,17 +94,17 @@ class AdminController extends Controller
      */
     public function getNotice()
     {
-        return $this->_sNotice;
+        return $this->sNotice;
     }
 
     /**
      * Register styles and scripts with handle for admin panel.
      */
-    protected function _registerStylesAndScripts()
+    protected function registerStylesAndScripts()
     {
-        $sUrlPath = $this->_oConfig->getUrlPath();
+        $sUrlPath = $this->oConfig->getUrlPath();
 
-        $this->_oWordpress->registerStyle(
+        $this->oWordpress->registerStyle(
             self::HANDLE_STYLE_ADMIN,
             $sUrlPath.'assets/css/uamAdmin.css',
             [],
@@ -113,7 +112,7 @@ class AdminController extends Controller
             'screen'
         );
 
-        $this->_oWordpress->registerScript(
+        $this->oWordpress->registerScript(
             self::HANDLE_SCRIPT_ADMIN,
             $sUrlPath.'assets/js/functions.js',
             ['jquery'],
@@ -128,11 +127,11 @@ class AdminController extends Controller
      */
     public function enqueueStylesAndScripts($sHook)
     {
-        $this->_registerStylesAndScripts();
-        $this->_oWordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
+        $this->registerStylesAndScripts();
+        $this->oWordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
 
         if ($sHook === 'uam_page_uam_settings' || $sHook === 'uam_page_uam_setup') {
-            $this->_oWordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
+            $this->oWordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
         }
     }
 
@@ -143,10 +142,10 @@ class AdminController extends Controller
      */
     public function setupAdminDashboard()
     {
-        if ($this->_oAccessHandler->checkUserAccess('manage_user_groups') === false) {
-            $aMetaBoxes = $this->_oWordpress->getMetaBoxes();
+        if ($this->oAccessHandler->checkUserAccess('manage_user_groups') === false) {
+            $aMetaBoxes = $this->oWordpress->getMetaBoxes();
             unset($aMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-            $this->_oWordpress->setMetaBoxes($aMetaBoxes);
+            $this->oWordpress->setMetaBoxes($aMetaBoxes);
         }
     }
 
@@ -155,7 +154,6 @@ class AdminController extends Controller
      */
     public function updatePermalink()
     {
-        $this->_oFileHandler->createFileProtection();
+        $this->oFileHandler->createFileProtection();
     }
-
 }

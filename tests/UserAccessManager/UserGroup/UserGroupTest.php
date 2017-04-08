@@ -122,20 +122,20 @@ class UserGroupTest extends UserAccessManagerTestCase
         );
 
         self::assertFalse($oUserGroup->load(1));
-        self::assertAttributeEquals(null, '_iId', $oUserGroup);
-        self::assertAttributeEquals(null, '_sName', $oUserGroup);
-        self::assertAttributeEquals(null, '_sDescription', $oUserGroup);
-        self::assertAttributeEquals(null, '_sReadAccess', $oUserGroup);
-        self::assertAttributeEquals(null, '_sWriteAccess', $oUserGroup);
-        self::assertAttributeEquals(null, '_sIpRange', $oUserGroup);
+        self::assertAttributeEquals(null, 'iId', $oUserGroup);
+        self::assertAttributeEquals(null, 'sName', $oUserGroup);
+        self::assertAttributeEquals(null, 'sDescription', $oUserGroup);
+        self::assertAttributeEquals(null, 'sReadAccess', $oUserGroup);
+        self::assertAttributeEquals(null, 'sWriteAccess', $oUserGroup);
+        self::assertAttributeEquals(null, 'sIpRange', $oUserGroup);
 
         self::assertTrue($oUserGroup->load(2));
-        self::assertAttributeEquals(2, '_iId', $oUserGroup);
-        self::assertAttributeEquals('groupName', '_sName', $oUserGroup);
-        self::assertAttributeEquals('groupDesc', '_sDescription', $oUserGroup);
-        self::assertAttributeEquals('readAccess', '_sReadAccess', $oUserGroup);
-        self::assertAttributeEquals('writeAccess', '_sWriteAccess', $oUserGroup);
-        self::assertAttributeEquals('ipRange;ipRange2', '_sIpRange', $oUserGroup);
+        self::assertAttributeEquals(2, 'iId', $oUserGroup);
+        self::assertAttributeEquals('groupName', 'sName', $oUserGroup);
+        self::assertAttributeEquals('groupDesc', 'sDescription', $oUserGroup);
+        self::assertAttributeEquals('readAccess', 'sReadAccess', $oUserGroup);
+        self::assertAttributeEquals('writeAccess', 'sWriteAccess', $oUserGroup);
+        self::assertAttributeEquals('ipRange;ipRange2', 'sIpRange', $oUserGroup);
 
         return $oUserGroup;
     }
@@ -168,19 +168,19 @@ class UserGroupTest extends UserAccessManagerTestCase
         self::assertEquals('ipRange;ipRange2', $oUserGroup->getIpRange(true));
 
         $oUserGroup->setName('groupNameNew');
-        self::assertAttributeEquals('groupNameNew', '_sName', $oUserGroup);
+        self::assertAttributeEquals('groupNameNew', 'sName', $oUserGroup);
 
         $oUserGroup->setDescription('groupDescNew');
-        self::assertAttributeEquals('groupDescNew', '_sDescription', $oUserGroup);
+        self::assertAttributeEquals('groupDescNew', 'sDescription', $oUserGroup);
 
         $oUserGroup->setReadAccess('readAccessNew');
-        self::assertAttributeEquals('readAccessNew', '_sReadAccess', $oUserGroup);
+        self::assertAttributeEquals('readAccessNew', 'sReadAccess', $oUserGroup);
 
         $oUserGroup->setWriteAccess('writeAccessNew');
-        self::assertAttributeEquals('writeAccessNew', '_sWriteAccess', $oUserGroup);
+        self::assertAttributeEquals('writeAccessNew', 'sWriteAccess', $oUserGroup);
 
         $oUserGroup->setIpRange(['ipRangeNew', 'ipRangeNew2']);
-        self::assertAttributeEquals('ipRangeNew;ipRangeNew2', '_sIpRange', $oUserGroup);
+        self::assertAttributeEquals('ipRangeNew;ipRangeNew2', 'sIpRange', $oUserGroup);
     }
 
     /**
@@ -247,7 +247,7 @@ class UserGroupTest extends UserAccessManagerTestCase
         self::assertTrue($oUserGroup->save());
         self::assertEquals(123, $oUserGroup->getId());
 
-        self::setValue($oUserGroup, '_iId', 2);
+        self::setValue($oUserGroup, 'iId', 2);
         self::assertFalse($oUserGroup->save());
         self::assertTrue($oUserGroup->save());
     }
@@ -341,53 +341,53 @@ class UserGroupTest extends UserAccessManagerTestCase
         );
 
         self::assertFalse($oUserGroup->delete());
-        self::setValue($oUserGroup, '_iId', 123);
+        self::setValue($oUserGroup, 'iId', 123);
 
-        self::setValue($oUserGroup, '_aAssignedObjects', [1 => 1]);
-        self::setValue($oUserGroup, '_aRoleMembership', [2 => 2]);
-        self::setValue($oUserGroup, '_aUserMembership', [3 => 3]);
-        self::setValue($oUserGroup, '_aTermMembership', [4 => 4]);
-        self::setValue($oUserGroup, '_aPostMembership', [5 => 5]);
-        self::setValue($oUserGroup, '_aFullObjectMembership', [6 => 6]);
+        self::setValue($oUserGroup, 'aAssignedObjects', [1 => 1]);
+        self::setValue($oUserGroup, 'aRoleMembership', [2 => 2]);
+        self::setValue($oUserGroup, 'aUserMembership', [3 => 3]);
+        self::setValue($oUserGroup, 'aTermMembership', [4 => 4]);
+        self::setValue($oUserGroup, 'aPostMembership', [5 => 5]);
+        self::setValue($oUserGroup, 'aFullObjectMembership', [6 => 6]);
 
         self::assertFalse($oUserGroup->delete());
 
-        self::assertAttributeEquals([1 => 1], '_aAssignedObjects', $oUserGroup);
-        self::assertAttributeEquals([2 => 2], '_aRoleMembership', $oUserGroup);
-        self::assertAttributeEquals([3 => 3], '_aUserMembership', $oUserGroup);
-        self::assertAttributeEquals([4 => 4], '_aTermMembership', $oUserGroup);
-        self::assertAttributeEquals([5 => 5], '_aPostMembership', $oUserGroup);
-        self::assertAttributeEquals([6 => 6], '_aFullObjectMembership', $oUserGroup);
+        self::assertAttributeEquals([1 => 1], 'aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals([2 => 2], 'aRoleMembership', $oUserGroup);
+        self::assertAttributeEquals([3 => 3], 'aUserMembership', $oUserGroup);
+        self::assertAttributeEquals([4 => 4], 'aTermMembership', $oUserGroup);
+        self::assertAttributeEquals([5 => 5], 'aPostMembership', $oUserGroup);
+        self::assertAttributeEquals([6 => 6], 'aFullObjectMembership', $oUserGroup);
 
         self::assertTrue($oUserGroup->delete());
 
 
-        self::setValue($oUserGroup, '_aAssignedObjects', [1 => 1]);
-        self::setValue($oUserGroup, '_aRoleMembership', [2 => 2]);
-        self::setValue($oUserGroup, '_aUserMembership', [3 => 3]);
-        self::setValue($oUserGroup, '_aTermMembership', [4 => 4]);
-        self::setValue($oUserGroup, '_aPostMembership', [5 => 5]);
-        self::setValue($oUserGroup, '_aFullObjectMembership', [6 => 6]);
+        self::setValue($oUserGroup, 'aAssignedObjects', [1 => 1]);
+        self::setValue($oUserGroup, 'aRoleMembership', [2 => 2]);
+        self::setValue($oUserGroup, 'aUserMembership', [3 => 3]);
+        self::setValue($oUserGroup, 'aTermMembership', [4 => 4]);
+        self::setValue($oUserGroup, 'aPostMembership', [5 => 5]);
+        self::setValue($oUserGroup, 'aFullObjectMembership', [6 => 6]);
 
         self::assertFalse($oUserGroup->removeObject('invalid'));
         self::assertFalse($oUserGroup->removeObject('objectType'));
 
-        self::assertAttributeEquals([1 => 1], '_aAssignedObjects', $oUserGroup);
-        self::assertAttributeEquals([2 => 2], '_aRoleMembership', $oUserGroup);
-        self::assertAttributeEquals([3 => 3], '_aUserMembership', $oUserGroup);
-        self::assertAttributeEquals([4 => 4], '_aTermMembership', $oUserGroup);
-        self::assertAttributeEquals([5 => 5], '_aPostMembership', $oUserGroup);
-        self::assertAttributeEquals([6 => 6], '_aFullObjectMembership', $oUserGroup);
+        self::assertAttributeEquals([1 => 1], 'aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals([2 => 2], 'aRoleMembership', $oUserGroup);
+        self::assertAttributeEquals([3 => 3], 'aUserMembership', $oUserGroup);
+        self::assertAttributeEquals([4 => 4], 'aTermMembership', $oUserGroup);
+        self::assertAttributeEquals([5 => 5], 'aPostMembership', $oUserGroup);
+        self::assertAttributeEquals([6 => 6], 'aFullObjectMembership', $oUserGroup);
 
         self::assertTrue($oUserGroup->removeObject('objectType'));
         self::assertTrue($oUserGroup->removeObject('objectType', 1));
 
-        self::assertAttributeEquals([], '_aAssignedObjects', $oUserGroup);
-        self::assertAttributeEquals([], '_aRoleMembership', $oUserGroup);
-        self::assertAttributeEquals([], '_aUserMembership', $oUserGroup);
-        self::assertAttributeEquals([], '_aTermMembership', $oUserGroup);
-        self::assertAttributeEquals([], '_aPostMembership', $oUserGroup);
-        self::assertAttributeEquals([], '_aFullObjectMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals([], 'aRoleMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aUserMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aTermMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aPostMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aFullObjectMembership', $oUserGroup);
     }
 
     /**
@@ -448,13 +448,13 @@ class UserGroupTest extends UserAccessManagerTestCase
             $oObjectHandler
         );
 
-        self::setValue($oUserGroup, '_iId', 123);
-        self::setValue($oUserGroup, '_aAssignedObjects', [1 => 'post', 2 => 'post']);
-        self::setValue($oUserGroup, '_aRoleMembership', [1 => 'role', 2 => 'role']);
-        self::setValue($oUserGroup, '_aUserMembership', [1 => 'user', 2 => 'user']);
-        self::setValue($oUserGroup, '_aTermMembership', [1 => 'term', 2 => 'term']);
-        self::setValue($oUserGroup, '_aPostMembership', [1 => 'post', 2 => 'post']);
-        self::setValue($oUserGroup, '_aFullObjectMembership', [1 => 'post', 2 => 'post']);
+        self::setValue($oUserGroup, 'iId', 123);
+        self::setValue($oUserGroup, 'aAssignedObjects', [1 => 'post', 2 => 'post']);
+        self::setValue($oUserGroup, 'aRoleMembership', [1 => 'role', 2 => 'role']);
+        self::setValue($oUserGroup, 'aUserMembership', [1 => 'user', 2 => 'user']);
+        self::setValue($oUserGroup, 'aTermMembership', [1 => 'term', 2 => 'term']);
+        self::setValue($oUserGroup, 'aPostMembership', [1 => 'post', 2 => 'post']);
+        self::setValue($oUserGroup, 'aFullObjectMembership', [1 => 'post', 2 => 'post']);
 
         self::assertFalse($oUserGroup->addObject('invalid', 321));
         self::assertFalse($oUserGroup->addObject('generalObjectType', 321));
@@ -462,12 +462,12 @@ class UserGroupTest extends UserAccessManagerTestCase
         self::assertFalse($oUserGroup->addObject('objectType', 321));
         self::assertTrue($oUserGroup->addObject('objectType', 321));
 
-        self::assertAttributeEquals([], '_aAssignedObjects', $oUserGroup);
-        self::assertAttributeEquals([], '_aRoleMembership', $oUserGroup);
-        self::assertAttributeEquals([], '_aUserMembership', $oUserGroup);
-        self::assertAttributeEquals([], '_aTermMembership', $oUserGroup);
-        self::assertAttributeEquals([], '_aPostMembership', $oUserGroup);
-        self::assertAttributeEquals([], '_aFullObjectMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals([], 'aRoleMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aUserMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aTermMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aPostMembership', $oUserGroup);
+        self::assertAttributeEquals([], 'aFullObjectMembership', $oUserGroup);
     }
 
     /**
@@ -494,8 +494,8 @@ class UserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::_getAssignedObjects()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::_isObjectAssignedToGroup()
+     * @covers \UserAccessManager\UserGroup\UserGroup::getAssignedObjects()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::isObjectAssignedToGroup()
      */
     public function testAssignedObject()
     {
@@ -540,35 +540,35 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::setValue($oUserGroup, '_iId', 123);
+        self::setValue($oUserGroup, 'iId', 123);
 
-        $aResult = self::callMethod($oUserGroup, '_getAssignedObjects', ['noResultObjectType']);
+        $aResult = self::callMethod($oUserGroup, 'getAssignedObjects', ['noResultObjectType']);
         self::assertEquals([], $aResult);
-        self::assertAttributeEquals(['noResultObjectType' => []], '_aAssignedObjects', $oUserGroup);
+        self::assertAttributeEquals(['noResultObjectType' => []], 'aAssignedObjects', $oUserGroup);
 
-        $aResult = self::callMethod($oUserGroup, '_getAssignedObjects', ['objectType']);
+        $aResult = self::callMethod($oUserGroup, 'getAssignedObjects', ['objectType']);
         self::assertEquals([1 => 'objectType', 2 => 'objectType', 3 => 'objectType'], $aResult);
         self::assertAttributeEquals(
             ['noResultObjectType' => [], 'objectType' => [1 => 'objectType', 2 => 'objectType', 3 => 'objectType']],
-            '_aAssignedObjects',
+            'aAssignedObjects',
             $oUserGroup
         );
 
-        $aResult = self::callMethod($oUserGroup, '_getAssignedObjects', ['objectType']);
+        $aResult = self::callMethod($oUserGroup, 'getAssignedObjects', ['objectType']);
         self::assertEquals([1 => 'objectType', 2 => 'objectType', 3 => 'objectType'], $aResult);
 
-        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 1]);
+        $blResult = self::callMethod($oUserGroup, 'isObjectAssignedToGroup', ['objectType', 1]);
         self::assertTrue($blResult);
-        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 2]);
+        $blResult = self::callMethod($oUserGroup, 'isObjectAssignedToGroup', ['objectType', 2]);
         self::assertTrue($blResult);
-        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 3]);
+        $blResult = self::callMethod($oUserGroup, 'isObjectAssignedToGroup', ['objectType', 3]);
         self::assertTrue($blResult);
 
-        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['objectType', 4]);
+        $blResult = self::callMethod($oUserGroup, 'isObjectAssignedToGroup', ['objectType', 4]);
         self::assertFalse($blResult);
-        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['noResultObjectType', 1]);
+        $blResult = self::callMethod($oUserGroup, 'isObjectAssignedToGroup', ['noResultObjectType', 1]);
         self::assertFalse($blResult);
-        $blResult = self::callMethod($oUserGroup, '_isObjectAssignedToGroup', ['something', 1]);
+        $blResult = self::callMethod($oUserGroup, 'isObjectAssignedToGroup', ['something', 1]);
         self::assertFalse($blResult);
     }
 
@@ -622,7 +622,7 @@ class UserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isObjectRecursiveMember()
      * @covers \UserAccessManager\UserGroup\UserGroup::isRoleMember()
      *
      * @return UserGroup
@@ -639,7 +639,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::setValue($oUserGroup, '_iId', 123);
+        self::setValue($oUserGroup, 'iId', 123);
         $aRecursiveMembership = [];
 
         $blReturn = $oUserGroup->isRoleMember(1, $aRecursiveMembership);
@@ -743,14 +743,14 @@ class UserGroupTest extends UserAccessManagerTestCase
             $oObjectHandler
         );
 
-        self::setValue($oUserGroup, '_iId', 123);
+        self::setValue($oUserGroup, 'iId', 123);
 
         return $oUserGroup;
     }
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isObjectRecursiveMember()
      * @covers \UserAccessManager\UserGroup\UserGroup::isUserMember()
      *
      * @return UserGroup
@@ -760,19 +760,19 @@ class UserGroupTest extends UserAccessManagerTestCase
         $oUserGroup = $this->getTestIsUserMemberPrototype(['role' => 3, 'user' => 2], [], [], 0, 5, 6);
         $aRecursiveMembership = [];
 
-        self::setValue($oUserGroup, '_aAssignedObjects', [ObjectHandler::GENERAL_USER_OBJECT_TYPE => []]);
+        self::setValue($oUserGroup, 'aAssignedObjects', [ObjectHandler::GENERAL_USER_OBJECT_TYPE => []]);
         $blReturn = $oUserGroup->isUserMember(4, $aRecursiveMembership);
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
-        self::setValue($oUserGroup, '_aAssignedObjects', [
+        self::setValue($oUserGroup, 'aAssignedObjects', [
             ObjectHandler::GENERAL_USER_OBJECT_TYPE => [],
             ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => []
         ]);
         $blReturn = $oUserGroup->isUserMember(3, $aRecursiveMembership);
         self::assertFalse($blReturn);
         self::assertEquals([], $aRecursiveMembership);
-        self::setValue($oUserGroup, '_aUserMembership', []);
-        self::setValue($oUserGroup, '_aAssignedObjects', []);
+        self::setValue($oUserGroup, 'aUserMembership', []);
+        self::setValue($oUserGroup, 'aAssignedObjects', []);
 
         $blReturn = $oUserGroup->isUserMember(1, $aRecursiveMembership);
         self::assertTrue($blReturn);
@@ -852,14 +852,14 @@ class UserGroupTest extends UserAccessManagerTestCase
             $oObjectHandler
         );
 
-        self::setValue($oUserGroup, '_iId', 123);
+        self::setValue($oUserGroup, 'iId', 123);
 
         return $oUserGroup;
     }
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isObjectRecursiveMember()
      * @covers \UserAccessManager\UserGroup\UserGroup::isTermMember()
      *
      * @return UserGroup
@@ -985,14 +985,14 @@ class UserGroupTest extends UserAccessManagerTestCase
             $oObjectHandler
         );
 
-        self::setValue($oUserGroup, '_iId', 123);
+        self::setValue($oUserGroup, 'iId', 123);
 
         return $oUserGroup;
     }
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isObjectRecursiveMember()
      * @covers \UserAccessManager\UserGroup\UserGroup::isPostMember()
      *
      * @return UserGroup
@@ -1041,7 +1041,7 @@ class UserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::_isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\UserGroup::isObjectRecursiveMember()
      * @covers \UserAccessManager\UserGroup\UserGroup::isPluggableObjectMember()
      *
      * @return UserGroup
@@ -1097,7 +1097,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $oObjectHandler
         );
 
-        self::setValue($oUserGroup, '_iId', 123);
+        self::setValue($oUserGroup, 'iId', 123);
         $aRecursiveMembership = [];
 
         // pluggable object tests
@@ -1121,7 +1121,7 @@ class UserGroupTest extends UserAccessManagerTestCase
                     2 => []
                 ]
             ],
-            '_aPluggableObjectMembership',
+            'aPluggableObjectMembership',
             $oUserGroup
         );
 
@@ -1344,7 +1344,7 @@ class UserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\UserGroup::getFullTerms()
-     * @covers \UserAccessManager\UserGroup\UserGroup::_getFullObjects()
+     * @covers \UserAccessManager\UserGroup\UserGroup::getFullObjects()
      *
      * @return UserGroup
      */
@@ -1353,7 +1353,7 @@ class UserGroupTest extends UserAccessManagerTestCase
         $oUserGroup = $this->getTestIsTermMemberPrototype();
         self::assertEquals([1 => 'term', 2 => 'term', 3 => 'term'], $oUserGroup->getFullTerms());
 
-        self::setValue($oUserGroup, '_aFullObjectMembership', []);
+        self::setValue($oUserGroup, 'aFullObjectMembership', []);
         self::assertEquals([1 => 'term', 2 => 'term', 3 => 'term', 4 => 'term'], $oUserGroup->getFullTerms());
 
         return $oUserGroup;
@@ -1362,7 +1362,7 @@ class UserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\UserGroup::getFullPosts()
-     * @covers \UserAccessManager\UserGroup\UserGroup::_getFullObjects()
+     * @covers \UserAccessManager\UserGroup\UserGroup::getFullObjects()
      *
      * @return UserGroup
      */
@@ -1374,7 +1374,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $oUserGroup->getFullPosts()
         );
 
-        self::setValue($oUserGroup, '_aFullObjectMembership', []);
+        self::setValue($oUserGroup, 'aFullObjectMembership', []);
         self::assertEquals(
             [1 => 'post', 2 => 'post', 3 => 'post', 4 => 'post', 9 => 'post'],
             $oUserGroup->getFullPosts()
@@ -1423,7 +1423,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             [1 => 'term', 2 => 'term', 3 => 'term', 4 => 'term'],
             $oTermUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_TERM_OBJECT_TYPE)
         );
-        self::setValue($oTermUserGroup, '_aFullObjectMembership', ['termObjectType' => [1 => 'term', 2 => 'term']]);
+        self::setValue($oTermUserGroup, 'aFullObjectMembership', ['termObjectType' => [1 => 'term', 2 => 'term']]);
         self::assertEquals(
             [1 => 'term', 2 => 'term'],
             $oTermUserGroup->getAssignedObjectsByType('termObjectType')
@@ -1433,7 +1433,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             [1 => 'post', 2 => 'post', 3 => 'post', 4 => 'post', 9 => 'post'],
             $oPostUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_POST_OBJECT_TYPE)
         );
-        self::setValue($oPostUserGroup, '_aFullObjectMembership', ['postObjectType' => [3 => 'post', 4 => 'post']]);
+        self::setValue($oPostUserGroup, 'aFullObjectMembership', ['postObjectType' => [3 => 'post', 4 => 'post']]);
         self::assertEquals(
             [3 => 'post', 4 => 'post'],
             $oPostUserGroup->getAssignedObjectsByType('postObjectType')

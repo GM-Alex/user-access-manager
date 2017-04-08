@@ -24,18 +24,18 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class Database
 {
-    CONST USER_GROUP_TABLE_NAME = 'uam_accessgroups';
-    CONST USER_GROUP_TO_OBJECT_TABLE_NAME = 'uam_accessgroup_to_object';
+    const USER_GROUP_TABLE_NAME = 'uam_accessgroups';
+    const USER_GROUP_TO_OBJECT_TABLE_NAME = 'uam_accessgroup_to_object';
 
     /**
      * @var \wpdb
      */
-    protected $_oWpDatabase;
+    protected $oWpDatabase;
 
     /**
      * @var Database
      */
-    protected $_oWordpress;
+    protected $oWordpress;
 
     /**
      * Database constructor.
@@ -44,8 +44,8 @@ class Database
      */
     public function __construct(Wordpress $oWordpress)
     {
-        $this->_oWordpress = $oWordpress;
-        $this->_oWpDatabase = $oWordpress->getDatabase();
+        $this->oWordpress = $oWordpress;
+        $this->oWpDatabase = $oWordpress->getDatabase();
     }
 
     /**
@@ -55,7 +55,7 @@ class Database
      */
     public function getUserGroupTable()
     {
-        return $this->_oWpDatabase->prefix.self::USER_GROUP_TABLE_NAME;
+        return $this->oWpDatabase->prefix.self::USER_GROUP_TABLE_NAME;
     }
 
     /**
@@ -65,7 +65,7 @@ class Database
      */
     public function getUserGroupToObjectTable()
     {
-        return $this->_oWpDatabase->prefix.self::USER_GROUP_TO_OBJECT_TABLE_NAME;
+        return $this->oWpDatabase->prefix.self::USER_GROUP_TO_OBJECT_TABLE_NAME;
     }
 
     /**
@@ -78,7 +78,7 @@ class Database
      */
     public function dbDelta($mQueries = '', $blExecute = true)
     {
-        return $this->_oWordpress->dbDelta($mQueries, $blExecute);
+        return $this->oWordpress->dbDelta($mQueries, $blExecute);
     }
 
     /**
@@ -88,7 +88,7 @@ class Database
      */
     public function getPrefix()
     {
-        return $this->_oWpDatabase->prefix;
+        return $this->oWpDatabase->prefix;
     }
 
     /**
@@ -98,7 +98,7 @@ class Database
      */
     public function getLastInsertId()
     {
-        return $this->_oWpDatabase->insert_id;
+        return $this->oWpDatabase->insert_id;
     }
 
     /**
@@ -108,7 +108,7 @@ class Database
      */
     public function getCurrentBlogId()
     {
-        return $this->_oWpDatabase->blogid;
+        return $this->oWpDatabase->blogid;
     }
 
     /**
@@ -118,7 +118,7 @@ class Database
      */
     public function getBlogsTable()
     {
-        return $this->_oWpDatabase->blogs;
+        return $this->oWpDatabase->blogs;
     }
 
     /**
@@ -128,7 +128,7 @@ class Database
      */
     public function getPostsTable()
     {
-        return $this->_oWpDatabase->posts;
+        return $this->oWpDatabase->posts;
     }
 
     /**
@@ -138,7 +138,7 @@ class Database
      */
     public function getTermRelationshipsTable()
     {
-        return $this->_oWpDatabase->term_relationships;
+        return $this->oWpDatabase->term_relationships;
     }
 
     /**
@@ -148,7 +148,7 @@ class Database
      */
     public function getTermTaxonomyTable()
     {
-        return $this->_oWpDatabase->term_taxonomy;
+        return $this->oWpDatabase->term_taxonomy;
     }
 
     /**
@@ -158,7 +158,7 @@ class Database
      */
     public function getUsersTable()
     {
-        return $this->_oWpDatabase->users;
+        return $this->oWpDatabase->users;
     }
 
     /**
@@ -168,7 +168,7 @@ class Database
      */
     public function getCapabilitiesTable()
     {
-        return $this->_oWpDatabase->prefix.'capabilities';
+        return $this->oWpDatabase->prefix.'capabilities';
     }
 
     /**
@@ -181,7 +181,7 @@ class Database
      */
     public function getColumn($sQuery = null, $iColumn = 0)
     {
-        return $this->_oWpDatabase->get_col($sQuery, $iColumn);
+        return $this->oWpDatabase->get_col($sQuery, $iColumn);
     }
 
     /**
@@ -195,7 +195,7 @@ class Database
      */
     public function getRow($sQuery = null, $sOutput = OBJECT, $iRow = 0)
     {
-        return $this->_oWpDatabase->get_row($sQuery, $sOutput, $iRow);
+        return $this->oWpDatabase->get_row($sQuery, $sOutput, $iRow);
     }
 
     /**
@@ -209,7 +209,7 @@ class Database
      */
     public function getVariable($sQuery = null, $iColumn = 0, $iRow = 0)
     {
-        return $this->_oWpDatabase->get_var($sQuery, $iColumn, $iRow);
+        return $this->oWpDatabase->get_var($sQuery, $iColumn, $iRow);
     }
 
     /**
@@ -221,7 +221,7 @@ class Database
      */
     public function getBlogPrefix($iBlogId = null)
     {
-        return $this->_oWpDatabase->get_blog_prefix($iBlogId);
+        return $this->oWpDatabase->get_blog_prefix($iBlogId);
     }
 
     /**
@@ -234,7 +234,7 @@ class Database
      */
     public function prepare($sQuery, $mArguments)
     {
-        return $this->_oWpDatabase->prepare($sQuery, $mArguments);
+        return $this->oWpDatabase->prepare($sQuery, $mArguments);
     }
 
     /**
@@ -246,7 +246,7 @@ class Database
      */
     public function query($sQuery)
     {
-        return $this->_oWpDatabase->query($sQuery);
+        return $this->oWpDatabase->query($sQuery);
     }
 
     /**
@@ -259,7 +259,7 @@ class Database
      */
     public function getResults($sQuery = null, $sOutput = OBJECT)
     {
-        return $this->_oWpDatabase->get_results($sQuery, $sOutput);
+        return $this->oWpDatabase->get_results($sQuery, $sOutput);
     }
 
     /**
@@ -273,7 +273,7 @@ class Database
      */
     public function insert($sTable, array $aData, $sFormat = null)
     {
-        return $this->_oWpDatabase->insert($sTable, $aData, $sFormat);
+        return $this->oWpDatabase->insert($sTable, $aData, $sFormat);
     }
 
     /**
@@ -289,7 +289,7 @@ class Database
      */
     public function update($sTable, array $aData, array $aWhere, $mFormat = null, $mWhereFormat = null)
     {
-        return $this->_oWpDatabase->update($sTable, $aData, $aWhere, $mFormat, $mWhereFormat);
+        return $this->oWpDatabase->update($sTable, $aData, $aWhere, $mFormat, $mWhereFormat);
     }
 
     /**
@@ -303,7 +303,7 @@ class Database
      */
     public function delete($sTable, array $aWhere, $mWhereFormat = null)
     {
-        return $this->_oWpDatabase->delete($sTable, $aWhere, $mWhereFormat);
+        return $this->oWpDatabase->delete($sTable, $aWhere, $mWhereFormat);
     }
 
     /**
@@ -318,16 +318,15 @@ class Database
         $sMySlqVersion = $this->getVariable('SELECT VERSION() as mysql_version');
 
         if (version_compare($sMySlqVersion, '4.1.0', '>=')) {
-            if (!empty($this->_oWpDatabase->charset)) {
-                $sCharsetCollate = "DEFAULT CHARACTER SET {$this->_oWpDatabase->charset}";
+            if (!empty($this->oWpDatabase->charset)) {
+                $sCharsetCollate = "DEFAULT CHARACTER SET {$this->oWpDatabase->charset}";
             }
 
-            if (!empty($this->_oWpDatabase->collate)) {
-                $sCharsetCollate .= " COLLATE {$this->_oWpDatabase->collate}";
+            if (!empty($this->oWpDatabase->collate)) {
+                $sCharsetCollate .= " COLLATE {$this->oWpDatabase->collate}";
             }
         }
 
         return $sCharsetCollate;
     }
-
 }

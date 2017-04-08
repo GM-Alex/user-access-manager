@@ -110,7 +110,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             }));
 
         $oAdminController->showFOpenNotice();
-        self::assertAttributeEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, '_sNotice', $oAdminController);
+        self::assertAttributeEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, 'sNotice', $oAdminController);
         self::expectOutputString('FOpenNotice');
 
         return $oAdminController;
@@ -150,7 +150,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
         self::assertAttributeEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
-            '_sNotice',
+            'sNotice',
             $oAdminController
         );
         self::expectOutputString('DatabaseNotice');
@@ -180,7 +180,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminController::_registerStylesAndScripts()
+     * @covers \UserAccessManager\Controller\AdminController::registerStylesAndScripts()
      * @covers \UserAccessManager\Controller\AdminController::enqueueStylesAndScripts()
      */
     public function testStylesAndScripts()

@@ -31,32 +31,32 @@ class UserGroupFactory
     /**
      * @var Wordpress
      */
-    protected $_oWordpress;
+    protected $oWordpress;
 
     /**
      * @var Database
      */
-    protected $_oDatabase;
+    protected $oDatabase;
 
     /**
      * @var Config
      */
-    protected $_oConfig;
+    protected $oConfig;
 
     /**
      * @var Cache
      */
-    protected $_oCache;
+    protected $oCache;
 
     /**
      * @var Util
      */
-    protected $_oUtil;
+    protected $oUtil;
 
     /**
      * @var ObjectHandler
      */
-    protected $_oObjectHandler;
+    protected $oObjectHandler;
 
     /**
      * UserGroupFactory constructor.
@@ -73,13 +73,12 @@ class UserGroupFactory
         Config $oConfig,
         Util $oUtil,
         ObjectHandler $oObjectHandler
-    )
-    {
-        $this->_oWordpress = $oWordpress;
-        $this->_oDatabase = $oDatabase;
-        $this->_oConfig = $oConfig;
-        $this->_oUtil = $oUtil;
-        $this->_oObjectHandler = $oObjectHandler;
+    ) {
+        $this->oWordpress = $oWordpress;
+        $this->oDatabase = $oDatabase;
+        $this->oConfig = $oConfig;
+        $this->oUtil = $oUtil;
+        $this->oObjectHandler = $oObjectHandler;
     }
 
     /**
@@ -92,11 +91,11 @@ class UserGroupFactory
     public function createUserGroup($sId = null)
     {
         return new UserGroup(
-            $this->_oWordpress,
-            $this->_oDatabase,
-            $this->_oConfig,
-            $this->_oUtil,
-            $this->_oObjectHandler,
+            $this->oWordpress,
+            $this->oDatabase,
+            $this->oConfig,
+            $this->oUtil,
+            $this->oObjectHandler,
             $sId
         );
     }

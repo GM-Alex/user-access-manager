@@ -38,7 +38,7 @@ class BooleanConfigParameter extends ConfigParameter
      *
      * @return bool
      */
-    protected function _stringToBoolConverter($mValue)
+    protected function stringToBoolConverter($mValue)
     {
         if ($mValue === 'true') {
             $mValue = true;
@@ -56,7 +56,7 @@ class BooleanConfigParameter extends ConfigParameter
      */
     public function setValue($mValue)
     {
-        $mValue = $this->_stringToBoolConverter($mValue);
+        $mValue = $this->stringToBoolConverter($mValue);
         parent::setValue($mValue);
     }
 

@@ -180,7 +180,7 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         $sName = null
     ) {
         $oUserGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
-        self::setValue($oUserGroup, '_iId', $iId);
+        self::setValue($oUserGroup, 'iId', $iId);
 
         $oUserGroup->expects($this->any())
             ->method('getId')

@@ -52,6 +52,8 @@ if ($oController->showLoginForm()) {
     <?php
 } else {
     ?>
-    <a class="uam_login_link" href="<?php echo $oController->getRedirectLoginUrl(); ?>"><?php TXT_UAM_LOGIN_FORM_LOGIN; ?></a>
+    <a class="uam_login_link" href="<?php echo $oController->getRedirectLoginUrl(); ?>">
+        <?php TXT_UAM_LOGIN_FORM_LOGIN; ?>
+    </a>
     <?php
 }

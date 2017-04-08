@@ -31,22 +31,22 @@ abstract class FileProtection
     /**
      * @var Php
      */
-    protected $_oPhp;
+    protected $oPhp;
 
     /**
      * @var Wordpress
      */
-    protected $_oWordpress;
+    protected $oWordpress;
 
     /**
      * @var Config
      */
-    protected $_oConfig;
+    protected $oConfig;
 
     /**
      * @var Util
      */
-    protected $_oUtil;
+    protected $oUtil;
 
     /**
      * ApacheFileProtection constructor.
@@ -58,10 +58,10 @@ abstract class FileProtection
      */
     public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig, Util $oUtil)
     {
-        $this->_oPhp = $oPhp;
-        $this->_oWordpress = $oWordpress;
-        $this->_oConfig = $oConfig;
-        $this->_oUtil = $oUtil;
+        $this->oPhp = $oPhp;
+        $this->oWordpress = $oWordpress;
+        $this->oConfig = $oConfig;
+        $this->oUtil = $oUtil;
     }
 
     /**
@@ -71,11 +71,11 @@ abstract class FileProtection
      *
      * @return string
      */
-    protected function _cleanUpFileTypes($sFileTypes)
+    protected function cleanUpFileTypes($sFileTypes)
     {
         $aValidFileTypes = [];
         $aFileTypes = explode(',', $sFileTypes);
-        $aMimeTypes = $this->_oConfig->getMimeTypes();
+        $aMimeTypes = $this->oConfig->getMimeTypes();
 
         foreach ($aFileTypes as $sFileType) {
             $sCleanFileType = trim($sFileType);
@@ -98,7 +98,7 @@ abstract class FileProtection
     {
         // get url
         if ($sDir === null) {
-            $aWordpressUploadDir = $this->_oWordpress->getUploadDir();
+            $aWordpressUploadDir = $this->oWordpress->getUploadDir();
 
             if (empty($aWordpressUploadDir['error'])) {
                 $sDir = $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
@@ -110,11 +110,11 @@ abstract class FileProtection
         if ($sDir !== null
             && (file_exists($sFile) === false || $blCreateNew)
         ) {
-            $oCurrentUser = $this->_oWordpress->getCurrentUser();
+            $oCurrentUser = $this->oWordpress->getCurrentUser();
 
-            if ($this->_oConfig->getFilePassType() === 'random') {
+            if ($this->oConfig->getFilePassType() === 'random') {
                 try {
-                    $sRandomPassword = $this->_oUtil->getRandomPassword();
+                    $sRandomPassword = $this->oUtil->getRandomPassword();
                     $sPassword = md5($sRandomPassword);
                 } catch (\Exception $oException) {
                     $sPassword = $oCurrentUser->user_pass;

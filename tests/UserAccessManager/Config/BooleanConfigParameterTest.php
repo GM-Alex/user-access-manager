@@ -34,14 +34,14 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
         $oBooleanConfigParameter = new BooleanConfigParameter('testId');
 
         self::assertInstanceOf('\UserAccessManager\Config\BooleanConfigParameter', $oBooleanConfigParameter);
-        self::assertAttributeEquals('testId', '_sId', $oBooleanConfigParameter);
-        self::assertAttributeEquals(false, '_mDefaultValue', $oBooleanConfigParameter);
+        self::assertAttributeEquals('testId', 'sId', $oBooleanConfigParameter);
+        self::assertAttributeEquals(false, 'mDefaultValue', $oBooleanConfigParameter);
 
         $oBooleanConfigParameter = new BooleanConfigParameter('otherId', true);
 
         self::assertInstanceOf('\UserAccessManager\Config\BooleanConfigParameter', $oBooleanConfigParameter);
-        self::assertAttributeEquals('otherId', '_sId', $oBooleanConfigParameter);
-        self::assertAttributeEquals(true, '_mDefaultValue', $oBooleanConfigParameter);
+        self::assertAttributeEquals('otherId', 'sId', $oBooleanConfigParameter);
+        self::assertAttributeEquals(true, 'mDefaultValue', $oBooleanConfigParameter);
 
         return $oBooleanConfigParameter;
     }
@@ -49,7 +49,7 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\BooleanConfigParameter::_stringToBoolConverter()
+     * @covers  \UserAccessManager\Config\BooleanConfigParameter::stringToBoolConverter()
      *
      * @param BooleanConfigParameter $oBooleanConfigParameter
      */
@@ -57,17 +57,17 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
     {
         self::assertEquals(
             true,
-            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', ['true'])
+            self::callMethod($oBooleanConfigParameter, 'stringToBoolConverter', ['true'])
         );
 
         self::assertEquals(
             false,
-            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', ['false'])
+            self::callMethod($oBooleanConfigParameter, 'stringToBoolConverter', ['false'])
         );
 
         self::assertEquals(
             'Test',
-            self::callMethod($oBooleanConfigParameter, '_stringToBoolConverter', ['Test'])
+            self::callMethod($oBooleanConfigParameter, 'stringToBoolConverter', ['Test'])
         );
     }
 
@@ -81,16 +81,16 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
     public function testSetValue($oBooleanConfigParameter)
     {
         $oBooleanConfigParameter->setValue(true);
-        self::assertAttributeEquals(true, '_mValue', $oBooleanConfigParameter);
+        self::assertAttributeEquals(true, 'mValue', $oBooleanConfigParameter);
 
         $oBooleanConfigParameter->setValue(false);
-        self::assertAttributeEquals(false, '_mValue', $oBooleanConfigParameter);
+        self::assertAttributeEquals(false, 'mValue', $oBooleanConfigParameter);
 
         $oBooleanConfigParameter->setValue('true');
-        self::assertAttributeEquals(true, '_mValue', $oBooleanConfigParameter);
+        self::assertAttributeEquals(true, 'mValue', $oBooleanConfigParameter);
 
         $oBooleanConfigParameter->setValue('false');
-        self::assertAttributeEquals(false, '_mValue', $oBooleanConfigParameter);
+        self::assertAttributeEquals(false, 'mValue', $oBooleanConfigParameter);
     }
 
     /**

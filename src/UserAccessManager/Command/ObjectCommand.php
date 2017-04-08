@@ -33,12 +33,12 @@ class ObjectCommand extends \WP_CLI_Command
     /**
      * @var WordpressCli
      */
-    protected $_oWordpressCli;
+    protected $oWordpressCli;
 
     /**
      * @var AccessHandler
      */
-    protected $_oAccessHandler;
+    protected $oAccessHandler;
 
     /**
      * ObjectCommand constructor.
@@ -48,8 +48,8 @@ class ObjectCommand extends \WP_CLI_Command
      */
     public function __construct(WordpressCli $oWordpressCli, AccessHandler $oAccessHandler)
     {
-        $this->_oWordpressCli = $oWordpressCli;
-        $this->_oAccessHandler = $oAccessHandler;
+        $this->oWordpressCli = $oWordpressCli;
+        $this->oAccessHandler = $oAccessHandler;
     }
 
     /**
@@ -81,7 +81,7 @@ class ObjectCommand extends \WP_CLI_Command
     public function __invoke(array $aArguments, array $aAssocArguments)
     {
         if (count($aArguments) < 4) {
-            $this->_oWordpressCli->error('<operation>, <object_type>, <object_id> and <user_groups> are required');
+            $this->oWordpressCli->error('<operation>, <object_type>, <object_id> and <user_groups> are required');
             return;
         }
 
@@ -92,7 +92,7 @@ class ObjectCommand extends \WP_CLI_Command
             && $sOperation !== self::ACTION_UPDATE
             && $sOperation !== self::ACTION_REMOVE
         ) {
-            $this->_oWordpressCli->error("Operation is not valid: {$sOperation}");
+            $this->oWordpressCli->error("Operation is not valid: {$sOperation}");
             return;
         }
 
@@ -101,7 +101,7 @@ class ObjectCommand extends \WP_CLI_Command
 
         // convert the string to and associative array of index and group
         $aAddUserGroups = [];
-        $aUserGroups = $this->_oAccessHandler->getUserGroups();
+        $aUserGroups = $this->oAccessHandler->getUserGroups();
 
         $aUserGroupNames = array_map(
             function (UserGroup $oUserGroup) {
@@ -128,13 +128,13 @@ class ObjectCommand extends \WP_CLI_Command
                 $aAddUserGroups[$sUserGroupId] = $aUserGroups[$sUserGroupId];
             } else {
                 $sType = (is_numeric($sIdentifier) === true) ? 'id' : 'name';
-                $this->_oWordpressCli->error("There is no group with the {$sType}: {$sIdentifier}");
+                $this->oWordpressCli->error("There is no group with the {$sType}: {$sIdentifier}");
                 return;
             }
         }
 
         $aRemoveUserGroups = ($sOperation === self::ACTION_UPDATE) ?
-            $this->_oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId) : [];
+            $this->oAccessHandler->getUserGroupsForObject($sObjectType, $sObjectId) : [];
 
         if ($sOperation === self::ACTION_REMOVE) {
             $aRemoveUserGroups = $aAddUserGroups;
@@ -154,15 +154,15 @@ class ObjectCommand extends \WP_CLI_Command
         }
 
         if ($sOperation === self::ACTION_ADD) {
-            $this->_oWordpressCli->success(
+            $this->oWordpressCli->success(
                 "Groups {$sUserGroups} successfully added to {$sObjectType} {$sObjectId}"
             );
         } elseif ($sOperation === self::ACTION_UPDATE) {
-            $this->_oWordpressCli->success(
+            $this->oWordpressCli->success(
                 "Successfully updated {$sObjectType} {$sObjectId} with groups {$sUserGroups}"
             );
         } elseif ($sOperation === self::ACTION_REMOVE) {
-            $this->_oWordpressCli->success(
+            $this->oWordpressCli->success(
                 "Successfully removed groups: {$sUserGroups} from {$sObjectType} {$sObjectId}"
             );
         }

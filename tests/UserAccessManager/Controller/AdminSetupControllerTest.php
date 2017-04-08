@@ -136,24 +136,24 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         );
 
         $oAdminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(null, '_sUpdateMessage', $oAdminSetupController);
+        self::assertAttributeEquals(null, 'sUpdateMessage', $oAdminSetupController);
 
         $_GET['uam_update_db'] = AdminSetupController::UPDATE_BLOG;
         $oAdminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, '_sUpdateMessage', $oAdminSetupController);
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, 'sUpdateMessage', $oAdminSetupController);
 
         $_GET['uam_update_db'] = AdminSetupController::UPDATE_NETWORK;
-        self::setValue($oAdminSetupController, '_sUpdateMessage', null);
+        self::setValue($oAdminSetupController, 'sUpdateMessage', null);
         $oAdminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, '_sUpdateMessage', $oAdminSetupController);
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, 'sUpdateMessage', $oAdminSetupController);
 
-        self::setValue($oAdminSetupController, '_sUpdateMessage', null);
+        self::setValue($oAdminSetupController, 'sUpdateMessage', null);
         $oAdminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, '_sUpdateMessage', $oAdminSetupController);
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, 'sUpdateMessage', $oAdminSetupController);
 
-        self::setValue($oAdminSetupController, '_sUpdateMessage', null);
+        self::setValue($oAdminSetupController, 'sUpdateMessage', null);
         $oAdminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, '_sUpdateMessage', $oAdminSetupController);
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS, 'sUpdateMessage', $oAdminSetupController);
     }
 
     /**
@@ -185,10 +185,10 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
 
         $_GET['uam_reset'] = 'something';
         $oAdminSetupController->resetUamAction();
-        self::assertAttributeEquals(null, '_sUpdateMessage', $oAdminSetupController);
+        self::assertAttributeEquals(null, 'sUpdateMessage', $oAdminSetupController);
 
         $_GET['uam_reset'] = 'reset';
         $oAdminSetupController->resetUamAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_RESET_SUCCESS, '_sUpdateMessage', $oAdminSetupController);
+        self::assertAttributeEquals(TXT_UAM_UAM_RESET_SUCCESS, 'sUpdateMessage', $oAdminSetupController);
     }
 }

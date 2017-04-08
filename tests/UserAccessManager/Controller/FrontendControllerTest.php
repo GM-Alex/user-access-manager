@@ -76,7 +76,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::enqueueStylesAndScripts()
-     * @covers \UserAccessManager\Controller\FrontendController::_registerStylesAndScripts()
+     * @covers \UserAccessManager\Controller\FrontendController::registerStylesAndScripts()
      */
     public function testEnqueueStylesAndScripts()
     {
@@ -352,7 +352,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::showPosts()
      * @covers \UserAccessManager\Controller\FrontendController::showPages()
-     * @covers \UserAccessManager\Controller\FrontendController::_processPost()
+     * @covers \UserAccessManager\Controller\FrontendController::processPost()
      */
     public function testShowPostsAtAdminPanel()
     {
@@ -462,7 +462,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::showPosts()
      * @covers \UserAccessManager\Controller\FrontendController::showPages()
-     * @covers \UserAccessManager\Controller\FrontendController::_processPost()
+     * @covers \UserAccessManager\Controller\FrontendController::processPost()
      */
     public function testShowPosts()
     {
@@ -1027,8 +1027,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::showTerm()
      * @covers \UserAccessManager\Controller\FrontendController::showTerms()
-     * @covers \UserAccessManager\Controller\FrontendController::_getVisibleElementsCount()
-     * @covers \UserAccessManager\Controller\FrontendController::_processTerm()
+     * @covers \UserAccessManager\Controller\FrontendController::getVisibleElementsCount()
+     * @covers \UserAccessManager\Controller\FrontendController::processTerm()
      */
     public function testShowTerm()
     {
@@ -1685,7 +1685,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::getFile()
-     * @covers \UserAccessManager\Controller\FrontendController::_getFileSettingsByType()
+     * @covers \UserAccessManager\Controller\FrontendController::getFileSettingsByType()
      */
     public function testGetFile()
     {

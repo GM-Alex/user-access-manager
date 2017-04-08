@@ -100,7 +100,12 @@ class ConfigTest extends UserAccessManagerTestCase
         return $this->createMock('\UserAccessManager\Config\ConfigParameterFactory');
     }
 
-    private function _getFactory($cClosure = null)
+    /**
+     * @param callable $cClosure
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameterFactory
+     */
+    private function getFactory($cClosure = null)
     {
         if ($cClosure === null) {
             $cClosure = function ($sId) {
@@ -260,7 +265,7 @@ class ConfigTest extends UserAccessManagerTestCase
             ->method('getOption')
             ->will($this->returnValue(array_combine($aOptionKeys, $aTestValues)));
 
-        $oConfigParameterFactory = $this->_getFactory();
+        $oConfigParameterFactory = $this->getFactory();
 
         $oConfig = new Config(
             $oWordpress,
@@ -287,9 +292,9 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testFlushConfigParameters(Config $oConfig)
     {
-        self::assertAttributeNotEmpty('_aConfigParameters', $oConfig);
+        self::assertAttributeNotEmpty('aConfigParameters', $oConfig);
         $oConfig->flushConfigParameters();
-        self::assertAttributeEquals(null, '_aConfigParameters', $oConfig);
+        self::assertAttributeEquals(null, 'aConfigParameters', $oConfig);
     }
 
     /**
@@ -339,7 +344,7 @@ class ConfigTest extends UserAccessManagerTestCase
         };
 
         $oObjectHandler = $this->getDefaultObjectHandler(1);
-        $oConfigParameterFactory = $this->_getFactory($cClosure);
+        $oConfigParameterFactory = $this->getFactory($cClosure);
 
         $oConfig = new Config(
             $oWordpress,
@@ -358,7 +363,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::_getParameterValue()
+     * @covers \UserAccessManager\Config\Config::getParameterValue()
      */
     public function testGetParameterValue()
     {
@@ -368,7 +373,7 @@ class ConfigTest extends UserAccessManagerTestCase
             ->will($this->returnValue(null));
 
         $oObjectHandler = $this->getDefaultObjectHandler(1);
-        $oConfigParameterFactory = $this->_getFactory();
+        $oConfigParameterFactory = $this->getFactory();
 
         $oConfig = new Config(
             $oWordpress,
@@ -377,11 +382,11 @@ class ConfigTest extends UserAccessManagerTestCase
             'baseFile'
         );
 
-        $sReturn = self::callMethod($oConfig, '_getParameterValue', ['lock_file']);
+        $sReturn = self::callMethod($oConfig, 'getParameterValue', ['lock_file']);
         self::assertEquals('lock_file', $sReturn);
 
         self::expectException('\Exception');
-        self::callMethod($oConfig, '_getParameterValue', ['undefined']);
+        self::callMethod($oConfig, 'getParameterValue', ['undefined']);
     }
 
     /**
@@ -425,7 +430,7 @@ class ConfigTest extends UserAccessManagerTestCase
         );
 
         self::assertTrue($oConfig->isPermalinksActive());
-        self::setValue($oConfig, '_aWpOptions', []);
+        self::setValue($oConfig, 'aWpOptions', []);
         self::assertFalse($oConfig->isPermalinksActive());
     }
 
@@ -518,7 +523,7 @@ class ConfigTest extends UserAccessManagerTestCase
             ->method('pluginsUrl')
             ->will($this->returnValue('pluginsUrl'));
 
-        $oConfigParameterFactory = $this->_getFactory();
+        $oConfigParameterFactory = $this->getFactory();
 
         $oConfig = new Config(
             $oWordpress,
@@ -547,7 +552,7 @@ class ConfigTest extends UserAccessManagerTestCase
             ->method('pluginBasename')
             ->will($this->returnValue('pluginBasename'));
 
-        $oConfigParameterFactory = $this->_getFactory();
+        $oConfigParameterFactory = $this->getFactory();
 
         $oConfig = new Config(
             $oWordpress,
@@ -563,7 +568,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::_hideObject()
+     * @covers \UserAccessManager\Config\Config::hideObject()
      * @covers \UserAccessManager\Config\Config::hidePostType()
      * @covers \UserAccessManager\Config\Config::hidePostTypeTitle()
      * @covers \UserAccessManager\Config\Config::hidePostTypeComments()
@@ -577,7 +582,7 @@ class ConfigTest extends UserAccessManagerTestCase
             ->will($this->returnValue(null));
 
         $oObjectHandler = $this->getDefaultObjectHandler(1);
-        $oConfigParameterFactory = $this->_getFactory();
+        $oConfigParameterFactory = $this->getFactory();
 
         $oConfig = new Config(
             $oWordpress,
@@ -586,8 +591,8 @@ class ConfigTest extends UserAccessManagerTestCase
             'baseFile'
         );
 
-        self::assertEquals('hide_post', self::callMethod($oConfig, '_hideObject', ['hide_post']));
-        self::assertTrue(self::callMethod($oConfig, '_hideObject', ['hide_undefined']));
+        self::assertEquals('hide_post', self::callMethod($oConfig, 'hideObject', ['hide_post']));
+        self::assertTrue(self::callMethod($oConfig, 'hideObject', ['hide_undefined']));
 
         self::assertEquals('hide_post', $oConfig->hidePostType('post'));
         self::assertTrue($oConfig->hidePostType('undefined'));
@@ -616,7 +621,7 @@ class ConfigTest extends UserAccessManagerTestCase
             ->will($this->returnValue(null));
 
         $oObjectHandler = $this->getDefaultObjectHandler(1);
-        $oConfigParameterFactory = $this->_getFactory();
+        $oConfigParameterFactory = $this->getFactory();
 
         $oConfig = new Config(
             $oWordpress,
@@ -678,7 +683,7 @@ class ConfigTest extends UserAccessManagerTestCase
             ->will($this->returnValue(null));
 
         $oObjectHandler = $this->getDefaultObjectHandler(1);
-        $oConfigParameterFactory = $this->_getFactory();
+        $oConfigParameterFactory = $this->getFactory();
 
         $oConfig = new Config(
             $oWordpress,

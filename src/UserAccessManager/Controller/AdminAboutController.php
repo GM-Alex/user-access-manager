@@ -24,5 +24,5 @@ class AdminAboutController extends Controller
     /**
      * @var string
      */
-    protected $_sTemplate = 'AdminAbout.php';
+    protected $sTemplate = 'AdminAbout.php';
 }

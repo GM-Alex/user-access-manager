@@ -31,27 +31,27 @@ abstract class Controller
     /**
      * @var Php
      */
-    protected $_oPhp;
+    protected $oPhp;
 
     /**
      * @var Wordpress
      */
-    protected $_oWordpress;
+    protected $oWordpress;
 
     /**
      * @var Config
      */
-    protected $_oConfig;
+    protected $oConfig;
 
     /**
      * @var string
      */
-    protected $_sTemplate = null;
+    protected $sTemplate = null;
 
     /**
      * @var string
      */
-    protected $_sUpdateMessage = null;
+    protected $sUpdateMessage = null;
 
     /**
      * Controller constructor.
@@ -62,9 +62,9 @@ abstract class Controller
      */
     public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig)
     {
-        $this->_oPhp = $oPhp;
-        $this->_oWordpress = $oWordpress;
-        $this->_oConfig = $oConfig;
+        $this->oPhp = $oPhp;
+        $this->oWordpress = $oWordpress;
+        $this->oConfig = $oConfig;
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class Controller
      */
     public function createNonceField($sName)
     {
-        return $this->_oWordpress->getNonceField($sName, $sName.'Nonce');
+        return $this->oWordpress->getNonceField($sName, $sName.'Nonce');
     }
 
     /**
@@ -117,7 +117,7 @@ abstract class Controller
      */
     public function getNonce($sName)
     {
-        return $this->_oWordpress->createNonce($sName);
+        return $this->oWordpress->createNonce($sName);
     }
 
     /**
@@ -125,12 +125,12 @@ abstract class Controller
      *
      * @param $sName
      */
-    protected function _verifyNonce($sName)
+    protected function verifyNonce($sName)
     {
         $sNonce = $this->getRequestParameter($sName.'Nonce');
 
-        if ($this->_oWordpress->verifyNonce($sNonce, $sName) === false) {
-            $this->_oWordpress->wpDie(TXT_UAM_NONCE_FAILURE);
+        if ($this->oWordpress->verifyNonce($sNonce, $sName) === false) {
+            $this->oWordpress->wpDie(TXT_UAM_NONCE_FAILURE);
         }
     }
 
@@ -139,9 +139,9 @@ abstract class Controller
      *
      * @param $sMessage
      */
-    protected function _setUpdateMessage($sMessage)
+    protected function setUpdateMessage($sMessage)
     {
-        $this->_sUpdateMessage = $sMessage;
+        $this->sUpdateMessage = $sMessage;
     }
 
     /**
@@ -151,7 +151,7 @@ abstract class Controller
      */
     public function getUpdateMessage()
     {
-        return $this->_sUpdateMessage;
+        return $this->sUpdateMessage;
     }
 
     /**
@@ -161,13 +161,13 @@ abstract class Controller
      */
     public function hasUpdateMessage()
     {
-        return $this->_sUpdateMessage !== null;
+        return $this->sUpdateMessage !== null;
     }
 
     /**
      * Process the action.
      */
-    protected function _processAction()
+    protected function processAction()
     {
         $sPostAction = $this->getRequestParameter(self::ACTION_PARAMETER);
         $aPostAction = explode('_', $sPostAction);
@@ -187,17 +187,17 @@ abstract class Controller
      *
      * @return string
      */
-    protected function _getIncludeContents($sFileName)
+    protected function getIncludeContents($sFileName)
     {
         $sContents = '';
-        $sRealPath = $this->_oConfig->getRealPath();
+        $sRealPath = $this->oConfig->getRealPath();
         $aPath = [$sRealPath, 'src', 'UserAccessManager', 'View'];
         $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
         $sFileWithPath = $sPath.$sFileName;
 
         if (is_file($sFileWithPath) === true) {
             ob_start();
-            $this->_oPhp->includeFile($this, $sFileWithPath);
+            $this->oPhp->includeFile($this, $sFileWithPath);
             $sContents = ob_get_contents();
             ob_end_clean();
         }
@@ -210,10 +210,10 @@ abstract class Controller
      */
     public function render()
     {
-        $this->_processAction();
+        $this->processAction();
 
-        if ($this->_sTemplate !== null) {
-            echo $this->_getIncludeContents($this->_sTemplate);
+        if ($this->sTemplate !== null) {
+            echo $this->getIncludeContents($this->sTemplate);
         }
     }
 }

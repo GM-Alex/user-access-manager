@@ -293,7 +293,7 @@ class Wordpress
 
     /**
      * @see \update_option()
-     * 
+     *
      * @param string      $sOption
      * @param mixed       $mValue
      * @param string|bool $mAutoload
@@ -549,8 +549,15 @@ class Wordpress
      *
      * @return string
      */
-    public function addMenuPage($sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction = '', $sIconUrl = '', $iPosition = null)
-    {
+    public function addMenuPage(
+        $sPageTitle,
+        $sMenuTitle,
+        $sCapability,
+        $sMenuSlug,
+        $cFunction = '',
+        $sIconUrl = '',
+        $iPosition = null
+    ) {
         return \add_menu_page($sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction, $sIconUrl, $iPosition);
     }
 
@@ -590,8 +597,7 @@ class Wordpress
         $sContext = 'advanced',
         $sPriority = 'default',
         $aCallbackArguments = null
-    )
-    {
+    ) {
         \add_meta_box($sId, $sTitle, $cCallback, $mScreen, $sContext, $sPriority, $aCallbackArguments);
     }
 
@@ -825,5 +831,4 @@ class Wordpress
     {
         return current_user_can($sCapability);
     }
-
 }

@@ -255,8 +255,8 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::_processTreeMapElements()
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::_getTreeMap()
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::processTreeMapElements()
+     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTreeMap()
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPostTreeMap()
      * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTermTreeMap()
      */
@@ -475,16 +475,16 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         ];
 
         $oObjectHandler->registeredPostType('postType', $oArguments);
-        self::assertAttributeEquals($aExpectedResult, '_aPostTypes', $oObjectHandler);
+        self::assertAttributeEquals($aExpectedResult, 'aPostTypes', $oObjectHandler);
 
         $oArguments->public = true;
         $aExpectedResult['postType'] = 'postType';
 
         $oObjectHandler->registeredPostType('postType', $oArguments);
-        self::assertAttributeEquals($aExpectedResult, '_aPostTypes', $oObjectHandler);
-        self::assertAttributeEquals(null, '_aObjectTypes', $oObjectHandler);
-        self::assertAttributeEquals(null, '_aAllObjectTypes', $oObjectHandler);
-        self::assertAttributeEquals(null, '_aValidObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals($aExpectedResult, 'aPostTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, 'aObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, 'aAllObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, 'aValidObjectTypes', $oObjectHandler);
 
         return $oObjectHandler;
     }
@@ -507,16 +507,16 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         ];
 
         $oObjectHandler->registeredTaxonomy('taxonomy', 'objectType', $aArguments);
-        self::assertAttributeEquals($aExpectedResult, '_aTaxonomies', $oObjectHandler);
+        self::assertAttributeEquals($aExpectedResult, 'aTaxonomies', $oObjectHandler);
 
         $aArguments = ['public' => true];
         $aExpectedResult['taxonomy'] = 'taxonomy';
 
         $oObjectHandler->registeredTaxonomy('taxonomy', 'objectType', $aArguments);
-        self::assertAttributeEquals($aExpectedResult, '_aTaxonomies', $oObjectHandler);
-        self::assertAttributeEquals(null, '_aObjectTypes', $oObjectHandler);
-        self::assertAttributeEquals(null, '_aAllObjectTypes', $oObjectHandler);
-        self::assertAttributeEquals(null, '_aValidObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals($aExpectedResult, 'aTaxonomies', $oObjectHandler);
+        self::assertAttributeEquals(null, 'aObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, 'aAllObjectTypes', $oObjectHandler);
+        self::assertAttributeEquals(null, 'aValidObjectTypes', $oObjectHandler);
 
         return $oObjectHandler;
     }
@@ -647,7 +647,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
                 'firstObjectName' => $oFirstPluggableObject,
                 'secondObjectName' => $oSecondPluggableObject
             ],
-            '_aPluggableObjects',
+            'aPluggableObjects',
             $oObjectHandler
         );
 

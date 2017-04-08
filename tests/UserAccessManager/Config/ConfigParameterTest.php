@@ -48,13 +48,13 @@ class ConfigParameterTest extends UserAccessManagerTestCase
         $oStub->expects($this->exactly(2))->method('isValidValue')->will($this->returnValue(true));
         $oStub->__construct('testId');
 
-        self::assertAttributeEquals('testId', '_sId', $oStub);
-        self::assertAttributeEquals(null, '_mDefaultValue', $oStub);
+        self::assertAttributeEquals('testId', 'sId', $oStub);
+        self::assertAttributeEquals(null, 'mDefaultValue', $oStub);
 
         $oStub->__construct('otherId', 'defaultValue');
 
-        self::assertAttributeEquals('otherId', '_sId', $oStub);
-        self::assertAttributeEquals('defaultValue', '_mDefaultValue', $oStub);
+        self::assertAttributeEquals('otherId', 'sId', $oStub);
+        self::assertAttributeEquals('defaultValue', 'mDefaultValue', $oStub);
 
         $oStub = $this->getStub();
         $oStub->expects($this->once())->method('isValidValue')->will($this->returnValue(false));
@@ -78,7 +78,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameter::_validateValue()
+     * @covers  \UserAccessManager\Config\ConfigParameter::validateValue()
      */
     public function testValidateValue()
     {
@@ -87,10 +87,10 @@ class ConfigParameterTest extends UserAccessManagerTestCase
             ->method('isValidValue')
             ->will($this->onConsecutiveCalls(true, false));
 
-        self::assertNull(self::callMethod($oStub, '_validateValue', ['value']));
+        self::assertNull(self::callMethod($oStub, 'validateValue', ['value']));
 
         self::expectException('\Exception');
-        self::callMethod($oStub, '_validateValue', ['value']);
+        self::callMethod($oStub, 'validateValue', ['value']);
     }
 
     /**
@@ -108,7 +108,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
 
         $oStub->setValue('testValue');
 
-        self::assertAttributeEquals('testValue', '_mValue', $oStub);
+        self::assertAttributeEquals('testValue', 'mValue', $oStub);
 
         return $oStub;
     }

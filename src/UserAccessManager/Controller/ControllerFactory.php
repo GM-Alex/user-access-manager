@@ -36,57 +36,57 @@ class ControllerFactory
     /**
      * @var Php
      */
-    protected $_oPhp;
+    protected $oPhp;
 
     /**
      * @var Wordpress
      */
-    protected $_oWordpress;
+    protected $oWordpress;
 
     /**
      * @var Database
      */
-    protected $_oDatabase;
+    protected $oDatabase;
 
     /**
      * @var Config
      */
-    protected $_oConfig;
+    protected $oConfig;
 
     /**
      * @var Util
      */
-    protected $_oUtil;
+    protected $oUtil;
 
     /**
      * @var Cache
      */
-    protected $_oCache;
+    protected $oCache;
 
     /**
      * @var ObjectHandler
      */
-    protected $_oObjectHandler;
+    protected $oObjectHandler;
 
     /**
      * @var AccessHandler
      */
-    protected $_oAccessHandler;
+    protected $oAccessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    protected $_oUserGroupFactory;
+    protected $oUserGroupFactory;
 
     /**
      * @var FileHandler
      */
-    protected $_oFileHandler;
+    protected $oFileHandler;
 
     /**
      * @var SetupHandler
      */
-    protected $_oSetupHandler;
+    protected $oSetupHandler;
 
     /**
      * ControllerFactory constructor.
@@ -115,19 +115,18 @@ class ControllerFactory
         UserGroupFactory $oUserGroupFactory,
         FileHandler $oFileHandler,
         SetupHandler $oSetupHandler
-    )
-    {
-        $this->_oPhp = $oPhp;
-        $this->_oWordpress = $oWordpress;
-        $this->_oDatabase = $oDatabase;
-        $this->_oConfig = $oConfig;
-        $this->_oUtil = $oUtil;
-        $this->_oCache = $oCache;
-        $this->_oObjectHandler = $oObjectHandler;
-        $this->_oAccessHandler = $oAccessHandler;
-        $this->_oUserGroupFactory = $oUserGroupFactory;
-        $this->_oFileHandler = $oFileHandler;
-        $this->_oSetupHandler = $oSetupHandler;
+    ) {
+        $this->oPhp = $oPhp;
+        $this->oWordpress = $oWordpress;
+        $this->oDatabase = $oDatabase;
+        $this->oConfig = $oConfig;
+        $this->oUtil = $oUtil;
+        $this->oCache = $oCache;
+        $this->oObjectHandler = $oObjectHandler;
+        $this->oAccessHandler = $oAccessHandler;
+        $this->oUserGroupFactory = $oUserGroupFactory;
+        $this->oFileHandler = $oFileHandler;
+        $this->oSetupHandler = $oSetupHandler;
     }
 
     /**
@@ -138,11 +137,11 @@ class ControllerFactory
     public function createAdminController()
     {
         return new AdminController(
-            $this->_oPhp,
-            $this->_oWordpress,
-            $this->_oConfig,
-            $this->_oAccessHandler,
-            $this->_oFileHandler
+            $this->oPhp,
+            $this->oWordpress,
+            $this->oConfig,
+            $this->oAccessHandler,
+            $this->oFileHandler
         );
     }
 
@@ -154,9 +153,9 @@ class ControllerFactory
     public function createAdminAboutController()
     {
         return new AdminAboutController(
-            $this->_oPhp,
-            $this->_oWordpress,
-            $this->_oConfig
+            $this->oPhp,
+            $this->oWordpress,
+            $this->oConfig
         );
     }
 
@@ -168,12 +167,12 @@ class ControllerFactory
     public function createAdminObjectController()
     {
         return new AdminObjectController(
-            $this->_oPhp,
-            $this->_oWordpress,
-            $this->_oConfig,
-            $this->_oDatabase,
-            $this->_oObjectHandler,
-            $this->_oAccessHandler
+            $this->oPhp,
+            $this->oWordpress,
+            $this->oConfig,
+            $this->oDatabase,
+            $this->oObjectHandler,
+            $this->oAccessHandler
         );
     }
 
@@ -185,11 +184,11 @@ class ControllerFactory
     public function createAdminSettingsController()
     {
         return new AdminSettingsController(
-            $this->_oPhp,
-            $this->_oWordpress,
-            $this->_oConfig,
-            $this->_oObjectHandler,
-            $this->_oFileHandler
+            $this->oPhp,
+            $this->oWordpress,
+            $this->oConfig,
+            $this->oObjectHandler,
+            $this->oFileHandler
         );
     }
 
@@ -201,11 +200,11 @@ class ControllerFactory
     public function createAdminSetupController()
     {
         return new AdminSetupController(
-            $this->_oPhp,
-            $this->_oWordpress,
-            $this->_oConfig,
-            $this->_oDatabase,
-            $this->_oSetupHandler
+            $this->oPhp,
+            $this->oWordpress,
+            $this->oConfig,
+            $this->oDatabase,
+            $this->oSetupHandler
         );
     }
 
@@ -217,11 +216,11 @@ class ControllerFactory
     public function createAdminUserGroupController()
     {
         return new AdminUserGroupController(
-            $this->_oPhp,
-            $this->_oWordpress,
-            $this->_oConfig,
-            $this->_oAccessHandler,
-            $this->_oUserGroupFactory
+            $this->oPhp,
+            $this->oWordpress,
+            $this->oConfig,
+            $this->oAccessHandler,
+            $this->oUserGroupFactory
         );
     }
 
@@ -233,15 +232,15 @@ class ControllerFactory
     public function createFrontendController()
     {
         return new FrontendController(
-            $this->_oPhp,
-            $this->_oWordpress,
-            $this->_oConfig,
-            $this->_oDatabase,
-            $this->_oUtil,
-            $this->_oCache,
-            $this->_oObjectHandler,
-            $this->_oAccessHandler,
-            $this->_oFileHandler
+            $this->oPhp,
+            $this->oWordpress,
+            $this->oConfig,
+            $this->oDatabase,
+            $this->oUtil,
+            $this->oCache,
+            $this->oObjectHandler,
+            $this->oAccessHandler,
+            $this->oFileHandler
         );
     }
 }

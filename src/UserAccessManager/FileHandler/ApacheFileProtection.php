@@ -39,15 +39,15 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $sContent = '';
         $sAreaName = 'WP-Files';
 
-        if ($this->_oConfig->isPermalinksActive() === false) {
+        if ($this->oConfig->isPermalinksActive() === false) {
             $sFileTypes = null;
-            $sLockFileTypes = $this->_oConfig->getLockFileTypes();
+            $sLockFileTypes = $this->oConfig->getLockFileTypes();
 
             if ($sLockFileTypes === 'selected') {
-                $sFileTypes = $this->_cleanUpFileTypes($this->_oConfig->getLockedFileTypes());
+                $sFileTypes = $this->cleanUpFileTypes($this->oConfig->getLockedFileTypes());
                 $sFileTypes = "\.({$sFileTypes})";
             } elseif ($sLockFileTypes === 'not_selected') {
-                $sFileTypes = $this->_cleanUpFileTypes($this->_oConfig->getLockedFileTypes());
+                $sFileTypes = $this->cleanUpFileTypes($this->oConfig->getLockedFileTypes());
                 $sFileTypes = "^\.({$sFileTypes})";
             }
 
@@ -68,7 +68,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
                 $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
-            $aHomeRoot = parse_url($this->_oWordpress->getHomeUrl());
+            $aHomeRoot = parse_url($this->oWordpress->getHomeUrl());
             $sHomeRoot = (isset($aHomeRoot['path'])) ? trim($aHomeRoot['path'], '/\\').'/' : '/';
 
             $sContent = "<IfModule mod_rewrite.c>\n";
@@ -106,13 +106,13 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $sFileName = $sDir.self::FILE_NAME;
 
         if (file_exists($sFileName) === true) {
-            $blSuccess = ($this->_oPhp->unlink($sFileName) === true) && $blSuccess;
+            $blSuccess = ($this->oPhp->unlink($sFileName) === true) && $blSuccess;
         }
 
         $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
 
         if (file_exists($sPasswordFile) === true) {
-            $blSuccess = ($this->_oPhp->unlink($sPasswordFile) === true) && $blSuccess;
+            $blSuccess = ($this->oPhp->unlink($sPasswordFile) === true) && $blSuccess;
         }
 
         return $blSuccess;
