@@ -17,7 +17,7 @@
 <ul class="uam_group_selection">
     <?php
     /**
-     * @var \UserAccessManager\Controller\AdminObjectController $oController
+     * @var \UserAccessManager\Controller\AdminObjectController $Controller
      */
     if (!isset($sGroupsFormName)
         || $sGroupsFormName === null
@@ -25,23 +25,23 @@
         $sGroupsFormName = 'uam_user_groups';
     }
 
-    $sObjectType = $oController->getObjectType();
-    $sObjectId = $oController->getObjectId();
+    $sObjectType = $Controller->getObjectType();
+    $sObjectId = $Controller->getObjectId();
 
     /**
      * @var \UserAccessManager\UserGroup\UserGroup[] $aUserGroups
      */
-    foreach ($aUserGroups as $oUserGroup) {
+    foreach ($aUserGroups as $UserGroup) {
         $sAddition = '';
         $sAttributes = '';
 
         /**
          * @var \UserAccessManager\UserGroup\UserGroup[] $aObjectUserGroups
          */
-        if (isset($aObjectUserGroups[$oUserGroup->getId()])) {
+        if (isset($aObjectUserGroups[$UserGroup->getId()])) {
             $sAttributes .= 'checked="checked" ';
 
-            if ($aObjectUserGroups[$oUserGroup->getId()]->isLockedRecursive($sObjectType, $sObjectId)) {
+            if ($aObjectUserGroups[$UserGroup->getId()]->isLockedRecursive($sObjectType, $sObjectId)) {
                 $sAttributes .= 'disabled="disabled" ';
                 $sAddition .= ' [LR]';
             }
@@ -51,11 +51,11 @@
         ?>
         <li>
             <input type="checkbox"
-                   id="<?php echo $sGroupsFormName; ?>-<?php echo $oUserGroup->getId(); ?>" <?php echo $sAttributes; ?>
-                   value="<?php echo $oUserGroup->getId(); ?>" name="<?php echo $sGroupsFormName; ?>[]"/>
-            <label for="<?php echo $sGroupsFormName; ?>-<?php echo $oUserGroup->getId(); ?>" class="selectit"
+                   id="<?php echo $sGroupsFormName; ?>-<?php echo $UserGroup->getId(); ?>" <?php echo $sAttributes; ?>
+                   value="<?php echo $UserGroup->getId(); ?>" name="<?php echo $sGroupsFormName; ?>[]"/>
+            <label for="<?php echo $sGroupsFormName; ?>-<?php echo $UserGroup->getId(); ?>" class="selectit"
                    style="display:inline;">
-                <?php echo htmlentities($oUserGroup->getName()).$sAddition; ?>
+                <?php echo htmlentities($UserGroup->getName()).$sAddition; ?>
             </label>
             <a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
             <?php include 'GroupInfo.php'; ?>

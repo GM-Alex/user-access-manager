@@ -27,7 +27,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
@@ -37,7 +37,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\AccessHandler\AccessHandler', $oAccessHandler);
+        self::assertInstanceOf('\UserAccessManager\AccessHandler\AccessHandler', $AccessHandler);
     }
 
     /**
@@ -52,9 +52,9 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $aReturn = [];
 
         for ($iCounter = 1; $iCounter <= $iNumber; $iCounter++) {
-            $oReturn = new \stdClass();
-            $oReturn->ID = $iCounter;
-            $aReturn[] = $oReturn;
+            $Return = new \stdClass();
+            $Return->ID = $iCounter;
+            $aReturn[] = $Return;
         }
 
         return $aReturn;
@@ -69,26 +69,26 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     private function getUser(array $aCapabilities = null, $iCapExpects = null)
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $oUser
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $User
          */
-        $oUser = $this->getMockBuilder('\WP_User')
+        $User = $this->getMockBuilder('\WP_User')
             ->setMethods(['has_cap'])
             ->getMock();
-        $oUser->ID = 1;
+        $User->ID = 1;
 
-        $oCapExpects = ($iCapExpects !== null) ? $this->exactly($iCapExpects) : $this->any();
+        $CapExpects = ($iCapExpects !== null) ? $this->exactly($iCapExpects) : $this->any();
 
-        $oUser->expects($oCapExpects)
+        $User->expects($CapExpects)
             ->method('has_cap')
             ->will($this->returnCallback(function ($sCap) use ($aCapabilities) {
                 return ($sCap === 'user_cap' || in_array($sCap, (array)$aCapabilities));
             }));
 
         if ($aCapabilities !== null) {
-            $oUser->prefix_capabilities = $aCapabilities;
+            $User->prefix_capabilities = $aCapabilities;
         }
 
-        return $oUser;
+        return $User;
     }
 
     /**
@@ -99,14 +99,14 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     protected function getWordpress(array $aCapabilities = null, $iCapExpects = null)
     {
-        $oWordpress = parent::getWordpress();
+        $Wordpress = parent::getWordpress();
 
-        $oUser = $this->getUser($aCapabilities, $iCapExpects);
-        $oWordpress->expects($this->any())
+        $User = $this->getUser($aCapabilities, $iCapExpects);
+        $Wordpress->expects($this->any())
             ->method('getCurrentUser')
-            ->will($this->returnValue($oUser));
+            ->will($this->returnValue($User));
 
-        return $oWordpress;
+        return $Wordpress;
     }
 
     /**
@@ -116,9 +116,9 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     protected function getObjectHandler($iGetPostsExpect = null)
     {
-        $oObjectHandler = parent::getObjectHandler();
+        $ObjectHandler = parent::getObjectHandler();
 
-        $oObjectHandler->expects($this->any())
+        $ObjectHandler->expects($this->any())
             ->method('isValidObjectType')
             ->will($this->returnCallback(function ($sObjectType) {
                 return ($sObjectType === 'objectType'
@@ -126,14 +126,14 @@ class AccessHandlerTest extends UserAccessManagerTestCase
                     || $sObjectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE);
             }));
 
-        $oObjectHandler->expects($this->any())
+        $ObjectHandler->expects($this->any())
             ->method('isPostType')
             ->will($this->returnCallback(function ($sObjectType) {
                 return ($sObjectType === 'postType');
             }));
 
-        $oPostExpects = ($iGetPostsExpect === null) ? $this->any() : $this->exactly($iGetPostsExpect);
-        $oObjectHandler->expects($oPostExpects)
+        $PostExpects = ($iGetPostsExpect === null) ? $this->any() : $this->exactly($iGetPostsExpect);
+        $ObjectHandler->expects($PostExpects)
             ->method('getPost')
             ->will($this->returnCallback(function ($iId) {
                 if ($iId === -1) {
@@ -141,15 +141,15 @@ class AccessHandlerTest extends UserAccessManagerTestCase
                 }
 
                 /**
-                 * @var \stdClass $oPost
+                 * @var \stdClass $Post
                  */
-                $oPost = $this->getMockBuilder('\WP_Post')->getMock();
-                $oPost->ID = $iId;
-                $oPost->post_author = $iId;
-                return $oPost;
+                $Post = $this->getMockBuilder('\WP_Post')->getMock();
+                $Post->ID = $iId;
+                $Post->post_author = $iId;
+                return $Post;
             }));
 
-        return $oObjectHandler;
+        return $ObjectHandler;
     }
 
     /**
@@ -157,17 +157,17 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     protected function getDatabase()
     {
-        $oDatabase = parent::getDatabase();
+        $Database = parent::getDatabase();
 
-        $oDatabase->expects($this->any())
+        $Database->expects($this->any())
             ->method('getUserGroupTable')
             ->will($this->returnValue('getUserGroupTable'));
 
-        $oDatabase->expects($this->any())
+        $Database->expects($this->any())
             ->method('getPrefix')
             ->will($this->returnValue('prefix_'));
 
-        return $oDatabase;
+        return $Database;
     }
 
     /**
@@ -178,34 +178,34 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroups()
     {
-        $oDatabase = $this->getDatabase();
+        $Database = $this->getDatabase();
 
         $sQuery = 'SELECT ID FROM getUserGroupTable';
 
-        $oDatabase->expects($this->once())
+        $Database->expects($this->once())
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace($sQuery)]
             )
             ->will($this->returnValue($this->generateReturn(3)));
 
-        $oUserGroupFactory = $this->getUserGroupFactory();
+        $UserGroupFactory = $this->getUserGroupFactory();
 
-        $oUserGroupFactory->expects($this->exactly(3))
+        $UserGroupFactory->expects($this->exactly(3))
             ->method('createUserGroup')
             ->withConsecutive([1], [2], [3])
             ->will($this->returnCallback(function ($iId) {
                 return $this->getUserGroup($iId, !($iId === 3));
             }));
 
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
-            $oDatabase,
+            $Database,
             $this->getObjectHandler(),
             $this->getUtil(),
-            $oUserGroupFactory
+            $UserGroupFactory
         );
 
         $aExpected = [
@@ -214,11 +214,11 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             3 => $this->getUserGroup(3, false)
         ];
 
-        self::assertEquals($aExpected, $oAccessHandler->getUserGroups());
-        self::assertAttributeEquals($aExpected, 'aUserGroups', $oAccessHandler);
-        self::assertEquals($aExpected, $oAccessHandler->getUserGroups());
+        self::assertEquals($aExpected, $AccessHandler->getUserGroups());
+        self::assertAttributeEquals($aExpected, 'aUserGroups', $AccessHandler);
+        self::assertEquals($aExpected, $AccessHandler->getUserGroups());
 
-        return $oAccessHandler;
+        return $AccessHandler;
     }
 
 
@@ -228,7 +228,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetFilteredUserGroups()
     {
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
@@ -248,14 +248,14 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             6 => $this->getUserGroup(6)
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
+        self::setValue($AccessHandler, 'aUserGroups', $aUserGroups);
 
         $aUserUserGroups = $aUserGroups;
         unset($aUserUserGroups[4]);
         unset($aUserUserGroups[6]);
 
-        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
-        self::assertEquals($aUserUserGroups, $oAccessHandler->getFilteredUserGroups());
+        self::setValue($AccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
+        self::assertEquals($aUserUserGroups, $AccessHandler->getFilteredUserGroups());
     }
 
     /**
@@ -263,11 +263,11 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      * @depends testGetUserGroups
      * @covers  \UserAccessManager\AccessHandler\AccessHandler::addUserGroup()
      *
-     * @param AccessHandler $oAccessHandler
+     * @param AccessHandler $AccessHandler
      *
      * @return AccessHandler
      */
-    public function testAddUserGroups(AccessHandler $oAccessHandler)
+    public function testAddUserGroups(AccessHandler $AccessHandler)
     {
         $aExpected = [
             1 => $this->getUserGroup(1),
@@ -276,12 +276,12 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($oAccessHandler, 'aFilteredUserGroups', []);
-        $oAccessHandler->addUserGroup($this->getUserGroup(4));
-        self::assertAttributeEquals($aExpected, 'aUserGroups', $oAccessHandler);
-        self::assertAttributeEquals(null, 'aFilteredUserGroups', $oAccessHandler);
+        self::setValue($AccessHandler, 'aFilteredUserGroups', []);
+        $AccessHandler->addUserGroup($this->getUserGroup(4));
+        self::assertAttributeEquals($aExpected, 'aUserGroups', $AccessHandler);
+        self::assertAttributeEquals(null, 'aFilteredUserGroups', $AccessHandler);
 
-        return $oAccessHandler;
+        return $AccessHandler;
     }
 
     /**
@@ -289,9 +289,9 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      * @depends testAddUserGroups
      * @covers  \UserAccessManager\AccessHandler\AccessHandler::deleteUserGroup()
      *
-     * @param AccessHandler $oAccessHandler
+     * @param AccessHandler $AccessHandler
      */
-    public function testDeleteUserGroups(AccessHandler $oAccessHandler)
+    public function testDeleteUserGroups(AccessHandler $AccessHandler)
     {
         $aExpected = [
             1 => $this->getUserGroup(1),
@@ -299,14 +299,14 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($oAccessHandler, 'aFilteredUserGroups', []);
-        self::assertFalse($oAccessHandler->deleteUserGroup(10));
-        self::assertFalse($oAccessHandler->deleteUserGroup(3));
-        self::assertAttributeEquals([], 'aFilteredUserGroups', $oAccessHandler);
+        self::setValue($AccessHandler, 'aFilteredUserGroups', []);
+        self::assertFalse($AccessHandler->deleteUserGroup(10));
+        self::assertFalse($AccessHandler->deleteUserGroup(3));
+        self::assertAttributeEquals([], 'aFilteredUserGroups', $AccessHandler);
 
-        self::assertTrue($oAccessHandler->deleteUserGroup(2));
-        self::assertAttributeEquals($aExpected, 'aUserGroups', $oAccessHandler);
-        self::assertAttributeEquals(null, 'aFilteredUserGroups', $oAccessHandler);
+        self::assertTrue($AccessHandler->deleteUserGroup(2));
+        self::assertAttributeEquals($aExpected, 'aUserGroups', $AccessHandler);
+        self::assertAttributeEquals(null, 'aFilteredUserGroups', $AccessHandler);
     }
 
     /**
@@ -317,9 +317,9 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroupsForObject()
     {
-        $oCache = $this->getCache();
+        $Cache = $this->getCache();
 
-        $oCache->expects($this->exactly(3))
+        $Cache->expects($this->exactly(3))
             ->method('generateCacheKey')
             ->withConsecutive(
                 ['getUserGroupsForObject', 'objectType', 0],
@@ -328,7 +328,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('cacheKey'));
 
-        $oCache->expects($this->exactly(3))
+        $Cache->expects($this->exactly(3))
             ->method('getFromCache')
             ->with('cacheKey')
             ->will($this->onConsecutiveCalls(
@@ -337,10 +337,10 @@ class AccessHandlerTest extends UserAccessManagerTestCase
                 null
             ));
 
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getConfig(),
-            $oCache,
+            $Cache,
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -354,18 +354,18 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
+        self::setValue($AccessHandler, 'aUserGroups', $aUserGroups);
 
-        self::assertEquals([], $oAccessHandler->getUserGroupsForObject('invalid', 1));
+        self::assertEquals([], $AccessHandler->getUserGroupsForObject('invalid', 1));
 
         self::assertEquals(
             [4 => $this->getUserGroup(4)],
-            $oAccessHandler->getUserGroupsForObject('objectType', 0)
+            $AccessHandler->getUserGroupsForObject('objectType', 0)
         );
 
         self::assertEquals(
             [1 => $this->getUserGroup(1, true, true)],
-            $oAccessHandler->getUserGroupsForObject('objectType', 1)
+            $AccessHandler->getUserGroupsForObject('objectType', 1)
         );
 
         $aUserGroups = [
@@ -375,17 +375,17 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
+        self::setValue($AccessHandler, 'aUserGroups', $aUserGroups);
 
         self::assertEquals(
             [
                 2 => $this->getUserGroup(2, true, true),
                 3 => $this->getUserGroup(3, true, true)
             ],
-            $oAccessHandler->getUserGroupsForObject('objectType', 2)
+            $AccessHandler->getUserGroupsForObject('objectType', 2)
         );
 
-        return $oAccessHandler;
+        return $AccessHandler;
     }
 
     /**
@@ -393,13 +393,13 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      * @depends testGetUserGroupsForObject
      * @covers  \UserAccessManager\AccessHandler\AccessHandler::unsetUserGroupsForObject()
      *
-     * @param AccessHandler $oAccessHandler
+     * @param AccessHandler $AccessHandler
      */
-    public function testUnsetUserGroupsForObject(AccessHandler $oAccessHandler)
+    public function testUnsetUserGroupsForObject(AccessHandler $AccessHandler)
     {
-        self::assertAttributeNotEquals([], 'aObjectUserGroups', $oAccessHandler);
-        $oAccessHandler->unsetUserGroupsForObject();
-        self::assertAttributeEquals([], 'aObjectUserGroups', $oAccessHandler);
+        self::assertAttributeNotEquals([], 'aObjectUserGroups', $AccessHandler);
+        $AccessHandler->unsetUserGroupsForObject();
+        self::assertAttributeEquals([], 'aObjectUserGroups', $AccessHandler);
     }
 
     /**
@@ -416,7 +416,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             '7.7.7-8.8.8.8'
         ];
 
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
@@ -426,19 +426,19 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertEquals(1, self::callMethod($oAccessHandler, 'calculateIp', [[0, 0, 0, 1]]));
-        self::assertEquals(256, self::callMethod($oAccessHandler, 'calculateIp', [[0, 0, 1, 0]]));
-        self::assertEquals(65536, self::callMethod($oAccessHandler, 'calculateIp', [[0, 1, 0, 0]]));
-        self::assertEquals(16777216, self::callMethod($oAccessHandler, 'calculateIp', [[1, 0, 0, 0]]));
+        self::assertEquals(1, self::callMethod($AccessHandler, 'calculateIp', [[0, 0, 0, 1]]));
+        self::assertEquals(256, self::callMethod($AccessHandler, 'calculateIp', [[0, 0, 1, 0]]));
+        self::assertEquals(65536, self::callMethod($AccessHandler, 'calculateIp', [[0, 1, 0, 0]]));
+        self::assertEquals(16777216, self::callMethod($AccessHandler, 'calculateIp', [[1, 0, 0, 0]]));
 
-        self::assertTrue($oAccessHandler->isIpInRange('1.1.1.1', $aRanges));
-        self::assertTrue($oAccessHandler->isIpInRange('1.1.1.100', $aRanges));
-        self::assertTrue($oAccessHandler->isIpInRange('1.1.2.1', $aRanges));
-        self::assertFalse($oAccessHandler->isIpInRange('1.1.2.2', $aRanges));
-        self::assertTrue($oAccessHandler->isIpInRange('2.2.2.2', $aRanges));
-        self::assertFalse($oAccessHandler->isIpInRange('3.2.2.2', $aRanges));
-        self::assertFalse($oAccessHandler->isIpInRange('5.5.5.5', $aRanges));
-        self::assertFalse($oAccessHandler->isIpInRange('8.8.8.8', $aRanges));
+        self::assertTrue($AccessHandler->isIpInRange('1.1.1.1', $aRanges));
+        self::assertTrue($AccessHandler->isIpInRange('1.1.1.100', $aRanges));
+        self::assertTrue($AccessHandler->isIpInRange('1.1.2.1', $aRanges));
+        self::assertFalse($AccessHandler->isIpInRange('1.1.2.2', $aRanges));
+        self::assertTrue($AccessHandler->isIpInRange('2.2.2.2', $aRanges));
+        self::assertFalse($AccessHandler->isIpInRange('3.2.2.2', $aRanges));
+        self::assertFalse($AccessHandler->isIpInRange('5.5.5.5', $aRanges));
+        self::assertFalse($AccessHandler->isIpInRange('8.8.8.8', $aRanges));
     }
 
     /**
@@ -447,19 +447,19 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroupsForUser()
     {
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(2))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(9))
+        $Config = $this->getConfig();
+        $Config->expects($this->exactly(9))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(false, true, true, false, false, false, false, true, false));
 
-        $oAccessHandler = new AccessHandler(
-            $oWordpress,
-            $oConfig,
+        $AccessHandler = new AccessHandler(
+            $Wordpress,
+            $Config,
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -480,7 +480,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             7 => $this->getUserGroup(7, true, false, [''], 'all', 'all')
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
+        self::setValue($AccessHandler, 'aUserGroups', $aUserGroups);
 
         $aObjectUserGroups = [
             ObjectHandler::GENERAL_USER_OBJECT_TYPE => [
@@ -491,14 +491,14 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ]
         ];
 
-        self::setValue($oAccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
+        self::setValue($AccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
 
         $aExpected = $aUserGroups;
         unset($aExpected[4]);
         unset($aExpected[6]);
         unset($aExpected[7]);
-        self::assertEquals($aExpected, $oAccessHandler->getUserGroupsForUser());
-        self::assertEquals($aUserGroups, $oAccessHandler->getUserGroupsForUser());
+        self::assertEquals($aExpected, $AccessHandler->getUserGroupsForUser());
+        self::assertEquals($aUserGroups, $AccessHandler->getUserGroupsForUser());
     }
 
     /**
@@ -507,7 +507,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetFilteredUserGroupsForObject()
     {
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
@@ -527,13 +527,13 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             6 => $this->getUserGroup(6)
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
+        self::setValue($AccessHandler, 'aUserGroups', $aUserGroups);
 
         $aUserUserGroups = $aUserGroups;
         unset($aUserUserGroups[4]);
         unset($aUserUserGroups[6]);
 
-        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
+        self::setValue($AccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
 
         $aObjectUserGroups = [
             'objectType' => [
@@ -546,7 +546,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ]
         ];
 
-        self::setValue($oAccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
+        self::setValue($AccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
 
         $aExpected = [
             0 => $this->getUserGroup(0),
@@ -554,7 +554,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             5 => $this->getUserGroup(5)
         ];
 
-        self::assertEquals($aExpected, $oAccessHandler->getFilteredUserGroupsForObject('objectType', 1));
+        self::assertEquals($aExpected, $AccessHandler->getFilteredUserGroupsForObject('objectType', 1));
     }
 
     /**
@@ -564,19 +564,19 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testCheckUserAccess()
     {
-        $oWordpress = $this->getWordpress(null, null);
-        $oWordpress->expects($this->exactly(3))
+        $Wordpress = $this->getWordpress(null, null);
+        $Wordpress->expects($this->exactly(3))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(true, false, false));
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->any())
+        $Config = $this->getConfig();
+        $Config->expects($this->any())
             ->method('getFullAccessRole')
             ->will($this->returnValue('administrator'));
 
-        $oAccessHandler = new AccessHandler(
-            $oWordpress,
-            $oConfig,
+        $AccessHandler = new AccessHandler(
+            $Wordpress,
+            $Config,
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -584,27 +584,27 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess('user_cap'));
-        self::assertFalse($oAccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess('user_cap'));
+        self::assertFalse($AccessHandler->checkUserAccess());
 
-        $oNoneUser = $this->getUser(null, 0);
-        $oUnkownRoleUser = $this->getUser(['unkown' => true], 0);
-        $oMultiRoleUser = $this->getUser(['subscriber' => true, 'contributor' => true, 'administrator' => true], 0);
-        $oAdminUser = $this->getUser(['administrator' => true], 0);
-        $oEditorUser = $this->getUser(['editor' => true], 0);
-        $oAuthorUser = $this->getUser(['author' => true], 0);
-        $oContributorUser = $this->getUser(['contributor' => true], 0);
-        $oSubscriberUser = $this->getUser(['subscriber' => true], 0);
+        $NoneUser = $this->getUser(null, 0);
+        $UnkownRoleUser = $this->getUser(['unkown' => true], 0);
+        $MultiRoleUser = $this->getUser(['subscriber' => true, 'contributor' => true, 'administrator' => true], 0);
+        $AdminUser = $this->getUser(['administrator' => true], 0);
+        $EditorUser = $this->getUser(['editor' => true], 0);
+        $AuthorUser = $this->getUser(['author' => true], 0);
+        $ContributorUser = $this->getUser(['contributor' => true], 0);
+        $SubscriberUser = $this->getUser(['subscriber' => true], 0);
 
-        $aUserReturn = [$oAdminUser, $oEditorUser, $oAuthorUser, $oContributorUser, $oSubscriberUser, $oNoneUser];
+        $aUserReturn = [$AdminUser, $EditorUser, $AuthorUser, $ContributorUser, $SubscriberUser, $NoneUser];
 
-        $oWordpress = parent::getWordpress();
-        $oWordpress->expects($this->any())
+        $Wordpress = parent::getWordpress();
+        $Wordpress->expects($this->any())
             ->method('getCurrentUser')
             ->will($this->onConsecutiveCalls(
-                $oUnkownRoleUser,
-                $oMultiRoleUser,
+                $UnkownRoleUser,
+                $MultiRoleUser,
                 ...$aUserReturn,
                 ...$aUserReturn,
                 ...$aUserReturn,
@@ -613,12 +613,12 @@ class AccessHandlerTest extends UserAccessManagerTestCase
                 ...$aUserReturn
             ));
 
-        $oWordpress->expects($this->any())
+        $Wordpress->expects($this->any())
             ->method('isSuperAdmin')
             ->will($this->returnValue(false));
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->any())
+        $Config = $this->getConfig();
+        $Config->expects($this->any())
             ->method('getFullAccessRole')
             ->will($this->onConsecutiveCalls(
                 UserGroup::NONE_ROLE,
@@ -631,9 +631,9 @@ class AccessHandlerTest extends UserAccessManagerTestCase
                 ...array_fill(0, 6, UserGroup::NONE_ROLE)
             ));
 
-        $oAccessHandler = new AccessHandler(
-            $oWordpress,
-            $oConfig,
+        $AccessHandler = new AccessHandler(
+            $Wordpress,
+            $Config,
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -642,49 +642,49 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         );
 
 
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
 
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
 
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
 
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
 
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertFalse($oAccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertFalse($AccessHandler->checkUserAccess());
 
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
-        self::assertTrue($oAccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
+        self::assertTrue($AccessHandler->checkUserAccess());
     }
 
     /**
@@ -703,7 +703,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ]
         ];
 
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
             $this->getConfig(),
             $this->getCache(),
@@ -713,21 +713,21 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::setValue($oAccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
-        self::setValue($oAccessHandler, 'aUserGroupsForUser', []);
+        self::setValue($AccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
+        self::setValue($AccessHandler, 'aUserGroupsForUser', []);
 
-        self::assertTrue($oAccessHandler->checkObjectAccess('invalid', 1));
-        self::assertTrue($oAccessHandler->checkObjectAccess('postType', 2));
+        self::assertTrue($AccessHandler->checkObjectAccess('invalid', 1));
+        self::assertTrue($AccessHandler->checkObjectAccess('postType', 2));
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(5))
+        $Config->expects($this->exactly(5))
             ->method('authorsHasAccessToOwn')
             ->will($this->onConsecutiveCalls(true, true, false, false, true));
 
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(),
-            $oConfig,
+            $Config,
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(3),
@@ -735,16 +735,16 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::setValue($oAccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
+        self::setValue($AccessHandler, 'aObjectUserGroups', $aObjectUserGroups);
 
         $aUserUserGroups = [0 => $this->getUserGroup(0)];
-        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
+        self::setValue($AccessHandler, 'aUserGroupsForUser', $aUserUserGroups);
 
-        self::assertTrue($oAccessHandler->checkObjectAccess('postType', 1));
-        self::assertTrue($oAccessHandler->checkObjectAccess('postType', 2));
-        self::assertTrue($oAccessHandler->checkObjectAccess('postType', 3));
-        self::assertFalse($oAccessHandler->checkObjectAccess('postType', 4));
-        self::assertFalse($oAccessHandler->checkObjectAccess('postType', -1));
+        self::assertTrue($AccessHandler->checkObjectAccess('postType', 1));
+        self::assertTrue($AccessHandler->checkObjectAccess('postType', 2));
+        self::assertTrue($AccessHandler->checkObjectAccess('postType', 3));
+        self::assertFalse($AccessHandler->checkObjectAccess('postType', 4));
+        self::assertFalse($AccessHandler->checkObjectAccess('postType', -1));
 
         self::assertAttributeEquals(
             [
@@ -757,7 +757,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
                 ]
             ],
             'aObjectAccess',
-            $oAccessHandler
+            $AccessHandler
         );
     }
 
@@ -767,7 +767,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetExcludedTerms()
     {
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
             $this->getConfig(),
             $this->getCache(),
@@ -777,9 +777,9 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertEquals([], $oAccessHandler->getExcludedTerms());
+        self::assertEquals([], $AccessHandler->getExcludedTerms());
 
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getConfig(),
             $this->getCache(),
@@ -794,17 +794,17 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [3 => 'term', 2 => 'term', 4 => 'term'])
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
+        self::setValue($AccessHandler, 'aUserGroups', $aUserGroups);
 
         $aUserGroupsForUser = [
             3 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [1 => 'term', 3 => 'term']),
             4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [], [5 => 'term', 3 => 'term'])
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserGroupsForUser);
+        self::setValue($AccessHandler, 'aUserGroupsForUser', $aUserGroupsForUser);
 
-        self::assertEquals([2 => 2, 4 => 4], $oAccessHandler->getExcludedTerms());
-        self::assertAttributeEquals([2 => 2, 4 => 4], 'aExcludedTerms', $oAccessHandler);
+        self::assertEquals([2 => 2, 4 => 4], $AccessHandler->getExcludedTerms());
+        self::assertAttributeEquals([2 => 2, 4 => 4], 'aExcludedTerms', $AccessHandler);
     }
 
     /**
@@ -813,7 +813,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetExcludedPosts()
     {
-        $oAccessHandler = new AccessHandler(
+        $AccessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
             $this->getConfig(),
             $this->getCache(),
@@ -823,31 +823,31 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertEquals([], $oAccessHandler->getExcludedPosts());
+        self::assertEquals([], $AccessHandler->getExcludedPosts());
 
-        $oObjectHandler = $this->getObjectHandler();
+        $ObjectHandler = $this->getObjectHandler();
 
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(2))
             ->method('isAdmin')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(2))
+        $Config = $this->getConfig();
+        $Config->expects($this->exactly(2))
             ->method('hidePostType')
             ->withConsecutive(['post'], ['page'])
             ->will($this->onConsecutiveCalls(true, false));
 
-        $oObjectHandler->expects($this->once())
+        $ObjectHandler->expects($this->once())
             ->method('getPostTypes')
             ->will($this->returnValue(['post', 'page']));
 
-        $oAccessHandler = new AccessHandler(
-            $oWordpress,
-            $oConfig,
+        $AccessHandler = new AccessHandler(
+            $Wordpress,
+            $Config,
             $this->getCache(),
             $this->getDatabase(),
-            $oObjectHandler,
+            $ObjectHandler,
             $this->getUtil(),
             $this->getUserGroupFactory()
         );
@@ -866,21 +866,21 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [3 => 'post', 2 => 'page', 4 => 'post'])
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroups', $aUserGroups);
+        self::setValue($AccessHandler, 'aUserGroups', $aUserGroups);
 
         $aUserGroupsForUser = [
             3 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => 'post', 3 => 'post']),
             4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [5 => 'post', 3 => 'post'])
         ];
 
-        self::setValue($oAccessHandler, 'aUserGroupsForUser', $aUserGroupsForUser);
+        self::setValue($AccessHandler, 'aUserGroupsForUser', $aUserGroupsForUser);
 
-        self::assertEquals([4 => 4, 6 => 6], $oAccessHandler->getExcludedPosts());
-        self::assertAttributeEquals([4 => 4, 6 => 6], 'aExcludedPosts', $oAccessHandler);
+        self::assertEquals([4 => 4, 6 => 6], $AccessHandler->getExcludedPosts());
+        self::assertAttributeEquals([4 => 4, 6 => 6], 'aExcludedPosts', $AccessHandler);
 
-        $this->setValue($oAccessHandler, 'aExcludedPosts', null);
-        self::assertEquals([2 => 2, 4 => 4, 6 => 6], $oAccessHandler->getExcludedPosts());
-        self::assertAttributeEquals([2 => 2, 4 => 4, 6 => 6], 'aExcludedPosts', $oAccessHandler);
+        $this->setValue($AccessHandler, 'aExcludedPosts', null);
+        self::assertEquals([2 => 2, 4 => 4, 6 => 6], $AccessHandler->getExcludedPosts());
+        self::assertAttributeEquals([2 => 2, 4 => 4, 6 => 6], 'aExcludedPosts', $AccessHandler);
     }
 
     /**
@@ -889,53 +889,53 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testUserIsAdmin()
     {
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(2))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oObjectHandler = $this->getObjectHandler();
-        $oObjectHandler->expects($this->any())
+        $ObjectHandler = $this->getObjectHandler();
+        $ObjectHandler->expects($this->any())
             ->method('getUser')
             ->will($this->returnCallback(function () {
                 return $this->getUser();
             }));
 
-        $oAccessHandler = new AccessHandler(
-            $oWordpress,
+        $AccessHandler = new AccessHandler(
+            $Wordpress,
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
-            $oObjectHandler,
+            $ObjectHandler,
             $this->getUtil(),
             $this->getUserGroupFactory()
         );
 
-        self::assertFalse($oAccessHandler->userIsAdmin(1));
-        self::assertTrue($oAccessHandler->userIsAdmin(1));
+        self::assertFalse($AccessHandler->userIsAdmin(1));
+        self::assertTrue($AccessHandler->userIsAdmin(1));
 
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->never())
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->never())
             ->method('isSuperAdmin')
             ->will($this->returnValue(false));
 
-        $oObjectHandler = $this->getObjectHandler();
-        $oObjectHandler->expects($this->any())
+        $ObjectHandler = $this->getObjectHandler();
+        $ObjectHandler->expects($this->any())
             ->method('getUser')
             ->will($this->returnCallback(function () {
                 return $this->getUser(['administrator' => 1]);
             }));
 
-        $oAccessHandler = new AccessHandler(
-            $oWordpress,
+        $AccessHandler = new AccessHandler(
+            $Wordpress,
             $this->getConfig(),
             $this->getCache(),
             $this->getDatabase(),
-            $oObjectHandler,
+            $ObjectHandler,
             $this->getUtil(),
             $this->getUserGroupFactory()
         );
 
-        self::assertTrue($oAccessHandler->userIsAdmin(1));
+        self::assertTrue($AccessHandler->userIsAdmin(1));
     }
 }

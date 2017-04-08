@@ -29,42 +29,42 @@ class FileProtectionFactory
     /**
      * @var Php
      */
-    protected $oPhp;
+    protected $Php;
 
     /**
      * @var Wordpress
      */
-    protected $oWordpress;
+    protected $Wordpress;
 
     /**
      * @var Config
      */
-    protected $oConfig;
+    protected $Config;
 
     /**
      * @var FileHandler
      */
-    protected $oFileHandler;
+    protected $FileHandler;
 
     /**
      * @var Util
      */
-    protected $oUtil;
+    protected $Util;
 
     /**
      * FileProtectionFactory constructor.
      *
-     * @param Php       $oPhp
-     * @param Wordpress $oWordpress
-     * @param Config    $oConfig
-     * @param Util      $oUtil
+     * @param Php       $Php
+     * @param Wordpress $Wordpress
+     * @param Config    $Config
+     * @param Util      $Util
      */
-    public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig, Util $oUtil)
+    public function __construct(Php $Php, Wordpress $Wordpress, Config $Config, Util $Util)
     {
-        $this->oPhp = $oPhp;
-        $this->oWordpress = $oWordpress;
-        $this->oConfig = $oConfig;
-        $this->oUtil = $oUtil;
+        $this->Php = $Php;
+        $this->Wordpress = $Wordpress;
+        $this->Config = $Config;
+        $this->Util = $Util;
     }
 
     /**
@@ -74,7 +74,7 @@ class FileProtectionFactory
      */
     public function createApacheFileProtection()
     {
-        return new ApacheFileProtection($this->oPhp, $this->oWordpress, $this->oConfig, $this->oUtil);
+        return new ApacheFileProtection($this->Php, $this->Wordpress, $this->Config, $this->Util);
     }
 
     /**
@@ -84,6 +84,6 @@ class FileProtectionFactory
      */
     public function createNginxFileProtection()
     {
-        return new NginxFileProtection($this->oPhp, $this->oWordpress, $this->oConfig, $this->oUtil);
+        return new NginxFileProtection($this->Php, $this->Wordpress, $this->Config, $this->Util);
     }
 }

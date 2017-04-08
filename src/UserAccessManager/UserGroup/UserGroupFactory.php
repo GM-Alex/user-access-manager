@@ -31,54 +31,54 @@ class UserGroupFactory
     /**
      * @var Wordpress
      */
-    protected $oWordpress;
+    protected $Wordpress;
 
     /**
      * @var Database
      */
-    protected $oDatabase;
+    protected $Database;
 
     /**
      * @var Config
      */
-    protected $oConfig;
+    protected $Config;
 
     /**
      * @var Cache
      */
-    protected $oCache;
+    protected $Cache;
 
     /**
      * @var Util
      */
-    protected $oUtil;
+    protected $Util;
 
     /**
      * @var ObjectHandler
      */
-    protected $oObjectHandler;
+    protected $ObjectHandler;
 
     /**
      * UserGroupFactory constructor.
      *
-     * @param Wordpress     $oWordpress
-     * @param Database      $oDatabase
-     * @param Config        $oConfig
-     * @param Util          $oUtil
-     * @param ObjectHandler $oObjectHandler
+     * @param Wordpress     $Wordpress
+     * @param Database      $Database
+     * @param Config        $Config
+     * @param Util          $Util
+     * @param ObjectHandler $ObjectHandler
      */
     public function __construct(
-        Wordpress $oWordpress,
-        Database $oDatabase,
-        Config $oConfig,
-        Util $oUtil,
-        ObjectHandler $oObjectHandler
+        Wordpress $Wordpress,
+        Database $Database,
+        Config $Config,
+        Util $Util,
+        ObjectHandler $ObjectHandler
     ) {
-        $this->oWordpress = $oWordpress;
-        $this->oDatabase = $oDatabase;
-        $this->oConfig = $oConfig;
-        $this->oUtil = $oUtil;
-        $this->oObjectHandler = $oObjectHandler;
+        $this->Wordpress = $Wordpress;
+        $this->Database = $Database;
+        $this->Config = $Config;
+        $this->Util = $Util;
+        $this->ObjectHandler = $ObjectHandler;
     }
 
     /**
@@ -91,11 +91,11 @@ class UserGroupFactory
     public function createUserGroup($sId = null)
     {
         return new UserGroup(
-            $this->oWordpress,
-            $this->oDatabase,
-            $this->oConfig,
-            $this->oUtil,
-            $this->oObjectHandler,
+            $this->Wordpress,
+            $this->Database,
+            $this->Config,
+            $this->Util,
+            $this->ObjectHandler,
             $sId
         );
     }

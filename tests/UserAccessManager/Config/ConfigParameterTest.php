@@ -44,23 +44,23 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oStub = $this->getStub();
-        $oStub->expects($this->exactly(2))->method('isValidValue')->will($this->returnValue(true));
-        $oStub->__construct('testId');
+        $Stub = $this->getStub();
+        $Stub->expects($this->exactly(2))->method('isValidValue')->will($this->returnValue(true));
+        $Stub->__construct('testId');
 
-        self::assertAttributeEquals('testId', 'sId', $oStub);
-        self::assertAttributeEquals(null, 'mDefaultValue', $oStub);
+        self::assertAttributeEquals('testId', 'sId', $Stub);
+        self::assertAttributeEquals(null, 'mDefaultValue', $Stub);
 
-        $oStub->__construct('otherId', 'defaultValue');
+        $Stub->__construct('otherId', 'defaultValue');
 
-        self::assertAttributeEquals('otherId', 'sId', $oStub);
-        self::assertAttributeEquals('defaultValue', 'mDefaultValue', $oStub);
+        self::assertAttributeEquals('otherId', 'sId', $Stub);
+        self::assertAttributeEquals('defaultValue', 'mDefaultValue', $Stub);
 
-        $oStub = $this->getStub();
-        $oStub->expects($this->once())->method('isValidValue')->will($this->returnValue(false));
+        $Stub = $this->getStub();
+        $Stub->expects($this->once())->method('isValidValue')->will($this->returnValue(false));
 
         self::expectException('\Exception');
-        $oStub->__construct('otherId', 'defaultValue');
+        $Stub->__construct('otherId', 'defaultValue');
     }
 
     /**
@@ -69,11 +69,11 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testGetId()
     {
-        $oStub = $this->getStub();
-        $oStub->expects($this->once())->method('isValidValue')->will($this->returnValue(true));
-        $oStub->__construct('testId');
+        $Stub = $this->getStub();
+        $Stub->expects($this->once())->method('isValidValue')->will($this->returnValue(true));
+        $Stub->__construct('testId');
 
-        self::assertEquals('testId', $oStub->getId());
+        self::assertEquals('testId', $Stub->getId());
     }
 
     /**
@@ -82,15 +82,15 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testValidateValue()
     {
-        $oStub = $this->getStub();
-        $oStub->expects($this->exactly(2))
+        $Stub = $this->getStub();
+        $Stub->expects($this->exactly(2))
             ->method('isValidValue')
             ->will($this->onConsecutiveCalls(true, false));
 
-        self::assertNull(self::callMethod($oStub, 'validateValue', ['value']));
+        self::assertNull(self::callMethod($Stub, 'validateValue', ['value']));
 
         self::expectException('\Exception');
-        self::callMethod($oStub, 'validateValue', ['value']);
+        self::callMethod($Stub, 'validateValue', ['value']);
     }
 
     /**
@@ -101,16 +101,16 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testSetValue()
     {
-        $oStub = $this->getStub();
-        $oStub->expects($this->once())
+        $Stub = $this->getStub();
+        $Stub->expects($this->once())
             ->method('isValidValue')
             ->will($this->returnValue(true));
 
-        $oStub->setValue('testValue');
+        $Stub->setValue('testValue');
 
-        self::assertAttributeEquals('testValue', 'mValue', $oStub);
+        self::assertAttributeEquals('testValue', 'mValue', $Stub);
 
-        return $oStub;
+        return $Stub;
     }
 
     /**
@@ -118,10 +118,10 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      * @depends testSetValue
      * @covers  \UserAccessManager\Config\ConfigParameter::getValue()
      *
-     * @param ConfigParameter $oStub
+     * @param ConfigParameter $Stub
      */
-    public function testGetValue($oStub)
+    public function testGetValue($Stub)
     {
-        self::assertEquals('testValue', $oStub->getValue());
+        self::assertEquals('testValue', $Stub->getValue());
     }
 }

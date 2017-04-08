@@ -31,7 +31,7 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oUserGroupFactory = new UserGroupFactory(
+        $UserGroupFactory = new UserGroupFactory(
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getConfig(),
@@ -39,9 +39,9 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroupFactory', $oUserGroupFactory);
+        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroupFactory', $UserGroupFactory);
 
-        return $oUserGroupFactory;
+        return $UserGroupFactory;
     }
 
     /**
@@ -49,10 +49,10 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\UserGroup\UserGroupFactory::createUserGroup()
      *
-     * @param UserGroupFactory $oUserGroupFactory
+     * @param UserGroupFactory $UserGroupFactory
      */
-    public function testCreateUserGroup(UserGroupFactory $oUserGroupFactory)
+    public function testCreateUserGroup(UserGroupFactory $UserGroupFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroup', $oUserGroupFactory->createUserGroup());
+        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroup', $UserGroupFactory->createUserGroup());
     }
 }

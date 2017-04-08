@@ -14,13 +14,13 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $oController
+ * @var \UserAccessManager\Controller\AdminObjectController $Controller
  */
 ?>
 <div class="uam_tooltip">
     <ul class="uam_group_info">
         <?php
-        $aRecursiveMembership = $oController->getRecursiveMembership($oUserGroup);
+        $aRecursiveMembership = $Controller->getRecursiveMembership($UserGroup);
 
         foreach ($aRecursiveMembership as $sObjectType => $aObjects) {
             $sTypeKey = 'TXT_UAM_GROUP_TYPE_'.strtoupper($sObjectType);
@@ -45,18 +45,18 @@
             <ul>
                 <li><?php echo TXT_UAM_READ_ACCESS; ?>:
                     <?php
-                    if ($oUserGroup->getReadAccess() === "all") {
+                    if ($UserGroup->getReadAccess() === "all") {
                         echo TXT_UAM_ALL;
-                    } elseif ($oUserGroup->getReadAccess() === "group") {
+                    } elseif ($UserGroup->getReadAccess() === "group") {
                         echo TXT_UAM_ONLY_GROUP_USERS;
                     }
                     ?>
                 </li>
                 <li><?php echo TXT_UAM_WRITE_ACCESS; ?>:
                     <?php
-                    if ($oUserGroup->getWriteAccess() === "all") {
+                    if ($UserGroup->getWriteAccess() === "all") {
                         echo TXT_UAM_ALL;
-                    } elseif ($oUserGroup->getWriteAccess() === "group") {
+                    } elseif ($UserGroup->getWriteAccess() === "group") {
                         echo TXT_UAM_ONLY_GROUP_USERS;
                     }
                     ?>
@@ -64,8 +64,8 @@
                 <li>
                     <?php
                     $sContent = TXT_UAM_GROUP_ROLE.': ';
-                    $aRoleNames = $oController->getRoleNames();
-                    $aGroupRoles = $oUserGroup->getAssignedObjectsByType(
+                    $aRoleNames = $Controller->getRoleNames();
+                    $aGroupRoles = $UserGroup->getAssignedObjectsByType(
                         \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                     );
 

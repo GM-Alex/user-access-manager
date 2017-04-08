@@ -28,41 +28,41 @@ class FileHandler
     /**
      * @var Php
      */
-    protected $oPhp;
+    protected $Php;
 
     /**
      * @var Wordpress
      */
-    protected $oWordpress;
+    protected $Wordpress;
 
     /**
      * @var Config
      */
-    protected $oConfig;
+    protected $Config;
 
     /**
      * @var FileProtectionFactory
      */
-    protected $oFileProtectionFactory;
+    protected $FileProtectionFactory;
 
     /**
      * FileHandler constructor.
      *
-     * @param Php                   $oPhp
-     * @param Wordpress             $oWordpress
-     * @param Config                $oConfig
-     * @param FileProtectionFactory $oFileProtectionFactory
+     * @param Php                   $Php
+     * @param Wordpress             $Wordpress
+     * @param Config                $Config
+     * @param FileProtectionFactory $FileProtectionFactory
      */
     public function __construct(
-        Php $oPhp,
-        Wordpress $oWordpress,
-        Config $oConfig,
-        FileProtectionFactory $oFileProtectionFactory
+        Php $Php,
+        Wordpress $Wordpress,
+        Config $Config,
+        FileProtectionFactory $FileProtectionFactory
     ) {
-        $this->oPhp = $oPhp;
-        $this->oWordpress = $oWordpress;
-        $this->oConfig = $oConfig;
-        $this->oFileProtectionFactory = $oFileProtectionFactory;
+        $this->Php = $Php;
+        $this->Wordpress = $Wordpress;
+        $this->Config = $Config;
+        $this->FileProtectionFactory = $FileProtectionFactory;
     }
 
     /**
@@ -88,13 +88,13 @@ class FileHandler
             $sLastElement = array_pop($aFile);
             $sFileExt = strtolower($sLastElement);
 
-            $aMimeTypes = $this->oConfig->getMimeTypes();
+            $aMimeTypes = $this->Config->getMimeTypes();
 
-            if ($this->oPhp->functionExists('finfo_open')) {
+            if ($this->Php->functionExists('finfo_open')) {
                 $sFileInfo = finfo_open(FILEINFO_MIME);
                 $sFileMimeType = finfo_file($sFileInfo, $sFile);
                 finfo_close($sFileInfo);
-            } elseif ($this->oPhp->functionExists('mime_content_type')) {
+            } elseif ($this->Php->functionExists('mime_content_type')) {
                 $sFileMimeType = mime_content_type($sFile);
             } elseif (isset($aMimeTypes[$sFileExt])) {
                 $sFileMimeType = $aMimeTypes[$sFileExt];
@@ -113,21 +113,21 @@ class FileHandler
             header('Content-Transfer-Encoding: binary');
             header('Content-Length: '.filesize($sFile));
 
-            if ($this->oConfig->getDownloadType() === 'fopen'
+            if ($this->Config->getDownloadType() === 'fopen'
                 && $blIsImage === false
             ) {
-                $oHandler = fopen($sFile, 'r');
+                $Handler = fopen($sFile, 'r');
 
                 //TODO find better solution (prevent '\n' / '0A')
                 ob_clean();
                 flush();
 
-                while (feof($oHandler) === false) {
-                    if ($this->oPhp->iniGet('safe_mode') !== '') {
-                        $this->oPhp->setTimeLimit(30);
+                while (feof($Handler) === false) {
+                    if ($this->Php->iniGet('safe_mode') !== '') {
+                        $this->Php->setTimeLimit(30);
                     }
 
-                    echo fread($oHandler, 1024);
+                    echo fread($Handler, 1024);
                 }
             } else {
                 ob_clean();
@@ -135,7 +135,7 @@ class FileHandler
                 readfile($sFile);
             }
         } else {
-            $this->oWordpress->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
+            $this->Wordpress->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
         }
 
         return null;
@@ -151,13 +151,13 @@ class FileHandler
      */
     public function createFileProtection($sDir = null, $sObjectType = null)
     {
-        $sDir = ($sDir === null) ? $this->oConfig->getUploadDirectory() : $sDir;
+        $sDir = ($sDir === null) ? $this->Config->getUploadDirectory() : $sDir;
 
         if ($sDir !== null) {
-            if ($this->oWordpress->isNginx() === true) {
-                return $this->oFileProtectionFactory->createNginxFileProtection()->create($sDir, $sObjectType);
+            if ($this->Wordpress->isNginx() === true) {
+                return $this->FileProtectionFactory->createNginxFileProtection()->create($sDir, $sObjectType);
             } else {
-                return $this->oFileProtectionFactory->createApacheFileProtection()->create($sDir, $sObjectType);
+                return $this->FileProtectionFactory->createApacheFileProtection()->create($sDir, $sObjectType);
             }
         }
 
@@ -174,13 +174,13 @@ class FileHandler
      */
     public function deleteFileProtection($sDir = null)
     {
-        $sDir = ($sDir === null) ? $this->oConfig->getUploadDirectory() : $sDir;
+        $sDir = ($sDir === null) ? $this->Config->getUploadDirectory() : $sDir;
 
         if ($sDir !== null) {
-            if ($this->oWordpress->isNginx() === true) {
-                return $this->oFileProtectionFactory->createNginxFileProtection()->delete($sDir);
+            if ($this->Wordpress->isNginx() === true) {
+                return $this->FileProtectionFactory->createNginxFileProtection()->delete($sDir);
             } else {
-                return $this->oFileProtectionFactory->createApacheFileProtection()->delete($sDir);
+                return $this->FileProtectionFactory->createApacheFileProtection()->delete($sDir);
             }
         }
 

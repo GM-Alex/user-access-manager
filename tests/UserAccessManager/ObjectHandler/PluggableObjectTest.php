@@ -41,12 +41,12 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanCreateInstance()
     {
-        $oStub = $this->getStub('nameValue', 'referenceValue');
-        self::assertInstanceOf('\UserAccessManager\ObjectHandler\PluggableObject', $oStub);
-        self::assertAttributeEquals('nameValue', 'sName', $oStub);
-        self::assertAttributeEquals('referenceValue', 'sReference', $oStub);
+        $Stub = $this->getStub('nameValue', 'referenceValue');
+        self::assertInstanceOf('\UserAccessManager\ObjectHandler\PluggableObject', $Stub);
+        self::assertAttributeEquals('nameValue', 'sName', $Stub);
+        self::assertAttributeEquals('referenceValue', 'sReference', $Stub);
 
-        return $oStub;
+        return $Stub;
     }
 
     /**
@@ -54,10 +54,10 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\ObjectHandler\PluggableObject::getName()
      *
-     * @param PluggableObject $oStub
+     * @param PluggableObject $Stub
      */
-    public function testGetName(PluggableObject $oStub)
+    public function testGetName(PluggableObject $Stub)
     {
-        self::assertEquals('nameValue', $oStub->getName());
+        self::assertEquals('nameValue', $Stub->getName());
     }
 }

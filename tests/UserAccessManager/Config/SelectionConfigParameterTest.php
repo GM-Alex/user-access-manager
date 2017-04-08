@@ -31,14 +31,14 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oSelectionConfigParameter = new SelectionConfigParameter('testId', 'default', ['default', 'second']);
+        $SelectionConfigParameter = new SelectionConfigParameter('testId', 'default', ['default', 'second']);
 
-        self::assertInstanceOf('\UserAccessManager\Config\SelectionConfigParameter', $oSelectionConfigParameter);
-        self::assertAttributeEquals('testId', 'sId', $oSelectionConfigParameter);
-        self::assertAttributeEquals('default', 'mDefaultValue', $oSelectionConfigParameter);
-        self::assertAttributeEquals(['default', 'second'], 'aSelections', $oSelectionConfigParameter);
+        self::assertInstanceOf('\UserAccessManager\Config\SelectionConfigParameter', $SelectionConfigParameter);
+        self::assertAttributeEquals('testId', 'sId', $SelectionConfigParameter);
+        self::assertAttributeEquals('default', 'mDefaultValue', $SelectionConfigParameter);
+        self::assertAttributeEquals(['default', 'second'], 'aSelections', $SelectionConfigParameter);
 
-        return $oSelectionConfigParameter;
+        return $SelectionConfigParameter;
     }
 
     /**
@@ -46,13 +46,13 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Config\SelectionConfigParameter::isValidValue()
      *
-     * @param SelectionConfigParameter $oSelectionConfigParameter
+     * @param SelectionConfigParameter $SelectionConfigParameter
      */
-    public function testIsValidValue($oSelectionConfigParameter)
+    public function testIsValidValue($SelectionConfigParameter)
     {
-        self::assertTrue($oSelectionConfigParameter->isValidValue('default'));
-        self::assertTrue($oSelectionConfigParameter->isValidValue('second'));
-        self::assertFalse($oSelectionConfigParameter->isValidValue('aaa'));
+        self::assertTrue($SelectionConfigParameter->isValidValue('default'));
+        self::assertTrue($SelectionConfigParameter->isValidValue('second'));
+        self::assertFalse($SelectionConfigParameter->isValidValue('aaa'));
     }
 
     /**
@@ -60,10 +60,10 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Config\SelectionConfigParameter::getSelections()
      *
-     * @param SelectionConfigParameter $oSelectionConfigParameter
+     * @param SelectionConfigParameter $SelectionConfigParameter
      */
-    public function testGetSelections($oSelectionConfigParameter)
+    public function testGetSelections($SelectionConfigParameter)
     {
-        self::assertEquals(['default', 'second'], $oSelectionConfigParameter->getSelections());
+        self::assertEquals(['default', 'second'], $SelectionConfigParameter->getSelections());
     }
 }

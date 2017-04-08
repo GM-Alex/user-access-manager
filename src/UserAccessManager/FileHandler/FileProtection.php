@@ -31,37 +31,37 @@ abstract class FileProtection
     /**
      * @var Php
      */
-    protected $oPhp;
+    protected $Php;
 
     /**
      * @var Wordpress
      */
-    protected $oWordpress;
+    protected $Wordpress;
 
     /**
      * @var Config
      */
-    protected $oConfig;
+    protected $Config;
 
     /**
      * @var Util
      */
-    protected $oUtil;
+    protected $Util;
 
     /**
      * ApacheFileProtection constructor.
      *
-     * @param Php         $oPhp
-     * @param Wordpress   $oWordpress
-     * @param Config      $oConfig
-     * @param Util        $oUtil
+     * @param Php         $Php
+     * @param Wordpress   $Wordpress
+     * @param Config      $Config
+     * @param Util        $Util
      */
-    public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig, Util $oUtil)
+    public function __construct(Php $Php, Wordpress $Wordpress, Config $Config, Util $Util)
     {
-        $this->oPhp = $oPhp;
-        $this->oWordpress = $oWordpress;
-        $this->oConfig = $oConfig;
-        $this->oUtil = $oUtil;
+        $this->Php = $Php;
+        $this->Wordpress = $Wordpress;
+        $this->Config = $Config;
+        $this->Util = $Util;
     }
 
     /**
@@ -75,7 +75,7 @@ abstract class FileProtection
     {
         $aValidFileTypes = [];
         $aFileTypes = explode(',', $sFileTypes);
-        $aMimeTypes = $this->oConfig->getMimeTypes();
+        $aMimeTypes = $this->Config->getMimeTypes();
 
         foreach ($aFileTypes as $sFileType) {
             $sCleanFileType = trim($sFileType);
@@ -98,7 +98,7 @@ abstract class FileProtection
     {
         // get url
         if ($sDir === null) {
-            $aWordpressUploadDir = $this->oWordpress->getUploadDir();
+            $aWordpressUploadDir = $this->Wordpress->getUploadDir();
 
             if (empty($aWordpressUploadDir['error'])) {
                 $sDir = $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
@@ -110,28 +110,28 @@ abstract class FileProtection
         if ($sDir !== null
             && (file_exists($sFile) === false || $blCreateNew)
         ) {
-            $oCurrentUser = $this->oWordpress->getCurrentUser();
+            $CurrentUser = $this->Wordpress->getCurrentUser();
 
-            if ($this->oConfig->getFilePassType() === 'random') {
+            if ($this->Config->getFilePassType() === 'random') {
                 try {
-                    $sRandomPassword = $this->oUtil->getRandomPassword();
+                    $sRandomPassword = $this->Util->getRandomPassword();
                     $sPassword = md5($sRandomPassword);
-                } catch (\Exception $oException) {
-                    $sPassword = $oCurrentUser->user_pass;
+                } catch (\Exception $Exception) {
+                    $sPassword = $CurrentUser->user_pass;
                 }
             } else {
-                $sPassword = $oCurrentUser->user_pass;
+                $sPassword = $CurrentUser->user_pass;
             }
 
-            $sUser = $oCurrentUser->user_login;
+            $sUser = $CurrentUser->user_login;
 
             // make .htpasswd
             $sContent = "{$sUser}:{$sPassword}\n";
 
             // save file
-            $oFileHandler = fopen($sFile, 'w');
-            fwrite($oFileHandler, $sContent);
-            fclose($oFileHandler);
+            $FileHandler = fopen($sFile, 'w');
+            fwrite($FileHandler, $sContent);
+            fclose($FileHandler);
         }
     }
 }

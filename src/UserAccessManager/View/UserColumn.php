@@ -14,19 +14,19 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $oController
+ * @var \UserAccessManager\Controller\AdminObjectController $Controller
  */
-$aObjectUserGroups = $oController->getFilteredObjectUserGroups();
+$aObjectUserGroups = $Controller->getFilteredObjectUserGroups();
 
 if (count($aObjectUserGroups) > 0) {
     ?>
     <ul>
         <?php
-        foreach ($aObjectUserGroups as $oUserGroup) {
+        foreach ($aObjectUserGroups as $UserGroup) {
             ?>
             <li>
                 <a class="uam_group_info_link">
-                    <?php echo htmlentities($oUserGroup->getName()); ?>
+                    <?php echo htmlentities($UserGroup->getName()); ?>
                 </a>
                 <?php
                 include 'GroupInfo.php';
@@ -38,7 +38,7 @@ if (count($aObjectUserGroups) > 0) {
     </ul>
     <?php
 } else {
-    if (!$oController->isCurrentUserAdmin()) {
+    if (!$Controller->isCurrentUserAdmin()) {
         echo TXT_UAM_NONE;
     } else {
         echo TXT_UAM_ADMIN_HINT;

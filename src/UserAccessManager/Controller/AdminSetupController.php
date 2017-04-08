@@ -35,12 +35,12 @@ class AdminSetupController extends Controller
     /**
      * @var SetupHandler
      */
-    protected $oSetupHandler;
+    protected $SetupHandler;
 
     /**
      * @var Database
      */
-    protected $oDatabase;
+    protected $Database;
 
     /**
      * @var string
@@ -50,22 +50,22 @@ class AdminSetupController extends Controller
     /**
      * AdminSetupController constructor.
      *
-     * @param Php          $oPhp
-     * @param Wordpress    $oWordpress
-     * @param Config       $oConfig
-     * @param Database     $oDatabase
-     * @param SetupHandler $oSetupHandler
+     * @param Php          $Php
+     * @param Wordpress    $Wordpress
+     * @param Config       $Config
+     * @param Database     $Database
+     * @param SetupHandler $SetupHandler
      */
     public function __construct(
-        Php $oPhp,
-        Wordpress $oWordpress,
-        Config $oConfig,
-        Database $oDatabase,
-        SetupHandler $oSetupHandler
+        Php $Php,
+        Wordpress $Wordpress,
+        Config $Config,
+        Database $Database,
+        SetupHandler $SetupHandler
     ) {
-        parent::__construct($oPhp, $oWordpress, $oConfig);
-        $this->oDatabase = $oDatabase;
-        $this->oSetupHandler = $oSetupHandler;
+        parent::__construct($Php, $Wordpress, $Config);
+        $this->Database = $Database;
+        $this->SetupHandler = $SetupHandler;
     }
 
     /**
@@ -75,7 +75,7 @@ class AdminSetupController extends Controller
      */
     public function isDatabaseUpdateNecessary()
     {
-        return $this->oSetupHandler->isDatabaseUpdateNecessary();
+        return $this->SetupHandler->isDatabaseUpdateNecessary();
     }
 
     /**
@@ -85,7 +85,7 @@ class AdminSetupController extends Controller
      */
     public function showNetworkUpdate()
     {
-        return $this->oWordpress->isSuperAdmin() === true
+        return $this->Wordpress->isSuperAdmin() === true
             && defined('MULTISITE') === true && MULTISITE === true
             && defined('WP_ALLOW_MULTISITE') === true && WP_ALLOW_MULTISITE === true;
     }
@@ -100,20 +100,20 @@ class AdminSetupController extends Controller
 
         if ($sUpdate === self::UPDATE_BLOG || $sUpdate === self::UPDATE_NETWORK) {
             if ($sUpdate === self::UPDATE_NETWORK) {
-                $aBlogIds = $this->oSetupHandler->getBlogIds();
+                $aBlogIds = $this->SetupHandler->getBlogIds();
 
                 if (count($aBlogIds) > 0) {
-                    $iCurrentBlogId = $this->oDatabase->getCurrentBlogId();
+                    $iCurrentBlogId = $this->Database->getCurrentBlogId();
 
                     foreach ($aBlogIds as $iBlogId) {
-                        $this->oWordpress->switchToBlog($iBlogId);
-                        $this->oSetupHandler->update();
+                        $this->Wordpress->switchToBlog($iBlogId);
+                        $this->SetupHandler->update();
                     }
 
-                    $this->oWordpress->switchToBlog($iCurrentBlogId);
+                    $this->Wordpress->switchToBlog($iCurrentBlogId);
                 }
             } else {
-                $this->oSetupHandler->update();
+                $this->SetupHandler->update();
             }
 
             $this->setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS);
@@ -129,8 +129,8 @@ class AdminSetupController extends Controller
         $sReset = $this->getRequestParameter('uam_reset');
 
         if ($sReset === 'reset') {
-            $this->oSetupHandler->uninstall();
-            $this->oSetupHandler->install();
+            $this->SetupHandler->uninstall();
+            $this->SetupHandler->install();
             $this->setUpdateMessage(TXT_UAM_UAM_RESET_SUCCESS);
         }
     }

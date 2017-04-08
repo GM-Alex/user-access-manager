@@ -34,12 +34,12 @@ class AdminController extends Controller
     /**
      * @var AccessHandler
      */
-    protected $oAccessHandler;
+    protected $AccessHandler;
 
     /**
      * @var FileHandler
      */
-    protected $oFileHandler;
+    protected $FileHandler;
 
     /**
      * @var string
@@ -50,23 +50,23 @@ class AdminController extends Controller
      * AdminController constructor.
      *
      *
-     * @param Php           $oPhp
-     * @param Wordpress     $oWordpress
-     * @param Config        $oConfig
-     * @param AccessHandler $oAccessHandler
-     * @param FileHandler   $oFileHandler
+     * @param Php           $Php
+     * @param Wordpress     $Wordpress
+     * @param Config        $Config
+     * @param AccessHandler $AccessHandler
+     * @param FileHandler   $FileHandler
      */
     public function __construct(
-        Php $oPhp,
-        Wordpress $oWordpress,
-        Config $oConfig,
-        AccessHandler $oAccessHandler,
-        FileHandler $oFileHandler
+        Php $Php,
+        Wordpress $Wordpress,
+        Config $Config,
+        AccessHandler $AccessHandler,
+        FileHandler $FileHandler
     ) {
-        parent::__construct($oPhp, $oWordpress, $oConfig);
-        $this->oConfig = $oConfig;
-        $this->oAccessHandler = $oAccessHandler;
-        $this->oFileHandler = $oFileHandler;
+        parent::__construct($Php, $Wordpress, $Config);
+        $this->Config = $Config;
+        $this->AccessHandler = $AccessHandler;
+        $this->FileHandler = $FileHandler;
     }
 
     /**
@@ -102,9 +102,9 @@ class AdminController extends Controller
      */
     protected function registerStylesAndScripts()
     {
-        $sUrlPath = $this->oConfig->getUrlPath();
+        $sUrlPath = $this->Config->getUrlPath();
 
-        $this->oWordpress->registerStyle(
+        $this->Wordpress->registerStyle(
             self::HANDLE_STYLE_ADMIN,
             $sUrlPath.'assets/css/uamAdmin.css',
             [],
@@ -112,7 +112,7 @@ class AdminController extends Controller
             'screen'
         );
 
-        $this->oWordpress->registerScript(
+        $this->Wordpress->registerScript(
             self::HANDLE_SCRIPT_ADMIN,
             $sUrlPath.'assets/js/functions.js',
             ['jquery'],
@@ -128,10 +128,10 @@ class AdminController extends Controller
     public function enqueueStylesAndScripts($sHook)
     {
         $this->registerStylesAndScripts();
-        $this->oWordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
+        $this->Wordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
 
         if ($sHook === 'uam_page_uam_settings' || $sHook === 'uam_page_uam_setup') {
-            $this->oWordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
+            $this->Wordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
         }
     }
 
@@ -142,10 +142,10 @@ class AdminController extends Controller
      */
     public function setupAdminDashboard()
     {
-        if ($this->oAccessHandler->checkUserAccess('manage_user_groups') === false) {
-            $aMetaBoxes = $this->oWordpress->getMetaBoxes();
+        if ($this->AccessHandler->checkUserAccess('manage_user_groups') === false) {
+            $aMetaBoxes = $this->Wordpress->getMetaBoxes();
             unset($aMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-            $this->oWordpress->setMetaBoxes($aMetaBoxes);
+            $this->Wordpress->setMetaBoxes($aMetaBoxes);
         }
     }
 
@@ -154,6 +154,6 @@ class AdminController extends Controller
      */
     public function updatePermalink()
     {
-        $this->oFileHandler->createFileProtection();
+        $this->FileHandler->createFileProtection();
     }
 }

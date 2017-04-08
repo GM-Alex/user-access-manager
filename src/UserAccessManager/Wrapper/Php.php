@@ -86,10 +86,10 @@ class Php
     }
 
     /**
-     * @param Controller $oController
+     * @param Controller $Controller
      * @param string     $sFile
      */
-    public function includeFile(Controller &$oController, $sFile)
+    public function includeFile(Controller &$Controller, $sFile)
     {
         /** @noinspection PhpIncludeInspection */
         include $sFile;

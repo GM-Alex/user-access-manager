@@ -40,11 +40,11 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         $sAbsPath = rtrim($sAbsPath, '/').'/';
         $sAreaName = 'WP-Files';
 
-        if ($this->oConfig->isPermalinksActive() === false) {
+        if ($this->Config->isPermalinksActive() === false) {
             $sFileTypes = null;
 
-            if ($this->oConfig->getLockFileTypes() === 'selected') {
-                $sFileTypes = $this->cleanUpFileTypes($this->oConfig->getLockedFileTypes());
+            if ($this->Config->getLockFileTypes() === 'selected') {
+                $sFileTypes = $this->cleanUpFileTypes($this->Config->getLockedFileTypes());
                 $sFileTypes = "\.({$sFileTypes})";
             }
 
@@ -79,7 +79,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         try {
             file_put_contents($sFileWithPath, $sContent);
             return true;
-        } catch (\Exception $oException) {
+        } catch (\Exception $Exception) {
         }
 
         return false;
@@ -99,13 +99,13 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         $sFileName = $sDir.self::FILE_NAME;
 
         if (file_exists($sFileName) === true) {
-            $blSuccess = ($this->oPhp->unlink($sFileName) === true) && $blSuccess;
+            $blSuccess = ($this->Php->unlink($sFileName) === true) && $blSuccess;
         }
 
         $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
 
         if (file_exists($sPasswordFile) === true) {
-            $blSuccess = ($this->oPhp->unlink($sPasswordFile) === true) && $blSuccess;
+            $blSuccess = ($this->Php->unlink($sPasswordFile) === true) && $blSuccess;
         }
 
         return $blSuccess;

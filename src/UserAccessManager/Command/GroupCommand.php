@@ -38,33 +38,33 @@ class GroupCommand extends CommandWithDBObject
     /**
      * @var WordpressCli
      */
-    protected $oWordpressCli;
+    protected $WordpressCli;
 
     /**
      * @var AccessHandler
      */
-    protected $oAccessHandler;
+    protected $AccessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    protected $oUserGroupFactory;
+    protected $UserGroupFactory;
 
     /**
      * ObjectCommand constructor.
      *
-     * @param WordpressCli     $oWordpressCli
-     * @param AccessHandler    $oAccessHandler
-     * @param UserGroupFactory $oUserGroupFactory
+     * @param WordpressCli     $WordpressCli
+     * @param AccessHandler    $AccessHandler
+     * @param UserGroupFactory $UserGroupFactory
      */
     public function __construct(
-        WordpressCli $oWordpressCli,
-        AccessHandler $oAccessHandler,
-        UserGroupFactory $oUserGroupFactory
+        WordpressCli $WordpressCli,
+        AccessHandler $AccessHandler,
+        UserGroupFactory $UserGroupFactory
     ) {
-        $this->oWordpressCli = $oWordpressCli;
-        $this->oAccessHandler = $oAccessHandler;
-        $this->oUserGroupFactory = $oUserGroupFactory;
+        $this->WordpressCli = $WordpressCli;
+        $this->AccessHandler = $AccessHandler;
+        $this->UserGroupFactory = $UserGroupFactory;
     }
 
     /**
@@ -76,7 +76,7 @@ class GroupCommand extends CommandWithDBObject
      */
     protected function getFormatter(&$aAssocArguments)
     {
-        return $this->oWordpressCli->createFormatter(
+        return $this->WordpressCli->createFormatter(
             $aAssocArguments,
             [
                 'ID',
@@ -111,36 +111,36 @@ class GroupCommand extends CommandWithDBObject
     public function ls(array $aArguments, array $aAssocArguments)
     {
         if (count($aArguments) > 0) {
-            $this->oWordpressCli->error('No arguments excepted. Please use the format option.');
+            $this->WordpressCli->error('No arguments excepted. Please use the format option.');
             return;
         }
 
-        $aUserGroups = $this->oAccessHandler->getUserGroups();
+        $aUserGroups = $this->AccessHandler->getUserGroups();
 
         if (count($aUserGroups) <= 0) {
-            $this->oWordpressCli->error('No groups defined yet!');
+            $this->WordpressCli->error('No groups defined yet!');
             return;
         }
 
         $aGroups = [];
 
-        foreach ($aUserGroups as $oUserGroup) {
-            $aGroups[$oUserGroup->getId()] = [
-                'ID' => $oUserGroup->getId(),
-                'group_name' => $oUserGroup->getName(),
-                'group_desc' => $oUserGroup->getDescription(),
-                'read_access' => $oUserGroup->getReadAccess(),
-                'write_access' => $oUserGroup->getWriteAccess(),
+        foreach ($aUserGroups as $UserGroup) {
+            $aGroups[$UserGroup->getId()] = [
+                'ID' => $UserGroup->getId(),
+                'group_name' => $UserGroup->getName(),
+                'group_desc' => $UserGroup->getDescription(),
+                'read_access' => $UserGroup->getReadAccess(),
+                'write_access' => $UserGroup->getWriteAccess(),
                 'roles' => implode(
                     ',',
-                    array_keys($oUserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))
+                    array_keys($UserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))
                 ),
-                'ip_range' => $oUserGroup->getIpRange() !== null ? $oUserGroup->getIpRange(true) : ''
+                'ip_range' => $UserGroup->getIpRange() !== null ? $UserGroup->getIpRange(true) : ''
             ];
         }
 
-        $oFormatter = $this->getFormatter($aAssocArguments);
-        $oFormatter->display_items($aGroups);
+        $Formatter = $this->getFormatter($aAssocArguments);
+        $Formatter->display_items($aGroups);
     }
 
     /**
@@ -161,15 +161,15 @@ class GroupCommand extends CommandWithDBObject
     public function del(array $aArguments)
     {
         if (count($aArguments) < 1) {
-            $this->oWordpressCli->error('Expected: wp uam groups del \<id\> ...');
+            $this->WordpressCli->error('Expected: wp uam groups del \<id\> ...');
             return;
         }
 
         foreach ($aArguments as $sUserGroupId) {
-            if ($this->oAccessHandler->deleteUserGroup($sUserGroupId) === true) {
-                $this->oWordpressCli->success("Successfully deleted group with id '{$sUserGroupId}'.");
+            if ($this->AccessHandler->deleteUserGroup($sUserGroupId) === true) {
+                $this->WordpressCli->success("Successfully deleted group with id '{$sUserGroupId}'.");
             } else {
-                $this->oWordpressCli->error("Group id '{$sUserGroupId}' doesn't exists.");
+                $this->WordpressCli->error("Group id '{$sUserGroupId}' doesn't exists.");
             }
         }
     }
@@ -207,17 +207,17 @@ class GroupCommand extends CommandWithDBObject
     public function add(array $aArguments, array $aAssocArguments)
     {
         if (isset($aArguments[0]) === false) {
-            $this->oWordpressCli->error("Please provide a group name.");
+            $this->WordpressCli->error("Please provide a group name.");
             return;
         }
 
         $sGroupName = $aArguments[0];
-        $aUserGroups = $this->oAccessHandler->getUserGroups();
+        $aUserGroups = $this->AccessHandler->getUserGroups();
 
-        foreach ($aUserGroups as $oUserGroup) {
-            if ($oUserGroup->getName() === $sGroupName) {
-                $this->oWordpressCli->error(
-                    "Group with the same name '{$sGroupName}' already exists: {$oUserGroup->getId()}"
+        foreach ($aUserGroups as $UserGroup) {
+            if ($UserGroup->getName() === $sGroupName) {
+                $this->WordpressCli->error(
+                    "Group with the same name '{$sGroupName}' already exists: {$UserGroup->getId()}"
                 );
                 return;
             }
@@ -231,7 +231,7 @@ class GroupCommand extends CommandWithDBObject
 
         if (!in_array($sReadAccess, self::$aAllowedAccessValues)) {
             if ($blPorcelain === true) {
-                $this->oWordpressCli->line('setting read_access to '.self::$aAllowedAccessValues[0]);
+                $this->WordpressCli->line('setting read_access to '.self::$aAllowedAccessValues[0]);
             }
 
             $sReadAccess = self::$aAllowedAccessValues[0];
@@ -239,38 +239,38 @@ class GroupCommand extends CommandWithDBObject
 
         if (!in_array($sWriteAccess, self::$aAllowedAccessValues)) {
             if ($blPorcelain === true) {
-                $this->oWordpressCli->line('setting write_access to '.self::$aAllowedAccessValues[0]);
+                $this->WordpressCli->line('setting write_access to '.self::$aAllowedAccessValues[0]);
             }
 
             $sWriteAccess = self::$aAllowedAccessValues[0];
         }
 
-        $oUserGroup = $this->oUserGroupFactory->createUserGroup();
-        $oUserGroup->setName($sGroupName);
-        $oUserGroup->setDescription($sGroupDescription);
-        $oUserGroup->setIpRange($sIpRange);
-        $oUserGroup->setReadAccess($sReadAccess);
-        $oUserGroup->setWriteAccess($sWriteAccess);
+        $UserGroup = $this->UserGroupFactory->createUserGroup();
+        $UserGroup->setName($sGroupName);
+        $UserGroup->setDescription($sGroupDescription);
+        $UserGroup->setIpRange($sIpRange);
+        $UserGroup->setReadAccess($sReadAccess);
+        $UserGroup->setWriteAccess($sWriteAccess);
 
         // add roles
         if (isset($aAssocArguments['roles'])) {
             $aRoles = explode(',', $aAssocArguments['roles']);
 
-            $oUserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+            $UserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
             foreach ($aRoles as $sRole) {
-                $oUserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($sRole));
+                $UserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($sRole));
             }
         }
 
-        $oUserGroup->save();
+        $UserGroup->save();
 
-        $this->oAccessHandler->addUserGroup($oUserGroup);
+        $this->AccessHandler->addUserGroup($UserGroup);
 
         if ($blPorcelain === true) {
-            $this->oWordpressCli->line($oUserGroup->getId());
+            $this->WordpressCli->line($UserGroup->getId());
         } else {
-            $this->oWordpressCli->success("Added new group '{$sGroupName}' with id {$oUserGroup->getId()}.");
+            $this->WordpressCli->success("Added new group '{$sGroupName}' with id {$UserGroup->getId()}.");
         }
     }
 }

@@ -28,12 +28,12 @@ class AdminAboutControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oAdminAboutController = new AdminAboutController(
+        $AdminAboutController = new AdminAboutController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminAboutController', $oAdminAboutController);
+        self::assertInstanceOf('\UserAccessManager\Controller\AdminAboutController', $AdminAboutController);
     }
 }

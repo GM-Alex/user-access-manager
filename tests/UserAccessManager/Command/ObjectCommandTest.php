@@ -29,12 +29,12 @@ class ObjectCommandTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oObjectCommand = new ObjectCommand(
+        $ObjectCommand = new ObjectCommand(
             $this->getWordpressCli(),
             $this->getAccessHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Command\ObjectCommand', $oObjectCommand);
+        self::assertInstanceOf('\UserAccessManager\Command\ObjectCommand', $ObjectCommand);
     }
 
     /**
@@ -43,8 +43,8 @@ class ObjectCommandTest extends UserAccessManagerTestCase
      */
     public function testInvoke()
     {
-        $oWordpressCli = $this->getWordpressCli();
-        $oWordpressCli->expects($this->exactly(3))
+        $WordpressCli = $this->getWordpressCli();
+        $WordpressCli->expects($this->exactly(3))
             ->method('error')
             ->withConsecutive(
                 ['<operation>, <object_type>, <object_id> and <user_groups> are required'],
@@ -52,7 +52,7 @@ class ObjectCommandTest extends UserAccessManagerTestCase
                 ['There is no group with the id: 3']
             );
 
-        $oWordpressCli->expects($this->exactly(3))
+        $WordpressCli->expects($this->exactly(3))
             ->method('success')
             ->withConsecutive(
                 ['Groups 1,2 successfully added to post 1'],
@@ -60,58 +60,58 @@ class ObjectCommandTest extends UserAccessManagerTestCase
                 ['Successfully removed groups: firstGroupName,secondGroupName from category 3']
             );
 
-        $oFirstUserGroup = $this->getUserGroup(1, true, false, [''], 'none', 'none', [], [], 'firstGroupName');
+        $FirstUserGroup = $this->getUserGroup(1, true, false, [''], 'none', 'none', [], [], 'firstGroupName');
 
-        $oFirstUserGroup->expects($this->exactly(2))
+        $FirstUserGroup->expects($this->exactly(2))
             ->method('addObject')
             ->withConsecutive(
                 ['post', 1],
                 ['user', 2]
             );
 
-        $oFirstUserGroup->expects($this->exactly(2))
+        $FirstUserGroup->expects($this->exactly(2))
             ->method('removeObject')
             ->withConsecutive(
                 ['user', 2],
                 ['category', 3]
             );
 
-        $oSecondUserGroup = $this->getUserGroup(2, true, false, [''], 'none', 'none', [], [], 'secondGroupName');
+        $SecondUserGroup = $this->getUserGroup(2, true, false, [''], 'none', 'none', [], [], 'secondGroupName');
 
-        $oSecondUserGroup->expects($this->exactly(2))
+        $SecondUserGroup->expects($this->exactly(2))
             ->method('addObject')
             ->withConsecutive(
                 ['post', 1],
                 ['user', 2]
             );
 
-        $oSecondUserGroup->expects($this->once())
+        $SecondUserGroup->expects($this->once())
             ->method('removeObject')
             ->withConsecutive(
                 ['category', 3]
             );
 
 
-        $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(4))
+        $AccessHandler = $this->getAccessHandler();
+        $AccessHandler->expects($this->exactly(4))
             ->method('getUserGroups')
-            ->will($this->returnValue([1 => $oFirstUserGroup, 2 => $oSecondUserGroup]));
+            ->will($this->returnValue([1 => $FirstUserGroup, 2 => $SecondUserGroup]));
 
-        $oAccessHandler->expects($this->once())
+        $AccessHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('user', 2)
-            ->will($this->returnValue([1 => $oFirstUserGroup]));
+            ->will($this->returnValue([1 => $FirstUserGroup]));
 
-        $oObjectCommand = new ObjectCommand(
-            $oWordpressCli,
-            $oAccessHandler
+        $ObjectCommand = new ObjectCommand(
+            $WordpressCli,
+            $AccessHandler
         );
 
-        $oObjectCommand->__invoke([], []);
-        $oObjectCommand->__invoke(['invalid', 'post', 1, '1,2'], []);
-        $oObjectCommand->__invoke(['add', 'post', 1, '1,2,3'], []);
-        $oObjectCommand->__invoke(['add', 'post', 1, '1,2'], []);
-        $oObjectCommand->__invoke(['update', 'user', 2, '1,2'], []);
-        $oObjectCommand->__invoke(['remove', 'category', 3, 'firstGroupName,secondGroupName'], []);
+        $ObjectCommand->__invoke([], []);
+        $ObjectCommand->__invoke(['invalid', 'post', 1, '1,2'], []);
+        $ObjectCommand->__invoke(['add', 'post', 1, '1,2,3'], []);
+        $ObjectCommand->__invoke(['add', 'post', 1, '1,2'], []);
+        $ObjectCommand->__invoke(['update', 'user', 2, '1,2'], []);
+        $ObjectCommand->__invoke(['remove', 'category', 3, 'firstGroupName,secondGroupName'], []);
     }
 }

@@ -14,13 +14,13 @@
  */
 
 /**
- * @var UserAccessManager\Controller\FrontendController $oController
+ * @var UserAccessManager\Controller\FrontendController $Controller
  */
-if ($oController->showLoginForm()) {
+if ($Controller->showLoginForm()) {
     ?>
-    <form action="<?php echo $oController->getLoginUrl(); ?>" method="post" class="uam_login_form">
+    <form action="<?php echo $Controller->getLoginUrl(); ?>" method="post" class="uam_login_form">
         <label class="input_label" for="user_login"><?php echo TXT_UAM_LOGIN_FORM_USERNAME; ?>:</label>
-        <input name="log" value="<?php echo $oController->getUserLogin(); ?>" class="input" id="user_login"
+        <input name="log" value="<?php echo $Controller->getUserLogin(); ?>" class="input" id="user_login"
                type="text"/>
         <label class="input_label" for="user_pass"><?php echo TXT_UAM_LOGIN_FORM_PASSWORD; ?>:</label>
         <input name="pwd" class="input" id="user_pass" type="password"/>
@@ -30,21 +30,21 @@ if ($oController->showLoginForm()) {
         </label>
         <input class="button" type="submit" name="wp-submit" id="wp-submit"
                value="<?php echo TXT_UAM_LOGIN_FORM_LOGIN; ?> &raquo;"/>
-        <input type="hidden" name="redirect_to" value="'.$oController->getRequestUrl().'"/>
+        <input type="hidden" name="redirect_to" value="'.$Controller->getRequestUrl().'"/>
 
     </form>';
     <div class="uam_login_options">
         <?php
         if (get_option('users_can_register')) {
             ?>
-            <a href="<?php echo $oController->getLoginUrl(); ?>/wp-login.php?action=register">
+            <a href="<?php echo $Controller->getLoginUrl(); ?>/wp-login.php?action=register">
                 <?php echo TXT_UAM_LOGIN_FORM_REGISTER; ?>
             </a>
             <?php
         }
         ?>
 
-        <a href="<?php echo $oController->getLoginUrl(); ?>/wp-login.php?action=lostpassword"
+        <a href="<?php echo $Controller->getLoginUrl(); ?>/wp-login.php?action=lostpassword"
            title="<?php echo TXT_UAM_LOGIN_FORM_LOST_AND_FOUND_PASSWORD; ?>">
             <?php echo TXT_UAM_LOGIN_FORM_LOST_PASSWORD; ?>
         </a>';
@@ -52,7 +52,7 @@ if ($oController->showLoginForm()) {
     <?php
 } else {
     ?>
-    <a class="uam_login_link" href="<?php echo $oController->getRedirectLoginUrl(); ?>">
+    <a class="uam_login_link" href="<?php echo $Controller->getRedirectLoginUrl(); ?>">
         <?php TXT_UAM_LOGIN_FORM_LOGIN; ?>
     </a>
     <?php

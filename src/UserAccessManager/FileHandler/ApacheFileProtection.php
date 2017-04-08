@@ -39,15 +39,15 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $sContent = '';
         $sAreaName = 'WP-Files';
 
-        if ($this->oConfig->isPermalinksActive() === false) {
+        if ($this->Config->isPermalinksActive() === false) {
             $sFileTypes = null;
-            $sLockFileTypes = $this->oConfig->getLockFileTypes();
+            $sLockFileTypes = $this->Config->getLockFileTypes();
 
             if ($sLockFileTypes === 'selected') {
-                $sFileTypes = $this->cleanUpFileTypes($this->oConfig->getLockedFileTypes());
+                $sFileTypes = $this->cleanUpFileTypes($this->Config->getLockedFileTypes());
                 $sFileTypes = "\.({$sFileTypes})";
             } elseif ($sLockFileTypes === 'not_selected') {
-                $sFileTypes = $this->cleanUpFileTypes($this->oConfig->getLockedFileTypes());
+                $sFileTypes = $this->cleanUpFileTypes($this->Config->getLockedFileTypes());
                 $sFileTypes = "^\.({$sFileTypes})";
             }
 
@@ -68,7 +68,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
                 $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
-            $aHomeRoot = parse_url($this->oWordpress->getHomeUrl());
+            $aHomeRoot = parse_url($this->Wordpress->getHomeUrl());
             $sHomeRoot = (isset($aHomeRoot['path'])) ? trim($aHomeRoot['path'], '/\\').'/' : '/';
 
             $sContent = "<IfModule mod_rewrite.c>\n";
@@ -86,7 +86,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         try {
             file_put_contents($sFileWithPath, $sContent);
             return true;
-        } catch (\Exception $oException) {
+        } catch (\Exception $Exception) {
         }
 
         return false;
@@ -106,13 +106,13 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $sFileName = $sDir.self::FILE_NAME;
 
         if (file_exists($sFileName) === true) {
-            $blSuccess = ($this->oPhp->unlink($sFileName) === true) && $blSuccess;
+            $blSuccess = ($this->Php->unlink($sFileName) === true) && $blSuccess;
         }
 
         $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
 
         if (file_exists($sPasswordFile) === true) {
-            $blSuccess = ($this->oPhp->unlink($sPasswordFile) === true) && $blSuccess;
+            $blSuccess = ($this->Php->unlink($sPasswordFile) === true) && $blSuccess;
         }
 
         return $blSuccess;

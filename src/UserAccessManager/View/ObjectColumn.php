@@ -14,20 +14,20 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $oController
+ * @var \UserAccessManager\Controller\AdminObjectController $Controller
  */
-$aObjectUserGroups = $oController->getFilteredObjectUserGroups();
-$iUserGroupDiff = $oController->getUserGroupDiff();
+$aObjectUserGroups = $Controller->getFilteredObjectUserGroups();
+$iUserGroupDiff = $Controller->getUserGroupDiff();
 
 if (count($aObjectUserGroups) > 0 || $iUserGroupDiff > 0) {
     ?>
     <ul>
         <?php
-        foreach ($aObjectUserGroups as $oUserGroup) {
+        foreach ($aObjectUserGroups as $UserGroup) {
             ?>
             <li>
                 <a class="uam_group_info_link">
-                    <?php echo htmlentities($oUserGroup->getName()); ?>
+                    <?php echo htmlentities($UserGroup->getName()); ?>
                 </a>
                 <?php
                 include 'GroupInfo.php';

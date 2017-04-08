@@ -33,37 +33,37 @@ class AccessHandler
     /**
      * @var Wordpress
      */
-    protected $oWordpress;
+    protected $Wordpress;
 
     /**
      * @var Config
      */
-    protected $oConfig;
+    protected $Config;
 
     /**
      * @var Cache
      */
-    protected $oCache;
+    protected $Cache;
 
     /**
      * @var Database
      */
-    protected $oDatabase;
+    protected $Database;
 
     /**
      * @var ObjectHandler
      */
-    protected $oObjectHandler;
+    protected $ObjectHandler;
 
     /**
      * @var Util
      */
-    protected $oUtil;
+    protected $Util;
 
     /**
      * @var UserGroupFactory
      */
-    protected $oUserGroupFactory;
+    protected $UserGroupFactory;
 
     /**
      * @var array
@@ -86,30 +86,30 @@ class AccessHandler
     /**
      * The constructor
      *
-     * @param Wordpress        $oWordpress
-     * @param Config           $oConfig
-     * @param Cache            $oCache
-     * @param Database         $oDatabase
-     * @param ObjectHandler    $oObjectHandler
-     * @param Util             $oUtil
-     * @param UserGroupFactory $oUserGroupFactory
+     * @param Wordpress        $Wordpress
+     * @param Config           $Config
+     * @param Cache            $Cache
+     * @param Database         $Database
+     * @param ObjectHandler    $ObjectHandler
+     * @param Util             $Util
+     * @param UserGroupFactory $UserGroupFactory
      */
     public function __construct(
-        Wordpress $oWordpress,
-        Config $oConfig,
-        Cache $oCache,
-        Database $oDatabase,
-        ObjectHandler $oObjectHandler,
-        Util $oUtil,
-        UserGroupFactory $oUserGroupFactory
+        Wordpress $Wordpress,
+        Config $Config,
+        Cache $Cache,
+        Database $Database,
+        ObjectHandler $ObjectHandler,
+        Util $Util,
+        UserGroupFactory $UserGroupFactory
     ) {
-        $this->oWordpress = $oWordpress;
-        $this->oConfig = $oConfig;
-        $this->oCache = $oCache;
-        $this->oDatabase = $oDatabase;
-        $this->oObjectHandler = $oObjectHandler;
-        $this->oUtil = $oUtil;
-        $this->oUserGroupFactory = $oUserGroupFactory;
+        $this->Wordpress = $Wordpress;
+        $this->Config = $Config;
+        $this->Cache = $Cache;
+        $this->Database = $Database;
+        $this->ObjectHandler = $ObjectHandler;
+        $this->Util = $Util;
+        $this->UserGroupFactory = $UserGroupFactory;
     }
 
     /**
@@ -122,11 +122,11 @@ class AccessHandler
         if ($this->aUserGroups === null) {
             $this->aUserGroups = [];
 
-            $sQuery = "SELECT ID FROM {$this->oDatabase->getUserGroupTable()}";
-            $aUserGroupsDb = (array)$this->oDatabase->getResults($sQuery);
+            $sQuery = "SELECT ID FROM {$this->Database->getUserGroupTable()}";
+            $aUserGroupsDb = (array)$this->Database->getResults($sQuery);
 
             foreach ($aUserGroupsDb as $aUserGroupDb) {
-                $this->aUserGroups[$aUserGroupDb->ID] = $this->oUserGroupFactory->createUserGroup($aUserGroupDb->ID);
+                $this->aUserGroups[$aUserGroupDb->ID] = $this->UserGroupFactory->createUserGroup($aUserGroupDb->ID);
             }
         }
 
@@ -148,12 +148,12 @@ class AccessHandler
     /**
      * Adds a user group.
      *
-     * @param UserGroup $oUserGroup The user group which we want to add.
+     * @param UserGroup $UserGroup The user group which we want to add.
      */
-    public function addUserGroup(UserGroup $oUserGroup)
+    public function addUserGroup(UserGroup $UserGroup)
     {
         $this->getUserGroups();
-        $this->aUserGroups[$oUserGroup->getId()] = $oUserGroup;
+        $this->aUserGroups[$UserGroup->getId()] = $UserGroup;
         $this->aFilteredUserGroups = null;
     }
 
@@ -190,19 +190,19 @@ class AccessHandler
      */
     public function getUserGroupsForObject($sObjectType, $iObjectId)
     {
-        if ($this->oObjectHandler->isValidObjectType($sObjectType) === false) {
+        if ($this->ObjectHandler->isValidObjectType($sObjectType) === false) {
             return [];
         } elseif (isset($this->aObjectUserGroups[$sObjectType]) === false) {
             $this->aObjectUserGroups[$sObjectType] = [];
         }
 
         if (isset($this->aObjectUserGroups[$sObjectType][$iObjectId]) === false) {
-            $sCacheKey = $this->oCache->generateCacheKey(
+            $sCacheKey = $this->Cache->generateCacheKey(
                 'getUserGroupsForObject',
                 $sObjectType,
                 $iObjectId
             );
-            $aObjectUserGroups = $this->oCache->getFromCache($sCacheKey);
+            $aObjectUserGroups = $this->Cache->getFromCache($sCacheKey);
 
             if ($aObjectUserGroups !== null) {
                 $this->aObjectUserGroups[$sObjectType][$iObjectId] = $aObjectUserGroups;
@@ -210,13 +210,13 @@ class AccessHandler
                 $aObjectUserGroups = [];
                 $aUserGroups = $this->getUserGroups();
 
-                foreach ($aUserGroups as $oUserGroup) {
-                    if ($oUserGroup->isObjectMember($sObjectType, $iObjectId) === true) {
-                        $aObjectUserGroups[$oUserGroup->getId()] = $oUserGroup;
+                foreach ($aUserGroups as $UserGroup) {
+                    if ($UserGroup->isObjectMember($sObjectType, $iObjectId) === true) {
+                        $aObjectUserGroups[$UserGroup->getId()] = $UserGroup;
                     }
                 }
 
-                $this->oCache->addToCache($sCacheKey, $aObjectUserGroups);
+                $this->Cache->addToCache($sCacheKey, $aObjectUserGroups);
             }
 
             $this->aObjectUserGroups[$sObjectType][$iObjectId] = $aObjectUserGroups;
@@ -288,21 +288,21 @@ class AccessHandler
         }
 
         if ($this->aUserGroupsForUser === null) {
-            $oCurrentUser = $this->oWordpress->getCurrentUser();
+            $CurrentUser = $this->Wordpress->getCurrentUser();
             $aUserGroupsForUser = $this->getUserGroupsForObject(
                 ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-                $oCurrentUser->ID
+                $CurrentUser->ID
             );
 
             $aUserGroups = $this->getUserGroups();
 
-            foreach ($aUserGroups as $oUserGroup) {
-                if (isset($aUserGroupsForUser[$oUserGroup->getId()]) === false
-                    && ($this->isIpInRange($_SERVER['REMOTE_ADDR'], $oUserGroup->getIpRange())
-                        || $this->oConfig->atAdminPanel() === false && $oUserGroup->getReadAccess() === 'all'
-                        || $this->oConfig->atAdminPanel() === true && $oUserGroup->getWriteAccess() === 'all')
+            foreach ($aUserGroups as $UserGroup) {
+                if (isset($aUserGroupsForUser[$UserGroup->getId()]) === false
+                    && ($this->isIpInRange($_SERVER['REMOTE_ADDR'], $UserGroup->getIpRange())
+                        || $this->Config->atAdminPanel() === false && $UserGroup->getReadAccess() === 'all'
+                        || $this->Config->atAdminPanel() === true && $UserGroup->getWriteAccess() === 'all')
                 ) {
-                    $aUserGroupsForUser[$oUserGroup->getId()] = $oUserGroup;
+                    $aUserGroupsForUser[$UserGroup->getId()] = $UserGroup;
                 }
             }
 
@@ -330,14 +330,14 @@ class AccessHandler
     /**
      * Return the role of the user.
      *
-     * @param \WP_User $oUser The user id.
+     * @param \WP_User $User The user id.
      *
      * @return array
      */
-    protected function getUserRole(\WP_User $oUser)
+    protected function getUserRole(\WP_User $User)
     {
-        if (isset($oUser->{$this->oDatabase->getPrefix().'capabilities'})) {
-            $aCapabilities = (array)$oUser->{$this->oDatabase->getPrefix().'capabilities'};
+        if (isset($User->{$this->Database->getPrefix().'capabilities'})) {
+            $aCapabilities = (array)$User->{$this->Database->getPrefix().'capabilities'};
         } else {
             $aCapabilities = [];
         }
@@ -354,15 +354,15 @@ class AccessHandler
      */
     public function checkUserAccess($mAllowedCapability = false)
     {
-        $oCurrentUser = $this->oWordpress->getCurrentUser();
+        $CurrentUser = $this->Wordpress->getCurrentUser();
 
-        if ($this->oWordpress->isSuperAdmin($oCurrentUser->ID) === true
-            || $mAllowedCapability !== false && $oCurrentUser->has_cap($mAllowedCapability) === true
+        if ($this->Wordpress->isSuperAdmin($CurrentUser->ID) === true
+            || $mAllowedCapability !== false && $CurrentUser->has_cap($mAllowedCapability) === true
         ) {
             return true;
         }
 
-        $aRoles = $this->getUserRole($oCurrentUser);
+        $aRoles = $this->getUserRole($CurrentUser);
         $aRolesMap = array_flip($aRoles);
 
         $aOrderedRoles = [UserGroup::NONE_ROLE, 'subscriber', 'contributor', 'author', 'editor', 'administrator'];
@@ -370,7 +370,7 @@ class AccessHandler
 
         $aUserRoles = array_intersect_key($aOrderedRolesMap, $aRolesMap);
         $iRightsLevel = (count($aUserRoles) > 0) ? end($aUserRoles) : -1;
-        $sFullAccessRole = $this->oConfig->getFullAccessRole();
+        $sFullAccessRole = $this->Config->getFullAccessRole();
 
         return (
             isset($aOrderedRolesMap[$sFullAccessRole]) === true && $iRightsLevel >= $aOrderedRolesMap[$sFullAccessRole]
@@ -387,11 +387,11 @@ class AccessHandler
      */
     public function userIsAdmin($iUserId)
     {
-        $oUser = $this->oObjectHandler->getUser($iUserId);
-        $aRoles = $this->getUserRole($oUser);
+        $User = $this->ObjectHandler->getUser($iUserId);
+        $aRoles = $this->getUserRole($User);
         $aRolesMap = array_flip($aRoles);
 
-        return (isset($aRolesMap['administrator']) || $this->oWordpress->isSuperAdmin($iUserId));
+        return (isset($aRolesMap['administrator']) || $this->Wordpress->isSuperAdmin($iUserId));
     }
 
     /**
@@ -404,7 +404,7 @@ class AccessHandler
      */
     public function checkObjectAccess($sObjectType, $iObjectId)
     {
-        if ($this->oObjectHandler->isValidObjectType($sObjectType) === false) {
+        if ($this->ObjectHandler->isValidObjectType($sObjectType) === false) {
             return true;
         } elseif (isset($this->aObjectAccess[$sObjectType]) === false) {
             $this->aObjectAccess[$sObjectType] = [];
@@ -412,15 +412,15 @@ class AccessHandler
 
         if (isset($this->aObjectAccess[$sObjectType][$iObjectId]) === false) {
             $blAccess = false;
-            $oCurrentUser = $this->oWordpress->getCurrentUser();
+            $CurrentUser = $this->Wordpress->getCurrentUser();
 
             if ($this->checkUserAccess('manage_user_groups') === true) {
                 $blAccess = true;
-            } elseif ($this->oConfig->authorsHasAccessToOwn() === true
-                && $this->oObjectHandler->isPostType($sObjectType)
+            } elseif ($this->Config->authorsHasAccessToOwn() === true
+                && $this->ObjectHandler->isPostType($sObjectType)
             ) {
-                $oPost = $this->oObjectHandler->getPost($iObjectId);
-                $blAccess = ($oPost !== false && $oCurrentUser->ID === (int)$oPost->post_author);
+                $Post = $this->ObjectHandler->getPost($iObjectId);
+                $blAccess = ($Post !== false && $CurrentUser->ID === (int)$Post->post_author);
             }
 
             if ($blAccess === false) {
@@ -429,7 +429,7 @@ class AccessHandler
                 if (count($aMembership) > 0) {
                     $aUserUserGroups = $this->getUserGroupsForUser();
 
-                    foreach ($aMembership as $iUserGroupId => $oUserGroup) {
+                    foreach ($aMembership as $iUserGroupId => $UserGroup) {
                         if (isset($aUserUserGroups[$iUserGroupId]) === true) {
                             $blAccess = true;
                             break;
@@ -463,12 +463,12 @@ class AccessHandler
 
             $aUserUserGroups = $this->getUserGroupsForUser();
 
-            foreach ($aUserGroups as $oUserGroups) {
-                $aExcludedTerms += $oUserGroups->getFullTerms();
+            foreach ($aUserGroups as $UserGroups) {
+                $aExcludedTerms += $UserGroups->getFullTerms();
             }
 
-            foreach ($aUserUserGroups as $oUserGroups) {
-                $aExcludedTerms = array_diff_key($aExcludedTerms, $oUserGroups->getFullTerms());
+            foreach ($aUserUserGroups as $UserGroups) {
+                $aExcludedTerms = array_diff_key($aExcludedTerms, $UserGroups->getFullTerms());
             }
 
             $aTermIds = array_keys($aExcludedTerms);
@@ -495,20 +495,20 @@ class AccessHandler
 
             $aUserUserGroups = $this->getUserGroupsForUser();
 
-            foreach ($aUserGroups as $oUserGroups) {
-                $aExcludedPosts += $oUserGroups->getFullPosts();
+            foreach ($aUserGroups as $UserGroups) {
+                $aExcludedPosts += $UserGroups->getFullPosts();
             }
 
-            foreach ($aUserUserGroups as $oUserGroups) {
-                $aExcludedPosts = array_diff_key($aExcludedPosts, $oUserGroups->getFullPosts());
+            foreach ($aUserUserGroups as $UserGroups) {
+                $aExcludedPosts = array_diff_key($aExcludedPosts, $UserGroups->getFullPosts());
             }
 
-            if ($this->oWordpress->isAdmin() === false) {
+            if ($this->Wordpress->isAdmin() === false) {
                 $aNoneHiddenPostTypes = [];
-                $aPostTypes = $this->oObjectHandler->getPostTypes();
+                $aPostTypes = $this->ObjectHandler->getPostTypes();
 
                 foreach ($aPostTypes as $sPostType) {
-                    if ($this->oConfig->hidePostType($sPostType) === false) {
+                    if ($this->Config->hidePostType($sPostType) === false) {
                         $aNoneHiddenPostTypes[$sPostType] = $sPostType;
                     }
                 }

@@ -85,123 +85,123 @@ use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-$oPhp = new Php();
-$oWordpress = new Wordpress();
-$oUtil = new Util($oPhp);
-$oCache = new Cache();
-$oConfigParameterFactory = new ConfigParameterFactory();
-$oDatabase = new Database($oWordpress);
-$oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
-$oConfig = new Config($oWordpress, $oObjectHandler, $oConfigParameterFactory, __FILE__);
-$oUserGroupFactory = new UserGroupFactory(
-    $oWordpress,
-    $oDatabase,
-    $oConfig,
-    $oUtil,
-    $oObjectHandler
+$Php = new Php();
+$Wordpress = new Wordpress();
+$Util = new Util($Php);
+$Cache = new Cache();
+$ConfigParameterFactory = new ConfigParameterFactory();
+$Database = new Database($Wordpress);
+$ObjectHandler = new ObjectHandler($Wordpress, $Database);
+$Config = new Config($Wordpress, $ObjectHandler, $ConfigParameterFactory, __FILE__);
+$UserGroupFactory = new UserGroupFactory(
+    $Wordpress,
+    $Database,
+    $Config,
+    $Util,
+    $ObjectHandler
 );
-$oAccessHandler = new AccessHandler(
-    $oWordpress,
-    $oConfig,
-    $oCache,
-    $oDatabase,
-    $oObjectHandler,
-    $oUtil,
-    $oUserGroupFactory
+$AccessHandler = new AccessHandler(
+    $Wordpress,
+    $Config,
+    $Cache,
+    $Database,
+    $ObjectHandler,
+    $Util,
+    $UserGroupFactory
 );
-$oFileProtectionFactory = new FileProtectionFactory(
-    $oPhp,
-    $oWordpress,
-    $oConfig,
-    $oUtil
+$FileProtectionFactory = new FileProtectionFactory(
+    $Php,
+    $Wordpress,
+    $Config,
+    $Util
 );
-$oFileHandler = new FileHandler(
-    $oPhp,
-    $oWordpress,
-    $oConfig,
-    $oFileProtectionFactory
+$FileHandler = new FileHandler(
+    $Php,
+    $Wordpress,
+    $Config,
+    $FileProtectionFactory
 );
-$oSetupHandler = new SetupHandler(
-    $oWordpress,
-    $oDatabase,
-    $oObjectHandler,
-    $oFileHandler
+$SetupHandler = new SetupHandler(
+    $Wordpress,
+    $Database,
+    $ObjectHandler,
+    $FileHandler
 );
-$oControllerFactory = new ControllerFactory(
-    $oPhp,
-    $oWordpress,
-    $oDatabase,
-    $oConfig,
-    $oUtil,
-    $oCache,
-    $oObjectHandler,
-    $oAccessHandler,
-    $oUserGroupFactory,
-    $oFileHandler,
-    $oSetupHandler
+$ControllerFactory = new ControllerFactory(
+    $Php,
+    $Wordpress,
+    $Database,
+    $Config,
+    $Util,
+    $Cache,
+    $ObjectHandler,
+    $AccessHandler,
+    $UserGroupFactory,
+    $FileHandler,
+    $SetupHandler
 );
-$oUserAccessManager = new UserAccessManager(
-    $oPhp,
-    $oWordpress,
-    $oConfig,
-    $oObjectHandler,
-    $oAccessHandler,
-    $oSetupHandler,
-    $oControllerFactory
+$UserAccessManager = new UserAccessManager(
+    $Php,
+    $Wordpress,
+    $Config,
+    $ObjectHandler,
+    $AccessHandler,
+    $SetupHandler,
+    $ControllerFactory
 );
 
-$oWordpress->doAction('uam_init', [
-    $oWordpress,
-    $oUtil,
-    $oCache,
-    $oConfigParameterFactory,
-    $oDatabase,
-    $oObjectHandler,
-    $oConfig,
-    $oUserGroupFactory,
-    $oAccessHandler,
-    $oFileProtectionFactory,
-    $oFileHandler,
-    $oControllerFactory,
-    $oUserAccessManager
+$Wordpress->doAction('uam_init', [
+    $Wordpress,
+    $Util,
+    $Cache,
+    $ConfigParameterFactory,
+    $Database,
+    $ObjectHandler,
+    $Config,
+    $UserGroupFactory,
+    $AccessHandler,
+    $FileProtectionFactory,
+    $FileHandler,
+    $ControllerFactory,
+    $UserAccessManager
 ]);
 
 //install
 if (function_exists('register_activation_hook')) {
-    register_activation_hook(__FILE__, [$oSetupHandler, 'install']);
+    register_activation_hook(__FILE__, [$SetupHandler, 'install']);
 }
 
 if (!function_exists("userAccessManagerUninstall")) {
     function userAccessManagerUninstall()
     {
-        $oPhp = new Php();
-        $oWordpress = new Wordpress();
-        $oUtil = new Util($oPhp);
-        $oConfigParameterFactory = new ConfigParameterFactory();
-        $oDatabase = new Database($oWordpress);
-        $oObjectHandler = new ObjectHandler($oWordpress, $oDatabase);
-        $oConfig = new Config($oWordpress, $oObjectHandler, $oConfigParameterFactory, __FILE__);
+        $Php = new Php();
+        $Wordpress = new Wordpress();
+        $Util = new Util($Php);
+        $ConfigParameterFactory = new ConfigParameterFactory();
+        $Database = new Database($Wordpress);
+        $ObjectHandler = new ObjectHandler($Wordpress, $Database);
+        $Config = new Config($Wordpress, $ObjectHandler, $ConfigParameterFactory, __FILE__);
 
-        $oFileProtectionFactory = new FileProtectionFactory(
-            $oPhp,
-            $oWordpress,
-            $oConfig,
-            $oUtil
+        $FileProtectionFactory = new FileProtectionFactory(
+            $Php,
+            $Wordpress,
+            $Config,
+            $Util
         );
-        $oFileHandler = new FileHandler(
-            $oPhp,
-            $oWordpress,
-            $oConfig,
-            $oFileProtectionFactory
+        $FileHandler = new FileHandler(
+            $Php,
+            $Wordpress,
+            $Config,
+            $FileProtectionFactory
         );
-        $oSetupHandler = new SetupHandler(
-            $oWordpress,
-            $oDatabase,
-            $oObjectHandler,
-            $oFileHandler
+        $SetupHandler = new SetupHandler(
+            $Wordpress,
+            $Database,
+            $ObjectHandler,
+            $FileHandler
         );
 
-        $oSetupHandler->uninstall();
+        $SetupHandler->uninstall();
     }
 }
 
@@ -215,18 +215,18 @@ if (function_exists('register_uninstall_hook')) {
 
 //deactivation
 if (function_exists('register_deactivation_hook')) {
-    register_deactivation_hook(__FILE__, [$oSetupHandler, 'deactivate']);
+    register_deactivation_hook(__FILE__, [$SetupHandler, 'deactivate']);
 }
 
-$oUserAccessManager->addActionsAndFilters();
+$UserAccessManager->addActionsAndFilters();
 
 //Add the cli interface to the known commands
 if (defined('WP_CLI') && WP_CLI) {
-    $oCliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
+    $CliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
 
-    $oGroupCommand = new \UserAccessManager\Command\GroupCommand($oCliWrapper, $oAccessHandler, $oUserGroupFactory);
-    WP_CLI::add_command('uam groups', $oGroupCommand);
+    $GroupCommand = new \UserAccessManager\Command\GroupCommand($CliWrapper, $AccessHandler, $UserGroupFactory);
+    WP_CLI::add_command('uam groups', $GroupCommand);
 
-    $oObjectCommand = new \UserAccessManager\Command\ObjectCommand($oCliWrapper, $oAccessHandler);
-    WP_CLI::add_command('uam objects', $oObjectCommand);
+    $ObjectCommand = new \UserAccessManager\Command\ObjectCommand($CliWrapper, $AccessHandler);
+    WP_CLI::add_command('uam objects', $ObjectCommand);
 }

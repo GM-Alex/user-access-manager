@@ -34,12 +34,12 @@ class AdminUserGroupController extends Controller
     /**
      * @var AccessHandler
      */
-    protected $oAccessHandler;
+    protected $AccessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    protected $oUserGroupFactory;
+    protected $UserGroupFactory;
 
     /**
      * @var string
@@ -49,27 +49,27 @@ class AdminUserGroupController extends Controller
     /**
      * @var \UserAccessManager\UserGroup\UserGroup
      */
-    protected $oUserGroup = null;
+    protected $UserGroup = null;
 
     /**
      * AdminUserGroupController constructor.
      *
-     * @param Php              $oPhp
-     * @param Wordpress        $oWordpress
-     * @param Config           $oConfig
-     * @param AccessHandler    $oAccessHandler
-     * @param UserGroupFactory $oUserGroupFactory
+     * @param Php              $Php
+     * @param Wordpress        $Wordpress
+     * @param Config           $Config
+     * @param AccessHandler    $AccessHandler
+     * @param UserGroupFactory $UserGroupFactory
      */
     public function __construct(
-        Php $oPhp,
-        Wordpress $oWordpress,
-        Config $oConfig,
-        AccessHandler $oAccessHandler,
-        UserGroupFactory $oUserGroupFactory
+        Php $Php,
+        Wordpress $Wordpress,
+        Config $Config,
+        AccessHandler $AccessHandler,
+        UserGroupFactory $UserGroupFactory
     ) {
-        parent::__construct($oPhp, $oWordpress, $oConfig);
-        $this->oAccessHandler = $oAccessHandler;
-        $this->oUserGroupFactory = $oUserGroupFactory;
+        parent::__construct($Php, $Wordpress, $Config);
+        $this->AccessHandler = $AccessHandler;
+        $this->UserGroupFactory = $UserGroupFactory;
     }
 
     /**
@@ -79,12 +79,12 @@ class AdminUserGroupController extends Controller
      */
     public function getUserGroup()
     {
-        if ($this->oUserGroup === null) {
+        if ($this->UserGroup === null) {
             $iUserGroupId = $this->getRequestParameter('userGroupId');
-            $this->oUserGroup = $this->oUserGroupFactory->createUserGroup($iUserGroupId);
+            $this->UserGroup = $this->UserGroupFactory->createUserGroup($iUserGroupId);
         }
 
-        return $this->oUserGroup;
+        return $this->UserGroup;
     }
 
     /**
@@ -94,7 +94,7 @@ class AdminUserGroupController extends Controller
      */
     public function getUserGroups()
     {
-        return $this->oAccessHandler->getUserGroups();
+        return $this->AccessHandler->getUserGroups();
     }
 
     /**
@@ -104,8 +104,8 @@ class AdminUserGroupController extends Controller
      */
     public function getRoleNames()
     {
-        $oRoles = $this->oWordpress->getRoles();
-        return $oRoles->role_names;
+        $Roles = $this->Wordpress->getRoles();
+        return $Roles->role_names;
     }
 
     /**
@@ -117,7 +117,7 @@ class AdminUserGroupController extends Controller
 
         $iUserGroupId = $this->getRequestParameter('userGroupId');
 
-        $oUserGroup = $this->oUserGroupFactory->createUserGroup($iUserGroupId);
+        $UserGroup = $this->UserGroupFactory->createUserGroup($iUserGroupId);
 
         // Assign parameters
         $sGroupName = $this->getRequestParameter('userGroupName');
@@ -127,37 +127,37 @@ class AdminUserGroupController extends Controller
             return;
         }
 
-        $oUserGroup->setName($sGroupName);
+        $UserGroup->setName($sGroupName);
 
         $sUserGroupDescription = $this->getRequestParameter('userGroupDescription');
-        $oUserGroup->setDescription($sUserGroupDescription);
+        $UserGroup->setDescription($sUserGroupDescription);
 
         $sReadAccess = $this->getRequestParameter('readAccess');
-        $oUserGroup->setReadAccess($sReadAccess);
+        $UserGroup->setReadAccess($sReadAccess);
 
         $sWriteAccess = $this->getRequestParameter('writeAccess');
-        $oUserGroup->setWriteAccess($sWriteAccess);
+        $UserGroup->setWriteAccess($sWriteAccess);
 
         $sIpRange = $this->getRequestParameter('ipRange');
-        $oUserGroup->setIpRange($sIpRange);
+        $UserGroup->setIpRange($sIpRange);
 
         $aRoles = $this->getRequestParameter('roles', []);
 
-        $oUserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+        $UserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
         foreach ($aRoles as $sRole) {
-            $oUserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, htmlentities($sRole));
+            $UserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, htmlentities($sRole));
         }
 
-        if ($oUserGroup->save() === true) {
+        if ($UserGroup->save() === true) {
             if ($iUserGroupId === null) {
-                $this->oUserGroup = $oUserGroup;
+                $this->UserGroup = $UserGroup;
                 $this->setUpdateMessage(TXT_UAM_GROUP_ADDED);
             } else {
                 $this->setUpdateMessage(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS);
             }
 
-            $this->oAccessHandler->addUserGroup($oUserGroup);
+            $this->AccessHandler->addUserGroup($UserGroup);
         }
     }
 
@@ -170,7 +170,7 @@ class AdminUserGroupController extends Controller
         $aUserGroups = $this->getRequestParameter('delete', []);
 
         foreach ($aUserGroups as $sId) {
-            $this->oAccessHandler->deleteUserGroup($sId);
+            $this->AccessHandler->deleteUserGroup($sId);
         }
 
         $this->setUpdateMessage(TXT_UAM_DELETE_GROUP);

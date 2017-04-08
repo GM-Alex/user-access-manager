@@ -31,17 +31,17 @@ abstract class Controller
     /**
      * @var Php
      */
-    protected $oPhp;
+    protected $Php;
 
     /**
      * @var Wordpress
      */
-    protected $oWordpress;
+    protected $Wordpress;
 
     /**
      * @var Config
      */
-    protected $oConfig;
+    protected $Config;
 
     /**
      * @var string
@@ -56,15 +56,15 @@ abstract class Controller
     /**
      * Controller constructor.
      *
-     * @param Php       $oPhp
-     * @param Wordpress $oWordpress
-     * @param Config    $oConfig
+     * @param Php       $Php
+     * @param Wordpress $Wordpress
+     * @param Config    $Config
      */
-    public function __construct(Php $oPhp, Wordpress $oWordpress, Config $oConfig)
+    public function __construct(Php $Php, Wordpress $Wordpress, Config $Config)
     {
-        $this->oPhp = $oPhp;
-        $this->oWordpress = $oWordpress;
-        $this->oConfig = $oConfig;
+        $this->Php = $Php;
+        $this->Wordpress = $Wordpress;
+        $this->Config = $Config;
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class Controller
      */
     public function createNonceField($sName)
     {
-        return $this->oWordpress->getNonceField($sName, $sName.'Nonce');
+        return $this->Wordpress->getNonceField($sName, $sName.'Nonce');
     }
 
     /**
@@ -117,7 +117,7 @@ abstract class Controller
      */
     public function getNonce($sName)
     {
-        return $this->oWordpress->createNonce($sName);
+        return $this->Wordpress->createNonce($sName);
     }
 
     /**
@@ -129,8 +129,8 @@ abstract class Controller
     {
         $sNonce = $this->getRequestParameter($sName.'Nonce');
 
-        if ($this->oWordpress->verifyNonce($sNonce, $sName) === false) {
-            $this->oWordpress->wpDie(TXT_UAM_NONCE_FAILURE);
+        if ($this->Wordpress->verifyNonce($sNonce, $sName) === false) {
+            $this->Wordpress->wpDie(TXT_UAM_NONCE_FAILURE);
         }
     }
 
@@ -190,14 +190,14 @@ abstract class Controller
     protected function getIncludeContents($sFileName)
     {
         $sContents = '';
-        $sRealPath = $this->oConfig->getRealPath();
+        $sRealPath = $this->Config->getRealPath();
         $aPath = [$sRealPath, 'src', 'UserAccessManager', 'View'];
         $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
         $sFileWithPath = $sPath.$sFileName;
 
         if (is_file($sFileWithPath) === true) {
             ob_start();
-            $this->oPhp->includeFile($this, $sFileWithPath);
+            $this->Php->includeFile($this, $sFileWithPath);
             $sContents = ob_get_contents();
             ob_end_clean();
         }

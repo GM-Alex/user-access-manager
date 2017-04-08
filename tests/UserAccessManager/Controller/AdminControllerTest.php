@@ -30,7 +30,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $oRoot;
+    private $Root;
 
     /**
      * Setup virtual file system.
@@ -41,10 +41,10 @@ class AdminControllerTest extends UserAccessManagerTestCase
         $this->oRoot->mount();
 
         /**
-         * @var Directory $oRootDir
+         * @var Directory $RootDir
          */
-        $oRootDir = $this->oRoot->get('/');
-        $oRootDir->add('src', new Directory([
+        $RootDir = $this->oRoot->get('/');
+        $RootDir->add('src', new Directory([
             'UserAccessManager'  => new Directory([
                 'View'  => new Directory([
                     'AdminNotice.php' => new File('<?php echo \'AdminNotice\';')
@@ -67,7 +67,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oAdminController = new AdminController(
+        $AdminController = new AdminController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -75,7 +75,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminController', $oAdminController);
+        self::assertInstanceOf('\UserAccessManager\Controller\AdminController', $AdminController);
     }
 
     /**
@@ -86,34 +86,34 @@ class AdminControllerTest extends UserAccessManagerTestCase
      */
     public function testShowFOpenNotice()
     {
-        $oPhp = $this->getPhp();
+        $Php = $this->getPhp();
 
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->once())
+        $Config = $this->getConfig();
+        $Config->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
-        $oAdminController = new AdminController(
-            $oPhp,
+        $AdminController = new AdminController(
+            $Php,
             $this->getWordpress(),
-            $oConfig,
+            $Config,
             $this->getAccessHandler(),
             $this->getFileHandler()
         );
 
-        $oPhp->expects($this->once())
+        $Php->expects($this->once())
             ->method('includeFile')
-            ->with($oAdminController, 'vfs://src/UserAccessManager/View/AdminNotice.php')
+            ->with($AdminController, 'vfs://src/UserAccessManager/View/AdminNotice.php')
             ->will($this->returnCallback(function () {
                 echo 'FOpenNotice';
             }));
 
-        $oAdminController->showFOpenNotice();
-        self::assertAttributeEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, 'sNotice', $oAdminController);
+        $AdminController->showFOpenNotice();
+        self::assertAttributeEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, 'sNotice', $AdminController);
         self::expectOutputString('FOpenNotice');
 
-        return $oAdminController;
+        return $AdminController;
     }
 
     /**
@@ -124,38 +124,38 @@ class AdminControllerTest extends UserAccessManagerTestCase
      */
     public function testShowDatabaseNotice()
     {
-        $oPhp = $this->getPhp();
+        $Php = $this->getPhp();
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->once())
+        $Config = $this->getConfig();
+        $Config->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
-        $oAdminController = new AdminController(
-            $oPhp,
+        $AdminController = new AdminController(
+            $Php,
             $this->getWordpress(),
-            $oConfig,
+            $Config,
             $this->getAccessHandler(),
             $this->getFileHandler()
         );
 
-        $oPhp->expects($this->once())
+        $Php->expects($this->once())
             ->method('includeFile')
-            ->with($oAdminController, 'vfs://src/UserAccessManager/View/AdminNotice.php')
+            ->with($AdminController, 'vfs://src/UserAccessManager/View/AdminNotice.php')
             ->will($this->returnCallback(function () {
                 echo 'DatabaseNotice';
             }));
 
-        $oAdminController->showDatabaseNotice();
+        $AdminController->showDatabaseNotice();
 
         self::assertAttributeEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
             'sNotice',
-            $oAdminController
+            $AdminController
         );
         self::expectOutputString('DatabaseNotice');
 
-        return $oAdminController;
+        return $AdminController;
     }
 
     /**
@@ -164,17 +164,17 @@ class AdminControllerTest extends UserAccessManagerTestCase
      * @depends testShowFOpenNotice
      * @depends testShowDatabaseNotice
      *
-     * @param AdminController $oFOpenNoticeAdminController
-     * @param AdminController $oDatabaseNoticeAdminController
+     * @param AdminController $FOpenNoticeAdminController
+     * @param AdminController $DatabaseNoticeAdminController
      */
     public function testGetNotice(
-        AdminController $oFOpenNoticeAdminController,
-        AdminController $oDatabaseNoticeAdminController
+        AdminController $FOpenNoticeAdminController,
+        AdminController $DatabaseNoticeAdminController
     ) {
-        self::assertEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, $oFOpenNoticeAdminController->getNotice());
+        self::assertEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, $FOpenNoticeAdminController->getNotice());
         self::assertEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
-            $oDatabaseNoticeAdminController->getNotice()
+            $DatabaseNoticeAdminController->getNotice()
         );
     }
 
@@ -185,8 +185,8 @@ class AdminControllerTest extends UserAccessManagerTestCase
      */
     public function testStylesAndScripts()
     {
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(4))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(4))
             ->method('registerStyle')
             ->with(
                 AdminController::HANDLE_STYLE_ADMIN,
@@ -197,7 +197,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('a'));
 
-        $oWordpress->expects($this->exactly(4))
+        $Wordpress->expects($this->exactly(4))
             ->method('registerScript')
             ->with(
                 AdminController::HANDLE_SCRIPT_ADMIN,
@@ -206,31 +206,31 @@ class AdminControllerTest extends UserAccessManagerTestCase
                 UserAccessManager::VERSION
             );
 
-        $oWordpress->expects($this->exactly(4))
+        $Wordpress->expects($this->exactly(4))
             ->method('enqueueStyle')
             ->with(AdminController::HANDLE_STYLE_ADMIN);
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('enqueueScript')
             ->with(AdminController::HANDLE_SCRIPT_ADMIN);
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(4))
+        $Config = $this->getConfig();
+        $Config->expects($this->exactly(4))
             ->method('getUrlPath')
             ->will($this->returnValue('url/'));
 
-        $oAdminController = new AdminController(
+        $AdminController = new AdminController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getAccessHandler(),
             $this->getFileHandler()
         );
 
-        $oAdminController->enqueueStylesAndScripts('someHook');
-        $oAdminController->enqueueStylesAndScripts('someHook');
-        $oAdminController->enqueueStylesAndScripts('uam_page_uam_settings');
-        $oAdminController->enqueueStylesAndScripts('uam_page_uam_setup');
+        $AdminController->enqueueStylesAndScripts('someHook');
+        $AdminController->enqueueStylesAndScripts('someHook');
+        $AdminController->enqueueStylesAndScripts('uam_page_uam_settings');
+        $AdminController->enqueueStylesAndScripts('uam_page_uam_setup');
     }
 
     /**
@@ -251,42 +251,42 @@ class AdminControllerTest extends UserAccessManagerTestCase
         ];
         $aOriginalMetaBoxes = $aMetaBoxes;
 
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->once())
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->once())
             ->method('getMetaBoxes')
             ->will($this->returnCallback(function () {
                 global $aMetaBoxes;
                 return $aMetaBoxes;
             }));
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('setMetaBoxes')
             ->will($this->returnCallback(function ($aNewMetaBoxes) {
                 global $aMetaBoxes;
                 $aMetaBoxes = $aNewMetaBoxes;
             }));
 
-        $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(3))
+        $AccessHandler = $this->getAccessHandler();
+        $AccessHandler->expects($this->exactly(3))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
             ->will($this->onConsecutiveCalls(true, true, false));
 
-        $oAdminController = new AdminController(
+        $AdminController = new AdminController(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        $oAdminController->setupAdminDashboard();
+        $AdminController->setupAdminDashboard();
         self::assertEquals($aOriginalMetaBoxes, $aMetaBoxes);
 
-        $oAdminController->setupAdminDashboard();
+        $AdminController->setupAdminDashboard();
         self::assertEquals($aOriginalMetaBoxes, $aMetaBoxes);
 
-        $oAdminController->setupAdminDashboard();
+        $AdminController->setupAdminDashboard();
         unset($aOriginalMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
         self::assertEquals($aOriginalMetaBoxes, $aMetaBoxes);
     }
@@ -297,18 +297,18 @@ class AdminControllerTest extends UserAccessManagerTestCase
      */
     public function testUpdatePermalink()
     {
-        $oFileHandler = $this->getFileHandler();
-        $oFileHandler->expects($this->once())
+        $FileHandler = $this->getFileHandler();
+        $FileHandler->expects($this->once())
             ->method('createFileProtection');
 
-        $oAdminController = new AdminController(
+        $AdminController = new AdminController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getAccessHandler(),
-            $oFileHandler
+            $FileHandler
         );
 
-        $oAdminController->updatePermalink();
+        $AdminController->updatePermalink();
     }
 }

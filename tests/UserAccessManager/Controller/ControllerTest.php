@@ -29,7 +29,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $oRoot;
+    private $Root;
 
     /**
      * Setup virtual file system.
@@ -71,16 +71,16 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oStub = $this->getStub();
-        $oStub->__construct(
+        $Stub = $this->getStub();
+        $Stub->__construct(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\Controller', $oStub);
+        self::assertInstanceOf('\UserAccessManager\Controller\Controller', $Stub);
 
-        return $oStub;
+        return $Stub;
     }
 
     /**
@@ -88,18 +88,18 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\Controller::getRequestParameter()
      *
-     * @param Controller $oStub
+     * @param Controller $Stub
      */
-    public function testGetRequestParameter(Controller $oStub)
+    public function testGetRequestParameter(Controller $Stub)
     {
         $_POST['postParam'] = 'postValue';
         $_GET['postParam'] = 'getValue';
         $_GET['getParam'] = 'getValue';
 
-        self::assertEquals('postValue', $oStub->getRequestParameter('postParam', 'default'));
-        self::assertEquals('getValue', $oStub->getRequestParameter('getParam', 'default'));
-        self::assertEquals('default', $oStub->getRequestParameter('invalid', 'default'));
-        self::assertNull($oStub->getRequestParameter('invalid'));
+        self::assertEquals('postValue', $Stub->getRequestParameter('postParam', 'default'));
+        self::assertEquals('getValue', $Stub->getRequestParameter('getParam', 'default'));
+        self::assertEquals('default', $Stub->getRequestParameter('invalid', 'default'));
+        self::assertNull($Stub->getRequestParameter('invalid'));
     }
 
     /**
@@ -107,13 +107,13 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\Controller::getRequestUrl()
      *
-     * @param Controller $oStub
+     * @param Controller $Stub
      */
-    public function testGetRequestUrl(Controller $oStub)
+    public function testGetRequestUrl(Controller $Stub)
     {
         $_SERVER['REQUEST_URI'] = 'https://test.domain?id=<a href=\'evil\'>evil</a>';
 
-        self::assertEquals('https://test.domain?id=&lt;a href=\'evil\'&gt;evil&lt;/a&gt;', $oStub->getRequestUrl());
+        self::assertEquals('https://test.domain?id=&lt;a href=\'evil\'&gt;evil&lt;/a&gt;', $Stub->getRequestUrl());
     }
 
     /**
@@ -123,20 +123,20 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     public function testCreateNonceField()
     {
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->once())
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->once())
             ->method('getNonceField')
             ->with('test', 'testNonce')
             ->will($this->returnValue('return'));
 
-        $oStub = $this->getStub();
-        $oStub->__construct(
+        $Stub = $this->getStub();
+        $Stub->__construct(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig()
         );
 
-        self::assertEquals('return', $oStub->createNonceField('test'));
+        self::assertEquals('return', $Stub->createNonceField('test'));
     }
 
     /**
@@ -146,20 +146,20 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     public function testGetNonce()
     {
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->once())
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->once())
             ->method('createNonce')
             ->with('test')
             ->will($this->returnValue('return'));
 
-        $oStub = $this->getStub();
-        $oStub->__construct(
+        $Stub = $this->getStub();
+        $Stub->__construct(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig()
         );
 
-        self::assertEquals('return', $oStub->getNonce('test'));
+        self::assertEquals('return', $Stub->getNonce('test'));
     }
 
     /**
@@ -171,25 +171,25 @@ class ControllerTest extends UserAccessManagerTestCase
     {
         $_GET['testNonce'] = 'testNonceValue';
 
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(3))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(3))
             ->method('verifyNonce')
             ->withConsecutive(['testNonceValue', 'test'], ['testNonceValue', 'test'], ['testNonceValue', 'test'])
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('wpDie');
 
-        $oStub = $this->getStub();
-        $oStub->__construct(
+        $Stub = $this->getStub();
+        $Stub->__construct(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig()
         );
 
-        self::callMethod($oStub, 'verifyNonce', ['test']);
-        self::callMethod($oStub, 'verifyNonce', ['test']);
-        self::callMethod($oStub, 'verifyNonce', ['test']);
+        self::callMethod($Stub, 'verifyNonce', ['test']);
+        self::callMethod($Stub, 'verifyNonce', ['test']);
+        self::callMethod($Stub, 'verifyNonce', ['test']);
     }
 
     /**
@@ -197,17 +197,17 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\Controller::setUpdateMessage()
      *
-     * @param Controller $oStub
+     * @param Controller $Stub
      *
      * @return Controller
      */
-    public function testSetUpdateMessage(Controller $oStub)
+    public function testSetUpdateMessage(Controller $Stub)
     {
-        self::assertAttributeEquals(null, 'sUpdateMessage', $oStub);
-        self::callMethod($oStub, 'setUpdateMessage', ['updateMessage']);
-        self::assertAttributeEquals('updateMessage', 'sUpdateMessage', $oStub);
+        self::assertAttributeEquals(null, 'sUpdateMessage', $Stub);
+        self::callMethod($Stub, 'setUpdateMessage', ['updateMessage']);
+        self::assertAttributeEquals('updateMessage', 'sUpdateMessage', $Stub);
 
-        return $oStub;
+        return $Stub;
     }
 
     /**
@@ -215,11 +215,11 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testSetUpdateMessage
      * @covers  \UserAccessManager\Controller\Controller::getUpdateMessage()
      *
-     * @param Controller $oStub
+     * @param Controller $Stub
      */
-    public function testGetUpdateMessage(Controller $oStub)
+    public function testGetUpdateMessage(Controller $Stub)
     {
-        self::assertEquals('updateMessage', $oStub->getUpdateMessage());
+        self::assertEquals('updateMessage', $Stub->getUpdateMessage());
     }
 
     /**
@@ -227,20 +227,20 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testSetUpdateMessage
      * @covers  \UserAccessManager\Controller\Controller::hasUpdateMessage()
      *
-     * @param Controller $oStub
+     * @param Controller $Stub
      */
-    public function testHasUpdateMessage(Controller $oStub)
+    public function testHasUpdateMessage(Controller $Stub)
     {
-        self::assertTrue($oStub->hasUpdateMessage());
+        self::assertTrue($Stub->hasUpdateMessage());
 
-        $oStub = $this->getStub();
-        $oStub->__construct(
+        $Stub = $this->getStub();
+        $Stub->__construct(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig()
         );
 
-        self::assertFalse($oStub->hasUpdateMessage());
+        self::assertFalse($Stub->hasUpdateMessage());
     }
 
     /**
@@ -252,10 +252,10 @@ class ControllerTest extends UserAccessManagerTestCase
     public function testRender()
     {
         /**
-         * @var Directory $oRootDir
+         * @var Directory $RootDir
          */
-        $oRootDir = $this->oRoot->get('/');
-        $oRootDir->add('src', new Directory([
+        $RootDir = $this->oRoot->get('/');
+        $RootDir->add('src', new Directory([
             'UserAccessManager'  => new Directory([
                 'View'  => new Directory([
                     'TestView.php' => new File('<?php echo \'testContent\';')
@@ -263,29 +263,29 @@ class ControllerTest extends UserAccessManagerTestCase
             ])
         ]));
 
-        $oPhp = $this->getPhp();
+        $Php = $this->getPhp();
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->once())
+        $Config = $this->getConfig();
+        $Config->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
-        $oDummyController = new DummyController(
-            $oPhp,
+        $DummyController = new DummyController(
+            $Php,
             $this->getWordpress(),
-            $oConfig
+            $Config
         );
 
-        $oPhp->expects($this->once())
+        $Php->expects($this->once())
             ->method('includeFile')
-            ->with($oDummyController, 'vfs://src/UserAccessManager/View/TestView.php')
+            ->with($DummyController, 'vfs://src/UserAccessManager/View/TestView.php')
             ->will($this->returnCallback(function () {
                 echo 'testContent';
             }));
 
         $_GET['uam_action'] = 'test';
-        self::setValue($oDummyController, 'sTemplate', 'TestView.php');
-        $oDummyController->render();
+        self::setValue($DummyController, 'sTemplate', 'TestView.php');
+        $DummyController->render();
         self::expectOutputString('testAction'.'testContent');
     }
 }

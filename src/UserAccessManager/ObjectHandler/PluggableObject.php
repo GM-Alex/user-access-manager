@@ -57,17 +57,17 @@ abstract class PluggableObject
     abstract public function getObjectName($sObjectId);
 
     /**
-     * @param UserGroup $oUserGroup
+     * @param UserGroup $UserGroup
      * @param string    $sObjectId
      *
      * @return array
      */
-    abstract public function getRecursiveMembership(UserGroup $oUserGroup, $sObjectId);
+    abstract public function getRecursiveMembership(UserGroup $UserGroup, $sObjectId);
 
     /**
-     * @param UserGroup $oUserGroup
+     * @param UserGroup $UserGroup
      *
      * @return array
      */
-    abstract public function getFullObjects(UserGroup $oUserGroup);
+    abstract public function getFullObjects(UserGroup $UserGroup);
 }

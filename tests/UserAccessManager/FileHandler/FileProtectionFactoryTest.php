@@ -31,16 +31,16 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oFileProtectionFactory = new FileProtectionFactory(
+        $FileProtectionFactory = new FileProtectionFactory(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtectionFactory', $oFileProtectionFactory);
+        self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtectionFactory', $FileProtectionFactory);
 
-        return $oFileProtectionFactory;
+        return $FileProtectionFactory;
     }
 
     /**
@@ -48,12 +48,12 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\FileHandler\FileProtectionFactory::createApacheFileProtection()
      *
-     * @param FileProtectionFactory $oFileProtectionFactory
+     * @param FileProtectionFactory $FileProtectionFactory
      */
-    public function testCreateApacheFileProtection(FileProtectionFactory $oFileProtectionFactory)
+    public function testCreateApacheFileProtection(FileProtectionFactory $FileProtectionFactory)
     {
-        $oApacheFileProtection = $oFileProtectionFactory->createApacheFileProtection();
-        self::assertInstanceOf('\UserAccessManager\FileHandler\ApacheFileProtection', $oApacheFileProtection);
+        $ApacheFileProtection = $FileProtectionFactory->createApacheFileProtection();
+        self::assertInstanceOf('\UserAccessManager\FileHandler\ApacheFileProtection', $ApacheFileProtection);
     }
 
     /**
@@ -61,11 +61,11 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\FileHandler\FileProtectionFactory::createNginxFileProtection()
      *
-     * @param FileProtectionFactory $oFileProtectionFactory
+     * @param FileProtectionFactory $FileProtectionFactory
      */
-    public function testCreateNginxFileProtection(FileProtectionFactory $oFileProtectionFactory)
+    public function testCreateNginxFileProtection(FileProtectionFactory $FileProtectionFactory)
     {
-        $oNginxFileProtection = $oFileProtectionFactory->createNginxFileProtection();
-        self::assertInstanceOf('\UserAccessManager\FileHandler\NginxFileProtection', $oNginxFileProtection);
+        $NginxFileProtection = $FileProtectionFactory->createNginxFileProtection();
+        self::assertInstanceOf('\UserAccessManager\FileHandler\NginxFileProtection', $NginxFileProtection);
     }
 }

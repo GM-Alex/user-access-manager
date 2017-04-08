@@ -22,33 +22,33 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     /**
      * Calls a private or protected object method.
      *
-     * @param object $oObject
+     * @param object $Object
      * @param string $sMethodName
      * @param array  $aArguments
      *
      * @return mixed
      */
-    public static function callMethod($oObject, $sMethodName, array $aArguments = [])
+    public static function callMethod($Object, $sMethodName, array $aArguments = [])
     {
-        $oClass = new \ReflectionClass($oObject);
-        $oMethod = $oClass->getMethod($sMethodName);
-        $oMethod->setAccessible(true);
-        return $oMethod->invokeArgs($oObject, $aArguments);
+        $Class = new \ReflectionClass($Object);
+        $Method = $Class->getMethod($sMethodName);
+        $Method->setAccessible(true);
+        return $Method->invokeArgs($Object, $aArguments);
     }
 
     /**
      * Sets a private property
      *
-     * @param object $oObject
+     * @param object $Object
      * @param string $sValueName
      * @param mixed  $mValue
      */
-    public static function setValue($oObject, $sValueName, $mValue)
+    public static function setValue($Object, $sValueName, $mValue)
     {
-        $oReflection = new \ReflectionClass($oObject);
-        $oProperty = $oReflection->getProperty($sValueName);
-        $oProperty->setAccessible(true);
-        $oProperty->setValue($oObject, $mValue);
+        $Reflection = new \ReflectionClass($Object);
+        $Property = $Reflection->getProperty($sValueName);
+        $Property->setAccessible(true);
+        $Property->setValue($Object, $mValue);
     }
 
     /**
@@ -179,49 +179,49 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         array $aTerms = [],
         $sName = null
     ) {
-        $oUserGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
-        self::setValue($oUserGroup, 'iId', $iId);
+        $UserGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
+        self::setValue($UserGroup, 'iId', $iId);
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('getId')
             ->will($this->returnValue($iId));
 
         $sName = ($sName === null) ? "name{$iId}" : $sName;
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('getName')
             ->will($this->returnValue($sName));
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('delete')
             ->will($this->returnValue($blDeletable));
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('isObjectMember')
             ->will($this->returnValue($blObjectIsMember));
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('getIpRange')
             ->will($this->returnCallback(function ($blString) use ($aIpRange) {
                 return ($blString === false) ? $aIpRange : implode(';', $aIpRange);
             }));
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('getReadAccess')
             ->will($this->returnValue($sReadAccess));
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('getWriteAccess')
             ->will($this->returnValue($sWriteAccess));
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('getFullPosts')
             ->will($this->returnValue($aPosts));
 
-        $oUserGroup->expects($this->any())
+        $UserGroup->expects($this->any())
             ->method('getFullTerms')
             ->will($this->returnValue($aTerms));
 
-        return $oUserGroup;
+        return $UserGroup;
     }
 }

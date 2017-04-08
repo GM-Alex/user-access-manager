@@ -36,70 +36,70 @@ class UserAccessManager
     /**
      * @var Php
      */
-    protected $oPhp;
+    protected $Php;
 
     /**
      * @var Wordpress
      */
-    protected $oWordpress;
+    protected $Wordpress;
 
     /**
      * @var Config
      */
-    protected $oConfig;
+    protected $Config;
 
     /**
      * @var ObjectHandler
      */
-    protected $oObjectHandler;
+    protected $ObjectHandler;
 
     /**
      * @var AccessHandler
      */
-    protected $oAccessHandler;
+    protected $AccessHandler;
 
     /**
      * @var SetupHandler
      */
-    protected $oSetupHandler;
+    protected $SetupHandler;
 
     /**
      * @var FileHandler
      */
-    protected $oFileHandler;
+    protected $FileHandler;
 
     /**
      * @var ControllerFactory
      */
-    protected $oControllerFactory;
+    protected $ControllerFactory;
 
     /**
      * UserAccessManager constructor.
      *
-     * @param Php               $oPhp
-     * @param Wordpress         $oWordpress
-     * @param Config            $oConfig
-     * @param ObjectHandler     $oObjectHandler
-     * @param AccessHandler     $oAccessHandler
-     * @param SetupHandler      $oSetupHandler
-     * @param ControllerFactory $oControllerFactory
+     * @param Php               $Php
+     * @param Wordpress         $Wordpress
+     * @param Config            $Config
+     * @param ObjectHandler     $ObjectHandler
+     * @param AccessHandler     $AccessHandler
+     * @param SetupHandler      $SetupHandler
+     * @param ControllerFactory $ControllerFactory
      */
     public function __construct(
-        Php $oPhp,
-        Wordpress $oWordpress,
-        Config $oConfig,
-        ObjectHandler $oObjectHandler,
-        AccessHandler $oAccessHandler,
-        SetupHandler $oSetupHandler,
-        ControllerFactory $oControllerFactory
+        Php $Php,
+        Wordpress $Wordpress,
+        Config $Config,
+        ObjectHandler $ObjectHandler,
+        AccessHandler $AccessHandler,
+        SetupHandler $SetupHandler,
+        ControllerFactory $ControllerFactory
     ) {
-        $this->oPhp = $oPhp;
-        $this->oWordpress = $oWordpress;
-        $this->oConfig = $oConfig;
-        $this->oObjectHandler = $oObjectHandler;
-        $this->oAccessHandler = $oAccessHandler;
-        $this->oSetupHandler = $oSetupHandler;
-        $this->oControllerFactory = $oControllerFactory;
+        $this->Php = $Php;
+        $this->Wordpress = $Wordpress;
+        $this->Config = $Config;
+        $this->ObjectHandler = $ObjectHandler;
+        $this->AccessHandler = $AccessHandler;
+        $this->SetupHandler = $SetupHandler;
+        $this->ControllerFactory = $ControllerFactory;
     }
 
     /**
@@ -107,7 +107,7 @@ class UserAccessManager
      */
     public function registerAdminMenu()
     {
-        if ($this->oAccessHandler->checkUserAccess() === true) {
+        if ($this->AccessHandler->checkUserAccess() === true) {
             //TODO
             /**
              * --- BOF ---
@@ -115,7 +115,7 @@ class UserAccessManager
              * to be the right way, but it is way difficult.
              */
             //Admin main menu
-            $this->oWordpress->addMenuPage(
+            $this->Wordpress->addMenuPage(
                 'User Access Manager',
                 'UAM',
                 'manage_options',
@@ -125,47 +125,47 @@ class UserAccessManager
             );
 
             //Admin sub menus
-            $oAdminUserGroupController = $this->oControllerFactory->createAdminUserGroupController();
-            $this->oWordpress->addSubmenuPage(
+            $AdminUserGroupController = $this->ControllerFactory->createAdminUserGroupController();
+            $this->Wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_MANAGE_GROUP,
                 TXT_UAM_MANAGE_GROUP,
                 'read',
                 'uam_user_group',
-                [$oAdminUserGroupController, 'render']
+                [$AdminUserGroupController, 'render']
             );
 
-            $oAdminSetupController = $this->oControllerFactory->createAdminSettingsController();
-            $this->oWordpress->addSubmenuPage(
+            $AdminSetupController = $this->ControllerFactory->createAdminSettingsController();
+            $this->Wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_SETTINGS,
                 TXT_UAM_SETTINGS,
                 'read',
                 'uam_settings',
-                [$oAdminSetupController, 'render']
+                [$AdminSetupController, 'render']
             );
 
-            $oAdminSetupController = $this->oControllerFactory->createAdminSetupController();
-            $this->oWordpress->addSubmenuPage(
+            $AdminSetupController = $this->ControllerFactory->createAdminSetupController();
+            $this->Wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_SETUP,
                 TXT_UAM_SETUP,
                 'read',
                 'uam_setup',
-                [$oAdminSetupController, 'render']
+                [$AdminSetupController, 'render']
             );
 
-            $oAdminAboutController = $this->oControllerFactory->createAdminAboutController();
-            $this->oWordpress->addSubmenuPage(
+            $AdminAboutController = $this->ControllerFactory->createAdminAboutController();
+            $this->Wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_ABOUT,
                 TXT_UAM_ABOUT,
                 'read',
                 'uam_about',
-                [$oAdminAboutController, 'render']
+                [$AdminAboutController, 'render']
             );
 
-            $this->oWordpress->doAction('uam_add_sub_menu');
+            $this->Wordpress->doAction('uam_add_sub_menu');
 
             /**
              * --- EOF ---
@@ -178,118 +178,118 @@ class UserAccessManager
      */
     public function registerAdminActionsAndFilters()
     {
-        $oAdminController = $this->oControllerFactory->createAdminController();
-        $this->oWordpress->addAction('admin_enqueue_scripts', [$oAdminController, 'enqueueStylesAndScripts']);
-        $this->oWordpress->addAction('wp_dashboard_setup', [$oAdminController, 'setupAdminDashboard']);
+        $AdminController = $this->ControllerFactory->createAdminController();
+        $this->Wordpress->addAction('admin_enqueue_scripts', [$AdminController, 'enqueueStylesAndScripts']);
+        $this->Wordpress->addAction('wp_dashboard_setup', [$AdminController, 'setupAdminDashboard']);
 
-        if ($this->oPhp->iniGet('safe_mode') !== '' && $this->oConfig->getDownloadType() === 'fopen') {
-            $this->oWordpress->addAction('admin_notices', [$oAdminController, 'showFOpenNotice']);
+        if ($this->Php->iniGet('safe_mode') !== '' && $this->Config->getDownloadType() === 'fopen') {
+            $this->Wordpress->addAction('admin_notices', [$AdminController, 'showFOpenNotice']);
         }
 
-        if ($this->oSetupHandler->isDatabaseUpdateNecessary() === true) {
-            $this->oWordpress->addAction('admin_notices', [$oAdminController, 'showDatabaseNotice']);
+        if ($this->SetupHandler->isDatabaseUpdateNecessary() === true) {
+            $this->Wordpress->addAction('admin_notices', [$AdminController, 'showDatabaseNotice']);
         }
 
-        $aTaxonomies = $this->oObjectHandler->getTaxonomies();
-        $sTaxonomy = $oAdminController->getRequestParameter('taxonomy');
+        $aTaxonomies = $this->ObjectHandler->getTaxonomies();
+        $sTaxonomy = $AdminController->getRequestParameter('taxonomy');
 
         if ($sTaxonomy !== null) {
             $aTaxonomies[$sTaxonomy] = $sTaxonomy;
         }
 
-        $oAdminObjectController = $this->oControllerFactory->createAdminObjectController();
+        $AdminObjectController = $this->ControllerFactory->createAdminObjectController();
 
-        if ($this->oAccessHandler->checkUserAccess() === true
-            || $this->oConfig->authorsCanAddPostsToGroups() === true
+        if ($this->AccessHandler->checkUserAccess() === true
+            || $this->Config->authorsCanAddPostsToGroups() === true
         ) {
             //Admin actions
-            $this->oWordpress->addAction(
+            $this->Wordpress->addAction(
                 'manage_posts_custom_column',
-                [$oAdminObjectController, 'addPostColumn'],
+                [$AdminObjectController, 'addPostColumn'],
                 10,
                 2
             );
-            $this->oWordpress->addAction(
+            $this->Wordpress->addAction(
                 'manage_pages_custom_column',
-                [$oAdminObjectController, 'addPostColumn'],
+                [$AdminObjectController, 'addPostColumn'],
                 10,
                 2
             );
-            $this->oWordpress->addAction('save_post', [$oAdminObjectController, 'savePostData']);
-            $this->oWordpress->addAction('edit_user_profile', [$oAdminObjectController, 'showUserProfile']);
-            $this->oWordpress->addAction('profile_update', [$oAdminObjectController, 'saveUserData']);
+            $this->Wordpress->addAction('save_post', [$AdminObjectController, 'savePostData']);
+            $this->Wordpress->addAction('edit_user_profile', [$AdminObjectController, 'showUserProfile']);
+            $this->Wordpress->addAction('profile_update', [$AdminObjectController, 'saveUserData']);
 
-            $this->oWordpress->addAction('bulk_edit_custom_box', [$oAdminObjectController, 'addBulkAction']);
-            $this->oWordpress->addAction('create_term', [$oAdminObjectController, 'saveTermData']);
-            $this->oWordpress->addAction('edit_term', [$oAdminObjectController, 'saveTermData']);
+            $this->Wordpress->addAction('bulk_edit_custom_box', [$AdminObjectController, 'addBulkAction']);
+            $this->Wordpress->addAction('create_term', [$AdminObjectController, 'saveTermData']);
+            $this->Wordpress->addAction('edit_term', [$AdminObjectController, 'saveTermData']);
 
             //Taxonomies
             foreach ($aTaxonomies as $sTaxonomy) {
-                $this->oWordpress->addAction(
+                $this->Wordpress->addAction(
                     'manage_'.$sTaxonomy.'_custom_column',
-                    [$oAdminObjectController, 'addTermColumn'],
+                    [$AdminObjectController, 'addTermColumn'],
                     10,
                     3
                 );
-                $this->oWordpress->addAction(
+                $this->Wordpress->addAction(
                     $sTaxonomy.'_add_form_fields',
-                    [$oAdminObjectController, 'showTermEditForm']
+                    [$AdminObjectController, 'showTermEditForm']
                 );
-                $this->oWordpress->addAction(
+                $this->Wordpress->addAction(
                     $sTaxonomy.'_edit_form_fields',
-                    [$oAdminObjectController, 'showTermEditForm']
+                    [$AdminObjectController, 'showTermEditForm']
                 );
             }
 
-            if ($this->oConfig->lockFile() === true) {
-                $this->oWordpress->addAction(
+            if ($this->Config->lockFile() === true) {
+                $this->Wordpress->addAction(
                     'manage_media_custom_column',
-                    [$oAdminObjectController, 'addPostColumn'],
+                    [$AdminObjectController, 'addPostColumn'],
                     10,
                     2
                 );
-                $this->oWordpress->addAction('media_meta', [$oAdminObjectController, 'showMediaFile'], 10, 2);
+                $this->Wordpress->addAction('media_meta', [$AdminObjectController, 'showMediaFile'], 10, 2);
             }
 
             //Admin filters
             //The filter we use instead of add|edit_attachment action, reason see top
-            $this->oWordpress->addFilter('attachment_fields_to_save', [$oAdminObjectController, 'saveAttachmentData']);
+            $this->Wordpress->addFilter('attachment_fields_to_save', [$AdminObjectController, 'saveAttachmentData']);
 
-            $this->oWordpress->addFilter('manage_posts_columns', [$oAdminObjectController, 'addPostColumnsHeader']);
-            $this->oWordpress->addFilter('manage_pages_columns', [$oAdminObjectController, 'addPostColumnsHeader']);
+            $this->Wordpress->addFilter('manage_posts_columns', [$AdminObjectController, 'addPostColumnsHeader']);
+            $this->Wordpress->addFilter('manage_pages_columns', [$AdminObjectController, 'addPostColumnsHeader']);
 
-            $this->oWordpress->addFilter('manage_users_columns', [$oAdminObjectController, 'addUserColumnsHeader'], 10);
-            $this->oWordpress->addFilter(
+            $this->Wordpress->addFilter('manage_users_columns', [$AdminObjectController, 'addUserColumnsHeader'], 10);
+            $this->Wordpress->addFilter(
                 'manage_users_custom_column',
-                [$oAdminObjectController, 'addUserColumn'],
+                [$AdminObjectController, 'addUserColumn'],
                 10,
                 3
             );
 
             foreach ($aTaxonomies as $sTaxonomy) {
-                $this->oWordpress->addFilter(
+                $this->Wordpress->addFilter(
                     'manage_edit-'.$sTaxonomy.'_columns',
-                    [$oAdminObjectController, 'addTermColumnsHeader']
+                    [$AdminObjectController, 'addTermColumnsHeader']
                 );
             }
 
-            if ($this->oConfig->lockFile() === true) {
-                $this->oWordpress->addFilter('manage_media_columns', [$oAdminObjectController, 'addPostColumnsHeader']);
+            if ($this->Config->lockFile() === true) {
+                $this->Wordpress->addFilter('manage_media_columns', [$AdminObjectController, 'addPostColumnsHeader']);
             }
 
             //Admin meta boxes
-            $aPostTypes = $this->oObjectHandler->getPostTypes();
+            $aPostTypes = $this->ObjectHandler->getPostTypes();
 
             foreach ($aPostTypes as $sPostType) {
                 // there is no need for a meta box for attachments if files are locked
-                if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE && $this->oConfig->lockFile() !== true) {
+                if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE && $this->Config->lockFile() !== true) {
                     continue;
                 }
 
-                $this->oWordpress->addMetaBox(
+                $this->Wordpress->addMetaBox(
                     'uma_post_access',
                     TXT_UAM_COLUMN_ACCESS,
-                    [$oAdminObjectController, 'editPostContent'],
+                    [$AdminObjectController, 'editPostContent'],
                     $sPostType,
                     'side'
                 );
@@ -297,13 +297,13 @@ class UserAccessManager
         }
 
         //Clean up at deleting should always be done.
-        $this->oWordpress->addAction('update_option_permalink_structure', [$oAdminObjectController, 'updatePermalink']);
-        $this->oWordpress->addAction('delete_post', [$oAdminObjectController, 'removePostData']);
-        $this->oWordpress->addAction('delete_attachment', [$oAdminObjectController, 'removePostData']);
-        $this->oWordpress->addAction('delete_user', [$oAdminObjectController, 'removeUserData']);
-        $this->oWordpress->addAction('delete_term', [$oAdminObjectController, 'removeTermData']);
+        $this->Wordpress->addAction('update_option_permalink_structure', [$AdminObjectController, 'updatePermalink']);
+        $this->Wordpress->addAction('delete_post', [$AdminObjectController, 'removePostData']);
+        $this->Wordpress->addAction('delete_attachment', [$AdminObjectController, 'removePostData']);
+        $this->Wordpress->addAction('delete_user', [$AdminObjectController, 'removeUserData']);
+        $this->Wordpress->addAction('delete_term', [$AdminObjectController, 'removeTermData']);
 
-        $oAdminObjectController->checkRightsToEditContent();
+        $AdminObjectController->checkRightsToEditContent();
     }
 
     /**
@@ -311,43 +311,43 @@ class UserAccessManager
      */
     public function addActionsAndFilters()
     {
-        $oFrontendController = $this->oControllerFactory->createFrontendController();
+        $FrontendController = $this->ControllerFactory->createFrontendController();
 
         //Actions
-        $this->oWordpress->addAction('admin_menu', [$this, 'registerAdminMenu']);
-        $this->oWordpress->addAction('admin_init', [$this, 'registerAdminActionsAndFilters']);
-        $this->oWordpress->addAction('registered_post_type', [$this->oObjectHandler, 'registeredPostType'], 10, 2);
-        $this->oWordpress->addAction('registered_taxonomy', [$this->oObjectHandler, 'registeredTaxonomy'], 10, 3);
-        $this->oWordpress->addAction('registered_post_type', [$this->oConfig, 'flushConfigParameters']);
-        $this->oWordpress->addAction('registered_taxonomy', [$this->oConfig, 'flushConfigParameters']);
-        $this->oWordpress->addAction('wp_enqueue_scripts', [$oFrontendController, 'enqueueStylesAndScripts']);
+        $this->Wordpress->addAction('admin_menu', [$this, 'registerAdminMenu']);
+        $this->Wordpress->addAction('admin_init', [$this, 'registerAdminActionsAndFilters']);
+        $this->Wordpress->addAction('registered_post_type', [$this->ObjectHandler, 'registeredPostType'], 10, 2);
+        $this->Wordpress->addAction('registered_taxonomy', [$this->ObjectHandler, 'registeredTaxonomy'], 10, 3);
+        $this->Wordpress->addAction('registered_post_type', [$this->Config, 'flushConfigParameters']);
+        $this->Wordpress->addAction('registered_taxonomy', [$this->Config, 'flushConfigParameters']);
+        $this->Wordpress->addAction('wp_enqueue_scripts', [$FrontendController, 'enqueueStylesAndScripts']);
 
         //Filters
-        $sGetFile = $oFrontendController->getRequestParameter('uamgetfile');
+        $sGetFile = $FrontendController->getRequestParameter('uamgetfile');
 
-        if ($this->oConfig->getRedirect() !== false || $sGetFile !== null) {
-            $this->oWordpress->addFilter('wp_headers', [$oFrontendController, 'redirect'], 10, 2);
+        if ($this->Config->getRedirect() !== false || $sGetFile !== null) {
+            $this->Wordpress->addFilter('wp_headers', [$FrontendController, 'redirect'], 10, 2);
         }
 
-        $this->oWordpress->addFilter('wp_get_attachment_thumb_url', [$oFrontendController, 'getFileUrl'], 10, 2);
-        $this->oWordpress->addFilter('wp_get_attachment_url', [$oFrontendController, 'getFileUrl'], 10, 2);
-        $this->oWordpress->addFilter('the_posts', [$oFrontendController, 'showPosts']);
-        $this->oWordpress->addFilter('posts_where_paged', [$oFrontendController, 'showPostSql']);
-        $this->oWordpress->addFilter('get_terms_args', [$oFrontendController, 'getTermArguments']);
-        $this->oWordpress->addFilter('wp_get_nav_menu_items', [$oFrontendController, 'showCustomMenu']);
-        $this->oWordpress->addFilter('comments_array', [$oFrontendController, 'showComment']);
-        $this->oWordpress->addFilter('the_comments', [$oFrontendController, 'showComment']);
-        $this->oWordpress->addFilter('get_pages', [$oFrontendController, 'showPages'], 20);
-        $this->oWordpress->addFilter('get_terms', [$oFrontendController, 'showTerms'], 20);
-        $this->oWordpress->addFilter('get_term', [$oFrontendController, 'showTerm'], 20, 2);
-        $this->oWordpress->addFilter('get_ancestors', [$oFrontendController, 'showAncestors'], 20, 4);
-        $this->oWordpress->addFilter('get_next_post_where', [$oFrontendController, 'showNextPreviousPost']);
-        $this->oWordpress->addFilter('get_previous_post_where', [$oFrontendController, 'showNextPreviousPost']);
-        $this->oWordpress->addFilter('post_link', [$oFrontendController, 'cachePostLinks'], 10, 2);
-        $this->oWordpress->addFilter('edit_post_link', [$oFrontendController, 'showGroupMembership'], 10, 2);
-        $this->oWordpress->addFilter('parse_query', [$oFrontendController, 'parseQuery']);
-        $this->oWordpress->addFilter('getarchives_where', [$oFrontendController, 'showPostSql']);
-        $this->oWordpress->addFilter('wp_count_posts', [$oFrontendController, 'showPostCount'], 10, 3);
-        $this->oWordpress->addFilter('wpseo_sitemap_entry', [$oFrontendController, 'getWpSeoUrl'], 1, 3);
+        $this->Wordpress->addFilter('wp_get_attachment_thumb_url', [$FrontendController, 'getFileUrl'], 10, 2);
+        $this->Wordpress->addFilter('wp_get_attachment_url', [$FrontendController, 'getFileUrl'], 10, 2);
+        $this->Wordpress->addFilter('the_posts', [$FrontendController, 'showPosts']);
+        $this->Wordpress->addFilter('posts_where_paged', [$FrontendController, 'showPostSql']);
+        $this->Wordpress->addFilter('get_terms_args', [$FrontendController, 'getTermArguments']);
+        $this->Wordpress->addFilter('wp_get_nav_menu_items', [$FrontendController, 'showCustomMenu']);
+        $this->Wordpress->addFilter('comments_array', [$FrontendController, 'showComment']);
+        $this->Wordpress->addFilter('the_comments', [$FrontendController, 'showComment']);
+        $this->Wordpress->addFilter('get_pages', [$FrontendController, 'showPages'], 20);
+        $this->Wordpress->addFilter('get_terms', [$FrontendController, 'showTerms'], 20);
+        $this->Wordpress->addFilter('get_term', [$FrontendController, 'showTerm'], 20, 2);
+        $this->Wordpress->addFilter('get_ancestors', [$FrontendController, 'showAncestors'], 20, 4);
+        $this->Wordpress->addFilter('get_next_post_where', [$FrontendController, 'showNextPreviousPost']);
+        $this->Wordpress->addFilter('get_previous_post_where', [$FrontendController, 'showNextPreviousPost']);
+        $this->Wordpress->addFilter('post_link', [$FrontendController, 'cachePostLinks'], 10, 2);
+        $this->Wordpress->addFilter('edit_post_link', [$FrontendController, 'showGroupMembership'], 10, 2);
+        $this->Wordpress->addFilter('parse_query', [$FrontendController, 'parseQuery']);
+        $this->Wordpress->addFilter('getarchives_where', [$FrontendController, 'showPostSql']);
+        $this->Wordpress->addFilter('wp_count_posts', [$FrontendController, 'showPostCount'], 10, 3);
+        $this->Wordpress->addFilter('wpseo_sitemap_entry', [$FrontendController, 'getWpSeoUrl'], 1, 3);
     }
 }

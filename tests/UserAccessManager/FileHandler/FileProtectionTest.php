@@ -28,7 +28,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $oRoot;
+    private $Root;
 
     /**
      * Setup virtual file system.
@@ -48,18 +48,18 @@ class FileProtectionTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param $oPhp
-     * @param $oWordpress
-     * @param $oConfig
-     * @param $oUtil
+     * @param $Php
+     * @param $Wordpress
+     * @param $Config
+     * @param $Util
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|FileProtection
      */
-    private function getStub($oPhp, $oWordpress, $oConfig, $oUtil)
+    private function getStub($Php, $Wordpress, $Config, $Util)
     {
         return $this->getMockForAbstractClass(
             '\UserAccessManager\FileHandler\FileProtection',
-            [$oPhp, $oWordpress, $oConfig, $oUtil]
+            [$Php, $Wordpress, $Config, $Util]
         );
     }
 
@@ -69,12 +69,12 @@ class FileProtectionTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oPhp = $this->getPhp();
-        $oWordpress = $this->getWordpress();
-        $oConfig = $this->getConfig();
-        $oUtil = $this->getUtil();
-        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtection', $oStub);
+        $Php = $this->getPhp();
+        $Wordpress = $this->getWordpress();
+        $Config = $this->getConfig();
+        $Util = $this->getUtil();
+        $Stub = $this->getStub($Php, $Wordpress, $Config, $Util);
+        self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtection', $Stub);
     }
 
     /**
@@ -83,20 +83,20 @@ class FileProtectionTest extends UserAccessManagerTestCase
      */
     public function testCleanUpFileTypes()
     {
-        $oPhp = $this->getPhp();
-        $oWordpress = $this->getWordpress();
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(2))
+        $Php = $this->getPhp();
+        $Wordpress = $this->getWordpress();
+        $Config = $this->getConfig();
+        $Config->expects($this->exactly(2))
             ->method('getMimeTypes')
             ->will($this->onConsecutiveCalls(
                 ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
                 ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType']
             ));
-        $oUtil = $this->getUtil();
-        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
+        $Util = $this->getUtil();
+        $Stub = $this->getStub($Php, $Wordpress, $Config, $Util);
 
-        self::assertEquals('a|c', self::callMethod($oStub, 'cleanUpFileTypes', ['a,c']));
-        self::assertEquals('b', self::callMethod($oStub, 'cleanUpFileTypes', ['b,f']));
+        self::assertEquals('a|c', self::callMethod($Stub, 'cleanUpFileTypes', ['a,c']));
+        self::assertEquals('b', self::callMethod($Stub, 'cleanUpFileTypes', ['b,f']));
     }
 
     /**
@@ -106,17 +106,17 @@ class FileProtectionTest extends UserAccessManagerTestCase
     public function testCreatePasswordFile()
     {
         /**
-         * @var Directory $oRootDir
+         * @var Directory $RootDir
          */
-        $oRootDir = $this->oRoot->get('/');
-        $oRootDir->add('firstTestDir', new Directory());
-        $oRootDir->add('secondTestDir', new Directory());
-        $oRootDir->add('thirdTestDir', new Directory());
+        $RootDir = $this->oRoot->get('/');
+        $RootDir->add('firstTestDir', new Directory());
+        $RootDir->add('secondTestDir', new Directory());
+        $RootDir->add('thirdTestDir', new Directory());
 
-        $oPhp = $this->getPhp();
+        $Php = $this->getPhp();
 
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(6))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(6))
             ->method('getUploadDir')
             ->will(
                 $this->onConsecutiveCalls(
@@ -130,72 +130,72 @@ class FileProtectionTest extends UserAccessManagerTestCase
             );
 
         /**
-         * @var \stdClass $oUser
+         * @var \stdClass $User
          */
-        $oUser = $this->getMockBuilder('\WP_User')->getMock();
-        $oUser->user_login = 'userLogin';
-        $oUser->user_pass = 'userPass';
+        $User = $this->getMockBuilder('\WP_User')->getMock();
+        $User->user_login = 'userLogin';
+        $User->user_pass = 'userPass';
 
-        $oWordpress->expects($this->exactly(5))
+        $Wordpress->expects($this->exactly(5))
             ->method('getCurrentUser')
-            ->will($this->returnValue($oUser));
+            ->will($this->returnValue($User));
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(2))
+        $Config = $this->getConfig();
+        $Config->expects($this->exactly(2))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 
-        $oUtil = $this->getUtil();
+        $Util = $this->getUtil();
 
-        $oUtil->expects($this->exactly(2))
+        $Util->expects($this->exactly(2))
             ->method('getRandomPassword')
             ->will($this->returnValue('randomPassword'));
 
-        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
+        $Stub = $this->getStub($Php, $Wordpress, $Config, $Util);
 
         $sFirstTestFile = 'vfs://firstTestDir/'.FileProtection::PASSWORD_FILE_NAME;
-        $oStub->createPasswordFile();
+        $Stub->createPasswordFile();
         $this->assertFalse(file_exists($sFirstTestFile));
 
-        $oStub->createPasswordFile();
+        $Stub->createPasswordFile();
         $this->assertTrue(file_exists($sFirstTestFile));
         $sContent = file_get_contents($sFirstTestFile);
         self::assertEquals("userLogin:userPass\n", $sContent);
 
-        $oStub->createPasswordFile();
+        $Stub->createPasswordFile();
         self::assertEquals($sContent, file_get_contents($sFirstTestFile));
 
-        $oStub->createPasswordFile(true);
+        $Stub->createPasswordFile(true);
         self::assertEquals($sContent, file_get_contents($sFirstTestFile));
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(3))
+        $Config = $this->getConfig();
+        $Config->expects($this->exactly(3))
             ->method('getFilePassType')
             ->will($this->returnValue('random'));
 
-        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
-        $oStub->createPasswordFile();
+        $Stub = $this->getStub($Php, $Wordpress, $Config, $Util);
+        $Stub->createPasswordFile();
         self::assertEquals($sContent, file_get_contents($sFirstTestFile));
 
-        $oStub->createPasswordFile(true);
+        $Stub->createPasswordFile(true);
         self::assertEquals("userLogin:".md5('randomPassword')."\n", file_get_contents($sFirstTestFile));
         self::assertNotEquals($sContent, file_get_contents($sFirstTestFile));
 
         $sSecondTestFile = 'vfs://secondTestDir/'.FileProtection::PASSWORD_FILE_NAME;
-        $oStub->createPasswordFile(true, 'vfs://secondTestDir/');
+        $Stub->createPasswordFile(true, 'vfs://secondTestDir/');
         self::assertEquals("userLogin:".md5('randomPassword')."\n", file_get_contents($sSecondTestFile));
 
-        $oUtil = $this->getUtil();
-        $oUtil->expects($this->exactly(1))
+        $Util = $this->getUtil();
+        $Util->expects($this->exactly(1))
             ->method('getRandomPassword')
             ->will($this->returnCallback(function () {
                 throw new \Exception('Unable to generate secure token from OpenSSL.');
             }));
 
-        $oStub = $this->getStub($oPhp, $oWordpress, $oConfig, $oUtil);
+        $Stub = $this->getStub($Php, $Wordpress, $Config, $Util);
 
         $sThirdTestFile = 'vfs://thirdTestDir/'.FileProtection::PASSWORD_FILE_NAME;
-        $oStub->createPasswordFile(true, 'vfs://thirdTestDir/');
+        $Stub->createPasswordFile(true, 'vfs://thirdTestDir/');
         $sContent = file_get_contents($sThirdTestFile);
         self::assertEquals("userLogin:userPass\n", $sContent);
     }

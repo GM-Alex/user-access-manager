@@ -26,12 +26,12 @@ class AdminSettingsController extends Controller
     /**
      * @var ObjectHandler
      */
-    protected $oObjectHandler;
+    protected $ObjectHandler;
 
     /**
      * @var FileHandler
      */
-    protected $oFileHandler;
+    protected $FileHandler;
 
     /**
      * @var string
@@ -41,22 +41,22 @@ class AdminSettingsController extends Controller
     /**
      * AdminSettingsController constructor.
      *
-     * @param Php           $oPhp
-     * @param Wordpress     $oWordpress
-     * @param Config        $oConfig
-     * @param ObjectHandler $oObjectHandler
-     * @param FileHandler   $oFileHandler
+     * @param Php           $Php
+     * @param Wordpress     $Wordpress
+     * @param Config        $Config
+     * @param ObjectHandler $ObjectHandler
+     * @param FileHandler   $FileHandler
      */
     public function __construct(
-        Php $oPhp,
-        Wordpress $oWordpress,
-        Config $oConfig,
-        ObjectHandler $oObjectHandler,
-        FileHandler $oFileHandler
+        Php $Php,
+        Wordpress $Wordpress,
+        Config $Config,
+        ObjectHandler $ObjectHandler,
+        FileHandler $FileHandler
     ) {
-        parent::__construct($oPhp, $oWordpress, $oConfig);
-        $this->oObjectHandler = $oObjectHandler;
-        $this->oFileHandler = $oFileHandler;
+        parent::__construct($Php, $Wordpress, $Config);
+        $this->ObjectHandler = $ObjectHandler;
+        $this->FileHandler = $FileHandler;
     }
 
     /**
@@ -66,7 +66,7 @@ class AdminSettingsController extends Controller
      */
     public function isNginx()
     {
-        return $this->oWordpress->isNginx();
+        return $this->Wordpress->isNginx();
     }
 
     /**
@@ -76,7 +76,7 @@ class AdminSettingsController extends Controller
      */
     public function getPages()
     {
-        $aPages = $this->oWordpress->getPages('sort_column=menu_order');
+        $aPages = $this->Wordpress->getPages('sort_column=menu_order');
         return is_array($aPages) !== false ? $aPages : [];
     }
 
@@ -87,7 +87,7 @@ class AdminSettingsController extends Controller
      */
     public function getConfigParameters()
     {
-        return $this->oConfig->getConfigParameters();
+        return $this->Config->getConfigParameters();
     }
 
     /**
@@ -97,7 +97,7 @@ class AdminSettingsController extends Controller
      */
     protected function getPostTypes()
     {
-        return $this->oWordpress->getPostTypes(['public' => true], 'objects');
+        return $this->Wordpress->getPostTypes(['public' => true], 'objects');
     }
 
     /**
@@ -107,7 +107,7 @@ class AdminSettingsController extends Controller
      */
     protected function getTaxonomies()
     {
-        return $this->oWordpress->getTaxonomies(['public' => true], 'objects');
+        return $this->Wordpress->getTaxonomies(['public' => true], 'objects');
     }
 
     /**
@@ -117,12 +117,12 @@ class AdminSettingsController extends Controller
      */
     public function getGroupedConfigParameters()
     {
-        $aConfigParameters = $this->oConfig->getConfigParameters();
+        $aConfigParameters = $this->Config->getConfigParameters();
 
         $aGroupedConfigParameters = [];
         $aPostTypes = $this->getPostTypes();
 
-        foreach ($aPostTypes as $sPostType => $oPostType) {
+        foreach ($aPostTypes as $sPostType => $PostType) {
             if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
                 continue;
             }
@@ -144,7 +144,7 @@ class AdminSettingsController extends Controller
 
         $aTaxonomies = $this->getTaxonomies();
 
-        foreach ($aTaxonomies as $sTaxonomy => $oTaxonomy) {
+        foreach ($aTaxonomies as $sTaxonomy => $Taxonomy) {
             $aGroupedConfigParameters[$sTaxonomy][] = $aConfigParameters["hide_empty_{$sTaxonomy}"];
         }
 
@@ -167,7 +167,7 @@ class AdminSettingsController extends Controller
             $aConfigParameters['blog_admin_hint_text'],
         ];
 
-        if ($this->oConfig->isPermalinksActive() === true) {
+        if ($this->Config->isPermalinksActive() === true) {
             $aGroupedConfigParameters['file'][] = $aConfigParameters['lock_file_types'];
             $aGroupedConfigParameters['file'][] = $aConfigParameters['file_pass_type'];
         }
@@ -189,15 +189,15 @@ class AdminSettingsController extends Controller
             },
             $aNewConfigParameters
         );
-        $this->oConfig->setConfigParameters($aNewConfigParameters);
+        $this->Config->setConfigParameters($aNewConfigParameters);
 
-        if ($this->oConfig->lockFile() === false) {
-            $this->oFileHandler->deleteFileProtection();
+        if ($this->Config->lockFile() === false) {
+            $this->FileHandler->deleteFileProtection();
         } else {
-            $this->oFileHandler->createFileProtection();
+            $this->FileHandler->createFileProtection();
         }
 
-        $this->oWordpress->doAction('uam_update_options', $this->oConfig);
+        $this->Wordpress->doAction('uam_update_options', $this->Config);
         $this->setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
     }
 
@@ -259,14 +259,14 @@ class AdminSettingsController extends Controller
      * Returns the label for the parameter.
      *
      * @param string          $sGroupKey
-     * @param ConfigParameter $oConfigParameter
+     * @param ConfigParameter $ConfigParameter
      * @param bool            $blDescription
      *
      * @return string
      */
-    public function getParameterText($sGroupKey, ConfigParameter $oConfigParameter, $blDescription = false)
+    public function getParameterText($sGroupKey, ConfigParameter $ConfigParameter, $blDescription = false)
     {
-        $sIdent = 'TXT_UAM_'.strtoupper($oConfigParameter->getId());
+        $sIdent = 'TXT_UAM_'.strtoupper($ConfigParameter->getId());
 
         return $this->getObjectText(
             $sGroupKey,

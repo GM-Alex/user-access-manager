@@ -30,22 +30,22 @@ class Database
     /**
      * @var \wpdb
      */
-    protected $oWpDatabase;
+    protected $WpDatabase;
 
     /**
      * @var Database
      */
-    protected $oWordpress;
+    protected $Wordpress;
 
     /**
      * Database constructor.
      *
-     * @param Wordpress $oWordpress
+     * @param Wordpress $Wordpress
      */
-    public function __construct(Wordpress $oWordpress)
+    public function __construct(Wordpress $Wordpress)
     {
-        $this->oWordpress = $oWordpress;
-        $this->oWpDatabase = $oWordpress->getDatabase();
+        $this->Wordpress = $Wordpress;
+        $this->WpDatabase = $Wordpress->getDatabase();
     }
 
     /**
@@ -55,7 +55,7 @@ class Database
      */
     public function getUserGroupTable()
     {
-        return $this->oWpDatabase->prefix.self::USER_GROUP_TABLE_NAME;
+        return $this->WpDatabase->prefix.self::USER_GROUP_TABLE_NAME;
     }
 
     /**
@@ -65,7 +65,7 @@ class Database
      */
     public function getUserGroupToObjectTable()
     {
-        return $this->oWpDatabase->prefix.self::USER_GROUP_TO_OBJECT_TABLE_NAME;
+        return $this->WpDatabase->prefix.self::USER_GROUP_TO_OBJECT_TABLE_NAME;
     }
 
     /**
@@ -78,7 +78,7 @@ class Database
      */
     public function dbDelta($mQueries = '', $blExecute = true)
     {
-        return $this->oWordpress->dbDelta($mQueries, $blExecute);
+        return $this->Wordpress->dbDelta($mQueries, $blExecute);
     }
 
     /**
@@ -88,7 +88,7 @@ class Database
      */
     public function getPrefix()
     {
-        return $this->oWpDatabase->prefix;
+        return $this->WpDatabase->prefix;
     }
 
     /**
@@ -98,7 +98,7 @@ class Database
      */
     public function getLastInsertId()
     {
-        return $this->oWpDatabase->insert_id;
+        return $this->WpDatabase->insert_id;
     }
 
     /**
@@ -108,7 +108,7 @@ class Database
      */
     public function getCurrentBlogId()
     {
-        return $this->oWpDatabase->blogid;
+        return $this->WpDatabase->blogid;
     }
 
     /**
@@ -118,7 +118,7 @@ class Database
      */
     public function getBlogsTable()
     {
-        return $this->oWpDatabase->blogs;
+        return $this->WpDatabase->blogs;
     }
 
     /**
@@ -128,7 +128,7 @@ class Database
      */
     public function getPostsTable()
     {
-        return $this->oWpDatabase->posts;
+        return $this->WpDatabase->posts;
     }
 
     /**
@@ -138,7 +138,7 @@ class Database
      */
     public function getTermRelationshipsTable()
     {
-        return $this->oWpDatabase->term_relationships;
+        return $this->WpDatabase->term_relationships;
     }
 
     /**
@@ -148,7 +148,7 @@ class Database
      */
     public function getTermTaxonomyTable()
     {
-        return $this->oWpDatabase->term_taxonomy;
+        return $this->WpDatabase->term_taxonomy;
     }
 
     /**
@@ -158,7 +158,7 @@ class Database
      */
     public function getUsersTable()
     {
-        return $this->oWpDatabase->users;
+        return $this->WpDatabase->users;
     }
 
     /**
@@ -168,7 +168,7 @@ class Database
      */
     public function getCapabilitiesTable()
     {
-        return $this->oWpDatabase->prefix.'capabilities';
+        return $this->WpDatabase->prefix.'capabilities';
     }
 
     /**
@@ -181,7 +181,7 @@ class Database
      */
     public function getColumn($sQuery = null, $iColumn = 0)
     {
-        return $this->oWpDatabase->get_col($sQuery, $iColumn);
+        return $this->WpDatabase->get_col($sQuery, $iColumn);
     }
 
     /**
@@ -195,7 +195,7 @@ class Database
      */
     public function getRow($sQuery = null, $sOutput = OBJECT, $iRow = 0)
     {
-        return $this->oWpDatabase->get_row($sQuery, $sOutput, $iRow);
+        return $this->WpDatabase->get_row($sQuery, $sOutput, $iRow);
     }
 
     /**
@@ -209,7 +209,7 @@ class Database
      */
     public function getVariable($sQuery = null, $iColumn = 0, $iRow = 0)
     {
-        return $this->oWpDatabase->get_var($sQuery, $iColumn, $iRow);
+        return $this->WpDatabase->get_var($sQuery, $iColumn, $iRow);
     }
 
     /**
@@ -221,7 +221,7 @@ class Database
      */
     public function getBlogPrefix($iBlogId = null)
     {
-        return $this->oWpDatabase->get_blog_prefix($iBlogId);
+        return $this->WpDatabase->get_blog_prefix($iBlogId);
     }
 
     /**
@@ -234,7 +234,7 @@ class Database
      */
     public function prepare($sQuery, $mArguments)
     {
-        return $this->oWpDatabase->prepare($sQuery, $mArguments);
+        return $this->WpDatabase->prepare($sQuery, $mArguments);
     }
 
     /**
@@ -246,7 +246,7 @@ class Database
      */
     public function query($sQuery)
     {
-        return $this->oWpDatabase->query($sQuery);
+        return $this->WpDatabase->query($sQuery);
     }
 
     /**
@@ -259,7 +259,7 @@ class Database
      */
     public function getResults($sQuery = null, $sOutput = OBJECT)
     {
-        return $this->oWpDatabase->get_results($sQuery, $sOutput);
+        return $this->WpDatabase->get_results($sQuery, $sOutput);
     }
 
     /**
@@ -273,7 +273,7 @@ class Database
      */
     public function insert($sTable, array $aData, $sFormat = null)
     {
-        return $this->oWpDatabase->insert($sTable, $aData, $sFormat);
+        return $this->WpDatabase->insert($sTable, $aData, $sFormat);
     }
 
     /**
@@ -289,7 +289,7 @@ class Database
      */
     public function update($sTable, array $aData, array $aWhere, $mFormat = null, $mWhereFormat = null)
     {
-        return $this->oWpDatabase->update($sTable, $aData, $aWhere, $mFormat, $mWhereFormat);
+        return $this->WpDatabase->update($sTable, $aData, $aWhere, $mFormat, $mWhereFormat);
     }
 
     /**
@@ -303,7 +303,7 @@ class Database
      */
     public function delete($sTable, array $aWhere, $mWhereFormat = null)
     {
-        return $this->oWpDatabase->delete($sTable, $aWhere, $mWhereFormat);
+        return $this->WpDatabase->delete($sTable, $aWhere, $mWhereFormat);
     }
 
     /**
@@ -318,12 +318,12 @@ class Database
         $sMySlqVersion = $this->getVariable('SELECT VERSION() as mysql_version');
 
         if (version_compare($sMySlqVersion, '4.1.0', '>=')) {
-            if (!empty($this->oWpDatabase->charset)) {
-                $sCharsetCollate = "DEFAULT CHARACTER SET {$this->oWpDatabase->charset}";
+            if (!empty($this->WpDatabase->charset)) {
+                $sCharsetCollate = "DEFAULT CHARACTER SET {$this->WpDatabase->charset}";
             }
 
-            if (!empty($this->oWpDatabase->collate)) {
-                $sCharsetCollate .= " COLLATE {$this->oWpDatabase->collate}";
+            if (!empty($this->WpDatabase->collate)) {
+                $sCharsetCollate .= " COLLATE {$this->WpDatabase->collate}";
             }
         }
 

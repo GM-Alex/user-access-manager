@@ -33,7 +33,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $oRoot;
+    private $Root;
 
     /**
      * Setup virtual file system.
@@ -58,7 +58,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -70,7 +70,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\FrontendController', $oFrontendController);
+        self::assertInstanceOf('\UserAccessManager\Controller\FrontendController', $FrontendController);
     }
 
     /**
@@ -80,8 +80,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testEnqueueStylesAndScripts()
     {
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->once())
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->once())
             ->method('registerStyle')
             ->with(
                 FrontendController::HANDLE_STYLE_LOGIN_FORM,
@@ -91,19 +91,19 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 'screen'
             );
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('enqueueStyle')
             ->with(FrontendController::HANDLE_STYLE_LOGIN_FORM);
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->once())
+        $Config = $this->getConfig();
+        $Config->expects($this->once())
             ->method('getUrlPath')
             ->will($this->returnValue('http://url/'));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -112,7 +112,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        $oFrontendController->enqueueStylesAndScripts();
+        $FrontendController->enqueueStylesAndScripts();
     }
 
     /**
@@ -121,12 +121,12 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testParseQuery()
     {
-        $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(3))
+        $AccessHandler = $this->getAccessHandler();
+        $AccessHandler->expects($this->exactly(3))
             ->method('getExcludedPosts')
             ->will($this->onConsecutiveCalls([], [3], [2, 3, 5]));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -134,26 +134,26 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $oWpQuery
+         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $WpQuery
          */
-        $oWpQuery = $this->getMockBuilder('\WP_Query')->getMock();
-        $oWpQuery->query_vars = [
+        $WpQuery = $this->getMockBuilder('\WP_Query')->getMock();
+        $WpQuery->query_vars = [
             'post__not_in' => [1, 1, 2, 4]
         ];
 
-        $oFrontendController->parseQuery($oWpQuery);
-        self::assertEquals([1, 1, 2, 4], $oWpQuery->query_vars['post__not_in']);
+        $FrontendController->parseQuery($WpQuery);
+        self::assertEquals([1, 1, 2, 4], $WpQuery->query_vars['post__not_in']);
 
-        $oFrontendController->parseQuery($oWpQuery);
-        self::assertEquals([1, 2, 3, 4], $oWpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
+        $FrontendController->parseQuery($WpQuery);
+        self::assertEquals([1, 2, 3, 4], $WpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
 
-        $oFrontendController->parseQuery($oWpQuery);
-        self::assertEquals([1, 2, 3, 4, 5], $oWpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
+        $FrontendController->parseQuery($WpQuery);
+        self::assertEquals([1, 2, 3, 4, 5], $WpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
     }
 
     /**
@@ -162,61 +162,61 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testAdminOutput()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
         /**
-         * @var \WP_User|\stdClass $oAdminUser
+         * @var \WP_User|\stdClass $AdminUser
          */
-        $oAdminUser = $this->getMockBuilder('\WP_User')->getMock();
-        $oAdminUser->ID = 1;
+        $AdminUser = $this->getMockBuilder('\WP_User')->getMock();
+        $AdminUser->ID = 1;
 
         /**
-         * @var \WP_User|\stdClass $oUser
+         * @var \WP_User|\stdClass $User
          */
-        $oUser = $this->getMockBuilder('\WP_User')->getMock();
-        $oUser->ID = 2;
+        $User = $this->getMockBuilder('\WP_User')->getMock();
+        $User->ID = 2;
 
-        $oWordpress->expects($this->exactly(3))
+        $Wordpress->expects($this->exactly(3))
             ->method('getCurrentUser')
             ->will($this->onConsecutiveCalls(
-                $oUser,
-                $oAdminUser,
-                $oAdminUser
+                $User,
+                $AdminUser,
+                $AdminUser
             ));
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(6))
+        $Config->expects($this->exactly(6))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
 
-        $oConfig->expects($this->exactly(5))
+        $Config->expects($this->exactly(5))
             ->method('blogAdminHint')
             ->will($this->onConsecutiveCalls(false, true, true, true, true, true));
 
-        $oConfig->expects($this->exactly(4))
+        $Config->expects($this->exactly(4))
             ->method('getBlogAdminHintText')
             ->will($this->returnValue('hintText'));
 
-        $oUtil = $this->getUtil();
+        $Util = $this->getUtil();
 
-        $oUtil->expects($this->once())
+        $Util->expects($this->once())
             ->method('endsWith')
             ->withConsecutive(
                 ['text hintText', 'hintText']
             )
             ->will($this->onConsecutiveCalls(true));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(3))
+        $AccessHandler->expects($this->exactly(3))
             ->method('userIsAdmin')
             ->withConsecutive([2], [1], [1])
             ->will($this->returnCallback(function ($iId) {
                 return ($iId === 1);
             }));
 
-        $oAccessHandler->expects($this->exactly(2))
+        $AccessHandler->expects($this->exactly(2))
             ->method('getUserGroupsForObject')
             ->withConsecutive(
                 ['objectType', 'objectId'],
@@ -227,24 +227,24 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 [$this->getUserGroup(1)]
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
-            $oUtil,
+            $Util,
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        self::assertEquals('', $oFrontendController->adminOutput('objectType', 'objectId'));
-        self::assertEquals('', $oFrontendController->adminOutput('objectType', 'objectId'));
-        self::assertEquals('', $oFrontendController->adminOutput('objectType', 'objectId'));
-        self::assertEquals('', $oFrontendController->adminOutput('objectType', 'objectId'));
-        self::assertEquals('hintText', $oFrontendController->adminOutput('secondObjectType', 'secondObjectId'));
-        self::assertEquals('', $oFrontendController->adminOutput(
+        self::assertEquals('', $FrontendController->adminOutput('objectType', 'objectId'));
+        self::assertEquals('', $FrontendController->adminOutput('objectType', 'objectId'));
+        self::assertEquals('', $FrontendController->adminOutput('objectType', 'objectId'));
+        self::assertEquals('', $FrontendController->adminOutput('objectType', 'objectId'));
+        self::assertEquals('hintText', $FrontendController->adminOutput('secondObjectType', 'secondObjectId'));
+        self::assertEquals('', $FrontendController->adminOutput(
             'secondObjectType',
             'secondObjectId',
             'text hintText'
@@ -258,10 +258,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     public function testGetLoginFormHtml()
     {
         /**
-         * @var Directory $oRootDir
+         * @var Directory $RootDir
          */
-        $oRootDir = $this->oRoot->get('/');
-        $oRootDir->add('src', new Directory([
+        $RootDir = $this->oRoot->get('/');
+        $RootDir->add('src', new Directory([
             'UserAccessManager' => new Directory([
                 'View' => new Directory([
                     'LoginForm.php' => new File('<?php echo \'LoginForm\';')
@@ -269,15 +269,15 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ])
         ]));
 
-        $oPhp = $this->getPhp();
+        $Php = $this->getPhp();
 
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('isUserLoggedIn')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('applyFilters')
             ->withConsecutive(
                 ['uam_login_form', ''],
@@ -286,16 +286,16 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls('filter', 'LoginFormWithFilter'));
 
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
-        $oFrontendController = new FrontendController(
-            $oPhp,
-            $oWordpress,
-            $oConfig,
+        $FrontendController = new FrontendController(
+            $Php,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -304,15 +304,15 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        $oPhp->expects($this->once())
+        $Php->expects($this->once())
             ->method('includeFile')
-            ->with($oFrontendController, 'vfs://src/UserAccessManager/View/LoginForm.php')
+            ->with($FrontendController, 'vfs://src/UserAccessManager/View/LoginForm.php')
             ->will($this->returnCallback(function () {
                 echo 'LoginForm';
             }));
 
-        self::assertEquals('filter', $oFrontendController->getLoginFormHtml());
-        self::assertEquals('LoginFormWithFilter', $oFrontendController->getLoginFormHtml());
+        self::assertEquals('filter', $FrontendController->getLoginFormHtml());
+        self::assertEquals('LoginFormWithFilter', $FrontendController->getLoginFormHtml());
     }
 
     /**
@@ -334,18 +334,18 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $sPostMimeType = 'post/mime/type'
     ) {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Post $oPost
+         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Post $Post
          */
-        $oPost = $this->getMockBuilder('\WP_Post')->getMock();
-        $oPost->ID = $iId;
-        $oPost->post_type = $sPostType;
-        $oPost->post_title = ($sTitle === null) ? "title{$iId}" : $sTitle;
-        $oPost->post_content = ($sContent === null) ?
+        $Post = $this->getMockBuilder('\WP_Post')->getMock();
+        $Post->ID = $iId;
+        $Post->post_type = $sPostType;
+        $Post->post_title = ($sTitle === null) ? "title{$iId}" : $sTitle;
+        $Post->post_content = ($sContent === null) ?
             "[LOGIN_FORM] content{$iId}<!--more-->text<!--more-->\\contentAfter" : $sContent;
-        $oPost->comment_status = ($blClosed === true) ? 'close' : 'open';
-        $oPost->post_mime_type = $sPostMimeType;
+        $Post->comment_status = ($blClosed === true) ? 'close' : 'open';
+        $Post->post_mime_type = $sPostMimeType;
 
-        return $oPost;
+        return $Post;
     }
 
     /**
@@ -356,19 +356,19 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowPostsAtAdminPanel()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->exactly(4))
+        $Wordpress->expects($this->exactly(4))
             ->method('isFeed')
             ->will($this->onConsecutiveCalls(true, true, false, false));
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(2))
+        $Config->expects($this->exactly(2))
             ->method('protectFeed')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oConfig->expects($this->exactly(7))
+        $Config->expects($this->exactly(7))
             ->method('hidePostType')
             ->withConsecutive(
                 ['post'],
@@ -389,13 +389,13 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 false
             ));
 
-        $oConfig->expects($this->exactly(15))
+        $Config->expects($this->exactly(15))
             ->method('atAdminPanel')
             ->will($this->returnValue(true));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(11))
+        $AccessHandler->expects($this->exactly(11))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['post', 1],
@@ -424,15 +424,15 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 false
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
@@ -450,12 +450,12 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         ];
 
 
-        self::assertEquals([], $oFrontendController->showPosts($aPosts));
-        self::assertEquals([$this->getPost(2)], $oFrontendController->showPosts($aPosts));
-        self::assertEquals([$this->getPost(1), $this->getPost(2)], $oFrontendController->showPosts($aPosts));
-        self::assertEquals([], $oFrontendController->showPosts());
-        self::assertEquals([], $oFrontendController->showPages());
-        self::assertEquals([$this->getPost(2, 'page')], $oFrontendController->showPages($aPages));
+        self::assertEquals([], $FrontendController->showPosts($aPosts));
+        self::assertEquals([$this->getPost(2)], $FrontendController->showPosts($aPosts));
+        self::assertEquals([$this->getPost(1), $this->getPost(2)], $FrontendController->showPosts($aPosts));
+        self::assertEquals([], $FrontendController->showPosts());
+        self::assertEquals([], $FrontendController->showPages());
+        self::assertEquals([$this->getPost(2, 'page')], $FrontendController->showPages($aPages));
     }
 
     /**
@@ -466,17 +466,17 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowPosts()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('isFeed')
             ->will($this->returnValue(false));
 
-        $oWordpress->expects($this->exactly(5))
+        $Wordpress->expects($this->exactly(5))
             ->method('isUserLoggedIn')
             ->will($this->returnValue(true));
 
-        $oWordpress->expects($this->exactly(5))
+        $Wordpress->expects($this->exactly(5))
             ->method('applyFilters')
             ->withConsecutive(
                 ['uam_login_form', ''],
@@ -487,45 +487,45 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls('', 'LoginForm', '', '', 'LoginForm'));
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(6))
+        $Config->expects($this->exactly(6))
             ->method('hidePostType')
             ->withConsecutive(['post'], ['other'], ['post'], ['page'], ['post'], ['other'])
             ->will($this->onConsecutiveCalls(false, false, true, false, false, false));
 
-        $oConfig->expects($this->exactly(12))
+        $Config->expects($this->exactly(12))
             ->method('atAdminPanel')
             ->will($this->returnValue(false));
 
-        $oConfig->expects($this->exactly(5))
+        $Config->expects($this->exactly(5))
             ->method('getPostTypeContent')
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->returnValue('postContent'));
 
-        $oConfig->expects($this->exactly(2))
+        $Config->expects($this->exactly(2))
             ->method('showPostContentBeforeMore')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $oConfig->expects($this->exactly(5))
+        $Config->expects($this->exactly(5))
             ->method('hidePostTypeTitle')
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->onConsecutiveCalls(true, false, true, false, true));
 
-        $oConfig->expects($this->exactly(3))
+        $Config->expects($this->exactly(3))
             ->method('getPostTypeTitle')
             ->withConsecutive(['post'], ['page'], ['other'])
             ->will($this->returnValue('postTitle'));
 
 
-        $oConfig->expects($this->exactly(5))
+        $Config->expects($this->exactly(5))
             ->method('hidePostTypeComments')
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->onConsecutiveCalls(false, true, true, false, false));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(7))
+        $AccessHandler->expects($this->exactly(7))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['post', 1],
@@ -538,15 +538,15 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
@@ -570,7 +570,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $this->getPost(2, 'post', 'postTitle', '[LOGIN_FORM] content2 postContent'),
                 $this->getPost(3, 'other', null, 'postContent', true)
             ],
-            $oFrontendController->showPosts($aPosts)
+            $FrontendController->showPosts($aPosts)
         );
         self::assertEquals(
             [
@@ -578,7 +578,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $this->getPost(2, 'post', null, 'postContent'),
                 $this->getPost(3, 'other', 'postTitle', 'postContent')
             ],
-            $oFrontendController->showPages($aPages)
+            $FrontendController->showPages($aPages)
         );
     }
 
@@ -588,33 +588,33 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowPostSql()
     {
-        $oDatabase = $this->getDatabase();
+        $Database = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(2))
+        $Database->expects($this->exactly(2))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(3))
+        $AccessHandler->expects($this->exactly(3))
             ->method('getExcludedPosts')
             ->will($this->onConsecutiveCalls([], [1 => 1], [1 => 1, 3 => 3]));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
-            $oDatabase,
+            $Database,
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        self::assertEquals('query', $oFrontendController->showPostSql('query'));
-        self::assertEquals('query AND postTable.ID NOT IN(1) ', $oFrontendController->showPostSql('query'));
-        self::assertEquals('query AND postTable.ID NOT IN(1,3) ', $oFrontendController->showPostSql('query'));
+        self::assertEquals('query', $FrontendController->showPostSql('query'));
+        self::assertEquals('query AND postTable.ID NOT IN(1) ', $FrontendController->showPostSql('query'));
+        self::assertEquals('query AND postTable.ID NOT IN(1,3) ', $FrontendController->showPostSql('query'));
     }
 
     /**
@@ -623,45 +623,45 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowPostCount()
     {
-        $oCounts = new \stdClass();
-        $oCounts->firstStatus = 3;
-        $oCounts->secondStatus = 8;
+        $Counts = new \stdClass();
+        $Counts->firstStatus = 3;
+        $Counts->secondStatus = 8;
 
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(3))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(3))
             ->method('isUserLoggedIn')
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $oPostTypeObject = new \stdClass();
-        $oPostTypeObject->cap = new \stdClass();
-        $oPostTypeObject->cap->read_private_posts = 'readPrivatePostsValue';
+        $PostTypeObject = new \stdClass();
+        $PostTypeObject->cap = new \stdClass();
+        $PostTypeObject->cap->read_private_posts = 'readPrivatePostsValue';
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('getPostTypeObject')
-            ->will($this->returnValue($oPostTypeObject));
+            ->will($this->returnValue($PostTypeObject));
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('currentUserCan')
             ->with('readPrivatePostsValue')
             ->will($this->onConsecutiveCalls(true, false));
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_User $oUser
+         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_User $User
          */
-        $oUser = $this->getMockBuilder('\WP_User')->getMock();
-        $oUser->ID = 1;
+        $User = $this->getMockBuilder('\WP_User')->getMock();
+        $User->ID = 1;
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('getCurrentUser')
-            ->will($this->returnValue($oUser));
+            ->will($this->returnValue($User));
 
-        $oDatabase = $this->getDatabase();
+        $Database = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(4))
+        $Database->expects($this->exactly(4))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $oDatabase->expects($this->exactly(4))
+        $Database->expects($this->exactly(4))
             ->method('getResults')
             ->with('preparedQuery', ARRAY_A)
             ->will($this->returnValue([
@@ -669,7 +669,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ['post_status' => 'thirdStatus', 'num_posts' => 5],
             ]));
 
-        $oDatabase->expects($this->exactly(5))
+        $Database->expects($this->exactly(5))
             ->method('prepare')
             ->withConsecutive(
                 [
@@ -722,26 +722,26 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 'preparedQuery'
             ));
 
-        $oCache = $this->getCache();
+        $Cache = $this->getCache();
 
-        $oCache->expects($this->exactly(6))
+        $Cache->expects($this->exactly(6))
             ->method('getFromCache')
             ->with(FrontendController::POST_COUNTS_CACHE_KEY)
             ->will($this->onConsecutiveCalls('cachedResult', null, null, null, null, null));
 
-        $oCache->expects($this->exactly(5))
+        $Cache->expects($this->exactly(5))
             ->method('addToCache')
             ->withConsecutive(
-                [FrontendController::POST_COUNTS_CACHE_KEY, $oCounts],
-                [FrontendController::POST_COUNTS_CACHE_KEY, $oCounts],
-                [FrontendController::POST_COUNTS_CACHE_KEY, $oCounts],
-                [FrontendController::POST_COUNTS_CACHE_KEY, $oCounts],
-                [FrontendController::POST_COUNTS_CACHE_KEY, $oCounts]
+                [FrontendController::POST_COUNTS_CACHE_KEY, $Counts],
+                [FrontendController::POST_COUNTS_CACHE_KEY, $Counts],
+                [FrontendController::POST_COUNTS_CACHE_KEY, $Counts],
+                [FrontendController::POST_COUNTS_CACHE_KEY, $Counts],
+                [FrontendController::POST_COUNTS_CACHE_KEY, $Counts]
             );
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(5))
+        $AccessHandler->expects($this->exactly(5))
             ->method('getExcludedPosts')
             ->will($this->onConsecutiveCalls(
                 [],
@@ -751,26 +751,26 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 [1 => 1, 3 => 3]
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig(),
-            $oDatabase,
+            $Database,
             $this->getUtil(),
-            $oCache,
+            $Cache,
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        self::assertEquals('cachedResult', $oFrontendController->showPostCount($oCounts, 'type', 'perm'));
-        self::assertEquals($oCounts, $oFrontendController->showPostCount($oCounts, 'type', 'perm'));
+        self::assertEquals('cachedResult', $FrontendController->showPostCount($Counts, 'type', 'perm'));
+        self::assertEquals($Counts, $FrontendController->showPostCount($Counts, 'type', 'perm'));
 
-        $oCounts->firstStatus = 2;
-        self::assertEquals($oCounts, $oFrontendController->showPostCount($oCounts, 'type', 'perm'));
-        self::assertEquals($oCounts, $oFrontendController->showPostCount($oCounts, 'type', 'readable'));
-        self::assertEquals($oCounts, $oFrontendController->showPostCount($oCounts, 'type', 'readable'));
-        self::assertEquals($oCounts, $oFrontendController->showPostCount($oCounts, 'type', 'readable'));
+        $Counts->firstStatus = 2;
+        self::assertEquals($Counts, $FrontendController->showPostCount($Counts, 'type', 'perm'));
+        self::assertEquals($Counts, $FrontendController->showPostCount($Counts, 'type', 'readable'));
+        self::assertEquals($Counts, $FrontendController->showPostCount($Counts, 'type', 'readable'));
+        self::assertEquals($Counts, $FrontendController->showPostCount($Counts, 'type', 'readable'));
     }
 
     /**
@@ -779,32 +779,32 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetTermArguments()
     {
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->once())
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->once())
             ->method('parseIdList')
             ->with('3,4')
             ->will($this->returnValue([3, 4]));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(2))
+        $AccessHandler->expects($this->exactly(2))
             ->method('getExcludedTerms')
             ->will($this->returnValue([1, 3]));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        self::assertEquals(['exclude' => [1, 3]], $oFrontendController->getTermArguments([]));
-        self::assertEquals(['exclude' => [3, 4, 1]], $oFrontendController->getTermArguments(['exclude' => '3,4']));
+        self::assertEquals(['exclude' => [1, 3]], $FrontendController->getTermArguments([]));
+        self::assertEquals(['exclude' => [3, 4, 1]], $FrontendController->getTermArguments(['exclude' => '3,4']));
     }
 
     /**
@@ -816,13 +816,13 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     private function getComment($iPostId, $sContent = null)
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Comment $oComment
+         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Comment $Comment
          */
-        $oComment = $this->getMockBuilder('\WP_Comment')->getMock();
-        $oComment->comment_post_ID = $iPostId;
-        $oComment->comment_content = ($sContent === null) ? "commentContent$iPostId" : $sContent;
+        $Comment = $this->getMockBuilder('\WP_Comment')->getMock();
+        $Comment->comment_post_ID = $iPostId;
+        $Comment->comment_content = ($sContent === null) ? "commentContent$iPostId" : $sContent;
 
-        return $oComment;
+        return $Comment;
     }
 
     /**
@@ -831,39 +831,39 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowComment()
     {
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(4))
+        $Config->expects($this->exactly(4))
             ->method('hidePostTypeComments')
             ->withConsecutive(['post'], ['page'], ['post'], ['post'])
             ->will($this->onConsecutiveCalls(true, false, false, false));
 
-        $oConfig->expects($this->exactly(3))
+        $Config->expects($this->exactly(3))
             ->method('hidePostType')
             ->withConsecutive(['page'], ['post'], ['post'])
             ->will($this->onConsecutiveCalls(true, false, false));
 
-        $oConfig->expects($this->exactly(2))
+        $Config->expects($this->exactly(2))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('getPostTypeCommentContent')
             ->with('post')
             ->will($this->returnValue('PostTypeCommentContent'));
 
-        $oObjectHandler = $this->getObjectHandler();
+        $ObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(6))
+        $ObjectHandler->expects($this->exactly(6))
             ->method('getPost')
             ->will($this->returnCallback(function ($iPostId) {
                 $sType = ($iPostId === 4) ? 'page' : 'post';
                 return ($iPostId !== 2) ? $this->getPost($iPostId, $sType) : false;
             }));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(5))
+        $AccessHandler->expects($this->exactly(5))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['post', 1],
@@ -880,15 +880,15 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 false
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $oConfig,
+            $Config,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
-            $oObjectHandler,
-            $oAccessHandler,
+            $ObjectHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
@@ -907,7 +907,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $this->getComment(2),
                 $this->getComment(6, 'PostTypeCommentContent')
             ],
-            $oFrontendController->showComment($aComments)
+            $FrontendController->showComment($aComments)
         );
     }
 
@@ -917,15 +917,15 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowAncestors()
     {
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(2))
+        $Config->expects($this->exactly(2))
             ->method('lockRecursive')
             ->will($this->onConsecutiveCalls(true, true));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(5))
+        $AccessHandler->expects($this->exactly(5))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['objectType', 'objectId'],
@@ -942,15 +942,15 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $oConfig,
+            $Config,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
@@ -960,10 +960,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             3 => 3
         ];
 
-        self::assertEquals([], $oFrontendController->showAncestors($aAncestors, 'objectId', 'objectType'));
+        self::assertEquals([], $FrontendController->showAncestors($aAncestors, 'objectId', 'objectType'));
         self::assertEquals(
             [1 => 1, 3 => 3],
-            $oFrontendController->showAncestors($aAncestors, 'objectId', 'objectType')
+            $FrontendController->showAncestors($aAncestors, 'objectId', 'objectType')
         );
     }
 
@@ -973,8 +973,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowNextPreviousPost()
     {
-        $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(3))
+        $AccessHandler = $this->getAccessHandler();
+        $AccessHandler->expects($this->exactly(3))
             ->method('getExcludedPosts')
             ->will($this->onConsecutiveCalls(
                 [],
@@ -982,7 +982,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 [2, 3, 5]
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -990,13 +990,13 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        self::assertEquals('query', $oFrontendController->showNextPreviousPost('query'));
-        self::assertEquals('query AND p.ID NOT IN (2) ', $oFrontendController->showNextPreviousPost('query'));
-        self::assertEquals('query AND p.ID NOT IN (2, 3, 5) ', $oFrontendController->showNextPreviousPost('query'));
+        self::assertEquals('query', $FrontendController->showNextPreviousPost('query'));
+        self::assertEquals('query AND p.ID NOT IN (2) ', $FrontendController->showNextPreviousPost('query'));
+        self::assertEquals('query AND p.ID NOT IN (2, 3, 5) ', $FrontendController->showNextPreviousPost('query'));
     }
 
     /**
@@ -1011,16 +1011,16 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     private function getTerm($iTermId, $sTaxonomy = 'taxonomy', $sName = null, $iCount = 0, $iParent = 0)
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Term $oTerm
+         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Term $Term
          */
-        $oTerm = $this->getMockBuilder('\WP_Term')->getMock();
-        $oTerm->term_id = $iTermId;
-        $oTerm->taxonomy = $sTaxonomy;
-        $oTerm->name = ($sName === null) ? "name{$iTermId}" : $sName;
-        $oTerm->count = $iCount;
-        $oTerm->parent = $iParent;
+        $Term = $this->getMockBuilder('\WP_Term')->getMock();
+        $Term->term_id = $iTermId;
+        $Term->taxonomy = $sTaxonomy;
+        $Term->name = ($sName === null) ? "name{$iTermId}" : $sName;
+        $Term->count = $iCount;
+        $Term->parent = $iParent;
 
-        return $oTerm;
+        return $Term;
     }
 
     /**
@@ -1032,25 +1032,25 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowTerm()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
         /**
-         * @var \WP_User|\stdClass $oUser
+         * @var \WP_User|\stdClass $User
          */
-        $oUser = $this->getMockBuilder('\WP_User')->getMock();
-        $oUser->ID = 1;
+        $User = $this->getMockBuilder('\WP_User')->getMock();
+        $User->ID = 1;
 
-        $oWordpress->expects($this->exactly(1))
+        $Wordpress->expects($this->exactly(1))
             ->method('getCurrentUser')
-            ->will($this->returnValue($oUser));
+            ->will($this->returnValue($User));
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(7))
+        $Config->expects($this->exactly(7))
             ->method('lockRecursive')
             ->will($this->onConsecutiveCalls(true, false, false, true, true, false, true));
 
-        $oConfig->expects($this->exactly(12))
+        $Config->expects($this->exactly(12))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(
                 false,
@@ -1067,34 +1067,34 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('blogAdminHint')
             ->will($this->onConsecutiveCalls(true));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('getBlogAdminHintText')
             ->will($this->returnValue('BlogAdminHintText'));
 
-        $oConfig->expects($this->exactly(5))
+        $Config->expects($this->exactly(5))
             ->method('hidePostType')
             ->withConsecutive(['post'], ['post'], ['page'], ['post'], ['post'])
             ->will($this->onConsecutiveCalls(false, true, true, true, true));
 
-        $oConfig->expects($this->exactly(4))
+        $Config->expects($this->exactly(4))
             ->method('hideEmptyTaxonomy')
             ->withConsecutive(['taxonomy'], ['taxonomy'], ['taxonomy'], ['taxonomy'])
             ->will($this->onConsecutiveCalls(false, true, true, false));
 
-        $oUtil = $this->getUtil();
+        $Util = $this->getUtil();
 
-        $oUtil->expects($this->once())
+        $Util->expects($this->once())
             ->method('endsWith')
             ->with('name1', 'BlogAdminHintText')
             ->will($this->returnValue(false));
 
-        $oObjectHandler = $this->getObjectHandler();
+        $ObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(7))
+        $ObjectHandler->expects($this->exactly(7))
             ->method('getTermTreeMap')
             ->will($this->returnValue(
                 [
@@ -1106,7 +1106,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ]
             ));
 
-        $oObjectHandler->expects($this->exactly(7))
+        $ObjectHandler->expects($this->exactly(7))
             ->method('getTermPostMap')
             ->will($this->returnValue(
                 [
@@ -1115,7 +1115,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ]
             ));
 
-        $oObjectHandler->expects($this->exactly(4))
+        $ObjectHandler->expects($this->exactly(4))
             ->method('getTerm')
             ->will($this->returnCallback(function ($iTermId) {
                 if ($iTermId === 104) {
@@ -1127,9 +1127,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 return $this->getTerm($iTermId);
             }));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(14))
+        $AccessHandler->expects($this->exactly(14))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['taxonomy', 1],
@@ -1164,46 +1164,46 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $oAccessHandler->expects($this->once())
+        $AccessHandler->expects($this->once())
             ->method('userIsAdmin')
             ->with(1)
             ->will($this->returnValue(true));
 
-        $oAccessHandler->expects($this->once())
+        $AccessHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('taxonomy', 1)
             ->will($this->returnValue([1, 2]));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
-            $oUtil,
+            $Util,
             $this->getCache(),
-            $oObjectHandler,
-            $oAccessHandler,
+            $ObjectHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
         /**
-         * @var \WP_Term $oFakeTerm
+         * @var \WP_Term $FakeTerm
          */
-        $oFakeTerm = new \stdClass();
-        self::assertEquals($oFakeTerm, $oFrontendController->showTerm($oFakeTerm));
+        $FakeTerm = new \stdClass();
+        self::assertEquals($FakeTerm, $FrontendController->showTerm($FakeTerm));
 
-        $oTerm = $this->getTerm(1);
-        self::assertEquals(null, $oFrontendController->showTerm($oTerm));
+        $Term = $this->getTerm(1);
+        self::assertEquals(null, $FrontendController->showTerm($Term));
         self::assertEquals(
             $this->getTerm(1, 'taxonomy', 'name1BlogAdminHintText', 3),
-            $oFrontendController->showTerm($oTerm)
+            $FrontendController->showTerm($Term)
         );
 
-        $oTerm = $this->getTerm(107, 'taxonomy', null, 0, 106);
-        self::assertEquals($this->getTerm(107, 'taxonomy', null, 0, 105), $oFrontendController->showTerm($oTerm));
+        $Term = $this->getTerm(107, 'taxonomy', null, 0, 106);
+        self::assertEquals($this->getTerm(107, 'taxonomy', null, 0, 105), $FrontendController->showTerm($Term));
 
-        $oTerm = $this->getTerm(105, 'taxonomy', null, 0, 104);
-        self::assertEquals($this->getTerm(105, 'taxonomy', null, 0, 104), $oFrontendController->showTerm($oTerm));
+        $Term = $this->getTerm(105, 'taxonomy', null, 0, 104);
+        self::assertEquals($this->getTerm(105, 'taxonomy', null, 0, 104), $FrontendController->showTerm($Term));
 
         $aTerms = [
             1 => new \stdClass(),
@@ -1220,7 +1220,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 11 => $this->getTerm(11),
                 2 => $this->getTerm(2, 'taxonomy', null, 1)
             ],
-            $oFrontendController->showTerms($aTerms)
+            $FrontendController->showTerms($aTerms)
         );
     }
 
@@ -1233,12 +1233,12 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     private function getItem($sObjectType, $sObjectId, $sTitle = null)
     {
-        $oItem = new \stdClass();
-        $oItem->object = $sObjectType;
-        $oItem->object_id = $sObjectId;
-        $oItem->title = ($sTitle === null) ? "title{$sObjectId}" : $sTitle;
+        $Item = new \stdClass();
+        $Item->object = $sObjectType;
+        $Item->object_id = $sObjectId;
+        $Item->title = ($sTitle === null) ? "title{$sObjectId}" : $sTitle;
 
-        return $oItem;
+        return $Item;
     }
 
     /**
@@ -1247,21 +1247,21 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowCustomMenu()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
         /**
-         * @var \WP_User|\stdClass $oUser
+         * @var \WP_User|\stdClass $User
          */
-        $oUser = $this->getMockBuilder('\WP_User')->getMock();
-        $oUser->ID = 1;
+        $User = $this->getMockBuilder('\WP_User')->getMock();
+        $User->ID = 1;
 
-        $oWordpress->expects($this->exactly(1))
+        $Wordpress->expects($this->exactly(1))
             ->method('getCurrentUser')
-            ->will($this->returnValue($oUser));
+            ->will($this->returnValue($User));
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(14))
+        $Config->expects($this->exactly(14))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(
                 false,
@@ -1280,48 +1280,48 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('blogAdminHint')
             ->will($this->onConsecutiveCalls(true));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('getBlogAdminHintText')
             ->will($this->returnValue('BlogAdminHintText'));
 
-        $oConfig->expects($this->exactly(3))
+        $Config->expects($this->exactly(3))
             ->method('hidePostType')
             ->withConsecutive(['post'], ['post'], ['post'])
             ->will($this->onConsecutiveCalls(false, false, true));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('hidePostTypeTitle')
             ->with('post')
             ->will($this->returnValue(true));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('getPostTypeTitle')
             ->with('post')
             ->will($this->returnValue('PostTypeTitle'));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('hideEmptyTaxonomy')
             ->with('taxonomy')
             ->will($this->returnValue(true));
 
-        $oConfig->expects($this->exactly(2))
+        $Config->expects($this->exactly(2))
             ->method('lockRecursive')
             ->will($this->returnValue(true));
 
-        $oUtil = $this->getUtil();
+        $Util = $this->getUtil();
 
-        $oUtil->expects($this->once())
+        $Util->expects($this->once())
             ->method('endsWith')
             ->with('title1', 'BlogAdminHintText')
             ->will($this->returnValue(false));
 
-        $oObjectHandler = $this->getObjectHandler();
+        $ObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(8))
+        $ObjectHandler->expects($this->exactly(8))
             ->method('isPostType')
             ->withConsecutive(
                 ['other'],
@@ -1337,7 +1337,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 return ($sType === 'post');
             }));
 
-        $oObjectHandler->expects($this->exactly(4))
+        $ObjectHandler->expects($this->exactly(4))
             ->method('isTaxonomy')
             ->withConsecutive(['other'], ['taxonomy'], ['taxonomy'], ['taxonomy'])
             ->will($this->returnCallback(function ($sType) {
@@ -1345,23 +1345,23 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             }));
 
 
-        $oObjectHandler->expects($this->exactly(2))
+        $ObjectHandler->expects($this->exactly(2))
             ->method('getTermTreeMap')
             ->will($this->returnValue([]));
 
-        $oObjectHandler->expects($this->exactly(2))
+        $ObjectHandler->expects($this->exactly(2))
             ->method('getTermPostMap')
             ->will($this->returnValue([]));
 
-        $oObjectHandler->expects($this->exactly(3))
+        $ObjectHandler->expects($this->exactly(3))
             ->method('getTerm')
             ->will($this->returnCallback(function ($iTermId) {
                 return $this->getTerm($iTermId);
             }));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(7))
+        $AccessHandler->expects($this->exactly(7))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['post', 1],
@@ -1382,25 +1382,25 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $oAccessHandler->expects($this->once())
+        $AccessHandler->expects($this->once())
             ->method('userIsAdmin')
             ->with(1)
             ->will($this->returnValue(true));
 
-        $oAccessHandler->expects($this->once())
+        $AccessHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('other', 1)
             ->will($this->returnValue([1, 2]));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
-            $oUtil,
+            $Util,
             $this->getCache(),
-            $oObjectHandler,
-            $oAccessHandler,
+            $ObjectHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
@@ -1422,7 +1422,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 3 => $this->getItem('post', 2, 'PostTypeTitle'),
                 8 => $this->getItem('taxonomy', 3)
             ],
-            $oFrontendController->showCustomMenu($aItems)
+            $FrontendController->showCustomMenu($aItems)
         );
     }
 
@@ -1432,9 +1432,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowGroupMembership()
     {
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(3))
+        $AccessHandler->expects($this->exactly(3))
             ->method('getFilteredUserGroupsForObject')
             ->with(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1)
             ->will($this->onConsecutiveCalls(
@@ -1448,7 +1448,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ]
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -1456,18 +1456,18 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        self::assertEquals('link', $oFrontendController->showGroupMembership('link', 1));
+        self::assertEquals('link', $FrontendController->showGroupMembership('link', 1));
         self::assertEquals(
             'link | '.TXT_UAM_ASSIGNED_GROUPS.': name2',
-            $oFrontendController->showGroupMembership('link', 1)
+            $FrontendController->showGroupMembership('link', 1)
         );
         self::assertEquals(
             'link | '.TXT_UAM_ASSIGNED_GROUPS.': &lt;a&gt;test&lt;/a&gt;, name2',
-            $oFrontendController->showGroupMembership('link', 1)
+            $FrontendController->showGroupMembership('link', 1)
         );
     }
 
@@ -1477,19 +1477,19 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowLoginForm()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->exactly(4))
+        $Wordpress->expects($this->exactly(4))
             ->method('isSingle')
             ->will($this->onConsecutiveCalls(true, false, true, false));
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('isPage')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -1499,10 +1499,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertTrue($oFrontendController->showLoginForm());
-        self::assertFalse($oFrontendController->showLoginForm());
-        self::assertTrue($oFrontendController->showLoginForm());
-        self::assertTrue($oFrontendController->showLoginForm());
+        self::assertTrue($FrontendController->showLoginForm());
+        self::assertFalse($FrontendController->showLoginForm());
+        self::assertTrue($FrontendController->showLoginForm());
+        self::assertTrue($FrontendController->showLoginForm());
     }
 
     /**
@@ -1511,21 +1511,21 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetLoginUrl()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('getBlogInfo')
             ->with('wpurl')
             ->will($this->returnValue('BlogInfo'));
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('applyFilters')
             ->with('uam_login_form_url', 'BlogInfo/wp-login.php')
             ->will($this->returnValue('filter'));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -1535,7 +1535,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertEquals('filter', $oFrontendController->getLoginUrl());
+        self::assertEquals('filter', $FrontendController->getLoginUrl());
     }
 
     /**
@@ -1544,21 +1544,21 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetRedirectLoginUrl()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('getBlogInfo')
             ->with('wpurl')
             ->will($this->returnValue('BlogInfo'));
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('applyFilters')
             ->with('uam_login_url', 'BlogInfo/wp-login.php?redirect_to=uri%40')
             ->will($this->returnValue('filter'));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -1570,7 +1570,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $_SERVER['REQUEST_URI'] = 'uri@';
 
-        self::assertEquals('filter', $oFrontendController->getRedirectLoginUrl());
+        self::assertEquals('filter', $FrontendController->getRedirectLoginUrl());
     }
 
     /**
@@ -1579,16 +1579,16 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetUserLogin()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('escHtml')
             ->with('/log/')
             ->will($this->returnValue('escHtml'));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -1600,7 +1600,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $_GET['log'] = '/log\/';
 
-        self::assertEquals('escHtml', $oFrontendController->getUserLogin());
+        self::assertEquals('escHtml', $FrontendController->getUserLogin());
     }
 
     /**
@@ -1609,9 +1609,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetPostIdByUrl()
     {
-        $oCache = $this->getCache();
+        $Cache = $this->getCache();
 
-        $oCache->expects($this->exactly(6))
+        $Cache->expects($this->exactly(6))
             ->method('getFromCache')
             ->with(FrontendController::POST_URL_CACHE_KEY)
             ->will($this->onConsecutiveCalls(
@@ -1623,7 +1623,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ['url/part' => 1]
             ));
 
-        $oCache->expects($this->exactly(4))
+        $Cache->expects($this->exactly(4))
             ->method('addToCache')
             ->withConsecutive(
                 [FrontendController::POST_URL_CACHE_KEY, ['url/part' => 1]],
@@ -1632,13 +1632,13 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 [FrontendController::POST_URL_CACHE_KEY, ['url-e123-123x321/part' => 4]]
             );
 
-        $oDatabase = $this->getDatabase();
+        $Database = $this->getDatabase();
 
-        $oDatabase->expects($this->exactly(5))
+        $Database->expects($this->exactly(5))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $oDatabase->expects($this->exactly(5))
+        $Database->expects($this->exactly(5))
             ->method('prepare')
             ->with(
                 new MatchIgnoreWhitespace(
@@ -1651,7 +1651,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('preparedQuery'));
 
-        $oDatabase->expects($this->exactly(5))
+        $Database->expects($this->exactly(5))
             ->method('getRow')
             ->with('preparedQuery')
             ->will($this->onConsecutiveCalls(
@@ -1662,24 +1662,24 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $this->getPost(4)
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
-            $oDatabase,
+            $Database,
             $this->getUtil(),
-            $oCache,
+            $Cache,
             $this->getObjectHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler()
         );
 
-        self::assertEquals(null, $oFrontendController->getPostIdByUrl('url/part'));
-        self::assertEquals(1, $oFrontendController->getPostIdByUrl('url/part'));
-        self::assertEquals(2, $oFrontendController->getPostIdByUrl('url-e123/part'));
-        self::assertEquals(3, $oFrontendController->getPostIdByUrl('url-123x321/part'));
-        self::assertEquals(4, $oFrontendController->getPostIdByUrl('url-e123-123x321/part'));
-        self::assertEquals(1, $oFrontendController->getPostIdByUrl('url/part'));
+        self::assertEquals(null, $FrontendController->getPostIdByUrl('url/part'));
+        self::assertEquals(1, $FrontendController->getPostIdByUrl('url/part'));
+        self::assertEquals(2, $FrontendController->getPostIdByUrl('url-e123/part'));
+        self::assertEquals(3, $FrontendController->getPostIdByUrl('url-123x321/part'));
+        self::assertEquals(4, $FrontendController->getPostIdByUrl('url-e123-123x321/part'));
+        self::assertEquals(1, $FrontendController->getPostIdByUrl('url/part'));
     }
 
     /**
@@ -1689,39 +1689,39 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetFile()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->exactly(5))
+        $Wordpress->expects($this->exactly(5))
             ->method('getUploadDir')
             ->will($this->returnValue([
                 'basedir' => '/baseDirectory/file/pictures/',
                 'baseurl' => 'http://baseUrl/file/pictures/'
             ]));
 
-        $oWordpress->expects($this->exactly(3))
+        $Wordpress->expects($this->exactly(3))
             ->method('attachmentIsImage')
             ->will($this->onConsecutiveCalls(false, true, false));
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('wpDie')
             ->with(TXT_UAM_NO_RIGHTS);
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('realPath/'));
 
-        $oCache = $this->getCache();
+        $Cache = $this->getCache();
 
-        $oCache->expects($this->exactly(5))
+        $Cache->expects($this->exactly(5))
             ->method('getFromCache')
             ->with(FrontendController::POST_URL_CACHE_KEY)
             ->will($this->returnValue(['http://baseUrl/file/pictures/url' => 1]));
 
-        $oObjectHandler = $this->getObjectHandler();
+        $ObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(5))
+        $ObjectHandler->expects($this->exactly(5))
             ->method('getPost')
             ->withConsecutive([1], [1], [1], [1], [1])
             ->will($this->onConsecutiveCalls(
@@ -1732,9 +1732,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE)
             ));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(3))
+        $AccessHandler->expects($this->exactly(3))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
@@ -1743,9 +1743,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(false, false, true));
 
-        $oFileHandler = $this->getFileHandler();
+        $FileHandler = $this->getFileHandler();
 
-        $oFileHandler->expects($this->exactly(2))
+        $FileHandler->expects($this->exactly(2))
             ->method('getFile')
             ->withConsecutive(
                 ['realPath/gfx/noAccessPic.png', true],
@@ -1753,24 +1753,24 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('getFile'));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
             $this->getUtil(),
-            $oCache,
-            $oObjectHandler,
-            $oAccessHandler,
-            $oFileHandler
+            $Cache,
+            $ObjectHandler,
+            $AccessHandler,
+            $FileHandler
         );
 
-        self::assertEquals(null, $oFrontendController->getFile('type', 'url'));
-        self::assertEquals(null, $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
-        self::assertEquals(null, $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
-        self::assertEquals(null, $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
-        self::assertEquals('getFile', $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
-        self::assertEquals('getFile', $oFrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals(null, $FrontendController->getFile('type', 'url'));
+        self::assertEquals(null, $FrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals(null, $FrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals(null, $FrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals('getFile', $FrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        self::assertEquals('getFile', $FrontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
     }
 
     /**
@@ -1780,10 +1780,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     public function testRedirectUser()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $oWpQuery
+         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $WpQuery
          */
-        $oWpQuery = $this->getMockBuilder('\WP_Query')->setMethods(['get_posts'])->getMock();
-        $oWpQuery->expects($this->once())
+        $WpQuery = $this->getMockBuilder('\WP_Query')->setMethods(['get_posts'])->getMock();
+        $WpQuery->expects($this->once())
             ->method('get_posts')
             ->will($this->returnValue([
                 $this->getPost(1),
@@ -1791,32 +1791,32 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $this->getPost(3)
             ]));
 
-        $oPost = $this->getPost(1);
-        $oPost->guid = 'guid';
+        $Post = $this->getPost(1);
+        $Post->guid = 'guid';
 
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('getWpQuery')
-            ->will($this->returnValue($oWpQuery));
+            ->will($this->returnValue($WpQuery));
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('getHomeUrl')
             ->with('/')
             ->will($this->returnValue('HomeUrl'));
 
-        $oWordpress->expects($this->exactly(3))
+        $Wordpress->expects($this->exactly(3))
             ->method('getPageLink')
-            ->with($oPost)
+            ->with($Post)
             ->will($this->returnValue('PageLink'));
 
-        $oWordpress->expects($this->exactly(3))
+        $Wordpress->expects($this->exactly(3))
             ->method('wpRedirect')
             ->withConsecutive(['guid'], ['RedirectCustomUrl'], ['HomeUrl']);
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(7))
+        $Config->expects($this->exactly(7))
             ->method('getRedirect')
             ->will($this->onConsecutiveCalls(
                 'custom_page',
@@ -1828,17 +1828,17 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 null
             ));
 
-        $oConfig->expects($this->exactly(4))
+        $Config->expects($this->exactly(4))
             ->method('getRedirectCustomPage')
             ->will($this->returnValue('RedirectCustomPage'));
 
-        $oConfig->expects($this->once())
+        $Config->expects($this->once())
             ->method('getRedirectCustomUrl')
             ->will($this->returnValue('RedirectCustomUrl'));
 
-        $oUtil = $this->getUtil();
+        $Util = $this->getUtil();
 
-        $oUtil->expects($this->exactly(7))
+        $Util->expects($this->exactly(7))
             ->method('getCurrentUrl')
             ->will($this->onConsecutiveCalls(
                 'currentUrl',
@@ -1850,21 +1850,21 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 'currentUrl'
             ));
 
-        $oObjectHandler = $this->getObjectHandler();
+        $ObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(4))
+        $ObjectHandler->expects($this->exactly(4))
             ->method('getPost')
             ->withConsecutive(['RedirectCustomPage'], ['RedirectCustomPage'], ['RedirectCustomPage'])
             ->will($this->onConsecutiveCalls(
                 false,
-                $oPost,
-                $oPost,
-                $oPost
+                $Post,
+                $Post,
+                $Post
             ));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(2))
+        $AccessHandler->expects($this->exactly(2))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['post', 1],
@@ -1872,26 +1872,26 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
-            $oUtil,
+            $Util,
             $this->getCache(),
-            $oObjectHandler,
-            $oAccessHandler,
+            $ObjectHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        $oFrontendController->redirectUser();
-        $oFrontendController->redirectUser(false);
-        $oFrontendController->redirectUser(false);
-        $oFrontendController->redirectUser(false);
-        $oFrontendController->redirectUser(false);
-        $oFrontendController->redirectUser(false);
-        $oFrontendController->redirectUser(false);
-        $oFrontendController->redirectUser(false);
+        $FrontendController->redirectUser();
+        $FrontendController->redirectUser(false);
+        $FrontendController->redirectUser(false);
+        $FrontendController->redirectUser(false);
+        $FrontendController->redirectUser(false);
+        $FrontendController->redirectUser(false);
+        $FrontendController->redirectUser(false);
+        $FrontendController->redirectUser(false);
     }
 
     /**
@@ -1900,35 +1900,35 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testRedirect()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('getHomeUrl')
             ->with('/')
             ->will($this->returnValue(null));
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('getPageByPath')
             ->with('pageNameValue')
             ->will($this->onConsecutiveCalls(null, $this->getPost(2)));
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(9))
+        $Config->expects($this->exactly(9))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false, false, false));
 
-        $oConfig->expects($this->exactly(9))
+        $Config->expects($this->exactly(9))
             ->method('getRedirect')
             ->will($this->onConsecutiveCalls('false', null, null, null, null, null, null, null, null));
 
-        $oDatabase = $this->getDatabase();
+        $Database = $this->getDatabase();
 
-        $oDatabase->expects($this->once())
+        $Database->expects($this->once())
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $oDatabase->expects($this->once())
+        $Database->expects($this->once())
             ->method('prepare')
             ->with(
                 new MatchIgnoreWhitespace(
@@ -1941,25 +1941,25 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('preparedQuery'));
 
-        $oDatabase->expects($this->once())
+        $Database->expects($this->once())
             ->method('getVariable')
             ->with('preparedQuery')
             ->will($this->returnValue(1));
 
-        $oUtil = $this->getUtil();
-        $oUtil->expects($this->once())
+        $Util = $this->getUtil();
+        $Util->expects($this->once())
             ->method('getCurrentUrl')
             ->will($this->returnValue('currentUrl'));
 
-        $oObjectHandler = $this->getObjectHandler();
+        $ObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->once())
+        $ObjectHandler->expects($this->once())
             ->method('getPostTypes')
             ->will($this->returnValue(['post', 'page', 'other']));
 
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(7))
+        $AccessHandler->expects($this->exactly(7))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 [null, null],
@@ -1980,52 +1980,52 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
-            $oDatabase,
-            $oUtil,
+            $Wordpress,
+            $Config,
+            $Database,
+            $Util,
             $this->getCache(),
-            $oObjectHandler,
-            $oAccessHandler,
+            $ObjectHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        $oPageParams = new \stdClass();
+        $PageParams = new \stdClass();
 
         $_GET['uamfiletype'] = 'fileType';
-        $oPageParams->query_vars = [];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = [];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
-        $oPageParams->query_vars = [];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = [];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
-        $oPageParams->query_vars = [];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = [];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
-        $oPageParams->query_vars = ['p' => 'pValue'];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = ['p' => 'pValue'];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
         unset($_GET['uamfiletype']);
         $_GET['uamgetfile'] = 'file';
-        $oPageParams->query_vars = ['page_id' => 'pageIdValue'];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = ['page_id' => 'pageIdValue'];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
-        $oPageParams->query_vars = ['cat_id' => 'catIdValue'];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = ['cat_id' => 'catIdValue'];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
-        $oPageParams->query_vars = ['name' => 'nameValue'];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = ['name' => 'nameValue'];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
-        $oPageParams->query_vars = ['pagename' => 'pageNameValue'];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = ['pagename' => 'pageNameValue'];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
-        $oPageParams->query_vars = ['pagename' => 'pageNameValue'];
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        $PageParams->query_vars = ['pagename' => 'pageNameValue'];
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
 
         $_GET['uamfiletype'] = 'fileType';
-        self::assertEquals('header', $oFrontendController->redirect('header', $oPageParams));
+        self::assertEquals('header', $FrontendController->redirect('header', $PageParams));
     }
 
     /**
@@ -2034,30 +2034,30 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetFileUrl()
     {
-        $oWordpress = $this->getWordpress();
+        $Wordpress = $this->getWordpress();
 
-        $oWordpress->expects($this->exactly(2))
+        $Wordpress->expects($this->exactly(2))
             ->method('getHomeUrl')
             ->with('/')
             ->will($this->returnValue('homeUrl'));
 
-        $oConfig = $this->getConfig();
+        $Config = $this->getConfig();
 
-        $oConfig->expects($this->exactly(6))
+        $Config->expects($this->exactly(6))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
 
-        $oConfig->expects($this->exactly(5))
+        $Config->expects($this->exactly(5))
             ->method('lockFile')
             ->will($this->onConsecutiveCalls(false, true, true, true, true));
 
-        $oConfig->expects($this->exactly(3))
+        $Config->expects($this->exactly(3))
             ->method('getLockedFileTypes')
             ->will($this->onConsecutiveCalls('none', 'all', 'aaa,mime'));
 
-        $oObjectHandler = $this->getObjectHandler();
+        $ObjectHandler = $this->getObjectHandler();
 
-        $oObjectHandler->expects($this->exactly(4))
+        $ObjectHandler->expects($this->exactly(4))
             ->method('getPost')
             ->withConsecutive([1], [1], [1], [1])
             ->will($this->onConsecutiveCalls(
@@ -2067,29 +2067,29 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $this->getPost(1)
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
-            $oObjectHandler,
+            $ObjectHandler,
             $this->getAccessHandler(),
             $this->getFileHandler()
         );
 
-        self::assertEquals('url', $oFrontendController->getFileUrl('url', 1));
-        self::assertEquals('url', $oFrontendController->getFileUrl('url', 1));
-        self::assertEquals('url', $oFrontendController->getFileUrl('url', 1));
-        self::assertEquals('url', $oFrontendController->getFileUrl('url', 1));
+        self::assertEquals('url', $FrontendController->getFileUrl('url', 1));
+        self::assertEquals('url', $FrontendController->getFileUrl('url', 1));
+        self::assertEquals('url', $FrontendController->getFileUrl('url', 1));
+        self::assertEquals('url', $FrontendController->getFileUrl('url', 1));
         self::assertEquals(
             'homeUrl?uamfiletype=attachment&uamgetfile=url',
-            $oFrontendController->getFileUrl('url', 1)
+            $FrontendController->getFileUrl('url', 1)
         );
         self::assertEquals(
             'homeUrl?uamfiletype=attachment&uamgetfile=url',
-            $oFrontendController->getFileUrl('url', 1)
+            $FrontendController->getFileUrl('url', 1)
         );
     }
 
@@ -2099,9 +2099,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testCachePostLinks()
     {
-        $oCache = $this->getCache();
+        $Cache = $this->getCache();
 
-        $oCache->expects($this->exactly(2))
+        $Cache->expects($this->exactly(2))
             ->method('getFromCache')
             ->with(FrontendController::POST_URL_CACHE_KEY)
             ->will($this->onConsecutiveCalls(
@@ -2109,27 +2109,27 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ['firstUrl' => 1]
             ));
 
-        $oCache->expects($this->exactly(2))
+        $Cache->expects($this->exactly(2))
             ->method('addToCache')
             ->withConsecutive(
                 [FrontendController::POST_URL_CACHE_KEY, ['firstUrl' => 1]],
                 [FrontendController::POST_URL_CACHE_KEY, ['firstUrl' => 1, 'secondUrl' => 2]]
             );
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
             $this->getUtil(),
-            $oCache,
+            $Cache,
             $this->getObjectHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler()
         );
 
-        self::assertEquals('firstUrl', $oFrontendController->cachePostLinks('firstUrl', $this->getPost(1)));
-        self::assertEquals('secondUrl', $oFrontendController->cachePostLinks('secondUrl', $this->getPost(2)));
+        self::assertEquals('firstUrl', $FrontendController->cachePostLinks('firstUrl', $this->getPost(1)));
+        self::assertEquals('secondUrl', $FrontendController->cachePostLinks('secondUrl', $this->getPost(2)));
     }
 
     /**
@@ -2138,9 +2138,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetWpSeoUrl()
     {
-        $oAccessHandler = $this->getAccessHandler();
+        $AccessHandler = $this->getAccessHandler();
 
-        $oAccessHandler->expects($this->exactly(2))
+        $AccessHandler->expects($this->exactly(2))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['type', 1],
@@ -2151,7 +2151,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 false
             ));
 
-        $oFrontendController = new FrontendController(
+        $FrontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -2159,14 +2159,14 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getFileHandler()
         );
 
-        $oObject = new \stdClass();
-        $oObject->ID = 1;
+        $Object = new \stdClass();
+        $Object->ID = 1;
 
-        self::assertEquals('url', $oFrontendController->getWpSeoUrl('url', 'type', $oObject));
-        self::assertFalse($oFrontendController->getWpSeoUrl('url', 'type', $oObject));
+        self::assertEquals('url', $FrontendController->getWpSeoUrl('url', 'type', $Object));
+        self::assertFalse($FrontendController->getWpSeoUrl('url', 'type', $Object));
     }
 }

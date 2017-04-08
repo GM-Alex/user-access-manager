@@ -31,19 +31,19 @@ class StringConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oStringConfigParameter = new StringConfigParameter('testId');
+        $StringConfigParameter = new StringConfigParameter('testId');
 
-        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $oStringConfigParameter);
-        self::assertAttributeEquals('testId', 'sId', $oStringConfigParameter);
-        self::assertAttributeEquals('', 'mDefaultValue', $oStringConfigParameter);
+        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $StringConfigParameter);
+        self::assertAttributeEquals('testId', 'sId', $StringConfigParameter);
+        self::assertAttributeEquals('', 'mDefaultValue', $StringConfigParameter);
 
-        $oStringConfigParameter = new StringConfigParameter('otherId', 'value');
+        $StringConfigParameter = new StringConfigParameter('otherId', 'value');
 
-        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $oStringConfigParameter);
-        self::assertAttributeEquals('otherId', 'sId', $oStringConfigParameter);
-        self::assertAttributeEquals('value', 'mDefaultValue', $oStringConfigParameter);
+        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $StringConfigParameter);
+        self::assertAttributeEquals('otherId', 'sId', $StringConfigParameter);
+        self::assertAttributeEquals('value', 'mDefaultValue', $StringConfigParameter);
 
-        return $oStringConfigParameter;
+        return $StringConfigParameter;
     }
 
     /**
@@ -51,12 +51,12 @@ class StringConfigParameterTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Config\StringConfigParameter::isValidValue()
      *
-     * @param StringConfigParameter $oStringConfigParameter
+     * @param StringConfigParameter $StringConfigParameter
      */
-    public function testIsValidValue($oStringConfigParameter)
+    public function testIsValidValue($StringConfigParameter)
     {
-        self::assertTrue($oStringConfigParameter->isValidValue('string'));
-        self::assertFalse($oStringConfigParameter->isValidValue(true));
-        self::assertFalse($oStringConfigParameter->isValidValue([]));
+        self::assertTrue($StringConfigParameter->isValidValue('string'));
+        self::assertFalse($StringConfigParameter->isValidValue(true));
+        self::assertFalse($StringConfigParameter->isValidValue([]));
     }
 }

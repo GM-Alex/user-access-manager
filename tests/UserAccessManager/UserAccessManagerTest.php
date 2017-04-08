@@ -29,7 +29,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oObjectHandler = new UserAccessManager(
+        $ObjectHandler = new UserAccessManager(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -39,7 +39,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getControllerFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserAccessManager', $oObjectHandler);
+        self::assertInstanceOf('\UserAccessManager\UserAccessManager', $ObjectHandler);
     }
 
     /**
@@ -48,44 +48,44 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      */
     public function testRegisterAdminMenu()
     {
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->once())
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->once())
             ->method('addMenuPage');
-        $oWordpress->expects($this->exactly(4))
+        $Wordpress->expects($this->exactly(4))
             ->method('addSubmenuPage');
-        $oWordpress->expects($this->once())
+        $Wordpress->expects($this->once())
             ->method('doAction');
 
-        $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(2))
+        $AccessHandler = $this->getAccessHandler();
+        $AccessHandler->expects($this->exactly(2))
             ->method('checkUserAccess')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $oControllerFactory = $this->getControllerFactory();
-        $oControllerFactory->expects($this->once())
+        $ControllerFactory = $this->getControllerFactory();
+        $ControllerFactory->expects($this->once())
             ->method('createAdminUserGroupController');
 
-        $oControllerFactory->expects($this->once())
+        $ControllerFactory->expects($this->once())
             ->method('createAdminSettingsController');
 
-        $oControllerFactory->expects($this->once())
+        $ControllerFactory->expects($this->once())
             ->method('createAdminSetupController');
 
-        $oControllerFactory->expects($this->once())
+        $ControllerFactory->expects($this->once())
             ->method('createAdminAboutController');
 
-        $oObjectHandler = new UserAccessManager(
+        $ObjectHandler = new UserAccessManager(
             $this->getPhp(),
-            $oWordpress,
+            $Wordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
-            $oAccessHandler,
+            $AccessHandler,
             $this->getSetupHandler(),
-            $oControllerFactory
+            $ControllerFactory
         );
 
-        $oObjectHandler->registerAdminMenu();
-        $oObjectHandler->registerAdminMenu();
+        $ObjectHandler->registerAdminMenu();
+        $ObjectHandler->registerAdminMenu();
     }
 
     /**
@@ -94,91 +94,91 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      */
     public function testRegisterAdminActionsAndFilters()
     {
-        $oPhp = $this->getPhp();
-        $oPhp->expects($this->exactly(3))
+        $Php = $this->getPhp();
+        $Php->expects($this->exactly(3))
             ->method('iniGet')
             ->will($this->returnValue(true));
 
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(57))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(57))
             ->method('addAction');
 
-        $oWordpress->expects($this->exactly(16))
+        $Wordpress->expects($this->exactly(16))
             ->method('addFilter');
 
-        $oWordpress->expects($this->exactly(3))
+        $Wordpress->expects($this->exactly(3))
             ->method('addMetaBox');
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(3))
+        $Config = $this->getConfig();
+        $Config->expects($this->exactly(3))
             ->method('getDownloadType')
             ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen'));
 
-        $oConfig->expects($this->exactly(2))
+        $Config->expects($this->exactly(2))
             ->method('authorsCanAddPostsToGroups')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $oConfig->expects($this->exactly(6))
+        $Config->expects($this->exactly(6))
             ->method('lockFile')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
 
 
-        $oObjectHandler = $this->getObjectHandler();
-        $oObjectHandler->expects($this->exactly(3))
+        $ObjectHandler = $this->getObjectHandler();
+        $ObjectHandler->expects($this->exactly(3))
             ->method('getTaxonomies')
             ->will($this->returnValue(['a', 'b']));
 
-        $oObjectHandler->expects($this->exactly(2))
+        $ObjectHandler->expects($this->exactly(2))
             ->method('getPostTypes')
             ->will($this->returnValue(['a', ObjectHandler::ATTACHMENT_OBJECT_TYPE]));
 
-        $oAccessHandler = $this->getAccessHandler();
-        $oAccessHandler->expects($this->exactly(3))
+        $AccessHandler = $this->getAccessHandler();
+        $AccessHandler->expects($this->exactly(3))
             ->method('checkUserAccess')
             ->will($this->onConsecutiveCalls(true, false, false));
 
-        $oSetupHandler = $this->getSetupHandler();
-        $oSetupHandler->expects($this->exactly(3))
+        $SetupHandler = $this->getSetupHandler();
+        $SetupHandler->expects($this->exactly(3))
             ->method('isDatabaseUpdateNecessary')
             ->will($this->onConsecutiveCalls(false, true, false));
 
-        $oAdminController = $this->createMock('UserAccessManager\Controller\AdminController');
-        $oAdminController->expects($this->exactly(3))
+        $AdminController = $this->createMock('UserAccessManager\Controller\AdminController');
+        $AdminController->expects($this->exactly(3))
             ->method('getRequestParameter')
             ->will($this->onConsecutiveCalls(null, 'c', 'c'));
 
-        $oControllerFactory = $this->getControllerFactory();
-        $oControllerFactory->expects($this->exactly(3))
+        $ControllerFactory = $this->getControllerFactory();
+        $ControllerFactory->expects($this->exactly(3))
             ->method('createAdminController')
-            ->will($this->returnValue($oAdminController));
+            ->will($this->returnValue($AdminController));
 
-        $oControllerFactory->expects($this->exactly(3))
+        $ControllerFactory->expects($this->exactly(3))
             ->method('createAdminObjectController')
             ->will($this->returnCallback(function () {
-                $oAdminObjectController = $this->createMock('UserAccessManager\Controller\AdminObjectController');
-                $oAdminObjectController->expects($this->any())
+                $AdminObjectController = $this->createMock('UserAccessManager\Controller\AdminObjectController');
+                $AdminObjectController->expects($this->any())
                     ->method('checkRightsToEditContent');
 
-                $oAdminObjectController->expects($this->any())
+                $AdminObjectController->expects($this->any())
                     ->method('getRequestParameter')
                     ->will($this->returnValue('c'));
 
-                return $oAdminObjectController;
+                return $AdminObjectController;
             }));
 
-        $oObjectHandler = new UserAccessManager(
-            $oPhp,
-            $oWordpress,
-            $oConfig,
-            $oObjectHandler,
-            $oAccessHandler,
-            $oSetupHandler,
-            $oControllerFactory
+        $ObjectHandler = new UserAccessManager(
+            $Php,
+            $Wordpress,
+            $Config,
+            $ObjectHandler,
+            $AccessHandler,
+            $SetupHandler,
+            $ControllerFactory
         );
 
-        $oObjectHandler->registerAdminActionsAndFilters();
-        $oObjectHandler->registerAdminActionsAndFilters();
-        $oObjectHandler->registerAdminActionsAndFilters();
+        $ObjectHandler->registerAdminActionsAndFilters();
+        $ObjectHandler->registerAdminActionsAndFilters();
+        $ObjectHandler->registerAdminActionsAndFilters();
     }
 
     /**
@@ -187,40 +187,40 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      */
     public function testAddActionsAndFilters()
     {
-        $oFrontendController = $this->createMock('UserAccessManager\Controller\FrontendController');
-        $oFrontendController->expects($this->exactly(3))
+        $FrontendController = $this->createMock('UserAccessManager\Controller\FrontendController');
+        $FrontendController->expects($this->exactly(3))
             ->method('getRequestParameter')
             ->will($this->onConsecutiveCalls(null, true, true));
 
-        $oControllerFactory = $this->getControllerFactory();
-        $oControllerFactory->expects($this->exactly(3))
+        $ControllerFactory = $this->getControllerFactory();
+        $ControllerFactory->expects($this->exactly(3))
             ->method('createFrontendController')
-            ->will($this->returnValue($oFrontendController));
+            ->will($this->returnValue($FrontendController));
 
-        $oWordpress = $this->getWordpress();
-        $oWordpress->expects($this->exactly(21))
+        $Wordpress = $this->getWordpress();
+        $Wordpress->expects($this->exactly(21))
             ->method('addAction');
 
-        $oWordpress->expects($this->exactly(62))
+        $Wordpress->expects($this->exactly(62))
             ->method('addFilter');
 
-        $oConfig = $this->getConfig();
-        $oConfig->expects($this->exactly(3))
+        $Config = $this->getConfig();
+        $Config->expects($this->exactly(3))
             ->method('getRedirect')
             ->will($this->onConsecutiveCalls(false, false, true));
 
-        $oObjectHandler = new UserAccessManager(
+        $ObjectHandler = new UserAccessManager(
             $this->getPhp(),
-            $oWordpress,
-            $oConfig,
+            $Wordpress,
+            $Config,
             $this->getObjectHandler(),
             $this->getAccessHandler(),
             $this->getSetupHandler(),
-            $oControllerFactory
+            $ControllerFactory
         );
 
-        $oObjectHandler->addActionsAndFilters();
-        $oObjectHandler->addActionsAndFilters();
-        $oObjectHandler->addActionsAndFilters();
+        $ObjectHandler->addActionsAndFilters();
+        $ObjectHandler->addActionsAndFilters();
+        $ObjectHandler->addActionsAndFilters();
     }
 }

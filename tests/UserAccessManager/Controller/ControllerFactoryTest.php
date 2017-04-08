@@ -31,7 +31,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $oControllerFactory = new ControllerFactory(
+        $ControllerFactory = new ControllerFactory(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
@@ -45,9 +45,9 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
             $this->getSetupHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\ControllerFactory', $oControllerFactory);
+        self::assertInstanceOf('\UserAccessManager\Controller\ControllerFactory', $ControllerFactory);
 
-        return $oControllerFactory;
+        return $ControllerFactory;
     }
 
     /**
@@ -55,13 +55,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminController()
      *
-     * @param ControllerFactory $oControllerFactory
+     * @param ControllerFactory $ControllerFactory
      */
-    public function testCreateAdminController(ControllerFactory $oControllerFactory)
+    public function testCreateAdminController(ControllerFactory $ControllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminController',
-            $oControllerFactory->createAdminController()
+            $ControllerFactory->createAdminController()
         );
     }
 
@@ -70,13 +70,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminAboutController()
      *
-     * @param ControllerFactory $oControllerFactory
+     * @param ControllerFactory $ControllerFactory
      */
-    public function testCreateAdminAboutController(ControllerFactory $oControllerFactory)
+    public function testCreateAdminAboutController(ControllerFactory $ControllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminAboutController',
-            $oControllerFactory->createAdminAboutController()
+            $ControllerFactory->createAdminAboutController()
         );
     }
 
@@ -85,13 +85,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminObjectController()
      *
-     * @param ControllerFactory $oControllerFactory
+     * @param ControllerFactory $ControllerFactory
      */
-    public function testCreateAdminObjectController(ControllerFactory $oControllerFactory)
+    public function testCreateAdminObjectController(ControllerFactory $ControllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminObjectController',
-            $oControllerFactory->createAdminObjectController()
+            $ControllerFactory->createAdminObjectController()
         );
     }
 
@@ -100,13 +100,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminSettingsController()
      *
-     * @param ControllerFactory $oControllerFactory
+     * @param ControllerFactory $ControllerFactory
      */
-    public function testCreateAdminSettingController(ControllerFactory $oControllerFactory)
+    public function testCreateAdminSettingController(ControllerFactory $ControllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminSettingsController',
-            $oControllerFactory->createAdminSettingsController()
+            $ControllerFactory->createAdminSettingsController()
         );
     }
 
@@ -115,13 +115,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminSetupController()
      *
-     * @param ControllerFactory $oControllerFactory
+     * @param ControllerFactory $ControllerFactory
      */
-    public function testCreateAdminSetupController(ControllerFactory $oControllerFactory)
+    public function testCreateAdminSetupController(ControllerFactory $ControllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminSetupController',
-            $oControllerFactory->createAdminSetupController()
+            $ControllerFactory->createAdminSetupController()
         );
     }
 
@@ -130,13 +130,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminUserGroupController()
      *
-     * @param ControllerFactory $oControllerFactory
+     * @param ControllerFactory $ControllerFactory
      */
-    public function testCreateAdminUserGroupController(ControllerFactory $oControllerFactory)
+    public function testCreateAdminUserGroupController(ControllerFactory $ControllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminUserGroupController',
-            $oControllerFactory->createAdminUserGroupController()
+            $ControllerFactory->createAdminUserGroupController()
         );
     }
 
@@ -145,13 +145,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createFrontendController()
      *
-     * @param ControllerFactory $oControllerFactory
+     * @param ControllerFactory $ControllerFactory
      */
-    public function testCreateFrontendController(ControllerFactory $oControllerFactory)
+    public function testCreateFrontendController(ControllerFactory $ControllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\FrontendController',
-            $oControllerFactory->createFrontendController()
+            $ControllerFactory->createFrontendController()
         );
     }
 }
