@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
@@ -30,22 +30,22 @@ class Database
     /**
      * @var \wpdb
      */
-    protected $WpDatabase;
+    protected $wpDatabase;
 
     /**
      * @var Database
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * Database constructor.
      *
-     * @param Wordpress $Wordpress
+     * @param Wordpress $wordpress
      */
-    public function __construct(Wordpress $Wordpress)
+    public function __construct(Wordpress $wordpress)
     {
-        $this->Wordpress = $Wordpress;
-        $this->WpDatabase = $Wordpress->getDatabase();
+        $this->wordpress = $wordpress;
+        $this->wpDatabase = $wordpress->getDatabase();
     }
 
     /**
@@ -55,7 +55,7 @@ class Database
      */
     public function getUserGroupTable()
     {
-        return $this->WpDatabase->prefix.self::USER_GROUP_TABLE_NAME;
+        return $this->wpDatabase->prefix.self::USER_GROUP_TABLE_NAME;
     }
 
     /**
@@ -65,20 +65,20 @@ class Database
      */
     public function getUserGroupToObjectTable()
     {
-        return $this->WpDatabase->prefix.self::USER_GROUP_TO_OBJECT_TABLE_NAME;
+        return $this->wpDatabase->prefix.self::USER_GROUP_TO_OBJECT_TABLE_NAME;
     }
 
     /**
      * @see dbDelta()
      *
-     * @param string $mQueries
-     * @param bool   $blExecute
+     * @param string $queries
+     * @param bool   $execute
      *
      * @return array
      */
-    public function dbDelta($mQueries = '', $blExecute = true)
+    public function dbDelta($queries = '', $execute = true)
     {
-        return $this->Wordpress->dbDelta($mQueries, $blExecute);
+        return $this->wordpress->dbDelta($queries, $execute);
     }
 
     /**
@@ -88,7 +88,7 @@ class Database
      */
     public function getPrefix()
     {
-        return $this->WpDatabase->prefix;
+        return $this->wpDatabase->prefix;
     }
 
     /**
@@ -98,7 +98,7 @@ class Database
      */
     public function getLastInsertId()
     {
-        return $this->WpDatabase->insert_id;
+        return $this->wpDatabase->insert_id;
     }
 
     /**
@@ -108,7 +108,7 @@ class Database
      */
     public function getCurrentBlogId()
     {
-        return $this->WpDatabase->blogid;
+        return $this->wpDatabase->blogid;
     }
 
     /**
@@ -118,7 +118,7 @@ class Database
      */
     public function getBlogsTable()
     {
-        return $this->WpDatabase->blogs;
+        return $this->wpDatabase->blogs;
     }
 
     /**
@@ -128,7 +128,7 @@ class Database
      */
     public function getPostsTable()
     {
-        return $this->WpDatabase->posts;
+        return $this->wpDatabase->posts;
     }
 
     /**
@@ -138,7 +138,7 @@ class Database
      */
     public function getTermRelationshipsTable()
     {
-        return $this->WpDatabase->term_relationships;
+        return $this->wpDatabase->term_relationships;
     }
 
     /**
@@ -148,7 +148,7 @@ class Database
      */
     public function getTermTaxonomyTable()
     {
-        return $this->WpDatabase->term_taxonomy;
+        return $this->wpDatabase->term_taxonomy;
     }
 
     /**
@@ -158,7 +158,7 @@ class Database
      */
     public function getUsersTable()
     {
-        return $this->WpDatabase->users;
+        return $this->wpDatabase->users;
     }
 
     /**
@@ -168,142 +168,142 @@ class Database
      */
     public function getCapabilitiesTable()
     {
-        return $this->WpDatabase->prefix.'capabilities';
+        return $this->wpDatabase->prefix.'capabilities';
     }
 
     /**
      * @see \wpdb::get_col()
      *
-     * @param string $sQuery
-     * @param int    $iColumn
+     * @param string $query
+     * @param int    $column
      *
      * @return array
      */
-    public function getColumn($sQuery = null, $iColumn = 0)
+    public function getColumn($query = null, $column = 0)
     {
-        return $this->WpDatabase->get_col($sQuery, $iColumn);
+        return $this->wpDatabase->get_col($query, $column);
     }
 
     /**
      * @see \wpdb::get_row()
      *
-     * @param string $sQuery
-     * @param string $sOutput
-     * @param int    $iRow
+     * @param string $query
+     * @param string $output
+     * @param int    $row
      *
      * @return array|null|object
      */
-    public function getRow($sQuery = null, $sOutput = OBJECT, $iRow = 0)
+    public function getRow($query = null, $output = OBJECT, $row = 0)
     {
-        return $this->WpDatabase->get_row($sQuery, $sOutput, $iRow);
+        return $this->wpDatabase->get_row($query, $output, $row);
     }
 
     /**
      * @see \wpdb::get_var()
      *
-     * @param null $sQuery
-     * @param int  $iColumn
-     * @param int  $iRow
+     * @param null $query
+     * @param int  $column
+     * @param int  $row
      *
      * @return null|string
      */
-    public function getVariable($sQuery = null, $iColumn = 0, $iRow = 0)
+    public function getVariable($query = null, $column = 0, $row = 0)
     {
-        return $this->WpDatabase->get_var($sQuery, $iColumn, $iRow);
+        return $this->wpDatabase->get_var($query, $column, $row);
     }
 
     /**
      * @see \wpdb::get_blog_prefix()
      *
-     * @param int $iBlogId
+     * @param int $blogId
      *
      * @return string
      */
-    public function getBlogPrefix($iBlogId = null)
+    public function getBlogPrefix($blogId = null)
     {
-        return $this->WpDatabase->get_blog_prefix($iBlogId);
+        return $this->wpDatabase->get_blog_prefix($blogId);
     }
 
     /**
      * @see \wpdb::prepare()
      *
-     * @param string $sQuery
-     * @param mixed  $mArguments
+     * @param string $query
+     * @param mixed  $arguments
      *
      * @return string
      */
-    public function prepare($sQuery, $mArguments)
+    public function prepare($query, $arguments)
     {
-        return $this->WpDatabase->prepare($sQuery, $mArguments);
+        return $this->wpDatabase->prepare($query, $arguments);
     }
 
     /**
      * @see \wpdb::query()
      *
-     * @param string $sQuery
+     * @param string $query
      *
      * @return false|int
      */
-    public function query($sQuery)
+    public function query($query)
     {
-        return $this->WpDatabase->query($sQuery);
+        return $this->wpDatabase->query($query);
     }
 
     /**
      * @see \wpdb::get_results()
      *
-     * @param null   $sQuery
-     * @param string $sOutput
+     * @param null   $query
+     * @param string $output
      *
      * @return array|null|object
      */
-    public function getResults($sQuery = null, $sOutput = OBJECT)
+    public function getResults($query = null, $output = OBJECT)
     {
-        return $this->WpDatabase->get_results($sQuery, $sOutput);
+        return $this->wpDatabase->get_results($query, $output);
     }
 
     /**
      * @see \wpdb::insert()
      *
-     * @param string       $sTable
-     * @param array        $aData
-     * @param array|string $sFormat
+     * @param string       $table
+     * @param array        $data
+     * @param array|string $format
      *
      * @return false|int
      */
-    public function insert($sTable, array $aData, $sFormat = null)
+    public function insert($table, array $data, $format = null)
     {
-        return $this->WpDatabase->insert($sTable, $aData, $sFormat);
+        return $this->wpDatabase->insert($table, $data, $format);
     }
 
     /**
      * @see \wpdb::update()
      *
-     * @param string       $sTable
-     * @param array        $aData
-     * @param array        $aWhere
-     * @param array|string $mFormat
-     * @param array|string $mWhereFormat
+     * @param string       $table
+     * @param array        $data
+     * @param array        $where
+     * @param array|string $format
+     * @param array|string $whereFormat
      *
      * @return false|int
      */
-    public function update($sTable, array $aData, array $aWhere, $mFormat = null, $mWhereFormat = null)
+    public function update($table, array $data, array $where, $format = null, $whereFormat = null)
     {
-        return $this->WpDatabase->update($sTable, $aData, $aWhere, $mFormat, $mWhereFormat);
+        return $this->wpDatabase->update($table, $data, $where, $format, $whereFormat);
     }
 
     /**
      * @see \wpdb::delete()
      *
-     * @param string       $sTable
-     * @param array        $aWhere
-     * @param array|string $mWhereFormat
+     * @param string       $table
+     * @param array        $where
+     * @param array|string $whereFormat
      *
      * @return false|int
      */
-    public function delete($sTable, array $aWhere, $mWhereFormat = null)
+    public function delete($table, array $where, $whereFormat = null)
     {
-        return $this->WpDatabase->delete($sTable, $aWhere, $mWhereFormat);
+        return $this->wpDatabase->delete($table, $where, $whereFormat);
     }
 
     /**
@@ -313,20 +313,20 @@ class Database
      */
     public function getCharset()
     {
-        $sCharsetCollate = '';
+        $charsetCollate = '';
 
-        $sMySlqVersion = $this->getVariable('SELECT VERSION() as mysql_version');
+        $mySlqVersion = $this->getVariable('SELECT VERSION() as mysql_version');
 
-        if (version_compare($sMySlqVersion, '4.1.0', '>=')) {
-            if (!empty($this->WpDatabase->charset)) {
-                $sCharsetCollate = "DEFAULT CHARACTER SET {$this->WpDatabase->charset}";
+        if (version_compare($mySlqVersion, '4.1.0', '>=')) {
+            if (!empty($this->wpDatabase->charset)) {
+                $charsetCollate = "DEFAULT CHARACTER SET {$this->wpDatabase->charset}";
             }
 
-            if (!empty($this->WpDatabase->collate)) {
-                $sCharsetCollate .= " COLLATE {$this->WpDatabase->collate}";
+            if (!empty($this->wpDatabase->collate)) {
+                $charsetCollate .= " COLLATE {$this->wpDatabase->collate}";
             }
         }
 
-        return $sCharsetCollate;
+        return $charsetCollate;
     }
 }

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\SetupHandler;
@@ -33,35 +33,35 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $SetupHandler = new SetupHandler(
+        $setupHandler = new SetupHandler(
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\SetupHandler\SetupHandler', $SetupHandler);
+        self::assertInstanceOf('\UserAccessManager\SetupHandler\SetupHandler', $setupHandler);
     }
 
     /**
-     * @param int $iNumberOfSites
+     * @param int $numberOfSites
      *
      * @return array
      */
-    private function getSites($iNumberOfSites = 3)
+    private function getSites($numberOfSites = 3)
     {
-        $aSites = [];
+        $sites = [];
 
-        for ($iCount = 1; $iCount <= $iNumberOfSites; $iCount++) {
+        for ($count = 1; $count <= $numberOfSites; $count++) {
             /**
-             * @var \stdClass $Site
+             * @var \stdClass $site
              */
-            $Site = $this->getMockBuilder('\WP_Site')->getMock();
-            $Site->blog_id = $iCount;
-            $aSites[] = $Site;
+            $site = $this->getMockBuilder('\WP_Site')->getMock();
+            $site->blog_id = $count;
+            $sites[] = $site;
         }
 
-        return $aSites;
+        return $sites;
     }
 
     /**
@@ -70,27 +70,27 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetBlogIds()
     {
-        $Wordpress = $this->getWordpress();
+        $wordpress = $this->getWordpress();
 
-        $Wordpress->expects($this->once())
+        $wordpress->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites()));
 
-        $Database = $this->getDatabase();
+        $database = $this->getDatabase();
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getCurrentBlogId')
             ->will($this->returnValue(123));
 
-        $SetupHandler = new SetupHandler(
-            $Wordpress,
-            $Database,
+        $setupHandler = new SetupHandler(
+            $wordpress,
+            $database,
             $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
-        $aBlogIds = $SetupHandler->getBlogIds();
-        self::assertEquals([123 => 123, 1 => 1, 2 => 2, 3 => 3], $aBlogIds);
+        $blogIds = $setupHandler->getBlogIds();
+        self::assertEquals([123 => 123, 1 => 1, 2 => 2, 3 => 3], $blogIds);
     }
 
     /**
@@ -100,34 +100,34 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      */
     public function testInstall()
     {
-        $Wordpress = $this->getWordpress();
+        $wordpress = $this->getWordpress();
 
-        $Wordpress->expects($this->once())
+        $wordpress->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites(1)));
 
-        $Wordpress->expects(($this->exactly(3)))
+        $wordpress->expects(($this->exactly(3)))
             ->method('addOption')
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
 
-        $Wordpress->expects(($this->exactly(2)))
+        $wordpress->expects(($this->exactly(2)))
             ->method('switchToBlog')
             ->withConsecutive([1], [1]);
 
-        $Database = $this->getDatabase();
-        $Database->expects($this->exactly(3))
+        $database = $this->getDatabase();
+        $database->expects($this->exactly(3))
             ->method('getCharset')
             ->will($this->returnValue('CHARSET test'));
 
-        $Database->expects($this->exactly(3))
+        $database->expects($this->exactly(3))
             ->method('getUserGroupTable')
             ->will($this->returnValue('user_group_table'));
 
-        $Database->expects($this->exactly(3))
+        $database->expects($this->exactly(3))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('user_group_to_object_table'));
 
-        $Database->expects($this->exactly(6))
+        $database->expects($this->exactly(6))
             ->method('getVariable')
             ->will($this->onConsecutiveCalls(
                 'invalid_table',
@@ -138,14 +138,14 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 'invalid_table'
             ));
 
-        $Database->expects($this->exactly(2))
+        $database->expects($this->exactly(2))
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 
-        $ObjectHandler = $this->getObjectHandler();
-        $FileHandler = $this->getFileHandler();
+        $objectHandler = $this->getObjectHandler();
+        $fileHandler = $this->getFileHandler();
 
-        $Database->expects($this->exactly(4))
+        $database->expects($this->exactly(4))
             ->method('dbDelta')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -190,16 +190,16 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 )]
             );
 
-        $SetupHandler = new SetupHandler(
-            $Wordpress,
-            $Database,
-            $ObjectHandler,
-            $FileHandler
+        $setupHandler = new SetupHandler(
+            $wordpress,
+            $database,
+            $objectHandler,
+            $fileHandler
         );
 
-        $SetupHandler->install();
-        $SetupHandler->install();
-        $SetupHandler->install(true);
+        $setupHandler->install();
+        $setupHandler->install();
+        $setupHandler->install(true);
     }
 
     /**
@@ -208,9 +208,9 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      */
     public function testIsDatabaseUpdateNecessary()
     {
-        $Wordpress = $this->getWordpress();
+        $wordpress = $this->getWordpress();
 
-        $Wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(4))
             ->method('getSites')
             ->will($this->onConsecutiveCalls(
                 $this->getSites(),
@@ -219,45 +219,45 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 []
             ));
 
-        $Wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(4))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, false, true, true));
 
 
-        $Wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->exactly(2))
             ->method('getOption')
             ->with('uam_db_version')
             ->will($this->onConsecutiveCalls('1000.0.0', '0.0'));
 
-        $Database = $this->getDatabase();
-        $Database->expects($this->exactly(3))
+        $database = $this->getDatabase();
+        $database->expects($this->exactly(3))
             ->method('getBlogPrefix')
             ->will($this->returnValue('prefix_'));
 
-        $Database->expects($this->exactly(3))
+        $database->expects($this->exactly(3))
             ->method('prepare')
             ->with('SELECT option_value FROM prefix_options WHERE option_name = \'%s\' LIMIT 1', 'uam_db_version')
             ->will($this->returnValue('preparedStatement'));
 
-        $Database->expects($this->exactly(3))
+        $database->expects($this->exactly(3))
             ->method('getVariable')
             ->with('preparedStatement')
             ->will($this->onConsecutiveCalls('1000.0.0', '0.0', '0.0'));
 
-        $ObjectHandler = $this->getObjectHandler();
-        $FileHandler = $this->getFileHandler();
+        $objectHandler = $this->getObjectHandler();
+        $fileHandler = $this->getFileHandler();
 
-        $SetupHandler = new SetupHandler(
-            $Wordpress,
-            $Database,
-            $ObjectHandler,
-            $FileHandler
+        $setupHandler = new SetupHandler(
+            $wordpress,
+            $database,
+            $objectHandler,
+            $fileHandler
         );
 
-        self::assertFalse($SetupHandler->isDatabaseUpdateNecessary());
-        self::assertTrue($SetupHandler->isDatabaseUpdateNecessary());
-        self::assertTrue($SetupHandler->isDatabaseUpdateNecessary());
-        self::assertTrue($SetupHandler->isDatabaseUpdateNecessary());
+        self::assertFalse($setupHandler->isDatabaseUpdateNecessary());
+        self::assertTrue($setupHandler->isDatabaseUpdateNecessary());
+        self::assertTrue($setupHandler->isDatabaseUpdateNecessary());
+        self::assertTrue($setupHandler->isDatabaseUpdateNecessary());
     }
 
     /**
@@ -266,8 +266,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      */
     public function testUpdate()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(3))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(3))
             ->method('getOption')
             ->withConsecutive(
                 ['uam_db_version', false],
@@ -276,40 +276,40 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls('0', '0.0', '0.0'));
 
-        $Wordpress->expects($this->once())
+        $wordpress->expects($this->once())
             ->method('deleteOption')
             ->with('allow_comments_locked');
 
-        $Wordpress->expects($this->once())
+        $wordpress->expects($this->once())
             ->method('updateOption')
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
 
-        $Database = $this->getDatabase();
-        $Database->expects($this->once())
+        $database = $this->getDatabase();
+        $database->expects($this->once())
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getPrefix')
             ->will($this->returnValue('prefix_'));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getCharset')
             ->will($this->returnValue('CHARSET testCharset'));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getPostsTable')
             ->will($this->returnValue('postsTable'));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getTermTaxonomyTable')
             ->will($this->returnValue('termTaxonomyTable'));
 
-        $Database->expects($this->exactly(2))
+        $database->expects($this->exactly(2))
             ->method('getVariable')
             ->withConsecutive(
                 ['SHOW TABLES LIKE \'userGroupTable\''],
@@ -320,11 +320,11 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 'not_ip_range'
             ));
 
-        $DbObject = new \stdClass();
-        $DbObject->groupId = 123;
-        $DbObject->id = 321;
+        $dbObject = new \stdClass();
+        $dbObject->groupId = 123;
+        $dbObject->id = 321;
 
-        $Database->expects($this->exactly(4))
+        $database->expects($this->exactly(4))
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -343,9 +343,9 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                     'SELECT role_name AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_role'
                 )]
             )
-            ->will($this->onConsecutiveCalls([$DbObject], [], [], []));
+            ->will($this->onConsecutiveCalls([$dbObject], [], [], []));
 
-        $Database->expects($this->exactly(12))
+        $database->expects($this->exactly(12))
             ->method('query')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -412,7 +412,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 'ip_range'
             ));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('update')
             ->with(
                 'userGroupToObjectTable',
@@ -420,15 +420,15 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 ['object_type' => 'category']
             );
 
-        $ObjectHandler = $this->getObjectHandler();
+        $objectHandler = $this->getObjectHandler();
 
-        $ObjectHandler->expects($this->once())
+        $objectHandler->expects($this->once())
             ->method('getObjectTypes')
             ->will($this->returnValue(
                 ['post', 'nothing', 'category', 'nothing', 'user', 'nothing', 'role', 'nothing']
             ));
 
-        $ObjectHandler->expects($this->exactly(8))
+        $objectHandler->expects($this->exactly(8))
             ->method('isPostType')
             ->withConsecutive(
                 ['post'],
@@ -442,17 +442,17 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false));
 
-        $FileHandler = $this->getFileHandler();
+        $fileHandler = $this->getFileHandler();
 
-        $SetupHandler = new SetupHandler(
-            $Wordpress,
-            $Database,
-            $ObjectHandler,
-            $FileHandler
+        $setupHandler = new SetupHandler(
+            $wordpress,
+            $database,
+            $objectHandler,
+            $fileHandler
         );
 
-        self::assertFalse($SetupHandler->update());
-        self::assertTrue($SetupHandler->update());
+        self::assertFalse($setupHandler->update());
+        self::assertTrue($setupHandler->update());
     }
 
     /**
@@ -461,13 +461,13 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      */
     public function testUninstall()
     {
-        $Wordpress = $this->getWordpress();
+        $wordpress = $this->getWordpress();
 
-        $Wordpress->expects($this->once())
+        $wordpress->expects($this->once())
             ->method('getSites')
             ->will($this->returnValue($this->getSites(1)));
 
-        $Wordpress->expects(($this->exactly(3)))
+        $wordpress->expects(($this->exactly(3)))
             ->method('deleteOption')
             ->withConsecutive(
                 [Config::ADMIN_OPTIONS_NAME],
@@ -475,42 +475,42 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 ['uam_db_version']
             );
 
-        $Wordpress->expects(($this->once()))
+        $wordpress->expects(($this->once()))
             ->method('switchToBlog')
             ->withConsecutive([1]);
 
-        $Database = $this->getDatabase();
+        $database = $this->getDatabase();
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $Database->expects($this->once())
+        $database->expects($this->once())
             ->method('query')
             ->with(new MatchIgnoreWhitespace(
                 'DROP TABLE userGroupTable, userGroupToObjectTable'
             ));
 
-        $FileHandler = $this->getFileHandler();
-        $FileHandler->expects($this->once())
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->once())
             ->method('deleteFileProtection');
 
-        $SetupHandler = new SetupHandler(
-            $Wordpress,
-            $Database,
+        $setupHandler = new SetupHandler(
+            $wordpress,
+            $database,
             $this->getObjectHandler(),
-            $FileHandler
+            $fileHandler
         );
 
-        $SetupHandler->uninstall();
+        $setupHandler->uninstall();
     }
 
     /**
@@ -519,23 +519,23 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      */
     public function testDeactivate()
     {
-        $Wordpress = $this->getWordpress();
-        $Database = $this->getDatabase();
-        $ObjectHandler = $this->getObjectHandler();
-        $FileHandler = $this->getFileHandler();
+        $wordpress = $this->getWordpress();
+        $database = $this->getDatabase();
+        $objectHandler = $this->getObjectHandler();
+        $fileHandler = $this->getFileHandler();
 
-        $FileHandler->expects($this->exactly(2))
+        $fileHandler->expects($this->exactly(2))
             ->method('deleteFileProtection')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $SetupHandler = new SetupHandler(
-            $Wordpress,
-            $Database,
-            $ObjectHandler,
-            $FileHandler
+        $setupHandler = new SetupHandler(
+            $wordpress,
+            $database,
+            $objectHandler,
+            $fileHandler
         );
 
-        self::assertFalse($SetupHandler->deactivate());
-        self::assertTrue($SetupHandler->deactivate());
+        self::assertFalse($setupHandler->deactivate());
+        self::assertTrue($setupHandler->deactivate());
     }
 }

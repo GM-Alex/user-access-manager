@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -29,15 +29,15 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $Root;
+    private $root;
 
     /**
      * Setup virtual file system.
      */
     public function setUp()
     {
-        $this->oRoot = FileSystem::factory('vfs://');
-        $this->oRoot->mount();
+        $this->root = FileSystem::factory('vfs://');
+        $this->root->mount();
     }
 
     /**
@@ -45,7 +45,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
      */
     public function tearDown()
     {
-        $this->oRoot->unmount();
+        $this->root->unmount();
     }
 
     /**
@@ -54,14 +54,14 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $ApacheFileProtection = new ApacheFileProtection(
+        $apacheFileProtection = new ApacheFileProtection(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\ApacheFileProtection', $ApacheFileProtection);
+        self::assertInstanceOf('\UserAccessManager\FileHandler\ApacheFileProtection', $apacheFileProtection);
     }
 
     /**
@@ -70,104 +70,104 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
      */
     public function testCreate()
     {
-        $Wordpress = $this->getWordpress();
+        $wordpress = $this->getWordpress();
 
-        $Wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(3))
             ->method('getHomeUrl')
             ->will($this->returnValue('http://www.test.com'));
 
         /**
-         * @var \stdClass $User
+         * @var \stdClass $user
          */
-        $User = $this->getMockBuilder('\WP_User')->getMock();
-        $User->user_login = 'userLogin';
-        $User->user_pass = 'userPass';
+        $user = $this->getMockBuilder('\WP_User')->getMock();
+        $user->user_login = 'userLogin';
+        $user->user_pass = 'userPass';
 
-        $Wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(3))
             ->method('getCurrentUser')
-            ->will($this->returnValue($User));
+            ->will($this->returnValue($user));
 
-        $Config = $this->getConfig();
-        $Util = $this->getUtil();
+        $config = $this->getConfig();
+        $util = $this->getUtil();
 
-        $Config->expects($this->exactly(6))
+        $config->expects($this->exactly(6))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
 
-        $Config->expects($this->exactly(3))
+        $config->expects($this->exactly(3))
             ->method('getLockFileTypes')
             ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected'));
 
-        $Config->expects($this->exactly(2))
+        $config->expects($this->exactly(2))
             ->method('getLockedFileTypes')
             ->will($this->returnValue('png,jpg'));
 
-        $Config->expects($this->exactly(2))
+        $config->expects($this->exactly(2))
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
-        $Config->expects($this->exactly(3))
+        $config->expects($this->exactly(3))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 
         /**
-         * @var Directory $RootDir
+         * @var Directory $rootDir
          */
-        $RootDir = $this->oRoot->get('/');
-        $RootDir->add('testDir', new Directory());
-        $sTestDir = 'vfs://testDir';
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory());
+        $testDir = 'vfs://testDir';
 
-        $ApacheFileProtection = new ApacheFileProtection(
+        $apacheFileProtection = new ApacheFileProtection(
             $this->getPhp(),
-            $Wordpress,
-            $Config,
-            $Util
+            $wordpress,
+            $config,
+            $util
         );
 
-        $sFile = 'vfs://testDir/'.ApacheFileProtection::FILE_NAME;
-        $sPasswordFile = 'vfs://testDir/'.ApacheFileProtection::PASSWORD_FILE_NAME;
+        $file = 'vfs://testDir/'.ApacheFileProtection::FILE_NAME;
+        $passwordFile = 'vfs://testDir/'.ApacheFileProtection::PASSWORD_FILE_NAME;
 
-        self::assertTrue($ApacheFileProtection->create($sTestDir));
-        self::assertTrue(file_exists($sFile));
-        self::assertTrue(file_exists($sPasswordFile));
+        self::assertTrue($apacheFileProtection->create($testDir));
+        self::assertTrue(file_exists($file));
+        self::assertTrue(file_exists($passwordFile));
         self::assertEquals(
             "AuthType Basic\nAuthName \"WP-Files\"\nAuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
         self::assertEquals(
             "userLogin:userPass\n",
-            file_get_contents($sPasswordFile)
+            file_get_contents($passwordFile)
         );
 
-        self::assertTrue($ApacheFileProtection->create($sTestDir));
+        self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<FilesMatch '\.(jpg)'>\nAuthType Basic\nAuthName \"WP-Files\"\n"
             ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n</FilesMatch>\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
 
-        self::assertTrue($ApacheFileProtection->create($sTestDir));
+        self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<FilesMatch '^\.(jpg)'>\nAuthType Basic\nAuthName \"WP-Files\"\n"
             ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n</FilesMatch>\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
 
-        self::assertTrue($ApacheFileProtection->create($sTestDir));
+        self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
             ."RewriteRule (.*) /index.php?uamfiletype=attachment&uamgetfile=$1 [L]\n</IfModule>\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
 
-        self::assertTrue($ApacheFileProtection->create($sTestDir, 'objectType'));
+        self::assertTrue($apacheFileProtection->create($testDir, 'objectType'));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
             ."RewriteRule (.*) /index.php?uamfiletype=objectType&uamgetfile=$1 [L]\n</IfModule>\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
 
-        self::assertFalse($ApacheFileProtection->create('invalid', 'invalid'));
+        self::assertFalse($apacheFileProtection->create('invalid', 'invalid'));
     }
 
     /**
@@ -176,35 +176,35 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
      */
     public function testDelete()
     {
-        $Php = $this->getPhp();
-        $Php->expects($this->exactly(6))
+        $php = $this->getPhp();
+        $php->expects($this->exactly(6))
             ->method('unlink')
             ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
 
-        $ApacheFileProtection = new ApacheFileProtection(
-            $Php,
+        $apacheFileProtection = new ApacheFileProtection(
+            $php,
             $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );
 
         /**
-         * @var Directory $RootDir
+         * @var Directory $rootDir
          */
-        $RootDir = $this->oRoot->get('/');
-        $RootDir->add('testDir', new Directory([
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory([
             ApacheFileProtection::FILE_NAME => new File('htaccess'),
             ApacheFileProtection::PASSWORD_FILE_NAME => new File('password')
         ]));
 
-        $sTestDir = 'vfs://testDir/';
-        $sFile = $sTestDir.ApacheFileProtection::FILE_NAME;
-        $sPasswordFile = $sTestDir.ApacheFileProtection::PASSWORD_FILE_NAME;
+        $testDir = 'vfs://testDir/';
+        $file = $testDir.ApacheFileProtection::FILE_NAME;
+        $passwordFile = $testDir.ApacheFileProtection::PASSWORD_FILE_NAME;
 
-        self::assertTrue(file_exists($sFile));
-        self::assertTrue(file_exists($sPasswordFile));
-        self::assertTrue($ApacheFileProtection->delete($sTestDir));
-        self::assertFalse($ApacheFileProtection->delete($sTestDir));
-        self::assertFalse($ApacheFileProtection->delete($sTestDir));
+        self::assertTrue(file_exists($file));
+        self::assertTrue(file_exists($passwordFile));
+        self::assertTrue($apacheFileProtection->delete($testDir));
+        self::assertFalse($apacheFileProtection->delete($testDir));
+        self::assertFalse($apacheFileProtection->delete($testDir));
     }
 }

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -31,19 +31,19 @@ class StringConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $StringConfigParameter = new StringConfigParameter('testId');
+        $stringConfigParameter = new StringConfigParameter('testId');
 
-        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $StringConfigParameter);
-        self::assertAttributeEquals('testId', 'sId', $StringConfigParameter);
-        self::assertAttributeEquals('', 'mDefaultValue', $StringConfigParameter);
+        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $stringConfigParameter);
+        self::assertAttributeEquals('testId', 'id', $stringConfigParameter);
+        self::assertAttributeEquals('', 'defaultValue', $stringConfigParameter);
 
-        $StringConfigParameter = new StringConfigParameter('otherId', 'value');
+        $stringConfigParameter = new StringConfigParameter('otherId', 'value');
 
-        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $StringConfigParameter);
-        self::assertAttributeEquals('otherId', 'sId', $StringConfigParameter);
-        self::assertAttributeEquals('value', 'mDefaultValue', $StringConfigParameter);
+        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $stringConfigParameter);
+        self::assertAttributeEquals('otherId', 'id', $stringConfigParameter);
+        self::assertAttributeEquals('value', 'defaultValue', $stringConfigParameter);
 
-        return $StringConfigParameter;
+        return $stringConfigParameter;
     }
 
     /**
@@ -51,12 +51,12 @@ class StringConfigParameterTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Config\StringConfigParameter::isValidValue()
      *
-     * @param StringConfigParameter $StringConfigParameter
+     * @param StringConfigParameter $stringConfigParameter
      */
-    public function testIsValidValue($StringConfigParameter)
+    public function testIsValidValue($stringConfigParameter)
     {
-        self::assertTrue($StringConfigParameter->isValidValue('string'));
-        self::assertFalse($StringConfigParameter->isValidValue(true));
-        self::assertFalse($StringConfigParameter->isValidValue([]));
+        self::assertTrue($stringConfigParameter->isValidValue('string'));
+        self::assertFalse($stringConfigParameter->isValidValue(true));
+        self::assertFalse($stringConfigParameter->isValidValue([]));
     }
 }

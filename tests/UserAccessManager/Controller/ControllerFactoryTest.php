@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -31,7 +31,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $ControllerFactory = new ControllerFactory(
+        $controllerFactory = new ControllerFactory(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
@@ -45,9 +45,9 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
             $this->getSetupHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\ControllerFactory', $ControllerFactory);
+        self::assertInstanceOf('\UserAccessManager\Controller\ControllerFactory', $controllerFactory);
 
-        return $ControllerFactory;
+        return $controllerFactory;
     }
 
     /**
@@ -55,13 +55,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminController()
      *
-     * @param ControllerFactory $ControllerFactory
+     * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminController(ControllerFactory $ControllerFactory)
+    public function testCreateAdminController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminController',
-            $ControllerFactory->createAdminController()
+            $controllerFactory->createAdminController()
         );
     }
 
@@ -70,13 +70,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminAboutController()
      *
-     * @param ControllerFactory $ControllerFactory
+     * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminAboutController(ControllerFactory $ControllerFactory)
+    public function testCreateAdminAboutController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminAboutController',
-            $ControllerFactory->createAdminAboutController()
+            $controllerFactory->createAdminAboutController()
         );
     }
 
@@ -85,13 +85,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminObjectController()
      *
-     * @param ControllerFactory $ControllerFactory
+     * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminObjectController(ControllerFactory $ControllerFactory)
+    public function testCreateAdminObjectController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminObjectController',
-            $ControllerFactory->createAdminObjectController()
+            $controllerFactory->createAdminObjectController()
         );
     }
 
@@ -100,13 +100,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminSettingsController()
      *
-     * @param ControllerFactory $ControllerFactory
+     * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminSettingController(ControllerFactory $ControllerFactory)
+    public function testCreateAdminSettingController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminSettingsController',
-            $ControllerFactory->createAdminSettingsController()
+            $controllerFactory->createAdminSettingsController()
         );
     }
 
@@ -115,13 +115,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminSetupController()
      *
-     * @param ControllerFactory $ControllerFactory
+     * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminSetupController(ControllerFactory $ControllerFactory)
+    public function testCreateAdminSetupController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminSetupController',
-            $ControllerFactory->createAdminSetupController()
+            $controllerFactory->createAdminSetupController()
         );
     }
 
@@ -130,13 +130,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminUserGroupController()
      *
-     * @param ControllerFactory $ControllerFactory
+     * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminUserGroupController(ControllerFactory $ControllerFactory)
+    public function testCreateAdminUserGroupController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\AdminUserGroupController',
-            $ControllerFactory->createAdminUserGroupController()
+            $controllerFactory->createAdminUserGroupController()
         );
     }
 
@@ -145,13 +145,13 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\ControllerFactory::createFrontendController()
      *
-     * @param ControllerFactory $ControllerFactory
+     * @param ControllerFactory $controllerFactory
      */
-    public function testCreateFrontendController(ControllerFactory $ControllerFactory)
+    public function testCreateFrontendController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             '\UserAccessManager\Controller\FrontendController',
-            $ControllerFactory->createFrontendController()
+            $controllerFactory->createFrontendController()
         );
     }
 }

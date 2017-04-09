@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Wrapper;
@@ -26,51 +26,51 @@ class WordpressCli
     /**
      * @see \WP_CLI::success()
      *
-     * @param string $sMessage
+     * @param string $message
      *
      * @return null
      */
-    public function success($sMessage)
+    public function success($message)
     {
-        return \WP_CLI::success($sMessage);
+        return \WP_CLI::success($message);
     }
 
     /**
      * @see \WP_CLI::error()
      *
-     * @param string|\WP_Error $mMessage Message to write to STDERR.
-     * @param boolean|integer  $mExit    True defaults to exit(1).
+     * @param string|\WP_Error $message Message to write to STDERR.
+     * @param boolean|integer  $exit    True defaults to exit(1).
      *
      * @return null
      */
-    public function error($mMessage, $mExit = true)
+    public function error($message, $exit = true)
     {
-        return \WP_CLI::error($mMessage, $mExit);
+        return \WP_CLI::error($message, $exit);
     }
 
     /**
      * @see \WP_CLI::line()
      *
-     * @param string $sMessage
+     * @param string $message
      *
      * @return null
      */
-    public function line($sMessage = '')
+    public function line($message = '')
     {
-        return \WP_CLI::line($sMessage);
+        return \WP_CLI::line($message);
     }
 
     /**
      * @see Formatter
      *
-     * @param array       $aAssocArguments
-     * @param array       $aFields
-     * @param bool|string $mPrefix
+     * @param array       $assocArguments
+     * @param array       $fields
+     * @param bool|string $prefix
      *
      * @return Formatter
      */
-    public function createFormatter(array &$aAssocArguments, array $aFields = null, $mPrefix = false)
+    public function createFormatter(array &$assocArguments, array $fields = null, $prefix = false)
     {
-        return new Formatter($aAssocArguments, $aFields, $mPrefix);
+        return new Formatter($assocArguments, $fields, $prefix);
     }
 }

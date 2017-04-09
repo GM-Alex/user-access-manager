@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -30,7 +30,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $AdminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -38,7 +38,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminUserGroupController', $AdminUserGroupController);
+        self::assertInstanceOf('\UserAccessManager\Controller\AdminUserGroupController', $adminUserGroupController);
     }
 
     /**
@@ -47,25 +47,25 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroup()
     {
-        $UserGroup = $this->getUserGroup(1);
+        $userGroup = $this->getUserGroup(1);
 
-        $UserGroupFactory = $this->getUserGroupFactory();
-        $UserGroupFactory->expects($this->once())
+        $userGroupFactory = $this->getUserGroupFactory();
+        $userGroupFactory->expects($this->once())
             ->method('createUserGroup')
             ->with(1)
-            ->will($this->returnValue($UserGroup));
+            ->will($this->returnValue($userGroup));
 
-        $AdminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getAccessHandler(),
-            $UserGroupFactory
+            $userGroupFactory
         );
 
         $_GET['userGroupId'] = 1;
-        self::assertEquals($UserGroup, $AdminUserGroupController->getUserGroup());
-        self::assertEquals($UserGroup, $AdminUserGroupController->getUserGroup());
+        self::assertEquals($userGroup, $adminUserGroupController->getUserGroup());
+        self::assertEquals($userGroup, $adminUserGroupController->getUserGroup());
     }
 
     /**
@@ -74,25 +74,25 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroups()
     {
-        $aUserGroups = [
+        $userGroups = [
             1 => $this->getUserGroup(1),
             2 => $this->getUserGroup(2)
         ];
 
-        $AccessHandler = $this->getAccessHandler();
-        $AccessHandler->expects($this->once())
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->once())
             ->method('getUserGroups')
-            ->will($this->returnValue($aUserGroups));
+            ->will($this->returnValue($userGroups));
 
-        $AdminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
-            $AccessHandler,
+            $accessHandler,
             $this->getUserGroupFactory()
         );
 
-        self::assertEquals($aUserGroups, $AdminUserGroupController->getUserGroups());
+        self::assertEquals($userGroups, $adminUserGroupController->getUserGroups());
     }
 
     /**
@@ -101,23 +101,23 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testGetRoleNames()
     {
-        $Roles = new \stdClass();
-        $Roles->role_names = 'roleNames';
+        $roles = new \stdClass();
+        $roles->role_names = 'roleNames';
 
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getRoles')
-            ->will($this->returnValue($Roles));
+            ->will($this->returnValue($roles));
 
-        $AdminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
 
-        self::assertEquals('roleNames', $AdminUserGroupController->getRoleNames());
+        self::assertEquals('roleNames', $adminUserGroupController->getRoleNames());
     }
 
     /**
@@ -128,39 +128,39 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
     {
         $_GET[AdminUserGroupController::INSERT_UPDATE_GROUP_NONCE.'Nonce'] = 'insertUpdateNonce';
 
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(4))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(4))
             ->method('verifyNonce')
             ->with('insertUpdateNonce')
             ->will($this->returnValue(true));
 
-        $UserGroup = $this->getUserGroup(1);
+        $userGroup = $this->getUserGroup(1);
 
-        $UserGroup->expects($this->exactly(3))
+        $userGroup->expects($this->exactly(3))
             ->method('setName')
             ->with('userGroupNameValue');
 
-        $UserGroup->expects($this->exactly(3))
+        $userGroup->expects($this->exactly(3))
             ->method('setDescription')
             ->with('userGroupDescriptionValue');
 
-        $UserGroup->expects($this->exactly(3))
+        $userGroup->expects($this->exactly(3))
             ->method('setReadAccess')
             ->with('readAccessValue');
 
-        $UserGroup->expects($this->exactly(3))
+        $userGroup->expects($this->exactly(3))
             ->method('setWriteAccess')
             ->with('writeAccessValue');
 
-        $UserGroup->expects($this->exactly(3))
+        $userGroup->expects($this->exactly(3))
             ->method('setIpRange')
             ->with('ipRangeValue');
 
-        $UserGroup->expects($this->exactly(3))
+        $userGroup->expects($this->exactly(3))
             ->method('removeObject')
             ->with(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
-        $UserGroup->expects($this->exactly(6))
+        $userGroup->expects($this->exactly(6))
             ->method('addObject')
             ->withConsecutive(
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleOne'],
@@ -171,31 +171,31 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleTwo']
             );
 
-        $UserGroup->expects($this->exactly(3))
+        $userGroup->expects($this->exactly(3))
             ->method('save')
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $UserGroupFactory = $this->getUserGroupFactory();
-        $UserGroupFactory->expects($this->exactly(4))
+        $userGroupFactory = $this->getUserGroupFactory();
+        $userGroupFactory->expects($this->exactly(4))
             ->method('createUserGroup')
             ->withConsecutive([null], [null], [null], [1])
-            ->will($this->returnValue($UserGroup));
+            ->will($this->returnValue($userGroup));
 
-        $AccessHandler = $this->getAccessHandler();
-        $AccessHandler->expects($this->exactly(2))
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(2))
             ->method('addUserGroup')
-            ->with($UserGroup);
+            ->with($userGroup);
 
-        $AdminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig(),
-            $AccessHandler,
-            $UserGroupFactory
+            $accessHandler,
+            $userGroupFactory
         );
 
-        $AdminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'sUpdateMessage', $AdminUserGroupController);
+        $adminUserGroupController->insertUpdateUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'updateMessage', $adminUserGroupController);
 
         $_POST['userGroupName'] = 'userGroupNameValue';
         $_POST['userGroupDescription'] = 'userGroupDescriptionValue';
@@ -204,16 +204,16 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $_POST['ipRange'] = 'ipRangeValue';
         $_POST['roles'] = ['roleOne', 'roleTwo'];
 
-        $AdminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'sUpdateMessage', $AdminUserGroupController);
+        $adminUserGroupController->insertUpdateUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'updateMessage', $adminUserGroupController);
 
-        $AdminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_ADDED, 'sUpdateMessage', $AdminUserGroupController);
+        $adminUserGroupController->insertUpdateUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_GROUP_ADDED, 'updateMessage', $adminUserGroupController);
 
         $_POST['userGroupId'] = 1;
 
-        $AdminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS, 'sUpdateMessage', $AdminUserGroupController);
+        $adminUserGroupController->insertUpdateUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS, 'updateMessage', $adminUserGroupController);
     }
 
     /**
@@ -223,27 +223,27 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
     public function testDeleteUserGroupAction()
     {
         $_GET[AdminUserGroupController::DELETE_GROUP_NONCE.'Nonce'] = 'deleteNonce';
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('verifyNonce')
             ->with('deleteNonce')
             ->will($this->returnValue(true));
 
-        $AccessHandler = $this->getAccessHandler();
-        $AccessHandler->expects($this->exactly(2))
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(2))
             ->method('deleteUserGroup')
             ->withConsecutive([1], [2]);
 
-        $AdminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig(),
-            $AccessHandler,
+            $accessHandler,
             $this->getUserGroupFactory()
         );
 
         $_POST['delete'] = [1, 2];
-        $AdminUserGroupController->deleteUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_DELETE_GROUP, 'sUpdateMessage', $AdminUserGroupController);
+        $adminUserGroupController->deleteUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_DELETE_GROUP, 'updateMessage', $adminUserGroupController);
     }
 }

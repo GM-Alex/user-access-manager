@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -26,37 +26,37 @@ class AdminSettingsController extends Controller
     /**
      * @var ObjectHandler
      */
-    protected $ObjectHandler;
+    protected $objectHandler;
 
     /**
      * @var FileHandler
      */
-    protected $FileHandler;
+    protected $fileHandler;
 
     /**
      * @var string
      */
-    protected $sTemplate = 'AdminSettings.php';
+    protected $template = 'AdminSettings.php';
 
     /**
      * AdminSettingsController constructor.
      *
-     * @param Php           $Php
-     * @param Wordpress     $Wordpress
-     * @param Config        $Config
-     * @param ObjectHandler $ObjectHandler
-     * @param FileHandler   $FileHandler
+     * @param Php           $php
+     * @param Wordpress     $wordpress
+     * @param Config        $config
+     * @param ObjectHandler $objectHandler
+     * @param FileHandler   $fileHandler
      */
     public function __construct(
-        Php $Php,
-        Wordpress $Wordpress,
-        Config $Config,
-        ObjectHandler $ObjectHandler,
-        FileHandler $FileHandler
+        Php $php,
+        Wordpress $wordpress,
+        Config $config,
+        ObjectHandler $objectHandler,
+        FileHandler $fileHandler
     ) {
-        parent::__construct($Php, $Wordpress, $Config);
-        $this->ObjectHandler = $ObjectHandler;
-        $this->FileHandler = $FileHandler;
+        parent::__construct($php, $wordpress, $config);
+        $this->objectHandler = $objectHandler;
+        $this->fileHandler = $fileHandler;
     }
 
     /**
@@ -66,7 +66,7 @@ class AdminSettingsController extends Controller
      */
     public function isNginx()
     {
-        return $this->Wordpress->isNginx();
+        return $this->wordpress->isNginx();
     }
 
     /**
@@ -76,8 +76,8 @@ class AdminSettingsController extends Controller
      */
     public function getPages()
     {
-        $aPages = $this->Wordpress->getPages('sort_column=menu_order');
-        return is_array($aPages) !== false ? $aPages : [];
+        $pages = $this->wordpress->getPages('sort_column=menu_order');
+        return is_array($pages) !== false ? $pages : [];
     }
 
     /**
@@ -87,7 +87,7 @@ class AdminSettingsController extends Controller
      */
     public function getConfigParameters()
     {
-        return $this->Config->getConfigParameters();
+        return $this->config->getConfigParameters();
     }
 
     /**
@@ -97,7 +97,7 @@ class AdminSettingsController extends Controller
      */
     protected function getPostTypes()
     {
-        return $this->Wordpress->getPostTypes(['public' => true], 'objects');
+        return $this->wordpress->getPostTypes(['public' => true], 'objects');
     }
 
     /**
@@ -107,7 +107,7 @@ class AdminSettingsController extends Controller
      */
     protected function getTaxonomies()
     {
-        return $this->Wordpress->getTaxonomies(['public' => true], 'objects');
+        return $this->wordpress->getTaxonomies(['public' => true], 'objects');
     }
 
     /**
@@ -117,62 +117,62 @@ class AdminSettingsController extends Controller
      */
     public function getGroupedConfigParameters()
     {
-        $aConfigParameters = $this->Config->getConfigParameters();
+        $configParameters = $this->config->getConfigParameters();
 
-        $aGroupedConfigParameters = [];
-        $aPostTypes = $this->getPostTypes();
+        $groupedConfigParameters = [];
+        $postTypes = $this->getPostTypes();
 
-        foreach ($aPostTypes as $sPostType => $PostType) {
-            if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+        foreach ($postTypes as $postType => $postTypeObject) {
+            if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
                 continue;
             }
 
-            $aGroupedConfigParameters[$sPostType] = [
-                $aConfigParameters["hide_{$sPostType}"],
-                $aConfigParameters["hide_{$sPostType}_title"],
-                $aConfigParameters["{$sPostType}_title"],
-                $aConfigParameters["{$sPostType}_content"],
-                $aConfigParameters["hide_{$sPostType}_comment"],
-                $aConfigParameters["{$sPostType}_comment_content"],
-                $aConfigParameters["{$sPostType}_comments_locked"]
+            $groupedConfigParameters[$postType] = [
+                $configParameters["hide_{$postType}"],
+                $configParameters["hide_{$postType}_title"],
+                $configParameters["{$postType}_title"],
+                $configParameters["{$postType}_content"],
+                $configParameters["hide_{$postType}_comment"],
+                $configParameters["{$postType}_comment_content"],
+                $configParameters["{$postType}_comments_locked"]
             ];
 
-            if ($sPostType === 'post') {
-                $aGroupedConfigParameters[$sPostType][] = $aConfigParameters["show_{$sPostType}_content_before_more"];
+            if ($postType === 'post') {
+                $groupedConfigParameters[$postType][] = $configParameters["show_{$postType}_content_before_more"];
             }
         }
 
-        $aTaxonomies = $this->getTaxonomies();
+        $taxonomies = $this->getTaxonomies();
 
-        foreach ($aTaxonomies as $sTaxonomy => $Taxonomy) {
-            $aGroupedConfigParameters[$sTaxonomy][] = $aConfigParameters["hide_empty_{$sTaxonomy}"];
+        foreach ($taxonomies as $taxonomy => $taxonomyObject) {
+            $groupedConfigParameters[$taxonomy][] = $configParameters["hide_empty_{$taxonomy}"];
         }
 
-        $aGroupedConfigParameters['file'] = [
-            $aConfigParameters['lock_file'],
-            $aConfigParameters['download_type']
+        $groupedConfigParameters['file'] = [
+            $configParameters['lock_file'],
+            $configParameters['download_type']
         ];
 
-        $aGroupedConfigParameters['author'] = [
-            $aConfigParameters['authors_has_access_to_own'],
-            $aConfigParameters['authors_can_add_posts_to_groups'],
-            $aConfigParameters['full_access_role'],
+        $groupedConfigParameters['author'] = [
+            $configParameters['authors_has_access_to_own'],
+            $configParameters['authors_can_add_posts_to_groups'],
+            $configParameters['full_access_role'],
         ];
 
-        $aGroupedConfigParameters['other'] = [
-            $aConfigParameters['lock_recursive'],
-            $aConfigParameters['protect_feed'],
-            $aConfigParameters['redirect'],
-            $aConfigParameters['blog_admin_hint'],
-            $aConfigParameters['blog_admin_hint_text'],
+        $groupedConfigParameters['other'] = [
+            $configParameters['lock_recursive'],
+            $configParameters['protect_feed'],
+            $configParameters['redirect'],
+            $configParameters['blog_admin_hint'],
+            $configParameters['blog_admin_hint_text'],
         ];
 
-        if ($this->Config->isPermalinksActive() === true) {
-            $aGroupedConfigParameters['file'][] = $aConfigParameters['lock_file_types'];
-            $aGroupedConfigParameters['file'][] = $aConfigParameters['file_pass_type'];
+        if ($this->config->isPermalinksActive() === true) {
+            $groupedConfigParameters['file'][] = $configParameters['lock_file_types'];
+            $groupedConfigParameters['file'][] = $configParameters['file_pass_type'];
         }
 
-        return $aGroupedConfigParameters;
+        return $groupedConfigParameters;
     }
 
     /**
@@ -182,96 +182,96 @@ class AdminSettingsController extends Controller
     {
         $this->verifyNonce('uamUpdateSettings');
 
-        $aNewConfigParameters = $this->getRequestParameter('config_parameters');
-        $aNewConfigParameters = array_map(
-            function ($sEntry) {
-                return htmlentities(str_replace('\\', '', $sEntry));
+        $newConfigParameters = $this->getRequestParameter('config_parameters');
+        $newConfigParameters = array_map(
+            function ($entry) {
+                return htmlentities(str_replace('\\', '', $entry));
             },
-            $aNewConfigParameters
+            $newConfigParameters
         );
-        $this->Config->setConfigParameters($aNewConfigParameters);
+        $this->config->setConfigParameters($newConfigParameters);
 
-        if ($this->Config->lockFile() === false) {
-            $this->FileHandler->deleteFileProtection();
+        if ($this->config->lockFile() === false) {
+            $this->fileHandler->deleteFileProtection();
         } else {
-            $this->FileHandler->createFileProtection();
+            $this->fileHandler->createFileProtection();
         }
 
-        $this->Wordpress->doAction('uam_update_options', $this->Config);
+        $this->wordpress->doAction('uam_update_options', $this->config);
         $this->setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
     }
 
     /**
      * Checks if the group is a post type.
      *
-     * @param string $sGroupKey
+     * @param string $groupKey
      *
      * @return bool
      */
-    public function isPostTypeGroup($sGroupKey)
+    public function isPostTypeGroup($groupKey)
     {
-        $aPostTypes = $this->getPostTypes();
+        $postTypes = $this->getPostTypes();
 
-        return isset($aPostTypes[$sGroupKey]);
+        return isset($postTypes[$groupKey]);
     }
 
     /**
      * Returns the right translation string.
      *
-     * @param string $sGroupKey
-     * @param string $sIdent
-     * @param bool   $blDescription
+     * @param string $groupKey
+     * @param string $ident
+     * @param bool   $description
      *
      * @return mixed|string
      */
-    protected function getObjectText($sGroupKey, $sIdent, $blDescription = false)
+    protected function getObjectText($groupKey, $ident, $description = false)
     {
-        $aObjects = $this->getPostTypes() + $this->getTaxonomies();
-        $sIdent .= ($blDescription === true) ? '_DESC' : '';
+        $objects = $this->getPostTypes() + $this->getTaxonomies();
+        $ident .= ($description === true) ? '_DESC' : '';
 
-        if (isset($aObjects[$sGroupKey]) === true) {
-            $sIdent = str_replace(strtoupper($sGroupKey), 'OBJECT', $sIdent);
-            $sText = constant($sIdent);
-            $iCount = substr_count($sText, '%s');
-            $aArguments = array_fill(0, $iCount, $aObjects[$sGroupKey]->labels->name);
-            return vsprintf($sText, $aArguments);
+        if (isset($objects[$groupKey]) === true) {
+            $ident = str_replace(strtoupper($groupKey), 'OBJECT', $ident);
+            $text = constant($ident);
+            $count = substr_count($text, '%s');
+            $arguments = array_fill(0, $count, $objects[$groupKey]->labels->name);
+            return vsprintf($text, $arguments);
         }
 
-        return constant($sIdent);
+        return constant($ident);
     }
 
     /**
-     * @param string $sGroupKey
-     * @param bool   $blDescription
+     * @param string $groupKey
+     * @param bool   $description
      *
      * @return string
      */
-    public function getSectionText($sGroupKey, $blDescription = false)
+    public function getSectionText($groupKey, $description = false)
     {
         return $this->getObjectText(
-            $sGroupKey,
-            'TXT_UAM_'.strtoupper($sGroupKey).'_SETTING',
-            $blDescription
+            $groupKey,
+            'TXT_UAM_'.strtoupper($groupKey).'_SETTING',
+            $description
         );
     }
 
     /**
      * Returns the label for the parameter.
      *
-     * @param string          $sGroupKey
-     * @param ConfigParameter $ConfigParameter
-     * @param bool            $blDescription
+     * @param string          $groupKey
+     * @param ConfigParameter $configParameter
+     * @param bool            $description
      *
      * @return string
      */
-    public function getParameterText($sGroupKey, ConfigParameter $ConfigParameter, $blDescription = false)
+    public function getParameterText($groupKey, ConfigParameter $configParameter, $description = false)
     {
-        $sIdent = 'TXT_UAM_'.strtoupper($ConfigParameter->getId());
+        $ident = 'TXT_UAM_'.strtoupper($configParameter->getId());
 
         return $this->getObjectText(
-            $sGroupKey,
-            $sIdent,
-            $blDescription
+            $groupKey,
+            $ident,
+            $description
         );
     }
 }

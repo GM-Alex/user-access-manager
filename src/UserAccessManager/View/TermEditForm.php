@@ -9,15 +9,15 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $Controller
+ * @var \UserAccessManager\Controller\AdminObjectController $controller
  */
-$aUserGroups = $Controller->getFilteredUserGroups();
-$aObjectUserGroups = $Controller->getFilteredObjectUserGroups();
+$userGroups = $controller->getFilteredUserGroups();
+$objectUserGroups = $controller->getFilteredObjectUserGroups();
 
 ?>
 <table class="form-table">
@@ -28,9 +28,9 @@ $aObjectUserGroups = $Controller->getFilteredObjectUserGroups();
         </th>
         <td>
             <?php
-            if (count($aUserGroups) > 0) {
+            if (count($userGroups) > 0) {
                 include 'GroupSelectionForm.php';
-            } elseif ($Controller->checkUserAccess()) {
+            } elseif ($controller->checkUserAccess()) {
                 ?>
                 <a href='?page=uam_user_group'><?php echo TXT_UAM_CREATE_GROUP_FIRST; ?></a>
                 <?php

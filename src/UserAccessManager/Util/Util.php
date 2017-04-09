@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Util;
@@ -26,59 +26,59 @@ class Util
     /**
      * @var Php
      */
-    protected $Php;
+    protected $php;
 
     /**
      * Util constructor.
      *
-     * @param Php $Php
+     * @param Php $php
      */
-    public function __construct(Php $Php)
+    public function __construct(Php $php)
     {
-        $this->Php = $Php;
+        $this->php = $php;
     }
 
     /**
      * Checks if a string starts with the given needle.
      *
-     * @param string $sHaystack The haystack.
-     * @param string $sNeedle   The needle.
+     * @param string $haystack The haystack.
+     * @param string $needle   The needle.
      *
      * @return boolean
      */
-    public function startsWith($sHaystack, $sNeedle)
+    public function startsWith($haystack, $needle)
     {
-        return $sNeedle === '' || strpos($sHaystack, $sNeedle) === 0;
+        return $needle === '' || strpos($haystack, $needle) === 0;
     }
 
     /**
      * Checks if a string ends with the given needle.
      *
-     * @param string $sHaystack
-     * @param string $sNeedle
+     * @param string $haystack
+     * @param string $needle
      *
      * @return bool
      */
-    public function endsWith($sHaystack, $sNeedle)
+    public function endsWith($haystack, $needle)
     {
-        return $sNeedle === '' || substr($sHaystack, -strlen($sNeedle)) === $sNeedle;
+        return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
     }
 
     /**
      * Generates and returns a random password.
      *
-     * @param int $iLength
+     * @param int $length
      *
      * @return string
      *
      * @throws \Exception
      */
-    public function getRandomPassword($iLength = 32)
+    public function getRandomPassword($length = 32)
     {
-        $sBytes = $this->Php->opensslRandomPseudoBytes($iLength + 1, $blStrong);
+        $bytes = $this->php->opensslRandomPseudoBytes($length + 1, $strong);
 
-        if ($sBytes !== false && $blStrong === true) {
-            return substr(preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($sBytes)), 0, $iLength);
+        if ($bytes !== false && $strong === true) {
+            return substr(preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($bytes)), 0, $length);
         } else {
             throw new \Exception('Unable to generate secure token from OpenSSL.');
         }
@@ -92,16 +92,16 @@ class Util
     public function getCurrentUrl()
     {
         if (!isset($_SERVER['REQUEST_URI'])) {
-            $sServerRequestUri = $_SERVER['PHP_SELF'];
+            $serverRequestUri = $_SERVER['PHP_SELF'];
         } else {
-            $sServerRequestUri = $_SERVER['REQUEST_URI'];
+            $serverRequestUri = $_SERVER['REQUEST_URI'];
         }
 
-        $sSecure = empty($_SERVER['HTTPS']) ? '' : ($_SERVER['HTTPS'] === 'on') ? 's' : '';
-        $aProtocols = explode('/', strtolower($_SERVER['SERVER_PROTOCOL']));
-        $sProtocol = $aProtocols[0].$sSecure;
-        $sPort = ((int)$_SERVER['SERVER_PORT'] === 80) ? '' : (':'.$_SERVER['SERVER_PORT']);
+        $secure = empty($_SERVER['HTTPS']) ? '' : ($_SERVER['HTTPS'] === 'on') ? 's' : '';
+        $protocols = explode('/', strtolower($_SERVER['SERVER_PROTOCOL']));
+        $protocol = $protocols[0].$secure;
+        $port = ((int)$_SERVER['SERVER_PORT'] === 80) ? '' : (':'.$_SERVER['SERVER_PORT']);
 
-        return $sProtocol.'://'.$_SERVER['SERVER_NAME'].$sPort.$sServerRequestUri;
+        return $protocol.'://'.$_SERVER['SERVER_NAME'].$port.$serverRequestUri;
     }
 }

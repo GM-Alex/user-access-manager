@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -28,65 +28,65 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     /**
      * Generates the htaccess file.
      *
-     * @param string $sDir
-     * @param string $sObjectType
+     * @param string $dir
+     * @param string $objectType
      *
      * @return bool
      */
-    public function create($sDir, $sObjectType = null)
+    public function create($dir, $objectType = null)
     {
-        $sDir = rtrim($sDir, '/').'/';
-        $sContent = '';
-        $sAreaName = 'WP-Files';
+        $dir = rtrim($dir, '/').'/';
+        $content = '';
+        $areaName = 'WP-Files';
 
-        if ($this->Config->isPermalinksActive() === false) {
-            $sFileTypes = null;
-            $sLockFileTypes = $this->Config->getLockFileTypes();
+        if ($this->config->isPermalinksActive() === false) {
+            $fileTypes = null;
+            $lockFileTypes = $this->config->getLockFileTypes();
 
-            if ($sLockFileTypes === 'selected') {
-                $sFileTypes = $this->cleanUpFileTypes($this->Config->getLockedFileTypes());
-                $sFileTypes = "\.({$sFileTypes})";
-            } elseif ($sLockFileTypes === 'not_selected') {
-                $sFileTypes = $this->cleanUpFileTypes($this->Config->getLockedFileTypes());
-                $sFileTypes = "^\.({$sFileTypes})";
+            if ($lockFileTypes === 'selected') {
+                $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
+                $fileTypes = "\.({$fileTypes})";
+            } elseif ($lockFileTypes === 'not_selected') {
+                $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
+                $fileTypes = "^\.({$fileTypes})";
             }
 
             // make .htaccess and .htpasswd
-            $sContent .= "AuthType Basic"."\n";
-            $sContent .= "AuthName \"{$sAreaName}\""."\n";
-            $sContent .= "AuthUserFile {$sDir}.htpasswd"."\n";
-            $sContent .= "require valid-user"."\n";
+            $content .= "AuthType Basic"."\n";
+            $content .= "AuthName \"{$areaName}\""."\n";
+            $content .= "AuthUserFile {$dir}.htpasswd"."\n";
+            $content .= "require valid-user"."\n";
 
-            if ($sFileTypes !== null) {
+            if ($fileTypes !== null) {
                 /** @noinspection */
-                $sContent = "<FilesMatch '{$sFileTypes}'>\n{$sContent}</FilesMatch>\n";
+                $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
             }
 
-            $this->createPasswordFile(true, $sDir);
+            $this->createPasswordFile(true, $dir);
         } else {
-            if ($sObjectType === null) {
-                $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
+            if ($objectType === null) {
+                $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
-            $aHomeRoot = parse_url($this->Wordpress->getHomeUrl());
-            $sHomeRoot = (isset($aHomeRoot['path'])) ? trim($aHomeRoot['path'], '/\\').'/' : '/';
+            $homeRoot = parse_url($this->wordpress->getHomeUrl());
+            $homeRoot = (isset($homeRoot['path'])) ? trim($homeRoot['path'], '/\\').'/' : '/';
 
-            $sContent = "<IfModule mod_rewrite.c>\n";
-            $sContent .= "RewriteEngine On\n";
-            $sContent .= "RewriteBase {$sHomeRoot}\n";
-            $sContent .= "RewriteRule ^index\.php$ - [L]\n";
-            $sContent .= "RewriteRule (.*) ";
-            $sContent .= "{$sHomeRoot}index.php?uamfiletype={$sObjectType}&uamgetfile=$1 [L]\n";
-            $sContent .= "</IfModule>\n";
+            $content = "<IfModule mod_rewrite.c>\n";
+            $content .= "RewriteEngine On\n";
+            $content .= "RewriteBase {$homeRoot}\n";
+            $content .= "RewriteRule ^index\.php$ - [L]\n";
+            $content .= "RewriteRule (.*) ";
+            $content .= "{$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1 [L]\n";
+            $content .= "</IfModule>\n";
         }
 
         // save files
-        $sFileWithPath = $sDir.self::FILE_NAME;
+        $fileWithPath = $dir.self::FILE_NAME;
 
         try {
-            file_put_contents($sFileWithPath, $sContent);
+            file_put_contents($fileWithPath, $content);
             return true;
-        } catch (\Exception $Exception) {
+        } catch (\Exception $exception) {
         }
 
         return false;
@@ -95,26 +95,26 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     /**
      * Deletes the htaccess files.
      *
-     * @param string $sDir
+     * @param string $dir
      *
      * @return bool
      */
-    public function delete($sDir)
+    public function delete($dir)
     {
-        $blSuccess = true;
-        $sDir = rtrim($sDir, '/').'/';
-        $sFileName = $sDir.self::FILE_NAME;
+        $success = true;
+        $dir = rtrim($dir, '/').'/';
+        $fileName = $dir.self::FILE_NAME;
 
-        if (file_exists($sFileName) === true) {
-            $blSuccess = ($this->Php->unlink($sFileName) === true) && $blSuccess;
+        if (file_exists($fileName) === true) {
+            $success = ($this->php->unlink($fileName) === true) && $success;
         }
 
-        $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
+        $passwordFile = $dir.self::PASSWORD_FILE_NAME;
 
-        if (file_exists($sPasswordFile) === true) {
-            $blSuccess = ($this->Php->unlink($sPasswordFile) === true) && $blSuccess;
+        if (file_exists($passwordFile) === true) {
+            $success = ($this->php->unlink($passwordFile) === true) && $success;
         }
 
-        return $blSuccess;
+        return $success;
     }
 }

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -29,77 +29,77 @@ class Config
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var ObjectHandler
      */
-    protected $ObjectHandler;
+    protected $objectHandler;
 
     /**
      * @var ConfigParameterFactory
      */
-    protected $ConfigParameterFactory;
+    protected $configParameterFactory;
 
     /**
      * @var string
      */
-    protected $sBaseFile;
+    protected $baseFile;
 
     /**
      * @var array
      */
-    protected $aConfigParameters = null;
+    protected $configParameters = null;
 
     /**
      * @var array
      */
-    protected $aWpOptions = [];
+    protected $wpOptions = [];
 
     /**
      * @var bool
      */
-    protected $blAtAdminPanel = false;
+    protected $atAdminPanel = false;
 
     /**
      * @var array
      */
-    protected $aMimeTypes = null;
+    protected $mimeTypes = null;
 
     /**
      * Config constructor.
      *
-     * @param Wordpress              $Wordpress
-     * @param ObjectHandler          $ObjectHandler
-     * @param ConfigParameterFactory $ConfigParameterFactory
-     * @param String                 $sBaseFile
+     * @param Wordpress              $wordpress
+     * @param ObjectHandler          $objectHandler
+     * @param ConfigParameterFactory $configParameterFactory
+     * @param String                 $baseFile
      */
     public function __construct(
-        Wordpress $Wordpress,
-        ObjectHandler $ObjectHandler,
-        ConfigParameterFactory $ConfigParameterFactory,
-        $sBaseFile
+        Wordpress $wordpress,
+        ObjectHandler $objectHandler,
+        ConfigParameterFactory $configParameterFactory,
+        $baseFile
     ) {
-        $this->Wordpress = $Wordpress;
-        $this->ObjectHandler = $ObjectHandler;
-        $this->ConfigParameterFactory = $ConfigParameterFactory;
-        $this->sBaseFile = $sBaseFile;
+        $this->wordpress = $wordpress;
+        $this->objectHandler = $objectHandler;
+        $this->configParameterFactory = $configParameterFactory;
+        $this->baseFile = $baseFile;
     }
 
     /**
      * Returns the WordPress options.
      *
-     * @param string $sOption
+     * @param string $option
      *
      * @return mixed
      */
-    public function getWpOption($sOption)
+    public function getWpOption($option)
     {
-        if (!isset($this->aWpOptions[$sOption])) {
-            $this->aWpOptions[$sOption] = $this->Wordpress->getOption($sOption);
+        if (!isset($this->wpOptions[$option])) {
+            $this->wpOptions[$option] = $this->wordpress->getOption($option);
         }
 
-        return $this->aWpOptions[$sOption];
+        return $this->wpOptions[$option];
     }
 
     /**
@@ -107,7 +107,7 @@ class Config
      */
     public function flushConfigParameters()
     {
-        $this->aConfigParameters = null;
+        $this->configParameters = null;
     }
 
     /**
@@ -117,200 +117,200 @@ class Config
      */
     public function getConfigParameters()
     {
-        if ($this->aConfigParameters === null) {
+        if ($this->configParameters === null) {
             /**
-             * @var ConfigParameter[] $aConfigParameters
+             * @var ConfigParameter[] $configParameters
              */
-            $aConfigParameters = [];
+            $configParameters = [];
 
-            $aPostTypes = $this->ObjectHandler->getPostTypes();
+            $postTypes = $this->objectHandler->getPostTypes();
 
-            foreach ($aPostTypes as $sPostType) {
-                if ($sPostType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+            foreach ($postTypes as $postType) {
+                if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
                     continue;
                 }
 
-                $sId = "hide_{$sPostType}";
-                $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId);
+                $id = "hide_{$postType}";
+                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
-                $sId = "hide_{$sPostType}_title";
-                $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId);
+                $id = "hide_{$postType}_title";
+                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
-                $sId = "{$sPostType}_title";
-                $aConfigParameters[$sId] = $this->ConfigParameterFactory->createStringConfigParameter(
-                    $sId,
+                $id = "{$postType}_title";
+                $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+                    $id,
                     TXT_UAM_SETTING_DEFAULT_NO_RIGHTS
                 );
 
-                if ($sPostType === 'post') {
-                    $sId = "show_{$sPostType}_content_before_more";
-                    $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId);
+                if ($postType === 'post') {
+                    $id = "show_{$postType}_content_before_more";
+                    $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
                 }
 
-                $sId = "{$sPostType}_content";
-                $aConfigParameters[$sId] = $this->ConfigParameterFactory->createStringConfigParameter(
-                    $sId,
+                $id = "{$postType}_content";
+                $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+                    $id,
                     TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_ENTRY
                 );
 
-                $sId = "hide_{$sPostType}_comment";
-                $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId);
+                $id = "hide_{$postType}_comment";
+                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
-                $sId = "{$sPostType}_comment_content";
-                $aConfigParameters[$sId] = $this->ConfigParameterFactory->createStringConfigParameter(
-                    $sId,
+                $id = "{$postType}_comment_content";
+                $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+                    $id,
                     TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_COMMENTS
                 );
 
-                $sId = "{$sPostType}_comments_locked";
-                $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId);
+                $id = "{$postType}_comments_locked";
+                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
-                if ($sPostType === 'post') {
-                    $sId = "show_{$sPostType}_content_before_more";
-                    $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId);
+                if ($postType === 'post') {
+                    $id = "show_{$postType}_content_before_more";
+                    $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
                 }
             }
 
-            $sId = 'redirect';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createSelectionConfigParameter(
-                $sId,
+            $id = 'redirect';
+            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+                $id,
                 'false',
                 ['false', 'custom_page', 'custom_url']
             );
 
-            $sId = 'redirect_custom_page';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createStringConfigParameter($sId);
+            $id = 'redirect_custom_page';
+            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
 
-            $sId = 'redirect_custom_url';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createStringConfigParameter($sId);
+            $id = 'redirect_custom_url';
+            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
 
-            $sId = 'lock_recursive';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId, true);
+            $id = 'lock_recursive';
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
-            $sId = 'authors_has_access_to_own';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId, true);
+            $id = 'authors_has_access_to_own';
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
 
-            $sId = 'authors_can_add_posts_to_groups';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId);
+            $id = 'authors_can_add_posts_to_groups';
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
-            $sId = 'lock_file';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId);
+            $id = 'lock_file';
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
-            $sId = 'file_pass_type';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createSelectionConfigParameter(
-                $sId,
+            $id = 'file_pass_type';
+            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+                $id,
                 'random',
                 ['random', 'user']
             );
 
-            $sId = 'download_type';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createSelectionConfigParameter(
-                $sId,
+            $id = 'download_type';
+            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+                $id,
                 'fopen',
                 ['fopen', 'normal']
             );
 
-            $sId = 'lock_file_types';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createSelectionConfigParameter(
-                $sId,
+            $id = 'lock_file_types';
+            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+                $id,
                 'all',
                 ['all', 'selected', 'not_selected']
             );
 
-            $sId = 'locked_file_types';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createStringConfigParameter(
-                $sId,
+            $id = 'locked_file_types';
+            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+                $id,
                 'zip,rar,tar,gz'
             );
 
-            $sId = 'not_locked_file_types';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createStringConfigParameter(
-                $sId,
+            $id = 'not_locked_file_types';
+            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+                $id,
                 'gif,jpg,jpeg,png'
             );
 
-            $sId = 'blog_admin_hint';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId, true);
+            $id = 'blog_admin_hint';
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
-            $sId = 'blog_admin_hint_text';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createStringConfigParameter($sId, '[L]');
+            $id = 'blog_admin_hint_text';
+            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id, '[L]');
 
-            $aTaxonomies = $this->ObjectHandler->getTaxonomies();
+            $taxonomies = $this->objectHandler->getTaxonomies();
 
-            foreach ($aTaxonomies as $sTaxonomy) {
-                $sId = 'hide_empty_'.$sTaxonomy;
-                $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId, true);
+            foreach ($taxonomies as $taxonomy) {
+                $id = 'hide_empty_'.$taxonomy;
+                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
             }
 
-            $sId = 'protect_feed';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createBooleanConfigParameter($sId, true);
+            $id = 'protect_feed';
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
-            $sId = 'full_access_role';
-            $aConfigParameters[$sId] = $this->ConfigParameterFactory->createSelectionConfigParameter(
-                $sId,
+            $id = 'full_access_role';
+            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+                $id,
                 'administrator',
                 ['administrator', 'editor', 'author', 'contributor', 'subscriber']
             );
 
-            $aCurrentOptions = (array)$this->getWpOption(self::ADMIN_OPTIONS_NAME);
+            $currentOptions = (array)$this->getWpOption(self::ADMIN_OPTIONS_NAME);
 
-            foreach ($aCurrentOptions as $sKey => $mOption) {
-                if (isset($aConfigParameters[$sKey])) {
-                    $aConfigParameters[$sKey]->setValue($mOption);
+            foreach ($currentOptions as $key => $option) {
+                if (isset($configParameters[$key])) {
+                    $configParameters[$key]->setValue($option);
                 }
             }
 
-            $this->aConfigParameters = $aConfigParameters;
+            $this->configParameters = $configParameters;
         }
 
-        return $this->aConfigParameters;
+        return $this->configParameters;
     }
 
     /**
      * Sets the new config parameters and saves them to the database.
      *
-     * @param $aRawParameters
+     * @param $rawParameters
      */
-    public function setConfigParameters(array $aRawParameters)
+    public function setConfigParameters(array $rawParameters)
     {
-        $aConfigParameters = $this->getConfigParameters();
+        $configParameters = $this->getConfigParameters();
 
-        foreach ($aRawParameters as $sKey => $mValue) {
-            if (isset($aConfigParameters[$sKey])) {
-                $aConfigParameters[$sKey]->setValue($mValue);
+        foreach ($rawParameters as $key => $value) {
+            if (isset($configParameters[$key])) {
+                $configParameters[$key]->setValue($value);
             }
         }
 
-        $this->aConfigParameters = $aConfigParameters;
+        $this->configParameters = $configParameters;
 
-        $aSimpleConfigParameters = [];
+        $simpleConfigParameters = [];
 
-        foreach ($aConfigParameters as $Parameter) {
-            $aSimpleConfigParameters[$Parameter->getId()] = $Parameter->getValue();
+        foreach ($configParameters as $parameter) {
+            $simpleConfigParameters[$parameter->getId()] = $parameter->getValue();
         }
 
-        $this->Wordpress->updateOption(self::ADMIN_OPTIONS_NAME, $aSimpleConfigParameters);
+        $this->wordpress->updateOption(self::ADMIN_OPTIONS_NAME, $simpleConfigParameters);
     }
 
     /**
      * Returns the requested parameter value
      *
-     * @param string $sParameterName
+     * @param string $parameterName
      *
      * @return mixed
      *
      * @throws \Exception
      */
-    protected function getParameterValue($sParameterName)
+    protected function getParameterValue($parameterName)
     {
-        $aOptions = $this->getConfigParameters();
+        $options = $this->getConfigParameters();
 
-        if (isset($aOptions[$sParameterName]) === false) {
-            throw new \Exception("Unknown config parameter '{$sParameterName}'.");
+        if (isset($options[$parameterName]) === false) {
+            throw new \Exception("Unknown config parameter '{$parameterName}'.");
         }
 
-        return $aOptions[$sParameterName]->getValue();
+        return $options[$parameterName]->getValue();
     }
 
     /**
@@ -320,7 +320,7 @@ class Config
      */
     public function atAdminPanel()
     {
-        return $this->Wordpress->isAdmin();
+        return $this->wordpress->isAdmin();
     }
 
     /**
@@ -330,8 +330,8 @@ class Config
      */
     public function isPermalinksActive()
     {
-        $sPermalinkStructure = $this->getWpOption('permalink_structure');
-        return !empty($sPermalinkStructure);
+        $permalinkStructure = $this->getWpOption('permalink_structure');
+        return !empty($permalinkStructure);
     }
 
     /**
@@ -341,10 +341,10 @@ class Config
      */
     public function getUploadDirectory()
     {
-        $aWordpressUploadDir = $this->Wordpress->getUploadDir();
+        $wordpressUploadDir = $this->wordpress->getUploadDir();
 
-        if (empty($aWordpressUploadDir['error'])) {
-            return $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
+        if (empty($wordpressUploadDir['error'])) {
+            return $wordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
         }
 
         return null;
@@ -357,22 +357,22 @@ class Config
      */
     public function getMimeTypes()
     {
-        if ($this->aMimeTypes === null) {
-            $aMimeTypes = $this->Wordpress->getAllowedMimeTypes();
-            $aFullMimeTypes = [];
+        if ($this->mimeTypes === null) {
+            $mimeTypes = $this->wordpress->getAllowedMimeTypes();
+            $fullMimeTypes = [];
 
-            foreach ($aMimeTypes as $sExtensions => $sMineType) {
-                $aExtension = explode('|', $sExtensions);
+            foreach ($mimeTypes as $extensions => $mineType) {
+                $extensions = explode('|', $extensions);
 
-                foreach ($aExtension as $sExtension) {
-                    $aFullMimeTypes[$sExtension] = $sMineType;
+                foreach ($extensions as $extension) {
+                    $fullMimeTypes[$extension] = $mineType;
                 }
             }
 
-            $this->aMimeTypes = $aFullMimeTypes;
+            $this->mimeTypes = $fullMimeTypes;
         }
 
-        return $this->aMimeTypes;
+        return $this->mimeTypes;
     }
 
     /**
@@ -382,7 +382,7 @@ class Config
      */
     public function getUrlPath()
     {
-        return $this->Wordpress->pluginsUrl('', $this->sBaseFile).DIRECTORY_SEPARATOR;
+        return $this->wordpress->pluginsUrl('', $this->baseFile).DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -392,88 +392,88 @@ class Config
      */
     public function getRealPath()
     {
-        $sDirName = dirname($this->sBaseFile);
+        $dirName = dirname($this->baseFile);
 
-        return $this->Wordpress->getPluginDir().DIRECTORY_SEPARATOR
-            .$this->Wordpress->pluginBasename($sDirName).DIRECTORY_SEPARATOR;
+        return $this->wordpress->getPluginDir().DIRECTORY_SEPARATOR
+            .$this->wordpress->pluginBasename($dirName).DIRECTORY_SEPARATOR;
     }
 
     /**
      * Returns the option value if the option exists otherwise true.
      *
-     * @param string $sParameterName
+     * @param string $parameterName
      *
      * @return bool
      */
-    protected function hideObject($sParameterName)
+    protected function hideObject($parameterName)
     {
-        $aOptions = $this->getConfigParameters();
+        $options = $this->getConfigParameters();
 
-        if (isset($aOptions[$sParameterName])) {
-            return $aOptions[$sParameterName]->getValue();
+        if (isset($options[$parameterName]) === true) {
+            return $options[$parameterName]->getValue();
         }
 
         return true;
     }
 
     /**
-     * @param string $sPostType
+     * @param string $postType
      *
      * @return bool
      */
-    public function hidePostType($sPostType)
+    public function hidePostType($postType)
     {
-        return $this->hideObject('hide_'.$sPostType);
+        return $this->hideObject('hide_'.$postType);
     }
 
     /**
-     * @param string $sPostType
+     * @param string $postType
      *
      * @return bool
      */
-    public function hidePostTypeTitle($sPostType)
+    public function hidePostTypeTitle($postType)
     {
-        return $this->hideObject('hide_'.$sPostType.'_title');
+        return $this->hideObject('hide_'.$postType.'_title');
     }
 
     /**
-     * @param string $sPostType
+     * @param string $postType
      *
      * @return bool
      */
-    public function hidePostTypeComments($sPostType)
+    public function hidePostTypeComments($postType)
     {
-        return $this->hideObject($sPostType.'_comments_locked');
+        return $this->hideObject($postType.'_comments_locked');
     }
 
     /**
-     * @param string $sPostType
+     * @param string $postType
      *
      * @return string
      */
-    public function getPostTypeTitle($sPostType)
+    public function getPostTypeTitle($postType)
     {
-        return $this->getParameterValue($sPostType.'_title');
+        return $this->getParameterValue($postType.'_title');
     }
 
     /**
-     * @param string $sPostType
+     * @param string $postType
      *
      * @return string
      */
-    public function getPostTypeContent($sPostType)
+    public function getPostTypeContent($postType)
     {
-        return $this->getParameterValue($sPostType.'_content');
+        return $this->getParameterValue($postType.'_content');
     }
 
     /**
-     * @param string $sPostType
+     * @param string $postType
      *
      * @return string
      */
-    public function getPostTypeCommentContent($sPostType)
+    public function getPostTypeCommentContent($postType)
     {
-        return $this->getParameterValue($sPostType.'_comment_content');
+        return $this->getParameterValue($postType.'_comment_content');
     }
 
     /**
@@ -589,13 +589,13 @@ class Config
     }
 
     /**
-     * @param string $sTaxonomy
+     * @param string $taxonomy
      *
      * @return bool
      */
-    public function hideEmptyTaxonomy($sTaxonomy)
+    public function hideEmptyTaxonomy($taxonomy)
     {
-        return $this->hideObject('hide_empty_'.$sTaxonomy);
+        return $this->hideObject('hide_empty_'.$taxonomy);
     }
 
     /**

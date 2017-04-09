@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -28,114 +28,114 @@ class FileHandler
     /**
      * @var Php
      */
-    protected $Php;
+    protected $php;
 
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var Config
      */
-    protected $Config;
+    protected $config;
 
     /**
      * @var FileProtectionFactory
      */
-    protected $FileProtectionFactory;
+    protected $fileProtectionFactory;
 
     /**
      * FileHandler constructor.
      *
-     * @param Php                   $Php
-     * @param Wordpress             $Wordpress
-     * @param Config                $Config
-     * @param FileProtectionFactory $FileProtectionFactory
+     * @param Php                   $php
+     * @param Wordpress             $wordpress
+     * @param Config                $config
+     * @param FileProtectionFactory $fileProtectionFactory
      */
     public function __construct(
-        Php $Php,
-        Wordpress $Wordpress,
-        Config $Config,
-        FileProtectionFactory $FileProtectionFactory
+        Php $php,
+        Wordpress $wordpress,
+        Config $config,
+        FileProtectionFactory $fileProtectionFactory
     ) {
-        $this->Php = $Php;
-        $this->Wordpress = $Wordpress;
-        $this->Config = $Config;
-        $this->FileProtectionFactory = $FileProtectionFactory;
+        $this->php = $php;
+        $this->wordpress = $wordpress;
+        $this->config = $config;
+        $this->fileProtectionFactory = $fileProtectionFactory;
     }
 
     /**
      * Delivers the content of the requested file.
      *
-     * @param string $sFile
-     * @param bool   $blIsImage
+     * @param string $file
+     * @param bool   $isImage
      *
      * @return null
      */
-    public function getFile($sFile, $blIsImage)
+    public function getFile($file, $isImage)
     {
         //Deliver content
-        if (file_exists($sFile) === true) {
-            $sFileName = basename($sFile);
+        if (file_exists($file) === true) {
+            $fileName = basename($file);
 
             /*
              * This only for compatibility
              * mime_content_type has been deprecated as the PECL extension file info
              * provides the same functionality (and more) in a much cleaner way.
              */
-            $aFile = explode('.', $sFileName);
-            $sLastElement = array_pop($aFile);
-            $sFileExt = strtolower($sLastElement);
+            $explodedFileName = explode('.', $fileName);
+            $lastElement = array_pop($explodedFileName);
+            $fileExt = strtolower($lastElement);
 
-            $aMimeTypes = $this->Config->getMimeTypes();
+            $mimeTypes = $this->config->getMimeTypes();
 
-            if ($this->Php->functionExists('finfo_open')) {
-                $sFileInfo = finfo_open(FILEINFO_MIME);
-                $sFileMimeType = finfo_file($sFileInfo, $sFile);
-                finfo_close($sFileInfo);
-            } elseif ($this->Php->functionExists('mime_content_type')) {
-                $sFileMimeType = mime_content_type($sFile);
-            } elseif (isset($aMimeTypes[$sFileExt])) {
-                $sFileMimeType = $aMimeTypes[$sFileExt];
+            if ($this->php->functionExists('finfo_open')) {
+                $fileInfo = finfo_open(FILEINFO_MIME);
+                $fileMimeType = finfo_file($fileInfo, $file);
+                finfo_close($fileInfo);
+            } elseif ($this->php->functionExists('mime_content_type')) {
+                $fileMimeType = mime_content_type($file);
+            } elseif (isset($mimeTypes[$fileExt])) {
+                $fileMimeType = $mimeTypes[$fileExt];
             } else {
-                $sFileMimeType = 'application/octet-stream';
+                $fileMimeType = 'application/octet-stream';
             }
 
             header('Content-Description: File Transfer');
-            header('Content-Type: '.$sFileMimeType);
+            header('Content-Type: '.$fileMimeType);
 
-            if ($blIsImage === false) {
-                $sBaseName = str_replace(' ', '_', basename($sFile));
-                header('Content-Disposition: attachment; filename="'.$sBaseName.'"');
+            if ($isImage === false) {
+                $baseName = str_replace(' ', '_', basename($file));
+                header('Content-Disposition: attachment; filename="'.$baseName.'"');
             }
 
             header('Content-Transfer-Encoding: binary');
-            header('Content-Length: '.filesize($sFile));
+            header('Content-Length: '.filesize($file));
 
-            if ($this->Config->getDownloadType() === 'fopen'
-                && $blIsImage === false
+            if ($this->config->getDownloadType() === 'fopen'
+                && $isImage === false
             ) {
-                $Handler = fopen($sFile, 'r');
+                $handler = fopen($file, 'r');
 
                 //TODO find better solution (prevent '\n' / '0A')
                 ob_clean();
                 flush();
 
-                while (feof($Handler) === false) {
-                    if ($this->Php->iniGet('safe_mode') !== '') {
-                        $this->Php->setTimeLimit(30);
+                while (feof($handler) === false) {
+                    if ($this->php->iniGet('safe_mode') !== '') {
+                        $this->php->setTimeLimit(30);
                     }
 
-                    echo fread($Handler, 1024);
+                    echo fread($handler, 1024);
                 }
             } else {
                 ob_clean();
                 flush();
-                readfile($sFile);
+                readfile($file);
             }
         } else {
-            $this->Wordpress->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
+            $this->wordpress->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
         }
 
         return null;
@@ -144,20 +144,20 @@ class FileHandler
     /**
      * Creates a protection file.
      *
-     * @param string $sDir        The destination directory.
-     * @param string $sObjectType The object type.
+     * @param string $dir        The destination directory.
+     * @param string $objectType The object type.
      *
      * @return false
      */
-    public function createFileProtection($sDir = null, $sObjectType = null)
+    public function createFileProtection($dir = null, $objectType = null)
     {
-        $sDir = ($sDir === null) ? $this->Config->getUploadDirectory() : $sDir;
+        $dir = ($dir === null) ? $this->config->getUploadDirectory() : $dir;
 
-        if ($sDir !== null) {
-            if ($this->Wordpress->isNginx() === true) {
-                return $this->FileProtectionFactory->createNginxFileProtection()->create($sDir, $sObjectType);
+        if ($dir !== null) {
+            if ($this->wordpress->isNginx() === true) {
+                return $this->fileProtectionFactory->createNginxFileProtection()->create($dir, $objectType);
             } else {
-                return $this->FileProtectionFactory->createApacheFileProtection()->create($sDir, $sObjectType);
+                return $this->fileProtectionFactory->createApacheFileProtection()->create($dir, $objectType);
             }
         }
 
@@ -168,19 +168,19 @@ class FileHandler
     /**
      * Deletes the protection files.
      *
-     * @param string $sDir The destination directory.
+     * @param string $dir The destination directory.
      *
      * @return false
      */
-    public function deleteFileProtection($sDir = null)
+    public function deleteFileProtection($dir = null)
     {
-        $sDir = ($sDir === null) ? $this->Config->getUploadDirectory() : $sDir;
+        $dir = ($dir === null) ? $this->config->getUploadDirectory() : $dir;
 
-        if ($sDir !== null) {
-            if ($this->Wordpress->isNginx() === true) {
-                return $this->FileProtectionFactory->createNginxFileProtection()->delete($sDir);
+        if ($dir !== null) {
+            if ($this->wordpress->isNginx() === true) {
+                return $this->fileProtectionFactory->createNginxFileProtection()->delete($dir);
             } else {
-                return $this->FileProtectionFactory->createApacheFileProtection()->delete($sDir);
+                return $this->fileProtectionFactory->createApacheFileProtection()->delete($dir);
             }
         }
 

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\ObjectHandler;
@@ -36,83 +36,83 @@ class ObjectHandler
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var array
      */
-    protected $aPostTypes = null;
+    protected $postTypes = null;
 
     /**
      * @var array
      */
-    protected $aTaxonomies = null;
+    protected $taxonomies = null;
 
     /**
      * @var \WP_User
      */
-    protected $aUsers = null;
+    protected $users = null;
 
     /**
      * @var \WP_Post[]
      */
-    protected $aPosts = null;
+    protected $posts = null;
 
     /**
      * @var \WP_Term[]
      */
-    protected $aTerms = null;
+    protected $terms = null;
 
     /**
      * @var array
      */
-    protected $aTermPostMap = null;
+    protected $termPostMap = null;
 
     /**
      * @var array
      */
-    protected $aPostTermMap = null;
+    protected $postTermMap = null;
 
     /**
      * @var array
      */
-    protected $aTermTreeMap = null;
+    protected $termTreeMap = null;
 
     /**
      * @var array
      */
-    protected $aPostTreeMap = null;
+    protected $postTreeMap = null;
 
     /**
      * @var array
      */
-    protected $aPluggableObjects = [];
+    protected $pluggableObjects = [];
 
     /**
      * @var array
      */
-    protected $aObjectTypes = null;
+    protected $objectTypes = null;
 
     /**
      * @var array
      */
-    protected $aAllObjectTypes = null;
+    protected $allObjectTypes = null;
 
     /**
      * @var array
      */
-    protected $aValidObjectTypes = [];
+    protected $validObjectTypes = [];
 
     /**
      * Cache constructor.
      *
-     * @param Wordpress $Wordpress
-     * @param Database  $Database
+     * @param Wordpress $wordpress
+     * @param Database  $database
      */
-    public function __construct(Wordpress $Wordpress, Database $Database)
+    public function __construct(Wordpress $wordpress, Database $database)
     {
-        $this->Wordpress = $Wordpress;
-        $this->Database = $Database;
+        $this->wordpress = $wordpress;
+        $this->database = $database;
     }
 
     /**
@@ -122,11 +122,11 @@ class ObjectHandler
      */
     public function getPostTypes()
     {
-        if ($this->aPostTypes === null) {
-            $this->aPostTypes = $this->Wordpress->getPostTypes(['public' => true]);
+        if ($this->postTypes === null) {
+            $this->postTypes = $this->wordpress->getPostTypes(['public' => true]);
         }
 
-        return $this->aPostTypes;
+        return $this->postTypes;
     }
 
     /**
@@ -136,140 +136,140 @@ class ObjectHandler
      */
     public function getTaxonomies()
     {
-        if ($this->aTaxonomies === null) {
-            $this->aTaxonomies = $this->Wordpress->getTaxonomies(['public' => true]);
+        if ($this->taxonomies === null) {
+            $this->taxonomies = $this->wordpress->getTaxonomies(['public' => true]);
         }
 
-        return $this->aTaxonomies;
+        return $this->taxonomies;
     }
 
     /**
      * Returns a user.
      *
-     * @param int|string $sId The user id.
+     * @param int|string $id The user id.
      *
      * @return \WP_User|false
      */
-    public function getUser($sId)
+    public function getUser($id)
     {
-        if (!isset($this->aUsers[$sId])) {
-            $this->aUsers[$sId] = $this->Wordpress->getUserData($sId);
+        if (!isset($this->users[$id])) {
+            $this->users[$id] = $this->wordpress->getUserData($id);
         }
 
-        return $this->aUsers[$sId];
+        return $this->users[$id];
     }
 
     /**
      * Returns a post.
      *
-     * @param string $sId The post id.
+     * @param string $id The post id.
      *
      * @return \WP_Post|array|false
      */
-    public function getPost($sId)
+    public function getPost($id)
     {
-        if (!isset($this->aPosts[$sId])) {
-            $Post = $this->Wordpress->getPost($sId);
-            $this->aPosts[$sId] = ($Post === null) ? false : $Post;
+        if (!isset($this->posts[$id])) {
+            $post = $this->wordpress->getPost($id);
+            $this->posts[$id] = ($post === null) ? false : $post;
         }
 
-        return $this->aPosts[$sId];
+        return $this->posts[$id];
     }
 
     /**
      * Returns a term.
      *
-     * @param string $sId       The term id.
-     * @param string $sTaxonomy The taxonomy.
+     * @param string $id       The term id.
+     * @param string $taxonomy The taxonomy.
      *
      * @return array|false|\WP_Error|\WP_Term
      */
-    public function getTerm($sId, $sTaxonomy = '')
+    public function getTerm($id, $taxonomy = '')
     {
-        $sFullId = $sId.'|'.$sTaxonomy;
+        $fullId = $id.'|'.$taxonomy;
 
-        if (!isset($this->aTerms[$sFullId])) {
-            $Term = $this->Wordpress->getTerm($sId, $sTaxonomy);
-            $this->aTerms[$sFullId] = ($Term === null) ? false : $Term;
+        if (!isset($this->terms[$fullId])) {
+            $term = $this->wordpress->getTerm($id, $taxonomy);
+            $this->terms[$fullId] = ($term === null) ? false : $term;
         }
 
-        return $this->aTerms[$sFullId];
+        return $this->terms[$fullId];
     }
 
     /**
      * Resolves all tree map elements
      *
-     * @param array $aMap
-     * @param array $aSubMap
+     * @param array $map
+     * @param array $subMap
      *
      * @return array
      */
-    protected function processTreeMapElements(array &$aMap, array $aSubMap = null)
+    protected function processTreeMapElements(array &$map, array $subMap = null)
     {
-        $aProcessMap = ($aSubMap === null) ? $aMap : $aSubMap;
+        $processMap = ($subMap === null) ? $map : $subMap;
 
-        foreach ($aProcessMap as $iId => $aSubIds) {
-            foreach ($aSubIds as $iSubId => $sType) {
-                if (isset($aMap[$iSubId])) {
-                    $aMap[$iId] += $this->processTreeMapElements($aMap, [$iSubId => $aMap[$iSubId]])[$iSubId];
+        foreach ($processMap as $id => $subIds) {
+            foreach ($subIds as $subId => $type) {
+                if (isset($map[$subId])) {
+                    $map[$id] += $this->processTreeMapElements($map, [$subId => $map[$subId]])[$subId];
                 }
             }
         }
 
-        return $aMap;
+        return $map;
     }
 
     /**
      * Returns the tree map for the query.
      *
-     * @param string $sSelect
-     * @param string $sGeneralType
+     * @param string $select
+     * @param string $generalType
      *
      * @return array
      */
-    protected function getTreeMap($sSelect, $sGeneralType)
+    protected function getTreeMap($select, $generalType)
     {
-        $aTreeMap = [
+        $treeMap = [
             self::TREE_MAP_CHILDREN => [
-                $sGeneralType => []
+                $generalType => []
             ],
             self::TREE_MAP_PARENTS => [
-                $sGeneralType => []
+                $generalType => []
             ]
         ];
-        $aResults = $this->Database->getResults($sSelect);
+        $results = $this->database->getResults($select);
 
-        foreach ($aResults as $Result) {
-            if (isset($aTreeMap[self::TREE_MAP_CHILDREN][$Result->type]) === false) {
-                $aTreeMap[self::TREE_MAP_CHILDREN][$Result->type] = [];
+        foreach ($results as $result) {
+            if (isset($treeMap[self::TREE_MAP_CHILDREN][$result->type]) === false) {
+                $treeMap[self::TREE_MAP_CHILDREN][$result->type] = [];
             }
 
-            if (isset($aTreeMap[self::TREE_MAP_PARENTS][$Result->type]) === false) {
-                $aTreeMap[self::TREE_MAP_PARENTS][$Result->type] = [];
+            if (isset($treeMap[self::TREE_MAP_PARENTS][$result->type]) === false) {
+                $treeMap[self::TREE_MAP_PARENTS][$result->type] = [];
             }
 
-            if (isset($aTreeMap[self::TREE_MAP_CHILDREN][$Result->type][$Result->parentId]) === false) {
-                $aTreeMap[self::TREE_MAP_CHILDREN][$Result->type][$Result->parentId] = [];
+            if (isset($treeMap[self::TREE_MAP_CHILDREN][$result->type][$result->parentId]) === false) {
+                $treeMap[self::TREE_MAP_CHILDREN][$result->type][$result->parentId] = [];
             }
 
-            if (isset($aTreeMap[self::TREE_MAP_PARENTS][$Result->type][$Result->id]) === false) {
-                $aTreeMap[self::TREE_MAP_PARENTS][$Result->type][$Result->id] = [];
+            if (isset($treeMap[self::TREE_MAP_PARENTS][$result->type][$result->id]) === false) {
+                $treeMap[self::TREE_MAP_PARENTS][$result->type][$result->id] = [];
             }
 
-            $aTreeMap[self::TREE_MAP_CHILDREN][$sGeneralType][$Result->parentId][$Result->id] = $Result->type;
-            $aTreeMap[self::TREE_MAP_CHILDREN][$Result->type][$Result->parentId][$Result->id] = $Result->type;
-            $aTreeMap[self::TREE_MAP_PARENTS][$sGeneralType][$Result->id][$Result->parentId] = $Result->type;
-            $aTreeMap[self::TREE_MAP_PARENTS][$Result->type][$Result->id][$Result->parentId] = $Result->type;
+            $treeMap[self::TREE_MAP_CHILDREN][$generalType][$result->parentId][$result->id] = $result->type;
+            $treeMap[self::TREE_MAP_CHILDREN][$result->type][$result->parentId][$result->id] = $result->type;
+            $treeMap[self::TREE_MAP_PARENTS][$generalType][$result->id][$result->parentId] = $result->type;
+            $treeMap[self::TREE_MAP_PARENTS][$result->type][$result->id][$result->parentId] = $result->type;
         }
 
         //Process elements
-        foreach ($aTreeMap as $sMapType => $aMayTypeMap) {
-            foreach ($aMayTypeMap as $sObjectType => $aMap) {
-                $aTreeMap[$sMapType][$sObjectType] = $this->processTreeMapElements($aMap);
+        foreach ($treeMap as $mapType => $mayTypeMap) {
+            foreach ($mayTypeMap as $objectType => $map) {
+                $treeMap[$mapType][$objectType] = $this->processTreeMapElements($map);
             }
         }
 
-        return $aTreeMap;
+        return $treeMap;
     }
 
     /**
@@ -279,16 +279,16 @@ class ObjectHandler
      */
     public function getPostTreeMap()
     {
-        if ($this->aPostTreeMap === null) {
-            $sSelect = "
+        if ($this->postTreeMap === null) {
+            $select = "
                 SELECT ID AS id, post_parent AS parentId, post_type AS type 
-                FROM {$this->Database->getPostsTable()}
+                FROM {$this->database->getPostsTable()}
                   WHERE post_parent != 0";
 
-            $this->aPostTreeMap = $this->getTreeMap($sSelect, self::GENERAL_POST_OBJECT_TYPE);
+            $this->postTreeMap = $this->getTreeMap($select, self::GENERAL_POST_OBJECT_TYPE);
         }
 
-        return $this->aPostTreeMap;
+        return $this->postTreeMap;
     }
 
     /**
@@ -298,16 +298,16 @@ class ObjectHandler
      */
     public function getTermTreeMap()
     {
-        if ($this->aTermTreeMap === null) {
-            $sSelect = "
+        if ($this->termTreeMap === null) {
+            $select = "
                 SELECT term_id AS id, parent AS parentId, taxonomy AS type
-                FROM {$this->Database->getTermTaxonomyTable()}
+                FROM {$this->database->getTermTaxonomyTable()}
                   WHERE parent != 0";
 
-            $this->aTermTreeMap = $this->getTreeMap($sSelect, self::GENERAL_TERM_OBJECT_TYPE);
+            $this->termTreeMap = $this->getTreeMap($select, self::GENERAL_TERM_OBJECT_TYPE);
         }
 
-        return $this->aTermTreeMap;
+        return $this->termTreeMap;
     }
 
     /**
@@ -317,29 +317,29 @@ class ObjectHandler
      */
     public function getTermPostMap()
     {
-        if ($this->aTermPostMap === null) {
-            $this->aTermPostMap = [];
+        if ($this->termPostMap === null) {
+            $this->termPostMap = [];
 
-            $sSelect = "
+            $select = "
                 SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
-                FROM {$this->Database->getTermRelationshipsTable()} AS tr
-                  LEFT JOIN {$this->Database->getPostsTable()} AS p
+                FROM {$this->database->getTermRelationshipsTable()} AS tr
+                  LEFT JOIN {$this->database->getPostsTable()} AS p
                    ON (tr.object_id = p.ID)
-                  LEFT JOIN {$this->Database->getTermTaxonomyTable()} AS tt
+                  LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
                     ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
-            $aResults = $this->Database->getResults($sSelect);
+            $results = $this->database->getResults($select);
 
-            foreach ($aResults as $Result) {
-                if (!isset($this->aTermPostMap[$Result->termId])) {
-                    $this->aTermPostMap[$Result->termId] = [];
+            foreach ($results as $result) {
+                if (!isset($this->termPostMap[$result->termId])) {
+                    $this->termPostMap[$result->termId] = [];
                 }
 
-                $this->aTermPostMap[$Result->termId][$Result->objectId] = $Result->postType;
+                $this->termPostMap[$result->termId][$result->objectId] = $result->postType;
             }
         }
 
-        return $this->aTermPostMap;
+        return $this->termPostMap;
     }
 
     /**
@@ -349,112 +349,112 @@ class ObjectHandler
      */
     public function getPostTermMap()
     {
-        if ($this->aPostTermMap === null) {
-            $this->aPostTermMap = [];
+        if ($this->postTermMap === null) {
+            $this->postTermMap = [];
 
-            $sSelect = "
+            $select = "
                 SELECT tr.object_id AS objectId, tt.term_id AS termId, tt.taxonomy AS termType
-                FROM {$this->Database->getTermRelationshipsTable()} AS tr 
-                  LEFT JOIN {$this->Database->getTermTaxonomyTable()} AS tt
+                FROM {$this->database->getTermRelationshipsTable()} AS tr 
+                  LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
                     ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
-            $aResults = $this->Database->getResults($sSelect);
+            $results = $this->database->getResults($select);
 
-            foreach ($aResults as $Result) {
-                if (!isset($this->aPostTermMap[$Result->objectId])) {
-                    $this->aPostTermMap[$Result->objectId] = [];
+            foreach ($results as $result) {
+                if (!isset($this->postTermMap[$result->objectId])) {
+                    $this->postTermMap[$result->objectId] = [];
                 }
 
-                $this->aPostTermMap[$Result->objectId][$Result->termId] = $Result->termType;
+                $this->postTermMap[$result->objectId][$result->termId] = $result->termType;
             }
         }
 
-        return $this->aPostTermMap;
+        return $this->postTermMap;
     }
 
     /**
      * Used for adding custom post types using the registered_post_type hook
      * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
      *
-     * @param string        $sPostType  The string for the new post_type
-     * @param \WP_Post_Type $Arguments The array of arguments used to create the post_type
+     * @param string        $postType  The string for the new post_type
+     * @param \WP_Post_Type $arguments The array of arguments used to create the post_type
      */
-    public function registeredPostType($sPostType, \WP_Post_Type $Arguments)
+    public function registeredPostType($postType, \WP_Post_Type $arguments)
     {
-        if ((bool)$Arguments->public === true) {
-            $this->aPostTypes = $this->getPostTypes();
-            $this->aPostTypes[$sPostType] = $sPostType;
-            $this->aObjectTypes = null;
-            $this->aAllObjectTypes = null;
-            $this->aValidObjectTypes = null;
+        if ((bool)$arguments->public === true) {
+            $this->postTypes = $this->getPostTypes();
+            $this->postTypes[$postType] = $postType;
+            $this->objectTypes = null;
+            $this->allObjectTypes = null;
+            $this->validObjectTypes = null;
         }
     }
 
     /**
      * Adds an custom taxonomy.
      *
-     * @param string $sTaxonomy
-     * @param string $sObjectType
-     * @param array  $aArguments
+     * @param string $taxonomy
+     * @param string $objectType
+     * @param array  $arguments
      */
-    public function registeredTaxonomy($sTaxonomy, $sObjectType, array $aArguments)
+    public function registeredTaxonomy($taxonomy, $objectType, array $arguments)
     {
-        if ((bool)$aArguments['public'] === true) {
-            $this->aTaxonomies = $this->getTaxonomies();
-            $this->aTaxonomies[$sTaxonomy] = $sTaxonomy;
-            $this->aObjectTypes = null;
-            $this->aAllObjectTypes = null;
-            $this->aValidObjectTypes = null;
+        if ((bool)$arguments['public'] === true) {
+            $this->taxonomies = $this->getTaxonomies();
+            $this->taxonomies[$taxonomy] = $taxonomy;
+            $this->objectTypes = null;
+            $this->allObjectTypes = null;
+            $this->validObjectTypes = null;
         }
     }
 
     /**
      * Checks if type is postable.
      *
-     * @param string $sType
+     * @param string $type
      *
      * @return bool
      */
-    public function isPostType($sType)
+    public function isPostType($type)
     {
-        $aPostableTypes = $this->getPostTypes();
-        return isset($aPostableTypes[$sType]);
+        $postableTypes = $this->getPostTypes();
+        return isset($postableTypes[$type]);
     }
 
     /**
      * Checks if the taxonomy is a valid one.
      *
-     * @param string $sTaxonomy
+     * @param string $taxonomy
      *
      * @return bool
      */
-    public function isTaxonomy($sTaxonomy)
+    public function isTaxonomy($taxonomy)
     {
-        $aTaxonomies = $this->getTaxonomies();
-        return in_array($sTaxonomy, $aTaxonomies);
+        $taxonomies = $this->getTaxonomies();
+        return in_array($taxonomy, $taxonomies);
     }
 
     /**
      * Registers object that should be handel by the user access manager.
      *
-     * @param PluggableObject $Object The object which you want to register.
+     * @param PluggableObject $object The object which you want to register.
      */
-    public function registerPluggableObject(PluggableObject $Object)
+    public function registerPluggableObject(PluggableObject $object)
     {
-        $this->aPluggableObjects[$Object->getName()] = $Object;
+        $this->pluggableObjects[$object->getName()] = $object;
     }
 
     /**
      * Returns a registered pluggable object.
      *
-     * @param string $sObjectName The name of the object which should be returned.
+     * @param string $objectName The name of the object which should be returned.
      *
      * @return PluggableObject
      */
-    public function getPluggableObject($sObjectName)
+    public function getPluggableObject($objectName)
     {
-        if (isset($this->aPluggableObjects[$sObjectName])) {
-            return $this->aPluggableObjects[$sObjectName];
+        if (isset($this->pluggableObjects[$objectName])) {
+            return $this->pluggableObjects[$objectName];
         }
 
         return null;
@@ -463,13 +463,13 @@ class ObjectHandler
     /**
      * Returns true if the object is a pluggable object.
      *
-     * @param string $sObjectName
+     * @param string $objectName
      *
      * @return bool
      */
-    public function isPluggableObject($sObjectName)
+    public function isPluggableObject($objectName)
     {
-        return isset($this->aPluggableObjects[$sObjectName]);
+        return isset($this->pluggableObjects[$objectName]);
     }
 
     /**
@@ -479,7 +479,7 @@ class ObjectHandler
      */
     public function getPluggableObjects()
     {
-        return $this->aPluggableObjects;
+        return $this->pluggableObjects;
     }
 
     /**
@@ -489,14 +489,14 @@ class ObjectHandler
      */
     public function getObjectTypes()
     {
-        if ($this->aObjectTypes === null) {
-            $this->aObjectTypes = array_merge(
+        if ($this->objectTypes === null) {
+            $this->objectTypes = array_merge(
                 $this->getPostTypes(),
                 $this->getTaxonomies()
             );
         }
 
-        return $this->aObjectTypes;
+        return $this->objectTypes;
     }
 
     /**
@@ -506,45 +506,45 @@ class ObjectHandler
      */
     public function getAllObjectTypes()
     {
-        if ($this->aAllObjectTypes === null) {
-            $aObjectTypes = $this->getObjectTypes();
-            $aPluggableObjects = $this->getPluggableObjects();
-            $aPluggableObjectKeys = array_keys($aPluggableObjects);
-            $aPluggableObjectKeys = array_combine($aPluggableObjectKeys, $aPluggableObjectKeys);
+        if ($this->allObjectTypes === null) {
+            $objectTypes = $this->getObjectTypes();
+            $pluggableObjects = $this->getPluggableObjects();
+            $pluggableObjectKeys = array_keys($pluggableObjects);
+            $pluggableObjectKeys = array_combine($pluggableObjectKeys, $pluggableObjectKeys);
 
-            $this->aAllObjectTypes = array_merge(
+            $this->allObjectTypes = array_merge(
                 [
                     self::GENERAL_ROLE_OBJECT_TYPE => self::GENERAL_ROLE_OBJECT_TYPE,
                     self::GENERAL_USER_OBJECT_TYPE => self::GENERAL_USER_OBJECT_TYPE,
                     self::GENERAL_POST_OBJECT_TYPE => self::GENERAL_POST_OBJECT_TYPE,
                     self::GENERAL_TERM_OBJECT_TYPE => self::GENERAL_TERM_OBJECT_TYPE
                 ],
-                $aObjectTypes,
-                $aPluggableObjectKeys
+                $objectTypes,
+                $pluggableObjectKeys
             );
         }
 
-        return $this->aAllObjectTypes;
+        return $this->allObjectTypes;
     }
 
     /**
      * Returns the general object type.
      *
-     * @param string $sObjectType
+     * @param string $objectType
      *
      * @return string
      */
-    public function getGeneralObjectType($sObjectType)
+    public function getGeneralObjectType($objectType)
     {
-        if ($sObjectType === self::GENERAL_USER_OBJECT_TYPE
-            || $sObjectType === self::GENERAL_ROLE_OBJECT_TYPE
-            || $sObjectType === self::GENERAL_TERM_OBJECT_TYPE
-            || $sObjectType === self::GENERAL_POST_OBJECT_TYPE
+        if ($objectType === self::GENERAL_USER_OBJECT_TYPE
+            || $objectType === self::GENERAL_ROLE_OBJECT_TYPE
+            || $objectType === self::GENERAL_TERM_OBJECT_TYPE
+            || $objectType === self::GENERAL_POST_OBJECT_TYPE
         ) {
-            return $sObjectType;
-        } elseif ($this->isPostType($sObjectType)) {
+            return $objectType;
+        } elseif ($this->isPostType($objectType)) {
             return self::GENERAL_POST_OBJECT_TYPE;
-        } elseif ($this->isTaxonomy($sObjectType)) {
+        } elseif ($this->isTaxonomy($objectType)) {
             return self::GENERAL_TERM_OBJECT_TYPE;
         }
 
@@ -554,17 +554,17 @@ class ObjectHandler
     /**
      * Checks if the object type is a valid one.
      *
-     * @param string $sObjectType The object type to check.
+     * @param string $objectType The object type to check.
      *
      * @return boolean
      */
-    public function isValidObjectType($sObjectType)
+    public function isValidObjectType($objectType)
     {
-        if (!isset($this->aValidObjectTypes[$sObjectType])) {
-            $aObjectTypesMap = $this->getAllObjectTypes();
-            $this->aValidObjectTypes[$sObjectType] = isset($aObjectTypesMap[$sObjectType]);
+        if (!isset($this->validObjectTypes[$objectType])) {
+            $objectTypesMap = $this->getAllObjectTypes();
+            $this->validObjectTypes[$objectType] = isset($objectTypesMap[$objectType]);
         }
 
-        return $this->aValidObjectTypes[$sObjectType];
+        return $this->validObjectTypes[$objectType];
     }
 }

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -24,30 +24,30 @@ abstract class ConfigParameter implements ConfigParameterInterface
     /**
      * @var string
      */
-    protected $sId;
+    protected $id;
 
     /**
      * @var mixed
      */
-    protected $mDefaultValue = null;
+    protected $defaultValue = null;
 
     /**
      * @var mixed
      */
-    protected $mValue = null;
+    protected $value = null;
 
     /**
      * ConfigParameter constructor.
      *
-     * @param string $sId
-     * @param mixed  $mDefaultValue
+     * @param string $id
+     * @param mixed  $defaultValue
      */
-    public function __construct($sId, $mDefaultValue = null)
+    public function __construct($id, $defaultValue = null)
     {
-        $this->sId = $sId;
+        $this->id = $id;
 
-        $this->validateValue($mDefaultValue);
-        $this->mDefaultValue = $mDefaultValue;
+        $this->validateValue($defaultValue);
+        $this->defaultValue = $defaultValue;
     }
 
     /**
@@ -57,32 +57,32 @@ abstract class ConfigParameter implements ConfigParameterInterface
      */
     public function getId()
     {
-        return $this->sId;
+        return $this->id;
     }
 
     /**
      * Checks the value type and throws an exception if the value isn't the required type.
      *
-     * @param mixed $mValue
+     * @param mixed $value
      *
      * @throws \Exception
      */
-    protected function validateValue($mValue)
+    protected function validateValue($value)
     {
-        if ($this->isValidValue($mValue) === false) {
-            throw new \Exception("Wrong value '{$mValue}' type given for '{$this->sId}'.'");
+        if ($this->isValidValue($value) === false) {
+            throw new \Exception("Wrong value '{$value}' type given for '{$this->id}'.'");
         }
     }
 
     /**
      * Sets the current value.
      *
-     * @param mixed $mValue
+     * @param mixed $value
      */
-    public function setValue($mValue)
+    public function setValue($value)
     {
-        $this->isValidValue($mValue);
-        $this->mValue = $mValue;
+        $this->isValidValue($value);
+        $this->value = $value;
     }
 
     /**
@@ -92,6 +92,6 @@ abstract class ConfigParameter implements ConfigParameterInterface
      */
     public function getValue()
     {
-        return ($this->mValue === null) ? $this->mDefaultValue : $this->mValue;
+        return ($this->value === null) ? $this->defaultValue : $this->value;
     }
 }

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -44,23 +44,23 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $Stub = $this->getStub();
-        $Stub->expects($this->exactly(2))->method('isValidValue')->will($this->returnValue(true));
-        $Stub->__construct('testId');
+        $stub = $this->getStub();
+        $stub->expects($this->exactly(2))->method('isValidValue')->will($this->returnValue(true));
+        $stub->__construct('testId');
 
-        self::assertAttributeEquals('testId', 'sId', $Stub);
-        self::assertAttributeEquals(null, 'mDefaultValue', $Stub);
+        self::assertAttributeEquals('testId', 'id', $stub);
+        self::assertAttributeEquals(null, 'defaultValue', $stub);
 
-        $Stub->__construct('otherId', 'defaultValue');
+        $stub->__construct('otherId', 'defaultValue');
 
-        self::assertAttributeEquals('otherId', 'sId', $Stub);
-        self::assertAttributeEquals('defaultValue', 'mDefaultValue', $Stub);
+        self::assertAttributeEquals('otherId', 'id', $stub);
+        self::assertAttributeEquals('defaultValue', 'defaultValue', $stub);
 
-        $Stub = $this->getStub();
-        $Stub->expects($this->once())->method('isValidValue')->will($this->returnValue(false));
+        $stub = $this->getStub();
+        $stub->expects($this->once())->method('isValidValue')->will($this->returnValue(false));
 
         self::expectException('\Exception');
-        $Stub->__construct('otherId', 'defaultValue');
+        $stub->__construct('otherId', 'defaultValue');
     }
 
     /**
@@ -69,11 +69,11 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testGetId()
     {
-        $Stub = $this->getStub();
-        $Stub->expects($this->once())->method('isValidValue')->will($this->returnValue(true));
-        $Stub->__construct('testId');
+        $stub = $this->getStub();
+        $stub->expects($this->once())->method('isValidValue')->will($this->returnValue(true));
+        $stub->__construct('testId');
 
-        self::assertEquals('testId', $Stub->getId());
+        self::assertEquals('testId', $stub->getId());
     }
 
     /**
@@ -82,15 +82,15 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testValidateValue()
     {
-        $Stub = $this->getStub();
-        $Stub->expects($this->exactly(2))
+        $stub = $this->getStub();
+        $stub->expects($this->exactly(2))
             ->method('isValidValue')
             ->will($this->onConsecutiveCalls(true, false));
 
-        self::assertNull(self::callMethod($Stub, 'validateValue', ['value']));
+        self::assertNull(self::callMethod($stub, 'validateValue', ['value']));
 
         self::expectException('\Exception');
-        self::callMethod($Stub, 'validateValue', ['value']);
+        self::callMethod($stub, 'validateValue', ['value']);
     }
 
     /**
@@ -101,16 +101,16 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testSetValue()
     {
-        $Stub = $this->getStub();
-        $Stub->expects($this->once())
+        $stub = $this->getStub();
+        $stub->expects($this->once())
             ->method('isValidValue')
             ->will($this->returnValue(true));
 
-        $Stub->setValue('testValue');
+        $stub->setValue('testValue');
 
-        self::assertAttributeEquals('testValue', 'mValue', $Stub);
+        self::assertAttributeEquals('testValue', 'value', $stub);
 
-        return $Stub;
+        return $stub;
     }
 
     /**
@@ -118,10 +118,10 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      * @depends testSetValue
      * @covers  \UserAccessManager\Config\ConfigParameter::getValue()
      *
-     * @param ConfigParameter $Stub
+     * @param ConfigParameter $stub
      */
-    public function testGetValue($Stub)
+    public function testGetValue($stub)
     {
-        self::assertEquals('testValue', $Stub->getValue());
+        self::assertEquals('testValue', $stub->getValue());
     }
 }

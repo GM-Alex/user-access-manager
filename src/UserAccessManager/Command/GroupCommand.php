@@ -10,7 +10,7 @@
  * @author    Nils Woetzel nils.woetzel@h-its.org
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Command;
@@ -33,51 +33,51 @@ class GroupCommand extends CommandWithDBObject
     /**
      * @var array
      */
-    private static $aAllowedAccessValues = ['group', 'all'];
+    private static $allowedAccessValues = ['group', 'all'];
 
     /**
      * @var WordpressCli
      */
-    protected $WordpressCli;
+    protected $wordpressCli;
 
     /**
      * @var AccessHandler
      */
-    protected $AccessHandler;
+    protected $accessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    protected $UserGroupFactory;
+    protected $userGroupFactory;
 
     /**
      * ObjectCommand constructor.
      *
-     * @param WordpressCli     $WordpressCli
-     * @param AccessHandler    $AccessHandler
-     * @param UserGroupFactory $UserGroupFactory
+     * @param WordpressCli     $wordpressCli
+     * @param AccessHandler    $accessHandler
+     * @param UserGroupFactory $userGroupFactory
      */
     public function __construct(
-        WordpressCli $WordpressCli,
-        AccessHandler $AccessHandler,
-        UserGroupFactory $UserGroupFactory
+        WordpressCli $wordpressCli,
+        AccessHandler $accessHandler,
+        UserGroupFactory $userGroupFactory
     ) {
-        $this->WordpressCli = $WordpressCli;
-        $this->AccessHandler = $AccessHandler;
-        $this->UserGroupFactory = $UserGroupFactory;
+        $this->wordpressCli = $wordpressCli;
+        $this->accessHandler = $accessHandler;
+        $this->userGroupFactory = $userGroupFactory;
     }
 
     /**
      * Returns the formatter
      *
-     * @param $aAssocArguments
+     * @param $assocArguments
      *
      * @return \WP_CLI\Formatter
      */
-    protected function getFormatter(&$aAssocArguments)
+    protected function getFormatter(&$assocArguments)
     {
-        return $this->WordpressCli->createFormatter(
-            $aAssocArguments,
+        return $this->wordpressCli->createFormatter(
+            $assocArguments,
             [
                 'ID',
                 'group_name',
@@ -105,42 +105,42 @@ class GroupCommand extends CommandWithDBObject
      *
      * @subcommand ls
      *
-     * @param array $aArguments
-     * @param array $aAssocArguments
+     * @param array $arguments
+     * @param array $assocArguments
      */
-    public function ls(array $aArguments, array $aAssocArguments)
+    public function ls(array $arguments, array $assocArguments)
     {
-        if (count($aArguments) > 0) {
-            $this->WordpressCli->error('No arguments excepted. Please use the format option.');
+        if (count($arguments) > 0) {
+            $this->wordpressCli->error('No arguments excepted. Please use the format option.');
             return;
         }
 
-        $aUserGroups = $this->AccessHandler->getUserGroups();
+        $userGroups = $this->accessHandler->getUserGroups();
 
-        if (count($aUserGroups) <= 0) {
-            $this->WordpressCli->error('No groups defined yet!');
+        if (count($userGroups) <= 0) {
+            $this->wordpressCli->error('No groups defined yet!');
             return;
         }
 
-        $aGroups = [];
+        $groups = [];
 
-        foreach ($aUserGroups as $UserGroup) {
-            $aGroups[$UserGroup->getId()] = [
-                'ID' => $UserGroup->getId(),
-                'group_name' => $UserGroup->getName(),
-                'group_desc' => $UserGroup->getDescription(),
-                'read_access' => $UserGroup->getReadAccess(),
-                'write_access' => $UserGroup->getWriteAccess(),
+        foreach ($userGroups as $userGroup) {
+            $groups[$userGroup->getId()] = [
+                'ID' => $userGroup->getId(),
+                'group_name' => $userGroup->getName(),
+                'group_desc' => $userGroup->getDescription(),
+                'read_access' => $userGroup->getReadAccess(),
+                'write_access' => $userGroup->getWriteAccess(),
                 'roles' => implode(
                     ',',
-                    array_keys($UserGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))
+                    array_keys($userGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))
                 ),
-                'ip_range' => $UserGroup->getIpRange() !== null ? $UserGroup->getIpRange(true) : ''
+                'ip_range' => $userGroup->getIpRange() !== null ? $userGroup->getIpRange(true) : ''
             ];
         }
 
-        $Formatter = $this->getFormatter($aAssocArguments);
-        $Formatter->display_items($aGroups);
+        $formatter = $this->getFormatter($assocArguments);
+        $formatter->display_items($groups);
     }
 
     /**
@@ -156,20 +156,20 @@ class GroupCommand extends CommandWithDBObject
      *
      * @subcommand del
      *
-     * @param array $aArguments
+     * @param array $arguments
      */
-    public function del(array $aArguments)
+    public function del(array $arguments)
     {
-        if (count($aArguments) < 1) {
-            $this->WordpressCli->error('Expected: wp uam groups del \<id\> ...');
+        if (count($arguments) < 1) {
+            $this->wordpressCli->error('Expected: wp uam groups del \<id\> ...');
             return;
         }
 
-        foreach ($aArguments as $sUserGroupId) {
-            if ($this->AccessHandler->deleteUserGroup($sUserGroupId) === true) {
-                $this->WordpressCli->success("Successfully deleted group with id '{$sUserGroupId}'.");
+        foreach ($arguments as $userGroupId) {
+            if ($this->accessHandler->deleteUserGroup($userGroupId) === true) {
+                $this->wordpressCli->success("Successfully deleted group with id '{$userGroupId}'.");
             } else {
-                $this->WordpressCli->error("Group id '{$sUserGroupId}' doesn't exists.");
+                $this->wordpressCli->error("Group id '{$userGroupId}' doesn't exists.");
             }
         }
     }
@@ -201,76 +201,76 @@ class GroupCommand extends CommandWithDBObject
      *
      * wp uam groups add fighters --read_access=all
      *
-     * @param array $aArguments
-     * @param array $aAssocArguments
+     * @param array $arguments
+     * @param array $assocArguments
      */
-    public function add(array $aArguments, array $aAssocArguments)
+    public function add(array $arguments, array $assocArguments)
     {
-        if (isset($aArguments[0]) === false) {
-            $this->WordpressCli->error("Please provide a group name.");
+        if (isset($arguments[0]) === false) {
+            $this->wordpressCli->error("Please provide a group name.");
             return;
         }
 
-        $sGroupName = $aArguments[0];
-        $aUserGroups = $this->AccessHandler->getUserGroups();
+        $groupName = $arguments[0];
+        $userGroups = $this->accessHandler->getUserGroups();
 
-        foreach ($aUserGroups as $UserGroup) {
-            if ($UserGroup->getName() === $sGroupName) {
-                $this->WordpressCli->error(
-                    "Group with the same name '{$sGroupName}' already exists: {$UserGroup->getId()}"
+        foreach ($userGroups as $userGroup) {
+            if ($userGroup->getName() === $groupName) {
+                $this->wordpressCli->error(
+                    "Group with the same name '{$groupName}' already exists: {$userGroup->getId()}"
                 );
                 return;
             }
         }
 
-        $sGroupDescription = (isset($aAssocArguments['desc']) === true) ? $aAssocArguments['desc'] : '';
-        $sIpRange = (isset($aAssocArguments['ip_range']) === true) ? $aAssocArguments['ip_range'] : '';
-        $sReadAccess = (isset($aAssocArguments['read_access']) === true) ? $aAssocArguments['read_access'] : '';
-        $sWriteAccess = (isset($aAssocArguments['write_access']) === true) ? $aAssocArguments['write_access'] : '';
-        $blPorcelain = isset($aAssocArguments['porcelain']);
+        $groupDescription = (isset($assocArguments['desc']) === true) ? $assocArguments['desc'] : '';
+        $ipRange = (isset($assocArguments['ip_range']) === true) ? $assocArguments['ip_range'] : '';
+        $readAccess = (isset($assocArguments['read_access']) === true) ? $assocArguments['read_access'] : '';
+        $writeAccess = (isset($assocArguments['write_access']) === true) ? $assocArguments['write_access'] : '';
+        $porcelain = isset($assocArguments['porcelain']);
 
-        if (!in_array($sReadAccess, self::$aAllowedAccessValues)) {
-            if ($blPorcelain === true) {
-                $this->WordpressCli->line('setting read_access to '.self::$aAllowedAccessValues[0]);
+        if (!in_array($readAccess, self::$allowedAccessValues)) {
+            if ($porcelain === true) {
+                $this->wordpressCli->line('setting read_access to '.self::$allowedAccessValues[0]);
             }
 
-            $sReadAccess = self::$aAllowedAccessValues[0];
+            $readAccess = self::$allowedAccessValues[0];
         }
 
-        if (!in_array($sWriteAccess, self::$aAllowedAccessValues)) {
-            if ($blPorcelain === true) {
-                $this->WordpressCli->line('setting write_access to '.self::$aAllowedAccessValues[0]);
+        if (!in_array($writeAccess, self::$allowedAccessValues)) {
+            if ($porcelain === true) {
+                $this->wordpressCli->line('setting write_access to '.self::$allowedAccessValues[0]);
             }
 
-            $sWriteAccess = self::$aAllowedAccessValues[0];
+            $writeAccess = self::$allowedAccessValues[0];
         }
 
-        $UserGroup = $this->UserGroupFactory->createUserGroup();
-        $UserGroup->setName($sGroupName);
-        $UserGroup->setDescription($sGroupDescription);
-        $UserGroup->setIpRange($sIpRange);
-        $UserGroup->setReadAccess($sReadAccess);
-        $UserGroup->setWriteAccess($sWriteAccess);
+        $userGroup = $this->userGroupFactory->createUserGroup();
+        $userGroup->setName($groupName);
+        $userGroup->setDescription($groupDescription);
+        $userGroup->setIpRange($ipRange);
+        $userGroup->setReadAccess($readAccess);
+        $userGroup->setWriteAccess($writeAccess);
 
         // add roles
-        if (isset($aAssocArguments['roles'])) {
-            $aRoles = explode(',', $aAssocArguments['roles']);
+        if (isset($assocArguments['roles'])) {
+            $roles = explode(',', $assocArguments['roles']);
 
-            $UserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+            $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
-            foreach ($aRoles as $sRole) {
-                $UserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($sRole));
+            foreach ($roles as $role) {
+                $userGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($role));
             }
         }
 
-        $UserGroup->save();
+        $userGroup->save();
 
-        $this->AccessHandler->addUserGroup($UserGroup);
+        $this->accessHandler->addUserGroup($userGroup);
 
-        if ($blPorcelain === true) {
-            $this->WordpressCli->line($UserGroup->getId());
+        if ($porcelain === true) {
+            $this->wordpressCli->line($userGroup->getId());
         } else {
-            $this->WordpressCli->success("Added new group '{$sGroupName}' with id {$UserGroup->getId()}.");
+            $this->wordpressCli->success("Added new group '{$groupName}' with id {$userGroup->getId()}.");
         }
     }
 }

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\ObjectHandler;
@@ -22,16 +22,16 @@ namespace UserAccessManager\ObjectHandler;
 class PluggableObjectTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @param $sName
-     * @param $sReference
+     * @param $name
+     * @param $reference
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|PluggableObject
      */
-    private function getStub($sName, $sReference)
+    private function getStub($name, $reference)
     {
         return $this->getMockForAbstractClass(
             '\UserAccessManager\ObjectHandler\PluggableObject',
-            [$sName, $sReference]
+            [$name, $reference]
         );
     }
 
@@ -41,12 +41,12 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanCreateInstance()
     {
-        $Stub = $this->getStub('nameValue', 'referenceValue');
-        self::assertInstanceOf('\UserAccessManager\ObjectHandler\PluggableObject', $Stub);
-        self::assertAttributeEquals('nameValue', 'sName', $Stub);
-        self::assertAttributeEquals('referenceValue', 'sReference', $Stub);
+        $stub = $this->getStub('nameValue', 'referenceValue');
+        self::assertInstanceOf('\UserAccessManager\ObjectHandler\PluggableObject', $stub);
+        self::assertAttributeEquals('nameValue', 'name', $stub);
+        self::assertAttributeEquals('referenceValue', 'reference', $stub);
 
-        return $Stub;
+        return $stub;
     }
 
     /**
@@ -54,10 +54,10 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\ObjectHandler\PluggableObject::getName()
      *
-     * @param PluggableObject $Stub
+     * @param PluggableObject $stub
      */
-    public function testGetName(PluggableObject $Stub)
+    public function testGetName(PluggableObject $stub)
     {
-        self::assertEquals('nameValue', $Stub->getName());
+        self::assertEquals('nameValue', $stub->getName());
     }
 }

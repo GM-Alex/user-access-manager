@@ -9,28 +9,28 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminUserGroupController $Controller
+ * @var \UserAccessManager\Controller\AdminUserGroupController $controller
  */
-if ($Controller->hasUpdateMessage()) {
+if ($controller->hasUpdateMessage()) {
     ?>
     <div class="updated">
-        <p><strong><?php echo $Controller->getUpdateMessage(); ?></strong></p>
+        <p><strong><?php echo $controller->getUpdateMessage(); ?></strong></p>
     </div>
     <?php
 }
 
-if ($Controller->getRequestParameter('uam_action') === null
-    || $Controller->getRequestParameter('uam_action') === 'delete_user_group'
+if ($controller->getRequestParameter('uam_action') === null
+    || $controller->getRequestParameter('uam_action') === 'delete_user_group'
 ) {
     ?>
     <div class="wrap">
-        <form method="post" action="<?php echo $Controller->getRequestUrl(); ?>">
-            <?php $Controller->createNonceField('uamDeleteGroup'); ?>
+        <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
+            <?php $controller->createNonceField('uamDeleteGroup'); ?>
             <input type="hidden" value="delete_user_group" name="uam_action"/>
             <h2><?php echo TXT_UAM_MANAGE_GROUP; ?></h2>
             <div class="tablenav">
@@ -54,60 +54,60 @@ if ($Controller->getRequestParameter('uam_action') === null
                 </thead>
                 <tbody>
                 <?php
-                $sCurrentAdminPage = $Controller->getRequestParameter('page');
-                $aUserGroups = $Controller->getUserGroups();
-                foreach ($aUserGroups as $UserGroup) {
+                $currentAdminPage = $controller->getRequestParameter('page');
+                $userGroups = $controller->getUserGroups();
+                foreach ($userGroups as $userGroup) {
                     ?>
-                    <tr class="alternate" id="group-<?php echo $UserGroup->getId(); ?>">
+                    <tr class="alternate" id="group-<?php echo $userGroup->getId(); ?>">
                         <th class="check-column" scope="row">
                             <label>
-                                <input type="checkbox" value="<?php echo $UserGroup->getId(); ?>" name="delete[]"/>
+                                <input type="checkbox" value="<?php echo $userGroup->getId(); ?>" name="delete[]"/>
                             </label>
                         </th>
                         <td>
                             <strong>
                                 <?php
-                                $sLink = "?page={$sCurrentAdminPage}&amp;uam_action=edit_user_group"
-                                    ."&amp;userGroupId={$UserGroup->getId()}";
+                                $link = "?page={$currentAdminPage}&amp;uam_action=edit_user_group"
+                                    ."&amp;userGroupId={$userGroup->getId()}";
                                 ?>
-                                <a href="<?php echo $sLink; ?>">
-                                    <?php echo htmlentities($UserGroup->getName()); ?>
+                                <a href="<?php echo $link; ?>">
+                                    <?php echo htmlentities($userGroup->getName()); ?>
                                 </a>
                             </strong>
                         </td>
-                        <td><?php echo htmlentities($UserGroup->getDescription()) ?></td>
+                        <td><?php echo htmlentities($userGroup->getDescription()) ?></td>
                         <td>
                             <?php
-                            if ($UserGroup->getReadAccess() === 'all') {
+                            if ($userGroup->getReadAccess() === 'all') {
                                 echo TXT_UAM_ALL;
-                            } elseif ($UserGroup->getReadAccess() === 'group') {
+                            } elseif ($userGroup->getReadAccess() === 'group') {
                                 echo TXT_UAM_ONLY_GROUP_USERS;
                             }
                             ?>
                         </td>
                         <td>
                             <?php
-                            if ($UserGroup->getWriteAccess() === 'all') {
+                            if ($userGroup->getWriteAccess() === 'all') {
                                 echo TXT_UAM_ALL;
-                            } elseif ($UserGroup->getWriteAccess() === 'group') {
+                            } elseif ($userGroup->getWriteAccess() === 'group') {
                                 echo TXT_UAM_ONLY_GROUP_USERS;
                             }
                             ?>
                         </td>
                         <td>
                             <?php
-                            $aRoleNames = $Controller->getRoleNames();
-                            $aGroupRoles = $UserGroup->getAssignedObjectsByType(
+                            $roleNames = $controller->getRoleNames();
+                            $groupRoles = $userGroup->getAssignedObjectsByType(
                                 \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                             );
 
-                            if (count($aGroupRoles) > 0) {
+                            if (count($groupRoles) > 0) {
                                 ?>
                                 <ul style="margin: 0;">
                                     <?php
-                                    foreach ($aGroupRoles as $sKey => $sRole) {
+                                    foreach ($groupRoles as $key => $role) {
                                         ?>
-                                        <li><?php echo isset($aRoleNames[$sKey]) ? $aRoleNames[$sKey] : $sKey; ?></li>
+                                        <li><?php echo isset($roleNames[$key]) ? $roleNames[$key] : $key; ?></li>
                                         <?php
                                     }
                                     ?>
@@ -120,13 +120,13 @@ if ($Controller->getRequestParameter('uam_action') === null
                         </td>
                         <td>
                             <?php
-                            if ($UserGroup->getIpRange()) {
+                            if ($userGroup->getIpRange()) {
                                 ?>
                                 <ul>
                                     <?php
-                                    foreach ($UserGroup->getIpRange() as $sIpRange) {
+                                    foreach ($userGroup->getIpRange() as $ipRange) {
                                         ?>
-                                        <li><?php echo htmlentities($sIpRange); ?></li>
+                                        <li><?php echo htmlentities($ipRange); ?></li>
                                         <?php
                                     }
                                     ?>
@@ -158,21 +158,21 @@ if ($Controller->getRequestParameter('uam_action') === null
 <div class="wrap">
     <h2>
         <?php
-        if ($Controller->getRequestParameter('uam_action') === 'editGroup') {
+        if ($controller->getRequestParameter('uam_action') === 'editGroup') {
             echo TXT_UAM_EDIT_GROUP;
         } else {
             echo TXT_UAM_ADD_GROUP;
         }
         ?>
     </h2>
-    <form method="post" action="<?php echo $Controller->getRequestUrl(); ?>">
+    <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
         <input type="hidden" value="insert_update_user_group" name="uam_action"/>
         <?php
-        $UserGroup = $Controller->getUserGroup();
-        $Controller->createNonceField('uamInsertUpdateGroup');
-        if ($UserGroup->getId() !== null) {
+        $userGroup = $controller->getUserGroup();
+        $controller->createNonceField('uamInsertUpdateGroup');
+        if ($userGroup->getId() !== null) {
             ?>
-            <input type="hidden" value="<?php echo $UserGroup->getId(); ?>" name="userGroupId"/>
+            <input type="hidden" value="<?php echo $userGroup->getId(); ?>" name="userGroupId"/>
             <?php
         }
         ?>
@@ -181,7 +181,7 @@ if ($Controller->getRequestParameter('uam_action') === null
             <tr class="form-field form-required">
                 <th valign="top" scope="row"><label for="userGroupName"><?php echo TXT_UAM_GROUP_NAME; ?></label></th>
                 <td>
-                    <input type="text" size="40" value="<?php echo htmlentities($UserGroup->getName()); ?>"
+                    <input type="text" size="40" value="<?php echo htmlentities($userGroup->getName()); ?>"
                            id="userGroupName" name="userGroupName"/><br/>
                     <?php echo TXT_UAM_GROUP_NAME_DESC; ?>
                 </td>
@@ -190,14 +190,14 @@ if ($Controller->getRequestParameter('uam_action') === null
                 <th valign="top" scope="row"><label for="userGroupDescription"><?php echo TXT_UAM_GROUP_DESC; ?></label>
                 </th>
                 <td>
-                    <input type="text" size="40" value="<?php echo htmlentities($UserGroup->getDescription()); ?>"
+                    <input type="text" size="40" value="<?php echo htmlentities($userGroup->getDescription()); ?>"
                            id="userGroupDescription" name="userGroupDescription"/><br/>
                     <?php echo TXT_UAM_GROUP_DESC_DESC; ?>
                 </td>
             </tr>
             <tr class="form-field form-required">
                 <th valign="top" scope="row"><label for="ipRange"><?php echo TXT_UAM_GROUP_IP_RANGE; ?></label></th>
-                <td><input type="text" size="40" value="<?php echo htmlentities($UserGroup->getIpRange(true)); ?>"
+                <td><input type="text" size="40" value="<?php echo htmlentities($userGroup->getIpRange(true)); ?>"
                            id="ipRange" name="ipRange"/><br/>
                     <?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?>
                 </td>
@@ -209,7 +209,7 @@ if ($Controller->getRequestParameter('uam_action') === null
                     <select id="readAccess" name="readAccess">
                         <option value="group"
                             <?php
-                            if ($UserGroup->getReadAccess() === 'group') {
+                            if ($userGroup->getReadAccess() === 'group') {
                                 echo 'selected="selected"';
                             }
                             ?>
@@ -218,7 +218,7 @@ if ($Controller->getRequestParameter('uam_action') === null
                         </option>
                         <option value="all"
                             <?php
-                            if ($UserGroup->getReadAccess() === 'all') {
+                            if ($userGroup->getReadAccess() === 'all') {
                                 echo 'selected="selected"';
                             }
                             ?>
@@ -236,7 +236,7 @@ if ($Controller->getRequestParameter('uam_action') === null
                     <select id="writeAccess" name="writeAccess">
                         <option value="group"
                             <?php
-                            if ($UserGroup->getWriteAccess() === 'group') {
+                            if ($userGroup->getWriteAccess() === 'group') {
                                 echo 'selected="selected"';
                             }
                             ?>
@@ -245,7 +245,7 @@ if ($Controller->getRequestParameter('uam_action') === null
                         </option>
                         <option value="all"
                             <?php
-                            if ($UserGroup->getWriteAccess() === 'all') {
+                            if ($userGroup->getWriteAccess() === 'all') {
                                 echo 'selected="selected"';
                             }
                             ?>
@@ -261,24 +261,24 @@ if ($Controller->getRequestParameter('uam_action') === null
                 <td>
                     <ul class='uam_role'>
                         <?php
-                        $aGroupRoles = $UserGroup->getAssignedObjectsByType(
+                        $groupRoles = $userGroup->getAssignedObjectsByType(
                             \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                         );
-                        $aRoleNames = $Controller->getRoleNames();
+                        $roleNames = $controller->getRoleNames();
 
-                        foreach ($aRoleNames as $sRole => $sName) {
-                            if ($sRole !== 'administrator') {
+                        foreach ($roleNames as $role => $name) {
+                            if ($role !== 'administrator') {
                                 ?>
                                 <li class="selectit">
-                                    <input id="role-<?php echo $sRole; ?>" type="checkbox"
+                                    <input id="role-<?php echo $role; ?>" type="checkbox"
                                         <?php
-                                        if (isset($aGroupRoles[$sRole])) {
+                                        if (isset($groupRoles[$role])) {
                                             echo 'checked="checked"';
                                         }
                                         ?>
-                                           value="<?php echo $sRole; ?>" name="roles[]"/>
-                                    <label for="role-<?php echo $sRole; ?>">
-                                        <?php echo $sName; ?>
+                                           value="<?php echo $role; ?>" name="roles[]"/>
+                                    <label for="role-<?php echo $role; ?>">
+                                        <?php echo $name; ?>
                                     </label>
                                 </li>
                                 <?php
@@ -292,7 +292,7 @@ if ($Controller->getRequestParameter('uam_action') === null
         </table>
         <p class="submit">
             <input type="submit" value="<?php
-            if ($UserGroup->getId() !== null) {
+            if ($userGroup->getId() !== null) {
                 echo TXT_UAM_UPDATE_GROUP;
             } else {
                 echo TXT_UAM_ADD_GROUP;

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\AccessHandler;
@@ -33,83 +33,110 @@ class AccessHandler
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var Config
      */
-    protected $Config;
+    protected $config;
 
     /**
      * @var Cache
      */
-    protected $Cache;
+    protected $cache;
 
     /**
      * @var Database
      */
-    protected $Database;
+    protected $database;
 
     /**
      * @var ObjectHandler
      */
-    protected $ObjectHandler;
+    protected $objectHandler;
 
     /**
      * @var Util
      */
-    protected $Util;
+    protected $util;
 
     /**
      * @var UserGroupFactory
      */
-    protected $UserGroupFactory;
+    protected $userGroupFactory;
 
     /**
      * @var array
      */
-    protected $aUserGroups = null;
+    protected $userGroups = null;
 
     /**
      * @var array
      */
-    protected $aFilteredUserGroups = null;
+    protected $filteredUserGroups = null;
 
-    protected $aUserGroupsForUser = null;
-    protected $aTermsAssignedToUser = null;
-    protected $aExcludedTerms = null;
-    protected $aPostsAssignedToUser = null;
-    protected $aExcludedPosts = null;
-    protected $aObjectUserGroups = [];
-    protected $aObjectAccess = [];
+    /**
+     * @var array
+     */
+    protected $userGroupsForUser = null;
+
+    /**
+     * @var array
+     */
+    protected $termsAssignedToUser = null;
+
+    /**
+     * @var array
+     */
+    protected $excludedTerms = null;
+
+    /**
+     * @var array
+     */
+    protected $postsAssignedToUser = null;
+
+    /**
+     * @var array
+     */
+    protected $excludedPosts = null;
+
+    /**
+     * @var array
+     */
+    protected $objectUserGroups = [];
+
+    /**
+     * @var array
+     */
+    protected $objectAccess = [];
 
     /**
      * The constructor
      *
-     * @param Wordpress        $Wordpress
-     * @param Config           $Config
-     * @param Cache            $Cache
-     * @param Database         $Database
-     * @param ObjectHandler    $ObjectHandler
-     * @param Util             $Util
-     * @param UserGroupFactory $UserGroupFactory
+     * @param Wordpress        $wordpress
+     * @param Config           $config
+     * @param Cache            $cache
+     * @param Database         $database
+     * @param ObjectHandler    $objectHandler
+     * @param Util             $util
+     * @param UserGroupFactory $userGroupFactory
      */
     public function __construct(
-        Wordpress $Wordpress,
-        Config $Config,
-        Cache $Cache,
-        Database $Database,
-        ObjectHandler $ObjectHandler,
-        Util $Util,
-        UserGroupFactory $UserGroupFactory
+        Wordpress $wordpress,
+        Config $config,
+        Cache $cache,
+        Database $database,
+        ObjectHandler $objectHandler,
+        Util $util,
+        UserGroupFactory $userGroupFactory
     ) {
-        $this->Wordpress = $Wordpress;
-        $this->Config = $Config;
-        $this->Cache = $Cache;
-        $this->Database = $Database;
-        $this->ObjectHandler = $ObjectHandler;
-        $this->Util = $Util;
-        $this->UserGroupFactory = $UserGroupFactory;
+        $this->wordpress = $wordpress;
+        $this->config = $config;
+        $this->cache = $cache;
+        $this->database = $database;
+        $this->objectHandler = $objectHandler;
+        $this->util = $util;
+        $this->userGroupFactory = $userGroupFactory;
     }
 
     /**
@@ -119,18 +146,18 @@ class AccessHandler
      */
     public function getUserGroups()
     {
-        if ($this->aUserGroups === null) {
-            $this->aUserGroups = [];
+        if ($this->userGroups === null) {
+            $this->userGroups = [];
 
-            $sQuery = "SELECT ID FROM {$this->Database->getUserGroupTable()}";
-            $aUserGroupsDb = (array)$this->Database->getResults($sQuery);
+            $query = "SELECT ID FROM {$this->database->getUserGroupTable()}";
+            $userGroupsDb = (array)$this->database->getResults($query);
 
-            foreach ($aUserGroupsDb as $aUserGroupDb) {
-                $this->aUserGroups[$aUserGroupDb->ID] = $this->UserGroupFactory->createUserGroup($aUserGroupDb->ID);
+            foreach ($userGroupsDb as $userGroupDb) {
+                $this->userGroups[$userGroupDb->ID] = $this->userGroupFactory->createUserGroup($userGroupDb->ID);
             }
         }
 
-        return $this->aUserGroups;
+        return $this->userGroups;
     }
 
     /**
@@ -140,39 +167,39 @@ class AccessHandler
      */
     public function getFilteredUserGroups()
     {
-        $aUserGroups = $this->getUserGroups();
-        $aUserUserGroups = $this->getUserGroupsForUser();
-        return array_intersect_key($aUserGroups, $aUserUserGroups);
+        $userGroups = $this->getUserGroups();
+        $userUserGroups = $this->getUserGroupsForUser();
+        return array_intersect_key($userGroups, $userUserGroups);
     }
 
     /**
      * Adds a user group.
      *
-     * @param UserGroup $UserGroup The user group which we want to add.
+     * @param UserGroup $userGroup The user group which we want to add.
      */
-    public function addUserGroup(UserGroup $UserGroup)
+    public function addUserGroup(UserGroup $userGroup)
     {
         $this->getUserGroups();
-        $this->aUserGroups[$UserGroup->getId()] = $UserGroup;
-        $this->aFilteredUserGroups = null;
+        $this->userGroups[$userGroup->getId()] = $userGroup;
+        $this->filteredUserGroups = null;
     }
 
     /**
      * Deletes a user group.
      *
-     * @param integer $iUserGroupId The user group _iId which we want to delete.
+     * @param integer $userGroupId The user group _iId which we want to delete.
      *
      * @return bool
      */
-    public function deleteUserGroup($iUserGroupId)
+    public function deleteUserGroup($userGroupId)
     {
-        $aUserGroups = $this->getUserGroups();
+        $userGroups = $this->getUserGroups();
 
-        if (isset($aUserGroups[$iUserGroupId])
-            && $aUserGroups[$iUserGroupId]->delete() === true
+        if (isset($userGroups[$userGroupId])
+            && $userGroups[$userGroupId]->delete() === true
         ) {
-            unset($this->aUserGroups[$iUserGroupId]);
-            $this->aFilteredUserGroups = null;
+            unset($this->userGroups[$userGroupId]);
+            $this->filteredUserGroups = null;
 
             return true;
         }
@@ -183,46 +210,46 @@ class AccessHandler
     /**
      * Returns the user groups for the given object.
      *
-     * @param string  $sObjectType The object type.
-     * @param integer $iObjectId   The _iId of the object.
+     * @param string  $objectType The object type.
+     * @param integer $objectId   The _iId of the object.
      *
      * @return UserGroup[]
      */
-    public function getUserGroupsForObject($sObjectType, $iObjectId)
+    public function getUserGroupsForObject($objectType, $objectId)
     {
-        if ($this->ObjectHandler->isValidObjectType($sObjectType) === false) {
+        if ($this->objectHandler->isValidObjectType($objectType) === false) {
             return [];
-        } elseif (isset($this->aObjectUserGroups[$sObjectType]) === false) {
-            $this->aObjectUserGroups[$sObjectType] = [];
+        } elseif (isset($this->objectUserGroups[$objectType]) === false) {
+            $this->objectUserGroups[$objectType] = [];
         }
 
-        if (isset($this->aObjectUserGroups[$sObjectType][$iObjectId]) === false) {
-            $sCacheKey = $this->Cache->generateCacheKey(
+        if (isset($this->objectUserGroups[$objectType][$objectId]) === false) {
+            $cacheKey = $this->cache->generateCacheKey(
                 'getUserGroupsForObject',
-                $sObjectType,
-                $iObjectId
+                $objectType,
+                $objectId
             );
-            $aObjectUserGroups = $this->Cache->getFromCache($sCacheKey);
+            $objectUserGroups = $this->cache->getFromCache($cacheKey);
 
-            if ($aObjectUserGroups !== null) {
-                $this->aObjectUserGroups[$sObjectType][$iObjectId] = $aObjectUserGroups;
+            if ($objectUserGroups !== null) {
+                $this->objectUserGroups[$objectType][$objectId] = $objectUserGroups;
             } else {
-                $aObjectUserGroups = [];
-                $aUserGroups = $this->getUserGroups();
+                $objectUserGroups = [];
+                $userGroups = $this->getUserGroups();
 
-                foreach ($aUserGroups as $UserGroup) {
-                    if ($UserGroup->isObjectMember($sObjectType, $iObjectId) === true) {
-                        $aObjectUserGroups[$UserGroup->getId()] = $UserGroup;
+                foreach ($userGroups as $userGroup) {
+                    if ($userGroup->isObjectMember($objectType, $objectId) === true) {
+                        $objectUserGroups[$userGroup->getId()] = $userGroup;
                     }
                 }
 
-                $this->Cache->addToCache($sCacheKey, $aObjectUserGroups);
+                $this->cache->addToCache($cacheKey, $objectUserGroups);
             }
 
-            $this->aObjectUserGroups[$sObjectType][$iObjectId] = $aObjectUserGroups;
+            $this->objectUserGroups[$objectType][$objectId] = $objectUserGroups;
         }
 
-        return $this->aObjectUserGroups[$sObjectType][$iObjectId];
+        return $this->objectUserGroups[$objectType][$objectId];
     }
 
     /**
@@ -230,44 +257,44 @@ class AccessHandler
      */
     public function unsetUserGroupsForObject()
     {
-        $this->aObjectUserGroups = [];
+        $this->objectUserGroups = [];
     }
 
     /**
      * Converts the ip to an integer.
      *
-     * @param array $aIp
+     * @param array $ip
      *
      * @return int
      */
-    protected function calculateIp(array $aIp)
+    protected function calculateIp(array $ip)
     {
-        return ($aIp[0] << 24) + ($aIp[1] << 16) + ($aIp[2] << 8) + $aIp[3];
+        return ($ip[0] << 24) + ($ip[1] << 16) + ($ip[2] << 8) + $ip[3];
     }
 
     /**
      * Checks if the given ip matches with the range.
      *
-     * @param string $sCurrentIp The ip of the current user.
-     * @param array  $aIpRanges  The ip ranges.
+     * @param string $currentIp The ip of the current user.
+     * @param array  $ipRanges  The ip ranges.
      *
      * @return boolean
      */
-    public function isIpInRange($sCurrentIp, array $aIpRanges)
+    public function isIpInRange($currentIp, array $ipRanges)
     {
-        $aCurrentIp = explode('.', $sCurrentIp);
-        $iCurIp = $this->calculateIp($aCurrentIp);
+        $currentIp = explode('.', $currentIp);
+        $curIp = $this->calculateIp($currentIp);
 
-        foreach ($aIpRanges as $sIpRange) {
-            $aIpRange = explode('-', $sIpRange);
-            $aRangeBegin = explode('.', $aIpRange[0]);
-            $aRangeEnd = isset($aIpRange[1]) ? explode('.', $aIpRange[1]) : explode('.', $aIpRange[0]);
+        foreach ($ipRanges as $ipRange) {
+            $ipRange = explode('-', $ipRange);
+            $rangeBegin = explode('.', $ipRange[0]);
+            $rangeEnd = isset($ipRange[1]) ? explode('.', $ipRange[1]) : explode('.', $ipRange[0]);
 
-            if (count($aRangeBegin) === 4 && count($aRangeEnd) === 4) {
-                $iRangeBegin = $this->calculateIp($aRangeBegin);
-                $iRangeEnd = $this->calculateIp($aRangeEnd);
+            if (count($rangeBegin) === 4 && count($rangeEnd) === 4) {
+                $rangeBegin = $this->calculateIp($rangeBegin);
+                $rangeEnd = $this->calculateIp($rangeEnd);
 
-                if ($iRangeBegin <= $iCurIp && $iCurIp <= $iRangeEnd) {
+                if ($rangeBegin <= $curIp && $curIp <= $rangeEnd) {
                     return true;
                 }
             }
@@ -287,163 +314,162 @@ class AccessHandler
             return $this->getUserGroups();
         }
 
-        if ($this->aUserGroupsForUser === null) {
-            $CurrentUser = $this->Wordpress->getCurrentUser();
-            $aUserGroupsForUser = $this->getUserGroupsForObject(
+        if ($this->userGroupsForUser === null) {
+            $currentUser = $this->wordpress->getCurrentUser();
+            $userGroupsForUser = $this->getUserGroupsForObject(
                 ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-                $CurrentUser->ID
+                $currentUser->ID
             );
 
-            $aUserGroups = $this->getUserGroups();
+            $userGroups = $this->getUserGroups();
 
-            foreach ($aUserGroups as $UserGroup) {
-                if (isset($aUserGroupsForUser[$UserGroup->getId()]) === false
-                    && ($this->isIpInRange($_SERVER['REMOTE_ADDR'], $UserGroup->getIpRange())
-                        || $this->Config->atAdminPanel() === false && $UserGroup->getReadAccess() === 'all'
-                        || $this->Config->atAdminPanel() === true && $UserGroup->getWriteAccess() === 'all')
+            foreach ($userGroups as $userGroup) {
+                if (isset($userGroupsForUser[$userGroup->getId()]) === false
+                    && ($this->isIpInRange($_SERVER['REMOTE_ADDR'], $userGroup->getIpRange())
+                        || $this->config->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
+                        || $this->config->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all')
                 ) {
-                    $aUserGroupsForUser[$UserGroup->getId()] = $UserGroup;
+                    $userGroupsForUser[$userGroup->getId()] = $userGroup;
                 }
             }
 
-            $this->aUserGroupsForUser = $aUserGroupsForUser;
+            $this->userGroupsForUser = $userGroupsForUser;
         }
 
-        return $this->aUserGroupsForUser;
+        return $this->userGroupsForUser;
     }
 
     /**
      * Returns the user groups for the object filtered by the user user groups.
      *
-     * @param string $sObjectType
-     * @param int    $iObjectId
+     * @param string $objectType
+     * @param int    $objectId
      *
      * @return UserGroup[]
      */
-    public function getFilteredUserGroupsForObject($sObjectType, $iObjectId)
+    public function getFilteredUserGroupsForObject($objectType, $objectId)
     {
-        $aUserGroups = $this->getUserGroupsForObject($sObjectType, $iObjectId);
-        $aUserUserGroups = $this->getUserGroupsForUser();
-        return array_intersect_key($aUserGroups, $aUserUserGroups);
+        $userGroups = $this->getUserGroupsForObject($objectType, $objectId);
+        $userUserGroups = $this->getUserGroupsForUser();
+        return array_intersect_key($userGroups, $userUserGroups);
     }
 
     /**
      * Return the role of the user.
      *
-     * @param \WP_User $User The user id.
+     * @param \WP_User|false $user The user id.
      *
      * @return array
      */
-    protected function getUserRole(\WP_User $User)
+    protected function getUserRole($user)
     {
-        if (isset($User->{$this->Database->getPrefix().'capabilities'})) {
-            $aCapabilities = (array)$User->{$this->Database->getPrefix().'capabilities'};
+        if ($user !== false && isset($user->{$this->database->getPrefix().'capabilities'})) {
+            $capabilities = (array)$user->{$this->database->getPrefix().'capabilities'};
         } else {
-            $aCapabilities = [];
+            $capabilities = [];
         }
 
-        return (count($aCapabilities) > 0) ? array_keys($aCapabilities) : [UserGroup::NONE_ROLE];
+        return (count($capabilities) > 0) ? array_keys($capabilities) : [UserGroup::NONE_ROLE];
     }
 
     /**
      * Checks the user access by user level.
      *
-     * @param bool|string $mAllowedCapability If set check also for the capability.
+     * @param bool|string $allowedCapability If set check also for the capability.
      *
      * @return boolean
      */
-    public function checkUserAccess($mAllowedCapability = false)
+    public function checkUserAccess($allowedCapability = false)
     {
-        $CurrentUser = $this->Wordpress->getCurrentUser();
+        $currentUser = $this->wordpress->getCurrentUser();
 
-        if ($this->Wordpress->isSuperAdmin($CurrentUser->ID) === true
-            || $mAllowedCapability !== false && $CurrentUser->has_cap($mAllowedCapability) === true
+        if ($this->wordpress->isSuperAdmin($currentUser->ID) === true
+            || $allowedCapability !== false && $currentUser->has_cap($allowedCapability) === true
         ) {
             return true;
         }
 
-        $aRoles = $this->getUserRole($CurrentUser);
-        $aRolesMap = array_flip($aRoles);
+        $roles = $this->getUserRole($currentUser);
+        $rolesMap = array_flip($roles);
 
-        $aOrderedRoles = [UserGroup::NONE_ROLE, 'subscriber', 'contributor', 'author', 'editor', 'administrator'];
-        $aOrderedRolesMap = array_flip($aOrderedRoles);
+        $orderedRoles = [UserGroup::NONE_ROLE, 'subscriber', 'contributor', 'author', 'editor', 'administrator'];
+        $orderedRolesMap = array_flip($orderedRoles);
 
-        $aUserRoles = array_intersect_key($aOrderedRolesMap, $aRolesMap);
-        $iRightsLevel = (count($aUserRoles) > 0) ? end($aUserRoles) : -1;
-        $sFullAccessRole = $this->Config->getFullAccessRole();
+        $userRoles = array_intersect_key($orderedRolesMap, $rolesMap);
+        $rightsLevel = (count($userRoles) > 0) ? end($userRoles) : -1;
+        $fullAccessRole = $this->config->getFullAccessRole();
 
-        return (
-            isset($aOrderedRolesMap[$sFullAccessRole]) === true && $iRightsLevel >= $aOrderedRolesMap[$sFullAccessRole]
-            || isset($aRolesMap['administrator']) === true
+        return (isset($orderedRolesMap[$fullAccessRole]) === true && $rightsLevel >= $orderedRolesMap[$fullAccessRole]
+            || isset($rolesMap['administrator']) === true
         );
     }
 
     /**
      * Checks if the user is an admin user
      *
-     * @param integer $iUserId The user id.
+     * @param integer $userId The user id.
      *
      * @return boolean
      */
-    public function userIsAdmin($iUserId)
+    public function userIsAdmin($userId)
     {
-        $User = $this->ObjectHandler->getUser($iUserId);
-        $aRoles = $this->getUserRole($User);
-        $aRolesMap = array_flip($aRoles);
+        $user = $this->objectHandler->getUser($userId);
+        $roles = $this->getUserRole($user);
+        $rolesMap = array_flip($roles);
 
-        return (isset($aRolesMap['administrator']) || $this->Wordpress->isSuperAdmin($iUserId));
+        return (isset($rolesMap['administrator']) || $this->wordpress->isSuperAdmin($userId));
     }
 
     /**
      * Checks if the current_user has access to the given post.
      *
-     * @param string  $sObjectType The object type which should be checked.
-     * @param integer $iObjectId   The _iId of the object.
+     * @param string  $objectType The object type which should be checked.
+     * @param integer $objectId   The _iId of the object.
      *
      * @return boolean
      */
-    public function checkObjectAccess($sObjectType, $iObjectId)
+    public function checkObjectAccess($objectType, $objectId)
     {
-        if ($this->ObjectHandler->isValidObjectType($sObjectType) === false) {
+        if ($this->objectHandler->isValidObjectType($objectType) === false) {
             return true;
-        } elseif (isset($this->aObjectAccess[$sObjectType]) === false) {
-            $this->aObjectAccess[$sObjectType] = [];
+        } elseif (isset($this->objectAccess[$objectType]) === false) {
+            $this->objectAccess[$objectType] = [];
         }
 
-        if (isset($this->aObjectAccess[$sObjectType][$iObjectId]) === false) {
-            $blAccess = false;
-            $CurrentUser = $this->Wordpress->getCurrentUser();
+        if (isset($this->objectAccess[$objectType][$objectId]) === false) {
+            $access = false;
+            $currentUser = $this->wordpress->getCurrentUser();
 
             if ($this->checkUserAccess('manage_user_groups') === true) {
-                $blAccess = true;
-            } elseif ($this->Config->authorsHasAccessToOwn() === true
-                && $this->ObjectHandler->isPostType($sObjectType)
+                $access = true;
+            } elseif ($this->config->authorsHasAccessToOwn() === true
+                && $this->objectHandler->isPostType($objectType)
             ) {
-                $Post = $this->ObjectHandler->getPost($iObjectId);
-                $blAccess = ($Post !== false && $CurrentUser->ID === (int)$Post->post_author);
+                $post = $this->objectHandler->getPost($objectId);
+                $access = ($post !== false && $currentUser->ID === (int)$post->post_author);
             }
 
-            if ($blAccess === false) {
-                $aMembership = $this->getUserGroupsForObject($sObjectType, $iObjectId);
+            if ($access === false) {
+                $membership = $this->getUserGroupsForObject($objectType, $objectId);
 
-                if (count($aMembership) > 0) {
-                    $aUserUserGroups = $this->getUserGroupsForUser();
+                if (count($membership) > 0) {
+                    $userUserGroups = $this->getUserGroupsForUser();
 
-                    foreach ($aMembership as $iUserGroupId => $UserGroup) {
-                        if (isset($aUserUserGroups[$iUserGroupId]) === true) {
-                            $blAccess = true;
+                    foreach ($membership as $userGroupId => $userGroup) {
+                        if (isset($userUserGroups[$userGroupId]) === true) {
+                            $access = true;
                             break;
                         }
                     }
                 } else {
-                    $blAccess = true;
+                    $access = true;
                 }
             }
 
-            $this->aObjectAccess[$sObjectType][$iObjectId] = $blAccess;
+            $this->objectAccess[$objectType][$objectId] = $access;
         }
 
-        return $this->aObjectAccess[$sObjectType][$iObjectId];
+        return $this->objectAccess[$objectType][$objectId];
     }
 
     /**
@@ -454,28 +480,28 @@ class AccessHandler
     public function getExcludedTerms()
     {
         if ($this->checkUserAccess('manage_user_groups')) {
-            $this->aExcludedTerms = [];
+            $this->excludedTerms = [];
         }
 
-        if ($this->aExcludedTerms === null) {
-            $aExcludedTerms = [];
-            $aUserGroups = $this->getUserGroups();
+        if ($this->excludedTerms === null) {
+            $excludedTerms = [];
+            $userGroups = $this->getUserGroups();
 
-            $aUserUserGroups = $this->getUserGroupsForUser();
+            $userUserGroups = $this->getUserGroupsForUser();
 
-            foreach ($aUserGroups as $UserGroups) {
-                $aExcludedTerms += $UserGroups->getFullTerms();
+            foreach ($userGroups as $userGroup) {
+                $excludedTerms += $userGroup->getFullTerms();
             }
 
-            foreach ($aUserUserGroups as $UserGroups) {
-                $aExcludedTerms = array_diff_key($aExcludedTerms, $UserGroups->getFullTerms());
+            foreach ($userUserGroups as $userGroup) {
+                $excludedTerms = array_diff_key($excludedTerms, $userGroup->getFullTerms());
             }
 
-            $aTermIds = array_keys($aExcludedTerms);
-            $this->aExcludedTerms = array_combine($aTermIds, $aTermIds);
+            $termIds = array_keys($excludedTerms);
+            $this->excludedTerms = array_combine($termIds, $termIds);
         }
 
-        return $this->aExcludedTerms;
+        return $this->excludedTerms;
     }
 
     /**
@@ -486,44 +512,44 @@ class AccessHandler
     public function getExcludedPosts()
     {
         if ($this->checkUserAccess('manage_user_groups')) {
-            $this->aExcludedPosts = [];
+            $this->excludedPosts = [];
         }
 
-        if ($this->aExcludedPosts === null) {
-            $aExcludedPosts = [];
-            $aUserGroups = $this->getUserGroups();
+        if ($this->excludedPosts === null) {
+            $excludedPosts = [];
+            $userGroups = $this->getUserGroups();
 
-            $aUserUserGroups = $this->getUserGroupsForUser();
+            $userUserGroups = $this->getUserGroupsForUser();
 
-            foreach ($aUserGroups as $UserGroups) {
-                $aExcludedPosts += $UserGroups->getFullPosts();
+            foreach ($userGroups as $userGroup) {
+                $excludedPosts += $userGroup->getFullPosts();
             }
 
-            foreach ($aUserUserGroups as $UserGroups) {
-                $aExcludedPosts = array_diff_key($aExcludedPosts, $UserGroups->getFullPosts());
+            foreach ($userUserGroups as $userGroup) {
+                $excludedPosts = array_diff_key($excludedPosts, $userGroup->getFullPosts());
             }
 
-            if ($this->Wordpress->isAdmin() === false) {
-                $aNoneHiddenPostTypes = [];
-                $aPostTypes = $this->ObjectHandler->getPostTypes();
+            if ($this->wordpress->isAdmin() === false) {
+                $noneHiddenPostTypes = [];
+                $postTypes = $this->objectHandler->getPostTypes();
 
-                foreach ($aPostTypes as $sPostType) {
-                    if ($this->Config->hidePostType($sPostType) === false) {
-                        $aNoneHiddenPostTypes[$sPostType] = $sPostType;
+                foreach ($postTypes as $postType) {
+                    if ($this->config->hidePostType($postType) === false) {
+                        $noneHiddenPostTypes[$postType] = $postType;
                     }
                 }
 
-                foreach ($aExcludedPosts as $iPostId => $sType) {
-                    if (isset($aNoneHiddenPostTypes[$sType])) {
-                        unset($aExcludedPosts[$iPostId]);
+                foreach ($excludedPosts as $postId => $type) {
+                    if (isset($noneHiddenPostTypes[$type])) {
+                        unset($excludedPosts[$postId]);
                     }
                 }
             }
 
-            $aPostIds = array_keys($aExcludedPosts);
-            $this->aExcludedPosts = array_combine($aPostIds, $aPostIds);
+            $postIds = array_keys($excludedPosts);
+            $this->excludedPosts = array_combine($postIds, $postIds);
         }
 
-        return $this->aExcludedPosts;
+        return $this->excludedPosts;
     }
 }

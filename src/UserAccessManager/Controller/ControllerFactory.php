@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -36,97 +36,97 @@ class ControllerFactory
     /**
      * @var Php
      */
-    protected $Php;
+    protected $php;
 
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var Database
      */
-    protected $Database;
+    protected $database;
 
     /**
      * @var Config
      */
-    protected $Config;
+    protected $config;
 
     /**
      * @var Util
      */
-    protected $Util;
+    protected $util;
 
     /**
      * @var Cache
      */
-    protected $Cache;
+    protected $cache;
 
     /**
      * @var ObjectHandler
      */
-    protected $ObjectHandler;
+    protected $objectHandler;
 
     /**
      * @var AccessHandler
      */
-    protected $AccessHandler;
+    protected $accessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    protected $UserGroupFactory;
+    protected $userGroupFactory;
 
     /**
      * @var FileHandler
      */
-    protected $FileHandler;
+    protected $fileHandler;
 
     /**
      * @var SetupHandler
      */
-    protected $SetupHandler;
+    protected $setupHandler;
 
     /**
      * ControllerFactory constructor.
      *
-     * @param Php              $Php
-     * @param Wordpress        $Wordpress
-     * @param Database         $Database
-     * @param Config           $Config
-     * @param Util             $Util
-     * @param Cache            $Cache
-     * @param ObjectHandler    $ObjectHandler
-     * @param AccessHandler    $AccessHandler
-     * @param UserGroupFactory $UserGroupFactory
-     * @param FileHandler      $FileHandler
-     * @param SetupHandler     $SetupHandler
+     * @param Php              $php
+     * @param Wordpress        $wordpress
+     * @param Database         $database
+     * @param Config           $config
+     * @param Util             $util
+     * @param Cache            $cache
+     * @param ObjectHandler    $objectHandler
+     * @param AccessHandler    $accessHandler
+     * @param UserGroupFactory $userGroupFactory
+     * @param FileHandler      $fileHandler
+     * @param SetupHandler     $setupHandler
      */
     public function __construct(
-        Php $Php,
-        Wordpress $Wordpress,
-        Database $Database,
-        Config $Config,
-        Util $Util,
-        Cache $Cache,
-        ObjectHandler $ObjectHandler,
-        AccessHandler $AccessHandler,
-        UserGroupFactory $UserGroupFactory,
-        FileHandler $FileHandler,
-        SetupHandler $SetupHandler
+        Php $php,
+        Wordpress $wordpress,
+        Database $database,
+        Config $config,
+        Util $util,
+        Cache $cache,
+        ObjectHandler $objectHandler,
+        AccessHandler $accessHandler,
+        UserGroupFactory $userGroupFactory,
+        FileHandler $fileHandler,
+        SetupHandler $setupHandler
     ) {
-        $this->Php = $Php;
-        $this->Wordpress = $Wordpress;
-        $this->Database = $Database;
-        $this->Config = $Config;
-        $this->Util = $Util;
-        $this->Cache = $Cache;
-        $this->ObjectHandler = $ObjectHandler;
-        $this->AccessHandler = $AccessHandler;
-        $this->UserGroupFactory = $UserGroupFactory;
-        $this->FileHandler = $FileHandler;
-        $this->SetupHandler = $SetupHandler;
+        $this->php = $php;
+        $this->wordpress = $wordpress;
+        $this->database = $database;
+        $this->config = $config;
+        $this->util = $util;
+        $this->cache = $cache;
+        $this->objectHandler = $objectHandler;
+        $this->accessHandler = $accessHandler;
+        $this->userGroupFactory = $userGroupFactory;
+        $this->fileHandler = $fileHandler;
+        $this->setupHandler = $setupHandler;
     }
 
     /**
@@ -137,11 +137,11 @@ class ControllerFactory
     public function createAdminController()
     {
         return new AdminController(
-            $this->Php,
-            $this->Wordpress,
-            $this->Config,
-            $this->AccessHandler,
-            $this->FileHandler
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->accessHandler,
+            $this->fileHandler
         );
     }
 
@@ -153,9 +153,9 @@ class ControllerFactory
     public function createAdminAboutController()
     {
         return new AdminAboutController(
-            $this->Php,
-            $this->Wordpress,
-            $this->Config
+            $this->php,
+            $this->wordpress,
+            $this->config
         );
     }
 
@@ -167,12 +167,12 @@ class ControllerFactory
     public function createAdminObjectController()
     {
         return new AdminObjectController(
-            $this->Php,
-            $this->Wordpress,
-            $this->Config,
-            $this->Database,
-            $this->ObjectHandler,
-            $this->AccessHandler
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->database,
+            $this->objectHandler,
+            $this->accessHandler
         );
     }
 
@@ -184,11 +184,11 @@ class ControllerFactory
     public function createAdminSettingsController()
     {
         return new AdminSettingsController(
-            $this->Php,
-            $this->Wordpress,
-            $this->Config,
-            $this->ObjectHandler,
-            $this->FileHandler
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->objectHandler,
+            $this->fileHandler
         );
     }
 
@@ -200,11 +200,11 @@ class ControllerFactory
     public function createAdminSetupController()
     {
         return new AdminSetupController(
-            $this->Php,
-            $this->Wordpress,
-            $this->Config,
-            $this->Database,
-            $this->SetupHandler
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->database,
+            $this->setupHandler
         );
     }
 
@@ -216,11 +216,11 @@ class ControllerFactory
     public function createAdminUserGroupController()
     {
         return new AdminUserGroupController(
-            $this->Php,
-            $this->Wordpress,
-            $this->Config,
-            $this->AccessHandler,
-            $this->UserGroupFactory
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->accessHandler,
+            $this->userGroupFactory
         );
     }
 
@@ -232,15 +232,15 @@ class ControllerFactory
     public function createFrontendController()
     {
         return new FrontendController(
-            $this->Php,
-            $this->Wordpress,
-            $this->Config,
-            $this->Database,
-            $this->Util,
-            $this->Cache,
-            $this->ObjectHandler,
-            $this->AccessHandler,
-            $this->FileHandler
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->database,
+            $this->util,
+            $this->cache,
+            $this->objectHandler,
+            $this->accessHandler,
+            $this->fileHandler
         );
     }
 }

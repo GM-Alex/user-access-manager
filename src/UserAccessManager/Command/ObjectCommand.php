@@ -10,7 +10,7 @@
  * @author    Nils Woetzel nils.woetzel@h-its.org
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Command;
@@ -33,23 +33,23 @@ class ObjectCommand extends \WP_CLI_Command
     /**
      * @var WordpressCli
      */
-    protected $WordpressCli;
+    protected $wordpressCli;
 
     /**
      * @var AccessHandler
      */
-    protected $AccessHandler;
+    protected $accessHandler;
 
     /**
      * ObjectCommand constructor.
      *
-     * @param WordpressCli  $WordpressCli
-     * @param AccessHandler $AccessHandler
+     * @param WordpressCli  $wordpressCli
+     * @param AccessHandler $accessHandler
      */
-    public function __construct(WordpressCli $WordpressCli, AccessHandler $AccessHandler)
+    public function __construct(WordpressCli $wordpressCli, AccessHandler $accessHandler)
     {
-        $this->WordpressCli = $WordpressCli;
-        $this->AccessHandler = $AccessHandler;
+        $this->wordpressCli = $wordpressCli;
+        $this->accessHandler = $accessHandler;
     }
 
     /**
@@ -75,95 +75,95 @@ class ObjectCommand extends \WP_CLI_Command
      * wp uam object remove role     author fighters
      * wp uam object update category 5      controller
      *
-     * @param array $aArguments
-     * @param array $aAssocArguments
+     * @param array $arguments
+     * @param array $assocArguments
      */
-    public function __invoke(array $aArguments, array $aAssocArguments)
+    public function __invoke(array $arguments, array $assocArguments)
     {
-        if (count($aArguments) < 4) {
-            $this->WordpressCli->error('<operation>, <object_type>, <object_id> and <user_groups> are required');
+        if (count($arguments) < 4) {
+            $this->wordpressCli->error('<operation>, <object_type>, <object_id> and <user_groups> are required');
             return;
         }
 
-        $sOperation = $aArguments[0];
+        $operation = $arguments[0];
 
         // check that operation is valid
-        if ($sOperation !== self::ACTION_ADD
-            && $sOperation !== self::ACTION_UPDATE
-            && $sOperation !== self::ACTION_REMOVE
+        if ($operation !== self::ACTION_ADD
+            && $operation !== self::ACTION_UPDATE
+            && $operation !== self::ACTION_REMOVE
         ) {
-            $this->WordpressCli->error("Operation is not valid: {$sOperation}");
+            $this->wordpressCli->error("Operation is not valid: {$operation}");
             return;
         }
 
-        $sObjectType = $aArguments[1];
-        $sObjectId = $aArguments[2];
+        $objectType = $arguments[1];
+        $objectId = $arguments[2];
 
         // convert the string to and associative array of index and group
-        $aAddUserGroups = [];
-        $aUserGroups = $this->AccessHandler->getUserGroups();
+        $addUserGroups = [];
+        $userGroups = $this->accessHandler->getUserGroups();
 
-        $aUserGroupNames = array_map(
-            function (UserGroup $UserGroup) {
-                return $UserGroup->getName();
+        $userGroupNames = array_map(
+            function (UserGroup $userGroup) {
+                return $userGroup->getName();
             },
-            $aUserGroups
+            $userGroups
         );
 
-        foreach ($aUserGroups as $UserGroup) {
-            $aUserGroupNames[$UserGroup->getId()] = $UserGroup->getName();
+        foreach ($userGroups as $userGroup) {
+            $userGroupNames[$userGroup->getId()] = $userGroup->getName();
         }
 
-        $aNamesMap = array_flip($aUserGroupNames);
+        $namesMap = array_flip($userGroupNames);
 
         // groups passes
-        $sUserGroups = $aArguments[3];
-        $aUserGroupIds = array_unique(explode(',', $sUserGroups));
+        $userGroupsArgument = $arguments[3];
+        $userGroupIds = array_unique(explode(',', $userGroupsArgument));
 
         // find the UserGroup object for the ids or strings given on the commandline
-        foreach ($aUserGroupIds as $sIdentifier) {
-            $sUserGroupId = isset($aNamesMap[$sIdentifier]) ? $aNamesMap[$sIdentifier] : $sIdentifier;
+        foreach ($userGroupIds as $identifier) {
+            $userGroupId = isset($namesMap[$identifier]) ? $namesMap[$identifier] : $identifier;
 
-            if (isset($aUserGroups[$sUserGroupId])) {
-                $aAddUserGroups[$sUserGroupId] = $aUserGroups[$sUserGroupId];
+            if (isset($userGroups[$userGroupId])) {
+                $addUserGroups[$userGroupId] = $userGroups[$userGroupId];
             } else {
-                $sType = (is_numeric($sIdentifier) === true) ? 'id' : 'name';
-                $this->WordpressCli->error("There is no group with the {$sType}: {$sIdentifier}");
+                $type = (is_numeric($identifier) === true) ? 'id' : 'name';
+                $this->wordpressCli->error("There is no group with the {$type}: {$identifier}");
                 return;
             }
         }
 
-        $aRemoveUserGroups = ($sOperation === self::ACTION_UPDATE) ?
-            $this->AccessHandler->getUserGroupsForObject($sObjectType, $sObjectId) : [];
+        $removeUserGroups = ($operation === self::ACTION_UPDATE) ?
+            $this->accessHandler->getUserGroupsForObject($objectType, $objectId) : [];
 
-        if ($sOperation === self::ACTION_REMOVE) {
-            $aRemoveUserGroups = $aAddUserGroups;
-            $aAddUserGroups = [];
+        if ($operation === self::ACTION_REMOVE) {
+            $removeUserGroups = $addUserGroups;
+            $addUserGroups = [];
         }
 
-        foreach ($aUserGroups as $sGroupId => $UamUserGroup) {
-            if (isset($aRemoveUserGroups[$sGroupId])) {
-                $UamUserGroup->removeObject($sObjectType, $sObjectId);
+        foreach ($userGroups as $groupId => $uamUserGroup) {
+            if (isset($removeUserGroups[$groupId])) {
+                $uamUserGroup->removeObject($objectType, $objectId);
             }
 
-            if (isset($aAddUserGroups[$sGroupId])) {
-                $UamUserGroup->addObject($sObjectType, $sObjectId);
+            if (isset($addUserGroups[$groupId])) {
+                $uamUserGroup->addObject($objectType, $objectId);
             }
 
-            $UamUserGroup->save();
+            $uamUserGroup->save();
         }
 
-        if ($sOperation === self::ACTION_ADD) {
-            $this->WordpressCli->success(
-                "Groups {$sUserGroups} successfully added to {$sObjectType} {$sObjectId}"
+        if ($operation === self::ACTION_ADD) {
+            $this->wordpressCli->success(
+                "Groups {$userGroupsArgument} successfully added to {$objectType} {$objectId}"
             );
-        } elseif ($sOperation === self::ACTION_UPDATE) {
-            $this->WordpressCli->success(
-                "Successfully updated {$sObjectType} {$sObjectId} with groups {$sUserGroups}"
+        } elseif ($operation === self::ACTION_UPDATE) {
+            $this->wordpressCli->success(
+                "Successfully updated {$objectType} {$objectId} with groups {$userGroupsArgument}"
             );
-        } elseif ($sOperation === self::ACTION_REMOVE) {
-            $this->WordpressCli->success(
-                "Successfully removed groups: {$sUserGroups} from {$sObjectType} {$sObjectId}"
+        } elseif ($operation === self::ACTION_REMOVE) {
+            $this->wordpressCli->success(
+                "Successfully removed groups: {$userGroupsArgument} from {$objectType} {$objectId}"
             );
         }
     }

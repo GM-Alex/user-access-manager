@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\UserGroup;
@@ -31,7 +31,7 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $UserGroupFactory = new UserGroupFactory(
+        $userGroupFactory = new UserGroupFactory(
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getConfig(),
@@ -39,9 +39,9 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroupFactory', $UserGroupFactory);
+        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroupFactory', $userGroupFactory);
 
-        return $UserGroupFactory;
+        return $userGroupFactory;
     }
 
     /**
@@ -49,10 +49,10 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\UserGroup\UserGroupFactory::createUserGroup()
      *
-     * @param UserGroupFactory $UserGroupFactory
+     * @param UserGroupFactory $userGroupFactory
      */
-    public function testCreateUserGroup(UserGroupFactory $UserGroupFactory)
+    public function testCreateUserGroup(UserGroupFactory $userGroupFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroup', $UserGroupFactory->createUserGroup());
+        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroup', $userGroupFactory->createUserGroup());
     }
 }

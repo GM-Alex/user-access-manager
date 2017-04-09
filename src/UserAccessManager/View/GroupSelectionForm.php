@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 ?>
@@ -17,33 +17,33 @@
 <ul class="uam_group_selection">
     <?php
     /**
-     * @var \UserAccessManager\Controller\AdminObjectController $Controller
+     * @var \UserAccessManager\Controller\AdminObjectController $controller
      */
-    if (!isset($sGroupsFormName)
-        || $sGroupsFormName === null
+    if (!isset($groupsFormName)
+        || $groupsFormName === null
     ) {
-        $sGroupsFormName = 'uam_user_groups';
+        $groupsFormName = 'uam_user_groups';
     }
 
-    $sObjectType = $Controller->getObjectType();
-    $sObjectId = $Controller->getObjectId();
+    $objectType = $controller->getObjectType();
+    $objectId = $controller->getObjectId();
 
     /**
-     * @var \UserAccessManager\UserGroup\UserGroup[] $aUserGroups
+     * @var \UserAccessManager\UserGroup\UserGroup[] $userGroups
      */
-    foreach ($aUserGroups as $UserGroup) {
-        $sAddition = '';
-        $sAttributes = '';
+    foreach ($userGroups as $userGroup) {
+        $addition = '';
+        $attributes = '';
 
         /**
-         * @var \UserAccessManager\UserGroup\UserGroup[] $aObjectUserGroups
+         * @var \UserAccessManager\UserGroup\UserGroup[] $objectUserGroups
          */
-        if (isset($aObjectUserGroups[$UserGroup->getId()])) {
-            $sAttributes .= 'checked="checked" ';
+        if (isset($objectUserGroups[$userGroup->getId()])) {
+            $attributes .= 'checked="checked" ';
 
-            if ($aObjectUserGroups[$UserGroup->getId()]->isLockedRecursive($sObjectType, $sObjectId)) {
-                $sAttributes .= 'disabled="disabled" ';
-                $sAddition .= ' [LR]';
+            if ($objectUserGroups[$userGroup->getId()]->isLockedRecursive($objectType, $objectId)) {
+                $attributes .= 'disabled="disabled" ';
+                $addition .= ' [LR]';
             }
         }
 
@@ -51,11 +51,11 @@
         ?>
         <li>
             <input type="checkbox"
-                   id="<?php echo $sGroupsFormName; ?>-<?php echo $UserGroup->getId(); ?>" <?php echo $sAttributes; ?>
-                   value="<?php echo $UserGroup->getId(); ?>" name="<?php echo $sGroupsFormName; ?>[]"/>
-            <label for="<?php echo $sGroupsFormName; ?>-<?php echo $UserGroup->getId(); ?>" class="selectit"
+                   id="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" <?php echo $attributes; ?>
+                   value="<?php echo $userGroup->getId(); ?>" name="<?php echo $groupsFormName; ?>[]"/>
+            <label for="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" class="selectit"
                    style="display:inline;">
-                <?php echo htmlentities($UserGroup->getName()).$sAddition; ?>
+                <?php echo htmlentities($userGroup->getName()).$addition; ?>
             </label>
             <a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
             <?php include 'GroupInfo.php'; ?>

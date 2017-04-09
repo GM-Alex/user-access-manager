@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager;
@@ -22,33 +22,33 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     /**
      * Calls a private or protected object method.
      *
-     * @param object $Object
-     * @param string $sMethodName
-     * @param array  $aArguments
+     * @param object $object
+     * @param string $methodName
+     * @param array  $arguments
      *
      * @return mixed
      */
-    public static function callMethod($Object, $sMethodName, array $aArguments = [])
+    public static function callMethod($object, $methodName, array $arguments = [])
     {
-        $Class = new \ReflectionClass($Object);
-        $Method = $Class->getMethod($sMethodName);
-        $Method->setAccessible(true);
-        return $Method->invokeArgs($Object, $aArguments);
+        $class = new \ReflectionClass($object);
+        $method = $class->getMethod($methodName);
+        $method->setAccessible(true);
+        return $method->invokeArgs($object, $arguments);
     }
 
     /**
      * Sets a private property
      *
-     * @param object $Object
-     * @param string $sValueName
-     * @param mixed  $mValue
+     * @param object $object
+     * @param string $valueName
+     * @param mixed  $value
      */
-    public static function setValue($Object, $sValueName, $mValue)
+    public static function setValue($object, $valueName, $value)
     {
-        $Reflection = new \ReflectionClass($Object);
-        $Property = $Reflection->getProperty($sValueName);
-        $Property->setAccessible(true);
-        $Property->setValue($Object, $mValue);
+        $reflection = new \ReflectionClass($object);
+        $property = $reflection->getProperty($valueName);
+        $property->setAccessible(true);
+        $property->setValue($object, $value);
     }
 
     /**
@@ -156,72 +156,72 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param int    $iId
-     * @param bool   $blDeletable
-     * @param bool   $blObjectIsMember
-     * @param array  $aIpRange
-     * @param string $sReadAccess
-     * @param string $sWriteAccess
-     * @param array  $aPosts
-     * @param array  $aTerms
-     * @param string $sName
+     * @param int    $id
+     * @param bool   $deletable
+     * @param bool   $objectIsMember
+     * @param array  $ipRange
+     * @param string $readAccess
+     * @param string $writeAccess
+     * @param array  $posts
+     * @param array  $terms
+     * @param string $name
      *
      * @return \UserAccessManager\UserGroup\UserGroup|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getUserGroup(
-        $iId,
-        $blDeletable = true,
-        $blObjectIsMember = false,
-        array $aIpRange = [''],
-        $sReadAccess = 'none',
-        $sWriteAccess = 'none',
-        array $aPosts = [],
-        array $aTerms = [],
-        $sName = null
+        $id,
+        $deletable = true,
+        $objectIsMember = false,
+        array $ipRange = [''],
+        $readAccess = 'none',
+        $writeAccess = 'none',
+        array $posts = [],
+        array $terms = [],
+        $name = null
     ) {
-        $UserGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
-        self::setValue($UserGroup, 'iId', $iId);
+        $userGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
+        self::setValue($userGroup, 'id', $id);
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getId')
-            ->will($this->returnValue($iId));
+            ->will($this->returnValue($id));
 
-        $sName = ($sName === null) ? "name{$iId}" : $sName;
+        $name = ($name === null) ? "name{$id}" : $name;
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getName')
-            ->will($this->returnValue($sName));
+            ->will($this->returnValue($name));
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('delete')
-            ->will($this->returnValue($blDeletable));
+            ->will($this->returnValue($deletable));
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('isObjectMember')
-            ->will($this->returnValue($blObjectIsMember));
+            ->will($this->returnValue($objectIsMember));
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getIpRange')
-            ->will($this->returnCallback(function ($blString) use ($aIpRange) {
-                return ($blString === false) ? $aIpRange : implode(';', $aIpRange);
+            ->will($this->returnCallback(function ($string) use ($ipRange) {
+                return ($string === false) ? $ipRange : implode(';', $ipRange);
             }));
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getReadAccess')
-            ->will($this->returnValue($sReadAccess));
+            ->will($this->returnValue($readAccess));
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getWriteAccess')
-            ->will($this->returnValue($sWriteAccess));
+            ->will($this->returnValue($writeAccess));
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getFullPosts')
-            ->will($this->returnValue($aPosts));
+            ->will($this->returnValue($posts));
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getFullTerms')
-            ->will($this->returnValue($aTerms));
+            ->will($this->returnValue($terms));
 
-        return $UserGroup;
+        return $userGroup;
     }
 }

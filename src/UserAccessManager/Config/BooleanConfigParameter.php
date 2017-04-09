@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -23,52 +23,52 @@ class BooleanConfigParameter extends ConfigParameter
     /**
      * BooleanConfigParameter constructor.
      *
-     * @param string $sId
-     * @param bool   $mDefaultValue
+     * @param string $id
+     * @param bool   $defaultValue
      */
-    public function __construct($sId, $mDefaultValue = false)
+    public function __construct($id, $defaultValue = false)
     {
-        parent::__construct($sId, $mDefaultValue);
+        parent::__construct($id, $defaultValue);
     }
 
     /**
      * Legacy converter for legacy values.
      *
-     * @param $mValue
+     * @param $value
      *
      * @return bool
      */
-    protected function stringToBoolConverter($mValue)
+    protected function stringToBoolConverter($value)
     {
-        if ($mValue === 'true') {
-            $mValue = true;
-        } elseif ($mValue === 'false') {
-            $mValue = false;
+        if ($value === 'true') {
+            $value = true;
+        } elseif ($value === 'false') {
+            $value = false;
         }
 
-        return $mValue;
+        return $value;
     }
 
     /**
      * Legacy wrapper for old config values.
      *
-     * @param mixed $mValue
+     * @param mixed $value
      */
-    public function setValue($mValue)
+    public function setValue($value)
     {
-        $mValue = $this->stringToBoolConverter($mValue);
-        parent::setValue($mValue);
+        $value = $this->stringToBoolConverter($value);
+        parent::setValue($value);
     }
 
     /**
      * Checks if the given value is bool.
      *
-     * @param mixed $mValue
+     * @param mixed $value
      *
      * @return bool
      */
-    public function isValidValue($mValue)
+    public function isValidValue($value)
     {
-        return is_bool($mValue) === true;
+        return is_bool($value) === true;
     }
 }

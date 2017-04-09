@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -29,15 +29,15 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $Root;
+    private $root;
 
     /**
      * Setup virtual file system.
      */
     public function setUp()
     {
-        $this->oRoot = FileSystem::factory('vfs://');
-        $this->oRoot->mount();
+        $this->root = FileSystem::factory('vfs://');
+        $this->root->mount();
     }
 
     /**
@@ -45,7 +45,7 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     public function tearDown()
     {
-        $this->oRoot->unmount();
+        $this->root->unmount();
     }
 
     /**
@@ -71,16 +71,16 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $Stub = $this->getStub();
-        $Stub->__construct(
+        $stub = $this->getStub();
+        $stub->__construct(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\Controller', $Stub);
+        self::assertInstanceOf('\UserAccessManager\Controller\Controller', $stub);
 
-        return $Stub;
+        return $stub;
     }
 
     /**
@@ -88,18 +88,18 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\Controller::getRequestParameter()
      *
-     * @param Controller $Stub
+     * @param Controller $stub
      */
-    public function testGetRequestParameter(Controller $Stub)
+    public function testGetRequestParameter(Controller $stub)
     {
         $_POST['postParam'] = 'postValue';
         $_GET['postParam'] = 'getValue';
         $_GET['getParam'] = 'getValue';
 
-        self::assertEquals('postValue', $Stub->getRequestParameter('postParam', 'default'));
-        self::assertEquals('getValue', $Stub->getRequestParameter('getParam', 'default'));
-        self::assertEquals('default', $Stub->getRequestParameter('invalid', 'default'));
-        self::assertNull($Stub->getRequestParameter('invalid'));
+        self::assertEquals('postValue', $stub->getRequestParameter('postParam', 'default'));
+        self::assertEquals('getValue', $stub->getRequestParameter('getParam', 'default'));
+        self::assertEquals('default', $stub->getRequestParameter('invalid', 'default'));
+        self::assertNull($stub->getRequestParameter('invalid'));
     }
 
     /**
@@ -107,13 +107,13 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\Controller::getRequestUrl()
      *
-     * @param Controller $Stub
+     * @param Controller $stub
      */
-    public function testGetRequestUrl(Controller $Stub)
+    public function testGetRequestUrl(Controller $stub)
     {
         $_SERVER['REQUEST_URI'] = 'https://test.domain?id=<a href=\'evil\'>evil</a>';
 
-        self::assertEquals('https://test.domain?id=&lt;a href=\'evil\'&gt;evil&lt;/a&gt;', $Stub->getRequestUrl());
+        self::assertEquals('https://test.domain?id=&lt;a href=\'evil\'&gt;evil&lt;/a&gt;', $stub->getRequestUrl());
     }
 
     /**
@@ -123,20 +123,20 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     public function testCreateNonceField()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getNonceField')
             ->with('test', 'testNonce')
             ->will($this->returnValue('return'));
 
-        $Stub = $this->getStub();
-        $Stub->__construct(
+        $stub = $this->getStub();
+        $stub->__construct(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig()
         );
 
-        self::assertEquals('return', $Stub->createNonceField('test'));
+        self::assertEquals('return', $stub->createNonceField('test'));
     }
 
     /**
@@ -146,20 +146,20 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     public function testGetNonce()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('createNonce')
             ->with('test')
             ->will($this->returnValue('return'));
 
-        $Stub = $this->getStub();
-        $Stub->__construct(
+        $stub = $this->getStub();
+        $stub->__construct(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig()
         );
 
-        self::assertEquals('return', $Stub->getNonce('test'));
+        self::assertEquals('return', $stub->getNonce('test'));
     }
 
     /**
@@ -171,25 +171,25 @@ class ControllerTest extends UserAccessManagerTestCase
     {
         $_GET['testNonce'] = 'testNonceValue';
 
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(3))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(3))
             ->method('verifyNonce')
             ->withConsecutive(['testNonceValue', 'test'], ['testNonceValue', 'test'], ['testNonceValue', 'test'])
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $Wordpress->expects($this->once())
+        $wordpress->expects($this->once())
             ->method('wpDie');
 
-        $Stub = $this->getStub();
-        $Stub->__construct(
+        $stub = $this->getStub();
+        $stub->__construct(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig()
         );
 
-        self::callMethod($Stub, 'verifyNonce', ['test']);
-        self::callMethod($Stub, 'verifyNonce', ['test']);
-        self::callMethod($Stub, 'verifyNonce', ['test']);
+        self::callMethod($stub, 'verifyNonce', ['test']);
+        self::callMethod($stub, 'verifyNonce', ['test']);
+        self::callMethod($stub, 'verifyNonce', ['test']);
     }
 
     /**
@@ -197,17 +197,17 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\Controller::setUpdateMessage()
      *
-     * @param Controller $Stub
+     * @param Controller $stub
      *
      * @return Controller
      */
-    public function testSetUpdateMessage(Controller $Stub)
+    public function testSetUpdateMessage(Controller $stub)
     {
-        self::assertAttributeEquals(null, 'sUpdateMessage', $Stub);
-        self::callMethod($Stub, 'setUpdateMessage', ['updateMessage']);
-        self::assertAttributeEquals('updateMessage', 'sUpdateMessage', $Stub);
+        self::assertAttributeEquals(null, 'updateMessage', $stub);
+        self::callMethod($stub, 'setUpdateMessage', ['updateMessage']);
+        self::assertAttributeEquals('updateMessage', 'updateMessage', $stub);
 
-        return $Stub;
+        return $stub;
     }
 
     /**
@@ -215,11 +215,11 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testSetUpdateMessage
      * @covers  \UserAccessManager\Controller\Controller::getUpdateMessage()
      *
-     * @param Controller $Stub
+     * @param Controller $stub
      */
-    public function testGetUpdateMessage(Controller $Stub)
+    public function testGetUpdateMessage(Controller $stub)
     {
-        self::assertEquals('updateMessage', $Stub->getUpdateMessage());
+        self::assertEquals('updateMessage', $stub->getUpdateMessage());
     }
 
     /**
@@ -227,20 +227,20 @@ class ControllerTest extends UserAccessManagerTestCase
      * @depends testSetUpdateMessage
      * @covers  \UserAccessManager\Controller\Controller::hasUpdateMessage()
      *
-     * @param Controller $Stub
+     * @param Controller $stub
      */
-    public function testHasUpdateMessage(Controller $Stub)
+    public function testHasUpdateMessage(Controller $stub)
     {
-        self::assertTrue($Stub->hasUpdateMessage());
+        self::assertTrue($stub->hasUpdateMessage());
 
-        $Stub = $this->getStub();
-        $Stub->__construct(
+        $stub = $this->getStub();
+        $stub->__construct(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig()
         );
 
-        self::assertFalse($Stub->hasUpdateMessage());
+        self::assertFalse($stub->hasUpdateMessage());
     }
 
     /**
@@ -252,10 +252,10 @@ class ControllerTest extends UserAccessManagerTestCase
     public function testRender()
     {
         /**
-         * @var Directory $RootDir
+         * @var Directory $rootDir
          */
-        $RootDir = $this->oRoot->get('/');
-        $RootDir->add('src', new Directory([
+        $rootDir = $this->root->get('/');
+        $rootDir->add('src', new Directory([
             'UserAccessManager'  => new Directory([
                 'View'  => new Directory([
                     'TestView.php' => new File('<?php echo \'testContent\';')
@@ -263,29 +263,29 @@ class ControllerTest extends UserAccessManagerTestCase
             ])
         ]));
 
-        $Php = $this->getPhp();
+        $php = $this->getPhp();
 
-        $Config = $this->getConfig();
-        $Config->expects($this->once())
+        $config = $this->getConfig();
+        $config->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
-        $DummyController = new DummyController(
-            $Php,
+        $dummyController = new DummyController(
+            $php,
             $this->getWordpress(),
-            $Config
+            $config
         );
 
-        $Php->expects($this->once())
+        $php->expects($this->once())
             ->method('includeFile')
-            ->with($DummyController, 'vfs://src/UserAccessManager/View/TestView.php')
+            ->with($dummyController, 'vfs://src/UserAccessManager/View/TestView.php')
             ->will($this->returnCallback(function () {
                 echo 'testContent';
             }));
 
         $_GET['uam_action'] = 'test';
-        self::setValue($DummyController, 'sTemplate', 'TestView.php');
-        $DummyController->render();
+        self::setValue($dummyController, 'template', 'TestView.php');
+        $dummyController->render();
         self::expectOutputString('testAction'.'testContent');
     }
 }

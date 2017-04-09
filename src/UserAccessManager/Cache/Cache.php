@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Cache;
@@ -24,7 +24,7 @@ class Cache
     /**
      * @var array
      */
-    protected $aCache = [];
+    protected $cache = [];
 
     /**
      * Returns a generated cache key.
@@ -33,33 +33,33 @@ class Cache
      */
     public function generateCacheKey()
     {
-        $aArguments = func_get_args();
+        $arguments = func_get_args();
 
-        return implode('|', $aArguments);
+        return implode('|', $arguments);
     }
 
     /**
      * Adds the variable to the cache.
      *
-     * @param string $sKey   The cache key
-     * @param mixed  $mValue The value.
+     * @param string $key   The cache key
+     * @param mixed  $value The value.
      */
-    public function addToCache($sKey, $mValue)
+    public function addToCache($key, $value)
     {
-        $this->aCache[$sKey] = $mValue;
+        $this->cache[$key] = $value;
     }
 
     /**
      * Returns a value from the cache by the given key.
      *
-     * @param string $sKey
+     * @param string $key
      *
      * @return mixed
      */
-    public function getFromCache($sKey)
+    public function getFromCache($key)
     {
-        if (isset($this->aCache[$sKey])) {
-            return $this->aCache[$sKey];
+        if (isset($this->cache[$key])) {
+            return $this->cache[$key];
         }
 
         return null;
@@ -70,6 +70,6 @@ class Cache
      */
     public function flushCache()
     {
-        $this->aCache = [];
+        $this->cache = [];
     }
 }

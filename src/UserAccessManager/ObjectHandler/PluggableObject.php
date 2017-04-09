@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\ObjectHandler;
@@ -26,12 +26,12 @@ abstract class PluggableObject
     /**
      * @var string
      */
-    protected $sName;
+    protected $name;
 
-    public function __construct($sName, $sReference)
+    public function __construct($name, $reference)
     {
-        $this->sName = $sName;
-        $this->sReference = $sReference;
+        $this->name = $name;
+        $this->reference = $reference;
     }
 
     /**
@@ -39,35 +39,35 @@ abstract class PluggableObject
      */
     public function getName()
     {
-        return $this->sName;
+        return $this->name;
     }
 
     /**
-     * @param string $sObjectId
+     * @param string $objectId
      *
      * @return object|null
      */
-    abstract public function getObject($sObjectId);
+    abstract public function getObject($objectId);
 
     /**
-     * @param string $sObjectId
+     * @param string $objectId
      *
      * @return string
      */
-    abstract public function getObjectName($sObjectId);
+    abstract public function getObjectName($objectId);
 
     /**
-     * @param UserGroup $UserGroup
-     * @param string    $sObjectId
+     * @param UserGroup $userGroup
+     * @param string    $objectId
      *
      * @return array
      */
-    abstract public function getRecursiveMembership(UserGroup $UserGroup, $sObjectId);
+    abstract public function getRecursiveMembership(UserGroup $userGroup, $objectId);
 
     /**
-     * @param UserGroup $UserGroup
+     * @param UserGroup $userGroup
      *
      * @return array
      */
-    abstract public function getFullObjects(UserGroup $UserGroup);
+    abstract public function getFullObjects(UserGroup $userGroup);
 }

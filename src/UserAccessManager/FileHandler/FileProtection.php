@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -31,107 +31,107 @@ abstract class FileProtection
     /**
      * @var Php
      */
-    protected $Php;
+    protected $php;
 
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var Config
      */
-    protected $Config;
+    protected $config;
 
     /**
      * @var Util
      */
-    protected $Util;
+    protected $util;
 
     /**
      * ApacheFileProtection constructor.
      *
-     * @param Php         $Php
-     * @param Wordpress   $Wordpress
-     * @param Config      $Config
-     * @param Util        $Util
+     * @param Php         $php
+     * @param Wordpress   $wordpress
+     * @param Config      $config
+     * @param Util        $util
      */
-    public function __construct(Php $Php, Wordpress $Wordpress, Config $Config, Util $Util)
+    public function __construct(Php $php, Wordpress $wordpress, Config $config, Util $util)
     {
-        $this->Php = $Php;
-        $this->Wordpress = $Wordpress;
-        $this->Config = $Config;
-        $this->Util = $Util;
+        $this->php = $php;
+        $this->wordpress = $wordpress;
+        $this->config = $config;
+        $this->util = $util;
     }
 
     /**
      * Cleans up the file types.
      *
-     * @param string $sFileTypes The file types which should be cleaned up.
+     * @param string $fileTypes The file types which should be cleaned up.
      *
      * @return string
      */
-    protected function cleanUpFileTypes($sFileTypes)
+    protected function cleanUpFileTypes($fileTypes)
     {
-        $aValidFileTypes = [];
-        $aFileTypes = explode(',', $sFileTypes);
-        $aMimeTypes = $this->Config->getMimeTypes();
+        $validFileTypes = [];
+        $fileTypes = explode(',', $fileTypes);
+        $mimeTypes = $this->config->getMimeTypes();
 
-        foreach ($aFileTypes as $sFileType) {
-            $sCleanFileType = trim($sFileType);
+        foreach ($fileTypes as $fileType) {
+            $cleanFileType = trim($fileType);
 
-            if (isset($aMimeTypes[$sCleanFileType])) {
-                $aValidFileTypes[$sCleanFileType] = $sCleanFileType;
+            if (isset($mimeTypes[$cleanFileType])) {
+                $validFileTypes[$cleanFileType] = $cleanFileType;
             }
         }
 
-        return implode('|', $aValidFileTypes);
+        return implode('|', $validFileTypes);
     }
 
     /**
      * Creates a htpasswd file.
      *
-     * @param boolean $blCreateNew Force to create new file.
-     * @param string  $sDir        The destination directory.
+     * @param boolean $createNew Force to create new file.
+     * @param string  $dir        The destination directory.
      */
-    public function createPasswordFile($blCreateNew = false, $sDir = null)
+    public function createPasswordFile($createNew = false, $dir = null)
     {
         // get url
-        if ($sDir === null) {
-            $aWordpressUploadDir = $this->Wordpress->getUploadDir();
+        if ($dir === null) {
+            $wordpressUploadDir = $this->wordpress->getUploadDir();
 
-            if (empty($aWordpressUploadDir['error'])) {
-                $sDir = $aWordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
+            if (empty($wordpressUploadDir['error'])) {
+                $dir = $wordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
             }
         }
 
-        $sFile = $sDir.self::PASSWORD_FILE_NAME;
+        $file = $dir.self::PASSWORD_FILE_NAME;
 
-        if ($sDir !== null
-            && (file_exists($sFile) === false || $blCreateNew)
+        if ($dir !== null
+            && (file_exists($file) === false || $createNew)
         ) {
-            $CurrentUser = $this->Wordpress->getCurrentUser();
+            $currentUser = $this->wordpress->getCurrentUser();
 
-            if ($this->Config->getFilePassType() === 'random') {
+            if ($this->config->getFilePassType() === 'random') {
                 try {
-                    $sRandomPassword = $this->Util->getRandomPassword();
-                    $sPassword = md5($sRandomPassword);
-                } catch (\Exception $Exception) {
-                    $sPassword = $CurrentUser->user_pass;
+                    $randomPassword = $this->util->getRandomPassword();
+                    $password = md5($randomPassword);
+                } catch (\Exception $exception) {
+                    $password = $currentUser->user_pass;
                 }
             } else {
-                $sPassword = $CurrentUser->user_pass;
+                $password = $currentUser->user_pass;
             }
 
-            $sUser = $CurrentUser->user_login;
+            $user = $currentUser->user_login;
 
             // make .htpasswd
-            $sContent = "{$sUser}:{$sPassword}\n";
+            $content = "{$user}:{$password}\n";
 
             // save file
-            $FileHandler = fopen($sFile, 'w');
-            fwrite($FileHandler, $sContent);
-            fclose($FileHandler);
+            $fileHandler = fopen($file, 'w');
+            fwrite($fileHandler, $content);
+            fclose($fileHandler);
         }
     }
 }

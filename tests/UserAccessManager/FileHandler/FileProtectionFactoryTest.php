@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -31,16 +31,16 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $FileProtectionFactory = new FileProtectionFactory(
+        $fileProtectionFactory = new FileProtectionFactory(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtectionFactory', $FileProtectionFactory);
+        self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtectionFactory', $fileProtectionFactory);
 
-        return $FileProtectionFactory;
+        return $fileProtectionFactory;
     }
 
     /**
@@ -48,12 +48,12 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\FileHandler\FileProtectionFactory::createApacheFileProtection()
      *
-     * @param FileProtectionFactory $FileProtectionFactory
+     * @param FileProtectionFactory $fileProtectionFactory
      */
-    public function testCreateApacheFileProtection(FileProtectionFactory $FileProtectionFactory)
+    public function testCreateApacheFileProtection(FileProtectionFactory $fileProtectionFactory)
     {
-        $ApacheFileProtection = $FileProtectionFactory->createApacheFileProtection();
-        self::assertInstanceOf('\UserAccessManager\FileHandler\ApacheFileProtection', $ApacheFileProtection);
+        $apacheFileProtection = $fileProtectionFactory->createApacheFileProtection();
+        self::assertInstanceOf('\UserAccessManager\FileHandler\ApacheFileProtection', $apacheFileProtection);
     }
 
     /**
@@ -61,11 +61,11 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\FileHandler\FileProtectionFactory::createNginxFileProtection()
      *
-     * @param FileProtectionFactory $FileProtectionFactory
+     * @param FileProtectionFactory $fileProtectionFactory
      */
-    public function testCreateNginxFileProtection(FileProtectionFactory $FileProtectionFactory)
+    public function testCreateNginxFileProtection(FileProtectionFactory $fileProtectionFactory)
     {
-        $NginxFileProtection = $FileProtectionFactory->createNginxFileProtection();
-        self::assertInstanceOf('\UserAccessManager\FileHandler\NginxFileProtection', $NginxFileProtection);
+        $nginxFileProtection = $fileProtectionFactory->createNginxFileProtection();
+        self::assertInstanceOf('\UserAccessManager\FileHandler\NginxFileProtection', $nginxFileProtection);
     }
 }

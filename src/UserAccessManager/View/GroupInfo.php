@@ -9,30 +9,30 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $Controller
+ * @var \UserAccessManager\Controller\AdminObjectController $controller
  */
 ?>
 <div class="uam_tooltip">
     <ul class="uam_group_info">
         <?php
-        $aRecursiveMembership = $Controller->getRecursiveMembership($UserGroup);
+        $recursiveMembership = $controller->getRecursiveMembership($userGroup);
 
-        foreach ($aRecursiveMembership as $sObjectType => $aObjects) {
-            $sTypeKey = 'TXT_UAM_GROUP_TYPE_'.strtoupper($sObjectType);
-            $sType = defined($sTypeKey) ? strtolower(constant($sTypeKey)) : $sObjectType;
+        foreach ($recursiveMembership as $objectType => $objects) {
+            $typeKey = 'TXT_UAM_GROUP_TYPE_'.strtoupper($objectType);
+            $type = defined($typeKey) ? strtolower(constant($typeKey)) : $objectType;
             ?>
             <li class="uam_group_info_head">
-                <?php echo sprintf(TXT_UAM_GROUP_MEMBERSHIP_BY, $sType); ?>:
+                <?php echo sprintf(TXT_UAM_GROUP_MEMBERSHIP_BY, $type); ?>:
                 <ul>
                     <?php
-                    foreach ($aObjects as $sObjectName) {
+                    foreach ($objects as $objectName) {
                         ?>
-                        <li class="recursiveTree"><?php echo $sObjectName; ?></li>
+                        <li class="recursiveTree"><?php echo $objectName; ?></li>
                         <?php
                     }
                     ?>
@@ -45,43 +45,43 @@
             <ul>
                 <li><?php echo TXT_UAM_READ_ACCESS; ?>:
                     <?php
-                    if ($UserGroup->getReadAccess() === "all") {
+                    if ($userGroup->getReadAccess() === "all") {
                         echo TXT_UAM_ALL;
-                    } elseif ($UserGroup->getReadAccess() === "group") {
+                    } elseif ($userGroup->getReadAccess() === "group") {
                         echo TXT_UAM_ONLY_GROUP_USERS;
                     }
                     ?>
                 </li>
                 <li><?php echo TXT_UAM_WRITE_ACCESS; ?>:
                     <?php
-                    if ($UserGroup->getWriteAccess() === "all") {
+                    if ($userGroup->getWriteAccess() === "all") {
                         echo TXT_UAM_ALL;
-                    } elseif ($UserGroup->getWriteAccess() === "group") {
+                    } elseif ($userGroup->getWriteAccess() === "group") {
                         echo TXT_UAM_ONLY_GROUP_USERS;
                     }
                     ?>
                 </li>
                 <li>
                     <?php
-                    $sContent = TXT_UAM_GROUP_ROLE.': ';
-                    $aRoleNames = $Controller->getRoleNames();
-                    $aGroupRoles = $UserGroup->getAssignedObjectsByType(
+                    $content = TXT_UAM_GROUP_ROLE.': ';
+                    $roleNames = $controller->getRoleNames();
+                    $groupRoles = $userGroup->getAssignedObjectsByType(
                         \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                     );
 
-                    if (count($aGroupRoles) > 0) {
-                        $aCleanGroupRoles = [];
+                    if (count($groupRoles) > 0) {
+                        $cleanGroupRoles = [];
 
-                        foreach ($aGroupRoles as $sKey => $sRole) {
-                            $aCleanGroupRoles[] = isset($aRoleNames[$sKey]) ? $aRoleNames[$sKey] : $sKey;
+                        foreach ($groupRoles as $key => $role) {
+                            $cleanGroupRoles[] = isset($roleNames[$key]) ? $roleNames[$key] : $key;
                         }
 
-                        $sContent .= implode(', ', $aCleanGroupRoles);
+                        $content .= implode(', ', $cleanGroupRoles);
                     } else {
-                        $sContent .= TXT_UAM_NONE;
+                        $content .= TXT_UAM_NONE;
                     }
 
-                    echo $sContent;
+                    echo $content;
                     ?>
                 </li>
             </ul>

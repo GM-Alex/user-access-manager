@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -24,33 +24,33 @@ class SelectionConfigParameter extends ConfigParameter
     /**
      * @var array
      */
-    protected $aSelections;
+    protected $selections;
 
     /**
      * SelectionConfigParameter constructor.
      *
-     * @param string $sId
-     * @param mixed  $mDefaultValue
-     * @param array  $aSelections
+     * @param string $id
+     * @param mixed  $defaultValue
+     * @param array  $selections
      */
-    public function __construct($sId, $mDefaultValue, array $aSelections)
+    public function __construct($id, $defaultValue, array $selections)
     {
-        $this->aSelections = $aSelections;
+        $this->selections = $selections;
 
-        parent::__construct($sId, $mDefaultValue);
+        parent::__construct($id, $defaultValue);
     }
 
     /**
      * Checks if the value is part of the selection.
      *
-     * @param mixed $mValue
+     * @param mixed $value
      *
      * @return bool
      */
-    public function isValidValue($mValue)
+    public function isValidValue($value)
     {
-        $aMap = array_flip($this->aSelections);
-        return (isset($aMap[$mValue]) === true);
+        $map = array_flip($this->selections);
+        return (isset($map[$value]) === true);
     }
 
     /**
@@ -60,6 +60,6 @@ class SelectionConfigParameter extends ConfigParameter
      */
     public function getSelections()
     {
-        return $this->aSelections;
+        return $this->selections;
     }
 }

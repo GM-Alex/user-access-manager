@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -24,40 +24,40 @@ class ConfigParameterFactory
     /**
      * Creates a boolean config parameter object.
      *
-     * @param string $sId
-     * @param mixed  $mDefaultValue
+     * @param string $id
+     * @param mixed  $defaultValue
      *
      * @return BooleanConfigParameter
      */
-    public function createBooleanConfigParameter($sId, $mDefaultValue = false)
+    public function createBooleanConfigParameter($id, $defaultValue = false)
     {
-        return new BooleanConfigParameter($sId, $mDefaultValue);
+        return new BooleanConfigParameter($id, $defaultValue);
     }
 
     /**
      * Creates a selection config parameter object.
      *
-     * @param string $sId
-     * @param mixed  $mDefaultValue
-     * @param array  $aSelection
+     * @param string $id
+     * @param mixed  $defaultValue
+     * @param array  $selection
      *
      * @return SelectionConfigParameter
      */
-    public function createSelectionConfigParameter($sId, $mDefaultValue, array $aSelection)
+    public function createSelectionConfigParameter($id, $defaultValue, array $selection)
     {
-        return new SelectionConfigParameter($sId, $mDefaultValue, $aSelection);
+        return new SelectionConfigParameter($id, $defaultValue, $selection);
     }
 
     /**
      * Creates a string config parameter object.
      *
-     * @param string $sId
-     * @param mixed  $mDefaultValue
+     * @param string $id
+     * @param mixed  $defaultValue
      *
      * @return StringConfigParameter
      */
-    public function createStringConfigParameter($sId, $mDefaultValue = '')
+    public function createStringConfigParameter($id, $defaultValue = '')
     {
-        return new StringConfigParameter($sId, $mDefaultValue);
+        return new StringConfigParameter($id, $defaultValue);
     }
 }

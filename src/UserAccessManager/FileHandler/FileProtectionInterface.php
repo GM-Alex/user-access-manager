@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -29,29 +29,29 @@ interface FileProtectionInterface
     /**
      * FileProtectionInterface constructor.
      *
-     * @param Php         $Php
-     * @param Wordpress   $Wordpress
-     * @param Config      $Config
-     * @param Util        $Util
+     * @param Php         $php
+     * @param Wordpress   $wordpress
+     * @param Config      $config
+     * @param Util        $util
      */
-    public function __construct(Php $Php, Wordpress $Wordpress, Config $Config, Util $Util);
+    public function __construct(Php $php, Wordpress $wordpress, Config $config, Util $util);
 
     /**
      * Creates the file protection.
      *
-     * @param string $sDir
-     * @param string $sObjectType
+     * @param string $dir
+     * @param string $objectType
      *
      * @return bool
      */
-    public function create($sDir, $sObjectType = null);
+    public function create($dir, $objectType = null);
 
     /**
      * Deletes the file protection.
      *
-     * @param string $sDir
+     * @param string $dir
      *
      * @return bool
      */
-    public function delete($sDir);
+    public function delete($dir);
 }

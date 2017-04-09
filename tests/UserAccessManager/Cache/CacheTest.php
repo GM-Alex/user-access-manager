@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Cache;
@@ -28,9 +28,9 @@ class CacheTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanCreateInstance()
     {
-        $Cache = new Cache();
-        self::assertInstanceOf('\UserAccessManager\Cache\Cache', $Cache);
-        return $Cache;
+        $cache = new Cache();
+        self::assertInstanceOf('\UserAccessManager\Cache\Cache', $cache);
+        return $cache;
     }
 
     /**
@@ -38,16 +38,16 @@ class CacheTest extends \PHPUnit_Framework_TestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Cache\Cache::generateCacheKey()
      *
-     * @param Cache $Cache
+     * @param Cache $cache
      */
-    public function testGenerateCacheKey(Cache $Cache)
+    public function testGenerateCacheKey(Cache $cache)
     {
-        $sKey = $Cache->generateCacheKey(
+        $key = $cache->generateCacheKey(
             'preFix',
             'cacheKey',
             'postFix'
         );
-        self::assertEquals('preFix|cacheKey|postFix', $sKey);
+        self::assertEquals('preFix|cacheKey|postFix', $key);
     }
 
     /**
@@ -55,25 +55,25 @@ class CacheTest extends \PHPUnit_Framework_TestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Cache\Cache::addToCache()
      *
-     * @param Cache $Cache
+     * @param Cache $cache
      *
      * @return Cache
      */
-    public function testAddToCache(Cache $Cache)
+    public function testAddToCache(Cache $cache)
     {
-        $Cache->addToCache('stringCacheKey', 'testValue');
-        $Cache->addToCache('arrayCacheKey', ['testString', 'testString2']);
+        $cache->addToCache('stringCacheKey', 'testValue');
+        $cache->addToCache('arrayCacheKey', ['testString', 'testString2']);
 
         self::assertAttributeEquals(
             [
                 'stringCacheKey' => 'testValue',
                 'arrayCacheKey' => ['testString', 'testString2']
             ],
-            'aCache',
-            $Cache
+            'cache',
+            $cache
         );
 
-        return $Cache;
+        return $cache;
     }
 
     /**
@@ -81,23 +81,23 @@ class CacheTest extends \PHPUnit_Framework_TestCase
      * @depends testAddToCache
      * @covers  \UserAccessManager\Cache\Cache::getFromCache()
      *
-     * @param Cache $Cache
+     * @param Cache $cache
      *
      * @return Cache
      */
-    public function testGetFromCache($Cache)
+    public function testGetFromCache($cache)
     {
-        self::assertEquals('testValue', $Cache->getFromCache('stringCacheKey'));
+        self::assertEquals('testValue', $cache->getFromCache('stringCacheKey'));
         self::assertEquals(
             ['testString', 'testString2'],
-            $Cache->getFromCache('arrayCacheKey')
+            $cache->getFromCache('arrayCacheKey')
         );
         self::assertEquals(
             null,
-            $Cache->getFromCache('notSet')
+            $cache->getFromCache('notSet')
         );
 
-        return $Cache;
+        return $cache;
     }
 
     /**
@@ -105,21 +105,21 @@ class CacheTest extends \PHPUnit_Framework_TestCase
      * @depends testAddToCache
      * @covers  \UserAccessManager\Cache\Cache::flushCache()
      *
-     * @param Cache $Cache
+     * @param Cache $cache
      */
-    public function testFlushCache($Cache)
+    public function testFlushCache($cache)
     {
         self::assertAttributeEquals(
             [
                 'stringCacheKey' => 'testValue',
                 'arrayCacheKey' => ['testString', 'testString2']
             ],
-            'aCache',
-            $Cache
+            'cache',
+            $cache
         );
 
-        $Cache->flushCache();
+        $cache->flushCache();
 
-        self::assertAttributeEquals([], 'aCache', $Cache);
+        self::assertAttributeEquals([], 'cache', $cache);
     }
 }

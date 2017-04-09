@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -28,58 +28,58 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
     /**
      * Generates the conf file.
      *
-     * @param string $sDir
-     * @param string $sObjectType
-     * @param string $sAbsPath
+     * @param string $dir
+     * @param string $objectType
+     * @param string $absPath
      *
      * @return bool
      */
-    public function create($sDir, $sObjectType = null, $sAbsPath = ABSPATH)
+    public function create($dir, $objectType = null, $absPath = ABSPATH)
     {
-        $sDir = rtrim($sDir, '/').'/';
-        $sAbsPath = rtrim($sAbsPath, '/').'/';
-        $sAreaName = 'WP-Files';
+        $dir = rtrim($dir, '/').'/';
+        $absPath = rtrim($absPath, '/').'/';
+        $areaName = 'WP-Files';
 
-        if ($this->Config->isPermalinksActive() === false) {
-            $sFileTypes = null;
+        if ($this->config->isPermalinksActive() === false) {
+            $fileTypes = null;
 
-            if ($this->Config->getLockFileTypes() === 'selected') {
-                $sFileTypes = $this->cleanUpFileTypes($this->Config->getLockedFileTypes());
-                $sFileTypes = "\.({$sFileTypes})";
+            if ($this->config->getLockFileTypes() === 'selected') {
+                $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
+                $fileTypes = "\.({$fileTypes})";
             }
 
-            $sContent = "location ".str_replace($sAbsPath, '/', $sDir)." {\n";
+            $content = "location ".str_replace($absPath, '/', $dir)." {\n";
 
-            if ($sFileTypes !== null) {
-                $sContent .= "location ~ {$sFileTypes} {\n";
+            if ($fileTypes !== null) {
+                $content .= "location ~ {$fileTypes} {\n";
             }
 
-            $sContent .= "auth_basic \"{$sAreaName}\";\n";
-            $sContent .= "auth_basic_user_file {$sDir}.htpasswd;\n";
-            $sContent .= "}\n";
+            $content .= "auth_basic \"{$areaName}\";\n";
+            $content .= "auth_basic_user_file {$dir}.htpasswd;\n";
+            $content .= "}\n";
 
-            if ($sFileTypes !== null) {
-                $sContent .= "}\n";
+            if ($fileTypes !== null) {
+                $content .= "}\n";
             }
 
-            $this->createPasswordFile(true, $sDir);
+            $this->createPasswordFile(true, $dir);
         } else {
-            if ($sObjectType === null) {
-                $sObjectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
+            if ($objectType === null) {
+                $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
             }
 
-            $sContent = "location ".str_replace($sAbsPath, '/', $sDir)." {\n";
-            $sContent .= "rewrite ^(.*)$ /index.php?uamfiletype={$sObjectType}&uamgetfile=$1 last;\n";
-            $sContent .= "}\n";
+            $content = "location ".str_replace($absPath, '/', $dir)." {\n";
+            $content .= "rewrite ^(.*)$ /index.php?uamfiletype={$objectType}&uamgetfile=$1 last;\n";
+            $content .= "}\n";
         }
 
         // save files
-        $sFileWithPath = $sAbsPath.self::FILE_NAME;
+        $fileWithPath = $absPath.self::FILE_NAME;
 
         try {
-            file_put_contents($sFileWithPath, $sContent);
+            file_put_contents($fileWithPath, $content);
             return true;
-        } catch (\Exception $Exception) {
+        } catch (\Exception $exception) {
         }
 
         return false;
@@ -88,26 +88,26 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
     /**
      * Deletes the conf file.
      *
-     * @param string $sDir
+     * @param string $dir
      *
      * @return bool
      */
-    public function delete($sDir)
+    public function delete($dir)
     {
-        $blSuccess = true;
-        $sDir = rtrim($sDir, '/').'/';
-        $sFileName = $sDir.self::FILE_NAME;
+        $success = true;
+        $dir = rtrim($dir, '/').'/';
+        $fileName = $dir.self::FILE_NAME;
 
-        if (file_exists($sFileName) === true) {
-            $blSuccess = ($this->Php->unlink($sFileName) === true) && $blSuccess;
+        if (file_exists($fileName) === true) {
+            $success = ($this->php->unlink($fileName) === true) && $success;
         }
 
-        $sPasswordFile = $sDir.self::PASSWORD_FILE_NAME;
+        $passwordFile = $dir.self::PASSWORD_FILE_NAME;
 
-        if (file_exists($sPasswordFile) === true) {
-            $blSuccess = ($this->Php->unlink($sPasswordFile) === true) && $blSuccess;
+        if (file_exists($passwordFile) === true) {
+            $success = ($this->php->unlink($passwordFile) === true) && $success;
         }
 
-        return $blSuccess;
+        return $success;
     }
 }

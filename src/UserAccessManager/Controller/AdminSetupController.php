@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -35,37 +35,37 @@ class AdminSetupController extends Controller
     /**
      * @var SetupHandler
      */
-    protected $SetupHandler;
+    protected $setupHandler;
 
     /**
      * @var Database
      */
-    protected $Database;
+    protected $database;
 
     /**
      * @var string
      */
-    protected $sTemplate = 'AdminSetup.php';
+    protected $template = 'AdminSetup.php';
 
     /**
      * AdminSetupController constructor.
      *
-     * @param Php          $Php
-     * @param Wordpress    $Wordpress
-     * @param Config       $Config
-     * @param Database     $Database
-     * @param SetupHandler $SetupHandler
+     * @param Php          $php
+     * @param Wordpress    $wordpress
+     * @param Config       $config
+     * @param Database     $database
+     * @param SetupHandler $setupHandler
      */
     public function __construct(
-        Php $Php,
-        Wordpress $Wordpress,
-        Config $Config,
-        Database $Database,
-        SetupHandler $SetupHandler
+        Php $php,
+        Wordpress $wordpress,
+        Config $config,
+        Database $database,
+        SetupHandler $setupHandler
     ) {
-        parent::__construct($Php, $Wordpress, $Config);
-        $this->Database = $Database;
-        $this->SetupHandler = $SetupHandler;
+        parent::__construct($php, $wordpress, $config);
+        $this->database = $database;
+        $this->setupHandler = $setupHandler;
     }
 
     /**
@@ -75,7 +75,7 @@ class AdminSetupController extends Controller
      */
     public function isDatabaseUpdateNecessary()
     {
-        return $this->SetupHandler->isDatabaseUpdateNecessary();
+        return $this->setupHandler->isDatabaseUpdateNecessary();
     }
 
     /**
@@ -85,7 +85,7 @@ class AdminSetupController extends Controller
      */
     public function showNetworkUpdate()
     {
-        return $this->Wordpress->isSuperAdmin() === true
+        return $this->wordpress->isSuperAdmin() === true
             && defined('MULTISITE') === true && MULTISITE === true
             && defined('WP_ALLOW_MULTISITE') === true && WP_ALLOW_MULTISITE === true;
     }
@@ -96,24 +96,24 @@ class AdminSetupController extends Controller
     public function updateDatabaseAction()
     {
         $this->verifyNonce(self::SETUP_UPDATE_NONCE);
-        $sUpdate = $this->getRequestParameter('uam_update_db');
+        $update = $this->getRequestParameter('uam_update_db');
 
-        if ($sUpdate === self::UPDATE_BLOG || $sUpdate === self::UPDATE_NETWORK) {
-            if ($sUpdate === self::UPDATE_NETWORK) {
-                $aBlogIds = $this->SetupHandler->getBlogIds();
+        if ($update === self::UPDATE_BLOG || $update === self::UPDATE_NETWORK) {
+            if ($update === self::UPDATE_NETWORK) {
+                $blogIds = $this->setupHandler->getBlogIds();
 
-                if (count($aBlogIds) > 0) {
-                    $iCurrentBlogId = $this->Database->getCurrentBlogId();
+                if (count($blogIds) > 0) {
+                    $currentBlogId = $this->database->getCurrentBlogId();
 
-                    foreach ($aBlogIds as $iBlogId) {
-                        $this->Wordpress->switchToBlog($iBlogId);
-                        $this->SetupHandler->update();
+                    foreach ($blogIds as $blogId) {
+                        $this->wordpress->switchToBlog($blogId);
+                        $this->setupHandler->update();
                     }
 
-                    $this->Wordpress->switchToBlog($iCurrentBlogId);
+                    $this->wordpress->switchToBlog($currentBlogId);
                 }
             } else {
-                $this->SetupHandler->update();
+                $this->setupHandler->update();
             }
 
             $this->setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS);
@@ -126,11 +126,11 @@ class AdminSetupController extends Controller
     public function resetUamAction()
     {
         $this->verifyNonce(self::SETUP_RESET_NONCE);
-        $sReset = $this->getRequestParameter('uam_reset');
+        $reset = $this->getRequestParameter('uam_reset');
 
-        if ($sReset === 'reset') {
-            $this->SetupHandler->uninstall();
-            $this->SetupHandler->install();
+        if ($reset === 'reset') {
+            $this->setupHandler->uninstall();
+            $this->setupHandler->install();
             $this->setUpdateMessage(TXT_UAM_UAM_RESET_SUCCESS);
         }
     }

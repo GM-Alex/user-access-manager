@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Database;
@@ -24,30 +24,30 @@ use UserAccessManager\UserAccessManagerTestCase;
 class DatabaseTest extends UserAccessManagerTestCase
 {
     /**
-     * @param array $aMethods
+     * @param array $methods
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|\wpdb
      */
-    private function getWpDatabase(array $aMethods = [])
+    private function getWpDatabase(array $methods = [])
     {
         return $this->getMockBuilder('\wpdb')
-            ->setMethods($aMethods)
+            ->setMethods($methods)
             ->getMock();
     }
 
     /**
-     * @param \PHPUnit_Framework_MockObject_MockObject $WpDatabase
+     * @param \PHPUnit_Framework_MockObject_MockObject $wpDatabase
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
      */
-    private function getWrapperWithWpDatabase($WpDatabase)
+    private function getWrapperWithWpDatabase($wpDatabase)
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getDatabase')
-            ->will($this->returnValue($WpDatabase));
+            ->will($this->returnValue($wpDatabase));
 
-        return $Wordpress;
+        return $wordpress;
     }
 
     /**
@@ -56,8 +56,8 @@ class DatabaseTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $Database = new Database($this->getWordpress());
-        self::assertInstanceOf('\UserAccessManager\Database\Database', $Database);
+        $database = new Database($this->getWordpress());
+        self::assertInstanceOf('\UserAccessManager\Database\Database', $database);
     }
 
     /**
@@ -66,17 +66,17 @@ class DatabaseTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroupTable()
     {
-        $SimpleWpDatabase = new \stdClass();
-        $SimpleWpDatabase->prefix = 'wp_';
+        $simpleWpDatabase = new \stdClass();
+        $simpleWpDatabase->prefix = 'wp_';
 
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getDatabase')
-            ->will($this->returnValue($SimpleWpDatabase));
+            ->will($this->returnValue($simpleWpDatabase));
 
-        $Database = new Database($Wordpress);
+        $database = new Database($wordpress);
 
-        self::assertEquals('wp_uam_accessgroups', $Database->getUserGroupTable());
+        self::assertEquals('wp_uam_accessgroups', $database->getUserGroupTable());
     }
 
     /**
@@ -85,12 +85,12 @@ class DatabaseTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroupToObjectTable()
     {
-        $WpDatabase = $this->getWpDatabase();
-        $WpDatabase->prefix = 'wp_';
-        $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-        $Database = new Database($Wordpress);
+        $wpDatabase = $this->getWpDatabase();
+        $wpDatabase->prefix = 'wp_';
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
 
-        self::assertEquals('wp_uam_accessgroup_to_object', $Database->getUserGroupToObjectTable());
+        self::assertEquals('wp_uam_accessgroup_to_object', $database->getUserGroupToObjectTable());
     }
 
     /**
@@ -99,16 +99,16 @@ class DatabaseTest extends UserAccessManagerTestCase
      */
     public function testDbDelta()
     {
-        $WpDatabase = $this->getWpDatabase();
-        $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-        $Wordpress->expects($this->exactly(2))
+        $wpDatabase = $this->getWpDatabase();
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $wordpress->expects($this->exactly(2))
             ->method('dbDelta')
             ->withConsecutive(['', true], ['query', false])
             ->will($this->onConsecutiveCalls('firstReturn', 'secondReturn'));
 
-        $Database = new Database($Wordpress);
-        self::assertEquals('firstReturn', $Database->dbDelta());
-        self::assertEquals('secondReturn', $Database->dbDelta('query', false));
+        $database = new Database($wordpress);
+        self::assertEquals('firstReturn', $database->dbDelta());
+        self::assertEquals('secondReturn', $database->dbDelta('query', false));
     }
 
     /**
@@ -125,28 +125,28 @@ class DatabaseTest extends UserAccessManagerTestCase
      */
     public function testSimpleGetters()
     {
-        $WpDatabase = $this->getWpDatabase();
-        $WpDatabase->prefix = 'prefix_';
-        $WpDatabase->insert_id = 'insert_id';
-        $WpDatabase->blogid = 'blogid';
-        $WpDatabase->blogs = 'blogs';
-        $WpDatabase->posts = 'posts';
-        $WpDatabase->term_relationships = 'term_relationships';
-        $WpDatabase->term_taxonomy = 'term_taxonomy';
-        $WpDatabase->users = 'users';
+        $wpDatabase = $this->getWpDatabase();
+        $wpDatabase->prefix = 'prefix_';
+        $wpDatabase->insert_id = 'insert_id';
+        $wpDatabase->blogid = 'blogid';
+        $wpDatabase->blogs = 'blogs';
+        $wpDatabase->posts = 'posts';
+        $wpDatabase->term_relationships = 'term_relationships';
+        $wpDatabase->term_taxonomy = 'term_taxonomy';
+        $wpDatabase->users = 'users';
 
-        $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-        $Database = new Database($Wordpress);
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
 
-        self::assertEquals('prefix_', $Database->getPrefix());
-        self::assertEquals('insert_id', $Database->getLastInsertId());
-        self::assertEquals('blogid', $Database->getCurrentBlogId());
-        self::assertEquals('blogs', $Database->getBlogsTable());
-        self::assertEquals('posts', $Database->getPostsTable());
-        self::assertEquals('term_relationships', $Database->getTermRelationshipsTable());
-        self::assertEquals('term_taxonomy', $Database->getTermTaxonomyTable());
-        self::assertEquals('users', $Database->getUsersTable());
-        self::assertEquals('prefix_capabilities', $Database->getCapabilitiesTable());
+        self::assertEquals('prefix_', $database->getPrefix());
+        self::assertEquals('insert_id', $database->getLastInsertId());
+        self::assertEquals('blogid', $database->getCurrentBlogId());
+        self::assertEquals('blogs', $database->getBlogsTable());
+        self::assertEquals('posts', $database->getPostsTable());
+        self::assertEquals('term_relationships', $database->getTermRelationshipsTable());
+        self::assertEquals('term_taxonomy', $database->getTermTaxonomyTable());
+        self::assertEquals('users', $database->getUsersTable());
+        self::assertEquals('prefix_capabilities', $database->getCapabilitiesTable());
     }
 
     /**
@@ -164,7 +164,7 @@ class DatabaseTest extends UserAccessManagerTestCase
      */
     public function testFunctionWrapper()
     {
-        $aWrapperFunctions = [
+        $wrapperFunctions = [
             'getColumn' => [
                 'get_col',
                 [[null, 0], ['query', 10]],
@@ -227,23 +227,23 @@ class DatabaseTest extends UserAccessManagerTestCase
             ]
         ];
 
-        foreach ($aWrapperFunctions as $sFunctionName => $aTestValues) {
-            $sWrapperFunction = $aTestValues[0];
-            $aExpectedArguments = $aTestValues[1];
-            $aExpectedResults = $aTestValues[2];
-            $aArguments = $aTestValues[3];
+        foreach ($wrapperFunctions as $functionName => $testValues) {
+            $wrapperFunction = $testValues[0];
+            $expectedArguments = $testValues[1];
+            $expectedResults = $testValues[2];
+            $arguments = $testValues[3];
 
-            $WpDatabase = $this->getWpDatabase([$sWrapperFunction]);
-            $WpDatabase->expects($this->exactly(count($aExpectedResults)))
-                ->method($sWrapperFunction)
-                ->withConsecutive(...$aExpectedArguments)
-                ->will($this->onConsecutiveCalls(...$aExpectedResults));
+            $wpDatabase = $this->getWpDatabase([$wrapperFunction]);
+            $wpDatabase->expects($this->exactly(count($expectedResults)))
+                ->method($wrapperFunction)
+                ->withConsecutive(...$expectedArguments)
+                ->will($this->onConsecutiveCalls(...$expectedResults));
 
-            $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-            $Database = new Database($Wordpress);
+            $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+            $database = new Database($wordpress);
 
-            foreach ($aExpectedResults as $sKey => $mExpectedValue) {
-                self::assertEquals($mExpectedValue, $Database->{$sFunctionName}(...$aArguments[$sKey]));
+            foreach ($expectedResults as $key => $expectedValue) {
+                self::assertEquals($expectedValue, $database->{$functionName}(...$arguments[$key]));
             }
         }
     }
@@ -254,42 +254,42 @@ class DatabaseTest extends UserAccessManagerTestCase
      */
     public function testGetCharset()
     {
-        $WpDatabase = $this->getWpDatabase(['get_var']);
-        $WpDatabase->charset = 'testCharset';
-        $WpDatabase->collate = 'testCollate';
-        $WpDatabase->expects($this->once())
+        $wpDatabase = $this->getWpDatabase(['get_var']);
+        $wpDatabase->charset = 'testCharset';
+        $wpDatabase->collate = 'testCollate';
+        $wpDatabase->expects($this->once())
             ->method('get_var')
             ->with('SELECT VERSION() as mysql_version')
             ->will($this->returnValue('4.0.0'));
-        $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-        $Database = new Database($Wordpress);
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
 
-        self::assertEquals('', $Database->getCharset());
+        self::assertEquals('', $database->getCharset());
 
-        $WpDatabase = $this->getWpDatabase(['get_var']);
-        $WpDatabase->expects($this->exactly(4))
+        $wpDatabase = $this->getWpDatabase(['get_var']);
+        $wpDatabase->expects($this->exactly(4))
             ->method('get_var')
             ->with('SELECT VERSION() as mysql_version')
             ->will($this->returnValue('4.1.0'));
-        $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-        $Database = new Database($Wordpress);
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
 
-        self::assertEquals('', $Database->getCharset());
+        self::assertEquals('', $database->getCharset());
 
-        $WpDatabase->charset = 'testCharset';
-        $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-        $Database = new Database($Wordpress);
-        self::assertEquals('DEFAULT CHARACTER SET testCharset', $Database->getCharset());
+        $wpDatabase->charset = 'testCharset';
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+        self::assertEquals('DEFAULT CHARACTER SET testCharset', $database->getCharset());
 
-        $WpDatabase->charset = 'testCharset';
-        $WpDatabase->collate = 'testCollate';
-        $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-        $Database = new Database($Wordpress);
-        self::assertEquals('DEFAULT CHARACTER SET testCharset COLLATE testCollate', $Database->getCharset());
+        $wpDatabase->charset = 'testCharset';
+        $wpDatabase->collate = 'testCollate';
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+        self::assertEquals('DEFAULT CHARACTER SET testCharset COLLATE testCollate', $database->getCharset());
 
-        $WpDatabase->charset = null;
-        $Wordpress = $this->getWrapperWithWpDatabase($WpDatabase);
-        $Database = new Database($Wordpress);
-        self::assertEquals(' COLLATE testCollate', $Database->getCharset());
+        $wpDatabase->charset = null;
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+        self::assertEquals(' COLLATE testCollate', $database->getCharset());
     }
 }

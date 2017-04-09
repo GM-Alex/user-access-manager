@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -26,10 +26,10 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanCreateInstance()
     {
-        $ConfigParameterFactory = new ConfigParameterFactory();
-        self::assertInstanceOf('\UserAccessManager\Config\ConfigParameterFactory', $ConfigParameterFactory);
+        $configParameterFactory = new ConfigParameterFactory();
+        self::assertInstanceOf('\UserAccessManager\Config\ConfigParameterFactory', $configParameterFactory);
 
-        return $ConfigParameterFactory;
+        return $configParameterFactory;
     }
 
     /**
@@ -37,17 +37,17 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Config\ConfigParameterFactory::createBooleanConfigParameter()
      *
-     * @param ConfigParameterFactory $ConfigParameterFactory
+     * @param ConfigParameterFactory $configParameterFactory
      */
-    public function testCreateBooleanConfigParameter(ConfigParameterFactory $ConfigParameterFactory)
+    public function testCreateBooleanConfigParameter(ConfigParameterFactory $configParameterFactory)
     {
-        $Parameter = $ConfigParameterFactory->createBooleanConfigParameter('parameterId');
-        self::assertInstanceOf('\UserAccessManager\Config\BooleanConfigParameter', $Parameter);
-        self::assertEquals('parameterId', $Parameter->getId());
-        self::assertFalse($Parameter->getValue());
+        $parameter = $configParameterFactory->createBooleanConfigParameter('parameterId');
+        self::assertInstanceOf('\UserAccessManager\Config\BooleanConfigParameter', $parameter);
+        self::assertEquals('parameterId', $parameter->getId());
+        self::assertFalse($parameter->getValue());
 
-        $Parameter = $ConfigParameterFactory->createBooleanConfigParameter('parameterId', true);
-        self::assertTrue($Parameter->getValue());
+        $parameter = $configParameterFactory->createBooleanConfigParameter('parameterId', true);
+        self::assertTrue($parameter->getValue());
     }
 
     /**
@@ -55,17 +55,17 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Config\ConfigParameterFactory::createStringConfigParameter()
      *
-     * @param ConfigParameterFactory $ConfigParameterFactory
+     * @param ConfigParameterFactory $configParameterFactory
      */
-    public function testCreateStringConfigParameter(ConfigParameterFactory $ConfigParameterFactory)
+    public function testCreateStringConfigParameter(ConfigParameterFactory $configParameterFactory)
     {
-        $Parameter = $ConfigParameterFactory->createStringConfigParameter('parameterId');
-        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $Parameter);
-        self::assertEquals('parameterId', $Parameter->getId());
-        self::assertEquals('', $Parameter->getValue());
+        $parameter = $configParameterFactory->createStringConfigParameter('parameterId');
+        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $parameter);
+        self::assertEquals('parameterId', $parameter->getId());
+        self::assertEquals('', $parameter->getValue());
 
-        $Parameter = $ConfigParameterFactory->createStringConfigParameter('parameterId', 'test');
-        self::assertEquals('test', $Parameter->getValue());
+        $parameter = $configParameterFactory->createStringConfigParameter('parameterId', 'test');
+        self::assertEquals('test', $parameter->getValue());
     }
 
     /**
@@ -73,19 +73,19 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Config\ConfigParameterFactory::createSelectionConfigParameter()
      *
-     * @param ConfigParameterFactory $ConfigParameterFactory
+     * @param ConfigParameterFactory $configParameterFactory
      */
-    public function testCreateSelectionConfigParameter(ConfigParameterFactory $ConfigParameterFactory)
+    public function testCreateSelectionConfigParameter(ConfigParameterFactory $configParameterFactory)
     {
-        $Parameter = $ConfigParameterFactory->createSelectionConfigParameter(
+        $parameter = $configParameterFactory->createSelectionConfigParameter(
             'parameterId',
             'a',
             ['a', 'b', 'c']
         );
 
-        self::assertInstanceOf('\UserAccessManager\Config\SelectionConfigParameter', $Parameter);
-        self::assertEquals('parameterId', $Parameter->getId());
-        self::assertEquals('a', $Parameter->getValue());
-        self::assertEquals(['a', 'b', 'c'], $Parameter->getSelections());
+        self::assertInstanceOf('\UserAccessManager\Config\SelectionConfigParameter', $parameter);
+        self::assertEquals('parameterId', $parameter->getId());
+        self::assertEquals('a', $parameter->getValue());
+        self::assertEquals(['a', 'b', 'c'], $parameter->getSelections());
     }
 }

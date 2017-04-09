@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Wrapper;
@@ -46,144 +46,144 @@ class Wordpress
     /**
      * @see \is_post_type_hierarchical()
      *
-     * @param string $sPostType
+     * @param string $postType
      *
      * @return bool
      */
-    public function isPostTypeHierarchical($sPostType)
+    public function isPostTypeHierarchical($postType)
     {
-        return \is_post_type_hierarchical($sPostType);
+        return \is_post_type_hierarchical($postType);
     }
 
     /**
      * @see \is_taxonomy_hierarchical()
      *
-     * @param string $sTaxonomy
+     * @param string $taxonomy
      *
      * @return bool
      */
-    public function isTaxonomyHierarchical($sTaxonomy)
+    public function isTaxonomyHierarchical($taxonomy)
     {
-        return \is_taxonomy_hierarchical($sTaxonomy);
+        return \is_taxonomy_hierarchical($taxonomy);
     }
 
     /**
      * @see \get_userdata()
      *
-     * @param string $sId
+     * @param string $id
      *
      * @return false|\WP_User
      */
-    public function getUserData($sId)
+    public function getUserData($id)
     {
-        return \get_userdata($sId);
+        return \get_userdata($id);
     }
 
     /**
      * @see \get_post_types()
      *
-     * @param string|array $mArguments
-     * @param string       $sOutput
-     * @param string       $sOperator
+     * @param string|array $arguments
+     * @param string       $output
+     * @param string       $operator
      *
      * @return array
      */
-    public function getPostTypes($mArguments = [], $sOutput = 'names', $sOperator = 'and')
+    public function getPostTypes($arguments = [], $output = 'names', $operator = 'and')
     {
-        return \get_post_types($mArguments, $sOutput, $sOperator);
+        return \get_post_types($arguments, $output, $operator);
     }
 
     /**
      * @see \get_taxonomies()
      *
-     * @param array  $aArguments
-     * @param string $sOutput
-     * @param string $sOperator
+     * @param array  $arguments
+     * @param string $output
+     * @param string $operator
      *
      * @return array
      */
-    public function getTaxonomies(array $aArguments = [], $sOutput = 'names', $sOperator = 'and')
+    public function getTaxonomies(array $arguments = [], $output = 'names', $operator = 'and')
     {
-        return \get_taxonomies($aArguments, $sOutput, $sOperator);
+        return \get_taxonomies($arguments, $output, $operator);
     }
 
     /**
      * @see \get_taxonomy()
      *
-     * @param string $sTaxonomy
+     * @param string $taxonomy
      *
      * @return false|\WP_Taxonomy
      */
-    public function getTaxonomy($sTaxonomy)
+    public function getTaxonomy($taxonomy)
     {
-        return \get_taxonomy($sTaxonomy);
+        return \get_taxonomy($taxonomy);
     }
 
     /**
      * @see \get_post()
      *
-     * @param string $sId The post id.
-     * @param string $sOutput
-     * @param string $sFilter
+     * @param string $id The post id.
+     * @param string $output
+     * @param string $filter
      *
      * @return \WP_Post|array|null
      */
-    public function getPost($sId, $sOutput = OBJECT, $sFilter = 'raw')
+    public function getPost($id, $output = OBJECT, $filter = 'raw')
     {
-        return \get_post($sId, $sOutput, $sFilter);
+        return \get_post($id, $output, $filter);
     }
 
     /**
      * @see \get_post_type_object()
      *
-     * @param string $sPostType
+     * @param string $postType
      *
      * @return null|\WP_Post_Type
      */
-    public function getPostTypeObject($sPostType)
+    public function getPostTypeObject($postType)
     {
-        return \get_post_type_object($sPostType);
+        return \get_post_type_object($postType);
     }
 
     /**
      * @see \get_term()
      *
-     * @param string $sId
-     * @param string $sTaxonomy
-     * @param string $sOutput
-     * @param string $sFilter
+     * @param string $id
+     * @param string $taxonomy
+     * @param string $output
+     * @param string $filter
      *
      * @return array|null|\WP_Error|\WP_Term
      */
-    public function getTerm($sId, $sTaxonomy = '', $sOutput = OBJECT, $sFilter = 'raw')
+    public function getTerm($id, $taxonomy = '', $output = OBJECT, $filter = 'raw')
     {
-        return \get_term($sId, $sTaxonomy, $sOutput, $sFilter);
+        return \get_term($id, $taxonomy, $output, $filter);
     }
 
 
     /**
      * @see \dbDelta()
      *
-     * @param array|string $mQueries
-     * @param bool         $blExecute
+     * @param array|string $queries
+     * @param bool         $execute
      *
      * @return array
      */
-    public function dbDelta($mQueries = '', $blExecute = true)
+    public function dbDelta($queries = '', $execute = true)
     {
-        return \dbDelta($mQueries, $blExecute);
+        return \dbDelta($queries, $execute);
     }
 
     /**
      * @see \switch_to_blog()
      *
-     * @param integer $iBlogId
+     * @param integer $blogId
      *
      * @return int|true
      */
-    public function switchToBlog($iBlogId)
+    public function switchToBlog($blogId)
     {
-        return \switch_to_blog($iBlogId);
+        return \switch_to_blog($blogId);
     }
 
     /**
@@ -199,135 +199,135 @@ class Wordpress
     /**
      * @see \do_action()
      *
-     * @param string $sTag
-     * @param mixed  $mArguments
+     * @param string $tag
+     * @param mixed  $arguments
      */
-    public function doAction($sTag, $mArguments = '')
+    public function doAction($tag, $arguments = '')
     {
-        \do_action($sTag, $mArguments);
+        \do_action($tag, $arguments);
     }
 
     /**
      * @see \add_action()
      *
-     * @param string   $sTag
-     * @param callable $mFunctionToAdd
-     * @param int      $iPriority
-     * @param int      $iAcceptedArguments
+     * @param string   $tag
+     * @param callable $functionToAdd
+     * @param int      $priority
+     * @param int      $acceptedArguments
      *
      * @return true
      */
-    public function addAction($sTag, $mFunctionToAdd, $iPriority = 10, $iAcceptedArguments = 1)
+    public function addAction($tag, $functionToAdd, $priority = 10, $acceptedArguments = 1)
     {
-        return \add_action($sTag, $mFunctionToAdd, $iPriority, $iAcceptedArguments);
+        return \add_action($tag, $functionToAdd, $priority, $acceptedArguments);
     }
 
     /**
      * @see \has_filter()
      *
-     * @param string        $sTag
-     * @param bool|callable $mFunctionToCheck
+     * @param string        $tag
+     * @param bool|callable $functionToCheck
      *
      * @return bool|false|int
      */
-    public function hasFilter($sTag, $mFunctionToCheck = false)
+    public function hasFilter($tag, $functionToCheck = false)
     {
-        return \has_filter($sTag, $mFunctionToCheck);
+        return \has_filter($tag, $functionToCheck);
     }
 
     /**
      * @see \add_filter()
      *
-     * @param string   $sTag
-     * @param callable $mFunctionToAdd
-     * @param int      $iPriority
-     * @param int      $iAcceptedArguments
+     * @param string   $tag
+     * @param callable $functionToAdd
+     * @param int      $priority
+     * @param int      $acceptedArguments
      *
      * @return true
      */
-    public function addFilter($sTag, $mFunctionToAdd, $iPriority = 10, $iAcceptedArguments = 1)
+    public function addFilter($tag, $functionToAdd, $priority = 10, $acceptedArguments = 1)
     {
-        return \add_filter($sTag, $mFunctionToAdd, $iPriority, $iAcceptedArguments);
+        return \add_filter($tag, $functionToAdd, $priority, $acceptedArguments);
     }
 
     /**
      * @see \remove_filter()
      *
-     * @param string   $sTag
-     * @param callable $mFunctionToRemove
-     * @param int      $iPriority
+     * @param string   $tag
+     * @param callable $functionToRemove
+     * @param int      $priority
      *
      * @return bool
      */
-    public function removeFilter($sTag, $mFunctionToRemove, $iPriority = 10)
+    public function removeFilter($tag, $functionToRemove, $priority = 10)
     {
-        return \remove_filter($sTag, $mFunctionToRemove, $iPriority);
+        return \remove_filter($tag, $functionToRemove, $priority);
     }
 
     /**
      * @see \add_option()
      *
-     * @param string      $sOption
-     * @param mixed       $mValue
-     * @param string      $sDeprecated
-     * @param string|bool $mAutoload
+     * @param string      $option
+     * @param mixed       $value
+     * @param string      $deprecated
+     * @param string|bool $autoload
      *
      * @return bool
      */
-    public function addOption($sOption, $mValue = '', $sDeprecated = '', $mAutoload = 'yes')
+    public function addOption($option, $value = '', $deprecated = '', $autoload = 'yes')
     {
-        return \add_option($sOption, $mValue, $sDeprecated, $mAutoload);
+        return \add_option($option, $value, $deprecated, $autoload);
     }
 
     /**
      * @see \delete_option()
      *
-     * @param string $sOption
+     * @param string $option
      *
      * @return bool
      */
-    public function deleteOption($sOption)
+    public function deleteOption($option)
     {
-        return \delete_option($sOption);
+        return \delete_option($option);
     }
 
     /**
      * @see \update_option()
      *
-     * @param string      $sOption
-     * @param mixed       $mValue
-     * @param string|bool $mAutoload
+     * @param string      $option
+     * @param mixed       $value
+     * @param string|bool $autoload
      *
      * @return bool
      */
-    public function updateOption($sOption, $mValue = '', $mAutoload = 'yes')
+    public function updateOption($option, $value = '', $autoload = 'yes')
     {
-        return \update_option($sOption, $mValue, $mAutoload);
+        return \update_option($option, $value, $autoload);
     }
 
     /**
      * @see \get_option()
      *
-     * @param string $sOption
-     * @param bool   $blDefault
+     * @param string $option
+     * @param bool   $default
      *
      * @return mixed
      */
-    public function getOption($sOption, $blDefault = false)
+    public function getOption($option, $default = false)
     {
-        return \get_option($sOption, $blDefault);
+        return \get_option($option, $default);
     }
 
     /**
      * @see \is_super_admin()
      *
-     * @param bool $sUserId
+     * @param bool $userId
      *
      * @return bool
      */
-    public function isSuperAdmin($sUserId = false)
+    public function isSuperAdmin($userId = false)
     {
-        return \is_super_admin($sUserId);
+        return \is_super_admin($userId);
     }
 
     /**
@@ -343,76 +343,76 @@ class Wordpress
     /**
      * @see \get_allowed_mime_types()
      *
-     * @param int|\WP_User $mUser
+     * @param int|\WP_User $user
      *
      * @return array
      */
-    public function getAllowedMimeTypes($mUser = null)
+    public function getAllowedMimeTypes($user = null)
     {
-        return \get_allowed_mime_types($mUser);
+        return \get_allowed_mime_types($user);
     }
 
     /**
      * @see \wp_upload_dir()
      *
-     * @param string $sTime
-     * @param bool   $blCreateDir
-     * @param bool   $blRefreshCache
+     * @param string $time
+     * @param bool   $createDir
+     * @param bool   $refreshCache
      *
      * @return array
      */
-    public function getUploadDir($sTime = null, $blCreateDir = true, $blRefreshCache = false)
+    public function getUploadDir($time = null, $createDir = true, $refreshCache = false)
     {
-        return \wp_upload_dir($sTime, $blCreateDir, $blRefreshCache);
+        return \wp_upload_dir($time, $createDir, $refreshCache);
     }
 
     /**
      * @see \home_url()
      *
-     * @param string $sPath
-     * @param string $sScheme
+     * @param string $path
+     * @param string $scheme
      *
      * @return string
      */
-    public function getHomeUrl($sPath = '', $sScheme = null)
+    public function getHomeUrl($path = '', $scheme = null)
     {
-        return \home_url($sPath, $sScheme);
+        return \home_url($path, $scheme);
     }
 
     /**
      * @see \wp_parse_id_list()
      *
-     * @param array|string $mList
+     * @param array|string $list
      *
      * @return array
      */
-    public function parseIdList($mList)
+    public function parseIdList($list)
     {
-        return \wp_parse_id_list($mList);
+        return \wp_parse_id_list($list);
     }
 
     /**
      * @see \wp_die()
      *
-     * @param string $sMessage
-     * @param string $sTitle
-     * @param array  $aArguments
+     * @param string $message
+     * @param string $title
+     * @param array  $arguments
      */
-    public function wpDie($sMessage = '', $sTitle = '', array $aArguments = [])
+    public function wpDie($message = '', $title = '', array $arguments = [])
     {
-        \wp_die($sMessage, $sTitle, $aArguments);
+        \wp_die($message, $title, $arguments);
     }
 
     /**
      * @see \is_feed()
      *
-     * @param string|array $mFeeds
+     * @param string|array $feeds
      *
      * @return bool
      */
-    public function isFeed($mFeeds = '')
+    public function isFeed($feeds = '')
     {
-        return \is_feed($mFeeds);
+        return \is_feed($feeds);
     }
 
     /**
@@ -428,40 +428,40 @@ class Wordpress
     /**
      * @see \get_page_by_path()
      *
-     * @param string $sPagePath
-     * @param string $sOutput
-     * @param string $sPostType
+     * @param string $pagePath
+     * @param string $output
+     * @param string $postType
      *
      * @return array|null|\WP_Post
      */
-    public function getPageByPath($sPagePath, $sOutput = OBJECT, $sPostType = 'page')
+    public function getPageByPath($pagePath, $output = OBJECT, $postType = 'page')
     {
-        return \get_page_by_path($sPagePath, $sOutput, $sPostType);
+        return \get_page_by_path($pagePath, $output, $postType);
     }
 
     /**
      * @see \wp_redirect()
      *
-     * @param string $sLocation
-     * @param int    $iStatus
+     * @param string $location
+     * @param int    $status
      *
      * @return bool
      */
-    public function wpRedirect($sLocation, $iStatus = 302)
+    public function wpRedirect($location, $status = 302)
     {
-        return \wp_redirect($sLocation, $iStatus);
+        return \wp_redirect($location, $status);
     }
 
     /**
-     * @param bool|int|\WP_Post $mPost
-     * @param bool              $blLeaveName
-     * @param bool              $blSample
+     * @param bool|int|\WP_Post $post
+     * @param bool              $leaveName
+     * @param bool              $sample
      *
      * @return string The page permalink.
      */
-    public function getPageLink($mPost = false, $blLeaveName = false, $blSample = false)
+    public function getPageLink($post = false, $leaveName = false, $sample = false)
     {
-        return \get_page_link($mPost, $blLeaveName, $blSample);
+        return \get_page_link($post, $leaveName, $sample);
     }
 
     /**
@@ -488,41 +488,41 @@ class Wordpress
     /**
      * @see \wp_create_nonce()
      *
-     * @param int|string $mAction
+     * @param int|string $action
      *
      * @return string
      */
-    public function createNonce($mAction)
+    public function createNonce($action)
     {
-        return \wp_create_nonce($mAction);
+        return \wp_create_nonce($action);
     }
 
     /**
      * @see \wp_nonce_field()
      *
-     * @param int|string $mAction
-     * @param string     $sName
-     * @param bool       $blReferrer
-     * @param bool       $blEcho
+     * @param int|string $action
+     * @param string     $name
+     * @param bool       $referrer
+     * @param bool       $echo
      *
      * @return string
      */
-    public function getNonceField($mAction = -1, $sName = '_wpnonce', $blReferrer = true, $blEcho = true)
+    public function getNonceField($action = -1, $name = '_wpnonce', $referrer = true, $echo = true)
     {
-        return \wp_nonce_field($mAction, $sName, $blReferrer, $blEcho);
+        return \wp_nonce_field($action, $name, $referrer, $echo);
     }
 
     /**
      * @see \wp_verify_nonce()
      *
-     * @param string     $sNonce
-     * @param string|int $mAction
+     * @param string     $nonce
+     * @param string|int $action
      *
      * @return false|int
      */
-    public function verifyNonce($sNonce, $mAction = -1)
+    public function verifyNonce($nonce, $action = -1)
     {
-        return \wp_verify_nonce($sNonce, $mAction);
+        return \wp_verify_nonce($nonce, $action);
     }
 
     /**
@@ -539,138 +539,138 @@ class Wordpress
     /**
      * @see \add_menu_page()
      *
-     * @param string $sPageTitle
-     * @param string $sMenuTitle
-     * @param string $sCapability
-     * @param string $sMenuSlug
-     * @param mixed  $cFunction
-     * @param string $sIconUrl
-     * @param null   $iPosition
+     * @param string $pageTitle
+     * @param string $menuTitle
+     * @param string $capability
+     * @param string $menuSlug
+     * @param mixed  $function
+     * @param string $iconUrl
+     * @param null   $position
      *
      * @return string
      */
     public function addMenuPage(
-        $sPageTitle,
-        $sMenuTitle,
-        $sCapability,
-        $sMenuSlug,
-        $cFunction = '',
-        $sIconUrl = '',
-        $iPosition = null
+        $pageTitle,
+        $menuTitle,
+        $capability,
+        $menuSlug,
+        $function = '',
+        $iconUrl = '',
+        $position = null
     ) {
-        return \add_menu_page($sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction, $sIconUrl, $iPosition);
+        return \add_menu_page($pageTitle, $menuTitle, $capability, $menuSlug, $function, $iconUrl, $position);
     }
 
     /**
      * @see \add_submenu_page()
      *
-     * @param string $sParentSlug
-     * @param string $sPageTitle
-     * @param string $sMenuTitle
-     * @param string $sCapability
-     * @param string $sMenuSlug
-     * @param string $cFunction
+     * @param string $parentSlug
+     * @param string $pageTitle
+     * @param string $menuTitle
+     * @param string $capability
+     * @param string $menuSlug
+     * @param string $function
      *
      * @return false|string
      */
-    public function addSubMenuPage($sParentSlug, $sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction = '')
+    public function addSubMenuPage($parentSlug, $pageTitle, $menuTitle, $capability, $menuSlug, $function = '')
     {
-        return \add_submenu_page($sParentSlug, $sPageTitle, $sMenuTitle, $sCapability, $sMenuSlug, $cFunction);
+        return \add_submenu_page($parentSlug, $pageTitle, $menuTitle, $capability, $menuSlug, $function);
     }
 
     /**
      * @see \add_meta_box()
      *
-     * @param string                  $sId
-     * @param string                  $sTitle
-     * @param callable                $cCallback
-     * @param string|array|\WP_Screen $mScreen
-     * @param string                  $sContext
-     * @param string                  $sPriority
-     * @param array                   $aCallbackArguments
+     * @param string                  $id
+     * @param string                  $title
+     * @param callable                $callback
+     * @param string|array|\WP_Screen $screen
+     * @param string                  $context
+     * @param string                  $priority
+     * @param array                   $callbackArguments
      */
     public function addMetaBox(
-        $sId,
-        $sTitle,
-        $cCallback,
-        $mScreen = null,
-        $sContext = 'advanced',
-        $sPriority = 'default',
-        $aCallbackArguments = null
+        $id,
+        $title,
+        $callback,
+        $screen = null,
+        $context = 'advanced',
+        $priority = 'default',
+        $callbackArguments = null
     ) {
-        \add_meta_box($sId, $sTitle, $cCallback, $mScreen, $sContext, $sPriority, $aCallbackArguments);
+        \add_meta_box($id, $title, $callback, $screen, $context, $priority, $callbackArguments);
     }
 
     /**
      * @see \get_pages()
      *
-     * @param array|string $mArguments
+     * @param array|string $arguments
      *
      * @return array|false
      */
-    public function getPages($mArguments)
+    public function getPages($arguments)
     {
-        return \get_pages($mArguments);
+        return \get_pages($arguments);
     }
 
     /**
      * @see \wp_register_style()
      *
-     * @param string           $sHandle
-     * @param string           $sSource
-     * @param array            $aDepends
-     * @param string|bool|null $mVersion
-     * @param string           $sMedia
+     * @param string           $handle
+     * @param string           $source
+     * @param array            $depends
+     * @param string|bool|null $version
+     * @param string           $media
      *
      * @return bool
      */
-    public function registerStyle($sHandle, $sSource, $aDepends = [], $mVersion = false, $sMedia = 'all')
+    public function registerStyle($handle, $source, $depends = [], $version = false, $media = 'all')
     {
-        return \wp_register_style($sHandle, $sSource, $aDepends, $mVersion, $sMedia);
+        return \wp_register_style($handle, $source, $depends, $version, $media);
     }
 
     /**
      * @see \wp_register_script()
      *
-     * @param string           $sHandle
-     * @param string           $sSource
-     * @param array            $aDepends
-     * @param string|bool|null $mVersion
-     * @param bool             $blInFooter
+     * @param string           $handle
+     * @param string           $source
+     * @param array            $depends
+     * @param string|bool|null $version
+     * @param bool             $inFooter
      *
      * @return bool
      */
-    public function registerScript($sHandle, $sSource, $aDepends = [], $mVersion = false, $blInFooter = false)
+    public function registerScript($handle, $source, $depends = [], $version = false, $inFooter = false)
     {
-        return \wp_register_script($sHandle, $sSource, $aDepends, $mVersion, $blInFooter);
+        return \wp_register_script($handle, $source, $depends, $version, $inFooter);
     }
 
     /**
      * @see \wp_enqueue_style()
      *
-     * @param string           $sHandle
-     * @param string           $sSource
-     * @param array            $aDepends
-     * @param string|bool|null $mVersion
-     * @param string           $sMedia
+     * @param string           $handle
+     * @param string           $source
+     * @param array            $depends
+     * @param string|bool|null $version
+     * @param string           $media
      */
-    public function enqueueStyle($sHandle, $sSource = '', $aDepends = [], $mVersion = false, $sMedia = 'all')
+    public function enqueueStyle($handle, $source = '', $depends = [], $version = false, $media = 'all')
     {
-        \wp_enqueue_style($sHandle, $sSource, $aDepends, $mVersion, $sMedia);
+        \wp_enqueue_style($handle, $source, $depends, $version, $media);
     }
 
     /**
      * @see \wp_enqueue_script()
      *
-     * @param string           $sHandle
-     * @param string           $sSource
-     * @param array            $aDepends
-     * @param string|bool|null $mVersion
-     * @param bool             $blInFooter
+     * @param string           $handle
+     * @param string           $source
+     * @param array            $depends
+     * @param string|bool|null $version
+     * @param bool             $inFooter
      */
-    public function enqueueScript($sHandle, $sSource = '', $aDepends = [], $mVersion = false, $blInFooter = false)
+    public function enqueueScript($handle, $source = '', $depends = [], $version = false, $inFooter = false)
     {
-        \wp_enqueue_script($sHandle, $sSource, $aDepends, $mVersion, $blInFooter);
+        \wp_enqueue_script($handle, $source, $depends, $version, $inFooter);
     }
 
     /**
@@ -687,25 +687,25 @@ class Wordpress
     /**
      * Sets the wordpress meta boxes.
      *
-     * @param array $aWpMetaBoxes
+     * @param array $wpMetaBoxes
      */
-    public function setMetaBoxes(array $aWpMetaBoxes)
+    public function setMetaBoxes(array $wpMetaBoxes)
     {
         global $wp_meta_boxes;
-        $wp_meta_boxes= $aWpMetaBoxes;
+        $wp_meta_boxes= $wpMetaBoxes;
     }
 
     /**
      * @see \get_sites()
      *
-     * @param array $aArguments
+     * @param array $arguments
      *
      * @return array
      */
-    public function getSites(array $aArguments = [])
+    public function getSites(array $arguments = [])
     {
         if (function_exists('get_sites')) {
-            return \get_sites($aArguments);
+            return \get_sites($arguments);
         }
 
         return [];
@@ -714,63 +714,63 @@ class Wordpress
     /**
      * @see \apply_filters()
      *
-     * @param string $sTag
-     * @param mixed  $mValue
+     * @param string $tag
+     * @param mixed  $value
      *
      * @return mixed
      */
-    public function applyFilters($sTag, $mValue)
+    public function applyFilters($tag, $value)
     {
-        return \apply_filters($sTag, $mValue);
+        return \apply_filters($tag, $value);
     }
 
     /**
      * @see \get_bloginfo()
      *
-     * @param string $sShow
-     * @param string $sFilter
+     * @param string $show
+     * @param string $filter
      *
      * @return string
      */
-    public function getBlogInfo($sShow = '', $sFilter = 'raw')
+    public function getBlogInfo($show = '', $filter = 'raw')
     {
-        return \get_bloginfo($sShow, $sFilter);
+        return \get_bloginfo($show, $filter);
     }
 
     /**
      * @see \esc_html()
      *
-     * @param string $sText
+     * @param string $text
      *
      * @return string
      */
-    public function escHtml($sText)
+    public function escHtml($text)
     {
-        return \esc_html($sText);
+        return \esc_html($text);
     }
 
     /**
      * @see \is_single()
      *
-     * @param int|string|array $mPost
+     * @param int|string|array $post
      *
      * @return bool
      */
-    public function isSingle($mPost = '')
+    public function isSingle($post = '')
     {
-        return \is_single($mPost);
+        return \is_single($post);
     }
 
     /**
      * @see \is_page()
      *
-     * @param int|string|array $mPage
+     * @param int|string|array $page
      *
      * @return bool
      */
-    public function isPage($mPage = '')
+    public function isPage($page = '')
     {
-        return \is_page($mPage);
+        return \is_page($page);
     }
 
     /**
@@ -786,49 +786,49 @@ class Wordpress
     /**
      * @see \plugins_url()
      *
-     * @param string $sPath
-     * @param string $sPlugin
+     * @param string $path
+     * @param string $plugin
      *
      * @return string
      */
-    public function pluginsUrl($sPath = '', $sPlugin = '')
+    public function pluginsUrl($path = '', $plugin = '')
     {
-        return \plugins_url($sPath, $sPlugin);
+        return \plugins_url($path, $plugin);
     }
 
     /**
      * @see \plugin_basename()
      *
-     * @param $sFile
+     * @param $file
      *
      * @return string
      */
-    public function pluginBasename($sFile)
+    public function pluginBasename($file)
     {
-        return \plugin_basename($sFile);
+        return \plugin_basename($file);
     }
 
     /**
      * @see wp_attachment_is_image()
      *
-     * @param int|\WP_Post $mPost
+     * @param int|\WP_Post $post
      *
      * @return bool
      */
-    public function attachmentIsImage($mPost)
+    public function attachmentIsImage($post)
     {
-        return wp_attachment_is_image($mPost);
+        return wp_attachment_is_image($post);
     }
 
     /**
      * @see current_user_can()
      *
-     * @param string $sCapability
+     * @param string $capability
      *
      * @return bool
      */
-    public function currentUserCan($sCapability)
+    public function currentUserCan($capability)
     {
-        return current_user_can($sCapability);
+        return current_user_can($capability);
     }
 }

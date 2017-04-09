@@ -1,8 +1,8 @@
 <?php
 if (function_exists('__') === false) {
-    function __($sString, $sDomain = 'default')
+    function __($string, $domain = 'default')
     {
-        return $sString.'|'.$sDomain;
+        return $string.'|'.$domain;
     }
 }
 

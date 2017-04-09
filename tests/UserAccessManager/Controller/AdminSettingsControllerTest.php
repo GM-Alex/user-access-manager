@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -30,7 +30,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $AdminSettingController = new AdminSettingsController(
+        $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
@@ -38,21 +38,21 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminSettingsController', $AdminSettingController);
+        self::assertInstanceOf('\UserAccessManager\Controller\AdminSettingsController', $adminSettingController);
     }
 
     /**
-     * @param string $sName
+     * @param string $name
      *
      * @return \stdClass
      */
-    private function createTypeObject($sName)
+    private function createTypeObject($name)
     {
-        $Type = new \stdClass();
-        $Type->labels = new \stdClass();
-        $Type->labels->name = $sName;
+        $type = new \stdClass();
+        $type->labels = new \stdClass();
+        $type->labels->name = $name;
 
-        return $Type;
+        return $type;
     }
 
     /**
@@ -61,21 +61,21 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testIsNginx()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(2))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $AdminSettingController = new AdminSettingsController(
+        $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
-        self::assertFalse($AdminSettingController->isNginx());
-        self::assertTrue($AdminSettingController->isNginx());
+        self::assertFalse($adminSettingController->isNginx());
+        self::assertTrue($adminSettingController->isNginx());
     }
 
     /**
@@ -84,22 +84,22 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testGetPages()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(2))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
             ->method('getPages')
             ->with('sort_column=menu_order')
             ->will($this->onConsecutiveCalls(false, ['a' => 'a']));
 
-        $AdminSettingController = new AdminSettingsController(
+        $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
-        self::assertEquals([], $AdminSettingController->getPages());
-        self::assertEquals(['a' => 'a'], $AdminSettingController->getPages());
+        self::assertEquals([], $adminSettingController->getPages());
+        self::assertEquals(['a' => 'a'], $adminSettingController->getPages());
     }
 
     /**
@@ -108,20 +108,20 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testGetConfigParameters()
     {
-        $Config = $this->getConfig();
-        $Config->expects($this->once())
+        $config = $this->getConfig();
+        $config->expects($this->once())
             ->method('getConfigParameters')
             ->will($this->returnValue(['a' => 'a']));
 
-        $AdminSettingController = new AdminSettingsController(
+        $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $Config,
+            $config,
             $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
-        self::assertEquals(['a' => 'a'], $AdminSettingController->getConfigParameters());
+        self::assertEquals(['a' => 'a'], $adminSettingController->getConfigParameters());
     }
 
     /**
@@ -132,8 +132,8 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testGetGroupedConfigParameters()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(2))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -142,14 +142,14 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $Wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->exactly(2))
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
                 'category' => $this->createTypeObject('category')
             ]));
         
-        $aConfigValues = [
+        $configValues = [
             'hide_post' => 'hide_post',
             'hide_post_title' => 'hide_post_title',
             'post_title' => 'post_title',
@@ -184,24 +184,24 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             'full_access_role' => 'full_access_role'
         ];
 
-        $Config = $this->getConfig();
-        $Config->expects($this->exactly(2))
+        $config = $this->getConfig();
+        $config->expects($this->exactly(2))
             ->method('getConfigParameters')
-            ->will($this->returnValue($aConfigValues));
+            ->will($this->returnValue($configValues));
         
-        $Config->expects($this->exactly(2))
+        $config->expects($this->exactly(2))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $AdminSettingController = new AdminSettingsController(
+        $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
-            $Wordpress,
-            $Config,
+            $wordpress,
+            $config,
             $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
-        $aExpected = [
+        $expected = [
             'post' => [
                 0 => 'hide_post',
                 1 => 'hide_post_title',
@@ -244,12 +244,12 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ]
         ];
         
-        self::assertEquals($aExpected, $AdminSettingController->getGroupedConfigParameters());
+        self::assertEquals($expected, $adminSettingController->getGroupedConfigParameters());
 
-        $aExpected['file'][2] = 'lock_file_types';
-        $aExpected['file'][3] = 'file_pass_type';
+        $expected['file'][2] = 'lock_file_types';
+        $expected['file'][3] = 'file_pass_type';
 
-        self::assertEquals($aExpected, $AdminSettingController->getGroupedConfigParameters());
+        self::assertEquals($expected, $adminSettingController->getGroupedConfigParameters());
     }
 
     /**
@@ -258,33 +258,33 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testUpdateSettingsAction()
     {
-        $Config = $this->getConfig();
-        $Config->expects($this->exactly(3))
+        $config = $this->getConfig();
+        $config->expects($this->exactly(3))
             ->method('setConfigParameters')
             ->with([
                 'b' => '&lt;b&gt;b&lt;/b&gt;',
                 'i' => '&lt;i&gt;i&lt;/i&gt;',
             ]);
 
-        $Config->expects($this->exactly(3))
+        $config->expects($this->exactly(3))
             ->method('lockFile')
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(3))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(3))
             ->method('verifyNonce')
             ->will($this->returnValue(true));
 
-        $Wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(3))
             ->method('doAction')
-            ->with('uam_update_options', $Config);
+            ->with('uam_update_options', $config);
 
-        $FileHandler = $this->getFileHandler();
+        $fileHandler = $this->getFileHandler();
 
-        $FileHandler->expects($this->exactly(2))
+        $fileHandler->expects($this->exactly(2))
             ->method('createFileProtection');
 
-        $FileHandler->expects($this->once())
+        $fileHandler->expects($this->once())
             ->method('deleteFileProtection');
 
         $_POST['config_parameters'] = [
@@ -292,19 +292,19 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             'i' => '<i>i</i>'
         ];
 
-        $AdminSettingController = new AdminSettingsController(
+        $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
-            $Wordpress,
-            $Config,
+            $wordpress,
+            $config,
             $this->getObjectHandler(),
-            $FileHandler
+            $fileHandler
         );
 
-        $AdminSettingController->updateSettingsAction();
-        $AdminSettingController->updateSettingsAction();
-        $AdminSettingController->updateSettingsAction();
+        $adminSettingController->updateSettingsAction();
+        $adminSettingController->updateSettingsAction();
+        $adminSettingController->updateSettingsAction();
 
-        self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, 'sUpdateMessage', $AdminSettingController);
+        self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, 'updateMessage', $adminSettingController);
     }
 
     /**
@@ -313,8 +313,8 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testIsPostTypeGroup()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(4))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(4))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -323,18 +323,18 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $AdminSettingController = new AdminSettingsController(
+        $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
-        self::assertTrue($AdminSettingController->isPostTypeGroup(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
-        self::assertTrue($AdminSettingController->isPostTypeGroup(ObjectHandler::POST_OBJECT_TYPE));
-        self::assertTrue($AdminSettingController->isPostTypeGroup(ObjectHandler::PAGE_OBJECT_TYPE));
-        self::assertFalse($AdminSettingController->isPostTypeGroup('something'));
+        self::assertTrue($adminSettingController->isPostTypeGroup(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
+        self::assertTrue($adminSettingController->isPostTypeGroup(ObjectHandler::POST_OBJECT_TYPE));
+        self::assertTrue($adminSettingController->isPostTypeGroup(ObjectHandler::PAGE_OBJECT_TYPE));
+        self::assertFalse($adminSettingController->isPostTypeGroup('something'));
     }
 
     /**
@@ -345,8 +345,8 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testGetText()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(9))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(9))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -355,25 +355,25 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $Wordpress->expects($this->exactly(9))
+        $wordpress->expects($this->exactly(9))
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
                 'category' => $this->createTypeObject('category')
             ]));
 
-        $AdminSettingController = new AdminSettingsController(
+        $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
-            $Wordpress,
+            $wordpress,
             $this->getConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter $Parameter
+         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter $parameter
          */
-        $Parameter = self::getMockForAbstractClass(
+        $parameter = self::getMockForAbstractClass(
             '\UserAccessManager\Config\ConfigParameter',
             [],
             '',
@@ -383,7 +383,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ['getId']
         );
 
-        $Parameter->expects(self::any())
+        $parameter->expects(self::any())
             ->method('getId')
             ->will($this->returnValue('test_id'));
 
@@ -392,34 +392,34 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         define('TXT_UAM_TEST_ID', 'TEST_ID');
         define('TXT_UAM_TEST_ID_DESC', 'TEST_ID_DESC');
 
-        self::assertEquals('TEST', $AdminSettingController->getSectionText('group_key'));
-        self::assertEquals('TEST_DESC', $AdminSettingController->getSectionText('group_key', true));
+        self::assertEquals('TEST', $adminSettingController->getSectionText('group_key'));
+        self::assertEquals('TEST_DESC', $adminSettingController->getSectionText('group_key', true));
 
-        self::assertEquals('TEST_ID', $AdminSettingController->getParameterText('group_key', $Parameter));
-        self::assertEquals('TEST_ID_DESC', $AdminSettingController->getParameterText('group_key', $Parameter, true));
+        self::assertEquals('TEST_ID', $adminSettingController->getParameterText('group_key', $parameter));
+        self::assertEquals('TEST_ID_DESC', $adminSettingController->getParameterText('group_key', $parameter, true));
 
         self::assertEquals(
             'category settings|user-access-manager',
-            $AdminSettingController->getSectionText('category')
+            $adminSettingController->getSectionText('category')
         );
         self::assertEquals(
             'Set up the behaviour if the attachment is locked|user-access-manager',
-            $AdminSettingController->getSectionText(ObjectHandler::ATTACHMENT_OBJECT_TYPE, true)
+            $adminSettingController->getSectionText(ObjectHandler::ATTACHMENT_OBJECT_TYPE, true)
         );
         self::assertEquals(
             'TEST_ID',
-            $AdminSettingController->getParameterText(ObjectHandler::POST_OBJECT_TYPE, $Parameter)
+            $adminSettingController->getParameterText(ObjectHandler::POST_OBJECT_TYPE, $parameter)
         );
         self::assertEquals(
             'TEST_ID_DESC',
-            $AdminSettingController->getParameterText(ObjectHandler::POST_OBJECT_TYPE, $Parameter, true)
+            $adminSettingController->getParameterText(ObjectHandler::POST_OBJECT_TYPE, $parameter, true)
         );
 
         define('TXT_UAM_TEST', '%s %s');
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter $Parameter
+         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter $parameter
          */
-        $Parameter = self::getMockForAbstractClass(
+        $parameter = self::getMockForAbstractClass(
             '\UserAccessManager\Config\ConfigParameter',
             [],
             '',
@@ -429,13 +429,13 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ['getId']
         );
 
-        $Parameter->expects(self::any())
+        $parameter->expects(self::any())
             ->method('getId')
             ->will($this->returnValue('test'));
 
         self::assertEquals(
             'post post',
-            $AdminSettingController->getParameterText(ObjectHandler::POST_OBJECT_TYPE, $Parameter)
+            $adminSettingController->getParameterText(ObjectHandler::POST_OBJECT_TYPE, $parameter)
         );
     }
 }

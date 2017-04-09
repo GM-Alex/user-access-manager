@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -29,15 +29,15 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $Root;
+    private $root;
 
     /**
      * Setup virtual file system.
      */
     public function setUp()
     {
-        $this->oRoot = FileSystem::factory('vfs://');
-        $this->oRoot->mount();
+        $this->root = FileSystem::factory('vfs://');
+        $this->root->mount();
     }
 
     /**
@@ -45,7 +45,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
      */
     public function tearDown()
     {
-        $this->oRoot->unmount();
+        $this->root->unmount();
     }
 
     /**
@@ -55,14 +55,14 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $NginxFileProtection = new NginxFileProtection(
+        $nginxFileProtection = new NginxFileProtection(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\NginxFileProtection', $NginxFileProtection);
+        self::assertInstanceOf('\UserAccessManager\FileHandler\NginxFileProtection', $nginxFileProtection);
     }
 
     /**
@@ -71,89 +71,89 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
      */
     public function testCreate()
     {
-        $Wordpress = $this->getWordpress();
+        $wordpress = $this->getWordpress();
 
         /**
-         * @var \stdClass $User
+         * @var \stdClass $user
          */
-        $User = $this->getMockBuilder('\WP_User')->getMock();
-        $User->user_login = 'userLogin';
-        $User->user_pass = 'userPass';
+        $user = $this->getMockBuilder('\WP_User')->getMock();
+        $user->user_login = 'userLogin';
+        $user->user_pass = 'userPass';
 
-        $Wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->exactly(2))
             ->method('getCurrentUser')
-            ->will($this->returnValue($User));
+            ->will($this->returnValue($user));
 
-        $Config = $this->getConfig();
+        $config = $this->getConfig();
 
-        $Config->expects($this->exactly(5))
+        $config->expects($this->exactly(5))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(false, false, true, true, true));
 
-        $Config->expects($this->exactly(2))
+        $config->expects($this->exactly(2))
             ->method('getLockFileTypes')
             ->will($this->onConsecutiveCalls(null, 'selected'));
 
-        $Config->expects($this->once())
+        $config->expects($this->once())
             ->method('getLockedFileTypes')
             ->will($this->returnValue('png,jpg'));
 
-        $Config->expects($this->once())
+        $config->expects($this->once())
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
-        $Config->expects($this->exactly(2))
+        $config->expects($this->exactly(2))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 
         /**
-         * @var Directory $RootDir
+         * @var Directory $rootDir
          */
-        $RootDir = $this->oRoot->get('/');
-        $RootDir->add('testDir', new Directory());
-        $sTestDir = 'vfs://testDir';
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory());
+        $testDir = 'vfs://testDir';
 
-        $NginxFileProtection = new NginxFileProtection(
+        $nginxFileProtection = new NginxFileProtection(
             $this->getPhp(),
-            $Wordpress,
-            $Config,
+            $wordpress,
+            $config,
             $this->getUtil()
         );
-        $sFile = 'vfs://testDir/'.NginxFileProtection::FILE_NAME;
-        $sPasswordFile = 'vfs://testDir/'.NginxFileProtection::PASSWORD_FILE_NAME;
+        $file = 'vfs://testDir/'.NginxFileProtection::FILE_NAME;
+        $passwordFile = 'vfs://testDir/'.NginxFileProtection::PASSWORD_FILE_NAME;
 
-        self::assertTrue($NginxFileProtection->create($sTestDir, null, $sTestDir));
-        self::assertTrue(file_exists($sFile));
-        self::assertTrue(file_exists($sPasswordFile));
+        self::assertTrue($nginxFileProtection->create($testDir, null, $testDir));
+        self::assertTrue(file_exists($file));
+        self::assertTrue(file_exists($passwordFile));
         self::assertEquals(
             "location / {\nauth_basic \"WP-Files\";\nauth_basic_user_file vfs://testDir/.htpasswd;\n}\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
         self::assertEquals(
             "userLogin:userPass\n",
-            file_get_contents($sPasswordFile)
+            file_get_contents($passwordFile)
         );
 
-        self::assertTrue($NginxFileProtection->create($sTestDir, null, $sTestDir));
+        self::assertTrue($nginxFileProtection->create($testDir, null, $testDir));
         self::assertEquals(
             "location / {\nlocation ~ \.(jpg) {\nauth_basic \"WP-Files\";"
             ."\nauth_basic_user_file vfs://testDir/.htpasswd;\n}\n}\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
 
-        self::assertTrue($NginxFileProtection->create($sTestDir, null, $sTestDir));
+        self::assertTrue($nginxFileProtection->create($testDir, null, $testDir));
         self::assertEquals(
             "location / {\nrewrite ^(.*)$ /index.php?uamfiletype=attachment&uamgetfile=$1 last;\n}\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
 
-        self::assertTrue($NginxFileProtection->create($sTestDir, 'objectType', $sTestDir));
+        self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
         self::assertEquals(
             "location / {\nrewrite ^(.*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n}\n",
-            file_get_contents($sFile)
+            file_get_contents($file)
         );
 
-        self::assertFalse($NginxFileProtection->create('invalid', 'invalid'));
+        self::assertFalse($nginxFileProtection->create('invalid', 'invalid'));
     }
 
     /**
@@ -162,35 +162,35 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
      */
     public function testDelete()
     {
-        $Php = $this->getPhp();
-        $Php->expects($this->exactly(6))
+        $php = $this->getPhp();
+        $php->expects($this->exactly(6))
             ->method('unlink')
             ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
 
-        $NginxFileProtection = new NginxFileProtection(
-            $Php,
+        $nginxFileProtection = new NginxFileProtection(
+            $php,
             $this->getWordpress(),
             $this->getConfig(),
             $this->getUtil()
         );
 
         /**
-         * @var Directory $RootDir
+         * @var Directory $rootDir
          */
-        $RootDir = $this->oRoot->get('/');
-        $RootDir->add('testDir', new Directory([
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory([
             NginxFileProtection::FILE_NAME => new File('empty'),
             NginxFileProtection::PASSWORD_FILE_NAME => new File('empty')
         ]));
 
-        $sTestDir = 'vfs://testDir/';
-        $sFile = $sTestDir.NginxFileProtection::FILE_NAME;
-        $sPasswordFile = $sTestDir.NginxFileProtection::PASSWORD_FILE_NAME;
+        $testDir = 'vfs://testDir/';
+        $file = $testDir.NginxFileProtection::FILE_NAME;
+        $passwordFile = $testDir.NginxFileProtection::PASSWORD_FILE_NAME;
 
-        self::assertTrue(file_exists($sFile));
-        self::assertTrue(file_exists($sPasswordFile));
-        self::assertTrue($NginxFileProtection->delete($sTestDir));
-        self::assertFalse($NginxFileProtection->delete($sTestDir));
-        self::assertFalse($NginxFileProtection->delete($sTestDir));
+        self::assertTrue(file_exists($file));
+        self::assertTrue(file_exists($passwordFile));
+        self::assertTrue($nginxFileProtection->delete($testDir));
+        self::assertFalse($nginxFileProtection->delete($testDir));
+        self::assertFalse($nginxFileProtection->delete($testDir));
     }
 }

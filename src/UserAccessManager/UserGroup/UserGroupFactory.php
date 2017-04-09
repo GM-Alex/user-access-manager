@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\UserGroup;
@@ -31,72 +31,72 @@ class UserGroupFactory
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var Database
      */
-    protected $Database;
+    protected $database;
 
     /**
      * @var Config
      */
-    protected $Config;
+    protected $config;
 
     /**
      * @var Cache
      */
-    protected $Cache;
+    protected $cache;
 
     /**
      * @var Util
      */
-    protected $Util;
+    protected $util;
 
     /**
      * @var ObjectHandler
      */
-    protected $ObjectHandler;
+    protected $objectHandler;
 
     /**
      * UserGroupFactory constructor.
      *
-     * @param Wordpress     $Wordpress
-     * @param Database      $Database
-     * @param Config        $Config
-     * @param Util          $Util
-     * @param ObjectHandler $ObjectHandler
+     * @param Wordpress     $wordpress
+     * @param Database      $database
+     * @param Config        $config
+     * @param Util          $util
+     * @param ObjectHandler $objectHandler
      */
     public function __construct(
-        Wordpress $Wordpress,
-        Database $Database,
-        Config $Config,
-        Util $Util,
-        ObjectHandler $ObjectHandler
+        Wordpress $wordpress,
+        Database $database,
+        Config $config,
+        Util $util,
+        ObjectHandler $objectHandler
     ) {
-        $this->Wordpress = $Wordpress;
-        $this->Database = $Database;
-        $this->Config = $Config;
-        $this->Util = $Util;
-        $this->ObjectHandler = $ObjectHandler;
+        $this->wordpress = $wordpress;
+        $this->database = $database;
+        $this->config = $config;
+        $this->util = $util;
+        $this->objectHandler = $objectHandler;
     }
 
     /**
      * Creates a new user group object.
      *
-     * @param string $sId
+     * @param string $id
      *
      * @return UserGroup
      */
-    public function createUserGroup($sId = null)
+    public function createUserGroup($id = null)
     {
         return new UserGroup(
-            $this->Wordpress,
-            $this->Database,
-            $this->Config,
-            $this->Util,
-            $this->ObjectHandler,
-            $sId
+            $this->wordpress,
+            $this->database,
+            $this->config,
+            $this->util,
+            $this->objectHandler,
+            $id
         );
     }
 }

@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -19,23 +19,23 @@ class StringConfigParameter extends ConfigParameter
     /**
      * StringConfigParameter constructor.
      *
-     * @param string $sId
-     * @param string $mDefaultValue
+     * @param string $id
+     * @param string $defaultValue
      */
-    public function __construct($sId, $mDefaultValue = '')
+    public function __construct($id, $defaultValue = '')
     {
-        parent::__construct($sId, $mDefaultValue);
+        parent::__construct($id, $defaultValue);
     }
 
     /**
      * Checks if the given value is a string.
      *
-     * @param mixed $mValue
+     * @param mixed $value
      *
      * @return bool
      */
-    public function isValidValue($mValue)
+    public function isValidValue($value)
     {
-        return is_string($mValue) === true;
+        return is_string($value) === true;
     }
 }

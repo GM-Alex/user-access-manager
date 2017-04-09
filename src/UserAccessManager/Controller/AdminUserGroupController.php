@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -34,42 +34,42 @@ class AdminUserGroupController extends Controller
     /**
      * @var AccessHandler
      */
-    protected $AccessHandler;
+    protected $accessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    protected $UserGroupFactory;
+    protected $userGroupFactory;
 
     /**
      * @var string
      */
-    protected $sTemplate = 'AdminUserGroup.php';
+    protected $template = 'AdminUserGroup.php';
 
     /**
      * @var \UserAccessManager\UserGroup\UserGroup
      */
-    protected $UserGroup = null;
+    protected $userGroup = null;
 
     /**
      * AdminUserGroupController constructor.
      *
-     * @param Php              $Php
-     * @param Wordpress        $Wordpress
-     * @param Config           $Config
-     * @param AccessHandler    $AccessHandler
-     * @param UserGroupFactory $UserGroupFactory
+     * @param Php              $php
+     * @param Wordpress        $wordpress
+     * @param Config           $config
+     * @param AccessHandler    $accessHandler
+     * @param UserGroupFactory $userGroupFactory
      */
     public function __construct(
-        Php $Php,
-        Wordpress $Wordpress,
-        Config $Config,
-        AccessHandler $AccessHandler,
-        UserGroupFactory $UserGroupFactory
+        Php $php,
+        Wordpress $wordpress,
+        Config $config,
+        AccessHandler $accessHandler,
+        UserGroupFactory $userGroupFactory
     ) {
-        parent::__construct($Php, $Wordpress, $Config);
-        $this->AccessHandler = $AccessHandler;
-        $this->UserGroupFactory = $UserGroupFactory;
+        parent::__construct($php, $wordpress, $config);
+        $this->accessHandler = $accessHandler;
+        $this->userGroupFactory = $userGroupFactory;
     }
 
     /**
@@ -79,12 +79,12 @@ class AdminUserGroupController extends Controller
      */
     public function getUserGroup()
     {
-        if ($this->UserGroup === null) {
-            $iUserGroupId = $this->getRequestParameter('userGroupId');
-            $this->UserGroup = $this->UserGroupFactory->createUserGroup($iUserGroupId);
+        if ($this->userGroup === null) {
+            $userGroupId = $this->getRequestParameter('userGroupId');
+            $this->userGroup = $this->userGroupFactory->createUserGroup($userGroupId);
         }
 
-        return $this->UserGroup;
+        return $this->userGroup;
     }
 
     /**
@@ -94,7 +94,7 @@ class AdminUserGroupController extends Controller
      */
     public function getUserGroups()
     {
-        return $this->AccessHandler->getUserGroups();
+        return $this->accessHandler->getUserGroups();
     }
 
     /**
@@ -104,8 +104,8 @@ class AdminUserGroupController extends Controller
      */
     public function getRoleNames()
     {
-        $Roles = $this->Wordpress->getRoles();
-        return $Roles->role_names;
+        $roles = $this->wordpress->getRoles();
+        return $roles->role_names;
     }
 
     /**
@@ -115,49 +115,49 @@ class AdminUserGroupController extends Controller
     {
         $this->verifyNonce(self::INSERT_UPDATE_GROUP_NONCE);
 
-        $iUserGroupId = $this->getRequestParameter('userGroupId');
+        $userGroupId = $this->getRequestParameter('userGroupId');
 
-        $UserGroup = $this->UserGroupFactory->createUserGroup($iUserGroupId);
+        $userGroup = $this->userGroupFactory->createUserGroup($userGroupId);
 
         // Assign parameters
-        $sGroupName = $this->getRequestParameter('userGroupName');
+        $groupName = $this->getRequestParameter('userGroupName');
 
-        if (trim($sGroupName) === '') {
+        if (trim($groupName) === '') {
             $this->setUpdateMessage(TXT_UAM_GROUP_NAME_ERROR);
             return;
         }
 
-        $UserGroup->setName($sGroupName);
+        $userGroup->setName($groupName);
 
-        $sUserGroupDescription = $this->getRequestParameter('userGroupDescription');
-        $UserGroup->setDescription($sUserGroupDescription);
+        $userGroupDescription = $this->getRequestParameter('userGroupDescription');
+        $userGroup->setDescription($userGroupDescription);
 
-        $sReadAccess = $this->getRequestParameter('readAccess');
-        $UserGroup->setReadAccess($sReadAccess);
+        $readAccess = $this->getRequestParameter('readAccess');
+        $userGroup->setReadAccess($readAccess);
 
-        $sWriteAccess = $this->getRequestParameter('writeAccess');
-        $UserGroup->setWriteAccess($sWriteAccess);
+        $writeAccess = $this->getRequestParameter('writeAccess');
+        $userGroup->setWriteAccess($writeAccess);
 
-        $sIpRange = $this->getRequestParameter('ipRange');
-        $UserGroup->setIpRange($sIpRange);
+        $ipRange = $this->getRequestParameter('ipRange');
+        $userGroup->setIpRange($ipRange);
 
-        $aRoles = $this->getRequestParameter('roles', []);
+        $roles = $this->getRequestParameter('roles', []);
 
-        $UserGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+        $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
-        foreach ($aRoles as $sRole) {
-            $UserGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, htmlentities($sRole));
+        foreach ($roles as $role) {
+            $userGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, htmlentities($role));
         }
 
-        if ($UserGroup->save() === true) {
-            if ($iUserGroupId === null) {
-                $this->UserGroup = $UserGroup;
+        if ($userGroup->save() === true) {
+            if ($userGroupId === null) {
+                $this->userGroup = $userGroup;
                 $this->setUpdateMessage(TXT_UAM_GROUP_ADDED);
             } else {
                 $this->setUpdateMessage(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS);
             }
 
-            $this->AccessHandler->addUserGroup($UserGroup);
+            $this->accessHandler->addUserGroup($userGroup);
         }
     }
 
@@ -167,10 +167,10 @@ class AdminUserGroupController extends Controller
     public function deleteUserGroupAction()
     {
         $this->verifyNonce(self::DELETE_GROUP_NONCE);
-        $aUserGroups = $this->getRequestParameter('delete', []);
+        $userGroups = $this->getRequestParameter('delete', []);
 
-        foreach ($aUserGroups as $sId) {
-            $this->AccessHandler->deleteUserGroup($sId);
+        foreach ($userGroups as $id) {
+            $this->accessHandler->deleteUserGroup($id);
         }
 
         $this->setUpdateMessage(TXT_UAM_DELETE_GROUP);

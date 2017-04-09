@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Config;
@@ -26,14 +26,14 @@ class ConfigTest extends UserAccessManagerTestCase
     /**
      * @var array
      */
-    private $aDefaultValues;
+    private $defaultValues;
 
     /**
      * Create default mocked objects.
      */
     public function setUp()
     {
-        $this->aDefaultValues = [
+        $this->defaultValues = [
             'hide_post' => 'bool|hide_post|false',
             'hide_post_title' => 'bool|hide_post_title|false',
             'post_title' => 'string|post_title|No rights!|user-access-manager',
@@ -73,23 +73,23 @@ class ConfigTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int $iCallExpectation
+     * @param int $callExpectation
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\ObjectHandler\ObjectHandler
      */
-    private function getDefaultObjectHandler($iCallExpectation)
+    private function getDefaultObjectHandler($callExpectation)
     {
-        $ObjectHandler = $this->getObjectHandler();
+        $objectHandler = $this->getObjectHandler();
 
-        $ObjectHandler->expects($this->exactly($iCallExpectation))
+        $objectHandler->expects($this->exactly($callExpectation))
             ->method('getPostTypes')
             ->will($this->returnValue(['post', 'page', 'attachment']));
 
-        $ObjectHandler->expects($this->exactly($iCallExpectation))
+        $objectHandler->expects($this->exactly($callExpectation))
             ->method('getTaxonomies')
             ->will($this->returnValue(['category']));
 
-        return $ObjectHandler;
+        return $objectHandler;
     }
 
     /**
@@ -101,15 +101,15 @@ class ConfigTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param callable $cClosure
+     * @param callable $closure
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameterFactory
      */
-    private function getFactory($cClosure = null)
+    private function getFactory($closure = null)
     {
-        if ($cClosure === null) {
-            $cClosure = function ($sId) {
-                $Stub = self::getMockForAbstractClass(
+        if ($closure === null) {
+            $closure = function ($id) {
+                $stub = self::getMockForAbstractClass(
                     '\UserAccessManager\Config\ConfigParameter',
                     [],
                     '',
@@ -123,38 +123,38 @@ class ConfigTest extends UserAccessManagerTestCase
                     ]
                 );
 
-                $Stub->expects(self::any())
+                $stub->expects(self::any())
                     ->method('getId')
-                    ->will($this->returnValue($sId));
+                    ->will($this->returnValue($id));
 
-                $Stub->expects(self::any())
+                $stub->expects(self::any())
                     ->method('setValue')
-                    ->with($this->equalTo($sId.'|value'))
+                    ->with($this->equalTo($id.'|value'))
                     ->will($this->returnValue(null));
 
-                $Stub->expects(self::any())
+                $stub->expects(self::any())
                     ->method('getValue')
-                    ->will($this->returnValue($sId));
+                    ->will($this->returnValue($id));
 
-                return $Stub;
+                return $stub;
             };
         }
 
 
-        $ConfigParameterFactory = $this->getConfigParameterFactory();
-        $ConfigParameterFactory->expects($this->any())
+        $configParameterFactory = $this->getConfigParameterFactory();
+        $configParameterFactory->expects($this->any())
             ->method('createBooleanConfigParameter')
-            ->will($this->returnCallback($cClosure));
+            ->will($this->returnCallback($closure));
 
-        $ConfigParameterFactory->expects($this->any())
+        $configParameterFactory->expects($this->any())
             ->method('createStringConfigParameter')
-            ->will($this->returnCallback($cClosure));
+            ->will($this->returnCallback($closure));
 
-        $ConfigParameterFactory->expects($this->any())
+        $configParameterFactory->expects($this->any())
             ->method('createSelectionConfigParameter')
-            ->will($this->returnCallback($cClosure));
+            ->will($this->returnCallback($closure));
 
-        return $ConfigParameterFactory;
+        return $configParameterFactory;
     }
 
     /**
@@ -163,14 +163,14 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $Config = new Config(
+        $config = new Config(
             $this->getWordpress(),
             $this->getObjectHandler(),
             $this->getConfigParameterFactory(),
             'baseFile'
         );
 
-        self::assertInstanceOf('\UserAccessManager\Config\Config', $Config);
+        self::assertInstanceOf('\UserAccessManager\Config\Config', $config);
     }
 
     /**
@@ -179,29 +179,29 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testGetWpOption()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(3))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(3))
             ->method('getOption')
             ->will($this->onConsecutiveCalls('optionValueOne', 'optionValueTwo'));
 
-        $Config = new Config(
-            $Wordpress,
+        $config = new Config(
+            $wordpress,
             $this->getObjectHandler(),
             $this->getConfigParameterFactory(),
             'baseFile'
         );
 
-        $mOptionOne = $Config->getWpOption('optionOne');
-        $mOptionOneAgain = $Config->getWpOption('optionOne');
+        $optionOne = $config->getWpOption('optionOne');
+        $optionOneAgain = $config->getWpOption('optionOne');
 
-        self::assertEquals('optionValueOne', $mOptionOne);
-        self::assertEquals('optionValueOne', $mOptionOneAgain);
+        self::assertEquals('optionValueOne', $optionOne);
+        self::assertEquals('optionValueOne', $optionOneAgain);
 
-        $mOptionTwo = $Config->getWpOption('optionTwo');
-        self::assertEquals('optionValueTwo', $mOptionTwo);
+        $optionTwo = $config->getWpOption('optionTwo');
+        self::assertEquals('optionValueTwo', $optionTwo);
 
-        $mOptionTwo = $Config->getWpOption('optionNotExisting');
-        self::assertEquals(null, $mOptionTwo);
+        $optionTwo = $config->getWpOption('optionNotExisting');
+        self::assertEquals(null, $optionTwo);
     }
 
     /**
@@ -212,75 +212,75 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testGetConfigParameters()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
-        $ObjectHandler = $this->getDefaultObjectHandler(2);
+        $objectHandler = $this->getDefaultObjectHandler(2);
 
-        $ConfigParameterFactory = $this->getConfigParameterFactory();
-        $ConfigParameterFactory->expects($this->exactly(17))
+        $configParameterFactory = $this->getConfigParameterFactory();
+        $configParameterFactory->expects($this->exactly(17))
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
-                function ($sId, $blValue) {
-                    $sReturn = 'bool|'.$sId.'|';
-                    $sReturn .= ($blValue === true) ? 'true' : 'false';
-                    return $sReturn;
+                function ($id, $value) {
+                    $return = 'bool|'.$id.'|';
+                    $return .= ($value === true) ? 'true' : 'false';
+                    return $return;
                 }
             ));
 
-        $ConfigParameterFactory->expects($this->exactly(11))
+        $configParameterFactory->expects($this->exactly(11))
             ->method('createStringConfigParameter')
             ->will($this->returnCallback(
-                function ($sId, $sValue) {
-                    return 'string|'.$sId.'|'.$sValue;
+                function ($id, $value) {
+                    return 'string|'.$id.'|'.$value;
                 }
             ));
 
-        $ConfigParameterFactory->expects($this->exactly(5))
+        $configParameterFactory->expects($this->exactly(5))
             ->method('createSelectionConfigParameter')
             ->will($this->returnCallback(
-                function ($sId, $sValue, $aSelections) {
-                    return 'selection|'.$sId.'|'.$sValue.'|'.implode('|', $aSelections);
+                function ($id, $value, $selections) {
+                    return 'selection|'.$id.'|'.$value.'|'.implode('|', $selections);
                 }
             ));
 
-        $Config = new Config(
-            $Wordpress,
-            $ObjectHandler,
-            $ConfigParameterFactory,
+        $config = new Config(
+            $wordpress,
+            $objectHandler,
+            $configParameterFactory,
             'baseFile'
         );
 
-        self::assertEquals($this->aDefaultValues, $Config->getConfigParameters());
+        self::assertEquals($this->defaultValues, $config->getConfigParameters());
 
-        $aOptionKeys = array_keys($this->aDefaultValues);
-        $aTestValues = array_map(function ($sElement) {
-            return $sElement.'|value';
-        }, $aOptionKeys);
+        $optionKeys = array_keys($this->defaultValues);
+        $testValues = array_map(function ($element) {
+            return $element.'|value';
+        }, $optionKeys);
 
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getOption')
-            ->will($this->returnValue(array_combine($aOptionKeys, $aTestValues)));
+            ->will($this->returnValue(array_combine($optionKeys, $testValues)));
 
-        $ConfigParameterFactory = $this->getFactory();
+        $configParameterFactory = $this->getFactory();
 
-        $Config = new Config(
-            $Wordpress,
-            $ObjectHandler,
-            $ConfigParameterFactory,
+        $config = new Config(
+            $wordpress,
+            $objectHandler,
+            $configParameterFactory,
             'baseFile'
         );
 
-        $aParameters = $Config->getConfigParameters();
+        $parameters = $config->getConfigParameters();
 
-        foreach ($aParameters as $Parameter) {
-            self::assertEquals($Parameter->getId(), $Parameter->getValue());
+        foreach ($parameters as $parameter) {
+            self::assertEquals($parameter->getId(), $parameter->getValue());
         }
 
-        return $Config;
+        return $config;
     }
 
     /**
@@ -288,13 +288,13 @@ class ConfigTest extends UserAccessManagerTestCase
      * @depends testGetConfigParameters
      * @covers  \UserAccessManager\Config\Config::flushConfigParameters()
      *
-     * @param Config $Config
+     * @param Config $config
      */
-    public function testFlushConfigParameters(Config $Config)
+    public function testFlushConfigParameters(Config $config)
     {
-        self::assertAttributeNotEmpty('aConfigParameters', $Config);
-        $Config->flushConfigParameters();
-        self::assertAttributeEquals(null, 'aConfigParameters', $Config);
+        self::assertAttributeNotEmpty('configParameters', $config);
+        $config->flushConfigParameters();
+        self::assertAttributeEquals(null, 'configParameters', $config);
     }
 
     /**
@@ -303,17 +303,17 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testSetConfigParameters()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
-        $Wordpress->expects($this->once())
+        $wordpress->expects($this->once())
             ->method('updateOption')
             ->with(Config::ADMIN_OPTIONS_NAME);
 
-        $cClosure = function ($sId) {
-            $Stub = self::getMockForAbstractClass(
+        $closure = function ($id) {
+            $stub = self::getMockForAbstractClass(
                 '\UserAccessManager\Config\ConfigParameter',
                 [],
                 '',
@@ -327,33 +327,33 @@ class ConfigTest extends UserAccessManagerTestCase
                 ]
             );
 
-            $Stub->expects(self::any())
+            $stub->expects(self::any())
                 ->method('getId')
-                ->will($this->returnValue($sId));
+                ->will($this->returnValue($id));
 
-            $Stub->expects(self::any())
+            $stub->expects(self::any())
                 ->method('setValue')
                 ->with($this->logicalOr('blog_admin_hint|value', 'lock_file|value'))
                 ->will($this->returnValue(null));
 
-            $Stub->expects(self::any())
+            $stub->expects(self::any())
                 ->method('getValue')
-                ->will($this->returnValue($sId));
+                ->will($this->returnValue($id));
 
-            return $Stub;
+            return $stub;
         };
 
-        $ObjectHandler = $this->getDefaultObjectHandler(1);
-        $ConfigParameterFactory = $this->getFactory($cClosure);
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory($closure);
 
-        $Config = new Config(
-            $Wordpress,
-            $ObjectHandler,
-            $ConfigParameterFactory,
+        $config = new Config(
+            $wordpress,
+            $objectHandler,
+            $configParameterFactory,
             'baseFile'
         );
 
-        $Config->setConfigParameters(
+        $config->setConfigParameters(
             [
                 'blog_admin_hint' => 'blog_admin_hint|value',
                 'lock_file' => 'lock_file|value'
@@ -367,26 +367,26 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testGetParameterValue()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
-        $ObjectHandler = $this->getDefaultObjectHandler(1);
-        $ConfigParameterFactory = $this->getFactory();
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory();
 
-        $Config = new Config(
-            $Wordpress,
-            $ObjectHandler,
-            $ConfigParameterFactory,
+        $config = new Config(
+            $wordpress,
+            $objectHandler,
+            $configParameterFactory,
             'baseFile'
         );
 
-        $sReturn = self::callMethod($Config, 'getParameterValue', ['lock_file']);
-        self::assertEquals('lock_file', $sReturn);
+        $return = self::callMethod($config, 'getParameterValue', ['lock_file']);
+        self::assertEquals('lock_file', $return);
 
         self::expectException('\Exception');
-        self::callMethod($Config, 'getParameterValue', ['undefined']);
+        self::callMethod($config, 'getParameterValue', ['undefined']);
     }
 
     /**
@@ -395,20 +395,20 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testAtAdminPanel()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(2))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
             ->method('isAdmin')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $Config = new Config(
-            $Wordpress,
+        $config = new Config(
+            $wordpress,
             $this->getObjectHandler(),
             $this->getConfigParameterFactory(),
             'baseFile'
         );
 
-        self::assertTrue($Config->atAdminPanel());
-        self::assertFalse($Config->atAdminPanel());
+        self::assertTrue($config->atAdminPanel());
+        self::assertFalse($config->atAdminPanel());
     }
 
     /**
@@ -417,21 +417,21 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testIsPermalinksActive()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(2))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
             ->method('getOption')
             ->will($this->onConsecutiveCalls('aaa', ''));
 
-        $Config = new Config(
-            $Wordpress,
+        $config = new Config(
+            $wordpress,
             $this->getObjectHandler(),
             $this->getConfigParameterFactory(),
             'baseFile'
         );
 
-        self::assertTrue($Config->isPermalinksActive());
-        self::setValue($Config, 'aWpOptions', []);
-        self::assertFalse($Config->isPermalinksActive());
+        self::assertTrue($config->isPermalinksActive());
+        self::setValue($config, 'wpOptions', []);
+        self::assertFalse($config->isPermalinksActive());
     }
 
     /**
@@ -440,8 +440,8 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testGetUploadDirectory()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(2))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
             ->method('getUploadDir')
             ->will(
                 $this->onConsecutiveCalls(
@@ -456,15 +456,15 @@ class ConfigTest extends UserAccessManagerTestCase
                 )
             );
 
-        $Config = new Config(
-            $Wordpress,
+        $config = new Config(
+            $wordpress,
             $this->getObjectHandler(),
             $this->getConfigParameterFactory(),
             'baseFile'
         );
 
-        self::assertEquals(null, $Config->getUploadDirectory());
-        self::assertEquals('baseDir/', $Config->getUploadDirectory());
+        self::assertEquals(null, $config->getUploadDirectory());
+        self::assertEquals('baseDir/', $config->getUploadDirectory());
     }
 
     /**
@@ -473,8 +473,8 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testGetMimeTypes()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(2))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
             ->method('getAllowedMimeTypes')
             ->will(
                 $this->onConsecutiveCalls(
@@ -483,8 +483,8 @@ class ConfigTest extends UserAccessManagerTestCase
                 )
             );
 
-        $Config = new Config(
-            $Wordpress,
+        $config = new Config(
+            $wordpress,
             $this->getObjectHandler(),
             $this->getConfigParameterFactory(),
             'baseFile'
@@ -492,15 +492,15 @@ class ConfigTest extends UserAccessManagerTestCase
 
         self::assertEquals(
             ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
-            $Config->getMimeTypes()
+            $config->getMimeTypes()
         );
         self::assertEquals(
             ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
-            $Config->getMimeTypes()
+            $config->getMimeTypes()
         );
 
-        $Config = new Config(
-            $Wordpress,
+        $config = new Config(
+            $wordpress,
             $this->getObjectHandler(),
             $this->getConfigParameterFactory(),
             'baseFile'
@@ -508,7 +508,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
         self::assertEquals(
             ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType'],
-            $Config->getMimeTypes()
+            $config->getMimeTypes()
         );
     }
 
@@ -518,23 +518,23 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testGetUrlPath()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('pluginsUrl')
             ->will($this->returnValue('pluginsUrl'));
 
-        $ConfigParameterFactory = $this->getFactory();
+        $configParameterFactory = $this->getFactory();
 
-        $Config = new Config(
-            $Wordpress,
+        $config = new Config(
+            $wordpress,
             $this->getObjectHandler(),
-            $ConfigParameterFactory,
+            $configParameterFactory,
             'baseFile'
         );
 
         self::assertEquals(
             'pluginsUrl'.DIRECTORY_SEPARATOR,
-            $Config->getUrlPath()
+            $config->getUrlPath()
         );
     }
 
@@ -544,25 +544,25 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testGetRealPath()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getPluginDir')
             ->will($this->returnValue('pluginDir'));
-        $Wordpress->expects($this->once())
+        $wordpress->expects($this->once())
             ->method('pluginBasename')
             ->will($this->returnValue('pluginBasename'));
 
-        $ConfigParameterFactory = $this->getFactory();
+        $configParameterFactory = $this->getFactory();
 
-        $Config = new Config(
-            $Wordpress,
+        $config = new Config(
+            $wordpress,
             $this->getObjectHandler(),
-            $ConfigParameterFactory,
+            $configParameterFactory,
             'baseFile'
         );
         self::assertEquals(
             'pluginDir'.DIRECTORY_SEPARATOR.'pluginBasename'.DIRECTORY_SEPARATOR,
-            $Config->getRealPath()
+            $config->getRealPath()
         );
     }
 
@@ -576,35 +576,35 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testHideObject()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
-        $ObjectHandler = $this->getDefaultObjectHandler(1);
-        $ConfigParameterFactory = $this->getFactory();
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory();
 
-        $Config = new Config(
-            $Wordpress,
-            $ObjectHandler,
-            $ConfigParameterFactory,
+        $config = new Config(
+            $wordpress,
+            $objectHandler,
+            $configParameterFactory,
             'baseFile'
         );
 
-        self::assertEquals('hide_post', self::callMethod($Config, 'hideObject', ['hide_post']));
-        self::assertTrue(self::callMethod($Config, 'hideObject', ['hide_undefined']));
+        self::assertEquals('hide_post', self::callMethod($config, 'hideObject', ['hide_post']));
+        self::assertTrue(self::callMethod($config, 'hideObject', ['hide_undefined']));
 
-        self::assertEquals('hide_post', $Config->hidePostType('post'));
-        self::assertTrue($Config->hidePostType('undefined'));
+        self::assertEquals('hide_post', $config->hidePostType('post'));
+        self::assertTrue($config->hidePostType('undefined'));
 
-        self::assertEquals('hide_post_title', $Config->hidePostTypeTitle('post'));
-        self::assertTrue($Config->hidePostTypeTitle('undefined'));
+        self::assertEquals('hide_post_title', $config->hidePostTypeTitle('post'));
+        self::assertTrue($config->hidePostTypeTitle('undefined'));
 
-        self::assertEquals('post_comments_locked', $Config->hidePostTypeComments('post'));
-        self::assertTrue($Config->hidePostTypeComments('undefined'));
+        self::assertEquals('post_comments_locked', $config->hidePostTypeComments('post'));
+        self::assertTrue($config->hidePostTypeComments('undefined'));
 
-        self::assertEquals('hide_empty_category', $Config->hideEmptyTaxonomy('category'));
-        self::assertTrue($Config->hideEmptyTaxonomy('undefined'));
+        self::assertEquals('hide_empty_category', $config->hideEmptyTaxonomy('category'));
+        self::assertTrue($config->hideEmptyTaxonomy('undefined'));
     }
 
     /**
@@ -615,24 +615,24 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testObjectGetter()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
-        $ObjectHandler = $this->getDefaultObjectHandler(1);
-        $ConfigParameterFactory = $this->getFactory();
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory();
 
-        $Config = new Config(
-            $Wordpress,
-            $ObjectHandler,
-            $ConfigParameterFactory,
+        $config = new Config(
+            $wordpress,
+            $objectHandler,
+            $configParameterFactory,
             'baseFile'
         );
 
-        self::assertEquals('post_title', $Config->getPostTypeTitle('post'));
-        self::assertEquals('post_content', $Config->getPostTypeContent('post'));
-        self::assertEquals('post_comment_content', $Config->getPostTypeCommentContent('post'));
+        self::assertEquals('post_title', $config->getPostTypeTitle('post'));
+        self::assertEquals('post_content', $config->getPostTypeContent('post'));
+        self::assertEquals('post_comment_content', $config->getPostTypeCommentContent('post'));
     }
 
     /**
@@ -657,7 +657,7 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testSimpleGetters()
     {
-        $aMethods = [
+        $methods = [
             'getRedirect' => 'redirect',
             'getRedirectCustomPage' => 'redirect_custom_page',
             'getRedirectCustomUrl' => 'redirect_custom_url',
@@ -677,23 +677,23 @@ class ConfigTest extends UserAccessManagerTestCase
             'getFullAccessRole' => 'full_access_role'
         ];
 
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('getOption')
             ->will($this->returnValue(null));
 
-        $ObjectHandler = $this->getDefaultObjectHandler(1);
-        $ConfigParameterFactory = $this->getFactory();
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory();
 
-        $Config = new Config(
-            $Wordpress,
-            $ObjectHandler,
-            $ConfigParameterFactory,
+        $config = new Config(
+            $wordpress,
+            $objectHandler,
+            $configParameterFactory,
             'baseFile'
         );
 
-        foreach ($aMethods as $sMethod => $sExpected) {
-            self::assertEquals($sExpected, $Config->{$sMethod}());
+        foreach ($methods as $method => $expected) {
+            self::assertEquals($expected, $config->{$method}());
         }
     }
 }

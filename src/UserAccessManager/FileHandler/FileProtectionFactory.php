@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -29,42 +29,42 @@ class FileProtectionFactory
     /**
      * @var Php
      */
-    protected $Php;
+    protected $php;
 
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var Config
      */
-    protected $Config;
+    protected $config;
 
     /**
      * @var FileHandler
      */
-    protected $FileHandler;
+    protected $fileHandler;
 
     /**
      * @var Util
      */
-    protected $Util;
+    protected $util;
 
     /**
      * FileProtectionFactory constructor.
      *
-     * @param Php       $Php
-     * @param Wordpress $Wordpress
-     * @param Config    $Config
-     * @param Util      $Util
+     * @param Php       $php
+     * @param Wordpress $wordpress
+     * @param Config    $config
+     * @param Util      $util
      */
-    public function __construct(Php $Php, Wordpress $Wordpress, Config $Config, Util $Util)
+    public function __construct(Php $php, Wordpress $wordpress, Config $config, Util $util)
     {
-        $this->Php = $Php;
-        $this->Wordpress = $Wordpress;
-        $this->Config = $Config;
-        $this->Util = $Util;
+        $this->php = $php;
+        $this->wordpress = $wordpress;
+        $this->config = $config;
+        $this->util = $util;
     }
 
     /**
@@ -74,7 +74,7 @@ class FileProtectionFactory
      */
     public function createApacheFileProtection()
     {
-        return new ApacheFileProtection($this->Php, $this->Wordpress, $this->Config, $this->Util);
+        return new ApacheFileProtection($this->php, $this->wordpress, $this->config, $this->util);
     }
 
     /**
@@ -84,6 +84,6 @@ class FileProtectionFactory
      */
     public function createNginxFileProtection()
     {
-        return new NginxFileProtection($this->Php, $this->Wordpress, $this->Config, $this->Util);
+        return new NginxFileProtection($this->php, $this->wordpress, $this->config, $this->util);
     }
 }

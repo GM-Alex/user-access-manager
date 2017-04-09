@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Command;
@@ -25,36 +25,36 @@ use UserAccessManager\UserAccessManagerTestCase;
 class GroupCommandTest extends UserAccessManagerTestCase
 {
     /**
-     * @param string $iId
-     * @param string $sName
-     * @param string $sDescription
-     * @param string $sReadAccess
-     * @param string $sWriteAccess
-     * @param array  $aRoles
-     * @param array  $aIpRanges
+     * @param string $id
+     * @param string $name
+     * @param string $description
+     * @param string $readAccess
+     * @param string $writeAccess
+     * @param array  $roles
+     * @param array  $ipRanges
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
      */
     private function getExtendedUserGroup(
-        $iId,
-        $sName,
-        $sDescription,
-        $sReadAccess,
-        $sWriteAccess,
-        array $aRoles,
-        $aIpRanges
+        $id,
+        $name,
+        $description,
+        $readAccess,
+        $writeAccess,
+        array $roles,
+        $ipRanges
     ) {
-        $UserGroup = $this->getUserGroup($iId, true, false, $aIpRanges, $sReadAccess, $sWriteAccess, [], [], $sName);
+        $userGroup = $this->getUserGroup($id, true, false, $ipRanges, $readAccess, $writeAccess, [], [], $name);
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getDescription')
-            ->will($this->returnValue($sDescription));
+            ->will($this->returnValue($description));
 
-        $UserGroup->expects($this->any())
+        $userGroup->expects($this->any())
             ->method('getAssignedObjectsByType')
-            ->will($this->returnValue($aRoles));
+            ->will($this->returnValue($roles));
 
-        return $UserGroup;
+        return $userGroup;
     }
 
     /**
@@ -63,13 +63,13 @@ class GroupCommandTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $GroupCommand = new GroupCommand(
+        $groupCommand = new GroupCommand(
             $this->getWordpressCli(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Command\GroupCommand', $GroupCommand);
+        self::assertInstanceOf('\UserAccessManager\Command\GroupCommand', $groupCommand);
     }
 
     /**
@@ -79,16 +79,16 @@ class GroupCommandTest extends UserAccessManagerTestCase
      */
     public function testLs()
     {
-        $WordpressCli = $this->getWordpressCli();
-        $WordpressCli->expects($this->exactly(2))
+        $wordpressCli = $this->getWordpressCli();
+        $wordpressCli->expects($this->exactly(2))
             ->method('error')
             ->withConsecutive(
                 ['No arguments excepted. Please use the format option.'],
                 ['No groups defined yet!']
             );
 
-        $Formatter = $this->createMock('\WP_CLI\Formatter');
-        $Formatter->expects($this->exactly(2))
+        $formatter = $this->createMock('\WP_CLI\Formatter');
+        $formatter->expects($this->exactly(2))
             ->method('display_items')
             ->withConsecutive(
                 [[
@@ -124,7 +124,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
                 ]]
             );
 
-        $WordpressCli->expects($this->exactly(2))
+        $wordpressCli->expects($this->exactly(2))
             ->method('createFormatter')
             ->with(
                 ['a' => 'b'],
@@ -139,9 +139,9 @@ class GroupCommandTest extends UserAccessManagerTestCase
                 ],
                 GroupCommand::FORMATTER_PREFIX
             )
-            ->will($this->returnValue($Formatter));
+            ->will($this->returnValue($formatter));
 
-        $FirstUserGroup = $this->getExtendedUserGroup(
+        $firstUserGroup = $this->getExtendedUserGroup(
             1,
             'firstGroupName',
             'firstGroupDescription',
@@ -151,7 +151,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
             [1, 2]
         );
 
-        $SecondUserGroup = $this->getExtendedUserGroup(
+        $secondUserGroup = $this->getExtendedUserGroup(
             2,
             'secondGroupName',
             'secondGroupDescription',
@@ -161,25 +161,25 @@ class GroupCommandTest extends UserAccessManagerTestCase
             [3, 4]
         );
 
-        $AccessHandler = $this->getAccessHandler();
-        $AccessHandler->expects($this->exactly(3))
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(3))
             ->method('getUserGroups')
             ->will($this->onConsecutiveCalls(
                 [],
-                [1 => $FirstUserGroup],
-                [1 => $FirstUserGroup, 2 => $SecondUserGroup]
+                [1 => $firstUserGroup],
+                [1 => $firstUserGroup, 2 => $secondUserGroup]
             ));
 
-        $GroupCommand = new GroupCommand(
-            $WordpressCli,
-            $AccessHandler,
+        $groupCommand = new GroupCommand(
+            $wordpressCli,
+            $accessHandler,
             $this->getUserGroupFactory()
         );
 
-        $GroupCommand->ls(['arguments'], ['a' => 'b']);
-        $GroupCommand->ls([], ['a' => 'b']);
-        $GroupCommand->ls([], ['a' => 'b']);
-        $GroupCommand->ls([], ['a' => 'b']);
+        $groupCommand->ls(['arguments'], ['a' => 'b']);
+        $groupCommand->ls([], ['a' => 'b']);
+        $groupCommand->ls([], ['a' => 'b']);
+        $groupCommand->ls([], ['a' => 'b']);
     }
 
     /**
@@ -188,15 +188,15 @@ class GroupCommandTest extends UserAccessManagerTestCase
      */
     public function testDel()
     {
-        $WordpressCli = $this->getWordpressCli();
-        $WordpressCli->expects($this->exactly(2))
+        $wordpressCli = $this->getWordpressCli();
+        $wordpressCli->expects($this->exactly(2))
             ->method('error')
             ->withConsecutive(
                 ['Expected: wp uam groups del \<id\> ...'],
                 ['Group id \'3\' doesn\'t exists.']
             );
 
-        $WordpressCli->expects($this->exactly(3))
+        $wordpressCli->expects($this->exactly(3))
             ->method('success')
             ->withConsecutive(
                 ['Successfully deleted group with id \'1\'.'],
@@ -204,21 +204,21 @@ class GroupCommandTest extends UserAccessManagerTestCase
                 ['Successfully deleted group with id \'2\'.']
             );
 
-        $AccessHandler = $this->getAccessHandler();
-        $AccessHandler->expects($this->exactly(4))
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(4))
             ->method('deleteUserGroup')
             ->withConsecutive([1], [1], [2], [3])
             ->will($this->onConsecutiveCalls(true, true, true, false));
 
-        $GroupCommand = new GroupCommand(
-            $WordpressCli,
-            $AccessHandler,
+        $groupCommand = new GroupCommand(
+            $wordpressCli,
+            $accessHandler,
             $this->getUserGroupFactory()
         );
 
-        $GroupCommand->del([]);
-        $GroupCommand->del([1]);
-        $GroupCommand->del([1, 2, 3]);
+        $groupCommand->del([]);
+        $groupCommand->del([1]);
+        $groupCommand->del([1, 2, 3]);
     }
 
     /**
@@ -227,19 +227,19 @@ class GroupCommandTest extends UserAccessManagerTestCase
      */
     public function testAdd()
     {
-        $WordpressCli = $this->getWordpressCli();
-        $WordpressCli->expects($this->exactly(2))
+        $wordpressCli = $this->getWordpressCli();
+        $wordpressCli->expects($this->exactly(2))
             ->method('error')
             ->withConsecutive(
                 ['Please provide a group name.'],
                 ['Group with the same name \'firstGroupName\' already exists: 1']
             );
 
-        $WordpressCli->expects($this->once())
+        $wordpressCli->expects($this->once())
             ->method('success')
             ->with('Added new group \'otherNewGroupName\' with id 3.');
 
-        $WordpressCli->expects($this->exactly(3))
+        $wordpressCli->expects($this->exactly(3))
             ->method('line')
             ->withConsecutive(
                 ['setting read_access to group'],
@@ -247,7 +247,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
                 [3]
             );
 
-        $FirstUserGroup = $this->getExtendedUserGroup(
+        $firstUserGroup = $this->getExtendedUserGroup(
             1,
             'firstGroupName',
             'firstGroupDescription',
@@ -257,7 +257,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
             [1, 2]
         );
 
-        $SecondUserGroup = $this->getExtendedUserGroup(
+        $secondUserGroup = $this->getExtendedUserGroup(
             2,
             'secondGroupName',
             'secondGroupDescription',
@@ -267,58 +267,58 @@ class GroupCommandTest extends UserAccessManagerTestCase
             [3, 4]
         );
 
-        $AccessHandler = $this->getAccessHandler();
-        $AccessHandler->expects($this->exactly(3))
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(3))
             ->method('getUserGroups')
-            ->will($this->returnValue([1 => $FirstUserGroup, 2 => $SecondUserGroup]));
+            ->will($this->returnValue([1 => $firstUserGroup, 2 => $secondUserGroup]));
 
-        $CreatedUserGroup = $this->getUserGroup(3);
-        $CreatedUserGroup->expects($this->exactly(2))
+        $createdUserGroup = $this->getUserGroup(3);
+        $createdUserGroup->expects($this->exactly(2))
             ->method('setName')
             ->withConsecutive(['newGroupName'], ['otherNewGroupName']);
 
-        $CreatedUserGroup->expects($this->exactly(2))
+        $createdUserGroup->expects($this->exactly(2))
             ->method('setDescription')
             ->withConsecutive([''], ['newGroupDesc']);
 
-        $CreatedUserGroup->expects($this->exactly(2))
+        $createdUserGroup->expects($this->exactly(2))
             ->method('setIpRange')
             ->withConsecutive([''], ['ipRange']);
 
-        $CreatedUserGroup->expects($this->exactly(2))
+        $createdUserGroup->expects($this->exactly(2))
             ->method('setReadAccess')
             ->withConsecutive(['group'], ['all']);
 
-        $CreatedUserGroup->expects($this->exactly(2))
+        $createdUserGroup->expects($this->exactly(2))
             ->method('setWriteAccess')
             ->withConsecutive(['group'], ['all']);
 
-        $CreatedUserGroup->expects($this->once())
+        $createdUserGroup->expects($this->once())
             ->method('removeObject')
             ->with(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
-        $CreatedUserGroup->expects($this->exactly(2))
+        $createdUserGroup->expects($this->exactly(2))
             ->method('addObject')
             ->withConsecutive(
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleOne'],
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleTwo']
             );
 
-        $UserGroupFactory = $this->getUserGroupFactory();
-        $UserGroupFactory->expects($this->exactly(2))
+        $userGroupFactory = $this->getUserGroupFactory();
+        $userGroupFactory->expects($this->exactly(2))
             ->method('createUserGroup')
-            ->will($this->returnValue($CreatedUserGroup));
+            ->will($this->returnValue($createdUserGroup));
 
-        $GroupCommand = new GroupCommand(
-            $WordpressCli,
-            $AccessHandler,
-            $UserGroupFactory
+        $groupCommand = new GroupCommand(
+            $wordpressCli,
+            $accessHandler,
+            $userGroupFactory
         );
 
-        $GroupCommand->add([], []);
-        $GroupCommand->add(['firstGroupName'], []);
-        $GroupCommand->add(['newGroupName'], ['porcelain' => 1]);
-        $GroupCommand->add(['otherNewGroupName'], [
+        $groupCommand->add([], []);
+        $groupCommand->add(['firstGroupName'], []);
+        $groupCommand->add(['newGroupName'], ['porcelain' => 1]);
+        $groupCommand->add(['otherNewGroupName'], [
             'desc' => 'newGroupDesc',
             'ip_range' => 'ipRange',
             'read_access' => 'all',

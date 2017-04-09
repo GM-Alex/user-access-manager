@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Util;
@@ -30,11 +30,11 @@ class UtilTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $Util = new Util(
+        $util = new Util(
             $this->getPhp()
         );
-        self::assertInstanceOf('\UserAccessManager\Util\Util', $Util);
-        return $Util;
+        self::assertInstanceOf('\UserAccessManager\Util\Util', $util);
+        return $util;
     }
 
     /**
@@ -42,12 +42,12 @@ class UtilTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Util\Util::startsWith()
      *
-     * @param Util $Util
+     * @param Util $util
      */
-    public function testStartsWith($Util)
+    public function testStartsWith($util)
     {
-        self::assertTrue($Util->startsWith('prefixTestSuffix', 'prefix'));
-        self::assertFalse($Util->startsWith('prefixTestSuffix', 'prefIx'));
+        self::assertTrue($util->startsWith('prefixTestSuffix', 'prefix'));
+        self::assertFalse($util->startsWith('prefixTestSuffix', 'prefIx'));
     }
 
     /**
@@ -55,12 +55,12 @@ class UtilTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Util\Util::endsWith()
      *
-     * @param Util $Util
+     * @param Util $util
      */
-    public function testEndsWith($Util)
+    public function testEndsWith($util)
     {
-        self::assertTrue($Util->endsWith('prefixTestSuffix', 'Suffix'));
-        self::assertFalse($Util->endsWith('prefixTestSuffix', 'suffix'));
+        self::assertTrue($util->endsWith('prefixTestSuffix', 'Suffix'));
+        self::assertFalse($util->endsWith('prefixTestSuffix', 'suffix'));
     }
 
     /**
@@ -69,54 +69,54 @@ class UtilTest extends UserAccessManagerTestCase
      */
     public function testGetRandomPassword()
     {
-        $Php = $this->getPhp();
-        $Php->expects($this->once())
+        $php = $this->getPhp();
+        $php->expects($this->once())
             ->method('opensslRandomPseudoBytes')
             ->with(33)
-            ->will($this->returnCallback(function ($iLength, &$blStrong) {
-                $blStrong = true;
-                return "testString{$iLength}";
+            ->will($this->returnCallback(function ($length, &$strong) {
+                $strong = true;
+                return "testString{$length}";
             }));
 
-        $Util = new Util($Php);
+        $util = new Util($php);
 
-        self::assertEquals('dGVzdFN0cmluZzMz', $Util->getRandomPassword());
+        self::assertEquals('dGVzdFN0cmluZzMz', $util->getRandomPassword());
 
-        $cReturnFunction = function ($iLength, &$blStrong) {
-            $blStrong = true;
-            return openssl_random_pseudo_bytes($iLength);
+        $returnFunction = function ($length, &$strong) {
+            $strong = true;
+            return openssl_random_pseudo_bytes($length);
         };
 
-        $Php = $this->getPhp();
-        $Php->expects($this->exactly(2))
+        $php = $this->getPhp();
+        $php->expects($this->exactly(2))
             ->method('opensslRandomPseudoBytes')
             ->withConsecutive([33], [11])
-            ->will($this->returnCallback($cReturnFunction));
+            ->will($this->returnCallback($returnFunction));
 
-        $Util = new Util($Php);
+        $util = new Util($php);
 
-        $sRandomPassword = $Util->getRandomPassword();
-        self::assertEquals(32, strlen($sRandomPassword));
+        $randomPassword = $util->getRandomPassword();
+        self::assertEquals(32, strlen($randomPassword));
 
-        $sRandomPassword = $Util->getRandomPassword(10);
-        self::assertEquals(10, strlen($sRandomPassword));
+        $randomPassword = $util->getRandomPassword(10);
+        self::assertEquals(10, strlen($randomPassword));
 
-        $Php = $this->getPhp();
-        $Php->expects($this->exactly(100))
+        $php = $this->getPhp();
+        $php->expects($this->exactly(100))
             ->method('opensslRandomPseudoBytes')
             ->with(33)
-            ->will($this->returnCallback($cReturnFunction));
+            ->will($this->returnCallback($returnFunction));
 
-        $Util = new Util($Php);
+        $util = new Util($php);
 
-        $aPasswords = [];
+        $passwords = [];
 
-        for ($iCount = 0; $iCount < 100; $iCount++) {
-            $sRandomPassword = $Util->getRandomPassword();
-            $aPasswords[$sRandomPassword] = $sRandomPassword;
+        for ($count = 0; $count < 100; $count++) {
+            $randomPassword = $util->getRandomPassword();
+            $passwords[$randomPassword] = $randomPassword;
         }
 
-        self::assertEquals(100, count($aPasswords));
+        self::assertEquals(100, count($passwords));
     }
 
     /**
@@ -127,20 +127,20 @@ class UtilTest extends UserAccessManagerTestCase
      */
     public function testGetRandomPasswordException()
     {
-        $Php = $this->getPhp();
-        $Php->expects($this->exactly(1))
+        $php = $this->getPhp();
+        $php->expects($this->exactly(1))
             ->method('opensslRandomPseudoBytes')
             ->with(33, false)
-            ->will($this->returnCallback(function ($iLength, &$blStrong) {
-                $blStrong = false;
-                return openssl_random_pseudo_bytes($iLength);
+            ->will($this->returnCallback(function ($length, &$strong) {
+                $strong = false;
+                return openssl_random_pseudo_bytes($length);
             }));
 
-        $Util = new Util(
-            $Php
+        $util = new Util(
+            $php
         );
 
-        $Util->getRandomPassword();
+        $util->getRandomPassword();
     }
 
     /**
@@ -151,20 +151,20 @@ class UtilTest extends UserAccessManagerTestCase
      */
     public function testSecondGetRandomPasswordSecondException()
     {
-        $Php = $this->getPhp();
-        $Php->expects($this->exactly(1))
+        $php = $this->getPhp();
+        $php->expects($this->exactly(1))
             ->method('opensslRandomPseudoBytes')
             ->with(33, false)
-            ->will($this->returnCallback(function ($iLength, &$blStrong) {
-                $blStrong = true;
+            ->will($this->returnCallback(function ($length, &$strong) {
+                $strong = true;
                 return false;
             }));
 
-        $Util = new Util(
-            $Php
+        $util = new Util(
+            $php
         );
 
-        $Util->getRandomPassword();
+        $util->getRandomPassword();
     }
 
     /**
@@ -172,11 +172,11 @@ class UtilTest extends UserAccessManagerTestCase
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Util\Util::getCurrentUrl()
      *
-     * @param Util $Util
+     * @param Util $util
      */
-    public function testGetCurrentUrl($Util)
+    public function testGetCurrentUrl($util)
     {
-        $aServerTemp = $_SERVER;
+        $serverTemp = $_SERVER;
 
         $_SERVER['SERVER_NAME'] = 'serverName';
         $_SERVER['REQUEST_URI'] = null;
@@ -185,24 +185,24 @@ class UtilTest extends UserAccessManagerTestCase
         $_SERVER['SERVER_PROTOCOL'] = 'http';
         $_SERVER['SERVER_PORT'] = '88';
 
-        self::assertEquals('https://serverName:88/phpSelf', $Util->getCurrentUrl());
+        self::assertEquals('https://serverName:88/phpSelf', $util->getCurrentUrl());
 
         $_SERVER['REQUEST_URI'] = '/requestUri';
 
-        self::assertEquals('https://serverName:88/requestUri', $Util->getCurrentUrl());
+        self::assertEquals('https://serverName:88/requestUri', $util->getCurrentUrl());
 
         $_SERVER['HTTPS'] = 'off';
 
-        self::assertEquals('http://serverName:88/requestUri', $Util->getCurrentUrl());
+        self::assertEquals('http://serverName:88/requestUri', $util->getCurrentUrl());
 
         $_SERVER['SERVER_PORT'] = '80';
 
-        self::assertEquals('http://serverName/requestUri', $Util->getCurrentUrl());
+        self::assertEquals('http://serverName/requestUri', $util->getCurrentUrl());
 
         $_SERVER['SERVER_PROTOCOL'] = 'ftp';
 
-        self::assertEquals('ftp://serverName/requestUri', $Util->getCurrentUrl());
+        self::assertEquals('ftp://serverName/requestUri', $util->getCurrentUrl());
 
-        $_SERVER = $aServerTemp;
+        $_SERVER = $serverTemp;
     }
 }

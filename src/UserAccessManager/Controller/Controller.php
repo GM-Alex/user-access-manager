@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -31,59 +31,59 @@ abstract class Controller
     /**
      * @var Php
      */
-    protected $Php;
+    protected $php;
 
     /**
      * @var Wordpress
      */
-    protected $Wordpress;
+    protected $wordpress;
 
     /**
      * @var Config
      */
-    protected $Config;
+    protected $config;
 
     /**
      * @var string
      */
-    protected $sTemplate = null;
+    protected $template = null;
 
     /**
      * @var string
      */
-    protected $sUpdateMessage = null;
+    protected $updateMessage = null;
 
     /**
      * Controller constructor.
      *
-     * @param Php       $Php
-     * @param Wordpress $Wordpress
-     * @param Config    $Config
+     * @param Php       $php
+     * @param Wordpress $wordpress
+     * @param Config    $config
      */
-    public function __construct(Php $Php, Wordpress $Wordpress, Config $Config)
+    public function __construct(Php $php, Wordpress $wordpress, Config $config)
     {
-        $this->Php = $Php;
-        $this->Wordpress = $Wordpress;
-        $this->Config = $Config;
+        $this->php = $php;
+        $this->wordpress = $wordpress;
+        $this->config = $config;
     }
 
     /**
      * Returns the request parameter.
      *
-     * @param string $sName
-     * @param mixed  $mDefault
+     * @param string $name
+     * @param mixed  $default
      *
      * @return mixed
      */
-    public function getRequestParameter($sName, $mDefault = null)
+    public function getRequestParameter($name, $default = null)
     {
-        $mReturn = isset($_POST[$sName]) ? $_POST[$sName] : null;
+        $return = isset($_POST[$name]) ? $_POST[$name] : null;
 
-        if ($mReturn === null) {
-            $mReturn = isset($_GET[$sName]) ? $_GET[$sName] : $mDefault;
+        if ($return === null) {
+            $return = isset($_GET[$name]) ? $_GET[$name] : $default;
         }
 
-        return $mReturn;
+        return $return;
     }
 
     /**
@@ -99,49 +99,49 @@ abstract class Controller
     /**
      * Returns the nonce field.
      *
-     * @param string $sName
+     * @param string $name
      *
      * @return string
      */
-    public function createNonceField($sName)
+    public function createNonceField($name)
     {
-        return $this->Wordpress->getNonceField($sName, $sName.'Nonce');
+        return $this->wordpress->getNonceField($name, $name.'Nonce');
     }
 
     /**
      * Returns the nonce.
      *
-     * @param string $sName
+     * @param string $name
      *
      * @return string
      */
-    public function getNonce($sName)
+    public function getNonce($name)
     {
-        return $this->Wordpress->createNonce($sName);
+        return $this->wordpress->createNonce($name);
     }
 
     /**
      * Verifies the nonce and terminates the application if the nonce is wrong.
      *
-     * @param $sName
+     * @param $name
      */
-    protected function verifyNonce($sName)
+    protected function verifyNonce($name)
     {
-        $sNonce = $this->getRequestParameter($sName.'Nonce');
+        $nonce = $this->getRequestParameter($name.'Nonce');
 
-        if ($this->Wordpress->verifyNonce($sNonce, $sName) === false) {
-            $this->Wordpress->wpDie(TXT_UAM_NONCE_FAILURE);
+        if ($this->wordpress->verifyNonce($nonce, $name) === false) {
+            $this->wordpress->wpDie(TXT_UAM_NONCE_FAILURE);
         }
     }
 
     /**
      * Sets the update message.
      *
-     * @param $sMessage
+     * @param $message
      */
-    protected function setUpdateMessage($sMessage)
+    protected function setUpdateMessage($message)
     {
-        $this->sUpdateMessage = $sMessage;
+        $this->updateMessage = $message;
     }
 
     /**
@@ -151,7 +151,7 @@ abstract class Controller
      */
     public function getUpdateMessage()
     {
-        return $this->sUpdateMessage;
+        return $this->updateMessage;
     }
 
     /**
@@ -161,7 +161,7 @@ abstract class Controller
      */
     public function hasUpdateMessage()
     {
-        return $this->sUpdateMessage !== null;
+        return $this->updateMessage !== null;
     }
 
     /**
@@ -169,40 +169,40 @@ abstract class Controller
      */
     protected function processAction()
     {
-        $sPostAction = $this->getRequestParameter(self::ACTION_PARAMETER);
-        $aPostAction = explode('_', $sPostAction);
-        $sPostAction = array_shift($aPostAction);
-        $sPostAction .= implode('', array_map('ucfirst', $aPostAction));
-        $sActionMethod = $sPostAction.self::ACTION_SUFFIX;
+        $postAction = $this->getRequestParameter(self::ACTION_PARAMETER);
+        $postActionSplit = explode('_', $postAction);
+        $postAction = array_shift($postActionSplit);
+        $postAction .= implode('', array_map('ucfirst', $postActionSplit));
+        $actionMethod = $postAction.self::ACTION_SUFFIX;
 
-        if (method_exists($this, $sActionMethod) === true) {
-            $this->{$sActionMethod}();
+        if (method_exists($this, $actionMethod) === true) {
+            $this->{$actionMethod}();
         }
     }
 
     /**
      * Returns the content of the excluded php file.
      *
-     * @param string $sFileName The view file name
+     * @param string $fileName The view file name
      *
      * @return string
      */
-    protected function getIncludeContents($sFileName)
+    protected function getIncludeContents($fileName)
     {
-        $sContents = '';
-        $sRealPath = $this->Config->getRealPath();
-        $aPath = [$sRealPath, 'src', 'UserAccessManager', 'View'];
-        $sPath = implode(DIRECTORY_SEPARATOR, $aPath).DIRECTORY_SEPARATOR;
-        $sFileWithPath = $sPath.$sFileName;
+        $contents = '';
+        $realPath = $this->config->getRealPath();
+        $path = [$realPath, 'src', 'UserAccessManager', 'View'];
+        $path = implode(DIRECTORY_SEPARATOR, $path).DIRECTORY_SEPARATOR;
+        $fileWithPath = $path.$fileName;
 
-        if (is_file($sFileWithPath) === true) {
+        if (is_file($fileWithPath) === true) {
             ob_start();
-            $this->Php->includeFile($this, $sFileWithPath);
-            $sContents = ob_get_contents();
+            $this->php->includeFile($this, $fileWithPath);
+            $contents = ob_get_contents();
             ob_end_clean();
         }
 
-        return $sContents;
+        return $contents;
     }
 
     /**
@@ -212,8 +212,8 @@ abstract class Controller
     {
         $this->processAction();
 
-        if ($this->sTemplate !== null) {
-            echo $this->getIncludeContents($this->sTemplate);
+        if ($this->template !== null) {
+            echo $this->getIncludeContents($this->template);
         }
     }
 }

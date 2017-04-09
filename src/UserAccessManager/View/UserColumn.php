@@ -9,24 +9,24 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $Controller
+ * @var \UserAccessManager\Controller\AdminObjectController $controller
  */
-$aObjectUserGroups = $Controller->getFilteredObjectUserGroups();
+$objectUserGroups = $controller->getFilteredObjectUserGroups();
 
-if (count($aObjectUserGroups) > 0) {
+if (count($objectUserGroups) > 0) {
     ?>
     <ul>
         <?php
-        foreach ($aObjectUserGroups as $UserGroup) {
+        foreach ($objectUserGroups as $userGroup) {
             ?>
             <li>
                 <a class="uam_group_info_link">
-                    <?php echo htmlentities($UserGroup->getName()); ?>
+                    <?php echo htmlentities($userGroup->getName()); ?>
                 </a>
                 <?php
                 include 'GroupInfo.php';
@@ -38,7 +38,7 @@ if (count($aObjectUserGroups) > 0) {
     </ul>
     <?php
 } else {
-    if (!$Controller->isCurrentUserAdmin()) {
+    if (!$controller->isCurrentUserAdmin()) {
         echo TXT_UAM_NONE;
     } else {
         echo TXT_UAM_ADMIN_HINT;

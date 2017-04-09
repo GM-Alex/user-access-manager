@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\FileHandler;
@@ -29,15 +29,15 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $Root;
+    private $root;
 
     /**
      * Setup virtual file system.
      */
     public function setUp()
     {
-        $this->oRoot = FileSystem::factory('vfs://');
-        $this->oRoot->mount();
+        $this->root = FileSystem::factory('vfs://');
+        $this->root->mount();
     }
 
     /**
@@ -45,7 +45,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
      */
     public function tearDown()
     {
-        $this->oRoot->unmount();
+        $this->root->unmount();
     }
 
     /**
@@ -62,14 +62,14 @@ class FileHandlerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $FileHandler = new FileHandler(
+        $fileHandler = new FileHandler(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getConfig(),
             $this->getFileProtectionFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileHandler', $FileHandler);
+        self::assertInstanceOf('\UserAccessManager\FileHandler\FileHandler', $fileHandler);
     }
 
     /**
@@ -79,8 +79,8 @@ class FileHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetFile()
     {
-        $Php = $this->getPhp();
-        $Php->expects($this->exactly(9))
+        $php = $this->getPhp();
+        $php->expects($this->exactly(9))
             ->method('functionExists')
             ->withConsecutive(
                 ['finfo_open'],
@@ -105,23 +105,23 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 false
             ));
 
-        $Php->expects($this->exactly(4))
+        $php->expects($this->exactly(4))
             ->method('iniGet')
             ->with('safe_mode')
             ->will($this->onConsecutiveCalls('On', '', 'On', 'On'));
 
-        $Php->expects($this->exactly(3))
+        $php->expects($this->exactly(3))
             ->method('setTimeLimit')
             ->with(30);
 
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->once())
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
             ->method('wpDie')
             ->with(TXT_UAM_FILE_NOT_FOUND_ERROR)
             ->will($this->returnValue(null));
 
-        $Config = $this->getConfig();
-        $Config->expects($this->exactly(6))
+        $config = $this->getConfig();
+        $config->expects($this->exactly(6))
             ->method('getMimeTypes')
             ->will($this->onConsecutiveCalls(
                 ['txt' => 'textFile'],
@@ -132,32 +132,32 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 ['jpg' => 'pictureFile']
             ));
 
-        $Config->expects($this->exactly(6))
+        $config->expects($this->exactly(6))
             ->method('getDownloadType')
             ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen', 'fopen', 'fopen', 'fopen'));
 
-        $FileHandler = new FileHandler(
-            $Php,
-            $Wordpress,
-            $Config,
+        $fileHandler = new FileHandler(
+            $php,
+            $wordpress,
+            $config,
             $this->getFileProtectionFactory()
         );
 
         /**
-         * @var Directory $RootDir
+         * @var Directory $rootDir
          */
-        $RootDir = $this->oRoot->get('/');
-        $RootDir->add('testDir', new Directory([
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory([
             'testFile.txt' => new File('Test text')
         ]));
 
-        $sTestDir = 'vfs://testDir/';
-        $sNotExistingFile = $sTestDir.'notExistingFile.txt';
+        $testDir = 'vfs://testDir/';
+        $notExistingFile = $testDir.'notExistingFile.txt';
 
-        $FileHandler->getFile($sNotExistingFile, false);
+        $fileHandler->getFile($notExistingFile, false);
 
-        $sTestFile = $sTestDir.'testFile.txt';
-        $FileHandler->getFile($sTestFile, false);
+        $testFile = $testDir.'testFile.txt';
+        $fileHandler->getFile($testFile, false);
         self::expectOutputString('Test text');
         self::assertEquals(
             [
@@ -170,7 +170,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
 
-        $FileHandler->getFile($sTestFile, true);
+        $fileHandler->getFile($testFile, true);
         self::expectOutputString('Test text');
         self::assertEquals(
             [
@@ -183,7 +183,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
 
-        $FileHandler->getFile($sTestFile, false);
+        $fileHandler->getFile($testFile, false);
         self::expectOutputString('Test text');
         self::assertEquals(
             [
@@ -196,7 +196,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
 
-        $FileHandler->getFile($sTestFile, false);
+        $fileHandler->getFile($testFile, false);
         self::expectOutputString('Test text');
         self::assertEquals(
             [
@@ -209,7 +209,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
 
-        $FileHandler->getFile($sTestFile, false);
+        $fileHandler->getFile($testFile, false);
         self::expectOutputString('Test text');
         self::assertEquals(
             [
@@ -222,7 +222,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
 
-        $FileHandler->getFile($sTestFile, false);
+        $fileHandler->getFile($testFile, false);
         self::expectOutputString('Test text');
         self::assertEquals(
             [
@@ -242,13 +242,13 @@ class FileHandlerTest extends UserAccessManagerTestCase
      */
     public function testCreateFileProtection()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(7))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(7))
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true, true));
 
-        $Config = $this->getConfig();
-        $Config->expects($this->exactly(6))
+        $config = $this->getConfig();
+        $config->expects($this->exactly(6))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
                 null,
@@ -260,14 +260,14 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'uploadDirectory'
             ));
 
-        $ApacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
-        $ApacheFileProtection->expects($this->exactly(3))
+        $apacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
+        $apacheFileProtection->expects($this->exactly(3))
             ->method('create')
             ->withConsecutive(['uploadDirectory', null], ['uploadDirectory', null], ['otherDirectory', 'objectType'])
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $NginxFileProtection = $this->createMock('\UserAccessManager\FileHandler\NginxFileProtection');
-        $NginxFileProtection->expects($this->exactly(4))
+        $nginxFileProtection = $this->createMock('\UserAccessManager\FileHandler\NginxFileProtection');
+        $nginxFileProtection->expects($this->exactly(4))
             ->method('create')
             ->withConsecutive(
                 ['uploadDirectory', null],
@@ -277,31 +277,31 @@ class FileHandlerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(false, true, true, true));
 
-        $FileProtectionFactory = $this->getFileProtectionFactory();
-        $FileProtectionFactory->expects($this->exactly(3))
+        $fileProtectionFactory = $this->getFileProtectionFactory();
+        $fileProtectionFactory->expects($this->exactly(3))
             ->method('createApacheFileProtection')
-            ->will($this->returnValue($ApacheFileProtection));
-        $FileProtectionFactory->expects($this->exactly(4))
+            ->will($this->returnValue($apacheFileProtection));
+        $fileProtectionFactory->expects($this->exactly(4))
             ->method('createNginxFileProtection')
-            ->will($this->returnValue($NginxFileProtection));
+            ->will($this->returnValue($nginxFileProtection));
 
-        $FileHandler = new FileHandler(
+        $fileHandler = new FileHandler(
             $this->getPhp(),
-            $Wordpress,
-            $Config,
-            $FileProtectionFactory
+            $wordpress,
+            $config,
+            $fileProtectionFactory
         );
 
-        self::assertFalse($FileHandler->createFileProtection());
+        self::assertFalse($fileHandler->createFileProtection());
 
-        self::assertFalse($FileHandler->createFileProtection());
-        self::assertTrue($FileHandler->createFileProtection());
-        self::assertTrue($FileHandler->createFileProtection('otherDirectory', 'objectType'));
+        self::assertFalse($fileHandler->createFileProtection());
+        self::assertTrue($fileHandler->createFileProtection());
+        self::assertTrue($fileHandler->createFileProtection('otherDirectory', 'objectType'));
 
-        self::assertFalse($FileHandler->createFileProtection());
-        self::assertTrue($FileHandler->createFileProtection());
-        self::assertTrue($FileHandler->createFileProtection());
-        self::assertTrue($FileHandler->createFileProtection('otherDirectory', 'objectType'));
+        self::assertFalse($fileHandler->createFileProtection());
+        self::assertTrue($fileHandler->createFileProtection());
+        self::assertTrue($fileHandler->createFileProtection());
+        self::assertTrue($fileHandler->createFileProtection('otherDirectory', 'objectType'));
     }
 
     /**
@@ -310,13 +310,13 @@ class FileHandlerTest extends UserAccessManagerTestCase
      */
     public function testDeleteFileProtection()
     {
-        $Wordpress = $this->getWordpress();
-        $Wordpress->expects($this->exactly(7))
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(7))
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true, true));
 
-        $Config = $this->getConfig();
-        $Config->expects($this->exactly(6))
+        $config = $this->getConfig();
+        $config->expects($this->exactly(6))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
                 null,
@@ -327,42 +327,42 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'uploadDirectory'
             ));
 
-        $ApacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
-        $ApacheFileProtection->expects($this->exactly(3))
+        $apacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
+        $apacheFileProtection->expects($this->exactly(3))
             ->method('delete')
             ->withConsecutive(['uploadDirectory'], ['uploadDirectory'], ['otherDirectory'])
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $NginxFileProtection = $this->createMock('\UserAccessManager\FileHandler\NginxFileProtection');
-        $NginxFileProtection->expects($this->exactly(4))
+        $nginxFileProtection = $this->createMock('\UserAccessManager\FileHandler\NginxFileProtection');
+        $nginxFileProtection->expects($this->exactly(4))
             ->method('delete')
             ->withConsecutive(['uploadDirectory'], ['uploadDirectory'], ['uploadDirectory'], ['otherDirectory'])
             ->will($this->onConsecutiveCalls(false, true, true, true));
 
-        $FileProtectionFactory = $this->getFileProtectionFactory();
-        $FileProtectionFactory->expects($this->exactly(3))
+        $fileProtectionFactory = $this->getFileProtectionFactory();
+        $fileProtectionFactory->expects($this->exactly(3))
             ->method('createApacheFileProtection')
-            ->will($this->returnValue($ApacheFileProtection));
-        $FileProtectionFactory->expects($this->exactly(4))
+            ->will($this->returnValue($apacheFileProtection));
+        $fileProtectionFactory->expects($this->exactly(4))
             ->method('createNginxFileProtection')
-            ->will($this->returnValue($NginxFileProtection));
+            ->will($this->returnValue($nginxFileProtection));
 
-        $FileHandler = new FileHandler(
+        $fileHandler = new FileHandler(
             $this->getPhp(),
-            $Wordpress,
-            $Config,
-            $FileProtectionFactory
+            $wordpress,
+            $config,
+            $fileProtectionFactory
         );
 
-        self::assertFalse($FileHandler->deleteFileProtection());
+        self::assertFalse($fileHandler->deleteFileProtection());
 
-        self::assertFalse($FileHandler->deleteFileProtection());
-        self::assertTrue($FileHandler->deleteFileProtection());
-        self::assertTrue($FileHandler->deleteFileProtection('otherDirectory'));
+        self::assertFalse($fileHandler->deleteFileProtection());
+        self::assertTrue($fileHandler->deleteFileProtection());
+        self::assertTrue($fileHandler->deleteFileProtection('otherDirectory'));
 
-        self::assertFalse($FileHandler->deleteFileProtection());
-        self::assertTrue($FileHandler->deleteFileProtection());
-        self::assertTrue($FileHandler->deleteFileProtection());
-        self::assertTrue($FileHandler->deleteFileProtection('otherDirectory'));
+        self::assertFalse($fileHandler->deleteFileProtection());
+        self::assertTrue($fileHandler->deleteFileProtection());
+        self::assertTrue($fileHandler->deleteFileProtection());
+        self::assertTrue($fileHandler->deleteFileProtection('otherDirectory'));
     }
 }

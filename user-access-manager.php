@@ -24,23 +24,23 @@ require_once 'includes/language.php';
 require_once 'autoload.php';
 
 //Check requirements
-$blStop = false;
+$stop = false;
 
 //Check php version
-$sPhpVersion = phpversion();
+$phpVersion = phpversion();
 
-if (version_compare($sPhpVersion, '5.4') === -1) {
+if (version_compare($phpVersion, '5.4') === -1) {
     add_action(
         'admin_notices',
         create_function(
             '',
             'echo \'<div id="message" class="error"><p><strong>'.
-            sprintf(TXT_UAM_PHP_VERSION_TO_LOW, $sPhpVersion).
+            sprintf(TXT_UAM_PHP_VERSION_TO_LOW, $phpVersion).
             '</strong></p></div>\';'
         )
     );
 
-    $blStop = true;
+    $stop = true;
 }
 
 //Check wordpress version
@@ -57,11 +57,11 @@ if (version_compare($wp_version, '4.6') === -1) {
         )
     );
 
-    $blStop = true;
+    $stop = true;
 }
 
 //If we have a error stop plugin.
-if ($blStop === true) {
+if ($stop === true) {
     return;
 }
 

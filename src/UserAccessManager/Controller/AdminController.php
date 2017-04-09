@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Controller;
@@ -34,39 +34,39 @@ class AdminController extends Controller
     /**
      * @var AccessHandler
      */
-    protected $AccessHandler;
+    protected $accessHandler;
 
     /**
      * @var FileHandler
      */
-    protected $FileHandler;
+    protected $fileHandler;
 
     /**
      * @var string
      */
-    protected $sNotice = '';
+    protected $notice = '';
 
     /**
      * AdminController constructor.
      *
      *
-     * @param Php           $Php
-     * @param Wordpress     $Wordpress
-     * @param Config        $Config
-     * @param AccessHandler $AccessHandler
-     * @param FileHandler   $FileHandler
+     * @param Php           $php
+     * @param Wordpress     $wordpress
+     * @param Config        $config
+     * @param AccessHandler $accessHandler
+     * @param FileHandler   $fileHandler
      */
     public function __construct(
-        Php $Php,
-        Wordpress $Wordpress,
-        Config $Config,
-        AccessHandler $AccessHandler,
-        FileHandler $FileHandler
+        Php $php,
+        Wordpress $wordpress,
+        Config $config,
+        AccessHandler $accessHandler,
+        FileHandler $fileHandler
     ) {
-        parent::__construct($Php, $Wordpress, $Config);
-        $this->Config = $Config;
-        $this->AccessHandler = $AccessHandler;
-        $this->FileHandler = $FileHandler;
+        parent::__construct($php, $wordpress, $config);
+        $this->config = $config;
+        $this->accessHandler = $accessHandler;
+        $this->fileHandler = $fileHandler;
     }
 
     /**
@@ -74,7 +74,7 @@ class AdminController extends Controller
      */
     public function showFOpenNotice()
     {
-        $this->sNotice = TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF;
+        $this->notice = TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF;
         echo $this->getIncludeContents('AdminNotice.php');
     }
 
@@ -83,7 +83,7 @@ class AdminController extends Controller
      */
     public function showDatabaseNotice()
     {
-        $this->sNotice = sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup');
+        $this->notice = sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup');
         echo $this->getIncludeContents('AdminNotice.php');
     }
 
@@ -94,7 +94,7 @@ class AdminController extends Controller
      */
     public function getNotice()
     {
-        return $this->sNotice;
+        return $this->notice;
     }
 
     /**
@@ -102,19 +102,19 @@ class AdminController extends Controller
      */
     protected function registerStylesAndScripts()
     {
-        $sUrlPath = $this->Config->getUrlPath();
+        $urlPath = $this->config->getUrlPath();
 
-        $this->Wordpress->registerStyle(
+        $this->wordpress->registerStyle(
             self::HANDLE_STYLE_ADMIN,
-            $sUrlPath.'assets/css/uamAdmin.css',
+            $urlPath.'assets/css/uamAdmin.css',
             [],
             UserAccessManager::VERSION,
             'screen'
         );
 
-        $this->Wordpress->registerScript(
+        $this->wordpress->registerScript(
             self::HANDLE_SCRIPT_ADMIN,
-            $sUrlPath.'assets/js/functions.js',
+            $urlPath.'assets/js/functions.js',
             ['jquery'],
             UserAccessManager::VERSION
         );
@@ -123,15 +123,15 @@ class AdminController extends Controller
     /**
      * The function for the admin_enqueue_scripts action for styles and scripts.
      *
-     * @param string $sHook
+     * @param string $hook
      */
-    public function enqueueStylesAndScripts($sHook)
+    public function enqueueStylesAndScripts($hook)
     {
         $this->registerStylesAndScripts();
-        $this->Wordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
+        $this->wordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
 
-        if ($sHook === 'uam_page_uam_settings' || $sHook === 'uam_page_uam_setup') {
-            $this->Wordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
+        if ($hook === 'uam_page_uam_settings' || $hook === 'uam_page_uam_setup') {
+            $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
         }
     }
 
@@ -142,10 +142,10 @@ class AdminController extends Controller
      */
     public function setupAdminDashboard()
     {
-        if ($this->AccessHandler->checkUserAccess('manage_user_groups') === false) {
-            $aMetaBoxes = $this->Wordpress->getMetaBoxes();
-            unset($aMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-            $this->Wordpress->setMetaBoxes($aMetaBoxes);
+        if ($this->accessHandler->checkUserAccess('manage_user_groups') === false) {
+            $metaBoxes = $this->wordpress->getMetaBoxes();
+            unset($metaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
+            $this->wordpress->setMetaBoxes($metaBoxes);
         }
     }
 
@@ -154,6 +154,6 @@ class AdminController extends Controller
      */
     public function updatePermalink()
     {
-        $this->FileHandler->createFileProtection();
+        $this->fileHandler->createFileProtection();
     }
 }

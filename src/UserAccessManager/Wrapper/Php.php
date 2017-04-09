@@ -9,7 +9,7 @@
  * @author    Alexander Schneider <alexanderschneider85@gmail.com>
  * @copyright 2008-2017 Alexander Schneider
  * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $Id$
+ * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Wrapper;
@@ -26,72 +26,72 @@ class Php
     /**
      * @see function_exists()
      *
-     * @param string $sFunctionName
+     * @param string $functionName
      *
      * @return bool
      */
-    public function functionExists($sFunctionName)
+    public function functionExists($functionName)
     {
-        return function_exists($sFunctionName);
+        return function_exists($functionName);
     }
 
     /**
      * @see openssl_random_pseudo_bytes()
      *
-     * @param $iLength
-     * @param $blStrong
+     * @param $length
+     * @param $strong
      *
      * @return string
      */
-    public function opensslRandomPseudoBytes($iLength, &$blStrong)
+    public function opensslRandomPseudoBytes($length, &$strong)
     {
-        return openssl_random_pseudo_bytes($iLength, $blStrong);
+        return openssl_random_pseudo_bytes($length, $strong);
     }
 
     /**
      * @see unlink()
      *
-     * @param string   $sFilename
+     * @param string   $filename
      * @param resource $rContext
      *
      * @return bool
      */
-    public function unlink($sFilename, $rContext = null)
+    public function unlink($filename, $rContext = null)
     {
-        return unlink($sFilename, $rContext);
+        return unlink($filename, $rContext);
     }
 
     /**
      * @see ini_get()
      *
-     * @param string $sVariableName
+     * @param string $variableName
      *
      * @return string
      */
-    public function iniGet($sVariableName)
+    public function iniGet($variableName)
     {
-        return ini_get($sVariableName);
+        return ini_get($variableName);
     }
 
     /**
      * @see set_time_limit()
      *
-     * @param int $iSeconds
+     * @param int $seconds
      *
      * @return bool
      */
-    public function setTimeLimit($iSeconds)
+    public function setTimeLimit($seconds)
     {
-        return set_time_limit($iSeconds);
+        return set_time_limit($seconds);
     }
 
     /**
-     * @param Controller $Controller
-     * @param string     $sFile
+     * @param Controller $controller
+     * @param string     $file
      */
-    public function includeFile(Controller &$Controller, $sFile)
+    public function includeFile(Controller &$controller, $file)
     {
         /** @noinspection PhpIncludeInspection */
-        include $sFile;
+        include $file;
     }
 }
