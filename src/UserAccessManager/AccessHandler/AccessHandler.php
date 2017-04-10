@@ -357,13 +357,13 @@ class AccessHandler
     /**
      * Return the role of the user.
      *
-     * @param \WP_User|false $user The user id.
+     * @param \WP_User|false $user The user.
      *
      * @return array
      */
     protected function getUserRole($user)
     {
-        if ($user !== false && isset($user->{$this->database->getPrefix().'capabilities'})) {
+        if ($user instanceof \WP_User && isset($user->{$this->database->getPrefix().'capabilities'})) {
             $capabilities = (array)$user->{$this->database->getPrefix().'capabilities'};
         } else {
             $capabilities = [];
@@ -417,7 +417,7 @@ class AccessHandler
         $roles = $this->getUserRole($user);
         $rolesMap = array_flip($roles);
 
-        return (isset($rolesMap['administrator']) || $this->wordpress->isSuperAdmin($userId));
+        return (isset($rolesMap['administrator']) === true || $this->wordpress->isSuperAdmin($userId));
     }
 
     /**

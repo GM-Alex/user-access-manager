@@ -233,7 +233,7 @@ class AdminSettingsController extends Controller
             $ident = str_replace(strtoupper($groupKey), 'OBJECT', $ident);
             $text = constant($ident);
             $count = substr_count($text, '%s');
-            $arguments = array_fill(0, $count, $objects[$groupKey]->labels->name);
+            $arguments = $this->php->arrayFill(0, $count, $objects[$groupKey]->labels->name);
             return vsprintf($text, $arguments);
         }
 

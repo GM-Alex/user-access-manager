@@ -18,6 +18,7 @@ use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -28,6 +29,11 @@ use UserAccessManager\Wrapper\Wordpress;
 class UserGroup
 {
     const NONE_ROLE = '_none-role_';
+
+    /**
+     * @var Php
+     */
+    protected $php;
 
     /**
      * @var Wordpress
@@ -122,6 +128,7 @@ class UserGroup
     /**
      * UserGroup constructor.
      *
+     * @param Php           $php
      * @param Wordpress     $wordpress
      * @param Database      $database
      * @param Config        $config
@@ -130,6 +137,7 @@ class UserGroup
      * @param null          $id
      */
     public function __construct(
+        Php $php,
         Wordpress $wordpress,
         Database $database,
         Config $config,
@@ -137,6 +145,7 @@ class UserGroup
         ObjectHandler $objectHandler,
         $id = null
     ) {
+        $this->php = $php;
         $this->wordpress = $wordpress;
         $this->database = $database;
         $this->config = $config;

@@ -114,6 +114,13 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('setTimeLimit')
             ->with(30);
 
+        $php->expects($this->exactly(4))
+            ->method('fread')
+            ->with($this->anything(), 1024)
+            ->will($this->returnCallback(function ($handle, $length) {
+                return fread($handle, $length);
+            }));
+
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
             ->method('wpDie')

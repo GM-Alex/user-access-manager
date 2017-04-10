@@ -36,6 +36,20 @@ class Php
     }
 
     /**
+     * @see array_fill()
+     *
+     * @param int   $startIndex
+     * @param int   $numberOfElements
+     * @param mixed $value
+     *
+     * @return array
+     */
+    public function arrayFill($startIndex, $numberOfElements, $value)
+    {
+        return array_fill($startIndex, $numberOfElements, $value);
+    }
+
+    /**
      * @see openssl_random_pseudo_bytes()
      *
      * @param $length
@@ -83,6 +97,19 @@ class Php
     public function setTimeLimit($seconds)
     {
         return set_time_limit($seconds);
+    }
+
+    /**
+     * @see fread()
+     *
+     * @param resource $handle
+     * @param int      $length
+     *
+     * @return bool|string
+     */
+    public function fread($handle, $length)
+    {
+        return fread($handle, $length);
     }
 
     /**

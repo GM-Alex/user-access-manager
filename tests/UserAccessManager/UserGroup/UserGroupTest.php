@@ -32,6 +32,7 @@ class UserGroupTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getConfig(),
@@ -52,6 +53,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->method('getRow');
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -114,6 +116,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(null, $dbUserGroup));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -229,6 +232,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -333,6 +337,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(true, false, true));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -441,6 +446,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -533,6 +539,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(null, $this->generateReturn(3, 'objectType'), null));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -632,6 +639,7 @@ class UserGroupTest extends UserAccessManagerTestCase
         $database = $this->getDatabaseMockForMemberTests(['role' => 3]);
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -736,6 +744,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -845,6 +854,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true, true, true));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $config,
@@ -978,6 +988,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ]));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $config,
@@ -1090,6 +1101,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             }));
 
         $userGroup = new UserGroup(
+            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $config = $this->getConfig(),

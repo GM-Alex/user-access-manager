@@ -32,6 +32,7 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $userGroupFactory = new UserGroupFactory(
+            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getConfig(),

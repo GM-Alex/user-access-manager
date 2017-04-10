@@ -19,6 +19,7 @@ use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -28,6 +29,11 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserGroupFactory
 {
+    /**
+     * @var Php
+     */
+    protected $php;
+
     /**
      * @var Wordpress
      */
@@ -68,12 +74,14 @@ class UserGroupFactory
      * @param ObjectHandler $objectHandler
      */
     public function __construct(
+        Php $php,
         Wordpress $wordpress,
         Database $database,
         Config $config,
         Util $util,
         ObjectHandler $objectHandler
     ) {
+        $this->php = $php;
         $this->wordpress = $wordpress;
         $this->database = $database;
         $this->config = $config;
@@ -91,6 +99,7 @@ class UserGroupFactory
     public function createUserGroup($id = null)
     {
         return new UserGroup(
+            $this->php,
             $this->wordpress,
             $this->database,
             $this->config,

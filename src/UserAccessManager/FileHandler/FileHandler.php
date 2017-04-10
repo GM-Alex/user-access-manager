@@ -127,7 +127,7 @@ class FileHandler
                         $this->php->setTimeLimit(30);
                     }
 
-                    echo fread($handler, 1024);
+                    echo $this->php->fread($handler, 1024);
                 }
             } else {
                 ob_clean();

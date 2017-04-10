@@ -886,9 +886,33 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\AccessHandler\AccessHandler::userIsAdmin()
+     * @covers \UserAccessManager\AccessHandler\AccessHandler::getUserRole()
      */
     public function testUserIsAdmin()
     {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once(2))
+            ->method('isSuperAdmin')
+            ->will($this->returnValue(false));
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->exactly(2))
+            ->method('getUser')
+            ->will($this->onConsecutiveCalls(false, $this->getUser(['administrator' => 1])));
+
+        $accessHandler = new AccessHandler(
+            $wordpress,
+            $this->getConfig(),
+            $this->getCache(),
+            $this->getDatabase(),
+            $objectHandler,
+            $this->getUtil(),
+            $this->getUserGroupFactory()
+        );
+
+        self::assertFalse($accessHandler->userIsAdmin(1));
+        self::assertTrue($accessHandler->userIsAdmin(1));
+
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(2))
             ->method('isSuperAdmin')
