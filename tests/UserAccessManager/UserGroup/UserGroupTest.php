@@ -667,6 +667,7 @@ class UserGroupTest extends UserAccessManagerTestCase
      * @param array $types
      * @param array $getResultsWith
      * @param array $getResultsWill
+     * @param array $arrayFillWith
      * @param int   $expectGetUsersTable
      * @param int   $expectGetCapabilitiesTable
      * @param int   $expectGetUser
@@ -677,10 +678,20 @@ class UserGroupTest extends UserAccessManagerTestCase
         array $types,
         array $getResultsWith,
         array $getResultsWill,
+        array $arrayFillWith,
         $expectGetUsersTable,
         $expectGetCapabilitiesTable,
         $expectGetUser
     ) {
+        $php = $this->getPhp();
+
+        $php->expects($this->exactly(count($arrayFillWith)))
+            ->method('arrayFill')
+            ->withConsecutive(...$arrayFillWith)
+            ->will($this->returnCallback(function ($startIndex, $numberOfElements, $value) {
+                return array_fill($startIndex, $numberOfElements, $value);
+            }));
+
         $database = $this->getDatabaseMockForMemberTests(
             $types,
             $getResultsWith,
@@ -744,7 +755,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ));
 
         $userGroup = new UserGroup(
-            $this->getPhp(),
+            $php,
             $this->getWordpress(),
             $database,
             $this->getConfig(),
@@ -766,7 +777,18 @@ class UserGroupTest extends UserAccessManagerTestCase
      */
     public function testIsUserMember()
     {
-        $userGroup = $this->getTestIsUserMemberPrototype(['role' => 3, 'user' => 2], [], [], 0, 5, 6);
+        $userGroup = $this->getTestIsUserMemberPrototype(
+            ['role' => 3, 'user' => 2],
+            [],
+            [],
+            [
+                [0, 2, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE],
+                [0, 1, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE]
+            ],
+            0,
+            5,
+            6
+        );
         $recursiveMembership = [];
 
         self::setValue($userGroup, 'assignedObjects', [ObjectHandler::GENERAL_USER_OBJECT_TYPE => []]);
@@ -1336,6 +1358,10 @@ class UserGroupTest extends UserAccessManagerTestCase
             ['user' => 2, 'role' => 3],
             [[new MatchIgnoreWhitespace($query)]],
             [$this->generateUserReturn([10 => 10, 1, 2, 3])],
+            [
+                [0, 2, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE],
+                [0, 1, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE]
+            ],
             1,
             3,
             4

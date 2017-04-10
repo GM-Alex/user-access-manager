@@ -600,7 +600,7 @@ class UserGroup
                     if (count($recursiveRoles) > 0) {
                         $recursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE] = array_combine(
                             $recursiveRoles,
-                            array_fill(
+                            $this->php->arrayFill(
                                 0,
                                 count($recursiveRoles),
                                 ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
