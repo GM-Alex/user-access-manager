@@ -3,9 +3,10 @@
  * Plugin Name: User Access Manager
  * Plugin URI: https://wordpress.org/plugins/user-access-manager/
  * Author URI: https://twitter.com/GM_Alex
- * Version: 1.2.14
+ * Version: 2.0.0
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
+ * Text Domain: user-access-manager
  *
  * user-access-manager.php
  *
@@ -66,7 +67,9 @@ if ($stop === true) {
 }
 
 //Load language
-load_plugin_textdomain('user-access-manager', false, 'user-access-manager/lang');
+$locale = apply_filters('plugin_locale', get_locale(), 'user-access-manager');
+load_textdomain('user-access-manager', WP_LANG_DIR.'/user-access-manager/user-access-manager-'.$locale.'.mo');
+load_plugin_textdomain('user-access-manager', false, plugin_basename(dirname(__FILE__)).'/lang');
 
 //Classes
 use UserAccessManager\AccessHandler\AccessHandler;

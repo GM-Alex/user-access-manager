@@ -164,14 +164,14 @@ class AdminControllerTest extends UserAccessManagerTestCase
      * @depends testShowFOpenNotice
      * @depends testShowDatabaseNotice
      *
-     * @param AdminController $fOpenNoticeAdminController
+     * @param AdminController $openNoticeAdminController
      * @param AdminController $databaseNoticeAdminController
      */
     public function testGetNotice(
-        AdminController $fOpenNoticeAdminController,
+        AdminController $openNoticeAdminController,
         AdminController $databaseNoticeAdminController
     ) {
-        self::assertEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, $fOpenNoticeAdminController->getNotice());
+        self::assertEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, $openNoticeAdminController->getNotice());
         self::assertEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
             $databaseNoticeAdminController->getNotice()

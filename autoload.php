@@ -2,25 +2,25 @@
 /**
  * The autoloader function.
  *
- * @param string $sClassName
+ * @param string $className
  */
-function autoload($sClassName)
+function autoload($className)
 {
-    $sClassName = ltrim($sClassName, '\\');
-    $iLastNamespacePosition = strrpos($sClassName, '\\');
-    $sFileName = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR;
+    $className = ltrim($className, '\\');
+    $lastNamespacePosition = strrpos($className, '\\');
+    $fileName = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR;
 
-    if ($iLastNamespacePosition !== false) {
-        $sNamespace = substr($sClassName, 0, $iLastNamespacePosition);
-        $sClassName = substr($sClassName, $iLastNamespacePosition + 1);
-        $sFileName .= str_replace('\\', DIRECTORY_SEPARATOR, $sNamespace).DIRECTORY_SEPARATOR;
+    if ($lastNamespacePosition !== false) {
+        $sNamespace = substr($className, 0, $lastNamespacePosition);
+        $className = substr($className, $lastNamespacePosition + 1);
+        $fileName .= str_replace('\\', DIRECTORY_SEPARATOR, $sNamespace).DIRECTORY_SEPARATOR;
     }
 
-    $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName).'.php';
+    $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className).'.php';
 
-    if (file_exists($sFileName)) {
+    if (file_exists($fileName)) {
         /** @noinspection PhpIncludeInspection */
-        require_once $sFileName;
+        require_once $fileName;
     }
 }
 

@@ -66,13 +66,13 @@ class Php
      * @see unlink()
      *
      * @param string   $filename
-     * @param resource $rContext
+     * @param resource $context
      *
      * @return bool
      */
-    public function unlink($filename, $rContext = null)
+    public function unlink($filename, $context = null)
     {
-        return unlink($filename, $rContext);
+        return ($context !== null) ? unlink($filename, $context) : unlink($filename);
     }
 
     /**
