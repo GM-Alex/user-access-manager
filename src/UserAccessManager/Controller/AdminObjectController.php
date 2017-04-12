@@ -334,7 +334,7 @@ class AdminObjectController extends Controller
             || $this->config->authorsCanAddPostsToGroups() === true
         ) {
             if ($userGroups === null) {
-                $updateGroups = $this->getRequestParameter('uam_update_groups', []);
+                $updateGroups = $this->getRequestParameter('uam_user_groups', []);
                 $userGroups = (is_array($updateGroups) === true) ? $updateGroups : [];
             }
 

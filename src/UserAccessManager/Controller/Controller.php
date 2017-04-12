@@ -77,10 +77,10 @@ abstract class Controller
      */
     public function getRequestParameter($name, $default = null)
     {
-        $return = isset($_POST[$name]) ? $_POST[$name] : null;
+        $return = (isset($_POST[$name]) === true) ? $_POST[$name] : null;
 
         if ($return === null) {
-            $return = isset($_GET[$name]) ? $_GET[$name] : $default;
+            $return = (isset($_GET[$name]) === true) ? $_GET[$name] : $default;
         }
 
         return $return;
