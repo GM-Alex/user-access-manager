@@ -760,25 +760,25 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $adminObjectController->savePostData(['ID' => 1]);
 
-        $_POST['uam_update_groups'] = [1, 3];
+        $_POST['uam_user_groups'] = [1, 3];
         $adminObjectController->savePostData(['ID' => 1]);
-        $_POST['uam_update_groups'] = [2, 4];
+        $_POST['uam_user_groups'] = [2, 4];
         $adminObjectController->savePostData(['ID' => 2]);
-        $_POST['uam_update_groups'] = [1, 2];
+        $_POST['uam_user_groups'] = [1, 2];
         $adminObjectController->savePostData(2);
-        $_POST['uam_update_groups'] = [3, 4];
+        $_POST['uam_user_groups'] = [3, 4];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
 
         $_POST['uam_bulk_type'] = AdminObjectController::BULK_REMOVE;
-        $_POST['uam_update_groups'] = [2, 3];
+        $_POST['uam_user_groups'] = [2, 3];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
 
         unset($_POST['uam_bulk_type']);
-        $_POST['uam_update_groups'] = [2];
+        $_POST['uam_user_groups'] = [2];
         $adminObjectController->saveUserData(1);
-        $_POST['uam_update_groups'] = [3];
+        $_POST['uam_user_groups'] = [3];
         $adminObjectController->saveTermData(1);
-        $_POST['uam_update_groups'] = [4];
+        $_POST['uam_user_groups'] = [4];
         $adminObjectController->savePluggableObjectData('objectType', 'objectId');
     }
 
