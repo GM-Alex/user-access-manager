@@ -203,7 +203,7 @@ class FrontendController extends Controller
      * @param \WP_Post $post    The current post.
      * @param bool     $locked
      *
-     * @return object|null
+     * @return null|\WP_Post
      */
     protected function processPost(\WP_Post $post, &$locked = null)
     {
@@ -303,7 +303,7 @@ class FrontendController extends Controller
         $excludedPosts = $this->accessHandler->getExcludedPosts();
 
         if (count($excludedPosts) > 0) {
-            $excludedPostsStr = implode(',', $excludedPosts);
+            $excludedPostsStr = implode(', ', $excludedPosts);
             $query .= " AND {$this->database->getPostsTable()}.ID NOT IN($excludedPostsStr) ";
         }
 
@@ -588,7 +588,9 @@ class FrontendController extends Controller
                 }
 
                 $term = $this->objectHandler->getTerm($term);
-            } elseif (($term instanceof \WP_Term) === false) {
+            }
+
+            if (($term instanceof \WP_Term) === false) {
                 continue;
             }
 
@@ -731,7 +733,7 @@ class FrontendController extends Controller
      *
      * @param string $url The url of the post(attachment).
      *
-     * @return object The post.
+     * @return int
      */
     public function getPostIdByUrl($url)
     {
@@ -775,7 +777,7 @@ class FrontendController extends Controller
      * @param string $objectType The type of the requested file.
      * @param string $objectUrl  The file url.
      *
-     * @return object|null
+     * @return null|\stdClass
      */
     protected function getFileSettingsByType($objectType, $objectUrl)
     {
@@ -821,8 +823,6 @@ class FrontendController extends Controller
         if ($object === null) {
             return null;
         }
-
-        $file = null;
 
         if ($this->accessHandler->checkObjectAccess($object->type, $object->id) === true) {
             $file = $object->file;

@@ -28,14 +28,14 @@ class Database
     const USER_GROUP_TO_OBJECT_TABLE_NAME = 'uam_accessgroup_to_object';
 
     /**
+     * @var Wordpress
+     */
+    protected $wordpress;
+
+    /**
      * @var \wpdb
      */
     protected $wpDatabase;
-
-    /**
-     * @var Database
-     */
-    protected $wordpress;
 
     /**
      * Database constructor.

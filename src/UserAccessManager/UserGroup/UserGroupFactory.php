@@ -67,6 +67,7 @@ class UserGroupFactory
     /**
      * UserGroupFactory constructor.
      *
+     * @param Php           $php
      * @param Wordpress     $wordpress
      * @param Database      $database
      * @param Config        $config
@@ -92,7 +93,7 @@ class UserGroupFactory
     /**
      * Creates a new user group object.
      *
-     * @param string $id
+     * @param null|string $id
      *
      * @return UserGroup
      */

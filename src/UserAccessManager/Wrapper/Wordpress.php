@@ -309,7 +309,7 @@ class Wordpress
      * @see \get_option()
      *
      * @param string $option
-     * @param bool   $default
+     * @param mixed  $default
      *
      * @return mixed
      */
@@ -321,7 +321,7 @@ class Wordpress
     /**
      * @see \is_super_admin()
      *
-     * @param bool $userId
+     * @param int|bool $userId
      *
      * @return bool
      */
@@ -564,12 +564,12 @@ class Wordpress
     /**
      * @see \add_submenu_page()
      *
-     * @param string $parentSlug
-     * @param string $pageTitle
-     * @param string $menuTitle
-     * @param string $capability
-     * @param string $menuSlug
-     * @param string $function
+     * @param string          $parentSlug
+     * @param string          $pageTitle
+     * @param string          $menuTitle
+     * @param string          $capability
+     * @param string          $menuSlug
+     * @param string|callable $function
      *
      * @return false|string
      */

@@ -1,11 +1,5 @@
 <?php
-/**
- * The autoloader function.
- *
- * @param string $className
- */
-function autoload($className)
-{
+spl_autoload_register(function ($className) {
     $className = ltrim($className, '\\');
     $lastNamespacePosition = strrpos($className, '\\');
     $fileName = dirname(__FILE__).DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR;
@@ -22,6 +16,4 @@ function autoload($className)
         /** @noinspection PhpIncludeInspection */
         require_once $fileName;
     }
-}
-
-spl_autoload_register('autoload');
+});

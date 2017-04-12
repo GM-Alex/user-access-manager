@@ -229,7 +229,7 @@ class GroupCommand extends CommandWithDBObject
         $writeAccess = (isset($assocArguments['write_access']) === true) ? $assocArguments['write_access'] : '';
         $porcelain = isset($assocArguments['porcelain']);
 
-        if (!in_array($readAccess, self::$allowedAccessValues)) {
+        if (in_array($readAccess, self::$allowedAccessValues) === false) {
             if ($porcelain === true) {
                 $this->wordpressCli->line('setting read_access to '.self::$allowedAccessValues[0]);
             }
@@ -237,7 +237,7 @@ class GroupCommand extends CommandWithDBObject
             $readAccess = self::$allowedAccessValues[0];
         }
 
-        if (!in_array($writeAccess, self::$allowedAccessValues)) {
+        if (in_array($writeAccess, self::$allowedAccessValues) === false) {
             if ($porcelain === true) {
                 $this->wordpressCli->line('setting write_access to '.self::$allowedAccessValues[0]);
             }

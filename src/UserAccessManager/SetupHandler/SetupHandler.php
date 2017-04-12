@@ -71,7 +71,7 @@ class SetupHandler
     /**
      * Returns all blog of the network.
      *
-     * @return array()
+     * @return array
      */
     public function getBlogIds()
     {
@@ -186,7 +186,7 @@ class SetupHandler
     /**
      * Updates the user access manager if an old version was installed.
      *
-     * @return true;
+     * @return true
      */
     public function update()
     {

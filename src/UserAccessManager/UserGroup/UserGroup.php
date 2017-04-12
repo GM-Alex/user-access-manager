@@ -134,7 +134,7 @@ class UserGroup
      * @param Config        $config
      * @param Util          $util
      * @param ObjectHandler $objectHandler
-     * @param null          $id
+     * @param null|string   $id
      */
     public function __construct(
         Php $php,

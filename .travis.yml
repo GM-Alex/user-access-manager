@@ -1,8 +1,14 @@
 language: php
 php:
   - 7.0
-before_script:
-  - composer install
-  - vendor/bin/phpcs --standard=PSR2 src tests
-after_script:
-  - vendor/bin/humbug
+script:
+  - ./script/build.sh
+deploy:
+  provider: script
+  skip_cleanup: true
+  script:
+    - ./scripts/build.sh
+    - ./scripts/deploy.sh
+  on:
+    tags: true
+    php: 7.0

@@ -66,37 +66,37 @@ class AccessHandler
     protected $userGroupFactory;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $userGroups = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $filteredUserGroups = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $userGroupsForUser = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $termsAssignedToUser = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $excludedTerms = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $postsAssignedToUser = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $excludedPosts = null;
 

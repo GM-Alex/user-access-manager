@@ -47,7 +47,7 @@ class Config
     protected $baseFile;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $configParameters = null;
 
@@ -141,11 +141,6 @@ class Config
                     $id,
                     TXT_UAM_SETTING_DEFAULT_NO_RIGHTS
                 );
-
-                if ($postType === 'post') {
-                    $id = "show_{$postType}_content_before_more";
-                    $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-                }
 
                 $id = "{$postType}_content";
                 $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(

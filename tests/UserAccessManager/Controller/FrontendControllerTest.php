@@ -614,7 +614,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         self::assertEquals('query', $frontendController->showPostSql('query'));
         self::assertEquals('query AND postTable.ID NOT IN(1) ', $frontendController->showPostSql('query'));
-        self::assertEquals('query AND postTable.ID NOT IN(1,3) ', $frontendController->showPostSql('query'));
+        self::assertEquals('query AND postTable.ID NOT IN(1, 3) ', $frontendController->showPostSql('query'));
     }
 
     /**

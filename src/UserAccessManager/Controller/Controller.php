@@ -123,7 +123,7 @@ abstract class Controller
     /**
      * Verifies the nonce and terminates the application if the nonce is wrong.
      *
-     * @param $name
+     * @param string $name
      */
     protected function verifyNonce($name)
     {

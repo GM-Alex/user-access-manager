@@ -2,17 +2,17 @@
 
 if [[ -z "${TRAVIS}" ]]; then
 	echo "Script is only to be run by Travis CI" 1>&2
-	#exit 1
+	exit 1
 fi
 
 if [[ -z "${WP_ORG_PASSWORD}" ]]; then
 	echo "WordPress.org password not set" 1>&2
-	#exit 1
+	exit 1
 fi
 
-if [[ -z "${TRAVIS_BRANCH}" || "${TRAVIS_BRANCH}" != "master" ]]; then
-	echo "Build branch is required and must be 'master'" 1>&2
-	#exit 0
+if [[ -z "${TRAVIS_TAG}" ]]; then
+	echo "Build must be a tag" 1>&2
+	exit 0
 fi
 
 WP_ORG_USERNAME="GM_Alex"
@@ -40,9 +40,10 @@ else
     exit 1
 fi
 
-echo ${VERSION}
-echo ${STABLE_VERSION}
-exit 1
+if [[ ${VERSION} != ${TRAVIS_TAG} ]]; then
+    echo "Tag ${TRAVIS_TAG} version must match plugin version ${VERSION}."
+    exit 1
+fi
 
 # Check if the tag exists for the version we are building
 TAG=$(svn ls "https://plugins.svn.wordpress.org/${PLUGIN}/tags/${VERSION}")

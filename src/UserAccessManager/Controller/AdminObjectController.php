@@ -701,7 +701,7 @@ class AdminObjectController extends Controller
      * @param string $objectType The object type.
      * @param string $objectId   The id of the object.
      *
-     * @return string;
+     * @return string
      */
     public function showPluggableGroupSelectionForm($objectType, $objectId)
     {

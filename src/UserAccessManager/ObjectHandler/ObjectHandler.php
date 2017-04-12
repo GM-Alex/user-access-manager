@@ -39,12 +39,12 @@ class ObjectHandler
     protected $wordpress;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $postTypes = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     protected $taxonomies = null;
 
@@ -162,7 +162,7 @@ class ObjectHandler
     /**
      * Returns a post.
      *
-     * @param string $id The post id.
+     * @param int $id The post id.
      *
      * @return \WP_Post|array|false
      */
@@ -179,10 +179,10 @@ class ObjectHandler
     /**
      * Returns a term.
      *
-     * @param string $id       The term id.
+     * @param int    $id       The term id.
      * @param string $taxonomy The taxonomy.
      *
-     * @return array|false|\WP_Error|\WP_Term
+     * @return false|\WP_Error|\WP_Term
      */
     public function getTerm($id, $taxonomy = '')
     {

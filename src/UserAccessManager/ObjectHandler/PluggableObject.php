@@ -28,6 +28,17 @@ abstract class PluggableObject
      */
     protected $name;
 
+    /**
+     * @var string
+     */
+    protected $reference;
+
+    /**
+     * PluggableObject constructor.
+     *
+     * @param string $name
+     * @param string $reference
+     */
     public function __construct($name, $reference)
     {
         $this->name = $name;

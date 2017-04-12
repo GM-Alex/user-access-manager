@@ -33,12 +33,11 @@ $phpVersion = phpversion();
 if (version_compare($phpVersion, '5.4') === -1) {
     add_action(
         'admin_notices',
-        create_function(
-            '',
-            'echo \'<div id="message" class="error"><p><strong>'.
-            sprintf(TXT_UAM_PHP_VERSION_TO_LOW, $phpVersion).
-            '</strong></p></div>\';'
-        )
+        function () {
+            echo '<div id="message" class="error"><p><strong>'
+                .sprintf(TXT_UAM_PHP_VERSION_TO_LOW, phpversion())
+                .'</strong></p></div>';
+        }
     );
 
     $stop = true;
@@ -50,12 +49,11 @@ global $wp_version;
 if (version_compare($wp_version, '4.6') === -1) {
     add_action(
         'admin_notices',
-        create_function(
-            '',
-            'echo \'<div id="message" class="error"><p><strong>'.
-            sprintf(TXT_UAM_WORDPRESS_VERSION_TO_LOW, $wp_version).
-            '</strong></p></div>\';'
-        )
+        function () use ($wp_version) {
+            echo '<div id="message" class="error"><p><strong>'
+                .sprintf(TXT_UAM_WORDPRESS_VERSION_TO_LOW, $wp_version)
+                .'</strong></p></div>';
+        }
     );
 
     $stop = true;
@@ -69,7 +67,7 @@ if ($stop === true) {
 //Load language
 $locale = apply_filters('plugin_locale', get_locale(), 'user-access-manager');
 load_textdomain('user-access-manager', WP_LANG_DIR.'/user-access-manager/user-access-manager-'.$locale.'.mo');
-load_plugin_textdomain('user-access-manager', false, plugin_basename(dirname(__FILE__)).'/lang');
+load_plugin_textdomain('user-access-manager', false, plugin_basename(dirname(__FILE__)).'/languages');
 
 //Classes
 use UserAccessManager\AccessHandler\AccessHandler;
