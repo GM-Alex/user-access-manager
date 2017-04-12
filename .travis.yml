@@ -1,13 +1,13 @@
 language: php
 php:
   - 7.0
-script: $TRAVIS_BUILD/script/build.sh
+script: ./scripts/build.sh
 deploy:
   provider: script
   skip_cleanup: true
   script:
-    - $TRAVIS_BUILD/scripts/build.sh
-    - $TRAVIS_BUILD/scripts/deploy.sh
+    - ./scripts/build.sh
+    - ./scripts/deploy.sh
   on:
     tags: true
     php: 7.0
