@@ -48,7 +48,8 @@ if (count($userGroups) > 0) {
             <li>
                 <input type="checkbox"
                        id="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" <?php echo $attributes; ?>
-                       value="<?php echo $userGroup->getId(); ?>" name="<?php echo "{$groupsFormName}[{$userGroup->getId()}]"; ?>"
+                       value="<?php echo $userGroup->getId(); ?>"
+                       name="<?php echo "{$groupsFormName}[{$userGroup->getId()}]"; ?>"
                 data-="uam_user_groups"/>
                 <label for="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" class="selectit"
                        style="display:inline;">
