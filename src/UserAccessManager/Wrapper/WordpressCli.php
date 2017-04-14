@@ -39,7 +39,7 @@ class WordpressCli
      * @see \WP_CLI::error()
      *
      * @param string|\WP_Error $message Message to write to STDERR.
-     * @param boolean|integer  $exit    True defaults to exit(1).
+     * @param bool|integer     $exit    True defaults to exit(1).
      *
      * @return null
      */

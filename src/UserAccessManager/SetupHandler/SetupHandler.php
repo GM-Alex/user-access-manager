@@ -160,7 +160,7 @@ class SetupHandler
     /**
      * Checks if a database update is necessary.
      *
-     * @return boolean
+     * @return bool
      */
     public function isDatabaseUpdateNecessary()
     {
@@ -184,6 +184,137 @@ class SetupHandler
     }
 
     /**
+     * Creates a database backup.
+     *
+     * @return bool
+     */
+    public function backupDatabase()
+    {
+        $currentDbVersion = $this->wordpress->getOption('uam_db_version');
+
+        if (empty($currentDbVersion) === true
+            || version_compare($currentDbVersion, '1.2', '<') === true
+        ) {
+            return false;
+        }
+
+        $tables = [
+            $this->database->getUserGroupTable(),
+            $this->database->getUserGroupToObjectTable()
+        ];
+
+        $currentDbVersion = str_replace('.', '-', $currentDbVersion);
+        $success = true;
+
+        foreach ($tables as $table) {
+            $createQuery = "CREATE TABLE `{$table}_{$currentDbVersion}` LIKE `{$table}`";
+            $success = $success && ($this->database->query($createQuery) !== false);
+            $insertQuery = "INSERT `{$table}_{$currentDbVersion}` SELECT * FROM `{$table}`";
+            $success = $success && ($this->database->query($insertQuery) !== false);
+        }
+
+        return $success;
+    }
+
+    /**
+     * Returns the version for which a backup was created.
+     *
+     * @return array
+     */
+    public function getBackups()
+    {
+        $versions = [];
+        $tables = (array)$this->database->getColumn(
+            "SHOW TABLES LIKE '{$this->database->getPrefix()}uam_%'"
+        );
+
+        foreach ($tables as $table) {
+            if (preg_match('/.*\_([0-9\-]+)/i', $table, $matches) === 1) {
+                $version = str_replace('-', '.', $matches[1]);
+                $versions[$version] = $version;
+            }
+        }
+
+        return $versions;
+    }
+
+    /**
+     * Returns the backup tables for the given version.
+     *
+     * @param string $version
+     *
+     * @return array
+     */
+    private function getBackupTables($version)
+    {
+        $backupTables = [];
+        $tables = [
+            $this->database->getUserGroupTable(),
+            $this->database->getUserGroupToObjectTable()
+        ];
+
+        $versionForDb = str_replace('.', '-', $version);
+
+        foreach ($tables as $table) {
+            $backupTable = (string)$this->database->getVariable(
+                "SHOW TABLES LIKE '{$table}_{$versionForDb}'"
+            );
+
+            if ($backupTable !== '') {
+                $backupTables[$table] = $backupTable;
+            }
+        }
+
+        return $backupTables;
+    }
+
+    /**
+     * Reverts the database to the given version.
+     *
+     * @param string $version
+     *
+     * @return bool
+     */
+    public function revertDatabase($version)
+    {
+        $success = true;
+        $tables = $this->getBackupTables($version);
+
+        foreach ($tables as $table => $backupTable) {
+            $dropQuery = "DROP TABLE IF EXISTS `{$table}`";
+            $success = $success && ($this->database->query($dropQuery) !== false);
+            $renameQuery = "RENAME TABLE `{$backupTable}` TO `{$table}`";
+            $success = $success && ($this->database->query($renameQuery) !== false);
+        }
+
+        if ($success === true) {
+            $this->wordpress->updateOption('uam_db_version', $version);
+        }
+
+        return $success;
+    }
+
+    /**
+     * Deletes the given database backup.
+     *
+     * @param string $version
+     *
+     * @return bool
+     */
+    public function deleteBackup($version)
+    {
+        $success = true;
+        $tables = $this->getBackupTables($version);
+
+        foreach ($tables as $table => $backupTable) {
+            $dropQuery = "DROP TABLE IF EXISTS `{$backupTable}`";
+            $success = $success && ($this->database->query($dropQuery) !== false);
+        }
+
+        return $success;
+    }
+
+    /**
      * Updates the user access manager if an old version was installed.
      *
      * @return true
@@ -192,7 +323,7 @@ class SetupHandler
     {
         $currentDbVersion = $this->wordpress->getOption('uam_db_version');
 
-        if (empty($currentDbVersion)) {
+        if (empty($currentDbVersion) === true) {
             return false;
         }
 
@@ -316,12 +447,8 @@ class SetupHandler
                 $generalTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
                 $this->database->update(
                     $dbAccessGroupToObject,
-                    [
-                        'object_type' => $generalTermType,
-                    ],
-                    [
-                        'object_type' => 'category',
-                    ]
+                    ['object_type' => $generalTermType],
+                    ['object_type' => 'category']
                 );
             }
 

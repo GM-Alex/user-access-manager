@@ -348,7 +348,7 @@ class UserGroup
     /**
      * Deletes the user group.
      *
-     * @return boolean
+     * @return bool
      */
     public function delete()
     {
@@ -505,7 +505,7 @@ class UserGroup
      * @param string $objectType The object type.
      * @param string $objectId   The object id.
      *
-     * @return boolean
+     * @return bool
      */
     protected function isObjectAssignedToGroup($objectType, $objectId)
     {
@@ -784,7 +784,7 @@ class UserGroup
      * @param string $objectType The object type.
      * @param string $objectId   The object id.
      *
-     * @return boolean
+     * @return bool
      */
     public function isLockedRecursive($objectType, $objectId)
     {

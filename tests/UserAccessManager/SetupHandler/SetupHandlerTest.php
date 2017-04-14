@@ -262,6 +262,201 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::backupDatabase()
+     */
+    public function testBackup()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly(4))
+            ->method('getOption')
+            ->with('uam_db_version')
+            ->will($this->onConsecutiveCalls(null, '1.1', '1.2', '1.3.0'));
+
+        $database = $this->getDatabase();
+
+        $database->expects($this->exactly(2))
+            ->method('getUserGroupTable')
+            ->will($this->returnValue('userGroupTable'));
+
+        $database->expects($this->exactly(2))
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $database->expects($this->exactly(5))
+            ->method('query')
+            ->withConsecutive(
+                ['CREATE TABLE `userGroupTable_1-2` LIKE `userGroupTable`'],
+                ['INSERT `userGroupTable_1-2` SELECT * FROM `userGroupTable`'],
+                ['CREATE TABLE `userGroupToObjectTable_1-2` LIKE `userGroupToObjectTable`'],
+                ['INSERT `userGroupToObjectTable_1-2` SELECT * FROM `userGroupToObjectTable`'],
+                ['CREATE TABLE `userGroupTable_1-3-0` LIKE `userGroupTable`']
+            )
+            ->will($this->onConsecutiveCalls(true, true, true, true, false));
+
+        $setupHandler = new SetupHandler(
+            $wordpress,
+            $database,
+            $this->getObjectHandler(),
+            $this->getFileHandler()
+        );
+
+        self::assertFalse($setupHandler->backupDatabase());
+        self::assertFalse($setupHandler->backupDatabase());
+        self::assertTrue($setupHandler->backupDatabase());
+        self::assertFalse($setupHandler->backupDatabase());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::getBackups()
+     */
+    public function testGetBackups()
+    {
+        $database = $this->getDatabase();
+
+        $database->expects($this->once())
+            ->method('getPrefix')
+            ->will($this->returnValue('prefix_'));
+
+        $database->expects($this->once())
+            ->method('getColumn')
+            ->with('SHOW TABLES LIKE \'prefix_uam_%\'')
+            ->will($this->returnValue([
+                'prefix_uam_one_1-2',
+                'prefix_uam_two_1-2',
+                'prefix_uam_one_1-5-6',
+                'something_1-2-3',
+                'invalid1-4'
+            ]));
+
+        $setupHandler = new SetupHandler(
+            $this->getWordpress(),
+            $database,
+            $this->getObjectHandler(),
+            $this->getFileHandler()
+        );
+
+        self::assertEquals(
+            ['1.2' => '1.2', '1.5.6' => '1.5.6', '1.2.3' => '1.2.3'],
+            $setupHandler->getBackups()
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::revertDatabase()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::getBackupTables()
+     */
+    public function testRevertBackup()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->once())
+            ->method('updateOption')
+            ->with('uam_db_version', '1.2');
+
+        $database = $this->getDatabase();
+
+        $database->expects($this->exactly(2))
+            ->method('getUserGroupTable')
+            ->will($this->returnValue('userGroupTable'));
+
+        $database->expects($this->exactly(2))
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $database->expects($this->exactly(4))
+            ->method('getVariable')
+            ->withConsecutive(
+                ['SHOW TABLES LIKE \'userGroupTable_1-2\''],
+                ['SHOW TABLES LIKE \'userGroupToObjectTable_1-2\''],
+                ['SHOW TABLES LIKE \'userGroupTable_1-3-1\''],
+                ['SHOW TABLES LIKE \'userGroupToObjectTable_1-3-1\'']
+            )
+            ->will($this->onConsecutiveCalls(
+                'userGroupTable_1-2',
+                'userGroupToObjectTable_1-2',
+                '',
+                'userGroupToObjectTable_1-3-0'
+            ));
+
+        $database->expects($this->exactly(5))
+            ->method('query')
+            ->withConsecutive(
+                ['DROP TABLE IF EXISTS `userGroupTable`'],
+                ['RENAME TABLE `userGroupTable_1-2` TO `userGroupTable`'],
+                ['DROP TABLE IF EXISTS `userGroupToObjectTable`'],
+                ['RENAME TABLE `userGroupToObjectTable_1-2` TO `userGroupToObjectTable`'],
+                ['DROP TABLE IF EXISTS `userGroupToObjectTable`']
+            )
+            ->will($this->onConsecutiveCalls(true, true, true, true, false));
+
+        $setupHandler = new SetupHandler(
+            $wordpress,
+            $database,
+            $this->getObjectHandler(),
+            $this->getFileHandler()
+        );
+
+        self::assertTrue($setupHandler->revertDatabase('1.2'));
+        self::assertFalse($setupHandler->revertDatabase('1.3.1'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::deleteBackup()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::getBackupTables()
+     */
+    public function testDeleteBackup()
+    {
+        $database = $this->getDatabase();
+
+        $database->expects($this->exactly(2))
+            ->method('getUserGroupTable')
+            ->will($this->returnValue('userGroupTable'));
+
+        $database->expects($this->exactly(2))
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $database->expects($this->exactly(4))
+            ->method('getVariable')
+            ->withConsecutive(
+                ['SHOW TABLES LIKE \'userGroupTable_1-2\''],
+                ['SHOW TABLES LIKE \'userGroupToObjectTable_1-2\''],
+                ['SHOW TABLES LIKE \'userGroupTable_1-3-1\''],
+                ['SHOW TABLES LIKE \'userGroupToObjectTable_1-3-1\'']
+            )
+            ->will($this->onConsecutiveCalls(
+                'userGroupTable_1-2',
+                'userGroupToObjectTable_1-2',
+                '',
+                'userGroupToObjectTable_1-3-1'
+            ));
+
+        $database->expects($this->exactly(3))
+            ->method('query')
+            ->withConsecutive(
+                ['DROP TABLE IF EXISTS `userGroupTable_1-2`'],
+                ['DROP TABLE IF EXISTS `userGroupToObjectTable_1-2`'],
+                ['DROP TABLE IF EXISTS `userGroupToObjectTable_1-3-1`']
+            )
+            ->will($this->onConsecutiveCalls(true, true, false));
+
+        $setupHandler = new SetupHandler(
+            $this->getWordpress(),
+            $database,
+            $this->getObjectHandler(),
+            $this->getFileHandler()
+        );
+
+        self::assertTrue($setupHandler->deleteBackup('1.2'));
+        self::assertFalse($setupHandler->deleteBackup('1.3.1'));
+    }
+
+    /**
+     * @group  unit
      * @covers \UserAccessManager\SetupHandler\SetupHandler::update()
      */
     public function testUpdate()
@@ -442,13 +637,11 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false));
 
-        $fileHandler = $this->getFileHandler();
-
         $setupHandler = new SetupHandler(
             $wordpress,
             $database,
             $objectHandler,
-            $fileHandler
+            $this->getFileHandler()
         );
 
         self::assertFalse($setupHandler->update());

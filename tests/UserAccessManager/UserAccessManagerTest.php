@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager;
 
+use UserAccessManager\Controller\AdminSetupController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 
 /**
@@ -95,12 +96,13 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     public function testRegisterAdminActionsAndFilters()
     {
         $php = $this->getPhp();
-        $php->expects($this->exactly(3))
+        $php->expects($this->exactly(4))
             ->method('iniGet')
             ->will($this->returnValue(true));
 
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(57))
+
+        $wordpress->expects($this->exactly(64))
             ->method('addAction');
 
         $wordpress->expects($this->exactly(16))
@@ -109,14 +111,16 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(3))
             ->method('addMetaBox');
 
+
         $config = $this->getConfig();
-        $config->expects($this->exactly(3))
+
+        $config->expects($this->exactly(4))
             ->method('getDownloadType')
             ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen'));
 
-        $config->expects($this->exactly(2))
+        $config->expects($this->exactly(3))
             ->method('authorsCanAddPostsToGroups')
-            ->will($this->onConsecutiveCalls(true, false));
+            ->will($this->onConsecutiveCalls(true, false, false));
 
         $config->expects($this->exactly(6))
             ->method('lockFile')
@@ -124,7 +128,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
 
         $objectHandler = $this->getObjectHandler();
-        $objectHandler->expects($this->exactly(3))
+
+        $objectHandler->expects($this->exactly(4))
             ->method('getTaxonomies')
             ->will($this->returnValue(['a', 'b']));
 
@@ -132,27 +137,53 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->method('getPostTypes')
             ->will($this->returnValue(['a', ObjectHandler::ATTACHMENT_OBJECT_TYPE]));
 
+
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(3))
+
+        $accessHandler->expects($this->exactly(4))
             ->method('checkUserAccess')
-            ->will($this->onConsecutiveCalls(true, false, false));
+            ->will($this->onConsecutiveCalls(true, false, false, false));
+
 
         $setupHandler = $this->getSetupHandler();
-        $setupHandler->expects($this->exactly(3))
+
+        $setupHandler->expects($this->exactly(4))
             ->method('isDatabaseUpdateNecessary')
-            ->will($this->onConsecutiveCalls(false, true, false));
+            ->will($this->onConsecutiveCalls(false, true, true, true));
+
 
         $adminController = $this->createMock('UserAccessManager\Controller\AdminController');
-        $adminController->expects($this->exactly(3))
+
+        $adminController->expects($this->exactly(8))
             ->method('getRequestParameter')
-            ->will($this->onConsecutiveCalls(null, 'c', 'c'));
+            ->withConsecutive(
+                ['uam_update_db'],
+                ['taxonomy'],
+                ['uam_update_db'],
+                ['taxonomy'],
+                ['uam_update_db'],
+                ['taxonomy'],
+                ['uam_update_db'],
+                ['taxonomy']
+            )
+            ->will($this->onConsecutiveCalls(
+                AdminSetupController::UPDATE_BLOG,
+                null,
+                AdminSetupController::UPDATE_BLOG,
+                'c',
+                AdminSetupController::UPDATE_NETWORK,
+                'c',
+                null,
+                'c'
+            ));
 
         $controllerFactory = $this->getControllerFactory();
-        $controllerFactory->expects($this->exactly(3))
+
+        $controllerFactory->expects($this->exactly(4))
             ->method('createAdminController')
             ->will($this->returnValue($adminController));
 
-        $controllerFactory->expects($this->exactly(3))
+        $controllerFactory->expects($this->exactly(4))
             ->method('createAdminObjectController')
             ->will($this->returnCallback(function () {
                 $adminObjectController = $this->createMock('UserAccessManager\Controller\AdminObjectController');
@@ -176,6 +207,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $controllerFactory
         );
 
+        $objectHandler->registerAdminActionsAndFilters();
         $objectHandler->registerAdminActionsAndFilters();
         $objectHandler->registerAdminActionsAndFilters();
         $objectHandler->registerAdminActionsAndFilters();

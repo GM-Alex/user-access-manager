@@ -44,7 +44,7 @@ class Util
      * @param string $haystack The haystack.
      * @param string $needle   The needle.
      *
-     * @return boolean
+     * @return bool
      */
     public function startsWith($haystack, $needle)
     {

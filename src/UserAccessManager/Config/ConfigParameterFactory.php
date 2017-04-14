@@ -27,7 +27,7 @@ class ConfigParameterFactory
      * @param string $id
      * @param mixed  $defaultValue
      *
-     * @return BooleanConfigParameter
+     * @return boolConfigParameter
      */
     public function createBooleanConfigParameter($id, $defaultValue = false)
     {

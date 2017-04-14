@@ -556,7 +556,7 @@ class ObjectHandler
      *
      * @param string $objectType The object type to check.
      *
-     * @return boolean
+     * @return bool
      */
     public function isValidObjectType($objectType)
     {

@@ -140,12 +140,19 @@ class FrontendController extends Controller
      */
     public function parseQuery($wpQuery)
     {
-        $excludedPosts = $this->accessHandler->getExcludedPosts();
+        if (isset($wpQuery->query_vars['suppress_filters']) === true
+            && $wpQuery->query_vars['suppress_filters'] === true
+        ) {
+            $excludedPosts = $this->accessHandler->getExcludedPosts();
 
-        if (count($excludedPosts) > 0) {
-            $wpQuery->query_vars['post__not_in'] = array_unique(
-                array_merge($wpQuery->query_vars['post__not_in'], $excludedPosts)
-            );
+            if (count($excludedPosts) > 0) {
+                $postsNotIn = (isset($wpQuery->query_vars['post__not_in']) === true) ?
+                    $wpQuery->query_vars['post__not_in'] : [];
+
+                $wpQuery->query_vars['post__not_in'] = array_unique(
+                    array_merge($postsNotIn, $excludedPosts)
+                );
+            }
         }
     }
 
@@ -304,7 +311,7 @@ class FrontendController extends Controller
 
         if (count($excludedPosts) > 0) {
             $excludedPostsStr = implode(', ', $excludedPosts);
-            $query .= " AND {$this->database->getPostsTable()}.ID NOT IN($excludedPostsStr) ";
+            $query .= " AND {$this->database->getPostsTable()}.ID NOT IN ($excludedPostsStr) ";
         }
 
         return $query;

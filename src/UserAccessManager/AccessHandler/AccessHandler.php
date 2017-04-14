@@ -278,7 +278,7 @@ class AccessHandler
      * @param string $currentIp The ip of the current user.
      * @param array  $ipRanges  The ip ranges.
      *
-     * @return boolean
+     * @return bool
      */
     public function isIpInRange($currentIp, array $ipRanges)
     {
@@ -377,7 +377,7 @@ class AccessHandler
      *
      * @param bool|string $allowedCapability If set check also for the capability.
      *
-     * @return boolean
+     * @return bool
      */
     public function checkUserAccess($allowedCapability = false)
     {
@@ -409,7 +409,7 @@ class AccessHandler
      *
      * @param integer $userId The user id.
      *
-     * @return boolean
+     * @return bool
      */
     public function userIsAdmin($userId)
     {
@@ -426,7 +426,7 @@ class AccessHandler
      * @param string  $objectType The object type which should be checked.
      * @param integer $objectId   The _iId of the object.
      *
-     * @return boolean
+     * @return bool
      */
     public function checkObjectAccess($objectType, $objectId)
     {

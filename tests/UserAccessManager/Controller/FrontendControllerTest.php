@@ -122,9 +122,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     public function testParseQuery()
     {
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(3))
+        $accessHandler->expects($this->exactly(4))
             ->method('getExcludedPosts')
-            ->will($this->onConsecutiveCalls([], [3], [2, 3, 5]));
+            ->will($this->onConsecutiveCalls([3, 2, 1], [], [3], [2, 3, 5]));
 
         $frontendController = new FrontendController(
             $this->getPhp(),
@@ -142,10 +142,20 @@ class FrontendControllerTest extends UserAccessManagerTestCase
          * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $wpQuery
          */
         $wpQuery = $this->getMockBuilder('\WP_Query')->getMock();
-        $wpQuery->query_vars = [
-            'post__not_in' => [1, 1, 2, 4]
-        ];
+        $wpQuery->query_vars = [];
 
+        $frontendController->parseQuery($wpQuery);
+        self::assertEquals($wpQuery, $wpQuery);
+
+        $wpQuery->query_vars['suppress_filters'] = false;
+        $frontendController->parseQuery($wpQuery);
+        self::assertEquals($wpQuery, $wpQuery);
+
+        $wpQuery->query_vars['suppress_filters'] = true;
+        $frontendController->parseQuery($wpQuery);
+        self::assertEquals([3, 2, 1], $wpQuery->query_vars['post__not_in']);
+
+        $wpQuery->query_vars['post__not_in'] = [1, 1, 2, 4];
         $frontendController->parseQuery($wpQuery);
         self::assertEquals([1, 1, 2, 4], $wpQuery->query_vars['post__not_in']);
 
@@ -613,8 +623,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         );
 
         self::assertEquals('query', $frontendController->showPostSql('query'));
-        self::assertEquals('query AND postTable.ID NOT IN(1) ', $frontendController->showPostSql('query'));
-        self::assertEquals('query AND postTable.ID NOT IN(1, 3) ', $frontendController->showPostSql('query'));
+        self::assertEquals('query AND postTable.ID NOT IN (1) ', $frontendController->showPostSql('query'));
+        self::assertEquals('query AND postTable.ID NOT IN (1, 3) ', $frontendController->showPostSql('query'));
     }
 
     /**

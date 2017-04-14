@@ -150,16 +150,25 @@ define('TXT_UAM_IP_RANGE', __('IP range', 'user-access-manager'));
 define('TXT_UAM_SETUP', __('Setup', 'user-access-manager'));
 define('TXT_UAM_SETUP_DANGER_ZONE', __('Danger Zone', 'user-access-manager'));
 define('TXT_UAM_RESET_UAM', __('Reset User Access Manager', 'user-access-manager'));
-define('TXT_UAM_RESET_UAM_DESC', __('Type \'reset\' in the input field to reset the User Access Manager.', 'user-access-manager'));
+define('TXT_UAM_RESET_UAM_DESCRIPTION', __('Type \'reset\' in the input field to reset the User Access Manager.', 'user-access-manager'));
 define('TXT_UAM_RESET_UAM_DESC_WARNING', __('Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost.', 'user-access-manager'));
 define('TXT_UAM_RESET', __('reset now', 'user-access-manager'));
 define('TXT_UAM_UPDATE_UAM_DB', __('Update User Access Manager database', 'user-access-manager'));
-define('TXT_UAM_UPDATE_UAM_DB_DESC', __('Updates the database of the User Access Manager. Please backup your database before you perform the update.', 'user-access-manager'));
+define('TXT_UAM_UPDATE_UAM_DB_DESCRIPTION', __('Updates the database of the User Access Manager. Please backup your database before you perform the update.', 'user-access-manager'));
 define('TXT_UAM_UPDATE', __('update now', 'user-access-manager'));
 define('TXT_UAM_UAM_RESET_SUCCESS', __('User Access Manager was reset successfully', 'user-access-manager'));
-define('TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS', __('User Access Manager database was updated successfully', 'user-access-manager'));
+define('TXT_UAM_UAM_DB_UPDATE_SUCCESS', __('User Access Manager database was updated successfully', 'user-access-manager'));
 define('TXT_UAM_UPDATE_BLOG', __('Update current blog', 'user-access-manager'));
 define('TXT_UAM_UPDATE_NETWORK', __('Update network wide', 'user-access-manager'));
+define('TXT_UAM_UPDATE_BACKUP', __('Backup the uam database tables', 'user-access-manager'));
+define('TXT_UAM_REVERT_DATABASE', __('Revert the database', 'user-access-manager'));
+define('TXT_UAM_REVERT_DATABASE_DESCRIPTION', __('Choose a backup to revert the database to this user access manager database version. <b>Note: The user access manager database version differs from the user access manager version.</b>', 'user-access-manager'));
+define('TXT_UAM_REVERT_DATABASE_REVERT_NOW', __('revert now', 'user-access-manager'));
+define('TXT_UAM_REVERT_DATABASE_SUCCESS', __('Revert successfull', 'user-access-manager'));
+define('TXT_UAM_DELETE_DATABASE_BACKUP', __('Delete a database backup', 'user-access-manager'));
+define('TXT_UAM_DELETE_DATABASE_BACKUP_DESCRIPTION', __('Choose a backup to delete. <b>Note: That cannot be undone.</b>', 'user-access-manager'));
+define('TXT_UAM_DELETE_DATABASE_BACKUP_DELETE_NOW', __('delete now', 'user-access-manager'));
+define('TXT_UAM_DELETE_DATABASE_BACKUP_SUCCESS', __('Backup deleted successfully', 'user-access-manager'));
 
 
 // --- About page ---

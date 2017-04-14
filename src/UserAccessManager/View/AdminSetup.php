@@ -27,7 +27,7 @@ if ($controller->hasUpdateMessage()) {
 <div class="wrap">
     <h2><?php echo TXT_UAM_SETUP; ?></h2>
     <?php
-    if ($controller->isDatabaseUpdateNecessary()) {
+    if ($controller->isDatabaseUpdateNecessary() === true) {
         ?>
         <table class="form-table">
             <tbody>
@@ -53,10 +53,82 @@ if ($controller->hasUpdateMessage()) {
                             <?php
                         }
                         ?>
-                        <input type="submit" class="button" name="uam_update_db_submit"
-                               value="<?php echo TXT_UAM_UPDATE; ?>"/> <br/>
+                        &nbsp;<input type="submit" class="button"
+                                     name="uam_update_db_submit"
+                                     value="<?php echo TXT_UAM_UPDATE; ?>"/>
+                        <p>
+                            <input type="checkbox" id="uam_backup_db" checked="checked" name="uam_backup_db" value="1">
+                            <label for="uam_backup_db"><?php echo TXT_UAM_UPDATE_BACKUP; ?></label>
+                        </p>
                         <p style="color: red; font-size: 12px; font-weight: bold;">
-                            <?php echo TXT_UAM_UPDATE_UAM_DB_DESC; ?>
+                            <?php echo TXT_UAM_UPDATE_UAM_DB_DESCRIPTION; ?>
+                        </p>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <?php
+    }
+
+    $backups = $controller->getBackups();
+
+    if (count($backups) > 0) {
+        ?>
+        <table class="form-table">
+            <tbody>
+            <tr valign="top">
+                <th scope="row"><?php echo TXT_UAM_REVERT_DATABASE; ?></th>
+                <td>
+                    <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
+                        <?php $controller->createNonceField('uamSetupRevert'); ?>
+                        <input type="hidden" value="revert_database" name="uam_action"/>
+                        <?php
+                        foreach ($backups as $backup) {
+                            ?>
+                            <input type="radio"
+                                   id="uam_revert_backup_<?php echo $backup; ?>"
+                                   name="uam_revert_database"
+                                   value="<?php echo $backup; ?>">
+                            <label for="uam_revert_backup_<?php echo $backup; ?>"><?php echo $backup; ?></label>
+                            <?php
+                        }
+                        ?>
+                        &nbsp;<input type="submit" class="button"
+                                     name="uam_update_db_submit"
+                                     value="<?php echo TXT_UAM_REVERT_DATABASE_REVERT_NOW; ?>"/>
+                        <p style="font-size: 12px;">
+                            <?php echo TXT_UAM_REVERT_DATABASE_DESCRIPTION; ?>
+                        </p>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <table class="form-table">
+            <tbody>
+            <tr valign="top">
+                <th scope="row"><?php echo TXT_UAM_DELETE_DATABASE_BACKUP; ?></th>
+                <td>
+                    <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
+                        <?php $controller->createNonceField('uamSetupDeleteBackup'); ?>
+                        <input type="hidden" value="delete_database_backup" name="uam_action"/>
+                        <?php
+                        foreach ($backups as $backup) {
+                            ?>
+                            <input type="radio"
+                                   id="uam_delete_backup_<?php echo $backup; ?>"
+                                   name="uam_delete_backup"
+                                   value="<?php echo $backup; ?>">
+                            <label for="uam_delete_backup_<?php echo $backup; ?>"><?php echo $backup; ?></label>
+                            <?php
+                        }
+                        ?>
+                        &nbsp;<input type="submit" class="button"
+                                     name="uam_update_db_submit"
+                                     value="<?php echo TXT_UAM_DELETE_DATABASE_BACKUP_DELETE_NOW; ?>"/>
+                        <p style="font-size: 12px;">
+                            <?php echo TXT_UAM_DELETE_DATABASE_BACKUP_DESCRIPTION; ?>
                         </p>
                     </form>
                 </td>
@@ -85,7 +157,7 @@ if ($controller->hasUpdateMessage()) {
                     />
                     <br/>
                     <p style="font-size: 12px; font-weight: bold;">
-                        <?php echo TXT_UAM_RESET_UAM_DESC; ?>
+                        <?php echo TXT_UAM_RESET_UAM_DESCRIPTION; ?>
                     </p>
                     <p style="color: red; font-size: 12px; font-weight: bold;">
                         <?php echo TXT_UAM_RESET_UAM_DESC_WARNING; ?>

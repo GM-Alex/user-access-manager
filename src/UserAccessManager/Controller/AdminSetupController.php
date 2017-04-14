@@ -28,6 +28,8 @@ use UserAccessManager\Wrapper\Wordpress;
 class AdminSetupController extends Controller
 {
     const SETUP_UPDATE_NONCE = 'uamSetupUpdate';
+    const SETUP_REVERT_NONCE = 'uamSetupRevert';
+    const SETUP_DELETE_BACKUP_NONCE = 'uamSetupDeleteBackup';
     const SETUP_RESET_NONCE = 'uamSetupReset';
     const UPDATE_BLOG = 'blog';
     const UPDATE_NETWORK = 'network';
@@ -91,12 +93,23 @@ class AdminSetupController extends Controller
     }
 
     /**
+     * Returns the existing backups
+     *
+     * @return array
+     */
+    public function getBackups()
+    {
+        return $this->setupHandler->getBackups();
+    }
+
+    /**
      * The database update action.
      */
     public function updateDatabaseAction()
     {
         $this->verifyNonce(self::SETUP_UPDATE_NONCE);
         $update = $this->getRequestParameter('uam_update_db');
+        $backup = (bool)$this->getRequestParameter('uam_backup_db', false);
 
         if ($update === self::UPDATE_BLOG || $update === self::UPDATE_NETWORK) {
             if ($update === self::UPDATE_NETWORK) {
@@ -107,16 +120,51 @@ class AdminSetupController extends Controller
 
                     foreach ($blogIds as $blogId) {
                         $this->wordpress->switchToBlog($blogId);
+
+                        if ($backup === true) {
+                            $this->setupHandler->backupDatabase();
+                        }
+
                         $this->setupHandler->update();
                     }
 
                     $this->wordpress->switchToBlog($currentBlogId);
                 }
             } else {
+                if ($backup === true) {
+                    $this->setupHandler->backupDatabase();
+                }
+
                 $this->setupHandler->update();
             }
 
-            $this->setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUCSUCCESS);
+            $this->setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUCCESS);
+        }
+    }
+
+    /**
+     * Reverts the database to the given version.
+     */
+    public function revertDatabaseAction()
+    {
+        $this->verifyNonce(self::SETUP_REVERT_NONCE);
+        $version = $this->getRequestParameter('uam_revert_database');
+
+        if ($this->setupHandler->revertDatabase($version) === true) {
+            $this->setUpdateMessage(TXT_UAM_REVERT_DATABASE_SUCCESS);
+        }
+    }
+
+    /**
+     * Deletes the given database backup.
+     */
+    public function deleteDatabaseBackupAction()
+    {
+        $this->verifyNonce(self::SETUP_DELETE_BACKUP_NONCE);
+        $version = $this->getRequestParameter('uam_delete_backup');
+
+        if ($this->setupHandler->deleteBackup($version) === true) {
+            $this->setUpdateMessage(TXT_UAM_DELETE_DATABASE_BACKUP_SUCCESS);
         }
     }
 

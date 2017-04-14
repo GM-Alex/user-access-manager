@@ -16,6 +16,7 @@ namespace UserAccessManager;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\Config;
+use UserAccessManager\Controller\AdminSetupController;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -186,7 +187,12 @@ class UserAccessManager
             $this->wordpress->addAction('admin_notices', [$adminController, 'showFOpenNotice']);
         }
 
-        if ($this->setupHandler->isDatabaseUpdateNecessary() === true) {
+        $updateAction = $adminController->getRequestParameter('uam_update_db');
+
+        if ($this->setupHandler->isDatabaseUpdateNecessary() === true
+            && $updateAction !== AdminSetupController::UPDATE_BLOG
+            && $updateAction !== AdminSetupController::UPDATE_NETWORK
+        ) {
             $this->wordpress->addAction('admin_notices', [$adminController, 'showDatabaseNotice']);
         }
 

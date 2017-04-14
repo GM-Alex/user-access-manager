@@ -311,7 +311,7 @@ class Config
     /**
      * Returns true if a user is at the admin panel.
      *
-     * @return boolean
+     * @return bool
      */
     public function atAdminPanel()
     {
@@ -321,12 +321,12 @@ class Config
     /**
      * Returns true if permalinks are active otherwise false.
      *
-     * @return boolean
+     * @return bool
      */
     public function isPermalinksActive()
     {
         $permalinkStructure = $this->getWpOption('permalink_structure');
-        return !empty($permalinkStructure);
+        return (empty($permalinkStructure) === false);
     }
 
     /**
