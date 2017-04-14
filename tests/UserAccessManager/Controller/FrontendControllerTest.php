@@ -1056,11 +1056,11 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $config = $this->getConfig();
 
-        $config->expects($this->exactly(7))
+        $config->expects($this->exactly(8))
             ->method('lockRecursive')
-            ->will($this->onConsecutiveCalls(true, false, false, true, true, false, true));
+            ->will($this->onConsecutiveCalls(true, false, false, true, true, false, true, true));
 
-        $config->expects($this->exactly(12))
+        $config->expects($this->exactly(14))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(
                 false,
@@ -1072,6 +1072,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 false,
                 true,
                 false,
+                true,
+                true,
                 true,
                 true,
                 true
@@ -1104,7 +1106,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->exactly(7))
+        $objectHandler->expects($this->exactly(8))
             ->method('getTermTreeMap')
             ->will($this->returnValue(
                 [
@@ -1116,7 +1118,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ]
             ));
 
-        $objectHandler->expects($this->exactly(7))
+        $objectHandler->expects($this->exactly(8))
             ->method('getTermPostMap')
             ->will($this->returnValue(
                 [
@@ -1125,7 +1127,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ]
             ));
 
-        $objectHandler->expects($this->exactly(4))
+        $objectHandler->expects($this->exactly(5))
             ->method('getTerm')
             ->will($this->returnCallback(function ($termId) {
                 if ($termId === 104) {
@@ -1139,7 +1141,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $accessHandler = $this->getAccessHandler();
 
-        $accessHandler->expects($this->exactly(14))
+        $accessHandler->expects($this->exactly(15))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['taxonomy', 1],
@@ -1155,7 +1157,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ['taxonomy', 11],
                 ['taxonomy', 12],
                 ['taxonomy', 2],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 13]
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 13],
+                ['taxonomy', 50]
             )
             ->will($this->onConsecutiveCalls(
                 false,
@@ -1165,6 +1168,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 true,
                 true,
                 false,
+                true,
                 true,
                 true,
                 true,
@@ -1221,14 +1225,16 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             10 => 10,
             11 => $this->getTerm(11),
             12 => $this->getTerm(12),
-            2 => $this->getTerm(2)
+            2 => $this->getTerm(2),
+            50 => 50
         ];
         self::assertEquals(
             [
                 1 => new \stdClass(),
                 12 => $this->getTerm(12),
                 11 => $this->getTerm(11),
-                2 => $this->getTerm(2, 'taxonomy', null, 1)
+                2 => $this->getTerm(2, 'taxonomy', null, 1),
+                50 => 50
             ],
             $frontendController->showTerms($terms)
         );

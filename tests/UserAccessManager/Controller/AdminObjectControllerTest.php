@@ -691,6 +691,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @covers \UserAccessManager\Controller\AdminObjectController::saveObjectData()
      * @covers \UserAccessManager\Controller\AdminObjectController::savePostData()
      * @covers \UserAccessManager\Controller\AdminObjectController::saveAttachmentData()
+     * @covers \UserAccessManager\Controller\AdminObjectController::saveAjaxAttachmentData()
      * @covers \UserAccessManager\Controller\AdminObjectController::saveUserData()
      * @covers \UserAccessManager\Controller\AdminObjectController::saveTermData()
      * @covers \UserAccessManager\Controller\AdminObjectController::savePluggableObjectData()
@@ -705,12 +706,12 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $objectHandler = $this->getObjectHandlerWithPosts();
 
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(9))
+        $accessHandler->expects($this->exactly(10))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
-            ->will($this->onConsecutiveCalls(false, false, true, true, true, true, true, true, true));
+            ->will($this->onConsecutiveCalls(false, false, true, true, true, true, true, true, true, true));
 
-        $accessHandler->expects($this->exactly(8))
+        $accessHandler->expects($this->exactly(9))
             ->method('getFilteredUserGroupsForObject')
             ->withConsecutive(
                 ['post', 1],
@@ -718,6 +719,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 ['post', 1],
                 ['attachment', 3],
                 ['attachment', 3],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3],
                 [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1],
                 [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1],
                 ['objectType', 'objectId']
@@ -728,12 +730,13 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 $this->getUserGroupArray([2, 3, 4]),
                 $this->getUserGroupArray([1, 3, 4]),
                 $this->getUserGroupArray([1, 2]),
+                $this->getUserGroupArray([1, 3, 4]),
                 $this->getUserGroupArray([3, 4]),
                 $this->getUserGroupArray([1, 4]),
                 $this->getUserGroupArray([2, 3])
             ));
 
-        $accessHandler->expects($this->exactly(8))
+        $accessHandler->expects($this->exactly(9))
             ->method('getFilteredUserGroups')
             ->will($this->onConsecutiveCalls(
                 $this->getUserGroupArray([1, 3], [1, 2, 3], [['post', 1]]),
@@ -741,12 +744,13 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 $this->getUserGroupArray([1, 2], [2, 3, 4], [['post', 1]]),
                 $this->getUserGroupArray([3, 4], [1, 3, 4], [['attachment', 3]]),
                 $this->getUserGroupArray([], [2, 3], [['attachment', 3]]),
+                $this->getUserGroupArray([3, 4], [1, 3, 4], [[ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3]]),
                 $this->getUserGroupArray([2], [3, 4], [[ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1]]),
                 $this->getUserGroupArray([3], [1, 4], [[ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1]]),
                 $this->getUserGroupArray([4], [2, 3], [['objectType', 'objectId']])
             ));
 
-        $accessHandler->expects($this->exactly(8))
+        $accessHandler->expects($this->exactly(9))
             ->method('unsetUserGroupsForObject');
 
         $adminObjectController = new AdminObjectController(
@@ -772,6 +776,12 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $_POST['uam_bulk_type'] = AdminObjectController::BULK_REMOVE;
         $_POST['uam_user_groups'] = [2, 3];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
+
+        $_POST = [
+            'id' => 3,
+            'uam_user_groups' => [3, 4]
+        ];
+        $adminObjectController->saveAjaxAttachmentData();
 
         unset($_POST['uam_bulk_type']);
         $_POST['uam_user_groups'] = [2];
@@ -918,6 +928,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                     'UserColumn.php' => new File('<?php echo \'UserColumn\';'),
                     'PostEditForm.php' => new File('<?php echo \'PostEditForm\';'),
                     'BulkEditForm.php' => new File('<?php echo \'BulkEditForm\';'),
+                    'MediaAjaxEditForm.php' => new File('<?php echo \'MediaAjaxEditForm\';'),
                     'UserProfileEditForm.php' => new File('<?php echo \'UserProfileEditForm\';'),
                     'TermEditForm.php' => new File('<?php echo \'TermEditForm\';'),
                     'GroupSelectionForm.php' => new File('<?php echo \'GroupSelectionForm\';')
@@ -985,9 +996,9 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/PostEditForm.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/PostEditForm.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/BulkEditForm.php'],
-                [$adminObjectController, 'vfs://src/UserAccessManager/View/PostEditForm.php'],
-                [$adminObjectController, 'vfs://src/UserAccessManager/View/PostEditForm.php'],
-                [$adminObjectController, 'vfs://src/UserAccessManager/View/PostEditForm.php'],
+                [$adminObjectController, 'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php'],
+                [$adminObjectController, 'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php'],
+                [$adminObjectController, 'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/UserProfileEditForm.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/UserProfileEditForm.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/TermEditForm.php'],
@@ -1076,30 +1087,59 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
             .'vfs://src/UserAccessManager/View/BulkEditForm.php!';
 
-        $expected = 'meta</td></tr><tr><th class="label"><label>'.TXT_UAM_SET_UP_USER_GROUPS
-            .'</label></th><td class="field">!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/PostEditForm.php!';
 
-        $return = $adminObjectController->showMediaFile('meta');
+        $return = $adminObjectController->showMediaFile(['a' => 'b']);
         self::assertAttributeEquals(null, 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
-        self::assertEquals($expected, $return);
-        $expectedOutput .= '';
+        self::assertEquals(
+            [
+                'a' => 'b',
+                'uam_user_groups' => [
+                    'label' => 'Set up user groups|user-access-manager',
+                    'input' => 'editFrom',
+                    'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
+                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php!'
+                ]
+            ],
+            $return
+        );
 
-        $return = $adminObjectController->showMediaFile('meta', $post);
+        $return = $adminObjectController->showMediaFile(['a' => 'b'], $post);
         self::assertAttributeEquals('post', 'objectType', $adminObjectController);
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
-        self::assertEquals($expected, $return);
-        $expectedOutput .= '';
+        self::assertEquals(
+            [
+                'a' => 'b',
+                'uam_user_groups' => [
+                    'label' => 'Set up user groups|user-access-manager',
+                    'input' => 'editFrom',
+                    'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
+                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php!'
+                ]
+            ],
+            $return
+        );
+
         self::setValue($adminObjectController, 'objectType', null);
         self::setValue($adminObjectController, 'objectId', null);
 
         $_GET['attachment_id'] = 3;
-        $return = $adminObjectController->showMediaFile('meta', $post);
+        $return = $adminObjectController->showMediaFile(['a' => 'b'], $post);
         self::assertAttributeEquals('attachment', 'objectType', $adminObjectController);
         self::assertAttributeEquals(3, 'objectId', $adminObjectController);
-        self::assertEquals($expected, $return);
-        $expectedOutput .= '';
+        self::assertEquals(
+            [
+                'a' => 'b',
+                'uam_user_groups' => [
+                    'label' => 'Set up user groups|user-access-manager',
+                    'input' => 'editFrom',
+                    'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
+                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php!'
+                ]
+            ],
+            $return
+        );
+
         self::setValue($adminObjectController, 'objectType', null);
         self::setValue($adminObjectController, 'objectId', null);
 

@@ -455,7 +455,7 @@ class AdminObjectController extends Controller
      */
     public function savePostData($postParam)
     {
-        $postId = is_array($postParam) ? $postParam['ID'] : $postParam;
+        $postId = (is_array($postParam) === true) ? $postParam['ID'] : $postParam;
         $post = $this->objectHandler->getPost($postId);
         $postType = $post->post_type;
         $postId = $post->ID;
@@ -486,6 +486,21 @@ class AdminObjectController extends Controller
     }
 
     /**
+     * The function for the wp_ajax_save_attachment_compat filter.
+     */
+    public function saveAjaxAttachmentData()
+    {
+        $attachmentId = $this->getRequestParameter('id');
+        $userGroups = $this->getRequestParameter('uam_user_groups');
+
+        $this->saveObjectData(
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            $attachmentId,
+            $userGroups
+        );
+    }
+
+    /**
      * The function for the delete_post action.
      *
      * @param integer $postId The post id.
@@ -499,12 +514,12 @@ class AdminObjectController extends Controller
     /**
      * The function for the media_meta action.
      *
-     * @param string $meta The meta.
-     * @param object $post The post.
+     * @param array    $formFields The meta.
+     * @param \WP_Post $post       The post.
      *
      * @return string
      */
-    public function showMediaFile($meta = '', $post = null)
+    public function showMediaFile(array $formFields, $post = null)
     {
         $attachmentId = $this->getRequestParameter('attachment_id');
 
@@ -516,15 +531,13 @@ class AdminObjectController extends Controller
             $this->setObjectInformation($post->post_type, $post->ID);
         }
 
-        $content = $meta;
-        $content .= '</td></tr><tr>';
-        $content .= '<th class="label">';
-        $content .= '<label>'.TXT_UAM_SET_UP_USER_GROUPS.'</label>';
-        $content .= '</th>';
-        $content .= '<td class="field">';
-        $content .= $this->getIncludeContents('PostEditForm.php');
+        $formFields['uam_user_groups'] =[
+            'label' => TXT_UAM_SET_UP_USER_GROUPS,
+            'input' => 'editFrom',
+            'editFrom' => $this->getIncludeContents('MediaAjaxEditForm.php')
+        ];
 
-        return $content;
+        return $formFields;
     }
 
     /*

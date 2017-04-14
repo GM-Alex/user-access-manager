@@ -516,7 +516,7 @@ class FrontendController extends Controller
      * @param \WP_Term $term     The current term.
      * @param bool     $isEmpty
      *
-     * @return object|null
+     * @return mixed
      */
     protected function processTerm($term, &$isEmpty = null)
     {
@@ -588,7 +588,9 @@ class FrontendController extends Controller
     public function showTerms($terms = [])
     {
         foreach ($terms as $key => $term) {
-            if (is_numeric($term) === true) {
+            $isNumeric = (is_numeric($term) === true);
+
+            if ($isNumeric === true) {
                 if ((int)$term === 0) {
                     unset($terms[$key]);
                     continue;
@@ -604,7 +606,7 @@ class FrontendController extends Controller
             $term = $this->processTerm($term, $isEmpty);
 
             if ($term !== null && $isEmpty === false) {
-                $terms[$key] = $term;
+                $terms[$key] = ($isNumeric === true) ? $term->term_id : $term;
             } else {
                 unset($terms[$key]);
             }

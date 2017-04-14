@@ -19,12 +19,8 @@
     /**
      * @var \UserAccessManager\Controller\AdminObjectController $controller
      */
-    if (!isset($groupsFormName)
-        || $groupsFormName === null
-    ) {
-        $groupsFormName = 'uam_user_groups';
-    }
 
+    $groupsFormName = 'uam_user_groups';
     $objectType = $controller->getObjectType();
     $objectId = $controller->getObjectId();
 

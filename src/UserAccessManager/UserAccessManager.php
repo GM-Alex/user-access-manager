@@ -254,7 +254,18 @@ class UserAccessManager
                     10,
                     2
                 );
-                $this->wordpress->addAction('media_meta', [$adminObjectController, 'showMediaFile'], 10, 2);
+                $this->wordpress->addAction(
+                    'attachment_fields_to_edit',
+                    [$adminObjectController, 'showMediaFile'],
+                    10,
+                    2
+                );
+                $this->wordpress->addAction(
+                    'wp_ajax_save-attachment-compat',
+                    [$adminObjectController, 'saveAjaxAttachmentData'],
+                    1,
+                    9
+                );
             }
 
             //Admin filters
