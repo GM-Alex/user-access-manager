@@ -49,14 +49,6 @@ class FileHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|FileProtectionFactory
-     */
-    private function getFileProtectionFactory()
-    {
-        return $this->createMock('\UserAccessManager\FileHandler\FileProtectionFactory');
-    }
-
-    /**
      * @group  unit
      * @covers \UserAccessManager\FileHandler\FileHandler::__construct()
      */

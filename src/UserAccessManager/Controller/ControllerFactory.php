@@ -36,57 +36,57 @@ class ControllerFactory
     /**
      * @var Php
      */
-    protected $php;
+    private $php;
 
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var Database
      */
-    protected $database;
+    private $database;
 
     /**
      * @var Config
      */
-    protected $config;
+    private $config;
 
     /**
      * @var Util
      */
-    protected $util;
+    private $util;
 
     /**
      * @var Cache
      */
-    protected $cache;
+    private $cache;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var AccessHandler
      */
-    protected $accessHandler;
+    private $accessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    protected $userGroupFactory;
+    private $userGroupFactory;
 
     /**
      * @var FileHandler
      */
-    protected $fileHandler;
+    private $fileHandler;
 
     /**
      * @var SetupHandler
      */
-    protected $setupHandler;
+    private $setupHandler;
 
     /**
      * ControllerFactory constructor.

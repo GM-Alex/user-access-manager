@@ -33,82 +33,72 @@ class AccessHandler
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var Config
      */
-    protected $config;
+    private $config;
 
     /**
      * @var Cache
      */
-    protected $cache;
+    private $cache;
 
     /**
      * @var Database
      */
-    protected $database;
+    private $database;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var Util
      */
-    protected $util;
+    private $util;
 
     /**
      * @var UserGroupFactory
      */
-    protected $userGroupFactory;
+    private $userGroupFactory;
 
     /**
      * @var null|array
      */
-    protected $userGroups = null;
+    private $userGroups = null;
 
     /**
      * @var null|array
      */
-    protected $filteredUserGroups = null;
+    private $filteredUserGroups = null;
 
     /**
      * @var null|array
      */
-    protected $userGroupsForUser = null;
+    private $userGroupsForUser = null;
 
     /**
      * @var null|array
      */
-    protected $termsAssignedToUser = null;
+    private $excludedTerms = null;
 
     /**
      * @var null|array
      */
-    protected $excludedTerms = null;
-
-    /**
-     * @var null|array
-     */
-    protected $postsAssignedToUser = null;
-
-    /**
-     * @var null|array
-     */
-    protected $excludedPosts = null;
+    private $excludedPosts = null;
 
     /**
      * @var array
      */
-    protected $objectUserGroups = [];
+    private $objectUserGroups = [];
 
     /**
      * @var array
      */
-    protected $objectAccess = [];
+    private $objectAccess = [];
 
     /**
      * The constructor
@@ -267,7 +257,7 @@ class AccessHandler
      *
      * @return int
      */
-    protected function calculateIp(array $ip)
+    private function calculateIp(array $ip)
     {
         return ($ip[0] << 24) + ($ip[1] << 16) + ($ip[2] << 8) + $ip[3];
     }
@@ -361,9 +351,9 @@ class AccessHandler
      *
      * @return array
      */
-    protected function getUserRole($user)
+    private function getUserRole($user)
     {
-        if ($user instanceof \WP_User && isset($user->{$this->database->getPrefix().'capabilities'})) {
+        if ($user instanceof \WP_User && isset($user->{$this->database->getPrefix().'capabilities'}) === true) {
             $capabilities = (array)$user->{$this->database->getPrefix().'capabilities'};
         } else {
             $capabilities = [];
@@ -417,7 +407,7 @@ class AccessHandler
         $roles = $this->getUserRole($user);
         $rolesMap = array_flip($roles);
 
-        return (isset($rolesMap['administrator']) === true || $this->wordpress->isSuperAdmin($userId));
+        return (isset($rolesMap['administrator']) === true || $this->wordpress->isSuperAdmin($userId) === true);
     }
 
     /**
@@ -540,7 +530,7 @@ class AccessHandler
                 }
 
                 foreach ($excludedPosts as $postId => $type) {
-                    if (isset($noneHiddenPostTypes[$type])) {
+                    if (isset($noneHiddenPostTypes[$type]) === true) {
                         unset($excludedPosts[$postId]);
                     }
                 }

@@ -27,11 +27,11 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|PluggableObject
      */
-    private function getStub($name, $reference)
+    private function getStub($name)
     {
         return $this->getMockForAbstractClass(
             '\UserAccessManager\ObjectHandler\PluggableObject',
-            [$name, $reference]
+            [$name]
         );
     }
 
@@ -41,10 +41,9 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanCreateInstance()
     {
-        $stub = $this->getStub('nameValue', 'referenceValue');
+        $stub = $this->getStub('nameValue');
         self::assertInstanceOf('\UserAccessManager\ObjectHandler\PluggableObject', $stub);
         self::assertAttributeEquals('nameValue', 'name', $stub);
-        self::assertAttributeEquals('referenceValue', 'reference', $stub);
 
         return $stub;
     }

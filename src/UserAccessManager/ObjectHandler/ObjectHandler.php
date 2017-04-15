@@ -36,72 +36,72 @@ class ObjectHandler
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var null|array
      */
-    protected $postTypes = null;
+    private $postTypes = null;
 
     /**
      * @var null|array
      */
-    protected $taxonomies = null;
+    private $taxonomies = null;
 
     /**
      * @var \WP_User
      */
-    protected $users = null;
+    private $users = null;
 
     /**
      * @var \WP_Post[]
      */
-    protected $posts = null;
+    private $posts = null;
 
     /**
      * @var \WP_Term[]
      */
-    protected $terms = null;
+    private $terms = null;
 
     /**
      * @var array
      */
-    protected $termPostMap = null;
+    private $termPostMap = null;
 
     /**
      * @var array
      */
-    protected $postTermMap = null;
+    private $postTermMap = null;
 
     /**
      * @var array
      */
-    protected $termTreeMap = null;
+    private $termTreeMap = null;
 
     /**
      * @var array
      */
-    protected $postTreeMap = null;
+    private $postTreeMap = null;
 
     /**
      * @var array
      */
-    protected $pluggableObjects = [];
+    private $pluggableObjects = [];
 
     /**
      * @var array
      */
-    protected $objectTypes = null;
+    private $objectTypes = null;
 
     /**
      * @var array
      */
-    protected $allObjectTypes = null;
+    private $allObjectTypes = null;
 
     /**
      * @var array
      */
-    protected $validObjectTypes = [];
+    private $validObjectTypes = [];
 
     /**
      * Cache constructor.
@@ -152,7 +152,7 @@ class ObjectHandler
      */
     public function getUser($id)
     {
-        if (!isset($this->users[$id])) {
+        if (isset($this->users[$id]) === false) {
             $this->users[$id] = $this->wordpress->getUserData($id);
         }
 
@@ -168,7 +168,7 @@ class ObjectHandler
      */
     public function getPost($id)
     {
-        if (!isset($this->posts[$id])) {
+        if (isset($this->posts[$id]) === false) {
             $post = $this->wordpress->getPost($id);
             $this->posts[$id] = ($post === null) ? false : $post;
         }
@@ -188,7 +188,7 @@ class ObjectHandler
     {
         $fullId = $id.'|'.$taxonomy;
 
-        if (!isset($this->terms[$fullId])) {
+        if (isset($this->terms[$fullId]) === false) {
             $term = $this->wordpress->getTerm($id, $taxonomy);
             $this->terms[$fullId] = ($term === null) ? false : $term;
         }
@@ -204,13 +204,13 @@ class ObjectHandler
      *
      * @return array
      */
-    protected function processTreeMapElements(array &$map, array $subMap = null)
+    private function processTreeMapElements(array &$map, array $subMap = null)
     {
         $processMap = ($subMap === null) ? $map : $subMap;
 
         foreach ($processMap as $id => $subIds) {
             foreach ($subIds as $subId => $type) {
-                if (isset($map[$subId])) {
+                if (isset($map[$subId]) === true) {
                     $map[$id] += $this->processTreeMapElements($map, [$subId => $map[$subId]])[$subId];
                 }
             }
@@ -227,7 +227,7 @@ class ObjectHandler
      *
      * @return array
      */
-    protected function getTreeMap($select, $generalType)
+    private function getTreeMap($select, $generalType)
     {
         $treeMap = [
             self::TREE_MAP_CHILDREN => [
@@ -331,7 +331,7 @@ class ObjectHandler
             $results = $this->database->getResults($select);
 
             foreach ($results as $result) {
-                if (!isset($this->termPostMap[$result->termId])) {
+                if (isset($this->termPostMap[$result->termId]) === false) {
                     $this->termPostMap[$result->termId] = [];
                 }
 
@@ -361,7 +361,7 @@ class ObjectHandler
             $results = $this->database->getResults($select);
 
             foreach ($results as $result) {
-                if (!isset($this->postTermMap[$result->objectId])) {
+                if (isset($this->postTermMap[$result->objectId]) === false) {
                     $this->postTermMap[$result->objectId] = [];
                 }
 
@@ -453,7 +453,7 @@ class ObjectHandler
      */
     public function getPluggableObject($objectName)
     {
-        if (isset($this->pluggableObjects[$objectName])) {
+        if (isset($this->pluggableObjects[$objectName]) === true) {
             return $this->pluggableObjects[$objectName];
         }
 
@@ -560,7 +560,7 @@ class ObjectHandler
      */
     public function isValidObjectType($objectType)
     {
-        if (!isset($this->validObjectTypes[$objectType])) {
+        if (isset($this->validObjectTypes[$objectType]) === false) {
             $objectTypesMap = $this->getAllObjectTypes();
             $this->validObjectTypes[$objectType] = isset($objectTypesMap[$objectType]);
         }

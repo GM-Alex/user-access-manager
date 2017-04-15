@@ -156,6 +156,22 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameterFactory
+     */
+    protected function getConfigParameterFactory()
+    {
+        return $this->createMock('\UserAccessManager\Config\ConfigParameterFactory');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\FileHandler\FileProtectionFactory
+     */
+    protected function getFileProtectionFactory()
+    {
+        return $this->createMock('\UserAccessManager\FileHandler\FileProtectionFactory');
+    }
+
+    /**
      * @param int    $id
      * @param bool   $deletable
      * @param bool   $objectIsMember
@@ -180,7 +196,6 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         $name = null
     ) {
         $userGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
-        self::setValue($userGroup, 'id', $id);
 
         $userGroup->expects($this->any())
             ->method('getId')

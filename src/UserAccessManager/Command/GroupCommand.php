@@ -38,17 +38,17 @@ class GroupCommand extends CommandWithDBObject
     /**
      * @var WordpressCli
      */
-    protected $wordpressCli;
+    private $wordpressCli;
 
     /**
      * @var AccessHandler
      */
-    protected $accessHandler;
+    private $accessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    protected $userGroupFactory;
+    private $userGroupFactory;
 
     /**
      * ObjectCommand constructor.
@@ -74,7 +74,7 @@ class GroupCommand extends CommandWithDBObject
      *
      * @return \WP_CLI\Formatter
      */
-    protected function getFormatter(&$assocArguments)
+    private function getFormatter(&$assocArguments)
     {
         return $this->wordpressCli->createFormatter(
             $assocArguments,
@@ -253,7 +253,7 @@ class GroupCommand extends CommandWithDBObject
         $userGroup->setWriteAccess($writeAccess);
 
         // add roles
-        if (isset($assocArguments['roles'])) {
+        if (isset($assocArguments['roles']) === true) {
             $roles = explode(',', $assocArguments['roles']);
 
             $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);

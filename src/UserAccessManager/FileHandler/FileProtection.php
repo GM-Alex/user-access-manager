@@ -80,7 +80,7 @@ abstract class FileProtection
         foreach ($fileTypes as $fileType) {
             $cleanFileType = trim($fileType);
 
-            if (isset($mimeTypes[$cleanFileType])) {
+            if (isset($mimeTypes[$cleanFileType]) === true) {
                 $validFileTypes[$cleanFileType] = $cleanFileType;
             }
         }

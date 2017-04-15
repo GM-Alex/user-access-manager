@@ -34,17 +34,17 @@ class AdminController extends Controller
     /**
      * @var AccessHandler
      */
-    protected $accessHandler;
+    private $accessHandler;
 
     /**
      * @var FileHandler
      */
-    protected $fileHandler;
+    private $fileHandler;
 
     /**
      * @var string
      */
-    protected $notice = '';
+    private $notice = '';
 
     /**
      * AdminController constructor.
@@ -64,7 +64,6 @@ class AdminController extends Controller
         FileHandler $fileHandler
     ) {
         parent::__construct($php, $wordpress, $config);
-        $this->config = $config;
         $this->accessHandler = $accessHandler;
         $this->fileHandler = $fileHandler;
     }
@@ -100,7 +99,7 @@ class AdminController extends Controller
     /**
      * Register styles and scripts with handle for admin panel.
      */
-    protected function registerStylesAndScripts()
+    private function registerStylesAndScripts()
     {
         $urlPath = $this->config->getUrlPath();
 

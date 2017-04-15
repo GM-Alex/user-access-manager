@@ -62,6 +62,19 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\Database\Database::getWordpressDatabase()
+     */
+    public function testGetWordpressDatabase()
+    {
+        $wpDatabase = $this->getWpDatabase();
+        $wpDatabase->prefix = 'wp_';
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+        self::assertEquals($wpDatabase, $database->getWordpressDatabase());
+    }
+
+    /**
+     * @group  unit
      * @covers \UserAccessManager\Database\Database::getUserGroupTable()
      */
     public function testGetUserGroupTable()

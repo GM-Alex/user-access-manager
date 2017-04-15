@@ -24,7 +24,7 @@ class Cache
     /**
      * @var array
      */
-    protected $cache = [];
+    private $cache = [];
 
     /**
      * Returns a generated cache key.
@@ -58,7 +58,7 @@ class Cache
      */
     public function getFromCache($key)
     {
-        if (isset($this->cache[$key])) {
+        if (isset($this->cache[$key]) === true) {
             return $this->cache[$key];
         }
 

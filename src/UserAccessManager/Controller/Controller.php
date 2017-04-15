@@ -29,6 +29,11 @@ abstract class Controller
     const ACTION_SUFFIX = 'Action';
 
     /**
+     * @var string
+     */
+    protected $template = null;
+
+    /**
      * @var Php
      */
     protected $php;
@@ -42,11 +47,6 @@ abstract class Controller
      * @var Config
      */
     protected $config;
-
-    /**
-     * @var string
-     */
-    protected $template = null;
 
     /**
      * @var string

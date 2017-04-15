@@ -15,12 +15,18 @@
 namespace UserAccessManager;
 
 use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
+use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Controller\AdminSetupController;
 use UserAccessManager\Controller\ControllerFactory;
+use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\FileHandler\FileProtectionFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
+use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -37,70 +43,233 @@ class UserAccessManager
     /**
      * @var Php
      */
-    protected $php;
+    private $php;
 
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
+
+    /**
+     * @var Util
+     */
+    private $util;
+
+    /**
+     * @var Cache
+     */
+    private $cache;
 
     /**
      * @var Config
      */
-    protected $config;
+    private $config;
+
+    /**
+     * @var Database
+     */
+    private $database;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var AccessHandler
      */
-    protected $accessHandler;
-
-    /**
-     * @var SetupHandler
-     */
-    protected $setupHandler;
+    private $accessHandler;
 
     /**
      * @var FileHandler
      */
-    protected $fileHandler;
+    private $fileHandler;
+
+    /**
+     * @var SetupHandler
+     */
+    private $setupHandler;
+
+    /**
+     * @var UserGroupFactory
+     */
+    private $userGroupFactory;
 
     /**
      * @var ControllerFactory
      */
-    protected $controllerFactory;
+    private $controllerFactory;
 
+    /**
+     * @var ConfigParameterFactory
+     */
+    private $configParameterFactory;
+
+    /**
+     * @var FileProtectionFactory
+     */
+    private $fileProtectionFactory;
+    
     /**
      * UserAccessManager constructor.
      *
-     * @param Php               $php
-     * @param Wordpress         $wordpress
-     * @param Config            $config
-     * @param ObjectHandler     $objectHandler
-     * @param AccessHandler     $accessHandler
-     * @param SetupHandler      $setupHandler
-     * @param ControllerFactory $controllerFactory
+     * @param Php                    $php
+     * @param Wordpress              $wordpress
+     * @param Util                   $util
+     * @param Cache                  $cache
+     * @param Config                 $config
+     * @param Database               $database
+     * @param ObjectHandler          $objectHandler
+     * @param AccessHandler          $accessHandler
+     * @param FileHandler            $fileHandler
+     * @param SetupHandler           $setupHandler
+     * @param UserGroupFactory       $userGroupFactory
+     * @param ControllerFactory      $controllerFactory
+     * @param ConfigParameterFactory $configParameterFactory
+     * @param FileProtectionFactory  $fileProtectionFactory
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
+        Util $util,
+        Cache $cache,
         Config $config,
+        Database $database,
         ObjectHandler $objectHandler,
         AccessHandler $accessHandler,
+        FileHandler $fileHandler,
         SetupHandler $setupHandler,
-        ControllerFactory $controllerFactory
+        UserGroupFactory $userGroupFactory,
+        ControllerFactory $controllerFactory,
+        ConfigParameterFactory $configParameterFactory,
+        FileProtectionFactory $fileProtectionFactory
     ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
+        $this->util = $util;
+        $this->cache = $cache;
         $this->config = $config;
+        $this->database = $database;
         $this->objectHandler = $objectHandler;
         $this->accessHandler = $accessHandler;
+        $this->fileHandler = $fileHandler;
         $this->setupHandler = $setupHandler;
+        $this->userGroupFactory = $userGroupFactory;
         $this->controllerFactory = $controllerFactory;
+        $this->configParameterFactory = $configParameterFactory;
+        $this->fileProtectionFactory = $fileProtectionFactory;
+    }
+
+    /**
+     * @return Php
+     */
+    public function getPhp()
+    {
+        return $this->php;
+    }
+
+    /**
+     * @return Wordpress
+     */
+    public function getWordpress()
+    {
+        return $this->wordpress;
+    }
+
+    /**
+     * @return Util
+     */
+    public function getUtil()
+    {
+        return $this->util;
+    }
+
+    /**
+     * @return Cache
+     */
+    public function getCache()
+    {
+        return $this->cache;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @return Database
+     */
+    public function getDatabase()
+    {
+        return $this->database;
+    }
+
+    /**
+     * @return ObjectHandler
+     */
+    public function getObjectHandler()
+    {
+        return $this->objectHandler;
+    }
+
+    /**
+     * @return AccessHandler
+     */
+    public function getAccessHandler()
+    {
+        return $this->accessHandler;
+    }
+
+    /**
+     * @return FileHandler
+     */
+    public function getFileHandler()
+    {
+        return $this->fileHandler;
+    }
+
+    /**
+     * @return SetupHandler
+     */
+    public function getSetupHandler()
+    {
+        return $this->setupHandler;
+    }
+
+    /**
+     * @return UserGroupFactory
+     */
+    public function getUserGroupFactory()
+    {
+        return $this->userGroupFactory;
+    }
+
+    /**
+     * @return ControllerFactory
+     */
+    public function getControllerFactory()
+    {
+        return $this->controllerFactory;
+    }
+
+    /**
+     * @return ConfigParameterFactory
+     */
+    public function getConfigParameterFactory()
+    {
+        return $this->configParameterFactory;
+    }
+
+    /**
+     * @return FileProtectionFactory
+     */
+    public function getFileProtectionFactory()
+    {
+        return $this->fileProtectionFactory;
     }
 
     /**

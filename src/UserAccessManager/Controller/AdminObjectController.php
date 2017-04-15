@@ -35,42 +35,42 @@ class AdminObjectController extends Controller
     /**
      * @var Database
      */
-    protected $database;
+    private $database;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var AccessHandler
      */
-    protected $accessHandler;
+    private $accessHandler;
 
     /**
      * @var string
      */
-    protected $objectType = null;
+    private $objectType = null;
 
     /**
      * @var string
      */
-    protected $objectId = null;
+    private $objectId = null;
 
     /**
      * @var UserGroup[]
      */
-    protected $objectUserGroups = [];
+    private $objectUserGroups = [];
 
     /**
      * @var UserGroup[]
      */
-    protected $filteredObjectUserGroups = [];
+    private $filteredObjectUserGroups = [];
 
     /**
      * @var int
      */
-    protected $userGroupDiff = 0;
+    private $userGroupDiff = 0;
 
     /**
      * AdminObjectController constructor.
@@ -102,7 +102,7 @@ class AdminObjectController extends Controller
      * @param string $objectType
      * @param string $objectId
      */
-    protected function setObjectInformation($objectType, $objectId)
+    private function setObjectInformation($objectType, $objectId)
     {
         $this->objectType = $objectType;
         $this->objectId = $objectId;
@@ -328,7 +328,7 @@ class AdminObjectController extends Controller
      * @param integer     $objectId   The _iId of the object.
      * @param UserGroup[] $userGroups The new user groups for the object.
      */
-    protected function saveObjectData($objectType, $objectId, array $userGroups = null)
+    private function saveObjectData($objectType, $objectId, array $userGroups = null)
     {
         if ($this->accessHandler->checkUserAccess('manage_user_groups') === true
             || $this->config->authorsCanAddPostsToGroups() === true
@@ -374,7 +374,7 @@ class AdminObjectController extends Controller
      * @param string $objectType The object type.
      * @param int    $id         The object id.
      */
-    protected function removeObjectData($objectType, $id)
+    private function removeObjectData($objectType, $id)
     {
         $this->database->delete(
             $this->database->getUserGroupToObjectTable(),

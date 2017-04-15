@@ -628,15 +628,27 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @param array $properties
+     *
+     * @return \stdClass
+     */
+    private function createCounts(array $properties)
+    {
+        $counts = new \stdClass();
+
+        foreach ($properties as $property => $value) {
+            $counts->{$property} = $value;
+        }
+
+        return $counts;
+    }
+
+    /**
      * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::showPostCount()
      */
     public function testShowPostCount()
     {
-        $counts = new \stdClass();
-        $counts->firstStatus = 3;
-        $counts->secondStatus = 8;
-
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(3))
             ->method('isUserLoggedIn')
@@ -677,6 +689,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue([
                 ['post_status' => 'firstStatus', 'num_posts' => 2],
                 ['post_status' => 'thirdStatus', 'num_posts' => 5],
+                ['post_status' => 'invalid', 'num_posts' => 5],
             ]));
 
         $database->expects($this->exactly(5))
@@ -742,11 +755,30 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $cache->expects($this->exactly(5))
             ->method('addToCache')
             ->withConsecutive(
-                [FrontendController::POST_COUNTS_CACHE_KEY, $counts],
-                [FrontendController::POST_COUNTS_CACHE_KEY, $counts],
-                [FrontendController::POST_COUNTS_CACHE_KEY, $counts],
-                [FrontendController::POST_COUNTS_CACHE_KEY, $counts],
-                [FrontendController::POST_COUNTS_CACHE_KEY, $counts]
+                [
+                    FrontendController::POST_COUNTS_CACHE_KEY,
+                    $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8])
+                ],
+                [
+                    FrontendController::POST_COUNTS_CACHE_KEY,
+                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
+                ],
+                [
+                    FrontendController::POST_COUNTS_CACHE_KEY,
+                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
+                ],
+                [
+                    FrontendController::POST_COUNTS_CACHE_KEY,
+                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
+                ],
+                [
+                    FrontendController::POST_COUNTS_CACHE_KEY,
+                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
+                ],
+                [
+                    FrontendController::POST_COUNTS_CACHE_KEY,
+                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
+                ]
             );
 
         $accessHandler = $this->getAccessHandler();
@@ -773,14 +805,59 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertEquals('cachedResult', $frontendController->showPostCount($counts, 'type', 'perm'));
-        self::assertEquals($counts, $frontendController->showPostCount($counts, 'type', 'perm'));
+        self::assertEquals(
+            'cachedResult',
+            $frontendController->showPostCount(
+                $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
+                'type',
+                'perm'
+            )
+        );
 
-        $counts->firstStatus = 2;
-        self::assertEquals($counts, $frontendController->showPostCount($counts, 'type', 'perm'));
-        self::assertEquals($counts, $frontendController->showPostCount($counts, 'type', 'readable'));
-        self::assertEquals($counts, $frontendController->showPostCount($counts, 'type', 'readable'));
-        self::assertEquals($counts, $frontendController->showPostCount($counts, 'type', 'readable'));
+        self::assertEquals(
+            $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
+            $frontendController->showPostCount(
+                $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
+                'type',
+                'perm'
+            )
+        );
+
+        self::assertEquals(
+            $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+            $frontendController->showPostCount(
+                $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+                'type',
+                'perm'
+            )
+        );
+
+        self::assertEquals(
+            $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+            $frontendController->showPostCount(
+                $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+                'type',
+                'readable'
+            )
+        );
+
+        self::assertEquals(
+            $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+            $frontendController->showPostCount(
+                $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+                'type',
+                'readable'
+            )
+        );
+
+        self::assertEquals(
+            $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+            $frontendController->showPostCount(
+                $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+                'type',
+                'readable'
+            )
+        );
     }
 
     /**

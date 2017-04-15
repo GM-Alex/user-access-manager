@@ -38,7 +38,7 @@ class BooleanConfigParameter extends ConfigParameter
      *
      * @return bool
      */
-    protected function stringToBoolConverter($value)
+    private function stringToBoolConverter($value)
     {
         if ($value === 'true') {
             $value = true;

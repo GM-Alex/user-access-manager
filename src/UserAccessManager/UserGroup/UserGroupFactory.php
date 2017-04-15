@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\UserGroup;
 
-use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -32,37 +31,32 @@ class UserGroupFactory
     /**
      * @var Php
      */
-    protected $php;
+    private $php;
 
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var Database
      */
-    protected $database;
+    private $database;
 
     /**
      * @var Config
      */
-    protected $config;
-
-    /**
-     * @var Cache
-     */
-    protected $cache;
+    private $config;
 
     /**
      * @var Util
      */
-    protected $util;
+    private $util;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * UserGroupFactory constructor.

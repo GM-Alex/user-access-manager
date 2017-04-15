@@ -145,28 +145,21 @@ $controllerFactory = new ControllerFactory(
 $userAccessManager = new UserAccessManager(
     $php,
     $wordpress,
-    $config,
-    $objectHandler,
-    $accessHandler,
-    $setupHandler,
-    $controllerFactory
-);
-
-$wordpress->doAction('uam_init', [
-    $wordpress,
     $util,
     $cache,
-    $configParameterFactory,
+    $config,
     $database,
     $objectHandler,
-    $config,
-    $userGroupFactory,
     $accessHandler,
-    $fileProtectionFactory,
     $fileHandler,
+    $setupHandler,
+    $userGroupFactory,
     $controllerFactory,
-    $userAccessManager
-]);
+    $configParameterFactory,
+    $fileProtectionFactory
+);
+
+$wordpress->doAction('uam_init', [$userAccessManager]);
 
 //install
 if (function_exists('register_activation_hook')) {

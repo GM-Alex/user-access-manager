@@ -30,12 +30,12 @@ class Database
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var \wpdb
      */
-    protected $wpDatabase;
+    private $wpDatabase;
 
     /**
      * Database constructor.
@@ -46,6 +46,16 @@ class Database
     {
         $this->wordpress = $wordpress;
         $this->wpDatabase = $wordpress->getDatabase();
+    }
+
+    /**
+     * Returns the wordpress database.
+     *
+     * @return \wpdb
+     */
+    public function getWordpressDatabase()
+    {
+        return $this->wpDatabase;
     }
 
     /**

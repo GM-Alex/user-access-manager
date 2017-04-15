@@ -34,7 +34,7 @@
         /**
          * @var \UserAccessManager\UserGroup\UserGroup[] $objectUserGroups
          */
-        if (isset($objectUserGroups[$userGroup->getId()])) {
+        if (isset($objectUserGroups[$userGroup->getId()]) === true) {
             $attributes .= 'checked="checked" ';
 
             if ($objectUserGroups[$userGroup->getId()]->isLockedRecursive($objectType, $objectId)) {

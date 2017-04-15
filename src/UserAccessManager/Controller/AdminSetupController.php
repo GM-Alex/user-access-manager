@@ -35,19 +35,19 @@ class AdminSetupController extends Controller
     const UPDATE_NETWORK = 'network';
 
     /**
+     * @var string
+     */
+    protected $template = 'AdminSetup.php';
+
+    /**
      * @var SetupHandler
      */
-    protected $setupHandler;
+    private $setupHandler;
 
     /**
      * @var Database
      */
-    protected $database;
-
-    /**
-     * @var string
-     */
-    protected $template = 'AdminSetup.php';
+    private $database;
 
     /**
      * AdminSetupController constructor.

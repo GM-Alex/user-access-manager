@@ -30,17 +30,64 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $objectHandler = new UserAccessManager(
+        $userAccessManager = new UserAccessManager(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getUtil(),
+            $this->getCache(),
             $this->getConfig(),
+            $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
+            $this->getFileHandler(),
             $this->getSetupHandler(),
-            $this->getControllerFactory()
+            $this->getUserGroupFactory(),
+            $this->getControllerFactory(),
+            $this->getConfigParameterFactory(),
+            $this->getFileProtectionFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserAccessManager', $objectHandler);
+        self::assertInstanceOf('\UserAccessManager\UserAccessManager', $userAccessManager);
+
+        return $userAccessManager;
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\UserAccessManager::getPhp()
+     * @covers  \UserAccessManager\UserAccessManager::getWordpress()
+     * @covers  \UserAccessManager\UserAccessManager::getUtil()
+     * @covers  \UserAccessManager\UserAccessManager::getCache()
+     * @covers  \UserAccessManager\UserAccessManager::getConfig()
+     * @covers  \UserAccessManager\UserAccessManager::getDatabase()
+     * @covers  \UserAccessManager\UserAccessManager::getObjectHandler()
+     * @covers  \UserAccessManager\UserAccessManager::getAccessHandler()
+     * @covers  \UserAccessManager\UserAccessManager::getFileHandler()
+     * @covers  \UserAccessManager\UserAccessManager::getSetupHandler()
+     * @covers  \UserAccessManager\UserAccessManager::getUserGroupFactory()
+     * @covers  \UserAccessManager\UserAccessManager::getControllerFactory()
+     * @covers  \UserAccessManager\UserAccessManager::getConfigParameterFactory()
+     * @covers  \UserAccessManager\UserAccessManager::getFileProtectionFactory()
+     *
+     * @param UserAccessManager $userAccessManager
+     */
+    public function testSimpleGetters(UserAccessManager $userAccessManager)
+    {
+        self::assertEquals($this->getPhp(), $userAccessManager->getPhp());
+        self::assertEquals($this->getWordpress(), $userAccessManager->getWordpress());
+        self::assertEquals($this->getUtil(), $userAccessManager->getUtil());
+        self::assertEquals($this->getCache(), $userAccessManager->getCache());
+        self::assertEquals($this->getConfig(), $userAccessManager->getConfig());
+        self::assertEquals($this->getDatabase(), $userAccessManager->getDatabase());
+        self::assertEquals($this->getObjectHandler(), $userAccessManager->getObjectHandler());
+        self::assertEquals($this->getAccessHandler(), $userAccessManager->getAccessHandler());
+        self::assertEquals($this->getFileHandler(), $userAccessManager->getFileHandler());
+        self::assertEquals($this->getSetupHandler(), $userAccessManager->getSetupHandler());
+        self::assertEquals($this->getUserGroupFactory(), $userAccessManager->getUserGroupFactory());
+        self::assertEquals($this->getControllerFactory(), $userAccessManager->getControllerFactory());
+        self::assertEquals($this->getConfigParameterFactory(), $userAccessManager->getConfigParameterFactory());
+        self::assertEquals($this->getFileProtectionFactory(), $userAccessManager->getFileProtectionFactory());
     }
 
     /**
@@ -75,18 +122,25 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $controllerFactory->expects($this->once())
             ->method('createAdminAboutController');
 
-        $objectHandler = new UserAccessManager(
+        $userAccessManager = new UserAccessManager(
             $this->getPhp(),
             $wordpress,
+            $this->getUtil(),
+            $this->getCache(),
             $this->getConfig(),
+            $this->getDatabase(),
             $this->getObjectHandler(),
             $accessHandler,
+            $this->getFileHandler(),
             $this->getSetupHandler(),
-            $controllerFactory
+            $this->getUserGroupFactory(),
+            $controllerFactory,
+            $this->getConfigParameterFactory(),
+            $this->getFileProtectionFactory()
         );
 
-        $objectHandler->registerAdminMenu();
-        $objectHandler->registerAdminMenu();
+        $userAccessManager->registerAdminMenu();
+        $userAccessManager->registerAdminMenu();
     }
 
     /**
@@ -197,20 +251,27 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
                 return $adminObjectController;
             }));
 
-        $objectHandler = new UserAccessManager(
+        $userAccessManager = new UserAccessManager(
             $php,
             $wordpress,
+            $this->getUtil(),
+            $this->getCache(),
             $config,
+            $this->getDatabase(),
             $objectHandler,
             $accessHandler,
+            $this->getFileHandler(),
             $setupHandler,
-            $controllerFactory
+            $this->getUserGroupFactory(),
+            $controllerFactory,
+            $this->getConfigParameterFactory(),
+            $this->getFileProtectionFactory()
         );
 
-        $objectHandler->registerAdminActionsAndFilters();
-        $objectHandler->registerAdminActionsAndFilters();
-        $objectHandler->registerAdminActionsAndFilters();
-        $objectHandler->registerAdminActionsAndFilters();
+        $userAccessManager->registerAdminActionsAndFilters();
+        $userAccessManager->registerAdminActionsAndFilters();
+        $userAccessManager->registerAdminActionsAndFilters();
+        $userAccessManager->registerAdminActionsAndFilters();
     }
 
     /**
@@ -241,18 +302,25 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->method('getRedirect')
             ->will($this->onConsecutiveCalls(false, false, true));
 
-        $objectHandler = new UserAccessManager(
+        $userAccessManager = new UserAccessManager(
             $this->getPhp(),
             $wordpress,
+            $this->getUtil(),
+            $this->getCache(),
             $config,
+            $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
+            $this->getFileHandler(),
             $this->getSetupHandler(),
-            $controllerFactory
+            $this->getUserGroupFactory(),
+            $controllerFactory,
+            $this->getConfigParameterFactory(),
+            $this->getFileProtectionFactory()
         );
 
-        $objectHandler->addActionsAndFilters();
-        $objectHandler->addActionsAndFilters();
-        $objectHandler->addActionsAndFilters();
+        $userAccessManager->addActionsAndFilters();
+        $userAccessManager->addActionsAndFilters();
+        $userAccessManager->addActionsAndFilters();
     }
 }

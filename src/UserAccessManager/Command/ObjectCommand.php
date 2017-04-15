@@ -33,12 +33,12 @@ class ObjectCommand extends \WP_CLI_Command
     /**
      * @var WordpressCli
      */
-    protected $wordpressCli;
+    private $wordpressCli;
 
     /**
      * @var AccessHandler
      */
-    protected $accessHandler;
+    private $accessHandler;
 
     /**
      * ObjectCommand constructor.
@@ -124,7 +124,7 @@ class ObjectCommand extends \WP_CLI_Command
         foreach ($userGroupIds as $identifier) {
             $userGroupId = isset($namesMap[$identifier]) ? $namesMap[$identifier] : $identifier;
 
-            if (isset($userGroups[$userGroupId])) {
+            if (isset($userGroups[$userGroupId]) === true) {
                 $addUserGroups[$userGroupId] = $userGroups[$userGroupId];
             } else {
                 $type = (is_numeric($identifier) === true) ? 'id' : 'name';
@@ -142,11 +142,11 @@ class ObjectCommand extends \WP_CLI_Command
         }
 
         foreach ($userGroups as $groupId => $uamUserGroup) {
-            if (isset($removeUserGroups[$groupId])) {
+            if (isset($removeUserGroups[$groupId]) === true) {
                 $uamUserGroup->removeObject($objectType, $objectId);
             }
 
-            if (isset($addUserGroups[$groupId])) {
+            if (isset($addUserGroups[$groupId]) === true) {
                 $uamUserGroup->addObject($objectType, $objectId);
             }
 

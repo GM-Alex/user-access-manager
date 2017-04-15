@@ -891,7 +891,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     public function testUserIsAdmin()
     {
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->once(2))
+        $wordpress->expects($this->once())
             ->method('isSuperAdmin')
             ->will($this->returnValue(false));
 

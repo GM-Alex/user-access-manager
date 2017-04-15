@@ -29,42 +29,37 @@ class Config
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var ConfigParameterFactory
      */
-    protected $configParameterFactory;
+    private $configParameterFactory;
 
     /**
      * @var string
      */
-    protected $baseFile;
+    private $baseFile;
 
     /**
      * @var null|array
      */
-    protected $configParameters = null;
+    private $configParameters = null;
 
     /**
      * @var array
      */
-    protected $wpOptions = [];
-
-    /**
-     * @var bool
-     */
-    protected $atAdminPanel = false;
+    private $wpOptions = [];
 
     /**
      * @var array
      */
-    protected $mimeTypes = null;
+    private $mimeTypes = null;
 
     /**
      * Config constructor.
@@ -95,7 +90,7 @@ class Config
      */
     public function getWpOption($option)
     {
-        if (!isset($this->wpOptions[$option])) {
+        if (!isset($this->wpOptions[$option]) === true) {
             $this->wpOptions[$option] = $this->wordpress->getOption($option);
         }
 
@@ -272,7 +267,7 @@ class Config
         $configParameters = $this->getConfigParameters();
 
         foreach ($rawParameters as $key => $value) {
-            if (isset($configParameters[$key])) {
+            if (isset($configParameters[$key]) === true) {
                 $configParameters[$key]->setValue($value);
             }
         }
@@ -297,7 +292,7 @@ class Config
      *
      * @throws \Exception
      */
-    protected function getParameterValue($parameterName)
+    private function getParameterValue($parameterName)
     {
         $options = $this->getConfigParameters();
 
@@ -400,7 +395,7 @@ class Config
      *
      * @return bool
      */
-    protected function hideObject($parameterName)
+    private function hideObject($parameterName)
     {
         $options = $this->getConfigParameters();
 

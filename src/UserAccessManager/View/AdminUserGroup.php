@@ -272,7 +272,7 @@ if ($controller->getRequestParameter('uam_action') === null
                                 <li class="selectit">
                                     <input id="role-<?php echo $role; ?>" type="checkbox"
                                         <?php
-                                        if (isset($groupRoles[$role])) {
+                                        if (isset($groupRoles[$role]) === true) {
                                             echo 'checked="checked"';
                                         }
                                         ?>

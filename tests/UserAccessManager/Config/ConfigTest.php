@@ -93,14 +93,6 @@ class ConfigTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameterFactory
-     */
-    private function getConfigParameterFactory()
-    {
-        return $this->createMock('\UserAccessManager\Config\ConfigParameterFactory');
-    }
-
-    /**
      * @param callable $closure
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameterFactory
@@ -215,6 +207,7 @@ class ConfigTest extends UserAccessManagerTestCase
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
             ->method('getOption')
+            ->with(Config::ADMIN_OPTIONS_NAME)
             ->will($this->returnValue(null));
 
         $objectHandler = $this->getDefaultObjectHandler(2);
@@ -260,10 +253,14 @@ class ConfigTest extends UserAccessManagerTestCase
             return $element.'|value';
         }, $optionKeys);
 
+        $options = array_combine($optionKeys, $testValues);
+        $options['invalid'] = 'invalid';
+
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
             ->method('getOption')
-            ->will($this->returnValue(array_combine($optionKeys, $testValues)));
+            ->with(Config::ADMIN_OPTIONS_NAME)
+            ->will($this->returnValue($options));
 
         $configParameterFactory = $this->getFactory();
 
@@ -356,7 +353,8 @@ class ConfigTest extends UserAccessManagerTestCase
         $config->setConfigParameters(
             [
                 'blog_admin_hint' => 'blog_admin_hint|value',
-                'lock_file' => 'lock_file|value'
+                'lock_file' => 'lock_file|value',
+                'invalid' => 'invalid'
             ]
         );
     }

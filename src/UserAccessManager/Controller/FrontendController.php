@@ -40,32 +40,32 @@ class FrontendController extends Controller
     /**
      * @var Database
      */
-    protected $database;
+    private $database;
 
     /**
      * @var Cache
      */
-    protected $cache;
+    private $cache;
 
     /**
      * @var Util
      */
-    protected $util;
+    private $util;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var FileHandler
      */
-    protected $fileHandler;
+    private $fileHandler;
 
     /**
      * @var AccessHandler
      */
-    protected $accessHandler;
+    private $accessHandler;
 
     /**
      * FrontendController constructor.
@@ -107,7 +107,7 @@ class FrontendController extends Controller
     /**
      * Register all other styles.
      */
-    protected function registerStylesAndScripts()
+    private function registerStylesAndScripts()
     {
         $urlPath = $this->config->getUrlPath();
 
@@ -212,7 +212,7 @@ class FrontendController extends Controller
      *
      * @return null|\WP_Post
      */
-    protected function processPost(\WP_Post $post, &$locked = null)
+    private function processPost(\WP_Post $post, &$locked = null)
     {
         $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
         $locked = ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false);
@@ -477,7 +477,7 @@ class FrontendController extends Controller
      *
      * @return int
      */
-    protected function getVisibleElementsCount($termType, $termId)
+    private function getVisibleElementsCount($termType, $termId)
     {
         $count = 0;
 
@@ -518,7 +518,7 @@ class FrontendController extends Controller
      *
      * @return mixed
      */
-    protected function processTerm($term, &$isEmpty = null)
+    private function processTerm($term, &$isEmpty = null)
     {
         $isEmpty = false;
 
@@ -788,7 +788,7 @@ class FrontendController extends Controller
      *
      * @return null|\stdClass
      */
-    protected function getFileSettingsByType($objectType, $objectUrl)
+    private function getFileSettingsByType($objectType, $objectUrl)
     {
         $object = null;
 

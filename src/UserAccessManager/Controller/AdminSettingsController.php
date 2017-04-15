@@ -24,19 +24,19 @@ use UserAccessManager\Wrapper\Wordpress;
 class AdminSettingsController extends Controller
 {
     /**
+     * @var string
+     */
+    protected $template = 'AdminSettings.php';
+
+    /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var FileHandler
      */
-    protected $fileHandler;
-
-    /**
-     * @var string
-     */
-    protected $template = 'AdminSettings.php';
+    private $fileHandler;
 
     /**
      * AdminSettingsController constructor.
@@ -95,7 +95,7 @@ class AdminSettingsController extends Controller
      *
      * @return \WP_Post_Type[]
      */
-    protected function getPostTypes()
+    private function getPostTypes()
     {
         return $this->wordpress->getPostTypes(['public' => true], 'objects');
     }
@@ -105,7 +105,7 @@ class AdminSettingsController extends Controller
      *
      * @return \WP_Taxonomy[]
      */
-    protected function getTaxonomies()
+    private function getTaxonomies()
     {
         return $this->wordpress->getTaxonomies(['public' => true], 'objects');
     }
@@ -224,7 +224,7 @@ class AdminSettingsController extends Controller
      *
      * @return mixed|string
      */
-    protected function getObjectText($groupKey, $ident, $description = false)
+    private function getObjectText($groupKey, $ident, $description = false)
     {
         $objects = $this->getPostTypes() + $this->getTaxonomies();
         $ident .= ($description === true) ? '_DESC' : '';

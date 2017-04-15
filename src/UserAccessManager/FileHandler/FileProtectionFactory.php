@@ -29,27 +29,22 @@ class FileProtectionFactory
     /**
      * @var Php
      */
-    protected $php;
+    private $php;
 
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var Config
      */
-    protected $config;
-
-    /**
-     * @var FileHandler
-     */
-    protected $fileHandler;
+    private $config;
 
     /**
      * @var Util
      */
-    protected $util;
+    private $util;
 
     /**
      * FileProtectionFactory constructor.

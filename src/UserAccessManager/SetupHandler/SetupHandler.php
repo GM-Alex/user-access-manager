@@ -31,22 +31,22 @@ class SetupHandler
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var Database
      */
-    protected $database;
+    private $database;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var FileHandler
      */
-    protected $fileHandler;
+    private $fileHandler;
 
     /**
      * SetupHandler constructor.
@@ -111,7 +111,7 @@ class SetupHandler
     /**
      * Creates the needed tables at the database and adds the options
      */
-    protected function runInstall()
+    private function runInstall()
     {
         $charsetCollate = $this->database->getCharset();
         $dbAccessGroupTable = $this->database->getUserGroupTable();

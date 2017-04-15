@@ -26,7 +26,7 @@ class Util
     /**
      * @var Php
      */
-    protected $php;
+    private $php;
 
     /**
      * Util constructor.
@@ -91,7 +91,7 @@ class Util
      */
     public function getCurrentUrl()
     {
-        if (!isset($_SERVER['REQUEST_URI'])) {
+        if (isset($_SERVER['REQUEST_URI']) === false) {
             $serverRequestUri = $_SERVER['PHP_SELF'];
         } else {
             $serverRequestUri = $_SERVER['REQUEST_URI'];

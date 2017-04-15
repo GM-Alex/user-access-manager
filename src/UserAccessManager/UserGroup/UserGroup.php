@@ -33,97 +33,97 @@ class UserGroup
     /**
      * @var Php
      */
-    protected $php;
+    private $php;
 
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var Database
      */
-    protected $database;
+    private $database;
 
     /**
      * @var Config
      */
-    protected $config;
+    private $config;
 
     /**
      * @var Util
      */
-    protected $util;
+    private $util;
 
     /**
      * @var ObjectHandler
      */
-    protected $objectHandler;
+    private $objectHandler;
 
     /**
      * @var int
      */
-    protected $id = null;
+    private $id = null;
 
     /**
      * @var string
      */
-    protected $name = null;
+    private $name = null;
 
     /**
      * @var string
      */
-    protected $description = null;
+    private $description = null;
 
     /**
      * @var string
      */
-    protected $readAccess = null;
+    private $readAccess = null;
 
     /**
      * @var string
      */
-    protected $writeAccess = null;
+    private $writeAccess = null;
 
     /**
      * @var string
      */
-    protected $ipRange = null;
+    private $ipRange = null;
 
     /**
      * @var array
      */
-    protected $assignedObjects = [];
+    private $assignedObjects = [];
 
     /**
      * @var array
      */
-    protected $roleMembership = [];
+    private $roleMembership = [];
 
     /**
      * @var array
      */
-    protected $userMembership = [];
+    private $userMembership = [];
 
     /**
      * @var array
      */
-    protected $termMembership = [];
+    private $termMembership = [];
 
     /**
      * @var array
      */
-    protected $postMembership = [];
+    private $postMembership = [];
 
     /**
      * @var array
      */
-    protected $pluggableObjectMembership = [];
+    private $pluggableObjectMembership = [];
 
     /**
      * @var array
      */
-    protected $fullObjectMembership = [];
+    private $fullObjectMembership = [];
 
     /**
      * UserGroup constructor.
@@ -473,7 +473,7 @@ class UserGroup
      *
      * @return array
      */
-    protected function getAssignedObjects($objectType)
+    public function getAssignedObjects($objectType)
     {
         if (isset($this->assignedObjects[$objectType]) === false) {
             $query = $this->database->prepare(
@@ -507,7 +507,7 @@ class UserGroup
      *
      * @return bool
      */
-    protected function isObjectAssignedToGroup($objectType, $objectId)
+    private function isObjectAssignedToGroup($objectType, $objectId)
     {
         $assignedObjects = $this->getAssignedObjects($objectType);
         return isset($assignedObjects[$objectId]);
@@ -523,7 +523,7 @@ class UserGroup
      *
      * @return bool
      */
-    protected function isObjectRecursiveMember(
+    private function isObjectRecursiveMember(
         $mapFunction,
         $objectType,
         $objectId,
@@ -537,7 +537,7 @@ class UserGroup
             $generalMap = isset($map[ObjectHandler::TREE_MAP_PARENTS][$objectType]) ?
                 $map[ObjectHandler::TREE_MAP_PARENTS][$objectType] : [];
 
-            if (isset($generalMap[$objectId])) {
+            if (isset($generalMap[$objectId]) === true) {
                 foreach ($generalMap[$objectId] as $parentId => $type) {
                     if ($this->isObjectAssignedToGroup($objectType, $parentId)) {
                         $recursiveMembership[$objectType][$parentId] = $type;
@@ -672,7 +672,7 @@ class UserGroup
             if ($this->config->lockRecursive() === true) {
                 $postTermMap = $this->objectHandler->getPostTermMap();
 
-                if (isset($postTermMap[$postId])) {
+                if (isset($postTermMap[$postId]) === true) {
                     foreach ($postTermMap[$postId] as $termId => $type) {
                         if ($this->isTermMember($termId) === true) {
                             $recursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$termId] = $type;
@@ -805,7 +805,7 @@ class UserGroup
      *
      * @return array
      */
-    protected function getFullObjects($mapFunction, $objectType)
+    private function getFullObjects($mapFunction, $objectType)
     {
         $objects = $this->getAssignedObjects($objectType);
 
@@ -817,7 +817,7 @@ class UserGroup
 
             foreach ($map as $childrenIds) {
                 foreach ($childrenIds as $parentId => $type) {
-                    if ($this->isObjectMember($objectType, $parentId)) {
+                    if ($this->isObjectMember($objectType, $parentId) === true) {
                         $objects[$parentId] = $type;
                     }
                 }
@@ -899,7 +899,7 @@ class UserGroup
                 $terms = $this->getFullTerms();
 
                 foreach ($terms as $termId => $term) {
-                    if (isset($termsPostMap[$termId])) {
+                    if (isset($termsPostMap[$termId]) === true) {
                         $posts += $termsPostMap[$termId];
                     }
                 }

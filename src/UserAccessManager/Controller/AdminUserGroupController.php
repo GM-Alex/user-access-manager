@@ -32,24 +32,24 @@ class AdminUserGroupController extends Controller
     const DELETE_GROUP_NONCE = 'uamDeleteGroup';
 
     /**
-     * @var AccessHandler
-     */
-    protected $accessHandler;
-
-    /**
-     * @var UserGroupFactory
-     */
-    protected $userGroupFactory;
-
-    /**
      * @var string
      */
     protected $template = 'AdminUserGroup.php';
 
     /**
+     * @var AccessHandler
+     */
+    private $accessHandler;
+
+    /**
+     * @var UserGroupFactory
+     */
+    private $userGroupFactory;
+
+    /**
      * @var \UserAccessManager\UserGroup\UserGroup
      */
-    protected $userGroup = null;
+    private $userGroup = null;
 
     /**
      * AdminUserGroupController constructor.

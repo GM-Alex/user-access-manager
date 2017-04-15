@@ -28,22 +28,22 @@ class FileHandler
     /**
      * @var Php
      */
-    protected $php;
+    private $php;
 
     /**
      * @var Wordpress
      */
-    protected $wordpress;
+    private $wordpress;
 
     /**
      * @var Config
      */
-    protected $config;
+    private $config;
 
     /**
      * @var FileProtectionFactory
      */
-    protected $fileProtectionFactory;
+    private $fileProtectionFactory;
 
     /**
      * FileHandler constructor.
@@ -90,13 +90,13 @@ class FileHandler
 
             $mimeTypes = $this->config->getMimeTypes();
 
-            if ($this->php->functionExists('finfo_open')) {
+            if ($this->php->functionExists('finfo_open') === true) {
                 $fileInfo = finfo_open(FILEINFO_MIME);
                 $fileMimeType = finfo_file($fileInfo, $file);
                 finfo_close($fileInfo);
             } elseif ($this->php->functionExists('mime_content_type')) {
                 $fileMimeType = mime_content_type($file);
-            } elseif (isset($mimeTypes[$fileExt])) {
+            } elseif (isset($mimeTypes[$fileExt]) === true) {
                 $fileMimeType = $mimeTypes[$fileExt];
             } else {
                 $fileMimeType = 'application/octet-stream';

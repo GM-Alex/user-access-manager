@@ -24,7 +24,7 @@ class SelectionConfigParameter extends ConfigParameter
     /**
      * @var array
      */
-    protected $selections;
+    private $selections;
 
     /**
      * SelectionConfigParameter constructor.
