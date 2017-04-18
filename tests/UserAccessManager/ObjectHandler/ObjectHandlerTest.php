@@ -620,7 +620,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
          */
         $pluggableObject = $this->createMock('UserAccessManager\ObjectHandler\PluggableObject');
         $pluggableObject->expects($expectation)
-            ->method('getName')
+            ->method('getObjectType')
             ->will($this->returnValue($name));
 
         return $pluggableObject;

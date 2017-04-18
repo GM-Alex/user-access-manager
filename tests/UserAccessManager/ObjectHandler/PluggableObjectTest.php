@@ -22,16 +22,15 @@ namespace UserAccessManager\ObjectHandler;
 class PluggableObjectTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @param $name
-     * @param $reference
+     * @param $objectType
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|PluggableObject
      */
-    private function getStub($name)
+    private function getStub($objectType)
     {
         return $this->getMockForAbstractClass(
             '\UserAccessManager\ObjectHandler\PluggableObject',
-            [$name]
+            [$objectType]
         );
     }
 
@@ -41,9 +40,9 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanCreateInstance()
     {
-        $stub = $this->getStub('nameValue');
+        $stub = $this->getStub('objectTypeValue');
         self::assertInstanceOf('\UserAccessManager\ObjectHandler\PluggableObject', $stub);
-        self::assertAttributeEquals('nameValue', 'name', $stub);
+        self::assertAttributeEquals('objectTypeValue', 'objectType', $stub);
 
         return $stub;
     }
@@ -51,12 +50,12 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\ObjectHandler\PluggableObject::getName()
+     * @covers  \UserAccessManager\ObjectHandler\PluggableObject::getObjectType()
      *
      * @param PluggableObject $stub
      */
-    public function testGetName(PluggableObject $stub)
+    public function testGetObjectType(PluggableObject $stub)
     {
-        self::assertEquals('nameValue', $stub->getName());
+        self::assertEquals('objectTypeValue', $stub->getObjectType());
     }
 }

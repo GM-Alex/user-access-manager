@@ -509,7 +509,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $pluggableObject = $this->createMock('\UserAccessManager\ObjectHandler\PluggableObject');
         $pluggableObject->expects($this->once())
-            ->method('getName')
+            ->method('getObjectType')
             ->will($this->returnValue('pluggableObjectTypeName'));
         $pluggableObject->expects($this->once())
             ->method('getObjectName')

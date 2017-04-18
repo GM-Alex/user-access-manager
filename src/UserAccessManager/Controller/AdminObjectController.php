@@ -274,7 +274,7 @@ class AdminObjectController extends Controller
                     }
                 } elseif ($this->objectHandler->isPluggableObject($recursiveType) === true) {
                     $pluggableObject = $this->objectHandler->getPluggableObject($recursiveType);
-                    $typeName = $pluggableObject->getName();
+                    $typeName = $pluggableObject->getObjectType();
                     $objectName = $pluggableObject->getObjectName($objectId);
                 }
 

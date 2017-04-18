@@ -17,7 +17,6 @@
  * @var \UserAccessManager\Controller\AdminObjectController $controller
  */
 $userGroups = $controller->getFilteredUserGroups();
-$objectUserGroups = $controller->getFilteredObjectUserGroups();
 
 if (count($userGroups) > 0) {
     include 'GroupSelectionForm.php';

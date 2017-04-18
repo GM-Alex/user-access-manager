@@ -26,24 +26,24 @@ abstract class PluggableObject
     /**
      * @var string
      */
-    private $name;
+    private $objectType;
 
     /**
      * PluggableObject constructor.
      *
-     * @param string $name
+     * @param string $objectType
      */
-    public function __construct($name)
+    public function __construct($objectType)
     {
-        $this->name = $name;
+        $this->objectType = $objectType;
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getObjectType()
     {
-        return $this->name;
+        return $this->objectType;
     }
 
     /**
@@ -52,13 +52,6 @@ abstract class PluggableObject
      * @return string
      */
     abstract public function getObjectName($objectId);
-
-    /**
-     * @param string $objectId
-     *
-     * @return object|null
-     */
-    abstract public function getObject($objectId);
 
     /**
      * @param UserGroup $userGroup

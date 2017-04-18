@@ -17,7 +17,6 @@
  * @var \UserAccessManager\Controller\AdminObjectController $controller
  */
 $userGroups = $controller->getFilteredUserGroups();
-$objectUserGroups = $controller->getFilteredObjectUserGroups();
 
 ?>
 <h3><?php echo TXT_UAM_GROUPS; ?></h3>

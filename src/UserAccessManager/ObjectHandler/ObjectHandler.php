@@ -441,7 +441,7 @@ class ObjectHandler
      */
     public function registerPluggableObject(PluggableObject $object)
     {
-        $this->pluggableObjects[$object->getName()] = $object;
+        $this->pluggableObjects[$object->getObjectType()] = $object;
     }
 
     /**

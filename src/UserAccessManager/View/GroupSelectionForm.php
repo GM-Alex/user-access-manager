@@ -23,6 +23,8 @@
     $groupsFormName = 'uam_user_groups';
     $objectType = $controller->getObjectType();
     $objectId = $controller->getObjectId();
+    $userGroups = $controller->getFilteredUserGroups();
+    $objectUserGroups = $controller->getFilteredObjectUserGroups();
 
     /**
      * @var \UserAccessManager\UserGroup\UserGroup[] $userGroups

@@ -16,8 +16,6 @@
 /**
  * @var \UserAccessManager\Controller\AdminObjectController $controller
  */
-$userGroups = $controller->getFilteredUserGroups();
-$objectUserGroups = $controller->getFilteredObjectUserGroups();
 ?>
 <table class="form-table">
     <tbody>
