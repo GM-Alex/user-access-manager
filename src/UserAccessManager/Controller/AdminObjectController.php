@@ -31,6 +31,7 @@ class AdminObjectController extends Controller
 {
     const COLUMN_NAME = 'uam_access';
     const BULK_REMOVE = 'remove';
+    const DEFAULT_GROUPS_FORM_NAME = 'uam_user_groups';
 
     /**
      * @var Database
@@ -48,6 +49,11 @@ class AdminObjectController extends Controller
     private $accessHandler;
 
     /**
+     * @var null
+     */
+    private $groupsFromName = null;
+
+    /**
      * @var string
      */
     private $objectType = null;
@@ -61,11 +67,6 @@ class AdminObjectController extends Controller
      * @var UserGroup[]
      */
     private $objectUserGroups = [];
-
-    /**
-     * @var UserGroup[]
-     */
-    private $filteredObjectUserGroups = [];
 
     /**
      * @var int
@@ -101,17 +102,32 @@ class AdminObjectController extends Controller
      *
      * @param string $objectType
      * @param string $objectId
+     * @param array  $objectUserGroups
      */
-    private function setObjectInformation($objectType, $objectId)
+    private function setObjectInformation($objectType, $objectId, array $objectUserGroups = null)
     {
         $this->objectType = $objectType;
         $this->objectId = $objectId;
-        $this->objectUserGroups = $this->accessHandler->getUserGroupsForObject($objectType, $objectId);
-        $this->filteredObjectUserGroups = $this->accessHandler->getFilteredUserGroupsForObject(
-            $objectType,
-            $objectId
-        );
-        $this->userGroupDiff = count($this->objectUserGroups) - count($this->filteredObjectUserGroups);
+
+        if ($objectUserGroups === null) {
+            $objectUserGroups = $this->accessHandler->getFilteredUserGroupsForObject($objectType, $objectId);
+            $fullObjectUserGroups = $this->accessHandler->getUserGroupsForObject($objectType, $objectId);
+            $this->userGroupDiff = count($fullObjectUserGroups) - count($objectUserGroups);
+        } else {
+            $this->userGroupDiff = 0;
+        }
+
+        $this->objectUserGroups = $objectUserGroups;
+    }
+
+    /**
+     * Returns the default groups form name.
+     *
+     * @return string
+     */
+    public function getGroupsFromName()
+    {
+        return ($this->groupsFromName !== null) ? (string)$this->groupsFromName : self::DEFAULT_GROUPS_FORM_NAME;
     }
 
     /**
@@ -135,23 +151,13 @@ class AdminObjectController extends Controller
     }
 
     /**
-     * Returns the current object full user groups.
+     * Returns the current object user groups.
      *
      * @return UserGroup[]
      */
     public function getObjectUserGroups()
     {
         return $this->objectUserGroups;
-    }
-
-    /**
-     * Returns the current object user groups.
-     *
-     * @return UserGroup[]
-     */
-    public function getFilteredObjectUserGroups()
-    {
-        return $this->filteredObjectUserGroups;
     }
 
     /**
@@ -334,7 +340,7 @@ class AdminObjectController extends Controller
             || $this->config->authorsCanAddPostsToGroups() === true
         ) {
             if ($userGroups === null) {
-                $updateGroups = $this->getRequestParameter('uam_user_groups', []);
+                $updateGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
                 $userGroups = (is_array($updateGroups) === true) ? $updateGroups : [];
             }
 
@@ -491,7 +497,7 @@ class AdminObjectController extends Controller
     public function saveAjaxAttachmentData()
     {
         $attachmentId = $this->getRequestParameter('id');
-        $userGroups = $this->getRequestParameter('uam_user_groups');
+        $userGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME);
 
         $this->saveObjectData(
             ObjectHandler::GENERAL_POST_OBJECT_TYPE,
@@ -531,7 +537,7 @@ class AdminObjectController extends Controller
             $this->setObjectInformation($post->post_type, $post->ID);
         }
 
-        $formFields['uam_user_groups'] =[
+        $formFields[self::DEFAULT_GROUPS_FORM_NAME] =[
             'label' => TXT_UAM_SET_UP_USER_GROUPS,
             'input' => 'editFrom',
             'editFrom' => $this->getIncludeContents('MediaAjaxEditForm.php')
@@ -711,15 +717,26 @@ class AdminObjectController extends Controller
     /**
      * Returns the group selection form for pluggable objects.
      *
-     * @param string $objectType The object type.
-     * @param string $objectId   The id of the object.
+     * @param string $objectType       The object type.
+     * @param string $objectId         The id of the object.
+     * @param string $fromName         The formName.
+     * @param array  $objectUserGroups If set we force this user groups for the object.
      *
      * @return string
      */
-    public function showPluggableGroupSelectionForm($objectType, $objectId)
-    {
-        $this->setObjectInformation($objectType, $objectId);
-        return $this->getIncludeContents('GroupSelectionForm.php');
+    public function showPluggableGroupSelectionForm(
+        $objectType,
+        $objectId,
+        $fromName = null,
+        array $objectUserGroups = null
+    ) {
+        $this->setObjectInformation($objectType, $objectId, $objectUserGroups);
+
+        $this->groupsFromName = $fromName;
+        $formContent = $this->getIncludeContents('GroupSelectionForm.php');
+        $this->groupsFromName = null;
+
+        return $formContent;
     }
 
     /**

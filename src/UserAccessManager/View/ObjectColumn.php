@@ -16,7 +16,7 @@
 /**
  * @var \UserAccessManager\Controller\AdminObjectController $controller
  */
-$objectUserGroups = $controller->getFilteredObjectUserGroups();
+$objectUserGroups = $controller->getObjectUserGroups();
 $userGroupDiff = $controller->getUserGroupDiff();
 
 if (count($objectUserGroups) > 0 || $userGroupDiff > 0) {

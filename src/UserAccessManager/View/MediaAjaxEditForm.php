@@ -16,13 +16,13 @@
 /**
  * @var \UserAccessManager\Controller\AdminObjectController $controller
  */    $userGroups = $controller->getFilteredUserGroups();
-$objectUserGroups = $controller->getFilteredObjectUserGroups();
+$objectUserGroups = $controller->getObjectUserGroups();
 
 if (count($userGroups) > 0) {
     ?>
     <ul class="uam_group_selection" style="margin: 0;">
         <?php
-        $groupsFormName = 'uam_user_groups';
+        $groupsFormName = $controller->getGroupsFromName();
         $objectType = $controller->getObjectType();
         $objectId = $controller->getObjectId();
 

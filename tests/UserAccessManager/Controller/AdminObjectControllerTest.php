@@ -162,12 +162,23 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
+        $userGroups = [
+            3 => $this->getUserGroup(3),
+            4 => $this->getUserGroup(4)
+        ];
+
+        self::callMethod($adminObjectController, 'setObjectInformation', ['objectType', 'objectId', $userGroups]);
+
+        self::assertAttributeEquals('objectType', 'objectType', $adminObjectController);
+        self::assertAttributeEquals('objectId', 'objectId', $adminObjectController);
+        self::assertAttributeEquals($userGroups, 'objectUserGroups', $adminObjectController);
+        self::assertAttributeEquals(0, 'userGroupDiff', $adminObjectController);
+
         self::callMethod($adminObjectController, 'setObjectInformation', ['objectType', 'objectId']);
 
         self::assertAttributeEquals('objectType', 'objectType', $adminObjectController);
         self::assertAttributeEquals('objectId', 'objectId', $adminObjectController);
-        self::assertAttributeEquals($fullGroups, 'objectUserGroups', $adminObjectController);
-        self::assertAttributeEquals($filteredGroups, 'filteredObjectUserGroups', $adminObjectController);
+        self::assertAttributeEquals($filteredGroups, 'objectUserGroups', $adminObjectController);
         self::assertAttributeEquals(1, 'userGroupDiff', $adminObjectController);
 
         return $adminObjectController;
@@ -204,24 +215,9 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      *
      * @param AdminObjectController $adminObjectController
      */
-    public function testGetFullObjectUserGroups(AdminObjectController $adminObjectController)
-    {
-        self::assertEquals(
-            [1 => $this->getUserGroup(1), 2 => $this->getUserGroup(2)],
-            $adminObjectController->getObjectUserGroups()
-        );
-    }
-
-    /**
-     * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminObjectController::getFilteredObjectUserGroups()
-     * @depends testSetObjectInformation
-     *
-     * @param AdminObjectController $adminObjectController
-     */
     public function testGetObjectUserGroups(AdminObjectController $adminObjectController)
     {
-        self::assertEquals([1 => $this->getUserGroup(1)], $adminObjectController->getFilteredObjectUserGroups());
+        self::assertEquals([1 => $this->getUserGroup(1)], $adminObjectController->getObjectUserGroups());
     }
 
     /**
@@ -914,6 +910,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @covers \UserAccessManager\Controller\AdminObjectController::showUserProfile()
      * @covers \UserAccessManager\Controller\AdminObjectController::showTermEditForm()
      * @covers \UserAccessManager\Controller\AdminObjectController::showPluggableGroupSelectionForm()
+     * @covers \UserAccessManager\Controller\AdminObjectController::getGroupsFromName()
      */
     public function testEditForm()
     {
@@ -939,7 +936,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $php = $this->getPhp();
 
         $config = $this->getConfig();
-        $config->expects($this->exactly(15))
+        $config->expects($this->exactly(16))
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
@@ -986,7 +983,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
-        $php->expects($this->exactly(15))
+        $php->expects($this->exactly(16))
             ->method('includeFile')
             ->withConsecutive(
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/ObjectColumn.php'],
@@ -1003,10 +1000,11 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/UserProfileEditForm.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/TermEditForm.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/TermEditForm.php'],
+                [$adminObjectController, 'vfs://src/UserAccessManager/View/GroupSelectionForm.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/GroupSelectionForm.php']
             )
-            ->will($this->returnCallback(function (Controller $controller, $file) {
-                echo '!'.get_class($controller).'|'.$file.'!';
+            ->will($this->returnCallback(function (AdminObjectController $controller, $file) {
+                echo '!'.get_class($controller).'|'.$file.'|'.$controller->getGroupsFromName().'!';
             }));
 
         $adminObjectController->addPostColumn('invalid', 1);
@@ -1015,13 +1013,13 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals('post', 'objectType', $adminObjectController);
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
         $expectedOutput = '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/ObjectColumn.php!';
+            .'vfs://src/UserAccessManager/View/ObjectColumn.php|uam_user_groups!';
 
         self::assertEquals('return', $adminObjectController->addUserColumn('return', 'invalid', 1));
         self::assertEquals('return', $adminObjectController->addUserColumn('return', 'invalid', 1));
 
         $expected = 'return!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/UserColumn.php!';
+            .'vfs://src/UserAccessManager/View/UserColumn.php|uam_user_groups!';
 
         self::assertEquals(
             $expected,
@@ -1034,7 +1032,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertEquals('content', $adminObjectController->addTermColumn('content', 'invalid', 1));
 
         $expected = 'content!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/ObjectColumn.php!';
+            .'vfs://src/UserAccessManager/View/ObjectColumn.php|uam_user_groups!';
 
         self::assertEquals(
             $expected,
@@ -1044,7 +1042,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
 
         $expected = '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/ObjectColumn.php!';
+            .'vfs://src/UserAccessManager/View/ObjectColumn.php|uam_user_groups!';
 
         self::assertEquals(
             $expected,
@@ -1060,7 +1058,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals(null, 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/PostEditForm.php!';
+            .'vfs://src/UserAccessManager/View/PostEditForm.php|uam_user_groups!';
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post
@@ -1073,7 +1071,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals('post', 'objectType', $adminObjectController);
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/PostEditForm.php!';
+            .'vfs://src/UserAccessManager/View/PostEditForm.php|uam_user_groups!';
         self::setValue($adminObjectController, 'objectType', null);
         self::setValue($adminObjectController, 'objectId', null);
 
@@ -1085,7 +1083,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $adminObjectController->addBulkAction(AdminObjectController::COLUMN_NAME);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/BulkEditForm.php!';
+            .'vfs://src/UserAccessManager/View/BulkEditForm.php|uam_user_groups!';
 
 
         $return = $adminObjectController->showMediaFile(['a' => 'b']);
@@ -1098,7 +1096,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
                     'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
-                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php!'
+                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
             $return
@@ -1114,7 +1112,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
                     'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
-                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php!'
+                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
             $return
@@ -1134,7 +1132,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
                     'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
-                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php!'
+                        .'vfs://src/UserAccessManager/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
             $return
@@ -1147,14 +1145,14 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals(null, 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/UserProfileEditForm.php!';
+            .'vfs://src/UserAccessManager/View/UserProfileEditForm.php|uam_user_groups!';
 
         $_GET['user_id'] = 4;
         $adminObjectController->showUserProfile();
         self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $adminObjectController);
         self::assertAttributeEquals(4, 'objectId', $adminObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/UserProfileEditForm.php!';
+            .'vfs://src/UserAccessManager/View/UserProfileEditForm.php|uam_user_groups!';
         self::setValue($adminObjectController, 'objectType', null);
         self::setValue($adminObjectController, 'objectId', null);
         unset($_GET['user_id']);
@@ -1163,7 +1161,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals(null, 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/TermEditForm.php!';
+            .'vfs://src/UserAccessManager/View/TermEditForm.php|uam_user_groups!';
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass|\WP_Term $term
@@ -1176,18 +1174,42 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals('category', 'objectType', $adminObjectController);
         self::assertAttributeEquals(5, 'objectId', $adminObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/TermEditForm.php!';
+            .'vfs://src/UserAccessManager/View/TermEditForm.php|uam_user_groups!';
         self::setValue($adminObjectController, 'objectType', null);
         self::setValue($adminObjectController, 'objectId', null);
 
-        $return = $adminObjectController->showPluggableGroupSelectionForm('objectType', 'objectId');
+        $return = $adminObjectController->showPluggableGroupSelectionForm('objectType', 'objectId', 'otherForm');
         self::assertEquals(
             '!UserAccessManager\Controller\AdminObjectController|'
-            .'vfs://src/UserAccessManager/View/GroupSelectionForm.php!',
+            .'vfs://src/UserAccessManager/View/GroupSelectionForm.php|otherForm!',
             $return
         );
         self::assertAttributeEquals('objectType', 'objectType', $adminObjectController);
         self::assertAttributeEquals('objectId', 'objectId', $adminObjectController);
+        self::assertEquals(
+            AdminObjectController::DEFAULT_GROUPS_FORM_NAME,
+            $adminObjectController->getGroupsFromName()
+        );
+        $expectedOutput .= '';
+
+        $userGroups = [
+            3 => $this->getUserGroup(3),
+            4 => $this->getUserGroup(4)
+        ];
+
+        $return = $adminObjectController->showPluggableGroupSelectionForm('objectType', 'objectId', null, $userGroups);
+        self::assertEquals(
+            '!UserAccessManager\Controller\AdminObjectController|'
+            .'vfs://src/UserAccessManager/View/GroupSelectionForm.php|uam_user_groups!',
+            $return
+        );
+        self::assertAttributeEquals('objectType', 'objectType', $adminObjectController);
+        self::assertAttributeEquals('objectId', 'objectId', $adminObjectController);
+        self::assertAttributeEquals($userGroups, 'objectUserGroups', $adminObjectController);
+        self::assertEquals(
+            AdminObjectController::DEFAULT_GROUPS_FORM_NAME,
+            $adminObjectController->getGroupsFromName()
+        );
         $expectedOutput .= '';
 
         self::expectOutputString($expectedOutput);

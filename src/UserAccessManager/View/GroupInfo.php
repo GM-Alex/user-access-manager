@@ -22,9 +22,9 @@
         <?php
         $recursiveMembership = $controller->getRecursiveMembership($userGroup);
 
-        foreach ($recursiveMembership as $objectType => $objects) {
-            $typeKey = 'TXT_UAM_GROUP_TYPE_'.strtoupper($objectType);
-            $type = defined($typeKey) ? strtolower(constant($typeKey)) : $objectType;
+        foreach ($recursiveMembership as $recursiveObjectType => $objects) {
+            $typeKey = 'TXT_UAM_GROUP_TYPE_'.strtoupper($recursiveObjectType);
+            $type = defined($typeKey) ? strtolower(constant($typeKey)) : $recursiveObjectType;
             ?>
             <li class="uam_group_info_head">
                 <?php echo sprintf(TXT_UAM_GROUP_MEMBERSHIP_BY, $type); ?>:

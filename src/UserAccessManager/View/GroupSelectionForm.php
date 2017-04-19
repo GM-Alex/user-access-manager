@@ -20,11 +20,11 @@
      * @var \UserAccessManager\Controller\AdminObjectController $controller
      */
 
-    $groupsFormName = 'uam_user_groups';
+    $groupsFormName = $controller->getGroupsFromName();
     $objectType = $controller->getObjectType();
     $objectId = $controller->getObjectId();
     $userGroups = $controller->getFilteredUserGroups();
-    $objectUserGroups = $controller->getFilteredObjectUserGroups();
+    $objectUserGroups = $controller->getObjectUserGroups();
 
     /**
      * @var \UserAccessManager\UserGroup\UserGroup[] $userGroups
@@ -39,7 +39,7 @@
         if (isset($objectUserGroups[$userGroup->getId()]) === true) {
             $attributes .= 'checked="checked" ';
 
-            if ($objectUserGroups[$userGroup->getId()]->isLockedRecursive($objectType, $objectId)) {
+            if ($objectUserGroups[$userGroup->getId()]->isLockedRecursive($objectType, $objectId) === true) {
                 $attributes .= 'disabled="disabled" ';
                 $addition .= ' [LR]';
             }
