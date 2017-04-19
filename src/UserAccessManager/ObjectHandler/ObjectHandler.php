@@ -540,11 +540,12 @@ class ObjectHandler
             || $objectType === self::GENERAL_ROLE_OBJECT_TYPE
             || $objectType === self::GENERAL_TERM_OBJECT_TYPE
             || $objectType === self::GENERAL_POST_OBJECT_TYPE
+            || $this->isPluggableObject($objectType) === true
         ) {
             return $objectType;
-        } elseif ($this->isPostType($objectType)) {
+        } elseif ($this->isPostType($objectType) === true) {
             return self::GENERAL_POST_OBJECT_TYPE;
-        } elseif ($this->isTaxonomy($objectType)) {
+        } elseif ($this->isTaxonomy($objectType) === true) {
             return self::GENERAL_TERM_OBJECT_TYPE;
         }
 

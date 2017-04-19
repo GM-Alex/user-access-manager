@@ -602,6 +602,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ObjectHandler::GENERAL_POST_OBJECT_TYPE,
             $objectHandler->getGeneralObjectType(ObjectHandler::GENERAL_POST_OBJECT_TYPE)
         );
+
+        self::setValue($objectHandler, 'pluggableObjects', ['pluggableObject' => 'pluggableObject']);
+        self::assertEquals('pluggableObject', $objectHandler->getGeneralObjectType('pluggableObject'));
         self::assertNull($objectHandler->getGeneralObjectType('invalid'));
     }
 
