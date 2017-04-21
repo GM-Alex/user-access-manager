@@ -22,6 +22,7 @@ use UserAccessManager\Controller\AdminSetupController;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\FileHandler\FileObjectFactory;
 use UserAccessManager\FileHandler\FileProtectionFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
@@ -109,6 +110,11 @@ class UserAccessManager
      * @var FileProtectionFactory
      */
     private $fileProtectionFactory;
+
+    /**
+     * @var FileObjectFactory
+     */
+    private $fileObjectFactory;
     
     /**
      * UserAccessManager constructor.
@@ -127,6 +133,7 @@ class UserAccessManager
      * @param ControllerFactory      $controllerFactory
      * @param ConfigParameterFactory $configParameterFactory
      * @param FileProtectionFactory  $fileProtectionFactory
+     * @param FileObjectFactory      $fileObjectFactory
      */
     public function __construct(
         Php $php,
@@ -142,7 +149,8 @@ class UserAccessManager
         UserGroupFactory $userGroupFactory,
         ControllerFactory $controllerFactory,
         ConfigParameterFactory $configParameterFactory,
-        FileProtectionFactory $fileProtectionFactory
+        FileProtectionFactory $fileProtectionFactory,
+        FileObjectFactory $fileObjectFactory
     ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
@@ -158,6 +166,7 @@ class UserAccessManager
         $this->controllerFactory = $controllerFactory;
         $this->configParameterFactory = $configParameterFactory;
         $this->fileProtectionFactory = $fileProtectionFactory;
+        $this->fileObjectFactory = $fileObjectFactory;
     }
 
     /**
@@ -270,6 +279,14 @@ class UserAccessManager
     public function getFileProtectionFactory()
     {
         return $this->fileProtectionFactory;
+    }
+
+    /**
+     * @return FileObjectFactory
+     */
+    public function getFileObjectFactory()
+    {
+        return $this->fileObjectFactory;
     }
 
     /**

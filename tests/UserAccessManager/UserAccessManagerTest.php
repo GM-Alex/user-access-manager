@@ -44,7 +44,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory(),
             $this->getControllerFactory(),
             $this->getConfigParameterFactory(),
-            $this->getFileProtectionFactory()
+            $this->getFileProtectionFactory(),
+            $this->getFileObjectFactory()
         );
 
         self::assertInstanceOf('\UserAccessManager\UserAccessManager', $userAccessManager);
@@ -69,6 +70,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      * @covers  \UserAccessManager\UserAccessManager::getControllerFactory()
      * @covers  \UserAccessManager\UserAccessManager::getConfigParameterFactory()
      * @covers  \UserAccessManager\UserAccessManager::getFileProtectionFactory()
+     * @covers  \UserAccessManager\UserAccessManager::getFileObjectFactory()
      *
      * @param UserAccessManager $userAccessManager
      */
@@ -88,6 +90,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getControllerFactory(), $userAccessManager->getControllerFactory());
         self::assertEquals($this->getConfigParameterFactory(), $userAccessManager->getConfigParameterFactory());
         self::assertEquals($this->getFileProtectionFactory(), $userAccessManager->getFileProtectionFactory());
+        self::assertEquals($this->getFileObjectFactory(), $userAccessManager->getFileObjectFactory());
     }
 
     /**
@@ -136,7 +139,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory(),
             $controllerFactory,
             $this->getConfigParameterFactory(),
-            $this->getFileProtectionFactory()
+            $this->getFileProtectionFactory(),
+            $this->getFileObjectFactory()
         );
 
         $userAccessManager->registerAdminMenu();
@@ -265,7 +269,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory(),
             $controllerFactory,
             $this->getConfigParameterFactory(),
-            $this->getFileProtectionFactory()
+            $this->getFileProtectionFactory(),
+            $this->getFileObjectFactory()
         );
 
         $userAccessManager->registerAdminActionsAndFilters();
@@ -316,7 +321,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory(),
             $controllerFactory,
             $this->getConfigParameterFactory(),
-            $this->getFileProtectionFactory()
+            $this->getFileProtectionFactory(),
+            $this->getFileObjectFactory()
         );
 
         $userAccessManager->addActionsAndFilters();
