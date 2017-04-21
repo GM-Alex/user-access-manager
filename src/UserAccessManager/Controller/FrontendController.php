@@ -19,6 +19,8 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\FileHandler\FileObject;
+use UserAccessManager\FileHandler\FileObjectFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroup;
@@ -58,27 +60,33 @@ class FrontendController extends Controller
     private $objectHandler;
 
     /**
-     * @var FileHandler
-     */
-    private $fileHandler;
-
-    /**
      * @var AccessHandler
      */
     private $accessHandler;
 
     /**
+     * @var FileHandler
+     */
+    private $fileHandler;
+
+    /**
+     * @var FileObjectFactory
+     */
+    private $fileObjectFactory;
+
+    /**
      * FrontendController constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param Config        $config
-     * @param Database      $database
-     * @param Util          $util
-     * @param Cache         $cache
-     * @param ObjectHandler $objectHandler
-     * @param AccessHandler $accessHandler
-     * @param FileHandler   $fileHandler
+     * @param Php               $php
+     * @param Wordpress         $wordpress
+     * @param Config            $config
+     * @param Database          $database
+     * @param Util              $util
+     * @param Cache             $cache
+     * @param ObjectHandler     $objectHandler
+     * @param AccessHandler     $accessHandler
+     * @param FileHandler       $fileHandler
+     * @param FileObjectFactory $fileObjectFactory
      */
     public function __construct(
         Php $php,
@@ -89,7 +97,8 @@ class FrontendController extends Controller
         Cache $cache,
         ObjectHandler $objectHandler,
         AccessHandler $accessHandler,
-        FileHandler $fileHandler
+        FileHandler $fileHandler,
+        FileObjectFactory $fileObjectFactory
     ) {
         parent::__construct($php, $wordpress, $config);
         $this->database = $database;
@@ -98,6 +107,7 @@ class FrontendController extends Controller
         $this->objectHandler = $objectHandler;
         $this->accessHandler = $accessHandler;
         $this->fileHandler = $fileHandler;
+        $this->fileObjectFactory = $fileObjectFactory;
     }
 
     /**
@@ -786,11 +796,11 @@ class FrontendController extends Controller
      * @param string $objectType The type of the requested file.
      * @param string $objectUrl  The file url.
      *
-     * @return null|\stdClass
+     * @return null|FileObject
      */
     private function getFileSettingsByType($objectType, $objectUrl)
     {
-        $object = null;
+        $fileObject = null;
 
         if ($objectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
             $uploadDirs = $this->wordpress->getUploadDir();
@@ -802,19 +812,31 @@ class FrontendController extends Controller
 
             $post = $this->objectHandler->getPost($this->getPostIdByUrl($objectUrl));
 
-            if ($post !== null
+            if ($post !== false
                 && $post->post_type === ObjectHandler::ATTACHMENT_OBJECT_TYPE
             ) {
-                $object = new \stdClass();
-                $object->id = $post->ID;
-                $object->isImage = $this->wordpress->attachmentIsImage($post->ID);
-                $object->type = $objectType;
                 $multiPath = str_replace('/files', $uploadDir, $uploadDirs['baseurl']);
-                $object->file = $uploadDirs['basedir'].str_replace($multiPath, '', $objectUrl);
+
+                $fileObject = $this->fileObjectFactory->createFileObject(
+                    $post->ID,
+                    $objectType,
+                    $uploadDirs['basedir'].str_replace($multiPath, '', $objectUrl),
+                    $this->wordpress->attachmentIsImage($post->ID)
+                );
             }
+        } else {
+            $extraParameter = $this->getRequestParameter('uamextra');
+
+            $fileObject = $this->wordpress->applyFilters(
+                'uam_get_file_settings_by_type',
+                $fileObject,
+                $objectType,
+                $objectUrl,
+                $extraParameter
+            );
         }
 
-        return $object;
+        return $fileObject;
     }
 
     /**
@@ -827,23 +849,23 @@ class FrontendController extends Controller
      */
     public function getFile($objectType, $objectUrl)
     {
-        $object = $this->getFileSettingsByType($objectType, $objectUrl);
+        $fileObject = $this->getFileSettingsByType($objectType, $objectUrl);
 
-        if ($object === null) {
+        if ($fileObject === null) {
             return null;
         }
 
-        if ($this->accessHandler->checkObjectAccess($object->type, $object->id) === true) {
-            $file = $object->file;
-        } elseif ($object->isImage === true) {
+        if ($this->accessHandler->checkObjectAccess($fileObject->getType(), $fileObject->getId()) === true) {
+            $file = $fileObject->getFile();
+        } elseif ($fileObject->isImage() === true) {
             $realPath = $this->config->getRealPath();
-            $file = $realPath.'gfx/noAccessPic.png';
+            $file = $realPath.'assets/gfx/noAccessPic.png';
         } else {
             $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS);
             return null;
         }
 
-        return $this->fileHandler->getFile($file, $object->isImage);
+        return $this->fileHandler->getFile($file, $fileObject->isImage());
     }
 
     /**

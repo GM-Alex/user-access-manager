@@ -148,6 +148,14 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\FileHandler\FileObjectFactory
+     */
+    protected function getFileObjectFactory()
+    {
+        return $this->createMock('\UserAccessManager\FileHandler\FileObjectFactory');
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroupFactory
      */
     protected function getUserGroupFactory()

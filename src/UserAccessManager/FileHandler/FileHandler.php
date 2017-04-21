@@ -66,6 +66,19 @@ class FileHandler
     }
 
     /**
+     * Clears the buffer.
+     */
+    private function clearBuffer()
+    {
+        //TODO find better solution (prevent '\n' / '0A')
+        if (is_numeric(ob_get_length()) === true) {
+            ob_clean();
+        }
+
+        flush();
+    }
+
+    /**
      * Delivers the content of the requested file.
      *
      * @param string $file
@@ -112,15 +125,12 @@ class FileHandler
 
             header('Content-Transfer-Encoding: binary');
             header('Content-Length: '.filesize($file));
+            $this->clearBuffer();
 
             if ($this->config->getDownloadType() === 'fopen'
                 && $isImage === false
             ) {
                 $handler = fopen($file, 'r');
-
-                //TODO find better solution (prevent '\n' / '0A')
-                ob_clean();
-                flush();
 
                 while (feof($handler) === false) {
                     if ($this->php->iniGet('safe_mode') !== '') {
@@ -130,8 +140,6 @@ class FileHandler
                     echo $this->php->fread($handler, 1024);
                 }
             } else {
-                ob_clean();
-                flush();
                 readfile($file);
             }
         } else {

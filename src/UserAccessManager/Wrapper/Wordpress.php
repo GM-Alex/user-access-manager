@@ -721,7 +721,7 @@ class Wordpress
      */
     public function applyFilters($tag, $value)
     {
-        return \apply_filters($tag, $value);
+        return call_user_func_array('\apply_filters', func_get_args());
     }
 
     /**

@@ -67,7 +67,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertInstanceOf('\UserAccessManager\Controller\FrontendController', $frontendController);
@@ -109,7 +110,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $frontendController->enqueueStylesAndScripts();
@@ -135,7 +137,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         /**
@@ -246,7 +249,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals('', $frontendController->adminOutput('objectType', 'objectId'));
@@ -311,7 +315,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $php->expects($this->once())
@@ -443,7 +448,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $posts = [
@@ -557,7 +563,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $posts = [
@@ -619,7 +626,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals('query', $frontendController->showPostSql('query'));
@@ -802,7 +810,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $cache,
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals(
@@ -887,7 +896,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals(['exclude' => [1, 3]], $frontendController->getTermArguments([]));
@@ -976,7 +986,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $objectHandler,
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $comments = [
@@ -1038,7 +1049,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $ancestors = [
@@ -1078,7 +1090,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals('query', $frontendController->showNextPreviousPost('query'));
@@ -1274,7 +1287,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $objectHandler,
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         /**
@@ -1494,7 +1508,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $objectHandler,
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $items = [
@@ -1550,7 +1565,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals('link', $frontendController->showGroupMembership('link', 1));
@@ -1589,7 +1605,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertTrue($frontendController->showLoginForm());
@@ -1625,7 +1642,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals('filter', $frontendController->getLoginUrl());
@@ -1658,7 +1676,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $_SERVER['REQUEST_URI'] = 'uri@';
@@ -1688,7 +1707,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $_GET['log'] = '/log\/';
@@ -1764,7 +1784,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $cache,
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals(null, $frontendController->getPostIdByUrl('url/part'));
@@ -1799,6 +1820,32 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('wpDie')
             ->with(TXT_UAM_NO_RIGHTS);
 
+        $fileObject = $this->createMock('\UserAccessManager\FileHandler\FileObject');
+
+        $fileObject->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue(1));
+
+        $fileObject->expects($this->any())
+            ->method('getType')
+            ->will($this->returnValue('type'));
+
+        $fileObject->expects($this->any())
+            ->method('getFile')
+            ->will($this->returnValue('file'));
+
+        $fileObject->expects($this->any())
+            ->method('isImage')
+            ->will($this->returnValue(false));
+
+        $wordpress->expects($this->exactly(2))
+            ->method('applyFilters')
+            ->withConsecutive(
+                ['uam_get_file_settings_by_type', null, 'customType', 'url', null],
+                ['uam_get_file_settings_by_type', null, 'customType', 'url', 'extra']
+            )
+            ->will($this->onConsecutiveCalls(null, $fileObject));
+
         $config = $this->getConfig();
 
         $config->expects($this->once())
@@ -1818,7 +1865,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('getPost')
             ->withConsecutive([1], [1], [1], [1], [1])
             ->will($this->onConsecutiveCalls(
-                null,
+                false,
                 $this->getPost(1),
                 $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
                 $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
@@ -1827,24 +1874,58 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $accessHandler = $this->getAccessHandler();
 
-        $accessHandler->expects($this->exactly(3))
+        $accessHandler->expects($this->exactly(4))
             ->method('checkObjectAccess')
             ->withConsecutive(
+                ['type', 1],
                 [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
                 [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
                 [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1]
             )
-            ->will($this->onConsecutiveCalls(false, false, true));
+            ->will($this->onConsecutiveCalls(true, false, false, true));
 
         $fileHandler = $this->getFileHandler();
 
-        $fileHandler->expects($this->exactly(2))
+        $fileHandler->expects($this->exactly(3))
             ->method('getFile')
             ->withConsecutive(
-                ['realPath/gfx/noAccessPic.png', true],
+                ['file', false],
+                ['realPath/assets/gfx/noAccessPic.png', true],
                 ['/baseDirectory/file/pictures/url', false]
             )
             ->will($this->returnValue('getFile'));
+
+        $fileObjectFactory = $this->getFileObjectFactory();
+
+        $fileObjectFactory->expects($this->exactly(3))
+            ->method('createFileObject')
+            ->withConsecutive(
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', false],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', true],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', false]
+            )
+            ->will($this->returnCallback(function ($id, $type, $file, $isImage) {
+                $fileObject = $this->createMock('\UserAccessManager\FileHandler\FileObject');
+
+                $fileObject->expects($this->any())
+                    ->method('getId')
+                    ->will($this->returnValue($id));
+
+                $fileObject->expects($this->any())
+                    ->method('getType')
+                    ->will($this->returnValue($type));
+
+                $fileObject->expects($this->any())
+                    ->method('getFile')
+                    ->will($this->returnValue($file));
+
+                $fileObject->expects($this->any())
+                    ->method('isImage')
+                    ->will($this->returnValue($isImage));
+
+                return $fileObject;
+            }));
+
 
         $frontendController = new FrontendController(
             $this->getPhp(),
@@ -1855,10 +1936,13 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $cache,
             $objectHandler,
             $accessHandler,
-            $fileHandler
+            $fileHandler,
+            $fileObjectFactory
         );
 
-        self::assertEquals(null, $frontendController->getFile('type', 'url'));
+        self::assertEquals(null, $frontendController->getFile('customType', 'url'));
+        $_GET['uamextra'] = 'extra';
+        self::assertEquals('getFile', $frontendController->getFile('customType', 'url'));
         self::assertEquals(null, $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
         self::assertEquals(null, $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
         self::assertEquals(null, $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
@@ -1974,7 +2058,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $objectHandler,
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $frontendController->redirectUser();
@@ -2082,7 +2167,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $objectHandler,
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $pageParams = new \stdClass();
@@ -2169,7 +2255,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $objectHandler,
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals('url', $frontendController->getFileUrl('url', 1));
@@ -2218,7 +2305,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $cache,
             $this->getObjectHandler(),
             $this->getAccessHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         self::assertEquals('firstUrl', $frontendController->cachePostLinks('firstUrl', $this->getPost(1)));
@@ -2253,7 +2341,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
         );
 
         $object = new \stdClass();

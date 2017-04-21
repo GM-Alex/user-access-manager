@@ -67,6 +67,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\FileHandler\FileHandler::getFile()
+     * @covers \UserAccessManager\FileHandler\FileHandler::clearBuffer()
      * @runInSeparateProcess
      */
     public function testGetFile()
@@ -147,7 +148,9 @@ class FileHandlerTest extends UserAccessManagerTestCase
          */
         $rootDir = $this->root->get('/');
         $rootDir->add('testDir', new Directory([
-            'testFile.txt' => new File('Test text')
+            'testFile.txt' => new File('Test text'),
+            'testFile2.txt' => new File('Test text2'),
+            'testFile3.txt' => new File('Test text3')
         ]));
 
         $testDir = 'vfs://testDir/';
@@ -155,9 +158,13 @@ class FileHandlerTest extends UserAccessManagerTestCase
 
         $fileHandler->getFile($notExistingFile, false);
 
-        $testFile = $testDir.'testFile.txt';
-        $fileHandler->getFile($testFile, false);
-        self::expectOutputString('Test text');
+        $testFileOne = $testDir.'testFile.txt';
+        $testFileTwo = $testDir.'testFile2.txt';
+        $testFileThree = $testDir.'testFile3.txt';
+
+        echo 'output'; //Test output must be cleared by getFile method
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals('Test text', self::getActualOutput());
         self::assertEquals(
             [
                 'Content-Description: File Transfer',
@@ -169,34 +176,34 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
 
-        $fileHandler->getFile($testFile, true);
-        self::expectOutputString('Test text');
+        $fileHandler->getFile($testFileTwo, true);
+        self::assertEquals('Test text2', self::getActualOutput());
         self::assertEquals(
             [
                 'Content-Disposition: attachment; filename="testFile.txt"',
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
                 'Content-Transfer-Encoding: binary',
-                'Content-Length: 9'
+                'Content-Length: 10'
             ],
             xdebug_get_headers()
         );
 
-        $fileHandler->getFile($testFile, false);
-        self::expectOutputString('Test text');
+        $fileHandler->getFile($testFileThree, false);
+        self::assertEquals('Test text3', self::getActualOutput());
         self::assertEquals(
             [
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
-                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Disposition: attachment; filename="testFile3.txt"',
                 'Content-Transfer-Encoding: binary',
-                'Content-Length: 9'
+                'Content-Length: 10'
             ],
             xdebug_get_headers()
         );
 
-        $fileHandler->getFile($testFile, false);
-        self::expectOutputString('Test text');
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals('Test text', self::getActualOutput());
         self::assertEquals(
             [
                 'Content-Description: File Transfer',
@@ -208,21 +215,21 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
 
-        $fileHandler->getFile($testFile, false);
-        self::expectOutputString('Test text');
+        $fileHandler->getFile($testFileTwo, false);
+        self::assertEquals('Test text2', self::getActualOutput());
         self::assertEquals(
             [
                 'Content-Description: File Transfer',
                 'Content-Type: textFile',
-                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Disposition: attachment; filename="testFile2.txt"',
                 'Content-Transfer-Encoding: binary',
-                'Content-Length: 9'
+                'Content-Length: 10'
             ],
             xdebug_get_headers()
         );
 
-        $fileHandler->getFile($testFile, false);
-        self::expectOutputString('Test text');
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals('Test text', self::getActualOutput());
         self::assertEquals(
             [
                 'Content-Description: File Transfer',

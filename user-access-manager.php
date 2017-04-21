@@ -77,6 +77,7 @@ use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\FileHandler\FileObjectFactory;
 use UserAccessManager\FileHandler\FileProtectionFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
@@ -94,6 +95,7 @@ $configParameterFactory = new ConfigParameterFactory();
 $database = new Database($wordpress);
 $objectHandler = new ObjectHandler($wordpress, $database);
 $config = new Config($wordpress, $objectHandler, $configParameterFactory, __FILE__);
+$fileObjectFactory = new FileObjectFactory();
 $userGroupFactory = new UserGroupFactory(
     $php,
     $wordpress,
@@ -140,6 +142,7 @@ $controllerFactory = new ControllerFactory(
     $accessHandler,
     $userGroupFactory,
     $fileHandler,
+    $fileObjectFactory,
     $setupHandler
 );
 $userAccessManager = new UserAccessManager(

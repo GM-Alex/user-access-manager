@@ -19,6 +19,7 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\FileHandler\FileObjectFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
@@ -84,6 +85,11 @@ class ControllerFactory
     private $fileHandler;
 
     /**
+     * @var FileObjectFactory
+     */
+    private $fileObjectFactory;
+
+    /**
      * @var SetupHandler
      */
     private $setupHandler;
@@ -91,17 +97,18 @@ class ControllerFactory
     /**
      * ControllerFactory constructor.
      *
-     * @param Php              $php
-     * @param Wordpress        $wordpress
-     * @param Database         $database
-     * @param Config           $config
-     * @param Util             $util
-     * @param Cache            $cache
-     * @param ObjectHandler    $objectHandler
-     * @param AccessHandler    $accessHandler
-     * @param UserGroupFactory $userGroupFactory
-     * @param FileHandler      $fileHandler
-     * @param SetupHandler     $setupHandler
+     * @param Php               $php
+     * @param Wordpress         $wordpress
+     * @param Database          $database
+     * @param Config            $config
+     * @param Util              $util
+     * @param Cache             $cache
+     * @param ObjectHandler     $objectHandler
+     * @param AccessHandler     $accessHandler
+     * @param UserGroupFactory  $userGroupFactory
+     * @param FileHandler       $fileHandler
+     * @param FileObjectFactory $fileObjectFactory
+     * @param SetupHandler      $setupHandler
      */
     public function __construct(
         Php $php,
@@ -114,6 +121,7 @@ class ControllerFactory
         AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory,
         FileHandler $fileHandler,
+        FileObjectFactory $fileObjectFactory,
         SetupHandler $setupHandler
     ) {
         $this->php = $php;
@@ -126,6 +134,7 @@ class ControllerFactory
         $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
         $this->fileHandler = $fileHandler;
+        $this->fileObjectFactory = $fileObjectFactory;
         $this->setupHandler = $setupHandler;
     }
 
@@ -240,7 +249,8 @@ class ControllerFactory
             $this->cache,
             $this->objectHandler,
             $this->accessHandler,
-            $this->fileHandler
+            $this->fileHandler,
+            $this->fileObjectFactory
         );
     }
 }
