@@ -153,14 +153,9 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      */
     public function testRegisterAdminActionsAndFilters()
     {
-        $php = $this->getPhp();
-        $php->expects($this->exactly(4))
-            ->method('iniGet')
-            ->will($this->returnValue(true));
-
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(65))
+        $wordpress->expects($this->exactly(63))
             ->method('addAction');
 
         $wordpress->expects($this->exactly(16))
@@ -171,10 +166,6 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
 
         $config = $this->getConfig();
-
-        $config->expects($this->exactly(4))
-            ->method('getDownloadType')
-            ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen'));
 
         $config->expects($this->exactly(3))
             ->method('authorsCanAddPostsToGroups')
@@ -256,7 +247,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             }));
 
         $userAccessManager = new UserAccessManager(
-            $php,
+            $this->getPhp(),
             $wordpress,
             $this->getUtil(),
             $this->getCache(),

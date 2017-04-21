@@ -80,44 +80,6 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminController::showFOpenNotice()
-     *
-     * @return AdminController
-     */
-    public function testShowFOpenNotice()
-    {
-        $php = $this->getPhp();
-
-
-        $config = $this->getConfig();
-        $config->expects($this->once())
-            ->method('getRealPath')
-            ->will($this->returnValue('vfs:/'));
-
-        $adminController = new AdminController(
-            $php,
-            $this->getWordpress(),
-            $config,
-            $this->getAccessHandler(),
-            $this->getFileHandler()
-        );
-
-        $php->expects($this->once())
-            ->method('includeFile')
-            ->with($adminController, 'vfs://src/UserAccessManager/View/AdminNotice.php')
-            ->will($this->returnCallback(function () {
-                echo 'FOpenNotice';
-            }));
-
-        $adminController->showFOpenNotice();
-        self::assertAttributeEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, 'notice', $adminController);
-        self::expectOutputString('FOpenNotice');
-
-        return $adminController;
-    }
-
-    /**
-     * @group  unit
      * @covers \UserAccessManager\Controller\AdminController::showDatabaseNotice()
      *
      * @return AdminController
@@ -161,17 +123,12 @@ class AdminControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  \UserAccessManager\Controller\AdminController::getNotice()
-     * @depends testShowFOpenNotice
      * @depends testShowDatabaseNotice
      *
-     * @param AdminController $openNoticeAdminController
      * @param AdminController $databaseNoticeAdminController
      */
-    public function testGetNotice(
-        AdminController $openNoticeAdminController,
-        AdminController $databaseNoticeAdminController
-    ) {
-        self::assertEquals(TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF, $openNoticeAdminController->getNotice());
+    public function testGetNotice(AdminController $databaseNoticeAdminController)
+    {
         self::assertEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
             $databaseNoticeAdminController->getNotice()

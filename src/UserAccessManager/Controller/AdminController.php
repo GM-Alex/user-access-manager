@@ -69,15 +69,6 @@ class AdminController extends Controller
     }
 
     /**
-     * Shows the fopen notice.
-     */
-    public function showFOpenNotice()
-    {
-        $this->notice = TXT_UAM_FOPEN_WITHOUT_SAVE_MODE_OFF;
-        echo $this->getIncludeContents('AdminNotice.php');
-    }
-
-    /**
      * Shows the database notice.
      */
     public function showDatabaseNotice()

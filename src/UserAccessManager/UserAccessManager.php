@@ -368,11 +368,6 @@ class UserAccessManager
         $adminController = $this->controllerFactory->createAdminController();
         $this->wordpress->addAction('admin_enqueue_scripts', [$adminController, 'enqueueStylesAndScripts']);
         $this->wordpress->addAction('wp_dashboard_setup', [$adminController, 'setupAdminDashboard']);
-
-        if ($this->php->iniGet('safe_mode') !== '' && $this->config->getDownloadType() === 'fopen') {
-            $this->wordpress->addAction('admin_notices', [$adminController, 'showFOpenNotice']);
-        }
-
         $updateAction = $adminController->getRequestParameter('uam_update_db');
 
         if ($this->setupHandler->isDatabaseUpdateNecessary() === true
