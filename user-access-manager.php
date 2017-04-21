@@ -159,7 +159,8 @@ $userAccessManager = new UserAccessManager(
     $userGroupFactory,
     $controllerFactory,
     $configParameterFactory,
-    $fileProtectionFactory
+    $fileProtectionFactory,
+    $fileObjectFactory
 );
 
 $wordpress->doAction('uam_init', [$userAccessManager]);
