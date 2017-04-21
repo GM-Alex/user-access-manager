@@ -156,14 +156,18 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
-            ."RewriteRule (.*) /index.php?uamfiletype=attachment&uamgetfile=$1 [L]\n</IfModule>\n",
+            ."RewriteRule ^([^?]*)$ /index.php?uamfiletype=attachment&uamgetfile=$1 [L]\n"
+            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"
+            ."RewriteRule ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 [QSA,L]\n</IfModule>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir, 'objectType'));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
-            ."RewriteRule (.*) /index.php?uamfiletype=objectType&uamgetfile=$1 [L]\n</IfModule>\n",
+            ."RewriteRule ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 [L]\n"
+            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
+            ."RewriteRule ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 [QSA,L]\n</IfModule>\n",
             file_get_contents($file)
         );
 

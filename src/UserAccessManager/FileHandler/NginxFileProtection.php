@@ -45,7 +45,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
 
             if ($this->config->getLockFileTypes() === 'selected') {
                 $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
-                $fileTypes = "\.({$fileTypes})";
+                $fileTypes = "\\.({$fileTypes})";
             }
 
             $content = "location ".str_replace($absPath, '/', $dir)." {\n";
@@ -69,7 +69,10 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
             }
 
             $content = "location ".str_replace($absPath, '/', $dir)." {\n";
-            $content .= "rewrite ^(.*)$ /index.php?uamfiletype={$objectType}&uamgetfile=$1 last;\n";
+            $content .= "rewrite ^([^?]*)$ /index.php?uamfiletype={$objectType}&uamgetfile=$1 last;\n";
+            $content .= "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ ";
+            $content .= "/index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 last;\n";
+            $content .= "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n";
             $content .= "}\n";
         }
 

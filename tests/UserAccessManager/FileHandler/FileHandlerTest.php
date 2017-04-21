@@ -240,6 +240,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
+        self::expectOutputString('Test text');
     }
 
     /**

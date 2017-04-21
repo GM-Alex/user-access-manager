@@ -74,9 +74,11 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
             $content = "<IfModule mod_rewrite.c>\n";
             $content .= "RewriteEngine On\n";
             $content .= "RewriteBase {$homeRoot}\n";
-            $content .= "RewriteRule ^index\.php$ - [L]\n";
-            $content .= "RewriteRule (.*) ";
-            $content .= "{$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1 [L]\n";
+            $content .= "RewriteRule ^index\\.php$ - [L]\n";
+            $content .= "RewriteRule ^([^?]*)$ {$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1 [L]\n";
+            $content .= "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ ";
+            $content .= "{$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 [QSA,L]\n";
+            $content .= "RewriteRule ^(.*)\\?(.*)$ {$homeRoot}index.php?uamgetfile=$1&$2 [QSA,L]\n";
             $content .= "</IfModule>\n";
         }
 
