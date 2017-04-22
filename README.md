@@ -1,5 +1,5 @@
 # User Access Manager Plugin for Wordpress
-[![Build Status](https://travis-ci.org/GM-Alex/user-access-manager.svg?branch=next)](https://travis-ci.org/GM-Alex/user-access-manager)
+[![Build Status](https://travis-ci.org/GM-Alex/user-access-manager.svg)](https://travis-ci.org/GM-Alex/user-access-manager)
 
 If you are a normal user please visit https://plugins.svn.wordpress.org/user-access-manager/
 
