@@ -25,7 +25,7 @@ if [[ -d ${PLUGIN_BUILDS_PATH} ]]; then
     rm -R ${PLUGIN_BUILDS_PATH}
 fi
 
-mkdir ${PLUGIN_BUILDS_PATH}
+mkdir -p ${PLUGIN_BUILDS_PATH}
 GIT_IGNORE_FILE=$(cat ${PLUGIN_ROOT}/.gitignore)
 EXCLUDES=${GIT_IGNORE_FILE//[[:cntrl:]]/,}
 
