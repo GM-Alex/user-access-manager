@@ -5,9 +5,7 @@ script: ./scripts/build.sh
 deploy:
   provider: script
   skip_cleanup: true
-  script:
-    - ./scripts/build.sh
-    - ./scripts/deploy.sh
+  script: ./scripts/deploy.sh
   on:
     tags: true
     php: 7.0

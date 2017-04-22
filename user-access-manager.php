@@ -145,6 +145,8 @@ $controllerFactory = new ControllerFactory(
     $fileObjectFactory,
     $setupHandler
 );
+
+global $userAccessManager;
 $userAccessManager = new UserAccessManager(
     $php,
     $wordpress,

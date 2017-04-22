@@ -18,7 +18,8 @@ if [[ ! ${HUMBUG_REPORT_FILE} =~ ${REGEX} ]] || [[ ${BASH_REMATCH[1]} != ${BASH_
     exit 1
 fi
 
-PLUGIN_BUILDS_PATH="${PLUGIN_ROOT}/builds"
+PLUGIN="user-access-manager"
+PLUGIN_BUILDS_PATH="${PLUGIN_ROOT}/builds/${PLUGIN}"
 
 if [[ -d ${PLUGIN_BUILDS_PATH} ]]; then
     rm -R ${PLUGIN_BUILDS_PATH}
@@ -32,5 +33,5 @@ if [[ ${EXCLUDES} != '' ]]; then
     EXCLUDES="${EXCLUDES},"
 fi
 
-EXCLUDES="${EXCLUDES}README.md,composer.json,composer.lock,builds,phpunit.xml.dist,humbug.json.dist,tests,scripts"
+EXCLUDES="${EXCLUDES}README.md,.travis.yml,composer.json,composer.lock,builds,phpunit.xml.dist,humbug.json.dist,tests,scripts"
 eval "rsync -av ${PLUGIN_ROOT}/* ${PLUGIN_BUILDS_PATH} --exclude={${EXCLUDES}}"
