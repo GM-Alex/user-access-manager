@@ -226,8 +226,8 @@ if (defined('WP_CLI') && WP_CLI) {
     $cliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
 
     $groupCommand = new \UserAccessManager\Command\GroupCommand($cliWrapper, $accessHandler, $userGroupFactory);
-    WP_CLI::add_command('uam groups', $groupCommand);
+    \WP_CLI::add_command('uam groups', $groupCommand);
 
     $objectCommand = new \UserAccessManager\Command\ObjectCommand($cliWrapper, $accessHandler);
-    WP_CLI::add_command('uam objects', $objectCommand);
+    \WP_CLI::add_command('uam objects', $objectCommand);
 }

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.7.4
-Stable tag: 1.2.14
+Stable tag: 2.0.0
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -12,7 +12,7 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible and writable for the specified group. This plugin is useful if you need a member area or a private section at your blog or you want that other people can write at your blog but not everywhere.
 
-Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and write me. That is the only way to find bugs and see if the plugin works proper. Thanks.
+Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and report the issue. That is the only way to find bugs and see if the plugin works proper. Thanks.
 
 <em>Feature list</em>
 
@@ -37,23 +37,12 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 
 <em>Included languages</em>
 
-* Czech, based on 1.1.1.2. Thanks to Jan
-* Danish, based on 1.1.1.2. Thanks to GeorgWP
-* English
-* Farsi, based on 1.1.2. Thanks to Hadi Mostafapour
-* French, based on 0.8.0.2. Thanks to macbidule
-* German
-* Hungary, based on 1.0.2. Thanks to Zina
-* Italian. Thanks to Diego Valobra
-* Russian, based on 1.1.2. Thanks to PoleeK
-* Spanish, based on 1.1.2. Thanks to Juan Rodriguez
-* Swedish, based on 1.1. Thanks to Konsult
-* Turkish, based on 1.1.2. Thanks to Mesut Soylu
-* Polish, based on 1.2. Thanks to Piotr Kaczynski
+See https://translate.wordpress.org/projects/wp-plugins/user-access-manager
 
-
-Some language files are really old, if you are a native speaker it would be nice if you update a language file or make one for a language which is not translated yet.
-
+The documentation can be found here: https://github.com/GM-Alex/user-access-manager/wiki
+For support questions please use the support thread here: https://wordpress.org/support/plugin/user-access-manager
+Please report bugs and feature requests here: https://github.com/GM-Alex/user-access-manager/issues
+If you are a developer and want to contribute please visit https://github.com/GM-Alex/user-access-manager
 To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
@@ -72,6 +61,7 @@ Here you found the changes in each version.
 
     2.0.0       2017/04/23  Refactoring of the module
                             Improve performance
+                            Full support for custom post and taxonomies.
                             Use translate.wordpress.org for translations
                             Many improvements and fixes
 
@@ -293,32 +283,7 @@ Here you found the changes in each version.
 
 == Frequently Asked Questions ==
 
-<strong>How works the User Access Manager?</strong>
-
-All posts/pages which are not in a user access group are accessible to all users. Posts/pages can put to groups by themselves, categories or recursive (most by pages).
-
-<strong>How dose "Role affiliation" work?</strong>
-
-This example will give you an overview:
-
-- Posts: Post1, Post2
-- Users: User1 (admin), User2 (subscriber), User3 (subscriber)
-
-Groups:
-
-- Group1: Users: User2, User3 | Posts: Post1 | Role affiliation: subscriber
-- Group2: Users: User3 | Posts: Post2 | Role affiliation: -
-
-Access:
-
-- Post1: User1 because he is a admin, User2 because he is in the group and a subscriber, User3 he is a subscriber (to this group all subscribers has access!)
-- Post2: User1 because he is a admin, User3 because he is in the group (only group members has access because there is no role affiliation!) 
-
-<strong>I get an login box "WP-Files", what can I do?</strong>
-
-- You can deactivate the file locking at the UAM settings.
-- You can replace your media files in your posts. Just delete the old link and insert it again. (A new working link will generated)
-
+See: https://github.com/GM-Alex/user-access-manager/wiki/FAQ
 
 == Screenshots ==
 
