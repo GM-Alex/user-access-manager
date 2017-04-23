@@ -5,4 +5,4 @@ If you are a normal user please visit https://plugins.svn.wordpress.org/user-acc
 
 ## Contributions
 
-Contributions are welcome. he contribution guidelines can be found at the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+Contributions are welcome. The contribution guidelines can be found at the [CONTRIBUTING.md](CONTRIBUTING.md) file.
