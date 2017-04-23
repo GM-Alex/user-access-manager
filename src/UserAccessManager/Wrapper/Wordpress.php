@@ -171,6 +171,10 @@ class Wordpress
      */
     public function dbDelta($queries = '', $execute = true)
     {
+        if (\function_exists('\dbDelta') === false) {
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        }
+
         return \dbDelta($queries, $execute);
     }
 

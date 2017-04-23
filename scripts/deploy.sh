@@ -18,9 +18,6 @@ fi
 WP_ORG_USERNAME="GM_Alex"
 PLUGIN="user-access-manager"
 PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-
-"${PROJECT_ROOT}/scripts/build.sh"
-
 PLUGIN_BUILDS_PATH="${PROJECT_ROOT}/builds"
 
 PLUGIN_MAIN_FILE_CONTENT=$(cat ${PROJECT_ROOT}/${PLUGIN}.php)

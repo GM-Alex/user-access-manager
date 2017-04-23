@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.7.4
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -39,10 +39,10 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 
 See https://translate.wordpress.org/projects/wp-plugins/user-access-manager
 
-The documentation can be found here: https://github.com/GM-Alex/user-access-manager/wiki
-For support questions please use the support thread here: https://wordpress.org/support/plugin/user-access-manager
-Please report bugs and feature requests here: https://github.com/GM-Alex/user-access-manager/issues
-If you are a developer and want to contribute please visit https://github.com/GM-Alex/user-access-manager
+The documentation can be found here: [https://github.com/GM-Alex/user-access-manager/wiki](https://github.com/GM-Alex/user-access-manager/wiki)
+For support questions please use the support thread here: [https://wordpress.org/support/plugin/user-access-manager](https://wordpress.org/support/plugin/user-access-manager)
+Please report bugs and feature requests here: [https://github.com/GM-Alex/user-access-manager/issues](https://github.com/GM-Alex/user-access-manager/issues)
+If you are a developer and want to contribute please visit [https://github.com/GM-Alex/user-access-manager](https://github.com/GM-Alex/user-access-manager)
 To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
@@ -58,6 +58,8 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.0.1       2017/04/23  Fix dbDelta issue on activation
 
     2.0.0       2017/04/23  Refactoring of the module
                             Improve performance
