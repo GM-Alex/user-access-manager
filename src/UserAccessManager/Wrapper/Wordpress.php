@@ -712,7 +712,7 @@ class Wordpress
      */
     public function getSites(array $arguments = [])
     {
-        if (function_exists('get_sites')) {
+        if (function_exists('\get_sites') === true && class_exists('\WP_Site_Query') === true) {
             return \get_sites($arguments);
         }
 
