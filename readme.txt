@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.7.4
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -58,6 +58,10 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.0.3       2017/04/25  Fix compatibility issue with CMS Tree Page View plugin #37
+                            Fix compatibility issue with SEO Redirection plugin #38
+                            Fix Error thrown: Class 'WP_Site_Query' not found issue #36
 
     2.0.2       2017/04/24  Fix wp_get_current_user() error #34
                             Fix custom post save issue after database update #33
