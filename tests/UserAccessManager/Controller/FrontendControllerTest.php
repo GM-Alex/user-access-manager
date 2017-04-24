@@ -367,6 +367,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::showPosts()
      * @covers \UserAccessManager\Controller\FrontendController::showPages()
+     * @covers \UserAccessManager\Controller\FrontendController::getPost()
      * @covers \UserAccessManager\Controller\FrontendController::processPost()
      */
     public function testShowPostsAtAdminPanel()
@@ -478,6 +479,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::showPosts()
      * @covers \UserAccessManager\Controller\FrontendController::showPages()
+     * @covers \UserAccessManager\Controller\FrontendController::getPost()
      * @covers \UserAccessManager\Controller\FrontendController::processPost()
      */
     public function testShowPosts()
@@ -539,6 +541,19 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->onConsecutiveCalls(false, true, true, false, false));
 
+        $objectHandler = $this->getObjectHandler();
+
+        $objectHandler->expects($this->exactly(4))
+            ->method('getPost')
+            ->withConsecutive([1], [2], [5], [5])
+            ->will($this->returnCallback(function ($postId) {
+                if ($postId === 5) {
+                    return false;
+                }
+
+                return $this->getPost($postId);
+            }));
+
         $accessHandler = $this->getAccessHandler();
 
         $accessHandler->expects($this->exactly(7))
@@ -561,23 +576,32 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
-            $this->getObjectHandler(),
+            $objectHandler,
             $accessHandler,
             $this->getFileHandler(),
             $this->getFileObjectFactory()
         );
 
+        $stdClassPost = new \stdClass();
+        $stdClassPost->ID = 2;
+
+        $invalidStdClassPost = new \stdClass();
+
         $posts = [
-            1 => $this->getPost(1),
-            2 => $this->getPost(2),
+            1 => 1,
+            2 => $stdClassPost,
             3 => $this->getPost(3, 'other'),
-            4 => $this->getPost(4)
+            4 => $this->getPost(4),
+            5 => 5,
+            6 => 'invalid',
+            7 => $invalidStdClassPost
         ];
 
         $pages = [
             1 => $this->getPost(1, 'page'),
             2 => $this->getPost(2),
-            3 => $this->getPost(3, 'other')
+            3 => $this->getPost(3, 'other'),
+            5 => 5
         ];
 
 

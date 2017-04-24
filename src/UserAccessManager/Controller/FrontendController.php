@@ -215,6 +215,26 @@ class FrontendController extends Controller
     }
 
     /**
+     * Tries to get the post from the given mixed data.
+     *
+     * @param mixed $post
+     *
+     * @return false|\WP_Post
+     */
+    private function getPost($post)
+    {
+        if ($post instanceof \WP_post) {
+            return $post;
+        } elseif (is_int($post) === true) {
+            return $this->objectHandler->getPost($post);
+        } elseif ($post instanceof \stdClass && isset($post->ID)) {
+            return $this->objectHandler->getPost($post->ID);
+        }
+
+        return false;
+    }
+
+    /**
      * Modifies the content of the post by the given settings.
      *
      * @param \WP_Post $post    The current post.
@@ -271,7 +291,9 @@ class FrontendController extends Controller
 
         if ($this->wordpress->isFeed() === false || $this->config->protectFeed() === true) {
             foreach ($posts as $post) {
-                if ($post !== null) {
+                $post = $this->getPost($post);
+
+                if ($post !== false) {
                     $post = $this->processPost($post);
 
                     if ($post !== null) {
@@ -296,10 +318,14 @@ class FrontendController extends Controller
         $showPages = [];
 
         foreach ($pages as $page) {
-            $page = $this->processPost($page);
+            $page = $this->getPost($page);
 
-            if ($page !== null) {
-                $showPages[] = $page;
+            if ($page !== false) {
+                $page = $this->processPost($page);
+
+                if ($page !== null) {
+                    $showPages[] = $page;
+                }
             }
         }
 
