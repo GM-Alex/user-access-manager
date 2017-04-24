@@ -503,6 +503,26 @@ class SetupHandler
                 $this->database->query($query);
             }
 
+            if (version_compare($currentDbVersion, '1.5.1', '<=') === true) {
+                $query = "SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
+                    FROM {$dbAccessGroupToObject}
+                    WHERE general_object_type = ''";
+
+                $dbObjects = (array)$this->database->getResults($query);
+
+                foreach ($dbObjects as $dbObject) {
+                    $this->database->update(
+                        $dbAccessGroupToObject,
+                        ['general_object_type' => $this->objectHandler->getGeneralObjectType($dbObject->objectType)],
+                        [
+                            'object_id' => $dbObject->objectId,
+                            'group_id' => $dbObject->groupId,
+                            'object_type' => $dbObject->objectType
+                        ]
+                    );
+                }
+            }
+
             $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
         }
 

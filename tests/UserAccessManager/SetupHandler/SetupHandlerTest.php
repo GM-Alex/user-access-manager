@@ -515,11 +515,16 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 'not_ip_range'
             ));
 
-        $dbObject = new \stdClass();
-        $dbObject->groupId = 123;
-        $dbObject->id = 321;
+        $firstDbObject = new \stdClass();
+        $firstDbObject->groupId = 123;
+        $firstDbObject->id = 321;
 
-        $database->expects($this->exactly(4))
+        $secondDbObject = new \stdClass();
+        $secondDbObject->objectId = 123;
+        $secondDbObject->groupId = 321;
+        $secondDbObject->objectType = 'customPostType';
+
+        $database->expects($this->exactly(5))
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -536,9 +541,14 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 )],
                 [new MatchIgnoreWhitespace(
                     'SELECT role_name AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_role'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
+                    FROM userGroupToObjectTable
+                    WHERE general_object_type = \'\''
                 )]
             )
-            ->will($this->onConsecutiveCalls([$dbObject], [], [], []));
+            ->will($this->onConsecutiveCalls([$firstDbObject], [], [], [], [$secondDbObject]));
 
         $database->expects($this->exactly(12))
             ->method('query')
@@ -607,12 +617,19 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 'ip_range'
             ));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('update')
-            ->with(
-                'userGroupToObjectTable',
-                ['object_type' => ObjectHandler::GENERAL_TERM_OBJECT_TYPE],
-                ['object_type' => 'category']
+            ->withConsecutive(
+                [
+                    'userGroupToObjectTable',
+                    ['object_type' => ObjectHandler::GENERAL_TERM_OBJECT_TYPE],
+                    ['object_type' => 'category']
+                ],
+                [
+                    'userGroupToObjectTable',
+                    ['general_object_type' => 'generalCustomPostType'],
+                    ['object_id' => 123, 'group_id' => 321, 'object_type' => 'customPostType']
+                ]
             );
 
         $objectHandler = $this->getObjectHandler();
@@ -636,6 +653,11 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 ['nothing']
             )
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false));
+
+        $objectHandler->expects($this->once())
+            ->method('getGeneralObjectType')
+            ->with('customPostType')
+            ->will($this->returnValue('generalCustomPostType'));
 
         $setupHandler = new SetupHandler(
             $wordpress,
