@@ -87,147 +87,153 @@ use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-$php = new Php();
-$wordpress = new Wordpress();
-$util = new Util($php);
-$cache = new Cache();
-$configParameterFactory = new ConfigParameterFactory();
-$database = new Database($wordpress);
-$objectHandler = new ObjectHandler($wordpress, $database);
-$config = new Config($wordpress, $objectHandler, $configParameterFactory, __FILE__);
-$fileObjectFactory = new FileObjectFactory();
-$userGroupFactory = new UserGroupFactory(
-    $php,
-    $wordpress,
-    $database,
-    $config,
-    $util,
-    $objectHandler
-);
-$accessHandler = new AccessHandler(
-    $wordpress,
-    $config,
-    $cache,
-    $database,
-    $objectHandler,
-    $util,
-    $userGroupFactory
-);
-$fileProtectionFactory = new FileProtectionFactory(
-    $php,
-    $wordpress,
-    $config,
-    $util
-);
-$fileHandler = new FileHandler(
-    $php,
-    $wordpress,
-    $config,
-    $fileProtectionFactory
-);
-$setupHandler = new SetupHandler(
-    $wordpress,
-    $database,
-    $objectHandler,
-    $fileHandler
-);
-$controllerFactory = new ControllerFactory(
-    $php,
-    $wordpress,
-    $database,
-    $config,
-    $util,
-    $cache,
-    $objectHandler,
-    $accessHandler,
-    $userGroupFactory,
-    $fileHandler,
-    $fileObjectFactory,
-    $setupHandler
-);
-
 global $userAccessManager;
-$userAccessManager = new UserAccessManager(
-    $php,
-    $wordpress,
-    $util,
-    $cache,
-    $config,
-    $database,
-    $objectHandler,
-    $accessHandler,
-    $fileHandler,
-    $setupHandler,
-    $userGroupFactory,
-    $controllerFactory,
-    $configParameterFactory,
-    $fileProtectionFactory,
-    $fileObjectFactory
-);
 
-$wordpress->doAction('uam_init', [$userAccessManager]);
+function initUserAccessManger()
+{
+    $php = new Php();
+    $wordpress = new Wordpress();
+    $util = new Util($php);
+    $cache = new Cache();
+    $configParameterFactory = new ConfigParameterFactory();
+    $database = new Database($wordpress);
+    $objectHandler = new ObjectHandler($wordpress, $database);
+    $config = new Config($wordpress, $objectHandler, $configParameterFactory, __FILE__);
+    $fileObjectFactory = new FileObjectFactory();
+    $userGroupFactory = new UserGroupFactory(
+        $php,
+        $wordpress,
+        $database,
+        $config,
+        $util,
+        $objectHandler
+    );
+    $accessHandler = new AccessHandler(
+        $wordpress,
+        $config,
+        $cache,
+        $database,
+        $objectHandler,
+        $util,
+        $userGroupFactory
+    );
+    $fileProtectionFactory = new FileProtectionFactory(
+        $php,
+        $wordpress,
+        $config,
+        $util
+    );
+    $fileHandler = new FileHandler(
+        $php,
+        $wordpress,
+        $config,
+        $fileProtectionFactory
+    );
+    $setupHandler = new SetupHandler(
+        $wordpress,
+        $database,
+        $objectHandler,
+        $fileHandler
+    );
+    $controllerFactory = new ControllerFactory(
+        $php,
+        $wordpress,
+        $database,
+        $config,
+        $util,
+        $cache,
+        $objectHandler,
+        $accessHandler,
+        $userGroupFactory,
+        $fileHandler,
+        $fileObjectFactory,
+        $setupHandler
+    );
 
-//install
-if (function_exists('register_activation_hook')) {
-    register_activation_hook(__FILE__, [$setupHandler, 'install']);
-}
+    $userAccessManager = new UserAccessManager(
+        $php,
+        $wordpress,
+        $util,
+        $cache,
+        $config,
+        $database,
+        $objectHandler,
+        $accessHandler,
+        $fileHandler,
+        $setupHandler,
+        $userGroupFactory,
+        $controllerFactory,
+        $configParameterFactory,
+        $fileProtectionFactory,
+        $fileObjectFactory
+    );
 
-if (!function_exists("userAccessManagerUninstall")) {
-    function userAccessManagerUninstall()
-    {
-        $php = new Php();
-        $wordpress = new Wordpress();
-        $util = new Util($php);
-        $configParameterFactory = new ConfigParameterFactory();
-        $database = new Database($wordpress);
-        $objectHandler = new ObjectHandler($wordpress, $database);
-        $config = new Config($wordpress, $objectHandler, $configParameterFactory, __FILE__);
+    $wordpress->doAction('uam_init', [$userAccessManager]);
 
-        $fileProtectionFactory = new FileProtectionFactory(
-            $php,
-            $wordpress,
-            $config,
-            $util
-        );
-        $fileHandler = new FileHandler(
-            $php,
-            $wordpress,
-            $config,
-            $fileProtectionFactory
-        );
-        $setupHandler = new SetupHandler(
-            $wordpress,
-            $database,
-            $objectHandler,
-            $fileHandler
-        );
+    //install
+    if (function_exists('register_activation_hook')) {
+        register_activation_hook(__FILE__, [$setupHandler, 'install']);
+    }
 
-        $setupHandler->uninstall();
+    if (!function_exists("userAccessManagerUninstall")) {
+        function userAccessManagerUninstall()
+        {
+            $php = new Php();
+            $wordpress = new Wordpress();
+            $util = new Util($php);
+            $configParameterFactory = new ConfigParameterFactory();
+            $database = new Database($wordpress);
+            $objectHandler = new ObjectHandler($wordpress, $database);
+            $config = new Config($wordpress, $objectHandler, $configParameterFactory, __FILE__);
+
+            $fileProtectionFactory = new FileProtectionFactory(
+                $php,
+                $wordpress,
+                $config,
+                $util
+            );
+            $fileHandler = new FileHandler(
+                $php,
+                $wordpress,
+                $config,
+                $fileProtectionFactory
+            );
+            $setupHandler = new SetupHandler(
+                $wordpress,
+                $database,
+                $objectHandler,
+                $fileHandler
+            );
+
+            $setupHandler->uninstall();
+        }
+    }
+
+    //uninstall
+    if (function_exists('register_uninstall_hook')) {
+        register_uninstall_hook(__FILE__, 'userAccessManagerUninstall');
+    } elseif (function_exists('register_deactivation_hook')) {
+        //Fallback
+        register_deactivation_hook(__FILE__, 'userAccessManagerUninstall');
+    }
+
+    //deactivation
+    if (function_exists('register_deactivation_hook')) {
+        register_deactivation_hook(__FILE__, [$setupHandler, 'deactivate']);
+    }
+
+    $userAccessManager->addActionsAndFilters();
+
+    //Add the cli interface to the known commands
+    if (defined('WP_CLI') && WP_CLI) {
+        $cliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
+
+        $groupCommand = new \UserAccessManager\Command\GroupCommand($cliWrapper, $accessHandler, $userGroupFactory);
+        \WP_CLI::add_command('uam groups', $groupCommand);
+
+        $objectCommand = new \UserAccessManager\Command\ObjectCommand($cliWrapper, $accessHandler);
+        \WP_CLI::add_command('uam objects', $objectCommand);
     }
 }
 
-//uninstall
-if (function_exists('register_uninstall_hook')) {
-    register_uninstall_hook(__FILE__, 'userAccessManagerUninstall');
-} elseif (function_exists('register_deactivation_hook')) {
-    //Fallback
-    register_deactivation_hook(__FILE__, 'userAccessManagerUninstall');
-}
-
-//deactivation
-if (function_exists('register_deactivation_hook')) {
-    register_deactivation_hook(__FILE__, [$setupHandler, 'deactivate']);
-}
-
-$userAccessManager->addActionsAndFilters();
-
-//Add the cli interface to the known commands
-if (defined('WP_CLI') && WP_CLI) {
-    $cliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
-
-    $groupCommand = new \UserAccessManager\Command\GroupCommand($cliWrapper, $accessHandler, $userGroupFactory);
-    \WP_CLI::add_command('uam groups', $groupCommand);
-
-    $objectCommand = new \UserAccessManager\Command\ObjectCommand($cliWrapper, $accessHandler);
-    \WP_CLI::add_command('uam objects', $objectCommand);
-}
+initUserAccessManger();
