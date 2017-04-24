@@ -341,6 +341,10 @@ class Wordpress
      */
     public function getCurrentUser()
     {
+        if (function_exists('\wp_get_current_user') === false) {
+            require_once(ABSPATH . 'wp-includes/pluggable.php');
+        }
+
         return \wp_get_current_user();
     }
 
