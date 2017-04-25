@@ -1787,7 +1787,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(
                 [FrontendController::POST_URL_CACHE_KEY, ['url/part' => 1]],
                 [FrontendController::POST_URL_CACHE_KEY, ['url-e123/part' => 2]],
-                [FrontendController::POST_URL_CACHE_KEY, ['url-123x321/part' => 3]],
+                [FrontendController::POST_URL_CACHE_KEY, ['url-123x321_z/part' => 3]],
                 [FrontendController::POST_URL_CACHE_KEY, ['url-e123-123x321/part' => 4]]
             );
 
@@ -1837,7 +1837,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         self::assertEquals(null, $frontendController->getPostIdByUrl('url/part'));
         self::assertEquals(1, $frontendController->getPostIdByUrl('url/part'));
         self::assertEquals(2, $frontendController->getPostIdByUrl('url-e123/part'));
-        self::assertEquals(3, $frontendController->getPostIdByUrl('url-123x321/part'));
+        self::assertEquals(3, $frontendController->getPostIdByUrl('url-123x321_z/part'));
         self::assertEquals(4, $frontendController->getPostIdByUrl('url-e123-123x321/part'));
         self::assertEquals(1, $frontendController->getPostIdByUrl('url/part'));
     }
