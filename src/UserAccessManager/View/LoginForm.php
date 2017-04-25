@@ -34,16 +34,15 @@ if ($controller->showLoginForm() === true) {
         <?php
         if (get_option('users_can_register')) {
             ?>
-            <a href="<?php echo $controller->getLoginUrl(['action' => 'register']); ?>">
-                <?php echo TXT_UAM_LOGIN_FORM_REGISTER; ?>
-            </a>
+            <a href="<?php echo $controller->getLoginUrl(['action' => 'register']); ?>"><?php
+                echo TXT_UAM_LOGIN_FORM_REGISTER; ?></a>
             <?php
         }
         ?>
+        &nbsp;
         <a href="<?php echo $controller->getLoginUrl(['action' => 'register']); ?>"
-           title="<?php echo TXT_UAM_LOGIN_FORM_LOST_AND_FOUND_PASSWORD; ?>">
-            <?php echo TXT_UAM_LOGIN_FORM_LOST_PASSWORD; ?>
-        </a>
+           title="<?php echo TXT_UAM_LOGIN_FORM_LOST_AND_FOUND_PASSWORD; ?>"><?php
+            echo TXT_UAM_LOGIN_FORM_LOST_PASSWORD; ?></a>
     </div>
     <?php
 } else {
