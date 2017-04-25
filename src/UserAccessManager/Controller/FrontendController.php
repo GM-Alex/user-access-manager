@@ -255,7 +255,6 @@ class FrontendController extends Controller
             }
 
             $uamPostContent = $this->config->getPostTypeContent($post->post_type);
-            $uamPostContent = str_replace('[LOGIN_FORM]', $this->getLoginFormHtml(), $uamPostContent);
 
             if ($post->post_type === 'post'
                 && $this->config->showPostContentBeforeMore() === true
@@ -332,6 +331,18 @@ class FrontendController extends Controller
         $pages = $showPages;
 
         return $pages;
+    }
+
+    /**
+     * Needed to prevent the form against the auto <br>s of wordpress
+     *
+     * @param string $content
+     *
+     * @return string
+     */
+    public function showContent($content)
+    {
+        return (string)str_replace('[LOGIN_FORM]', $this->getLoginFormHtml(), $content);
     }
 
     /**
@@ -737,12 +748,15 @@ class FrontendController extends Controller
     /**
      * Returns the login url.
      *
+     * @var array $parameters
+     *
      * @return mixed
      */
-    public function getLoginUrl()
+    public function getLoginUrl(array $parameters = [])
     {
         $loginUrl = $this->wordpress->getBlogInfo('wpurl').'/wp-login.php';
-        return $this->wordpress->applyFilters('uam_login_form_url', $loginUrl);
+        $loginUrl .= (count($parameters) > 0) ? '?'.http_build_query($parameters) : '';
+        return $this->wordpress->applyFilters('uam_login_form_url', $loginUrl, $parameters);
     }
 
     /**

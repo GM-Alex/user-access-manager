@@ -290,7 +290,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(21))
             ->method('addAction');
 
-        $wordpress->expects($this->exactly(62))
+        $wordpress->expects($this->exactly(65))
             ->method('addFilter');
 
         $config = $this->getConfig();

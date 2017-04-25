@@ -490,21 +490,6 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('isFeed')
             ->will($this->returnValue(false));
 
-        $wordpress->expects($this->exactly(5))
-            ->method('isUserLoggedIn')
-            ->will($this->returnValue(true));
-
-        $wordpress->expects($this->exactly(5))
-            ->method('applyFilters')
-            ->withConsecutive(
-                ['uam_login_form', ''],
-                ['uam_login_form', ''],
-                ['uam_login_form', ''],
-                ['uam_login_form', ''],
-                ['uam_login_form', '']
-            )
-            ->will($this->onConsecutiveCalls('', 'LoginForm', '', '', 'LoginForm'));
-
         $config = $this->getConfig();
 
         $config->expects($this->exactly(6))
@@ -534,7 +519,6 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('getPostTypeTitle')
             ->withConsecutive(['post'], ['page'], ['other'])
             ->will($this->returnValue('postTitle'));
-
 
         $config->expects($this->exactly(5))
             ->method('hidePostTypeComments')
@@ -621,6 +605,40 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ],
             $frontendController->showPages($pages)
         );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::showContent()
+     */
+    public function testShowContent()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly(2))
+            ->method('applyFilters')
+            ->with('uam_login_form', '')
+            ->will($this->returnValue('LoginForm'));
+
+        $wordpress->expects($this->exactly(2))
+            ->method('isUserLoggedIn')
+            ->will($this->returnValue(true));
+
+        $frontendController = new FrontendController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
+        self::assertEquals('begin|LoginForm|end', $frontendController->showContent('begin|[LOGIN_FORM]|end'));
+        self::assertEquals('begin|[LOGIN__FORM]|end', $frontendController->showContent('begin|[LOGIN__FORM]|end'));
     }
 
     /**
@@ -1647,14 +1665,17 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->once())
+        $wordpress->expects($this->exactly(2))
             ->method('getBlogInfo')
             ->with('wpurl')
             ->will($this->returnValue('BlogInfo'));
 
-        $wordpress->expects($this->once())
+        $wordpress->expects($this->exactly(2))
             ->method('applyFilters')
-            ->with('uam_login_form_url', 'BlogInfo/wp-login.php')
+            ->withConsecutive(
+                ['uam_login_form_url', 'BlogInfo/wp-login.php', []],
+                ['uam_login_form_url', 'BlogInfo/wp-login.php?param=paramValue', ['param' => 'paramValue']]
+            )
             ->will($this->returnValue('filter'));
 
         $frontendController = new FrontendController(
@@ -1671,6 +1692,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         );
 
         self::assertEquals('filter', $frontendController->getLoginUrl());
+        self::assertEquals('filter', $frontendController->getLoginUrl(['param' => 'paramValue']));
     }
 
     /**
