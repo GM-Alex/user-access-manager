@@ -691,11 +691,14 @@ class FrontendController extends Controller
 
                 $showItems[$key] = $item;
             } elseif ($this->objectHandler->isTaxonomy($item->object) === true) {
-                $object = $this->objectHandler->getTerm($item->object_id);
-                $category = $this->processTerm($object, $isEmpty);
+                $term = $this->objectHandler->getTerm($item->object_id);
 
-                if ($category !== null && $isEmpty === false) {
-                    $showItems[$key] = $item;
+                if ($term !== false) {
+                    $term = $this->processTerm($term, $isEmpty);
+
+                    if ($term !== null && $isEmpty === false) {
+                        $showItems[$key] = $item;
+                    }
                 }
             } else {
                 $showItems[$key] = $item;

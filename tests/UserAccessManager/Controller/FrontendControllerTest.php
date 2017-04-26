@@ -1410,7 +1410,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $config = $this->getConfig();
 
-        $config->expects($this->exactly(14))
+        $config->expects($this->exactly(15))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(
                 false,
@@ -1424,6 +1424,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 true,
                 true,
                 false,
+                true,
                 true,
                 true,
                 true
@@ -1470,7 +1471,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->exactly(8))
+        $objectHandler->expects($this->exactly(9))
             ->method('isPostType')
             ->withConsecutive(
                 ['other'],
@@ -1480,19 +1481,19 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ['post'],
                 ['taxonomy'],
                 ['taxonomy'],
+                ['taxonomy'],
                 ['taxonomy']
             )
             ->will($this->returnCallback(function ($type) {
                 return ($type === 'post');
             }));
 
-        $objectHandler->expects($this->exactly(4))
+        $objectHandler->expects($this->exactly(5))
             ->method('isTaxonomy')
-            ->withConsecutive(['other'], ['taxonomy'], ['taxonomy'], ['taxonomy'])
+            ->withConsecutive(['other'], ['taxonomy'], ['taxonomy'], ['taxonomy'], ['taxonomy'])
             ->will($this->returnCallback(function ($type) {
                 return ($type === 'taxonomy');
             }));
-
 
         $objectHandler->expects($this->exactly(2))
             ->method('getTermTreeMap')
@@ -1502,9 +1503,13 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('getTermPostMap')
             ->will($this->returnValue([]));
 
-        $objectHandler->expects($this->exactly(3))
+        $objectHandler->expects($this->exactly(4))
             ->method('getTerm')
             ->will($this->returnCallback(function ($termId) {
+                if ($termId === 4) {
+                    return false;
+                }
+
                 return $this->getTerm($termId);
             }));
 
@@ -1562,7 +1567,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             5 => $this->getItem('post', 4),
             6 => $this->getItem('taxonomy', 1),
             7 => $this->getItem('taxonomy', 2),
-            8 => $this->getItem('taxonomy', 3)
+            8 => $this->getItem('taxonomy', 3),
+            9 => $this->getItem('taxonomy', 4)
         ];
 
         self::assertEquals(
