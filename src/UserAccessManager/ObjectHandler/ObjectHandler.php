@@ -207,17 +207,19 @@ class ObjectHandler
      *
      * @param array $map
      * @param array $subMap
+     * @param array $processed
      *
      * @return array
      */
-    private function processTreeMapElements(array &$map, array $subMap = null)
+    private function processTreeMapElements(array &$map, array $subMap = null, array $processed = [])
     {
         $processMap = ($subMap === null) ? $map : $subMap;
 
         foreach ($processMap as $id => $subIds) {
             foreach ($subIds as $subId => $type) {
-                if (isset($map[$subId]) === true) {
-                    $map[$id] += $this->processTreeMapElements($map, [$subId => $map[$subId]])[$subId];
+                if (isset($map[$subId]) === true && isset($processed[$subId]) !== $id) {
+                    $map[$id] += $this->processTreeMapElements($map, [$subId => $map[$subId]], $processed)[$subId];
+                    $processed[$id] = $subId;
                 }
             }
         }
@@ -289,7 +291,7 @@ class ObjectHandler
             $select = "
                 SELECT ID AS id, post_parent AS parentId, post_type AS type 
                 FROM {$this->database->getPostsTable()}
-                  WHERE post_parent != 0";
+                  WHERE post_parent != 0 AND post_type != 'revision'";
 
             $this->postTreeMap = $this->getTreeMap($select, self::GENERAL_POST_OBJECT_TYPE);
         }

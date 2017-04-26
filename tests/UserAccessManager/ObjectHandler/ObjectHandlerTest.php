@@ -303,7 +303,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
                 [new MatchIgnoreWhitespace(
                     'SELECT ID AS id, post_parent AS parentId, post_type AS type 
                     FROM postTable
-                    WHERE post_parent != 0'
+                    WHERE post_parent != 0 AND post_type != \'revision\''
                 )],
                 [new MatchIgnoreWhitespace(
                     'SELECT term_id AS id, parent AS parentId, taxonomy AS type
