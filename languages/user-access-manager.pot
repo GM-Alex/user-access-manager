@@ -2,9 +2,10 @@
 # This file is distributed under the same license as the User Access Manager package.
 msgid ""
 msgstr ""
-"Project-Id-Version: User Access Manager 2.0.0\n"
-"Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/user-access-manager\n"
-"POT-Creation-Date: 2017-04-23 09:31:51+00:00\n"
+"Project-Id-Version: User Access Manager 2.0.4\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/user-access-"
+"manager\n"
+"POT-Creation-Date: 2017-04-26 22:07:06+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,15 +14,23 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
 #: includes/language.php:17
-msgid "Sorry you need at least PHP version 5.4 to use the User Access Manager. Your current PHP version is %s."
+msgid ""
+"Sorry you need at least PHP version 5.4 to use the User Access Manager. Your "
+"current PHP version is %s. See <a href=\"https://github.com/GM-Alex/user-"
+"access-manager/wiki/Troubleshoot\"/>https://github.com/GM-Alex/user-access-"
+"manager/wiki/Troubleshoot</a> for more information."
 msgstr ""
 
 #: includes/language.php:18
-msgid "Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s."
+msgid ""
+"Sorry you need at least Wordpress version 3.0 to use the User Access "
+"Manager. Your current Wordpress version is %s."
 msgstr ""
 
 #: includes/language.php:20
-msgid "Please update the database of the User Access Manager. <a href=\"%s\">Click here to proceed</a>"
+msgid ""
+"Please update the database of the User Access Manager. <a href=\"%s\">Click "
+"here to proceed</a>"
 msgstr ""
 
 #: includes/language.php:23
@@ -65,7 +74,9 @@ msgid "Hide %s title"
 msgstr ""
 
 #: includes/language.php:38
-msgid "Selecting \"Yes\" will show the text which is defined at \"%s\" if user has no access."
+msgid ""
+"Selecting \"Yes\" will show the text which is defined at \"%s\" if user has "
+"no access."
 msgstr ""
 
 #: includes/language.php:39
@@ -73,7 +84,10 @@ msgid "%s content"
 msgstr ""
 
 #: includes/language.php:40
-msgid "Content displayed if user has no access. You can add an login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single %s, otherwise a link will shown."
+msgid ""
+"Content displayed if user has no access. You can add an login-form by adding "
+"the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single "
+"%s, otherwise a link will shown."
 msgstr ""
 
 #: includes/language.php:41
@@ -97,7 +111,9 @@ msgid "Hide %s comments"
 msgstr ""
 
 #: includes/language.php:46
-msgid "Selecting \"Yes\" will show the text which is defined at \"%s comment text\" if user has no access."
+msgid ""
+"Selecting \"Yes\" will show the text which is defined at \"%s comment text\" "
+"if user has no access."
 msgstr ""
 
 #: includes/language.php:47
@@ -113,7 +129,10 @@ msgid "Show %s content before &lt;!--more--&gt; tag"
 msgstr ""
 
 #: includes/language.php:50
-msgid "Shows the %s content before the &lt;!--more--&gt; tag and after that the defined text at \"%s content\". If no &lt;!--more--&gt; is set the defined text at \"%s content\" will shown."
+msgid ""
+"Shows the %s content before the &lt;!--more--&gt; tag and after that the "
+"defined text at \"%s content\". If no &lt;!--more--&gt; is set the defined "
+"text at \"%s content\" will shown."
 msgstr ""
 
 #: includes/language.php:53
@@ -129,7 +148,15 @@ msgid "Lock files"
 msgstr ""
 
 #: includes/language.php:56
-msgid "If you select \"Yes\" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style=\"color:red;\">Note: If you activate this option the plugin will overwrite a '.htaccess' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a '.htaccess' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>"
+msgid ""
+"If you select \"Yes\" all files will locked by a .htaccess file and only "
+"users with access can download files. <br/><strong style=\"color:red;"
+"\">Note: If you activate this option the plugin will overwrite a '.htaccess' "
+"file at the upload folder, if you use already one to protect your files. "
+"Also if you have no permalinks activated your upload dir will protect by a '."
+"htaccess' with a random password and all old media files insert in a "
+"previous post/page will not work anymore. You have to update your posts/"
+"pages (not necessary if you have permalinks activated).</strong>"
 msgstr ""
 
 #: includes/language.php:57
@@ -137,7 +164,10 @@ msgid "Locked file types"
 msgstr ""
 
 #: includes/language.php:58
-msgid "Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <strong>Note:</strong> If you have no problems use all to get the maximum security."
+msgid ""
+"Lock all files, type in file types which you will lock if the post/page is "
+"locked or define file types which will not be locked. <strong>Note:</strong> "
+"If you have no problems use all to get the maximum security."
 msgstr ""
 
 #: includes/language.php:59
@@ -153,7 +183,9 @@ msgid ".htaccess password"
 msgstr ""
 
 #: includes/language.php:62
-msgid "Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files."
+msgid ""
+"Set up the password for the .htaccess access. This password is only needed "
+"if you need a direct access to your files."
 msgstr ""
 
 #: includes/language.php:63
@@ -169,7 +201,9 @@ msgid "Download type"
 msgstr ""
 
 #: includes/language.php:66
-msgid "Selecting the type for downloading. <strong>Note:</strong> For using fopen you need \"safe_mode = off\"."
+msgid ""
+"Selecting the type for downloading. <strong>Note:</strong> For using fopen "
+"you need \"safe_mode = off\"."
 msgstr ""
 
 #: includes/language.php:67
@@ -193,7 +227,9 @@ msgid "Authors always has access to own posts/pages"
 msgstr ""
 
 #: includes/language.php:74
-msgid "If \"Yes\" is selected author will always have full access to their own posts or pages."
+msgid ""
+"If \"Yes\" is selected author will always have full access to their own "
+"posts or pages."
 msgstr ""
 
 #: includes/language.php:75
@@ -201,7 +237,9 @@ msgid "Authors can add content to their own groups"
 msgstr ""
 
 #: includes/language.php:76
-msgid "If \"Yes\" is selected author are able to restrict the content by adding it to their groups."
+msgid ""
+"If \"Yes\" is selected author are able to restrict the content by adding it "
+"to their groups."
 msgstr ""
 
 #: includes/language.php:77
@@ -245,7 +283,9 @@ msgid "Hide empty %s"
 msgstr ""
 
 #: includes/language.php:89
-msgid "Selecting \"Yes\" will hide empty %s which are containing only empty childes or no childes."
+msgid ""
+"Selecting \"Yes\" will hide empty %s which are containing only empty childes "
+"or no childes."
 msgstr ""
 
 #: includes/language.php:92
@@ -289,7 +329,10 @@ msgid "Lock recursive"
 msgstr ""
 
 #: includes/language.php:102
-msgid "Selecting \"Yes\" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to \"No\" could result in display errors relating to the hierarchy."
+msgid ""
+"Selecting \"Yes\" will lock all child posts/pages of a post/page if a user "
+"has no access to the parent page. Note: Setting this option to \"No\" could "
+"result in display errors relating to the hierarchy."
 msgstr ""
 
 #: includes/language.php:103
@@ -305,7 +348,10 @@ msgid "Show admin hint at Posts"
 msgstr ""
 
 #: includes/language.php:106
-msgid "Selecting \"Yes\" will show the defined text at \"%s\" behind the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog."
+msgid ""
+"Selecting \"Yes\" will show the defined text at \"%s\" behind the post/page "
+"to an logged in admin to show him which posts/pages are locked if he visits "
+"his blog."
 msgstr ""
 
 #: includes/language.php:109
@@ -393,7 +439,11 @@ msgid "IP range"
 msgstr ""
 
 #: includes/language.php:135
-msgid "Type in the IP ranges of users which are join these groups by their IP address without login. Set ranges like \"BEGIN\"-\"END\", separate ranges by using \";\", single IPs are also allowed. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
+msgid ""
+"Type in the IP ranges of users which are join these groups by their IP "
+"address without login. Set ranges like \"BEGIN\"-\"END\", separate ranges by "
+"using \";\", single IPs are also allowed. Example: "
+"192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
 msgstr ""
 
 #: includes/language.php:137
@@ -441,7 +491,9 @@ msgid "Type 'reset' in the input field to reset the User Access Manager."
 msgstr ""
 
 #: includes/language.php:153
-msgid "Warning: The reset of the User Access Manager can not be undone. All settings and user groups will permanently lost."
+msgid ""
+"Warning: The reset of the User Access Manager can not be undone. All "
+"settings and user groups will permanently lost."
 msgstr ""
 
 #: includes/language.php:154
@@ -453,7 +505,9 @@ msgid "Update User Access Manager database"
 msgstr ""
 
 #: includes/language.php:156
-msgid "Updates the database of the User Access Manager. Please backup your database before you perform the update."
+msgid ""
+"Updates the database of the User Access Manager. Please backup your database "
+"before you perform the update."
 msgstr ""
 
 #: includes/language.php:157
@@ -485,7 +539,10 @@ msgid "Revert the database"
 msgstr ""
 
 #: includes/language.php:164
-msgid "Choose a backup to revert the database to this user access manager database version. <b>Note: The user access manager database version differs from the user access manager version.</b>"
+msgid ""
+"Choose a backup to revert the database to this user access manager database "
+"version. <b>Note: The user access manager database version differs from the "
+"user access manager version.</b>"
 msgstr ""
 
 #: includes/language.php:165
@@ -521,11 +578,15 @@ msgid "How to support me?"
 msgstr ""
 
 #: includes/language.php:178
-msgid "<strong>Send me bug reports, bug fixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin."
+msgid ""
+"<strong>Send me bug reports, bug fixes, code modifications or your ideas.</"
+"strong><br/>Help me to improve the plugin."
 msgstr ""
 
 #: includes/language.php:179
-msgid "<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages."
+msgid ""
+"<strong>Make a translation of the plugin.</strong><br/>The give other users "
+"more comfort help me to translate it to all languages."
 msgstr ""
 
 #: includes/language.php:180
@@ -541,11 +602,14 @@ msgid "Thanks"
 msgstr ""
 
 #: includes/language.php:185
-msgid "Special thanks go out to my wife for giving me the time to develop this plugin."
+msgid ""
+"Special thanks go out to my wife for giving me the time to develop this "
+"plugin."
 msgstr ""
 
 #: includes/language.php:186
-msgid "I would like to thank all the guys which has helped me with this plugin:"
+msgid ""
+"I would like to thank all the guys which has helped me with this plugin:"
 msgstr ""
 
 #: includes/language.php:187
@@ -569,7 +633,8 @@ msgid "Member of %s other user groups"
 msgstr ""
 
 #: includes/language.php:198
-msgid "<strong>Note:</strong> An administrator has always access to all posts/pages."
+msgid ""
+"<strong>Note:</strong> An administrator has always access to all posts/pages."
 msgstr ""
 
 #: includes/language.php:199
@@ -663,6 +728,115 @@ msgstr ""
 #: includes/language.php:229
 msgid "Remember me"
 msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/WP_CLI/CommandWithUpgrade.php:479
+msgid " Try again"
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/WP_CLI/CommandWithUpgrade.php:484
+msgid "API error. Try Again."
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/commands/core.php:545
+#: vendor/wp-cli/wp-cli/php/commands/core.php:612
+msgctxt "Default network name"
+msgid "%s Sites"
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/commands/core.php:755
+msgid "Wildcard DNS may not be configured correctly."
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/commands/cron-event.php:424
+msgid "%s year"
+msgid_plural "%s years"
+msgstr[0] ""
+msgstr[1] ""
+
+#: vendor/wp-cli/wp-cli/php/commands/cron-event.php:425
+msgid "%s month"
+msgid_plural "%s months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: vendor/wp-cli/wp-cli/php/commands/cron-event.php:426
+msgid "%s week"
+msgid_plural "%s weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: vendor/wp-cli/wp-cli/php/commands/cron-event.php:427
+msgid "%s day"
+msgid_plural "%s days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: vendor/wp-cli/wp-cli/php/commands/cron-event.php:428
+msgid "%s hour"
+msgid_plural "%s hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: vendor/wp-cli/wp-cli/php/commands/cron-event.php:429
+msgid "%s minute"
+msgid_plural "%s minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: vendor/wp-cli/wp-cli/php/commands/cron-event.php:430
+msgid "%s second"
+msgid_plural "%s seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: vendor/wp-cli/wp-cli/php/commands/export.php:300
+msgid "Invalid start ID: %d"
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/commands/media.php:104
+msgid "image"
+msgid_plural "images"
+msgstr[0] ""
+msgstr[1] ""
+
+#: vendor/wp-cli/wp-cli/php/commands/site.php:118
+msgid "Uncategorized"
+msgstr ""
+
+#. translators: Default category slug
+#: vendor/wp-cli/wp-cli/php/commands/site.php:121
+msgctxt "Default category slug"
+msgid "Uncategorized"
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/export/class-wp-export-query.php:327
+msgid "Term is missing a parent: %s (%d)"
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/export/writers.php:35
+#: vendor/wp-cli/wp-cli/php/export/writers.php:39
+msgid "Export Error"
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/export/writers.php:95
+#: vendor/wp-cli/wp-cli/php/export/writers.php:159
+msgid "WP Export: error opening %s for writing."
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/export/writers.php:112
+#: vendor/wp-cli/wp-cli/php/export/writers.php:147
+msgid "WP Export: error writing to export file."
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/utils-wp.php:150
+msgid "Inactive Widgets"
+msgstr ""
+
+#: vendor/wp-cli/wp-cli/php/utils-wp.php:153
+msgid ""
+"Drag widgets here to remove them from the sidebar but keep their settings."
+msgstr ""
+
 #. Plugin Name of the plugin/theme
 msgid "User Access Manager"
 msgstr ""
