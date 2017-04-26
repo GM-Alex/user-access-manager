@@ -83,6 +83,8 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
             file_put_contents($fileWithPath, $content);
             return true;
         } catch (\Exception $exception) {
+            // Because file_put_contents can throw exceptions we use this try catch block
+            // to return the success result instead of an exception
         }
 
         return false;

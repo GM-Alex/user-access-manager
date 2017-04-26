@@ -170,13 +170,13 @@ class ObjectHandler
      *
      * @param int $id The post id.
      *
-     * @return \WP_Post|array|false
+     * @return \WP_Post|false
      */
     public function getPost($id)
     {
         if (isset($this->posts[$id]) === false) {
             $post = $this->wordpress->getPost($id);
-            $this->posts[$id] = ($post === null) ? false : $post;
+            $this->posts[$id] = ($post instanceof \WP_Post) ? $post : false;
         }
 
         return $this->posts[$id];
@@ -188,7 +188,7 @@ class ObjectHandler
      * @param int    $id       The term id.
      * @param string $taxonomy The taxonomy.
      *
-     * @return false|\WP_Error|\WP_Term
+     * @return false|\WP_Term
      */
     public function getTerm($id, $taxonomy = '')
     {
@@ -196,7 +196,7 @@ class ObjectHandler
 
         if (isset($this->terms[$fullId]) === false) {
             $term = $this->wordpress->getTerm($id, $taxonomy);
-            $this->terms[$fullId] = ($term === null) ? false : $term;
+            $this->terms[$fullId] = ($term instanceof \WP_Term) ? $term : false;
         }
 
         return $this->terms[$fullId];
@@ -245,7 +245,7 @@ class ObjectHandler
                 $generalType => []
             ]
         ];
-        $results = $this->database->getResults($select);
+        $results = (array)$this->database->getResults($select);
 
         foreach ($results as $result) {
             if (isset($treeMap[self::TREE_MAP_CHILDREN][$result->type]) === false) {
@@ -336,7 +336,7 @@ class ObjectHandler
                   LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
                     ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
-            $results = $this->database->getResults($select);
+            $results = (array)$this->database->getResults($select);
 
             foreach ($results as $result) {
                 if (isset($this->termPostMap[$result->termId]) === false) {
@@ -366,7 +366,7 @@ class ObjectHandler
                   LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
                     ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
-            $results = $this->database->getResults($select);
+            $results = (array)$this->database->getResults($select);
 
             foreach ($results as $result) {
                 if (isset($this->postTermMap[$result->objectId]) === false) {

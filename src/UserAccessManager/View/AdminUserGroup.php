@@ -120,11 +120,13 @@ if ($controller->getRequestParameter('uam_action') === null
                         </td>
                         <td>
                             <?php
-                            if ($userGroup->getIpRange()) {
+                            $ipRanges = $userGroup->getIpRangeArray();
+
+                            if (count($ipRanges) > 0) {
                                 ?>
                                 <ul>
                                     <?php
-                                    foreach ($userGroup->getIpRange() as $ipRange) {
+                                    foreach ($ipRanges as $ipRange) {
                                         ?>
                                         <li><?php echo htmlentities($ipRange); ?></li>
                                         <?php
@@ -197,7 +199,7 @@ if ($controller->getRequestParameter('uam_action') === null
             </tr>
             <tr class="form-field form-required">
                 <th valign="top" scope="row"><label for="ipRange"><?php echo TXT_UAM_GROUP_IP_RANGE; ?></label></th>
-                <td><input type="text" size="40" value="<?php echo htmlentities($userGroup->getIpRange(true)); ?>"
+                <td><input type="text" size="40" value="<?php echo htmlentities($userGroup->getIpRange()); ?>"
                            id="ipRange" name="ipRange"/><br/>
                     <?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?>
                 </td>

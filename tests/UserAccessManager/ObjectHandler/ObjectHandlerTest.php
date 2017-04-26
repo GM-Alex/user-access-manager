@@ -144,8 +144,8 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertEquals($post, $objectHandler->getPost(123));
         self::assertFalse($objectHandler->getPost(321));
         self::assertFalse($objectHandler->getPost(321));
-        self::assertEquals(['id' => 2], $objectHandler->getPost(231));
-        self::assertEquals(['id' => 2], $objectHandler->getPost(231));
+        self::assertFalse($objectHandler->getPost(231));
+        self::assertFalse($objectHandler->getPost(231));
     }
 
     /**
@@ -177,10 +177,10 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertEquals($term, $objectHandler->getTerm(123));
         self::assertFalse($objectHandler->getTerm(321, 'firstTax'));
         self::assertFalse($objectHandler->getTerm(321, 'firstTax'));
-        self::assertEquals(['id' => 2], $objectHandler->getTerm(231, 'secondTax'));
-        self::assertEquals(['id' => 2], $objectHandler->getTerm(231, 'secondTax'));
-        self::assertEquals($error, $objectHandler->getTerm(231));
-        self::assertEquals($error, $objectHandler->getTerm(231));
+        self::assertFalse($objectHandler->getTerm(231, 'secondTax'));
+        self::assertFalse($objectHandler->getTerm(231, 'secondTax'));
+        self::assertFalse($objectHandler->getTerm(231));
+        self::assertFalse($objectHandler->getTerm(231));
     }
 
     /**

@@ -315,7 +315,7 @@ class AccessHandler
 
             foreach ($userGroups as $userGroup) {
                 if (isset($userGroupsForUser[$userGroup->getId()]) === false
-                    && ($this->isIpInRange($_SERVER['REMOTE_ADDR'], $userGroup->getIpRange())
+                    && ($this->isIpInRange($_SERVER['REMOTE_ADDR'], $userGroup->getIpRangeArray())
                         || $this->config->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
                         || $this->config->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all')
                 ) {

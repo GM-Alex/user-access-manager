@@ -4,3 +4,4 @@ tmp
 humbuglog.txt
 humbuglog.json
 .htpasswd
+coverage.clover

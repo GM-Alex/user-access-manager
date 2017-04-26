@@ -225,8 +225,14 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
         $userGroup->expects($this->any())
             ->method('getIpRange')
-            ->will($this->returnCallback(function ($string) use ($ipRange) {
-                return ($string === false) ? $ipRange : implode(';', $ipRange);
+            ->will($this->returnCallback(function () use ($ipRange) {
+                return implode(';', $ipRange);
+            }));
+
+        $userGroup->expects($this->any())
+            ->method('getIpRangeArray')
+            ->will($this->returnCallback(function () use ($ipRange) {
+                return $ipRange;
             }));
 
         $userGroup->expects($this->any())

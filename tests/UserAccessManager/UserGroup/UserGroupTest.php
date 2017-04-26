@@ -152,6 +152,7 @@ class UserGroupTest extends UserAccessManagerTestCase
      * @covers  \UserAccessManager\UserGroup\UserGroup::getReadAccess()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getWriteAccess()
      * @covers  \UserAccessManager\UserGroup\UserGroup::getIpRange()
+     * @covers  \UserAccessManager\UserGroup\UserGroup::getIpRangeArray()
      * @covers  \UserAccessManager\UserGroup\UserGroup::setName()
      * @covers  \UserAccessManager\UserGroup\UserGroup::setDescription()
      * @covers  \UserAccessManager\UserGroup\UserGroup::setReadAccess()
@@ -167,8 +168,8 @@ class UserGroupTest extends UserAccessManagerTestCase
         self::assertEquals('groupDesc', $userGroup->getDescription());
         self::assertEquals('readAccess', $userGroup->getReadAccess());
         self::assertEquals('writeAccess', $userGroup->getWriteAccess());
-        self::assertEquals(['ipRange', 'ipRange2'], $userGroup->getIpRange());
-        self::assertEquals('ipRange;ipRange2', $userGroup->getIpRange(true));
+        self::assertEquals(['ipRange', 'ipRange2'], $userGroup->getIpRangeArray());
+        self::assertEquals('ipRange;ipRange2', $userGroup->getIpRange());
 
         $userGroup->setName('groupNameNew');
         self::assertAttributeEquals('groupNameNew', 'name', $userGroup);
@@ -260,6 +261,7 @@ class UserGroupTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers \UserAccessManager\UserGroup\UserGroup::delete()
      * @covers \UserAccessManager\UserGroup\UserGroup::removeObject()
+     * @covers \UserAccessManager\UserGroup\UserGroup::resetObjects()
      */
     public function testDelete()
     {
@@ -398,6 +400,7 @@ class UserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\UserGroup::addObject()
+     * @covers \UserAccessManager\UserGroup\UserGroup::resetObjects()
      */
     public function testAddObject()
     {

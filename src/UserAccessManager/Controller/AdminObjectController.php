@@ -49,17 +49,17 @@ class AdminObjectController extends Controller
     private $accessHandler;
 
     /**
-     * @var null
+     * @var null|string
      */
     private $groupsFromName = null;
 
     /**
-     * @var string
+     * @var null|string
      */
     private $objectType = null;
 
     /**
-     * @var string
+     * @var null|string
      */
     private $objectId = null;
 
@@ -719,7 +719,7 @@ class AdminObjectController extends Controller
      *
      * @param string $objectType       The object type.
      * @param string $objectId         The id of the object.
-     * @param string $fromName         The formName.
+     * @param string $formName         The formName.
      * @param array  $objectUserGroups If set we force this user groups for the object.
      *
      * @return string
@@ -727,12 +727,12 @@ class AdminObjectController extends Controller
     public function showPluggableGroupSelectionForm(
         $objectType,
         $objectId,
-        $fromName = null,
+        $formName = null,
         array $objectUserGroups = null
     ) {
         $this->setObjectInformation($objectType, $objectId, $objectUserGroups);
 
-        $this->groupsFromName = $fromName;
+        $this->groupsFromName = $formName;
         $formContent = $this->getIncludeContents('GroupSelectionForm.php');
         $this->groupsFromName = null;
 

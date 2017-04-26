@@ -37,12 +37,12 @@ Appeal: If it works click the "Works" button, if it don't works click the "Broke
 
 <em>Included languages</em>
 
-See https://translate.wordpress.org/projects/wp-plugins/user-access-manager
+See [https://translate.wordpress.org/projects/wp-plugins/user-access-manager](https://translate.wordpress.org/projects/wp-plugins/user-access-manager)
 
 The documentation can be found here: [https://github.com/GM-Alex/user-access-manager/wiki](https://github.com/GM-Alex/user-access-manager/wiki)
-For support questions please use the support thread here: [https://wordpress.org/support/plugin/user-access-manager](https://wordpress.org/support/plugin/user-access-manager)
 Please report bugs and feature requests here: [https://github.com/GM-Alex/user-access-manager/issues](https://github.com/GM-Alex/user-access-manager/issues)
 If you are a developer and want to contribute please visit [https://github.com/GM-Alex/user-access-manager](https://github.com/GM-Alex/user-access-manager)
+For general questions, like how to setup, best practice and so on please use the support thread here (don't post issues here): [https://wordpress.org/support/plugin/user-access-manager](https://wordpress.org/support/plugin/user-access-manager)
 To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
@@ -58,6 +58,11 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.0.4       2017/04/26  Adjust code so that php version is checked before throwing a fatal error
+                            Improve login form #26
+                            Fix soliloquy slider incompatibility #31
+                            Improve performance #41
 
     2.0.3       2017/04/25  Fix compatibility issue with CMS Tree Page View plugin #37
                             Fix compatibility issue with SEO Redirection plugin #38
@@ -292,7 +297,7 @@ Here you found the changes in each version.
 
 == Frequently Asked Questions ==
 
-See: https://github.com/GM-Alex/user-access-manager/wiki/FAQ
+See: [https://github.com/GM-Alex/user-access-manager/wiki/FAQ](https://github.com/GM-Alex/user-access-manager/wiki/FAQ)
 
 == Screenshots ==
 

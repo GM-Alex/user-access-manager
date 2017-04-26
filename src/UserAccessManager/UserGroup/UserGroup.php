@@ -254,13 +254,21 @@ class UserGroup
     /**
      * Returns the ip range.
      *
-     * @param bool $string If true return it as string.
-     *
      * @return array|string
      */
-    public function getIpRange($string = false)
+    public function getIpRange()
     {
-        return ($string === true) ? $this->ipRange : explode(';', $this->ipRange);
+        return $this->ipRange;
+    }
+
+    /**
+     * Returns the ip range as array
+     *
+     * @return array
+     */
+    public function getIpRangeArray()
+    {
+        return explode(';', $this->ipRange);
     }
 
     /**
@@ -373,6 +381,20 @@ class UserGroup
     }
 
     /**
+     * Resets the objects
+     */
+    private function resetObjects()
+    {
+        $this->assignedObjects = [];
+        $this->roleMembership = [];
+        $this->userMembership = [];
+        $this->termMembership = [];
+        $this->postMembership = [];
+        $this->pluggableObjectMembership = [];
+        $this->fullObjectMembership = [];
+    }
+
+    /**
      * Adds a object of the given type.
      *
      * @param string $objectType The object type.
@@ -407,14 +429,7 @@ class UserGroup
         );
 
         if ($return !== false) {
-            $this->assignedObjects = [];
-            $this->roleMembership = [];
-            $this->userMembership = [];
-            $this->termMembership = [];
-            $this->postMembership = [];
-            $this->pluggableObjectMembership = [];
-            $this->fullObjectMembership = [];
-
+            $this->resetObjects();
             return true;
         }
 
@@ -454,13 +469,7 @@ class UserGroup
         $success = ($this->database->query($query) !== false);
 
         if ($success === true) {
-            $this->assignedObjects = [];
-            $this->roleMembership = [];
-            $this->userMembership = [];
-            $this->termMembership = [];
-            $this->postMembership = [];
-            $this->pluggableObjectMembership = [];
-            $this->fullObjectMembership = [];
+            $this->resetObjects();
         }
 
         return $success;

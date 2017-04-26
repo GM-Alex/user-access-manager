@@ -135,7 +135,7 @@ class GroupCommand extends CommandWithDBObject
                     ',',
                     array_keys($userGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))
                 ),
-                'ip_range' => $userGroup->getIpRange() !== null ? $userGroup->getIpRange(true) : ''
+                'ip_range' => $userGroup->getIpRange() !== null ? $userGroup->getIpRange() : ''
             ];
         }
 
