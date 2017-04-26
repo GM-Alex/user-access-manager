@@ -33,10 +33,16 @@ class ObjectHandler
     const ATTACHMENT_OBJECT_TYPE = 'attachment';
     const POST_OBJECT_TYPE = 'post';
     const PAGE_OBJECT_TYPE = 'page';
+
     /**
      * @var Wordpress
      */
     private $wordpress;
+
+    /**
+     * @var Database
+     */
+    private $database;
 
     /**
      * @var null|array
@@ -64,22 +70,22 @@ class ObjectHandler
     private $terms = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     private $termPostMap = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     private $postTermMap = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     private $termTreeMap = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     private $postTreeMap = null;
 
@@ -89,12 +95,12 @@ class ObjectHandler
     private $pluggableObjects = [];
 
     /**
-     * @var array
+     * @var null|array
      */
     private $objectTypes = null;
 
     /**
-     * @var array
+     * @var null|array
      */
     private $allObjectTypes = null;
 
@@ -386,7 +392,7 @@ class ObjectHandler
             $this->postTypes[$postType] = $postType;
             $this->objectTypes = null;
             $this->allObjectTypes = null;
-            $this->validObjectTypes = null;
+            $this->validObjectTypes = [];
         }
     }
 
@@ -404,7 +410,7 @@ class ObjectHandler
             $this->taxonomies[$taxonomy] = $taxonomy;
             $this->objectTypes = null;
             $this->allObjectTypes = null;
-            $this->validObjectTypes = null;
+            $this->validObjectTypes = [];
         }
     }
 

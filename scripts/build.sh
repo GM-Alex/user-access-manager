@@ -6,7 +6,9 @@ echo "Execute php codesniffer"
 ${PLUGIN_ROOT}/vendor/bin/phpcs -p --standard=PSR2 ${PLUGIN_ROOT}/src ${PLUGIN_ROOT}/tests
 
 echo "Execute phpunit"
-${PLUGIN_ROOT}/vendor/bin/phpunit
+${PLUGIN_ROOT}/vendor/bin/phpunit --coverage-clover=coverage.clover
+wget https://scrutinizer-ci.com/ocular.phar
+php ocular.phar code-coverage:upload --repository=GM-Alex/user-access-manager --format=php-clover coverage.clover
 
 echo "Execute humbug"
 ${PLUGIN_ROOT}/vendor/bin/humbug

@@ -484,7 +484,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals($expectedResult, 'postTypes', $objectHandler);
         self::assertAttributeEquals(null, 'objectTypes', $objectHandler);
         self::assertAttributeEquals(null, 'allObjectTypes', $objectHandler);
-        self::assertAttributeEquals(null, 'validObjectTypes', $objectHandler);
+        self::assertAttributeEquals([], 'validObjectTypes', $objectHandler);
 
         return $objectHandler;
     }
@@ -516,7 +516,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals($expectedResult, 'taxonomies', $objectHandler);
         self::assertAttributeEquals(null, 'objectTypes', $objectHandler);
         self::assertAttributeEquals(null, 'allObjectTypes', $objectHandler);
-        self::assertAttributeEquals(null, 'validObjectTypes', $objectHandler);
+        self::assertAttributeEquals([], 'validObjectTypes', $objectHandler);
 
         return $objectHandler;
     }
