@@ -121,4 +121,12 @@ class Php
         /** @noinspection PhpIncludeInspection */
         include $file;
     }
+
+    /**
+     * @see exit()
+     */
+    public function callExit()
+    {
+        exit;
+    }
 }

@@ -814,6 +814,7 @@ class FrontendController extends Controller
         //Filter size
         $newUrlPieces = preg_split('/-[0-9]{1,}x[0-9]{1,}(_[a-z])?/', $newUrl);
         $newUrl = (count($newUrlPieces) === 2) ? $newUrlPieces[0].$newUrlPieces[1] : $newUrlPieces[0];
+        $newUrl = preg_replace('/\-pdf\.jpg$/', '.pdf', $newUrl);
 
         $query = $this->database->prepare(
             "SELECT ID
@@ -887,15 +888,13 @@ class FrontendController extends Controller
      *
      * @param string $objectType The type of the requested file.
      * @param string $objectUrl  The file url.
-     *
-     * @return null
      */
     public function getFile($objectType, $objectUrl)
     {
         $fileObject = $this->getFileSettingsByType($objectType, $objectUrl);
 
         if ($fileObject === null) {
-            return null;
+            return;
         }
 
         if ($this->accessHandler->checkObjectAccess($fileObject->getType(), $fileObject->getId()) === true) {
@@ -905,10 +904,10 @@ class FrontendController extends Controller
             $file = $realPath.'assets/gfx/noAccessPic.png';
         } else {
             $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS);
-            return null;
+            return;
         }
 
-        return $this->fileHandler->getFile($file, $fileObject->isImage());
+        $this->fileHandler->getFile($file, $fileObject->isImage());
     }
 
     /**

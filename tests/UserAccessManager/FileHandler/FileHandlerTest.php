@@ -114,6 +114,9 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 return fread($handle, $length);
             }));
 
+        $php->expects($this->exactly(6))
+            ->method('callExit');
+
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
             ->method('wpDie')

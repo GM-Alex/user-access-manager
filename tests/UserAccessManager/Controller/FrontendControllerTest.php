@@ -1776,7 +1776,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     {
         $cache = $this->getCache();
 
-        $cache->expects($this->exactly(6))
+        $cache->expects($this->exactly(7))
             ->method('getFromCache')
             ->with(FrontendController::POST_URL_CACHE_KEY)
             ->will($this->onConsecutiveCalls(
@@ -1785,38 +1785,46 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 null,
                 null,
                 null,
+                null,
                 ['url/part' => 1]
             ));
 
-        $cache->expects($this->exactly(4))
+        $cache->expects($this->exactly(5))
             ->method('addToCache')
             ->withConsecutive(
                 [FrontendController::POST_URL_CACHE_KEY, ['url/part' => 1]],
                 [FrontendController::POST_URL_CACHE_KEY, ['url-e123/part' => 2]],
                 [FrontendController::POST_URL_CACHE_KEY, ['url-123x321_z/part' => 3]],
-                [FrontendController::POST_URL_CACHE_KEY, ['url-e123-123x321/part' => 4]]
+                [FrontendController::POST_URL_CACHE_KEY, ['url-e123-123x321/part' => 4]],
+                [FrontendController::POST_URL_CACHE_KEY, ['url/part-pdf.jpg' => 5]]
             );
 
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(5))
+        $database->expects($this->exactly(6))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $database->expects($this->exactly(5))
-            ->method('prepare')
-            ->with(
-                new MatchIgnoreWhitespace(
-                    'SELECT ID
+        $defaultQuery = new MatchIgnoreWhitespace(
+            'SELECT ID
                     FROM postTable
                     WHERE guid = \'%s\' 
                     LIMIT 1'
-                ),
-                'url/part'
+        );
+
+        $database->expects($this->exactly(6))
+            ->method('prepare')
+            ->withConsecutive(
+                [$defaultQuery, 'url/part'],
+                [$defaultQuery, 'url/part'],
+                [$defaultQuery, 'url/part'],
+                [$defaultQuery, 'url/part'],
+                [$defaultQuery, 'url/part'],
+                [$defaultQuery, 'url/part.pdf']
             )
             ->will($this->returnValue('preparedQuery'));
 
-        $database->expects($this->exactly(5))
+        $database->expects($this->exactly(6))
             ->method('getRow')
             ->with('preparedQuery')
             ->will($this->onConsecutiveCalls(
@@ -1824,7 +1832,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $this->getPost(1),
                 $this->getPost(2),
                 $this->getPost(3),
-                $this->getPost(4)
+                $this->getPost(4),
+                $this->getPost(5)
             ));
 
         $frontendController = new FrontendController(
@@ -1845,6 +1854,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         self::assertEquals(2, $frontendController->getPostIdByUrl('url-e123/part'));
         self::assertEquals(3, $frontendController->getPostIdByUrl('url-123x321_z/part'));
         self::assertEquals(4, $frontendController->getPostIdByUrl('url-e123-123x321/part'));
+        self::assertEquals(5, $frontendController->getPostIdByUrl('url/part-pdf.jpg'));
         self::assertEquals(1, $frontendController->getPostIdByUrl('url/part'));
     }
 
@@ -1944,8 +1954,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ['file', false],
                 ['realPath/assets/gfx/noAccessPic.png', true],
                 ['/baseDirectory/file/pictures/url', false]
-            )
-            ->will($this->returnValue('getFile'));
+            );
 
         $fileObjectFactory = $this->getFileObjectFactory();
 
@@ -1992,14 +2001,14 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $fileObjectFactory
         );
 
-        self::assertEquals(null, $frontendController->getFile('customType', 'url'));
+        $frontendController->getFile('customType', 'url');
         $_GET['uamextra'] = 'extra';
-        self::assertEquals('getFile', $frontendController->getFile('customType', 'url'));
-        self::assertEquals(null, $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
-        self::assertEquals(null, $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
-        self::assertEquals(null, $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
-        self::assertEquals('getFile', $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
-        self::assertEquals('getFile', $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url'));
+        $frontendController->getFile('customType', 'url');
+        $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
+        $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
+        $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
+        $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
+        $frontendController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
     }
 
     /**

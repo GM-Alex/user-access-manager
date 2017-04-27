@@ -187,7 +187,11 @@ class Wordpress
      */
     public function switchToBlog($blogId)
     {
-        return \switch_to_blog($blogId);
+        if (function_exists('\switch_to_blog') === true) {
+            return \switch_to_blog($blogId);
+        }
+
+        return true;
     }
 
     /**

@@ -83,8 +83,6 @@ class FileHandler
      *
      * @param string $file
      * @param bool   $isImage
-     *
-     * @return null
      */
     public function getFile($file, $isImage)
     {
@@ -142,11 +140,11 @@ class FileHandler
             } else {
                 readfile($file);
             }
+
+            $this->php->callExit();
         } else {
             $this->wordpress->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
         }
-
-        return null;
     }
 
     /**
