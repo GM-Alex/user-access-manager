@@ -564,7 +564,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(3))
             ->method('wpDie')
-            ->with(TXT_UAM_NO_RIGHTS);
+            ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post

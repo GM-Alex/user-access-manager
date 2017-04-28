@@ -903,7 +903,7 @@ class FrontendController extends Controller
             $realPath = $this->config->getRealPath();
             $file = $realPath.'assets/gfx/noAccessPic.png';
         } else {
-            $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS);
+            $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
             return;
         }
 

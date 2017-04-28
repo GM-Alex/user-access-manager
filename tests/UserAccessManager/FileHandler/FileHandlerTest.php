@@ -120,7 +120,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
             ->method('wpDie')
-            ->with(TXT_UAM_FILE_NOT_FOUND_ERROR)
+            ->with(TXT_UAM_FILE_NOT_FOUND_ERROR_MESSAGE, TXT_UAM_FILE_NOT_FOUND_ERROR_TITLE, ['response' => 404])
             ->will($this->returnValue(null));
 
         $config = $this->getConfig();

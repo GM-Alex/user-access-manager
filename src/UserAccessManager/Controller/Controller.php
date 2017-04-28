@@ -130,7 +130,7 @@ abstract class Controller
         $nonce = $this->getRequestParameter($name.'Nonce');
 
         if ($this->wordpress->verifyNonce($nonce, $name) === false) {
-            $this->wordpress->wpDie(TXT_UAM_NONCE_FAILURE);
+            $this->wordpress->wpDie(TXT_UAM_NONCE_FAILURE_MESSAGE, TXT_UAM_NONCE_FAILURE_TITLE, ['response' => 401]);
         }
     }
 

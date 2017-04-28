@@ -198,10 +198,12 @@ define('TXT_UAM_MEMBER_OF_OTHER_GROUPS', __('Member of %s other user groups', 'u
 define('TXT_UAM_ADMIN_HINT', __('<strong>Note:</strong> An administrator has always access to all posts/pages.', 'user-access-manager'));
 define('TXT_UAM_CREATE_GROUP_FIRST', __('Please create a user group first.', 'user-access-manager'));
 define('TXT_UAM_NO_GROUP_AVAILABLE', __('No user group available.', 'user-access-manager'));
-define('TXT_UAM_NO_RIGHTS', __('You have no rights to access this content.', 'user-access-manager'));
+define('TXT_UAM_NO_RIGHTS_TITLE', __('No rights', 'user-access-manager'));
+define('TXT_UAM_NO_RIGHTS_MESSAGE', __('You have no rights to access this content.', 'user-access-manager'));
 define('TXT_UAM_GROUPS', __('User Groups', 'user-access-manager'));
 define('TXT_UAM_SET_UP_USER_GROUPS', __('Set up user groups', 'user-access-manager'));
-define('TXT_UAM_NONCE_FAILURE', __('Sorry, your nonce did not verify.', 'user-access-manager'));
+define('TXT_UAM_NONCE_FAILURE_TITLE', __('Nonce error', 'user-access-manager'));
+define('TXT_UAM_NONCE_FAILURE_MESSAGE', __('Sorry, your nonce did not verify.', 'user-access-manager'));
 
 // --- Group info ---
 define('TXT_UAM_INFO', __('Info', 'user-access-manager'));
@@ -216,7 +218,8 @@ define('TXT_UAM_GROUP_TYPE__POST_', __('Post', 'user-access-manager'));
 
 // --- File access ---
 define('TXT_UAM_FILE_INFO_DB_ERROR', __('Opening file info database failed.', 'user-access-manager'));
-define('TXT_UAM_FILE_NOT_FOUND_ERROR', __('Error: File not found.', 'user-access-manager'));
+define('TXT_UAM_FILE_NOT_FOUND_ERROR_TITLE', __('Error: File not found.', 'user-access-manager'));
+define('TXT_UAM_FILE_NOT_FOUND_ERROR_MESSAGE', __('The file you are looking for wasn\'t found.', 'user-access-manager'));
 
 
 // --- Login form ---

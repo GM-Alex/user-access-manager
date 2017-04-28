@@ -1880,7 +1880,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $wordpress->expects($this->once())
             ->method('wpDie')
-            ->with(TXT_UAM_NO_RIGHTS);
+            ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
 
         $fileObject = $this->createMock('\UserAccessManager\FileHandler\FileObject');
 

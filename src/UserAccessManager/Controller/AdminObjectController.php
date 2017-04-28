@@ -318,7 +318,7 @@ class AdminObjectController extends Controller
         }
 
         if ($noRights === true) {
-            $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS);
+            $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
         }
     }
 

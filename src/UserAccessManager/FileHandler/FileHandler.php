@@ -143,7 +143,11 @@ class FileHandler
 
             $this->php->callExit();
         } else {
-            $this->wordpress->wpDie(TXT_UAM_FILE_NOT_FOUND_ERROR);
+            $this->wordpress->wpDie(
+                TXT_UAM_FILE_NOT_FOUND_ERROR_MESSAGE,
+                TXT_UAM_FILE_NOT_FOUND_ERROR_TITLE,
+                ['response' => 404]
+            );
         }
     }
 
