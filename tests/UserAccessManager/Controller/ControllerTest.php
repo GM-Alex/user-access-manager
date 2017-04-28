@@ -178,7 +178,8 @@ class ControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true));
 
         $wordpress->expects($this->once())
-            ->method('wpDie');
+            ->method('wpDie')
+            ->with(TXT_UAM_NONCE_FAILURE_MESSAGE, TXT_UAM_NONCE_FAILURE_TITLE, ['response' => 401]);
 
         $stub = $this->getStub();
         $stub->__construct(
