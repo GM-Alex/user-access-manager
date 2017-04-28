@@ -593,7 +593,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             [
                 $this->getPost(1),
                 $this->getPost(2, 'post', 'postTitle', '[LOGIN_FORM] content2 postContent'),
-                $this->getPost(3, 'other', null, 'postContent', true)
+                $this->getPost(3, 'other', null, 'postContent', true),
+                5,
+                'invalid',
+                $invalidStdClassPost
             ],
             $frontendController->showPosts($posts)
         );
@@ -601,7 +604,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             [
                 $this->getPost(1, 'page', 'postTitle', 'postContent', true),
                 $this->getPost(2, 'post', null, 'postContent'),
-                $this->getPost(3, 'other', 'postTitle', 'postContent')
+                $this->getPost(3, 'other', 'postTitle', 'postContent'),
+                5
             ],
             $frontendController->showPages($pages)
         );

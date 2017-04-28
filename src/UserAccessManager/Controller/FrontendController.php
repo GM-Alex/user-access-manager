@@ -280,17 +280,17 @@ class FrontendController extends Controller
     /**
      * The function for the the_posts filter.
      *
-     * @param array $posts The posts.
+     * @param array $rawPosts The posts.
      *
      * @return array
      */
-    public function showPosts($posts = [])
+    public function showPosts($rawPosts = [])
     {
         $showPosts = [];
 
         if ($this->wordpress->isFeed() === false || $this->config->protectFeed() === true) {
-            foreach ($posts as $post) {
-                $post = $this->getPost($post);
+            foreach ($rawPosts as $rawPost) {
+                $post = $this->getPost($rawPost);
 
                 if ($post !== false) {
                     $post = $this->processPost($post);
@@ -298,6 +298,8 @@ class FrontendController extends Controller
                     if ($post !== null) {
                         $showPosts[] = $post;
                     }
+                } else {
+                    $showPosts[] = $rawPost;
                 }
             }
         }
@@ -308,16 +310,16 @@ class FrontendController extends Controller
     /**
      * The function for the get_pages filter.
      *
-     * @param \WP_Post[] $pages The pages.
+     * @param \WP_Post[] $rawPages The pages.
      *
      * @return array
      */
-    public function showPages($pages = [])
+    public function showPages($rawPages = [])
     {
         $showPages = [];
 
-        foreach ($pages as $page) {
-            $page = $this->getPost($page);
+        foreach ($rawPages as $rawPage) {
+            $page = $this->getPost($rawPage);
 
             if ($page !== false) {
                 $page = $this->processPost($page);
@@ -325,12 +327,14 @@ class FrontendController extends Controller
                 if ($page !== null) {
                     $showPages[] = $page;
                 }
+            } else {
+                $showPages[] = $rawPage;
             }
         }
 
-        $pages = $showPages;
+        $rawPages = $showPages;
 
-        return $pages;
+        return $rawPages;
     }
 
     /**
