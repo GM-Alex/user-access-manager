@@ -372,7 +372,7 @@ class Config
      */
     public function getUrlPath()
     {
-        return $this->wordpress->pluginsUrl('', $this->baseFile).DIRECTORY_SEPARATOR;
+        return $this->wordpress->pluginsUrl('', $this->baseFile).'/';
     }
 
     /**

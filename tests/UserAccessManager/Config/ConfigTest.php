@@ -531,7 +531,7 @@ class ConfigTest extends UserAccessManagerTestCase
         );
 
         self::assertEquals(
-            'pluginsUrl'.DIRECTORY_SEPARATOR,
+            'pluginsUrl/',
             $config->getUrlPath()
         );
     }
