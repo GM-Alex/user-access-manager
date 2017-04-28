@@ -680,38 +680,41 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
         $wordpress->expects($this->once())
             ->method('getSites')
-            ->will($this->returnValue($this->getSites(1)));
+            ->will($this->returnValue($this->getSites(2)));
 
-        $wordpress->expects(($this->exactly(3)))
+        $wordpress->expects(($this->exactly(6)))
             ->method('deleteOption')
             ->withConsecutive(
+                [Config::ADMIN_OPTIONS_NAME],
+                ['uam_version'],
+                ['uam_db_version'],
                 [Config::ADMIN_OPTIONS_NAME],
                 ['uam_version'],
                 ['uam_db_version']
             );
 
-        $wordpress->expects(($this->once()))
+        $wordpress->expects(($this->exactly(3)))
             ->method('switchToBlog')
-            ->withConsecutive([1]);
+            ->withConsecutive([1], [2], [1]);
 
         $database = $this->getDatabase();
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('query')
             ->with(new MatchIgnoreWhitespace(
-                'DROP TABLE userGroupTable, userGroupToObjectTable'
+                'DROP TABLE IF EXISTS userGroupTable, userGroupToObjectTable'
             ));
 
         $fileHandler = $this->getFileHandler();

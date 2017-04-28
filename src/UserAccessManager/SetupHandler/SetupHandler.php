@@ -534,6 +534,7 @@ class SetupHandler
      */
     public function uninstall()
     {
+        $currentBlogId = $this->database->getCurrentBlogId();
         $blogIds = $this->getBlogIds();
 
         foreach ($blogIds as $blogId) {
@@ -541,7 +542,7 @@ class SetupHandler
             $userGroupTable = $this->database->getUserGroupTable();
             $userGroupToObjectTable = $this->database->getUserGroupToObjectTable();
 
-            $dropQuery = "DROP TABLE {$userGroupTable}, {$userGroupToObjectTable}";
+            $dropQuery = "DROP TABLE IF EXISTS {$userGroupTable}, {$userGroupToObjectTable}";
             $this->database->query($dropQuery);
 
             $this->wordpress->deleteOption(Config::ADMIN_OPTIONS_NAME);
@@ -549,6 +550,7 @@ class SetupHandler
             $this->wordpress->deleteOption('uam_db_version');
         }
 
+        $this->wordpress->switchToBlog($currentBlogId);
         $this->fileHandler->deleteFileProtection();
     }
 

@@ -273,7 +273,8 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $setupHandler->expects($this->once())
             ->method('uninstall');
         $setupHandler->expects($this->once())
-            ->method('install');
+            ->method('install')
+            ->with(true);
 
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),

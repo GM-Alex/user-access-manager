@@ -178,7 +178,7 @@ class AdminSetupController extends Controller
 
         if ($reset === 'reset') {
             $this->setupHandler->uninstall();
-            $this->setupHandler->install();
+            $this->setupHandler->install(true);
             $this->setUpdateMessage(TXT_UAM_UAM_RESET_SUCCESS);
         }
     }

@@ -19,6 +19,7 @@ use UserAccessManager\Wrapper\Wordpress;
 
 function initUserAccessManger()
 {
+    $file = str_replace('init.php', 'user-access-manager.php', __FILE__);
     $php = new Php();
     $wordpress = new Wordpress();
     $util = new Util($php);
@@ -26,7 +27,7 @@ function initUserAccessManger()
     $configParameterFactory = new ConfigParameterFactory();
     $database = new Database($wordpress);
     $objectHandler = new ObjectHandler($wordpress, $database);
-    $config = new Config($wordpress, $objectHandler, $configParameterFactory, __FILE__);
+    $config = new Config($wordpress, $objectHandler, $configParameterFactory, $file);
     $fileObjectFactory = new FileObjectFactory();
     $userGroupFactory = new UserGroupFactory(
         $php,
@@ -100,20 +101,21 @@ function initUserAccessManger()
 
     //install
     if (function_exists('register_activation_hook') === true) {
-        register_activation_hook(__FILE__, [$setupHandler, 'install']);
+        register_activation_hook($file, [$setupHandler, 'install']);
     }
 
     //uninstall
     if (function_exists('register_uninstall_hook')) {
         function uninstallUserAccessManager()
         {
+            $file = str_replace('init.php', 'user-access-manager.php', __FILE__);
             $php = new Php();
             $wordpress = new Wordpress();
             $util = new Util($php);
             $configParameterFactory = new ConfigParameterFactory();
             $database = new Database($wordpress);
             $objectHandler = new ObjectHandler($wordpress, $database);
-            $config = new Config($wordpress, $objectHandler, $configParameterFactory, __FILE__);
+            $config = new Config($wordpress, $objectHandler, $configParameterFactory, $file);
 
             $fileProtectionFactory = new FileProtectionFactory(
                 $php,
@@ -137,12 +139,12 @@ function initUserAccessManger()
             $setupHandler->uninstall();
         }
 
-        register_uninstall_hook(__FILE__, 'uninstallUserAccessManager');
+        register_uninstall_hook($file, 'uninstallUserAccessManager');
     }
 
     //deactivation
     if (function_exists('register_deactivation_hook')) {
-        register_deactivation_hook(__FILE__, [$setupHandler, 'deactivate']);
+        register_deactivation_hook($file, [$setupHandler, 'deactivate']);
     }
 
     $userAccessManager->addActionsAndFilters();
