@@ -156,15 +156,13 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             ->method('setIpRange')
             ->with('ipRangeValue');
 
-        $userGroup->expects($this->exactly(3))
+        $userGroup->expects($this->exactly(2))
             ->method('removeObject')
             ->with(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
-        $userGroup->expects($this->exactly(6))
+        $userGroup->expects($this->exactly(4))
             ->method('addObject')
             ->withConsecutive(
-                [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleOne'],
-                [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleTwo'],
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleOne'],
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleTwo'],
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleOne'],

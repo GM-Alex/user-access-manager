@@ -141,15 +141,15 @@ class AdminUserGroupController extends Controller
         $ipRange = $this->getRequestParameter('ipRange');
         $userGroup->setIpRange($ipRange);
 
-        $roles = $this->getRequestParameter('roles', []);
-
-        $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
-
-        foreach ($roles as $role) {
-            $userGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, htmlentities($role));
-        }
-
         if ($userGroup->save() === true) {
+            $roles = $this->getRequestParameter('roles', []);
+
+            $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+
+            foreach ($roles as $role) {
+                $userGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, htmlentities($role));
+            }
+
             if ($userGroupId === null) {
                 $this->userGroup = $userGroup;
                 $this->setUpdateMessage(TXT_UAM_GROUP_ADDED);
