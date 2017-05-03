@@ -1248,7 +1248,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 [
                     ObjectHandler::TREE_MAP_CHILDREN => [
                         'taxonomy' => [
-                            1 => [2 => 2, 3 => 3]
+                            1 => [2 => 'taxonomy', 3 => 'taxonomy']
                         ]
                     ]
                 ]

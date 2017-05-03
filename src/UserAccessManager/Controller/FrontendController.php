@@ -532,21 +532,21 @@ class FrontendController extends Controller
     {
         $count = 0;
 
-        $terms = [$termId => $termId];
+        $fullTerms = [$termId => $termType];
         $termTreeMap = $this->objectHandler->getTermTreeMap();
 
         if (isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType]) === true
             && isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId]) === true
         ) {
-            $terms += $termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId];
+            $fullTerms += $termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId];
         }
 
         $posts = [];
         $termPostMap = $this->objectHandler->getTermPostMap();
 
-        foreach ($terms as $termId) {
-            if (isset($termPostMap[$termId]) === true) {
-                $posts += $termPostMap[$termId];
+        foreach ($fullTerms as $fullTermId => $fullTermType) {
+            if (isset($termPostMap[$fullTermId]) === true) {
+                $posts += $termPostMap[$fullTermId];
             }
         }
 
