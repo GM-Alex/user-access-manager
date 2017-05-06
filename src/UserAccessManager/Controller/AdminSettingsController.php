@@ -145,6 +145,10 @@ class AdminSettingsController extends Controller
         $taxonomies = $this->getTaxonomies();
 
         foreach ($taxonomies as $taxonomy => $taxonomyObject) {
+            if ($taxonomy === ObjectHandler::POST_FORMAT_TYPE) {
+                continue;
+            }
+
             $groupedConfigParameters[$taxonomy][] = $configParameters["hide_empty_{$taxonomy}"];
         }
 
