@@ -210,39 +210,40 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(5))
             ->method('getSites')
             ->will($this->onConsecutiveCalls(
                 $this->getSites(),
                 $this->getSites(),
                 $this->getSites(),
-                []
+                [],
+                $this->getSites(1)
             ));
 
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(5))
             ->method('isSuperAdmin')
-            ->will($this->onConsecutiveCalls(false, false, true, true));
+            ->will($this->onConsecutiveCalls(false, false, true, true, true));
 
 
-        $wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->exactly(3))
             ->method('getOption')
             ->with('uam_db_version')
-            ->will($this->onConsecutiveCalls('1000.0.0', '0.0'));
+            ->will($this->onConsecutiveCalls('1000.0.0', '0.0', '1000.0'));
 
         $database = $this->getDatabase();
-        $database->expects($this->exactly(3))
+        $database->expects($this->exactly(5))
             ->method('getBlogPrefix')
             ->will($this->returnValue('prefix_'));
 
-        $database->expects($this->exactly(3))
+        $database->expects($this->exactly(5))
             ->method('prepare')
             ->with('SELECT option_value FROM prefix_options WHERE option_name = \'%s\' LIMIT 1', 'uam_db_version')
             ->will($this->returnValue('preparedStatement'));
 
-        $database->expects($this->exactly(3))
+        $database->expects($this->exactly(5))
             ->method('getVariable')
             ->with('preparedStatement')
-            ->will($this->onConsecutiveCalls('1000.0.0', '0.0', '0.0'));
+            ->will($this->onConsecutiveCalls('1000.0.0', '0.0', '0.0', null, null));
 
         $objectHandler = $this->getObjectHandler();
         $fileHandler = $this->getFileHandler();
@@ -258,6 +259,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
         self::assertTrue($setupHandler->isDatabaseUpdateNecessary());
         self::assertTrue($setupHandler->isDatabaseUpdateNecessary());
         self::assertTrue($setupHandler->isDatabaseUpdateNecessary());
+        self::assertFalse($setupHandler->isDatabaseUpdateNecessary());
     }
 
     /**

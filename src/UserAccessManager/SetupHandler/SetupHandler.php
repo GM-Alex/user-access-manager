@@ -173,7 +173,9 @@ class SetupHandler
                 $select = $this->database->prepare($select, 'uam_db_version');
                 $currentDbVersion = $this->database->getVariable($select);
 
-                if (version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
+                if ($currentDbVersion !== null
+                    && version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true
+                ) {
                     return true;
                 }
             }
