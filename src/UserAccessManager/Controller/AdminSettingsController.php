@@ -23,6 +23,16 @@ use UserAccessManager\Wrapper\Wordpress;
 
 class AdminSettingsController extends Controller
 {
+    const SETTING_GROUP_PARAMETER = 'settings_group';
+    const GROUP_POST_TYPES = 'post_types';
+    const GROUP_TAXONOMIES = 'taxonomies';
+    const GROUP_FILES = 'file';
+    const SECTION_FILES = 'file';
+    const GROUP_AUTHOR = 'author';
+    const SECTION_AUTHOR = 'author';
+    const GROUP_OTHER = 'other';
+    const SECTION_OTHER = 'other';
+
     /**
      * @var string
      */
@@ -111,6 +121,30 @@ class AdminSettingsController extends Controller
     }
 
     /**
+     * Returns the current settings group.
+     *
+     * @return string
+     */
+    public function getCurrentSettingsGroup()
+    {
+        return (string)$this->getRequestParameter(self::SETTING_GROUP_PARAMETER, self::GROUP_POST_TYPES);
+    }
+
+    /**
+     * Returns the settings group link by the given group key.
+     *
+     * @param string $groupKey
+     *
+     * @return string
+     */
+    public function getSettingsGroupLink($groupKey)
+    {
+        $rawUrl = $this->getRequestUrl();
+        $url = preg_replace('/&amp;'.self::SETTING_GROUP_PARAMETER.'[^&]*/i', '', $rawUrl);
+        return $url.'&'.self::SETTING_GROUP_PARAMETER.'='.$groupKey;
+    }
+
+    /**
      * Returns the grouped config parameters.
      *
      * @return array
@@ -120,6 +154,7 @@ class AdminSettingsController extends Controller
         $configParameters = $this->config->getConfigParameters();
 
         $groupedConfigParameters = [];
+        $groupedConfigParameters[self::GROUP_POST_TYPES] = [];
         $postTypes = $this->getPostTypes();
 
         foreach ($postTypes as $postType => $postTypeObject) {
@@ -127,7 +162,7 @@ class AdminSettingsController extends Controller
                 continue;
             }
 
-            $groupedConfigParameters[$postType] = [
+            $groupedConfigParameters[self::GROUP_POST_TYPES][$postType] = [
                 $configParameters["hide_{$postType}"],
                 $configParameters["hide_{$postType}_title"],
                 $configParameters["{$postType}_title"],
@@ -137,40 +172,49 @@ class AdminSettingsController extends Controller
                 $configParameters["{$postType}_comments_locked"]
             ];
 
+
             if ($postType === 'post') {
-                $groupedConfigParameters[$postType][] = $configParameters["show_{$postType}_content_before_more"];
+                $groupedConfigParameters[self::GROUP_POST_TYPES][$postType][] =
+                    $configParameters["show_{$postType}_content_before_more"];
             }
         }
 
         $taxonomies = $this->getTaxonomies();
 
         foreach ($taxonomies as $taxonomy => $taxonomyObject) {
-            $groupedConfigParameters[$taxonomy][] = $configParameters["hide_empty_{$taxonomy}"];
+            $groupedConfigParameters[self::GROUP_TAXONOMIES][$taxonomy] =
+                [$configParameters["hide_empty_{$taxonomy}"]];
         }
 
-        $groupedConfigParameters['file'] = [
+        $fileOptions = [
             $configParameters['lock_file'],
             $configParameters['download_type']
         ];
 
-        $groupedConfigParameters['author'] = [
-            $configParameters['authors_has_access_to_own'],
-            $configParameters['authors_can_add_posts_to_groups'],
-            $configParameters['full_access_role'],
-        ];
-
-        $groupedConfigParameters['other'] = [
-            $configParameters['lock_recursive'],
-            $configParameters['protect_feed'],
-            $configParameters['redirect'],
-            $configParameters['blog_admin_hint'],
-            $configParameters['blog_admin_hint_text'],
-        ];
-
         if ($this->config->isPermalinksActive() === true) {
-            $groupedConfigParameters['file'][] = $configParameters['lock_file_types'];
-            $groupedConfigParameters['file'][] = $configParameters['file_pass_type'];
+            $fileOptions[] = $configParameters['lock_file_types'];
+            $fileOptions[] = $configParameters['file_pass_type'];
         }
+
+        $groupedConfigParameters[self::GROUP_FILES] = [self::SECTION_FILES => $fileOptions];
+
+        $groupedConfigParameters[self::GROUP_AUTHOR] = [
+            self::SECTION_AUTHOR => [
+                $configParameters['authors_has_access_to_own'],
+                $configParameters['authors_can_add_posts_to_groups'],
+                $configParameters['full_access_role'],
+            ]
+        ];
+
+        $groupedConfigParameters[self::GROUP_OTHER] = [
+            self::SECTION_OTHER => [
+                $configParameters['lock_recursive'],
+                $configParameters['protect_feed'],
+                $configParameters['redirect'],
+                $configParameters['blog_admin_hint'],
+                $configParameters['blog_admin_hint_text'],
+            ]
+        ];
 
         return $groupedConfigParameters;
     }
@@ -204,36 +248,36 @@ class AdminSettingsController extends Controller
     /**
      * Checks if the group is a post type.
      *
-     * @param string $groupKey
+     * @param string $key
      *
      * @return bool
      */
-    public function isPostTypeGroup($groupKey)
+    public function isPostTypeGroup($key)
     {
         $postTypes = $this->getPostTypes();
 
-        return isset($postTypes[$groupKey]);
+        return isset($postTypes[$key]);
     }
 
     /**
      * Returns the right translation string.
      *
-     * @param string $groupKey
+     * @param string $key
      * @param string $ident
      * @param bool   $description
      *
      * @return mixed|string
      */
-    private function getObjectText($groupKey, $ident, $description = false)
+    private function getObjectText($key, $ident, $description = false)
     {
         $objects = $this->getPostTypes() + $this->getTaxonomies();
         $ident .= ($description === true) ? '_DESC' : '';
 
-        if (isset($objects[$groupKey]) === true) {
-            $ident = str_replace(strtoupper($groupKey), 'OBJECT', $ident);
+        if (isset($objects[$key]) === true) {
+            $ident = str_replace(strtoupper($key), 'OBJECT', $ident);
             $text = constant($ident);
             $count = substr_count($text, '%s');
-            $arguments = $this->php->arrayFill(0, $count, $objects[$groupKey]->labels->name);
+            $arguments = $this->php->arrayFill(0, $count, $objects[$key]->labels->name);
             return vsprintf($text, $arguments);
         }
 
@@ -241,16 +285,16 @@ class AdminSettingsController extends Controller
     }
 
     /**
-     * @param string $groupKey
+     * @param string $key
      * @param bool   $description
      *
      * @return string
      */
-    public function getSectionText($groupKey, $description = false)
+    public function getSectionText($key, $description = false)
     {
         return $this->getObjectText(
-            $groupKey,
-            'TXT_UAM_'.strtoupper($groupKey).'_SETTING',
+            $key,
+            'TXT_UAM_'.strtoupper($key).'_SETTING',
             $description
         );
     }
@@ -258,18 +302,18 @@ class AdminSettingsController extends Controller
     /**
      * Returns the label for the parameter.
      *
-     * @param string          $groupKey
+     * @param string          $key
      * @param ConfigParameter $configParameter
      * @param bool            $description
      *
      * @return string
      */
-    public function getParameterText($groupKey, ConfigParameter $configParameter, $description = false)
+    public function getParameterText($key, ConfigParameter $configParameter, $description = false)
     {
         $ident = 'TXT_UAM_'.strtoupper($configParameter->getId());
 
         return $this->getObjectText(
-            $groupKey,
+            $key,
             $ident,
             $description
         );

@@ -30,6 +30,8 @@ define('TXT_UAM_NO', __('No', 'user-access-manager'));
 define('TXT_UAM_SETTINGS', __('Settings', 'user-access-manager'));
 
 // --- Setting Page -> object settings ---
+define('TXT_UAM_POST_TYPES_SETTING', __('Post type settings', 'user-access-manager'));
+define('TXT_UAM_TAXONOMIES_SETTING', __('Taxonomies settings', 'user-access-manager'));
 define('TXT_UAM_OBJECT_SETTING', __('%s settings', 'user-access-manager'));
 define('TXT_UAM_OBJECT_SETTING_DESC', __('Set up the behaviour if the %s is locked', 'user-access-manager'));
 define('TXT_UAM_OBJECT_TITLE', __('%s title', 'user-access-manager'));
