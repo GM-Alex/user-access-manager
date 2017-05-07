@@ -467,7 +467,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         ];
 
 
-        self::assertEquals([], $frontendController->showPosts($posts));
+        self::assertEquals($posts, $frontendController->showPosts($posts));
         self::assertEquals([$this->getPost(2)], $frontendController->showPosts($posts));
         self::assertEquals([$this->getPost(1), $this->getPost(2)], $frontendController->showPosts($posts));
         self::assertEquals([], $frontendController->showPosts());

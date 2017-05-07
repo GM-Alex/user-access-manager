@@ -59,6 +59,8 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.0.8       2017/05/08  Fix missing rss feed if protection is disabled #68
+
     2.0.7       2017/05/07  Fix category tree issues #59
                             Fix mysql database errors on strict mode #60
                             Fix possible path issue

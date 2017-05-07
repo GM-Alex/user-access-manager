@@ -302,6 +302,8 @@ class FrontendController extends Controller
                     $showPosts[] = $rawPost;
                 }
             }
+        } else {
+            $showPosts = $rawPosts;
         }
 
         return $showPosts;
