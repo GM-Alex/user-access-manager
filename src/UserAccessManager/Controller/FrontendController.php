@@ -75,6 +75,11 @@ class FrontendController extends Controller
     private $fileObjectFactory;
 
     /**
+     * @var array
+     */
+    private $wordpressFilters = array();
+
+    /**
      * FrontendController constructor.
      *
      * @param Php               $php
@@ -215,6 +220,64 @@ class FrontendController extends Controller
     }
 
     /**
+     * If filters are suppressed we still want to filter posts, so we have to turn the suppression off,
+     * remove all other filters than the ones from the user access manager and store them to restore
+     * them later.
+     *
+     * @param array     $posts
+     * @param \WP_Query $query
+     *
+     * @return mixed
+     */
+    public function postsPreQuery($posts, \WP_Query &$query)
+    {
+        if ($query->query_vars['suppress_filters'] === true) {
+            $query->query_vars['suppress_filters'] = false;
+            $filters = $this->wordpress->getFilters();
+
+            foreach ($filters['the_posts']->callbacks[10] as $postFilter) {
+                if (is_array($postFilter['function'])
+                    && $postFilter['function'][0] instanceof FrontendController
+                    && $postFilter['function'][1] === 'showPosts'
+                ) {
+                    $filters['the_posts']->callbacks = [10 => [$postFilter]];
+                    break;
+                }
+            }
+
+            $filtersToProcess = ['posts_results'];
+
+            foreach ($filtersToProcess as $filterToProcess) {
+                if (isset($filters[$filterToProcess]) === true) {
+                    $this->wordpressFilters[$filterToProcess] = $filters[$filterToProcess];
+                    unset($filters[$filterToProcess]);
+                }
+            }
+
+            $this->wordpress->setFilters($filters);
+        }
+
+        return $posts;
+    }
+
+    /**
+     * Restores the filters to normal.
+     */
+    private function restoreFilters()
+    {
+        if (count($this->wordpressFilters) > 0) {
+            $filters = $this->wordpress->getFilters();
+
+            foreach ($this->wordpressFilters as $filterKey => $filter) {
+                $filters[$filterKey] = $filter;
+            }
+
+            $this->wordpress->setFilters($filters);
+            $this->wordpressFilters = [];
+        }
+    }
+
+    /**
      * Tries to get the post from the given mixed data.
      *
      * @param mixed $post
@@ -305,6 +368,8 @@ class FrontendController extends Controller
         } else {
             $showPosts = $rawPosts;
         }
+
+        $this->restoreFilters();
 
         return $showPosts;
     }

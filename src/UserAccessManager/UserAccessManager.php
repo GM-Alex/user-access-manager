@@ -529,6 +529,7 @@ class UserAccessManager
 
         $this->wordpress->addFilter('wp_get_attachment_thumb_url', [$frontendController, 'getFileUrl'], 10, 2);
         $this->wordpress->addFilter('wp_get_attachment_url', [$frontendController, 'getFileUrl'], 10, 2);
+        $this->wordpress->addFilter('posts_pre_query', [$frontendController, 'postsPreQuery'], 10, 2);
         $this->wordpress->addFilter('the_posts', [$frontendController, 'showPosts']);
         $this->wordpress->addFilter('the_content', [$frontendController, 'showContent']);
         $this->wordpress->addFilter('posts_where_paged', [$frontendController, 'showPostSql']);
