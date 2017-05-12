@@ -68,6 +68,33 @@ abstract class Controller
     }
 
     /**
+     * Sanitize the given value.
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    private function sanitizeValue($value)
+    {
+        if (is_object($value) === true) {
+            return $value;
+        } elseif (is_array($value) === true) {
+            $newValue = [];
+
+            foreach ($value as $key => $arrayValue) {
+                $sanitizedKey = $this->sanitizeValue($key);
+                $newValue[$sanitizedKey] = $this->sanitizeValue($arrayValue);
+            }
+
+            $value = $newValue;
+        } elseif (is_string($value) === true) {
+            $value = htmlspecialchars($value);
+        }
+
+        return $value;
+    }
+
+    /**
      * Returns the request parameter.
      *
      * @param string $name
@@ -77,10 +104,10 @@ abstract class Controller
      */
     public function getRequestParameter($name, $default = null)
     {
-        $return = (isset($_POST[$name]) === true) ? $_POST[$name] : null;
+        $return = (isset($_POST[$name]) === true) ? $this->sanitizeValue($_POST[$name]) : null;
 
         if ($return === null) {
-            $return = (isset($_GET[$name]) === true) ? $_GET[$name] : $default;
+            $return = (isset($_GET[$name]) === true) ? $this->sanitizeValue($_GET[$name]) : $default;
         }
 
         return $return;
@@ -93,7 +120,7 @@ abstract class Controller
      */
     public function getRequestUrl()
     {
-        return htmlspecialchars($_SERVER['REQUEST_URI']);
+        return htmlentities($_SERVER['REQUEST_URI']);
     }
 
     /**
