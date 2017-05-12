@@ -53,7 +53,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Cache\Cache::addToCache()
+     * @covers  \UserAccessManager\Cache\Cache::addToRuntimeCache()
      *
      * @param Cache $cache
      *
@@ -61,15 +61,15 @@ class CacheTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddToCache(Cache $cache)
     {
-        $cache->addToCache('stringCacheKey', 'testValue');
-        $cache->addToCache('arrayCacheKey', ['testString', 'testString2']);
+        $cache->addToRuntimeCache('stringCacheKey', 'testValue');
+        $cache->addToRuntimeCache('arrayCacheKey', ['testString', 'testString2']);
 
         self::assertAttributeEquals(
             [
                 'stringCacheKey' => 'testValue',
                 'arrayCacheKey' => ['testString', 'testString2']
             ],
-            'cache',
+            'runtimeCache',
             $cache
         );
 
@@ -79,7 +79,7 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testAddToCache
-     * @covers  \UserAccessManager\Cache\Cache::getFromCache()
+     * @covers  \UserAccessManager\Cache\Cache::getFromRuntimeCache()
      *
      * @param Cache $cache
      *
@@ -87,14 +87,14 @@ class CacheTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFromCache($cache)
     {
-        self::assertEquals('testValue', $cache->getFromCache('stringCacheKey'));
+        self::assertEquals('testValue', $cache->getFromRuntimeCache('stringCacheKey'));
         self::assertEquals(
             ['testString', 'testString2'],
-            $cache->getFromCache('arrayCacheKey')
+            $cache->getFromRuntimeCache('arrayCacheKey')
         );
         self::assertEquals(
             null,
-            $cache->getFromCache('notSet')
+            $cache->getFromRuntimeCache('notSet')
         );
 
         return $cache;
@@ -114,12 +114,12 @@ class CacheTest extends \PHPUnit_Framework_TestCase
                 'stringCacheKey' => 'testValue',
                 'arrayCacheKey' => ['testString', 'testString2']
             ],
-            'cache',
+            'runtimeCache',
             $cache
         );
 
         $cache->flushCache();
 
-        self::assertAttributeEquals([], 'cache', $cache);
+        self::assertAttributeEquals([], 'runtimeCache', $cache);
     }
 }

@@ -618,4 +618,12 @@ class Config
     {
         return $this->getParameterValue('full_access_role');
     }
+
+    /**
+     * @return null|string
+     */
+    public function getCacheProviderClass()
+    {
+        return '\UserAccessManager\Cache\FileSystemCacheProvider';
+    }
 }

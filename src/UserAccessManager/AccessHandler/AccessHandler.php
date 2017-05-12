@@ -219,7 +219,7 @@ class AccessHandler
                 $objectType,
                 $objectId
             );
-            $objectUserGroups = $this->cache->getFromCache($cacheKey);
+            $objectUserGroups = $this->cache->getFromRuntimeCache($cacheKey);
 
             if ($objectUserGroups !== null) {
                 $this->objectUserGroups[$objectType][$objectId] = $objectUserGroups;
@@ -233,7 +233,7 @@ class AccessHandler
                     }
                 }
 
-                $this->cache->addToCache($cacheKey, $objectUserGroups);
+                $this->cache->addToRuntimeCache($cacheKey, $objectUserGroups);
             }
 
             $this->objectUserGroups[$objectType][$objectId] = $objectUserGroups;
@@ -420,9 +420,7 @@ class AccessHandler
      */
     public function checkObjectAccess($objectType, $objectId)
     {
-        if ($this->objectHandler->isValidObjectType($objectType) === false) {
-            return true;
-        } elseif (isset($this->objectAccess[$objectType]) === false) {
+        if (isset($this->objectAccess[$objectType]) === false) {
             $this->objectAccess[$objectType] = [];
         }
 
@@ -430,7 +428,9 @@ class AccessHandler
             $access = false;
             $currentUser = $this->wordpress->getCurrentUser();
 
-            if ($this->checkUserAccess('manage_user_groups') === true) {
+            if ($this->objectHandler->isValidObjectType($objectType) === false) {
+                $access = true;
+            } elseif ($this->checkUserAccess('manage_user_groups') === true) {
                 $access = true;
             } elseif ($this->config->authorsHasAccessToOwn() === true
                 && $this->objectHandler->isPostType($objectType)

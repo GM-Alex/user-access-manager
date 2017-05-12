@@ -32,7 +32,8 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     {
         $objectHandler = new ObjectHandler(
             $this->getWordpress(),
-            $this->getDatabase()
+            $this->getDatabase(),
+            $this->getCache()
         );
 
         self::assertInstanceOf('\UserAccessManager\ObjectHandler\ObjectHandler', $objectHandler);
@@ -56,8 +57,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($return));
 
         $database = $this->getDatabase();
+        $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
         self::assertEquals($return, $objectHandler->getPostTypes());
         self::assertEquals($return, $objectHandler->getPostTypes());
 
@@ -81,8 +83,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($return));
 
         $database = $this->getDatabase();
+        $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
         self::assertEquals($return, $objectHandler->getTaxonomies());
         self::assertEquals($return, $objectHandler->getTaxonomies());
 
@@ -109,8 +112,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls($user, false));
 
         $database = $this->getDatabase();
+        $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
         self::assertEquals($user, $objectHandler->getUser(123));
         self::assertEquals($user, $objectHandler->getUser(123));
         self::assertFalse($objectHandler->getUser(321));
@@ -137,8 +141,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls($post, null, ['id' => 2]));
 
         $database = $this->getDatabase();
+        $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
 
         self::assertEquals($post, $objectHandler->getPost(123));
         self::assertEquals($post, $objectHandler->getPost(123));
@@ -170,8 +175,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls($term, null, ['id' => 2], $error));
 
         $database = $this->getDatabase();
+        $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
 
         self::assertEquals($term, $objectHandler->getTerm(123));
         self::assertEquals($term, $objectHandler->getTerm(123));
@@ -547,8 +553,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
 
         $database = $this->getDatabase();
+        $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
 
         self::assertTrue($objectHandler->isTaxonomy('taxonomyOne'));
         self::assertTrue($objectHandler->isTaxonomy('taxonomyTwo'));
@@ -573,8 +580,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
 
         $database = $this->getDatabase();
+        $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
 
         self::assertEquals(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $objectHandler->getGeneralObjectType('a'));
         self::assertEquals(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $objectHandler->getGeneralObjectType('b'));
@@ -637,11 +645,12 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
         $database = $this->getDatabase();
+        $cache = $this->getCache();
 
         $firstPluggableObject = $this->getPluggableObject('firstObjectName', $this->once());
         $secondPluggableObject = $this->getPluggableObject('secondObjectName', $this->once());
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
         $objectHandler->registerPluggableObject($firstPluggableObject);
         $objectHandler->registerPluggableObject($secondPluggableObject);
 
@@ -734,7 +743,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($postTypesReturn));
 
         $database = $this->getDatabase();
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $cache = $this->getCache();
+
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
 
         $expectation = [
             'a' => 'a1',

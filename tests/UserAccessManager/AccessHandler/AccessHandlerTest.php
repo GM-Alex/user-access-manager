@@ -329,7 +329,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue('cacheKey'));
 
         $cache->expects($this->exactly(3))
-            ->method('getFromCache')
+            ->method('getFromRuntimeCache')
             ->with('cacheKey')
             ->will($this->onConsecutiveCalls(
                 [4 => $this->getUserGroup(4)],

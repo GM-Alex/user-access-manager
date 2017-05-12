@@ -75,6 +75,16 @@ class FrontendController extends Controller
     private $fileObjectFactory;
 
     /**
+     * @var array
+     */
+    private $visibleElementsCount = [];
+
+    /**
+     * @var null|array
+     */
+    private $postObjectHideConfig = null;
+
+    /**
      * FrontendController constructor.
      *
      * @param Php               $php
@@ -381,7 +391,7 @@ class FrontendController extends Controller
      */
     public function showPostCount($counts, $type, $perm)
     {
-        $cachedCounts = $this->cache->getFromCache(self::POST_COUNTS_CACHE_KEY);
+        $cachedCounts = $this->cache->getFromRuntimeCache(self::POST_COUNTS_CACHE_KEY);
 
         if ($cachedCounts === null) {
             $excludedPosts = $this->accessHandler->getExcludedPosts();
@@ -420,7 +430,7 @@ class FrontendController extends Controller
             }
 
             $cachedCounts = $counts;
-            $this->cache->addToCache(self::POST_COUNTS_CACHE_KEY, $cachedCounts);
+            $this->cache->addToRuntimeCache(self::POST_COUNTS_CACHE_KEY, $cachedCounts);
         }
 
         return $cachedCounts;
@@ -523,6 +533,25 @@ class FrontendController extends Controller
     }
 
     /**
+     * Returns the post object hide config.
+     *
+     * @return array
+     */
+    private function getPostObjectHideConfig()
+    {
+        if ($this->postObjectHideConfig === null) {
+            $this->postObjectHideConfig = [];
+
+            foreach ($this->objectHandler->getPostTypes() as $postType) {
+                $this->postObjectHideConfig[$postType] = $this->config->hidePostType($postType);
+            }
+        }
+
+        return $this->postObjectHideConfig;
+    }
+
+
+    /**
      * Returns the post count for the term.
      *
      * @param string $termType
@@ -532,35 +561,48 @@ class FrontendController extends Controller
      */
     private function getVisibleElementsCount($termType, $termId)
     {
-        $count = 0;
+        $key = $termType.'|'.$termId;
 
-        $fullTerms = [$termId => $termType];
-        $termTreeMap = $this->objectHandler->getTermTreeMap();
+        if (isset($this->visibleElementsCount[$key]) === false) {
+            $count = 0;
 
-        if (isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType]) === true
-            && isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId]) === true
-        ) {
-            $fullTerms += $termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId];
-        }
+            $fullTerms = [$termId => $termType];
+            $termTreeMap = $this->objectHandler->getTermTreeMap();
 
-        $posts = [];
-        $termPostMap = $this->objectHandler->getTermPostMap();
-
-        foreach ($fullTerms as $fullTermId => $fullTermType) {
-            if (isset($termPostMap[$fullTermId]) === true) {
-                $posts += $termPostMap[$fullTermId];
-            }
-        }
-
-        foreach ($posts as $postId => $postType) {
-            if ($this->config->hidePostType($postType) === false
-                || $this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId) === true
+            if (isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType]) === true
+                && isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId]) === true
             ) {
-                $count++;
+                $fullTerms += $termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId];
             }
+
+            $posts = [];
+            $termPostMap = $this->objectHandler->getTermPostMap();
+
+            foreach ($fullTerms as $fullTermId => $fullTermType) {
+                if (isset($termPostMap[$fullTermId]) === true) {
+                    $posts += $termPostMap[$fullTermId];
+                }
+            }
+
+            $postTypeHiddenMap = $this->getPostObjectHideConfig();
+
+            foreach ($posts as $postId => $postType) {
+                if ($postTypeHiddenMap[$postType] === false
+                    || $this->accessHandler->checkObjectAccess(
+                        ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+                        $postId
+                    ) === true
+                ) {
+                    $count++;
+                }
+            }
+
+            $this->visibleElementsCount[$key] = $count;
         }
 
-        return $count;
+
+
+        return $this->visibleElementsCount[$key];
     }
 
     /**
@@ -805,7 +847,7 @@ class FrontendController extends Controller
      */
     public function getPostIdByUrl($url)
     {
-        $postUrls = (array)$this->cache->getFromCache(self::POST_URL_CACHE_KEY);
+        $postUrls = (array)$this->cache->getFromRuntimeCache(self::POST_URL_CACHE_KEY);
 
         if (isset($postUrls[$url]) === true) {
             return $postUrls[$url];
@@ -834,7 +876,7 @@ class FrontendController extends Controller
 
         if ($dbPost !== null) {
             $postUrls[$url] = $dbPost->ID;
-            $this->cache->addToCache(self::POST_URL_CACHE_KEY, $postUrls);
+            $this->cache->addToRuntimeCache(self::POST_URL_CACHE_KEY, $postUrls);
         }
 
         return $postUrls[$url];
@@ -1058,9 +1100,9 @@ class FrontendController extends Controller
      */
     public function cachePostLinks($url, $post)
     {
-        $postUrls = (array)$this->cache->getFromCache(self::POST_URL_CACHE_KEY);
+        $postUrls = (array)$this->cache->getFromRuntimeCache(self::POST_URL_CACHE_KEY);
         $postUrls[$url] = $post->ID;
-        $this->cache->addToCache(self::POST_URL_CACHE_KEY, $postUrls);
+        $this->cache->addToRuntimeCache(self::POST_URL_CACHE_KEY, $postUrls);
         return $url;
     }
 

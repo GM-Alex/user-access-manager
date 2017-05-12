@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\ObjectHandler;
 
+use UserAccessManager\Cache\Cache;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -44,6 +45,11 @@ class ObjectHandler
      * @var Database
      */
     private $database;
+
+    /**
+     * @var Cache
+     */
+    private $cache;
 
     /**
      * @var null|array
@@ -116,10 +122,11 @@ class ObjectHandler
      * @param Wordpress $wordpress
      * @param Database  $database
      */
-    public function __construct(Wordpress $wordpress, Database $database)
+    public function __construct(Wordpress $wordpress, Database $database, Cache $cache)
     {
         $this->wordpress = $wordpress;
         $this->database = $database;
+        $this->cache = $cache;
     }
 
     /**
@@ -289,12 +296,17 @@ class ObjectHandler
     public function getPostTreeMap()
     {
         if ($this->postTreeMap === null) {
-            $select = "
-                SELECT ID AS id, post_parent AS parentId, post_type AS type 
-                FROM {$this->database->getPostsTable()}
-                  WHERE post_parent != 0 AND post_type != 'revision'";
+            $this->postTreeMap = $this->cache->get('uamPostTreeMap');
 
-            $this->postTreeMap = $this->getTreeMap($select, self::GENERAL_POST_OBJECT_TYPE);
+            if ($this->postTreeMap === null) {
+                $select = "
+                    SELECT ID AS id, post_parent AS parentId, post_type AS type 
+                    FROM {$this->database->getPostsTable()}
+                      WHERE post_parent != 0 AND post_type != 'revision'";
+
+                $this->postTreeMap = $this->getTreeMap($select, self::GENERAL_POST_OBJECT_TYPE);
+                $this->cache->add('uamPostTreeMap', $this->postTreeMap);
+            }
         }
 
         return $this->postTreeMap;
@@ -308,12 +320,17 @@ class ObjectHandler
     public function getTermTreeMap()
     {
         if ($this->termTreeMap === null) {
-            $select = "
-                SELECT term_id AS id, parent AS parentId, taxonomy AS type
-                FROM {$this->database->getTermTaxonomyTable()}
-                  WHERE parent != 0";
+            $this->termTreeMap = $this->cache->get('uamTermTreeMap');
 
-            $this->termTreeMap = $this->getTreeMap($select, self::GENERAL_TERM_OBJECT_TYPE);
+            if ($this->termTreeMap === null) {
+                $select = "
+                    SELECT term_id AS id, parent AS parentId, taxonomy AS type
+                    FROM {$this->database->getTermTaxonomyTable()}
+                      WHERE parent != 0";
+
+                $this->termTreeMap = $this->getTreeMap($select, self::GENERAL_TERM_OBJECT_TYPE);
+                $this->cache->add('uamTermTreeMap', $this->termTreeMap);
+            }
         }
 
         return $this->termTreeMap;
@@ -327,24 +344,30 @@ class ObjectHandler
     public function getTermPostMap()
     {
         if ($this->termPostMap === null) {
-            $this->termPostMap = [];
+            $this->termPostMap = $this->cache->get('uamTermPostMap');
 
-            $select = "
-                SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
-                FROM {$this->database->getTermRelationshipsTable()} AS tr
-                  LEFT JOIN {$this->database->getPostsTable()} AS p
-                   ON (tr.object_id = p.ID)
-                  LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
-                    ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
+            if ($this->termPostMap == null) {
+                $this->termPostMap = [];
 
-            $results = (array)$this->database->getResults($select);
+                $select = "
+                    SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
+                    FROM {$this->database->getTermRelationshipsTable()} AS tr
+                      LEFT JOIN {$this->database->getPostsTable()} AS p
+                       ON (tr.object_id = p.ID)
+                      LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
+                        ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
-            foreach ($results as $result) {
-                if (isset($this->termPostMap[$result->termId]) === false) {
-                    $this->termPostMap[$result->termId] = [];
+                $results = (array)$this->database->getResults($select);
+
+                foreach ($results as $result) {
+                    if (isset($this->termPostMap[$result->termId]) === false) {
+                        $this->termPostMap[$result->termId] = [];
+                    }
+
+                    $this->termPostMap[$result->termId][$result->objectId] = $result->postType;
                 }
 
-                $this->termPostMap[$result->termId][$result->objectId] = $result->postType;
+                $this->cache->add('uamTermPostMap', $this->termPostMap);
             }
         }
 
@@ -359,22 +382,28 @@ class ObjectHandler
     public function getPostTermMap()
     {
         if ($this->postTermMap === null) {
-            $this->postTermMap = [];
+            $this->postTermMap = $this->cache->get('uamPostTermMap');
 
-            $select = "
-                SELECT tr.object_id AS objectId, tt.term_id AS termId, tt.taxonomy AS termType
-                FROM {$this->database->getTermRelationshipsTable()} AS tr 
-                  LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
-                    ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
+            if ($this->postTermMap === null) {
+                $this->postTermMap = [];
 
-            $results = (array)$this->database->getResults($select);
+                $select = "
+                    SELECT tr.object_id AS objectId, tt.term_id AS termId, tt.taxonomy AS termType
+                    FROM {$this->database->getTermRelationshipsTable()} AS tr 
+                      LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
+                        ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
 
-            foreach ($results as $result) {
-                if (isset($this->postTermMap[$result->objectId]) === false) {
-                    $this->postTermMap[$result->objectId] = [];
+                $results = (array)$this->database->getResults($select);
+
+                foreach ($results as $result) {
+                    if (isset($this->postTermMap[$result->objectId]) === false) {
+                        $this->postTermMap[$result->objectId] = [];
+                    }
+
+                    $this->postTermMap[$result->objectId][$result->termId] = $result->termType;
                 }
 
-                $this->postTermMap[$result->objectId][$result->termId] = $result->termType;
+                $this->cache->add('uamPostTermMap', $this->postTermMap);
             }
         }
 

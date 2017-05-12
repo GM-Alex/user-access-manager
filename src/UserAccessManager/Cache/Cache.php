@@ -22,9 +22,29 @@ namespace UserAccessManager\Cache;
 class Cache
 {
     /**
+     * @var null|CacheProviderInterface
+     */
+    private $cacheProvider = null;
+
+    /**
      * @var array
      */
     private $cache = [];
+
+    /**
+     * @var array
+     */
+    private $runtimeCache = [];
+
+    /**
+     * Sets a cache provider
+     *
+     * @param CacheProviderInterface $cacheProvider
+     */
+    public function setCacheProvider(CacheProviderInterface $cacheProvider)
+    {
+        $this->cacheProvider = $cacheProvider;
+    }
 
     /**
      * Returns a generated cache key.
@@ -44,9 +64,12 @@ class Cache
      * @param string $key   The cache key
      * @param mixed  $value The value.
      */
-    public function addToCache($key, $value)
+    public function add($key, $value)
     {
-        $this->cache[$key] = $value;
+        if ($this->cacheProvider !== null) {
+            $this->cache[$key] = $value;
+            $this->cacheProvider->add($key, $value);
+        }
     }
 
     /**
@@ -56,10 +79,37 @@ class Cache
      *
      * @return mixed
      */
-    public function getFromCache($key)
+    public function get($key)
     {
-        if (isset($this->cache[$key]) === true) {
-            return $this->cache[$key];
+        if (isset($this->cache[$key]) === false) {
+            $this->cache[$key] = ($this->cacheProvider !== null) ? $this->cacheProvider->get($key) : null;
+        }
+
+        return $this->cache[$key];
+    }
+
+    /**
+     * Adds the variable to the runtime cache.
+     *
+     * @param string $key   The cache key
+     * @param mixed  $value The value.
+     */
+    public function addToRuntimeCache($key, $value)
+    {
+        $this->runtimeCache[$key] = $value;
+    }
+
+    /**
+     * Returns a value from the runtime cache by the given key.
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function getFromRuntimeCache($key)
+    {
+        if (isset($this->runtimeCache[$key]) === true) {
+            return $this->runtimeCache[$key];
         }
 
         return null;
@@ -71,5 +121,6 @@ class Cache
     public function flushCache()
     {
         $this->cache = [];
+        $this->runtimeCache = [];
     }
 }

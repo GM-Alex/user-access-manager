@@ -523,7 +523,7 @@ class AdminObjectController extends Controller
      * @param array    $formFields The meta.
      * @param \WP_Post $post       The post.
      *
-     * @return string
+     * @return array
      */
     public function showMediaFile(array $formFields, $post = null)
     {

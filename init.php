@@ -26,7 +26,7 @@ function initUserAccessManger()
     $cache = new Cache();
     $configParameterFactory = new ConfigParameterFactory();
     $database = new Database($wordpress);
-    $objectHandler = new ObjectHandler($wordpress, $database);
+    $objectHandler = new ObjectHandler($wordpress, $database, $cache);
     $config = new Config($wordpress, $objectHandler, $configParameterFactory, $file);
     $fileObjectFactory = new FileObjectFactory();
     $userGroupFactory = new UserGroupFactory(
@@ -114,7 +114,8 @@ function initUserAccessManger()
             $util = new Util($php);
             $configParameterFactory = new ConfigParameterFactory();
             $database = new Database($wordpress);
-            $objectHandler = new ObjectHandler($wordpress, $database);
+            $cache = new Cache();
+            $objectHandler = new ObjectHandler($wordpress, $database, $cache);
             $config = new Config($wordpress, $objectHandler, $configParameterFactory, $file);
 
             $fileProtectionFactory = new FileProtectionFactory(

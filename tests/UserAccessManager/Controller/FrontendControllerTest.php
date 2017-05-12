@@ -802,7 +802,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $cache = $this->getCache();
 
         $cache->expects($this->exactly(6))
-            ->method('getFromCache')
+            ->method('getFromRuntimeCache')
             ->with(FrontendController::POST_COUNTS_CACHE_KEY)
             ->will($this->onConsecutiveCalls('cachedResult', null, null, null, null, null));
 
@@ -1781,7 +1781,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $cache = $this->getCache();
 
         $cache->expects($this->exactly(7))
-            ->method('getFromCache')
+            ->method('getFromRuntimeCache')
             ->with(FrontendController::POST_URL_CACHE_KEY)
             ->will($this->onConsecutiveCalls(
                 null,
@@ -1794,7 +1794,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ));
 
         $cache->expects($this->exactly(5))
-            ->method('addToCache')
+            ->method('addToRuntimeCache')
             ->withConsecutive(
                 [FrontendController::POST_URL_CACHE_KEY, ['url/part' => 1]],
                 [FrontendController::POST_URL_CACHE_KEY, ['url-e123/part' => 2]],
@@ -1921,7 +1921,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $cache = $this->getCache();
 
         $cache->expects($this->exactly(5))
-            ->method('getFromCache')
+            ->method('getFromRuntimeCache')
             ->with(FrontendController::POST_URL_CACHE_KEY)
             ->will($this->returnValue(['http://baseUrl/file/pictures/url' => 1]));
 
@@ -2347,7 +2347,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $cache = $this->getCache();
 
         $cache->expects($this->exactly(2))
-            ->method('getFromCache')
+            ->method('getFromRuntimeCache')
             ->with(FrontendController::POST_URL_CACHE_KEY)
             ->will($this->onConsecutiveCalls(
                 null,
@@ -2355,7 +2355,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ));
 
         $cache->expects($this->exactly(2))
-            ->method('addToCache')
+            ->method('addToRuntimeCache')
             ->withConsecutive(
                 [FrontendController::POST_URL_CACHE_KEY, ['firstUrl' => 1]],
                 [FrontendController::POST_URL_CACHE_KEY, ['firstUrl' => 1, 'secondUrl' => 2]]

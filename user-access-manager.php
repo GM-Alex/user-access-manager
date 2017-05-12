@@ -25,8 +25,15 @@ $basePath = __DIR__.DIRECTORY_SEPARATOR;
 //Load language
 require_once $basePath.'includes'.DIRECTORY_SEPARATOR.'language.php';
 $locale = apply_filters('plugin_locale', get_locale(), 'user-access-manager');
-load_textdomain('user-access-manager', WP_LANG_DIR.'/user-access-manager/user-access-manager-'.$locale.'.mo');
-load_plugin_textdomain('user-access-manager', false, plugin_basename(dirname(__FILE__)).'/languages');
+load_textdomain(
+    'user-access-manager',
+    WP_LANG_DIR.DIRECTORY_SEPARATOR.'user-access-manager'.DIRECTORY_SEPARATOR.'user-access-manager-'.$locale.'.mo'
+);
+load_plugin_textdomain(
+    'user-access-manager',
+    false,
+    plugin_basename(dirname(__FILE__)).DIRECTORY_SEPARATOR.'languages'
+);
 
 //--- Check requirements ---
 
