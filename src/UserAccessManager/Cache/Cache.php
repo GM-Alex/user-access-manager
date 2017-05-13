@@ -67,9 +67,10 @@ class Cache
     public function add($key, $value)
     {
         if ($this->cacheProvider !== null) {
-            $this->cache[$key] = $value;
             $this->cacheProvider->add($key, $value);
         }
+
+        $this->cache[$key] = $value;
     }
 
     /**
@@ -86,6 +87,20 @@ class Cache
         }
 
         return $this->cache[$key];
+    }
+
+    /**
+     * Invalidates the cached object.
+     *
+     * @param string $key
+     */
+    public function invalidate($key)
+    {
+        if ($this->cacheProvider !== null) {
+            $this->cacheProvider->invalidate($key);
+        }
+
+        unset($this->cache[$key]);
     }
 
     /**

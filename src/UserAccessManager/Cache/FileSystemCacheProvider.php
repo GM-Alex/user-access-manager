@@ -73,17 +73,20 @@ class FileSystemCacheProvider implements CacheProviderInterface
      */
     public function add($key, $value)
     {
+        $cacheFile = $this->path.$key;
+        $cacheFile .= ($this->method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
+
         if ($this->method === self::METHOD_SERIALIZE) {
-            file_put_contents($this->path.$key.'.cache', base64_encode(serialize($value)));
+            file_put_contents($cacheFile, base64_encode(serialize($value)), LOCK_EX);
         } elseif ($this->method === self::METHOD_IGBINARY
             && $this->userAccessManager->getPhp()->functionExists('igbinary_serialize')
         ) {
             /** @noinspection PhpUndefinedFunctionInspection */
-            file_put_contents($this->path.$key.'.cache', igbinary_serialize($value));
+            file_put_contents($cacheFile, igbinary_serialize($value), LOCK_EX);
         } elseif ($this->method === self::METHOD_JSON) {
-            file_put_contents($this->path.$key.'.cache', json_encode($value));
+            file_put_contents($cacheFile, json_encode($value), LOCK_EX);
         } elseif ($this->method === self::METHOD_VAR_EXPORT) {
-            file_put_contents($this->path.$key.'.cache', "<?php\nreturn ".var_export($value, true).';');
+            file_put_contents($cacheFile, "<?php\n\$cachedValue = ".var_export($value, true).';', LOCK_EX);
         }
     }
 
@@ -94,7 +97,8 @@ class FileSystemCacheProvider implements CacheProviderInterface
      */
     public function get($key)
     {
-        $cacheFile = $this->path.$key.'.cache';
+        $cacheFile = $this->path.$key;
+        $cacheFile .= ($this->method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
 
         if ((file_exists($cacheFile) === true)) {
             if ($this->method === self::METHOD_SERIALIZE) {
@@ -108,10 +112,24 @@ class FileSystemCacheProvider implements CacheProviderInterface
                 return json_decode(file_get_contents($cacheFile), true);
             } elseif ($this->method === self::METHOD_VAR_EXPORT) {
                 /** @noinspection PhpIncludeInspection */
-                return include($cacheFile);
+                include($cacheFile);
+                return isset($cachedValue) ? $cachedValue : null;
             }
         }
 
         return null;
+    }
+
+    /**
+     * @param string $key
+     */
+    public function invalidate($key)
+    {
+        $cacheFile = $this->path.$key;
+        $cacheFile .= ($this->method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
+
+        if ((file_exists($cacheFile) === true)) {
+            unlink($cacheFile);
+        }
     }
 }

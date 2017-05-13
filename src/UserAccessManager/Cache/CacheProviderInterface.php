@@ -42,4 +42,9 @@ interface CacheProviderInterface
      * @return mixed
      */
     public function get($key);
+
+    /**
+     * @param string $key
+     */
+    public function invalidate($key);
 }

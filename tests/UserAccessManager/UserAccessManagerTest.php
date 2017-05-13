@@ -54,6 +54,80 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @group  unit
+     * @covers \UserAccessManager\UserAccessManager::__construct()
+     */
+    public function testConstructor()
+    {
+        $cache = $this->getCache();
+        $cache->expects($this->once())
+            ->method('setCacheProvider');
+
+        $config = $this->getConfig();
+        $config->expects($this->exactly(3))
+            ->method('getCacheProviderClass')
+            ->will($this->onConsecutiveCalls(
+                null,
+                'NoneExistingClass',
+                '\UserAccessManager\Cache\FileSystemCacheProvider'
+            ));
+
+        new UserAccessManager(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getUtil(),
+            $cache,
+            $config,
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getSetupHandler(),
+            $this->getUserGroupFactory(),
+            $this->getControllerFactory(),
+            $this->getConfigParameterFactory(),
+            $this->getFileProtectionFactory(),
+            $this->getFileObjectFactory()
+        );
+
+        new UserAccessManager(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getUtil(),
+            $cache,
+            $config,
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getSetupHandler(),
+            $this->getUserGroupFactory(),
+            $this->getControllerFactory(),
+            $this->getConfigParameterFactory(),
+            $this->getFileProtectionFactory(),
+            $this->getFileObjectFactory()
+        );
+
+        new UserAccessManager(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getUtil(),
+            $cache,
+            $config,
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getSetupHandler(),
+            $this->getUserGroupFactory(),
+            $this->getControllerFactory(),
+            $this->getConfigParameterFactory(),
+            $this->getFileProtectionFactory(),
+            $this->getFileObjectFactory()
+        );
+    }
+
+    /**
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\UserAccessManager::getPhp()
@@ -286,11 +360,14 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->method('createFrontendController')
             ->will($this->returnValue($frontendController));
 
+        $controllerFactory->expects($this->exactly(3))
+            ->method('createAdminObjectController');
+
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(21))
             ->method('addAction');
 
-        $wordpress->expects($this->exactly(65))
+        $wordpress->expects($this->exactly(77))
             ->method('addFilter');
 
         $config = $this->getConfig();

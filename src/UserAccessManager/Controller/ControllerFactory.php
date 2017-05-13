@@ -180,6 +180,7 @@ class ControllerFactory
             $this->wordpress,
             $this->config,
             $this->database,
+            $this->cache,
             $this->objectHandler,
             $this->accessHandler
         );

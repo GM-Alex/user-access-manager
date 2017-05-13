@@ -170,7 +170,7 @@ class UserAccessManager
 
         $cacheProviderClass = $this->config->getCacheProviderClass();
 
-        if ($cacheProviderClass !== null) {
+        if ($cacheProviderClass !== null && \class_exists($cacheProviderClass)) {
             $cacheProvider = new $cacheProviderClass($this);
             $this->cache->setCacheProvider($cacheProvider);
         }
@@ -555,11 +555,12 @@ class UserAccessManager
         $this->wordpress->addFilter('getarchives_where', [$frontendController, 'showPostSql']);
         $this->wordpress->addFilter('wp_count_posts', [$frontendController, 'showPostCount'], 10, 3);
         $this->wordpress->addFilter('wpseo_sitemap_entry', [$frontendController, 'getWpSeoUrl'], 1, 3);
-        /*
-        $this->wordpress->addFilter('clean_term_cache', [$frontendController, 'getWpSeoUrl'], 1, 3);
-        $this->wordpress->addFilter('clean_object_term_cache', [$frontendController, 'getWpSeoUrl'], 1, 3);
-        $this->wordpress->addFilter('clean_post_cache', [$frontendController, 'getWpSeoUrl'], 1, 3);
-        $this->wordpress->addFilter('clean_attachment_cache', [$frontendController, 'getWpSeoUrl'], 1, 3);
-        */
+
+        $adminObjectController = $this->controllerFactory->createAdminObjectController();
+
+        $this->wordpress->addFilter('clean_term_cache', [$adminObjectController, 'invalidateTermCache']);
+        $this->wordpress->addFilter('clean_object_term_cache', [$adminObjectController, 'invalidateTermCache']);
+        $this->wordpress->addFilter('clean_post_cache', [$adminObjectController, 'invalidatePostCache']);
+        $this->wordpress->addFilter('clean_attachment_cache', [$adminObjectController, 'invalidatePostCache']);
     }
 }

@@ -35,6 +35,10 @@ class ObjectHandler
     const POST_OBJECT_TYPE = 'post';
     const PAGE_OBJECT_TYPE = 'page';
     const POST_FORMAT_TYPE = 'post_format';
+    const POST_TREE_MAP_CACHE_KEY = 'uamPostTreeMap';
+    const TERM_TREE_MAP_CACHE_KEY = 'uamTermTreeMap';
+    const TERM_POST_MAP_CACHE_KEY = 'uamTermPostMap';
+    const POST_TERM_MAP_CACHE_KEY = 'uamPostTermMap';
 
     /**
      * @var Wordpress
@@ -296,7 +300,7 @@ class ObjectHandler
     public function getPostTreeMap()
     {
         if ($this->postTreeMap === null) {
-            $this->postTreeMap = $this->cache->get('uamPostTreeMap');
+            $this->postTreeMap = $this->cache->get(self::POST_TREE_MAP_CACHE_KEY);
 
             if ($this->postTreeMap === null) {
                 $select = "
@@ -305,7 +309,7 @@ class ObjectHandler
                       WHERE post_parent != 0 AND post_type != 'revision'";
 
                 $this->postTreeMap = $this->getTreeMap($select, self::GENERAL_POST_OBJECT_TYPE);
-                $this->cache->add('uamPostTreeMap', $this->postTreeMap);
+                $this->cache->add(self::POST_TREE_MAP_CACHE_KEY, $this->postTreeMap);
             }
         }
 
@@ -320,7 +324,7 @@ class ObjectHandler
     public function getTermTreeMap()
     {
         if ($this->termTreeMap === null) {
-            $this->termTreeMap = $this->cache->get('uamTermTreeMap');
+            $this->termTreeMap = $this->cache->get(self::TERM_TREE_MAP_CACHE_KEY);
 
             if ($this->termTreeMap === null) {
                 $select = "
@@ -329,7 +333,7 @@ class ObjectHandler
                       WHERE parent != 0";
 
                 $this->termTreeMap = $this->getTreeMap($select, self::GENERAL_TERM_OBJECT_TYPE);
-                $this->cache->add('uamTermTreeMap', $this->termTreeMap);
+                $this->cache->add(self::TERM_TREE_MAP_CACHE_KEY, $this->termTreeMap);
             }
         }
 
@@ -344,7 +348,7 @@ class ObjectHandler
     public function getTermPostMap()
     {
         if ($this->termPostMap === null) {
-            $this->termPostMap = $this->cache->get('uamTermPostMap');
+            $this->termPostMap = $this->cache->get(self::TERM_POST_MAP_CACHE_KEY);
 
             if ($this->termPostMap == null) {
                 $this->termPostMap = [];
@@ -367,7 +371,7 @@ class ObjectHandler
                     $this->termPostMap[$result->termId][$result->objectId] = $result->postType;
                 }
 
-                $this->cache->add('uamTermPostMap', $this->termPostMap);
+                $this->cache->add(self::TERM_POST_MAP_CACHE_KEY, $this->termPostMap);
             }
         }
 
@@ -382,7 +386,7 @@ class ObjectHandler
     public function getPostTermMap()
     {
         if ($this->postTermMap === null) {
-            $this->postTermMap = $this->cache->get('uamPostTermMap');
+            $this->postTermMap = $this->cache->get(self::POST_TERM_MAP_CACHE_KEY);
 
             if ($this->postTermMap === null) {
                 $this->postTermMap = [];
@@ -403,7 +407,7 @@ class ObjectHandler
                     $this->postTermMap[$result->objectId][$result->termId] = $result->termType;
                 }
 
-                $this->cache->add('uamPostTermMap', $this->postTermMap);
+                $this->cache->add(self::POST_TERM_MAP_CACHE_KEY, $this->postTermMap);
             }
         }
 

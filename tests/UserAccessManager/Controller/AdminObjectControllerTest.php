@@ -117,6 +117,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler()
         );
@@ -158,6 +159,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler
         );
@@ -254,6 +256,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler
         );
@@ -282,6 +285,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler
         );
@@ -307,6 +311,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler
         );
@@ -340,6 +345,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler()
         );
@@ -364,6 +370,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $objectHandler,
             $this->getAccessHandler()
         );
@@ -388,6 +395,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $accessHandler
         );
@@ -522,6 +530,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $objectHandler,
             $this->getAccessHandler()
         );
@@ -610,6 +619,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $objectHandler,
             $accessHandler
         );
@@ -754,6 +764,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $config,
             $this->getDatabase(),
+            $this->getCache(),
             $objectHandler,
             $accessHandler
         );
@@ -833,6 +844,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $database,
+            $this->getCache(),
             $this->getObjectHandlerWithPosts(),
             $this->getAccessHandler()
         );
@@ -856,6 +868,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getAccessHandler()
         );
@@ -888,6 +901,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getConfig(),
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandlerWithPosts(),
             $this->getAccessHandler()
         );
@@ -979,6 +993,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $config,
             $this->getDatabase(),
+            $this->getCache(),
             $this->getObjectHandlerWithPosts(),
             $accessHandler
         );
@@ -1213,5 +1228,38 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $expectedOutput .= '';
 
         self::expectOutputString($expectedOutput);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::invalidateTermCache()
+     * @covers \UserAccessManager\Controller\AdminObjectController::invalidatePostCache()
+     */
+    public function testInvalidateCache()
+    {
+        $cache = $this->getCache();
+        $cache->expects($this->exactly(6))
+            ->method('invalidate')
+            ->withConsecutive(
+                [ObjectHandler::POST_TERM_MAP_CACHE_KEY],
+                [ObjectHandler::TERM_POST_MAP_CACHE_KEY],
+                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY],
+                [ObjectHandler::TERM_POST_MAP_CACHE_KEY],
+                [ObjectHandler::POST_TERM_MAP_CACHE_KEY],
+                [ObjectHandler::POST_TREE_MAP_CACHE_KEY]
+            );
+
+        $adminObjectController = new AdminObjectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getDatabase(),
+            $cache,
+            $this->getObjectHandlerWithPosts(),
+            $this->getAccessHandler()
+        );
+
+        $adminObjectController->invalidateTermCache();
+        $adminObjectController->invalidatePostCache();
     }
 }

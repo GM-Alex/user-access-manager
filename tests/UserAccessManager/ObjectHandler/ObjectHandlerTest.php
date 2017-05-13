@@ -292,6 +292,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $termResult[] = $this->createTreeMapDbResultElement(7, 6, 'term');
         $termResult[] = $this->createTreeMapDbResultElement(8, 7, 'term');
 
+        $expectedPostResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_POST_OBJECT_TYPE);
+        $expectedTermResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'category', 'term');
+
         $wordpress = $this->getWordpress();
         $database = $this->getDatabase();
 
@@ -318,14 +321,37 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
                 )]
             )->will($this->onConsecutiveCalls($postResult, $termResult));
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
-        $expectedPostResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_POST_OBJECT_TYPE);
-        $expectedTermResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'category', 'term');
+        $cache = $this->getCache();
+        $cache->expects($this->exactly(4))
+            ->method('get')
+            ->withConsecutive(
+                [ObjectHandler::POST_TREE_MAP_CACHE_KEY],
+                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY],
+                [ObjectHandler::POST_TREE_MAP_CACHE_KEY],
+                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY]
+            )
+            ->will($this->onConsecutiveCalls(null, null, ['cachedPostTree'], ['cachedTermTree']));
+
+
+        $cache->expects($this->exactly(2))
+            ->method('add')
+            ->withConsecutive(
+                [ObjectHandler::POST_TREE_MAP_CACHE_KEY, $expectedPostResult],
+                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY, $expectedTermResult]
+            );
+
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
 
         self::assertEquals($expectedPostResult, $objectHandler->getPostTreeMap());
         self::assertEquals($expectedPostResult, $objectHandler->getPostTreeMap());
         self::assertEquals($expectedTermResult, $objectHandler->getTermTreeMap());
         self::assertEquals($expectedTermResult, $objectHandler->getTermTreeMap());
+
+        self::setValue($objectHandler, 'postTreeMap', null);
+        self::assertEquals(['cachedPostTree'], $objectHandler->getPostTreeMap());
+
+        self::setValue($objectHandler, 'termTreeMap', null);
+        self::assertEquals(['cachedTermTree'], $objectHandler->getTermTreeMap());
     }
 
     /**
@@ -364,6 +390,14 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $databaseResult[] = $this->createTermMapDbResultElement(7, 6, 'page');
         $databaseResult[] = $this->createTermMapDbResultElement(8, 7, 'page');
 
+        $expectedResult = [
+            1 => [1 => 'post', 2 => 'post'],
+            2 => [1 => 'post', 3 => 'post', 4 => 'post'],
+            3 => [123 => 'post', 321 => 'post'],
+            6 => [7 => 'page'],
+            7 => [8 => 'page']
+        ];
+
         $wordpress = $this->getWordpress();
         $database = $this->getDatabase();
 
@@ -390,18 +424,27 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
                 )
             )->will($this->returnValue($databaseResult));
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $cache = $this->getCache();
 
-        $expectedResult = [
-            1 => [1 => 'post', 2 => 'post'],
-            2 => [1 => 'post', 3 => 'post', 4 => 'post'],
-            3 => [123 => 'post', 321 => 'post'],
-            6 => [7 => 'page'],
-            7 => [8 => 'page']
-        ];
+        $cache->expects($this->exactly(2))
+            ->method('get')
+            ->withConsecutive(
+                [ObjectHandler::TERM_POST_MAP_CACHE_KEY],
+                [ObjectHandler::TERM_POST_MAP_CACHE_KEY]
+            )
+            ->will($this->onConsecutiveCalls(null, ['cachedTermPostMap']));
+
+        $cache->expects($this->once())
+            ->method('add')
+            ->with(ObjectHandler::TERM_POST_MAP_CACHE_KEY, $expectedResult);
+
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
 
         self::assertEquals($expectedResult, $objectHandler->getTermPostMap());
         self::assertEquals($expectedResult, $objectHandler->getTermPostMap());
+
+        self::setValue($objectHandler, 'termPostMap', null);
+        self::assertEquals(['cachedTermPostMap'], $objectHandler->getTermPostMap());
     }
 
     /**
@@ -420,6 +463,17 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $databaseResult[] = $this->createTermMapDbResultElement(321, 3);
         $databaseResult[] = $this->createTermMapDbResultElement(7, 6, 'page', 'term');
         $databaseResult[] = $this->createTermMapDbResultElement(8, 7, 'page', 'term');
+
+        $expectedResult = [
+            1 => [1 => 'category', 2 => 'category'],
+            2 => [1 => 'category'],
+            3 => [2 => 'category'],
+            4 => [2 => 'category'],
+            123 => [3 => 'category'],
+            321 => [3 => 'category'],
+            7 => [6 => 'term'],
+            8 => [7 => 'term']
+        ];
 
         $wordpress = $this->getWordpress();
         $database = $this->getDatabase();
@@ -442,20 +496,27 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
                 )
             )->will($this->returnValue($databaseResult));
 
-        $objectHandler = new ObjectHandler($wordpress, $database);
+        $cache = $this->getCache();
 
-        $expectedResult = [
-            1 => [1 => 'category', 2 => 'category'],
-            2 => [1 => 'category'],
-            3 => [2 => 'category'],
-            4 => [2 => 'category'],
-            123 => [3 => 'category'],
-            321 => [3 => 'category'],
-            7 => [6 => 'term'],
-            8 => [7 => 'term']
-        ];
+        $cache->expects($this->exactly(2))
+            ->method('get')
+            ->withConsecutive(
+                [ObjectHandler::POST_TERM_MAP_CACHE_KEY],
+                [ObjectHandler::POST_TERM_MAP_CACHE_KEY]
+            )
+            ->will($this->onConsecutiveCalls(null, ['cachedPostTermMap']));
+
+        $cache->expects($this->once())
+            ->method('add')
+            ->with(ObjectHandler::POST_TERM_MAP_CACHE_KEY, $expectedResult);
+
+        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
 
         self::assertEquals($expectedResult, $objectHandler->getPostTermMap());
+        self::assertEquals($expectedResult, $objectHandler->getPostTermMap());
+
+        self::setValue($objectHandler, 'postTermMap', null);
+        self::assertEquals(['cachedPostTermMap'], $objectHandler->getPostTermMap());
     }
 
     /**

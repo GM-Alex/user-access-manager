@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Cache;
 
+use UserAccessManager\UserAccessManagerTestCase;
+
 /**
  * Class CacheTest
  *
  * @package UserAccessManager\Cache
  */
-class CacheTest extends \PHPUnit_Framework_TestCase
+class CacheTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
@@ -31,6 +33,21 @@ class CacheTest extends \PHPUnit_Framework_TestCase
         $cache = new Cache();
         self::assertInstanceOf('\UserAccessManager\Cache\Cache', $cache);
         return $cache;
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Cache\Cache::setCacheProvider()
+     *
+     * @param Cache $cache
+     */
+    public function testSetCacheProvider(Cache $cache)
+    {
+        self::assertAttributeEmpty('cacheProvider', $cache);
+        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
+        $cache->setCacheProvider($fileSystemCacheProvider);
+        self::assertAttributeEquals($fileSystemCacheProvider, 'cacheProvider', $cache);
     }
 
     /**
@@ -48,6 +65,114 @@ class CacheTest extends \PHPUnit_Framework_TestCase
             'postFix'
         );
         self::assertEquals('preFix|cacheKey|postFix', $key);
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\Cache\Cache::add()
+     *
+     * @param Cache $cache
+     *
+     * @return Cache
+     */
+    public function testAdd(Cache $cache)
+    {
+        $cache->add('stringCacheKey', 'testValue');
+
+        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
+        $fileSystemCacheProvider->expects($this->once())
+            ->method('add')
+            ->with('arrayCacheKey', ['testString', 'testString2']);
+
+        $cache->setCacheProvider($fileSystemCacheProvider);
+        $cache->add('arrayCacheKey', ['testString', 'testString2']);
+
+        self::assertAttributeEquals(
+            [
+                'stringCacheKey' => 'testValue',
+                'arrayCacheKey' => ['testString', 'testString2']
+            ],
+            'cache',
+            $cache
+        );
+
+        return $cache;
+    }
+
+    /**
+     * @group   unit
+     * @depends testAdd
+     * @covers  \UserAccessManager\Cache\Cache::get()
+     *
+     * @param Cache $cache
+     *
+     * @return Cache
+     */
+    public function testGet($cache)
+    {
+        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
+        $fileSystemCacheProvider->expects($this->once())
+            ->method('get')
+            ->with('onlyInCacheProvider')
+            ->will($this->returnValue('cacheProviderValue'));
+
+        $cache->setCacheProvider($fileSystemCacheProvider);
+
+        self::assertEquals('testValue', $cache->get('stringCacheKey'));
+        self::assertEquals(
+            ['testString', 'testString2'],
+            $cache->get('arrayCacheKey')
+        );
+        self::assertEquals(
+            'cacheProviderValue',
+            $cache->get('onlyInCacheProvider')
+        );
+
+        self::setValue($cache, 'cacheProvider', null);
+
+        self::assertEquals(
+            null,
+            $cache->get('notSet')
+        );
+
+        return $cache;
+    }
+
+    /**
+     * @group   unit
+     * @depends testAdd
+     * @covers  \UserAccessManager\Cache\Cache::get()
+     *
+     * @param Cache $cache
+     */
+    public function testInvalidate(Cache $cache)
+    {
+        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
+        $fileSystemCacheProvider->expects($this->once())
+            ->method('invalidate')
+            ->with('arrayCacheKey');
+
+        $cache->setCacheProvider($fileSystemCacheProvider);
+
+        $cache->invalidate('arrayCacheKey');
+        self::assertAttributeEquals(
+            [
+                'stringCacheKey' => 'testValue',
+                'onlyInCacheProvider' => 'cacheProviderValue',
+                'notSet' => null
+            ],
+            'cache',
+            $cache
+        );
+
+        self::setValue($cache, 'cacheProvider', null);
+        $cache->invalidate('notSet');
+        self::assertAttributeEquals(
+            ['stringCacheKey' => 'testValue', 'onlyInCacheProvider' => 'cacheProviderValue'],
+            'cache',
+            $cache
+        );
     }
 
     /**

@@ -108,6 +108,14 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Cache\FileSystemCacheProvider
+     */
+    protected function getFileSystemCacheProvider()
+    {
+        return $this->createMock('\UserAccessManager\Cache\FileSystemCacheProvider');
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\ObjectHandler\ObjectHandler
      */
     protected function getObjectHandler()
@@ -177,6 +185,14 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getFileProtectionFactory()
     {
         return $this->createMock('\UserAccessManager\FileHandler\FileProtectionFactory');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserAccessManager
+     */
+    protected function getUserAccessManager()
+    {
+        return $this->createMock('\UserAccessManager\UserAccessManager');
     }
 
     /**

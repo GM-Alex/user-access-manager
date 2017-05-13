@@ -694,4 +694,20 @@ class ConfigTest extends UserAccessManagerTestCase
             self::assertEquals($expected, $config->{$method}());
         }
     }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\Config::getCacheProviderClass
+     */
+    public function testGetCacheProviderClass()
+    {
+        $config = new Config(
+            $this->getWordpress(),
+            $this->getObjectHandler(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
+
+        self::assertEquals('\UserAccessManager\Cache\FileSystemCacheProvider', $config->getCacheProviderClass());
+    }
 }

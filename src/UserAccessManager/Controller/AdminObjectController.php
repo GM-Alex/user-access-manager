@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -37,6 +38,11 @@ class AdminObjectController extends Controller
      * @var Database
      */
     private $database;
+
+    /**
+     * @var Cache
+     */
+    private $cache;
 
     /**
      * @var ObjectHandler
@@ -80,6 +86,7 @@ class AdminObjectController extends Controller
      * @param Wordpress     $wordpress
      * @param Config        $config
      * @param Database      $database
+     * @param Cache         $cache
      * @param ObjectHandler $objectHandler
      * @param AccessHandler $accessHandler
      */
@@ -88,11 +95,13 @@ class AdminObjectController extends Controller
         Wordpress $wordpress,
         Config $config,
         Database $database,
+        Cache $cache,
         ObjectHandler $objectHandler,
         AccessHandler $accessHandler
     ) {
         parent::__construct($php, $wordpress, $config);
         $this->database = $database;
+        $this->cache = $cache;
         $this->objectHandler = $objectHandler;
         $this->accessHandler = $accessHandler;
     }
@@ -751,5 +760,25 @@ class AdminObjectController extends Controller
     {
         $this->setObjectInformation($objectType, $objectId);
         return $this->getIncludeContents('ObjectColumn.php');
+    }
+
+    /**
+     * Invalidates the term related cache objects.
+     */
+    public function invalidateTermCache()
+    {
+        $this->cache->invalidate(ObjectHandler::POST_TERM_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectHandler::TERM_POST_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectHandler::TERM_TREE_MAP_CACHE_KEY);
+    }
+
+    /**
+     * Invalidates the post related cache objects.
+     */
+    public function invalidatePostCache()
+    {
+        $this->cache->invalidate(ObjectHandler::TERM_POST_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectHandler::POST_TERM_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectHandler::POST_TREE_MAP_CACHE_KEY);
     }
 }

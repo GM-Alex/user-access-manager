@@ -807,7 +807,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls('cachedResult', null, null, null, null, null));
 
         $cache->expects($this->exactly(5))
-            ->method('addToCache')
+            ->method('addToRuntimeCache')
             ->withConsecutive(
                 [
                     FrontendController::POST_COUNTS_CACHE_KEY,
@@ -1175,6 +1175,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @covers \UserAccessManager\Controller\FrontendController::showTerms()
      * @covers \UserAccessManager\Controller\FrontendController::getVisibleElementsCount()
      * @covers \UserAccessManager\Controller\FrontendController::processTerm()
+     * @covers \UserAccessManager\Controller\FrontendController::getPostObjectHideConfig()
      */
     public function testShowTerm()
     {
@@ -1223,10 +1224,12 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('getBlogAdminHintText')
             ->will($this->returnValue('BlogAdminHintText'));
 
-        $config->expects($this->exactly(5))
+        $config->expects($this->exactly(3))
             ->method('hidePostType')
-            ->withConsecutive(['post'], ['post'], ['page'], ['post'], ['post'])
-            ->will($this->onConsecutiveCalls(false, true, true, true, true));
+            ->withConsecutive(['customPost'], ['post'], ['page'])
+            ->will($this->returnCallback(function ($type) {
+                return ($type === 'customPost') ? false : true;
+            }));
 
         $config->expects($this->exactly(4))
             ->method('hideEmptyTaxonomy')
@@ -1254,11 +1257,15 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ]
             ));
 
+        $objectHandler->expects($this->once())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['customPost', 'post', 'page']));
+
         $objectHandler->expects($this->exactly(8))
             ->method('getTermPostMap')
             ->will($this->returnValue(
                 [
-                    1 => [10 => 'post', 11 => 'post', 12 => 'page'],
+                    1 => [10 => 'customPost', 11 => 'post', 12 => 'page'],
                     2 => [13 => 'post']
                 ]
             ));
@@ -1442,10 +1449,12 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('getBlogAdminHintText')
             ->will($this->returnValue('BlogAdminHintText'));
 
-        $config->expects($this->exactly(3))
+        $config->expects($this->exactly(6))
             ->method('hidePostType')
-            ->withConsecutive(['post'], ['post'], ['post'])
-            ->will($this->onConsecutiveCalls(false, false, true));
+            ->withConsecutive(['post'], ['post'], ['customPost'], ['post'], ['page'], ['customPost'])
+            ->will($this->returnCallback(function ($type) {
+                return ($type !== 'post');
+            }));
 
         $config->expects($this->once())
             ->method('hidePostTypeTitle')
@@ -1482,14 +1491,14 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ['post'],
                 ['post'],
                 ['post'],
-                ['post'],
+                ['customPost'],
                 ['taxonomy'],
                 ['taxonomy'],
                 ['taxonomy'],
                 ['taxonomy']
             )
             ->will($this->returnCallback(function ($type) {
-                return ($type === 'post');
+                return ($type === 'post' || $type === 'customPost');
             }));
 
         $objectHandler->expects($this->exactly(5))
@@ -1498,6 +1507,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->will($this->returnCallback(function ($type) {
                 return ($type === 'taxonomy');
             }));
+
+        $objectHandler->expects($this->once())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['post', 'page', 'customPost']));
 
         $objectHandler->expects($this->exactly(2))
             ->method('getTermTreeMap')
@@ -1525,7 +1538,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 ['post', 1],
                 ['post', 2],
                 ['post', 3],
-                ['post', 4],
+                ['customPost', 4],
                 ['taxonomy', 1],
                 ['taxonomy', 2],
                 ['taxonomy', 3]
@@ -1568,7 +1581,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             2 => $this->getItem('post', 1),
             3 => $this->getItem('post', 2),
             4 => $this->getItem('post', 3),
-            5 => $this->getItem('post', 4),
+            5 => $this->getItem('customPost', 4),
             6 => $this->getItem('taxonomy', 1),
             7 => $this->getItem('taxonomy', 2),
             8 => $this->getItem('taxonomy', 3),
