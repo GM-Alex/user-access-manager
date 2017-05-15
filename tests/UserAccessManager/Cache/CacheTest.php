@@ -142,7 +142,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testAdd
-     * @covers  \UserAccessManager\Cache\Cache::get()
+     * @covers  \UserAccessManager\Cache\Cache::invalidate()
      *
      * @param Cache $cache
      */
@@ -234,6 +234,7 @@ class CacheTest extends UserAccessManagerTestCase
      */
     public function testFlushCache($cache)
     {
+        //TODO
         self::assertAttributeEquals(
             [
                 'stringCacheKey' => 'testValue',
@@ -245,6 +246,7 @@ class CacheTest extends UserAccessManagerTestCase
 
         $cache->flushCache();
 
+        self::assertAttributeEquals([], 'cache', $cache);
         self::assertAttributeEquals([], 'runtimeCache', $cache);
     }
 }
