@@ -59,6 +59,8 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.0.10      2017/05/15  Fix issue of not saved groups #74
+
     2.0.9       2017/05/13  Improve security #76
 
     2.0.8       2017/05/08  Fix missing rss feed if protection is disabled #68

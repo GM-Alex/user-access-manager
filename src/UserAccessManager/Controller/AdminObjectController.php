@@ -32,6 +32,7 @@ class AdminObjectController extends Controller
     const COLUMN_NAME = 'uam_access';
     const BULK_REMOVE = 'remove';
     const DEFAULT_GROUPS_FORM_NAME = 'uam_user_groups';
+    const UPDATE_GROUPS_FORM_NAME = 'uam_update_groups';
 
     /**
      * @var Database
@@ -336,9 +337,13 @@ class AdminObjectController extends Controller
      */
     private function saveObjectData($objectType, $objectId, array $userGroups = null)
     {
-        if ($this->accessHandler->checkUserAccess('manage_user_groups') === true
-            || $this->config->authorsCanAddPostsToGroups() === true
-        ) {
+        $isUpdateForm = (bool)$this->getRequestParameter(self::UPDATE_GROUPS_FORM_NAME, false) === true
+            || $this->getRequestParameter('uam_bulk_type') !== null;
+
+        $hasRights = $this->accessHandler->checkUserAccess('manage_user_groups') === true
+            || $this->config->authorsCanAddPostsToGroups() === true;
+
+        if ($isUpdateForm === true && $hasRights === true) {
             if ($userGroups === null) {
                 $updateGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
                 $userGroups = (is_array($updateGroups) === true) ? $updateGroups : [];
