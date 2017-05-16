@@ -340,6 +340,20 @@ class FrontendController extends Controller
     }
 
     /**
+     * Checks the access of the attached file.
+     *
+     * @param string $file
+     * @param int    $attachmentId
+     *
+     * @return bool
+     */
+    public function getAttachedFile($file, $attachmentId)
+    {
+        $hasAccess = $this->accessHandler->checkObjectAccess(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $attachmentId);
+        return ($hasAccess === true) ? $file : false;
+    }
+
+    /**
      * Needed to prevent the form against the auto <br>s of wordpress
      *
      * @param string $content
