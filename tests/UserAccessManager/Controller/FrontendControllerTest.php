@@ -2187,6 +2187,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testRedirectUser()
     {
+        $php = $this->getPhp();
+        $php->expects($this->exactly(3))
+            ->method('callExit');
+
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $wpQuery
          */
@@ -2281,7 +2285,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $frontendController = new FrontendController(
-            $this->getPhp(),
+            $php,
             $wordpress,
             $config,
             $this->getDatabase(),

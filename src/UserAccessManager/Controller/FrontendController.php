@@ -1041,7 +1041,7 @@ class FrontendController extends Controller
 
         if ($url !== null && $url !== $currentUrl && $permalink !== $currentUrl) {
             $this->wordpress->wpRedirect($url);
-            return;
+            $this->php->callExit();
         }
     }
 

@@ -62,6 +62,7 @@ Here you found the changes in each version.
     2.0.10      2017/05/16  Fix issue of not saved groups #74
                             Adjust password lost link #79
                             Improve attachment access checks #78
+                            Fix not working redirect
 
     2.0.9       2017/05/13  Improve security #76
 
