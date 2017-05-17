@@ -602,7 +602,7 @@ class ConfigTest extends UserAccessManagerTestCase
         self::assertTrue($config->hidePostTypeComments('undefined'));
 
         self::assertEquals('hide_empty_category', $config->hideEmptyTaxonomy('category'));
-        self::assertTrue($config->hideEmptyTaxonomy('undefined'));
+        self::assertFalse($config->hideEmptyTaxonomy('undefined'));
     }
 
     /**

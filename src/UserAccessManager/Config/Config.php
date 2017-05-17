@@ -585,7 +585,14 @@ class Config
      */
     public function hideEmptyTaxonomy($taxonomy)
     {
-        return $this->hideObject('hide_empty_'.$taxonomy);
+        $parameterName = 'hide_empty_'.$taxonomy;
+        $options = $this->getConfigParameters();
+
+        if (isset($options[$parameterName]) === true) {
+            return $options[$parameterName]->getValue();
+        }
+
+        return false;
     }
 
     /**

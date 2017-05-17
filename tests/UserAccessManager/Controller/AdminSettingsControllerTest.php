@@ -146,7 +146,8 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
-                'category' => $this->createTypeObject('category')
+                'category' => $this->createTypeObject('category'),
+                ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
             ]));
         
         $configValues = [

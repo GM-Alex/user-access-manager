@@ -172,7 +172,10 @@ class Wordpress
     public function dbDelta($queries = '', $execute = true)
     {
         if (\function_exists('\dbDelta') === false) {
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            /**
+             * @noinspection PhpIncludeInspection
+             */
+            require_once(ABSPATH.'wp-admin/includes/upgrade.php');
         }
 
         return \dbDelta($queries, $execute);
@@ -346,7 +349,7 @@ class Wordpress
     public function getCurrentUser()
     {
         if (function_exists('\wp_get_current_user') === false) {
-            require_once(ABSPATH . 'wp-includes/pluggable.php');
+            require_once(ABSPATH.'wp-includes/pluggable.php');
         }
 
         return \wp_get_current_user();
@@ -842,5 +845,23 @@ class Wordpress
     public function currentUserCan($capability)
     {
         return current_user_can($capability);
+    }
+
+    /**
+     * @return \WP_Hook[]
+     */
+    public function getFilters()
+    {
+        global $wp_filter;
+        return $wp_filter;
+    }
+
+    /**
+     * @param array $filters
+     */
+    public function setFilters(array $filters)
+    {
+        global $wp_filter;
+        $wp_filter = $filters;
     }
 }

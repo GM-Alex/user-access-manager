@@ -40,7 +40,7 @@ if ($controller->showLoginForm() === true) {
         }
         ?>
         &nbsp;
-        <a href="<?php echo $controller->getLoginUrl(['action' => 'register']); ?>"
+        <a href="<?php echo $controller->getLoginUrl(['action' => 'lostpassword']); ?>"
            title="<?php echo TXT_UAM_LOGIN_FORM_LOST_AND_FOUND_PASSWORD; ?>"><?php
             echo TXT_UAM_LOGIN_FORM_LOST_PASSWORD; ?></a>
     </div>

@@ -182,6 +182,10 @@ class AdminSettingsController extends Controller
         $taxonomies = $this->getTaxonomies();
 
         foreach ($taxonomies as $taxonomy => $taxonomyObject) {
+            if ($taxonomy === ObjectHandler::POST_FORMAT_TYPE) {
+                continue;
+            }
+
             $groupedConfigParameters[self::GROUP_TAXONOMIES][$taxonomy] =
                 [$configParameters["hide_empty_{$taxonomy}"]];
         }
@@ -227,12 +231,6 @@ class AdminSettingsController extends Controller
         $this->verifyNonce('uamUpdateSettings');
 
         $newConfigParameters = $this->getRequestParameter('config_parameters');
-        $newConfigParameters = array_map(
-            function ($entry) {
-                return htmlentities(str_replace('\\', '', $entry));
-            },
-            $newConfigParameters
-        );
         $this->config->setConfigParameters($newConfigParameters);
 
         if ($this->config->lockFile() === false) {

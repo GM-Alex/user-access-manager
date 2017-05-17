@@ -33,6 +33,7 @@ class ObjectHandler
     const ATTACHMENT_OBJECT_TYPE = 'attachment';
     const POST_OBJECT_TYPE = 'post';
     const PAGE_OBJECT_TYPE = 'page';
+    const POST_FORMAT_TYPE = 'post_format';
 
     /**
      * @var Wordpress
