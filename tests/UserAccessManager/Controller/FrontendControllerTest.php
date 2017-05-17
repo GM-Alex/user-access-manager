@@ -613,6 +613,41 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::getAttachedFile()
+     */
+    public function testGetAttachedFile()
+    {
+        $accessHandler = $this->getAccessHandler();
+
+        $accessHandler->expects($this->exactly(2))
+            ->method('checkObjectAccess')
+            ->withConsecutive(
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 2]
+            )
+            ->will($this->returnCallback(function ($objectType, $id) {
+                return ($objectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE && $id === 1);
+            }));
+
+        $frontendController = new FrontendController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $accessHandler,
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
+        self::assertEquals('firstFile', $frontendController->getAttachedFile('firstFile', 1));
+        self::assertFalse($frontendController->getAttachedFile('secondFile', 2));
+    }
+
+    /**
+     * @group  unit
      * @covers \UserAccessManager\Controller\FrontendController::showContent()
      */
     public function testShowContent()

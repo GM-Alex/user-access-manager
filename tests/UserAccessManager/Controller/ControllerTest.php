@@ -87,6 +87,7 @@ class ControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  \UserAccessManager\Controller\Controller::getRequestParameter()
+     * @covers  \UserAccessManager\Controller\Controller::sanitizeValue()
      *
      * @param Controller $stub
      */
@@ -100,6 +101,22 @@ class ControllerTest extends UserAccessManagerTestCase
         self::assertEquals('getValue', $stub->getRequestParameter('getParam', 'default'));
         self::assertEquals('default', $stub->getRequestParameter('invalid', 'default'));
         self::assertNull($stub->getRequestParameter('invalid'));
+
+        $_GET['objectParam'] = new \stdClass();
+        $_GET['arrayParam'] = [
+            'normalKey' => '<script>evilValue</script>',
+            '<script>evilKey</script>' => 'normalValue',
+            'array' => ['a' => '<script>otherEvilValue</script>']
+        ];
+        self::assertEquals(new \stdClass(), $stub->getRequestParameter('objectParam'));
+        self::assertEquals(
+            [
+                'normalKey' => '&lt;script&gt;evilValue&lt;/script&gt;',
+                '&lt;script&gt;evilKey&lt;/script&gt;' => 'normalValue',
+                'array' => ['a' => '&lt;script&gt;otherEvilValue&lt;/script&gt;']
+            ],
+            $stub->getRequestParameter('arrayParam')
+        );
     }
 
     /**

@@ -38,7 +38,7 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserAccessManager
 {
-    const VERSION = '2.0.8';
+    const VERSION = '2.0.9';
     const DB_VERSION = '1.5.1';
 
     /**
@@ -531,6 +531,7 @@ class UserAccessManager
         $this->wordpress->addFilter('wp_get_attachment_url', [$frontendController, 'getFileUrl'], 10, 2);
         $this->wordpress->addFilter('posts_pre_query', [$frontendController, 'postsPreQuery'], 10, 2);
         $this->wordpress->addFilter('the_posts', [$frontendController, 'showPosts']);
+        $this->wordpress->addFilter('get_attached_file', [$frontendController, 'getAttachedFile'], 10, 2);
         $this->wordpress->addFilter('the_content', [$frontendController, 'showContent']);
         $this->wordpress->addFilter('posts_where_paged', [$frontendController, 'showPostSql']);
         $this->wordpress->addFilter('get_terms_args', [$frontendController, 'getTermArguments']);
