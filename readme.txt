@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
-Tested up to: 4.7.4
-Stable tag: 2.0.9
+Tested up to: 4.7.5
+Stable tag: 2.0.10
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -59,7 +59,7 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
-    2.0.10      2017/05/16  Fix issue of not saved groups #74
+    2.0.10      2017/05/17  Fix issue of not saved groups #74
                             Adjust password lost link #79
                             Improve attachment access checks #78
                             Fix not working redirect
