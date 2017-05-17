@@ -231,30 +231,37 @@ class FrontendController extends Controller
      */
     public function postsPreQuery($posts, \WP_Query &$query)
     {
-        if ($query->query_vars['suppress_filters'] === true) {
-            $query->query_vars['suppress_filters'] = false;
+        if (isset($query->query_vars['suppress_filters']) === true
+            && $query->query_vars['suppress_filters'] === true
+        ) {
             $filters = $this->wordpress->getFilters();
 
-            foreach ($filters['the_posts']->callbacks[10] as $postFilter) {
-                if (is_array($postFilter['function'])
-                    && $postFilter['function'][0] instanceof FrontendController
-                    && $postFilter['function'][1] === 'showPosts'
-                ) {
-                    $filters['the_posts']->callbacks = [10 => [$postFilter]];
-                    break;
+            if (isset($filters['the_posts']) === true && isset($filters['the_posts']->callbacks[10]) === true) {
+                foreach ($filters['the_posts']->callbacks[10] as $postFilter) {
+                    if (is_array($postFilter['function']) === true
+                        && $postFilter['function'][0] instanceof FrontendController
+                        && $postFilter['function'][1] === 'showPosts'
+                    ) {
+                        $query->query_vars['suppress_filters'] = false;
+                        $filters['the_posts']->callbacks = [10 => [$postFilter]];
+                        break;
+                    }
                 }
             }
 
-            $filtersToProcess = ['posts_results'];
+            // Only unset filter if the user access filter is active
+            if ($query->query_vars['suppress_filters'] === false) {
+                $filtersToProcess = ['posts_results'];
 
-            foreach ($filtersToProcess as $filterToProcess) {
-                if (isset($filters[$filterToProcess]) === true) {
-                    $this->wordpressFilters[$filterToProcess] = $filters[$filterToProcess];
-                    unset($filters[$filterToProcess]);
+                foreach ($filtersToProcess as $filterToProcess) {
+                    if (isset($filters[$filterToProcess]) === true) {
+                        $this->wordpressFilters[$filterToProcess] = $filters[$filterToProcess];
+                        unset($filters[$filterToProcess]);
+                    }
                 }
-            }
 
-            $this->wordpress->setFilters($filters);
+                $this->wordpress->setFilters($filters);
+            }
         }
 
         return $posts;
