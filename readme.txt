@@ -59,6 +59,8 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.0.11      2017/05/18  Fix FrontendController::postsPreQuery() expected to be a reference, value given error
+
     2.0.10      2017/05/17  Fix issue of not saved groups #74
                             Adjust password lost link #79
                             Improve attachment access checks #78

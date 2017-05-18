@@ -229,7 +229,7 @@ class FrontendController extends Controller
      *
      * @return mixed
      */
-    public function postsPreQuery($posts, \WP_Query &$query)
+    public function postsPreQuery($posts, \WP_Query $query)
     {
         if (isset($query->query_vars['suppress_filters']) === true
             && $query->query_vars['suppress_filters'] === true
