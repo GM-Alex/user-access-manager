@@ -15,8 +15,9 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\Config;
-use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\Form\FormFactory;
+use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -49,6 +50,16 @@ class AdminSettingsController extends Controller
     private $fileHandler;
 
     /**
+     * @var FormFactory
+     */
+    private $formFactory;
+
+    /**
+     * @var FormHelper
+     */
+    private $formHelper;
+
+    /**
      * AdminSettingsController constructor.
      *
      * @param Php           $php
@@ -56,17 +67,23 @@ class AdminSettingsController extends Controller
      * @param Config        $config
      * @param ObjectHandler $objectHandler
      * @param FileHandler   $fileHandler
+     * @param FormFactory   $formFactory
+     * @param FormHelper   $formHelper
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         Config $config,
         ObjectHandler $objectHandler,
-        FileHandler $fileHandler
+        FileHandler $fileHandler,
+        FormFactory $formFactory,
+        FormHelper $formHelper
     ) {
         parent::__construct($php, $wordpress, $config);
         $this->objectHandler = $objectHandler;
         $this->fileHandler = $fileHandler;
+        $this->formFactory = $formFactory;
+        $this->formHelper = $formHelper;
     }
 
     /**
@@ -84,20 +101,10 @@ class AdminSettingsController extends Controller
      *
      * @return array
      */
-    public function getPages()
+    private function getPages()
     {
         $pages = $this->wordpress->getPages('sort_column=menu_order');
         return is_array($pages) !== false ? $pages : [];
-    }
-
-    /**
-     * Returns the config parameters.
-     *
-     * @return \UserAccessManager\Config\ConfigParameter[]
-     */
-    public function getConfigParameters()
-    {
-        return $this->config->getConfigParameters();
     }
 
     /**
@@ -145,82 +152,266 @@ class AdminSettingsController extends Controller
     }
 
     /**
-     * Returns the grouped config parameters.
+     * Returns the post settings form.
      *
-     * @return array
+     * @param string $postType
+     *
+     * @return \UserAccessManager\Form\Form
      */
-    public function getGroupedConfigParameters()
+    private function getPostSettingsForm($postType = 'general')
     {
+        $textarea = null;
         $configParameters = $this->config->getConfigParameters();
 
-        $groupedConfigParameters = [];
-        $groupedConfigParameters[self::GROUP_POST_TYPES] = [];
-        $postTypes = $this->getPostTypes();
-
-        foreach ($postTypes as $postType => $postTypeObject) {
-            if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
-                continue;
-            }
-
-            $groupedConfigParameters[self::GROUP_POST_TYPES][$postType] = [
-                $configParameters["hide_{$postType}"],
-                $configParameters["hide_{$postType}_title"],
-                $configParameters["{$postType}_title"],
-                $configParameters["{$postType}_content"],
-                $configParameters["hide_{$postType}_comment"],
-                $configParameters["{$postType}_comment_content"],
-                $configParameters["{$postType}_comments_locked"]
-            ];
-
-
-            if ($postType === 'post') {
-                $groupedConfigParameters[self::GROUP_POST_TYPES][$postType][] =
-                    $configParameters["show_{$postType}_content_before_more"];
-            }
+        if (isset($configParameters["{$postType}_content"]) === true) {
+            $configParameter = $configParameters["{$postType}_content"];
+            $textarea = $this->formFactory->createTextarea(
+                $configParameter->getId(),
+                $configParameter->getValue(),
+                $this->formHelper->getParameterText($configParameter, false, $postType),
+                $this->formHelper->getParameterText($configParameter, true, $postType)
+            );
         }
 
-        $taxonomies = $this->getTaxonomies();
+        $parameters = [
+            "hide_{$postType}",
+            "hide_{$postType}_title",
+            "{$postType}_title",
+            $textarea,
+            "hide_{$postType}_comment",
+            "{$postType}_comment_content",
+            "{$postType}_comments_locked"
+        ];
 
-        foreach ($taxonomies as $taxonomy => $taxonomyObject) {
-            if ($taxonomy === ObjectHandler::POST_FORMAT_TYPE) {
-                continue;
-            }
-
-            $groupedConfigParameters[self::GROUP_TAXONOMIES][$taxonomy] =
-                [$configParameters["hide_empty_{$taxonomy}"]];
+        if ($postType === 'post') {
+            $parameters[] = "show_{$postType}_content_before_more";
         }
 
-        $fileOptions = [
-            $configParameters['lock_file'],
-            $configParameters['download_type']
+        return $this->formHelper->getSettingsFrom($parameters, $postType);
+    }
+
+    /**
+     * Returns the taxonomy settings form.
+     *
+     * @param string $taxonomy
+     *
+     * @return \UserAccessManager\Form\Form
+     */
+    private function getTaxonomySettingsForm($taxonomy = 'general')
+    {
+        $parameters = [
+            "hide_empty_{$taxonomy}"
+        ];
+
+        return $this->formHelper->getSettingsFrom($parameters, $taxonomy);
+    }
+
+    /**
+     * Returns the files settings form.
+     *
+     * @return \UserAccessManager\Form\Form
+     */
+    private function getFilesSettingsForm()
+    {
+        $parameters = [
+            'lock_file',
+            'download_type'
         ];
 
         if ($this->config->isPermalinksActive() === true) {
-            $fileOptions[] = $configParameters['lock_file_types'];
-            $fileOptions[] = $configParameters['file_pass_type'];
+            $configParameters = $this->config->getConfigParameters();
+
+            if (isset($configParameters['lock_file_types']) === true) {
+                $values = [
+                    $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL)
+                ];
+
+                if (isset($configParameters['locked_file_types']) === true) {
+                    $lockFileTypes = $configParameters['locked_file_types'];
+                    $selectedValue = $this->formFactory->createMultipleFormElementValue(
+                        'selected',
+                        TXT_UAM_LOCKED_FILE_TYPES
+                    );
+                    $selectedValue->setSubElement($this->formHelper->convertConfigParameter($lockFileTypes));
+                    $values[] = $selectedValue;
+                }
+
+                if ($this->wordpress->isNginx() === false
+                    && isset($configParameters['not_locked_file_types']) === true
+                ) {
+                    $notLockFileTypes = $configParameters['not_locked_file_types'];
+                    $notSelectedValue = $this->formFactory->createMultipleFormElementValue(
+                        'not_selected',
+                        TXT_UAM_LOCKED_FILE_TYPES
+                    );
+                    $notSelectedValue->setSubElement($this->formHelper->convertConfigParameter($notLockFileTypes));
+                    $values[] = $notSelectedValue;
+                }
+
+                $configParameter = $configParameters['lock_file_types'];
+
+                $lockFileTypes = $this->formFactory->createRadio(
+                    $configParameter->getId(),
+                    $values,
+                    $configParameter->getValue(),
+                    TXT_UAM_LOCK_FILE_TYPES,
+                    TXT_UAM_LOCK_FILE_TYPES_DESC
+                );
+                $parameters[] = $lockFileTypes;
+            }
+
+            $parameters[] = 'file_pass_type';
         }
 
-        $groupedConfigParameters[self::GROUP_FILES] = [self::SECTION_FILES => $fileOptions];
+        return $this->formHelper->getSettingsFrom($parameters);
+    }
 
-        $groupedConfigParameters[self::GROUP_AUTHOR] = [
-            self::SECTION_AUTHOR => [
-                $configParameters['authors_has_access_to_own'],
-                $configParameters['authors_can_add_posts_to_groups'],
-                $configParameters['full_access_role'],
-            ]
+    /**
+     * Returns the author settings form.
+     *
+     * @return \UserAccessManager\Form\Form
+     */
+    private function getAuthorSettingsForm()
+    {
+        $parameters = [
+            'authors_has_access_to_own',
+            'authors_can_add_posts_to_groups',
+            'full_access_role'
         ];
 
-        $groupedConfigParameters[self::GROUP_OTHER] = [
-            self::SECTION_OTHER => [
-                $configParameters['lock_recursive'],
-                $configParameters['protect_feed'],
-                $configParameters['redirect'],
-                $configParameters['blog_admin_hint'],
-                $configParameters['blog_admin_hint_text'],
-            ]
+        return $this->formHelper->getSettingsFrom($parameters);
+    }
+
+    /**
+     * Returns the author settings form.
+     *
+     * @return \UserAccessManager\Form\Form
+     */
+    private function getOtherSettingsForm()
+    {
+        $redirect = null;
+        $configParameters = $this->config->getConfigParameters();
+
+        if (isset($configParameters['redirect'])) {
+            $values = [
+                $this->formFactory->createMultipleFormElementValue('false', TXT_UAM_NO),
+                $this->formFactory->createMultipleFormElementValue('blog', TXT_UAM_REDIRECT_TO_BLOG),
+            ];
+
+            if (isset($configParameters['redirect_custom_page']) === true) {
+                $redirectCustomPage = $configParameters['redirect_custom_page'];
+                $redirectCustomPageValue = $this->formFactory->createMultipleFormElementValue(
+                    'selected',
+                    TXT_UAM_REDIRECT_TO_PAGE
+                );
+
+                $possibleValues = [];
+                $pages = $this->getPages();
+
+                foreach ($pages as $page) {
+                    $possibleValues[] = $this->formFactory->createValueSetFromElementValue(
+                        (int)$page->ID,
+                        $page->post_title
+                    );
+                }
+
+                $formElement = $this->formFactory->createSelect(
+                    $redirectCustomPage->getId(),
+                    $possibleValues,
+                    (int)$redirectCustomPage->getValue()
+                );
+
+                $redirectCustomPageValue->setSubElement($formElement);
+                $values[] = $redirectCustomPageValue;
+            }
+
+            if (isset($configParameters['redirect_custom_url']) === true) {
+                $redirectCustomUrl = $configParameters['redirect_custom_url'];
+                $redirectCustomUrlValue = $this->formFactory->createMultipleFormElementValue(
+                    'custom_url',
+                    TXT_UAM_REDIRECT_TO_URL
+                );
+                $redirectCustomUrlValue->setSubElement($this->formHelper->convertConfigParameter($redirectCustomUrl));
+                $values[] = $redirectCustomUrlValue;
+            }
+
+            $configParameter = $configParameters['redirect'];
+
+            $redirect = $this->formFactory->createRadio(
+                $configParameter->getId(),
+                $values,
+                $configParameter->getValue(),
+                TXT_UAM_REDIRECT,
+                TXT_UAM_REDIRECT_DESC
+            );
+        }
+
+        $parameters = [
+            'lock_recursive',
+            'protect_feed',
+            $redirect,
+            'blog_admin_hint',
+            'blog_admin_hint_text'
         ];
 
-        return $groupedConfigParameters;
+        return $this->formHelper->getSettingsFrom($parameters);
+    }
+
+    /**
+     * Returns the settings groups.
+     *
+     * @return array
+     */
+    public function getSettingsGroups()
+    {
+        return [
+            self::GROUP_POST_TYPES,
+            self::GROUP_TAXONOMIES,
+            self::GROUP_FILES,
+            self::GROUP_AUTHOR,
+            self::GROUP_OTHER
+        ];
+    }
+
+    /**
+     * Returns the current settings form.
+     *
+     * @return \UserAccessManager\Form\Form[]
+     */
+    public function getCurrentGroupForms()
+    {
+        $group = $this->getCurrentSettingsGroup();
+        $groupForms = [];
+
+        if ($group === self::GROUP_POST_TYPES) {
+            $postTypes = $this->getPostTypes();
+
+            foreach ($postTypes as $postType => $postTypeObject) {
+                if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+                    continue;
+                }
+
+                $groupForms[$postType] = $this->getPostSettingsForm($postType);
+            }
+        } elseif ($group === self::GROUP_TAXONOMIES) {
+            $taxonomies = $this->getTaxonomies();
+
+            foreach ($taxonomies as $taxonomy => $taxonomyObject) {
+                if ($taxonomy === ObjectHandler::POST_FORMAT_TYPE) {
+                    continue;
+                }
+
+                $groupForms[$taxonomy] = $this->getTaxonomySettingsForm($taxonomy);
+            }
+        } elseif ($group === self::GROUP_FILES) {
+            $groupForms = [self::SECTION_FILES => $this->getFilesSettingsForm()];
+        } elseif ($group === self::GROUP_AUTHOR) {
+            $groupForms = [self::SECTION_AUTHOR => $this->getAuthorSettingsForm()];
+        } elseif ($group === self::GROUP_OTHER) {
+            $groupForms = [self::SECTION_OTHER => $this->getOtherSettingsForm()];
+        }
+
+        return $groupForms;
     }
 
     /**
@@ -255,65 +446,5 @@ class AdminSettingsController extends Controller
         $postTypes = $this->getPostTypes();
 
         return isset($postTypes[$key]);
-    }
-
-    /**
-     * Returns the right translation string.
-     *
-     * @param string $key
-     * @param string $ident
-     * @param bool   $description
-     *
-     * @return mixed|string
-     */
-    private function getObjectText($key, $ident, $description = false)
-    {
-        $objects = $this->getPostTypes() + $this->getTaxonomies();
-        $ident .= ($description === true) ? '_DESC' : '';
-
-        if (isset($objects[$key]) === true) {
-            $ident = str_replace(strtoupper($key), 'OBJECT', $ident);
-            $text = constant($ident);
-            $count = substr_count($text, '%s');
-            $arguments = $this->php->arrayFill(0, $count, $objects[$key]->labels->name);
-            return vsprintf($text, $arguments);
-        }
-
-        return constant($ident);
-    }
-
-    /**
-     * @param string $key
-     * @param bool   $description
-     *
-     * @return string
-     */
-    public function getSectionText($key, $description = false)
-    {
-        return $this->getObjectText(
-            $key,
-            'TXT_UAM_'.strtoupper($key).'_SETTING',
-            $description
-        );
-    }
-
-    /**
-     * Returns the label for the parameter.
-     *
-     * @param string          $key
-     * @param ConfigParameter $configParameter
-     * @param bool            $description
-     *
-     * @return string
-     */
-    public function getParameterText($key, ConfigParameter $configParameter, $description = false)
-    {
-        $ident = 'TXT_UAM_'.strtoupper($configParameter->getId());
-
-        return $this->getObjectText(
-            $key,
-            $ident,
-            $description
-        );
     }
 }

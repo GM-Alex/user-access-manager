@@ -180,6 +180,22 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormFactory
+     */
+    protected function getFormFactory()
+    {
+        return $this->createMock('\UserAccessManager\Form\FormFactory');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormHelper
+     */
+    protected function getFormHelper()
+    {
+        return $this->createMock('\UserAccessManager\Form\FormHelper');
+    }
+
+    /**
      * @param int    $id
      * @param bool   $deletable
      * @param bool   $objectIsMember

@@ -24,9 +24,6 @@ if ($controller->hasUpdateMessage()) {
     <?php
 }
 
-$groupedConfigParameters = $controller->getGroupedConfigParameters();
-$currentGroupKey = $controller->getCurrentSettingsGroup();
-
 ?>
 <div class="wrap">
     <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
@@ -35,337 +32,64 @@ $currentGroupKey = $controller->getCurrentSettingsGroup();
         <h2><?php echo TXT_UAM_SETTINGS; ?></h2>
         <h2 class="nav-tab-wrapper">
             <?php
+            $currentGroupKey = $controller->getCurrentSettingsGroup();
+            $settingGroups = $controller->getSettingsGroups();
 
-            foreach ($groupedConfigParameters as $groupKey => $groupSections) {
+            foreach ($settingGroups as $group) {
                 $cssClass = 'nav-tab';
 
-                if ($currentGroupKey === $groupKey) {
+                if ($currentGroupKey === $group) {
                     $cssClass .= ' nav-tab-active';
                 }
 
                 ?>
                 <a class="<?php  echo $cssClass; ?>"
-                   href="<?php echo $controller->getSettingsGroupLink($groupKey); ?>">
-                    <?php echo $controller->getSectionText($groupKey); ?>
+                   href="<?php echo $controller->getSettingsGroupLink($group); ?>">
+                    <?php echo $controller->getText($group); ?>
                 </a>
                 <?php
             }
             ?>
         </h2>
         <?php
-        /**
-         * @var \UserAccessManager\Config\ConfigParameter[] $groupParameters
-         */
-        if (isset($groupedConfigParameters[$currentGroupKey]) === true) {
-            $groupSections = $groupedConfigParameters[$currentGroupKey];
+        $groupForms = $controller->getCurrentGroupForms();
 
-            foreach ($groupSections as $sectionKey => $groupParameters) {
-                $cssClass = $controller->isPostTypeGroup($sectionKey) ? ' uam_settings_group_post_type' : '';
-
-                ?>
-                <h3><?php echo $controller->getSectionText($sectionKey); ?></h3>
-                <p><?php echo $controller->getSectionText($sectionKey, true); ?></p>
-                <table id="uam_settings_group_<?php echo $sectionKey; ?>"
-                       class="form-table<?php echo $cssClass; ?>">
-                    <tbody>
-                    <?php
-                    $configParameters = $controller->getConfigParameters();
-
-                    foreach ($groupParameters as $groupParameter) {
-                        ?>
-                        <tr valign="top">
-                            <?php
-                            if ($groupParameter->getId() === 'lock_file_types') {
-                                $lockedFileTypes = $configParameters['locked_file_types'];
-
-                                ?>
-                                <th><?php echo TXT_UAM_LOCK_FILE_TYPES; ?></th>
-                                <td>
-                                    <label for="uam_lock_file_types_all">
-                                        <input type="radio" id="uam_lock_file_types_all"
-                                               name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                               value="all"
-                                            <?php
-                                            if ($groupParameter->getValue() === 'all'
-                                                || $controller->isNginx()
-                                                && $groupParameter->getValue() === 'not_selected'
-                                            ) {
-                                                echo 'checked="checked"';
-                                            }
-                                            ?>
-                                        />
-                                        <?php echo TXT_UAM_ALL; ?>
-                                    </label>&nbsp;&nbsp;&nbsp;
-                                    <label for="uam_lock_file_types_selected">
-                                        <input type="radio" id="uam_lock_file_types_selected"
-                                               name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                               value="selected"
-                                            <?php
-                                            if ($groupParameter->getValue() === 'selected') {
-                                                echo 'checked="checked"';
-                                            }
-                                            ?>
-                                        />
-                                        <?php echo TXT_UAM_LOCKED_FILE_TYPES; ?>
-                                        <input name="config_parameters[<?php echo $lockedFileTypes->getId(); ?>]"
-                                               value="<?php echo $lockedFileTypes->getValue(); ?>"/>
-                                    </label>
-                                    &nbsp;&nbsp;&nbsp;
-                                    <?php
-                                    if ($controller->isNginx() === false) {
-                                        $notLockedFileTypes = $configParameters['not_locked_file_types'];
-
-                                        ?>
-                                        <label for="uam_lock_file_types_not_selected">
-                                            <input type="radio" id="uam_lock_file_types_not_selected"
-                                                   name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                                   value="not_selected"
-                                                <?php
-                                                if ($groupParameter->getValue() === 'not_selected') {
-                                                    echo 'checked="checked"';
-                                                }
-                                                ?>
-                                            />
-                                            <?php echo TXT_UAM_NOT_LOCKED_FILE_TYPES; ?>
-                                            <input name="config_parameters[<?php echo $notLockedFileTypes->getId(); ?>]"
-                                                   value="<?php echo $notLockedFileTypes->getValue(); ?>"/>
-                                        </label>
-                                        <br/>
-                                        <?php echo TXT_UAM_LOCK_FILE_TYPES_DESC; ?>
-                                        <?php
-                                    }
-                                    ?>
-                                </td>
-                                <?php
-                            } elseif ($groupParameter->getId() === 'redirect') {
-                                $redirectCustomPage = $configParameters['redirect_custom_page'];
-                                $redirectCustomUrl = $configParameters['redirect_custom_url'];
-
-                                ?>
-                                <th><?php echo TXT_UAM_REDIRECT; ?></th>
-                                <td>
-                                    <label for="uam_redirect_no">
-                                        <input type="radio" id="uam_redirect_no"
-                                               name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                               value="false"
-                                            <?php
-                                            if ($groupParameter->getValue() === 'false') {
-                                                echo 'checked="checked"';
-                                            }
-                                            ?>
-                                        />
-                                        <?php echo TXT_UAM_NO; ?>
-                                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <label for="uam_redirect_blog">
-                                        <input type="radio" id="uam_redirect_blog"
-                                               name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                               value="blog"
-                                            <?php
-                                            if ($groupParameter->getValue() === 'blog') {
-                                                echo 'checked="checked"';
-                                            }
-                                            ?>
-                                        />
-                                        <?php echo TXT_UAM_REDIRECT_TO_BLOG; ?>
-                                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <label for="uam_redirect_custom_page">
-                                        <input type="radio" id="uam_redirect_custom_page"
-                                               name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                               value="custom_page"
-                                            <?php
-                                            if ($groupParameter->getValue() === 'custom_page') {
-                                                echo 'checked="checked"';
-                                            }
-                                            ?>
-                                        />
-                                        <?php echo TXT_UAM_REDIRECT_TO_PAGE; ?>
-                                        <select name="config_parameters[<?php echo $redirectCustomPage->getId(); ?>]">
-                                            <?php
-                                            $pages = $controller->getPages();
-
-                                            foreach ($pages as $page) {
-                                                $option = "<option value=\"{$page->ID}\"";
-                                                $redirectValue = (int)$redirectCustomPage->getValue();
-
-                                                if ($redirectValue === $page->ID) {
-                                                    $option .= ' selected="selected"';
-                                                }
-
-                                                $option .= ">{$page->post_title}</option>";
-                                                echo $option;
-                                            }
-                                            ?>
-                                        </select>
-                                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <label for="uam_redirect_custom_url">
-                                        <input type="radio" id="uam_redirect_custom_url"
-                                               name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                               value="custom_url"
-                                            <?php
-                                            if ($groupParameter->getValue() === 'custom_url') {
-                                                echo 'checked="checked"';
-                                            }
-                                            ?>
-                                        />
-                                        <?php echo TXT_UAM_REDIRECT_TO_URL; ?>
-                                        <input name="config_parameters[<?php echo $redirectCustomUrl->getId(); ?>]"
-                                               value="<?php echo $redirectCustomUrl->getValue(); ?>"/>
-                                    </label>
-                                    <br/>
-                                    <?php echo TXT_UAM_REDIRECT_DESC; ?>
-                                </td>
-                                <?php
-                            } elseif ($groupParameter->getId() === 'full_access_role'
-                                && $groupParameter instanceof \UserAccessManager\Config\SelectionConfigParameter
-                            ) {
-                                ?>
-                                <th scope="row">
-                                    <label for="uam_<?php echo $groupParameter->getId(); ?>">
-                                        <?php echo $controller->getParameterText($sectionKey, $groupParameter); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <select id="uam_<?php echo $groupParameter->getId(); ?>"
-                                            name="config_parameters[<?php echo $groupParameter->getId(); ?>]">
-                                        <?php
-                                        $selections = $groupParameter->getSelections();
-
-                                        foreach ($selections as $selection) {
-                                            ?>
-                                            <option value="<?php echo $selection; ?>" <?php
-                                            if ($groupParameter->getValue() === $selection) {
-                                                echo 'selected="selected"';
-                                            }
-                                            ?> >
-                                                <?php
-                                                $optionNameKey = 'TXT_UAM_'
-                                                    .strtoupper($groupParameter->getId().'_'.$selection);
-
-                                                if (defined($optionNameKey) === true) {
-                                                    echo constant($optionNameKey);
-                                                } else {
-                                                    echo $selection;
-                                                }
-                                                ?>
-                                            </option>
-                                            <?php
-                                        }
-                                        ?>
-                                    </select>
-
-                                    <br/>
-                                    <p><?php
-                                        echo $controller->getParameterText($sectionKey, $groupParameter, true);
-                                        ?></p>
-                                </td>
-                                <?php
-                            } elseif ($groupParameter instanceof \UserAccessManager\Config\BooleanConfigParameter) {
-                                $parameterText = $controller->getParameterText($sectionKey, $groupParameter);
-
-                                ?>
-                                <th scope="row"><?php echo $parameterText; ?></th>
-                                <td>
-                                    <label for="uam_<?php echo $groupParameter->getId(); ?>_yes">
-                                        <input id="uam_<?php echo $groupParameter->getId(); ?>_yes"
-                                               type="radio"
-                                               name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                               value="true"
-                                            <?php
-                                            if ($groupParameter->getValue() === true) {
-                                                echo 'checked="checked"';
-                                            }
-                                            ?>
-                                        />
-                                        <?php echo TXT_UAM_YES; ?>
-                                    </label>&nbsp;&nbsp;&nbsp;
-                                    <label for="uam_<?php echo $groupParameter->getId(); ?>_no">
-                                        <input id="uam_<?php echo $groupParameter->getId(); ?>_no"
-                                               type="radio"
-                                               name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                               value="false"
-                                            <?php
-                                            if ($groupParameter->getValue() === false) {
-                                                echo 'checked="checked"';
-                                            }
-                                            ?>
-                                        />
-                                        <?php echo TXT_UAM_NO; ?>
-                                    </label>
-                                    <br/>
-                                    <p><?php
-                                        echo $controller->getParameterText($sectionKey, $groupParameter, true);
-                                        ?></p>
-                                </td>
-                                <?php
-                            } elseif ($groupParameter instanceof \UserAccessManager\Config\StringConfigParameter) {
-                                ?>
-                                <th scope="row">
-                                    <label for="uam_<?php echo $groupParameter->getId(); ?>">
-                                        <?php echo $controller->getParameterText($sectionKey, $groupParameter); ?>
-                                    </label>
-                                </th>
-                                <td>
-                                    <input id="uam_<?php echo $groupParameter->getId(); ?>"
-                                           name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                           value="<?php echo $groupParameter->getValue(); ?>"/>
-                                    <br/>
-                                    <p><?php
-                                        echo $controller->getParameterText($sectionKey, $groupParameter, true);
-                                        ?></p>
-                                </td>
-                                <?php
-                            } elseif ($groupParameter instanceof \UserAccessManager\Config\SelectionConfigParameter) {
-                                $parameterText = $controller->getParameterText($sectionKey, $groupParameter);
-
-                                ?>
-                                <th scope="row"><?php echo $parameterText; ?></th>
-                                <td>
-                                    <?php
-                                    $selections = $groupParameter->getSelections();
-
-                                    foreach ($selections as $selection) {
-                                        ?>
-                                        <label for="uam_<?php echo $groupParameter->getId(); ?>_yes">
-                                            <input id="uam_<?php echo $groupParameter->getId(); ?>_yes"
-                                                   type="radio"
-                                                   name="config_parameters[<?php echo $groupParameter->getId(); ?>]"
-                                                   value="<?php echo $selection; ?>"
-                                                <?php
-                                                if ($groupParameter->getValue() === $selection) {
-                                                    echo 'checked="checked"';
-                                                }
-                                                ?>
-                                            />
-                                            <?php
-                                            $optionNameKey = 'TXT_UAM_'
-                                                .strtoupper($groupParameter->getId().'_'.$selection);
-
-                                            if (defined($optionNameKey) === true) {
-                                                echo constant($optionNameKey);
-                                            } else {
-                                                echo $selection;
-                                            }
-                                            ?>
-                                        </label>&nbsp;&nbsp;&nbsp;
-                                        <?php
-                                    }
-                                    ?>
-                                    <br/>
-                                    <p><?php
-                                        echo $controller->getParameterText($sectionKey, $groupParameter, true);
-                                        ?></p>
-                                </td>
-                                <?php
-                            }
-                            ?>
-                        </tr>
-                        <?php
-                    }
-                    ?>
-                    </tbody>
-                </table>
+        foreach ($groupForms as $sectionKey => $form) {
+            $cssClass = $controller->isPostTypeGroup($sectionKey) ? ' uam_settings_group_post_type' : '';
+            ?>
+            <h3><?php echo $controller->getText($sectionKey); ?></h3>
+            <p><?php echo $controller->getText($sectionKey, true); ?></p>
+            <table id="uam_settings_group_<?php echo $sectionKey; ?>"
+                   class="form-table<?php echo $cssClass; ?>">
+                <tbody>
                 <?php
-            }
+                $formElements = $form->getElements();
+
+                foreach ($formElements as $formElement) {
+                    ?>
+                    <tr valign="top">
+                        <?php
+                        if ($formElement instanceof \UserAccessManager\Form\Input) {
+                            $input = $formElement;
+                            include 'AdminForm/Input.php';
+                        } elseif ($formElement instanceof \UserAccessManager\Form\Textarea) {
+                            $textarea = $formElement;
+                            include 'AdminForm/Textarea.php';
+                        } elseif ($formElement instanceof \UserAccessManager\Form\Select) {
+                            $select = $formElement;
+                            include 'AdminForm/Select.php';
+                        } elseif ($formElement instanceof \UserAccessManager\Form\Radio) {
+                            $radio = $formElement;
+                            include 'AdminForm/Radio.php';
+                        }
+                        ?>
+                    </tr>
+                    <?php
+                }
+                ?>
+                </tbody>
+            </table>
+            <?php
         }
         ?>
         <div class="submit">

@@ -101,7 +101,7 @@ class ConfigTest extends UserAccessManagerTestCase
     {
         if ($closure === null) {
             $closure = function ($id) {
-                $stub = self::getMockForAbstractClass(
+                $stub = $this->getMockForAbstractClass(
                     '\UserAccessManager\Config\ConfigParameter',
                     [],
                     '',
@@ -310,7 +310,7 @@ class ConfigTest extends UserAccessManagerTestCase
             ->with(Config::ADMIN_OPTIONS_NAME);
 
         $closure = function ($id) {
-            $stub = self::getMockForAbstractClass(
+            $stub = $this->getMockForAbstractClass(
                 '\UserAccessManager\Config\ConfigParameter',
                 [],
                 '',
