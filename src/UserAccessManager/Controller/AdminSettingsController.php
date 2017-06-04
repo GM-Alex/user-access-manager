@@ -128,6 +128,17 @@ class AdminSettingsController extends Controller
     }
 
     /**
+     * @param string $key
+     * @param bool   $description
+     *
+     * @return string
+     */
+    public function getText($key, $description = false)
+    {
+        return $this->formHelper->getText($key, $description);
+    }
+
+    /**
      * Returns the current settings group.
      *
      * @return string
@@ -187,7 +198,7 @@ class AdminSettingsController extends Controller
             $parameters[] = "show_{$postType}_content_before_more";
         }
 
-        return $this->formHelper->getSettingsFrom($parameters, $postType);
+        return $this->formHelper->getSettingsForm($parameters, $postType);
     }
 
     /**
@@ -203,7 +214,7 @@ class AdminSettingsController extends Controller
             "hide_empty_{$taxonomy}"
         ];
 
-        return $this->formHelper->getSettingsFrom($parameters, $taxonomy);
+        return $this->formHelper->getSettingsForm($parameters, $taxonomy);
     }
 
     /**
@@ -242,7 +253,7 @@ class AdminSettingsController extends Controller
                     $notLockFileTypes = $configParameters['not_locked_file_types'];
                     $notSelectedValue = $this->formFactory->createMultipleFormElementValue(
                         'not_selected',
-                        TXT_UAM_LOCKED_FILE_TYPES
+                        TXT_UAM_NOT_LOCKED_FILE_TYPES
                     );
                     $notSelectedValue->setSubElement($this->formHelper->convertConfigParameter($notLockFileTypes));
                     $values[] = $notSelectedValue;
@@ -263,7 +274,7 @@ class AdminSettingsController extends Controller
             $parameters[] = 'file_pass_type';
         }
 
-        return $this->formHelper->getSettingsFrom($parameters);
+        return $this->formHelper->getSettingsForm($parameters);
     }
 
     /**
@@ -279,7 +290,7 @@ class AdminSettingsController extends Controller
             'full_access_role'
         ];
 
-        return $this->formHelper->getSettingsFrom($parameters);
+        return $this->formHelper->getSettingsForm($parameters);
     }
 
     /**
@@ -354,7 +365,7 @@ class AdminSettingsController extends Controller
             'blog_admin_hint_text'
         ];
 
-        return $this->formHelper->getSettingsFrom($parameters);
+        return $this->formHelper->getSettingsForm($parameters);
     }
 
     /**

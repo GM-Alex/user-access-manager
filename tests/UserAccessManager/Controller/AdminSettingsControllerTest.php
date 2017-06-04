@@ -14,6 +14,10 @@
  */
 namespace UserAccessManager\Controller;
 
+use UserAccessManager\Config\BooleanConfigParameter;
+use UserAccessManager\Config\ConfigParameter;
+use UserAccessManager\Config\SelectionConfigParameter;
+use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManagerTestCase;
 
@@ -109,6 +113,126 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getText()
+     */
+    public function testGetText()
+    {
+        $formHelper = $this->getFormHelper();
+        $formHelper->expects($this->exactly(2))
+            ->method('getText')
+            ->withConsecutive(
+                ['firstKey', false],
+                ['secondKey', true]
+            )
+            ->will($this->returnValue('text'));
+
+        $adminSettingController = new AdminSettingsController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $this->getFormFactory(),
+            $formHelper
+        );
+
+        self::assertEquals('text', $adminSettingController->getText('firstKey'));
+        self::assertEquals('text', $adminSettingController->getText('secondKey', true));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getCurrentSettingsGroup()
+     */
+    public function testGetCurrentSettingsGroup()
+    {
+        $adminSettingController = new AdminSettingsController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $this->getFormFactory(),
+            $this->getFormHelper()
+        );
+
+        self::assertEquals(
+            AdminSettingsController::GROUP_POST_TYPES,
+            $adminSettingController->getCurrentSettingsGroup()
+        );
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = 'group';
+        self::assertEquals('group', $adminSettingController->getCurrentSettingsGroup());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getSettingsGroupLink()
+     */
+    public function testGetSettingsGroupLink()
+    {
+        $adminSettingController = new AdminSettingsController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $this->getFormFactory(),
+            $this->getFormHelper()
+        );
+
+        $_SERVER['REQUEST_URI'] = 'url/?page=page';
+
+        self::assertEquals(
+            'url/?page=page&settings_group=key',
+            $adminSettingController->getSettingsGroupLink('key')
+        );
+
+        $_SERVER['REQUEST_URI'] = 'url/?page=page&settings_group=c';
+
+        self::assertEquals(
+            'url/?page=page&settings_group=key',
+            $adminSettingController->getSettingsGroupLink('key')
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getSettingsGroups()
+     */
+    public function testGetSettingsGroups()
+    {
+        $expected = [
+            AdminSettingsController::GROUP_POST_TYPES,
+            AdminSettingsController::GROUP_TAXONOMIES,
+            AdminSettingsController::GROUP_FILES,
+            AdminSettingsController::GROUP_AUTHOR,
+            AdminSettingsController::GROUP_OTHER
+        ];
+
+        $adminSettingController = new AdminSettingsController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $this->getFormFactory(),
+            $this->getFormHelper()
+        );
+
+        self::assertEquals($expected, $adminSettingController->getSettingsGroups());
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    private function createMultipleFormElementValue()
+    {
+        return $this->createMock('\UserAccessManager\Form\MultipleFormElementValue');
+    }
+
+    /**
      * @group   unit
      * @covers  \UserAccessManager\Controller\AdminSettingsController::getCurrentGroupForms()
      * @covers  \UserAccessManager\Controller\AdminSettingsController::getPostTypes()
@@ -123,7 +247,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
     public function testGetCurrentGroupForms()
     {
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->once())
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -132,57 +256,278 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->once())
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
                 'category' => $this->createTypeObject('category'),
                 ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
             ]));
+
+        $wordpress->expects($this->exactly(2))
+            ->method('isNginx')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $pages = [];
+
+        $firstPage = new \stdClass();
+        $firstPage->ID = 1;
+        $firstPage->post_title = 'firstPage';
+        $pages[] = $firstPage;
+
+        $secondPage = new \stdClass();
+        $secondPage->ID = 2;
+        $secondPage->post_title = 'secondPage';
+        $pages[] = $secondPage;
+
+        $wordpress->expects($this->once())
+            ->method('getPages')
+            ->with('sort_column=menu_order')
+            ->will($this->returnValue($pages));
         
         $configValues = [
-            'hide_post' => 'hide_post',
-            'hide_post_title' => 'hide_post_title',
-            'post_title' => 'post_title',
-            'show_post_content_before_more' => 'show_post_content_before_more',
-            'post_content' => 'post_content',
-            'hide_post_comment' => 'hide_post_comment',
-            'post_comment_content' => 'post_comment_content',
-            'post_comments_locked' => 'post_comments_locked',
-            'hide_page' => 'hide_page',
-            'hide_page_title' => 'hide_page_title',
-            'page_title' => 'page_title',
-            'page_content' => 'page_content',
-            'hide_page_comment' => 'hide_page_comment',
-            'page_comment_content' => 'page_comment_content',
-            'page_comments_locked' => 'page_comments_locked',
-            'redirect' => 'redirect',
-            'redirect_custom_page' => 'redirect_custom_page',
-            'redirect_custom_url' => 'redirect_custom_url',
-            'lock_recursive' => 'lock_recursive',
-            'authors_has_access_to_own' => 'authors_has_access_to_own',
-            'authors_can_add_posts_to_groups' => 'authors_can_add_posts_to_groups',
-            'lock_file' => 'lock_file',
-            'file_pass_type' => 'file_pass_type',
-            'download_type' => 'download_type',
-            'lock_file_types' => 'lock_file_types',
-            'locked_file_types' => 'locked_file_types',
-            'not_locked_file_types' => 'not_locked_file_types',
-            'blog_admin_hint' => 'blog_admin_hint',
-            'blog_admin_hint_text' => 'blog_admin_hint_text',
-            'hide_empty_category' => 'hide_empty_category',
-            'protect_feed' => 'protect_feed',
-            'full_access_role' => 'full_access_role'
+            'hide_post' => $this->getConfigParameter('boolean'),
+            'hide_post_title' => $this->getConfigParameter('boolean'),
+            'post_title' => $this->getConfigParameter('string'),
+            'show_post_content_before_more' => $this->getConfigParameter('boolean'),
+            'post_content' => $this->getConfigParameter('string'),
+            'hide_post_comment' => $this->getConfigParameter('boolean'),
+            'post_comment_content' => $this->getConfigParameter('string'),
+            'post_comments_locked' => $this->getConfigParameter('boolean'),
+            'hide_page' => $this->getConfigParameter('boolean'),
+            'hide_page_title' => $this->getConfigParameter('boolean'),
+            'page_title' => $this->getConfigParameter('string'),
+            'page_content' => $this->getConfigParameter('string'),
+            'hide_page_comment' => $this->getConfigParameter('boolean'),
+            'page_comment_content' => $this->getConfigParameter('string'),
+            'page_comments_locked' => $this->getConfigParameter('boolean'),
+            'hide_empty_category' => $this->getConfigParameter('boolean'),
+            'lock_file' => $this->getConfigParameter('boolean'),
+            'download_type' => $this->getConfigParameter('selection'),
+            'lock_file_types' => $this->getConfigParameter('selection'),
+            'locked_file_types' => $this->getConfigParameter('string'),
+            'not_locked_file_types' => $this->getConfigParameter('string'),
+            'file_pass_type' => $this->getConfigParameter('selection'),
+            'authors_has_access_to_own' => $this->getConfigParameter('boolean'),
+            'authors_can_add_posts_to_groups' => $this->getConfigParameter('boolean'),
+            'full_access_role' => $this->getConfigParameter('selection'),
+            'lock_recursive' => $this->getConfigParameter('boolean'),
+            'protect_feed' => $this->getConfigParameter('boolean'),
+            'redirect' => $this->getConfigParameter('selection'),
+            'redirect_custom_page' => $this->getConfigParameter('string'),
+            'redirect_custom_url' => $this->getConfigParameter('string'),
+            'blog_admin_hint' => $this->getConfigParameter('boolean'),
+            'blog_admin_hint_text' => $this->getConfigParameter('string')
         ];
 
         $config = $this->getConfig();
-        $config->expects($this->exactly(2))
+        $config->expects($this->exactly(5))
             ->method('getConfigParameters')
             ->will($this->returnValue($configValues));
         
-        $config->expects($this->exactly(2))
+        $config->expects($this->exactly(3))
             ->method('isPermalinksActive')
-            ->will($this->onConsecutiveCalls(false, true));
+            ->will($this->onConsecutiveCalls(false, true, true));
+
+        $formFactory = $this->getFormFactory();
+
+        $formFactory->expects($this->exactly(2))
+            ->method('createTextarea')
+            ->withConsecutive(
+                ['stringId', 'stringValue', 'stringIdPost', 'stringIdPostDesc'],
+                ['stringId', 'stringValue', 'stringIdPage', 'stringIdPageDesc']
+            )
+            ->will($this->onConsecutiveCalls('postTextarea', 'pageTextarea'));
+
+        $formFactory->expects($this->exactly(9))
+            ->method('createMultipleFormElementValue')
+            ->withConsecutive(
+                ['all', TXT_UAM_ALL],
+                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
+                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['all', TXT_UAM_ALL],
+                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
+                ['false', TXT_UAM_NO],
+                ['blog', TXT_UAM_REDIRECT_TO_BLOG],
+                ['selected', TXT_UAM_REDIRECT_TO_PAGE],
+                ['custom_url', TXT_UAM_REDIRECT_TO_URL]
+            )
+            ->will($this->returnValue($this->createMultipleFormElementValue()));
+
+        $formFactory->expects($this->exactly(3))
+            ->method('createRadio')
+            ->withConsecutive(
+                [
+                    'selectionId',
+                    [
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue()
+                    ],
+                    'selectionValue',
+                    TXT_UAM_LOCK_FILE_TYPES,
+                    TXT_UAM_LOCK_FILE_TYPES_DESC
+                ],
+                [
+                    'selectionId',
+                    [
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue()
+                    ],
+                    'selectionValue',
+                    TXT_UAM_LOCK_FILE_TYPES,
+                    TXT_UAM_LOCK_FILE_TYPES_DESC
+                ],
+                [
+                    'selectionId',
+                    [
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue()
+                    ],
+                    'selectionValue',
+                    TXT_UAM_REDIRECT,
+                    TXT_UAM_REDIRECT_DESC
+                ]
+            )
+            ->will($this->onConsecutiveCalls('fileRadio', 'fileRadio', 'redirectRadio'));
+
+        $formFactory->expects($this->exactly(2))
+            ->method('createValueSetFromElementValue')
+            ->withConsecutive(
+                [1, 'firstPage'],
+                [2, 'secondPage']
+            )
+            ->will($this->returnValue(
+                $this->createMock('\UserAccessManager\Form\MultipleFormElementValue')
+            ));
+
+        $formFactory->expects($this->once())
+            ->method('createSelect')
+            ->withConsecutive(
+                [
+                    'stringId',
+                    [
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue()
+                    ],
+                    0
+                ]
+            )
+            ->will($this->returnValue(
+                $this->createMock('\UserAccessManager\Form\Select')
+            ));
+
+        $formHelper = $this->getFormHelper();
+        $formHelper->expects($this->exactly(8))
+            ->method('getSettingsForm')
+            ->withConsecutive(
+                [
+                    [
+                        'hide_post',
+                        'hide_post_title',
+                        'post_title',
+                        'postTextarea',
+                        'hide_post_comment',
+                        'post_comment_content',
+                        'post_comments_locked',
+                        'show_post_content_before_more'
+                    ],
+                    'post'
+                ],
+                [
+                    [
+                        'hide_page',
+                        'hide_page_title',
+                        'page_title',
+                        'pageTextarea',
+                        'hide_page_comment',
+                        'page_comment_content',
+                        'page_comments_locked'
+                    ],
+                    'page'
+                ],
+                [
+                    ['hide_empty_category'],
+                    'category'
+                ],
+                [
+                    ['lock_file', 'download_type']
+                ],
+                [
+                    [
+                        'lock_file',
+                        'download_type',
+                        'fileRadio',
+                        'file_pass_type'
+                    ]
+                ],
+                [
+                    [
+                        'lock_file',
+                        'download_type',
+                        'fileRadio',
+                        'file_pass_type'
+                    ]
+                ],
+                [
+                    [
+                        'authors_has_access_to_own',
+                        'authors_can_add_posts_to_groups',
+                        'full_access_role'
+                    ]
+                ],
+                [
+                    [
+                        'lock_recursive',
+                        'protect_feed',
+                        'redirectRadio',
+                        'blog_admin_hint',
+                        'blog_admin_hint_text'
+                    ]
+                ]
+            )
+            ->will($this->onConsecutiveCalls(
+                'postForm',
+                'pageForm',
+                'categoryForm',
+                'fileForm',
+                'fileForm',
+                'fileForm',
+                'authorForm',
+                'otherForm'
+            ));
+
+        $formHelper->expects($this->exactly(4))
+            ->method('getParameterText')
+            ->will($this->returnCallback(
+                function (ConfigParameter $configParameter, $description, $postType) {
+                    $text = $configParameter->getId().ucfirst($postType);
+                    $text .= ($description === true) ? 'Desc' : '';
+                    return $text;
+                }
+            ));
+
+        $formHelper->expects($this->exactly(4))
+            ->method('convertConfigParameter')
+            ->withConsecutive(
+                [],
+                [],
+                [],
+                []
+            )
+            ->will($this->returnCallback(function ($configParameter) {
+                if (($configParameter instanceof StringConfigParameter) === true) {
+                    return $this->createMock('\UserAccessManager\Form\Input');
+                } elseif (($configParameter instanceof BooleanConfigParameter) === true) {
+                    return $this->createMock('\UserAccessManager\Form\Radio');
+                } elseif (($configParameter instanceof SelectionConfigParameter) === true) {
+                    return $this->createMock('\UserAccessManager\Form\Select');
+                }
+
+                return null;
+            }));
 
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
@@ -190,59 +535,35 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $config,
             $this->getObjectHandler(),
             $this->getFileHandler(),
-            $this->getFormFactory(),
-            $this->getFormHelper()
+            $formFactory,
+            $formHelper
         );
 
-        $expected = [
-            'post' => [
-                0 => 'hide_post',
-                1 => 'hide_post_title',
-                2 => 'post_title',
-                3 => 'post_content',
-                4 => 'hide_post_comment',
-                5 => 'post_comment_content',
-                6 => 'post_comments_locked',
-                7 => 'show_post_content_before_more'
-                
+        self::assertEquals(
+            [
+                'post' => 'postForm',
+                'page' => 'pageForm'
             ],
-            'page' => [
-                0 => 'hide_page',
-                1 => 'hide_page_title',
-                2 => 'page_title',
-                3 => 'page_content',
-                4 => 'hide_page_comment',
-                5 => 'page_comment_content',
-                6 => 'page_comments_locked'
+            $adminSettingController->getCurrentGroupForms()
+        );
 
-            ],
-            'category' => [
-                0 => 'hide_empty_category'
-            ],
-            'file' => [
-                0 => 'lock_file',
-                1 => 'download_type'
-            ],
-            'author' => [
-                0 => 'authors_has_access_to_own',
-                1 => 'authors_can_add_posts_to_groups',
-                2 => 'full_access_role'
-            ],
-            'other' => [
-                0 => 'lock_recursive',
-                1 => 'protect_feed',
-                2 => 'redirect',
-                3 => 'blog_admin_hint',
-                4 => 'blog_admin_hint_text'
-            ]
-        ];
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_TAXONOMIES;
+        self::assertEquals(['category' => 'categoryForm'], $adminSettingController->getCurrentGroupForms());
 
-        self::assertEquals($expected, $adminSettingController->getCurrentGroupForms());
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
+        self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
 
-        $expected['file'][2] = 'lock_file_types';
-        $expected['file'][3] = 'file_pass_type';
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
+        self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
 
-        self::assertEquals($expected, $adminSettingController->getCurrentGroupForms());
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
+        self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_AUTHOR;
+        self::assertEquals(['author' => 'authorForm'], $adminSettingController->getCurrentGroupForms());
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_OTHER;
+        self::assertEquals(['other' => 'otherForm'], $adminSettingController->getCurrentGroupForms());
     }
 
     /**

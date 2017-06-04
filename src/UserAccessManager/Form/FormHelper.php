@@ -191,7 +191,7 @@ class FormHelper
      *
      * @return \UserAccessManager\Form\Form
      */
-    public function getSettingsFrom(array $parameters, $objectKey = null)
+    public function getSettingsForm(array $parameters, $objectKey = null)
     {
         $configParameters = $this->config->getConfigParameters();
         $form = $this->formFactory->createFrom();

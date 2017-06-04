@@ -169,30 +169,6 @@ class FormHelperTest extends UserAccessManagerTestCase
     }
 
     /**
-     * Returns a config parameter mock.
-     *
-     * @param string $type
-     * @param string $postFix
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter
-     */
-    private function getConfigParameter($type, $postFix = '')
-    {
-        $type = strtolower($type);
-        $className = ucfirst($type).'ConfigParameter';
-
-        $parameter = $this->createMock("\UserAccessManager\Config\\{$className}");
-        $parameter->expects($this->any())
-            ->method('getId')
-            ->will($this->returnValue("{$type}{$postFix}Id"));
-        $parameter->expects($this->any())
-            ->method('getValue')
-            ->will($this->returnValue("{$type}{$postFix}Value"));
-
-        return $parameter;
-    }
-
-    /**
      * @group  unit
      * @covers \UserAccessManager\Form\FormHelper::convertConfigParameter()
      */
@@ -286,7 +262,7 @@ class FormHelperTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Form\FormHelper::getSettingsFrom()
+     * @covers \UserAccessManager\Form\FormHelper::getSettingsForm()
      */
     public function testGetSettingsFrom()
     {
@@ -336,6 +312,6 @@ class FormHelperTest extends UserAccessManagerTestCase
             $formFactory
         );
 
-        self::assertEquals($form, $formHelper->getSettingsFrom(['one', 'two', 'invalid', $formInputThree]));
+        self::assertEquals($form, $formHelper->getSettingsForm(['one', 'two', 'invalid', $formInputThree]));
     }
 }
