@@ -443,10 +443,6 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $config->expects($this->exactly(6))
             ->method('getConfigParameters')
             ->will($this->returnValue($configValues));
-        
-        $config->expects($this->exactly(3))
-            ->method('isPermalinksActive')
-            ->will($this->onConsecutiveCalls(false, true, true));
 
         $formFactory = $this->getFormFactory();
 
@@ -539,7 +535,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ));
 
         $formHelper = $this->getFormHelper();
-        $formHelper->expects($this->exactly(10))
+        $formHelper->expects($this->exactly(9))
             ->method('getSettingsForm')
             ->withConsecutive(
                 [
@@ -590,9 +586,6 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                     'category'
                 ],
                 [
-                    ['lock_file', 'download_type']
-                ],
-                [
                     [
                         'lock_file',
                         'download_type',
@@ -631,7 +624,6 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 'pageForm',
                 'defaultTaxonomyForm',
                 'categoryForm',
-                'fileForm',
                 'fileForm',
                 'fileForm',
                 'authorForm',
@@ -695,9 +687,6 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ],
             $adminSettingController->getCurrentGroupForms()
         );
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
-        self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
 
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
         self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
