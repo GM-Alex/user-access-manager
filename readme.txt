@@ -43,7 +43,7 @@ The documentation can be found here: [https://github.com/GM-Alex/user-access-man
 Please report bugs and feature requests here: [https://github.com/GM-Alex/user-access-manager/issues](https://github.com/GM-Alex/user-access-manager/issues)
 If you are a developer and want to contribute please visit [https://github.com/GM-Alex/user-access-manager](https://github.com/GM-Alex/user-access-manager)
 For general questions, like how to setup, best practice and so on please use the support thread here (don't post issues here): [https://wordpress.org/support/plugin/user-access-manager](https://wordpress.org/support/plugin/user-access-manager)
-To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
+To stay up-to-date follow me on thttp://wordpress_web_1.local.docker/wp-content/uploads/2017/04/Bilendo-API-23.Juli_-300x165.pngwitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
 == Installation ==
@@ -58,6 +58,9 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.0.12      2017/??/??  Fix media file group issue #74
+                            Fix broken file includes / excludes
 
     2.0.11      2017/05/18  Fix FrontendController::postsPreQuery() expected to be a reference, value given error
 

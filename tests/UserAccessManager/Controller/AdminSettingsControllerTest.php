@@ -189,10 +189,6 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $config->expects($this->exactly(2))
             ->method('getConfigParameters')
             ->will($this->returnValue($configValues));
-        
-        $config->expects($this->exactly(2))
-            ->method('isPermalinksActive')
-            ->will($this->onConsecutiveCalls(false, true));
 
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
@@ -229,7 +225,9 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ],
             'file' => [
                 0 => 'lock_file',
-                1 => 'download_type'
+                1 => 'download_type',
+                2 => 'lock_file_types',
+                3 => 'file_pass_type'
             ],
             'author' => [
                 0 => 'authors_has_access_to_own',
@@ -246,10 +244,6 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         ];
         
         self::assertEquals($expected, $adminSettingController->getGroupedConfigParameters());
-
-        $expected['file'][2] = 'lock_file_types';
-        $expected['file'][3] = 'file_pass_type';
-
         self::assertEquals($expected, $adminSettingController->getGroupedConfigParameters());
     }
 

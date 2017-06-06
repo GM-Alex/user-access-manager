@@ -154,7 +154,9 @@ class AdminSettingsController extends Controller
 
         $groupedConfigParameters['file'] = [
             $configParameters['lock_file'],
-            $configParameters['download_type']
+            $configParameters['download_type'],
+            $configParameters['lock_file_types'],
+            $configParameters['file_pass_type']
         ];
 
         $groupedConfigParameters['author'] = [
@@ -170,11 +172,6 @@ class AdminSettingsController extends Controller
             $configParameters['blog_admin_hint'],
             $configParameters['blog_admin_hint_text'],
         ];
-
-        if ($this->config->isPermalinksActive() === true) {
-            $groupedConfigParameters['file'][] = $configParameters['lock_file_types'];
-            $groupedConfigParameters['file'][] = $configParameters['file_pass_type'];
-        }
 
         return $groupedConfigParameters;
     }

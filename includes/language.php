@@ -60,7 +60,7 @@ define('TXT_UAM_LOCKED_FILE_TYPES', __('File types to lock: ', 'user-access-mana
 define('TXT_UAM_NOT_LOCKED_FILE_TYPES', __('File types not to lock: ', 'user-access-manager'));
 define('TXT_UAM_FILE_PASS_TYPE', __('.htaccess password', 'user-access-manager'));
 define('TXT_UAM_FILE_PASS_TYPE_DESC', __('Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files.', 'user-access-manager'));
-define('TXT_UAM_FILE_PASS_TYPE_RANDOM', __('Use a random generated pass word.', 'user-access-manager'));
+define('TXT_UAM_FILE_PASS_TYPE_RANDOM', __('Use a random generated password.', 'user-access-manager'));
 define('TXT_UAM_FILE_PASS_TYPE_USER', __('Use the password of the current logged in admin.', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE', __('Download type', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".', 'user-access-manager'));
