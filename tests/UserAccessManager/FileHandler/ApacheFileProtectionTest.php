@@ -94,12 +94,16 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
 
-        $config->expects($this->exactly(3))
+        $config->expects($this->exactly(6))
             ->method('getLockFileTypes')
-            ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected'));
+            ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected', null, null, null));
 
-        $config->expects($this->exactly(2))
+        $config->expects($this->once())
             ->method('getLockedFileTypes')
+            ->will($this->returnValue('png,jpg'));
+
+        $config->expects($this->once())
+            ->method('getNotLockedFileTypes')
             ->will($this->returnValue('png,jpg'));
 
         $config->expects($this->exactly(2))

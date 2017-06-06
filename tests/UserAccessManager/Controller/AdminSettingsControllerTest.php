@@ -403,7 +403,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->method('getPages')
             ->with('sort_column=menu_order')
             ->will($this->returnValue($pages));
-        
+
         $configValues = [
             'hide_post' => $this->getConfigParameter('boolean'),
             'hide_post_title' => $this->getConfigParameter('boolean'),

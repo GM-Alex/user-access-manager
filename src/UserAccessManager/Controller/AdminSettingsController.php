@@ -285,50 +285,48 @@ class AdminSettingsController extends Controller
             'download_type'
         ];
 
-        if ($this->config->isPermalinksActive() === true) {
-            $configParameters = $this->config->getConfigParameters();
+        $configParameters = $this->config->getConfigParameters();
 
-            if (isset($configParameters['lock_file_types']) === true) {
-                $values = [
-                    $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL)
-                ];
+        if (isset($configParameters['lock_file_types']) === true) {
+            $values = [
+                $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL)
+            ];
 
-                if (isset($configParameters['locked_file_types']) === true) {
-                    $lockFileTypes = $configParameters['locked_file_types'];
-                    $selectedValue = $this->formFactory->createMultipleFormElementValue(
-                        'selected',
-                        TXT_UAM_LOCKED_FILE_TYPES
-                    );
-                    $selectedValue->setSubElement($this->formHelper->convertConfigParameter($lockFileTypes));
-                    $values[] = $selectedValue;
-                }
-
-                if ($this->wordpress->isNginx() === false
-                    && isset($configParameters['not_locked_file_types']) === true
-                ) {
-                    $notLockFileTypes = $configParameters['not_locked_file_types'];
-                    $notSelectedValue = $this->formFactory->createMultipleFormElementValue(
-                        'not_selected',
-                        TXT_UAM_NOT_LOCKED_FILE_TYPES
-                    );
-                    $notSelectedValue->setSubElement($this->formHelper->convertConfigParameter($notLockFileTypes));
-                    $values[] = $notSelectedValue;
-                }
-
-                $configParameter = $configParameters['lock_file_types'];
-
-                $lockFileTypes = $this->formFactory->createRadio(
-                    $configParameter->getId(),
-                    $values,
-                    $configParameter->getValue(),
-                    TXT_UAM_LOCK_FILE_TYPES,
-                    TXT_UAM_LOCK_FILE_TYPES_DESC
+            if (isset($configParameters['locked_file_types']) === true) {
+                $lockFileTypes = $configParameters['locked_file_types'];
+                $selectedValue = $this->formFactory->createMultipleFormElementValue(
+                    'selected',
+                    TXT_UAM_LOCKED_FILE_TYPES
                 );
-                $parameters[] = $lockFileTypes;
+                $selectedValue->setSubElement($this->formHelper->convertConfigParameter($lockFileTypes));
+                $values[] = $selectedValue;
             }
 
-            $parameters[] = 'file_pass_type';
+            if ($this->wordpress->isNginx() === false
+                && isset($configParameters['not_locked_file_types']) === true
+            ) {
+                $notLockFileTypes = $configParameters['not_locked_file_types'];
+                $notSelectedValue = $this->formFactory->createMultipleFormElementValue(
+                    'not_selected',
+                    TXT_UAM_NOT_LOCKED_FILE_TYPES
+                );
+                $notSelectedValue->setSubElement($this->formHelper->convertConfigParameter($notLockFileTypes));
+                $values[] = $notSelectedValue;
+            }
+
+            $configParameter = $configParameters['lock_file_types'];
+
+            $lockFileTypes = $this->formFactory->createRadio(
+                $configParameter->getId(),
+                $values,
+                $configParameter->getValue(),
+                TXT_UAM_LOCK_FILE_TYPES,
+                TXT_UAM_LOCK_FILE_TYPES_DESC
+            );
+            $parameters[] = $lockFileTypes;
         }
+
+        $parameters[] = 'file_pass_type';
 
         return $this->formHelper->getSettingsForm($parameters);
     }

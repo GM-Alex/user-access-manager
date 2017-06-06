@@ -15,11 +15,13 @@
 
 /**
  * @var \UserAccessManager\Controller\AdminObjectController $controller
- */    $userGroups = $controller->getFilteredUserGroups();
+ */
+$userGroups = $controller->getFilteredUserGroups();
 $objectUserGroups = $controller->getObjectUserGroups();
 
 if (count($userGroups) > 0) {
     ?>
+    <input type="hidden" name="uam_update_groups" value="1"/>
     <ul class="uam_group_selection" style="margin: 0;">
         <?php
         $groupsFormName = $controller->getGroupsFromName();
