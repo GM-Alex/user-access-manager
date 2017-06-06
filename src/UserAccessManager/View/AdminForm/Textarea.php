@@ -26,7 +26,7 @@
     <textarea id="uam_<?php echo $textarea->getId(); ?>"
               style="width:100%;min-height:120px;"
               name="config_parameters[<?php echo $textarea->getId(); ?>]"><?php
-                    echo htmlentities($textarea->getValue());
+                    echo $textarea->getValue();
     ?></textarea>
     <br/>
     <p><?php echo $textarea->getDescription(); ?></p>

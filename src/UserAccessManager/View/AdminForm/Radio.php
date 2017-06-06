@@ -28,8 +28,8 @@
             (($rawValue === true) ? 'true' : 'false') : $rawValue;
 
         ?>
-        <label for="uam_<?php echo $radio->getId().'_'.$possibleValue->getValue(); ?>">
-            <input id="uam_<?php echo $radio->getId().'_'.$possibleValue->getValue(); ?>"
+        <label for="uam_<?php echo $radio->getId().'_'.$formValue; ?>">
+            <input id="uam_<?php echo $radio->getId().'_'.$formValue; ?>"
                    type="radio"
                    name="config_parameters[<?php echo $radio->getId(); ?>]"
                    value="<?php echo $formValue; ?>"

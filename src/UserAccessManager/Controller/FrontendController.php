@@ -324,7 +324,7 @@ class FrontendController extends Controller
                 return null;
             }
 
-            $uamPostContent = $this->config->getPostTypeContent($post->post_type);
+            $uamPostContent = htmlspecialchars_decode($this->config->getPostTypeContent($post->post_type));
 
             if ($post->post_type === 'post'
                 && $this->config->showPostContentBeforeMore() === true

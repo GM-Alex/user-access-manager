@@ -1,31 +1,42 @@
 jQuery(document).ready(function () {
     //Functions for the setting page
-    var toggleGroup = function (groupName) {
-        var $groups = jQuery(groupName);
+    var toggleGroup = function (group, elementIndex) {
+        var $group = jQuery(group);
+        var $inputs = jQuery('tr:eq('+elementIndex+') input', $group);
 
-        jQuery.each($groups, function (key, group) {
-            var $group = jQuery(group);
-            var $firstElements = jQuery('tr:first input', $group);
+        var toggleElement = function (element) {
+            var $element = jQuery(element);
+            var $subElements = jQuery('tr:gt('+elementIndex+')', $group);
 
-            var toggleElements = function (element) {
-                var $element = jQuery(element);
+            $subElements.each(function (index, subElement) {
+                var $subElement = jQuery(subElement);
+                var data = $subElement.data('hidden') || {};
+                data[elementIndex] = ($element.val() === 'true');
+                $subElement.data('hidden', data);
 
-                if ($element.val() === 'true') {
-                    jQuery('tr:not(:first)', $group).hide();
-                } else {
-                    jQuery('tr:not(:first)', $group).show();
-                }
-            };
+                var showElement = true;
 
-            $firstElements.change(function () {
-                toggleElements(this);
+                jQuery.each(data, function(key, value) {
+                    if (value === true) {
+                        showElement = false;
+                        return false;
+                    }
+                });
+
+                $subElement.toggle(showElement);
             });
+        };
 
-            toggleElements(jQuery('tr:first input:checked', $group));
+        $inputs.change(function () {
+            toggleElement(this);
         });
+
+        toggleElement($inputs.filter(':checked'));
     };
 
-    toggleGroup('.uam_settings_group_post_type');
+    toggleGroup('.uam_settings_group_post_type', 0);
+    toggleGroup('.uam_settings_group_post_type:not(.default)', 1);
+    toggleGroup('.uam_settings_group_taxonomies:not(.default)', 0);
 
     // Functions for the setup page
     jQuery('#uam_reset_confirm').on('change paste keyup', function () {
@@ -36,5 +47,10 @@ jQuery(document).ready(function () {
         } else if (typeof $button.attr('disabled') === 'undefined') {
             $button.attr('disabled', 'disabled');
         }
-    })
+    });
+
+    jQuery('#uam_settings_group_section').on('change', function () {
+        var $selected = jQuery(this).find(':selected');
+        window.location.href = $selected.data('link');
+    });
 });

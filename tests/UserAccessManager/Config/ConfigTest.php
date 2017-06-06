@@ -34,6 +34,17 @@ class ConfigTest extends UserAccessManagerTestCase
     public function setUp()
     {
         $this->defaultValues = [
+            'hide_default' => 'bool|hide_default|false',
+            'hide_default_title' => 'bool|hide_default_title|false',
+            'default_title' => 'string|default_title|No rights!|user-access-manager',
+            'default_content' => 'string|default_content|'
+                .'Sorry you have no rights to view this entry!|user-access-manager',
+            'hide_default_comment' => 'bool|hide_default_comment|false',
+            'default_comment_content' => 'string|default_comment_content|'
+                .'Sorry no rights to view comments!|user-access-manager',
+            'default_comments_locked' => 'bool|default_comments_locked|false',
+            'hide_empty_default' => 'bool|hide_empty_default|true',
+            'post_use_default' => 'bool|post_use_default|false',
             'hide_post' => 'bool|hide_post|false',
             'hide_post_title' => 'bool|hide_post_title|false',
             'post_title' => 'string|post_title|No rights!|user-access-manager',
@@ -43,6 +54,7 @@ class ConfigTest extends UserAccessManagerTestCase
             'post_comment_content' => 'string|post_comment_content|'
                 .'Sorry no rights to view comments!|user-access-manager',
             'post_comments_locked' => 'bool|post_comments_locked|false',
+            'page_use_default' => 'bool|page_use_default|false',
             'hide_page' => 'bool|hide_page|false',
             'hide_page_title' => 'bool|hide_page_title|false',
             'page_title' => 'string|page_title|No rights!|user-access-manager',
@@ -65,10 +77,11 @@ class ConfigTest extends UserAccessManagerTestCase
             'not_locked_file_types' => 'string|not_locked_file_types|gif,jpg,jpeg,png',
             'blog_admin_hint' => 'bool|blog_admin_hint|true',
             'blog_admin_hint_text' => 'string|blog_admin_hint_text|[L]',
+            'category_use_default' => 'bool|category_use_default|false',
             'hide_empty_category' => 'bool|hide_empty_category|true',
             'protect_feed' => 'bool|protect_feed|true',
             'full_access_role' => 'selection|full_access_role|administrator|'
-                .'administrator|editor|author|contributor|subscriber',
+                .'administrator|editor|author|contributor|subscriber'
         ];
     }
 
@@ -213,7 +226,7 @@ class ConfigTest extends UserAccessManagerTestCase
         $objectHandler = $this->getDefaultObjectHandler(2);
 
         $configParameterFactory = $this->getConfigParameterFactory();
-        $configParameterFactory->expects($this->exactly(16))
+        $configParameterFactory->expects($this->exactly(24))
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -223,7 +236,7 @@ class ConfigTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $configParameterFactory->expects($this->exactly(11))
+        $configParameterFactory->expects($this->exactly(14))
             ->method('createStringConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -566,6 +579,66 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\Config\Config::getObjectParameter()
+     */
+    public function testGetObjectParameter()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getOption')
+            ->will($this->returnValue(null));
+
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory(function ($id) {
+            $stub = $this->getMockForAbstractClass(
+                '\UserAccessManager\Config\ConfigParameter',
+                [],
+                '',
+                false,
+                true,
+                true,
+                [
+                    'getId',
+                    'setValue',
+                    'getValue'
+                ]
+            );
+
+            $stub->expects(self::any())
+                ->method('getId')
+                ->will($this->returnValue($id));
+
+            $stub->expects(self::any())
+                ->method('setValue')
+                ->will($this->returnValue(null));
+
+            $stub->expects(self::any())
+                ->method('getValue')
+                ->will($this->returnCallback(function () use ($id) {
+                    return ($id === 'post_use_default') ? true : $id;
+                }));
+
+            return $stub;
+        });
+
+        $config = new Config(
+            $wordpress,
+            $objectHandler,
+            $configParameterFactory,
+            'baseFile'
+        );
+
+        self::assertEquals(null, self::callMethod($config, 'getObjectParameter', ['post', 'something_%s']));
+
+        $parameter = self::callMethod($config, 'getObjectParameter', ['post', 'hide_%s']);
+        self::assertEquals('hide_default', $parameter->getValue());
+
+        $parameter = self::callMethod($config, 'getObjectParameter', ['page', 'hide_%s']);
+        self::assertEquals('hide_page', $parameter->getValue());
+    }
+
+    /**
+     * @group  unit
      * @covers \UserAccessManager\Config\Config::hideObject()
      * @covers \UserAccessManager\Config\Config::hidePostType()
      * @covers \UserAccessManager\Config\Config::hidePostTypeTitle()
@@ -589,19 +662,23 @@ class ConfigTest extends UserAccessManagerTestCase
             'baseFile'
         );
 
-        self::assertEquals('hide_post', self::callMethod($config, 'hideObject', ['hide_post']));
-        self::assertTrue(self::callMethod($config, 'hideObject', ['hide_undefined']));
+        self::assertTrue(self::callMethod($config, 'hideObject', ['post', 'something_%s']));
+        self::assertEquals('hide_post', self::callMethod($config, 'hideObject', ['post', 'hide_%s']));
+        self::assertEquals('hide_default', self::callMethod($config, 'hideObject', ['undefined', 'hide_%s']));
 
         self::assertEquals('hide_post', $config->hidePostType('post'));
-        self::assertTrue($config->hidePostType('undefined'));
+        self::assertEquals('hide_default', $config->hidePostType('undefined'));
 
         self::assertEquals('hide_post_title', $config->hidePostTypeTitle('post'));
-        self::assertTrue($config->hidePostTypeTitle('undefined'));
+        self::assertEquals('hide_default_title', $config->hidePostTypeTitle('undefined'));
 
         self::assertEquals('post_comments_locked', $config->hidePostTypeComments('post'));
-        self::assertTrue($config->hidePostTypeComments('undefined'));
+        self::assertEquals('default_comments_locked', $config->hidePostTypeComments('undefined'));
 
         self::assertEquals('hide_empty_category', $config->hideEmptyTaxonomy('category'));
+        self::assertEquals('hide_empty_default', $config->hideEmptyTaxonomy('undefined'));
+
+        self::setValue($config, 'configParameters', []);
         self::assertFalse($config->hideEmptyTaxonomy('undefined'));
     }
 
@@ -610,6 +687,7 @@ class ConfigTest extends UserAccessManagerTestCase
      * @covers \UserAccessManager\Config\Config::getPostTypeTitle()
      * @covers \UserAccessManager\Config\Config::getPostTypeContent()
      * @covers \UserAccessManager\Config\Config::getPostTypeCommentContent()
+     * @covers \UserAccessManager\Config\Config::getObjectContent()
      */
     public function testObjectGetter()
     {

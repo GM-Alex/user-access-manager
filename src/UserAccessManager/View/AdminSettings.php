@@ -52,46 +52,84 @@ if ($controller->hasUpdateMessage()) {
             ?>
         </h2>
         <?php
+        $currentSectionKey = $controller->getCurrentSettingsSection();
         $groupForms = $controller->getCurrentGroupForms();
 
-        foreach ($groupForms as $sectionKey => $form) {
-            $cssClass = $controller->isPostTypeGroup($sectionKey) ? ' uam_settings_group_post_type' : '';
+        if (count($groupForms) > 1) {
             ?>
-            <h3><?php echo $controller->getText($sectionKey); ?></h3>
-            <p><?php echo $controller->getText($sectionKey, true); ?></p>
-            <table id="uam_settings_group_<?php echo $sectionKey; ?>"
-                   class="form-table<?php echo $cssClass; ?>">
+            <table class="form-table">
                 <tbody>
-                <?php
-                $formElements = $form->getElements();
-
-                foreach ($formElements as $formElement) {
-                    ?>
-                    <tr valign="top">
-                        <?php
-                        if ($formElement instanceof \UserAccessManager\Form\Input) {
-                            $input = $formElement;
-                            include 'AdminForm/Input.php';
-                        } elseif ($formElement instanceof \UserAccessManager\Form\Textarea) {
-                            $textarea = $formElement;
-                            include 'AdminForm/Textarea.php';
-                        } elseif ($formElement instanceof \UserAccessManager\Form\Select) {
-                            $select = $formElement;
-                            include 'AdminForm/Select.php';
-                        } elseif ($formElement instanceof \UserAccessManager\Form\Radio) {
-                            $radio = $formElement;
-                            include 'AdminForm/Radio.php';
-                        }
-                        ?>
+                    <tr>
+                        <th scope="row">
+                            <label for="uam_settings_group_section">
+                                <?php echo TXT_UAM_SETTINGS_GROUP_SECTION; ?>
+                            </label>
+                        </th>
+                        <td>
+                            <select id="uam_settings_group_section" name="section">
+                                <?php
+                                foreach ($groupForms as $sectionKey => $form) {
+                                    ?>
+                                    <option value="<?php echo $sectionKey?>"
+                                            data-link="<?php
+                                            echo $controller->getSectionGroupLink($currentGroupKey, $sectionKey);
+                                            ?>"
+                                        <?php
+                                        if ($currentSectionKey === $sectionKey) {
+                                            echo 'selected="selected"';
+                                        }
+                                        ?>><?php
+                                            echo ($sectionKey === \UserAccessManager\Config\Config::DEFAULT_TYPE) ?
+                                                TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT :
+                                                $controller->getObjectName($sectionKey);
+                                        ?></option>
+                                    <?php
+                                }
+                                ?>
+                            </select>
+                        </td>
                     </tr>
-                    <?php
-                }
-                ?>
                 </tbody>
             </table>
             <?php
         }
+
+        $form = isset($groupForms[$currentSectionKey]) ? $groupForms[$currentSectionKey] : reset($groupForms);
+        $cssClass = ($currentGroupKey === 'post_types') ? " uam_settings_group_post_type $currentSectionKey" : '';
+        $cssClass .= ($currentGroupKey === 'taxonomies') ? " uam_settings_group_taxonomies $currentSectionKey" : '';
         ?>
+        <h3><?php echo $controller->getText($currentSectionKey); ?></h3>
+        <p><?php echo $controller->getText($currentSectionKey, true); ?></p>
+        <table id="uam_settings_group_<?php echo $currentSectionKey; ?>"
+               class="form-table<?php echo $cssClass; ?>">
+            <tbody>
+            <?php
+            $formElements = $form->getElements();
+
+            foreach ($formElements as $formElement) {
+                ?>
+                <tr valign="top">
+                    <?php
+                    if ($formElement instanceof \UserAccessManager\Form\Input) {
+                        $input = $formElement;
+                        include 'AdminForm/Input.php';
+                    } elseif ($formElement instanceof \UserAccessManager\Form\Textarea) {
+                        $textarea = $formElement;
+                        include 'AdminForm/Textarea.php';
+                    } elseif ($formElement instanceof \UserAccessManager\Form\Select) {
+                        $select = $formElement;
+                        include 'AdminForm/Select.php';
+                    } elseif ($formElement instanceof \UserAccessManager\Form\Radio) {
+                        $radio = $formElement;
+                        include 'AdminForm/Radio.php';
+                    }
+                    ?>
+                </tr>
+                <?php
+            }
+            ?>
+            </tbody>
+        </table>
         <div class="submit">
             <input type="submit" value="<?php echo TXT_UAM_UPDATE_SETTING; ?>"/>
         </div>

@@ -25,6 +25,7 @@ use UserAccessManager\Wrapper\Wordpress;
 class AdminSettingsController extends Controller
 {
     const SETTING_GROUP_PARAMETER = 'settings_group';
+    const SETTING_SECTION_PARAMETER = 'settings_section';
     const GROUP_POST_TYPES = 'post_types';
     const GROUP_TAXONOMIES = 'taxonomies';
     const GROUP_FILES = 'file';
@@ -139,6 +140,21 @@ class AdminSettingsController extends Controller
     }
 
     /**
+     * Returns the object name.
+     *
+     * @param string $objectKey
+     *
+     * @return string
+     */
+    public function getObjectName($objectKey)
+    {
+        $objects = $this->wordpress->getPostTypes(['public' => true], 'objects')
+            + $this->wordpress->getTaxonomies(['public' => true], 'objects');
+
+        return (isset($objects[$objectKey]) === true) ? $objects[$objectKey]->labels->name : $objectKey;
+    }
+
+    /**
      * Returns the current settings group.
      *
      * @return string
@@ -146,6 +162,29 @@ class AdminSettingsController extends Controller
     public function getCurrentSettingsGroup()
     {
         return (string)$this->getRequestParameter(self::SETTING_GROUP_PARAMETER, self::GROUP_POST_TYPES);
+    }
+
+    /**
+     * Returns the current settings group.
+     *
+     * @return string
+     */
+    public function getCurrentSettingsSection()
+    {
+        $default = null;
+        $group = $this->getCurrentSettingsGroup();
+
+        if ($group === self::GROUP_POST_TYPES || $group === self::GROUP_TAXONOMIES) {
+            $default = Config::DEFAULT_TYPE;
+        } elseif ($group === self::GROUP_FILES) {
+            $default = self::SECTION_FILES;
+        } elseif ($group === self::GROUP_AUTHOR) {
+            $default = self::SECTION_AUTHOR;
+        } elseif ($group === self::GROUP_OTHER) {
+            $default = self::SECTION_OTHER;
+        }
+
+        return (string)$this->getRequestParameter(self::SETTING_SECTION_PARAMETER, $default);
     }
 
     /**
@@ -163,13 +202,28 @@ class AdminSettingsController extends Controller
     }
 
     /**
+     * Returns the settings section link by the given group and section key.
+     *
+     * @param string $groupKey
+     * @param string $sectionKey
+     *
+     * @return string
+     */
+    public function getSectionGroupLink($groupKey, $sectionKey)
+    {
+        $rawUrl = $this->getSettingsGroupLink($groupKey);
+        $url = preg_replace('/&amp;'.self::SETTING_SECTION_PARAMETER.'[^&]*/i', '', $rawUrl);
+        return $url.'&'.self::SETTING_SECTION_PARAMETER.'='.$sectionKey;
+    }
+
+    /**
      * Returns the post settings form.
      *
      * @param string $postType
      *
      * @return \UserAccessManager\Form\Form
      */
-    private function getPostSettingsForm($postType = 'general')
+    private function getPostSettingsForm($postType = Config::DEFAULT_TYPE)
     {
         $textarea = null;
         $configParameters = $this->config->getConfigParameters();
@@ -184,7 +238,8 @@ class AdminSettingsController extends Controller
             );
         }
 
-        $parameters = [
+        $parameters = ($postType !== Config::DEFAULT_TYPE) ? ["{$postType}_use_default"] : [];
+        $parameters = array_merge($parameters, [
             "hide_{$postType}",
             "hide_{$postType}_title",
             "{$postType}_title",
@@ -192,7 +247,7 @@ class AdminSettingsController extends Controller
             "hide_{$postType}_comment",
             "{$postType}_comment_content",
             "{$postType}_comments_locked"
-        ];
+        ]);
 
         if ($postType === 'post') {
             $parameters[] = "show_{$postType}_content_before_more";
@@ -208,11 +263,12 @@ class AdminSettingsController extends Controller
      *
      * @return \UserAccessManager\Form\Form
      */
-    private function getTaxonomySettingsForm($taxonomy = 'general')
+    private function getTaxonomySettingsForm($taxonomy = Config::DEFAULT_TYPE)
     {
-        $parameters = [
+        $parameters = ($taxonomy !== Config::DEFAULT_TYPE) ? ["{$taxonomy}_use_default"] : [];
+        $parameters = array_merge($parameters, [
             "hide_empty_{$taxonomy}"
-        ];
+        ]);
 
         return $this->formHelper->getSettingsForm($parameters, $taxonomy);
     }
@@ -395,6 +451,7 @@ class AdminSettingsController extends Controller
         $groupForms = [];
 
         if ($group === self::GROUP_POST_TYPES) {
+            $groupForms[config::DEFAULT_TYPE] = $this->getPostSettingsForm();
             $postTypes = $this->getPostTypes();
 
             foreach ($postTypes as $postType => $postTypeObject) {
@@ -405,6 +462,7 @@ class AdminSettingsController extends Controller
                 $groupForms[$postType] = $this->getPostSettingsForm($postType);
             }
         } elseif ($group === self::GROUP_TAXONOMIES) {
+            $groupForms[config::DEFAULT_TYPE] = $this->getTaxonomySettingsForm();
             $taxonomies = $this->getTaxonomies();
 
             foreach ($taxonomies as $taxonomy => $taxonomyObject) {

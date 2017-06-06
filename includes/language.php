@@ -28,16 +28,38 @@ define('TXT_UAM_NO', __('No', 'user-access-manager'));
 
 // --- Setting Page ---
 define('TXT_UAM_SETTINGS', __('Settings', 'user-access-manager'));
+define('TXT_UAM_SETTINGS_GROUP_SECTION', __('Object type', 'user-access-manager'));
+define('TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT', __('Default', 'user-access-manager'));
 
 // --- Setting Page -> object settings ---
 define('TXT_UAM_POST_TYPES_SETTING', __('Post type settings', 'user-access-manager'));
 define('TXT_UAM_TAXONOMIES_SETTING', __('Taxonomies settings', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_SETTING', __('Default settings', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_SETTING_DESC', __('Set up the behaviour if the object is locked', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_TITLE', __('Title', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_TITLE_DESC', __('Displayed text as title if user has no access', 'user-access-manager'));
+define('TXT_UAM_HIDE_DEFAULT_TITLE', __('Hide title', 'user-access-manager'));
+define('TXT_UAM_HIDE_DEFAULT_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "Title" if user has no access.', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_CONTENT', __('Content', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single %s, otherwise a link will shown.', 'user-access-manager'));
+define('TXT_UAM_HIDE_DEFAULT', __('Hide complete', 'user-access-manager'));
+define('TXT_UAM_HIDE_DEFAULT_DESC', __('Selecting "Yes" will hide %s if the user has no access.', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_COMMENT_CONTENT', __('Comment text', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_COMMENT_CONTENT_DESC', __('Displayed text as comment text if user has no access', 'user-access-manager'));
+define('TXT_UAM_HIDE_DEFAULT_COMMENT', __('Hide comments', 'user-access-manager'));
+define('TXT_UAM_HIDE_DEFAULT_COMMENT_DESC', __('Selecting "Yes" will show the text which is defined at "%s comment text" if user has no access.', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_COMMENTS_LOCKED', __('Allow comments', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment even if the content is locked', 'user-access-manager'));
+define('TXT_UAM_SHOW_DEFAULT_CONTENT_BEFORE_MORE', __('Show content before &lt;!--more--&gt; tag', 'user-access-manager'));
+define('TXT_UAM_SHOW_DEFAULT_CONTENT_BEFORE_MORE_DESC', __('Shows the content before the &lt;!--more--&gt; tag and after that the defined text at "%s content". If no &lt;!--more--&gt; is set the defined text at "%s content" will shown.', 'user-access-manager')); //TODO
+define('TXT_UAM_OBJECT_USE_DEFAULT', __('Use default settings for %s', 'user-access-manager'));
+define('TXT_UAM_OBJECT_USE_DEFAULT_DESC', __('If selected the settings form the default type will be used.', 'user-access-manager'));
 define('TXT_UAM_OBJECT_SETTING', __('%s settings', 'user-access-manager'));
 define('TXT_UAM_OBJECT_SETTING_DESC', __('Set up the behaviour if the %s is locked', 'user-access-manager'));
 define('TXT_UAM_OBJECT_TITLE', __('%s title', 'user-access-manager'));
 define('TXT_UAM_OBJECT_TITLE_DESC', __('Displayed text as %s title if user has no access', 'user-access-manager'));
 define('TXT_UAM_HIDE_OBJECT_TITLE', __('Hide %s title', 'user-access-manager'));
-define('TXT_UAM_HIDE_OBJECT_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "%s" if user has no access.', 'user-access-manager'));
+define('TXT_UAM_HIDE_OBJECT_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "%s title" if user has no access.', 'user-access-manager'));
 define('TXT_UAM_OBJECT_CONTENT', __('%s content', 'user-access-manager'));
 define('TXT_UAM_OBJECT_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single %s, otherwise a link will shown.', 'user-access-manager'));
 define('TXT_UAM_HIDE_OBJECT', __('Hide complete %s', 'user-access-manager'));
@@ -87,6 +109,8 @@ define('TXT_UAM_SUBSCRIBER', __('Subscriber', 'user-access-manager'));
 // --- Settings Page -> taxonomies ---
 define('TXT_UAM_TAXONOMY_SETTING', __('Taxonomy settings', 'user-access-manager'));
 define('TXT_UAM_TAXONOMY_SETTING_DESC', __('Set up the behaviour if a taxonomy is locked', 'user-access-manager'));
+define('TXT_UAM_HIDE_EMPTY_DEFAULT', __('Hide empty', 'user-access-manager'));
+define('TXT_UAM_HIDE_EMPTY_DEFAULT_DESC', __('Selecting "Yes" will hide empty taxonomies which are containing only empty childes or no childes.', 'user-access-manager'));
 define('TXT_UAM_HIDE_EMPTY_OBJECT', __('Hide empty %s', 'user-access-manager'));
 define('TXT_UAM_HIDE_EMPTY_OBJECT_DESC', __('Selecting "Yes" will hide empty %s which are containing only empty childes or no childes.', 'user-access-manager'));
 

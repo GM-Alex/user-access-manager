@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\BooleanConfigParameter;
+use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
@@ -143,6 +144,44 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getObjectName()
+     */
+    public function testGetObjectName()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(3))
+            ->method('getPostTypes')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                ObjectHandler::ATTACHMENT_OBJECT_TYPE => $this->createTypeObject('attachment'),
+                ObjectHandler::POST_OBJECT_TYPE => $this->createTypeObject('post'),
+                ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
+            ]));
+
+        $wordpress->expects($this->exactly(3))
+            ->method('getTaxonomies')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                'category' => $this->createTypeObject('category')
+            ]));
+
+        $adminSettingController = new AdminSettingsController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getConfig(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $this->getFormFactory(),
+            $this->getFormHelper()
+        );
+
+        self::assertEquals('attachment', $adminSettingController->getObjectName(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
+        self::assertEquals('post', $adminSettingController->getObjectName(ObjectHandler::POST_OBJECT_TYPE));
+        self::assertEquals('something', $adminSettingController->getObjectName('something'));
+    }
+
+    /**
+     * @group  unit
      * @covers \UserAccessManager\Controller\AdminSettingsController::getCurrentSettingsGroup()
      */
     public function testGetCurrentSettingsGroup()
@@ -164,6 +203,55 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = 'group';
         self::assertEquals('group', $adminSettingController->getCurrentSettingsGroup());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getCurrentSettingsSection()
+     */
+    public function testGetCurrentSettingsSectionp()
+    {
+        $adminSettingController = new AdminSettingsController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $this->getFormFactory(),
+            $this->getFormHelper()
+        );
+
+        self::assertEquals(Config::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = 'group';
+        self::assertEquals(null, $adminSettingController->getCurrentSettingsSection());
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_POST_TYPES;
+        self::assertEquals(Config::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_TAXONOMIES;
+        self::assertEquals(Config::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
+        self::assertEquals(
+            AdminSettingsController::SECTION_FILES,
+            $adminSettingController->getCurrentSettingsSection()
+        );
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_AUTHOR;
+        self::assertEquals(
+            AdminSettingsController::SECTION_AUTHOR,
+            $adminSettingController->getCurrentSettingsSection()
+        );
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_OTHER;
+        self::assertEquals(
+            AdminSettingsController::SECTION_OTHER,
+            $adminSettingController->getCurrentSettingsSection()
+        );
+
+        $_GET[AdminSettingsController::SETTING_SECTION_PARAMETER] = 'section';
+        self::assertEquals('section', $adminSettingController->getCurrentSettingsSection());
     }
 
     /**
@@ -194,6 +282,37 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         self::assertEquals(
             'url/?page=page&settings_group=key',
             $adminSettingController->getSettingsGroupLink('key')
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getSectionGroupLink()
+     */
+    public function testGetSectionGroupLink()
+    {
+        $adminSettingController = new AdminSettingsController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $this->getFormFactory(),
+            $this->getFormHelper()
+        );
+
+        $_SERVER['REQUEST_URI'] = 'url/?page=page';
+
+        self::assertEquals(
+            'url/?page=page&settings_group=group&settings_section=section',
+            $adminSettingController->getSectionGroupLink('group', 'section')
+        );
+
+        $_SERVER['REQUEST_URI'] = 'url/?page=page&settings_group=c&settings_section=someSection';
+
+        self::assertEquals(
+            'url/?page=page&settings_group=group&settings_section=section',
+            $adminSettingController->getSectionGroupLink('group', 'section')
         );
     }
 
@@ -321,7 +440,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         ];
 
         $config = $this->getConfig();
-        $config->expects($this->exactly(5))
+        $config->expects($this->exactly(6))
             ->method('getConfigParameters')
             ->will($this->returnValue($configValues));
         
@@ -420,11 +539,24 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ));
 
         $formHelper = $this->getFormHelper();
-        $formHelper->expects($this->exactly(8))
+        $formHelper->expects($this->exactly(10))
             ->method('getSettingsForm')
             ->withConsecutive(
                 [
                     [
+                        'hide_default',
+                        'hide_default_title',
+                        'default_title',
+                        null,
+                        'hide_default_comment',
+                        'default_comment_content',
+                        'default_comments_locked'
+                    ],
+                    Config::DEFAULT_TYPE
+                ],
+                [
+                    [
+                        'post_use_default',
                         'hide_post',
                         'hide_post_title',
                         'post_title',
@@ -438,6 +570,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ],
                 [
                     [
+                        'page_use_default',
                         'hide_page',
                         'hide_page_title',
                         'page_title',
@@ -449,7 +582,11 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                     'page'
                 ],
                 [
-                    ['hide_empty_category'],
+                    ['hide_empty_default'],
+                    Config::DEFAULT_TYPE
+                ],
+                [
+                    ['category_use_default', 'hide_empty_category'],
                     'category'
                 ],
                 [
@@ -489,8 +626,10 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ]
             )
             ->will($this->onConsecutiveCalls(
+                'defaultPostTypeForm',
                 'postForm',
                 'pageForm',
+                'defaultTaxonomyForm',
                 'categoryForm',
                 'fileForm',
                 'fileForm',
@@ -541,6 +680,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
         self::assertEquals(
             [
+                'default' => 'defaultPostTypeForm',
                 'post' => 'postForm',
                 'page' => 'pageForm'
             ],
@@ -548,7 +688,13 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         );
 
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_TAXONOMIES;
-        self::assertEquals(['category' => 'categoryForm'], $adminSettingController->getCurrentGroupForms());
+        self::assertEquals(
+            [
+                'default' => 'defaultTaxonomyForm',
+                'category' => 'categoryForm'
+            ],
+            $adminSettingController->getCurrentGroupForms()
+        );
 
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
         self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());

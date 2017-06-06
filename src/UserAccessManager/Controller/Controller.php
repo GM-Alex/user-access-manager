@@ -88,6 +88,7 @@ abstract class Controller
 
             $value = $newValue;
         } elseif (is_string($value) === true) {
+            $value = preg_replace('/[\\\\]+(["|\']{1})/', '$1', $value);
             $value = htmlspecialchars($value);
         }
 
