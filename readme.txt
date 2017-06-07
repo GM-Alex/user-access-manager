@@ -61,6 +61,7 @@ Here you found the changes in each version.
 
     2.0.12      2017/??/??  Fix media file group issue #74
                             Fix broken file includes / excludes
+                            Fix wordpress filter issue
 
     2.0.11      2017/05/18  Fix FrontendController::postsPreQuery() expected to be a reference, value given error
 
