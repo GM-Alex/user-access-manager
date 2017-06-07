@@ -242,6 +242,7 @@ class FrontendController extends Controller
                         && $postFilter['function'][0] instanceof FrontendController
                         && $postFilter['function'][1] === 'showPosts'
                     ) {
+                        $this->wordpressFilters['the_posts'] = $filters['the_posts'];
                         $query->query_vars['suppress_filters'] = false;
                         $filters['the_posts']->callbacks = [10 => [$postFilter]];
                         break;

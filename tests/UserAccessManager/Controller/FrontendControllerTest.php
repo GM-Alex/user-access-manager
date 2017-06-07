@@ -418,7 +418,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         self::assertEquals(['firstPost'], $frontendController->postsPreQuery(['firstPost'], $wpQuery));
         self::assertFalse($wpQuery->query_vars['suppress_filters']);
         self::assertAttributeEquals(
-            ['posts_results' => 'posts_results_content'],
+            [
+                'the_posts' => $expectedPostsFilter,
+                'posts_results' => 'posts_results_content'
+            ],
             'wordpressFilters',
             $frontendController
         );

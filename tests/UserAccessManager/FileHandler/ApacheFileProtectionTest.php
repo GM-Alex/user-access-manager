@@ -96,9 +96,9 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
         $config->expects($this->exactly(6))
             ->method('getLockFileTypes')
-            ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected', null, null, null));
+            ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected', null, 'selected', null));
 
-        $config->expects($this->once())
+        $config->expects($this->exactly(2))
             ->method('getLockedFileTypes')
             ->will($this->returnValue('png,jpg'));
 
@@ -106,7 +106,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->method('getNotLockedFileTypes')
             ->will($this->returnValue('png,jpg'));
 
-        $config->expects($this->exactly(2))
+        $config->expects($this->exactly(3))
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
@@ -145,33 +145,43 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
-            "<FilesMatch '\.(jpg)'>\nAuthType Basic\nAuthName \"WP-Files\"\n"
-            ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n</FilesMatch>\n",
+            "<FilesMatch '\.(jpg)'>\n"
+            ."AuthType Basic\nAuthName \"WP-Files\"\n"
+            ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
+            ."</FilesMatch>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
-            "<FilesMatch '^\.(jpg)'>\nAuthType Basic\nAuthName \"WP-Files\"\n"
-            ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n</FilesMatch>\n",
+            "<FilesMatch '^\.(jpg)'>"
+            ."\nAuthType Basic\nAuthName \"WP-Files\"\n"
+            ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
+            ."</FilesMatch>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
-            "<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
+            "<IfModule mod_rewrite.c>\n"
+            ."RewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
             ."RewriteRule ^([^?]*)$ /index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 [QSA,L]\n</IfModule>\n",
+            ."RewriteRule ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 [QSA,L]\n"
+            ."</IfModule>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir, 'objectType'));
         self::assertEquals(
-            "<IfModule mod_rewrite.c>\nRewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
+            "<IfModule mod_rewrite.c>\n"
+            ."<FilesMatch '\.(jpg)'>\n"
+            ."RewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
             ."RewriteRule ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 [QSA,L]\n</IfModule>\n",
+            ."RewriteRule ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 [QSA,L]\n"
+            ."</FilesMatch>\n"
+            ."</IfModule>\n",
             file_get_contents($file)
         );
 
