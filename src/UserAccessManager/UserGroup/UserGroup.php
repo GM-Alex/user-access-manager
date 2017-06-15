@@ -293,7 +293,7 @@ class UserGroup
         $query = $this->database->prepare(
             "SELECT *
             FROM {$this->database->getUserGroupTable()}
-            WHERE ID = %s
+            WHERE ID = %d
             LIMIT 1",
             $id
         );
