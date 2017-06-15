@@ -3,7 +3,7 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
-Tested up to: 4.7.5
+Tested up to: 4.8
 Stable tag: 2.0.11
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
@@ -62,6 +62,7 @@ Here you found the changes in each version.
     2.0.12      2017/??/??  Fix media file group issue #74
                             Fix broken file includes / excludes
                             Fix wordpress filter issue
+                            Fix access to own post #95
 
     2.0.11      2017/05/18  Fix FrontendController::postsPreQuery() expected to be a reference, value given error
 
