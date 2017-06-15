@@ -519,6 +519,24 @@ class AccessHandler
                 $excludedPosts = array_diff_key($excludedPosts, $userGroup->getFullPosts());
             }
 
+            if ($this->config->authorsHasAccessToOwn() === true) {
+                $query = $this->database->prepare(
+                    "SELECT ID
+                    FROM {$this->database->getPostsTable()}
+                    WHERE post_author = %d",
+                    $this->wordpress->getCurrentUser()->ID
+                );
+
+                $ownPosts = $this->database->getResults($query);
+                $ownPostIds = [];
+
+                foreach ($ownPosts as $ownPost) {
+                    $ownPostIds[$ownPost->ID] = $ownPost->ID;
+                }
+
+                $excludedPosts = array_diff_key($excludedPosts, $ownPostIds);
+            }
+
             if ($this->wordpress->isAdmin() === false) {
                 $noneHiddenPostTypes = [];
                 $postTypes = $this->objectHandler->getPostTypes();
