@@ -100,11 +100,11 @@ define('TXT_UAM_AUTHORS_CAN_ADD_POSTS_TO_GROUPS', __('Authors can add content to
 define('TXT_UAM_AUTHORS_CAN_ADD_POSTS_TO_GROUPS_DESC', __('If "Yes" is selected author are able to restrict the content by adding it to their groups.', 'user-access-manager'));
 define('TXT_UAM_FULL_ACCESS_ROLE', __('Minimum user role with full access', 'user-access-manager'));
 define('TXT_UAM_FULL_ACCESS_ROLE_DESC', __('All user with a role equal or higher to this has full access.', 'user-access-manager'));
-define('TXT_UAM_ADMINISTRATOR', __('Administrator', 'user-access-manager'));
-define('TXT_UAM_EDITOR', __('Editor', 'user-access-manager'));
-define('TXT_UAM_AUTHOR', __('Author', 'user-access-manager'));
-define('TXT_UAM_CONTRIBUTOR', __('Contributor', 'user-access-manager'));
-define('TXT_UAM_SUBSCRIBER', __('Subscriber', 'user-access-manager'));
+define('TXT_UAM_FULL_ACCESS_ROLE_ADMINISTRATOR', __('Administrator', 'user-access-manager'));
+define('TXT_UAM_FULL_ACCESS_ROLE_EDITOR', __('Editor', 'user-access-manager'));
+define('TXT_UAM_FULL_ACCESS_ROLE_AUTHOR', __('Author', 'user-access-manager'));
+define('TXT_UAM_FULL_ACCESS_ROLE_CONTRIBUTOR', __('Contributor', 'user-access-manager'));
+define('TXT_UAM_FULL_ACCESS_ROLE_SUBSCRIBER', __('Subscriber', 'user-access-manager'));
 
 // --- Settings Page -> taxonomies ---
 define('TXT_UAM_TAXONOMY_SETTING', __('Taxonomy settings', 'user-access-manager'));
