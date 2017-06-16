@@ -331,6 +331,140 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::postsPreQuery()
+     */
+    public function testPostsPreQuery()
+    {
+        $wordpress = $this->getWordpress();
+
+        $frontendControllerMock = $this->createMock('\UserAccessManager\Controller\FrontendController');
+        $postsFilter = new \stdClass();
+        $postsFilter->callbacks = [
+            9 => [],
+            10 => [
+                ['function' => [new \stdClass(), 'showPosts']],
+                ['function' => [$frontendControllerMock, 'someFunction']],
+                ['function' => [$frontendControllerMock, 'showPosts']],
+                ['function' => 'someFunction']
+            ]
+        ];
+
+        $firstFilter = [
+            'the_posts' => 'the_posts_content',
+            'posts_results' => 'posts_results_content',
+            'other_filter' => 'other_filter_content'
+        ];
+        $secondFilters = [
+            'the_posts' => $postsFilter,
+            'posts_results' => 'posts_results_content',
+            'other_filter' => 'other_filter_content'
+        ];
+
+        $wordpress->expects($this->exactly(2))
+            ->method('getFilters')
+            ->will($this->onConsecutiveCalls($firstFilter, $secondFilters));
+
+        $expectedPostsFilter = new \stdClass();
+        $expectedPostsFilter->callbacks = [10 => [['function' => [$frontendControllerMock, 'showPosts']]]];
+        $expectedFilters = [
+            'the_posts' => $expectedPostsFilter,
+            'other_filter' => 'other_filter_content'
+        ];
+
+        $wordpress->expects($this->once())
+            ->method('setFilters')
+            ->with($expectedFilters);
+
+        $frontendController = new FrontendController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
+        /**
+         * @var \WP_Query $wpQuery
+         */
+        $wpQuery = $this->getMockBuilder('\WP_Query')->getMock();
+
+        self::assertEquals(
+            ['firstPost', 'secondPost'],
+            $frontendController->postsPreQuery(['firstPost', 'secondPost'], $wpQuery)
+        );
+
+        $wpQuery->query_vars = ['suppress_filters' => false];
+
+        self::assertEquals(['firstPost'], $frontendController->postsPreQuery(['firstPost'], $wpQuery));
+        self::assertFalse($wpQuery->query_vars['suppress_filters']);
+
+        $wpQuery->query_vars = ['suppress_filters' => true];
+
+        self::assertEquals(['firstPost'], $frontendController->postsPreQuery(['firstPost'], $wpQuery));
+        self::assertTrue($wpQuery->query_vars['suppress_filters']);
+        self::assertAttributeEquals(
+            [],
+            'wordpressFilters',
+            $frontendController
+        );
+
+        $wpQuery->query_vars = ['suppress_filters' => true];
+        self::assertEquals(['firstPost'], $frontendController->postsPreQuery(['firstPost'], $wpQuery));
+        self::assertFalse($wpQuery->query_vars['suppress_filters']);
+        self::assertAttributeEquals(
+            [
+                'the_posts' => $expectedPostsFilter,
+                'posts_results' => 'posts_results_content'
+            ],
+            'wordpressFilters',
+            $frontendController
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::restoreFilters()
+     */
+    public function testRestoreFilters()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getFilters')
+            ->will($this->returnValue(['firstFilter' => 'firstFilterValue']));
+
+        $wordpress->expects($this->once())
+            ->method('setFilters')
+            ->with([
+                'firstFilter' => 'firstFilterValue',
+                'secondFilter' => 'secondFilterValue'
+            ]);
+
+        $frontendController = new FrontendController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
+        $this->callMethod($frontendController, 'restoreFilters');
+        $this->setValue($frontendController, 'wordpressFilters', ['secondFilter' => 'secondFilterValue']);
+        $this->callMethod($frontendController, 'restoreFilters');
+        self::assertAttributeEquals([], 'wordpressFilters', $frontendController);
+    }
+
+    /**
      * @param int    $id
      * @param string $postType
      * @param string $title
@@ -609,6 +743,41 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ],
             $frontendController->showPages($pages)
         );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\FrontendController::getAttachedFile()
+     */
+    public function testGetAttachedFile()
+    {
+        $accessHandler = $this->getAccessHandler();
+
+        $accessHandler->expects($this->exactly(2))
+            ->method('checkObjectAccess')
+            ->withConsecutive(
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 2]
+            )
+            ->will($this->returnCallback(function ($objectType, $id) {
+                return ($objectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE && $id === 1);
+            }));
+
+        $frontendController = new FrontendController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $accessHandler,
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
+        self::assertEquals('firstFile', $frontendController->getAttachedFile('firstFile', 1));
+        self::assertFalse($frontendController->getAttachedFile('secondFile', 2));
     }
 
     /**
@@ -2034,6 +2203,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testRedirectUser()
     {
+        $php = $this->getPhp();
+        $php->expects($this->exactly(3))
+            ->method('callExit');
+
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $wpQuery
          */
@@ -2128,7 +2301,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $frontendController = new FrontendController(
-            $this->getPhp(),
+            $php,
             $wordpress,
             $config,
             $this->getDatabase(),

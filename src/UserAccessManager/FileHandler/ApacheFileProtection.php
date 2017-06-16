@@ -38,19 +38,18 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $dir = rtrim($dir, '/').'/';
         $content = '';
         $areaName = 'WP-Files';
+        $fileTypes = null;
+        $lockFileTypes = $this->config->getLockFileTypes();
+
+        if ($lockFileTypes === 'selected') {
+            $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
+            $fileTypes = ($fileTypes !== '') ? "\.({$fileTypes})" : null;
+        } elseif ($lockFileTypes === 'not_selected') {
+            $fileTypes = $this->cleanUpFileTypes($this->config->getNotLockedFileTypes());
+            $fileTypes = ($fileTypes !== '') ? "^\.({$fileTypes})" : null;
+        }
 
         if ($this->config->isPermalinksActive() === false) {
-            $fileTypes = null;
-            $lockFileTypes = $this->config->getLockFileTypes();
-
-            if ($lockFileTypes === 'selected') {
-                $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
-                $fileTypes = "\.({$fileTypes})";
-            } elseif ($lockFileTypes === 'not_selected') {
-                $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
-                $fileTypes = "^\.({$fileTypes})";
-            }
-
             // make .htaccess and .htpasswd
             $content .= "AuthType Basic"."\n";
             $content .= "AuthName \"{$areaName}\""."\n";
@@ -71,15 +70,20 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
             $homeRoot = parse_url($this->wordpress->getHomeUrl());
             $homeRoot = (isset($homeRoot['path']) === true) ? trim($homeRoot['path'], '/\\').'/' : '/';
 
-            $content = "<IfModule mod_rewrite.c>\n";
-            $content .= "RewriteEngine On\n";
+            $content = "RewriteEngine On\n";
             $content .= "RewriteBase {$homeRoot}\n";
             $content .= "RewriteRule ^index\\.php$ - [L]\n";
             $content .= "RewriteRule ^([^?]*)$ {$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1 [QSA,L]\n";
             $content .= "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ ";
             $content .= "{$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 [QSA,L]\n";
             $content .= "RewriteRule ^(.*)\\?(.*)$ {$homeRoot}index.php?uamgetfile=$1&$2 [QSA,L]\n";
-            $content .= "</IfModule>\n";
+
+            if ($fileTypes !== null) {
+                /** @noinspection */
+                $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
+            }
+
+            $content = "<IfModule mod_rewrite.c>\n$content</IfModule>\n";
         }
 
         // save files

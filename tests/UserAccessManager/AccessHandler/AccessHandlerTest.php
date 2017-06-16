@@ -828,17 +828,51 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $objectHandler = $this->getObjectHandler();
 
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
+
+        $wordpress->expects($this->exactly(3))
             ->method('isAdmin')
-            ->will($this->onConsecutiveCalls(false, true));
+            ->will($this->onConsecutiveCalls(false, true, false));
 
         $config = $this->getConfig();
-        $config->expects($this->exactly(2))
-            ->method('hidePostType')
-            ->withConsecutive(['post'], ['page'])
-            ->will($this->onConsecutiveCalls(true, false));
 
-        $objectHandler->expects($this->once())
+        $config->expects($this->exactly(3))
+            ->method('authorsHasAccessToOwn')
+            ->will($this->onConsecutiveCalls(false, false, true));
+
+
+        $config->expects($this->exactly(4))
+            ->method('hidePostType')
+            ->withConsecutive(['post'], ['page'], ['post'], ['page'])
+            ->will($this->onConsecutiveCalls(true, false, true, false));
+
+        $database = $this->getDatabase();
+
+        $database->expects($this->once())
+            ->method('getPostsTable')
+            ->will($this->returnValue('postTable'));
+
+        $database->expects($this->once())
+            ->method('prepare')
+            ->with(
+                new MatchIgnoreWhitespace(
+                    "SELECT ID
+                    FROM postTable
+                    WHERE post_author = %d"
+                ),
+                1
+            )
+            ->will($this->returnValue('ownPostQuery'));
+
+        $database->expects($this->once())
+            ->method('getResults')
+            ->with('ownPostQuery')
+            ->will($this->returnCallback(function () {
+                $post = new \stdClass();
+                $post->ID = 4;
+                return [$post];
+            }));
+
+        $objectHandler->expects($this->exactly(2))
             ->method('getPostTypes')
             ->will($this->returnValue(['post', 'page']));
 
@@ -846,7 +880,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $config,
             $this->getCache(),
-            $this->getDatabase(),
+            $database,
             $objectHandler,
             $this->getUtil(),
             $this->getUserGroupFactory()
@@ -881,6 +915,10 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $this->setValue($accessHandler, 'excludedPosts', null);
         self::assertEquals([2 => 2, 4 => 4, 6 => 6], $accessHandler->getExcludedPosts());
         self::assertAttributeEquals([2 => 2, 4 => 4, 6 => 6], 'excludedPosts', $accessHandler);
+
+        $this->setValue($accessHandler, 'excludedPosts', null);
+        self::assertEquals([6 => 6], $accessHandler->getExcludedPosts());
+        self::assertAttributeEquals([6 => 6], 'excludedPosts', $accessHandler);
     }
 
     /**

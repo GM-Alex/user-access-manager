@@ -9,6 +9,8 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileObjectFactory;
 use UserAccessManager\FileHandler\FileProtectionFactory;
+use UserAccessManager\Form\FormFactory;
+use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserAccessManager;
@@ -29,6 +31,8 @@ function initUserAccessManger()
     $objectHandler = new ObjectHandler($wordpress, $database, $cache);
     $config = new Config($wordpress, $objectHandler, $configParameterFactory, $file);
     $fileObjectFactory = new FileObjectFactory();
+    $formFactory = new FormFactory();
+    $formHelper = new FormHelper($php, $wordpress, $config, $formFactory);
     $userGroupFactory = new UserGroupFactory(
         $php,
         $wordpress,
@@ -76,7 +80,9 @@ function initUserAccessManger()
         $userGroupFactory,
         $fileHandler,
         $fileObjectFactory,
-        $setupHandler
+        $setupHandler,
+        $formFactory,
+        $formHelper
     );
 
     $userAccessManager = new UserAccessManager(

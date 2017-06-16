@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
-Tested up to: 4.7.4
-Stable tag: 2.0.9
+Tested up to: 4.8
+Stable tag: 2.0.12
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -43,7 +43,7 @@ The documentation can be found here: [https://github.com/GM-Alex/user-access-man
 Please report bugs and feature requests here: [https://github.com/GM-Alex/user-access-manager/issues](https://github.com/GM-Alex/user-access-manager/issues)
 If you are a developer and want to contribute please visit [https://github.com/GM-Alex/user-access-manager](https://github.com/GM-Alex/user-access-manager)
 For general questions, like how to setup, best practice and so on please use the support thread here (don't post issues here): [https://wordpress.org/support/plugin/user-access-manager](https://wordpress.org/support/plugin/user-access-manager)
-To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
+To stay up-to-date follow me on thttp://wordpress_web_1.local.docker/wp-content/uploads/2017/04/Bilendo-API-23.Juli_-300x165.pngwitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
 == Installation ==
@@ -58,6 +58,18 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.0.12      2017/06/16  Fix media file group issue #74
+                            Fix broken file includes / excludes
+                            Fix wordpress filter issue
+                            Fix access to own post #95
+
+    2.0.11      2017/05/18  Fix FrontendController::postsPreQuery() expected to be a reference, value given error
+
+    2.0.10      2017/05/17  Fix issue of not saved groups #74
+                            Adjust password lost link #79
+                            Improve attachment access checks #78
+                            Fix not working redirect
 
     2.0.9       2017/05/13  Improve security #76
 

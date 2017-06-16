@@ -188,6 +188,22 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormFactory
+     */
+    protected function getFormFactory()
+    {
+        return $this->createMock('\UserAccessManager\Form\FormFactory');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormHelper
+     */
+    protected function getFormHelper()
+    {
+        return $this->createMock('\UserAccessManager\Form\FormHelper');
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserAccessManager
      */
     protected function getUserAccessManager()
@@ -268,5 +284,29 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($terms));
 
         return $userGroup;
+    }
+
+    /**
+     * Returns a config parameter mock.
+     *
+     * @param string $type
+     * @param string $postFix
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter
+     */
+    protected function getConfigParameter($type, $postFix = '')
+    {
+        $type = strtolower($type);
+        $className = ucfirst($type).'ConfigParameter';
+
+        $parameter = $this->createMock("\UserAccessManager\Config\\{$className}");
+        $parameter->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue("{$type}{$postFix}Id"));
+        $parameter->expects($this->any())
+            ->method('getValue')
+            ->will($this->returnValue("{$type}{$postFix}Value"));
+
+        return $parameter;
     }
 }

@@ -25,6 +25,7 @@ use UserAccessManager\Wrapper\Wordpress;
 class Config
 {
     const ADMIN_OPTIONS_NAME = 'uamAdminOptions';
+    const DEFAULT_TYPE = 'default';
 
     /**
      * @var Wordpress
@@ -119,10 +120,16 @@ class Config
             $configParameters = [];
 
             $postTypes = $this->objectHandler->getPostTypes();
+            array_unshift($postTypes, self::DEFAULT_TYPE);
 
             foreach ($postTypes as $postType) {
                 if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
                     continue;
+                }
+
+                if ($postType !== self::DEFAULT_TYPE) {
+                    $id = "{$postType}_use_default";
+                    $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
                 }
 
                 $id = "hide_{$postType}";
@@ -227,8 +234,14 @@ class Config
             $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id, '[L]');
 
             $taxonomies = $this->objectHandler->getTaxonomies();
+            array_unshift($taxonomies, self::DEFAULT_TYPE);
 
             foreach ($taxonomies as $taxonomy) {
+                if ($taxonomy !== self::DEFAULT_TYPE) {
+                    $id = "{$taxonomy}_use_default";
+                    $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+                }
+
                 $id = 'hide_empty_'.$taxonomy;
                 $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
             }
@@ -389,21 +402,54 @@ class Config
     }
 
     /**
+     * Returns the object parameter name.
+     *
+     * @param string $objectType
+     * @param string $rawParameterName
+     *
+     * @return ConfigParameter|null
+     */
+    private function getObjectParameter($objectType, $rawParameterName)
+    {
+        $options = $this->getConfigParameters();
+        $parameterName = sprintf($rawParameterName, $objectType);
+
+        if (isset($options[$parameterName]) === false
+            || isset($options["{$objectType}_use_default"]) === true
+               && $options["{$objectType}_use_default"]->getValue() === true
+        ) {
+            $parameterName = sprintf($rawParameterName, self::DEFAULT_TYPE);
+        }
+
+        return (isset($options[$parameterName]) === true) ? $options[$parameterName] : null;
+    }
+
+    /**
      * Returns the option value if the option exists otherwise true.
      *
+     * @param string $objectType
      * @param string $parameterName
      *
      * @return bool
      */
-    private function hideObject($parameterName)
+    private function hideObject($objectType, $parameterName)
     {
-        $options = $this->getConfigParameters();
+        $parameter = $this->getObjectParameter($objectType, $parameterName);
+        return ($parameter !== null) ? $parameter->getValue() : true;
+    }
 
-        if (isset($options[$parameterName]) === true) {
-            return $options[$parameterName]->getValue();
-        }
-
-        return true;
+    /**
+     * Returns the option value if the option exists otherwise an empty string.
+     *
+     * @param string $objectType
+     * @param string $parameterName
+     *
+     * @return string
+     */
+    private function getObjectContent($objectType, $parameterName)
+    {
+        $parameter = $this->getObjectParameter($objectType, $parameterName);
+        return ($parameter !== null) ? $parameter->getValue() : '';
     }
 
     /**
@@ -413,7 +459,7 @@ class Config
      */
     public function hidePostType($postType)
     {
-        return $this->hideObject('hide_'.$postType);
+        return $this->hideObject($postType, 'hide_%s');
     }
 
     /**
@@ -423,7 +469,7 @@ class Config
      */
     public function hidePostTypeTitle($postType)
     {
-        return $this->hideObject('hide_'.$postType.'_title');
+        return $this->hideObject($postType, 'hide_%s_title');
     }
 
     /**
@@ -433,7 +479,7 @@ class Config
      */
     public function hidePostTypeComments($postType)
     {
-        return $this->hideObject($postType.'_comments_locked');
+        return $this->hideObject($postType, '%s_comments_locked');
     }
 
     /**
@@ -443,7 +489,7 @@ class Config
      */
     public function getPostTypeTitle($postType)
     {
-        return $this->getParameterValue($postType.'_title');
+        return $this->getObjectContent($postType, '%s_title');
     }
 
     /**
@@ -453,7 +499,7 @@ class Config
      */
     public function getPostTypeContent($postType)
     {
-        return $this->getParameterValue($postType.'_content');
+        return $this->getObjectContent($postType, '%s_content');
     }
 
     /**
@@ -463,7 +509,7 @@ class Config
      */
     public function getPostTypeCommentContent($postType)
     {
-        return $this->getParameterValue($postType.'_comment_content');
+        return $this->getObjectContent($postType, '%s_comment_content');
     }
 
     /**
@@ -585,14 +631,8 @@ class Config
      */
     public function hideEmptyTaxonomy($taxonomy)
     {
-        $parameterName = 'hide_empty_'.$taxonomy;
-        $options = $this->getConfigParameters();
-
-        if (isset($options[$parameterName]) === true) {
-            return $options[$parameterName]->getValue();
-        }
-
-        return false;
+        $parameter = $this->getObjectParameter($taxonomy, 'hide_empty_%s');
+        return ($parameter !== null) ? $parameter->getValue() : false;
     }
 
     /**

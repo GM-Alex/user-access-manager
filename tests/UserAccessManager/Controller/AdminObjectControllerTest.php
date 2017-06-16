@@ -712,10 +712,10 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $objectHandler = $this->getObjectHandlerWithPosts();
 
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(10))
+        $accessHandler->expects($this->exactly(11))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
-            ->will($this->onConsecutiveCalls(false, false, true, true, true, true, true, true, true, true));
+            ->will($this->onConsecutiveCalls(false, false, true, true, true, true, true, true, true, true, true));
 
         $accessHandler->expects($this->exactly(9))
             ->method('getFilteredUserGroupsForObject')
@@ -769,6 +769,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
+        $_POST[AdminObjectController::UPDATE_GROUPS_FORM_NAME] = 1;
         $adminObjectController->savePostData(['ID' => 1]);
 
         $_POST['uam_user_groups'] = [1, 3];
@@ -780,22 +781,26 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $_POST['uam_user_groups'] = [3, 4];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
 
+        //unset($_POST[AdminObjectController::UPDATE_GROUPS_FORM_NAME]);
         $_POST['uam_bulk_type'] = AdminObjectController::BULK_REMOVE;
         $_POST['uam_user_groups'] = [2, 3];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
 
         $_POST = [
+            AdminObjectController::UPDATE_GROUPS_FORM_NAME => 1,
             'id' => 3,
             'uam_user_groups' => [3, 4]
         ];
         $adminObjectController->saveAjaxAttachmentData();
 
-        unset($_POST['uam_bulk_type']);
         $_POST['uam_user_groups'] = [2];
         $adminObjectController->saveUserData(1);
         $_POST['uam_user_groups'] = [3];
         $adminObjectController->saveTermData(1);
         $_POST['uam_user_groups'] = [4];
+        $adminObjectController->savePluggableObjectData('objectType', 'objectId');
+
+        $_POST = [];
         $adminObjectController->savePluggableObjectData('objectType', 'objectId');
     }
 

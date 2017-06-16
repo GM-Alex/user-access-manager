@@ -20,6 +20,8 @@ use UserAccessManager\Config\Config;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileObjectFactory;
+use UserAccessManager\Form\FormFactory;
+use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
@@ -95,6 +97,16 @@ class ControllerFactory
     private $setupHandler;
 
     /**
+     * @var FormFactory
+     */
+    private $formFactory;
+
+    /**
+     * @var FormHelper
+     */
+    private $formHelper;
+
+    /**
      * ControllerFactory constructor.
      *
      * @param Php               $php
@@ -109,6 +121,8 @@ class ControllerFactory
      * @param FileHandler       $fileHandler
      * @param FileObjectFactory $fileObjectFactory
      * @param SetupHandler      $setupHandler
+     * @param FormFactory       $formFactory
+     * @param FormHelper        $formHelper
      */
     public function __construct(
         Php $php,
@@ -122,7 +136,9 @@ class ControllerFactory
         UserGroupFactory $userGroupFactory,
         FileHandler $fileHandler,
         FileObjectFactory $fileObjectFactory,
-        SetupHandler $setupHandler
+        SetupHandler $setupHandler,
+        FormFactory $formFactory,
+        FormHelper $formHelper
     ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
@@ -136,6 +152,8 @@ class ControllerFactory
         $this->fileHandler = $fileHandler;
         $this->fileObjectFactory = $fileObjectFactory;
         $this->setupHandler = $setupHandler;
+        $this->formFactory = $formFactory;
+        $this->formHelper = $formHelper;
     }
 
     /**
@@ -198,7 +216,9 @@ class ControllerFactory
             $this->wordpress,
             $this->config,
             $this->objectHandler,
-            $this->fileHandler
+            $this->fileHandler,
+            $this->formFactory,
+            $this->formHelper
         );
     }
 
