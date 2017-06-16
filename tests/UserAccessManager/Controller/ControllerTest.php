@@ -75,7 +75,7 @@ class ControllerTest extends UserAccessManagerTestCase
         $stub->__construct(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig()
+            $this->getMainConfig()
         );
 
         self::assertInstanceOf('\UserAccessManager\Controller\Controller', $stub);
@@ -150,7 +150,7 @@ class ControllerTest extends UserAccessManagerTestCase
         $stub->__construct(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig()
+            $this->getMainConfig()
         );
 
         self::assertEquals('return', $stub->createNonceField('test'));
@@ -173,7 +173,7 @@ class ControllerTest extends UserAccessManagerTestCase
         $stub->__construct(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig()
+            $this->getMainConfig()
         );
 
         self::assertEquals('return', $stub->getNonce('test'));
@@ -202,7 +202,7 @@ class ControllerTest extends UserAccessManagerTestCase
         $stub->__construct(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig()
+            $this->getMainConfig()
         );
 
         self::callMethod($stub, 'verifyNonce', ['test']);
@@ -255,7 +255,7 @@ class ControllerTest extends UserAccessManagerTestCase
         $stub->__construct(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig()
+            $this->getMainConfig()
         );
 
         self::assertFalse($stub->hasUpdateMessage());
@@ -283,7 +283,7 @@ class ControllerTest extends UserAccessManagerTestCase
 
         $php = $this->getPhp();
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));

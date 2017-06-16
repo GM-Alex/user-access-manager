@@ -115,7 +115,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -157,7 +157,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -254,7 +254,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -283,7 +283,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -309,7 +309,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -343,7 +343,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -368,7 +368,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $objectHandler,
@@ -393,7 +393,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -528,7 +528,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $objectHandler,
@@ -617,7 +617,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $objectHandler,
@@ -704,7 +704,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      */
     public function testSaveObjectData()
     {
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(2))
             ->method('authorsCanAddPostsToGroups')
             ->will($this->onConsecutiveCalls(false, true));
@@ -847,7 +847,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $database,
             $this->getCache(),
             $this->getObjectHandlerWithPosts(),
@@ -871,7 +871,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -904,7 +904,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandlerWithPosts(),
@@ -954,7 +954,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $php = $this->getPhp();
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(16))
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
@@ -1257,7 +1257,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $cache,
             $this->getObjectHandlerWithPosts(),

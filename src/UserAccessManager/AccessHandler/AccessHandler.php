@@ -15,7 +15,7 @@
 namespace UserAccessManager\AccessHandler;
 
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroup;
@@ -36,7 +36,7 @@ class AccessHandler
     private $wordpress;
 
     /**
-     * @var Config
+     * @var MainConfig
      */
     private $config;
 
@@ -104,7 +104,7 @@ class AccessHandler
      * The constructor
      *
      * @param Wordpress        $wordpress
-     * @param Config           $config
+     * @param MainConfig       $config
      * @param Cache            $cache
      * @param Database         $database
      * @param ObjectHandler    $objectHandler
@@ -113,7 +113,7 @@ class AccessHandler
      */
     public function __construct(
         Wordpress $wordpress,
-        Config $config,
+        MainConfig $config,
         Cache $cache,
         Database $database,
         ObjectHandler $objectHandler,

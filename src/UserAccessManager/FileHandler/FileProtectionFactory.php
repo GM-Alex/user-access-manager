@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\FileHandler;
 
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -37,7 +37,7 @@ class FileProtectionFactory
     private $wordpress;
 
     /**
-     * @var Config
+     * @var MainConfig
      */
     private $config;
 
@@ -49,12 +49,12 @@ class FileProtectionFactory
     /**
      * FileProtectionFactory constructor.
      *
-     * @param Php       $php
-     * @param Wordpress $wordpress
-     * @param Config    $config
-     * @param Util      $util
+     * @param Php        $php
+     * @param Wordpress  $wordpress
+     * @param MainConfig $config
+     * @param Util       $util
      */
-    public function __construct(Php $php, Wordpress $wordpress, Config $config, Util $util)
+    public function __construct(Php $php, Wordpress $wordpress, MainConfig $config, Util $util)
     {
         $this->php = $php;
         $this->wordpress = $wordpress;

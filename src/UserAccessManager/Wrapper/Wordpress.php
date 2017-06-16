@@ -395,6 +395,20 @@ class Wordpress
     }
 
     /**
+     * @see \get_home_path()
+     *
+     * @return string
+     */
+    public function getHomePath()
+    {
+        if (function_exists('\get_home_path') === false) {
+            require_once(ABSPATH.'wp-admin/includes/file.php');
+        }
+
+        return \get_home_path();
+    }
+
+    /**
      * @see \wp_parse_id_list()
      *
      * @param array|string $list

@@ -33,7 +33,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -58,7 +58,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getAccessHandler(),
             $userGroupFactory
         );
@@ -87,7 +87,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $accessHandler,
             $this->getUserGroupFactory()
         );
@@ -112,7 +112,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -187,7 +187,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $accessHandler,
             $userGroupFactory
         );
@@ -235,7 +235,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $adminUserGroupController = new AdminUserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $accessHandler,
             $this->getUserGroupFactory()
         );

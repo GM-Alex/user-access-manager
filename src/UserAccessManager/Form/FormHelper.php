@@ -15,7 +15,7 @@
 namespace UserAccessManager\Form;
 
 use UserAccessManager\Config\BooleanConfigParameter;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
@@ -40,7 +40,7 @@ class FormHelper
     private $wordpress;
 
     /**
-     * @var Config
+     * @var MainConfig
      */
     private $config;
 
@@ -54,13 +54,13 @@ class FormHelper
      *
      * @param Php         $php
      * @param Wordpress   $wordpress
-     * @param Config      $config
+     * @param MainConfig  $config
      * @param FormFactory $formFactory
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Config $config,
+        MainConfig $config,
         FormFactory $formFactory
     ) {
         $this->php = $php;
@@ -205,6 +205,28 @@ class FormHelper
                 }
             } elseif (($parameter instanceof FormElement) === true) {
                 $form->addElement($parameter);
+            }
+        }
+
+        return $form;
+    }
+
+    /**
+     * Converts config parameters to a form.
+     *
+     * @param ConfigParameter[] $configParameters
+     *
+     * @return Form
+     */
+    public function getSettingsFormByConfigParameters(array $configParameters)
+    {
+        $form = $this->formFactory->createFrom();
+
+        foreach ($configParameters as $configParameter) {
+            $formElement = $this->convertConfigParameter($configParameter);
+
+            if ($formElement !== null) {
+                $form->addElement($formElement);
             }
         }
 

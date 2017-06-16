@@ -61,7 +61,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -96,7 +96,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('enqueueStyle')
             ->with(FrontendController::HANDLE_STYLE_LOGIN_FORM);
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->once())
             ->method('getUrlPath')
             ->will($this->returnValue('http://url/'));
@@ -131,7 +131,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -197,7 +197,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 $adminUser
             ));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(6))
             ->method('atAdminPanel')
@@ -300,7 +300,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls('filter', 'LoginFormWithFilter'));
 
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->once())
             ->method('getRealPath')
@@ -379,7 +379,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -448,7 +448,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -512,7 +512,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('isFeed')
             ->will($this->onConsecutiveCalls(true, true, false, false));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(2))
             ->method('protectFeed')
@@ -624,7 +624,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('isFeed')
             ->will($this->returnValue(false));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(6))
             ->method('hidePostType')
@@ -766,7 +766,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -800,7 +800,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -835,7 +835,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $database,
             $this->getUtil(),
             $this->getCache(),
@@ -1019,7 +1019,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $database,
             $this->getUtil(),
             $cache,
@@ -1105,7 +1105,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -1143,7 +1143,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowComment()
     {
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(4))
             ->method('hidePostTypeComments')
@@ -1230,7 +1230,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowAncestors()
     {
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(2))
             ->method('lockRecursive')
@@ -1299,7 +1299,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -1360,7 +1360,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(8))
             ->method('lockRecursive')
@@ -1588,7 +1588,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(15))
             ->method('atAdminPanel')
@@ -1793,7 +1793,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -1833,7 +1833,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -1873,7 +1873,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -1908,7 +1908,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -1939,7 +1939,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -2025,7 +2025,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $database,
             $this->getUtil(),
             $cache,
@@ -2094,7 +2094,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(null, $fileObject));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->once())
             ->method('getRealPath')
@@ -2242,7 +2242,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('wpRedirect')
             ->withConsecutive(['guid'], ['RedirectCustomUrl'], ['HomeUrl']);
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(7))
             ->method('getRedirect')
@@ -2341,7 +2341,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->with('pageNameValue')
             ->will($this->onConsecutiveCalls(null, $this->getPost(2)));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(9))
             ->method('atAdminPanel')
@@ -2471,7 +2471,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->with('/')
             ->will($this->returnValue('homeUrl'));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(6))
             ->method('isPermalinksActive')
@@ -2550,7 +2550,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $cache,
@@ -2586,7 +2586,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),

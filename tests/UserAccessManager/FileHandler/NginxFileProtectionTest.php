@@ -58,7 +58,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         $nginxFileProtection = new NginxFileProtection(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil()
         );
 
@@ -84,7 +84,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(5))
             ->method('isPermalinksActive')
@@ -178,7 +178,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         $nginxFileProtection = new NginxFileProtection(
             $php,
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil()
         );
 

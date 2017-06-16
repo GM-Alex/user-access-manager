@@ -57,7 +57,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $fileHandler = new FileHandler(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getFileProtectionFactory()
         );
 
@@ -123,7 +123,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->with(TXT_UAM_FILE_NOT_FOUND_ERROR_MESSAGE, TXT_UAM_FILE_NOT_FOUND_ERROR_TITLE, ['response' => 404])
             ->will($this->returnValue(null));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(6))
             ->method('getMimeTypes')
             ->will($this->onConsecutiveCalls(
@@ -257,7 +257,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true, true));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(6))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(
@@ -325,7 +325,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true, true));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(6))
             ->method('getUploadDirectory')
             ->will($this->onConsecutiveCalls(

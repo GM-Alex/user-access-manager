@@ -35,7 +35,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler()
         );
@@ -56,7 +56,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $database,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
             1
@@ -119,7 +119,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $database,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler()
         );
@@ -236,7 +236,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $database,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler()
         );
@@ -342,7 +342,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $database,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler
         );
@@ -452,7 +452,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $database,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler
         );
@@ -545,7 +545,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $database,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler()
         );
@@ -645,7 +645,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $database,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler()
         );
@@ -761,7 +761,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $php,
             $this->getWordpress(),
             $database,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler
         );
@@ -873,7 +873,7 @@ class UserGroupTest extends UserAccessManagerTestCase
                 return ($objectType === 'termObjectType');
             }));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(5))
             ->method('lockRecursive')
             ->will($this->onConsecutiveCalls(false, true, true, true, true));
@@ -942,7 +942,7 @@ class UserGroupTest extends UserAccessManagerTestCase
     private function getTestIsPostMemberPrototype()
     {
         $database = $this->getDatabaseMockForMemberTests(['post' => 3, 'term' => 3]);
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $lockRecursiveReturns = [false, true, true, true, true, false];
 
@@ -1129,7 +1129,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $database,
-            $config = $this->getConfig(),
+            $config = $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler
         );

@@ -70,7 +70,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
         $adminController = new AdminController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getAccessHandler(),
             $this->getFileHandler()
         );
@@ -88,7 +88,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
     {
         $php = $this->getPhp();
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
@@ -171,7 +171,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             ->method('enqueueScript')
             ->with(AdminController::HANDLE_SCRIPT_ADMIN);
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(4))
             ->method('getUrlPath')
             ->will($this->returnValue('url/'));
@@ -232,7 +232,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
         $adminController = new AdminController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $accessHandler,
             $this->getFileHandler()
         );
@@ -261,7 +261,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
         $adminController = new AdminController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getAccessHandler(),
             $fileHandler
         );

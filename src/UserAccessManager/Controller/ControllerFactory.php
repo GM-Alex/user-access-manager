@@ -16,7 +16,7 @@ namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileObjectFactory;
@@ -52,7 +52,7 @@ class ControllerFactory
     private $database;
 
     /**
-     * @var Config
+     * @var MainConfig
      */
     private $config;
 
@@ -112,7 +112,7 @@ class ControllerFactory
      * @param Php               $php
      * @param Wordpress         $wordpress
      * @param Database          $database
-     * @param Config            $config
+     * @param MainConfig        $config
      * @param Util              $util
      * @param Cache             $cache
      * @param ObjectHandler     $objectHandler
@@ -128,7 +128,7 @@ class ControllerFactory
         Php $php,
         Wordpress $wordpress,
         Database $database,
-        Config $config,
+        MainConfig $config,
         Util $util,
         Cache $cache,
         ObjectHandler $objectHandler,
@@ -215,6 +215,7 @@ class ControllerFactory
             $this->php,
             $this->wordpress,
             $this->config,
+            $this->cache,
             $this->objectHandler,
             $this->fileHandler,
             $this->formFactory,

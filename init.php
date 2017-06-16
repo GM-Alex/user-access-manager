@@ -2,8 +2,10 @@
 //Classes
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
@@ -25,11 +27,13 @@ function initUserAccessManger()
     $php = new Php();
     $wordpress = new Wordpress();
     $util = new Util($php);
-    $cache = new Cache();
+    $configFactory = new ConfigFactory($wordpress);
     $configParameterFactory = new ConfigParameterFactory();
+    $cacheProviderFactory = new CacheProviderFactory($php, $wordpress, $util, $configFactory, $configParameterFactory);
+    $cache = new Cache($wordpress, $cacheProviderFactory);
     $database = new Database($wordpress);
     $objectHandler = new ObjectHandler($wordpress, $database, $cache);
-    $config = new Config($wordpress, $objectHandler, $configParameterFactory, $file);
+    $config = new MainConfig($wordpress, $objectHandler, $cache, $configParameterFactory, $file);
     $fileObjectFactory = new FileObjectFactory();
     $formFactory = new FormFactory();
     $formHelper = new FormHelper($php, $wordpress, $config, $formFactory);
@@ -98,6 +102,8 @@ function initUserAccessManger()
         $setupHandler,
         $userGroupFactory,
         $controllerFactory,
+        $cacheProviderFactory,
+        $configFactory,
         $configParameterFactory,
         $fileProtectionFactory,
         $fileObjectFactory
@@ -118,11 +124,19 @@ function initUserAccessManger()
             $php = new Php();
             $wordpress = new Wordpress();
             $util = new Util($php);
-            $configParameterFactory = new ConfigParameterFactory();
             $database = new Database($wordpress);
-            $cache = new Cache();
+            $configFactory = new ConfigFactory($wordpress);
+            $configParameterFactory = new ConfigParameterFactory();
+            $cacheProviderFactory = new CacheProviderFactory(
+                $php,
+                $wordpress,
+                $util,
+                $configFactory,
+                $configParameterFactory
+            );
+            $cache = new Cache($wordpress, $cacheProviderFactory);
             $objectHandler = new ObjectHandler($wordpress, $database, $cache);
-            $config = new Config($wordpress, $objectHandler, $configParameterFactory, $file);
+            $config = new MainConfig($wordpress, $objectHandler, $cache, $configParameterFactory, $file);
 
             $fileProtectionFactory = new FileProtectionFactory(
                 $php,

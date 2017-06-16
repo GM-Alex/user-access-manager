@@ -32,7 +32,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getSetupHandler()
         );
@@ -54,7 +54,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $setupHandler
         );
@@ -77,7 +77,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getSetupHandler()
         );
@@ -108,7 +108,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $setupHandler
         );
@@ -156,7 +156,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $database,
             $setupHandler
         );
@@ -206,7 +206,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $setupHandler
         );
@@ -242,7 +242,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $setupHandler
         );
@@ -279,7 +279,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         $adminSetupController = new AdminSetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $setupHandler
         );

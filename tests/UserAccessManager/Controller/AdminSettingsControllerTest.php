@@ -15,7 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\BooleanConfigParameter;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
@@ -38,7 +38,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -76,7 +76,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -102,7 +102,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -131,7 +131,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -168,7 +168,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -189,7 +189,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -214,23 +214,23 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
             $this->getFormHelper()
         );
 
-        self::assertEquals(Config::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
+        self::assertEquals(MainConfig::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
 
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = 'group';
         self::assertEquals(null, $adminSettingController->getCurrentSettingsSection());
 
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_POST_TYPES;
-        self::assertEquals(Config::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
+        self::assertEquals(MainConfig::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
 
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_TAXONOMIES;
-        self::assertEquals(Config::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
+        self::assertEquals(MainConfig::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
 
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
         self::assertEquals(
@@ -263,7 +263,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -294,7 +294,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -327,13 +327,14 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             AdminSettingsController::GROUP_TAXONOMIES,
             AdminSettingsController::GROUP_FILES,
             AdminSettingsController::GROUP_AUTHOR,
+            AdminSettingsController::GROUP_CACHE,
             AdminSettingsController::GROUP_OTHER
         ];
 
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -439,7 +440,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             'blog_admin_hint_text' => $this->getConfigParameter('string')
         ];
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(6))
             ->method('getConfigParameters')
             ->will($this->returnValue($configValues));
@@ -548,7 +549,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                         'default_comment_content',
                         'default_comments_locked'
                     ],
-                    Config::DEFAULT_TYPE
+                    MainConfig::DEFAULT_TYPE
                 ],
                 [
                     [
@@ -579,7 +580,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ],
                 [
                     ['hide_empty_default'],
-                    Config::DEFAULT_TYPE
+                    MainConfig::DEFAULT_TYPE
                 ],
                 [
                     ['category_use_default', 'hide_empty_category'],
@@ -707,7 +708,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testUpdateSettingsAction()
     {
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(3))
             ->method('setConfigParameters')
             ->with([
@@ -777,7 +778,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),

@@ -15,7 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
@@ -52,14 +52,14 @@ class AdminController extends Controller
      *
      * @param Php           $php
      * @param Wordpress     $wordpress
-     * @param Config        $config
+     * @param MainConfig    $config
      * @param AccessHandler $accessHandler
      * @param FileHandler   $fileHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Config $config,
+        MainConfig $config,
         AccessHandler $accessHandler,
         FileHandler $fileHandler
     ) {

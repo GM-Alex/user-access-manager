@@ -35,7 +35,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getUtil(),
             $this->getCache(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getAccessHandler(),
@@ -43,6 +43,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $this->getControllerFactory(),
+            $this->getCacheProviderFactory(),
+            $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
             $this->getFileProtectionFactory(),
             $this->getFileObjectFactory()
@@ -61,16 +63,13 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     {
         $cache = $this->getCache();
         $cache->expects($this->once())
-            ->method('setCacheProvider');
+            ->method('setActiveCacheProvider')
+            ->with('activeCacheProvider');
 
-        $config = $this->getConfig();
-        $config->expects($this->exactly(3))
-            ->method('getCacheProviderClass')
-            ->will($this->onConsecutiveCalls(
-                null,
-                'NoneExistingClass',
-                '\UserAccessManager\Cache\FileSystemCacheProvider'
-            ));
+        $config = $this->getMainConfig();
+        $config->expects($this->once())
+            ->method('getActiveCacheProvider')
+            ->will($this->returnValue('activeCacheProvider'));
 
         new UserAccessManager(
             $this->getPhp(),
@@ -85,42 +84,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $this->getControllerFactory(),
-            $this->getConfigParameterFactory(),
-            $this->getFileProtectionFactory(),
-            $this->getFileObjectFactory()
-        );
-
-        new UserAccessManager(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getUtil(),
-            $cache,
-            $config,
-            $this->getDatabase(),
-            $this->getObjectHandler(),
-            $this->getAccessHandler(),
-            $this->getFileHandler(),
-            $this->getSetupHandler(),
-            $this->getUserGroupFactory(),
-            $this->getControllerFactory(),
-            $this->getConfigParameterFactory(),
-            $this->getFileProtectionFactory(),
-            $this->getFileObjectFactory()
-        );
-
-        new UserAccessManager(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getUtil(),
-            $cache,
-            $config,
-            $this->getDatabase(),
-            $this->getObjectHandler(),
-            $this->getAccessHandler(),
-            $this->getFileHandler(),
-            $this->getSetupHandler(),
-            $this->getUserGroupFactory(),
-            $this->getControllerFactory(),
+            $this->getCacheProviderFactory(),
+            $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
             $this->getFileProtectionFactory(),
             $this->getFileObjectFactory()
@@ -142,6 +107,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      * @covers  \UserAccessManager\UserAccessManager::getSetupHandler()
      * @covers  \UserAccessManager\UserAccessManager::getUserGroupFactory()
      * @covers  \UserAccessManager\UserAccessManager::getControllerFactory()
+     * @covers  \UserAccessManager\UserAccessManager::getCacheProviderFactory()
+     * @covers  \UserAccessManager\UserAccessManager::getConfigFactory()
      * @covers  \UserAccessManager\UserAccessManager::getConfigParameterFactory()
      * @covers  \UserAccessManager\UserAccessManager::getFileProtectionFactory()
      * @covers  \UserAccessManager\UserAccessManager::getFileObjectFactory()
@@ -154,7 +121,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getWordpress(), $userAccessManager->getWordpress());
         self::assertEquals($this->getUtil(), $userAccessManager->getUtil());
         self::assertEquals($this->getCache(), $userAccessManager->getCache());
-        self::assertEquals($this->getConfig(), $userAccessManager->getConfig());
+        self::assertEquals($this->getMainConfig(), $userAccessManager->getConfig());
         self::assertEquals($this->getDatabase(), $userAccessManager->getDatabase());
         self::assertEquals($this->getObjectHandler(), $userAccessManager->getObjectHandler());
         self::assertEquals($this->getAccessHandler(), $userAccessManager->getAccessHandler());
@@ -162,6 +129,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getSetupHandler(), $userAccessManager->getSetupHandler());
         self::assertEquals($this->getUserGroupFactory(), $userAccessManager->getUserGroupFactory());
         self::assertEquals($this->getControllerFactory(), $userAccessManager->getControllerFactory());
+        self::assertEquals($this->getCacheProviderFactory(), $userAccessManager->getCacheProviderFactory());
+        self::assertEquals($this->getConfigFactory(), $userAccessManager->getConfigFactory());
         self::assertEquals($this->getConfigParameterFactory(), $userAccessManager->getConfigParameterFactory());
         self::assertEquals($this->getFileProtectionFactory(), $userAccessManager->getFileProtectionFactory());
         self::assertEquals($this->getFileObjectFactory(), $userAccessManager->getFileObjectFactory());
@@ -204,7 +173,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getUtil(),
             $this->getCache(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $accessHandler,
@@ -212,6 +181,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $controllerFactory,
+            $this->getCacheProviderFactory(),
+            $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
             $this->getFileProtectionFactory(),
             $this->getFileObjectFactory()
@@ -239,7 +210,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->method('addMetaBox');
 
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(3))
             ->method('authorsCanAddPostsToGroups')
@@ -333,6 +304,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $setupHandler,
             $this->getUserGroupFactory(),
             $controllerFactory,
+            $this->getCacheProviderFactory(),
+            $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
             $this->getFileProtectionFactory(),
             $this->getFileObjectFactory()
@@ -370,7 +343,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(83))
             ->method('addFilter');
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(3))
             ->method('getRedirect')
             ->will($this->onConsecutiveCalls(false, false, true));
@@ -388,6 +361,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $controllerFactory,
+            $this->getCacheProviderFactory(),
+            $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
             $this->getFileProtectionFactory(),
             $this->getFileObjectFactory()

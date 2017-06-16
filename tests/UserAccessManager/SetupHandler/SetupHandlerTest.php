@@ -15,7 +15,7 @@
 namespace UserAccessManager\SetupHandler;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserAccessManagerTestCase;
@@ -687,10 +687,10 @@ class SetupHandlerTest extends UserAccessManagerTestCase
         $wordpress->expects(($this->exactly(6)))
             ->method('deleteOption')
             ->withConsecutive(
-                [Config::ADMIN_OPTIONS_NAME],
+                [MainConfig::MAIN_CONFIG_KEY],
                 ['uam_version'],
                 ['uam_db_version'],
-                [Config::ADMIN_OPTIONS_NAME],
+                [MainConfig::MAIN_CONFIG_KEY],
                 ['uam_version'],
                 ['uam_db_version']
             );

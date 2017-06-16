@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Cache;
 
-use UserAccessManager\UserAccessManager;
+use UserAccessManager\Config\Config;
 
 /**
  * Interface CacheProviderInterface
@@ -24,19 +24,35 @@ use UserAccessManager\UserAccessManager;
 interface CacheProviderInterface
 {
     /**
-     * CacheProviderInterface constructor.
+     * Returns the id of the cache provider.
      *
-     * @param UserAccessManager $userAccessManager
+     * @return string
      */
-    public function __construct(UserAccessManager $userAccessManager);
+    public function getId();
 
     /**
+     * Initialises the cache provider object.
+     */
+    public function init();
+
+    /**
+     * Returns the cache provider configuration.
+     *
+     * @return Config
+     */
+    public function getConfig();
+
+    /**
+     * Adds a value to the cache.
+     *
      * @param string $key
      * @param mixed  $value
      */
     public function add($key, $value);
 
     /**
+     * Returns a value from the cache.
+     *
      * @param string $key
      *
      * @return mixed
@@ -44,6 +60,8 @@ interface CacheProviderInterface
     public function get($key);
 
     /**
+     * Invalidates the cache.
+     *
      * @param string $key
      */
     public function invalidate($key);

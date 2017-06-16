@@ -16,7 +16,7 @@ namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileObject;
@@ -77,7 +77,7 @@ class FrontendController extends Controller
     /**
      * @var array
      */
-    private $wordpressFilters = array();
+    private $wordpressFilters = [];
 
     /**
      * @var array
@@ -94,7 +94,7 @@ class FrontendController extends Controller
      *
      * @param Php               $php
      * @param Wordpress         $wordpress
-     * @param Config            $config
+     * @param MainConfig        $config
      * @param Database          $database
      * @param Util              $util
      * @param Cache             $cache
@@ -106,7 +106,7 @@ class FrontendController extends Controller
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Config $config,
+        MainConfig $config,
         Database $database,
         Util $util,
         Cache $cache,

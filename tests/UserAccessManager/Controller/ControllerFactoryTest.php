@@ -35,7 +35,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),

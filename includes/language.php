@@ -28,10 +28,10 @@ define('TXT_UAM_NO', __('No', 'user-access-manager'));
 
 // --- Setting Page ---
 define('TXT_UAM_SETTINGS', __('Settings', 'user-access-manager'));
-define('TXT_UAM_SETTINGS_GROUP_SECTION', __('Object type', 'user-access-manager'));
 define('TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT', __('Default', 'user-access-manager'));
 
 // --- Setting Page -> object settings ---
+define('TXT_UAM_POST_TYPES_SECTION_SELECTION_SETTING', __('Object type', 'user-access-manager'));
 define('TXT_UAM_POST_TYPES_SETTING', __('Post type settings', 'user-access-manager'));
 define('TXT_UAM_TAXONOMIES_SETTING', __('Taxonomies settings', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_SETTING', __('Default settings', 'user-access-manager'));
@@ -107,12 +107,29 @@ define('TXT_UAM_FULL_ACCESS_ROLE_CONTRIBUTOR', __('Contributor', 'user-access-ma
 define('TXT_UAM_FULL_ACCESS_ROLE_SUBSCRIBER', __('Subscriber', 'user-access-manager'));
 
 // --- Settings Page -> taxonomies ---
+define('TXT_UAM_TAXONOMIES_SECTION_SELECTION_SETTING', __('Object type', 'user-access-manager'));
 define('TXT_UAM_TAXONOMY_SETTING', __('Taxonomy settings', 'user-access-manager'));
 define('TXT_UAM_TAXONOMY_SETTING_DESC', __('Set up the behaviour if a taxonomy is locked', 'user-access-manager'));
 define('TXT_UAM_HIDE_EMPTY_DEFAULT', __('Hide empty', 'user-access-manager'));
 define('TXT_UAM_HIDE_EMPTY_DEFAULT_DESC', __('Selecting "Yes" will hide empty taxonomies which are containing only empty childes or no childes.', 'user-access-manager'));
 define('TXT_UAM_HIDE_EMPTY_OBJECT', __('Hide empty %s', 'user-access-manager'));
 define('TXT_UAM_HIDE_EMPTY_OBJECT_DESC', __('Selecting "Yes" will hide empty %s which are containing only empty childes or no childes.', 'user-access-manager'));
+
+// --- Settings Page -> cache ---
+define('TXT_UAM_CACHE_SECTION_SELECTION_SETTING', __('Active caching method', 'user-access-manager'));
+define('TXT_UAM_CACHE_SETTING', __('Cache settings', 'user-access-manager'));
+define('TXT_UAM_NONE_SETTING', __('Cache deactivated', 'user-access-manager'));
+define('TXT_UAM_NONE_SETTING_DESC', __('The cache is currently deactivated.', 'user-access-manager'));
+define('TXT_UAM_FILESYSTEMCACHEPROVIDER_SETTING', __('File system cache', 'user-access-manager'));
+define('TXT_UAM_FILESYSTEMCACHEPROVIDER_SETTING_DESC', __('This cache uses the file system for the cache.', 'user-access-manager'));
+define('TXT_UAM_FS_CACHE_PATH', __('Path', 'user-access-manager'));
+define('TXT_UAM_FS_CACHE_PATH_DESC', __('File system path to store the cache files.', 'user-access-manager'));
+define('TXT_UAM_FS_CACHE_METHOD', __('Method', 'user-access-manager'));
+define('TXT_UAM_FS_CACHE_METHOD_DESC', __('The caching method which should be used.', 'user-access-manager'));
+define('TXT_UAM_FS_CACHE_METHOD_SERIALIZE', __('PHP serialize', 'user-access-manager'));
+define('TXT_UAM_FS_CACHE_METHOD_IGBINARY', __('PHP igbinary (igbinary required)', 'user-access-manager'));
+define('TXT_UAM_FS_CACHE_METHOD_JSON', __('Json', 'user-access-manager'));
+define('TXT_UAM_FS_CACHE_METHOD_VAR_EXPORT', __('PHP var_export', 'user-access-manager'));
 
 // --- Setting Page -> other settings ---
 define('TXT_UAM_OTHER_SETTING', __('Other settings', 'user-access-manager'));

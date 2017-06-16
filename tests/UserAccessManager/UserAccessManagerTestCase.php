@@ -76,11 +76,11 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\Config
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\MainConfig
      */
-    protected function getConfig()
+    protected function getMainConfig()
     {
-        return $this->createMock('\UserAccessManager\Config\Config');
+        return $this->createMock('\UserAccessManager\Config\MainConfig');
     }
 
     /**
@@ -105,6 +105,22 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getCache()
     {
         return $this->createMock('\UserAccessManager\Cache\Cache');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Cache\CacheProviderFactory
+     */
+    protected function getCacheProviderFactory()
+    {
+        return $this->createMock('\UserAccessManager\Cache\CacheProviderFactory');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigFactory
+     */
+    protected function getConfigFactory()
+    {
+        return $this->createMock('\UserAccessManager\Config\ConfigFactory');
     }
 
     /**

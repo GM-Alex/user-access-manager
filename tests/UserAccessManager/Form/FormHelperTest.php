@@ -33,7 +33,7 @@ class FormHelperTest extends UserAccessManagerTestCase
         $formHelper = new FormHelper(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getFormFactory()
         );
 
@@ -95,7 +95,7 @@ class FormHelperTest extends UserAccessManagerTestCase
         $formHelper = new FormHelper(
             $php,
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getFormFactory()
         );
 
@@ -227,7 +227,7 @@ class FormHelperTest extends UserAccessManagerTestCase
         $formHelper = new FormHelper(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $formFactory
         );
 
@@ -266,7 +266,7 @@ class FormHelperTest extends UserAccessManagerTestCase
      */
     public function testGetSettingsFrom()
     {
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->once())
             ->method('getConfigParameters')
             ->will($this->returnValue(

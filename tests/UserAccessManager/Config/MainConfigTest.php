@@ -1,0 +1,668 @@
+<?php
+/**
+ * MainConfigTest.php
+ *
+ * The MainConfigTest unit test class file.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+namespace UserAccessManager\Config;
+
+use UserAccessManager\UserAccessManagerTestCase;
+
+/**
+ * Class ConfigTest
+ *
+ * @package UserAccessManager\Config
+ */
+class MainConfigTest extends UserAccessManagerTestCase
+{
+    /**
+     * @var array
+     */
+    private $defaultValues;
+
+    /**
+     * Create default mocked objects.
+     */
+    public function setUp()
+    {
+        $this->defaultValues = [
+            'hide_default' => 'bool|hide_default|false',
+            'hide_default_title' => 'bool|hide_default_title|false',
+            'default_title' => 'string|default_title|No rights!|user-access-manager',
+            'default_content' => 'string|default_content|'
+                .'Sorry you have no rights to view this entry!|user-access-manager',
+            'hide_default_comment' => 'bool|hide_default_comment|false',
+            'default_comment_content' => 'string|default_comment_content|'
+                .'Sorry no rights to view comments!|user-access-manager',
+            'default_comments_locked' => 'bool|default_comments_locked|false',
+            'hide_empty_default' => 'bool|hide_empty_default|true',
+            'post_use_default' => 'bool|post_use_default|false',
+            'hide_post' => 'bool|hide_post|false',
+            'hide_post_title' => 'bool|hide_post_title|false',
+            'post_title' => 'string|post_title|No rights!|user-access-manager',
+            'show_post_content_before_more' => 'bool|show_post_content_before_more|false',
+            'post_content' => 'string|post_content|Sorry you have no rights to view this entry!|user-access-manager',
+            'hide_post_comment' => 'bool|hide_post_comment|false',
+            'post_comment_content' => 'string|post_comment_content|'
+                .'Sorry no rights to view comments!|user-access-manager',
+            'post_comments_locked' => 'bool|post_comments_locked|false',
+            'page_use_default' => 'bool|page_use_default|false',
+            'hide_page' => 'bool|hide_page|false',
+            'hide_page_title' => 'bool|hide_page_title|false',
+            'page_title' => 'string|page_title|No rights!|user-access-manager',
+            'page_content' => 'string|page_content|Sorry you have no rights to view this entry!|user-access-manager',
+            'hide_page_comment' => 'bool|hide_page_comment|false',
+            'page_comment_content' => 'string|page_comment_content|'
+                .'Sorry no rights to view comments!|user-access-manager',
+            'page_comments_locked' => 'bool|page_comments_locked|false',
+            'redirect' => 'selection|redirect|false|false|custom_page|custom_url',
+            'redirect_custom_page' => 'string|redirect_custom_page|',
+            'redirect_custom_url' => 'string|redirect_custom_url|',
+            'lock_recursive' => 'bool|lock_recursive|true',
+            'authors_has_access_to_own' => 'bool|authors_has_access_to_own|true',
+            'authors_can_add_posts_to_groups' => 'bool|authors_can_add_posts_to_groups|false',
+            'lock_file' => 'bool|lock_file|false',
+            'file_pass_type' => 'selection|file_pass_type|random|random|user',
+            'download_type' => 'selection|download_type|fopen|fopen|normal',
+            'lock_file_types' => 'selection|lock_file_types|all|all|selected|not_selected',
+            'locked_file_types' => 'string|locked_file_types|zip,rar,tar,gz',
+            'not_locked_file_types' => 'string|not_locked_file_types|gif,jpg,jpeg,png',
+            'blog_admin_hint' => 'bool|blog_admin_hint|true',
+            'blog_admin_hint_text' => 'string|blog_admin_hint_text|[L]',
+            'category_use_default' => 'bool|category_use_default|false',
+            'hide_empty_category' => 'bool|hide_empty_category|true',
+            'protect_feed' => 'bool|protect_feed|true',
+            'full_access_role' => 'selection|full_access_role|administrator|'
+                .'administrator|editor|author|contributor|subscriber',
+            'active_cache_provider' => 'selection|active_cache_provider|none|none'
+        ];
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Cache\Cache
+     */
+    protected function getCache()
+    {
+        $cache = parent::getCache();
+
+        $cache->expects($this->any())
+            ->method('getRegisteredCacheProviders')
+            ->will($this->returnValue([]));
+
+        return $cache;
+    }
+
+    /**
+     * @param int $callExpectation
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\ObjectHandler\ObjectHandler
+     */
+    protected function getDefaultObjectHandler($callExpectation)
+    {
+        $objectHandler = $this->getObjectHandler();
+
+        $objectHandler->expects($this->exactly($callExpectation))
+            ->method('getPostTypes')
+            ->will($this->returnValue(['post', 'page', 'attachment']));
+
+        $objectHandler->expects($this->exactly($callExpectation))
+            ->method('getTaxonomies')
+            ->will($this->returnValue(['category']));
+
+        return $objectHandler;
+    }
+
+    /**
+     * @param callable $closure
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameterFactory
+     */
+    protected function getFactory($closure = null)
+    {
+        if ($closure === null) {
+            $closure = function ($id) {
+                $stub = $this->getMockForAbstractClass(
+                    '\UserAccessManager\Config\ConfigParameter',
+                    [],
+                    '',
+                    false,
+                    true,
+                    true,
+                    [
+                        'getId',
+                        'setValue',
+                        'getValue'
+                    ]
+                );
+
+                $stub->expects(self::any())
+                    ->method('getId')
+                    ->will($this->returnValue($id));
+
+                $stub->expects(self::any())
+                    ->method('setValue')
+                    ->with($this->equalTo($id.'|value'))
+                    ->will($this->returnValue(null));
+
+                $stub->expects(self::any())
+                    ->method('getValue')
+                    ->will($this->returnValue($id));
+
+                return $stub;
+            };
+        }
+
+
+        $configParameterFactory = $this->getConfigParameterFactory();
+        $configParameterFactory->expects($this->any())
+            ->method('createBooleanConfigParameter')
+            ->will($this->returnCallback($closure));
+
+        $configParameterFactory->expects($this->any())
+            ->method('createStringConfigParameter')
+            ->will($this->returnCallback($closure));
+
+        $configParameterFactory->expects($this->any())
+            ->method('createSelectionConfigParameter')
+            ->will($this->returnCallback($closure));
+
+        return $configParameterFactory;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::__construct()
+     */
+    public function testCanCreateInstance()
+    {
+        $config = new MainConfig(
+            $this->getWordpress(),
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
+
+        self::assertInstanceOf('\UserAccessManager\Config\MainConfig', $config);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::getDefaultConfigParameters()
+     *
+     * @return MainConfig
+     */
+    public function testGetDefaultConfigParameters()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getOption')
+            ->with(MainConfig::MAIN_CONFIG_KEY)
+            ->will($this->returnValue(null));
+
+        $objectHandler = $this->getDefaultObjectHandler(2);
+
+        $configParameterFactory = $this->getConfigParameterFactory();
+        $configParameterFactory->expects($this->exactly(24))
+            ->method('createBooleanConfigParameter')
+            ->will($this->returnCallback(
+                function ($id, $value) {
+                    $return = 'bool|'.$id.'|';
+                    $return .= ($value === true) ? 'true' : 'false';
+                    return $return;
+                }
+            ));
+
+        $configParameterFactory->expects($this->exactly(14))
+            ->method('createStringConfigParameter')
+            ->will($this->returnCallback(
+                function ($id, $value) {
+                    return 'string|'.$id.'|'.$value;
+                }
+            ));
+
+        $configParameterFactory->expects($this->exactly(6))
+            ->method('createSelectionConfigParameter')
+            ->will($this->returnCallback(
+                function ($id, $value, $selections) {
+                    return 'selection|'.$id.'|'.$value.'|'.implode('|', $selections);
+                }
+            ));
+
+        $config = new MainConfig(
+            $wordpress,
+            $objectHandler,
+            $this->getCache(),
+            $configParameterFactory,
+            'baseFile'
+        );
+
+        self::assertEquals($this->defaultValues, $config->getConfigParameters());
+
+        $optionKeys = array_keys($this->defaultValues);
+        $testValues = array_map(function ($element) {
+            return $element.'|value';
+        }, $optionKeys);
+
+        $options = array_combine($optionKeys, $testValues);
+        $options['invalid'] = 'invalid';
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getOption')
+            ->with(MainConfig::MAIN_CONFIG_KEY)
+            ->will($this->returnValue($options));
+
+        $configParameterFactory = $this->getFactory();
+
+        $config = new MainConfig(
+            $wordpress,
+            $objectHandler,
+            $this->getCache(),
+            $configParameterFactory,
+            'baseFile'
+        );
+
+        $parameters = $config->getConfigParameters();
+
+        foreach ($parameters as $parameter) {
+            self::assertEquals($parameter->getId(), $parameter->getValue());
+        }
+
+        return $config;
+    }
+
+    /**
+     * @group   unit
+     * @covers  \UserAccessManager\Config\MainConfig::atAdminPanel()
+     */
+    public function testAtAdminPanel()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('isAdmin')
+            ->will($this->onConsecutiveCalls(true, false));
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
+
+        self::assertTrue($config->atAdminPanel());
+        self::assertFalse($config->atAdminPanel());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::isPermalinksActive()
+     */
+    public function testIsPermalinksActive()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('getOption')
+            ->will($this->onConsecutiveCalls('aaa', ''));
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
+
+        self::assertTrue($config->isPermalinksActive());
+        self::setValue($config, 'wpOptions', []);
+        self::assertFalse($config->isPermalinksActive());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::getUploadDirectory()
+     */
+    public function testGetUploadDirectory()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('getUploadDir')
+            ->will(
+                $this->onConsecutiveCalls(
+                    [
+                        'error' => 'error',
+                        'basedir' => 'baseDir'
+                    ],
+                    [
+                        'error' => null,
+                        'basedir' => 'baseDir'
+                    ]
+                )
+            );
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
+
+        self::assertEquals(null, $config->getUploadDirectory());
+        self::assertEquals('baseDir/', $config->getUploadDirectory());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::getMimeTypes()
+     */
+    public function testGetMimeTypes()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('getAllowedMimeTypes')
+            ->will(
+                $this->onConsecutiveCalls(
+                    ['a|b' => 'firstType', 'c' => 'secondType'],
+                    ['c|b' => 'firstType', 'a' => 'secondType']
+                )
+            );
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
+
+        self::assertEquals(
+            ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
+            $config->getMimeTypes()
+        );
+        self::assertEquals(
+            ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
+            $config->getMimeTypes()
+        );
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $this->getConfigParameterFactory(),
+            'baseFile'
+        );
+
+        self::assertEquals(
+            ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType'],
+            $config->getMimeTypes()
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::getUrlPath()
+     */
+    public function testGetUrlPath()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('pluginsUrl')
+            ->will($this->returnValue('pluginsUrl'));
+
+        $configParameterFactory = $this->getFactory();
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $configParameterFactory,
+            'baseFile'
+        );
+
+        self::assertEquals(
+            'pluginsUrl/',
+            $config->getUrlPath()
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::getRealPath()
+     */
+    public function testGetRealPath()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getPluginDir')
+            ->will($this->returnValue('pluginDir'));
+        $wordpress->expects($this->once())
+            ->method('pluginBasename')
+            ->will($this->returnValue('pluginBasename'));
+
+        $configParameterFactory = $this->getFactory();
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $configParameterFactory,
+            'baseFile'
+        );
+        self::assertEquals(
+            'pluginDir'.DIRECTORY_SEPARATOR.'pluginBasename'.DIRECTORY_SEPARATOR,
+            $config->getRealPath()
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::getObjectParameter()
+     */
+    public function testGetObjectParameter()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getOption')
+            ->will($this->returnValue(null));
+
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory(function ($id) {
+            $stub = $this->getMockForAbstractClass(
+                '\UserAccessManager\Config\ConfigParameter',
+                [],
+                '',
+                false,
+                true,
+                true,
+                [
+                    'getId',
+                    'setValue',
+                    'getValue'
+                ]
+            );
+
+            $stub->expects(self::any())
+                ->method('getId')
+                ->will($this->returnValue($id));
+
+            $stub->expects(self::any())
+                ->method('setValue')
+                ->will($this->returnValue(null));
+
+            $stub->expects(self::any())
+                ->method('getValue')
+                ->will($this->returnCallback(function () use ($id) {
+                    return ($id === 'post_use_default') ? true : $id;
+                }));
+
+            return $stub;
+        });
+
+        $config = new MainConfig(
+            $wordpress,
+            $objectHandler,
+            $this->getCache(),
+            $configParameterFactory,
+            'baseFile'
+        );
+
+        self::assertEquals(null, self::callMethod($config, 'getObjectParameter', ['post', 'something_%s']));
+
+        $parameter = self::callMethod($config, 'getObjectParameter', ['post', 'hide_%s']);
+        self::assertEquals('hide_default', $parameter->getValue());
+
+        $parameter = self::callMethod($config, 'getObjectParameter', ['page', 'hide_%s']);
+        self::assertEquals('hide_page', $parameter->getValue());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::hideObject()
+     * @covers \UserAccessManager\Config\MainConfig::hidePostType()
+     * @covers \UserAccessManager\Config\MainConfig::hidePostTypeTitle()
+     * @covers \UserAccessManager\Config\MainConfig::hidePostTypeComments()
+     * @covers \UserAccessManager\Config\MainConfig::hideEmptyTaxonomy()
+     */
+    public function testHideObject()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getOption')
+            ->will($this->returnValue(null));
+
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory();
+
+        $config = new MainConfig(
+            $wordpress,
+            $objectHandler,
+            $this->getCache(),
+            $configParameterFactory,
+            'baseFile'
+        );
+
+        self::assertTrue(self::callMethod($config, 'hideObject', ['post', 'something_%s']));
+        self::assertEquals('hide_post', self::callMethod($config, 'hideObject', ['post', 'hide_%s']));
+        self::assertEquals('hide_default', self::callMethod($config, 'hideObject', ['undefined', 'hide_%s']));
+
+        self::assertEquals('hide_post', $config->hidePostType('post'));
+        self::assertEquals('hide_default', $config->hidePostType('undefined'));
+
+        self::assertEquals('hide_post_title', $config->hidePostTypeTitle('post'));
+        self::assertEquals('hide_default_title', $config->hidePostTypeTitle('undefined'));
+
+        self::assertEquals('post_comments_locked', $config->hidePostTypeComments('post'));
+        self::assertEquals('default_comments_locked', $config->hidePostTypeComments('undefined'));
+
+        self::assertEquals('hide_empty_category', $config->hideEmptyTaxonomy('category'));
+        self::assertEquals('hide_empty_default', $config->hideEmptyTaxonomy('undefined'));
+
+        self::setValue($config, 'configParameters', []);
+        self::assertFalse($config->hideEmptyTaxonomy('undefined'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::getPostTypeTitle()
+     * @covers \UserAccessManager\Config\MainConfig::getPostTypeContent()
+     * @covers \UserAccessManager\Config\MainConfig::getPostTypeCommentContent()
+     * @covers \UserAccessManager\Config\MainConfig::getObjectContent()
+     */
+    public function testObjectGetter()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getOption')
+            ->will($this->returnValue(null));
+
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory();
+
+        $config = new MainConfig(
+            $wordpress,
+            $objectHandler,
+            $this->getCache(),
+            $configParameterFactory,
+            'baseFile'
+        );
+
+        self::assertEquals('post_title', $config->getPostTypeTitle('post'));
+        self::assertEquals('post_content', $config->getPostTypeContent('post'));
+        self::assertEquals('post_comment_content', $config->getPostTypeCommentContent('post'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Config\MainConfig::getRedirect
+     * @covers \UserAccessManager\Config\MainConfig::getRedirectCustomPage
+     * @covers \UserAccessManager\Config\MainConfig::getRedirectCustomUrl
+     * @covers \UserAccessManager\Config\MainConfig::lockRecursive
+     * @covers \UserAccessManager\Config\MainConfig::authorsHasAccessToOwn
+     * @covers \UserAccessManager\Config\MainConfig::authorsCanAddPostsToGroups
+     * @covers \UserAccessManager\Config\MainConfig::lockFile
+     * @covers \UserAccessManager\Config\MainConfig::getFilePassType
+     * @covers \UserAccessManager\Config\MainConfig::getLockFileTypes
+     * @covers \UserAccessManager\Config\MainConfig::getDownloadType
+     * @covers \UserAccessManager\Config\MainConfig::getLockedFileTypes
+     * @covers \UserAccessManager\Config\MainConfig::getNotLockedFileTypes
+     * @covers \UserAccessManager\Config\MainConfig::blogAdminHint
+     * @covers \UserAccessManager\Config\MainConfig::getBlogAdminHintText
+     * @covers \UserAccessManager\Config\MainConfig::protectFeed
+     * @covers \UserAccessManager\Config\MainConfig::showPostContentBeforeMore
+     * @covers \UserAccessManager\Config\MainConfig::getFullAccessRole
+     * @covers \UserAccessManager\Config\MainConfig::getActiveCacheProvider
+     */
+    public function testSimpleGetters()
+    {
+        $methods = [
+            'getRedirect' => 'redirect',
+            'getRedirectCustomPage' => 'redirect_custom_page',
+            'getRedirectCustomUrl' => 'redirect_custom_url',
+            'lockRecursive' => 'lock_recursive',
+            'authorsHasAccessToOwn' => 'authors_has_access_to_own',
+            'authorsCanAddPostsToGroups' => 'authors_can_add_posts_to_groups',
+            'lockFile' => 'lock_file',
+            'getFilePassType' => 'file_pass_type',
+            'getLockFileTypes' => 'lock_file_types',
+            'getDownloadType' => 'download_type',
+            'getLockedFileTypes' => 'locked_file_types',
+            'getNotLockedFileTypes' => 'not_locked_file_types',
+            'blogAdminHint' => 'blog_admin_hint',
+            'getBlogAdminHintText' => 'blog_admin_hint_text',
+            'protectFeed' => 'protect_feed',
+            'showPostContentBeforeMore' => 'show_post_content_before_more',
+            'getFullAccessRole' => 'full_access_role',
+            'getActiveCacheProvider' => 'active_cache_provider'
+        ];
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getOption')
+            ->will($this->returnValue(null));
+
+        $objectHandler = $this->getDefaultObjectHandler(1);
+        $configParameterFactory = $this->getFactory();
+
+        $config = new MainConfig(
+            $wordpress,
+            $objectHandler,
+            $this->getCache(),
+            $configParameterFactory,
+            'baseFile'
+        );
+
+        foreach ($methods as $method => $expected) {
+            self::assertEquals($expected, $config->{$method}());
+        }
+    }
+}

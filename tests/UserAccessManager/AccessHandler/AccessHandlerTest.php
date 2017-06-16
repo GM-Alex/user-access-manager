@@ -29,7 +29,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -200,7 +200,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $database,
             $this->getObjectHandler(),
@@ -230,7 +230,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -339,7 +339,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $cache,
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -418,7 +418,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -452,7 +452,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(9))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(false, true, true, false, false, false, false, true, false));
@@ -509,7 +509,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -569,7 +569,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(true, false, false));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->any())
             ->method('getFullAccessRole')
             ->will($this->returnValue('administrator'));
@@ -617,7 +617,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ->method('isSuperAdmin')
             ->will($this->returnValue(false));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->any())
             ->method('getFullAccessRole')
             ->will($this->onConsecutiveCalls(
@@ -705,7 +705,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(0),
@@ -719,7 +719,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         self::assertTrue($accessHandler->checkObjectAccess('invalid', 1));
         self::assertTrue($accessHandler->checkObjectAccess('postType', 2));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(5))
             ->method('authorsHasAccessToOwn')
@@ -769,7 +769,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -781,7 +781,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -815,7 +815,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -833,7 +833,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ->method('isAdmin')
             ->will($this->onConsecutiveCalls(false, true, false));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
 
         $config->expects($this->exactly(3))
             ->method('authorsHasAccessToOwn')
@@ -940,7 +940,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $accessHandler = new AccessHandler(
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $objectHandler,
@@ -965,7 +965,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $accessHandler = new AccessHandler(
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $objectHandler,
@@ -990,7 +990,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $accessHandler = new AccessHandler(
             $wordpress,
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getCache(),
             $this->getDatabase(),
             $objectHandler,

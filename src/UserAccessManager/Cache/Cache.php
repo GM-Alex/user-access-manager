@@ -14,6 +14,8 @@
  */
 namespace UserAccessManager\Cache;
 
+use UserAccessManager\Wrapper\Wordpress;
+
 /**
  * Class Cache
  *
@@ -21,6 +23,16 @@ namespace UserAccessManager\Cache;
  */
 class Cache
 {
+    /**
+     * @var Wordpress
+     */
+    private $wordpress;
+
+    /**
+     * @var CacheProviderFactory
+     */
+    private $cacheProviderFactory;
+
     /**
      * @var null|CacheProviderInterface
      */
@@ -37,13 +49,27 @@ class Cache
     private $runtimeCache = [];
 
     /**
+     * Cache constructor.
+     *
+     * @param Wordpress            $wordpress
+     * @param CacheProviderFactory $cacheProviderFactory
+     */
+    public function __construct(Wordpress $wordpress, CacheProviderFactory $cacheProviderFactory)
+    {
+        $this->wordpress = $wordpress;
+        $this->cacheProviderFactory = $cacheProviderFactory;
+    }
+
+    /**
      * Sets a cache provider
      *
-     * @param CacheProviderInterface $cacheProvider
+     * @param string $key
      */
-    public function setCacheProvider(CacheProviderInterface $cacheProvider)
+    public function setActiveCacheProvider($key)
     {
-        $this->cacheProvider = $cacheProvider;
+        $cacheProviders = $this->getRegisteredCacheProviders();
+
+        $this->cacheProvider = (isset($cacheProviders[$key]) === true) ? $cacheProviders[$key] : null;
     }
 
     /**
@@ -137,5 +163,20 @@ class Cache
     {
         $this->cache = [];
         $this->runtimeCache = [];
+    }
+
+    /**
+     * Returns a list of the registered cache handlers.
+     *
+     * @return CacheProviderInterface[]
+     */
+    public function getRegisteredCacheProviders()
+    {
+        $fileSystemCacheProvider = $this->cacheProviderFactory->createFileSystemCacheProvider();
+
+        return $this->wordpress->applyFilters(
+            'uam_registered_cache_handlers',
+            [$fileSystemCacheProvider->getId() => $fileSystemCacheProvider]
+        );
     }
 }

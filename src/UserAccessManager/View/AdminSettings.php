@@ -62,7 +62,7 @@ if ($controller->hasUpdateMessage()) {
                     <tr>
                         <th scope="row">
                             <label for="uam_settings_group_section">
-                                <?php echo TXT_UAM_SETTINGS_GROUP_SECTION; ?>
+                                <?php echo $controller->getText($currentGroupKey.'_SECTION_SELECTION'); ?>
                             </label>
                         </th>
                         <td>
@@ -79,7 +79,7 @@ if ($controller->hasUpdateMessage()) {
                                             echo 'selected="selected"';
                                         }
                                         ?>><?php
-                                            echo ($sectionKey === \UserAccessManager\Config\Config::DEFAULT_TYPE) ?
+                                            echo ($sectionKey === \UserAccessManager\Config\MainConfig::DEFAULT_TYPE) ?
                                                 TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT :
                                                 $controller->getObjectName($sectionKey);
                                         ?></option>
@@ -104,28 +104,32 @@ if ($controller->hasUpdateMessage()) {
                class="form-table<?php echo $cssClass; ?>">
             <tbody>
             <?php
-            $formElements = $form->getElements();
+            if ($form instanceof \UserAccessManager\Form\Form) {
+                $formElements = $form->getElements();
 
-            foreach ($formElements as $formElement) {
-                ?>
-                <tr valign="top">
-                    <?php
-                    if ($formElement instanceof \UserAccessManager\Form\Input) {
-                        $input = $formElement;
-                        include 'AdminForm/Input.php';
-                    } elseif ($formElement instanceof \UserAccessManager\Form\Textarea) {
-                        $textarea = $formElement;
-                        include 'AdminForm/Textarea.php';
-                    } elseif ($formElement instanceof \UserAccessManager\Form\Select) {
-                        $select = $formElement;
-                        include 'AdminForm/Select.php';
-                    } elseif ($formElement instanceof \UserAccessManager\Form\Radio) {
-                        $radio = $formElement;
-                        include 'AdminForm/Radio.php';
-                    }
+                foreach ($formElements as $formElement) {
                     ?>
-                </tr>
-                <?php
+                    <tr valign="top">
+                        <?php
+                        if ($formElement instanceof \UserAccessManager\Form\Input) {
+                            $input = $formElement;
+                            include 'AdminForm/Input.php';
+                        } elseif ($formElement instanceof \UserAccessManager\Form\Textarea) {
+                            $textarea = $formElement;
+                            include 'AdminForm/Textarea.php';
+                        } elseif ($formElement instanceof \UserAccessManager\Form\Select) {
+                            $select = $formElement;
+                            include 'AdminForm/Select.php';
+                        } elseif ($formElement instanceof \UserAccessManager\Form\Radio) {
+                            $radio = $formElement;
+                            include 'AdminForm/Radio.php';
+                        }
+                        ?>
+                    </tr>
+                    <?php
+                }
+            } elseif (is_string($form) === true) {
+                echo $form;
             }
             ?>
             </tbody>

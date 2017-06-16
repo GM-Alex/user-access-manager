@@ -15,6 +15,9 @@
 namespace UserAccessManager\Cache;
 
 use UserAccessManager\UserAccessManagerTestCase;
+use Vfs\FileSystem;
+use Vfs\Node\Directory;
+use Vfs\Node\File;
 
 /**
  * Class FileSystemCacheProviderTest
@@ -23,6 +26,28 @@ use UserAccessManager\UserAccessManagerTestCase;
  */
 class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 {
+    /**
+     * @var FileSystem
+     */
+    private $root;
+
+    /**
+     * Setup virtual file system.
+     */
+    public function setUp()
+    {
+        $this->root = FileSystem::factory('vfs://');
+        $this->root->mount();
+    }
+
+    /**
+     * Tear down virtual file system.
+     */
+    public function tearDown()
+    {
+        $this->root->unmount();
+    }
+
     /**
      * @group unit
      * @covers \UserAccessManager\Cache\FileSystemCacheProvider::__construct()
@@ -37,12 +62,13 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
             ->with('/var/www/app/cache/uam', DIRECTORY_SEPARATOR)
             ->will($this->returnValue(false));
 
-        $userAccessManger = $this->getUserAccessManager();
-        $userAccessManger->expects($this->once())
-            ->method('getUtil')
-            ->will($this->returnValue($util));
-
-        $fileSystemCacheProvider = new FileSystemCacheProvider($userAccessManger);
+        $fileSystemCacheProvider = new FileSystemCacheProvider(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $util,
+            $this->getConfigFactory(),
+            $this->getConfigParameterFactory()
+        );
         self::assertInstanceOf('\UserAccessManager\Cache\FileSystemCacheProvider', $fileSystemCacheProvider);
         return $fileSystemCacheProvider;
     }

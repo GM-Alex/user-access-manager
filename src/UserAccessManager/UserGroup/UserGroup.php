@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\UserGroup;
 
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Util\Util;
@@ -46,7 +46,7 @@ class UserGroup
     private $database;
 
     /**
-     * @var Config
+     * @var MainConfig
      */
     private $config;
 
@@ -131,7 +131,7 @@ class UserGroup
      * @param Php           $php
      * @param Wordpress     $wordpress
      * @param Database      $database
-     * @param Config        $config
+     * @param MainConfig    $config
      * @param Util          $util
      * @param ObjectHandler $objectHandler
      * @param null|string   $id
@@ -140,7 +140,7 @@ class UserGroup
         Php $php,
         Wordpress $wordpress,
         Database $database,
-        Config $config,
+        MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
         $id = null

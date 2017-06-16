@@ -14,7 +14,8 @@
  */
 namespace UserAccessManager\Controller;
 
-use UserAccessManager\Config\Config;
+use UserAccessManager\Cache\Cache;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
@@ -32,6 +33,7 @@ class AdminSettingsController extends Controller
     const SECTION_FILES = 'file';
     const GROUP_AUTHOR = 'author';
     const SECTION_AUTHOR = 'author';
+    const GROUP_CACHE = 'cache';
     const GROUP_OTHER = 'other';
     const SECTION_OTHER = 'other';
 
@@ -39,6 +41,11 @@ class AdminSettingsController extends Controller
      * @var string
      */
     protected $template = 'AdminSettings.php';
+
+    /**
+     * @var Cache
+     */
+    private $cache;
 
     /**
      * @var ObjectHandler
@@ -65,22 +72,25 @@ class AdminSettingsController extends Controller
      *
      * @param Php           $php
      * @param Wordpress     $wordpress
-     * @param Config        $config
+     * @param MainConfig    $config
+     * @param Cache         $cache
      * @param ObjectHandler $objectHandler
      * @param FileHandler   $fileHandler
      * @param FormFactory   $formFactory
-     * @param FormHelper   $formHelper
+     * @param FormHelper    $formHelper
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Config $config,
+        MainConfig $config,
+        Cache $cache,
         ObjectHandler $objectHandler,
         FileHandler $fileHandler,
         FormFactory $formFactory,
         FormHelper $formHelper
     ) {
         parent::__construct($php, $wordpress, $config);
+        $this->cache = $cache;
         $this->objectHandler = $objectHandler;
         $this->fileHandler = $fileHandler;
         $this->formFactory = $formFactory;
@@ -175,11 +185,13 @@ class AdminSettingsController extends Controller
         $group = $this->getCurrentSettingsGroup();
 
         if ($group === self::GROUP_POST_TYPES || $group === self::GROUP_TAXONOMIES) {
-            $default = Config::DEFAULT_TYPE;
+            $default = MainConfig::DEFAULT_TYPE;
         } elseif ($group === self::GROUP_FILES) {
             $default = self::SECTION_FILES;
         } elseif ($group === self::GROUP_AUTHOR) {
             $default = self::SECTION_AUTHOR;
+        } elseif ($group === self::GROUP_CACHE) {
+            $default = $this->config->getActiveCacheProvider();
         } elseif ($group === self::GROUP_OTHER) {
             $default = self::SECTION_OTHER;
         }
@@ -223,7 +235,7 @@ class AdminSettingsController extends Controller
      *
      * @return \UserAccessManager\Form\Form
      */
-    private function getPostSettingsForm($postType = Config::DEFAULT_TYPE)
+    private function getPostSettingsForm($postType = MainConfig::DEFAULT_TYPE)
     {
         $textarea = null;
         $configParameters = $this->config->getConfigParameters();
@@ -238,7 +250,7 @@ class AdminSettingsController extends Controller
             );
         }
 
-        $parameters = ($postType !== Config::DEFAULT_TYPE) ? ["{$postType}_use_default"] : [];
+        $parameters = ($postType !== MainConfig::DEFAULT_TYPE) ? ["{$postType}_use_default"] : [];
         $parameters = array_merge($parameters, [
             "hide_{$postType}",
             "hide_{$postType}_title",
@@ -263,9 +275,9 @@ class AdminSettingsController extends Controller
      *
      * @return \UserAccessManager\Form\Form
      */
-    private function getTaxonomySettingsForm($taxonomy = Config::DEFAULT_TYPE)
+    private function getTaxonomySettingsForm($taxonomy = MainConfig::DEFAULT_TYPE)
     {
-        $parameters = ($taxonomy !== Config::DEFAULT_TYPE) ? ["{$taxonomy}_use_default"] : [];
+        $parameters = ($taxonomy !== MainConfig::DEFAULT_TYPE) ? ["{$taxonomy}_use_default"] : [];
         $parameters = array_merge($parameters, [
             "hide_empty_{$taxonomy}"
         ]);
@@ -434,6 +446,7 @@ class AdminSettingsController extends Controller
             self::GROUP_TAXONOMIES,
             self::GROUP_FILES,
             self::GROUP_AUTHOR,
+            self::GROUP_CACHE,
             self::GROUP_OTHER
         ];
     }
@@ -449,7 +462,7 @@ class AdminSettingsController extends Controller
         $groupForms = [];
 
         if ($group === self::GROUP_POST_TYPES) {
-            $groupForms[config::DEFAULT_TYPE] = $this->getPostSettingsForm();
+            $groupForms[MainConfig::DEFAULT_TYPE] = $this->getPostSettingsForm();
             $postTypes = $this->getPostTypes();
 
             foreach ($postTypes as $postType => $postTypeObject) {
@@ -460,7 +473,7 @@ class AdminSettingsController extends Controller
                 $groupForms[$postType] = $this->getPostSettingsForm($postType);
             }
         } elseif ($group === self::GROUP_TAXONOMIES) {
-            $groupForms[config::DEFAULT_TYPE] = $this->getTaxonomySettingsForm();
+            $groupForms[MainConfig::DEFAULT_TYPE] = $this->getTaxonomySettingsForm();
             $taxonomies = $this->getTaxonomies();
 
             foreach ($taxonomies as $taxonomy => $taxonomyObject) {
@@ -474,6 +487,15 @@ class AdminSettingsController extends Controller
             $groupForms = [self::SECTION_FILES => $this->getFilesSettingsForm()];
         } elseif ($group === self::GROUP_AUTHOR) {
             $groupForms = [self::SECTION_AUTHOR => $this->getAuthorSettingsForm()];
+        } elseif ($group === self::GROUP_CACHE) {
+            $cacheProviders = $this->cache->getRegisteredCacheProviders();
+            $groupForms['none'] = null;
+
+            foreach ($cacheProviders as $cacheProvider) {
+                $groupForms[$cacheProvider->getId()] = $this->formHelper->getSettingsFormByConfigParameters(
+                    $cacheProvider->getConfig()->getConfigParameters()
+                );
+            }
         } elseif ($group === self::GROUP_OTHER) {
             $groupForms = [self::SECTION_OTHER => $this->getOtherSettingsForm()];
         }

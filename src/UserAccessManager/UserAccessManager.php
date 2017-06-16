@@ -16,7 +16,9 @@ namespace UserAccessManager;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Cache\CacheProviderFactory;
+use UserAccessManager\Config\ConfigFactory;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Controller\AdminSetupController;
 use UserAccessManager\Controller\ControllerFactory;
@@ -62,7 +64,7 @@ class UserAccessManager
     private $cache;
 
     /**
-     * @var Config
+     * @var MainConfig
      */
     private $config;
 
@@ -102,6 +104,16 @@ class UserAccessManager
     private $controllerFactory;
 
     /**
+     * @var CacheProviderFactory
+     */
+    private $cacheProviderFactory;
+
+    /**
+     * @var ConfigFactory
+     */
+    private $configFactory;
+
+    /**
      * @var ConfigParameterFactory
      */
     private $configParameterFactory;
@@ -123,7 +135,7 @@ class UserAccessManager
      * @param Wordpress              $wordpress
      * @param Util                   $util
      * @param Cache                  $cache
-     * @param Config                 $config
+     * @param MainConfig             $config
      * @param Database               $database
      * @param ObjectHandler          $objectHandler
      * @param AccessHandler          $accessHandler
@@ -131,6 +143,8 @@ class UserAccessManager
      * @param SetupHandler           $setupHandler
      * @param UserGroupFactory       $userGroupFactory
      * @param ControllerFactory      $controllerFactory
+     * @param CacheProviderFactory   $cacheProviderFactory
+     * @param ConfigFactory          $configFactory
      * @param ConfigParameterFactory $configParameterFactory
      * @param FileProtectionFactory  $fileProtectionFactory
      * @param FileObjectFactory      $fileObjectFactory
@@ -140,7 +154,7 @@ class UserAccessManager
         Wordpress $wordpress,
         Util $util,
         Cache $cache,
-        Config $config,
+        MainConfig $config,
         Database $database,
         ObjectHandler $objectHandler,
         AccessHandler $accessHandler,
@@ -148,6 +162,8 @@ class UserAccessManager
         SetupHandler $setupHandler,
         UserGroupFactory $userGroupFactory,
         ControllerFactory $controllerFactory,
+        CacheProviderFactory $cacheProviderFactory,
+        ConfigFactory $configFactory,
         ConfigParameterFactory $configParameterFactory,
         FileProtectionFactory $fileProtectionFactory,
         FileObjectFactory $fileObjectFactory
@@ -164,16 +180,13 @@ class UserAccessManager
         $this->setupHandler = $setupHandler;
         $this->userGroupFactory = $userGroupFactory;
         $this->controllerFactory = $controllerFactory;
+        $this->cacheProviderFactory = $cacheProviderFactory;
+        $this->configFactory = $configFactory;
         $this->configParameterFactory = $configParameterFactory;
         $this->fileProtectionFactory = $fileProtectionFactory;
         $this->fileObjectFactory = $fileObjectFactory;
 
-        $cacheProviderClass = $this->config->getCacheProviderClass();
-
-        if ($cacheProviderClass !== null && \class_exists($cacheProviderClass)) {
-            $cacheProvider = new $cacheProviderClass($this);
-            $this->cache->setCacheProvider($cacheProvider);
-        }
+        $this->cache->setActiveCacheProvider($this->config->getActiveCacheProvider());
     }
 
     /**
@@ -209,7 +222,7 @@ class UserAccessManager
     }
 
     /**
-     * @return Config
+     * @return MainConfig
      */
     public function getConfig()
     {
@@ -270,6 +283,22 @@ class UserAccessManager
     public function getControllerFactory()
     {
         return $this->controllerFactory;
+    }
+
+    /**
+     * @return CacheProviderFactory
+     */
+    public function getCacheProviderFactory()
+    {
+        return $this->cacheProviderFactory;
+    }
+
+    /**
+     * @return ConfigFactory
+     */
+    public function getConfigFactory()
+    {
+        return $this->configFactory;
     }
 
     /**

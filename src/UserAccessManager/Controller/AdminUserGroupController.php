@@ -15,7 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Php;
@@ -56,14 +56,14 @@ class AdminUserGroupController extends Controller
      *
      * @param Php              $php
      * @param Wordpress        $wordpress
-     * @param Config           $config
+     * @param MainConfig       $config
      * @param AccessHandler    $accessHandler
      * @param UserGroupFactory $userGroupFactory
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Config $config,
+        MainConfig $config,
         AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory
     ) {

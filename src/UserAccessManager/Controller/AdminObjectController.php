@@ -16,7 +16,7 @@ namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroup;
@@ -85,7 +85,7 @@ class AdminObjectController extends Controller
      *
      * @param Php           $php
      * @param Wordpress     $wordpress
-     * @param Config        $config
+     * @param MainConfig    $config
      * @param Database      $database
      * @param Cache         $cache
      * @param ObjectHandler $objectHandler
@@ -94,7 +94,7 @@ class AdminObjectController extends Controller
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Config $config,
+        MainConfig $config,
         Database $database,
         Cache $cache,
         ObjectHandler $objectHandler,

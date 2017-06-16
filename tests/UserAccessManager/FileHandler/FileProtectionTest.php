@@ -71,7 +71,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
     {
         $php = $this->getPhp();
         $wordpress = $this->getWordpress();
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $util = $this->getUtil();
         $stub = $this->getStub($php, $wordpress, $config, $util);
         self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtection', $stub);
@@ -85,7 +85,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
     {
         $php = $this->getPhp();
         $wordpress = $this->getWordpress();
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(2))
             ->method('getMimeTypes')
             ->will($this->onConsecutiveCalls(
@@ -140,7 +140,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(2))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
@@ -168,7 +168,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
         $stub->createPasswordFile(true);
         self::assertEquals($content, file_get_contents($firstTestFile));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $config->expects($this->exactly(3))
             ->method('getFilePassType')
             ->will($this->returnValue('random'));

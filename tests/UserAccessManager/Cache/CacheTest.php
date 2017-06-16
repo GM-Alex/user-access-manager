@@ -30,23 +30,48 @@ class CacheTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $cache = new Cache();
+        $cache = new Cache(
+            $this->getWordpress(),
+            $this->getCacheProviderFactory()
+        );
         self::assertInstanceOf('\UserAccessManager\Cache\Cache', $cache);
         return $cache;
     }
 
     /**
-     * @group   unit
-     * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Cache\Cache::setCacheProvider()
-     *
-     * @param Cache $cache
+     * @group  unit
+     * @covers \UserAccessManager\Cache\Cache::setActiveCacheProvider()
+     * @covers \UserAccessManager\Cache\Cache::getRegisteredCacheProviders()
      */
-    public function testSetCacheProvider(Cache $cache)
+    public function testSetActiveCacheProvider()
     {
+        $fileSystemCacheProvider = $this->createMock('\UserAccessManager\Cache\FileSystemCacheProvider');
+        $fileSystemCacheProvider->expects($this->exactly(2))
+            ->method('getId')
+            ->will($this->returnValue('cacheProvider'));
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('applyFilters')
+            ->with('uam_registered_cache_handlers', ['cacheProvider' => $fileSystemCacheProvider])
+            ->will($this->returnValue(['cacheProvider' => $fileSystemCacheProvider]));
+
+        $cacheProviderFactory =$this->getCacheProviderFactory();
+        $cacheProviderFactory->expects($this->exactly(2))
+            ->method('createFileSystemCacheProvider')
+            ->will($this->returnValue($fileSystemCacheProvider));
+
+        $cache = new Cache(
+            $wordpress,
+            $cacheProviderFactory
+        );
+
         self::assertAttributeEmpty('cacheProvider', $cache);
-        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
-        $cache->setCacheProvider($fileSystemCacheProvider);
+
+        $cache->setActiveCacheProvider('invalid');
+        self::assertAttributeEmpty('cacheProvider', $cache);
+
+        $cache->setActiveCacheProvider('cacheProvider');
         self::assertAttributeEquals($fileSystemCacheProvider, 'cacheProvider', $cache);
     }
 
@@ -80,12 +105,40 @@ class CacheTest extends UserAccessManagerTestCase
     {
         $cache->add('stringCacheKey', 'testValue');
 
-        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
+
+        $fileSystemCacheProvider = $this->createMock('\UserAccessManager\Cache\FileSystemCacheProvider');
+        $fileSystemCacheProvider->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue('cacheProvider'));
         $fileSystemCacheProvider->expects($this->once())
             ->method('add')
             ->with('arrayCacheKey', ['testString', 'testString2']);
+        $fileSystemCacheProvider->expects($this->any())
+            ->method('get')
+            ->with('onlyInCacheProvider')
+            ->will($this->returnValue('cacheProviderValue'));
+        $fileSystemCacheProvider->expects($this->any())
+            ->method('invalidate')
+            ->with('arrayCacheKey');
 
-        $cache->setCacheProvider($fileSystemCacheProvider);
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->any())
+            ->method('applyFilters')
+            ->with('uam_registered_cache_handlers', ['cacheProvider' => $fileSystemCacheProvider])
+            ->will($this->returnValue(['cacheProvider' => $fileSystemCacheProvider]));
+
+        $cacheProviderFactory =$this->getCacheProviderFactory();
+        $cacheProviderFactory->expects($this->any())
+            ->method('createFileSystemCacheProvider')
+            ->will($this->returnValue($fileSystemCacheProvider));
+
+        $cache = new Cache(
+            $wordpress,
+            $cacheProviderFactory
+        );
+
+        $cache->add('stringCacheKey', 'testValue');
+        $cache->setActiveCacheProvider('cacheProvider');
         $cache->add('arrayCacheKey', ['testString', 'testString2']);
 
         self::assertAttributeEquals(
@@ -111,13 +164,7 @@ class CacheTest extends UserAccessManagerTestCase
      */
     public function testGet($cache)
     {
-        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
-        $fileSystemCacheProvider->expects($this->once())
-            ->method('get')
-            ->with('onlyInCacheProvider')
-            ->will($this->returnValue('cacheProviderValue'));
-
-        $cache->setCacheProvider($fileSystemCacheProvider);
+        $cache->setActiveCacheProvider('cacheProvider');
 
         self::assertEquals('testValue', $cache->get('stringCacheKey'));
         self::assertEquals(
@@ -148,12 +195,7 @@ class CacheTest extends UserAccessManagerTestCase
      */
     public function testInvalidate(Cache $cache)
     {
-        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
-        $fileSystemCacheProvider->expects($this->once())
-            ->method('invalidate')
-            ->with('arrayCacheKey');
-
-        $cache->setCacheProvider($fileSystemCacheProvider);
+        $cache->setActiveCacheProvider('cacheProvider');
 
         $cache->invalidate('arrayCacheKey');
         self::assertAttributeEquals(

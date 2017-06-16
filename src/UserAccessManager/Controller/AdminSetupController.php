@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\Wrapper\Php;
@@ -54,14 +54,14 @@ class AdminSetupController extends Controller
      *
      * @param Php          $php
      * @param Wordpress    $wordpress
-     * @param Config       $config
+     * @param MainConfig   $config
      * @param Database     $database
      * @param SetupHandler $setupHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Config $config,
+        MainConfig $config,
         Database $database,
         SetupHandler $setupHandler
     ) {

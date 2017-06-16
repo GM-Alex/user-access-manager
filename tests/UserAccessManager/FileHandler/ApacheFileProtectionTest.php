@@ -57,7 +57,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         $apacheFileProtection = new ApacheFileProtection(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil()
         );
 
@@ -87,7 +87,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getConfig();
+        $config = $this->getMainConfig();
         $util = $this->getUtil();
 
         $config->expects($this->exactly(6))
@@ -202,7 +202,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         $apacheFileProtection = new ApacheFileProtection(
             $php,
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil()
         );
 

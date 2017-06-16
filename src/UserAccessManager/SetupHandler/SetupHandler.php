@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\SetupHandler;
 
-use UserAccessManager\Config\Config;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -547,7 +547,7 @@ class SetupHandler
             $dropQuery = "DROP TABLE IF EXISTS {$userGroupTable}, {$userGroupToObjectTable}";
             $this->database->query($dropQuery);
 
-            $this->wordpress->deleteOption(Config::ADMIN_OPTIONS_NAME);
+            $this->wordpress->deleteOption(MainConfig::MAIN_CONFIG_KEY);
             $this->wordpress->deleteOption('uam_version');
             $this->wordpress->deleteOption('uam_db_version');
         }

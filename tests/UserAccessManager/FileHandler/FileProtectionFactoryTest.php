@@ -34,7 +34,7 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
         $fileProtectionFactory = new FileProtectionFactory(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $this->getMainConfig(),
             $this->getUtil()
         );
 
