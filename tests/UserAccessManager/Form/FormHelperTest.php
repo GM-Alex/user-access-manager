@@ -314,4 +314,57 @@ class FormHelperTest extends UserAccessManagerTestCase
 
         self::assertEquals($form, $formHelper->getSettingsForm(['one', 'two', 'invalid', $formInputThree]));
     }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Form\FormHelper::getSettingsFormByConfig()
+     */
+    public function testGetSettingsFormByConfig()
+    {
+        $config = $this->getConfig();
+        $config->expects($this->once())
+            ->method('getConfigParameters')
+            ->will($this->returnValue(
+                [
+                    'one' => $this->getConfigParameter('string', 'One'),
+                    'two' => $this->getConfigParameter('string', 'Two')
+                ]
+            ));
+
+        $formInputOne = $this->createMock('\UserAccessManager\Form\Input');
+        $formInputTwo = $this->createMock('\UserAccessManager\Form\Input');
+
+        $form = $this->createMock('\UserAccessManager\Form\Form');
+        $form->expects($this->exactly(2))
+            ->method('addElement')
+            ->withConsecutive(
+                [$formInputOne],
+                [$formInputTwo]
+            );
+
+        $formFactory = $this->getFormFactory();
+        $formFactory->expects($this->once())
+            ->method('createFrom')
+            ->will($this->returnValue($form));
+
+        $formFactory->expects($this->exactly(2))
+            ->method('createInput')
+            ->withConsecutive(
+                ['stringOneId', 'stringOneValue', 'TXT_UAM_STRINGONEID', 'TXT_UAM_STRINGONEID_DESC'],
+                ['stringTwoId', 'stringTwoValue', 'TXT_UAM_STRINGTWOID', 'TXT_UAM_STRINGTWOID_DESC']
+            )
+            ->will($this->onConsecutiveCalls(
+                $formInputOne,
+                $formInputTwo
+            ));
+
+        $formHelper = new FormHelper(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $formFactory
+        );
+
+        self::assertEquals($form, $formHelper->getSettingsFormByConfig($config));
+    }
 }

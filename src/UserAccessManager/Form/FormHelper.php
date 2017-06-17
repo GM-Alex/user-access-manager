@@ -15,6 +15,7 @@
 namespace UserAccessManager\Form;
 
 use UserAccessManager\Config\BooleanConfigParameter;
+use UserAccessManager\Config\Config;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\SelectionConfigParameter;
@@ -163,6 +164,9 @@ class FormHelper
             );
         } elseif (($configParameter instanceof SelectionConfigParameter) === true) {
             $possibleValues = [];
+            /**
+             * @var SelectionConfigParameter $configParameter
+             */
             $selections = $configParameter->getSelections();
 
             foreach ($selections as $selection) {
@@ -214,13 +218,14 @@ class FormHelper
     /**
      * Converts config parameters to a form.
      *
-     * @param ConfigParameter[] $configParameters
+     * @param Config $config
      *
      * @return Form
      */
-    public function getSettingsFormByConfigParameters(array $configParameters)
+    public function getSettingsFormByConfig(Config $config)
     {
         $form = $this->formFactory->createFrom();
+        $configParameters = $config->getConfigParameters();
 
         foreach ($configParameters as $configParameter) {
             $formElement = $this->convertConfigParameter($configParameter);

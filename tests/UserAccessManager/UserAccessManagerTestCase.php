@@ -76,6 +76,14 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\Config
+     */
+    protected function getConfig()
+    {
+        return $this->createMock('\UserAccessManager\Config\Config');
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\MainConfig
      */
     protected function getMainConfig()

@@ -39,6 +39,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -77,6 +78,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -103,6 +105,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -132,6 +135,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -169,6 +173,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -190,6 +195,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -211,10 +217,16 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testGetCurrentSettingsSectionp()
     {
+        $config = $this->getMainConfig();
+        $config->expects($this->once())
+            ->method('getActiveCacheProvider')
+            ->will($this->returnValue('activeCacheProvider'));
+
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $config,
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -244,6 +256,12 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $adminSettingController->getCurrentSettingsSection()
         );
 
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_CACHE;
+        self::assertEquals(
+            'activeCacheProvider',
+            $adminSettingController->getCurrentSettingsSection()
+        );
+
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_OTHER;
         self::assertEquals(
             AdminSettingsController::SECTION_OTHER,
@@ -264,6 +282,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -295,6 +314,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -335,6 +355,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
@@ -440,10 +461,25 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             'blog_admin_hint_text' => $this->getConfigParameter('string')
         ];
 
-        $config = $this->getMainConfig();
-        $config->expects($this->exactly(6))
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(6))
             ->method('getConfigParameters')
             ->will($this->returnValue($configValues));
+
+        $config = $this->getConfig();
+
+        $cacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
+        $cacheProvider->expects($this->once())
+            ->method('getId')
+            ->will($this->returnValue('cacheProviderId'));
+        $cacheProvider->expects($this->once())
+            ->method('getConfig')
+            ->will($this->returnValue($config));
+
+        $cache = $this->getCache();
+        $cache->expects($this->once())
+            ->method('getRegisteredCacheProviders')
+            ->will($this->returnValue([$cacheProvider]));
 
         $formFactory = $this->getFormFactory();
 
@@ -661,10 +697,16 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 return null;
             }));
 
+        $formHelper->expects($this->once())
+            ->method('getSettingsFormByConfig')
+            ->with($config)
+            ->will($this->returnValue('configForm'));
+
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $mainConfig,
+            $cache,
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $formFactory,
@@ -698,6 +740,12 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_AUTHOR;
         self::assertEquals(['author' => 'authorForm'], $adminSettingController->getCurrentGroupForms());
 
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_CACHE;
+        self::assertEquals(
+            ['none' => null, 'cacheProviderId' => 'configForm'],
+            $adminSettingController->getCurrentGroupForms()
+        );
+
         $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_OTHER;
         self::assertEquals(['other' => 'otherForm'], $adminSettingController->getCurrentGroupForms());
     }
@@ -708,30 +756,48 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testUpdateSettingsAction()
     {
-        $config = $this->getMainConfig();
-        $config->expects($this->exactly(3))
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(5))
             ->method('setConfigParameters')
-            ->with([
-                'b' => '&lt;b&gt;b&lt;/b&gt;',
-                'i' => '&lt;i&gt;i&lt;/i&gt;',
-            ]);
+            ->withConsecutive(
+                [['b' => '&lt;b&gt;b&lt;/b&gt;', 'i' => '&lt;i&gt;i&lt;/i&gt;']],
+                [['b' => '&lt;b&gt;b&lt;/b&gt;', 'i' => '&lt;i&gt;i&lt;/i&gt;']],
+                [['b' => '&lt;b&gt;b&lt;/b&gt;', 'i' => '&lt;i&gt;i&lt;/i&gt;']],
+                [['active_cache_provider' => MainConfig::CACHE_PROVIDER_NONE]],
+                [['active_cache_provider' => 'cacheProviderId']]
+            );
 
-        $config->expects($this->exactly(3))
+        $mainConfig->expects($this->exactly(5))
             ->method('lockFile')
-            ->will($this->onConsecutiveCalls(false, true, true));
+            ->will($this->onConsecutiveCalls(false, true, true, true, true));
+
+        $config = $this->getConfig();
+        $config->expects($this->once())
+            ->method('setConfigParameters')
+            ->with(['b' => '&lt;b&gt;b&lt;/b&gt;', 'i' => '&lt;i&gt;i&lt;/i&gt;']);
+
+        $cacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
+        $cacheProvider->expects($this->once())
+            ->method('getConfig')
+            ->will($this->returnValue($config));
+
+        $cache = $this->getCache();
+        $cache->expects($this->exactly(2))
+            ->method('getRegisteredCacheProviders')
+            ->will($this->returnValue(['cacheProviderId' => $cacheProvider]));
 
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(5))
             ->method('verifyNonce')
             ->will($this->returnValue(true));
 
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(5))
             ->method('doAction')
-            ->with('uam_update_options', $config);
+            ->with('uam_update_options', $mainConfig);
 
         $fileHandler = $this->getFileHandler();
 
-        $fileHandler->expects($this->exactly(2))
+        $fileHandler->expects($this->exactly(4))
             ->method('createFileProtection');
 
         $fileHandler->expects($this->once())
@@ -745,7 +811,8 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $mainConfig,
+            $cache,
             $this->getObjectHandler(),
             $fileHandler,
             $this->getFormFactory(),
@@ -754,6 +821,14 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
         $adminSettingController->updateSettingsAction();
         $adminSettingController->updateSettingsAction();
+        $adminSettingController->updateSettingsAction();
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_CACHE;
+        $_GET[AdminSettingsController::SETTING_SECTION_PARAMETER] = MainConfig::CACHE_PROVIDER_NONE;
+        $adminSettingController->updateSettingsAction();
+
+        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_CACHE;
+        $_GET[AdminSettingsController::SETTING_SECTION_PARAMETER] = 'cacheProviderId';
         $adminSettingController->updateSettingsAction();
 
         self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, 'updateMessage', $adminSettingController);
@@ -779,6 +854,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
+            $this->getCache(),
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),

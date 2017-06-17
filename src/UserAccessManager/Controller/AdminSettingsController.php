@@ -489,11 +489,11 @@ class AdminSettingsController extends Controller
             $groupForms = [self::SECTION_AUTHOR => $this->getAuthorSettingsForm()];
         } elseif ($group === self::GROUP_CACHE) {
             $cacheProviders = $this->cache->getRegisteredCacheProviders();
-            $groupForms['none'] = null;
+            $groupForms[MainConfig::CACHE_PROVIDER_NONE] = null;
 
             foreach ($cacheProviders as $cacheProvider) {
-                $groupForms[$cacheProvider->getId()] = $this->formHelper->getSettingsFormByConfigParameters(
-                    $cacheProvider->getConfig()->getConfigParameters()
+                $groupForms[$cacheProvider->getId()] = $this->formHelper->getSettingsFormByConfig(
+                    $cacheProvider->getConfig()
                 );
             }
         } elseif ($group === self::GROUP_OTHER) {
@@ -509,8 +509,21 @@ class AdminSettingsController extends Controller
     public function updateSettingsAction()
     {
         $this->verifyNonce('uamUpdateSettings');
-
+        $group = $this->getCurrentSettingsGroup();
         $newConfigParameters = $this->getRequestParameter('config_parameters');
+
+        if ($group === self::GROUP_CACHE) {
+            $section = $this->getCurrentSettingsSection();
+            $cacheProviders = $this->cache->getRegisteredCacheProviders();
+
+            if (isset($cacheProviders[$section]) === true) {
+                $cacheProviders[$section]->getConfig()->setConfigParameters($newConfigParameters);
+                $newConfigParameters = ['active_cache_provider' => $section];
+            } elseif ($section === MainConfig::CACHE_PROVIDER_NONE) {
+                $newConfigParameters = ['active_cache_provider' => $section];
+            }
+        }
+
         $this->config->setConfigParameters($newConfigParameters);
 
         if ($this->config->lockFile() === false) {

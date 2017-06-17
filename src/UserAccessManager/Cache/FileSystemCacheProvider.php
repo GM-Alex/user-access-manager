@@ -70,7 +70,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
     /**
      * @var string
      */
-    private $path;
+    private $path = null;
 
     public function __construct(
         Php $php,
@@ -84,14 +84,8 @@ class FileSystemCacheProvider implements CacheProviderInterface
         $this->util = $util;
         $this->configFactory = $configFactory;
         $this->configParameterFactory = $configParameterFactory;
-
-        $this->path = $this->getConfig()->getParameterValue(self::CONFIG_PATH);
-
-        if ($this->util->endsWith($this->path, DIRECTORY_SEPARATOR) === false) {
-            $this->path .= DIRECTORY_SEPARATOR;
-        }
     }
-
+    
     /**
      * Returns the id.
      *
@@ -103,15 +97,35 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
+     * Returns the cache path.
+     *
+     * @return string
+     */
+    private function getPath()
+    {
+        if ($this->path === null) {
+            $this->path = $this->getConfig()->getParameterValue(self::CONFIG_PATH);
+
+            if ($this->util->endsWith($this->path, DIRECTORY_SEPARATOR) === false) {
+                $this->path .= DIRECTORY_SEPARATOR;
+            }
+        }
+
+        return $this->path;
+    }
+
+    /**
      * Initialise the caching path.
      */
     public function init()
     {
-        if (is_dir($this->path) === false) {
-            mkdir($this->path, 0777, true);
+        $path = $this->getPath();
+
+        if (is_dir($path) === false) {
+            mkdir($path, 0777, true);
         }
 
-        $htaccessFile = $this->path.'.htaccess';
+        $htaccessFile = $path.'.htaccess';
 
         if (file_exists($htaccessFile) === false) {
             file_put_contents($htaccessFile, 'Deny from all');
@@ -159,7 +173,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
     public function add($key, $value)
     {
         $method = $this->getConfig()->getParameterValue(self::CONFIG_METHOD);
-        $cacheFile = $this->path.$key;
+        $cacheFile = $this->getPath().$key;
         $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
 
         if ($method === self::METHOD_SERIALIZE) {
@@ -186,7 +200,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
     public function get($key)
     {
         $method = $this->getConfig()->getParameterValue(self::CONFIG_METHOD);
-        $cacheFile = $this->path.$key;
+        $cacheFile = $this->getPath().$key;
         $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
 
         if ((file_exists($cacheFile) === true)) {
@@ -217,7 +231,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
     public function invalidate($key)
     {
         $method = $this->getConfig()->getParameterValue(self::CONFIG_METHOD);
-        $cacheFile = $this->path.$key;
+        $cacheFile = $this->getPath().$key;
         $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
 
         if ((file_exists($cacheFile) === true)) {

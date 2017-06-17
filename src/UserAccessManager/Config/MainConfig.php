@@ -27,6 +27,7 @@ class MainConfig extends Config
 {
     const MAIN_CONFIG_KEY = 'uamAdminOptions';
     const DEFAULT_TYPE = 'default';
+    const CACHE_PROVIDER_NONE = 'none';
 
     /**
      * @var ObjectHandler
@@ -230,8 +231,8 @@ class MainConfig extends Config
             $id = 'active_cache_provider';
             $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
                 $id,
-                'none',
-                array_merge(['none'], array_keys($this->cache->getRegisteredCacheProviders()))
+                self::CACHE_PROVIDER_NONE,
+                array_merge([self::CACHE_PROVIDER_NONE], array_keys($this->cache->getRegisteredCacheProviders()))
             );
 
             $this->defaultConfigParameters = $configParameters;

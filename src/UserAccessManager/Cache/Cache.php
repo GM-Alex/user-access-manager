@@ -70,6 +70,10 @@ class Cache
         $cacheProviders = $this->getRegisteredCacheProviders();
 
         $this->cacheProvider = (isset($cacheProviders[$key]) === true) ? $cacheProviders[$key] : null;
+
+        if ($this->cacheProvider !== null) {
+            $this->cacheProvider->init();
+        }
     }
 
     /**

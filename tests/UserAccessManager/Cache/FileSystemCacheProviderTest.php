@@ -51,15 +51,54 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * @group unit
      * @covers \UserAccessManager\Cache\FileSystemCacheProvider::__construct()
-     *
-     * @return FileSystemCacheProvider
      */
     public function testCanCreateInstance()
     {
+        $fileSystemCacheProvider = new FileSystemCacheProvider(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getUtil(),
+            $this->getConfigFactory(),
+            $this->getConfigParameterFactory()
+        );
+
+        self::assertInstanceOf('\UserAccessManager\Cache\FileSystemCacheProvider', $fileSystemCacheProvider);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::getId()
+     */
+    public function testGetId()
+    {
+        $fileSystemCacheProvider = new FileSystemCacheProvider(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getUtil(),
+            $this->getConfigFactory(),
+            $this->getConfigParameterFactory()
+        );
+
+        self::assertEquals(FileSystemCacheProvider::ID, $fileSystemCacheProvider->getId());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::init()
+     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::getPath()
+     */
+    public function testInit()
+    {
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('path', new Directory());
+
         $util = $this->getUtil();
         $util->expects($this->once())
             ->method('endsWith')
-            ->with('/var/www/app/cache/uam', DIRECTORY_SEPARATOR)
+            ->with('vfs://path/cache', DIRECTORY_SEPARATOR)
             ->will($this->returnValue(false));
 
         $fileSystemCacheProvider = new FileSystemCacheProvider(
@@ -69,7 +108,18 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
             $this->getConfigFactory(),
             $this->getConfigParameterFactory()
         );
-        self::assertInstanceOf('\UserAccessManager\Cache\FileSystemCacheProvider', $fileSystemCacheProvider);
-        return $fileSystemCacheProvider;
+
+        $config = $this->getConfig();
+        $config->expects($this->once())
+            ->method('getParameterValue')
+            ->with(FileSystemCacheProvider::CONFIG_PATH)
+            ->will($this->returnValue('vfs://path/cache'));
+
+        self::setValue($fileSystemCacheProvider, 'config', $config);
+        $fileSystemCacheProvider->init();
+        self::assertAttributeEquals('vfs://path/cache/', 'path', $fileSystemCacheProvider);
+        self::assertTrue(is_dir('vfs://path/cache/'));
+        self::assertTrue(file_exists('vfs://path/cache/.htaccess'));
+        self::assertEquals('Deny from all', file_get_contents('vfs://path/cache/.htaccess'));
     }
 }
