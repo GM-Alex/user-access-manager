@@ -98,7 +98,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         $util = $this->getUtil();
         $util->expects($this->once())
             ->method('endsWith')
-            ->with('vfs://path/cache', DIRECTORY_SEPARATOR)
+            ->with('vfs://path/cache/uam', DIRECTORY_SEPARATOR)
             ->will($this->returnValue(false));
 
         $fileSystemCacheProvider = new FileSystemCacheProvider(
@@ -113,14 +113,15 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         $config->expects($this->once())
             ->method('getParameterValue')
             ->with(FileSystemCacheProvider::CONFIG_PATH)
-            ->will($this->returnValue('vfs://path/cache'));
+            ->will($this->returnValue('vfs://path/cache/uam'));
 
         self::setValue($fileSystemCacheProvider, 'config', $config);
         $fileSystemCacheProvider->init();
-        self::assertAttributeEquals('vfs://path/cache/', 'path', $fileSystemCacheProvider);
-        self::assertTrue(is_dir('vfs://path/cache/'));
-        self::assertTrue(file_exists('vfs://path/cache/.htaccess'));
-        self::assertEquals('Deny from all', file_get_contents('vfs://path/cache/.htaccess'));
+        self::assertAttributeEquals('vfs://path/cache/uam/', 'path', $fileSystemCacheProvider);
+        self::assertTrue(is_dir('vfs://path/cache/uam/'));
+        self::assertTrue(file_exists('vfs://path/cache/uam/.htaccess'));
+        self::assertEquals('Deny from all', file_get_contents('vfs://path/cache/uam/.htaccess'));
+        self::assertEquals(16839, fileperms('vfs://path/cache/uam'));
     }
 
     /**
@@ -264,9 +265,9 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         self::assertTrue(file_exists('vfs://path/serializeCacheKey.cache'));
         self::assertEquals('czoxMDoiY2FjaGVWYWx1ZSI7', file_get_contents('vfs://path/serializeCacheKey.cache'));
 
-        $fileSystemCacheProvider->add('jsonCacheKey', 'cacheValue');
+        $fileSystemCacheProvider->add('jsonCacheKey', ['key' => 'value']);
         self::assertTrue(file_exists('vfs://path/jsonCacheKey.cache'));
-        self::assertEquals('"cacheValue"', file_get_contents('vfs://path/jsonCacheKey.cache'));
+        self::assertEquals('{"key":"value"}', file_get_contents('vfs://path/jsonCacheKey.cache'));
 
         $fileSystemCacheProvider->add('varExportCacheKey', 'cacheValue');
         self::assertTrue(file_exists('vfs://path/varExportCacheKey.php'));
@@ -293,7 +294,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         $rootDir = $this->root->get('/');
         $rootDir->add('path', new Directory([
             'serializeCacheKey.cache' => new File('czoxMDoiY2FjaGVWYWx1ZSI7'),
-            'jsonCacheKey.cache' => new File('"cacheValue"'),
+            'jsonCacheKey.cache' => new File('{"key":"value"}'),
             'igbinaryCacheKey.cache' => new File('igbinarySerializeValue')
         ]));
 
@@ -334,7 +335,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         self::setValue($fileSystemCacheProvider, 'path', 'vfs://path/');
 
         self::assertEquals('cacheValue', $fileSystemCacheProvider->get('serializeCacheKey'));
-        self::assertEquals('cacheValue', $fileSystemCacheProvider->get('jsonCacheKey'));
+        self::assertEquals(['key' => 'value'], $fileSystemCacheProvider->get('jsonCacheKey'));
 
         self::assertEquals(null, $fileSystemCacheProvider->get('igbinaryCacheKey'));
         self::assertEquals('igbinarySerializeValue', $fileSystemCacheProvider->get('igbinaryCacheKey'));
