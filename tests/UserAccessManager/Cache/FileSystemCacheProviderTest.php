@@ -122,4 +122,265 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         self::assertTrue(file_exists('vfs://path/cache/.htaccess'));
         self::assertEquals('Deny from all', file_get_contents('vfs://path/cache/.htaccess'));
     }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::getConfig()
+     */
+    public function testGetConfig()
+    {
+        $php = $this->getPhp();
+
+        $php->expects($this->exactly(2))
+            ->method('functionExists')
+            ->with('igbinary_serialize')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly(2))
+            ->method('getHomePath')
+            ->will($this->returnValue('/homePath/'));
+
+        $config = $this->getConfig();
+
+        $config->expects($this->exactly(2))
+            ->method('setDefaultConfigParameters')
+            ->with([
+                FileSystemCacheProvider::CONFIG_PATH => 'stringConfigParameter',
+                FileSystemCacheProvider::CONFIG_METHOD => 'selectionConfigParameter'
+            ]);
+
+        $configFactory = $this->getConfigFactory();
+
+        $configFactory->expects($this->exactly(2))
+            ->method('createConfig')
+            ->with(FileSystemCacheProvider::CONFIG_KEY)
+            ->will($this->returnValue($config));
+
+        $configParameterFactory = $this->getConfigParameterFactory();
+
+        $configParameterFactory->expects($this->exactly(2))
+            ->method('createStringConfigParameter')
+            ->with(FileSystemCacheProvider::CONFIG_PATH, '/homePath/cache/uam')
+            ->will($this->returnValue('stringConfigParameter'));
+
+
+        $configParameterFactory->expects($this->exactly(2))
+            ->method('createSelectionConfigParameter')
+            ->withConsecutive(
+                [
+                    FileSystemCacheProvider::CONFIG_METHOD,
+                    FileSystemCacheProvider::METHOD_VAR_EXPORT,
+                    [
+                        FileSystemCacheProvider::METHOD_SERIALIZE,
+                        FileSystemCacheProvider::METHOD_JSON,
+                        FileSystemCacheProvider::METHOD_VAR_EXPORT
+                    ]
+                ],
+                [
+                    FileSystemCacheProvider::CONFIG_METHOD,
+                    FileSystemCacheProvider::METHOD_VAR_EXPORT,
+                    [
+                        FileSystemCacheProvider::METHOD_SERIALIZE,
+                        FileSystemCacheProvider::METHOD_JSON,
+                        FileSystemCacheProvider::METHOD_VAR_EXPORT,
+                        FileSystemCacheProvider::METHOD_IGBINARY
+                    ]
+                ]
+            )
+            ->will($this->returnValue('selectionConfigParameter'));
+
+        $fileSystemCacheProvider = new FileSystemCacheProvider(
+            $php,
+            $wordpress,
+            $this->getUtil(),
+            $configFactory,
+            $configParameterFactory
+        );
+
+        self::assertEquals($config, $fileSystemCacheProvider->getConfig());
+
+        self::setValue($fileSystemCacheProvider, 'config', null);
+        self::assertEquals($config, $fileSystemCacheProvider->getConfig());
+
+        self::assertEquals($config, $fileSystemCacheProvider->getConfig());
+        self::assertAttributeEquals($config, 'config', $fileSystemCacheProvider);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::add()
+     */
+    public function testAdd()
+    {
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('path', new Directory());
+
+        $php = $this->getPhp();
+
+        $php->expects($this->exactly(2))
+            ->method('functionExists')
+            ->with('igbinary_serialize')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $php->expects($this->exactly(4))
+            ->method('filePutContents')
+            ->will($this->returnCallback(function ($filename, $data, $flags = 0, $context = null) {
+                return file_put_contents($filename, $data, 0, $context);
+            }));
+
+        $php->expects($this->once())
+            ->method('igbinarySerialize')
+            ->will($this->returnValue('igbinarySerializeValue'));
+
+        $config = $this->getConfig();
+
+        $config->expects($this->exactly(5))
+            ->method('getParameterValue')
+            ->will($this->onConsecutiveCalls(
+                FileSystemCacheProvider::METHOD_SERIALIZE,
+                FileSystemCacheProvider::METHOD_JSON,
+                FileSystemCacheProvider::METHOD_VAR_EXPORT,
+                FileSystemCacheProvider::METHOD_IGBINARY,
+                FileSystemCacheProvider::METHOD_IGBINARY
+            ));
+
+        $fileSystemCacheProvider = new FileSystemCacheProvider(
+            $php,
+            $this->getWordpress(),
+            $this->getUtil(),
+            $this->getConfigFactory(),
+            $this->getConfigParameterFactory()
+        );
+
+        self::setValue($fileSystemCacheProvider, 'config', $config);
+        self::setValue($fileSystemCacheProvider, 'path', 'vfs://path/');
+
+        $fileSystemCacheProvider->add('serializeCacheKey', 'cacheValue');
+        self::assertTrue(file_exists('vfs://path/serializeCacheKey.cache'));
+        self::assertEquals('czoxMDoiY2FjaGVWYWx1ZSI7', file_get_contents('vfs://path/serializeCacheKey.cache'));
+
+        $fileSystemCacheProvider->add('jsonCacheKey', 'cacheValue');
+        self::assertTrue(file_exists('vfs://path/jsonCacheKey.cache'));
+        self::assertEquals('"cacheValue"', file_get_contents('vfs://path/jsonCacheKey.cache'));
+
+        $fileSystemCacheProvider->add('varExportCacheKey', 'cacheValue');
+        self::assertTrue(file_exists('vfs://path/varExportCacheKey.php'));
+        self::assertEquals(
+            "<?php\n\$cachedValue = 'cacheValue';",
+            file_get_contents('vfs://path/varExportCacheKey.php')
+        );
+
+        $fileSystemCacheProvider->add('igbinaryCacheKey', 'cacheValue');
+        $fileSystemCacheProvider->add('igbinaryCacheKey', 'cacheValue');
+        self::assertTrue(file_exists('vfs://path/igbinaryCacheKey.cache'));
+        self::assertEquals('igbinarySerializeValue', file_get_contents('vfs://path/igbinaryCacheKey.cache'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::get()
+     */
+    public function testGet()
+    {
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('path', new Directory([
+            'serializeCacheKey.cache' => new File('czoxMDoiY2FjaGVWYWx1ZSI7'),
+            'jsonCacheKey.cache' => new File('"cacheValue"'),
+            'igbinaryCacheKey.cache' => new File('igbinarySerializeValue')
+        ]));
+
+        $php = $this->getPhp();
+
+        $php->expects($this->exactly(2))
+            ->method('functionExists')
+            ->with('igbinary_unserialize')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $php->expects($this->once())
+            ->method('igbinaryUnserialize')
+            ->will($this->returnValue('igbinarySerializeValue'));
+
+        $config = $this->getConfig();
+
+        $config->expects($this->exactly(7))
+            ->method('getParameterValue')
+            ->will($this->onConsecutiveCalls(
+                FileSystemCacheProvider::METHOD_SERIALIZE,
+                FileSystemCacheProvider::METHOD_JSON,
+                FileSystemCacheProvider::METHOD_IGBINARY,
+                FileSystemCacheProvider::METHOD_IGBINARY,
+                FileSystemCacheProvider::METHOD_IGBINARY,
+                FileSystemCacheProvider::METHOD_VAR_EXPORT,
+                FileSystemCacheProvider::METHOD_VAR_EXPORT
+            ));
+
+        $fileSystemCacheProvider = new FileSystemCacheProvider(
+            $php,
+            $this->getWordpress(),
+            $this->getUtil(),
+            $this->getConfigFactory(),
+            $this->getConfigParameterFactory()
+        );
+
+        self::setValue($fileSystemCacheProvider, 'config', $config);
+        self::setValue($fileSystemCacheProvider, 'path', 'vfs://path/');
+
+        self::assertEquals('cacheValue', $fileSystemCacheProvider->get('serializeCacheKey'));
+        self::assertEquals('cacheValue', $fileSystemCacheProvider->get('jsonCacheKey'));
+
+        self::assertEquals(null, $fileSystemCacheProvider->get('igbinaryCacheKey'));
+        self::assertEquals('igbinarySerializeValue', $fileSystemCacheProvider->get('igbinaryCacheKey'));
+        self::assertEquals(null, $fileSystemCacheProvider->get('invalid'));
+
+        self::setValue($fileSystemCacheProvider, 'path', '/tmp/');
+        file_put_contents('/tmp/varExportCacheKey.php', "<?php\n\$cachedValue = 'cacheValue';");
+        self::assertEquals('cacheValue', $fileSystemCacheProvider->get('varExportCacheKey'));
+
+        file_put_contents('/tmp/varExportCacheKey.php', "<?php\n\$otherCachedValue = 'cacheValue';");
+        self::assertEquals(null, $fileSystemCacheProvider->get('varExportCacheKey'));
+        unlink('/tmp/varExportCacheKey.php');
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::invalidate()
+     */
+    public function testInvalidate()
+    {
+        $config = $this->getConfig();
+
+        $config->expects($this->exactly(2))
+            ->method('getParameterValue')
+            ->will($this->onConsecutiveCalls(
+                FileSystemCacheProvider::METHOD_SERIALIZE,
+                FileSystemCacheProvider::METHOD_VAR_EXPORT
+            ));
+
+        $fileSystemCacheProvider = new FileSystemCacheProvider(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getUtil(),
+            $this->getConfigFactory(),
+            $this->getConfigParameterFactory()
+        );
+
+        self::setValue($fileSystemCacheProvider, 'config', $config);
+        self::setValue($fileSystemCacheProvider, 'path', '/tmp/');
+
+        file_put_contents('/tmp/serializeCacheKey.cache', 'czoxMDoiY2FjaGVWYWx1ZSI7');
+        $fileSystemCacheProvider->invalidate('serializeCacheKey');
+        self::assertFalse(file_exists('/tmp/serializeCacheKey.cache'));
+
+        file_put_contents('/tmp/varExportCacheKey.php', "<?php\n\$cachedValue = 'cacheValue';");
+        $fileSystemCacheProvider->invalidate('varExportCacheKey');
+        self::assertFalse(file_exists('/tmp/varExportCacheKey.php'));
+    }
 }

@@ -142,6 +142,16 @@ class FileSystemCacheProvider implements CacheProviderInterface
         if ($this->config === null) {
             $this->config = $this->configFactory->createConfig(self::CONFIG_KEY);
 
+            $selections = [
+                self::METHOD_SERIALIZE,
+                self::METHOD_JSON,
+                self::METHOD_VAR_EXPORT
+            ];
+
+            if ($this->php->functionExists('igbinary_serialize') === true) {
+                $selections[] = self::METHOD_IGBINARY;
+            }
+
             $configParameters = [
                 self::CONFIG_PATH => $this->configParameterFactory->createStringConfigParameter(
                     self::CONFIG_PATH,
@@ -150,12 +160,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
                 self::CONFIG_METHOD => $this->configParameterFactory->createSelectionConfigParameter(
                     self::CONFIG_METHOD,
                     self::METHOD_VAR_EXPORT,
-                    [
-                        self::METHOD_SERIALIZE,
-                        self::METHOD_IGBINARY ,
-                        self::METHOD_JSON,
-                        self::METHOD_VAR_EXPORT
-                    ]
+                    $selections
                 )
             ];
             $this->config->setDefaultConfigParameters($configParameters);
@@ -177,16 +182,16 @@ class FileSystemCacheProvider implements CacheProviderInterface
         $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
 
         if ($method === self::METHOD_SERIALIZE) {
-            file_put_contents($cacheFile, base64_encode(serialize($value)), LOCK_EX);
+            $this->php->filePutContents($cacheFile, base64_encode(serialize($value)), LOCK_EX);
         } elseif ($method === self::METHOD_IGBINARY
             && $this->php->functionExists('igbinary_serialize')
         ) {
             /** @noinspection PhpUndefinedFunctionInspection */
-            file_put_contents($cacheFile, igbinary_serialize($value), LOCK_EX);
+            $this->php->filePutContents($cacheFile, $this->php->igbinarySerialize($value), LOCK_EX);
         } elseif ($method === self::METHOD_JSON) {
-            file_put_contents($cacheFile, json_encode($value), LOCK_EX);
+            $this->php->filePutContents($cacheFile, json_encode($value), LOCK_EX);
         } elseif ($method === self::METHOD_VAR_EXPORT) {
-            file_put_contents($cacheFile, "<?php\n\$cachedValue = ".var_export($value, true).';', LOCK_EX);
+            $this->php->filePutContents($cacheFile, "<?php\n\$cachedValue = ".var_export($value, true).';', LOCK_EX);
         }
     }
 
@@ -205,12 +210,12 @@ class FileSystemCacheProvider implements CacheProviderInterface
 
         if ((file_exists($cacheFile) === true)) {
             if ($method === self::METHOD_SERIALIZE) {
-                return base64_decode(unserialize(file_get_contents($cacheFile), true));
+                return unserialize(base64_decode(file_get_contents($cacheFile)));
             } elseif ($method === self::METHOD_IGBINARY
                 && $this->php->functionExists('igbinary_unserialize')
             ) {
                 /** @noinspection PhpUndefinedFunctionInspection */
-                return igbinary_unserialize(file_get_contents($cacheFile));
+                return $this->php->igbinaryUnserialize(file_get_contents($cacheFile));
             } elseif ($method === self::METHOD_JSON) {
                 return json_decode(file_get_contents($cacheFile), true);
             } elseif ($method === self::METHOD_VAR_EXPORT) {

@@ -129,4 +129,46 @@ class Php
     {
         exit;
     }
+
+    /**
+     * @see file_put_contents()
+     *
+     * @param string $filename
+     * @param mixed  $data
+     * @param int    $flags
+     * @param null   $context
+     *
+     * @return bool|int
+     */
+    public function filePutContents($filename, $data, $flags = 0, $context = null)
+    {
+        return file_put_contents($filename, $data, $flags, $context);
+    }
+
+    /**
+     * @see igbinary_serialize()
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function igbinarySerialize($value)
+    {
+        /** @noinspection PhpUndefinedFunctionInspection */
+        return igbinary_serialize($value);
+    }
+
+    /**
+     * @see igbinary_unserialize()
+     *
+     * @param string $key
+     * @param array  $options
+     *
+     * @return mixed
+     */
+    public function igbinaryUnserialize($key, array $options = [])
+    {
+        /** @noinspection PhpUndefinedFunctionInspection */
+        return igbinary_unserialize($key, $options);
+    }
 }
