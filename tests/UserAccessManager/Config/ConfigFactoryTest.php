@@ -45,5 +45,4 @@ class ConfigFactoryTest extends UserAccessManagerTestCase
         $fileObject = $configFactory->createConfig('key');
         self::assertInstanceOf('\UserAccessManager\Config\Config', $fileObject);
     }
-
 }
