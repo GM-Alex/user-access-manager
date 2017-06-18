@@ -122,7 +122,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
         $path = $this->getPath();
 
         if (is_dir($path) === false) {
-            mkdir($path, 0775, true);
+            $this->php->mkdir($path, 0775, true);
         }
 
         $htaccessFile = $path.'.htaccess';

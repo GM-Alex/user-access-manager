@@ -95,6 +95,14 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         $rootDir = $this->root->get('/');
         $rootDir->add('path', new Directory());
 
+        $php = $this->getPhp();
+        $php->expects($this->once())
+            ->method('mkdir')
+            ->with('vfs://path/cache/uam/', 0775, true)
+            ->will($this->returnCallback(function ($pathname, $mode = 0777, $recursive = false) {
+                return mkdir($pathname, $mode, $recursive);
+            }));
+
         $util = $this->getUtil();
         $util->expects($this->once())
             ->method('endsWith')
@@ -102,7 +110,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
             ->will($this->returnValue(false));
 
         $fileSystemCacheProvider = new FileSystemCacheProvider(
-            $this->getPhp(),
+            $php,
             $this->getWordpress(),
             $util,
             $this->getConfigFactory(),

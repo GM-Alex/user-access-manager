@@ -430,29 +430,31 @@ class AccessHandler
 
             if ($this->objectHandler->isValidObjectType($objectType) === false) {
                 $access = true;
-            } elseif ($this->checkUserAccess('manage_user_groups') === true) {
-                $access = true;
-            } elseif ($this->config->authorsHasAccessToOwn() === true
-                && $this->objectHandler->isPostType($objectType)
-            ) {
-                $post = $this->objectHandler->getPost($objectId);
-                $access = ($post !== false && $currentUser->ID === (int)$post->post_author);
-            }
-
-            if ($access === false) {
-                $membership = $this->getUserGroupsForObject($objectType, $objectId);
-
-                if (count($membership) > 0) {
-                    $userUserGroups = $this->getUserGroupsForUser();
-
-                    foreach ($membership as $userGroupId => $userGroup) {
-                        if (isset($userUserGroups[$userGroupId]) === true) {
-                            $access = true;
-                            break;
-                        }
-                    }
-                } else {
+            } else {
+                if ($this->checkUserAccess('manage_user_groups') === true) {
                     $access = true;
+                } elseif ($this->config->authorsHasAccessToOwn() === true
+                    && $this->objectHandler->isPostType($objectType)
+                ) {
+                    $post = $this->objectHandler->getPost($objectId);
+                    $access = ($post !== false && $currentUser->ID === (int)$post->post_author);
+                }
+
+                if ($access === false) {
+                    $membership = $this->getUserGroupsForObject($objectType, $objectId);
+
+                    if (count($membership) > 0) {
+                        $userUserGroups = $this->getUserGroupsForUser();
+
+                        foreach ($membership as $userGroupId => $userGroup) {
+                            if (isset($userUserGroups[$userGroupId]) === true) {
+                                $access = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        $access = true;
+                    }
                 }
             }
 

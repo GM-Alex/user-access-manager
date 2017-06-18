@@ -171,4 +171,20 @@ class Php
         /** @noinspection PhpUndefinedFunctionInspection */
         return igbinary_unserialize($key, $options);
     }
+
+    /**
+     * @see mkdir()
+     *
+     * @param string   $pathname
+     * @param int      $mode
+     * @param bool     $recursive
+     * @param resource $context
+     *
+     * @return bool
+     */
+    public function mkdir($pathname, $mode = 0777, $recursive = false, $context = null)
+    {
+        return ($context !== null) ?
+            mkdir($pathname, $mode, $recursive, $context) : mkdir($pathname, $mode, $recursive);
+    }
 }
