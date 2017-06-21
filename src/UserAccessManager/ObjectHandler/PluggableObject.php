@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\ObjectHandler;
 
-use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 
 /**
  * Class PluggableObject
@@ -54,17 +54,17 @@ abstract class PluggableObject
     abstract public function getObjectName($objectId);
 
     /**
-     * @param UserGroup $userGroup
-     * @param string    $objectId
+     * @param AbstractUserGroup $userGroup
+     * @param string            $objectId
      *
      * @return array
      */
-    abstract public function getRecursiveMembership(UserGroup $userGroup, $objectId);
+    abstract public function getRecursiveMembership(AbstractUserGroup $userGroup, $objectId);
 
     /**
-     * @param UserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      *
      * @return array
      */
-    abstract public function getFullObjects(UserGroup $userGroup);
+    abstract public function getFullObjects(AbstractUserGroup $userGroup);
 }

@@ -317,6 +317,223 @@ class SetupHandler
     }
 
     /**
+     * Update to database version 1.0.
+     */
+    private function updateTo10()
+    {
+        $prefix = $this->database->getPrefix();
+        $dbAccessGroup = $this->database->getUserGroupTable();
+        $dbUserGroup = $this->database->getVariable("SHOW TABLES LIKE '{$dbAccessGroup}'");
+
+        if ($dbUserGroup === $dbAccessGroup) {
+            $alterQuery = "ALTER TABLE {$dbAccessGroup}
+                ADD read_access TINYTEXT NOT NULL DEFAULT '', 
+                ADD write_access TINYTEXT NOT NULL DEFAULT '', 
+                ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+
+            $this->database->query($alterQuery);
+
+            $updateQuery = "UPDATE {$dbAccessGroup} SET read_access = 'group', write_access = 'group'";
+            $this->database->query($updateQuery);
+
+            $selectQuery = "SHOW columns FROM {$dbAccessGroup} LIKE 'ip_range'";
+            $dbIpRange = $this->database->getVariable($selectQuery);
+
+            if ($dbIpRange != 'ip_range') {
+                $alterQuery = "ALTER TABLE {$dbAccessGroup} ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+                $this->database->query($alterQuery);
+            }
+        }
+
+        $charsetCollate = $this->database->getCharset();
+        $dbAccessGroupToObject = $prefix.'uam_accessgroup_to_object';
+        $dbAccessGroupToPost = $prefix.'uam_accessgroup_to_post';
+        $dbAccessGroupToUser = $prefix.'uam_accessgroup_to_user';
+        $dbAccessGroupToCategory = $prefix.'uam_accessgroup_to_category';
+        $dbAccessGroupToRole = $prefix.'uam_accessgroup_to_role';
+
+        $alterQuery = "ALTER TABLE '{$dbAccessGroupToObject}'
+            CHANGE 'object_id' 'object_id' VARCHAR(64) {$charsetCollate}";
+        $this->database->query($alterQuery);
+
+        $objectTypes = $this->objectHandler->getObjectTypes();
+        $postTable = $this->database->getPostsTable();
+
+        foreach ($objectTypes as $objectType) {
+            $addition = '';
+
+            if ($this->objectHandler->isPostType($objectType) === true) {
+                $dbIdName = 'post_id';
+                $database = $dbAccessGroupToPost.', '.$postTable;
+                $addition = " WHERE post_id = ID
+                            AND post_type = '".$objectType."'";
+            } elseif ($objectType === 'category') {
+                $dbIdName = 'category_id';
+                $database = $dbAccessGroupToCategory;
+            } elseif ($objectType === 'user') {
+                $dbIdName = 'user_id';
+                $database = $dbAccessGroupToUser;
+            } elseif ($objectType === 'role') {
+                $dbIdName = 'role_name';
+                $database = $dbAccessGroupToRole;
+            } else {
+                continue;
+            }
+
+            $fullDatabase = $database.$addition;
+
+            $query = "SELECT {$dbIdName} AS id, group_id AS groupId
+                FROM {$fullDatabase}";
+
+            $dbObjects = (array)$this->database->getResults($query);
+
+            foreach ($dbObjects as $dbObject) {
+                $this->database->insert(
+                    $dbAccessGroupToObject,
+                    [
+                        'group_id' => $dbObject->groupId,
+                        'object_id' => $dbObject->id,
+                        'object_type' => $objectType,
+                    ],
+                    [
+                        '%d',
+                        '%d',
+                        '%s',
+                    ]
+                );
+            }
+        }
+
+        $dropQuery = "DROP TABLE {$dbAccessGroupToPost},
+            {$dbAccessGroupToUser},
+            {$dbAccessGroupToCategory},
+            {$dbAccessGroupToRole}";
+
+        $this->database->query($dropQuery);
+    }
+
+    /**
+     * Update to database version 1.2.
+     */
+    private function updateTo12()
+    {
+        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
+        $query = "ALTER TABLE `{$dbAccessGroupToObject}`
+            CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
+            CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL";
+
+        $this->database->query($query);
+    }
+
+    /**
+     * Update to database version 1.3.
+     */
+    private function updateTo13()
+    {
+        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
+        $generalTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
+        $this->database->update(
+            $dbAccessGroupToObject,
+            ['object_type' => $generalTermType],
+            ['object_type' => 'category']
+        );
+    }
+
+    /**
+     * Update to database version 1.4.
+     */
+    private function updateTo14()
+    {
+        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
+        $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
+            ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id";
+
+        $this->database->query($alterQuery);
+
+        // Update post entries
+        $generalPostType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+
+        $query = "UPDATE {$dbAccessGroupToObject}
+            SET general_object_type = '{$generalPostType}'
+            WHERE object_type IN ('post', 'page', 'attachment')";
+
+        $this->database->query($query);
+
+        // Update role entries
+        $generalRoleType = ObjectHandler::GENERAL_ROLE_OBJECT_TYPE;
+
+        $query = "UPDATE {$dbAccessGroupToObject}
+            SET general_object_type = '{$generalRoleType}'
+            WHERE object_type = 'role'";
+
+        $this->database->query($query);
+
+        // Update user entries
+        $generalUserType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
+
+        $query = "UPDATE {$dbAccessGroupToObject}
+            SET general_object_type = '{$generalUserType}'
+            WHERE object_type = 'user'";
+
+        $this->database->query($query);
+
+        // Update term entries
+        $generalTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
+
+        $query = "UPDATE {$dbAccessGroupToObject}
+            SET general_object_type = '{$generalTermType}'
+            WHERE object_type = 'term'";
+
+        $this->database->query($query);
+
+        $query = "UPDATE {$dbAccessGroupToObject} AS gto
+            LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt 
+              ON gto.object_id = tt.term_id
+            SET gto.object_type = tt.taxonomy
+            WHERE gto.general_object_type = '{$generalTermType}'";
+
+        $this->database->query($query);
+    }
+
+    /**
+     * Update to database version 1.5.1.
+     */
+    private function updateTo151()
+    {
+        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
+        $query = "SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
+            FROM {$dbAccessGroupToObject}
+            WHERE general_object_type = ''";
+
+        $dbObjects = (array)$this->database->getResults($query);
+
+        foreach ($dbObjects as $dbObject) {
+            $this->database->update(
+                $dbAccessGroupToObject,
+                ['general_object_type' => $this->objectHandler->getGeneralObjectType($dbObject->objectType)],
+                [
+                    'object_id' => $dbObject->objectId,
+                    'group_id' => $dbObject->groupId,
+                    'object_type' => $dbObject->objectType
+                ]
+            );
+        }
+    }
+    
+    /**
+     * Update to database version 1.6.
+     */
+    private function updateTo16()
+    {
+        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
+        $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
+            ADD group_type VARCHAR(64) NOT NULL AFTER group_id";
+
+        $this->database->query($alterQuery);
+    }
+    
+
+    /**
      * Updates the user access manager if an old version was installed.
      *
      * @return true
@@ -335,194 +552,29 @@ class SetupHandler
             $this->wordpress->deleteOption('allow_comments_locked');
         }
 
-        $dbAccessGroup = $this->database->getUserGroupTable();
-
-        $dbUserGroup = $this->database->getVariable(
-            "SHOW TABLES LIKE '{$dbAccessGroup}'"
-        );
-
         if (version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
-            $prefix = $this->database->getPrefix();
-            $charsetCollate = $this->database->getCharset();
-
             if (version_compare($currentDbVersion, '1.0', '<=') === true) {
-                if ($dbUserGroup === $dbAccessGroup) {
-                    $alterQuery = "ALTER TABLE {$dbAccessGroup}
-                        ADD read_access TINYTEXT NOT NULL DEFAULT '', 
-                        ADD write_access TINYTEXT NOT NULL DEFAULT '', 
-                        ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
-                    $this->database->query($alterQuery);
-
-                    $updateQuery = "UPDATE {$dbAccessGroup}
-                        SET read_access = 'group', write_access = 'group'";
-                    $this->database->query($updateQuery);
-
-                    $selectQuery = "SHOW columns FROM {$dbAccessGroup} LIKE 'ip_range'";
-                    $dbIpRange = $this->database->getVariable($selectQuery);
-
-                    if ($dbIpRange != 'ip_range') {
-                        $alterQuery = "ALTER TABLE {$dbAccessGroup}
-                            ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
-
-                        $this->database->query($alterQuery);
-                    }
-                }
-
-                $dbAccessGroupToObject = $prefix.'uam_accessgroup_to_object';
-                $dbAccessGroupToPost = $prefix.'uam_accessgroup_to_post';
-                $dbAccessGroupToUser = $prefix.'uam_accessgroup_to_user';
-                $dbAccessGroupToCategory = $prefix.'uam_accessgroup_to_category';
-                $dbAccessGroupToRole = $prefix.'uam_accessgroup_to_role';
-
-                $alterQuery = "ALTER TABLE '{$dbAccessGroupToObject}'
-                    CHANGE 'object_id' 'object_id' VARCHAR(64) {$charsetCollate}";
-                $this->database->query($alterQuery);
-
-                $objectTypes = $this->objectHandler->getObjectTypes();
-                $postTable = $this->database->getPostsTable();
-
-                foreach ($objectTypes as $objectType) {
-                    $addition = '';
-
-                    if ($this->objectHandler->isPostType($objectType) === true) {
-                        $dbIdName = 'post_id';
-                        $database = $dbAccessGroupToPost.', '.$postTable;
-                        $addition = " WHERE post_id = ID
-                            AND post_type = '".$objectType."'";
-                    } elseif ($objectType === 'category') {
-                        $dbIdName = 'category_id';
-                        $database = $dbAccessGroupToCategory;
-                    } elseif ($objectType === 'user') {
-                        $dbIdName = 'user_id';
-                        $database = $dbAccessGroupToUser;
-                    } elseif ($objectType === 'role') {
-                        $dbIdName = 'role_name';
-                        $database = $dbAccessGroupToRole;
-                    } else {
-                        continue;
-                    }
-
-                    $fullDatabase = $database.$addition;
-
-                    $query = "SELECT {$dbIdName} AS id, group_id AS groupId
-                        FROM {$fullDatabase}";
-
-                    $dbObjects = (array)$this->database->getResults($query);
-
-                    foreach ($dbObjects as $dbObject) {
-                        $this->database->insert(
-                            $dbAccessGroupToObject,
-                            [
-                                'group_id' => $dbObject->groupId,
-                                'object_id' => $dbObject->id,
-                                'object_type' => $objectType,
-                            ],
-                            [
-                                '%d',
-                                '%d',
-                                '%s',
-                            ]
-                        );
-                    }
-                }
-
-                $dropQuery = "DROP TABLE {$dbAccessGroupToPost},
-                    {$dbAccessGroupToUser},
-                    {$dbAccessGroupToCategory},
-                    {$dbAccessGroupToRole}";
-
-                $this->database->query($dropQuery);
+                $this->updateTo10();
             }
 
-            $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
-
             if (version_compare($currentDbVersion, '1.2', '<=') === true) {
-                $query = "
-                    ALTER TABLE `{$dbAccessGroupToObject}`
-                    CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
-                    CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL";
-
-                $this->database->query($query);
+                $this->updateTo12();
             }
 
             if (version_compare($currentDbVersion, '1.3', '<=') === true) {
-                $generalTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-                $this->database->update(
-                    $dbAccessGroupToObject,
-                    ['object_type' => $generalTermType],
-                    ['object_type' => 'category']
-                );
+                $this->updateTo13();
             }
 
             if (version_compare($currentDbVersion, '1.4', '<=') === true) {
-                $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
-                    ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id";
-
-                $this->database->query($alterQuery);
-
-                // Update post entries
-                $generalPostType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-
-                $query = "UPDATE {$dbAccessGroupToObject}
-                    SET general_object_type = '{$generalPostType}'
-                    WHERE object_type IN ('post', 'page', 'attachment')";
-
-                $this->database->query($query);
-
-                // Update role entries
-                $generalRoleType = ObjectHandler::GENERAL_ROLE_OBJECT_TYPE;
-
-                $query = "UPDATE {$dbAccessGroupToObject}
-                    SET general_object_type = '{$generalRoleType}'
-                    WHERE object_type = 'role'";
-
-                $this->database->query($query);
-
-                // Update user entries
-                $generalUserType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
-
-                $query = "UPDATE {$dbAccessGroupToObject}
-                    SET general_object_type = '{$generalUserType}'
-                    WHERE object_type = 'user'";
-
-                $this->database->query($query);
-
-                // Update term entries
-                $generalTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-
-                $query = "UPDATE {$dbAccessGroupToObject}
-                    SET general_object_type = '{$generalTermType}'
-                    WHERE object_type = 'term'";
-
-                $this->database->query($query);
-
-                $query = "UPDATE {$dbAccessGroupToObject} AS gto
-                    LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt 
-                      ON gto.object_id = tt.term_id
-                    SET gto.object_type = tt.taxonomy
-                    WHERE gto.general_object_type = '{$generalTermType}'";
-
-                $this->database->query($query);
+                $this->updateTo14();
             }
 
             if (version_compare($currentDbVersion, '1.5.1', '<=') === true) {
-                $query = "SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
-                    FROM {$dbAccessGroupToObject}
-                    WHERE general_object_type = ''";
+                $this->updateTo151();
+            }
 
-                $dbObjects = (array)$this->database->getResults($query);
-
-                foreach ($dbObjects as $dbObject) {
-                    $this->database->update(
-                        $dbAccessGroupToObject,
-                        ['general_object_type' => $this->objectHandler->getGeneralObjectType($dbObject->objectType)],
-                        [
-                            'object_id' => $dbObject->objectId,
-                            'group_id' => $dbObject->groupId,
-                            'object_type' => $dbObject->objectType
-                        ]
-                    );
-                }
+            if (version_compare($currentDbVersion, '1.6', '<=') === true) {
+                $this->updateTo16();
             }
 
             $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);

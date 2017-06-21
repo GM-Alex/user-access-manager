@@ -460,6 +460,12 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\SetupHandler\SetupHandler::update()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo10()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo12()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo13()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo14()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo151()
+     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo16()
      */
     public function testUpdate()
     {
@@ -486,7 +492,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(5))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
@@ -552,7 +558,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls([$firstDbObject], [], [], [], [$secondDbObject]));
 
-        $database->expects($this->exactly(12))
+        $database->expects($this->exactly(13))
             ->method('query')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -612,6 +618,10 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                       ON gto.object_id = tt.term_id
                     SET gto.object_type = tt.taxonomy
                     WHERE gto.general_object_type = \'_term_\''
+                )],
+                [new MatchIgnoreWhitespace(
+                    'ALTER TABLE userGroupToObjectTable
+                    ADD group_type VARCHAR(64) NOT NULL AFTER group_id'
                 )]
             )
             ->will($this->onConsecutiveCalls(
