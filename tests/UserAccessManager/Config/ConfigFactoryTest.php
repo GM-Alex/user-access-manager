@@ -16,6 +16,11 @@ namespace UserAccessManager\Config;
 
 use UserAccessManager\UserAccessManagerTestCase;
 
+/**
+ * Class ConfigFactoryTest
+ *
+ * @package UserAccessManager\Config
+ */
 class ConfigFactoryTest extends UserAccessManagerTestCase
 {
     /**
