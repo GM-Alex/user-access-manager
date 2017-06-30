@@ -28,6 +28,9 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class DynamicUserGroup extends AbstractUserGroup
 {
+    const USER_TYPE = 'user';
+    const ROLE_TYPE = 'role';
+
     /**
      * DynamicUserGroup constructor.
      *
@@ -38,7 +41,9 @@ class DynamicUserGroup extends AbstractUserGroup
      * @param Util          $util
      * @param ObjectHandler $objectHandler
      * @param string        $type
-     * @param int           $id
+     * @param string        $id
+     *
+     * @throws UserGroupTypeException
      */
     public function __construct(
         Php $php,
@@ -50,9 +55,46 @@ class DynamicUserGroup extends AbstractUserGroup
         $type,
         $id
     ) {
-        parent::__construct($php, $wordpress, $database, $config, $util, $objectHandler);
-
         $this->type = $type;
-        $this->id = $id;
+        parent::__construct($php, $wordpress, $database, $config, $util, $objectHandler, $id);
+
+        if ($type !== self::USER_TYPE && $type !== self::ROLE_TYPE) {
+            throw new UserGroupTypeException('Invalid dynamic group type.');
+        }
+    }
+
+    /**
+     * Returns the dynamic user group id.
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->type.'|'.$this->id;
+    }
+
+    /**
+     * Returns the dynamic group name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        if ($this->name === null) {
+            $this->name = '';
+
+            if ($this->type === self::USER_TYPE && (int)$this->id === 0) {
+                $this->name = TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS;
+            } elseif ($this->type === self::USER_TYPE) {
+                $userData = $this->wordpress->getUserData($this->id);
+                $this->name = TXT_UAM_USER.": {$userData->display_name} ($userData->user_login)";
+            } elseif ($this->type === self::ROLE_TYPE) {
+                $roles = $this->wordpress->getRoles()->roles;
+                $this->name = TXT_UAM_ROLE.': ';
+                $this->name .= (isset($roles[$this->id]['name']) === true) ? $roles[$this->id]['name'] : $this->id;
+            }
+        }
+
+        return $this->name;
     }
 }

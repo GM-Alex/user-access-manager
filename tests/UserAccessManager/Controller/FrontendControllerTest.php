@@ -71,7 +71,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\FrontendController', $frontendController);
+        self::assertInstanceOf(FrontendController::class, $frontendController);
     }
 
     /**

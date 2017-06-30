@@ -19,6 +19,7 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroup;
 
 /**
  * Class SetupHandlerTest
@@ -40,7 +41,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\SetupHandler\SetupHandler', $setupHandler);
+        self::assertInstanceOf(SetupHandler::class, $setupHandler);
     }
 
     /**
@@ -621,7 +622,10 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 )],
                 [new MatchIgnoreWhitespace(
                     'ALTER TABLE userGroupToObjectTable
-                    ADD group_type VARCHAR(64) NOT NULL AFTER group_id'
+                    ADD group_type VARCHAR(64) NOT NULL AFTER group_id,
+                    ADD from_date DATETIME NULL DEFAULT NULL,
+                    ADD to_date DATETIME NULL DEFAULT NULL,
+                    MODIFY group_id VARCHAR(64)'
                 )]
             )
             ->will($this->onConsecutiveCalls(
@@ -629,7 +633,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 'ip_range'
             ));
 
-        $database->expects($this->exactly(2))
+        $database->expects($this->exactly(3))
             ->method('update')
             ->withConsecutive(
                 [
@@ -641,6 +645,11 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                     'userGroupToObjectTable',
                     ['general_object_type' => 'generalCustomPostType'],
                     ['object_id' => 123, 'group_id' => 321, 'object_type' => 'customPostType']
+                ],
+                [
+                    'userGroupToObjectTable',
+                    ['group_type' => UserGroup::USER_GROUP_TYPE],
+                    ['group_type' => '']
                 ]
             );
 

@@ -200,7 +200,8 @@ class ControllerFactory
             $this->database,
             $this->cache,
             $this->objectHandler,
-            $this->accessHandler
+            $this->accessHandler,
+            $this->userGroupFactory
         );
     }
 

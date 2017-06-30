@@ -15,7 +15,6 @@
 namespace UserAccessManager\UserGroup;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManagerTestCase;
 
 /**
@@ -40,7 +39,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroup', $userGroup);
+        self::assertInstanceOf(UserGroup::class, $userGroup);
 
         $database = $this->getDatabase();
         $database->expects($this->once())
@@ -62,7 +61,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             1
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroup', $userGroup);
+        self::assertInstanceOf(UserGroup::class, $userGroup);
     }
 
     /**
@@ -128,8 +127,8 @@ class UserGroupTest extends UserAccessManagerTestCase
         self::assertAttributeEquals(null, 'id', $userGroup);
         self::assertAttributeEquals(null, 'name', $userGroup);
         self::assertAttributeEquals(null, 'description', $userGroup);
-        self::assertAttributeEquals(null, 'readAccess', $userGroup);
-        self::assertAttributeEquals(null, 'writeAccess', $userGroup);
+        self::assertAttributeEquals('group', 'readAccess', $userGroup);
+        self::assertAttributeEquals('group', 'writeAccess', $userGroup);
         self::assertAttributeEquals(null, 'ipRange', $userGroup);
 
         self::assertTrue($userGroup->load(2));
@@ -271,10 +270,6 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $database->expects($this->exactly(4))
-            ->method('getUserGroupToObjectTable')
-            ->will($this->returnValue('userGroupToObjectTable'));
-
         $database->expects($this->exactly(2))
             ->method('delete')
             ->with(
@@ -283,64 +278,16 @@ class UserGroupTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(false, true));
 
-        $database->expects($this->exactly(4))
-            ->method('prepare')
-            ->withConsecutive(
-                [
-                    new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                        WHERE group_id = %d
-                          AND group_type = \'%s\'
-                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
-                    ),
-                    [123, 'type', 'objectType', 'objectType']
-                ],
-                [
-                    new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                        WHERE group_id = %d
-                          AND group_type = \'%s\'
-                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
-                    ),
-                    [123, 'type', 'objectType', 'objectType']
-                ],
-                [
-                    new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                            WHERE group_id = %d
-                              AND group_type = \'%s\'
-                              AND (general_object_type = \'%s\' OR object_type = \'%s\')'
-                    ),
-                    [123, 'type', 'objectType', 'objectType']
-                ],
-                [
-                    new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                            WHERE group_id = %d
-                              AND group_type = \'%s\'
-                              AND (general_object_type = \'%s\' OR object_type = \'%s\')
-                              AND object_id = %d'
-                    ),
-                    [123, 'type', 'objectType', 'objectType', 1]
-                ]
-            )
-            ->will($this->returnValue('preparedQuery'));
-
-        $database->expects($this->exactly(4))
-            ->method('query')
-            ->with('preparedQuery')
-            ->will($this->onConsecutiveCalls(true, false, true, true));
-
         $objectHandler = $this->getObjectHandler();
 
         $objectHandler->expects($this->once())
             ->method('getAllObjectTypes')
             ->will($this->returnValue(['objectType']));
 
-        $objectHandler->expects($this->exactly(5))
-            ->method('isValidObjectType')
-            ->withConsecutive(['objectType'], ['invalid'], ['objectType'], ['objectType'], ['objectType'])
-            ->will($this->onConsecutiveCalls(true, false, true));
+        $objectHandler->expects($this->once())
+            ->method('getGeneralObjectType')
+            ->with('objectType')
+            ->will($this->returnValue(false));
 
         $userGroup = new UserGroup(
             $this->getPhp(),
@@ -355,50 +302,7 @@ class UserGroupTest extends UserAccessManagerTestCase
         self::setValue($userGroup, 'id', 123);
         self::setValue($userGroup, 'type', 'type');
 
-        self::setValue($userGroup, 'assignedObjects', [1 => 1]);
-        self::setValue($userGroup, 'roleMembership', [2 => 2]);
-        self::setValue($userGroup, 'userMembership', [3 => 3]);
-        self::setValue($userGroup, 'termMembership', [4 => 4]);
-        self::setValue($userGroup, 'postMembership', [5 => 5]);
-        self::setValue($userGroup, 'fullObjectMembership', [6 => 6]);
-
         self::assertFalse($userGroup->delete());
-
-        self::assertAttributeEquals([1 => 1], 'assignedObjects', $userGroup);
-        self::assertAttributeEquals([2 => 2], 'roleMembership', $userGroup);
-        self::assertAttributeEquals([3 => 3], 'userMembership', $userGroup);
-        self::assertAttributeEquals([4 => 4], 'termMembership', $userGroup);
-        self::assertAttributeEquals([5 => 5], 'postMembership', $userGroup);
-        self::assertAttributeEquals([6 => 6], 'fullObjectMembership', $userGroup);
-
         self::assertTrue($userGroup->delete());
-
-
-        self::setValue($userGroup, 'assignedObjects', [1 => 1]);
-        self::setValue($userGroup, 'roleMembership', [2 => 2]);
-        self::setValue($userGroup, 'userMembership', [3 => 3]);
-        self::setValue($userGroup, 'termMembership', [4 => 4]);
-        self::setValue($userGroup, 'postMembership', [5 => 5]);
-        self::setValue($userGroup, 'fullObjectMembership', [6 => 6]);
-
-        self::assertFalse($userGroup->removeObject('invalid'));
-        self::assertFalse($userGroup->removeObject('objectType'));
-
-        self::assertAttributeEquals([1 => 1], 'assignedObjects', $userGroup);
-        self::assertAttributeEquals([2 => 2], 'roleMembership', $userGroup);
-        self::assertAttributeEquals([3 => 3], 'userMembership', $userGroup);
-        self::assertAttributeEquals([4 => 4], 'termMembership', $userGroup);
-        self::assertAttributeEquals([5 => 5], 'postMembership', $userGroup);
-        self::assertAttributeEquals([6 => 6], 'fullObjectMembership', $userGroup);
-
-        self::assertTrue($userGroup->removeObject('objectType'));
-        self::assertTrue($userGroup->removeObject('objectType', 1));
-
-        self::assertAttributeEquals([], 'assignedObjects', $userGroup);
-        self::assertAttributeEquals([], 'roleMembership', $userGroup);
-        self::assertAttributeEquals([], 'userMembership', $userGroup);
-        self::assertAttributeEquals([], 'termMembership', $userGroup);
-        self::assertAttributeEquals([], 'postMembership', $userGroup);
-        self::assertAttributeEquals([], 'fullObjectMembership', $userGroup);
     }
 }

@@ -27,6 +27,6 @@ class TextareaTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $textarea = new Textarea('id', 'value', 'label', 'description');
-        self::assertInstanceOf('\UserAccessManager\Form\Textarea', $textarea);
+        self::assertInstanceOf(Textarea::class, $textarea);
     }
 }

@@ -33,13 +33,13 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
     {
         $booleanConfigParameter = new BooleanConfigParameter('testId');
 
-        self::assertInstanceOf('\UserAccessManager\Config\BooleanConfigParameter', $booleanConfigParameter);
+        self::assertInstanceOf(BooleanConfigParameter::class, $booleanConfigParameter);
         self::assertAttributeEquals('testId', 'id', $booleanConfigParameter);
         self::assertAttributeEquals(false, 'defaultValue', $booleanConfigParameter);
 
         $booleanConfigParameter = new BooleanConfigParameter('otherId', true);
 
-        self::assertInstanceOf('\UserAccessManager\Config\BooleanConfigParameter', $booleanConfigParameter);
+        self::assertInstanceOf(BooleanConfigParameter::class, $booleanConfigParameter);
         self::assertAttributeEquals('otherId', 'id', $booleanConfigParameter);
         self::assertAttributeEquals(true, 'defaultValue', $booleanConfigParameter);
 

@@ -23,7 +23,7 @@ use UserAccessManager\FileHandler\FileObject;
 use UserAccessManager\FileHandler\FileObjectFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
-use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -674,7 +674,7 @@ class FrontendController extends Controller
             $postTypeHiddenMap = $this->getPostObjectHideConfig();
 
             foreach ($posts as $postId => $postType) {
-                if ($postTypeHiddenMap[$postType] === false
+                if (isset($postTypeHiddenMap[$postType]) && $postTypeHiddenMap[$postType] === false
                     || $this->accessHandler->checkObjectAccess(
                         ObjectHandler::GENERAL_POST_OBJECT_TYPE,
                         $postId
@@ -860,7 +860,7 @@ class FrontendController extends Controller
 
         if (count($userGroups) > 0) {
             $escapedGroups = array_map(
-                function (UserGroup $group) {
+                function (AbstractUserGroup $group) {
                     return htmlentities($group->getName());
                 },
                 $userGroups

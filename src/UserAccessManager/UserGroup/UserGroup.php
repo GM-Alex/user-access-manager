@@ -28,6 +28,13 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserGroup extends AbstractUserGroup
 {
+    const USER_GROUP_TYPE = 'UserGroup';
+
+    /**
+     * @var string
+     */
+    protected $type = self::USER_GROUP_TYPE;
+
     /**
      * UserGroup constructor.
      *
@@ -37,7 +44,7 @@ class UserGroup extends AbstractUserGroup
      * @param MainConfig    $config
      * @param Util          $util
      * @param ObjectHandler $objectHandler
-     * @param null|string   $id
+     * @param null|int      $id
      */
     public function __construct(
         Php $php,
@@ -58,7 +65,7 @@ class UserGroup extends AbstractUserGroup
         );
 
         if ($id !== null) {
-            $this->load($id);
+            $this->load((int)$id);
         }
     }
 
@@ -151,11 +158,7 @@ class UserGroup extends AbstractUserGroup
         );
 
         if ($success !== false) {
-            $allObjectTypes = $this->objectHandler->getAllObjectTypes();
-
-            foreach ($allObjectTypes as $objectType) {
-                $this->removeObject($objectType);
-            }
+            $success = parent::delete();
         }
 
         return $success;

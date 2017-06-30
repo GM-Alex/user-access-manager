@@ -75,7 +75,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminController', $adminController);
+        self::assertInstanceOf(AdminController::class, $adminController);
     }
 
     /**
@@ -143,7 +143,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
     public function testStylesAndScripts()
     {
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->once())
             ->method('registerStyle')
             ->with(
                 AdminController::HANDLE_STYLE_ADMIN,
@@ -154,7 +154,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('a'));
 
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->once())
             ->method('registerScript')
             ->with(
                 AdminController::HANDLE_SCRIPT_ADMIN,
@@ -163,16 +163,16 @@ class AdminControllerTest extends UserAccessManagerTestCase
                 UserAccessManager::VERSION
             );
 
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->once())
             ->method('enqueueStyle')
             ->with(AdminController::HANDLE_STYLE_ADMIN);
 
-        $wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->once())
             ->method('enqueueScript')
             ->with(AdminController::HANDLE_SCRIPT_ADMIN);
 
         $config = $this->getMainConfig();
-        $config->expects($this->exactly(4))
+        $config->expects($this->once())
             ->method('getUrlPath')
             ->will($this->returnValue('url/'));
 
@@ -184,10 +184,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        $adminController->enqueueStylesAndScripts('someHook');
-        $adminController->enqueueStylesAndScripts('someHook');
-        $adminController->enqueueStylesAndScripts('uam_page_uam_settings');
-        $adminController->enqueueStylesAndScripts('uam_page_uam_setup');
+        $adminController->enqueueStylesAndScripts();
     }
 
     /**

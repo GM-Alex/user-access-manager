@@ -54,7 +54,7 @@ class ConfigTest extends UserAccessManagerTestCase
             'key'
         );
 
-        self::assertInstanceOf('\UserAccessManager\Config\Config', $config);
+        self::assertInstanceOf(Config::class, $config);
     }
 
     /**

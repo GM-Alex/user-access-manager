@@ -34,7 +34,7 @@ class CacheTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getCacheProviderFactory()
         );
-        self::assertInstanceOf('\UserAccessManager\Cache\Cache', $cache);
+        self::assertInstanceOf(Cache::class, $cache);
         return $cache;
     }
 

@@ -83,12 +83,12 @@ abstract class AbstractUserGroup
     /**
      * @var string
      */
-    protected $readAccess = null;
+    protected $readAccess = 'group';
 
     /**
      * @var string
      */
-    protected $writeAccess = null;
+    protected $writeAccess = 'group';
 
     /**
      * @var string
@@ -139,6 +139,9 @@ abstract class AbstractUserGroup
      * @param MainConfig    $config
      * @param Util          $util
      * @param ObjectHandler $objectHandler
+     * @param null          $id
+     *
+     * @throws UserGroupTypeException
      */
     public function __construct(
         Php $php,
@@ -146,14 +149,20 @@ abstract class AbstractUserGroup
         Database $database,
         MainConfig $config,
         Util $util,
-        ObjectHandler $objectHandler
+        ObjectHandler $objectHandler,
+        $id = null
     ) {
+        if ($this->type === null) {
+            throw new UserGroupTypeException('User group type must not null.');
+        }
+
         $this->php = $php;
         $this->wordpress = $wordpress;
         $this->database = $database;
         $this->config = $config;
         $this->util = $util;
         $this->objectHandler = $objectHandler;
+        $this->id = $id;
     }
 
     /*
@@ -305,14 +314,32 @@ abstract class AbstractUserGroup
     }
 
     /**
+     * Deletes the user group.
+     *
+     * @return bool
+     */
+    public function delete()
+    {
+        $allObjectTypes = $this->objectHandler->getAllObjectTypes();
+
+        foreach ($allObjectTypes as $objectType) {
+            $this->removeObject($objectType);
+        }
+
+        return true;
+    }
+
+    /**
      * Adds a object of the given type.
      *
      * @param string $objectType The object type.
      * @param string $objectId   The object id.
+     * @param string $fromDate   From date.
+     * @param string $toDate     To date.
      *
      * @return bool
      */
-    public function addObject($objectType, $objectId)
+    public function addObject($objectType, $objectId, $fromDate = null, $toDate = null)
     {
         $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
 
@@ -329,10 +356,15 @@ abstract class AbstractUserGroup
                 'group_type' => $this->type,
                 'object_id' => $objectId,
                 'general_object_type' => $generalObjectType,
-                'object_type' => $objectType
+                'object_type' => $objectType,
+                'from_date' => $fromDate,
+                'to_date' => $toDate
             ],
             [
-                '%d',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
                 '%s',
                 '%s',
                 '%s'
@@ -357,7 +389,11 @@ abstract class AbstractUserGroup
      */
     public function removeObject($objectType, $objectId = null)
     {
-        if ($this->objectHandler->isValidObjectType($objectType) === false) {
+        $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
+
+        if ($generalObjectType === null
+            || $this->objectHandler->isValidObjectType($objectType) === false
+        ) {
             return false;
         }
 
@@ -369,7 +405,7 @@ abstract class AbstractUserGroup
         $values = [
             $this->id,
             $this->type,
-            $objectType,
+            $generalObjectType,
             $objectType
         ];
 
@@ -398,15 +434,23 @@ abstract class AbstractUserGroup
     public function getAssignedObjects($objectType)
     {
         if (isset($this->assignedObjects[$objectType]) === false) {
+            $time = $this->wordpress->currentTime('mysql');
+
             $query = $this->database->prepare(
                 "SELECT object_id AS id, object_type AS objectType
                 FROM {$this->database->getUserGroupToObjectTable()}
-                WHERE group_id = %d
-                  AND (general_object_type = '%s' OR object_type = '%s')",
+                WHERE group_id = '%s'
+                  AND group_type = '%s'
+                  AND (general_object_type = '%s' OR object_type = '%s')
+                  AND (from_date IS NULL OR from_date >= '%s')
+                  AND (to_date IS NULL OR to_date <= '%s')",
                 [
-                    $this->getId(),
+                    $this->id,
+                    $this->type,
                     $objectType,
-                    $objectType
+                    $objectType,
+                    $time,
+                    $time
                 ]
             );
 
@@ -461,7 +505,7 @@ abstract class AbstractUserGroup
 
             if (isset($generalMap[$objectId]) === true) {
                 foreach ($generalMap[$objectId] as $parentId => $type) {
-                    if ($this->isObjectAssignedToGroup($objectType, $parentId)) {
+                    if ($this->isObjectAssignedToGroup($objectType, $parentId) === true) {
                         $recursiveMembership[$objectType][$parentId] = $type;
                     }
                 }

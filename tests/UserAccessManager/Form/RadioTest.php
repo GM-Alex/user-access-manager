@@ -27,6 +27,6 @@ class RadioTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $radio = new Radio('id', [], 'value', 'label', 'description');
-        self::assertInstanceOf('\UserAccessManager\Form\Radio', $radio);
+        self::assertInstanceOf(Radio::class, $radio);
     }
 }

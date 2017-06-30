@@ -112,17 +112,12 @@ class AdminController extends Controller
 
     /**
      * The function for the admin_enqueue_scripts action for styles and scripts.
-     *
-     * @param string $hook
      */
-    public function enqueueStylesAndScripts($hook)
+    public function enqueueStylesAndScripts()
     {
         $this->registerStylesAndScripts();
         $this->wordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
-
-        if ($hook === 'uam_page_uam_settings' || $hook === 'uam_page_uam_setup') {
-            $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
-        }
+        $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
     }
 
 

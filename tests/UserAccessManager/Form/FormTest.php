@@ -30,7 +30,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
     {
         $form = new Form();
 
-        self::assertInstanceOf('\UserAccessManager\Form\Form', $form);
+        self::assertInstanceOf(Form::class, $form);
 
         return $form;
     }

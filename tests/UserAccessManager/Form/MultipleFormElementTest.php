@@ -46,7 +46,7 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
     public function testCreateInstanceException()
     {
         $stub = $this->getStub('id', ['possibleValue'], 'value', 'label', 'description');
-        self::assertInstanceOf('\UserAccessManager\Form\MultipleFormElement', $stub);
+        self::assertInstanceOf(MultipleFormElement::class, $stub);
     }
 
     /**
@@ -59,7 +59,7 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
     {
         $valueMock = $this->createMock('\UserAccessManager\Form\MultipleFormElementValue');
         $stub = $this->getStub('id', [$valueMock], 'value', 'label', 'description');
-        self::assertInstanceOf('\UserAccessManager\Form\MultipleFormElement', $stub);
+        self::assertInstanceOf(MultipleFormElement::class, $stub);
 
         return $stub;
     }

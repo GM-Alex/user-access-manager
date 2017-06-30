@@ -33,7 +33,7 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
     {
         $selectionConfigParameter = new SelectionConfigParameter('testId', 'default', ['default', 'second']);
 
-        self::assertInstanceOf('\UserAccessManager\Config\SelectionConfigParameter', $selectionConfigParameter);
+        self::assertInstanceOf(SelectionConfigParameter::class, $selectionConfigParameter);
         self::assertAttributeEquals('testId', 'id', $selectionConfigParameter);
         self::assertAttributeEquals('default', 'defaultValue', $selectionConfigParameter);
         self::assertAttributeEquals(['default', 'second'], 'selections', $selectionConfigParameter);

@@ -62,7 +62,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
             $this->getUtil()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\NginxFileProtection', $nginxFileProtection);
+        self::assertInstanceOf(NginxFileProtection::class, $nginxFileProtection);
     }
 
     /**

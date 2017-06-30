@@ -17,6 +17,7 @@ namespace UserAccessManager\AccessHandler;
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 
 class AccessHandlerTest extends UserAccessManagerTestCase
@@ -37,7 +38,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\AccessHandler\AccessHandler', $accessHandler);
+        self::assertInstanceOf(AccessHandler::class, $accessHandler);
     }
 
     /**
@@ -221,6 +222,116 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         return $accessHandler;
     }
 
+    /**
+     * @param array $results
+     *
+     * @return array
+     */
+    private function getQueryResult(array $results)
+    {
+        $queryResults = [];
+
+        foreach ($results as $result) {
+            $queryResult = new \stdClass();
+            $queryResult->id = $result[1];
+            $queryResult->type = $result[0];
+            $queryResults[] = $queryResult;
+        }
+
+        return $queryResults;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\AccessHandler\AccessHandler::getDynamicUserGroups()
+     */
+    public function testGetDynamicUserGroups()
+    {
+        $userGroupFactory = $this->getUserGroupFactory();
+
+        $userGroupFactory->expects($this->exactly(4))
+            ->method('createDynamicUserGroup')
+            ->withConsecutive(
+                [DynamicUserGroup::USER_TYPE, 0],
+                [DynamicUserGroup::USER_TYPE, 0],
+                [DynamicUserGroup::USER_TYPE, 1],
+                [DynamicUserGroup::ROLE_TYPE, 'administrator']
+            )
+            ->will($this->returnCallback(function ($type, $id) {
+                return $this->getDynamicUserGroup($type, $id);
+            }));
+
+        $database = $this->getDatabase();
+
+        $database->expects($this->once())
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $database->expects($this->once())
+            ->method('getResults')
+            ->with(new MatchIgnoreWhitespace(
+                'SELECT group_id AS id, group_type AS type
+                FROM userGroupToObjectTable
+                WHERE group_type IN (\'role\', \'user\')
+                GROUP BY group_type, group_id'
+            ))
+            ->will($this->returnValue($this->getQueryResult([
+                [DynamicUserGroup::USER_TYPE, 0],
+                [DynamicUserGroup::USER_TYPE, 1],
+                [DynamicUserGroup::ROLE_TYPE, 'administrator']
+            ])));
+
+        $accessHandler = new AccessHandler(
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $this->getCache(),
+            $database,
+            $this->getObjectHandler(),
+            $this->getUtil(),
+            $userGroupFactory
+        );
+
+        $expect = [
+            DynamicUserGroup::USER_TYPE.'|0' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0),
+            DynamicUserGroup::USER_TYPE.'|1' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 1),
+            DynamicUserGroup::ROLE_TYPE.'|administrator' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 1)
+        ];
+
+        self::assertEquals($expect, $accessHandler->getDynamicUserGroups());
+        self::assertEquals($expect, $accessHandler->getDynamicUserGroups());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\AccessHandler\AccessHandler::getFullUserGroups()
+     */
+    public function testGetFullUserGroups()
+    {
+        $accessHandler = new AccessHandler(
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $this->getCache(),
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $this->getUtil(),
+            $this->getUserGroupFactory()
+        );
+
+        self::setValue($accessHandler, 'userGroups', [1 => $this->getUserGroup(1)]);
+        self::setValue(
+            $accessHandler,
+            'dynamicUserGroups',
+            [DynamicUserGroup::USER_TYPE.'|0' =>$this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)]
+        );
+
+        self::assertEquals(
+            [
+                1 => $this->getUserGroup(1),
+                DynamicUserGroup::USER_TYPE.'|0' =>$this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)
+            ],
+            $accessHandler->getFullUserGroups()
+        );
+    }
 
     /**
      * @group  unit
@@ -249,6 +360,12 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         ];
 
         self::setValue($accessHandler, 'userGroups', $userGroups);
+
+        $dynamicUserGroups = [
+            'users|0', $this->createMock('\UserAccessManager\UserGroup\DynamicUserGroup'),
+        ];
+
+        self::setValue($accessHandler, 'dynamicUserGroups', $dynamicUserGroups);
 
         $userUserGroups = $userGroups;
         unset($userUserGroups[4]);
@@ -355,6 +472,11 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         ];
 
         self::setValue($accessHandler, 'userGroups', $userGroups);
+        self::setValue(
+            $accessHandler,
+            'dynamicUserGroups',
+            [DynamicUserGroup::USER_TYPE.'|0' =>$this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)]
+        );
 
         self::assertEquals([], $accessHandler->getUserGroupsForObject('invalid', 1));
 
@@ -457,6 +579,18 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(false, true, true, false, false, false, false, true, false));
 
+        $userGroupFactory = $this->getUserGroupFactory();
+
+        $userGroupFactory->expects($this->exactly(2))
+            ->method('createDynamicUserGroup')
+            ->withConsecutive(
+                [DynamicUserGroup::USER_TYPE, 1],
+                [DynamicUserGroup::ROLE_TYPE, '_none-role_']
+            )
+            ->will($this->returnCallback(function ($type, $id) {
+                return $this->getDynamicUserGroup($type, $id);
+            }));
+
         $accessHandler = new AccessHandler(
             $wordpress,
             $config,
@@ -464,7 +598,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
-            $this->getUserGroupFactory()
+            $userGroupFactory
         );
 
         $_SERVER['REMOTE_ADDR'] = '1.1.1.1';
@@ -494,9 +628,12 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         self::setValue($accessHandler, 'objectUserGroups', $objectUserGroups);
 
         $expected = $userGroups;
+        $expected['user|1'] = $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 1);
+        $expected['role|_none-role_'] = $this->getDynamicUserGroup(DynamicUserGroup::ROLE_TYPE, '_none-role_');
         unset($expected[4]);
         unset($expected[6]);
         unset($expected[7]);
+
         self::assertEquals($expected, $accessHandler->getUserGroupsForUser());
         self::assertEquals($userGroups, $accessHandler->getUserGroupsForUser());
     }

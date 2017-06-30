@@ -838,7 +838,7 @@ class Wordpress
     }
 
     /**
-     * @see wp_attachment_is_image()
+     * @see \wp_attachment_is_image()
      *
      * @param int|\WP_Post $post
      *
@@ -846,11 +846,11 @@ class Wordpress
      */
     public function attachmentIsImage($post)
     {
-        return wp_attachment_is_image($post);
+        return \wp_attachment_is_image($post);
     }
 
     /**
-     * @see current_user_can()
+     * @see \current_user_can()
      *
      * @param string $capability
      *
@@ -858,7 +858,19 @@ class Wordpress
      */
     public function currentUserCan($capability)
     {
-        return current_user_can($capability);
+        return \current_user_can($capability);
+    }
+
+    /**
+     * @see \get_users()
+     *
+     * @param array $arguments
+     *
+     * @return array
+     */
+    public function getUsers(array $arguments = [])
+    {
+        return \get_users($arguments);
     }
 
     /**
@@ -877,5 +889,18 @@ class Wordpress
     {
         global $wp_filter;
         $wp_filter = $filters;
+    }
+
+    /**
+     * @see \current_time()
+     *
+     * @param string $type
+     * @param int    $gmt
+     *
+     * @return int|string
+     */
+    public function currentTime($type, $gmt = 0)
+    {
+        return \current_time($type, $gmt);
     }
 }

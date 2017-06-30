@@ -103,4 +103,26 @@ class UserGroupFactory
             $id
         );
     }
+
+    /**
+     * Creates a new dynamic user group object.
+     *
+     * @param string $type
+     * @param string $id
+     *
+     * @return DynamicUserGroup
+     */
+    public function createDynamicUserGroup($type, $id)
+    {
+        return new DynamicUserGroup(
+            $this->php,
+            $this->wordpress,
+            $this->database,
+            $this->config,
+            $this->util,
+            $this->objectHandler,
+            $type,
+            $id
+        );
+    }
 }

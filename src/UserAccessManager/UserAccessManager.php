@@ -528,6 +528,12 @@ class UserAccessManager
                     'side'
                 );
             }
+
+            //Admin ajax actions
+            $this->wordpress->addAction(
+                'wp_ajax_uam-get-dynamic-group',
+                [$adminObjectController, 'getDynamicGroupsForAjax']
+            );
         }
 
         //Clean up at deleting should always be done.

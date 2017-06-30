@@ -30,7 +30,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $formFactory = new FormFactory();
 
-        self::assertInstanceOf('\UserAccessManager\Form\FormFactory', $formFactory);
+        self::assertInstanceOf(FormFactory::class, $formFactory);
 
         return $formFactory;
     }
@@ -44,7 +44,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateFrom(FormFactory $formFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Form\Form', $formFactory->createFrom());
+        self::assertInstanceOf(Form::class, $formFactory->createFrom());
     }
 
     /**
@@ -86,7 +86,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateInput(FormFactory $formFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Form\Input', $formFactory->createInput('id'));
+        self::assertInstanceOf(Input::class, $formFactory->createInput('id'));
     }
 
     /**
@@ -98,7 +98,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateTextarea(FormFactory $formFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Form\Textarea', $formFactory->createTextarea('id'));
+        self::assertInstanceOf(Textarea::class, $formFactory->createTextarea('id'));
     }
 
     /**
@@ -110,7 +110,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateSelect(FormFactory $formFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Form\Select', $formFactory->createSelect('id', []));
+        self::assertInstanceOf(Select::class, $formFactory->createSelect('id', []));
     }
 
     /**
@@ -122,6 +122,6 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateRadio(FormFactory $formFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\Form\Radio', $formFactory->createRadio('id', []));
+        self::assertInstanceOf(Radio::class, $formFactory->createRadio('id', []));
     }
 }

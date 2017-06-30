@@ -119,10 +119,11 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminObjectController', $adminObjectController);
+        self::assertInstanceOf(AdminObjectController::class, $adminObjectController);
     }
 
     /**
@@ -161,7 +162,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getUserGroupFactory()
         );
 
         $userGroups = [
@@ -258,7 +260,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getUserGroupFactory()
         );
 
         self::assertEquals($userGroups, $adminObjectController->getUserGroups());
@@ -287,7 +290,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getUserGroupFactory()
         );
 
         self::assertEquals($userGroups, $adminObjectController->getFilteredUserGroups());
@@ -313,7 +317,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getUserGroupFactory()
         );
 
         self::assertFalse($adminObjectController->isCurrentUserAdmin());
@@ -347,7 +352,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
         );
 
         self::assertEquals('roleNames', $adminObjectController->getRoleNames());
@@ -372,7 +378,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $objectHandler,
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
         );
 
         self:self::assertEquals([1 => 1, 2 => 2], $adminObjectController->getAllObjectTypes());
@@ -397,7 +404,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getUserGroupFactory()
         );
 
         self::assertFalse($adminObjectController->checkUserAccess());
@@ -532,7 +540,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $objectHandler,
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
         );
 
         self::setValue($adminObjectController, 'objectId', 'objectId');
@@ -621,7 +630,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $objectHandler,
-            $accessHandler
+            $accessHandler,
+            $this->getUserGroupFactory()
         );
 
         $adminObjectController->checkRightsToEditContent();
@@ -766,7 +776,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $objectHandler,
-            $accessHandler
+            $accessHandler,
+            $this->getUserGroupFactory()
         );
 
         $_POST[AdminObjectController::UPDATE_GROUPS_FORM_NAME] = 1;
@@ -851,7 +862,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $database,
             $this->getCache(),
             $this->getObjectHandlerWithPosts(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
         );
 
         $adminObjectController->removePostData(1);
@@ -875,7 +887,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
         );
 
         self::assertEquals(
@@ -908,7 +921,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandlerWithPosts(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
         );
 
         $adminObjectController->addPostColumn(AdminObjectController::COLUMN_NAME, 1);
@@ -929,7 +943,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @covers \UserAccessManager\Controller\AdminObjectController::showUserProfile()
      * @covers \UserAccessManager\Controller\AdminObjectController::showTermEditForm()
      * @covers \UserAccessManager\Controller\AdminObjectController::showPluggableGroupSelectionForm()
-     * @covers \UserAccessManager\Controller\AdminObjectController::getGroupsFromName()
+     * @covers \UserAccessManager\Controller\AdminObjectController::getGroupsFormName()
      */
     public function testEditForm()
     {
@@ -1000,7 +1014,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandlerWithPosts(),
-            $accessHandler
+            $accessHandler,
+            $this->getUserGroupFactory()
         );
 
         $php->expects($this->exactly(16))
@@ -1024,7 +1039,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/GroupSelectionForm.php']
             )
             ->will($this->returnCallback(function (AdminObjectController $controller, $file) {
-                echo '!'.get_class($controller).'|'.$file.'|'.$controller->getGroupsFromName().'!';
+                echo '!'.get_class($controller).'|'.$file.'|'.$controller->getGroupsFormName().'!';
             }));
 
         $adminObjectController->addPostColumn('invalid', 1);
@@ -1208,7 +1223,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals('objectId', 'objectId', $adminObjectController);
         self::assertEquals(
             AdminObjectController::DEFAULT_GROUPS_FORM_NAME,
-            $adminObjectController->getGroupsFromName()
+            $adminObjectController->getGroupsFormName()
         );
         $expectedOutput .= '';
 
@@ -1228,7 +1243,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals($userGroups, 'objectUserGroups', $adminObjectController);
         self::assertEquals(
             AdminObjectController::DEFAULT_GROUPS_FORM_NAME,
-            $adminObjectController->getGroupsFromName()
+            $adminObjectController->getGroupsFormName()
         );
         $expectedOutput .= '';
 
@@ -1261,7 +1276,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $cache,
             $this->getObjectHandlerWithPosts(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
         );
 
         $adminObjectController->invalidateTermCache();

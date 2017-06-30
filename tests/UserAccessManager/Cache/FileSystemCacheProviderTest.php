@@ -62,7 +62,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
             $this->getConfigParameterFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Cache\FileSystemCacheProvider', $fileSystemCacheProvider);
+        self::assertInstanceOf(FileSystemCacheProvider::class, $fileSystemCacheProvider);
     }
 
     /**

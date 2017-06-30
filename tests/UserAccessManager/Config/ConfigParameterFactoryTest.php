@@ -27,7 +27,7 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $configParameterFactory = new ConfigParameterFactory();
-        self::assertInstanceOf('\UserAccessManager\Config\ConfigParameterFactory', $configParameterFactory);
+        self::assertInstanceOf(ConfigParameterFactory::class, $configParameterFactory);
 
         return $configParameterFactory;
     }
@@ -42,7 +42,7 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateBooleanConfigParameter(ConfigParameterFactory $configParameterFactory)
     {
         $parameter = $configParameterFactory->createBooleanConfigParameter('parameterId');
-        self::assertInstanceOf('\UserAccessManager\Config\BooleanConfigParameter', $parameter);
+        self::assertInstanceOf(BooleanConfigParameter::class, $parameter);
         self::assertEquals('parameterId', $parameter->getId());
         self::assertFalse($parameter->getValue());
 
@@ -60,7 +60,7 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateStringConfigParameter(ConfigParameterFactory $configParameterFactory)
     {
         $parameter = $configParameterFactory->createStringConfigParameter('parameterId');
-        self::assertInstanceOf('\UserAccessManager\Config\StringConfigParameter', $parameter);
+        self::assertInstanceOf(StringConfigParameter::class, $parameter);
         self::assertEquals('parameterId', $parameter->getId());
         self::assertEquals('', $parameter->getValue());
 
@@ -83,7 +83,7 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
             ['a', 'b', 'c']
         );
 
-        self::assertInstanceOf('\UserAccessManager\Config\SelectionConfigParameter', $parameter);
+        self::assertInstanceOf(SelectionConfigParameter::class, $parameter);
         self::assertEquals('parameterId', $parameter->getId());
         self::assertEquals('a', $parameter->getValue());
         self::assertEquals(['a', 'b', 'c'], $parameter->getSelections());

@@ -37,6 +37,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @param MainConfig    $config
      * @param Util          $util
      * @param ObjectHandler $objectHandler
+     * @param int           $id
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup
      */
@@ -46,19 +47,25 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         Database $database,
         MainConfig $config,
         Util $util,
-        ObjectHandler $objectHandler
+        ObjectHandler $objectHandler,
+        $id = null
     ) {
-        return $this->getMockForAbstractClass(
+        $stub = $this->getMockForAbstractClass(
             '\UserAccessManager\UserGroup\AbstractUserGroup',
-            [
-                $php,
-                $wordpress,
-                $database,
-                $config,
-                $util,
-                $objectHandler
-            ]
+            [],
+            '',
+            false
         );
+
+        self::setValue($stub, 'php', $php);
+        self::setValue($stub, 'wordpress', $wordpress);
+        self::setValue($stub, 'database', $database);
+        self::setValue($stub, 'config', $config);
+        self::setValue($stub, 'util', $util);
+        self::setValue($stub, 'objectHandler', $objectHandler);
+        self::setValue($stub, 'id', $id);
+
+        return $stub;
     }
     
     /**
@@ -76,12 +83,43 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserGroup\AbstractUserGroup', $abstractUserGroup);
+        self::setValue($abstractUserGroup, 'type', 'type');
+        $abstractUserGroup->__construct(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getDatabase(),
+            $this->getMainConfig(),
+            $this->getUtil(),
+            $this->getObjectHandler()
+        );
+
+        self::assertInstanceOf(AbstractUserGroup::class, $abstractUserGroup);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::__construct()
+     */
+    public function testUserGroupTypeException()
+    {
+        self::expectException(UserGroupTypeException::class);
+        $this->getMockForAbstractClass(
+            '\UserAccessManager\UserGroup\AbstractUserGroup',
+            [
+                $this->getPhp(),
+                $this->getWordpress(),
+                $this->getDatabase(),
+                $this->getMainConfig(),
+                $this->getUtil(),
+                $this->getObjectHandler()
+            ]
+        );
     }
 
     /**
      * @group   unit
      * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getId()
+     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getType()
      * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getName()
      * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getDescription()
      * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getReadAccess()
@@ -102,10 +140,10 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getMainConfig(),
             $this->getUtil(),
-            $this->getObjectHandler()
+            $this->getObjectHandler(),
+            2
         );
 
-        self::setValue($abstractUserGroup, 'id', 2);
         self::setValue($abstractUserGroup, 'type', 'type');
         self::setValue($abstractUserGroup, 'name', 'groupName');
         self::setValue($abstractUserGroup, 'description', 'groupDesc');
@@ -153,16 +191,33 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $database->expects($this->exactly(2))
             ->method('insert')
-            ->with(
-                'userGroupToObjectTable',
+            ->withConsecutive(
                 [
-                    'group_id' => 123,
-                    'group_type' => 'type',
-                    'object_id' => 321,
-                    'general_object_type' => 'generalObjectType',
-                    'object_type' => 'objectType'
+                    'userGroupToObjectTable',
+                    [
+                        'group_id' => 123,
+                        'group_type' => 'type',
+                        'object_id' => 321,
+                        'general_object_type' => 'generalObjectType',
+                        'object_type' => 'objectType',
+                        'from_date' => null,
+                        'to_date' => null
+                    ],
+                    ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
                 ],
-                ['%d', '%s', '%s', '%s']
+                [
+                    'userGroupToObjectTable',
+                    [
+                        'group_id' => 123,
+                        'group_type' => 'type',
+                        'object_id' => 321,
+                        'general_object_type' => 'generalObjectType',
+                        'object_type' => 'objectType',
+                        'from_date' => 'fromDate',
+                        'to_date' => 'toDate'
+                    ],
+                    ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
+                ]
             )
             ->will($this->onConsecutiveCalls(false, true));
 
@@ -212,7 +267,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertFalse($abstractUserGroup->addObject('generalObjectType', 321));
         self::assertFalse($abstractUserGroup->addObject('notValidObjectType', 321));
         self::assertFalse($abstractUserGroup->addObject('objectType', 321));
-        self::assertTrue($abstractUserGroup->addObject('objectType', 321));
+        self::assertTrue($abstractUserGroup->addObject('objectType', 321, 'fromDate', 'toDate'));
 
         self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
         self::assertAttributeEquals([], 'roleMembership', $abstractUserGroup);
@@ -220,6 +275,167 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertAttributeEquals([], 'termMembership', $abstractUserGroup);
         self::assertAttributeEquals([], 'postMembership', $abstractUserGroup);
         self::assertAttributeEquals([], 'fullObjectMembership', $abstractUserGroup);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::delete()
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::removeObject()
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::resetObjects()
+     */
+    public function testDelete()
+    {
+        $database = $this->getDatabase();
+
+        $database->expects($this->exactly(4))
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $database->expects($this->exactly(4))
+            ->method('prepare')
+            ->withConsecutive(
+                [
+                    new MatchIgnoreWhitespace(
+                        'DELETE FROM userGroupToObjectTable
+                        WHERE group_id = %d
+                          AND group_type = \'%s\'
+                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                    ),
+                    [123, 'type', 'objectType', 'objectType']
+                ],
+                [
+                    new MatchIgnoreWhitespace(
+                        'DELETE FROM userGroupToObjectTable
+                        WHERE group_id = %d
+                          AND group_type = \'%s\'
+                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                    ),
+                    [123, 'type', 'objectType', 'objectType']
+                ],
+                [
+                    new MatchIgnoreWhitespace(
+                        'DELETE FROM userGroupToObjectTable
+                            WHERE group_id = %d
+                              AND group_type = \'%s\'
+                              AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                    ),
+                    [123, 'type', 'objectType', 'objectType']
+                ],
+                [
+                    new MatchIgnoreWhitespace(
+                        'DELETE FROM userGroupToObjectTable
+                            WHERE group_id = %d
+                              AND group_type = \'%s\'
+                              AND (general_object_type = \'%s\' OR object_type = \'%s\')
+                              AND object_id = %d'
+                    ),
+                    [123, 'type', 'objectType', 'objectType', 1]
+                ]
+            )
+            ->will($this->returnValue('preparedQuery'));
+
+        $database->expects($this->exactly(4))
+            ->method('query')
+            ->with('preparedQuery')
+            ->will($this->onConsecutiveCalls(true, false, true, true));
+
+        $objectHandler = $this->getObjectHandler();
+
+        $objectHandler->expects($this->once())
+            ->method('getAllObjectTypes')
+            ->will($this->returnValue(['objectType']));
+
+        $objectHandler->expects($this->exactly(6))
+            ->method('getGeneralObjectType')
+            ->withConsecutive(
+                ['objectType'],
+                ['invalid'],
+                ['invalidObjectType'],
+                ['objectType'],
+                ['objectType'],
+                ['objectType'],
+                ['objectType']
+            )
+            ->will($this->returnCallback(function ($type) {
+                return ($type !== 'invalid') ? $type : null;
+            }));
+
+        $objectHandler->expects($this->exactly(5))
+            ->method('isValidObjectType')
+            ->withConsecutive(
+                ['objectType'],
+                ['invalidObjectType'],
+                ['objectType'],
+                ['objectType'],
+                ['objectType']
+            )
+            ->will($this->returnCallback(function ($type) {
+                return ($type === 'objectType');
+            }));
+
+        $abstractUserGroup = $this->getStub(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $database,
+            $this->getMainConfig(),
+            $this->getUtil(),
+            $objectHandler,
+            123
+        );
+
+        self::setValue($abstractUserGroup, 'type', 'type');
+        self::setValue($abstractUserGroup, 'assignedObjects', [1 => 1]);
+        self::setValue($abstractUserGroup, 'roleMembership', [2 => 2]);
+        self::setValue($abstractUserGroup, 'userMembership', [3 => 3]);
+        self::setValue($abstractUserGroup, 'termMembership', [4 => 4]);
+        self::setValue($abstractUserGroup, 'postMembership', [5 => 5]);
+        self::setValue($abstractUserGroup, 'fullObjectMembership', [6 => 6]);
+
+        self::assertTrue($abstractUserGroup->delete());
+
+        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
+        self::assertAttributeEquals([], 'roleMembership', $abstractUserGroup);
+        self::assertAttributeEquals([], 'userMembership', $abstractUserGroup);
+        self::assertAttributeEquals([], 'termMembership', $abstractUserGroup);
+        self::assertAttributeEquals([], 'postMembership', $abstractUserGroup);
+        self::assertAttributeEquals([], 'fullObjectMembership', $abstractUserGroup);
+
+        self::setValue($abstractUserGroup, 'assignedObjects', [1 => 1]);
+        self::setValue($abstractUserGroup, 'roleMembership', [2 => 2]);
+        self::setValue($abstractUserGroup, 'userMembership', [3 => 3]);
+        self::setValue($abstractUserGroup, 'termMembership', [4 => 4]);
+        self::setValue($abstractUserGroup, 'postMembership', [5 => 5]);
+        self::setValue($abstractUserGroup, 'fullObjectMembership', [6 => 6]);
+
+        self::assertFalse($abstractUserGroup->removeObject('invalid'));
+        self::assertFalse($abstractUserGroup->removeObject('invalidObjectType'));
+
+        self::assertAttributeEquals([1 => 1], 'assignedObjects', $abstractUserGroup);
+        self::assertAttributeEquals([2 => 2], 'roleMembership', $abstractUserGroup);
+        self::assertAttributeEquals([3 => 3], 'userMembership', $abstractUserGroup);
+        self::assertAttributeEquals([4 => 4], 'termMembership', $abstractUserGroup);
+        self::assertAttributeEquals([5 => 5], 'postMembership', $abstractUserGroup);
+        self::assertAttributeEquals([6 => 6], 'fullObjectMembership', $abstractUserGroup);
+
+        self::assertFalse($abstractUserGroup->removeObject('objectType'));
+
+        self::assertAttributeEquals([1 => 1], 'assignedObjects', $abstractUserGroup);
+        self::assertAttributeEquals([2 => 2], 'roleMembership', $abstractUserGroup);
+        self::assertAttributeEquals([3 => 3], 'userMembership', $abstractUserGroup);
+        self::assertAttributeEquals([4 => 4], 'termMembership', $abstractUserGroup);
+        self::assertAttributeEquals([5 => 5], 'postMembership', $abstractUserGroup);
+        self::assertAttributeEquals([6 => 6], 'fullObjectMembership', $abstractUserGroup);
+
+        self::assertTrue($abstractUserGroup->removeObject('objectType'));
+
+        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
+        self::assertAttributeEquals([], 'roleMembership', $abstractUserGroup);
+        self::assertAttributeEquals([], 'userMembership', $abstractUserGroup);
+        self::assertAttributeEquals([], 'termMembership', $abstractUserGroup);
+        self::assertAttributeEquals([], 'postMembership', $abstractUserGroup);
+        self::assertAttributeEquals([], 'fullObjectMembership', $abstractUserGroup);
+
+        self::assertTrue($abstractUserGroup->removeObject('objectType', 1));
     }
 
     /**
@@ -251,6 +467,13 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      */
     public function testAssignedObject()
     {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly(3))
+            ->method('currentTime')
+            ->with('mysql')
+            ->will($this->returnValue('time'));
+
         $database = $this->getDatabase();
 
         $database->expects($this->exactly(3))
@@ -259,15 +482,21 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $query = 'SELECT object_id AS id, object_type AS objectType
             FROM userGroupToObjectTable
-            WHERE group_id = %d
-              AND (general_object_type = \'%s\' OR object_type = \'%s\')';
+            WHERE group_id = \'%s\'
+              AND group_type = \'%s\'
+              AND (general_object_type = \'%s\' OR object_type = \'%s\')
+              AND (from_date IS NULL OR from_date >= \'%s\')
+              AND (to_date IS NULL OR to_date <= \'%s\')';
 
         $database->expects($this->exactly(3))
             ->method('prepare')
             ->withConsecutive(
-                [new MatchIgnoreWhitespace($query), [123, 'noResultObjectType', 'noResultObjectType']],
-                [new MatchIgnoreWhitespace($query), [123, 'objectType', 'objectType']],
-                [new MatchIgnoreWhitespace($query), [123, 'something', 'something']]
+                [
+                    new MatchIgnoreWhitespace($query),
+                    [123, null, 'noResultObjectType', 'noResultObjectType', 'time', 'time']
+                ],
+                [new MatchIgnoreWhitespace($query), [123, null, 'objectType', 'objectType', 'time', 'time']],
+                [new MatchIgnoreWhitespace($query), [123, null, 'something', 'something', 'time', 'time']]
             )
             ->will($this->onConsecutiveCalls(
                 'nonResultPreparedQuery',
@@ -286,7 +515,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $abstractUserGroup = $this->getStub(
             $this->getPhp(),
-            $this->getWordpress(),
+            $wordpress,
             $database,
             $this->getMainConfig(),
             $this->getUtil(),
@@ -341,14 +570,17 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     ) {
         $query = 'SELECT object_id AS id, object_type AS objectType
             FROM userGroupToObjectTable
-            WHERE group_id = %d
-              AND (general_object_type = \'%s\' OR object_type = \'%s\')';
+            WHERE group_id = \'%s\'
+              AND group_type = \'%s\'
+              AND (general_object_type = \'%s\' OR object_type = \'%s\')
+              AND (from_date IS NULL OR from_date >= \'%s\')
+              AND (to_date IS NULL OR to_date <= \'%s\')';
 
         $prepareWith = [];
         $prepareWill = [];
 
         foreach ($types as $type => $numberOfReturn) {
-            $prepareWith[] = [new MatchIgnoreWhitespace($query), [123, "_{$type}_", "_{$type}_"]];
+            $prepareWith[] = [new MatchIgnoreWhitespace($query), [123, null, "_{$type}_", "_{$type}_", null, null]];
             $prepareWill[] = "{$type}PreparedQuery";
             $getResultsWith[] = ["{$type}PreparedQuery"];
             $getResultsWill[] = $this->generateReturn($numberOfReturn, $type);

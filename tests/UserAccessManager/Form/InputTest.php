@@ -27,6 +27,6 @@ class InputTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $input = new Input('id', 'value', 'label', 'description');
-        self::assertInstanceOf('\UserAccessManager\Form\Input', $input);
+        self::assertInstanceOf(Input::class, $input);
     }
 }

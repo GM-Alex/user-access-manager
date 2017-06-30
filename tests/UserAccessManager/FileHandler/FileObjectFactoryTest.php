@@ -19,7 +19,7 @@ class FileObjectFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $fileObjectFactory = new FileObjectFactory();
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileObjectFactory', $fileObjectFactory);
+        self::assertInstanceOf(FileObjectFactory::class, $fileObjectFactory);
 
         return $fileObjectFactory;
     }
@@ -34,6 +34,6 @@ class FileObjectFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateApacheFileProtection(FileObjectFactory $fileObjectFactory)
     {
         $fileObject = $fileObjectFactory->createFileObject('id', 'type', 'file');
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileObject', $fileObject);
+        self::assertInstanceOf(FileObject::class, $fileObject);
     }
 }

@@ -19,7 +19,9 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\AbstractUserGroup;
+use UserAccessManager\UserGroup\DynamicUserGroup;
+use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -33,6 +35,7 @@ class AdminObjectController extends Controller
     const COLUMN_NAME = 'uam_access';
     const BULK_REMOVE = 'remove';
     const DEFAULT_GROUPS_FORM_NAME = 'uam_user_groups';
+    const DEFAULT_DYNAMIC_GROUPS_FORM_NAME = 'uam_dynamic_user_groups';
     const UPDATE_GROUPS_FORM_NAME = 'uam_update_groups';
 
     /**
@@ -56,6 +59,11 @@ class AdminObjectController extends Controller
     private $accessHandler;
 
     /**
+     * @var UserGroupFactory
+     */
+    private $userGroupFactory;
+
+    /**
      * @var null|string
      */
     private $groupsFromName = null;
@@ -71,7 +79,7 @@ class AdminObjectController extends Controller
     private $objectId = null;
 
     /**
-     * @var UserGroup[]
+     * @var AbstractUserGroup[]
      */
     private $objectUserGroups = [];
 
@@ -83,13 +91,14 @@ class AdminObjectController extends Controller
     /**
      * AdminObjectController constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param MainConfig    $config
-     * @param Database      $database
-     * @param Cache         $cache
-     * @param ObjectHandler $objectHandler
-     * @param AccessHandler $accessHandler
+     * @param Php              $php
+     * @param Wordpress        $wordpress
+     * @param MainConfig       $config
+     * @param Database         $database
+     * @param Cache            $cache
+     * @param ObjectHandler    $objectHandler
+     * @param AccessHandler    $accessHandler
+     * @param UserGroupFactory $userGroupFactory
      */
     public function __construct(
         Php $php,
@@ -98,13 +107,15 @@ class AdminObjectController extends Controller
         Database $database,
         Cache $cache,
         ObjectHandler $objectHandler,
-        AccessHandler $accessHandler
+        AccessHandler $accessHandler,
+        UserGroupFactory $userGroupFactory
     ) {
         parent::__construct($php, $wordpress, $config);
         $this->database = $database;
         $this->cache = $cache;
         $this->objectHandler = $objectHandler;
         $this->accessHandler = $accessHandler;
+        $this->userGroupFactory = $userGroupFactory;
     }
 
     /**
@@ -135,7 +146,7 @@ class AdminObjectController extends Controller
      *
      * @return string
      */
-    public function getGroupsFromName()
+    public function getGroupsFormName()
     {
         return ($this->groupsFromName !== null) ? (string)$this->groupsFromName : self::DEFAULT_GROUPS_FORM_NAME;
     }
@@ -163,7 +174,7 @@ class AdminObjectController extends Controller
     /**
      * Returns the current object user groups.
      *
-     * @return UserGroup[]
+     * @return AbstractUserGroup[]
      */
     public function getObjectUserGroups()
     {
@@ -183,17 +194,17 @@ class AdminObjectController extends Controller
     /**
      * Returns all available user groups.
      *
-     * @return UserGroup[]
+     * @return AbstractUserGroup[]
      */
     public function getUserGroups()
     {
-        return $this->accessHandler->getUserGroups();
+        return $this->accessHandler->getFullUserGroups();
     }
 
     /**
      * Returns the filtered user groups.
      *
-     * @return UserGroup[]
+     * @return AbstractUserGroup[]
      */
     public function getFilteredUserGroups()
     {
@@ -254,7 +265,7 @@ class AdminObjectController extends Controller
      *
      * @return array
      */
-    public function getRecursiveMembership(UserGroup $userGroup)
+    public function getRecursiveMembership(AbstractUserGroup $userGroup)
     {
         $recursiveMembership = [];
         $objectId = $this->getObjectId();
@@ -340,9 +351,9 @@ class AdminObjectController extends Controller
     /**
      * Saves the object data to the database.
      *
-     * @param string      $objectType The object type.
-     * @param integer     $objectId   The _iId of the object.
-     * @param UserGroup[] $userGroups The new user groups for the object.
+     * @param string              $objectType The object type.
+     * @param integer             $objectId   The _iId of the object.
+     * @param AbstractUserGroup[] $userGroups The new user groups for the object.
      */
     private function saveObjectData($objectType, $objectId, array $userGroups = null)
     {
@@ -380,8 +391,21 @@ class AdminObjectController extends Controller
                 if (isset($addUserGroups[$groupId]) === true) {
                     $userGroup->addObject($objectType, $objectId);
                 }
+            }
 
-                $userGroup->save();
+            $dynamicUserGroupKeys = $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, []);
+
+            foreach ($dynamicUserGroupKeys as $dynamicUserGroupKey) {
+                $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
+
+                if (count($dynamicUserGroupData) === 2) {
+                    $dynamicUserGroup = $this->userGroupFactory->createDynamicUserGroup(
+                        $dynamicUserGroupData[0],
+                        $dynamicUserGroupData[1]
+                    );
+
+                    $dynamicUserGroup->addObject($objectType, $objectId);
+                }
             }
 
             $this->accessHandler->unsetUserGroupsForObject();
@@ -660,7 +684,9 @@ class AdminObjectController extends Controller
     public function addTermColumn($content, $columnName, $id)
     {
         if ($columnName === self::COLUMN_NAME) {
-            $this->setObjectInformation(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $id);
+            $term = $this->objectHandler->getTerm($id);
+            $objectType = ($term !== false) ? $term->taxonomy : ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
+            $this->setObjectInformation($objectType, $id);
             $content .= $this->getIncludeContents('ObjectColumn.php');
         }
 
@@ -688,7 +714,9 @@ class AdminObjectController extends Controller
      */
     public function saveTermData($termId)
     {
-        $this->saveObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $termId);
+        $term = $this->objectHandler->getTerm($termId);
+        $objectType = ($term !== false) ? $term->taxonomy : ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
+        $this->saveObjectData($objectType, $termId);
     }
 
     /**
@@ -708,9 +736,9 @@ class AdminObjectController extends Controller
     /**
      * The function for the pluggable save action.
      *
-     * @param string      $objectType The name of the pluggable object.
-     * @param integer     $objectId   The pluggable object id.
-     * @param UserGroup[] $userGroups The user groups for the object.
+     * @param string              $objectType The name of the pluggable object.
+     * @param integer             $objectId   The pluggable object id.
+     * @param AbstractUserGroup[] $userGroups The user groups for the object.
      */
     public function savePluggableObjectData($objectType, $objectId, $userGroups = null)
     {
@@ -785,5 +813,47 @@ class AdminObjectController extends Controller
         $this->cache->invalidate(ObjectHandler::TERM_POST_MAP_CACHE_KEY);
         $this->cache->invalidate(ObjectHandler::POST_TERM_MAP_CACHE_KEY);
         $this->cache->invalidate(ObjectHandler::POST_TREE_MAP_CACHE_KEY);
+    }
+
+    /**
+     * Returns the dynamic user groups for the ajax request.
+     */
+    public function getDynamicGroupsForAjax()
+    {
+        $search = $this->getRequestParameter('q');
+        $search = trim(end(explode(',', $search)));
+
+        $users = $this->wordpress->getUsers([
+            'search' => '*'.$search.'*',
+            'fields' => ['ID', 'display_name', 'user_login', 'user_email']
+        ]);
+        $matches = array_map(
+            function ($element) {
+                return [
+                    'id' => $element->ID,
+                    'name' => TXT_UAM_USER.": {$element->display_name} ($element->user_login)",
+                    'type' => DynamicUserGroup::USER_TYPE
+                ];
+            },
+            $users
+        );
+
+        /**
+         * @var \WP_Role[] $roles
+         */
+        $roles = $this->wordpress->getRoles()->roles;
+
+        foreach ($roles as $key => $role) {
+            if (strpos(strtolower($role['name']), strtolower($search)) !== false) {
+                $matches[] = [
+                    'id' => $key,
+                    'name' => TXT_UAM_ROLE.': '.$role['name'],
+                    'type' => DynamicUserGroup::ROLE_TYPE
+                ];
+            }
+        }
+
+        echo json_encode($matches);
+        $this->php->callExit();
     }
 }

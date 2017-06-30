@@ -32,8 +32,7 @@ class ConfigFactoryTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $configFactory = new ConfigFactory($this->getWordpress());
-
-        self::assertInstanceOf('\UserAccessManager\Config\ConfigFactory', $configFactory);
+        self::assertInstanceOf(ConfigFactory::class, $configFactory);
 
         return $configFactory;
     }
@@ -48,6 +47,6 @@ class ConfigFactoryTest extends UserAccessManagerTestCase
     public function testCreateApacheFileProtection(ConfigFactory $configFactory)
     {
         $fileObject = $configFactory->createConfig('key');
-        self::assertInstanceOf('\UserAccessManager\Config\Config', $fileObject);
+        self::assertInstanceOf(Config::class, $fileObject);
     }
 }

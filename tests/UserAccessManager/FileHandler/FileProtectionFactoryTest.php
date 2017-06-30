@@ -38,7 +38,7 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
             $this->getUtil()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtectionFactory', $fileProtectionFactory);
+        self::assertInstanceOf(FileProtectionFactory::class, $fileProtectionFactory);
 
         return $fileProtectionFactory;
     }
@@ -53,7 +53,7 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
     public function testCreateApacheFileProtection(FileProtectionFactory $fileProtectionFactory)
     {
         $apacheFileProtection = $fileProtectionFactory->createApacheFileProtection();
-        self::assertInstanceOf('\UserAccessManager\FileHandler\ApacheFileProtection', $apacheFileProtection);
+        self::assertInstanceOf(ApacheFileProtection::class, $apacheFileProtection);
     }
 
     /**
@@ -66,6 +66,6 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
     public function testCreateNginxFileProtection(FileProtectionFactory $fileProtectionFactory)
     {
         $nginxFileProtection = $fileProtectionFactory->createNginxFileProtection();
-        self::assertInstanceOf('\UserAccessManager\FileHandler\NginxFileProtection', $nginxFileProtection);
+        self::assertInstanceOf(NginxFileProtection::class, $nginxFileProtection);
     }
 }

@@ -57,7 +57,7 @@ class DatabaseTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $database = new Database($this->getWordpress());
-        self::assertInstanceOf('\UserAccessManager\Database\Database', $database);
+        self::assertInstanceOf(Database::class, $database);
     }
 
     /**

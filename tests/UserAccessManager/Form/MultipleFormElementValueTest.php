@@ -29,7 +29,7 @@ class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $multipleFormElementValue = new MultipleFormElementValue('value', 'label');
-        self::assertInstanceOf('\UserAccessManager\Form\MultipleFormElementValue', $multipleFormElementValue);
+        self::assertInstanceOf(MultipleFormElementValue::class, $multipleFormElementValue);
 
         return $multipleFormElementValue;
     }

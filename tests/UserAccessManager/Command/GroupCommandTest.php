@@ -69,7 +69,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Command\GroupCommand', $groupCommand);
+        self::assertInstanceOf(GroupCommand::class, $groupCommand);
     }
 
     /**

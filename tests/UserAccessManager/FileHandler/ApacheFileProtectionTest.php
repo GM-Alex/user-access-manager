@@ -61,7 +61,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             $this->getUtil()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\ApacheFileProtection', $apacheFileProtection);
+        self::assertInstanceOf(ApacheFileProtection::class, $apacheFileProtection);
     }
 
     /**

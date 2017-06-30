@@ -38,7 +38,7 @@ class CacheProviderFactoryTest extends UserAccessManagerTestCase
             $this->getConfigParameterFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Cache\CacheProviderFactory', $cacheProviderFactory);
+        self::assertInstanceOf(CacheProviderFactory::class, $cacheProviderFactory);
 
         return $cacheProviderFactory;
     }

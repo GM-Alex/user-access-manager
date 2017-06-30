@@ -48,7 +48,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\ControllerFactory', $controllerFactory);
+        self::assertInstanceOf(ControllerFactory::class, $controllerFactory);
 
         return $controllerFactory;
     }

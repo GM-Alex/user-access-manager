@@ -46,7 +46,7 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $stub = $this->getStub('id', 'value', 'label', 'description');
-        self::assertInstanceOf('\UserAccessManager\Form\FormElement', $stub);
+        self::assertInstanceOf(FormElement::class, $stub);
 
         return $stub;
     }

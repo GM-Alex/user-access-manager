@@ -273,3 +273,10 @@ define('TXT_UAM_LOGIN_FORM_REGISTER', __('Register', 'user-access-manager'));
 define('TXT_UAM_LOGIN_FORM_LOST_PASSWORD', __('Lost your password?', 'user-access-manager'));
 define('TXT_UAM_LOGIN_FORM_LOST_AND_FOUND_PASSWORD', __('Password Lost and Found', 'user-access-manager'));
 define('TXT_UAM_LOGIN_FORM_REMEMBER_ME', __('Remember me', 'user-access-manager'));
+
+
+// --- Dynamic user groups ---
+define('TXT_UAM_USER', __('User', 'user-access-manager'));
+define('TXT_UAM_ROLE', __('Role', 'user-access-manager'));
+define('TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS', __('Not logged in users', 'user-access-manager'));
+define('TXT_UAM_ADD_DYNAMIC_GROUP', __('Add dynamic groups', 'user-access-manager'));

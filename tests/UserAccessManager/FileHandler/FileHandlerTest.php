@@ -61,7 +61,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             $this->getFileProtectionFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileHandler', $fileHandler);
+        self::assertInstanceOf(FileHandler::class, $fileHandler);
     }
 
     /**

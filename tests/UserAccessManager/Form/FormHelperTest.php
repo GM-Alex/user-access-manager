@@ -37,7 +37,7 @@ class FormHelperTest extends UserAccessManagerTestCase
             $this->getFormFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Form\FormHelper', $formHelper);
+        self::assertInstanceOf(FormHelper::class, $formHelper);
     }
 
     /**

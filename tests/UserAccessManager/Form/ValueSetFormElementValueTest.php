@@ -30,7 +30,7 @@ class ValueSetFormElementValueTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $valueSetFormElementValue = new ValueSetFormElementValue('value', 'label');
-        self::assertInstanceOf('\UserAccessManager\Form\ValueSetFormElementValue', $valueSetFormElementValue);
+        self::assertInstanceOf(ValueSetFormElementValue::class, $valueSetFormElementValue);
 
         return $valueSetFormElementValue;
     }

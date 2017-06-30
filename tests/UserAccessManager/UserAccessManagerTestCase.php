@@ -13,6 +13,8 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager;
+use UserAccessManager\UserGroup\DynamicUserGroup;
+use UserAccessManager\UserGroup\UserGroup;
 
 /**
  * Class UserAccessManagerTestCase
@@ -236,7 +238,8 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param int    $id
+     * @param string $type
+     * @param string $id
      * @param bool   $deletable
      * @param bool   $objectIsMember
      * @param array  $ipRange
@@ -244,11 +247,12 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
      * @param string $writeAccess
      * @param array  $posts
      * @param array  $terms
-     * @param string $name
+     * @param null   $name
      *
-     * @return \UserAccessManager\UserGroup\UserGroup|\PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit_Framework_MockObject_MockObject
      */
-    protected function getUserGroup(
+    private function getUserGroupType(
+        $type,
         $id,
         $deletable = true,
         $objectIsMember = false,
@@ -259,7 +263,7 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         array $terms = [],
         $name = null
     ) {
-        $userGroup = $this->createMock('\UserAccessManager\UserGroup\UserGroup');
+        $userGroup = $this->createMock($type);
 
         $userGroup->expects($this->any())
             ->method('getId')
@@ -308,6 +312,84 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($terms));
 
         return $userGroup;
+    }
+
+    /**
+     * @param string $id
+     * @param bool   $deletable
+     * @param bool   $objectIsMember
+     * @param array  $ipRange
+     * @param string $readAccess
+     * @param string $writeAccess
+     * @param array  $posts
+     * @param array  $terms
+     * @param string $name
+     *
+     * @return \UserAccessManager\UserGroup\UserGroup|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getUserGroup(
+        $id,
+        $deletable = true,
+        $objectIsMember = false,
+        array $ipRange = [''],
+        $readAccess = 'none',
+        $writeAccess = 'none',
+        array $posts = [],
+        array $terms = [],
+        $name = null
+    ) {
+        return $this->getUserGroupType(
+            UserGroup::class,
+            $id,
+            $deletable,
+            $objectIsMember,
+            $ipRange,
+            $readAccess,
+            $writeAccess,
+            $posts,
+            $terms,
+            $name
+        );
+    }
+
+    /**
+     * @param string $type
+     * @param string $id
+     * @param bool   $deletable
+     * @param bool   $objectIsMember
+     * @param array  $ipRange
+     * @param string $readAccess
+     * @param string $writeAccess
+     * @param array  $posts
+     * @param array  $terms
+     * @param string $name
+     *
+     * @return \UserAccessManager\UserGroup\UserGroup|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getDynamicUserGroup(
+        $type,
+        $id,
+        $deletable = true,
+        $objectIsMember = false,
+        array $ipRange = [''],
+        $readAccess = 'none',
+        $writeAccess = 'none',
+        array $posts = [],
+        array $terms = [],
+        $name = null
+    ) {
+        return $this->getUserGroupType(
+            DynamicUserGroup::class,
+            $type.'|'.$id,
+            $deletable,
+            $objectIsMember,
+            $ipRange,
+            $readAccess,
+            $writeAccess,
+            $posts,
+            $terms,
+            $name
+        );
     }
 
     /**

@@ -38,7 +38,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminUserGroupController', $adminUserGroupController);
+        self::assertInstanceOf(AdminUserGroupController::class, $adminUserGroupController);
     }
 
     /**

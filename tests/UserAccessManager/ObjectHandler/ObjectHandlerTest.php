@@ -36,7 +36,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             $this->getCache()
         );
 
-        self::assertInstanceOf('\UserAccessManager\ObjectHandler\ObjectHandler', $objectHandler);
+        self::assertInstanceOf(ObjectHandler::class, $objectHandler);
     }
 
     /**

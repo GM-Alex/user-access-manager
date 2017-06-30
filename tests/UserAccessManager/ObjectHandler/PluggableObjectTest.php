@@ -41,7 +41,7 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $stub = $this->getStub('objectTypeValue');
-        self::assertInstanceOf('\UserAccessManager\ObjectHandler\PluggableObject', $stub);
+        self::assertInstanceOf(PluggableObject::class, $stub);
         self::assertAttributeEquals('objectTypeValue', 'objectType', $stub);
 
         return $stub;

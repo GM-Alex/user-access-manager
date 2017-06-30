@@ -191,7 +191,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'baseFile'
         );
 
-        self::assertInstanceOf('\UserAccessManager\Config\MainConfig', $config);
+        self::assertInstanceOf(MainConfig::class, $config);
     }
 
     /**

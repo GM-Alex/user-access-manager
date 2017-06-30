@@ -74,7 +74,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
         $config = $this->getMainConfig();
         $util = $this->getUtil();
         $stub = $this->getStub($php, $wordpress, $config, $util);
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileProtection', $stub);
+        self::assertInstanceOf(FileProtection::class, $stub);
     }
 
     /**

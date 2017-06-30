@@ -33,7 +33,7 @@ class UtilTest extends UserAccessManagerTestCase
         $util = new Util(
             $this->getPhp()
         );
-        self::assertInstanceOf('\UserAccessManager\Util\Util', $util);
+        self::assertInstanceOf(Util::class, $util);
         return $util;
     }
 

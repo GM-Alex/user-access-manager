@@ -50,7 +50,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserAccessManager', $userAccessManager);
+        self::assertInstanceOf(UserAccessManager::class, $userAccessManager);
 
         return $userAccessManager;
     }
@@ -200,7 +200,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(63))
+        $wordpress->expects($this->exactly(65))
             ->method('addAction');
 
         $wordpress->expects($this->exactly(16))

@@ -70,3 +70,8 @@ The file needed for the group info boxes style.
 .uam_group_info_link:hover + .uam_tooltip {
     display: block;
 }
+
+#uam_dynamic_groups {
+      height: 28px;
+      margin: 0 4px 0 0;
+  }

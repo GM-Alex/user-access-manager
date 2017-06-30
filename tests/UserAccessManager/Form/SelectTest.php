@@ -27,6 +27,6 @@ class SelectTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $select = new Select('id', [], 'value', 'label', 'description');
-        self::assertInstanceOf('\UserAccessManager\Form\Select', $select);
+        self::assertInstanceOf(Select::class, $select);
     }
 }

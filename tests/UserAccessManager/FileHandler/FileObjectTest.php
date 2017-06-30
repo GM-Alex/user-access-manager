@@ -23,7 +23,7 @@ class FileObjectTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $fileObject = new FileObject('id', 'type', 'file', false);
-        self::assertInstanceOf('\UserAccessManager\FileHandler\FileObject', $fileObject);
+        self::assertInstanceOf(FileObject::class, $fileObject);
     }
 
     /**

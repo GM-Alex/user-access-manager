@@ -19,6 +19,7 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -527,9 +528,18 @@ class SetupHandler
     {
         $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
         $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
-            ADD group_type VARCHAR(64) NOT NULL AFTER group_id";
+            ADD group_type VARCHAR(64) NOT NULL AFTER group_id,
+            ADD from_date DATETIME NULL DEFAULT NULL,
+            ADD to_date DATETIME NULL DEFAULT NULL,
+            MODIFY group_id VARCHAR(64)";
 
         $this->database->query($alterQuery);
+
+        $this->database->update(
+            $dbAccessGroupToObject,
+            ['group_type' => UserGroup::USER_GROUP_TYPE],
+            ['group_type' => '']
+        );
     }
     
 

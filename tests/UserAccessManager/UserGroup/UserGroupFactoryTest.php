@@ -40,7 +40,7 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroupFactory', $userGroupFactory);
+        self::assertInstanceOf(UserGroupFactory::class, $userGroupFactory);
 
         return $userGroupFactory;
     }
@@ -54,6 +54,22 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
      */
     public function testCreateUserGroup(UserGroupFactory $userGroupFactory)
     {
-        self::assertInstanceOf('\UserAccessManager\UserGroup\UserGroup', $userGroupFactory->createUserGroup());
+        self::assertInstanceOf(UserGroup::class, $userGroupFactory->createUserGroup());
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  \UserAccessManager\UserGroup\UserGroupFactory::createDynamicUserGroup()
+     *
+     * @param UserGroupFactory $userGroupFactory
+     */
+    public function testCreateDynamicUserGroup(UserGroupFactory $userGroupFactory)
+    {
+        $dynamicUserGroup = $userGroupFactory->createDynamicUserGroup('user', 'id');
+        self::assertInstanceOf(DynamicUserGroup::class, $dynamicUserGroup);
+
+        self::assertAttributeEquals('id', 'id', $dynamicUserGroup);
+        self::assertAttributeEquals('user', 'type', $dynamicUserGroup);
     }
 }

@@ -78,7 +78,7 @@ class ControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\Controller', $stub);
+        self::assertInstanceOf(Controller::class, $stub);
 
         return $stub;
     }

@@ -34,6 +34,6 @@ class AdminAboutControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Controller\AdminAboutController', $adminAboutController);
+        self::assertInstanceOf(AdminAboutController::class, $adminAboutController);
     }
 }

@@ -34,7 +34,7 @@ class ObjectCommandTest extends UserAccessManagerTestCase
             $this->getAccessHandler()
         );
 
-        self::assertInstanceOf('\UserAccessManager\Command\ObjectCommand', $objectCommand);
+        self::assertInstanceOf(ObjectCommand::class , $objectCommand);
     }
 
     /**
