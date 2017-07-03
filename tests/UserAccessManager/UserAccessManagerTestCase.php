@@ -13,6 +13,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager;
+
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 
@@ -235,6 +236,14 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getUserAccessManager()
     {
         return $this->createMock('\UserAccessManager\UserAccessManager');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\AssignmentInformationFactory
+     */
+    protected function getAssignmentInformationFactory()
+    {
+        return $this->createMock('\UserAccessManager\UserGroup\AssignmentInformationFactory');
     }
 
     /**

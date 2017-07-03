@@ -38,13 +38,14 @@ class UserGroup extends AbstractUserGroup
     /**
      * UserGroup constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param Database      $database
-     * @param MainConfig    $config
-     * @param Util          $util
-     * @param ObjectHandler $objectHandler
-     * @param null|int      $id
+     * @param Php                          $php
+     * @param Wordpress                    $wordpress
+     * @param Database                     $database
+     * @param MainConfig                   $config
+     * @param Util                         $util
+     * @param ObjectHandler                $objectHandler
+     * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param null                         $id
      */
     public function __construct(
         Php $php,
@@ -53,6 +54,7 @@ class UserGroup extends AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
+        AssignmentInformationFactory $assignmentInformationFactory,
         $id = null
     ) {
         parent::__construct(
@@ -61,7 +63,8 @@ class UserGroup extends AbstractUserGroup
             $database,
             $config,
             $util,
-            $objectHandler
+            $objectHandler,
+            $assignmentInformationFactory
         );
 
         if ($id !== null) {

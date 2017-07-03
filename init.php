@@ -16,6 +16,7 @@ use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
@@ -37,13 +38,15 @@ function initUserAccessManger()
     $fileObjectFactory = new FileObjectFactory();
     $formFactory = new FormFactory();
     $formHelper = new FormHelper($php, $wordpress, $config, $formFactory);
+    $assignmentInformationFactory = new AssignmentInformationFactory();
     $userGroupFactory = new UserGroupFactory(
         $php,
         $wordpress,
         $database,
         $config,
         $util,
-        $objectHandler
+        $objectHandler,
+        $assignmentInformationFactory
     );
     $accessHandler = new AccessHandler(
         $wordpress,

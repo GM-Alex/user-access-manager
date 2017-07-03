@@ -36,7 +36,8 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getMainConfig(),
             $this->getUtil(),
-            $this->getObjectHandler()
+            $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory()
         );
 
         self::assertInstanceOf(UserGroup::class, $userGroup);
@@ -58,6 +59,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory(),
             1
         );
 
@@ -120,7 +122,8 @@ class UserGroupTest extends UserAccessManagerTestCase
             $database,
             $this->getMainConfig(),
             $this->getUtil(),
-            $this->getObjectHandler()
+            $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory()
         );
 
         self::assertFalse($userGroup->load(1));
@@ -237,7 +240,8 @@ class UserGroupTest extends UserAccessManagerTestCase
             $database,
             $this->getMainConfig(),
             $this->getUtil(),
-            $this->getObjectHandler()
+            $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory()
         );
 
         $userGroup->setName('groupName');
@@ -295,7 +299,8 @@ class UserGroupTest extends UserAccessManagerTestCase
             $database,
             $this->getMainConfig(),
             $this->getUtil(),
-            $objectHandler
+            $objectHandler,
+            $this->getAssignmentInformationFactory()
         );
 
         self::assertFalse($userGroup->delete());

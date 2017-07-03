@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\DynamicUserGroup;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -250,7 +251,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $accessHandler = $this->getAccessHandler();
         $accessHandler->expects($this->once())
-            ->method('getUserGroups')
+            ->method('getFullUserGroups')
             ->will($this->returnValue($userGroups));
 
         $adminObjectController = new AdminObjectController(
@@ -660,7 +661,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
      */
-    private function getObjectHandlerWithPosts()
+    private function getExtendedObjectHandler()
     {
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post
@@ -699,6 +700,23 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 return false;
             }));
 
+        $objectHandler->expects($this->any())
+            ->method('getTerm')
+            ->will($this->returnCallback(function ($termId) {
+                if ($termId === 0) {
+                    return false;
+                }
+
+                /**
+                 * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $term
+                 */
+                $term = $this->getMockBuilder('\WP_Term')->getMock();
+                $term->term_id = $termId;
+                $term->taxonomy = 'taxonomy_'.$termId;
+
+                return $term;
+            }));
+
         return $objectHandler;
     }
 
@@ -719,15 +737,15 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->method('authorsCanAddPostsToGroups')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $objectHandler = $this->getObjectHandlerWithPosts();
+        $objectHandler = $this->getExtendedObjectHandler();
 
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(11))
+        $accessHandler->expects($this->exactly(12))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
-            ->will($this->onConsecutiveCalls(false, false, true, true, true, true, true, true, true, true, true));
+            ->will($this->onConsecutiveCalls(false, false, true, true, true, true, true, true, true, true, true, true));
 
-        $accessHandler->expects($this->exactly(9))
+        $accessHandler->expects($this->exactly(10))
             ->method('getFilteredUserGroupsForObject')
             ->withConsecutive(
                 ['post', 1],
@@ -737,7 +755,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 ['attachment', 3],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3],
                 [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 0],
+                ['taxonomy_1', 1],
                 ['objectType', 'objectId']
             )
             ->will($this->onConsecutiveCalls(
@@ -749,10 +768,11 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 $this->getUserGroupArray([1, 3, 4]),
                 $this->getUserGroupArray([3, 4]),
                 $this->getUserGroupArray([1, 4]),
+                $this->getUserGroupArray([1, 4]),
                 $this->getUserGroupArray([2, 3])
             ));
 
-        $accessHandler->expects($this->exactly(9))
+        $accessHandler->expects($this->exactly(10))
             ->method('getFilteredUserGroups')
             ->will($this->onConsecutiveCalls(
                 $this->getUserGroupArray([1, 3], [1, 2, 3], [['post', 1]]),
@@ -762,12 +782,24 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 $this->getUserGroupArray([], [2, 3], [['attachment', 3]]),
                 $this->getUserGroupArray([3, 4], [1, 3, 4], [[ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3]]),
                 $this->getUserGroupArray([2], [3, 4], [[ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1]]),
-                $this->getUserGroupArray([3], [1, 4], [[ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1]]),
+                $this->getUserGroupArray([3], [1, 4], [[ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 0]]),
+                $this->getUserGroupArray([3], [1, 4], [['taxonomy_1', 1]]),
                 $this->getUserGroupArray([4], [2, 3], [['objectType', 'objectId']])
             ));
 
-        $accessHandler->expects($this->exactly(9))
+        $accessHandler->expects($this->exactly(10))
             ->method('unsetUserGroupsForObject');
+
+        $userGroupFactory = $this->getUserGroupFactory();
+
+        $userGroupFactory->expects($this->exactly(2))
+            ->method('createDynamicUserGroup')
+            ->withConsecutive(
+                [DynamicUserGroup::USER_TYPE, '1'],
+                [DynamicUserGroup::ROLE_TYPE, 'admin']
+            )->will($this->returnCallback(function ($type, $id) {
+                return $this->getDynamicUserGroup($type, $id);
+            }));
 
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
@@ -777,14 +809,20 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getCache(),
             $objectHandler,
             $accessHandler,
-            $this->getUserGroupFactory()
+            $userGroupFactory
         );
 
         $_POST[AdminObjectController::UPDATE_GROUPS_FORM_NAME] = 1;
         $adminObjectController->savePostData(['ID' => 1]);
 
+        $_POST[AdminObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME] = [
+            DynamicUserGroup::USER_TYPE.'|1',
+            DynamicUserGroup::ROLE_TYPE.'|admin'
+        ];
         $_POST['uam_user_groups'] = [1, 3];
         $adminObjectController->savePostData(['ID' => 1]);
+        unset($_POST[AdminObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME]);
+
         $_POST['uam_user_groups'] = [2, 4];
         $adminObjectController->savePostData(['ID' => 2]);
         $_POST['uam_user_groups'] = [1, 2];
@@ -807,6 +845,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $_POST['uam_user_groups'] = [2];
         $adminObjectController->saveUserData(1);
         $_POST['uam_user_groups'] = [3];
+        $adminObjectController->saveTermData(0);
         $adminObjectController->saveTermData(1);
         $_POST['uam_user_groups'] = [4];
         $adminObjectController->savePluggableObjectData('objectType', 'objectId');
@@ -861,7 +900,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $database,
             $this->getCache(),
-            $this->getObjectHandlerWithPosts(),
+            $this->getExtendedObjectHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -920,7 +959,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
-            $this->getObjectHandlerWithPosts(),
+            $this->getExtendedObjectHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -969,18 +1008,19 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $php = $this->getPhp();
 
         $config = $this->getMainConfig();
-        $config->expects($this->exactly(16))
+        $config->expects($this->exactly(17))
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
         $accessHandler = $this->getAccessHandler();
 
-        $accessHandler->expects($this->exactly(10))
+        $accessHandler->expects($this->exactly(11))
             ->method('getUserGroupsForObject')
             ->withConsecutive(
                 ['post', 1],
                 [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 0],
+                ['taxonomy_1', 1],
                 ['objectType', 'objectId'],
                 ['post', 1],
                 ['post', 1],
@@ -991,12 +1031,13 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue([]));
 
-        $accessHandler->expects($this->exactly(10))
+        $accessHandler->expects($this->exactly(11))
             ->method('getFilteredUserGroupsForObject')
             ->withConsecutive(
                 ['post', 1],
                 [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 0],
+                ['taxonomy_1', 1],
                 ['objectType', 'objectId'],
                 ['post', 1],
                 ['post', 1],
@@ -1013,16 +1054,17 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $config,
             $this->getDatabase(),
             $this->getCache(),
-            $this->getObjectHandlerWithPosts(),
+            $this->getExtendedObjectHandler(),
             $accessHandler,
             $this->getUserGroupFactory()
         );
 
-        $php->expects($this->exactly(16))
+        $php->expects($this->exactly(17))
             ->method('includeFile')
             ->withConsecutive(
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/ObjectColumn.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/UserColumn.php'],
+                [$adminObjectController, 'vfs://src/UserAccessManager/View/ObjectColumn.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/ObjectColumn.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/ObjectColumn.php'],
                 [$adminObjectController, 'vfs://src/UserAccessManager/View/PostEditForm.php'],
@@ -1071,9 +1113,16 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         self::assertEquals(
             $expected,
-            $adminObjectController->addTermColumn('content', AdminObjectController::COLUMN_NAME, 1)
+            $adminObjectController->addTermColumn('content', AdminObjectController::COLUMN_NAME, 0)
         );
         self::assertAttributeEquals(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'objectType', $adminObjectController);
+        self::assertAttributeEquals(0, 'objectId', $adminObjectController);
+
+        self::assertEquals(
+            $expected,
+            $adminObjectController->addTermColumn('content', AdminObjectController::COLUMN_NAME, 1)
+        );
+        self::assertAttributeEquals('taxonomy_1', 'objectType', $adminObjectController);
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
 
         $expected = '!UserAccessManager\Controller\AdminObjectController|'
@@ -1275,12 +1324,89 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $cache,
-            $this->getObjectHandlerWithPosts(),
+            $this->getExtendedObjectHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
 
         $adminObjectController->invalidateTermCache();
         $adminObjectController->invalidatePostCache();
+    }
+
+    /**
+     * @param int    $id
+     * @param string $displayName
+     * @param string $userLogin
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\stdClass
+     */
+    private function getUser($id, $displayName, $userLogin)
+    {
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $user
+         */
+        $user = $this->getMockBuilder('\WP_User')->getMock();
+        $user->ID = $id;
+        $user->display_name = $displayName;
+        $user->user_login = $userLogin;
+
+        return $user;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::getDynamicGroupsForAjax()
+     */
+    public function testGetDynamicGroupsForAjax()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->once())
+            ->method('callExit');
+
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->once())
+            ->method('getUsers')
+            ->with([
+                'search' => '*sea*',
+                'fields' => ['ID', 'display_name', 'user_login', 'user_email']
+            ])
+            ->will($this->returnValue([
+                $this->getUser(1, 'firstUser', 'firstUserLogin'),
+                $this->getUser(2, 'secondUser', 'secondUserLogin')
+            ]));
+
+        $roles = new \stdClass();
+        $roles->roles = [
+            'admin' => ['name' => 'Administrator'],
+            'editor' => ['name' => 'Editor'],
+            'search' => ['name' => 'Search']
+        ];
+
+        $wordpress->expects($this->once())
+            ->method('getRoles')
+            ->will($this->returnValue($roles));
+
+        $_GET['q'] = 'firstSearch, sea';
+
+        $adminObjectController = new AdminObjectController(
+            $php,
+            $wordpress,
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getCache(),
+            $this->getExtendedObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
+        );
+
+        self::expectOutputString(
+            '['
+            .'{"id":1,"name":"User|user-access-manager: firstUser (firstUserLogin)","type":"user"},'
+            .'{"id":2,"name":"User|user-access-manager: secondUser (secondUserLogin)","type":"user"},'
+            .'{"id":"search","name":"Role|user-access-manager: Search","type":"role"}'
+            .']'
+        );
+        $adminObjectController->getDynamicGroupsForAjax();
     }
 }

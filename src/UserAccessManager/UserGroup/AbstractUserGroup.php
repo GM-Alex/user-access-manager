@@ -61,6 +61,11 @@ abstract class AbstractUserGroup
     protected $objectHandler;
 
     /**
+     * @var AssignmentInformationFactory
+     */
+    protected $assignmentInformationFactory;
+
+    /**
      * @var int
      */
     protected $id = null;
@@ -133,13 +138,14 @@ abstract class AbstractUserGroup
     /**
      * AbstractUserGroup constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param Database      $database
-     * @param MainConfig    $config
-     * @param Util          $util
-     * @param ObjectHandler $objectHandler
-     * @param null          $id
+     * @param Php                          $php
+     * @param Wordpress                    $wordpress
+     * @param Database                     $database
+     * @param MainConfig                   $config
+     * @param Util                         $util
+     * @param ObjectHandler                $objectHandler
+     * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param string                       $id
      *
      * @throws UserGroupTypeException
      */
@@ -150,6 +156,7 @@ abstract class AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
+        AssignmentInformationFactory $assignmentInformationFactory,
         $id = null
     ) {
         if ($this->type === null) {
@@ -162,6 +169,7 @@ abstract class AbstractUserGroup
         $this->config = $config;
         $this->util = $util;
         $this->objectHandler = $objectHandler;
+        $this->assignmentInformationFactory = $assignmentInformationFactory;
         $this->id = $id;
     }
 
@@ -429,7 +437,7 @@ abstract class AbstractUserGroup
      *
      * @param string $objectType The object type.
      *
-     * @return array
+     * @return AssignmentInformation[]
      */
     public function getAssignedObjects($objectType)
     {
@@ -437,7 +445,7 @@ abstract class AbstractUserGroup
             $time = $this->wordpress->currentTime('mysql');
 
             $query = $this->database->prepare(
-                "SELECT object_id AS id, object_type AS objectType
+                "SELECT object_id AS id, object_type AS objectType, from_date AS fromDate, to_date AS toDate
                 FROM {$this->database->getUserGroupToObjectTable()}
                 WHERE group_id = '%s'
                   AND group_type = '%s'
@@ -458,7 +466,8 @@ abstract class AbstractUserGroup
             $this->assignedObjects[$objectType] = [];
 
             foreach ($results as $result) {
-                $this->assignedObjects[$objectType][$result->id] = $result->objectType;
+                $this->assignedObjects[$objectType][$result->id] = $this->assignmentInformationFactory
+                    ->createAssignmentInformation($result->objectType, $result->fromDate, $result->toDate);
             }
         }
 
@@ -466,17 +475,44 @@ abstract class AbstractUserGroup
     }
 
     /**
+     * Returns the assigned objects as array map.
+     *
+     * @param string $objectType The object type.
+     *
+     * @return array
+     */
+    private function getSimpleAssignedObjects($objectType)
+    {
+        $objects = $this->getAssignedObjects($objectType);
+        return array_map(
+            function (AssignmentInformation $element) {
+                return $element->getType();
+            },
+            $objects
+        );
+    }
+
+    /**
      * Checks if the object is assigned to the group.
      *
      * @param string $objectType The object type.
      * @param string $objectId   The object id.
+     * @param string $fromDate   The from date if the assignment is time based.
+     * @param string $toDate     The to date if the assignment is time based.
      *
      * @return bool
      */
-    protected function isObjectAssignedToGroup($objectType, $objectId)
+    protected function isObjectAssignedToGroup($objectType, $objectId, &$fromDate = null, &$toDate = null)
     {
         $assignedObjects = $this->getAssignedObjects($objectType);
-        return isset($assignedObjects[$objectId]);
+
+        if (isset($assignedObjects[$objectId]) === true) {
+            $fromDate = $assignedObjects[$objectId]->getFromDate();
+            $toDate = $assignedObjects[$objectId]->getToDate();
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -486,6 +522,8 @@ abstract class AbstractUserGroup
      * @param string   $objectType
      * @param string   $objectId
      * @param array    $recursiveMembership
+     * @param string   $fromDate
+     * @param string   $toDate
      *
      * @return bool
      */
@@ -493,7 +531,9 @@ abstract class AbstractUserGroup
         $mapFunction,
         $objectType,
         $objectId,
-        array &$recursiveMembership = []
+        array &$recursiveMembership = [],
+        &$fromDate = null,
+        &$toDate = null
     ) {
         // Reset value to prevent errors
         $recursiveMembership = [];
@@ -505,14 +545,15 @@ abstract class AbstractUserGroup
 
             if (isset($generalMap[$objectId]) === true) {
                 foreach ($generalMap[$objectId] as $parentId => $type) {
-                    if ($this->isObjectAssignedToGroup($objectType, $parentId) === true) {
-                        $recursiveMembership[$objectType][$parentId] = $type;
+                    if ($this->isObjectAssignedToGroup($objectType, $parentId, $fromDate, $toDate) === true) {
+                        $recursiveMembership[$objectType][$parentId] = $this->assignmentInformationFactory
+                            ->createAssignmentInformation($type, $fromDate, $toDate);
                     }
                 }
             }
         }
 
-        return $this->isObjectAssignedToGroup($objectType, $objectId)
+        return $this->isObjectAssignedToGroup($objectType, $objectId, $fromDate, $toDate)
             || count($recursiveMembership) > 0;
     }
 
@@ -521,14 +562,25 @@ abstract class AbstractUserGroup
      *
      * @param string $roleId
      * @param array  $recursiveMembership
+     * @param string $fromDate
+     * @param string $toDate
      *
      * @return bool
      */
-    public function isRoleMember($roleId, array &$recursiveMembership = [])
-    {
+    public function isRoleMember(
+        $roleId,
+        array &$recursiveMembership = [],
+        &$fromDate = null,
+        &$toDate = null
+    ) {
         if (isset($this->roleMembership[$roleId]) === false) {
             $recursiveMembership = [];
-            $isMember = $this->isObjectAssignedToGroup(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $roleId);
+            $isMember = $this->isObjectAssignedToGroup(
+                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
+                $roleId,
+                $fromDate,
+                $toDate
+            );
             $this->roleMembership[$roleId] = ($isMember === true) ? $recursiveMembership : false;
         }
 
@@ -540,13 +592,19 @@ abstract class AbstractUserGroup
     /**
      * Checks if the user is a group member.
      *
-     * @param integer $userId              The user id.
-     * @param array   $recursiveMembership The recursive membership array.
+     * @param int    $userId              The user id.
+     * @param array  $recursiveMembership The recursive membership array.
+     * @param string $fromDate            The from date if the assignment is time based.
+     * @param string $toDate              The to date if the assignment is time based.
      *
      * @return bool
      */
-    public function isUserMember($userId, array &$recursiveMembership = [])
-    {
+    public function isUserMember(
+        $userId,
+        array &$recursiveMembership = [],
+        &$fromDate = null,
+        &$toDate = null
+    ) {
         if (isset($this->userMembership[$userId]) === false) {
             $recursiveMembership = [];
             $user = $this->objectHandler->getUser($userId);
@@ -569,15 +627,21 @@ abstract class AbstractUserGroup
                             $this->php->arrayFill(
                                 0,
                                 count($recursiveRoles),
-                                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                                $this->assignmentInformationFactory->createAssignmentInformation(
+                                    ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                                )
                             )
                         );
                     }
                 }
             }
 
-            $isMember = $this->isObjectAssignedToGroup(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId)
-                || count($recursiveMembership) > 0;
+            $isMember = $this->isObjectAssignedToGroup(
+                ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+                $userId,
+                $fromDate,
+                $toDate
+            ) || count($recursiveMembership) > 0;
 
             $this->userMembership[$userId] = ($isMember === true) ? $recursiveMembership : false;
         }
@@ -590,13 +654,19 @@ abstract class AbstractUserGroup
     /**
      * Checks if the term is a group member.
      *
-     * @param int   $termId
-     * @param array $recursiveMembership
+     * @param int    $termId
+     * @param array  $recursiveMembership
+     * @param string $fromDate
+     * @param string $toDate
      *
      * @return bool
      */
-    public function isTermMember($termId, array &$recursiveMembership = [])
-    {
+    public function isTermMember(
+        $termId,
+        array &$recursiveMembership = [],
+        &$fromDate = null,
+        &$toDate = null
+    ) {
         if (isset($this->termMembership[$termId]) === false) {
             $isMember = $this->isObjectRecursiveMember(
                 function () {
@@ -604,7 +674,9 @@ abstract class AbstractUserGroup
                 },
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
                 $termId,
-                $recursiveMembership
+                $recursiveMembership,
+                $fromDate,
+                $toDate
             );
 
             $this->termMembership[$termId] = ($isMember === true) ? $recursiveMembership : false;
@@ -618,13 +690,19 @@ abstract class AbstractUserGroup
     /**
      * Checks if the post is a group member
      *
-     * @param int   $postId
-     * @param array $recursiveMembership
+     * @param int    $postId
+     * @param array  $recursiveMembership
+     * @param string $fromDate
+     * @param string $toDate
      *
      * @return bool
      */
-    public function isPostMember($postId, array &$recursiveMembership = [])
-    {
+    public function isPostMember(
+        $postId,
+        array &$recursiveMembership = [],
+        &$fromDate = null,
+        &$toDate = null
+    ) {
         if (isset($this->postMembership[$postId]) === false) {
             $isMember = $this->isObjectRecursiveMember(
                 function () {
@@ -632,16 +710,25 @@ abstract class AbstractUserGroup
                 },
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE,
                 $postId,
-                $recursiveMembership
+                $recursiveMembership,
+                $fromDate,
+                $toDate
             );
 
             if ($this->config->lockRecursive() === true) {
                 $postTermMap = $this->objectHandler->getPostTermMap();
 
                 if (isset($postTermMap[$postId]) === true) {
+                    $innerMembership = [];
+
                     foreach ($postTermMap[$postId] as $termId => $type) {
-                        if ($this->isTermMember($termId) === true) {
-                            $recursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$termId] = $type;
+                        if ($this->isTermMember($termId, $innerMembership, $termFromDate, $termToDate) === true) {
+                            $recursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$termId] =
+                                $this->assignmentInformationFactory->createAssignmentInformation(
+                                    ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+                                    $termFromDate,
+                                    $termToDate
+                                );
                         }
                     }
                 }
@@ -662,12 +749,19 @@ abstract class AbstractUserGroup
      *
      * @param string $objectType           The pluggable object type.
      * @param string $objectId             The object id.
-     * @param array  $recursiveMembership  The object id.
+     * @param array  $recursiveMembership  The recursive membership.
+     * @param string $fromDate             The from date if the assignment is time based.
+     * @param string $toDate               The to date if the assignment is time based.
      *
      * @return bool
      */
-    public function isPluggableObjectMember($objectType, $objectId, array &$recursiveMembership = [])
-    {
+    public function isPluggableObjectMember(
+        $objectType,
+        $objectId,
+        array &$recursiveMembership = [],
+        &$fromDate = null,
+        &$toDate = null
+    ) {
         if (isset($this->pluggableObjectMembership[$objectType]) === false) {
             $this->pluggableObjectMembership[$objectType] = [];
         }
@@ -678,12 +772,12 @@ abstract class AbstractUserGroup
 
             if ($pluggableObject !== null) {
                 $recursiveMembership = $pluggableObject->getRecursiveMembership($this, $objectId);
-                $isMember = $this->isObjectAssignedToGroup($objectType, $objectId)
+                $isMember = $this->isObjectAssignedToGroup($objectType, $objectId, $fromDate, $toDate)
                     || count($recursiveMembership) > 0;
             }
 
-            $this->pluggableObjectMembership[$objectType][$objectId] =
-                ($isMember === true) ? $recursiveMembership : false;
+            $this->pluggableObjectMembership[$objectType][$objectId] = ($isMember === true) ?
+                $recursiveMembership : false;
         }
 
         $recursiveMembership = ($this->pluggableObjectMembership[$objectType][$objectId] !== false) ?
@@ -695,31 +789,44 @@ abstract class AbstractUserGroup
     /**
      * Returns a single object.
      *
-     * @param string  $objectType          The object type.
-     * @param string  $objectId            The id of the object which should be checked.
-     * @param array   $recursiveMembership The recursive membership.
+     * @param string $objectType          The object type.
+     * @param string $objectId            The id of the object which should be checked.
+     * @param array  $recursiveMembership The recursive membership.
+     * @param string $fromDate            The from date if the assignment is time based.
+     * @param string $toDate              The to date if the assignment is time based.
      *
      * @return bool
      */
-    public function isObjectMember($objectType, $objectId, array &$recursiveMembership = [])
-    {
+    public function isObjectMember(
+        $objectType,
+        $objectId,
+        array &$recursiveMembership = [],
+        &$fromDate = null,
+        &$toDate = null
+    ) {
         $isMember = false;
         $recursiveMembership = [];
 
         if ($objectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
-            $isMember = $this->isRoleMember($objectId, $recursiveMembership);
+            $isMember = $this->isRoleMember($objectId, $recursiveMembership, $fromDate, $toDate);
         } elseif ($objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
-            $isMember = $this->isUserMember($objectId, $recursiveMembership);
+            $isMember = $this->isUserMember($objectId, $recursiveMembership, $fromDate, $toDate);
         } elseif ($objectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
             || $this->objectHandler->isTaxonomy($objectType) === true
         ) {
-            $isMember = $this->isTermMember($objectId, $recursiveMembership);
+            $isMember = $this->isTermMember($objectId, $recursiveMembership, $fromDate, $toDate);
         } elseif ($objectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
             || $this->objectHandler->isPostType($objectType) === true
         ) {
-            $isMember = $this->isPostMember($objectId, $recursiveMembership);
+            $isMember = $this->isPostMember($objectId, $recursiveMembership, $fromDate, $toDate);
         } elseif ($this->objectHandler->isPluggableObject($objectType) === true) {
-            $isMember = $this->isPluggableObjectMember($objectType, $objectId, $recursiveMembership);
+            $isMember = $this->isPluggableObjectMember(
+                $objectType,
+                $objectId,
+                $recursiveMembership,
+                $fromDate,
+                $toDate
+            );
         }
 
         return $isMember;
@@ -773,7 +880,7 @@ abstract class AbstractUserGroup
      */
     protected function getFullObjects($mapFunction, $objectType)
     {
-        $objects = $this->getAssignedObjects($objectType);
+        $objects = $this->getSimpleAssignedObjects($objectType);
 
         if ($this->config->lockRecursive() === true) {
             $map = $mapFunction();
@@ -887,7 +994,7 @@ abstract class AbstractUserGroup
     public function getAssignedObjectsByType($objectType)
     {
         if ($objectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
-            return $this->getAssignedObjects($objectType);
+            return $this->getSimpleAssignedObjects($objectType);
         } elseif ($objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
             return $this->getFullUsers();
         } elseif ($objectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE

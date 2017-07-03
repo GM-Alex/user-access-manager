@@ -34,14 +34,15 @@ class DynamicUserGroup extends AbstractUserGroup
     /**
      * DynamicUserGroup constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param Database      $database
-     * @param MainConfig    $config
-     * @param Util          $util
-     * @param ObjectHandler $objectHandler
-     * @param string        $type
-     * @param string        $id
+     * @param Php                          $php
+     * @param Wordpress                    $wordpress
+     * @param Database                     $database
+     * @param MainConfig                   $config
+     * @param Util                         $util
+     * @param ObjectHandler                $objectHandler
+     * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param null|string                  $type
+     * @param string                       $id
      *
      * @throws UserGroupTypeException
      */
@@ -52,11 +53,21 @@ class DynamicUserGroup extends AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
+        AssignmentInformationFactory $assignmentInformationFactory,
         $type,
         $id
     ) {
         $this->type = $type;
-        parent::__construct($php, $wordpress, $database, $config, $util, $objectHandler, $id);
+        parent::__construct(
+            $php,
+            $wordpress,
+            $database,
+            $config,
+            $util,
+            $objectHandler,
+            $assignmentInformationFactory,
+            $id
+        );
 
         if ($type !== self::USER_TYPE && $type !== self::ROLE_TYPE) {
             throw new UserGroupTypeException('Invalid dynamic group type.');

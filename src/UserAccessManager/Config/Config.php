@@ -147,6 +147,7 @@ class Config
      */
     public function flushConfigParameters()
     {
+        $this->defaultConfigParameters = [];
         $this->configParameters = null;
     }
 

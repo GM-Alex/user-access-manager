@@ -821,7 +821,8 @@ class AdminObjectController extends Controller
     public function getDynamicGroupsForAjax()
     {
         $search = $this->getRequestParameter('q');
-        $search = trim(end(explode(',', $search)));
+        $searches = explode(',', $search);
+        $search = trim(end($searches));
 
         $users = $this->wordpress->getUsers([
             'search' => '*'.$search.'*',

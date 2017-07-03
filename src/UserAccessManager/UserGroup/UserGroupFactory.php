@@ -59,14 +59,20 @@ class UserGroupFactory
     private $objectHandler;
 
     /**
+     * @var AssignmentInformationFactory
+     */
+    private $assignmentInformationFactory;
+
+    /**
      * UserGroupFactory constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param Database      $database
-     * @param MainConfig    $config
-     * @param Util          $util
-     * @param ObjectHandler $objectHandler
+     * @param Php                          $php
+     * @param Wordpress                    $wordpress
+     * @param Database                     $database
+     * @param MainConfig                   $config
+     * @param Util                         $util
+     * @param ObjectHandler                $objectHandler
+     * @param AssignmentInformationFactory $assignmentInformationFactory
      */
     public function __construct(
         Php $php,
@@ -74,7 +80,8 @@ class UserGroupFactory
         Database $database,
         MainConfig $config,
         Util $util,
-        ObjectHandler $objectHandler
+        ObjectHandler $objectHandler,
+        AssignmentInformationFactory $assignmentInformationFactory
     ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
@@ -82,6 +89,7 @@ class UserGroupFactory
         $this->config = $config;
         $this->util = $util;
         $this->objectHandler = $objectHandler;
+        $this->assignmentInformationFactory = $assignmentInformationFactory;
     }
 
     /**
@@ -100,6 +108,7 @@ class UserGroupFactory
             $this->config,
             $this->util,
             $this->objectHandler,
+            $this->assignmentInformationFactory,
             $id
         );
     }
@@ -121,6 +130,7 @@ class UserGroupFactory
             $this->config,
             $this->util,
             $this->objectHandler,
+            $this->assignmentInformationFactory,
             $type,
             $id
         );

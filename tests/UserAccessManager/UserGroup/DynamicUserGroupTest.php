@@ -36,6 +36,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory(),
             DynamicUserGroup::USER_TYPE,
             'id'
         );
@@ -51,6 +52,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory(),
             DynamicUserGroup::ROLE_TYPE,
             'id'
         );
@@ -67,6 +69,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory(),
             'someThing',
             'id'
         );
@@ -85,6 +88,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory(),
             DynamicUserGroup::ROLE_TYPE,
             'id'
         );
@@ -132,6 +136,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory(),
             DynamicUserGroup::USER_TYPE,
             0
         );

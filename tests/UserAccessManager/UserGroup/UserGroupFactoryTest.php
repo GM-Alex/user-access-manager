@@ -37,7 +37,8 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getMainConfig(),
             $this->getUtil(),
-            $this->getObjectHandler()
+            $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory()
         );
 
         self::assertInstanceOf(UserGroupFactory::class, $userGroupFactory);

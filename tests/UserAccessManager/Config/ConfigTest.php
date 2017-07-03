@@ -209,8 +209,10 @@ class ConfigTest extends UserAccessManagerTestCase
     public function testFlushConfigParameters(Config $config)
     {
         self::assertAttributeNotEmpty('configParameters', $config);
+        self::assertAttributeNotEquals([], 'defaultConfigParameters', $config);
         $config->flushConfigParameters();
         self::assertAttributeEquals(null, 'configParameters', $config);
+        self::assertAttributeEquals([], 'defaultConfigParameters', $config);
     }
 
     /**
