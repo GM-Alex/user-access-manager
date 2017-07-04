@@ -167,13 +167,15 @@ class AccessHandler
     {
         if ($this->dynamicUserGroups === null) {
             $this->dynamicUserGroups = [];
-            $notLoggedKey = DynamicUserGroup::USER_TYPE.'|0';
-            $this->dynamicUserGroups[$notLoggedKey] = $this->userGroupFactory->createDynamicUserGroup(
+
+            $notLoggedInUserGroup = $this->userGroupFactory->createDynamicUserGroup(
                 DynamicUserGroup::USER_TYPE,
-                0
+                DynamicUserGroup::NOT_LOGGED_IN_USER_ID
             );
+            $this->dynamicUserGroups[$notLoggedInUserGroup->getId()] = $notLoggedInUserGroup;
 
             $userGroupTypes = implode('\', \'', [DynamicUserGroup::ROLE_TYPE, DynamicUserGroup::USER_TYPE]);
+
             $query = "SELECT group_id AS id, group_type AS type
                 FROM {$this->database->getUserGroupToObjectTable()}
                 WHERE group_type IN ('{$userGroupTypes}')

@@ -761,6 +761,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $php->expects($this->exactly(count($arrayFillWith)))
             ->method('arrayFill')
+            ->withConsecutive(...$arrayFillWith)
             ->will($this->returnCallback(function ($startIndex, $numberOfElements, $value) {
                 return array_fill($startIndex, $numberOfElements, $value);
             }));
@@ -858,8 +859,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             [],
             [],
             [
-                [0, 2, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE],
-                [0, 1, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE]
+                [0, 2, $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'fromDate', 'toDate')],
+                [0, 1, $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'fromDate', 'toDate')]
             ],
             0,
             5,
@@ -1455,8 +1456,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             [[new MatchIgnoreWhitespace($query)]],
             [$this->generateUserReturn([10 => 10, 1, 2, 3])],
             [
-                [0, 2, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE],
-                [0, 1, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE]
+                [0, 2, $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)],
+                [0, 1, $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)]
             ],
             1,
             3,

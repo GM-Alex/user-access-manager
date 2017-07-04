@@ -254,7 +254,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ->withConsecutive(
                 [DynamicUserGroup::USER_TYPE, 0],
                 [DynamicUserGroup::USER_TYPE, 0],
-                [DynamicUserGroup::USER_TYPE, 1],
+                [DynamicUserGroup::USER_TYPE, 10],
                 [DynamicUserGroup::ROLE_TYPE, 'administrator']
             )
             ->will($this->returnCallback(function ($type, $id) {
@@ -277,7 +277,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ))
             ->will($this->returnValue($this->getQueryResult([
                 [DynamicUserGroup::USER_TYPE, 0],
-                [DynamicUserGroup::USER_TYPE, 1],
+                [DynamicUserGroup::USER_TYPE, 10],
                 [DynamicUserGroup::ROLE_TYPE, 'administrator']
             ])));
 
@@ -293,7 +293,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $expect = [
             DynamicUserGroup::USER_TYPE.'|0' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0),
-            DynamicUserGroup::USER_TYPE.'|1' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 1),
+            DynamicUserGroup::USER_TYPE.'|10' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 10),
             DynamicUserGroup::ROLE_TYPE.'|administrator' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 1)
         ];
 
@@ -644,6 +644,16 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetFilteredUserGroupsForObject()
     {
+        $userGroupFactory = $this->getUserGroupFactory();
+        $userGroupFactory->expects($this->once())
+            ->method('createDynamicUserGroup')
+            ->withConsecutive(
+                [DynamicUserGroup::USER_TYPE, DynamicUserGroup::NOT_LOGGED_IN_USER_ID]
+            )
+            ->will($this->returnCallback(function ($type, $id) {
+                return $this->getDynamicUserGroup($type, $id);
+            }));
+
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -651,7 +661,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
-            $this->getUserGroupFactory()
+            $userGroupFactory
         );
 
         $userGroups = [

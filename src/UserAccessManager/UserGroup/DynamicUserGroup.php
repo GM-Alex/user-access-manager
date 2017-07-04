@@ -30,6 +30,7 @@ class DynamicUserGroup extends AbstractUserGroup
 {
     const USER_TYPE = 'user';
     const ROLE_TYPE = 'role';
+    const NOT_LOGGED_IN_USER_ID = 0;
 
     /**
      * DynamicUserGroup constructor.
@@ -94,7 +95,7 @@ class DynamicUserGroup extends AbstractUserGroup
         if ($this->name === null) {
             $this->name = '';
 
-            if ($this->type === self::USER_TYPE && (int)$this->id === 0) {
+            if ($this->type === self::USER_TYPE && (int)$this->id === self::NOT_LOGGED_IN_USER_ID) {
                 $this->name = TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS;
             } elseif ($this->type === self::USER_TYPE) {
                 $userData = $this->wordpress->getUserData($this->id);
