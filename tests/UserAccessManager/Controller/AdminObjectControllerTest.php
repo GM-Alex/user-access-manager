@@ -82,7 +82,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      *
      * @return array
      */
-    private function getUserGroupArray(array $addIds, array $removeIds = [], array $with = [])
+    private function getUserGroupArray(array $addIds, array $removeIds = [], array $with = [], array $additional = [])
     {
         $groups = [];
 
@@ -108,6 +108,14 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         foreach ($remove as $id) {
             $groups[$id] = $this->getUserGroupWithAddDelete($id, [], $withRemove);
+        }
+
+        foreach ($additional as $id) {
+            $group = $this->getUserGroup($id);
+            $group->expects($this->never())
+                ->method('addObject');
+
+            $groups[$id] = $group;
         }
 
         return $groups;
@@ -178,12 +186,12 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $accessHandler->expects($this->once())
             ->method('getUserGroupsForObject')
-            ->with('objectType', 'objectId')
+            ->with('objectType', 'objectId', true)
             ->will($this->returnValue($fullGroups));
 
         $accessHandler->expects($this->once())
             ->method('getFilteredUserGroupsForObject')
-            ->with('objectType', 'objectId')
+            ->with('objectType', 'objectId', true)
             ->will($this->returnValue($filteredGroups));
 
         $adminObjectController = new AdminObjectController(
@@ -864,7 +872,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $accessHandler->expects($this->exactly(10))
             ->method('getFilteredUserGroups')
             ->will($this->onConsecutiveCalls(
-                $this->getUserGroupArray([1, 3], [1, 2, 3], [['post', 1, '1', 'toDate']]),
+                $this->getUserGroupArray([1, 3], [1, 2, 3], [['post', 1, '1', 'toDate']], [100, 101]),
                 $this->getUserGroupArray([2, 4], [1, 2, 4], [['post', 1, null, null]]),
                 $this->getUserGroupArray([1, 2], [2, 3, 4], [['post', 1, null, '234']]),
                 $this->getUserGroupArray([3, 4], [1, 3, 4], [['attachment', 3, null, null]]),
@@ -911,11 +919,14 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 'fromDate' => 'fromDate',
                 'toDate' => 'toDate'
             ],
-            DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin']
+            DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin'],
+            'A|B' => ['id' => 'B|A'],
         ];
         $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             1 => ['id' => 1, 'fromDate' => 1, 'toDate' => 'toDate'],
-            3 => ['id' => 3, 'fromDate' => 1, 'toDate' => 'toDate']
+            3 => ['id' => 3, 'fromDate' => 1, 'toDate' => 'toDate'],
+            100 => [],
+            101 => ['id' => 100]
         ];
         $adminObjectController->savePostData(['ID' => 1]);
 

@@ -133,7 +133,7 @@ abstract class AbstractUserGroup
     /**
      * @var array
      */
-    protected $pluggableObjectMembership = [];
+    protected $plObjectMembership = [];
 
     /**
      * @var array
@@ -336,7 +336,7 @@ abstract class AbstractUserGroup
         $this->userMembership = [];
         $this->termMembership = [];
         $this->postMembership = [];
-        $this->pluggableObjectMembership = [];
+        $this->plObjectMembership = [];
         $this->fullObjectMembership = [];
     }
 
@@ -613,7 +613,8 @@ abstract class AbstractUserGroup
             $this->roleMembership[$roleId] = ($isMember === true) ? $assignmentInformation : false;
         }
 
-        $assignmentInformation = ($this->roleMembership[$roleId] !== false) ? $this->roleMembership[$roleId] : null;
+        $assignmentInformation = ($this->roleMembership[$roleId] instanceof AssignmentInformation) ?
+            $this->roleMembership[$roleId] : null;
 
         return ($this->roleMembership[$roleId] !== false);
     }
@@ -671,7 +672,8 @@ abstract class AbstractUserGroup
                 $assignmentInformation : false;
         }
 
-        $assignmentInformation = ($this->userMembership[$userId] !== false) ? $this->userMembership[$userId] : null;
+        $assignmentInformation = ($this->userMembership[$userId] instanceof AssignmentInformation) ?
+            $this->userMembership[$userId] : null;
 
         return ($this->userMembership[$userId] !== false);
     }
@@ -701,7 +703,8 @@ abstract class AbstractUserGroup
             $this->termMembership[$termId] = ($isMember === true) ? $assignmentInformation : false;
         }
 
-        $assignmentInformation = ($this->termMembership[$termId] !== false) ? $this->termMembership[$termId] : null;
+        $assignmentInformation = ($this->termMembership[$termId] instanceof AssignmentInformation) ?
+            $this->termMembership[$termId] : null;
 
         return ($this->termMembership[$termId] !== false);
     }
@@ -750,7 +753,8 @@ abstract class AbstractUserGroup
             $this->postMembership[$postId] = ($isMember === true) ? $assignmentInformation : false;
         }
 
-        $assignmentInformation = ($this->postMembership[$postId] !== false) ? $this->postMembership[$postId] : null;
+        $assignmentInformation = ($this->postMembership[$postId] instanceof AssignmentInformation) ?
+            $this->postMembership[$postId] : null;
 
         return ($this->postMembership[$postId] !== false);
     }
@@ -769,11 +773,11 @@ abstract class AbstractUserGroup
         $objectId,
         &$assignmentInformation = null
     ) {
-        if (isset($this->pluggableObjectMembership[$objectType]) === false) {
-            $this->pluggableObjectMembership[$objectType] = [];
+        if (isset($this->plObjectMembership[$objectType]) === false) {
+            $this->plObjectMembership[$objectType] = [];
         }
 
-        if (isset($this->pluggableObjectMembership[$objectType][$objectId]) === false) {
+        if (isset($this->plObjectMembership[$objectType][$objectId]) === false) {
             $isMember = false;
             $pluggableObject = $this->objectHandler->getPluggableObject($objectType);
 
@@ -785,14 +789,14 @@ abstract class AbstractUserGroup
                 $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
             }
 
-            $this->pluggableObjectMembership[$objectType][$objectId] = ($isMember === true) ?
+            $this->plObjectMembership[$objectType][$objectId] = ($isMember === true) ?
                 $assignmentInformation : false;
         }
 
-        $assignmentInformation = ($this->pluggableObjectMembership[$objectType][$objectId] !== false) ?
-            $this->pluggableObjectMembership[$objectType][$objectId] : null;
+        $assignmentInformation = ($this->plObjectMembership[$objectType][$objectId] instanceof AssignmentInformation) ?
+            $this->plObjectMembership[$objectType][$objectId] : null;
 
-        return ($this->pluggableObjectMembership[$objectType][$objectId] !== false);
+        return ($this->plObjectMembership[$objectType][$objectId] !== false);
     }
 
     /**

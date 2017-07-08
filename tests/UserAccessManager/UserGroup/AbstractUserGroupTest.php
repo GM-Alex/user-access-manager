@@ -546,7 +546,10 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $queryWithoutDates = 'SELECT object_id AS id, object_type AS objectType, from_date AS fromDate, to_date AS toDate
+        $queryWithoutDates = 'SELECT object_id AS id,
+              object_type AS objectType,
+              from_date AS fromDate,
+              to_date AS toDate
             FROM userGroupToObjectTable
             WHERE group_id = \'%s\'
               AND group_type = \'%s\'
@@ -1313,7 +1316,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                     2 => $this->getAssignmentInformation('pluggableObject')
                 ]
             ],
-            'pluggableObjectMembership',
+            'plObjectMembership',
             $abstractUserGroup
         );
 

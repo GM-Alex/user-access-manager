@@ -512,6 +512,8 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $accessHandler->getUserGroupsForObject('objectType', 2)
         );
 
+        self::setValue($accessHandler, 'objectUserGroups', ['objectType' => []]);
+
         self::assertEquals(
             [
                 2 => $this->getUserGroup(2, true, true),
@@ -519,6 +521,8 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ],
             $accessHandler->getUserGroupsForObject('objectType', 2, true)
         );
+
+        self::assertAttributeEquals(['objectType' => []], 'objectUserGroups', $accessHandler);
 
         return $accessHandler;
     }
