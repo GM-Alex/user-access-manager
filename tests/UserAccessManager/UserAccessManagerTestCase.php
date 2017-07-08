@@ -424,4 +424,55 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
         return $parameter;
     }
+
+    /**
+     * @param string $type
+     * @param string $fromDate
+     * @param string $toDate
+     * @param array  $recursiveMembership
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\AssignmentInformation|\stdClass
+     */
+    protected function getAssignmentInformation(
+        $type,
+        $fromDate = null,
+        $toDate = null,
+        array $recursiveMembership = []
+    ) {
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $assignmentInformation
+         */
+        $assignmentInformation = $this->createMock('\UserAccessManager\UserGroup\AssignmentInformation');
+
+        $assignmentInformation->type = $type;
+        $assignmentInformation->fromDate = $fromDate;
+        $assignmentInformation->toDate = $toDate;
+        $assignmentInformation->recursiveMembership = $recursiveMembership;
+
+        $assignmentInformation->expects($this->any())
+            ->method('getType')
+            ->will($this->returnValue($type));
+
+        $assignmentInformation->expects($this->any())
+            ->method('getFromDate')
+            ->will($this->returnValue($fromDate));
+
+        $assignmentInformation->expects($this->any())
+            ->method('getToDate')
+            ->will($this->returnValue($toDate));
+
+        $assignmentInformation->expects($this->any())
+            ->method('getRecursiveMembership')
+            ->will($this->returnCallback(function () use (&$assignmentInformation) {
+                return $assignmentInformation->recursiveMembership;
+            }));
+
+        $assignmentInformation->expects($this->any())
+            ->method('setRecursiveMembership')
+            ->will($this->returnCallback(function ($newValue) use (&$assignmentInformation) {
+                $assignmentInformation->recursiveMembership = $newValue;
+            }));
+
+        return $assignmentInformation;
+    }
 }

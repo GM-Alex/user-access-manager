@@ -51,7 +51,6 @@ function initUserAccessManger()
     $accessHandler = new AccessHandler(
         $wordpress,
         $config,
-        $cache,
         $database,
         $objectHandler,
         $util,

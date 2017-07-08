@@ -21,8 +21,20 @@ namespace UserAccessManager\UserGroup;
  */
 class AssignmentInformationFactory
 {
-    public function createAssignmentInformation($type, $fromDate = null, $toDate = null)
-    {
-        return new AssignmentInformation($type, $fromDate, $toDate);
+    /**
+     * @param null|string $type
+     * @param null|string $fromDate
+     * @param null|string $toDate
+     * @param array       $recursiveMembership
+     *
+     * @return AssignmentInformation
+     */
+    public function createAssignmentInformation(
+        $type = null,
+        $fromDate = null,
+        $toDate = null,
+        array $recursiveMembership = []
+    ) {
+        return new AssignmentInformation($type, $fromDate, $toDate, $recursiveMembership);
     }
 }

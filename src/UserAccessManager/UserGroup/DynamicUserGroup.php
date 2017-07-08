@@ -109,4 +109,25 @@ class DynamicUserGroup extends AbstractUserGroup
 
         return $this->name;
     }
+
+    /**
+     * Checks if the user group is assigned to a user.
+     *
+     * @param string $objectType
+     * @param string $objectId
+     * @param string $fromDate
+     * @param string $toDate
+     *
+     * @return bool
+     *
+     * @throws UserGroupAssignmentException
+     */
+    public function addObject($objectType, $objectId, $fromDate = null, $toDate = null)
+    {
+        if ($this->objectHandler->getGeneralObjectType($objectType) === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+            throw new UserGroupAssignmentException('Dynamic user groups can\'t be assigned to user.');
+        }
+
+        return parent::addObject($objectType, $objectId, $fromDate, $toDate);
+    }
 }

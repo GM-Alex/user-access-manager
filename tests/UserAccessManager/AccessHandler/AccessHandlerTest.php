@@ -31,7 +31,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -108,6 +107,42 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($user));
 
         return $wordpress;
+    }
+
+    protected function getUserGroup(
+        $id,
+        $deletable = true,
+        $objectIsMember = false,
+        array $ipRange = [''],
+        $readAccess = 'none',
+        $writeAccess = 'none',
+        array $posts = [],
+        array $terms = [],
+        $name = null,
+        array $setIgnoreDates = []
+    ) {
+        $userGroup = parent::getUserGroup(
+            $id,
+            $deletable,
+            $objectIsMember,
+            $ipRange,
+            $readAccess,
+            $writeAccess,
+            $posts,
+            $terms,
+            $name
+        );
+
+        if (count($setIgnoreDates) > 0) {
+            $userGroup->expects($this->exactly(count($setIgnoreDates)))
+                ->method('setIgnoreDates')
+                ->withConsecutive(...$setIgnoreDates);
+        } else {
+            $userGroup->expects($this->never())
+                ->method('setIgnoreDates');
+        }
+
+        return $userGroup;
     }
 
     /**
@@ -202,7 +237,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getCache(),
             $database,
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -284,7 +318,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getCache(),
             $database,
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -310,7 +343,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -342,7 +374,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -434,30 +465,9 @@ class AccessHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroupsForObject()
     {
-        $cache = $this->getCache();
-
-        $cache->expects($this->exactly(3))
-            ->method('generateCacheKey')
-            ->withConsecutive(
-                ['getUserGroupsForObject', 'objectType', 0],
-                ['getUserGroupsForObject', 'objectType', 1],
-                ['getUserGroupsForObject', 'objectType', 2]
-            )
-            ->will($this->returnValue('cacheKey'));
-
-        $cache->expects($this->exactly(3))
-            ->method('getFromRuntimeCache')
-            ->with('cacheKey')
-            ->will($this->onConsecutiveCalls(
-                [4 => $this->getUserGroup(4)],
-                null,
-                null
-            ));
-
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $cache,
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -465,10 +475,10 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         );
 
         $userGroups = [
-            1 => $this->getUserGroup(1, true, true),
-            2 => $this->getUserGroup(2),
-            3 => $this->getUserGroup(3),
-            4 => $this->getUserGroup(4)
+            1 => $this->getUserGroup(1, true, true, [''], 'none', 'none', [], [], null, [[false]]),
+            2 => $this->getUserGroup(2, true, false, [''], 'none', 'none', [], [], null, [[false]]),
+            3 => $this->getUserGroup(3, true, false, [''], 'none', 'none', [], [], null, [[false]]),
+            4 => $this->getUserGroup(4, true, false, [''], 'none', 'none', [], [], null, [[false]])
         ];
 
         self::setValue($accessHandler, 'userGroups', $userGroups);
@@ -481,20 +491,15 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         self::assertEquals([], $accessHandler->getUserGroupsForObject('invalid', 1));
 
         self::assertEquals(
-            [4 => $this->getUserGroup(4)],
-            $accessHandler->getUserGroupsForObject('objectType', 0)
-        );
-
-        self::assertEquals(
             [1 => $this->getUserGroup(1, true, true)],
             $accessHandler->getUserGroupsForObject('objectType', 1)
         );
 
         $userGroups = [
-            1 => $this->getUserGroup(1),
-            2 => $this->getUserGroup(2, true, true),
-            3 => $this->getUserGroup(3, true, true),
-            4 => $this->getUserGroup(4)
+            1 => $this->getUserGroup(1, true, false, [''], 'none', 'none', [], [], null, [[false], [true]]),
+            2 => $this->getUserGroup(2, true, true, [''], 'none', 'none', [], [], null, [[false], [true]]),
+            3 => $this->getUserGroup(3, true, true, [''], 'none', 'none', [], [], null, [[false], [true]]),
+            4 => $this->getUserGroup(4, true, false, [''], 'none', 'none', [], [], null, [[false], [true]])
         ];
 
         self::setValue($accessHandler, 'userGroups', $userGroups);
@@ -505,6 +510,14 @@ class AccessHandlerTest extends UserAccessManagerTestCase
                 3 => $this->getUserGroup(3, true, true)
             ],
             $accessHandler->getUserGroupsForObject('objectType', 2)
+        );
+
+        self::assertEquals(
+            [
+                2 => $this->getUserGroup(2, true, true),
+                3 => $this->getUserGroup(3, true, true)
+            ],
+            $accessHandler->getUserGroupsForObject('objectType', 2, true)
         );
 
         return $accessHandler;
@@ -541,7 +554,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -594,7 +606,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $wordpress,
             $config,
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -657,7 +668,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -724,7 +734,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $wordpress,
             $config,
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -781,7 +790,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $wordpress,
             $config,
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -853,7 +861,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(0),
             $this->getUtil(),
@@ -875,7 +882,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $config,
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(3),
             $this->getUtil(),
@@ -917,7 +923,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -929,7 +934,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -963,7 +967,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $this->getWordpress(['manage_user_groups']),
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUtil(),
@@ -1026,7 +1029,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $wordpress,
             $config,
-            $this->getCache(),
             $database,
             $objectHandler,
             $this->getUtil(),
@@ -1088,7 +1090,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $wordpress,
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $objectHandler,
             $this->getUtil(),
@@ -1113,7 +1114,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $wordpress,
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $objectHandler,
             $this->getUtil(),
@@ -1138,7 +1138,6 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         $accessHandler = new AccessHandler(
             $wordpress,
             $this->getMainConfig(),
-            $this->getCache(),
             $this->getDatabase(),
             $objectHandler,
             $this->getUtil(),

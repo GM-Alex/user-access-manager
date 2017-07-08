@@ -15,8 +15,46 @@ The file needed for the group info boxes style.
     background: transparent url('../gfx/icon.png') no-repeat scroll center -28px;
 }
 
+ul.uam_group_selection > li {
+    position: relative;
+}
+
+ul.uam_group_selection > li > input {
+    position: absolute;
+    top: 7px;
+}
+
+ul.uam_group_selection > li > label {
+    margin-left: 24px;
+    display: inline-block;
+}
+
+.uam_group_date {
+    font-size: 11px;
+    margin-left: 24px;
+    display: block;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.uam_group_date_form {
+    margin-left: 24px;
+    display: none;
+}
+
+.uam_group_date_form label {
+    width: 65px;
+    display: inline-block;
+}
+
+.uam_group_date_form input {
+    width: 160px;
+    font-size: 12px;
+}
+
 .uam_group_info_link {
     cursor: pointer;
+    font-weight: bold;
 }
 
 .uam_group_info ul {

@@ -87,9 +87,15 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $groups = [];
 
         $both = array_intersect($addIds, $removeIds);
+        $withRemove = array_map(
+            function ($element) {
+                return array_slice($element, 0, 2);
+            },
+            $with
+        );
 
         foreach ($both as $id) {
-            $groups[$id] = $this->getUserGroupWithAddDelete($id, $with, $with);
+            $groups[$id] = $this->getUserGroupWithAddDelete($id, $with, $withRemove);
         }
 
         $add = array_diff($addIds, $both);
@@ -101,10 +107,34 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $remove = array_diff($removeIds, $both);
 
         foreach ($remove as $id) {
-            $groups[$id] = $this->getUserGroupWithAddDelete($id, [], $with);
+            $groups[$id] = $this->getUserGroupWithAddDelete($id, [], $withRemove);
         }
 
         return $groups;
+    }
+
+    /**
+     * @param string $type
+     * @param string $id
+     * @param array  $with
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+     */
+    protected function getDynamicUserGroupWithAdd(
+        $type,
+        $id,
+        array $with
+    ) {
+        $dynamicUserGroup = parent::getDynamicUserGroup(
+            $type,
+            $id
+        );
+
+        $dynamicUserGroup->expects($this->once())
+            ->method('addObject')
+            ->with(...$with);
+
+        return $dynamicUserGroup;
     }
 
     /**
@@ -415,6 +445,54 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::formatDate()
+     */
+    public function testFormatDate()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->once())
+            ->method('formatDate')
+            ->with('date')
+            ->will($this->returnValue('formattedDate'));
+
+        $adminObjectController = new AdminObjectController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
+        );
+
+        self::assertEquals('formattedDate', $adminObjectController->formatDate('date'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::formatDateForDatetimeInput()
+     */
+    public function testFormatDateForDatetimeInput()
+    {
+        $adminObjectController = new AdminObjectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
+        );
+
+        self::assertEquals(null, $adminObjectController->formatDateForDatetimeInput(null));
+        self::assertEquals('1970-01-01T00:00:00', $adminObjectController->formatDateForDatetimeInput(0));
+    }
+
+    /**
+     * @group  unit
      * @covers \UserAccessManager\Controller\AdminObjectController::getRecursiveMembership()
      */
     public function testGetRecursiveMembership()
@@ -553,12 +631,22 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->method('getRecursiveMembershipForObject')
             ->with('objectType', 'objectId')
             ->willReturn([
-                'role' => [1],
-                'user' => [-1, 2],
-                'term' => [-1, 1, 3],
-                'post' => [-1, 4],
-                'pluggableObject' => [5],
-                'invalid' => [-1]
+                'role' => [1 => $this->getAssignmentInformation('role')],
+                'user' => [
+                    -1 => $this->getAssignmentInformation('user'),
+                    2 => $this->getAssignmentInformation('user')
+                ],
+                'term' => [
+                    -1 => $this->getAssignmentInformation('term'),
+                    1 => $this->getAssignmentInformation('term'),
+                    3 => $this->getAssignmentInformation('term')
+                ],
+                'post' => [
+                    -1 => $this->getAssignmentInformation('post'),
+                    4 => $this->getAssignmentInformation('post')
+                ],
+                'pluggableObject' => [5 => $this->getAssignmentInformation('pluggableObject')],
+                'invalid' => [-1 => $this->getAssignmentInformation('invalid')]
             ]);
 
         $expected = [
@@ -729,6 +817,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @covers \UserAccessManager\Controller\AdminObjectController::saveUserData()
      * @covers \UserAccessManager\Controller\AdminObjectController::saveTermData()
      * @covers \UserAccessManager\Controller\AdminObjectController::savePluggableObjectData()
+     * @covers \UserAccessManager\Controller\AdminObjectController::getDateParameter()
      */
     public function testSaveObjectData()
     {
@@ -775,16 +864,16 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $accessHandler->expects($this->exactly(10))
             ->method('getFilteredUserGroups')
             ->will($this->onConsecutiveCalls(
-                $this->getUserGroupArray([1, 3], [1, 2, 3], [['post', 1]]),
-                $this->getUserGroupArray([2, 4], [1, 2, 4], [['post', 1]]),
-                $this->getUserGroupArray([1, 2], [2, 3, 4], [['post', 1]]),
-                $this->getUserGroupArray([3, 4], [1, 3, 4], [['attachment', 3]]),
-                $this->getUserGroupArray([], [2, 3], [['attachment', 3]]),
-                $this->getUserGroupArray([3, 4], [1, 3, 4], [[ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3]]),
-                $this->getUserGroupArray([2], [3, 4], [[ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1]]),
-                $this->getUserGroupArray([3], [1, 4], [[ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 0]]),
-                $this->getUserGroupArray([3], [1, 4], [['taxonomy_1', 1]]),
-                $this->getUserGroupArray([4], [2, 3], [['objectType', 'objectId']])
+                $this->getUserGroupArray([1, 3], [1, 2, 3], [['post', 1, '1', 'toDate']]),
+                $this->getUserGroupArray([2, 4], [1, 2, 4], [['post', 1, null, null]]),
+                $this->getUserGroupArray([1, 2], [2, 3, 4], [['post', 1, null, '234']]),
+                $this->getUserGroupArray([3, 4], [1, 3, 4], [['attachment', 3, null, null]]),
+                $this->getUserGroupArray([], [2, 3], [['attachment', 3, null, null]]),
+                $this->getUserGroupArray([3, 4], [1, 3, 4], [[ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3, null, null]]),
+                $this->getUserGroupArray([2], [3, 4], [[ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1, null, null]]),
+                $this->getUserGroupArray([3], [1, 4], [[ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 0, null, null]]),
+                $this->getUserGroupArray([3], [1, 4], [['taxonomy_1', 1, null, null]]),
+                $this->getUserGroupArray([4], [2, 3], [['objectType', 'objectId', null, null]])
             ));
 
         $accessHandler->expects($this->exactly(10))
@@ -797,9 +886,10 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(
                 [DynamicUserGroup::USER_TYPE, '1'],
                 [DynamicUserGroup::ROLE_TYPE, 'admin']
-            )->will($this->returnCallback(function ($type, $id) {
-                return $this->getDynamicUserGroup($type, $id);
-            }));
+            )->will($this->onConsecutiveCalls(
+                $this->getDynamicUserGroupWithAdd(DynamicUserGroup::USER_TYPE, '1', ['post', 1, 'fromDate', 'toDate']),
+                $this->getDynamicUserGroupWithAdd(DynamicUserGroup::ROLE_TYPE, 'admin', ['post', 1, null, null])
+            ));
 
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
@@ -816,38 +906,69 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController->savePostData(['ID' => 1]);
 
         $_POST[AdminObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME] = [
-            DynamicUserGroup::USER_TYPE.'|1',
-            DynamicUserGroup::ROLE_TYPE.'|admin'
+            DynamicUserGroup::USER_TYPE.'|1' => [
+                'id' => DynamicUserGroup::USER_TYPE.'|1',
+                'fromDate' => 'fromDate',
+                'toDate' => 'toDate'
+            ],
+            DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin']
         ];
-        $_POST['uam_user_groups'] = [1, 3];
+        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+            1 => ['id' => 1, 'fromDate' => 1, 'toDate' => 'toDate'],
+            3 => ['id' => 3, 'fromDate' => 1, 'toDate' => 'toDate']
+        ];
         $adminObjectController->savePostData(['ID' => 1]);
-        unset($_POST[AdminObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME]);
 
-        $_POST['uam_user_groups'] = [2, 4];
+        unset($_POST[AdminObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME]);
+        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+            2 => ['id' => 2],
+            4 => ['id' => 4]
+        ];
         $adminObjectController->savePostData(['ID' => 2]);
-        $_POST['uam_user_groups'] = [1, 2];
+
+        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+            1 => ['id' => 1, 'formDate' => '', 'toDate' => 234],
+            2 => ['id' => 2, 'formDate' => '', 'toDate' => 234]
+        ];
         $adminObjectController->savePostData(2);
-        $_POST['uam_user_groups'] = [3, 4];
+
+        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+            3 => ['id' => 3],
+            4 => ['id' => 4]
+        ];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
 
-        //unset($_POST[AdminObjectController::UPDATE_GROUPS_FORM_NAME]);
         $_POST['uam_bulk_type'] = AdminObjectController::BULK_REMOVE;
-        $_POST['uam_user_groups'] = [2, 3];
+        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+            2 => ['id' => 2],
+            3 => ['id' => 3]
+        ];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
 
         $_POST = [
             AdminObjectController::UPDATE_GROUPS_FORM_NAME => 1,
             'id' => 3,
-            'uam_user_groups' => [3, 4]
+            AdminObjectController::DEFAULT_GROUPS_FORM_NAME => [
+                3 => ['id' => 3],
+                4 => ['id' => 4]
+            ]
         ];
         $adminObjectController->saveAjaxAttachmentData();
 
-        $_POST['uam_user_groups'] = [2];
+        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+            2 => ['id' => 2]
+        ];
         $adminObjectController->saveUserData(1);
-        $_POST['uam_user_groups'] = [3];
+
+        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+            3 => ['id' => 3]
+        ];
         $adminObjectController->saveTermData(0);
         $adminObjectController->saveTermData(1);
-        $_POST['uam_user_groups'] = [4];
+
+        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+            4 => ['id' => 4]
+        ];
         $adminObjectController->savePluggableObjectData('objectType', 'objectId');
 
         $_POST = [];

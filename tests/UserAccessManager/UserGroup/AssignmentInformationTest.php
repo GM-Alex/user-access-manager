@@ -36,12 +36,13 @@ class AssignmentInformationTest extends \PHPUnit_Framework_TestCase
         self::assertAttributeEquals(null, 'fromDate', $assignmentInformation);
         self::assertAttributeEquals(null, 'toDate', $assignmentInformation);
 
-        $assignmentInformation = new AssignmentInformation('type', 'fromDate', 'toDate');
+        $assignmentInformation = new AssignmentInformation('type', 'fromDate', 'toDate', ['membership']);
 
         self::assertInstanceOf(AssignmentInformation::class, $assignmentInformation);
         self::assertAttributeEquals('type', 'type', $assignmentInformation);
         self::assertAttributeEquals('fromDate', 'fromDate', $assignmentInformation);
         self::assertAttributeEquals('toDate', 'toDate', $assignmentInformation);
+        self::assertAttributeEquals(['membership'], 'recursiveMembership', $assignmentInformation);
 
         return $assignmentInformation;
     }
@@ -52,13 +53,19 @@ class AssignmentInformationTest extends \PHPUnit_Framework_TestCase
      * @covers  \UserAccessManager\UserGroup\AssignmentInformation::getType()
      * @covers  \UserAccessManager\UserGroup\AssignmentInformation::getFromDate()
      * @covers  \UserAccessManager\UserGroup\AssignmentInformation::getToDate()
+     * @covers  \UserAccessManager\UserGroup\AssignmentInformation::getRecursiveMembership()
+     * @covers  \UserAccessManager\UserGroup\AssignmentInformation::setRecursiveMembership()
      *
      * @param AssignmentInformation $assignmentInformation
      */
-    public function testGetters(AssignmentInformation $assignmentInformation)
+    public function testSettersAndGetters(AssignmentInformation $assignmentInformation)
     {
         self::assertEquals('type', $assignmentInformation->getType());
         self::assertEquals('fromDate', $assignmentInformation->getFromDate());
         self::assertEquals('toDate', $assignmentInformation->getToDate());
+        self::assertEquals(['membership'], $assignmentInformation->getRecursiveMembership());
+
+        self::assertEquals($assignmentInformation, $assignmentInformation->setRecursiveMembership(['newMembership']));
+        self::assertEquals(['newMembership'], $assignmentInformation->getRecursiveMembership());
     }
 }

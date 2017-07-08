@@ -275,6 +275,12 @@ define('TXT_UAM_LOGIN_FORM_LOST_AND_FOUND_PASSWORD', __('Password Lost and Found
 define('TXT_UAM_LOGIN_FORM_REMEMBER_ME', __('Remember me', 'user-access-manager'));
 
 
+// --- User group ---
+define('TXT_UAM_GROUP_ASSIGNMENT_TIME', __('Setup time based group assignment', 'user-access-manager'));
+define('TXT_UAM_GROUP_FROM_DATE', __('From', 'user-access-manager'));
+define('TXT_UAM_GROUP_TO_DATE', __('To', 'user-access-manager'));
+
+
 // --- Dynamic user groups ---
 define('TXT_UAM_USER', __('User', 'user-access-manager'));
 define('TXT_UAM_ROLE', __('Role', 'user-access-manager'));

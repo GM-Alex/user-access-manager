@@ -903,4 +903,17 @@ class Wordpress
     {
         return \current_time($type, $gmt);
     }
+
+    /**
+     * Formats the date like wordpress does it.
+     *
+     * @param string $date
+     *
+     * @return string
+     */
+    public function formatDate($date)
+    {
+        $dateFormat = __('M j, Y @ H:i');
+        return \date_i18n($dateFormat, strtotime($date));
+    }
 }

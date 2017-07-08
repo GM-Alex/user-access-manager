@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\UserGroup;
 
+use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManagerTestCase;
 
 /**
@@ -157,5 +158,36 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
         self::setValue($dynamicUserGroup, 'id', 'administrator');
         self::setValue($dynamicUserGroup, 'name', null);
         self::assertEquals(TXT_UAM_ROLE.': Admin', $dynamicUserGroup->getName());
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\DynamicUserGroup::addObject()
+     */
+    public function testAddObject()
+    {
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->any())
+            ->method('getGeneralObjectType')
+            ->will($this->returnCallback(function ($type) {
+                return ($type === 'user') ? ObjectHandler::GENERAL_USER_OBJECT_TYPE : 'someType';
+            }));
+
+        $dynamicUserGroup = new DynamicUserGroup(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getDatabase(),
+            $this->getMainConfig(),
+            $this->getUtil(),
+            $objectHandler,
+            $this->getAssignmentInformationFactory(),
+            DynamicUserGroup::USER_TYPE,
+            0
+        );
+
+        $dynamicUserGroup->addObject('post', 1);
+
+        self::expectException(UserGroupAssignmentException::class);
+        $dynamicUserGroup->addObject('user', 1);
     }
 }

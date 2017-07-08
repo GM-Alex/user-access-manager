@@ -20,6 +20,7 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
+use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Php;
@@ -131,8 +132,8 @@ class AdminObjectController extends Controller
         $this->objectId = $objectId;
 
         if ($objectUserGroups === null) {
-            $objectUserGroups = $this->accessHandler->getFilteredUserGroupsForObject($objectType, $objectId);
-            $fullObjectUserGroups = $this->accessHandler->getUserGroupsForObject($objectType, $objectId);
+            $objectUserGroups = $this->accessHandler->getFilteredUserGroupsForObject($objectType, $objectId, true);
+            $fullObjectUserGroups = $this->accessHandler->getUserGroupsForObject($objectType, $objectId, true);
             $this->userGroupDiff = count($fullObjectUserGroups) - count($objectUserGroups);
         } else {
             $this->userGroupDiff = 0;
@@ -259,6 +260,30 @@ class AdminObjectController extends Controller
     }
 
     /**
+     * Formats the date to the wordpress default format.
+     *
+     * @param string $date
+     *
+     * @return string
+     */
+    public function formatDate($date)
+    {
+        return $this->wordpress->formatDate($date);
+    }
+
+    /**
+     * Formats the date for the datetime input field.
+     *
+     * @param string $date
+     *
+     * @return string
+     */
+    public function formatDateForDatetimeInput($date)
+    {
+        return ($date !== null) ? strftime('%Y-%m-%dT%H:%M:%S', strtotime($date)) : $date;
+    }
+
+    /**
      * Returns the recursive object membership.
      *
      * @param $userGroup
@@ -273,10 +298,13 @@ class AdminObjectController extends Controller
         $roles = $this->getRoleNames();
         $recursiveMembershipForObject = $userGroup->getRecursiveMembershipForObject($objectType, $objectId);
 
-        foreach ($recursiveMembershipForObject as $recursiveType => $objectIds) {
-            foreach ($objectIds as $objectId) {
+        /**
+         * @var AssignmentInformation[] $assignmentInformation
+         */
+        foreach ($recursiveMembershipForObject as $recursiveType => $assignmentInformation) {
+            foreach ($assignmentInformation as $objectId => $information) {
                 $objectName = $objectId;
-                $typeName = $this->objectHandler->getGeneralObjectType($recursiveType);
+                $typeName = $this->objectHandler->getGeneralObjectType($information->getType());
 
                 if ($typeName === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
                     $objectName = isset($roles[$objectId]) ? $roles[$objectId] : $objectId;
@@ -343,19 +371,25 @@ class AdminObjectController extends Controller
         }
     }
 
-
-    /*
-     * Meta functions
+    /**
+     * @param array  $data
+     * @param string $name
+     *
+     * @return null|string
      */
+    private function getDateParameter(array $data, $name)
+    {
+        return (isset($data[$name]) === true && (string)$data[$name] !== '') ? (string)$data[$name] : null;
+    }
 
     /**
      * Saves the object data to the database.
      *
-     * @param string              $objectType The object type.
-     * @param integer             $objectId   The _iId of the object.
-     * @param AbstractUserGroup[] $userGroups The new user groups for the object.
+     * @param string  $objectType    The object type.
+     * @param integer $objectId      The id of the object.
+     * @param array   $addUserGroups The new user groups for the object.
      */
-    private function saveObjectData($objectType, $objectId, array $userGroups = null)
+    private function saveObjectData($objectType, $objectId, array $addUserGroups = null)
     {
         $isUpdateForm = (bool)$this->getRequestParameter(self::UPDATE_GROUPS_FORM_NAME, false) === true
             || $this->getRequestParameter('uam_bulk_type') !== null;
@@ -364,12 +398,11 @@ class AdminObjectController extends Controller
             || $this->config->authorsCanAddPostsToGroups() === true;
 
         if ($isUpdateForm === true && $hasRights === true) {
-            if ($userGroups === null) {
+            if ($addUserGroups === null) {
                 $updateGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
-                $userGroups = (is_array($updateGroups) === true) ? $updateGroups : [];
+                $addUserGroups = (is_array($updateGroups) === true) ? $updateGroups : [];
             }
 
-            $addUserGroups = array_flip($userGroups);
             $filteredUserGroupsForObject = $this->accessHandler->getFilteredUserGroupsForObject(
                 $objectType,
                 $objectId
@@ -388,23 +421,38 @@ class AdminObjectController extends Controller
                     $userGroup->removeObject($objectType, $objectId);
                 }
 
-                if (isset($addUserGroups[$groupId]) === true) {
-                    $userGroup->addObject($objectType, $objectId);
+                if (isset($addUserGroups[$groupId]) === true
+                    && isset($addUserGroups[$groupId]['id']) === true
+                    && (int)$addUserGroups[$groupId]['id'] === (int)$groupId
+                ) {
+                    $userGroup->addObject(
+                        $objectType,
+                        $objectId,
+                        $this->getDateParameter($addUserGroups[$groupId], 'fromDate'),
+                        $this->getDateParameter($addUserGroups[$groupId], 'toDate')
+                    );
                 }
             }
 
-            $dynamicUserGroupKeys = $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, []);
+            $addDynamicUserGroups = $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, []);
 
-            foreach ($dynamicUserGroupKeys as $dynamicUserGroupKey) {
+            foreach ($addDynamicUserGroups as $dynamicUserGroupKey => $addDynamicUserGroup) {
                 $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
 
-                if (count($dynamicUserGroupData) === 2) {
+                if (count($dynamicUserGroupData) === 2
+                    && $addDynamicUserGroup['id'] === $dynamicUserGroupKey
+                ) {
                     $dynamicUserGroup = $this->userGroupFactory->createDynamicUserGroup(
                         $dynamicUserGroupData[0],
                         $dynamicUserGroupData[1]
                     );
 
-                    $dynamicUserGroup->addObject($objectType, $objectId);
+                    $dynamicUserGroup->addObject(
+                        $objectType,
+                        $objectId,
+                        $this->getDateParameter($addDynamicUserGroup, 'fromDate'),
+                        $this->getDateParameter($addDynamicUserGroup, 'toDate')
+                    );
                 }
             }
 

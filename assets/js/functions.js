@@ -194,30 +194,63 @@
             return (!$currentResult.length) ? false :  $currentResult;
         }
 
+        function getDatetimeInput(formName, id, type) {
+            var $label = $('<label>').attr({
+                "for": formName + '-' + 'id' + '-' + type
+            }).html(type);
+
+            var $input = $('<input>').attr({
+                "type": 'datetime-local',
+                "id": formName + '-' + 'id' + '-' + type,
+                "name": formName + '[' + id + '][' + type + ']'
+            });
+
+            return $('<div>').append($label).append($input);
+        }
+
         function selectCurrentResult() {
             var $currentResult = getCurrentResult();
 
             if ($currentResult) {
                 $currentResult = $('span:first-child', $currentResult);
+
+                var formName = 'uam_dynamic_user_groups';
                 var dgType = $currentResult.data('dg-type');
                 var dgId = $currentResult.data('dg-id');
-                var id = 'uam_user_groups-' + dgType + '|' + dgId;
+                var id = dgType + '|' + dgId;
+                var elementId = 'uam_user_groups-' + id;
 
                 var $elementInput = $('<input>').attr({
-                    "id": id,
+                    "id": elementId,
                     "type": 'checkbox',
-                    "value": dgType + '|' + dgId,
-                    "name": 'uam_dynamic_user_groups[]',
+                    "value": id,
+                    "name": formName + '[' + id + '][id]',
                     "checked": "checked"
                 });
 
                 var $elementLabel = $('<label>').attr({
-                    "for": id,
-                    "class": 'selectit',
-                    "style": 'display:inline;'
+                    "for": elementId,
+                    "class": 'selectit'
                 }).html($currentResult.html().replace(/(<([^>]+)>)/ig, ''));
 
-                var $element = $('<li>').append($elementInput).append('\n').append($elementLabel);
+                var $dateButton = $('<span>').attr({
+                    "class": 'uam_group_date'
+                }).html('Setup time based group assignment');
+
+                var $dateContainer = $('<div>').attr({
+                    "class": 'uam_group_date_form'
+                });
+
+                $dateContainer.append(getDatetimeInput(formName, id, 'fromDate'))
+                    .append(getDatetimeInput(formName, id, 'toDate'));
+
+                var $element = $('<li>')
+                    .append($elementInput)
+                    .append('\n')
+                    .append($elementLabel)
+                    .append($dateButton)
+                    .append($dateContainer);
+
                 $list.append($element);
 
                 $results.hide();
@@ -283,6 +316,13 @@
 })(jQuery);
 
 jQuery(document).ready(function ($) {
+    jQuery('#uma_post_access').on('click', '.uam_group_date', function () {
+       var $element = jQuery(this);
+       var $next = $element.next('.uam_group_date_form');
+        $next.toggle();
+        $element.hide();
+    });
+
     //Functions for the setting page
     var toggleGroup = function (group, elementIndex) {
         var $group = jQuery(group);

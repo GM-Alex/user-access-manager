@@ -112,7 +112,6 @@ class AccessHandler
      *
      * @param Wordpress        $wordpress
      * @param MainConfig       $config
-     * @param Cache            $cache
      * @param Database         $database
      * @param ObjectHandler    $objectHandler
      * @param Util             $util
@@ -121,7 +120,6 @@ class AccessHandler
     public function __construct(
         Wordpress $wordpress,
         MainConfig $config,
-        Cache $cache,
         Database $database,
         ObjectHandler $objectHandler,
         Util $util,
@@ -129,7 +127,6 @@ class AccessHandler
     ) {
         $this->wordpress = $wordpress;
         $this->config = $config;
-        $this->cache = $cache;
         $this->database = $database;
         $this->objectHandler = $objectHandler;
         $this->util = $util;
@@ -254,12 +251,13 @@ class AccessHandler
     /**
      * Returns the user groups for the given object.
      *
-     * @param string  $objectType The object type.
-     * @param integer $objectId   The _iId of the object.
+     * @param string  $objectType  The object type.
+     * @param integer $objectId    The id of the object.
+     * @param bool    $ignoreDates If true we ignore the dates for the object assignment.
      *
      * @return UserGroup[]
      */
-    public function getUserGroupsForObject($objectType, $objectId)
+    public function getUserGroupsForObject($objectType, $objectId, $ignoreDates = false)
     {
         if ($this->objectHandler->isValidObjectType($objectType) === false) {
             return [];
@@ -267,27 +265,20 @@ class AccessHandler
             $this->objectUserGroups[$objectType] = [];
         }
 
-        if (isset($this->objectUserGroups[$objectType][$objectId]) === false) {
-            $cacheKey = $this->cache->generateCacheKey(
-                'getUserGroupsForObject',
-                $objectType,
-                $objectId
-            );
-            $objectUserGroups = $this->cache->getFromRuntimeCache($cacheKey);
+        if ($ignoreDates === true || isset($this->objectUserGroups[$objectType][$objectId]) === false) {
+            $objectUserGroups = [];
+            $userGroups = $this->getFullUserGroups();
 
-            if ($objectUserGroups !== null) {
-                $this->objectUserGroups[$objectType][$objectId] = $objectUserGroups;
-            } else {
-                $objectUserGroups = [];
-                $userGroups = $this->getFullUserGroups();
+            foreach ($userGroups as $userGroup) {
+                $userGroup->setIgnoreDates($ignoreDates);
 
-                foreach ($userGroups as $userGroup) {
-                    if ($userGroup->isObjectMember($objectType, $objectId) === true) {
-                        $objectUserGroups[$userGroup->getId()] = $userGroup;
-                    }
+                if ($userGroup->isObjectMember($objectType, $objectId) === true) {
+                    $objectUserGroups[$userGroup->getId()] = $userGroup;
                 }
+            }
 
-                $this->cache->addToRuntimeCache($cacheKey, $objectUserGroups);
+            if ($ignoreDates === true) {
+                return $objectUserGroups;
             }
 
             $this->objectUserGroups[$objectType][$objectId] = $objectUserGroups;
@@ -297,7 +288,7 @@ class AccessHandler
     }
 
     /**
-     * Unset the user groups for _aObjects.
+     * Unset the object user groups.
      */
     public function unsetUserGroupsForObject()
     {
@@ -405,12 +396,13 @@ class AccessHandler
      *
      * @param string $objectType
      * @param int    $objectId
+     * @param bool   $ignoreDates
      *
      * @return AbstractUserGroup[]
      */
-    public function getFilteredUserGroupsForObject($objectType, $objectId)
+    public function getFilteredUserGroupsForObject($objectType, $objectId, $ignoreDates = false)
     {
-        $userGroups = $this->getUserGroupsForObject($objectType, $objectId);
+        $userGroups = $this->getUserGroupsForObject($objectType, $objectId, $ignoreDates);
         $userUserGroups = $this->getUserGroupsForUser() + $this->getDynamicUserGroups();
         return array_intersect_key($userGroups, $userUserGroups);
     }

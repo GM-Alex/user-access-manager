@@ -46,11 +46,13 @@ class AssignmentInformationFactoryTest extends \PHPUnit_Framework_TestCase
         $assignmentInformation = $assignmentInformationFactory->createAssignmentInformation(
             'type',
             'fromDate',
-            'toDate'
+            'toDate',
+            ['membership']
         );
 
         self::assertEquals('type', $assignmentInformation->getType());
         self::assertEquals('fromDate', $assignmentInformation->getFromDate());
         self::assertEquals('toDate', $assignmentInformation->getToDate());
+        self::assertEquals(['membership'], $assignmentInformation->getRecursiveMembership());
     }
 }

@@ -72,32 +72,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param string $type
-     * @param string $fromDate
-     * @param string $toDate
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\AssignmentInformation
-     */
-    private function getAssignmentInformation($type, $fromDate = null, $toDate = null)
-    {
-        $assignmentInformation = $this->createMock('\UserAccessManager\UserGroup\AssignmentInformation');
-
-        $assignmentInformation->expects($this->any())
-            ->method('getType')
-            ->willReturn($type);
-
-        $assignmentInformation->expects($this->any())
-            ->method('getFromDate')
-            ->willReturn($fromDate);
-
-        $assignmentInformation->expects($this->any())
-            ->method('getToDate')
-            ->willReturn($toDate);
-
-        return $assignmentInformation;
-    }
-
-    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|AssignmentInformationFactory
      */
     protected function getAssignmentInformationFactory()
@@ -105,9 +79,16 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         $assignmentInformationFactory = parent::getAssignmentInformationFactory();
         $assignmentInformationFactory->expects($this->any())
             ->method('createAssignmentInformation')
-            ->will($this->returnCallback(function ($type, $fromDate = null, $toDate = null) {
-                return $this->getAssignmentInformation($type, $fromDate, $toDate);
-            }));
+            ->will($this->returnCallback(
+                function (
+                    $type,
+                    $fromDate = null,
+                    $toDate = null,
+                    array $recursiveMembership = []
+                ) {
+                    return $this->getAssignmentInformation($type, $fromDate, $toDate, $recursiveMembership);
+                }
+            ));
 
         return $assignmentInformationFactory;
     }
@@ -489,6 +470,36 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @group  unit
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::setIgnoreDates()
+     */
+    public function testSetIgnoreDates()
+    {
+        $abstractUserGroup = $this->getStub(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getDatabase(),
+            $this->getMainConfig(),
+            $this->getUtil(),
+            $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory()
+        );
+
+        self::setValue($abstractUserGroup, 'assignedObjects', ['someValue']);
+        $abstractUserGroup->setIgnoreDates(false);
+        self::assertAttributeEquals(false, 'ignoreDates', $abstractUserGroup);
+        self::assertAttributeEquals(['someValue'], 'assignedObjects', $abstractUserGroup);
+
+        $abstractUserGroup->setIgnoreDates(true);
+        self::assertAttributeEquals(true, 'ignoreDates', $abstractUserGroup);
+        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
+
+        $abstractUserGroup->setIgnoreDates(false);
+        self::assertAttributeEquals(false, 'ignoreDates', $abstractUserGroup);
+        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
+    }
+
+    /**
      * Generates return values.
      *
      * @param int    $number
@@ -531,19 +542,20 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(3))
+        $database->expects($this->exactly(4))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $query = 'SELECT object_id AS id, object_type AS objectType, from_date AS fromDate, to_date AS toDate
+        $queryWithoutDates = 'SELECT object_id AS id, object_type AS objectType, from_date AS fromDate, to_date AS toDate
             FROM userGroupToObjectTable
             WHERE group_id = \'%s\'
               AND group_type = \'%s\'
-              AND (general_object_type = \'%s\' OR object_type = \'%s\')
-              AND (from_date IS NULL OR from_date >= \'%s\')
-              AND (to_date IS NULL OR to_date <= \'%s\')';
+              AND (general_object_type = \'%s\' OR object_type = \'%s\')';
 
-        $database->expects($this->exactly(3))
+        $query = $queryWithoutDates.' AND (from_date IS NULL OR from_date <= \'%s\')
+              AND (to_date IS NULL OR to_date >= \'%s\')';
+
+        $database->expects($this->exactly(4))
             ->method('prepare')
             ->withConsecutive(
                 [
@@ -551,20 +563,23 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                     [123, null, 'noResultObjectType', 'noResultObjectType', 'time', 'time']
                 ],
                 [new MatchIgnoreWhitespace($query), [123, null, 'objectType', 'objectType', 'time', 'time']],
-                [new MatchIgnoreWhitespace($query), [123, null, 'something', 'something', 'time', 'time']]
+                [new MatchIgnoreWhitespace($query), [123, null, 'something', 'something', 'time', 'time']],
+                [new MatchIgnoreWhitespace($queryWithoutDates), [123, null, 'objectType', 'objectType']]
             )
             ->will($this->onConsecutiveCalls(
                 'nonResultPreparedQuery',
                 'preparedQuery',
-                'nonResultSomethingPreparedQuery'
+                'nonResultSomethingPreparedQuery',
+                'nonResultPreparedQuery'
             ));
 
-        $database->expects($this->exactly(3))
+        $database->expects($this->exactly(4))
             ->method('getResults')
             ->withConsecutive(
                 ['nonResultPreparedQuery'],
                 ['preparedQuery'],
-                ['nonResultSomethingPreparedQuery']
+                ['nonResultSomethingPreparedQuery'],
+                ['nonResultPreparedQuery']
             )
             ->will($this->onConsecutiveCalls(null, $this->generateReturn(3, 'objectType'), null));
 
@@ -639,6 +654,10 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertFalse($result);
         $result = self::callMethod($abstractUserGroup, 'isObjectAssignedToGroup', ['something', 1]);
         self::assertFalse($result);
+
+        $abstractUserGroup->setIgnoreDates(true);
+        $result = $abstractUserGroup->getAssignedObjects('objectType');
+        self::assertEquals([], $result);
     }
 
     /**
@@ -664,8 +683,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             WHERE group_id = \'%s\'
               AND group_type = \'%s\'
               AND (general_object_type = \'%s\' OR object_type = \'%s\')
-              AND (from_date IS NULL OR from_date >= \'%s\')
-              AND (to_date IS NULL OR to_date <= \'%s\')';
+              AND (from_date IS NULL OR from_date <= \'%s\')
+              AND (to_date IS NULL OR to_date >= \'%s\')';
 
         $prepareWith = [];
         $prepareWill = [];
@@ -699,6 +718,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isRoleMember()
      *
      * @return AbstractUserGroup
@@ -718,15 +738,14 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         );
 
         self::setValue($abstractUserGroup, 'id', 123);
-        $recursiveMembership = [];
 
-        $return = $abstractUserGroup->isRoleMember(1, $recursiveMembership);
+        $return = $abstractUserGroup->isRoleMember(1, $assignmentInformation);
         self::assertTrue($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals($this->getAssignmentInformation('role'), $assignmentInformation);
 
-        $return = $abstractUserGroup->isRoleMember(4, $recursiveMembership);
+        $return = $abstractUserGroup->isRoleMember(4, $assignmentInformation);
         self::assertFalse($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals(null, $assignmentInformation);
 
         return $abstractUserGroup;
     }
@@ -848,6 +867,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isUserMember()
      *
      * @return AbstractUserGroup
@@ -859,8 +879,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             [],
             [],
             [
-                [0, 2, $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'fromDate', 'toDate')],
-                [0, 1, $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'fromDate', 'toDate')]
+                [0, 2, $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)],
+                [0, 1, $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)]
             ],
             0,
             5,
@@ -868,53 +888,62 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             'fromDate',
             'toDate'
         );
-        $recursiveMembership = [];
 
         self::setValue($abstractUserGroup, 'assignedObjects', [ObjectHandler::GENERAL_USER_OBJECT_TYPE => []]);
-        $return = $abstractUserGroup->isUserMember(4, $recursiveMembership);
+
+        $return = $abstractUserGroup->isUserMember(4, $assignmentInformation);
         self::assertFalse($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals(null, $assignmentInformation);
         self::setValue($abstractUserGroup, 'assignedObjects', [
             ObjectHandler::GENERAL_USER_OBJECT_TYPE => [],
             ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => []
         ]);
-        $return = $abstractUserGroup->isUserMember(3, $recursiveMembership);
+        $return = $abstractUserGroup->isUserMember(3, $assignmentInformation);
         self::assertFalse($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals(null, $assignmentInformation);
         self::setValue($abstractUserGroup, 'userMembership', []);
         self::setValue($abstractUserGroup, 'assignedObjects', []);
 
-        $return = $abstractUserGroup->isUserMember(1, $recursiveMembership, $fromDate, $toDate);
-        self::assertEquals('fromDate', $fromDate);
-        self::assertEquals('toDate', $toDate);
+        $return = $abstractUserGroup->isUserMember(1, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
-            [
-                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
-                    1 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'fromDate', 'toDate'),
-                    2 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'fromDate', 'toDate')
+            $this->getAssignmentInformation(
+                'user',
+                'fromDate',
+                'toDate',
+                [
+                    ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
+                        1 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE),
+                        2 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)
+                    ]
                 ]
-            ],
-            $recursiveMembership
+            ),
+            $assignmentInformation
         );
 
-        $return = $abstractUserGroup->isUserMember(2, $recursiveMembership);
+        $return = $abstractUserGroup->isUserMember(2, $assignmentInformation);
         self::assertTrue($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals($this->getAssignmentInformation('user', 'fromDate', 'toDate'), $assignmentInformation);
 
-        $return = $abstractUserGroup->isUserMember(3, $recursiveMembership, $fromDate, $toDate);
-        self::assertEquals('fromDate', $fromDate);
-        self::assertEquals('toDate', $toDate);
+        $return = $abstractUserGroup->isUserMember(3, $assignmentInformation);
         self::assertTrue($return);
-        self::assertEquals([
-            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
-                1 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'fromDate', 'toDate')
-            ]
-        ], $recursiveMembership);
+        self::assertEquals(
+            $this->getAssignmentInformation(
+                null,
+                null,
+                null,
+                [
+                    ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
+                        1 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)
+                    ]
+                ]
+            ),
+            $assignmentInformation
+        );
 
-        $return = $abstractUserGroup->isUserMember(5, $recursiveMembership);
+        $return = $abstractUserGroup->isUserMember(5, $assignmentInformation);
         self::assertFalse($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals(null, $assignmentInformation);
 
         return $abstractUserGroup;
     }
@@ -976,6 +1005,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isTermMember()
      *
      * @return AbstractUserGroup
@@ -983,34 +1013,43 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     public function testIsTermMember()
     {
         $abstractUserGroup = $this->getTestIsTermMemberPrototype();
-        $recursiveMembership = [];
 
         // term tests
-        $return = $abstractUserGroup->isTermMember(1, $recursiveMembership);
+        $return = $abstractUserGroup->isTermMember(1, $assignmentInformation);
         self::assertTrue($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals($this->getAssignmentInformation('term'), $assignmentInformation);
 
-        $return = $abstractUserGroup->isTermMember(2, $recursiveMembership);
-        self::assertTrue($return);
-        self::assertEquals(
-            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]],
-            $recursiveMembership
-        );
-
-        $return = $abstractUserGroup->isTermMember(3, $recursiveMembership);
-        self::assertTrue($return);
-        self::assertEquals([], $recursiveMembership);
-
-        $return = $abstractUserGroup->isTermMember(4, $recursiveMembership);
+        $return = $abstractUserGroup->isTermMember(2, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
-            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => $this->getAssignmentInformation('term')]],
-            $recursiveMembership
+            $this->getAssignmentInformation(
+                'term',
+                null,
+                null,
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]]
+            ),
+            $assignmentInformation
         );
 
-        $return = $abstractUserGroup->isTermMember(5, $recursiveMembership);
+        $return = $abstractUserGroup->isTermMember(3, $assignmentInformation);
+        self::assertTrue($return);
+        self::assertEquals($this->getAssignmentInformation('term'), $assignmentInformation);
+
+        $return = $abstractUserGroup->isTermMember(4, $assignmentInformation);
+        self::assertTrue($return);
+        self::assertEquals(
+            $this->getAssignmentInformation(
+                null,
+                null,
+                null,
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => $this->getAssignmentInformation('term')]]
+            ),
+            $assignmentInformation
+        );
+
+        $return = $abstractUserGroup->isTermMember(5, $assignmentInformation);
         self::assertFalse($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals(null, $assignmentInformation);
 
         return $abstractUserGroup;
     }
@@ -1111,6 +1150,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isPostMember()
      *
      * @return AbstractUserGroup
@@ -1118,43 +1158,57 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     public function testIsPostMember()
     {
         $abstractUserGroup = $this->getTestIsPostMemberPrototype();
-        $recursiveMembership = [];
 
         // post tests
-        $return = $abstractUserGroup->isPostMember(1, $recursiveMembership);
+        $return = $abstractUserGroup->isPostMember(1, $assignmentInformation);
         self::assertTrue($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals($this->getAssignmentInformation('post'), $assignmentInformation);
 
-        $return = $abstractUserGroup->isPostMember(2, $recursiveMembership);
-        self::assertTrue($return);
-        self::assertEquals(
-            [
-                ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => $this->getAssignmentInformation('post')],
-                ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]
-            ],
-            $recursiveMembership
-        );
-
-        $return = $abstractUserGroup->isPostMember(3, $recursiveMembership);
-        self::assertTrue($return);
-        self::assertEquals([], $recursiveMembership);
-
-        $return = $abstractUserGroup->isPostMember(4, $recursiveMembership);
+        $return = $abstractUserGroup->isPostMember(2, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
-            [ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => $this->getAssignmentInformation('post')]],
-            $recursiveMembership
+            $this->getAssignmentInformation(
+                'post',
+                null,
+                null,
+                [
+                    ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => $this->getAssignmentInformation('post')],
+                    ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]
+                ]
+            ),
+            $assignmentInformation
         );
 
-        $return = $abstractUserGroup->isPostMember(5, $recursiveMembership);
+        $return = $abstractUserGroup->isPostMember(3, $assignmentInformation);
+        self::assertTrue($return);
+        self::assertEquals($this->getAssignmentInformation('post'), $assignmentInformation);
+
+        $return = $abstractUserGroup->isPostMember(4, $assignmentInformation);
+        self::assertTrue($return);
+        self::assertEquals(
+            $this->getAssignmentInformation(
+                null,
+                null,
+                null,
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => $this->getAssignmentInformation('post')]]
+            ),
+            $assignmentInformation
+        );
+
+        $return = $abstractUserGroup->isPostMember(5, $assignmentInformation);
         self::assertFalse($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals(null, $assignmentInformation);
 
-        $return = $abstractUserGroup->isPostMember(10, $recursiveMembership);
+        $return = $abstractUserGroup->isPostMember(10, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
-            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]],
-            $recursiveMembership
+            $this->getAssignmentInformation(
+                null,
+                null,
+                null,
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]]
+            ),
+            $assignmentInformation
         );
 
         return $abstractUserGroup;
@@ -1163,6 +1217,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
+     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
      * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isPluggableObjectMember()
      *
      * @return AbstractUserGroup
@@ -1223,45 +1278,59 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         );
 
         self::setValue($abstractUserGroup, 'id', 123);
-        $recursiveMembership = [];
 
         // pluggable object tests
-        $return = $abstractUserGroup->isPluggableObjectMember('noPluggableObject', 1, $recursiveMembership);
+        $return = $abstractUserGroup->isPluggableObjectMember('noPluggableObject', 1, $assignmentInformation);
         self::assertFalse($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals(null, $assignmentInformation);
 
-        $return = $abstractUserGroup->isPluggableObjectMember('_pluggableObject_', 1, $recursiveMembership);
+        $return = $abstractUserGroup->isPluggableObjectMember('_pluggableObject_', 1, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
-            ['pluggableObject' => [1 => $this->getAssignmentInformation('pluggableObject')]],
-            $recursiveMembership
+            $this->getAssignmentInformation(
+                'pluggableObject',
+                null,
+                null,
+                ['pluggableObject' => [1 => $this->getAssignmentInformation('pluggableObject')]]
+            ),
+            $assignmentInformation
         );
 
-        $return = $abstractUserGroup->isPluggableObjectMember('_pluggableObject_', 2, $recursiveMembership);
+        $return = $abstractUserGroup->isPluggableObjectMember('_pluggableObject_', 2, $assignmentInformation);
         self::assertTrue($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals($this->getAssignmentInformation('pluggableObject'), $assignmentInformation);
 
         self::assertAttributeEquals(
             [
                 'noPluggableObject' => [1 => false],
                 '_pluggableObject_' => [
-                    1 => ['pluggableObject' => [1 => $this->getAssignmentInformation('pluggableObject')]],
-                    2 => []
+                    1 => $this->getAssignmentInformation(
+                        'pluggableObject',
+                        null,
+                        null,
+                        ['pluggableObject' => [1 => $this->getAssignmentInformation('pluggableObject')]]
+                    ),
+                    2 => $this->getAssignmentInformation('pluggableObject')
                 ]
             ],
             'pluggableObjectMembership',
             $abstractUserGroup
         );
 
-        $return = $abstractUserGroup->isPluggableObjectMember('_pluggableObject_', 3, $recursiveMembership);
+        $return = $abstractUserGroup->isPluggableObjectMember('_pluggableObject_', 3, $assignmentInformation);
         self::assertFalse($return);
-        self::assertEquals([], $recursiveMembership);
+        self::assertEquals(null, $assignmentInformation);
 
-        $return = $abstractUserGroup->isPluggableObjectMember('_pluggableObject_', 4, $recursiveMembership);
+        $return = $abstractUserGroup->isPluggableObjectMember('_pluggableObject_', 4, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
-            ['pluggableObject' => [1 => $this->getAssignmentInformation('pluggableObject')]],
-            $recursiveMembership
+            $this->getAssignmentInformation(
+                null,
+                null,
+                null,
+                ['pluggableObject' => [1 => $this->getAssignmentInformation('pluggableObject')]]
+            ),
+            $assignmentInformation
         );
 
         return $abstractUserGroup;
@@ -1271,23 +1340,39 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * Assertion helper for testIsMemberFunctions
      *
      * @param AbstractUserGroup $abstractUserGroup
-     * @param bool              $expectedReturn
-     * @param array             $expectedRecursiveMembership
      * @param string            $objectType
      * @param string            $objectId
+     * @param bool              $expectedReturn
+     * @param string            $object
+     * @param string            $fromDate
+     * @param string            $toDate
+     * @param array             $expectedRecursiveMembership
      */
     private function memberFunctionAssertions(
         AbstractUserGroup $abstractUserGroup,
-        $expectedReturn,
-        array $expectedRecursiveMembership,
         $objectType,
-        $objectId
+        $objectId,
+        $expectedReturn,
+        $object = '',
+        $fromDate = null,
+        $toDate = null,
+        array $expectedRecursiveMembership = []
     ) {
-        $recursiveMembership = [];
-        $return = $abstractUserGroup->isObjectMember($objectType, $objectId, $recursiveMembership);
+        if ($expectedReturn === true || count($expectedRecursiveMembership)) {
+            $expectedAssignmentInformation = $this->getAssignmentInformation(
+                $object,
+                $fromDate,
+                $toDate,
+                $expectedRecursiveMembership
+            );
+        } else {
+            $expectedAssignmentInformation = null;
+        }
+
+        $return = $abstractUserGroup->isObjectMember($objectType, $objectId, $assignmentInformation);
 
         self::assertEquals($expectedReturn, $return);
-        self::assertEquals($expectedRecursiveMembership, $recursiveMembership);
+        self::assertEquals($expectedAssignmentInformation, $assignmentInformation);
 
         self::assertEquals(
             $expectedRecursiveMembership,
@@ -1328,97 +1413,129 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         AbstractUserGroup $pluggableObjectUserGroup
     ) {
         // role tests
-        $this->memberFunctionAssertions($roleUserGroup, true, [], ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 1);
-        $this->memberFunctionAssertions($roleUserGroup, false, [], ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 4);
+        $this->memberFunctionAssertions($roleUserGroup, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 1, true, 'role');
+        $this->memberFunctionAssertions($roleUserGroup, ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 4, false);
 
         // user tests
         $this->memberFunctionAssertions(
             $userUserGroup,
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            1,
             true,
+            'user',
+            'fromDate',
+            'toDate',
             [
                 ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
                     1 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE),
                     2 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)
                 ]
-            ],
-            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-            1
+            ]
         );
-        $this->memberFunctionAssertions($userUserGroup, true, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 2);
         $this->memberFunctionAssertions(
             $userUserGroup,
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            2,
             true,
+            'user',
+            'fromDate',
+            'toDate'
+        );
+        $this->memberFunctionAssertions(
+            $userUserGroup,
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            3,
+            true,
+            null,
+            null,
+            null,
             [
                 ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => [
                     1 => $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)
                 ]
-            ],
-            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-            3
+            ]
         );
-        $this->memberFunctionAssertions($userUserGroup, false, [], ObjectHandler::GENERAL_USER_OBJECT_TYPE, 5);
+        $this->memberFunctionAssertions($userUserGroup, ObjectHandler::GENERAL_USER_OBJECT_TYPE, 5, false);
 
         // term tests
-        $this->memberFunctionAssertions($termUserGroup, true, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1);
+        $this->memberFunctionAssertions($termUserGroup, ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1, true, 'term');
         $this->memberFunctionAssertions(
             $termUserGroup,
-            true,
-            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]],
             'termObjectType',
-            2
+            2,
+            true,
+            'term',
+            null,
+            null,
+            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]]
         );
-        $this->memberFunctionAssertions($termUserGroup, true, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 3);
+        $this->memberFunctionAssertions($termUserGroup, ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 3, true, 'term');
         $this->memberFunctionAssertions(
             $termUserGroup,
-            true,
-            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => $this->getAssignmentInformation('term')]],
             ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-            4
+            4,
+            true,
+            null,
+            null,
+            null,
+            [ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [1 => $this->getAssignmentInformation('term')]]
         );
-        $this->memberFunctionAssertions($termUserGroup, false, [], ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5);
+        $this->memberFunctionAssertions($termUserGroup, ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5, false);
 
         // post tests
-        $this->memberFunctionAssertions($postUserGroup, true, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1);
+        $this->memberFunctionAssertions($postUserGroup, ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1, true, 'post');
         $this->memberFunctionAssertions(
             $postUserGroup,
-            true,
-            [
-                ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => $this->getAssignmentInformation('post')],
-                ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]
-            ],
             'postObjectType',
-            2
-        );
-        $this->memberFunctionAssertions(
-            $postUserGroup,
+            2,
             true,
+            'post',
+            null,
+            null,
             [
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => $this->getAssignmentInformation('post')],
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]
-            ],
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-            2
+            ]
         );
-        $this->memberFunctionAssertions($postUserGroup, true, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3);
         $this->memberFunctionAssertions(
             $postUserGroup,
-            true,
-            [ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => $this->getAssignmentInformation('post')]],
             ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-            4
+            2,
+            true,
+            'post',
+            null,
+            null,
+            [
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE => [3 => $this->getAssignmentInformation('post')],
+                ObjectHandler::GENERAL_TERM_OBJECT_TYPE => [3 => $this->getAssignmentInformation('term')]
+            ]
         );
-        $this->memberFunctionAssertions($postUserGroup, false, [], ObjectHandler::GENERAL_POST_OBJECT_TYPE, 5);
+        $this->memberFunctionAssertions($postUserGroup, ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3, true, 'post');
+        $this->memberFunctionAssertions(
+            $postUserGroup,
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            4,
+            true,
+            null,
+            null,
+            null,
+            [ObjectHandler::GENERAL_POST_OBJECT_TYPE => [1 => $this->getAssignmentInformation('post')]]
+        );
+        $this->memberFunctionAssertions($postUserGroup, ObjectHandler::GENERAL_POST_OBJECT_TYPE, 5, false);
 
         // pluggable object tests
-        $this->memberFunctionAssertions($pluggableObjectUserGroup, false, [], 'noPluggableObject', 1);
+        $this->memberFunctionAssertions($pluggableObjectUserGroup, 'noPluggableObject', 1, false);
         $this->memberFunctionAssertions(
             $pluggableObjectUserGroup,
-            true,
-            ['pluggableObject' => [1 => $this->getAssignmentInformation('pluggableObject')]],
             '_pluggableObject_',
-            1
+            1,
+            true,
+            'pluggableObject',
+            null,
+            null,
+            ['pluggableObject' => [1 => $this->getAssignmentInformation('pluggableObject')]]
         );
-        $this->memberFunctionAssertions($pluggableObjectUserGroup, false, [], '_pluggableObject_', 3);
+        $this->memberFunctionAssertions($pluggableObjectUserGroup, '_pluggableObject_', 3, false);
     }
 
     /**

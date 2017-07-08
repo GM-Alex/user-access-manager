@@ -37,17 +37,24 @@ class AssignmentInformation
     private $toDate;
 
     /**
+     * @var array
+     */
+    private $recursiveMembership;
+
+    /**
      * AssignmentInformation constructor.
      *
      * @param string $type
      * @param string $fromDate
      * @param string $toDate
+     * @param array  $recursiveMembership
      */
-    public function __construct($type, $fromDate = null, $toDate = null)
+    public function __construct($type = null, $fromDate = null, $toDate = null, array $recursiveMembership = [])
     {
         $this->type = $type;
         $this->fromDate = $fromDate;
         $this->toDate = $toDate;
+        $this->recursiveMembership = $recursiveMembership;
     }
 
     /**
@@ -72,5 +79,25 @@ class AssignmentInformation
     public function getToDate()
     {
         return $this->toDate;
+    }
+
+    /**
+     * @param array $recursiveMembership
+     *
+     * @return $this
+     */
+    public function setRecursiveMembership(array $recursiveMembership)
+    {
+        $this->recursiveMembership = $recursiveMembership;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRecursiveMembership()
+    {
+        return $this->recursiveMembership;
     }
 }
