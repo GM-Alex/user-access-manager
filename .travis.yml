@@ -1,7 +1,13 @@
 language: php
 php:
   - 7.0
-script: ./scripts/build.sh
+install:
+  - composer install
+script:
+  - ./vendor/bin/phpcs -p --standard=PSR2 ./src ./tests
+  - ./scripts/phpunit.sh
+  - ./scripts/humbug.sh
+  - ./scripts/build.sh
 deploy:
   provider: script
   skip_cleanup: true
