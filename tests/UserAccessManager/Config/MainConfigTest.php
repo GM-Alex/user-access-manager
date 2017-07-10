@@ -149,7 +149,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
                 $stub->expects(self::any())
                     ->method('setValue')
-                    ->with($this->equalTo($id.'|value'))
+                    ->with($id.'|value')
                     ->will($this->returnValue(null));
 
                 $stub->expects(self::any())

@@ -316,9 +316,9 @@
 })(jQuery);
 
 jQuery(document).ready(function ($) {
-    jQuery('#uma_post_access').on('click', '.uam_group_date', function () {
-       var $element = jQuery(this);
-       var $next = $element.next('.uam_group_date_form');
+    jQuery('.uam_group_selection').on('click', '.uam_group_date', function () {
+        var $element = jQuery(this);
+        var $next = $element.next('.uam_group_date_form');
         $next.toggle();
         $element.hide();
     });

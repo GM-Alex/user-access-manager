@@ -105,12 +105,17 @@
     }
     ?>
 </ul>
-<p>
-    <span><label for="uam_dynamic_groups"><?php echo TXT_UAM_ADD_DYNAMIC_GROUP; ?></label></span>
-    <input type="text"
-           id="uam_dynamic_groups"
-           class="form-input-tip ui-autocomplete-input"
-           autocomplete="off"
-           value=""
-           role="combobox" >
-</p>
+<?php
+if ($controller->getObjectType() !== \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+    ?>
+    <p>
+        <span><label for="uam_dynamic_groups"><?php echo TXT_UAM_ADD_DYNAMIC_GROUP; ?></label></span>
+        <input type="text"
+               id="uam_dynamic_groups"
+               class="form-input-tip ui-autocomplete-input"
+               autocomplete="off"
+               value=""
+               role="combobox">
+    </p>
+    <?php
+}

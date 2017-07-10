@@ -21,7 +21,7 @@ ul.uam_group_selection > li {
 
 ul.uam_group_selection > li > input {
     position: absolute;
-    top: 7px;
+    top: 6px;
 }
 
 ul.uam_group_selection > li > label {
@@ -50,6 +50,18 @@ ul.uam_group_selection > li > label {
 .uam_group_date_form input {
     width: 160px;
     font-size: 12px;
+}
+
+@media (max-width: 782px) {
+    .uam_group_date,
+    .uam_group_date_form,
+    ul.uam_group_selection > li > label {
+        margin-left: auto;
+    }
+
+    ul.uam_group_selection > li > input {
+        position: static;
+    }
 }
 
 .uam_group_info_link {

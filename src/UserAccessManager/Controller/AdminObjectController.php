@@ -515,7 +515,7 @@ class AdminObjectController extends Controller
     }
 
     /**
-     * The function for the uma_post_access meta box.
+     * The function for the uam_post_access meta box.
      *
      * @param object $post The post.
      */

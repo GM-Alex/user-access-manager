@@ -521,7 +521,7 @@ class UserAccessManager
                 }
 
                 $this->wordpress->addMetaBox(
-                    'uma_post_access',
+                    'uam_post_access',
                     TXT_UAM_COLUMN_ACCESS,
                     [$adminObjectController, 'editPostContent'],
                     $postType,
