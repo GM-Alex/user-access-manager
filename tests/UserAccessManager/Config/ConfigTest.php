@@ -67,6 +67,7 @@ class ConfigTest extends UserAccessManagerTestCase
             'blog_admin_hint_text' => 'string|blog_admin_hint_text|[L]',
             'hide_empty_category' => 'bool|hide_empty_category|true',
             'protect_feed' => 'bool|protect_feed|true',
+            'show_assigned_groups' => 'bool|show_assigned_groups|true',
             'full_access_role' => 'selection|full_access_role|administrator|'
                 .'administrator|editor|author|contributor|subscriber',
         ];
@@ -671,6 +672,7 @@ class ConfigTest extends UserAccessManagerTestCase
             'blogAdminHint' => 'blog_admin_hint',
             'getBlogAdminHintText' => 'blog_admin_hint_text',
             'protectFeed' => 'protect_feed',
+            'showAssignedGroups' => 'show_assigned_groups',
             'showPostContentBeforeMore' => 'show_post_content_before_more',
             'getFullAccessRole' => 'full_access_role'
         ];

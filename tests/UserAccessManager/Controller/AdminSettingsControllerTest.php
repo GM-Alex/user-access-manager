@@ -149,7 +149,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 'category' => $this->createTypeObject('category'),
                 ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
             ]));
-        
+
         $configValues = [
             'hide_post' => 'hide_post',
             'hide_post_title' => 'hide_post_title',
@@ -182,6 +182,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             'blog_admin_hint_text' => 'blog_admin_hint_text',
             'hide_empty_category' => 'hide_empty_category',
             'protect_feed' => 'protect_feed',
+            'show_assigned_groups' => 'show_assigned_groups',
             'full_access_role' => 'full_access_role'
         ];
 
@@ -208,7 +209,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 5 => 'post_comment_content',
                 6 => 'post_comments_locked',
                 7 => 'show_post_content_before_more'
-                
+
             ],
             'page' => [
                 0 => 'hide_page',
@@ -237,12 +238,13 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             'other' => [
                 0 => 'lock_recursive',
                 1 => 'protect_feed',
-                2 => 'redirect',
-                3 => 'blog_admin_hint',
-                4 => 'blog_admin_hint_text'
+                2 => 'show_assigned_groups',
+                3 => 'redirect',
+                4 => 'blog_admin_hint',
+                5 => 'blog_admin_hint_text'
             ]
         ];
-        
+
         self::assertEquals($expected, $adminSettingController->getGroupedConfigParameters());
         self::assertEquals($expected, $adminSettingController->getGroupedConfigParameters());
     }
