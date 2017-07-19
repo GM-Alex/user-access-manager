@@ -475,4 +475,24 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
         return $assignmentInformation;
     }
+
+    /**
+     * @param string      $name
+     * @param null|string $classType
+     *
+     * @return mixed
+     */
+    protected function createTypeObject($name, $classType = null)
+    {
+        if ($classType !== null) {
+            $type = $this->getMockBuilder($classType)->getMock();
+        } else {
+            $type = new \stdClass();
+        }
+
+        $type->labels = new \stdClass();
+        $type->labels->name = $name;
+
+        return $type;
+    }
 }

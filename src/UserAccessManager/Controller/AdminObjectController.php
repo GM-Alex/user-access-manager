@@ -131,7 +131,7 @@ class AdminObjectController extends Controller
         $this->objectType = $objectType;
         $this->objectId = $objectId;
 
-        if ($objectUserGroups === null) {
+        if ($objectUserGroups === null && $objectId !== null) {
             $objectUserGroups = $this->accessHandler->getFilteredUserGroupsForObject($objectType, $objectId, true);
             $fullObjectUserGroups = $this->accessHandler->getUserGroupsForObject($objectType, $objectId, true);
             $this->userGroupDiff = count($fullObjectUserGroups) - count($objectUserGroups);
@@ -744,12 +744,14 @@ class AdminObjectController extends Controller
     /**
      * The function for the edit_{term}_form action.
      *
-     * @param \WP_Term $term The term.
+     * @param string|\WP_Term $term The term.
      */
     public function showTermEditForm($term)
     {
         if ($term instanceof \WP_Term) {
             $this->setObjectInformation($term->taxonomy, $term->term_id);
+        } else {
+            $this->setObjectInformation($term, null);
         }
 
         echo $this->getIncludeContents('TermEditForm.php');
@@ -861,6 +863,25 @@ class AdminObjectController extends Controller
         $this->cache->invalidate(ObjectHandler::TERM_POST_MAP_CACHE_KEY);
         $this->cache->invalidate(ObjectHandler::POST_TERM_MAP_CACHE_KEY);
         $this->cache->invalidate(ObjectHandler::POST_TREE_MAP_CACHE_KEY);
+    }
+
+    /**
+     * Checks if the current object is a new object.
+     *
+     * @return bool
+     */
+    public function isNewObject()
+    {
+        if ($this->objectType !== null) {
+            $generalObjectType = $this->objectHandler->getGeneralObjectType($this->objectType);
+
+            return ($this->objectId === null
+                || ($generalObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE &&
+                    $this->getRequestParameter('action') !== 'edit')
+            );
+        }
+
+        return false;
     }
 
     /**

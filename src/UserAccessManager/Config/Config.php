@@ -16,6 +16,11 @@ namespace UserAccessManager\Config;
 
 use UserAccessManager\Wrapper\Wordpress;
 
+/**
+ * Class Config
+ *
+ * @package UserAccessManager\Config
+ */
 class Config
 {
     /**

@@ -41,20 +41,6 @@ class FormHelperTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param string $name
-     *
-     * @return \stdClass
-     */
-    private function createTypeObject($name)
-    {
-        $type = new \stdClass();
-        $type->labels = new \stdClass();
-        $type->labels->name = $name;
-
-        return $type;
-    }
-
-    /**
      * @group   unit
      * @covers  \UserAccessManager\Form\FormHelper::getText()
      * @covers  \UserAccessManager\Form\FormHelper::getParameterText()

@@ -141,6 +141,11 @@ abstract class AbstractUserGroup
     protected $fullObjectMembership = [];
 
     /**
+     * @var array|null
+     */
+    protected $defaultTypes = null;
+
+    /**
      * AbstractUserGroup constructor.
      *
      * @param Php                          $php
@@ -465,6 +470,7 @@ abstract class AbstractUserGroup
                 FROM {$this->database->getUserGroupToObjectTable()}
                 WHERE group_id = '%s'
                   AND group_type = '%s'
+                  AND object_id != ''
                   AND (general_object_type = '%s' OR object_type = '%s')";
 
             $parameters = [
@@ -491,6 +497,101 @@ abstract class AbstractUserGroup
         }
 
         return $this->assignedObjects[$objectType];
+    }
+
+    /**
+     * Marks the group as default for the object type.
+     *
+     * @param string   $objectType
+     * @param null|int $fromTime
+     * @param null|int $toTime
+     *
+     * @return bool
+     */
+    public function addDefaultType($objectType, $fromTime = null, $toTime = null)
+    {
+        $fromDate = ($fromTime !== null) ? gmdate('Y-m-d H:i:s', $fromTime) : null;
+        $toTime = ($toTime < $fromTime) ? $fromTime + 1 : $toTime;
+        $toDate = ($fromTime !== null) ? gmdate('Y-m-d H:i:s', $toTime) : null;
+
+        return $this->addObject($objectType, '', $fromDate, $toDate);
+    }
+
+    /**
+     * Removes the group as default for object type.
+     *
+     * @param string $objectType
+     *
+     * @return bool
+     */
+    public function removeDefaultType($objectType)
+    {
+        return $this->removeObject($objectType, '');
+    }
+
+    /**
+     * Returns the object type for which the user group is the default group.
+     *
+     * @return array
+     */
+    public function getDefaultGroupForObjectTypes()
+    {
+        if ($this->defaultTypes === null) {
+            $this->defaultTypes = [];
+
+            $query = "SELECT object_type AS objectType, from_date AS fromDate, to_date AS toDate
+                FROM {$this->database->getUserGroupToObjectTable()}
+                WHERE group_id = '%s'
+                  AND group_type = '%s'
+                  AND object_id = ''";
+
+            $parameters = [
+                $this->id,
+                $this->type
+            ];
+
+            $query = $this->database->prepare($query, $parameters);
+            $results = (array)$this->database->getResults($query);
+            $currentTime = $this->wordpress->currentTime('timestamp');
+
+            foreach ($results as $result) {
+                $this->defaultTypes[$result->objectType] = [
+                    ($result->fromDate !== null) ? $currentTime + strtotime($result->fromDate) : null,
+                    ($result->toDate !== null) ? $currentTime + strtotime($result->toDate) : null
+                ];
+            }
+        }
+
+        return $this->defaultTypes;
+    }
+
+    /**
+     * Checks if the group is the default one for the given object type.
+     *
+     * @param string   $objectType
+     * @param null|int $fromTime
+     * @param null|int $toTime
+     *
+     * @return bool
+     */
+    public function isDefaultGroupForObjectType($objectType, &$fromTime = null, &$toTime = null)
+    {
+        $defaultGroupForObjectTypes = $this->getDefaultGroupForObjectTypes();
+
+        // Reset reference values anyway
+        $fromTime = null;
+        $toTime = null;
+
+        if (isset($defaultGroupForObjectTypes[$objectType])) {
+            $fromTime = $defaultGroupForObjectTypes[$objectType][0] !== null ?
+                gmdate('Y-m-d H:i:s', $defaultGroupForObjectTypes[$objectType][0]) : null;
+            $toTime =  $defaultGroupForObjectTypes[$objectType][1] !== null ?
+                gmdate('Y-m-d H:i:s', $defaultGroupForObjectTypes[$objectType][1]) : null;
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

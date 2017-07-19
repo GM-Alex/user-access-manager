@@ -50,20 +50,6 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param string $name
-     *
-     * @return \stdClass
-     */
-    private function createTypeObject($name)
-    {
-        $type = new \stdClass();
-        $type->labels = new \stdClass();
-        $type->labels->name = $name;
-
-        return $type;
-    }
-
-    /**
      * @group   unit
      * @covers  \UserAccessManager\Controller\AdminSettingsController::isNginx()
      */
@@ -119,15 +105,17 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers \UserAccessManager\Controller\AdminSettingsController::getText()
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getGroupText()
      */
     public function testGetText()
     {
         $formHelper = $this->getFormHelper();
-        $formHelper->expects($this->exactly(2))
+        $formHelper->expects($this->exactly(3))
             ->method('getText')
             ->withConsecutive(
                 ['firstKey', false],
-                ['secondKey', true]
+                ['secondKey', true],
+                ['firstKey', false]
             )
             ->will($this->returnValue('text'));
 
@@ -144,16 +132,18 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
         self::assertEquals('text', $adminSettingController->getText('firstKey'));
         self::assertEquals('text', $adminSettingController->getText('secondKey', true));
+        self::assertEquals('text', $adminSettingController->getGroupText('firstKey'));
     }
 
     /**
      * @group  unit
      * @covers \UserAccessManager\Controller\AdminSettingsController::getObjectName()
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getGroupSectionText()
      */
     public function testGetObjectName()
     {
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(4))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -162,7 +152,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(4))
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -183,186 +173,63 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         self::assertEquals('attachment', $adminSettingController->getObjectName(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
         self::assertEquals('post', $adminSettingController->getObjectName(ObjectHandler::POST_OBJECT_TYPE));
         self::assertEquals('something', $adminSettingController->getObjectName('something'));
+        self::assertEquals(
+            TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT,
+            $adminSettingController->getGroupSectionText(MainConfig::DEFAULT_TYPE)
+        );
+        self::assertEquals('something', $adminSettingController->getGroupSectionText('something'));
     }
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getCurrentSettingsGroup()
-     */
-    public function testGetCurrentSettingsGroup()
-    {
-        $adminSettingController = new AdminSettingsController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getMainConfig(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getFileHandler(),
-            $this->getFormFactory(),
-            $this->getFormHelper()
-        );
-
-        self::assertEquals(
-            AdminSettingsController::GROUP_POST_TYPES,
-            $adminSettingController->getCurrentSettingsGroup()
-        );
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = 'group';
-        self::assertEquals('group', $adminSettingController->getCurrentSettingsGroup());
-    }
-
-    /**
-     * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getCurrentSettingsSection()
-     */
-    public function testGetCurrentSettingsSectionp()
-    {
-        $config = $this->getMainConfig();
-        $config->expects($this->once())
-            ->method('getActiveCacheProvider')
-            ->will($this->returnValue('activeCacheProvider'));
-
-        $adminSettingController = new AdminSettingsController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $config,
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getFileHandler(),
-            $this->getFormFactory(),
-            $this->getFormHelper()
-        );
-
-        self::assertEquals(MainConfig::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = 'group';
-        self::assertEquals(null, $adminSettingController->getCurrentSettingsSection());
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_POST_TYPES;
-        self::assertEquals(MainConfig::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_TAXONOMIES;
-        self::assertEquals(MainConfig::DEFAULT_TYPE, $adminSettingController->getCurrentSettingsSection());
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
-        self::assertEquals(
-            AdminSettingsController::SECTION_FILES,
-            $adminSettingController->getCurrentSettingsSection()
-        );
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_AUTHOR;
-        self::assertEquals(
-            AdminSettingsController::SECTION_AUTHOR,
-            $adminSettingController->getCurrentSettingsSection()
-        );
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_CACHE;
-        self::assertEquals(
-            'activeCacheProvider',
-            $adminSettingController->getCurrentSettingsSection()
-        );
-
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_OTHER;
-        self::assertEquals(
-            AdminSettingsController::SECTION_OTHER,
-            $adminSettingController->getCurrentSettingsSection()
-        );
-
-        $_GET[AdminSettingsController::SETTING_SECTION_PARAMETER] = 'section';
-        self::assertEquals('section', $adminSettingController->getCurrentSettingsSection());
-    }
-
-    /**
-     * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getSettingsGroupLink()
-     */
-    public function testGetSettingsGroupLink()
-    {
-        $adminSettingController = new AdminSettingsController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getMainConfig(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getFileHandler(),
-            $this->getFormFactory(),
-            $this->getFormHelper()
-        );
-
-        $_SERVER['REQUEST_URI'] = 'url/?page=page';
-
-        self::assertEquals(
-            'url/?page=page&settings_group=key',
-            $adminSettingController->getSettingsGroupLink('key')
-        );
-
-        $_SERVER['REQUEST_URI'] = 'url/?page=page&settings_group=c';
-
-        self::assertEquals(
-            'url/?page=page&settings_group=key',
-            $adminSettingController->getSettingsGroupLink('key')
-        );
-    }
-
-    /**
-     * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getSectionGroupLink()
-     */
-    public function testGetSectionGroupLink()
-    {
-        $adminSettingController = new AdminSettingsController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getMainConfig(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getFileHandler(),
-            $this->getFormFactory(),
-            $this->getFormHelper()
-        );
-
-        $_SERVER['REQUEST_URI'] = 'url/?page=page';
-
-        self::assertEquals(
-            'url/?page=page&settings_group=group&settings_section=section',
-            $adminSettingController->getSectionGroupLink('group', 'section')
-        );
-
-        $_SERVER['REQUEST_URI'] = 'url/?page=page&settings_group=c&settings_section=someSection';
-
-        self::assertEquals(
-            'url/?page=page&settings_group=group&settings_section=section',
-            $adminSettingController->getSectionGroupLink('group', 'section')
-        );
-    }
-
-    /**
-     * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getSettingsGroups()
+     * @covers \UserAccessManager\Controller\AdminSettingsController::getTabGroups()
      */
     public function testGetSettingsGroups()
     {
         $expected = [
-            AdminSettingsController::GROUP_POST_TYPES,
-            AdminSettingsController::GROUP_TAXONOMIES,
-            AdminSettingsController::GROUP_FILES,
-            AdminSettingsController::GROUP_AUTHOR,
-            AdminSettingsController::GROUP_CACHE,
-            AdminSettingsController::GROUP_OTHER
+            AdminSettingsController::GROUP_POST_TYPES => [MainConfig::DEFAULT_TYPE, 'attachment', 'post', 'page'],
+            AdminSettingsController::GROUP_TAXONOMIES => [MainConfig::DEFAULT_TYPE, 'category', 'post_format'],
+            AdminSettingsController::GROUP_FILES => [AdminSettingsController::GROUP_FILES],
+            AdminSettingsController::GROUP_AUTHOR => [AdminSettingsController::GROUP_AUTHOR],
+            AdminSettingsController::GROUP_CACHE => ['activeCacheProvider', 'cacheProviderId'],
+            AdminSettingsController::GROUP_OTHER => [AdminSettingsController::GROUP_OTHER]
         ];
+
+        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(1, 1);
+
+        $config = $this->getMainConfig();
+
+        $config->expects($this->once())
+            ->method('getActiveCacheProvider')
+            ->will($this->returnValue('activeCacheProvider'));
+
+        $cacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
+        $cacheProvider->expects($this->exactly(2))
+            ->method('getId')
+            ->will($this->returnValue('cacheProviderId'));
+
+        $activeCacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
+        $activeCacheProvider->expects($this->once())
+            ->method('getId')
+            ->will($this->returnValue('activeCacheProvider'));
+
+        $cache = $this->getCache();
+        $cache->expects($this->once())
+            ->method('getRegisteredCacheProviders')
+            ->will($this->returnValue([$activeCacheProvider, $cacheProvider]));
 
         $adminSettingController = new AdminSettingsController(
             $this->getPhp(),
-            $this->getWordpress(),
-            $this->getMainConfig(),
-            $this->getCache(),
+            $wordpress,
+            $config,
+            $cache,
             $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
             $this->getFormHelper()
         );
 
-        self::assertEquals($expected, $adminSettingController->getSettingsGroups());
+        self::assertEquals($expected, $adminSettingController->getTabGroups());
     }
 
     /**
@@ -371,6 +238,36 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
     private function createMultipleFormElementValue()
     {
         return $this->createMock('\UserAccessManager\Form\MultipleFormElementValue');
+    }
+
+    /**
+     * @param $expectedPostTypes
+     * @param $expectedTaxonomies
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
+     */
+    private function getWordpressWithPostTypesAndTaxonomies($expectedPostTypes, $expectedTaxonomies)
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly($expectedPostTypes))
+            ->method('getPostTypes')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                ObjectHandler::ATTACHMENT_OBJECT_TYPE => $this->createTypeObject('attachment'),
+                ObjectHandler::POST_OBJECT_TYPE => $this->createTypeObject('post'),
+                ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
+            ]));
+
+        $wordpress->expects($this->exactly($expectedTaxonomies))
+            ->method('getTaxonomies')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                'category' => $this->createTypeObject('category'),
+                ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
+            ]));
+
+        return $wordpress;
     }
 
     /**
@@ -387,23 +284,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testGetCurrentGroupForms()
     {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->once())
-            ->method('getPostTypes')
-            ->with(['public' => true], 'objects')
-            ->will($this->returnValue([
-                ObjectHandler::ATTACHMENT_OBJECT_TYPE => $this->createTypeObject('attachment'),
-                ObjectHandler::POST_OBJECT_TYPE => $this->createTypeObject('post'),
-                ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
-            ]));
-
-        $wordpress->expects($this->once())
-            ->method('getTaxonomies')
-            ->with(['public' => true], 'objects')
-            ->will($this->returnValue([
-                'category' => $this->createTypeObject('category'),
-                ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
-            ]));
+        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(8, 8);
 
         $wordpress->expects($this->exactly(2))
             ->method('isNginx')
@@ -469,7 +350,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $config = $this->getConfig();
 
         $cacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
-        $cacheProvider->expects($this->once())
+        $cacheProvider->expects($this->exactly(15))
             ->method('getId')
             ->will($this->returnValue('cacheProviderId'));
         $cacheProvider->expects($this->once())
@@ -477,7 +358,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($config));
 
         $cache = $this->getCache();
-        $cache->expects($this->once())
+        $cache->expects($this->exactly(8))
             ->method('getRegisteredCacheProviders')
             ->will($this->returnValue([$cacheProvider]));
 
@@ -722,7 +603,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $adminSettingController->getCurrentGroupForms()
         );
 
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_TAXONOMIES;
+        $_GET['tab_group'] = AdminSettingsController::GROUP_TAXONOMIES;
         self::assertEquals(
             [
                 'default' => 'defaultTaxonomyForm',
@@ -731,22 +612,22 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $adminSettingController->getCurrentGroupForms()
         );
 
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
+        $_GET['tab_group'] = AdminSettingsController::GROUP_FILES;
         self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
 
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_FILES;
+        $_GET['tab_group'] = AdminSettingsController::GROUP_FILES;
         self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
 
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_AUTHOR;
+        $_GET['tab_group'] = AdminSettingsController::GROUP_AUTHOR;
         self::assertEquals(['author' => 'authorForm'], $adminSettingController->getCurrentGroupForms());
 
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_CACHE;
+        $_GET['tab_group'] = AdminSettingsController::GROUP_CACHE;
         self::assertEquals(
             ['none' => null, 'cacheProviderId' => 'configForm'],
             $adminSettingController->getCurrentGroupForms()
         );
 
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_OTHER;
+        $_GET['tab_group'] = AdminSettingsController::GROUP_OTHER;
         self::assertEquals(['other' => 'otherForm'], $adminSettingController->getCurrentGroupForms());
     }
 
@@ -782,11 +663,11 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($config));
 
         $cache = $this->getCache();
-        $cache->expects($this->exactly(2))
+        $cache->expects($this->exactly(11))
             ->method('getRegisteredCacheProviders')
             ->will($this->returnValue(['cacheProviderId' => $cacheProvider]));
 
-        $wordpress = $this->getWordpress();
+        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(9, 9);
         $wordpress->expects($this->exactly(5))
             ->method('verifyNonce')
             ->will($this->returnValue(true));
@@ -823,12 +704,12 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController->updateSettingsAction();
         $adminSettingController->updateSettingsAction();
 
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_CACHE;
-        $_GET[AdminSettingsController::SETTING_SECTION_PARAMETER] = MainConfig::CACHE_PROVIDER_NONE;
+        $_GET['tab_group'] = AdminSettingsController::GROUP_CACHE;
+        $_GET['tab_group_section'] = MainConfig::CACHE_PROVIDER_NONE;
         $adminSettingController->updateSettingsAction();
 
-        $_GET[AdminSettingsController::SETTING_GROUP_PARAMETER] = AdminSettingsController::GROUP_CACHE;
-        $_GET[AdminSettingsController::SETTING_SECTION_PARAMETER] = 'cacheProviderId';
+        $_GET['tab_group'] = AdminSettingsController::GROUP_CACHE;
+        $_GET['tab_group_section'] = 'cacheProviderId';
         $adminSettingController->updateSettingsAction();
 
         self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, 'updateMessage', $adminSettingController);

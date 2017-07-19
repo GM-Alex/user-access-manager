@@ -252,7 +252,8 @@ class ControllerFactory
             $this->wordpress,
             $this->config,
             $this->accessHandler,
-            $this->userGroupFactory
+            $this->userGroupFactory,
+            $this->formHelper
         );
     }
 

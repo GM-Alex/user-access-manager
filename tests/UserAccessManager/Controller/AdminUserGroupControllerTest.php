@@ -35,10 +35,134 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getMainConfig(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getFormHelper()
         );
 
         self::assertInstanceOf(AdminUserGroupController::class, $adminUserGroupController);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminUserGroupController::getTabGroups()
+     */
+    public function testGetTabGroups()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->once())
+            ->method('getPostTypes')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                ObjectHandler::ATTACHMENT_OBJECT_TYPE => null,
+                ObjectHandler::POST_OBJECT_TYPE => null,
+                ObjectHandler::PAGE_OBJECT_TYPE => null
+            ]));
+
+        $wordpress->expects($this->once())
+            ->method('getTaxonomies')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                'category' => null
+            ]));
+
+        $adminUserGroupController = new AdminUserGroupController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getMainConfig(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory(),
+            $this->getFormHelper()
+        );
+
+        self::assertEquals(
+            [
+                AdminUserGroupController::GROUP_USER_GROUPS => ['user_groups'],
+                AdminUserGroupController::GROUP_DEFAULT_USER_GROUPS => [
+                    'attachment',
+                    'post',
+                    'page',
+                    'category',
+                    ObjectHandler::GENERAL_USER_OBJECT_TYPE
+                ]
+            ],
+            $adminUserGroupController->getTabGroups()
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminUserGroupController::getGroupText()
+     */
+    public function testGetGroupText()
+    {
+        $formHelper = $this->getFormHelper();
+
+        $formHelper->expects($this->exactly(2))
+            ->method('getText')
+            ->withConsecutive(['keyOne'], ['keyTwo'])
+            ->will($this->onConsecutiveCalls('valueOne', 'valueTwo'));
+
+        $adminUserGroupController = new AdminUserGroupController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory(),
+            $formHelper
+        );
+
+        self::assertEquals('valueOne', $adminUserGroupController->getGroupText('keyOne'));
+        self::assertEquals('valueTwo', $adminUserGroupController->getGroupText('keyTwo'));
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminUserGroupController::getGroupSectionText()
+     */
+    public function testGetGroupSectionText()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly(4))
+            ->method('getPostTypes')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                ObjectHandler::ATTACHMENT_OBJECT_TYPE => $this->createTypeObject('attachmentName'),
+                ObjectHandler::POST_OBJECT_TYPE => $this->createTypeObject('postName', '\WP_Post_Type'),
+                ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('pageName')
+            ]));
+
+        $wordpress->expects($this->exactly(4))
+            ->method('getTaxonomies')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                'category' => $this->createTypeObject('categoryName', '\WP_Taxonomy'),
+                ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
+            ]));
+
+        $adminUserGroupController = new AdminUserGroupController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getMainConfig(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory(),
+            $this->getFormHelper()
+        );
+
+        self::assertEquals('someKey', $adminUserGroupController->getGroupSectionText('someKey'));
+        self::assertEquals(
+            'attachmentName',
+            $adminUserGroupController->getGroupSectionText(ObjectHandler::ATTACHMENT_OBJECT_TYPE)
+        );
+        self::assertEquals(
+            'postName ('.TXT_UAM_POST_TYPE.')',
+            $adminUserGroupController->getGroupSectionText(ObjectHandler::POST_OBJECT_TYPE)
+        );
+        self::assertEquals(
+            'categoryName ('.TXT_UAM_TAXONOMY_TYPE.')',
+            $adminUserGroupController->getGroupSectionText('category')
+        );
     }
 
     /**
@@ -60,7 +184,8 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getMainConfig(),
             $this->getAccessHandler(),
-            $userGroupFactory
+            $userGroupFactory,
+            $this->getFormHelper()
         );
 
         $_GET['userGroupId'] = 1;
@@ -89,7 +214,8 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getMainConfig(),
             $accessHandler,
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getFormHelper()
         );
 
         self::assertEquals($userGroups, $adminUserGroupController->getUserGroups());
@@ -114,7 +240,8 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getMainConfig(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getFormHelper()
         );
 
         self::assertEquals('roleNames', $adminUserGroupController->getRoleNames());
@@ -189,7 +316,8 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getMainConfig(),
             $accessHandler,
-            $userGroupFactory
+            $userGroupFactory,
+            $this->getFormHelper()
         );
 
         $adminUserGroupController->insertUpdateUserGroupAction();
@@ -211,7 +339,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         $_POST['userGroupId'] = 1;
 
         $adminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS, 'updateMessage', $adminUserGroupController);
+        self::assertAttributeEquals(TXT_UAM_USER_GROUP_EDIT_SUCCESS, 'updateMessage', $adminUserGroupController);
     }
 
     /**
@@ -220,11 +348,11 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testDeleteUserGroupAction()
     {
-        $_GET[AdminUserGroupController::DELETE_GROUP_NONCE.'Nonce'] = 'deleteNonce';
+        $_GET[AdminUserGroupController::DELETE_GROUP_NONCE.'Nonce'] = AdminUserGroupController::DELETE_GROUP_NONCE;
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
             ->method('verifyNonce')
-            ->with('deleteNonce')
+            ->with(AdminUserGroupController::DELETE_GROUP_NONCE)
             ->will($this->returnValue(true));
 
         $accessHandler = $this->getAccessHandler();
@@ -237,11 +365,99 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getMainConfig(),
             $accessHandler,
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getFormHelper()
         );
 
         $_POST['delete'] = [1, 2];
         $adminUserGroupController->deleteUserGroupAction();
         self::assertAttributeEquals(TXT_UAM_DELETE_GROUP, 'updateMessage', $adminUserGroupController);
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminUserGroupController::setDefaultUserGroupsAction()
+     */
+    public function testSetDefaultUserGroupsAction()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->once())
+            ->method('verifyNonce')
+            ->with(AdminUserGroupController::SET_DEFAULT_USER_GROUPS_NONCE)
+            ->will($this->returnValue(true));
+
+        $wordpress->expects($this->exactly(2))
+            ->method('getPostTypes')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                ObjectHandler::ATTACHMENT_OBJECT_TYPE => $this->createTypeObject('attachmentName'),
+                ObjectHandler::POST_OBJECT_TYPE => $this->createTypeObject('postName', '\WP_Post_Type'),
+                ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('pageName')
+            ]));
+
+        $wordpress->expects($this->exactly(2))
+            ->method('getTaxonomies')
+            ->with(['public' => true], 'objects')
+            ->will($this->returnValue([
+                'category' => $this->createTypeObject('categoryName', '\WP_Taxonomy'),
+                ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
+            ]));
+
+
+        $firstUserGroup = $this->getUserGroup(1);
+
+        $firstUserGroup->expects($this->once())
+            ->method('addDefaultType')
+            ->with('objectType', 'fromTimeValue', null);
+
+        $secondUserGroup = $this->getUserGroup(2);
+
+        $secondUserGroup->expects($this->once())
+            ->method('addDefaultType')
+            ->with('objectType', null, 'toTimeValue');
+
+        $thirdUserGroup = $this->getUserGroup(3);
+
+        $thirdUserGroup->expects($this->once())
+            ->method('removeDefaultType')
+            ->with('objectType');
+
+        $accessHandler = $this->getAccessHandler();
+
+        $accessHandler->expects($this->once())
+            ->method('getUserGroups')
+            ->will($this->returnValue([
+                $firstUserGroup,
+                $secondUserGroup,
+                $thirdUserGroup
+            ]));
+
+        $adminUserGroupController = new AdminUserGroupController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getMainConfig(),
+            $accessHandler,
+            $this->getUserGroupFactory(),
+            $this->getFormHelper()
+        );
+
+        $_POST = [
+            AdminUserGroupController::SET_DEFAULT_USER_GROUPS_NONCE.'Nonce' =>
+                AdminUserGroupController::SET_DEFAULT_USER_GROUPS_NONCE,
+            'tab_group_section' => 'objectType',
+            AdminUserGroupController::DEFAULT_USER_GROUPS_FORM_FIELD => [
+                1 => ['id' => 1, 'fromTime' => 'fromTimeValue'],
+                2 => ['id' => 2, 'toTime' => 'toTimeValue'],
+                3 => ['id' => 4]
+            ]
+        ];
+        $adminUserGroupController->setDefaultUserGroupsAction();
+
+        self::assertAttributeEquals(
+            TXT_UAM_SET_DEFAULT_USER_GROUP_SUCCESS,
+            'updateMessage',
+            $adminUserGroupController
+        );
     }
 }

@@ -159,7 +159,8 @@ define('TXT_UAM_UPDATE_SETTINGS', __('Settings updated.', 'user-access-manager')
 
 
 // --- User groups page ---
-define('TXT_UAM_MANAGE_GROUP', __('Manage user user groups', 'user-access-manager'));
+define('TXT_UAM_MANAGE_GROUP', __('Manage user groups', 'user-access-manager'));
+define('TXT_UAM_USER_GROUPS_SETTING', __('User groups', 'user-access-manager'));
 define('TXT_UAM_GROUP_ROLE', __('Role affiliation', 'user-access-manager'));
 define('TXT_UAM_NAME', __('Name', 'user-access-manager'));
 define('TXT_UAM_DESCRIPTION', __('Description', 'user-access-manager'));
@@ -184,8 +185,14 @@ define('TXT_UAM_GROUP_ADDED', __('Group was added successfully.', 'user-access-m
 define('TXT_UAM_GROUP_NAME_ERROR', __('Group name can not be empty.', 'user-access-manager'));
 define('TXT_UAM_DELETE_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
 define('TXT_UAM_NONE', __('none', 'user-access-manager'));
-define('TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS', __('User group edit successfully.', 'user-access-manager'));
+define('TXT_UAM_USER_GROUP_EDIT_SUCCESS', __('User group edit successfully.', 'user-access-manager'));
 define('TXT_UAM_IP_RANGE', __('IP range', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_USER_GROUPS_SETTING', __('Default user groups', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_USER_GROUPS_SECTION_SELECTION_SETTING', __('Default user groups for object type', 'user-access-manager'));
+define('TXT_UAM_UPDATE_DEFAULT_USER_GROUPS', __('Update default user groups', 'user-access-manager'));
+define('TXT_UAM_SET_DEFAULT_USER_GROUP_SUCCESS', __('Default user groups updated', 'user-access-manager'));
+define('TXT_UAM_POST_TYPE', __('Post Type', 'user-access-manager'));
+define('TXT_UAM_TAXONOMY_TYPE', __('Taxonomy', 'user-access-manager'));
 
 
 // --- Setup page ---

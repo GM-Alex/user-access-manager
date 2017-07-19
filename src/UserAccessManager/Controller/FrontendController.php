@@ -308,7 +308,7 @@ class FrontendController extends Controller
             return $post;
         } elseif (is_int($post) === true) {
             return $this->objectHandler->getPost($post);
-        } elseif ($post instanceof \stdClass && isset($post->ID)) {
+        } elseif (($post instanceof \stdClass) === true && isset($post->ID)) {
             return $this->objectHandler->getPost($post->ID);
         }
 
@@ -432,6 +432,7 @@ class FrontendController extends Controller
      */
     public function getAttachedFile($file, $attachmentId)
     {
+        //TODO add check for images
         $hasAccess = $this->accessHandler->checkObjectAccess(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $attachmentId);
         return ($hasAccess === true) ? $file : false;
     }

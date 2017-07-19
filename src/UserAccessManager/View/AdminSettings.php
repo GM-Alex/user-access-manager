@@ -26,74 +26,14 @@ if ($controller->hasUpdateMessage()) {
 
 ?>
 <div class="wrap">
+    <h2><?php echo TXT_UAM_SETTINGS; ?></h2>
+    <?php include 'TabList.php'; ?>
     <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
         <?php $controller->createNonceField('uamUpdateSettings'); ?>
         <input type="hidden" name="uam_action" value="update_settings"/>
-        <h2><?php echo TXT_UAM_SETTINGS; ?></h2>
-        <h2 class="nav-tab-wrapper">
-            <?php
-            $currentGroupKey = $controller->getCurrentSettingsGroup();
-            $settingGroups = $controller->getSettingsGroups();
-
-            foreach ($settingGroups as $group) {
-                $cssClass = 'nav-tab';
-
-                if ($currentGroupKey === $group) {
-                    $cssClass .= ' nav-tab-active';
-                }
-
-                ?>
-                <a class="<?php  echo $cssClass; ?>"
-                   href="<?php echo $controller->getSettingsGroupLink($group); ?>">
-                    <?php echo $controller->getText($group); ?>
-                </a>
-                <?php
-            }
-            ?>
-        </h2>
         <?php
-        $currentSectionKey = $controller->getCurrentSettingsSection();
+        $currentSectionKey = $controller->getCurrentTabGroupSection();
         $groupForms = $controller->getCurrentGroupForms();
-
-        if (count($groupForms) > 1) {
-            ?>
-            <table class="form-table">
-                <tbody>
-                    <tr>
-                        <th scope="row">
-                            <label for="uam_settings_group_section">
-                                <?php echo $controller->getText($currentGroupKey.'_SECTION_SELECTION'); ?>
-                            </label>
-                        </th>
-                        <td>
-                            <select id="uam_settings_group_section" name="section">
-                                <?php
-                                foreach ($groupForms as $sectionKey => $form) {
-                                    ?>
-                                    <option value="<?php echo $sectionKey?>"
-                                            data-link="<?php
-                                            echo $controller->getSectionGroupLink($currentGroupKey, $sectionKey);
-                                            ?>"
-                                        <?php
-                                        if ($currentSectionKey === $sectionKey) {
-                                            echo 'selected="selected"';
-                                        }
-                                        ?>><?php
-                                            echo ($sectionKey === \UserAccessManager\Config\MainConfig::DEFAULT_TYPE) ?
-                                                TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT :
-                                                $controller->getObjectName($sectionKey);
-                                        ?></option>
-                                    <?php
-                                }
-                                ?>
-                            </select>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <?php
-        }
-
         $form = isset($groupForms[$currentSectionKey]) ? $groupForms[$currentSectionKey] : reset($groupForms);
         $cssClass = ($currentGroupKey === 'post_types') ? " uam_settings_group_post_type $currentSectionKey" : '';
         $cssClass .= ($currentGroupKey === 'taxonomies') ? " uam_settings_group_taxonomies $currentSectionKey" : '';

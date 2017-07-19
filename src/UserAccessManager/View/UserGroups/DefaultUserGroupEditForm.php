@@ -1,0 +1,67 @@
+<?php
+/**
+ * DefaultUserGroupEditForm.php
+ *
+ * Shows the default user group edit form at the admin panel.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+
+/**
+ * @var \UserAccessManager\Controller\AdminUserGroupController $controller
+ */
+?>
+<div class="wrap">
+    <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
+        <input type="hidden" value="set_default_user_groups" name="uam_action"/>
+        <?php $controller->createNonceField($controller::SET_DEFAULT_USER_GROUPS_NONCE); ?>
+        <ul class="uam_group_selection">
+            <?php
+            $objectType = $controller->getCurrentTabGroupSection();
+            $userGroups = $controller->getUserGroups();
+
+            /**
+             * @var \UserAccessManager\UserGroup\UserGroup[] $userGroups
+             */
+            foreach ($userGroups as $userGroup) {
+                /**
+                 * @var \UserAccessManager\UserGroup\AssignmentInformation $assignmentInformation
+                 */
+                if ($userGroup instanceof \UserAccessManager\UserGroup\DynamicUserGroup
+                    && $userGroup->getId() !== \UserAccessManager\UserGroup\DynamicUserGroup::USER_TYPE.'|0'
+                ) {
+                    continue;
+                }
+
+                $attributes = ($userGroup->isDefaultGroupForObjectType($objectType) === true) ?
+                    'checked="checked"' : '';
+
+                ?>
+                <li>
+                    <input type="checkbox" <?php echo $attributes; ?>
+                           id="defaultGroups-<?php echo $userGroup->getId(); ?>"
+                           value="<?php echo $userGroup->getId(); ?>"
+                           name="default_user_groups[<?php echo $userGroup->getId(); ?>][id]" />
+                    <label for="defaultGroups-<?php echo $userGroup->getId(); ?>"
+                           class="selectit"
+                           style="display:inline;">
+                        <?php echo htmlentities($userGroup->getName()); ?>
+                    </label>
+                </li>
+                <?php
+            }
+        ?>
+        </ul>
+        <p class="submit">
+            <input type="submit"
+                   value="<?php echo TXT_UAM_UPDATE_DEFAULT_USER_GROUPS; ?>"
+                   name="submit" class="button"/>
+        </p>
+    </form>
+</div>

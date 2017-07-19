@@ -25,8 +25,8 @@ use UserAccessManager\Wrapper\Wordpress;
 
 class AdminSettingsController extends Controller
 {
-    const SETTING_GROUP_PARAMETER = 'settings_group';
-    const SETTING_SECTION_PARAMETER = 'settings_section';
+    use AdminControllerTabNavigationTrait;
+
     const GROUP_POST_TYPES = 'post_types';
     const GROUP_TAXONOMIES = 'taxonomies';
     const GROUP_FILES = 'file';
@@ -98,6 +98,33 @@ class AdminSettingsController extends Controller
     }
 
     /**
+     * Returns the tab groups.
+     *
+     * @return array
+     */
+    public function getTabGroups()
+    {
+        $activeCacheProvider = $this->config->getActiveCacheProvider();
+        $cacheProviderSections = [$activeCacheProvider];
+        $cacheProviders = $this->cache->getRegisteredCacheProviders();
+
+        foreach ($cacheProviders as $cacheProvider) {
+            if ($cacheProvider->getId() !== $activeCacheProvider) {
+                $cacheProviderSections[] = $cacheProvider->getId();
+            }
+        }
+
+        return [
+            self::GROUP_POST_TYPES => array_merge([MainConfig::DEFAULT_TYPE], array_keys($this->getPostTypes())),
+            self::GROUP_TAXONOMIES => array_merge([MainConfig::DEFAULT_TYPE], array_keys($this->getTaxonomies())),
+            self::GROUP_FILES => [self::SECTION_FILES],
+            self::GROUP_AUTHOR => [self::SECTION_AUTHOR],
+            self::GROUP_CACHE => $cacheProviderSections,
+            self::GROUP_OTHER => [self::SECTION_OTHER]
+        ];
+    }
+
+    /**
      * Returns true if the server is a nginx server.
      *
      * @return bool
@@ -150,6 +177,27 @@ class AdminSettingsController extends Controller
     }
 
     /**
+     * @param string $key
+     *
+     * @return string
+     */
+    public function getGroupText($key)
+    {
+        return $this->getText($key);
+    }
+
+    /**
+     * @param $key
+     *
+     * @return string
+     */
+    public function getGroupSectionText($key)
+    {
+        return ($key === MainConfig::DEFAULT_TYPE) ?
+            TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT : $this->getObjectName($key);
+    }
+
+    /**
      * Returns the object name.
      *
      * @param string $objectKey
@@ -162,70 +210,6 @@ class AdminSettingsController extends Controller
             + $this->wordpress->getTaxonomies(['public' => true], 'objects');
 
         return (isset($objects[$objectKey]) === true) ? $objects[$objectKey]->labels->name : $objectKey;
-    }
-
-    /**
-     * Returns the current settings group.
-     *
-     * @return string
-     */
-    public function getCurrentSettingsGroup()
-    {
-        return (string)$this->getRequestParameter(self::SETTING_GROUP_PARAMETER, self::GROUP_POST_TYPES);
-    }
-
-    /**
-     * Returns the current settings group.
-     *
-     * @return string
-     */
-    public function getCurrentSettingsSection()
-    {
-        $default = null;
-        $group = $this->getCurrentSettingsGroup();
-
-        if ($group === self::GROUP_POST_TYPES || $group === self::GROUP_TAXONOMIES) {
-            $default = MainConfig::DEFAULT_TYPE;
-        } elseif ($group === self::GROUP_FILES) {
-            $default = self::SECTION_FILES;
-        } elseif ($group === self::GROUP_AUTHOR) {
-            $default = self::SECTION_AUTHOR;
-        } elseif ($group === self::GROUP_CACHE) {
-            $default = $this->config->getActiveCacheProvider();
-        } elseif ($group === self::GROUP_OTHER) {
-            $default = self::SECTION_OTHER;
-        }
-
-        return (string)$this->getRequestParameter(self::SETTING_SECTION_PARAMETER, $default);
-    }
-
-    /**
-     * Returns the settings group link by the given group key.
-     *
-     * @param string $groupKey
-     *
-     * @return string
-     */
-    public function getSettingsGroupLink($groupKey)
-    {
-        $rawUrl = $this->getRequestUrl();
-        $url = preg_replace('/&amp;'.self::SETTING_GROUP_PARAMETER.'[^&]*/i', '', $rawUrl);
-        return $url.'&'.self::SETTING_GROUP_PARAMETER.'='.$groupKey;
-    }
-
-    /**
-     * Returns the settings section link by the given group and section key.
-     *
-     * @param string $groupKey
-     * @param string $sectionKey
-     *
-     * @return string
-     */
-    public function getSectionGroupLink($groupKey, $sectionKey)
-    {
-        $rawUrl = $this->getSettingsGroupLink($groupKey);
-        $url = preg_replace('/&amp;'.self::SETTING_SECTION_PARAMETER.'[^&]*/i', '', $rawUrl);
-        return $url.'&'.self::SETTING_SECTION_PARAMETER.'='.$sectionKey;
     }
 
     /**
@@ -435,30 +419,13 @@ class AdminSettingsController extends Controller
     }
 
     /**
-     * Returns the settings groups.
-     *
-     * @return array
-     */
-    public function getSettingsGroups()
-    {
-        return [
-            self::GROUP_POST_TYPES,
-            self::GROUP_TAXONOMIES,
-            self::GROUP_FILES,
-            self::GROUP_AUTHOR,
-            self::GROUP_CACHE,
-            self::GROUP_OTHER
-        ];
-    }
-
-    /**
      * Returns the current settings form.
      *
      * @return \UserAccessManager\Form\Form[]
      */
     public function getCurrentGroupForms()
     {
-        $group = $this->getCurrentSettingsGroup();
+        $group = $this->getCurrentTabGroup();
         $groupForms = [];
 
         if ($group === self::GROUP_POST_TYPES) {
@@ -509,11 +476,11 @@ class AdminSettingsController extends Controller
     public function updateSettingsAction()
     {
         $this->verifyNonce('uamUpdateSettings');
-        $group = $this->getCurrentSettingsGroup();
+        $group = $this->getCurrentTabGroup();
         $newConfigParameters = $this->getRequestParameter('config_parameters');
 
         if ($group === self::GROUP_CACHE) {
-            $section = $this->getCurrentSettingsSection();
+            $section = $this->getCurrentTabGroupSection();
             $cacheProviders = $this->cache->getRegisteredCacheProviders();
 
             if (isset($cacheProviders[$section]) === true) {

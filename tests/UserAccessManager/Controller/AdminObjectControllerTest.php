@@ -1373,8 +1373,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::setValue($adminObjectController, 'objectId', null);
         unset($_GET['user_id']);
 
-        $adminObjectController->showTermEditForm(null);
-        self::assertAttributeEquals(null, 'objectType', $adminObjectController);
+        $adminObjectController->showTermEditForm('category');
+        self::assertAttributeEquals('category', 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
             .'vfs://src/UserAccessManager/View/TermEditForm.php|uam_user_groups!';
@@ -1483,6 +1483,60 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $user->user_login = $userLogin;
 
         return $user;
+    }
+
+    /**
+     * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::isNewObject()
+     */
+    public function testIsNewObject()
+    {
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->exactly(4))
+            ->method('getGeneralObjectType')
+            ->withConsecutive(
+                ['objectTypeValue'],
+                ['objectTypeValue'],
+                ['otherObjectTypeValue'],
+                ['otherObjectTypeValue']
+            )
+            ->will($this->onConsecutiveCalls(
+                'generalObjectType',
+                'generalObjectType',
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE
+            ));
+
+        $adminObjectController = new AdminObjectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getCache(),
+            $objectHandler,
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
+        );
+
+        self::setValue($adminObjectController, 'objectType', null);
+        self::setValue($adminObjectController, 'objectId', null);
+        self::assertFalse($adminObjectController->isNewObject());
+
+        self::setValue($adminObjectController, 'objectType', 'objectTypeValue');
+        self::setValue($adminObjectController, 'objectId', null);
+        self::assertTrue($adminObjectController->isNewObject());
+
+        self::setValue($adminObjectController, 'objectType', 'objectTypeValue');
+        self::setValue($adminObjectController, 'objectId', 1);
+        self::assertFalse($adminObjectController->isNewObject());
+
+        $_GET['action'] = 'edit';
+        self::setValue($adminObjectController, 'objectType', 'otherObjectTypeValue');
+        self::assertFalse($adminObjectController->isNewObject());
+
+        $_GET['action'] = 'new';
+        self::setValue($adminObjectController, 'objectType', 'otherObjectTypeValue');
+        self::assertTrue($adminObjectController->isNewObject());
     }
 
     /**

@@ -165,8 +165,11 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                         object_id VARCHAR(64) NOT NULL,
                         general_object_type VARCHAR(64) NOT NULL,
                         object_type VARCHAR(64) NOT NULL,
-                        group_id INT(11) NOT NULL,
-                        PRIMARY KEY (object_id,object_type,group_id)
+                        group_id VARCHAR(64) NOT NULL,
+                        group_type VARCHAR(64) NOT NULL,
+                        from_date DATETIME NULL DEFAULT NULL,
+                        to_date DATETIME NULL DEFAULT NULL,
+                        PRIMARY KEY (object_id, object_type, group_id, group_type)
                     ) CHARSET test;'
                 )],
                 [new MatchIgnoreWhitespace(
@@ -185,8 +188,11 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                         object_id VARCHAR(64) NOT NULL,
                         general_object_type VARCHAR(64) NOT NULL,
                         object_type VARCHAR(64) NOT NULL,
-                        group_id INT(11) NOT NULL,
-                        PRIMARY KEY (object_id,object_type,group_id)
+                        group_id VARCHAR(64) NOT NULL,
+                        group_type VARCHAR(64) NOT NULL,
+                        from_date DATETIME NULL DEFAULT NULL,
+                        to_date DATETIME NULL DEFAULT NULL,
+                        PRIMARY KEY (object_id, object_type, group_id, group_type)
                     ) CHARSET test;'
                 )]
             );
@@ -625,7 +631,10 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                     ADD group_type VARCHAR(64) NOT NULL AFTER group_id,
                     ADD from_date DATETIME NULL DEFAULT NULL,
                     ADD to_date DATETIME NULL DEFAULT NULL,
-                    MODIFY group_id VARCHAR(64)'
+                    MODIFY group_id VARCHAR(64) NOT NULL,
+                    MODIFY object_id VARCHAR(64) NOT NULL,
+                    DROP PRIMARY KEY,
+                    ADD PRIMARY KEY (object_id, object_type, group_id, group_type)'
                 )]
             )
             ->will($this->onConsecutiveCalls(

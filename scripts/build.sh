@@ -19,3 +19,6 @@ fi
 
 EXCLUDES="${EXCLUDES}README.md,.travis.yml,composer.json,composer.lock,builds,phpunit.xml.dist,humbug.json.dist,tests,scripts"
 eval "rsync -av ${PLUGIN_ROOT}/* ${PLUGIN_BUILDS_PATH} --exclude={${EXCLUDES}}"
+
+git clone https://github.com/grappler/i18n.git "${PLUGIN_ROOT}/tmp/tools"
+php "${PLUGIN_ROOT}/tmp/makepot.php" wp-plugin "${PLUGIN_BUILDS_PATH}" "${PLUGIN_BUILDS_PATH}/languages/${PLUGIN}.pot"

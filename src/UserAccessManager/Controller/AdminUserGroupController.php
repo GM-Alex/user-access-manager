@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Php;
@@ -28,8 +29,14 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class AdminUserGroupController extends Controller
 {
+    use AdminControllerTabNavigationTrait;
+
     const INSERT_UPDATE_GROUP_NONCE = 'uamInsertUpdateGroup';
     const DELETE_GROUP_NONCE = 'uamDeleteGroup';
+    const SET_DEFAULT_USER_GROUPS_NONCE = 'uamSetDefaultUserGroups';
+    const GROUP_USER_GROUPS = 'user_groups';
+    const GROUP_DEFAULT_USER_GROUPS = 'default_user_groups';
+    const DEFAULT_USER_GROUPS_FORM_FIELD = 'default_user_groups';
 
     /**
      * @var string
@@ -47,6 +54,11 @@ class AdminUserGroupController extends Controller
     private $userGroupFactory;
 
     /**
+     * @var FormHelper
+     */
+    private $formHelper;
+
+    /**
      * @var \UserAccessManager\UserGroup\UserGroup
      */
     private $userGroup = null;
@@ -59,17 +71,76 @@ class AdminUserGroupController extends Controller
      * @param MainConfig       $config
      * @param AccessHandler    $accessHandler
      * @param UserGroupFactory $userGroupFactory
+     * @param FormHelper       $formHelper
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         MainConfig $config,
         AccessHandler $accessHandler,
-        UserGroupFactory $userGroupFactory
+        UserGroupFactory $userGroupFactory,
+        FormHelper $formHelper
     ) {
         parent::__construct($php, $wordpress, $config);
         $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
+        $this->formHelper = $formHelper;
+    }
+
+    /**
+     * Returns the tab groups.
+     *
+     * @return array
+     */
+    public function getTabGroups()
+    {
+        return [
+            self::GROUP_USER_GROUPS => ['user_groups'],
+            self::GROUP_DEFAULT_USER_GROUPS => array_merge(
+                array_keys($this->wordpress->getPostTypes(['public' => true], 'objects')),
+                array_keys($this->wordpress->getTaxonomies(['public' => true], 'objects')),
+                [ObjectHandler::GENERAL_USER_OBJECT_TYPE]
+            )
+        ];
+    }
+
+    /**
+     * Returns the translated tag group name by the given key.
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public function getGroupText($key)
+    {
+        return $this->formHelper->getText($key);
+    }
+
+    /**
+     * Returns the translated tag group section name by the given key.
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public function getGroupSectionText($key)
+    {
+        $objects = $this->wordpress->getPostTypes(['public' => true], 'objects')
+            + $this->wordpress->getTaxonomies(['public' => true], 'objects');
+
+        $objectName = $key;
+
+        if (isset($objects[$key]) === true) {
+            $objectName = $objects[$key]->labels->name;
+
+            if ($objects[$key] instanceof \WP_Post_Type) {
+                $objectName .= ' ('.TXT_UAM_POST_TYPE.')';
+            } elseif ($objects[$key] instanceof \WP_Taxonomy) {
+                $objectName .= ' ('.TXT_UAM_TAXONOMY_TYPE.')';
+            }
+        }
+
+        return $objectName;
     }
 
     /**
@@ -154,7 +225,7 @@ class AdminUserGroupController extends Controller
                 $this->userGroup = $userGroup;
                 $this->setUpdateMessage(TXT_UAM_GROUP_ADDED);
             } else {
-                $this->setUpdateMessage(TXT_UAM_ACCESS_GROUP_EDIT_SUCCESS);
+                $this->setUpdateMessage(TXT_UAM_USER_GROUP_EDIT_SUCCESS);
             }
 
             $this->accessHandler->addUserGroup($userGroup);
@@ -174,5 +245,36 @@ class AdminUserGroupController extends Controller
         }
 
         $this->setUpdateMessage(TXT_UAM_DELETE_GROUP);
+    }
+
+    /**
+     * Action to set default user groups.
+     */
+    public function setDefaultUserGroupsAction()
+    {
+        $this->verifyNonce(self::SET_DEFAULT_USER_GROUPS_NONCE);
+        $objectType = $this->getCurrentTabGroupSection();
+        $defaultUserGroups = $this->getRequestParameter(self::DEFAULT_USER_GROUPS_FORM_FIELD, []);
+        $userGroups = $this->getUserGroups();
+
+        foreach ($userGroups as $userGroup) {
+            $userGroupId = $userGroup->getId();
+
+            if (isset($defaultUserGroups[$userGroupId]) === true
+                && (string)$defaultUserGroups[$userGroupId]['id'] === (string)$userGroupId
+            ) {
+                $userGroup->addDefaultType(
+                    $objectType,
+                    isset($defaultUserGroups[$userGroupId]['fromTime']) === true ?
+                        $defaultUserGroups[$userGroupId]['fromTime'] : null,
+                    isset($defaultUserGroups[$userGroupId]['toTime']) === true ?
+                        $defaultUserGroups[$userGroupId]['toTime'] : null
+                );
+            } else {
+                $userGroup->removeDefaultType($objectType);
+            }
+        }
+
+        $this->setUpdateMessage(TXT_UAM_SET_DEFAULT_USER_GROUP_SUCCESS);
     }
 }
