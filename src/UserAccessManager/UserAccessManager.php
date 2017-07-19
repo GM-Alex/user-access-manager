@@ -115,7 +115,7 @@ class UserAccessManager
      * @var FileObjectFactory
      */
     private $fileObjectFactory;
-    
+
     /**
      * UserAccessManager constructor.
      *
@@ -545,7 +545,11 @@ class UserAccessManager
         $this->wordpress->addFilter('get_next_post_where', [$frontendController, 'showNextPreviousPost']);
         $this->wordpress->addFilter('get_previous_post_where', [$frontendController, 'showNextPreviousPost']);
         $this->wordpress->addFilter('post_link', [$frontendController, 'cachePostLinks'], 10, 2);
-        $this->wordpress->addFilter('edit_post_link', [$frontendController, 'showGroupMembership'], 10, 2);
+
+        if ($this->config->showAssignedGroups()) {
+            $this->wordpress->addFilter('edit_post_link', [$frontendController, 'showGroupMembership'], 10, 2);
+        }
+
         $this->wordpress->addFilter('parse_query', [$frontendController, 'parseQuery']);
         $this->wordpress->addFilter('getarchives_where', [$frontendController, 'showPostSql']);
         $this->wordpress->addFilter('wp_count_posts', [$frontendController, 'showPostCount'], 10, 3);

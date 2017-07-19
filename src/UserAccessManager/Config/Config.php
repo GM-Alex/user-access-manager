@@ -236,6 +236,9 @@ class Config
             $id = 'protect_feed';
             $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
+            $id = 'show_assigned_groups';
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
+
             $id = 'full_access_role';
             $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
                 $id,
@@ -601,6 +604,14 @@ class Config
     public function protectFeed()
     {
         return $this->getParameterValue('protect_feed');
+    }
+
+    /**
+     * @return bool
+     */
+    public function showAssignedGroups()
+    {
+        return $this->getParameterValue('show_assigned_groups');
     }
 
     /**
