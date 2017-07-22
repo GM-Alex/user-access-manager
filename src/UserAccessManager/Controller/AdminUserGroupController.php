@@ -130,7 +130,9 @@ class AdminUserGroupController extends Controller
 
         $objectName = $key;
 
-        if (isset($objects[$key]) === true) {
+        if ($objectName === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+            $objectName = TXT_UAM_USER;
+        } elseif (isset($objects[$key]) === true) {
             $objectName = $objects[$key]->labels->name;
 
             if ($objects[$key] instanceof \WP_Post_Type) {
@@ -259,19 +261,17 @@ class AdminUserGroupController extends Controller
 
         foreach ($userGroups as $userGroup) {
             $userGroupId = $userGroup->getId();
+            $userGroup->removeDefaultType($objectType);
+            $userGroupInfo = isset($defaultUserGroups[$userGroupId]) === true ? $defaultUserGroups[$userGroupId] : [];
 
-            if (isset($defaultUserGroups[$userGroupId]) === true
-                && (string)$defaultUserGroups[$userGroupId]['id'] === (string)$userGroupId
+            if (isset($userGroupInfo['id']) === true
+                && (string)$userGroupInfo['id'] === (string)$userGroupId
             ) {
                 $userGroup->addDefaultType(
                     $objectType,
-                    isset($defaultUserGroups[$userGroupId]['fromTime']) === true ?
-                        $defaultUserGroups[$userGroupId]['fromTime'] : null,
-                    isset($defaultUserGroups[$userGroupId]['toTime']) === true ?
-                        $defaultUserGroups[$userGroupId]['toTime'] : null
+                    empty($userGroupInfo['fromTime']) === false ? $userGroupInfo['fromTime'] : null,
+                    empty($userGroupInfo['toTime']) === false ? $userGroupInfo['toTime'] : null
                 );
-            } else {
-                $userGroup->removeDefaultType($objectType);
             }
         }
 

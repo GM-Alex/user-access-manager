@@ -45,9 +45,11 @@
             $isLockedRecursive = $userGroup->isLockedRecursive($objectType, $objectId);
             $attributes .= ($isLockedRecursive === true) ? ' disabled="disabled"' : '';
         } elseif ($controller->isNewObject()
-            && $userGroup->isDefaultGroupForObjectType($objectType, $fromDate, $toDate) === true
+            && $userGroup->isDefaultGroupForObjectType($objectType, $fromTime, $toTime) === true
         ) {
             $attributes .= 'checked="checked" ';
+            $fromDate = $controller->getDateFromTime($fromTime);
+            $toDate = $controller->getDateFromTime($toTime);
         } elseif ($userGroup instanceof \UserAccessManager\UserGroup\DynamicUserGroup
             && $userGroup->getId() !== \UserAccessManager\UserGroup\DynamicUserGroup::USER_TYPE.'|0'
         ) {
@@ -110,7 +112,9 @@
     ?>
 </ul>
 <?php
-if ($controller->getObjectType() !== \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+if ($controller->getObjectType() !== \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_USER_OBJECT_TYPE
+    && $controller->checkUserAccess() === true
+) {
     ?>
     <p>
         <span><label for="uam_dynamic_groups"><?php echo TXT_UAM_ADD_DYNAMIC_GROUP; ?></label></span>

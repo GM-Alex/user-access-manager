@@ -22,6 +22,7 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\DynamicUserGroup;
+use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -256,7 +257,7 @@ class AdminObjectController extends Controller
      */
     public function checkUserAccess()
     {
-        return $this->accessHandler->checkUserAccess();
+        return $this->accessHandler->checkUserAccess(AccessHandler::MANAGE_USER_GROUPS_CAPABILITY);
     }
 
     /**
@@ -281,6 +282,21 @@ class AdminObjectController extends Controller
     public function formatDateForDatetimeInput($date)
     {
         return ($date !== null) ? strftime('%Y-%m-%dT%H:%M:%S', strtotime($date)) : $date;
+    }
+
+    /**
+     * @param int $time
+     *
+     * @return null|string
+     */
+    public function getDateFromTime($time)
+    {
+        if ($time !== null && (int)$time !== 0) {
+            $currentTime = $this->wordpress->currentTime('timestamp');
+            return gmdate('Y-m-d H:i:s', $time + $currentTime);
+        }
+
+        return null;
     }
 
     /**
@@ -394,8 +410,7 @@ class AdminObjectController extends Controller
         $isUpdateForm = (bool)$this->getRequestParameter(self::UPDATE_GROUPS_FORM_NAME, false) === true
             || $this->getRequestParameter('uam_bulk_type') !== null;
 
-        $hasRights = $this->accessHandler->checkUserAccess('manage_user_groups') === true
-            || $this->config->authorsCanAddPostsToGroups() === true;
+        $hasRights = $this->checkUserAccess() === true || $this->config->authorsCanAddPostsToGroups() === true;
 
         if ($isUpdateForm === true && $hasRights === true) {
             if ($addUserGroups === null) {
@@ -434,25 +449,43 @@ class AdminObjectController extends Controller
                 }
             }
 
-            $addDynamicUserGroups = $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, []);
+            if ($this->checkUserAccess() === true) {
+                $addDynamicUserGroups = $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, []);
 
-            foreach ($addDynamicUserGroups as $dynamicUserGroupKey => $addDynamicUserGroup) {
-                $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
+                foreach ($addDynamicUserGroups as $dynamicUserGroupKey => $addDynamicUserGroup) {
+                    $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
 
-                if (count($dynamicUserGroupData) === 2
-                    && $addDynamicUserGroup['id'] === $dynamicUserGroupKey
-                ) {
-                    $dynamicUserGroup = $this->userGroupFactory->createDynamicUserGroup(
-                        $dynamicUserGroupData[0],
-                        $dynamicUserGroupData[1]
-                    );
+                    if (count($dynamicUserGroupData) === 2
+                        && $addDynamicUserGroup['id'] === $dynamicUserGroupKey
+                    ) {
+                        $dynamicUserGroup = $this->userGroupFactory->createDynamicUserGroup(
+                            $dynamicUserGroupData[0],
+                            $dynamicUserGroupData[1]
+                        );
 
-                    $dynamicUserGroup->addObject(
-                        $objectType,
-                        $objectId,
-                        $this->getDateParameter($addDynamicUserGroup, 'fromDate'),
-                        $this->getDateParameter($addDynamicUserGroup, 'toDate')
-                    );
+                        $dynamicUserGroup->addObject(
+                            $objectType,
+                            $objectId,
+                            $this->getDateParameter($addDynamicUserGroup, 'fromDate'),
+                            $this->getDateParameter($addDynamicUserGroup, 'toDate')
+                        );
+                    }
+                }
+            } else {
+                /**
+                 * @var UserGroup[] $userGroupsToCheck
+                 */
+                $userGroupsToCheck = array_diff_key($this->getUserGroups(), $filteredUserGroups);
+
+                foreach ($userGroupsToCheck as $userGroupToCheck) {
+                    if ($userGroupToCheck->isDefaultGroupForObjectType($objectType, $fromTime, $toTime) === true) {
+                        $userGroupToCheck->addObject(
+                            $objectType,
+                            $objectId,
+                            $this->getDateFromTime($fromTime),
+                            $this->getDateFromTime($toTime)
+                        );
+                    }
                 }
             }
 
@@ -674,10 +707,7 @@ class AdminObjectController extends Controller
     public function showUserProfile()
     {
         $userId = $this->getRequestParameter('user_id');
-
-        if ($userId !== null) {
-            $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
-        }
+        $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
 
         echo $this->getIncludeContents('UserProfileEditForm.php');
     }
@@ -889,6 +919,12 @@ class AdminObjectController extends Controller
      */
     public function getDynamicGroupsForAjax()
     {
+        if ($this->checkUserAccess() === false) {
+            echo json_encode([]);
+            $this->php->callExit();
+            return;
+        }
+
         $search = $this->getRequestParameter('q');
         $searches = explode(',', $search);
         $search = trim(end($searches));

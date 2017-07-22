@@ -124,7 +124,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(5))
             ->method('getPostTypes')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -133,7 +133,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('pageName')
             ]));
 
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(5))
             ->method('getTaxonomies')
             ->with(['public' => true], 'objects')
             ->will($this->returnValue([
@@ -162,6 +162,10 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         self::assertEquals(
             'categoryName ('.TXT_UAM_TAXONOMY_TYPE.')',
             $adminUserGroupController->getGroupSectionText('category')
+        );
+        self::assertEquals(
+            TXT_UAM_USER,
+            $adminUserGroupController->getGroupSectionText(ObjectHandler::GENERAL_USER_OBJECT_TYPE)
         );
     }
 
@@ -411,13 +415,24 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             ->method('addDefaultType')
             ->with('objectType', 'fromTimeValue', null);
 
+        $firstUserGroup->expects($this->once())
+            ->method('removeDefaultType')
+            ->with('objectType');
+
         $secondUserGroup = $this->getUserGroup(2);
 
         $secondUserGroup->expects($this->once())
             ->method('addDefaultType')
             ->with('objectType', null, 'toTimeValue');
 
+        $secondUserGroup->expects($this->once())
+            ->method('removeDefaultType')
+            ->with('objectType');
+
         $thirdUserGroup = $this->getUserGroup(3);
+
+        $thirdUserGroup->expects($this->never())
+            ->method('addDefaultType');
 
         $thirdUserGroup->expects($this->once())
             ->method('removeDefaultType')

@@ -215,11 +215,11 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     {
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(5))
+        $database->expects($this->exactly(6))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $database->expects($this->exactly(5))
+        $database->expects($this->exactly(6))
             ->method('insert')
             ->withConsecutive(
                 [
@@ -286,13 +286,26 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                         'to_date' => '1970-01-01 00:00:02'
                     ],
                     ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
+                ],
+                [
+                    'userGroupToObjectTable',
+                    [
+                        'group_id' => 123,
+                        'group_type' => 'type',
+                        'object_id' => '',
+                        'general_object_type' => 'generalDefaultObjectType',
+                        'object_type' => 'defaultObjectType',
+                        'from_date' => '1970-01-01 00:00:01',
+                        'to_date' => '1970-01-01 00:00:02'
+                    ],
+                    ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
                 ]
             )
             ->will($this->onConsecutiveCalls(false, true));
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->exactly(8))
+        $objectHandler->expects($this->exactly(9))
             ->method('getGeneralObjectType')
             ->withConsecutive(
                 ['invalid'],
@@ -300,6 +313,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 ['notValidObjectType'],
                 ['objectType'],
                 ['objectType'],
+                ['defaultObjectType'],
                 ['defaultObjectType'],
                 ['defaultObjectType'],
                 ['defaultObjectType']
@@ -312,15 +326,17 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 'generalObjectType',
                 'generalDefaultObjectType',
                 'generalDefaultObjectType',
+                'generalDefaultObjectType',
                 'generalDefaultObjectType'
             ));
 
-        $objectHandler->expects($this->exactly(6))
+        $objectHandler->expects($this->exactly(7))
             ->method('isValidObjectType')
             ->withConsecutive(
                 ['notValidObjectType'],
                 ['objectType'],
                 ['objectType'],
+                ['defaultObjectType'],
                 ['defaultObjectType'],
                 ['defaultObjectType'],
                 ['defaultObjectType']
@@ -354,6 +370,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType'));
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType', 1, 2));
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType', 1, 0));
+        self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType', 1, 1));
 
         self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
         self::assertAttributeEquals([], 'roleMembership', $abstractUserGroup);
@@ -741,13 +758,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      */
     public function testGetDefaultGroupForObjectTypes()
     {
-        $wordpress = $this->getWordpress();
-
-        $wordpress->expects($this->once())
-            ->method('currentTime')
-            ->with('timestamp')
-            ->will($this->returnValue(100));
-
         $database = $this->getDatabase();
 
         $database->expects($this->once())
@@ -773,12 +783,14 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             ->with('preparedQuery')
             ->will($this->returnValue(array_merge(
                 $this->generateReturn(2, 'typeOne'),
-                $this->generateReturn(1, 'typeTwo', '01-01-1970 00:00:10', '01-01-1970 00:00:20')
+                $this->generateReturn(1, 'typeTwo', '01-01-1970 00:00:10', '01-01-1970 00:00:20'),
+                $this->generateReturn(1, 'typeThree', null, '01-01-1970 00:01:00'),
+                $this->generateReturn(1, 'typeFour', '01-01-1970 00:02:00', null)
             )));
 
         $abstractUserGroup = $this->getStub(
             $this->getPhp(),
-            $wordpress,
+            $this->getWordpress(),
             $database,
             $this->getMainConfig(),
             $this->getUtil(),
@@ -791,7 +803,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $expected = [
             'typeOne' => [null, null],
-            'typeTwo' => [110, 120]
+            'typeTwo' => [10, 20],
+            'typeThree' => [null, 60],
+            'typeFour' => [120, null]
         ];
 
         self::assertEquals($expected, $abstractUserGroup->getDefaultGroupForObjectTypes());
@@ -814,8 +828,16 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertEmpty($toTime);
 
         self::assertTrue($abstractUserGroup->isDefaultGroupForObjectType('typeTwo', $fromTime, $toTime));
-        self::assertEquals('1970-01-01 00:01:50', $fromTime);
-        self::assertEquals('1970-01-01 00:02:00', $toTime);
+        self::assertEquals(10, $fromTime);
+        self::assertEquals(20, $toTime);
+
+        self::assertTrue($abstractUserGroup->isDefaultGroupForObjectType('typeThree', $fromTime, $toTime));
+        self::assertEquals(null, $fromTime);
+        self::assertEquals(60, $toTime);
+
+        self::assertTrue($abstractUserGroup->isDefaultGroupForObjectType('typeFour', $fromTime, $toTime));
+        self::assertEquals(120, $fromTime);
+        self::assertEquals(null, $toTime);
 
         self::assertFalse($abstractUserGroup->isDefaultGroupForObjectType('someType', $fromTime, $toTime));
         self::assertEmpty($fromTime);

@@ -32,6 +32,8 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class AccessHandler
 {
+    const MANAGE_USER_GROUPS_CAPABILITY = 'manage_user_groups';
+
     /**
      * @var Wordpress
      */
@@ -41,11 +43,6 @@ class AccessHandler
      * @var MainConfig
      */
     private $config;
-
-    /**
-     * @var Cache
-     */
-    private $cache;
 
     /**
      * @var Database
@@ -345,7 +342,7 @@ class AccessHandler
      */
     public function getUserGroupsForUser()
     {
-        if ($this->checkUserAccess('manage_user_groups') === true) {
+        if ($this->checkUserAccess(self::MANAGE_USER_GROUPS_CAPABILITY) === true) {
             return $this->getUserGroups();
         }
 
@@ -494,7 +491,7 @@ class AccessHandler
             if ($this->objectHandler->isValidObjectType($objectType) === false) {
                 $access = true;
             } else {
-                if ($this->checkUserAccess('manage_user_groups') === true) {
+                if ($this->checkUserAccess(self::MANAGE_USER_GROUPS_CAPABILITY) === true) {
                     $access = true;
                 } elseif ($this->config->authorsHasAccessToOwn() === true
                     && $this->objectHandler->isPostType($objectType)
@@ -534,7 +531,7 @@ class AccessHandler
      */
     public function getExcludedTerms()
     {
-        if ($this->checkUserAccess('manage_user_groups')) {
+        if ($this->checkUserAccess(self::MANAGE_USER_GROUPS_CAPABILITY)) {
             $this->excludedTerms = [];
         }
 
@@ -566,7 +563,7 @@ class AccessHandler
      */
     public function getExcludedPosts()
     {
-        if ($this->checkUserAccess('manage_user_groups')) {
+        if ($this->checkUserAccess(self::MANAGE_USER_GROUPS_CAPABILITY)) {
             $this->excludedPosts = [];
         }
 

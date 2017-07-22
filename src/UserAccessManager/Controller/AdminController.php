@@ -127,7 +127,7 @@ class AdminController extends Controller
      */
     public function setupAdminDashboard()
     {
-        if ($this->accessHandler->checkUserAccess('manage_user_groups') === false) {
+        if ($this->accessHandler->checkUserAccess(AccessHandler::MANAGE_USER_GROUPS_CAPABILITY) === false) {
             $metaBoxes = $this->wordpress->getMetaBoxes();
             unset($metaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
             $this->wordpress->setMetaBoxes($metaBoxes);

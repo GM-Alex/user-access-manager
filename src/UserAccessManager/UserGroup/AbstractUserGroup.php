@@ -511,8 +511,8 @@ abstract class AbstractUserGroup
     public function addDefaultType($objectType, $fromTime = null, $toTime = null)
     {
         $fromDate = ($fromTime !== null) ? gmdate('Y-m-d H:i:s', $fromTime) : null;
-        $toTime = ($toTime < $fromTime) ? $fromTime + 1 : $toTime;
-        $toDate = ($fromTime !== null) ? gmdate('Y-m-d H:i:s', $toTime) : null;
+        $toTime = ($toTime !== null && $toTime <= $fromTime) ? $fromTime + 1 : $toTime;
+        $toDate = ($toTime !== null) ? gmdate('Y-m-d H:i:s', $toTime) : null;
 
         return $this->addObject($objectType, '', $fromDate, $toDate);
     }
@@ -552,12 +552,11 @@ abstract class AbstractUserGroup
 
             $query = $this->database->prepare($query, $parameters);
             $results = (array)$this->database->getResults($query);
-            $currentTime = $this->wordpress->currentTime('timestamp');
 
             foreach ($results as $result) {
                 $this->defaultTypes[$result->objectType] = [
-                    ($result->fromDate !== null) ? $currentTime + strtotime($result->fromDate) : null,
-                    ($result->toDate !== null) ? $currentTime + strtotime($result->toDate) : null
+                    ($result->fromDate !== null) ? strtotime($result->fromDate) : null,
+                    ($result->toDate !== null) ? strtotime($result->toDate) : null
                 ];
             }
         }
@@ -584,9 +583,9 @@ abstract class AbstractUserGroup
 
         if (isset($defaultGroupForObjectTypes[$objectType])) {
             $fromTime = $defaultGroupForObjectTypes[$objectType][0] !== null ?
-                gmdate('Y-m-d H:i:s', $defaultGroupForObjectTypes[$objectType][0]) : null;
+                (int)$defaultGroupForObjectTypes[$objectType][0] : null;
             $toTime =  $defaultGroupForObjectTypes[$objectType][1] !== null ?
-                gmdate('Y-m-d H:i:s', $defaultGroupForObjectTypes[$objectType][1]) : null;
+                (int)$defaultGroupForObjectTypes[$objectType][1] : null;
 
             return true;
         }

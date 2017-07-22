@@ -42,6 +42,10 @@ ul.uam_group_selection > li > label {
     display: none;
 }
 
+.uam_default_groups .uam_group_date_form {
+    display: block;
+}
+
 .uam_group_date_form label {
     width: 65px;
     display: inline-block;
@@ -62,6 +66,15 @@ ul.uam_group_selection > li > label {
     ul.uam_group_selection > li > input {
         position: static;
     }
+}
+
+ul.uam_group_selection_ajax > li > input {
+    margin-top: 2px !important;
+}
+
+.compat-field-uam_user_groups .field {
+    width: 100%;
+    margin-bottom: 100px;
 }
 
 .uam_group_info_link {
@@ -102,6 +115,7 @@ ul.uam_group_selection > li > label {
     font-weight: normal;
 }
 
+.uam_group_selection_ajax li a,
 .uam_group_selection li a {
     vertical-align: middle;
 }

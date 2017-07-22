@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
+use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
@@ -79,6 +80,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @param array $addIds
      * @param array $removeIds
      * @param array $with
+     * @param array $additional
      *
      * @return array
      */
@@ -501,6 +503,34 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers \UserAccessManager\Controller\AdminObjectController::getDateFromTime()
+     */
+    public function testGetDateFromTime()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('currentTime')
+            ->with('timestamp')
+            ->will($this->returnValue(100));
+
+        $adminObjectController = new AdminObjectController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
+        );
+
+        self::assertEquals(null, $adminObjectController->getDateFromTime(null));
+        self::assertEquals(null, $adminObjectController->getDateFromTime(0));
+        self::assertEquals('1970-01-01 00:01:41', $adminObjectController->getDateFromTime(1));
+    }
+
+    /**
+     * @group  unit
      * @covers \UserAccessManager\Controller\AdminObjectController::getRecursiveMembership()
      */
     public function testGetRecursiveMembership()
@@ -829,18 +859,47 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      */
     public function testSaveObjectData()
     {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('currentTime')
+            ->with('timestamp')
+            ->will($this->returnValue(100));
+
         $config = $this->getMainConfig();
-        $config->expects($this->exactly(2))
+        $config->expects($this->exactly(3))
             ->method('authorsCanAddPostsToGroups')
-            ->will($this->onConsecutiveCalls(false, true));
+            ->will($this->onConsecutiveCalls(false, true, true));
 
         $objectHandler = $this->getExtendedObjectHandler();
 
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(12))
+        $accessHandler->expects($this->exactly(22))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
-            ->will($this->onConsecutiveCalls(false, false, true, true, true, true, true, true, true, true, true, true));
+            ->will($this->onConsecutiveCalls(
+                false,
+                false,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                false,
+                false
+            ));
 
         $accessHandler->expects($this->exactly(10))
             ->method('getFilteredUserGroupsForObject')
@@ -868,6 +927,31 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 $this->getUserGroupArray([1, 4]),
                 $this->getUserGroupArray([2, 3])
             ));
+
+        $fullGroupOne = $this->getUserGroupWithAddDelete(
+            1000,
+            [['objectType', 'objectId', '1970-01-01 00:01:41', '1970-01-01 00:01:42']]
+        );
+
+        $fullGroupOne->expects($this->once())
+            ->method('isDefaultGroupForObjectType')
+            ->with('objectType', null, null)
+            ->will($this->returnCallback(function ($objectType, &$fromTime, &$toTime) {
+                $fromTime = 1;
+                $toTime = 2;
+                return true;
+            }));
+
+        $fullGroupTwo = $this->getUserGroupWithAddDelete(1001);
+
+        $fullGroupTwo->expects($this->once())
+            ->method('isDefaultGroupForObjectType')
+            ->with('objectType', 1, 2)
+            ->will($this->returnValue(false));
+
+        $accessHandler->expects($this->once())
+            ->method('getFullUserGroups')
+            ->will($this->returnValue([$fullGroupOne, $fullGroupTwo]));
 
         $accessHandler->expects($this->exactly(10))
             ->method('getFilteredUserGroups')
@@ -901,7 +985,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $adminObjectController = new AdminObjectController(
             $this->getPhp(),
-            $this->getWordpress(),
+            $wordpress,
             $config,
             $this->getDatabase(),
             $this->getCache(),
@@ -1358,7 +1442,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::setValue($adminObjectController, 'objectId', null);
 
         $adminObjectController->showUserProfile();
-        self::assertAttributeEquals(null, 'objectType', $adminObjectController);
+        self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
             .'vfs://src/UserAccessManager/View/UserProfileEditForm.php|uam_user_groups!';
@@ -1546,7 +1630,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
     public function testGetDynamicGroupsForAjax()
     {
         $php = $this->getPhp();
-        $php->expects($this->once())
+        $php->expects($this->exactly(2))
             ->method('callExit');
 
         $wordpress = $this->getWordpress();
@@ -1575,6 +1659,13 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $_GET['q'] = 'firstSearch, sea';
 
+        $accessHandler = $this->getAccessHandler();
+
+        $accessHandler->expects($this->exactly(2))
+            ->method('checkUserAccess')
+            ->with(AccessHandler::MANAGE_USER_GROUPS_CAPABILITY)
+            ->will($this->onConsecutiveCalls(true, false));
+
         $adminObjectController = new AdminObjectController(
             $php,
             $wordpress,
@@ -1582,17 +1673,19 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getExtendedObjectHandler(),
-            $this->getAccessHandler(),
+            $accessHandler,
             $this->getUserGroupFactory()
         );
+
+        $adminObjectController->getDynamicGroupsForAjax();
+        $adminObjectController->getDynamicGroupsForAjax();
 
         self::expectOutputString(
             '['
             .'{"id":1,"name":"User|user-access-manager: firstUser (firstUserLogin)","type":"user"},'
             .'{"id":2,"name":"User|user-access-manager: secondUser (secondUserLogin)","type":"user"},'
             .'{"id":"search","name":"Role|user-access-manager: Search","type":"role"}'
-            .']'
+            .'][]'
         );
-        $adminObjectController->getDynamicGroupsForAjax();
     }
 }
