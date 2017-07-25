@@ -68,7 +68,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
             }
 
             $homeRoot = parse_url($this->wordpress->getHomeUrl());
-            $homeRoot = (isset($homeRoot['path']) === true) ? trim($homeRoot['path'], '/\\').'/' : '/';
+            $homeRoot = (isset($homeRoot['path']) === true) ? '/'.trim($homeRoot['path'], '/\\').'/' : '/';
 
             $content = "RewriteEngine On\n";
             $content .= "RewriteBase {$homeRoot}\n";
