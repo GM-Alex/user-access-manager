@@ -77,7 +77,7 @@ class FrontendController extends Controller
     /**
      * @var array
      */
-    private $wordpressFilters = array();
+    private $wordpressFilters = [];
 
     /**
      * FrontendController constructor.
@@ -298,7 +298,7 @@ class FrontendController extends Controller
             return $post;
         } elseif (is_int($post) === true) {
             return $this->objectHandler->getPost($post);
-        } elseif ($post instanceof \stdClass && isset($post->ID)) {
+        } elseif (($post instanceof \stdClass) === true && isset($post->ID) === true) {
             return $this->objectHandler->getPost($post->ID);
         }
 
@@ -418,12 +418,16 @@ class FrontendController extends Controller
      * @param string $file
      * @param int    $attachmentId
      *
-     * @return bool
+     * @return string|bool
      */
     public function getAttachedFile($file, $attachmentId)
     {
-        $hasAccess = $this->accessHandler->checkObjectAccess(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $attachmentId);
-        return ($hasAccess === true) ? $file : false;
+        if ($this->config->lockFile() === true) {
+            $hasAccess = $this->accessHandler->checkObjectAccess(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $attachmentId);
+            return ($hasAccess === true) ? $file : false;
+        }
+
+        return $file;
     }
 
     /**

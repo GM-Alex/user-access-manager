@@ -751,6 +751,12 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testGetAttachedFile()
     {
+        $config = $this->getConfig();
+
+        $config->expects($this->exactly(3))
+            ->method('lockFile')
+            ->will($this->onConsecutiveCalls(false, true, true));
+
         $accessHandler = $this->getAccessHandler();
 
         $accessHandler->expects($this->exactly(2))
@@ -766,7 +772,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getConfig(),
+            $config,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -776,6 +782,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
+        self::assertEquals('testFile', $frontendController->getAttachedFile('testFile', 1));
         self::assertEquals('firstFile', $frontendController->getAttachedFile('firstFile', 1));
         self::assertFalse($frontendController->getAttachedFile('secondFile', 2));
     }
