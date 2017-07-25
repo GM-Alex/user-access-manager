@@ -227,6 +227,7 @@ class AdminSettingsController extends Controller
         if (isset($objects[$groupKey]) === true) {
             $ident = str_replace(strtoupper($groupKey), 'OBJECT', $ident);
             $text = constant($ident);
+            $text = preg_replace('/%[ ]*s/i', '%s', $text);
             $count = substr_count($text, '%s');
             $arguments = $this->php->arrayFill(0, $count, $objects[$groupKey]->labels->name);
             return vsprintf($text, $arguments);
