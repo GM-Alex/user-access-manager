@@ -655,7 +655,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue('postTitle'));
 
         $config->expects($this->exactly(5))
-            ->method('hidePostTypeComments')
+            ->method('lockPostTypeComments')
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->onConsecutiveCalls(false, true, true, false, false));
 
@@ -1152,18 +1152,23 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     {
         $config = $this->getConfig();
 
+        $config->expects($this->exactly(5))
+            ->method('lockPostTypeComments')
+            ->withConsecutive(['post'], ['page'], ['post'], ['post'], ['post'])
+            ->will($this->onConsecutiveCalls(true, false, false, false, false));
+
         $config->expects($this->exactly(4))
-            ->method('hidePostTypeComments')
-            ->withConsecutive(['post'], ['page'], ['post'], ['post'])
+            ->method('hidePostType')
+            ->withConsecutive(['page'], ['post'], ['post'], ['post'])
             ->will($this->onConsecutiveCalls(true, false, false, false));
 
         $config->expects($this->exactly(3))
-            ->method('hidePostType')
-            ->withConsecutive(['page'], ['post'], ['post'])
+            ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(true, false, false));
 
         $config->expects($this->exactly(2))
-            ->method('atAdminPanel')
+            ->method('hidePostTypeComments')
+            ->withConsecutive(['post'], ['post'])
             ->will($this->onConsecutiveCalls(true, false));
 
         $config->expects($this->once())
@@ -1173,7 +1178,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->exactly(6))
+        $objectHandler->expects($this->exactly(7))
             ->method('getPost')
             ->will($this->returnCallback(function ($postId) {
                 $type = ($postId === 4) ? 'page' : 'post';
@@ -1182,17 +1187,19 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $accessHandler = $this->getAccessHandler();
 
-        $accessHandler->expects($this->exactly(5))
+        $accessHandler->expects($this->exactly(6))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['post', 1],
                 ['post', 3],
                 ['page', 4],
                 ['post', 5],
-                ['post', 6]
+                ['post', 6],
+                ['post', 7]
             )
             ->will($this->onConsecutiveCalls(
                 true,
+                false,
                 false,
                 false,
                 false,
@@ -1218,14 +1225,16 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getComment(3),
             $this->getComment(4),
             $this->getComment(5),
-            $this->getComment(6)
+            $this->getComment(6),
+            $this->getComment(7)
         ];
 
         self::assertEquals(
             [
                 $this->getComment(1),
                 $this->getComment(2),
-                $this->getComment(6, 'PostTypeCommentContent')
+                $this->getComment(6, 'PostTypeCommentContent'),
+                $this->getComment(7)
             ],
             $frontendController->showComment($comments)
         );

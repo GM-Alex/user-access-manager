@@ -340,7 +340,7 @@ class FrontendController extends Controller
                 $post->post_title = $this->config->getPostTypeTitle($post->post_type);
             }
 
-            if ($this->config->hidePostTypeComments($post->post_type) === true) {
+            if ($this->config->lockPostTypeComments($post->post_type) === true) {
                 $post->comment_status = 'close';
             }
         }
@@ -551,14 +551,16 @@ class FrontendController extends Controller
             if ($post !== false
                 && $this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false
             ) {
-                if ($this->config->hidePostTypeComments($post->post_type) === true
+                if ($this->config->lockPostTypeComments($post->post_type) === true
                     || $this->config->hidePostType($post->post_type) === true
                     || $this->config->atAdminPanel() === true
                 ) {
                     continue;
                 }
 
-                $comment->comment_content = $this->config->getPostTypeCommentContent($post->post_type);
+                if ($this->config->hidePostTypeComments($post->post_type) === true) {
+                    $comment->comment_content = $this->config->getPostTypeCommentContent($post->post_type);
+                }
             }
 
             $showComments[] = $comment;

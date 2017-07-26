@@ -433,6 +433,16 @@ class Config
      */
     public function hidePostTypeComments($postType)
     {
+        return $this->hideObject('hide_'.$postType.'_comment');
+    }
+
+    /**
+     * @param string $postType
+     *
+     * @return bool
+     */
+    public function lockPostTypeComments($postType)
+    {
         return $this->hideObject($postType.'_comments_locked');
     }
 

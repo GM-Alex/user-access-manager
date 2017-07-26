@@ -570,6 +570,7 @@ class ConfigTest extends UserAccessManagerTestCase
      * @covers \UserAccessManager\Config\Config::hidePostType()
      * @covers \UserAccessManager\Config\Config::hidePostTypeTitle()
      * @covers \UserAccessManager\Config\Config::hidePostTypeComments()
+     * @covers \UserAccessManager\Config\Config::lockPostTypeComments()
      * @covers \UserAccessManager\Config\Config::hideEmptyTaxonomy()
      */
     public function testHideObject()
@@ -598,8 +599,11 @@ class ConfigTest extends UserAccessManagerTestCase
         self::assertEquals('hide_post_title', $config->hidePostTypeTitle('post'));
         self::assertTrue($config->hidePostTypeTitle('undefined'));
 
-        self::assertEquals('post_comments_locked', $config->hidePostTypeComments('post'));
+        self::assertEquals('hide_post_comment', $config->hidePostTypeComments('post'));
         self::assertTrue($config->hidePostTypeComments('undefined'));
+
+        self::assertEquals('post_comments_locked', $config->lockPostTypeComments('post'));
+        self::assertTrue($config->lockPostTypeComments('undefined'));
 
         self::assertEquals('hide_empty_category', $config->hideEmptyTaxonomy('category'));
         self::assertFalse($config->hideEmptyTaxonomy('undefined'));
