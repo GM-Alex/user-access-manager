@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 2.0.12
+Stable tag: 2.0.13
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -47,7 +47,7 @@ To stay up-to-date follow me on thttp://wordpress_web_1.local.docker/wp-content/
 
 
 == Installation ==
- 
+
 1. Upload the full directory, with the folder, into your wp-content/plugins directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Enjoy
@@ -58,6 +58,13 @@ To stay up-to-date follow me on thttp://wordpress_web_1.local.docker/wp-content/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.0.13      2017/07/26  Add ipv6 support - Fix issue #97
+                            Change "Hide Comments" logic - Fix issue #100
+                            Fix rewrite base issue - Fix issue #107 and #103
+                            Fix vsprintf warning - Fix issue #105
+                            Fix Relevanssi compatibility issue
+                            Fix missing feature picture if file locking is disabled
 
     2.0.12      2017/06/16  Fix media file group issue #74
                             Fix broken file includes / excludes
