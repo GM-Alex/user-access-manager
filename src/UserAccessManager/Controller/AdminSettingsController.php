@@ -168,6 +168,7 @@ class AdminSettingsController extends Controller
         $groupedConfigParameters['other'] = [
             $configParameters['lock_recursive'],
             $configParameters['protect_feed'],
+            $configParameters['show_assigned_groups'],
             $configParameters['redirect'],
             $configParameters['blog_admin_hint'],
             $configParameters['blog_admin_hint_text'],

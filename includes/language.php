@@ -93,6 +93,8 @@ define('TXT_UAM_OTHER_SETTING', __('Other settings', 'user-access-manager'));
 define('TXT_UAM_OTHER_SETTING_DESC', __('Here you will find all other settings', 'user-access-manager'));
 define('TXT_UAM_PROTECT_FEED', __('Protect Feed', 'user-access-manager'));
 define('TXT_UAM_PROTECT_FEED_DESC', __('Selecting "Yes" will also protect your feed entries.', 'user-access-manager'));
+define('TXT_UAM_SHOW_ASSIGNED_GROUPS', __('Show assigned groups', 'user-access-manager'));
+define('TXT_UAM_SHOW_ASSIGNED_GROUPS_DESC', __('Show assigned groups next to the edit link', 'user-access-manager'));
 define('TXT_UAM_REDIRECT', __('Redirect user', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_DESC', __('Setup what happen if a user visit a post/page with no access.', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_BLOG', __('To blog start page', 'user-access-manager'));
