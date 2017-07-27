@@ -441,9 +441,6 @@ class FrontendController extends Controller
         return $file;
     }
 
-        return $file;
-    }
-
     /**
      * Needed to prevent the form against the auto <br>s of wordpress
      *

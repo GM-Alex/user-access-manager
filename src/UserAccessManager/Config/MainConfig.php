@@ -404,6 +404,16 @@ class MainConfig extends Config
      */
     public function hidePostTypeComments($postType)
     {
+        return $this->hideObject($postType, 'hide_%s_comment');
+    }
+
+    /**
+     * @param string $postType
+     *
+     * @return bool
+     */
+    public function lockPostTypeComments($postType)
+    {
         return $this->hideObject($postType, '%s_comments_locked');
     }
 
