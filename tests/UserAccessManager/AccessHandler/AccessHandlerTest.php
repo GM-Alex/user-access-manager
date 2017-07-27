@@ -549,10 +549,15 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     public function testIsIpInRange()
     {
         $ranges = [
+            '0.0.0.0-1.1.1',
             '1.1.1.1-1.1.2.1',
             '2.2.2.2',
             '5.5.5.5-6.6.6',
-            '7.7.7-8.8.8.8'
+            '7.7.7-8.8.8.8',
+            '0:0:0:0:0:ffff:101:101-0:0:0:0:0:ffff:101:201',
+            '0:0:0:0:0:ffff:202:202',
+            '0:0:0:0:0:ffff:505:505-0:0:0:0:0:ffff:606',
+            '0:0:0:0:0:ffff:707-0:0:0:0:0:ffff:808:808'
         ];
 
         $accessHandler = new AccessHandler(
@@ -564,11 +569,20 @@ class AccessHandlerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertEquals(1, self::callMethod($accessHandler, 'calculateIp', [[0, 0, 0, 1]]));
-        self::assertEquals(256, self::callMethod($accessHandler, 'calculateIp', [[0, 0, 1, 0]]));
-        self::assertEquals(65536, self::callMethod($accessHandler, 'calculateIp', [[0, 1, 0, 0]]));
-        self::assertEquals(16777216, self::callMethod($accessHandler, 'calculateIp', [[1, 0, 0, 0]]));
+        self::assertFalse(self::callMethod($accessHandler, 'calculateIp', ['0.0.0']));
+        self::assertFalse(self::callMethod($accessHandler, 'calculateIp', ['255.255.255255']));
+        self::assertEquals('1', self::callMethod($accessHandler, 'calculateIp', ['0.0.0.1']));
+        self::assertEquals('100000000', self::callMethod($accessHandler, 'calculateIp', ['0.0.1.0']));
+        self::assertFalse(self::callMethod($accessHandler, 'calculateIp', ['0:0:0:0:0:FFFF:0000']));
+        self::assertEquals(
+            '0000000000000000000000000000000000000000000000000000000000000000'
+            .'0000000000000000111111111111111100000000000000000000000100000000',
+            self::callMethod($accessHandler, 'calculateIp', ['0:0:0:0:0:FFFF:0000:0100'])
+        );
 
+        self::assertFalse($accessHandler->isIpInRange('0.0.0', ['0.0.0.0']));
+        self::assertFalse($accessHandler->isIpInRange('1.1.1', $ranges));
+        self::assertFalse($accessHandler->isIpInRange('0.0.0.0', $ranges));
         self::assertTrue($accessHandler->isIpInRange('1.1.1.1', $ranges));
         self::assertTrue($accessHandler->isIpInRange('1.1.1.100', $ranges));
         self::assertTrue($accessHandler->isIpInRange('1.1.2.1', $ranges));
@@ -577,6 +591,15 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         self::assertFalse($accessHandler->isIpInRange('3.2.2.2', $ranges));
         self::assertFalse($accessHandler->isIpInRange('5.5.5.5', $ranges));
         self::assertFalse($accessHandler->isIpInRange('8.8.8.8', $ranges));
+
+        self::assertTrue($accessHandler->isIpInRange('0:0:0:0:0:ffff:101:101', $ranges));
+        self::assertTrue($accessHandler->isIpInRange('0:0:0:0:0:ffff:101:164', $ranges));
+        self::assertTrue($accessHandler->isIpInRange('0:0:0:0:0:ffff:101:201', $ranges));
+        self::assertFalse($accessHandler->isIpInRange('0:0:0:0:0:ffff:101:202', $ranges));
+        self::assertTrue($accessHandler->isIpInRange('0:0:0:0:0:ffff:202:202', $ranges));
+        self::assertFalse($accessHandler->isIpInRange('0:0:0:0:0:ffff:302:202', $ranges));
+        self::assertFalse($accessHandler->isIpInRange('0:0:0:0:0:ffff:505:505', $ranges));
+        self::assertFalse($accessHandler->isIpInRange('0:0:0:0:0:ffff:808:808', $ranges));
     }
 
     /**

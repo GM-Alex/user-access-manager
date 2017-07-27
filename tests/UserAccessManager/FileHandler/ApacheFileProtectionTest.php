@@ -74,7 +74,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
         $wordpress->expects($this->exactly(3))
             ->method('getHomeUrl')
-            ->will($this->returnValue('http://www.test.com'));
+            ->will($this->returnValue('http://www.test.com/path'));
 
         /**
          * @var \stdClass $user
@@ -164,10 +164,11 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\n"
-            ."RewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
-            ."RewriteRule ^([^?]*)$ /index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 [QSA,L]\n"
+            ."RewriteEngine On\nRewriteBase /path/\nRewriteRule ^index\.php$ - [L]\n"
+            ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
+            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
+                ."/path/index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"
+            ."RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
             ."</IfModule>\n",
             file_get_contents($file)
         );
@@ -176,10 +177,11 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         self::assertEquals(
             "<IfModule mod_rewrite.c>\n"
             ."<FilesMatch '\.(jpg)'>\n"
-            ."RewriteEngine On\nRewriteBase /\nRewriteRule ^index\.php$ - [L]\n"
-            ."RewriteRule ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 [QSA,L]\n"
+            ."RewriteEngine On\nRewriteBase /path/\nRewriteRule ^index\.php$ - [L]\n"
+            ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
+            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
+                ."/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
+            ."RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
             ."</FilesMatch>\n"
             ."</IfModule>\n",
             file_get_contents($file)

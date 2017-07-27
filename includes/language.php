@@ -68,8 +68,8 @@ define('TXT_UAM_OBJECT_COMMENT_CONTENT', __('%s comment text', 'user-access-mana
 define('TXT_UAM_OBJECT_COMMENT_CONTENT_DESC', __('Displayed text as %s comment text if user has no access', 'user-access-manager'));
 define('TXT_UAM_HIDE_OBJECT_COMMENT', __('Hide %s comments', 'user-access-manager'));
 define('TXT_UAM_HIDE_OBJECT_COMMENT_DESC', __('Selecting "Yes" will show the text which is defined at "%s comment text" if user has no access.', 'user-access-manager'));
-define('TXT_UAM_OBJECT_COMMENTS_LOCKED', __('Allow %s comments', 'user-access-manager'));
-define('TXT_UAM_OBJECT_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment on locked %s', 'user-access-manager'));
+define('TXT_UAM_OBJECT_COMMENTS_LOCKED', __('Lock %s comments', 'user-access-manager'));
+define('TXT_UAM_OBJECT_COMMENTS_LOCKED_DESC', __('Selecting "yes" also locks comments on locked %s', 'user-access-manager'));
 define('TXT_UAM_SHOW_OBJECT_CONTENT_BEFORE_MORE', __('Show %s content before &lt;!--more--&gt; tag', 'user-access-manager'));
 define('TXT_UAM_SHOW_OBJECT_CONTENT_BEFORE_MORE_DESC', __('Shows the %s content before the &lt;!--more--&gt; tag and after that the defined text at "%s content". If no &lt;!--more--&gt; is set the defined text at "%s content" will shown.', 'user-access-manager')); //TODO
 

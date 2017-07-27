@@ -308,7 +308,7 @@ class FrontendController extends Controller
             return $post;
         } elseif (is_int($post) === true) {
             return $this->objectHandler->getPost($post);
-        } elseif (($post instanceof \stdClass) === true && isset($post->ID)) {
+        } elseif (($post instanceof \stdClass) === true && isset($post->ID) === true) {
             return $this->objectHandler->getPost($post->ID);
         }
 
@@ -350,7 +350,7 @@ class FrontendController extends Controller
                 $post->post_title = $this->config->getPostTypeTitle($post->post_type);
             }
 
-            if ($this->config->hidePostTypeComments($post->post_type) === true) {
+            if ($this->config->lockPostTypeComments($post->post_type) === true) {
                 $post->comment_status = 'close';
             }
         }
@@ -428,13 +428,20 @@ class FrontendController extends Controller
      * @param string $file
      * @param int    $attachmentId
      *
-     * @return bool
+     * @return string|bool
      */
     public function getAttachedFile($file, $attachmentId)
     {
         //TODO add check for images
-        $hasAccess = $this->accessHandler->checkObjectAccess(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $attachmentId);
-        return ($hasAccess === true) ? $file : false;
+        if ($this->config->lockFile() === true) {
+            $hasAccess = $this->accessHandler->checkObjectAccess(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $attachmentId);
+            return ($hasAccess === true) ? $file : false;
+        }
+
+        return $file;
+    }
+
+        return $file;
     }
 
     /**
@@ -558,14 +565,16 @@ class FrontendController extends Controller
             if ($post !== false
                 && $this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false
             ) {
-                if ($this->config->hidePostTypeComments($post->post_type) === true
+                if ($this->config->lockPostTypeComments($post->post_type) === true
                     || $this->config->hidePostType($post->post_type) === true
                     || $this->config->atAdminPanel() === true
                 ) {
                     continue;
                 }
 
-                $comment->comment_content = $this->config->getPostTypeCommentContent($post->post_type);
+                if ($this->config->hidePostTypeComments($post->post_type) === true) {
+                    $comment->comment_content = $this->config->getPostTypeCommentContent($post->post_type);
+                }
             }
 
             $showComments[] = $comment;

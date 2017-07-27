@@ -295,13 +295,28 @@ class AccessHandler
     /**
      * Converts the ip to an integer.
      *
-     * @param array $ip
+     * @param string $ip
      *
      * @return int
      */
-    private function calculateIp(array $ip)
+    private function calculateIp($ip)
     {
-        return ($ip[0] << 24) + ($ip[1] << 16) + ($ip[2] << 8) + $ip[3];
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+            return base_convert(ip2long($ip), 10, 2);
+        } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
+            return false;
+        }
+
+        $packedIp = inet_pton($ip);
+        $bits = 15; // 16 x 8 bit = 128bit (ipv6)
+        $binaryIp = '';
+
+        while ($bits >= 0) {
+            $binaryIp = sprintf('%08b', (ord($packedIp[$bits]))).$binaryIp;
+            $bits--;
+        }
+
+        return $binaryIp;
     }
 
     /**
@@ -314,19 +329,19 @@ class AccessHandler
      */
     public function isIpInRange($currentIp, array $ipRanges)
     {
-        $currentIp = explode('.', $currentIp);
-        $curIp = $this->calculateIp($currentIp);
+        $currentIp = $this->calculateIp($currentIp);
 
-        foreach ($ipRanges as $ipRange) {
-            $ipRange = explode('-', $ipRange);
-            $rangeBegin = explode('.', $ipRange[0]);
-            $rangeEnd = isset($ipRange[1]) ? explode('.', $ipRange[1]) : explode('.', $ipRange[0]);
-
-            if (count($rangeBegin) === 4 && count($rangeEnd) === 4) {
+        if ($currentIp !== false) {
+            foreach ($ipRanges as $ipRange) {
+                $ipRange = explode('-', $ipRange);
+                $rangeBegin = $ipRange[0];
+                $rangeEnd = isset($ipRange[1]) ? $ipRange[1] : $ipRange[0];
                 $rangeBegin = $this->calculateIp($rangeBegin);
                 $rangeEnd = $this->calculateIp($rangeEnd);
 
-                if ($rangeBegin <= $curIp && $curIp <= $rangeEnd) {
+                if ($rangeBegin !== false && $rangeEnd !== false
+                    && $rangeBegin <= $currentIp && $currentIp <= $rangeEnd
+                ) {
                     return true;
                 }
             }
