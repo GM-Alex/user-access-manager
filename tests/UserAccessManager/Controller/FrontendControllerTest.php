@@ -270,6 +270,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getLoginFormHtml()
+     * @covers ::loginFormShortCode()
      */
     public function testGetLoginFormHtml()
     {
@@ -289,22 +290,24 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->exactly(4))
             ->method('isUserLoggedIn')
-            ->will($this->onConsecutiveCalls(true, false));
+            ->will($this->onConsecutiveCalls(true, true, false, false));
 
-        $wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->exactly(4))
             ->method('applyFilters')
             ->withConsecutive(
                 ['uam_login_form', ''],
+                ['uam_login_form', ''],
+                ['uam_login_form', 'LoginForm'],
                 ['uam_login_form', 'LoginForm']
             )
-            ->will($this->onConsecutiveCalls('filter', 'LoginFormWithFilter'));
+            ->will($this->onConsecutiveCalls('filter', 'filter', 'LoginFormWithFilter', 'LoginFormWithFilter'));
 
 
         $config = $this->getMainConfig();
 
-        $config->expects($this->once())
+        $config->expects($this->exactly(2))
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
@@ -321,7 +324,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
-        $php->expects($this->once())
+        $php->expects($this->exactly(2))
             ->method('includeFile')
             ->with($frontendController, 'vfs://src/UserAccessManager/View/LoginForm.php')
             ->will($this->returnCallback(function () {
@@ -329,7 +332,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             }));
 
         self::assertEquals('filter', $frontendController->getLoginFormHtml());
+        self::assertEquals('filter', $frontendController->loginFormShortCode());
         self::assertEquals('LoginFormWithFilter', $frontendController->getLoginFormHtml());
+        self::assertEquals('LoginFormWithFilter', $frontendController->loginFormShortCode());
     }
 
     /**
@@ -791,20 +796,19 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::showContent()
+     * @covers ::publicShortCode()
      */
-    public function testShowContent()
+    public function testPublicShortCode()
     {
         $wordpress = $this->getWordpress();
-
-        $wordpress->expects($this->exactly(2))
-            ->method('applyFilters')
-            ->with('uam_login_form', '')
-            ->will($this->returnValue('LoginForm'));
-
         $wordpress->expects($this->exactly(2))
             ->method('isUserLoggedIn')
-            ->will($this->returnValue(true));
+            ->will($this->onConsecutiveCalls(true, false));
+
+        $wordpress->expects($this->once())
+            ->method('doShortCode')
+            ->with('content')
+            ->will($this->returnValue('contentShortCode'));
 
         $frontendController = new FrontendController(
             $this->getPhp(),
@@ -819,8 +823,58 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
-        self::assertEquals('begin|LoginForm|end', $frontendController->showContent('begin|[LOGIN_FORM]|end'));
-        self::assertEquals('begin|[LOGIN__FORM]|end', $frontendController->showContent('begin|[LOGIN__FORM]|end'));
+        self::assertEquals('', $frontendController->publicShortCode([], 'content'));
+        self::assertEquals('contentShortCode', $frontendController->publicShortCode([], 'content'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::privateShortCode()
+     */
+    public function testPrivateShortCode()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(5))
+            ->method('isUserLoggedIn')
+            ->will($this->onConsecutiveCalls(false, true, true, true, true));
+
+        $wordpress->expects($this->exactly(3))
+            ->method('doShortCode')
+            ->with('content')
+            ->will($this->returnValue('contentShortCode'));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(3))
+            ->method('getUserGroupsForUser')
+            ->will($this->returnValue([
+                $this->getUserGroup(1),
+                $this->getUserGroup(2)
+            ]));
+
+        $frontendController = new FrontendController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $accessHandler,
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
+        self::assertEquals('', $frontendController->privateShortCode([], 'content'));
+        self::assertEquals('contentShortCode', $frontendController->privateShortCode([], 'content'));
+        self::assertEquals(
+            'contentShortCode',
+            $frontendController->privateShortCode(['group' => 'name3,1'], 'content')
+        );
+        self::assertEquals(
+            'contentShortCode',
+            $frontendController->privateShortCode(['group' => '3,name2'], 'content')
+        );
+        self::assertEquals('', $frontendController->privateShortCode(['group' => '10'], 'content'));
     }
 
     /**

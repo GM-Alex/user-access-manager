@@ -973,4 +973,28 @@ class Wordpress
     {
         return \wp_lostpassword_url($redirect);
     }
+
+    /**
+     * @see \add_shortcode()
+     *
+     * @param string   $tag
+     * @param callable $function
+     */
+    public function addShortCode($tag, $function)
+    {
+        \add_shortcode($tag, $function);
+    }
+
+    /**
+     * @see \do_shortcode()
+     *
+     * @param string $content
+     * @param bool   $ignoreHtml
+     *
+     * @return string
+     */
+    public function doShortCode($content, $ignoreHtml = false)
+    {
+        return \do_shortcode($content, $ignoreHtml);
+    }
 }

@@ -592,7 +592,6 @@ class UserAccessManager
         $this->wordpress->addFilter('posts_pre_query', [$frontendController, 'postsPreQuery'], 10, 2);
         $this->wordpress->addFilter('the_posts', [$frontendController, 'showPosts'], 9);
         $this->wordpress->addFilter('get_attached_file', [$frontendController, 'getAttachedFile'], 10, 2);
-        $this->wordpress->addFilter('the_content', [$frontendController, 'showContent']);
         $this->wordpress->addFilter('posts_where_paged', [$frontendController, 'showPostSql']);
         $this->wordpress->addFilter('get_terms_args', [$frontendController, 'getTermArguments']);
         $this->wordpress->addFilter('wp_get_nav_menu_items', [$frontendController, 'showCustomMenu']);
@@ -621,5 +620,10 @@ class UserAccessManager
         $this->wordpress->addAction('widgets_init', function () {
             $this->wordpress->registerWidget($this->widgetFactory->createLoginWidget());
         });
+
+        $this->wordpress->addShortCode('LOGIN_FORM', [$frontendController, 'loginFormShortCode']); // Legacy
+        $this->wordpress->addShortCode('uam_login_form', [$frontendController, 'loginFormShortCode']);
+        $this->wordpress->addShortCode('uam_public', [$frontendController, 'publicShortCode']);
+        $this->wordpress->addShortCode('uam_private', [$frontendController, 'privateShortCode']);
     }
 }

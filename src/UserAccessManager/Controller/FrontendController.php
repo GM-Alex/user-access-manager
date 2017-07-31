@@ -444,15 +444,58 @@ class FrontendController extends Controller
     }
 
     /**
-     * Needed to prevent the form against the auto <br>s of wordpress
+     * Handles the login form short code.
      *
+     * @return string
+     */
+    public function loginFormShortCode()
+    {
+        return $this->getLoginFormHtml();
+    }
+
+    /**
+     * Handles the public short code.
+     *
+     * @param array  $attributes
      * @param string $content
      *
      * @return string
      */
-    public function showContent($content)
+    public function publicShortCode($attributes, $content = '')
     {
-        return (string)str_replace('[LOGIN_FORM]', $this->getLoginFormHtml(), $content);
+        return ($this->wordpress->isUserLoggedIn() === false) ? $this->wordpress->doShortCode($content) : '';
+    }
+
+    /**
+     * Handles the private short code.
+     *
+     * @param array  $attributes
+     * @param string $content
+     *
+     * @return string
+     */
+    public function privateShortCode($attributes, $content = '')
+    {
+        if ($this->wordpress->isUserLoggedIn() === true) {
+            $userGroups = (isset($attributes['group']) === true) ? explode(',', $attributes['group']) : [];
+
+            if ($userGroups === []) {
+                return $this->wordpress->doShortCode($content);
+            }
+
+            $userGroupMap = array_flip(array_map('trim', $userGroups));
+            $userUserGroups = $this->accessHandler->getUserGroupsForUser();
+
+            foreach ($userUserGroups as $userGroup) {
+                if (isset($userGroupMap[$userGroup->getId()])
+                    || isset($userGroupMap[$userGroup->getName()])
+                ) {
+                    return $this->wordpress->doShortCode($content);
+                }
+            }
+        }
+
+        return '';
     }
 
     /**

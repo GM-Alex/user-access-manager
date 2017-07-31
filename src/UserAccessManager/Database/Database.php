@@ -262,7 +262,7 @@ class Database
     /**
      * @see \wpdb::get_results()
      *
-     * @param null   $query
+     * @param string $query
      * @param string $output
      *
      * @return array|null|object
