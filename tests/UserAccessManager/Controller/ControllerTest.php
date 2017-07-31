@@ -23,6 +23,7 @@ use Vfs\Node\File;
  * Class ControllerTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\Controller
  */
 class ControllerTest extends UserAccessManagerTestCase
 {
@@ -65,7 +66,7 @@ class ControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\Controller::__construct()
+     * @covers  ::__construct()
      *
      * @return Controller
      */
@@ -86,57 +87,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\Controller::getRequestParameter()
-     * @covers  \UserAccessManager\Controller\Controller::sanitizeValue()
-     *
-     * @param Controller $stub
-     */
-    public function testGetRequestParameter(Controller $stub)
-    {
-        $_POST['postParam'] = 'postValue';
-        $_GET['postParam'] = 'getValue';
-        $_GET['getParam'] = 'getValue';
-
-        self::assertEquals('postValue', $stub->getRequestParameter('postParam', 'default'));
-        self::assertEquals('getValue', $stub->getRequestParameter('getParam', 'default'));
-        self::assertEquals('default', $stub->getRequestParameter('invalid', 'default'));
-        self::assertNull($stub->getRequestParameter('invalid'));
-
-        $_GET['objectParam'] = new \stdClass();
-        $_GET['arrayParam'] = [
-            'normalKey' => '<script>evilValue</script>',
-            '<script>evilKey</script>' => 'normalValue',
-            'array' => ['a' => '<script>otherEvilValue</script>']
-        ];
-        self::assertEquals(new \stdClass(), $stub->getRequestParameter('objectParam'));
-        self::assertEquals(
-            [
-                'normalKey' => '&lt;script&gt;evilValue&lt;/script&gt;',
-                '&lt;script&gt;evilKey&lt;/script&gt;' => 'normalValue',
-                'array' => ['a' => '&lt;script&gt;otherEvilValue&lt;/script&gt;']
-            ],
-            $stub->getRequestParameter('arrayParam')
-        );
-    }
-
-    /**
-     * @group   unit
-     * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\Controller::getRequestUrl()
-     *
-     * @param Controller $stub
-     */
-    public function testGetRequestUrl(Controller $stub)
-    {
-        $_SERVER['REQUEST_URI'] = 'https://test.domain?id=<a href=\'evil\'>evil</a>';
-
-        self::assertEquals('https://test.domain?id=&lt;a href=\'evil\'&gt;evil&lt;/a&gt;', $stub->getRequestUrl());
-    }
-
-    /**
-     * @group   unit
-     * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\Controller::createNonceField()
+     * @covers  ::createNonceField()
      */
     public function testCreateNonceField()
     {
@@ -159,7 +110,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\Controller::getNonce()
+     * @covers  ::getNonce()
      */
     public function testGetNonce()
     {
@@ -182,7 +133,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\Controller::verifyNonce()
+     * @covers  ::verifyNonce()
      */
     public function testVerifyNonce()
     {
@@ -213,7 +164,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\Controller::setUpdateMessage()
+     * @covers  ::setUpdateMessage()
      *
      * @param Controller $stub
      *
@@ -231,7 +182,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testSetUpdateMessage
-     * @covers  \UserAccessManager\Controller\Controller::getUpdateMessage()
+     * @covers  ::getUpdateMessage()
      *
      * @param Controller $stub
      */
@@ -243,7 +194,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testSetUpdateMessage
-     * @covers  \UserAccessManager\Controller\Controller::hasUpdateMessage()
+     * @covers  ::hasUpdateMessage()
      *
      * @param Controller $stub
      */
@@ -263,9 +214,9 @@ class ControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\Controller::render()
-     * @covers  \UserAccessManager\Controller\Controller::processAction()
-     * @covers  \UserAccessManager\Controller\Controller::getIncludeContents()
+     * @covers  ::render()
+     * @covers  ::processAction()
+     * @covers  ::getIncludeContents()
      */
     public function testRender()
     {

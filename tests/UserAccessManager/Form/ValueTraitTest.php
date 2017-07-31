@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class ValueTraitTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\ValueTrait
  */
 class ValueTraitTest extends UserAccessManagerTestCase
 {
@@ -33,7 +34,7 @@ class ValueTraitTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Form\ValueTrait::getValue()
+     * @covers ::getValue()
      */
     public function testGetGetValue()
     {

@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class ConfigParameterTest
  *
  * @package UserAccessManager\Config
+ * @coversDefaultClass \UserAccessManager\Config\ConfigParameter
  */
 class ConfigParameterTest extends UserAccessManagerTestCase
 {
@@ -40,7 +41,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameter::__construct()
+     * @covers  ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -65,7 +66,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameter::getId()
+     * @covers  ::getId()
      */
     public function testGetId()
     {
@@ -78,7 +79,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameter::validateValue()
+     * @covers  ::validateValue()
      */
     public function testValidateValue()
     {
@@ -95,7 +96,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\ConfigParameter::setValue()
+     * @covers  ::setValue()
      *
      * @return ConfigParameter
      */
@@ -116,7 +117,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testSetValue
-     * @covers  \UserAccessManager\Config\ConfigParameter::getValue()
+     * @covers  ::getValue()
      *
      * @param ConfigParameter $stub
      */

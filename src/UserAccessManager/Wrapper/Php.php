@@ -14,8 +14,6 @@
  */
 namespace UserAccessManager\Wrapper;
 
-use UserAccessManager\Controller\Controller;
-
 /**
  * Class Php
  *
@@ -113,11 +111,17 @@ class Php
     }
 
     /**
-     * @param Controller $controller
-     * @param string     $file
+     * @param mixed  $controller
+     * @param string $file
+     *
+     * @throws \Exception
      */
-    public function includeFile(Controller &$controller, $file)
+    public function includeFile(&$controller, $file)
     {
+        if ($controller === null) {
+            throw new \Exception('Controller is required');
+        }
+
         /** @noinspection PhpIncludeInspection */
         include $file;
     }
@@ -162,14 +166,13 @@ class Php
      * @see igbinary_unserialize()
      *
      * @param string $key
-     * @param array  $options
      *
      * @return mixed
      */
-    public function igbinaryUnserialize($key, array $options = [])
+    public function igbinaryUnserialize($key)
     {
         /** @noinspection PhpUndefinedFunctionInspection */
-        return igbinary_unserialize($key, $options);
+        return igbinary_unserialize($key);
     }
 
     /**

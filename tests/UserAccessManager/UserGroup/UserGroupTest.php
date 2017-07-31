@@ -21,12 +21,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class UserGroupTest
  *
  * @package UserAccessManager\UserGroup
+ * @coversDefaultClass \UserAccessManager\UserGroup\UserGroup
  */
 class UserGroupTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -68,7 +69,7 @@ class UserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::load()
+     * @covers ::load()
      *
      * @return UserGroup
      */
@@ -148,18 +149,18 @@ class UserGroupTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testLoad
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getId()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getName()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getDescription()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getReadAccess()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getWriteAccess()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getIpRange()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::getIpRangeArray()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::setName()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::setDescription()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::setReadAccess()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::setWriteAccess()
-     * @covers  \UserAccessManager\UserGroup\UserGroup::setIpRange()
+     * @covers  ::getId()
+     * @covers  ::getName()
+     * @covers  ::getDescription()
+     * @covers  ::getReadAccess()
+     * @covers  ::getWriteAccess()
+     * @covers  ::getIpRange()
+     * @covers  ::getIpRangeArray()
+     * @covers  ::setName()
+     * @covers  ::setDescription()
+     * @covers  ::setReadAccess()
+     * @covers  ::setWriteAccess()
+     * @covers  ::setIpRange()
      *
      * @param UserGroup $userGroup
      */
@@ -191,7 +192,7 @@ class UserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::save()
+     * @covers ::save()
      */
     public function testSave()
     {
@@ -262,9 +263,9 @@ class UserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroup::delete()
-     * @covers \UserAccessManager\UserGroup\UserGroup::removeObject()
-     * @covers \UserAccessManager\UserGroup\UserGroup::resetObjects()
+     * @covers ::delete()
+     * @covers ::removeObject()
+     * @covers ::resetObjects()
      */
     public function testDelete()
     {

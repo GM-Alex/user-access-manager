@@ -18,6 +18,7 @@ namespace UserAccessManager\ObjectHandler;
  * Class PluggableObjectTest
  *
  * @package UserAccessManager\ObjectHandler
+ * @coversDefaultClass \UserAccessManager\ObjectHandler\PluggableObject
  */
 class PluggableObjectTest extends \PHPUnit_Framework_TestCase
 {
@@ -36,7 +37,7 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\ObjectHandler\PluggableObject::__construct()
+     * @covers  ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -50,7 +51,7 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\ObjectHandler\PluggableObject::getObjectType()
+     * @covers  ::getObjectType()
      *
      * @param PluggableObject $stub
      */

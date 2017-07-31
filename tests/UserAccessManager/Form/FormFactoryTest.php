@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class FormFactoryTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\FormFactory
  */
 class FormFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -38,7 +39,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Form\FormFactory::createFrom()
+     * @covers  ::createFrom()
      *
      * @param FormFactory $formFactory
      */
@@ -50,14 +51,14 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Form\FormFactory::createValueSetFromElementValue()
+     * @covers  ::createValueSetFromElementValue()
      *
      * @param FormFactory $formFactory
      */
     public function testCreateValueSetFromElementValue(FormFactory $formFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Form\ValueSetFormElementValue',
+            ValueSetFormElementValue::class,
             $formFactory->createValueSetFromElementValue('value', 'label')
         );
     }
@@ -65,14 +66,14 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Form\FormFactory::createMultipleFormElementValue()
+     * @covers  ::createMultipleFormElementValue()
      *
      * @param FormFactory $formFactory
      */
     public function testCreateMultipleFormElementValue(FormFactory $formFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Form\MultipleFormElementValue',
+            MultipleFormElementValue::class,
             $formFactory->createMultipleFormElementValue('value', 'label')
         );
     }
@@ -80,7 +81,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Form\FormFactory::createInput()
+     * @covers  ::createInput()
      *
      * @param FormFactory $formFactory
      */
@@ -92,7 +93,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Form\FormFactory::createTextarea()
+     * @covers  ::createTextarea()
      *
      * @param FormFactory $formFactory
      */
@@ -104,7 +105,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Form\FormFactory::createSelect()
+     * @covers  ::createSelect()
      *
      * @param FormFactory $formFactory
      */
@@ -116,7 +117,7 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Form\FormFactory::createRadio()
+     * @covers  ::createRadio()
      *
      * @param FormFactory $formFactory
      */

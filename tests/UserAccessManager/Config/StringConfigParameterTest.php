@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class StringConfigParameterTest
  *
  * @package UserAccessManager\Config
+ * @coversDefaultClass \UserAccessManager\Config\StringConfigParameter
  */
 class StringConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
-     * @group   unit
-     * @covers  \UserAccessManager\Config\StringConfigParameter::__construct()
+     * @group  unit
+     * @covers ::__construct()
      *
      * @return StringConfigParameter
      */
@@ -49,7 +50,7 @@ class StringConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\StringConfigParameter::isValidValue()
+     * @covers  ::isValidValue()
      *
      * @param StringConfigParameter $stringConfigParameter
      */

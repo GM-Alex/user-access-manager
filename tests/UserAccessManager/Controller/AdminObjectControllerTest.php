@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\ObjectHandler\PluggableObject;
 use UserAccessManager\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use Vfs\FileSystem;
@@ -26,6 +27,7 @@ use Vfs\Node\File;
  * Class AdminObjectControllerTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\AdminObjectController
  */
 class AdminObjectControllerTest extends UserAccessManagerTestCase
 {
@@ -149,7 +151,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -169,7 +171,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::setObjectInformation()
+     * @covers ::setObjectInformation()
      *
      * @return AdminObjectController
      */
@@ -231,7 +233,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminObjectController::getObjectType()
+     * @covers  ::getObjectType()
      * @depends testSetObjectInformation
      *
      * @param AdminObjectController $adminObjectController
@@ -243,7 +245,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminObjectController::getObjectId()
+     * @covers  ::getObjectId()
      * @depends testSetObjectInformation
      *
      * @param AdminObjectController $adminObjectController
@@ -255,7 +257,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminObjectController::getObjectUserGroups()
+     * @covers  ::getObjectUserGroups()
      * @depends testSetObjectInformation
      *
      * @param AdminObjectController $adminObjectController
@@ -267,7 +269,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminObjectController::getUserGroupDiff()
+     * @covers  ::getUserGroupDiff()
      * @depends testSetObjectInformation
      *
      * @param AdminObjectController $adminObjectController
@@ -279,7 +281,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::getUserGroups()
+     * @covers ::getUserGroups()
      */
     public function testGetUserGroups()
     {
@@ -310,7 +312,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::getFilteredUserGroups()
+     * @covers ::getFilteredUserGroups()
      */
     public function testGetFilteredUserGroups()
     {
@@ -340,7 +342,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::isCurrentUserAdmin()
+     * @covers ::isCurrentUserAdmin()
      */
     public function testIsCurrentUserAdmin()
     {
@@ -374,7 +376,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::getRoleNames()
+     * @covers ::getRoleNames()
      */
     public function testGetRoleNames()
     {
@@ -402,7 +404,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::getAllObjectTypes()
+     * @covers ::getAllObjectTypes()
      */
     public function testGetAllObjectTypes()
     {
@@ -428,7 +430,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::checkUserAccess()
+     * @covers ::checkUserAccess()
      */
     public function testCheckUserAccess()
     {
@@ -455,7 +457,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::formatDate()
+     * @covers ::formatDate()
      */
     public function testFormatDate()
     {
@@ -482,7 +484,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::formatDateForDatetimeInput()
+     * @covers ::formatDateForDatetimeInput()
      */
     public function testFormatDateForDatetimeInput()
     {
@@ -503,7 +505,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::getDateFromTime()
+     * @covers ::getDateFromTime()
      */
     public function testGetDateFromTime()
     {
@@ -531,7 +533,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::getRecursiveMembership()
+     * @covers ::getRecursiveMembership()
      */
     public function testGetRecursiveMembership()
     {
@@ -636,7 +638,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(true, false));
 
 
-        $pluggableObject = $this->createMock('\UserAccessManager\ObjectHandler\PluggableObject');
+        $pluggableObject = $this->createMock(PluggableObject::class);
         $pluggableObject->expects($this->once())
             ->method('getObjectType')
             ->will($this->returnValue('pluggableObjectTypeName'));
@@ -702,7 +704,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::checkRightsToEditContent()
+     * @covers ::checkRightsToEditContent()
      */
     public function testCheckRightsToEditContent()
     {
@@ -848,14 +850,14 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::saveObjectData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::savePostData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::saveAttachmentData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::saveAjaxAttachmentData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::saveUserData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::saveTermData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::savePluggableObjectData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::getDateParameter()
+     * @covers ::saveObjectData()
+     * @covers ::savePostData()
+     * @covers ::saveAttachmentData()
+     * @covers ::saveAjaxAttachmentData()
+     * @covers ::saveUserData()
+     * @covers ::saveTermData()
+     * @covers ::savePluggableObjectData()
+     * @covers ::getDateParameter()
      */
     public function testSaveObjectData()
     {
@@ -1072,11 +1074,11 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::removeObjectData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::removePostData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::removeUserData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::removeTermData()
-     * @covers \UserAccessManager\Controller\AdminObjectController::removePluggableObjectData()
+     * @covers ::removeObjectData()
+     * @covers ::removePostData()
+     * @covers ::removeUserData()
+     * @covers ::removeTermData()
+     * @covers ::removePluggableObjectData()
      */
     public function testRemoveObjectData()
     {
@@ -1129,9 +1131,9 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::addPostColumnsHeader()
-     * @covers \UserAccessManager\Controller\AdminObjectController::addUserColumnsHeader()
-     * @covers \UserAccessManager\Controller\AdminObjectController::addTermColumnsHeader()
+     * @covers ::addPostColumnsHeader()
+     * @covers ::addUserColumnsHeader()
+     * @covers ::addTermColumnsHeader()
      */
     public function testAddColumnsHeader()
     {
@@ -1162,10 +1164,10 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::addPostColumn()
-     * @covers \UserAccessManager\Controller\AdminObjectController::addUserColumn()
-     * @covers \UserAccessManager\Controller\AdminObjectController::addTermColumn()
-     * @covers \UserAccessManager\Controller\AdminObjectController::getPluggableColumn()
+     * @covers ::addPostColumn()
+     * @covers ::addUserColumn()
+     * @covers ::addTermColumn()
+     * @covers ::getPluggableColumn()
      */
     public function testAddColumn()
     {
@@ -1188,17 +1190,17 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::addPostColumn()
-     * @covers \UserAccessManager\Controller\AdminObjectController::addUserColumn()
-     * @covers \UserAccessManager\Controller\AdminObjectController::addTermColumn()
-     * @covers \UserAccessManager\Controller\AdminObjectController::getPluggableColumn()
-     * @covers \UserAccessManager\Controller\AdminObjectController::editPostContent()
-     * @covers \UserAccessManager\Controller\AdminObjectController::addBulkAction()
-     * @covers \UserAccessManager\Controller\AdminObjectController::showMediaFile()
-     * @covers \UserAccessManager\Controller\AdminObjectController::showUserProfile()
-     * @covers \UserAccessManager\Controller\AdminObjectController::showTermEditForm()
-     * @covers \UserAccessManager\Controller\AdminObjectController::showPluggableGroupSelectionForm()
-     * @covers \UserAccessManager\Controller\AdminObjectController::getGroupsFormName()
+     * @covers ::addPostColumn()
+     * @covers ::addUserColumn()
+     * @covers ::addTermColumn()
+     * @covers ::getPluggableColumn()
+     * @covers ::editPostContent()
+     * @covers ::addBulkAction()
+     * @covers ::showMediaFile()
+     * @covers ::showUserProfile()
+     * @covers ::showTermEditForm()
+     * @covers ::showPluggableGroupSelectionForm()
+     * @covers ::getGroupsFormName()
      */
     public function testEditForm()
     {
@@ -1517,8 +1519,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::invalidateTermCache()
-     * @covers \UserAccessManager\Controller\AdminObjectController::invalidatePostCache()
+     * @covers ::invalidateTermCache()
+     * @covers ::invalidatePostCache()
      */
     public function testInvalidateCache()
     {
@@ -1571,7 +1573,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::isNewObject()
+     * @covers ::isNewObject()
      */
     public function testIsNewObject()
     {
@@ -1625,7 +1627,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminObjectController::getDynamicGroupsForAjax()
+     * @covers ::getDynamicGroupsForAjax()
      */
     public function testGetDynamicGroupsForAjax()
     {

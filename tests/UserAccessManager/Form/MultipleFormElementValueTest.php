@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class MultipleFormElementValueTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\MultipleFormElementValue
  */
 class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
 {
@@ -36,7 +37,7 @@ class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group             unit
-     * @covers            \UserAccessManager\Form\MultipleFormElementValue::setSubElement()
+     * @covers            ::setSubElement()
      * @depends           testCanCreateInstance
      * @expectedException \Exception
      *
@@ -47,13 +48,13 @@ class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|MultipleFormElement $subElement
          */
-        $subElement = $this->createMock('\UserAccessManager\Form\MultipleFormElement');
+        $subElement = $this->createMock(MultipleFormElement::class);
         $multipleFormElementValue->setSubElement($subElement);
     }
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\MultipleFormElementValue::setSubElement()
+     * @covers  ::setSubElement()
      * @depends testCanCreateInstance
      *
      * @param MultipleFormElementValue $multipleFormElementValue
@@ -65,7 +66,7 @@ class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|Input $subElement
          */
-        $subElement = $this->createMock('\UserAccessManager\Form\Input');
+        $subElement = $this->createMock(Input::class);
         $multipleFormElementValue->setSubElement($subElement);
 
         self::assertAttributeEquals($subElement, 'subElement', $multipleFormElementValue);
@@ -75,7 +76,7 @@ class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\MultipleFormElementValue::getSubElement()
+     * @covers  ::getSubElement()
      * @depends testSetSubElement
      *
      * @param MultipleFormElementValue $multipleFormElementValue
@@ -85,7 +86,7 @@ class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|Input $subElement
          */
-        $subElement = $this->createMock('\UserAccessManager\Form\Input');
+        $subElement = $this->createMock(Input::class);
         self::assertEquals($subElement, $multipleFormElementValue->getSubElement());
     }
 }

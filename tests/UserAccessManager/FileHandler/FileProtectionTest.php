@@ -22,6 +22,7 @@ use Vfs\Node\Directory;
  * Class FileProtectionTest
  *
  * @package UserAccessManager\FileHandler
+ * @coversDefaultClass \UserAccessManager\FileHandler\FileProtection
  */
 class FileProtectionTest extends UserAccessManagerTestCase
 {
@@ -65,7 +66,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\FileHandler\FileProtection::__construct()
+     * @covers  ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -79,7 +80,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\FileHandler\FileProtection::cleanUpFileTypes()
+     * @covers  ::cleanUpFileTypes()
      */
     public function testCleanUpFileTypes()
     {
@@ -101,7 +102,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\FileHandler\FileProtection::createPasswordFile()
+     * @covers  ::createPasswordFile()
      */
     public function testCreatePasswordFile()
     {

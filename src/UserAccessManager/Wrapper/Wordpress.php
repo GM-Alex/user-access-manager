@@ -916,4 +916,61 @@ class Wordpress
         $dateFormat = __('M j, Y @ H:i');
         return \date_i18n($dateFormat, strtotime($date));
     }
+
+    /**
+     * @see \register_widget()
+     *
+     * @param mixed $widgetClass
+     */
+    public function registerWidget($widgetClass)
+    {
+        \register_widget($widgetClass);
+    }
+
+    /**
+     * @see \wp_login_url()
+     *
+     * @param string $redirect
+     * @param bool   $forceReauth
+     *
+     * @return string
+     */
+    public function wpLoginUrl($redirect = '', $forceReauth = false)
+    {
+        return \wp_login_url($redirect, $forceReauth);
+    }
+
+    /**
+     * @see \wp_logout_url()
+     *
+     * @param string $redirect
+     *
+     * @return string
+     */
+    public function wpLogoutUrl($redirect = '')
+    {
+        return \wp_logout_url($redirect);
+    }
+
+    /**
+     * @see \wp_registration_url()
+     *
+     * @return string
+     */
+    public function wpRegistrationUrl()
+    {
+        return \wp_registration_url();
+    }
+
+    /**
+     * @see \wp_lostpassword_url()
+     *
+     * @param string $redirect
+     *
+     * @return string
+     */
+    public function wpLostPasswordUrl($redirect = '')
+    {
+        return \wp_lostpassword_url($redirect);
+    }
 }

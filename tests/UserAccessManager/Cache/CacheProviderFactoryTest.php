@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class CacheProviderFactoryTest
  *
  * @package UserAccessManager\Cache
+ * @coversDefaultClass \UserAccessManager\Cache\CacheProviderFactory
  */
 class CacheProviderFactoryTest extends UserAccessManagerTestCase
 {
@@ -46,14 +47,14 @@ class CacheProviderFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Cache\CacheProviderFactory::createFileSystemCacheProvider()
+     * @covers  ::createFileSystemCacheProvider()
      *
      * @param CacheProviderFactory $cacheProviderFactory
      */
     public function testCreateFrom(CacheProviderFactory $cacheProviderFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Cache\FileSystemCacheProvider',
+            FileSystemCacheProvider::class,
             $cacheProviderFactory->createFileSystemCacheProvider()
         );
     }

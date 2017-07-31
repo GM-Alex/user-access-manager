@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class TextareaTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\Textarea
  */
 class TextareaTest extends \PHPUnit_Framework_TestCase
 {

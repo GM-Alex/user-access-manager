@@ -21,12 +21,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class AdminUserGroupControllerTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\AdminUserGroupController
  */
 class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -44,7 +45,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::getTabGroups()
+     * @covers ::getTabGroups()
      */
     public function testGetTabGroups()
     {
@@ -92,7 +93,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::getGroupText()
+     * @covers ::getGroupText()
      */
     public function testGetGroupText()
     {
@@ -118,7 +119,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::getGroupSectionText()
+     * @covers ::getGroupSectionText()
      */
     public function testGetGroupSectionText()
     {
@@ -171,7 +172,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::getUserGroup()
+     * @covers ::getUserGroup()
      */
     public function testGetUserGroup()
     {
@@ -199,7 +200,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::getUserGroups()
+     * @covers ::getUserGroups()
      */
     public function testGetUserGroups()
     {
@@ -227,7 +228,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::getRoleNames()
+     * @covers ::getRoleNames()
      */
     public function testGetRoleNames()
     {
@@ -253,7 +254,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::insertUpdateUserGroupAction()
+     * @covers ::insertUpdateUserGroupAction()
      */
     public function testInsertUpdateUserGroupAction()
     {
@@ -348,7 +349,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::deleteUserGroupAction()
+     * @covers ::deleteUserGroupAction()
      */
     public function testDeleteUserGroupAction()
     {
@@ -380,7 +381,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminUserGroupController::setDefaultUserGroupsAction()
+     * @covers ::setDefaultUserGroupsAction()
      */
     public function testSetDefaultUserGroupsAction()
     {

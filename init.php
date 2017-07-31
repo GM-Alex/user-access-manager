@@ -7,6 +7,7 @@ use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Controller\ControllerFactory;
+use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileObjectFactory;
@@ -90,6 +91,7 @@ function initUserAccessManger()
         $formFactory,
         $formHelper
     );
+    $widgetFactory = new WidgetFactory($php, $wordpress, $config);
 
     $userAccessManager = new UserAccessManager(
         $php,
@@ -104,6 +106,7 @@ function initUserAccessManger()
         $setupHandler,
         $userGroupFactory,
         $controllerFactory,
+        $widgetFactory,
         $cacheProviderFactory,
         $configFactory,
         $configParameterFactory,

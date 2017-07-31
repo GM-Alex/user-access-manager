@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class ConfigFactoryTest
  *
  * @package UserAccessManager\Config
+ * @coversDefaultClass \UserAccessManager\Config\ConfigFactory
  */
 class ConfigFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\ConfigFactory::__construct()
+     * @covers ::__construct()
      *
      * @return ConfigFactory
      */
@@ -40,7 +41,7 @@ class ConfigFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\ConfigFactory::createConfig()
+     * @covers  ::createConfig()
      *
      * @param ConfigFactory $configFactory
      */

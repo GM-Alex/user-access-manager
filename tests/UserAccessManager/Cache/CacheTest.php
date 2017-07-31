@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class CacheTest
  *
  * @package UserAccessManager\Cache
+ * @coversDefaultClass \UserAccessManager\Cache\Cache
  */
 class CacheTest extends UserAccessManagerTestCase
 {
@@ -40,12 +41,12 @@ class CacheTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Cache\Cache::setActiveCacheProvider()
-     * @covers \UserAccessManager\Cache\Cache::getRegisteredCacheProviders()
+     * @covers ::setActiveCacheProvider()
+     * @covers ::getRegisteredCacheProviders()
      */
     public function testSetActiveCacheProvider()
     {
-        $fileSystemCacheProvider = $this->createMock('\UserAccessManager\Cache\FileSystemCacheProvider');
+        $fileSystemCacheProvider = $this->createMock(FileSystemCacheProvider::class);
         $fileSystemCacheProvider->expects($this->exactly(2))
             ->method('getId')
             ->will($this->returnValue('cacheProvider'));
@@ -78,7 +79,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Cache\Cache::generateCacheKey()
+     * @covers  ::generateCacheKey()
      *
      * @param Cache $cache
      */
@@ -95,7 +96,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Cache\Cache::add()
+     * @covers  ::add()
      *
      * @param Cache $cache
      *
@@ -106,7 +107,7 @@ class CacheTest extends UserAccessManagerTestCase
         $cache->add('stringCacheKey', 'testValue');
 
 
-        $fileSystemCacheProvider = $this->createMock('\UserAccessManager\Cache\FileSystemCacheProvider');
+        $fileSystemCacheProvider = $this->createMock(FileSystemCacheProvider::class);
         $fileSystemCacheProvider->expects($this->any())
             ->method('getId')
             ->will($this->returnValue('cacheProvider'));
@@ -156,7 +157,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testAdd
-     * @covers  \UserAccessManager\Cache\Cache::get()
+     * @covers  ::get()
      *
      * @param Cache $cache
      *
@@ -189,7 +190,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testAdd
-     * @covers  \UserAccessManager\Cache\Cache::invalidate()
+     * @covers  ::invalidate()
      *
      * @param Cache $cache
      */
@@ -220,7 +221,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Cache\Cache::addToRuntimeCache()
+     * @covers  ::addToRuntimeCache()
      *
      * @param Cache $cache
      *
@@ -246,7 +247,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testAddToCache
-     * @covers  \UserAccessManager\Cache\Cache::getFromRuntimeCache()
+     * @covers  ::getFromRuntimeCache()
      *
      * @param Cache $cache
      *
@@ -270,7 +271,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testAddToCache
-     * @covers  \UserAccessManager\Cache\Cache::flushCache()
+     * @covers  ::flushCache()
      *
      * @param Cache $cache
      */

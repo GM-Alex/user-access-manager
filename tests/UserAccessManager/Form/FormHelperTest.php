@@ -21,12 +21,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class FormHelperTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\FormHelper
  */
 class FormHelperTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\Form\FormHelper::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -42,9 +43,9 @@ class FormHelperTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\FormHelper::getText()
-     * @covers  \UserAccessManager\Form\FormHelper::getParameterText()
-     * @covers  \UserAccessManager\Form\FormHelper::getObjectText()
+     * @covers  ::getText()
+     * @covers  ::getParameterText()
+     * @covers  ::getObjectText()
      */
     public function testGetText()
     {
@@ -156,7 +157,7 @@ class FormHelperTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Form\FormHelper::convertConfigParameter()
+     * @covers ::convertConfigParameter()
      */
     public function testConvertConfigParameter()
     {
@@ -248,7 +249,7 @@ class FormHelperTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Form\FormHelper::getSettingsForm()
+     * @covers ::getSettingsForm()
      */
     public function testGetSettingsFrom()
     {
@@ -262,9 +263,9 @@ class FormHelperTest extends UserAccessManagerTestCase
                 ]
             ));
 
-        $formInputOne = $this->createMock('\UserAccessManager\Form\Input');
-        $formInputTwo = $this->createMock('\UserAccessManager\Form\Input');
-        $formInputThree = $this->createMock('\UserAccessManager\Form\Input');
+        $formInputOne = $this->createMock(Input::class);
+        $formInputTwo = $this->createMock(Input::class);
+        $formInputThree = $this->createMock(Input::class);
 
         $form = $this->createMock('\UserAccessManager\Form\Form');
         $form->expects($this->exactly(3))
@@ -303,7 +304,7 @@ class FormHelperTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Form\FormHelper::getSettingsFormByConfig()
+     * @covers ::getSettingsFormByConfig()
      */
     public function testGetSettingsFormByConfig()
     {
@@ -317,8 +318,8 @@ class FormHelperTest extends UserAccessManagerTestCase
                 ]
             ));
 
-        $formInputOne = $this->createMock('\UserAccessManager\Form\Input');
-        $formInputTwo = $this->createMock('\UserAccessManager\Form\Input');
+        $formInputOne = $this->createMock(Input::class);
+        $formInputTwo = $this->createMock(Input::class);
 
         $form = $this->createMock('\UserAccessManager\Form\Form');
         $form->expects($this->exactly(2))

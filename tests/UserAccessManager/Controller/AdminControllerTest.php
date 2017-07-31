@@ -24,6 +24,7 @@ use Vfs\Node\File;
  * Class AdminControllerTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\AdminController
  */
 class AdminControllerTest extends UserAccessManagerTestCase
 {
@@ -63,7 +64,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminController::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -80,7 +81,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminController::showDatabaseNotice()
+     * @covers ::showDatabaseNotice()
      *
      * @return AdminController
      */
@@ -122,7 +123,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminController::getNotice()
+     * @covers  ::getNotice()
      * @depends testShowDatabaseNotice
      *
      * @param AdminController $databaseNoticeAdminController
@@ -137,8 +138,8 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminController::registerStylesAndScripts()
-     * @covers \UserAccessManager\Controller\AdminController::enqueueStylesAndScripts()
+     * @covers ::registerStylesAndScripts()
+     * @covers ::enqueueStylesAndScripts()
      */
     public function testStylesAndScripts()
     {
@@ -189,7 +190,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminController::setupAdminDashboard()
+     * @covers ::setupAdminDashboard()
      */
     public function testSetupAdminDashboard()
     {
@@ -247,7 +248,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminController::updatePermalink()
+     * @covers ::updatePermalink()
      */
     public function testUpdatePermalink()
     {

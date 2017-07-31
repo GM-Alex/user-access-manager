@@ -14,19 +14,23 @@
  */
 namespace UserAccessManager;
 
+use UserAccessManager\Controller\AdminController;
+use UserAccessManager\Controller\AdminObjectController;
 use UserAccessManager\Controller\AdminSetupController;
+use UserAccessManager\Controller\FrontendController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 
 /**
  * Class UserAccessManagerTest
  *
  * @package UserAccessManager
+ * @coversDefaultClass \UserAccessManager\UserAccessManager
  */
 class UserAccessManagerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserAccessManager::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -43,6 +47,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $this->getControllerFactory(),
+            $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
             $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
@@ -57,7 +62,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserAccessManager::__construct()
+     * @covers ::__construct()
      */
     public function testConstructor()
     {
@@ -84,6 +89,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $this->getControllerFactory(),
+            $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
             $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
@@ -95,23 +101,24 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\UserAccessManager::getPhp()
-     * @covers  \UserAccessManager\UserAccessManager::getWordpress()
-     * @covers  \UserAccessManager\UserAccessManager::getUtil()
-     * @covers  \UserAccessManager\UserAccessManager::getCache()
-     * @covers  \UserAccessManager\UserAccessManager::getConfig()
-     * @covers  \UserAccessManager\UserAccessManager::getDatabase()
-     * @covers  \UserAccessManager\UserAccessManager::getObjectHandler()
-     * @covers  \UserAccessManager\UserAccessManager::getAccessHandler()
-     * @covers  \UserAccessManager\UserAccessManager::getFileHandler()
-     * @covers  \UserAccessManager\UserAccessManager::getSetupHandler()
-     * @covers  \UserAccessManager\UserAccessManager::getUserGroupFactory()
-     * @covers  \UserAccessManager\UserAccessManager::getControllerFactory()
-     * @covers  \UserAccessManager\UserAccessManager::getCacheProviderFactory()
-     * @covers  \UserAccessManager\UserAccessManager::getConfigFactory()
-     * @covers  \UserAccessManager\UserAccessManager::getConfigParameterFactory()
-     * @covers  \UserAccessManager\UserAccessManager::getFileProtectionFactory()
-     * @covers  \UserAccessManager\UserAccessManager::getFileObjectFactory()
+     * @covers  ::getPhp()
+     * @covers  ::getWordpress()
+     * @covers  ::getUtil()
+     * @covers  ::getCache()
+     * @covers  ::getConfig()
+     * @covers  ::getDatabase()
+     * @covers  ::getObjectHandler()
+     * @covers  ::getAccessHandler()
+     * @covers  ::getFileHandler()
+     * @covers  ::getSetupHandler()
+     * @covers  ::getUserGroupFactory()
+     * @covers  ::getControllerFactory()
+     * @covers  ::getWidgetFactory()
+     * @covers  ::getCacheProviderFactory()
+     * @covers  ::getConfigFactory()
+     * @covers  ::getConfigParameterFactory()
+     * @covers  ::getFileProtectionFactory()
+     * @covers  ::getFileObjectFactory()
      *
      * @param UserAccessManager $userAccessManager
      */
@@ -129,6 +136,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getSetupHandler(), $userAccessManager->getSetupHandler());
         self::assertEquals($this->getUserGroupFactory(), $userAccessManager->getUserGroupFactory());
         self::assertEquals($this->getControllerFactory(), $userAccessManager->getControllerFactory());
+        self::assertEquals($this->getWidgetFactory(), $userAccessManager->getWidgetFactory());
         self::assertEquals($this->getCacheProviderFactory(), $userAccessManager->getCacheProviderFactory());
         self::assertEquals($this->getConfigFactory(), $userAccessManager->getConfigFactory());
         self::assertEquals($this->getConfigParameterFactory(), $userAccessManager->getConfigParameterFactory());
@@ -138,7 +146,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserAccessManager::registerAdminMenu()
+     * @covers ::registerAdminMenu()
      */
     public function testRegisterAdminMenu()
     {
@@ -181,6 +189,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $controllerFactory,
+            $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
             $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
@@ -194,7 +203,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserAccessManager::registerAdminActionsAndFilters()
+     * @covers ::registerAdminActionsAndFilters()
      */
     public function testRegisterAdminActionsAndFilters()
     {
@@ -246,7 +255,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true, true));
 
 
-        $adminController = $this->createMock('UserAccessManager\Controller\AdminController');
+        $adminController = $this->createMock(AdminController::class);
 
         $adminController->expects($this->exactly(8))
             ->method('getRequestParameter')
@@ -280,7 +289,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $controllerFactory->expects($this->exactly(4))
             ->method('createAdminObjectController')
             ->will($this->returnCallback(function () {
-                $adminObjectController = $this->createMock('UserAccessManager\Controller\AdminObjectController');
+                $adminObjectController = $this->createMock(AdminObjectController::class);
                 $adminObjectController->expects($this->any())
                     ->method('checkRightsToEditContent');
 
@@ -304,6 +313,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $setupHandler,
             $this->getUserGroupFactory(),
             $controllerFactory,
+            $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
             $this->getConfigFactory(),
             $this->getConfigParameterFactory(),
@@ -319,11 +329,11 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserAccessManager::addActionsAndFilters()
+     * @covers ::addActionsAndFilters()
      */
     public function testAddActionsAndFilters()
     {
-        $frontendController = $this->createMock('UserAccessManager\Controller\FrontendController');
+        $frontendController = $this->createMock(FrontendController::class);
         $frontendController->expects($this->exactly(3))
             ->method('getRequestParameter')
             ->will($this->onConsecutiveCalls(null, true, true));
@@ -337,7 +347,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->method('createAdminObjectController');
 
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(21))
+        $wordpress->expects($this->exactly(24))
             ->method('addAction');
 
         $wordpress->expects($this->exactly(83))
@@ -361,6 +371,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $controllerFactory,
+            $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
             $this->getConfigFactory(),
             $this->getConfigParameterFactory(),

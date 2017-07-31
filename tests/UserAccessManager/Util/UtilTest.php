@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class UtilTest
  *
  * @package UserAccessManager\Util
+ * @coversDefaultClass \UserAccessManager\Util\Util
  */
 class UtilTest extends UserAccessManagerTestCase
 {
@@ -40,7 +41,7 @@ class UtilTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Util\Util::startsWith()
+     * @covers  ::startsWith()
      *
      * @param Util $util
      */
@@ -53,7 +54,7 @@ class UtilTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Util\Util::endsWith()
+     * @covers  ::endsWith()
      *
      * @param Util $util
      */
@@ -65,7 +66,7 @@ class UtilTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Util\Util::getRandomPassword()
+     * @covers ::getRandomPassword()
      */
     public function testGetRandomPassword()
     {
@@ -121,7 +122,7 @@ class UtilTest extends UserAccessManagerTestCase
 
     /**
      * @group                    unit
-     * @covers                   \UserAccessManager\Util\Util::getRandomPassword()
+     * @covers                   ::getRandomPassword()
      * @expectedException        \Exception
      * @expectedExceptionMessage Unable to generate secure token from OpenSSL.
      */
@@ -145,7 +146,7 @@ class UtilTest extends UserAccessManagerTestCase
 
     /**
      * @group                    unit
-     * @covers                   \UserAccessManager\Util\Util::getRandomPassword()
+     * @covers                   ::getRandomPassword()
      * @expectedException        \Exception
      * @expectedExceptionMessage Unable to generate secure token from OpenSSL.
      */
@@ -170,7 +171,7 @@ class UtilTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Util\Util::getCurrentUrl()
+     * @covers  ::getCurrentUrl()
      *
      * @param Util $util
      */

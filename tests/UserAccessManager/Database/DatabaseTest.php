@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class DatabaseTest
  *
  * @package UserAccessManager\Database
+ * @coversDefaultClass \UserAccessManager\Database\Database
  */
 class DatabaseTest extends UserAccessManagerTestCase
 {
@@ -52,7 +53,7 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -62,7 +63,7 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::getWordpressDatabase()
+     * @covers ::getWordpressDatabase()
      */
     public function testGetWordpressDatabase()
     {
@@ -75,7 +76,7 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::getUserGroupTable()
+     * @covers ::getUserGroupTable()
      */
     public function testGetUserGroupTable()
     {
@@ -94,7 +95,7 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::getUserGroupToObjectTable()
+     * @covers ::getUserGroupToObjectTable()
      */
     public function testGetUserGroupToObjectTable()
     {
@@ -108,7 +109,7 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::dbDelta()
+     * @covers ::dbDelta()
      */
     public function testDbDelta()
     {
@@ -126,15 +127,15 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::getPrefix()
-     * @covers \UserAccessManager\Database\Database::getLastInsertId()
-     * @covers \UserAccessManager\Database\Database::getCurrentBlogId()
-     * @covers \UserAccessManager\Database\Database::getBlogsTable()
-     * @covers \UserAccessManager\Database\Database::getPostsTable()
-     * @covers \UserAccessManager\Database\Database::getTermRelationshipsTable()
-     * @covers \UserAccessManager\Database\Database::getTermTaxonomyTable()
-     * @covers \UserAccessManager\Database\Database::getUsersTable()
-     * @covers \UserAccessManager\Database\Database::getCapabilitiesTable()
+     * @covers ::getPrefix()
+     * @covers ::getLastInsertId()
+     * @covers ::getCurrentBlogId()
+     * @covers ::getBlogsTable()
+     * @covers ::getPostsTable()
+     * @covers ::getTermRelationshipsTable()
+     * @covers ::getTermTaxonomyTable()
+     * @covers ::getUsersTable()
+     * @covers ::getCapabilitiesTable()
      */
     public function testSimpleGetters()
     {
@@ -164,16 +165,16 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::getColumn()
-     * @covers \UserAccessManager\Database\Database::getRow()
-     * @covers \UserAccessManager\Database\Database::getVariable()
-     * @covers \UserAccessManager\Database\Database::getBlogPrefix()
-     * @covers \UserAccessManager\Database\Database::prepare()
-     * @covers \UserAccessManager\Database\Database::query()
-     * @covers \UserAccessManager\Database\Database::getResults()
-     * @covers \UserAccessManager\Database\Database::insert()
-     * @covers \UserAccessManager\Database\Database::update()
-     * @covers \UserAccessManager\Database\Database::delete()
+     * @covers ::getColumn()
+     * @covers ::getRow()
+     * @covers ::getVariable()
+     * @covers ::getBlogPrefix()
+     * @covers ::prepare()
+     * @covers ::query()
+     * @covers ::getResults()
+     * @covers ::insert()
+     * @covers ::update()
+     * @covers ::delete()
      */
     public function testFunctionWrapper()
     {
@@ -263,7 +264,7 @@ class DatabaseTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Database\Database::getCharset()
+     * @covers ::getCharset()
      */
     public function testGetCharset()
     {

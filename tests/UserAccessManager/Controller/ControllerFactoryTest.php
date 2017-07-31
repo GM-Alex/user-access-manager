@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class ControllerFactoryTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\ControllerFactory
  */
 class ControllerFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\ControllerFactory::__construct()
+     * @covers ::__construct()
      *
      * @return ControllerFactory
      */
@@ -56,14 +57,14 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminController()
+     * @covers  ::createAdminController()
      *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateAdminController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Controller\AdminController',
+            AdminController::class,
             $controllerFactory->createAdminController()
         );
     }
@@ -71,14 +72,14 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminAboutController()
+     * @covers  ::createAdminAboutController()
      *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateAdminAboutController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Controller\AdminAboutController',
+            AdminAboutController::class,
             $controllerFactory->createAdminAboutController()
         );
     }
@@ -86,14 +87,14 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminObjectController()
+     * @covers  ::createAdminObjectController()
      *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateAdminObjectController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Controller\AdminObjectController',
+            AdminObjectController::class,
             $controllerFactory->createAdminObjectController()
         );
     }
@@ -101,14 +102,14 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminSettingsController()
+     * @covers  ::createAdminSettingsController()
      *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateAdminSettingController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Controller\AdminSettingsController',
+            AdminSettingsController::class,
             $controllerFactory->createAdminSettingsController()
         );
     }
@@ -116,14 +117,14 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminSetupController()
+     * @covers  ::createAdminSetupController()
      *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateAdminSetupController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Controller\AdminSetupController',
+            AdminSetupController::class,
             $controllerFactory->createAdminSetupController()
         );
     }
@@ -131,14 +132,14 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\ControllerFactory::createAdminUserGroupController()
+     * @covers  ::createAdminUserGroupController()
      *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateAdminUserGroupController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Controller\AdminUserGroupController',
+            AdminUserGroupController::class,
             $controllerFactory->createAdminUserGroupController()
         );
     }
@@ -146,14 +147,14 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Controller\ControllerFactory::createFrontendController()
+     * @covers  ::createFrontendController()
      *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateFrontendController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            '\UserAccessManager\Controller\FrontendController',
+            FrontendController::class,
             $controllerFactory->createFrontendController()
         );
     }

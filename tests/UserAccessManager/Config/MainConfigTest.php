@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class ConfigTest
  *
  * @package UserAccessManager\Config
+ * @coversDefaultClass \UserAccessManager\Config\MainConfig
  */
 class MainConfigTest extends UserAccessManagerTestCase
 {
@@ -179,7 +180,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -196,7 +197,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::getDefaultConfigParameters()
+     * @covers ::getDefaultConfigParameters()
      *
      * @return MainConfig
      */
@@ -282,7 +283,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\MainConfig::atAdminPanel()
+     * @covers  ::atAdminPanel()
      */
     public function testAtAdminPanel()
     {
@@ -305,7 +306,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::isPermalinksActive()
+     * @covers ::isPermalinksActive()
      */
     public function testIsPermalinksActive()
     {
@@ -329,7 +330,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::getUploadDirectory()
+     * @covers ::getUploadDirectory()
      */
     public function testGetUploadDirectory()
     {
@@ -363,7 +364,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::getMimeTypes()
+     * @covers ::getMimeTypes()
      */
     public function testGetMimeTypes()
     {
@@ -410,7 +411,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::getUrlPath()
+     * @covers ::getUrlPath()
      */
     public function testGetUrlPath()
     {
@@ -437,7 +438,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::getRealPath()
+     * @covers ::getRealPath()
      */
     public function testGetRealPath()
     {
@@ -466,7 +467,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::getObjectParameter()
+     * @covers ::getObjectParameter()
      */
     public function testGetObjectParameter()
     {
@@ -527,12 +528,12 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::hideObject()
-     * @covers \UserAccessManager\Config\MainConfig::hidePostType()
-     * @covers \UserAccessManager\Config\MainConfig::hidePostTypeTitle()
-     * @covers \UserAccessManager\Config\MainConfig::hidePostTypeComments()
-     * @covers \UserAccessManager\Config\MainConfig::lockPostTypeComments()
-     * @covers \UserAccessManager\Config\MainConfig::hideEmptyTaxonomy()
+     * @covers ::hideObject()
+     * @covers ::hidePostType()
+     * @covers ::hidePostTypeTitle()
+     * @covers ::hidePostTypeComments()
+     * @covers ::lockPostTypeComments()
+     * @covers ::hideEmptyTaxonomy()
      */
     public function testHideObject()
     {
@@ -577,10 +578,10 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::getPostTypeTitle()
-     * @covers \UserAccessManager\Config\MainConfig::getPostTypeContent()
-     * @covers \UserAccessManager\Config\MainConfig::getPostTypeCommentContent()
-     * @covers \UserAccessManager\Config\MainConfig::getObjectContent()
+     * @covers ::getPostTypeTitle()
+     * @covers ::getPostTypeContent()
+     * @covers ::getPostTypeCommentContent()
+     * @covers ::getObjectContent()
      */
     public function testObjectGetter()
     {
@@ -607,24 +608,24 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\MainConfig::getRedirect
-     * @covers \UserAccessManager\Config\MainConfig::getRedirectCustomPage
-     * @covers \UserAccessManager\Config\MainConfig::getRedirectCustomUrl
-     * @covers \UserAccessManager\Config\MainConfig::lockRecursive
-     * @covers \UserAccessManager\Config\MainConfig::authorsHasAccessToOwn
-     * @covers \UserAccessManager\Config\MainConfig::authorsCanAddPostsToGroups
-     * @covers \UserAccessManager\Config\MainConfig::lockFile
-     * @covers \UserAccessManager\Config\MainConfig::getFilePassType
-     * @covers \UserAccessManager\Config\MainConfig::getLockFileTypes
-     * @covers \UserAccessManager\Config\MainConfig::getDownloadType
-     * @covers \UserAccessManager\Config\MainConfig::getLockedFileTypes
-     * @covers \UserAccessManager\Config\MainConfig::getNotLockedFileTypes
-     * @covers \UserAccessManager\Config\MainConfig::blogAdminHint
-     * @covers \UserAccessManager\Config\MainConfig::getBlogAdminHintText
-     * @covers \UserAccessManager\Config\MainConfig::protectFeed
-     * @covers \UserAccessManager\Config\MainConfig::showPostContentBeforeMore
-     * @covers \UserAccessManager\Config\MainConfig::getFullAccessRole
-     * @covers \UserAccessManager\Config\MainConfig::getActiveCacheProvider
+     * @covers ::getRedirect
+     * @covers ::getRedirectCustomPage
+     * @covers ::getRedirectCustomUrl
+     * @covers ::lockRecursive
+     * @covers ::authorsHasAccessToOwn
+     * @covers ::authorsCanAddPostsToGroups
+     * @covers ::lockFile
+     * @covers ::getFilePassType
+     * @covers ::getLockFileTypes
+     * @covers ::getDownloadType
+     * @covers ::getLockedFileTypes
+     * @covers ::getNotLockedFileTypes
+     * @covers ::blogAdminHint
+     * @covers ::getBlogAdminHintText
+     * @covers ::protectFeed
+     * @covers ::showPostContentBeforeMore
+     * @covers ::getFullAccessRole
+     * @covers ::getActiveCacheProvider
      */
     public function testSimpleGetters()
     {

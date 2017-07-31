@@ -23,6 +23,7 @@ use Vfs\Node\File;
  * Class FileHandlerTest
  *
  * @package UserAccessManager\FileHandler
+ * @coversDefaultClass \UserAccessManager\FileHandler\FileHandler
  */
 class FileHandlerTest extends UserAccessManagerTestCase
 {
@@ -50,7 +51,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\FileHandler\FileHandler::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -66,8 +67,8 @@ class FileHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\FileHandler\FileHandler::getFile()
-     * @covers \UserAccessManager\FileHandler\FileHandler::clearBuffer()
+     * @covers ::getFile()
+     * @covers ::clearBuffer()
      * @runInSeparateProcess
      */
     public function testGetFile()
@@ -248,7 +249,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\FileHandler\FileHandler::createFileProtection()
+     * @covers ::createFileProtection()
      */
     public function testCreateFileProtection()
     {
@@ -270,13 +271,13 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'uploadDirectory'
             ));
 
-        $apacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
+        $apacheFileProtection = $this->createMock(ApacheFileProtection::class);
         $apacheFileProtection->expects($this->exactly(3))
             ->method('create')
             ->withConsecutive(['uploadDirectory', null], ['uploadDirectory', null], ['otherDirectory', 'objectType'])
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $nginxFileProtection = $this->createMock('\UserAccessManager\FileHandler\NginxFileProtection');
+        $nginxFileProtection = $this->createMock(NginxFileProtection::class);
         $nginxFileProtection->expects($this->exactly(4))
             ->method('create')
             ->withConsecutive(
@@ -316,7 +317,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\FileHandler\FileHandler::deleteFileProtection()
+     * @covers ::deleteFileProtection()
      */
     public function testDeleteFileProtection()
     {
@@ -337,13 +338,13 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'uploadDirectory'
             ));
 
-        $apacheFileProtection = $this->createMock('\UserAccessManager\FileHandler\ApacheFileProtection');
+        $apacheFileProtection = $this->createMock(ApacheFileProtection::class);
         $apacheFileProtection->expects($this->exactly(3))
             ->method('delete')
             ->withConsecutive(['uploadDirectory'], ['uploadDirectory'], ['otherDirectory'])
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $nginxFileProtection = $this->createMock('\UserAccessManager\FileHandler\NginxFileProtection');
+        $nginxFileProtection = $this->createMock(NginxFileProtection::class);
         $nginxFileProtection->expects($this->exactly(4))
             ->method('delete')
             ->withConsecutive(['uploadDirectory'], ['uploadDirectory'], ['uploadDirectory'], ['otherDirectory'])

@@ -23,6 +23,7 @@ use Vfs\Node\File;
  * Class FileSystemCacheProviderTest
  *
  * @package UserAccessManager\Cache
+ * @coversDefaultClass \UserAccessManager\Cache\FileSystemCacheProvider
  */
 class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 {
@@ -50,7 +51,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
     /**
      * @group unit
-     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -67,7 +68,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::getId()
+     * @covers ::getId()
      */
     public function testGetId()
     {
@@ -84,8 +85,8 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::init()
-     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::getPath()
+     * @covers ::init()
+     * @covers ::getPath()
      */
     public function testInit()
     {
@@ -134,7 +135,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::getConfig()
+     * @covers ::getConfig()
      */
     public function testGetConfig()
     {
@@ -219,7 +220,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::add()
+     * @covers ::add()
      */
     public function testAdd()
     {
@@ -292,7 +293,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::get()
+     * @covers ::get()
      */
     public function testGet()
     {
@@ -360,7 +361,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Cache\FileSystemCacheProvider::invalidate()
+     * @covers ::invalidate()
      */
     public function testInvalidate()
     {

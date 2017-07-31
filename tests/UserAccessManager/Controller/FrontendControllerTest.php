@@ -16,6 +16,7 @@
 namespace UserAccessManager\Controller;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use UserAccessManager\FileHandler\FileObject;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserAccessManagerTestCase;
@@ -27,6 +28,7 @@ use Vfs\Node\File;
  * Class FrontendControllerTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\FrontendController
  */
 class FrontendControllerTest extends UserAccessManagerTestCase
 {
@@ -54,7 +56,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -76,8 +78,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::enqueueStylesAndScripts()
-     * @covers \UserAccessManager\Controller\FrontendController::registerStylesAndScripts()
+     * @covers ::enqueueStylesAndScripts()
+     * @covers ::registerStylesAndScripts()
      */
     public function testEnqueueStylesAndScripts()
     {
@@ -119,7 +121,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::parseQuery()
+     * @covers ::parseQuery()
      */
     public function testParseQuery()
     {
@@ -171,7 +173,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::adminOutput()
+     * @covers ::adminOutput()
      */
     public function testAdminOutput()
     {
@@ -267,7 +269,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getLoginFormHtml()
+     * @covers ::getLoginFormHtml()
      */
     public function testGetLoginFormHtml()
     {
@@ -332,13 +334,13 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::postsPreQuery()
+     * @covers ::postsPreQuery()
      */
     public function testPostsPreQuery()
     {
         $wordpress = $this->getWordpress();
 
-        $frontendControllerMock = $this->createMock('\UserAccessManager\Controller\FrontendController');
+        $frontendControllerMock = $this->createMock(FrontendController::class);
         $postsFilter = new \stdClass();
         $postsFilter->callbacks = [
             9 => [],
@@ -429,7 +431,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::restoreFilters()
+     * @covers ::restoreFilters()
      */
     public function testRestoreFilters()
     {
@@ -499,10 +501,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showPosts()
-     * @covers \UserAccessManager\Controller\FrontendController::showPages()
-     * @covers \UserAccessManager\Controller\FrontendController::getPost()
-     * @covers \UserAccessManager\Controller\FrontendController::processPost()
+     * @covers ::showPosts()
+     * @covers ::showPages()
+     * @covers ::getPost()
+     * @covers ::processPost()
      */
     public function testShowPostsAtAdminPanel()
     {
@@ -611,10 +613,10 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showPosts()
-     * @covers \UserAccessManager\Controller\FrontendController::showPages()
-     * @covers \UserAccessManager\Controller\FrontendController::getPost()
-     * @covers \UserAccessManager\Controller\FrontendController::processPost()
+     * @covers ::showPosts()
+     * @covers ::showPages()
+     * @covers ::getPost()
+     * @covers ::processPost()
      */
     public function testShowPosts()
     {
@@ -747,7 +749,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getAttachedFile()
+     * @covers ::getAttachedFile()
      */
     public function testGetAttachedFile()
     {
@@ -789,7 +791,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showContent()
+     * @covers ::showContent()
      */
     public function testShowContent()
     {
@@ -823,7 +825,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showPostSql()
+     * @covers ::showPostSql()
      */
     public function testShowPostSql()
     {
@@ -875,7 +877,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showPostCount()
+     * @covers ::showPostCount()
      */
     public function testShowPostCount()
     {
@@ -1093,7 +1095,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getTermArguments()
+     * @covers ::getTermArguments()
      */
     public function testGetTermArguments()
     {
@@ -1146,7 +1148,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showComment()
+     * @covers ::showComment()
      */
     public function testShowComment()
     {
@@ -1242,7 +1244,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showAncestors()
+     * @covers ::showAncestors()
      */
     public function testShowAncestors()
     {
@@ -1299,7 +1301,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showNextPreviousPost()
+     * @covers ::showNextPreviousPost()
      */
     public function testShowNextPreviousPost()
     {
@@ -1356,11 +1358,11 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showTerm()
-     * @covers \UserAccessManager\Controller\FrontendController::showTerms()
-     * @covers \UserAccessManager\Controller\FrontendController::getVisibleElementsCount()
-     * @covers \UserAccessManager\Controller\FrontendController::processTerm()
-     * @covers \UserAccessManager\Controller\FrontendController::getPostObjectHideConfig()
+     * @covers ::showTerm()
+     * @covers ::showTerms()
+     * @covers ::getVisibleElementsCount()
+     * @covers ::processTerm()
+     * @covers ::getPostObjectHideConfig()
      */
     public function testShowTerm()
     {
@@ -1588,7 +1590,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showCustomMenu()
+     * @covers ::showCustomMenu()
      */
     public function testShowCustomMenu()
     {
@@ -1786,7 +1788,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showGroupMembership()
+     * @covers ::showGroupMembership()
      */
     public function testShowGroupMembership()
     {
@@ -1832,7 +1834,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::showLoginForm()
+     * @covers ::showLoginForm()
      */
     public function testShowLoginForm()
     {
@@ -1867,45 +1869,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getLoginUrl()
-     */
-    public function testGetLoginUrl()
-    {
-        $wordpress = $this->getWordpress();
-
-        $wordpress->expects($this->exactly(2))
-            ->method('getBlogInfo')
-            ->with('wpurl')
-            ->will($this->returnValue('BlogInfo'));
-
-        $wordpress->expects($this->exactly(2))
-            ->method('applyFilters')
-            ->withConsecutive(
-                ['uam_login_form_url', 'BlogInfo/wp-login.php', []],
-                ['uam_login_form_url', 'BlogInfo/wp-login.php?param=paramValue', ['param' => 'paramValue']]
-            )
-            ->will($this->returnValue('filter'));
-
-        $frontendController = new FrontendController(
-            $this->getPhp(),
-            $wordpress,
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getUtil(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getAccessHandler(),
-            $this->getFileHandler(),
-            $this->getFileObjectFactory()
-        );
-
-        self::assertEquals('filter', $frontendController->getLoginUrl());
-        self::assertEquals('filter', $frontendController->getLoginUrl(['param' => 'paramValue']));
-    }
-
-    /**
-     * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getRedirectLoginUrl()
+     * @covers ::getRedirectLoginUrl()
      */
     public function testGetRedirectLoginUrl()
     {
@@ -1941,38 +1905,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getUserLogin()
-     */
-    public function testGetUserLogin()
-    {
-        $wordpress = $this->getWordpress();
-
-        $wordpress->expects($this->once())
-            ->method('escHtml')
-            ->with('/log/')
-            ->will($this->returnValue('escHtml'));
-
-        $frontendController = new FrontendController(
-            $this->getPhp(),
-            $wordpress,
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getUtil(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getAccessHandler(),
-            $this->getFileHandler(),
-            $this->getFileObjectFactory()
-        );
-
-        $_GET['log'] = '/log\/';
-
-        self::assertEquals('escHtml', $frontendController->getUserLogin());
-    }
-
-    /**
-     * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getPostIdByUrl()
+     * @covers ::getPostIdByUrl()
      */
     public function testGetPostIdByUrl()
     {
@@ -2062,8 +1995,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getFile()
-     * @covers \UserAccessManager\Controller\FrontendController::getFileSettingsByType()
+     * @covers ::getFile()
+     * @covers ::getFileSettingsByType()
      */
     public function testGetFile()
     {
@@ -2084,7 +2017,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('wpDie')
             ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
 
-        $fileObject = $this->createMock('\UserAccessManager\FileHandler\FileObject');
+        $fileObject = $this->createMock(FileObject::class);
 
         $fileObject->expects($this->any())
             ->method('getId')
@@ -2168,7 +2101,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
                 [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', false]
             )
             ->will($this->returnCallback(function ($id, $type, $file, $isImage) {
-                $fileObject = $this->createMock('\UserAccessManager\FileHandler\FileObject');
+                $fileObject = $this->createMock(FileObject::class);
 
                 $fileObject->expects($this->any())
                     ->method('getId')
@@ -2215,7 +2148,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::redirectUser()
+     * @covers ::redirectUser()
      */
     public function testRedirectUser()
     {
@@ -2341,7 +2274,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::redirect()
+     * @covers ::redirect()
      */
     public function testRedirect()
     {
@@ -2476,7 +2409,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getFileUrl()
+     * @covers ::getFileUrl()
      */
     public function testGetFileUrl()
     {
@@ -2542,7 +2475,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::cachePostLinks()
+     * @covers ::cachePostLinks()
      */
     public function testCachePostLinks()
     {
@@ -2582,7 +2515,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\FrontendController::getWpSeoUrl()
+     * @covers ::getWpSeoUrl()
      */
     public function testGetWpSeoUrl()
     {

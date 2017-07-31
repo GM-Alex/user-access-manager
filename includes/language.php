@@ -276,6 +276,8 @@ define('TXT_UAM_FILE_NOT_FOUND_ERROR_MESSAGE', __('The file you are looking for 
 define('TXT_UAM_LOGIN_FORM_USERNAME', __('Username', 'user-access-manager'));
 define('TXT_UAM_LOGIN_FORM_PASSWORD', __('Password', 'user-access-manager'));
 define('TXT_UAM_LOGIN_FORM_LOGIN', __('Login', 'user-access-manager'));
+define('TXT_UAM_LOGIN_FORM_LOGOUT', __('Logout', 'user-access-manager'));
+define('TXT_UAM_LOGIN_FORM_WELCOME_MESSAGE', __('Welcome, %s!', 'user-access-manager'));
 define('TXT_UAM_LOGIN_FORM_REGISTER', __('Register', 'user-access-manager'));
 define('TXT_UAM_LOGIN_FORM_LOST_PASSWORD', __('Lost your password?', 'user-access-manager'));
 define('TXT_UAM_LOGIN_FORM_LOST_AND_FOUND_PASSWORD', __('Password Lost and Found', 'user-access-manager'));
@@ -295,3 +297,13 @@ define('TXT_UAM_USER', __('User', 'user-access-manager'));
 define('TXT_UAM_ROLE', __('Role', 'user-access-manager'));
 define('TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS', __('Not logged in users', 'user-access-manager'));
 define('TXT_UAM_ADD_DYNAMIC_GROUP', __('Add dynamic groups', 'user-access-manager'));
+
+// --- Login widget ---
+define('TXT_UAM_LOGIN_WIDGET_TITLE', __('UAM login widget', 'user-access-manager'));
+define('TXT_UAM_LOGIN_WIDGET_DESC', __('User Access Manager login widget for users.', 'user-access-manager'));
+
+// --- Info bar ---
+define('TXT_UAM_INFO_BOX_UAM_PRO_HEAD', __('Get User Access Manager Pro', 'user-access-manager'));
+define('TXT_UAM_INFO_BOX_UAM_PRO_CONTENT', __('Want to get all features? Guess what? You are already using the Pro version, because there is none. So it would be nice if you support me and become a supporter at steady.', 'user-access-manager'));
+define('TXT_UAM_INFO_BOX_DOCUMENTATION_HEAD', __('Need help?', 'user-access-manager'));
+define('TXT_UAM_INFO_BOX_DOCUMENTATION_CONTENT', __('You got stuck using the User access manager?', 'user-access-manager'));

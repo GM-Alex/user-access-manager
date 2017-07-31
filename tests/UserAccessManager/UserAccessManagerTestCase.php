@@ -14,8 +14,33 @@
  */
 namespace UserAccessManager;
 
+use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Cache\Cache;
+use UserAccessManager\Cache\CacheProviderFactory;
+use UserAccessManager\Cache\FileSystemCacheProvider;
+use UserAccessManager\Config\Config;
+use UserAccessManager\Config\ConfigFactory;
+use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\ControllerFactory;
+use UserAccessManager\Database\Database;
+use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\FileHandler\FileObjectFactory;
+use UserAccessManager\FileHandler\FileProtectionFactory;
+use UserAccessManager\Form\FormFactory;
+use UserAccessManager\Form\FormHelper;
+use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\SetupHandler\SetupHandler;
+use UserAccessManager\UserGroup\AssignmentInformation;
+use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\Util\Util;
+use UserAccessManager\Widget\WidgetFactory;
+use UserAccessManager\Wrapper\Php;
+use UserAccessManager\Wrapper\Wordpress;
+use UserAccessManager\Wrapper\WordpressCli;
 
 /**
  * Class UserAccessManagerTestCase
@@ -55,195 +80,203 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Php
+     * @return \PHPUnit_Framework_MockObject_MockObject|Php
      */
     protected function getPhp()
     {
-        return $this->createMock('\UserAccessManager\Wrapper\Php');
+        return $this->createMock(Php::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
+     * @return \PHPUnit_Framework_MockObject_MockObject|Wordpress
      */
     protected function getWordpress()
     {
-        return $this->createMock('\UserAccessManager\Wrapper\Wordpress');
+        return $this->createMock(Wordpress::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\WordpressCli
+     * @return \PHPUnit_Framework_MockObject_MockObject|WordpressCli
      */
     protected function getWordpressCli()
     {
-        return $this->createMock('\UserAccessManager\Wrapper\WordpressCli');
+        return $this->createMock(WordpressCli::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\Config
+     * @return \PHPUnit_Framework_MockObject_MockObject|Config
      */
     protected function getConfig()
     {
-        return $this->createMock('\UserAccessManager\Config\Config');
+        return $this->createMock(Config::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\MainConfig
+     * @return \PHPUnit_Framework_MockObject_MockObject|MainConfig
      */
     protected function getMainConfig()
     {
-        return $this->createMock('\UserAccessManager\Config\MainConfig');
+        return $this->createMock(MainConfig::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Database\Database
+     * @return \PHPUnit_Framework_MockObject_MockObject|Database
      */
     protected function getDatabase()
     {
-        return $this->createMock('\UserAccessManager\Database\Database');
+        return $this->createMock(Database::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Util\Util
+     * @return \PHPUnit_Framework_MockObject_MockObject|Util
      */
     protected function getUtil()
     {
-        return $this->createMock('\UserAccessManager\Util\Util');
+        return $this->createMock(Util::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Cache\Cache
+     * @return \PHPUnit_Framework_MockObject_MockObject|Cache
      */
     protected function getCache()
     {
-        return $this->createMock('\UserAccessManager\Cache\Cache');
+        return $this->createMock(Cache::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Cache\CacheProviderFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|CacheProviderFactory
      */
     protected function getCacheProviderFactory()
     {
-        return $this->createMock('\UserAccessManager\Cache\CacheProviderFactory');
+        return $this->createMock(CacheProviderFactory::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigFactory
      */
     protected function getConfigFactory()
     {
-        return $this->createMock('\UserAccessManager\Config\ConfigFactory');
+        return $this->createMock(ConfigFactory::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Cache\FileSystemCacheProvider
+     * @return \PHPUnit_Framework_MockObject_MockObject|FileSystemCacheProvider
      */
     protected function getFileSystemCacheProvider()
     {
-        return $this->createMock('\UserAccessManager\Cache\FileSystemCacheProvider');
+        return $this->createMock(FileSystemCacheProvider::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\ObjectHandler\ObjectHandler
+     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
      */
     protected function getObjectHandler()
     {
-        return $this->createMock('\UserAccessManager\ObjectHandler\ObjectHandler');
+        return $this->createMock(ObjectHandler::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\AccessHandler\AccessHandler
+     * @return \PHPUnit_Framework_MockObject_MockObject|AccessHandler
      */
     protected function getAccessHandler()
     {
-        return $this->createMock('\UserAccessManager\AccessHandler\AccessHandler');
+        return $this->createMock(AccessHandler::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\SetupHandler\SetupHandler
+     * @return \PHPUnit_Framework_MockObject_MockObject|SetupHandler
      */
     protected function getSetupHandler()
     {
-        return $this->createMock('\UserAccessManager\SetupHandler\SetupHandler');
+        return $this->createMock(SetupHandler::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Controller\ControllerFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|ControllerFactory
      */
     protected function getControllerFactory()
     {
-        return $this->createMock('\UserAccessManager\Controller\ControllerFactory');
+        return $this->createMock(ControllerFactory::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\FileHandler\FileHandler
+     * @return \PHPUnit_Framework_MockObject_MockObject|WidgetFactory
+     */
+    protected function getWidgetFactory()
+    {
+        return $this->createMock(WidgetFactory::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|FileHandler
      */
     protected function getFileHandler()
     {
-        return $this->createMock('\UserAccessManager\FileHandler\FileHandler');
+        return $this->createMock(FileHandler::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\FileHandler\FileObjectFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|FileObjectFactory
      */
     protected function getFileObjectFactory()
     {
-        return $this->createMock('\UserAccessManager\FileHandler\FileObjectFactory');
+        return $this->createMock(FileObjectFactory::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroupFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|UserGroupFactory
      */
     protected function getUserGroupFactory()
     {
-        return $this->createMock('\UserAccessManager\UserGroup\UserGroupFactory');
+        return $this->createMock(UserGroupFactory::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameterFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameterFactory
      */
     protected function getConfigParameterFactory()
     {
-        return $this->createMock('\UserAccessManager\Config\ConfigParameterFactory');
+        return $this->createMock(ConfigParameterFactory::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\FileHandler\FileProtectionFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|FileProtectionFactory
      */
     protected function getFileProtectionFactory()
     {
-        return $this->createMock('\UserAccessManager\FileHandler\FileProtectionFactory');
+        return $this->createMock(FileProtectionFactory::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|FormFactory
      */
     protected function getFormFactory()
     {
-        return $this->createMock('\UserAccessManager\Form\FormFactory');
+        return $this->createMock(FormFactory::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormHelper
+     * @return \PHPUnit_Framework_MockObject_MockObject|FormHelper
      */
     protected function getFormHelper()
     {
-        return $this->createMock('\UserAccessManager\Form\FormHelper');
+        return $this->createMock(FormHelper::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserAccessManager
+     * @return \PHPUnit_Framework_MockObject_MockObject|UserAccessManager
      */
     protected function getUserAccessManager()
     {
-        return $this->createMock('\UserAccessManager\UserAccessManager');
+        return $this->createMock(UserAccessManager::class);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\AssignmentInformationFactory
+     * @return \PHPUnit_Framework_MockObject_MockObject|AssignmentInformationFactory
      */
     protected function getAssignmentInformationFactory()
     {
-        return $this->createMock('\UserAccessManager\UserGroup\AssignmentInformationFactory');
+        return $this->createMock(AssignmentInformationFactory::class);
     }
 
     /**
@@ -442,7 +475,7 @@ class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $assignmentInformation
          */
-        $assignmentInformation = $this->createMock('\UserAccessManager\UserGroup\AssignmentInformation');
+        $assignmentInformation = $this->createMock(AssignmentInformation::class);
 
         $assignmentInformation->type = $type;
         $assignmentInformation->fromDate = $fromDate;

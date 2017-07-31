@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class ConfigTest
  *
  * @package UserAccessManager\Config
+ * @coversDefaultClass \UserAccessManager\Config\Config
  */
 class ConfigTest extends UserAccessManagerTestCase
 {
@@ -45,7 +46,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -59,7 +60,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::getWpOption()
+     * @covers ::getWpOption()
      */
     public function testGetWpOption()
     {
@@ -89,7 +90,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::setDefaultConfigParameters()
+     * @covers ::setDefaultConfigParameters()
      */
     public function testSetDefaultConfigParameters()
     {
@@ -106,8 +107,8 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::getDefaultConfigParameters()
-     * @covers \UserAccessManager\Config\Config::getConfigParameters()
+     * @covers ::getDefaultConfigParameters()
+     * @covers ::getConfigParameters()
      *
      * @return Config
      */
@@ -166,7 +167,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::setConfigParameters()
+     * @covers ::setConfigParameters()
      */
     public function testSetConfigParameters()
     {
@@ -202,7 +203,7 @@ class ConfigTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testGetConfigParameters
-     * @covers  \UserAccessManager\Config\Config::flushConfigParameters()
+     * @covers  ::flushConfigParameters()
      *
      * @param Config $config
      */
@@ -217,7 +218,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Config\Config::getParameterValue()
+     * @covers ::getParameterValue()
      */
     public function testGetParameterValue()
     {

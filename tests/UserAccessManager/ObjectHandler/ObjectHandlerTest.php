@@ -21,12 +21,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class ObjectHandlerTest
  *
  * @package UserAccessManager\ObjectHandler
+ * @coversDefaultClass \UserAccessManager\ObjectHandler\ObjectHandler
  */
 class ObjectHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -41,7 +42,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPostTypes()
+     * @covers ::getPostTypes()
      *
      * @return ObjectHandler
      */
@@ -68,7 +69,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTaxonomies()
+     * @covers ::getTaxonomies()
      *
      * @return ObjectHandler
      */
@@ -94,7 +95,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getUser()
+     * @covers ::getUser()
      */
     public function testGetUser()
     {
@@ -123,7 +124,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPost()
+     * @covers ::getPost()
      */
     public function testGetPost()
     {
@@ -155,7 +156,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTerm()
+     * @covers ::getTerm()
      */
     public function testGetTerm()
     {
@@ -261,10 +262,10 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::processTreeMapElements()
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTreeMap()
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getPostTreeMap()
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTermTreeMap()
+     * @covers ::processTreeMapElements()
+     * @covers ::getTreeMap()
+     * @covers ::getPostTreeMap()
+     * @covers ::getTermTreeMap()
      */
     public function testTreeMap()
     {
@@ -375,7 +376,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getTermPostMap()
+     * @covers ::getTermPostMap()
      */
     public function testGetTermPostMap()
     {
@@ -449,7 +450,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getPostTermMap()
+     * @covers  ::getPostTermMap()
      */
     public function testGetPostTermMap()
     {
@@ -522,7 +523,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testGetPostTypes
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::registeredPostType()
+     * @covers  ::registeredPostType()
      *
      * @param ObjectHandler $objectHandler
      *
@@ -559,7 +560,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testGetTaxonomies
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::registeredTaxonomy()
+     * @covers  ::registeredTaxonomy()
      *
      * @param ObjectHandler $objectHandler
      *
@@ -591,7 +592,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testRegisteredPostType
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::isPostType()
+     * @covers  ::isPostType()
      *
      * @param ObjectHandler $objectHandler
      */
@@ -603,7 +604,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::isTaxonomy()
+     * @covers ::isTaxonomy()
      */
     public function testIsTaxonomy()
     {
@@ -625,7 +626,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getGeneralObjectType()
+     * @covers ::getGeneralObjectType()
      */
     public function testGetGeneralObjectType()
     {
@@ -690,7 +691,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         /**
          * @var PluggableObject|\PHPUnit_Framework_MockObject_MockObject $pluggableObject
          */
-        $pluggableObject = $this->createMock('UserAccessManager\ObjectHandler\PluggableObject');
+        $pluggableObject = $this->createMock(PluggableObject::class);
         $pluggableObject->expects($expectation)
             ->method('getObjectType')
             ->will($this->returnValue($name));
@@ -700,7 +701,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::registerPluggableObject()
+     * @covers ::registerPluggableObject()
      */
     public function testRegisterPlObject()
     {
@@ -730,7 +731,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testRegisterPlObject
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObject()
+     * @covers  ::getPluggableObject()
      *
      * @param ObjectHandler $objectHandler
      */
@@ -750,7 +751,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testRegisterPlObject
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::isPluggableObject()
+     * @covers  ::isPluggableObject()
      *
      * @param ObjectHandler $objectHandler
      */
@@ -764,7 +765,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testRegisterPlObject
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getPluggableObjects()
+     * @covers  ::getPluggableObjects()
      *
      * @param ObjectHandler $objectHandler
      */
@@ -781,7 +782,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\ObjectHandler\ObjectHandler::getObjectTypes()
+     * @covers ::getObjectTypes()
      *
      * @return ObjectHandler
      */
@@ -824,7 +825,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testGetObjectTypes
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::getAllObjectTypes()
+     * @covers  ::getAllObjectTypes()
      *
      * @param ObjectHandler $objectHandler
      *
@@ -858,7 +859,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testGetAllObjectTypes
-     * @covers  \UserAccessManager\ObjectHandler\ObjectHandler::isValidObjectType()
+     * @covers  ::isValidObjectType()
      *
      * @param ObjectHandler $objectHandler
      */

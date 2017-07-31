@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class SelectionConfigParameterTest
  *
  * @package UserAccessManager\Config
+ * @coversDefaultClass \UserAccessManager\Config\SelectionConfigParameter
  */
 class SelectionConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\SelectionConfigParameter::__construct()
+     * @covers  ::__construct()
      *
      * @return SelectionConfigParameter
      */
@@ -44,7 +45,7 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\SelectionConfigParameter::isValidValue()
+     * @covers  ::isValidValue()
      *
      * @param SelectionConfigParameter $selectionConfigParameter
      */
@@ -58,7 +59,7 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\SelectionConfigParameter::getSelections()
+     * @covers  ::getSelections()
      *
      * @param SelectionConfigParameter $selectionConfigParameter
      */

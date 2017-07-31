@@ -20,11 +20,17 @@ use UserAccessManager\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 
+/**
+ * Class AccessHandlerTest
+ *
+ * @package UserAccessManager\AccessHandler
+ * @coversDefaultClass \UserAccessManager\AccessHandler\AccessHandler
+ */
 class AccessHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -109,6 +115,20 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         return $wordpress;
     }
 
+    /**
+     * @param string $id
+     * @param bool   $deletable
+     * @param bool   $objectIsMember
+     * @param array  $ipRange
+     * @param string $readAccess
+     * @param string $writeAccess
+     * @param array  $posts
+     * @param array  $terms
+     * @param null   $name
+     * @param array  $setIgnoreDates
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|UserGroup
+     */
     protected function getUserGroup(
         $id,
         $deletable = true,
@@ -208,7 +228,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getUserGroups()
+     * @covers ::getUserGroups()
      *
      * @return AccessHandler
      */
@@ -277,7 +297,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getDynamicUserGroups()
+     * @covers ::getDynamicUserGroups()
      */
     public function testGetDynamicUserGroups()
     {
@@ -336,7 +356,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getFullUserGroups()
+     * @covers ::getFullUserGroups()
      */
     public function testGetFullUserGroups()
     {
@@ -367,7 +387,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getFilteredUserGroups()
+     * @covers ::getFilteredUserGroups()
      */
     public function testGetFilteredUserGroups()
     {
@@ -393,7 +413,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
         self::setValue($accessHandler, 'userGroups', $userGroups);
 
         $dynamicUserGroups = [
-            'users|0', $this->createMock('\UserAccessManager\UserGroup\DynamicUserGroup'),
+            'users|0', $this->createMock(DynamicUserGroup::class),
         ];
 
         self::setValue($accessHandler, 'dynamicUserGroups', $dynamicUserGroups);
@@ -409,7 +429,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testGetUserGroups
-     * @covers  \UserAccessManager\AccessHandler\AccessHandler::addUserGroup()
+     * @covers  ::addUserGroup()
      *
      * @param AccessHandler $accessHandler
      *
@@ -435,7 +455,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testAddUserGroups
-     * @covers  \UserAccessManager\AccessHandler\AccessHandler::deleteUserGroup()
+     * @covers  ::deleteUserGroup()
      *
      * @param AccessHandler $accessHandler
      */
@@ -459,7 +479,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getUserGroupsForObject()
+     * @covers ::getUserGroupsForObject()
      *
      * @return AccessHandler
      */
@@ -530,7 +550,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testGetUserGroupsForObject
-     * @covers  \UserAccessManager\AccessHandler\AccessHandler::unsetUserGroupsForObject()
+     * @covers  ::unsetUserGroupsForObject()
      *
      * @param AccessHandler $accessHandler
      */
@@ -543,8 +563,8 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::isIpInRange()
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::calculateIp()
+     * @covers ::isIpInRange()
+     * @covers ::calculateIp()
      */
     public function testIsIpInRange()
     {
@@ -604,7 +624,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getUserGroupsForUser()
+     * @covers ::getUserGroupsForUser()
      */
     public function testGetUserGroupsForUser()
     {
@@ -678,7 +698,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getFilteredUserGroupsForObject()
+     * @covers ::getFilteredUserGroupsForObject()
      */
     public function testGetFilteredUserGroupsForObject()
     {
@@ -743,8 +763,8 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::checkUserAccess()
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getUserRole()
+     * @covers ::checkUserAccess()
+     * @covers ::getUserRole()
      */
     public function testCheckUserAccess()
     {
@@ -871,7 +891,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::checkObjectAccess()
+     * @covers ::checkObjectAccess()
      */
     public function testCheckObjectAccess()
     {
@@ -943,7 +963,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getExcludedTerms()
+     * @covers ::getExcludedTerms()
      */
     public function testGetExcludedTerms()
     {
@@ -987,7 +1007,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getExcludedPosts()
+     * @covers ::getExcludedPosts()
      */
     public function testGetExcludedPosts()
     {
@@ -1099,8 +1119,8 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::userIsAdmin()
-     * @covers \UserAccessManager\AccessHandler\AccessHandler::getUserRole()
+     * @covers ::userIsAdmin()
+     * @covers ::getUserRole()
      */
     public function testUserIsAdmin()
     {

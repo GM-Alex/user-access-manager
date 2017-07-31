@@ -18,11 +18,12 @@ namespace UserAccessManager\Config;
  * Class ConfigParameterFactoryTest
  *
  * @package UserAccessManager\Config
+ * @coversDefaultClass \UserAccessManager\Config\ConfigParameterFactory
  */
 class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @group  unit
+     * @group unit
      */
     public function testCanCreateInstance()
     {
@@ -35,7 +36,7 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createBooleanConfigParameter()
+     * @covers  ::createBooleanConfigParameter()
      *
      * @param ConfigParameterFactory $configParameterFactory
      */
@@ -53,7 +54,7 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createStringConfigParameter()
+     * @covers  ::createStringConfigParameter()
      *
      * @param ConfigParameterFactory $configParameterFactory
      */
@@ -71,7 +72,7 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\ConfigParameterFactory::createSelectionConfigParameter()
+     * @covers  ::createSelectionConfigParameter()
      *
      * @param ConfigParameterFactory $configParameterFactory
      */

@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class BooleanConfigParameterTest
  *
  * @package UserAccessManager\Config
+ * @coversDefaultClass \UserAccessManager\Config\BooleanConfigParameter
  */
 class BooleanConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Config\BooleanConfigParameter::__construct()
+     * @covers  ::__construct()
      *
      * @return BooleanConfigParameter
      */
@@ -49,7 +50,7 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\BooleanConfigParameter::stringToBoolConverter()
+     * @covers  ::stringToBoolConverter()
      *
      * @param BooleanConfigParameter $booleanConfigParameter
      */
@@ -74,7 +75,7 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\BooleanConfigParameter::setValue()
+     * @covers  ::setValue()
      *
      * @param BooleanConfigParameter $booleanConfigParameter
      */
@@ -96,7 +97,7 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\Config\BooleanConfigParameter::isValidValue()
+     * @covers  ::isValidValue()
      *
      * @param BooleanConfigParameter $booleanConfigParameter
      */

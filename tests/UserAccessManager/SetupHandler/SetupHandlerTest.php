@@ -25,12 +25,13 @@ use UserAccessManager\UserGroup\UserGroup;
  * Class SetupHandlerTest
  *
  * @package UserAccessManager\SetupHandler
+ * @coversDefaultClass \UserAccessManager\SetupHandler\SetupHandler
  */
 class SetupHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -67,7 +68,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::getBlogIds()
+     * @covers ::getBlogIds()
      */
     public function testGetBlogIds()
     {
@@ -96,8 +97,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::install()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::runInstall()
+     * @covers ::install()
+     * @covers ::runInstall()
      */
     public function testInstall()
     {
@@ -211,7 +212,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::isDatabaseUpdateNecessary()
+     * @covers ::isDatabaseUpdateNecessary()
      */
     public function testIsDatabaseUpdateNecessary()
     {
@@ -271,7 +272,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::backupDatabase()
+     * @covers ::backupDatabase()
      */
     public function testBackup()
     {
@@ -318,7 +319,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::getBackups()
+     * @covers ::getBackups()
      */
     public function testGetBackups()
     {
@@ -354,8 +355,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::revertDatabase()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::getBackupTables()
+     * @covers ::revertDatabase()
+     * @covers ::getBackupTables()
      */
     public function testRevertBackup()
     {
@@ -414,8 +415,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::deleteBackup()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::getBackupTables()
+     * @covers ::deleteBackup()
+     * @covers ::getBackupTables()
      */
     public function testDeleteBackup()
     {
@@ -466,13 +467,13 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::update()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo10()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo12()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo13()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo14()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo151()
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::updateTo16()
+     * @covers ::update()
+     * @covers ::updateTo10()
+     * @covers ::updateTo12()
+     * @covers ::updateTo13()
+     * @covers ::updateTo14()
+     * @covers ::updateTo151()
+     * @covers ::updateTo16()
      */
     public function testUpdate()
     {
@@ -702,7 +703,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::uninstall()
+     * @covers ::uninstall()
      */
     public function testUninstall()
     {
@@ -763,7 +764,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\SetupHandler\SetupHandler::deactivate()
+     * @covers ::deactivate()
      */
     public function testDeactivate()
     {

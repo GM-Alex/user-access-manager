@@ -6,6 +6,7 @@ namespace UserAccessManager\Controller;
  * Class AdminControllerTabNavigationTraitTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\AdminControllerTabNavigationTrait
  */
 class AdminControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 {
@@ -36,7 +37,7 @@ class AdminControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminControllerTabNavigationTrait::getCurrentTabGroup()
+     * @covers ::getCurrentTabGroup()
      */
     public function testGetCurrentTabGroup()
     {
@@ -55,7 +56,7 @@ class AdminControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminControllerTabNavigationTrait::getSections()
+     * @covers ::getSections()
      */
     public function testGetSections()
     {
@@ -83,7 +84,7 @@ class AdminControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminControllerTabNavigationTrait::getCurrentTabGroupSection()
+     * @covers ::getCurrentTabGroupSection()
      */
     public function testGetCurrentTabGroupSection()
     {
@@ -117,7 +118,7 @@ class AdminControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminControllerTabNavigationTrait::getTabGroupLink()
+     * @covers ::getTabGroupLink()
      */
     public function testGetTabGroupLink()
     {
@@ -144,7 +145,7 @@ class AdminControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminControllerTabNavigationTrait::getTabGroupSectionLink()
+     * @covers ::getTabGroupSectionLink()
      */
     public function testGetTabGroupSectionLink()
     {

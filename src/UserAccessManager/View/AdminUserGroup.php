@@ -25,21 +25,40 @@ if ($controller->hasUpdateMessage() === true) {
 }
 
 $currentGroup = $controller->getCurrentTabGroup();
+$editUserGroup = $controller->getRequestParameter('uam_action') === 'edit_user_group';
+$userGroupOverview = $currentGroup === \UserAccessManager\Controller\AdminUserGroupController::GROUP_USER_GROUPS;
 
-if ($controller->getRequestParameter('uam_action') !== 'edit_user_group') {
-    ?>
-    <div class="wrap">
-        <h2><?php echo TXT_UAM_MANAGE_GROUP; ?></h2>
-        <?php include 'TabList.php'; ?>
+if ($editUserGroup === false) {
+    $title = TXT_UAM_MANAGE_GROUP;
+} elseif ($controller->getUserGroup()->getId() !== null) {
+    $title = TXT_UAM_EDIT_GROUP;
+}
+?>
+<div class="wrap">
+    <h2><?php echo $title; ?></h2>
+    <div class="uam_sidebar">
+        <?php include 'InfoBox.php'; ?>
     </div>
-    <?php
-    if ($currentGroup !== \UserAccessManager\Controller\AdminUserGroupController::GROUP_DEFAULT_USER_GROUPS) {
-        include 'UserGroups/UserGroupList.php';
-    }
-}
+    <div class="uam_main">
+        <?php
+        if ($editUserGroup === false) {
+            include 'TabList.php';
 
-if ($currentGroup === \UserAccessManager\Controller\AdminUserGroupController::GROUP_DEFAULT_USER_GROUPS) {
-    include 'UserGroups/DefaultUserGroupEditForm.php';
-} else {
-    include 'UserGroups/UserGroupEditForm.php';
-}
+            if ($userGroupOverview === true) {
+                include 'UserGroups/UserGroupList.php';
+            }
+        }
+
+        if ($userGroupOverview === false) {
+            include 'UserGroups/DefaultUserGroupEditForm.php';
+        } else {
+            if ($controller->getUserGroup()->getId() === null) {
+                ?>
+                <h2><?php echo TXT_UAM_ADD_GROUP; ?></h2>
+                <?php
+            }
+            include 'UserGroups/UserGroupEditForm.php';
+        }
+        ?>
+    </div>
+</div>

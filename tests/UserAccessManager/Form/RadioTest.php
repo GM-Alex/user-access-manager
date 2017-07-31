@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class RadioTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\Radio
  */
 class RadioTest extends \PHPUnit_Framework_TestCase
 {

@@ -20,6 +20,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class LabelTraitTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\LabelTrait
  */
 class LabelTraitTest extends UserAccessManagerTestCase
 {
@@ -33,7 +34,7 @@ class LabelTraitTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Form\LabelTrait::getLabel()
+     * @covers ::getLabel()
      */
     public function testGetGetLabel()
     {

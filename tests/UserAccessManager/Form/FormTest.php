@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class FormTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\Form
  */
 class FormTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,7 +38,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\Form::addElement()
+     * @covers  ::addElement()
      * @depends testCanCreateInstance
      *
      * @param Form $form
@@ -49,7 +50,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormElement $firstFormElement
          */
-        $firstFormElement = $this->createMock('\UserAccessManager\Form\FormElement');
+        $firstFormElement = $this->createMock(FormElement::class);
         $firstFormElement->expects($this->once())
             ->method('getId')
             ->will($this->returnValue('firstId'));
@@ -57,7 +58,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormElement $secondFormElement
          */
-        $secondFormElement = $this->createMock('\UserAccessManager\Form\FormElement');
+        $secondFormElement = $this->createMock(FormElement::class);
         $secondFormElement->expects($this->once())
             ->method('getId')
             ->will($this->returnValue('secondId'));
@@ -76,7 +77,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\Form::getElements()
+     * @covers  ::getElements()
      * @depends testCanCreateInstance
      *
      * @param Form $form

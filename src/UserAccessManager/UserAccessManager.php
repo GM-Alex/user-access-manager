@@ -30,6 +30,7 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -104,6 +105,11 @@ class UserAccessManager
     private $controllerFactory;
 
     /**
+     * @var WidgetFactory
+     */
+    private $widgetFactory;
+
+    /**
      * @var CacheProviderFactory
      */
     private $cacheProviderFactory;
@@ -143,6 +149,7 @@ class UserAccessManager
      * @param SetupHandler           $setupHandler
      * @param UserGroupFactory       $userGroupFactory
      * @param ControllerFactory      $controllerFactory
+     * @param WidgetFactory          $widgetFactory
      * @param CacheProviderFactory   $cacheProviderFactory
      * @param ConfigFactory          $configFactory
      * @param ConfigParameterFactory $configParameterFactory
@@ -162,6 +169,7 @@ class UserAccessManager
         SetupHandler $setupHandler,
         UserGroupFactory $userGroupFactory,
         ControllerFactory $controllerFactory,
+        WidgetFactory $widgetFactory,
         CacheProviderFactory $cacheProviderFactory,
         ConfigFactory $configFactory,
         ConfigParameterFactory $configParameterFactory,
@@ -180,6 +188,7 @@ class UserAccessManager
         $this->setupHandler = $setupHandler;
         $this->userGroupFactory = $userGroupFactory;
         $this->controllerFactory = $controllerFactory;
+        $this->widgetFactory = $widgetFactory;
         $this->cacheProviderFactory = $cacheProviderFactory;
         $this->configFactory = $configFactory;
         $this->configParameterFactory = $configParameterFactory;
@@ -283,6 +292,14 @@ class UserAccessManager
     public function getControllerFactory()
     {
         return $this->controllerFactory;
+    }
+
+    /**
+     * @return WidgetFactory
+     */
+    public function getWidgetFactory()
+    {
+        return $this->widgetFactory;
     }
 
     /**
@@ -600,5 +617,9 @@ class UserAccessManager
         $this->wordpress->addFilter('clean_object_term_cache', [$adminObjectController, 'invalidateTermCache']);
         $this->wordpress->addFilter('clean_post_cache', [$adminObjectController, 'invalidatePostCache']);
         $this->wordpress->addFilter('clean_attachment_cache', [$adminObjectController, 'invalidatePostCache']);
+
+        $this->wordpress->addAction('widgets_init', function () {
+            $this->wordpress->registerWidget($this->widgetFactory->createLoginWidget());
+        });
     }
 }

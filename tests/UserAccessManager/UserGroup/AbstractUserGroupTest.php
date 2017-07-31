@@ -27,6 +27,7 @@ use UserAccessManager\Wrapper\Wordpress;
  * Class AbstractUserGroupTest
  *
  * @package UserAccessManager\UserGroup
+ * @coversDefaultClass \UserAccessManager\UserGroup\AbstractUserGroup
  */
 class AbstractUserGroupTest extends UserAccessManagerTestCase
 {
@@ -95,7 +96,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -125,7 +126,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::__construct()
+     * @covers ::__construct()
      */
     public function testUserGroupTypeException()
     {
@@ -146,19 +147,19 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getId()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getType()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getName()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getDescription()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getReadAccess()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getWriteAccess()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getIpRange()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getIpRangeArray()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::setName()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::setDescription()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::setReadAccess()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::setWriteAccess()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::setIpRange()
+     * @covers  ::getId()
+     * @covers  ::getType()
+     * @covers  ::getName()
+     * @covers  ::getDescription()
+     * @covers  ::getReadAccess()
+     * @covers  ::getWriteAccess()
+     * @covers  ::getIpRange()
+     * @covers  ::getIpRangeArray()
+     * @covers  ::setName()
+     * @covers  ::setDescription()
+     * @covers  ::setReadAccess()
+     * @covers  ::setWriteAccess()
+     * @covers  ::setIpRange()
      */
     public function testSimpleGetterSetter()
     {
@@ -207,9 +208,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::addObject()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::resetObjects()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::addDefaultType()
+     * @covers ::addObject()
+     * @covers ::resetObjects()
+     * @covers ::addDefaultType()
      */
     public function testAddObject()
     {
@@ -382,10 +383,10 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::delete()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::removeObject()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::resetObjects()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::removeDefaultType()
+     * @covers ::delete()
+     * @covers ::removeObject()
+     * @covers ::resetObjects()
+     * @covers ::removeDefaultType()
      */
     public function testDelete()
     {
@@ -557,7 +558,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::setIgnoreDates()
+     * @covers ::setIgnoreDates()
      */
     public function testSetIgnoreDates()
     {
@@ -613,9 +614,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getAssignedObjects()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getSimpleAssignedObjects()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::isObjectAssignedToGroup()
+     * @covers ::getAssignedObjects()
+     * @covers ::getSimpleAssignedObjects()
+     * @covers  ::isObjectAssignedToGroup()
      */
     public function testAssignedObject()
     {
@@ -752,7 +753,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getDefaultGroupForObjectTypes()
+     * @covers ::getDefaultGroupForObjectTypes()
      *
      * @return AbstractUserGroup
      */
@@ -817,7 +818,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @depends testGetDefaultGroupForObjectTypes
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isDefaultGroupForObjectType()
+     * @covers ::isDefaultGroupForObjectType()
      *
      * @param AbstractUserGroup $abstractUserGroup
      */
@@ -902,9 +903,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isRoleMember()
+     * @covers ::isObjectRecursiveMember()
+     * @covers ::assignRecursiveMembership()
+     * @covers ::isRoleMember()
      *
      * @return AbstractUserGroup
      */
@@ -1051,9 +1052,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isUserMember()
+     * @covers ::isObjectRecursiveMember()
+     * @covers ::assignRecursiveMembership()
+     * @covers ::isUserMember()
      *
      * @return AbstractUserGroup
      */
@@ -1189,9 +1190,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isTermMember()
+     * @covers ::isObjectRecursiveMember()
+     * @covers ::assignRecursiveMembership()
+     * @covers ::isTermMember()
      *
      * @return AbstractUserGroup
      */
@@ -1334,9 +1335,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isPostMember()
+     * @covers ::isObjectRecursiveMember()
+     * @covers ::assignRecursiveMembership()
+     * @covers ::isPostMember()
      *
      * @return AbstractUserGroup
      */
@@ -1401,9 +1402,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isObjectRecursiveMember()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::assignRecursiveMembership()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::isPluggableObjectMember()
+     * @covers ::isObjectRecursiveMember()
+     * @covers ::assignRecursiveMembership()
+     * @covers ::isPluggableObjectMember()
      *
      * @return AbstractUserGroup
      */
@@ -1580,9 +1581,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @depends testIsTermMember
      * @depends testIsPostMember
      * @depends testIsPluggableObjectMember
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::isObjectMember()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::getRecursiveMembershipForObject()
-     * @covers  \UserAccessManager\UserGroup\AbstractUserGroup::isLockedRecursive()
+     * @covers  ::isObjectMember()
+     * @covers  ::getRecursiveMembershipForObject()
+     * @covers  ::isLockedRecursive()
      *
      * @param AbstractUserGroup $roleUserGroup
      * @param AbstractUserGroup $userUserGroup
@@ -1745,7 +1746,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getFullUsers()
+     * @covers ::getFullUsers()
      *
      * @return AbstractUserGroup
      */
@@ -1780,8 +1781,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getFullTerms()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getFullObjects()
+     * @covers ::getFullTerms()
+     * @covers ::getFullObjects()
      *
      * @return AbstractUserGroup
      */
@@ -1804,8 +1805,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getFullPosts()
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getFullObjects()
+     * @covers ::getFullPosts()
+     * @covers ::getFullObjects()
      *
      * @return AbstractUserGroup
      */
@@ -1833,7 +1834,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @depends testGetFullTerms
      * @depends testGetFullPosts
      * @depends testIsPluggableObjectMember
-     * @covers \UserAccessManager\UserGroup\AbstractUserGroup::getAssignedObjectsByType()
+     * @covers ::getAssignedObjectsByType()
      *
      * @param AbstractUserGroup $roleUserGroup
      * @param AbstractUserGroup $userUserGroup

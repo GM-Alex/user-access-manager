@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class ValueSetFormElementTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\ValueSetFormElement
  */
 class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
 {
@@ -40,7 +41,7 @@ class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\ValueSetFormElement::__construct()
+     * @covers  ::__construct()
      *
      * @return FormElement
      */
@@ -54,7 +55,7 @@ class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\ValueSetFormElement::getPossibleValues()
+     * @covers  ::getPossibleValues()
      * @depends testCanCreateInstance
      *
      * @param ValueSetFormElement $valueSetFormElement

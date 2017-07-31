@@ -23,6 +23,7 @@ use Vfs\Node\File;
  * Class NginxFileProtectionTest
  *
  * @package UserAccessManager\FileHandler
+ * @coversDefaultClass \UserAccessManager\FileHandler\NginxFileProtection
  */
 class NginxFileProtectionTest extends UserAccessManagerTestCase
 {
@@ -51,7 +52,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      *
-     * @covers \UserAccessManager\FileHandler\NginxFileProtection::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -67,7 +68,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\FileHandler\NginxFileProtection::create()
+     * @covers  ::create()
      */
     public function testCreate()
     {
@@ -166,7 +167,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\FileHandler\NginxFileProtection::delete()
+     * @covers  ::delete()
      */
     public function testDelete()
     {

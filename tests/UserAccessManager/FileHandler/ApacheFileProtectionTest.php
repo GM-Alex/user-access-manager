@@ -23,6 +23,7 @@ use Vfs\Node\File;
  * Class ApacheFileProtectionTest
  *
  * @package UserAccessManager\FileHandler
+ * @coversDefaultClass \UserAccessManager\FileHandler\ApacheFileProtection
  */
 class ApacheFileProtectionTest extends UserAccessManagerTestCase
 {
@@ -50,7 +51,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\FileHandler\ApacheFileProtection::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -66,7 +67,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\FileHandler\ApacheFileProtection::create()
+     * @covers  ::create()
      */
     public function testCreate()
     {
@@ -192,7 +193,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\FileHandler\ApacheFileProtection::delete()
+     * @covers  ::delete()
      */
     public function testDelete()
     {

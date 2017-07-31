@@ -18,12 +18,13 @@ namespace UserAccessManager\UserGroup;
  * Class AssignmentInformationTest
  *
  * @package UserAccessManager\UserGroup
+ * @coversDefaultClass \UserAccessManager\UserGroup\AssignmentInformation
  */
 class AssignmentInformationTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\AssignmentInformation::__construct()
+     * @covers ::__construct()
      *
      * @return AssignmentInformation
      */
@@ -50,11 +51,11 @@ class AssignmentInformationTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\UserGroup\AssignmentInformation::getType()
-     * @covers  \UserAccessManager\UserGroup\AssignmentInformation::getFromDate()
-     * @covers  \UserAccessManager\UserGroup\AssignmentInformation::getToDate()
-     * @covers  \UserAccessManager\UserGroup\AssignmentInformation::getRecursiveMembership()
-     * @covers  \UserAccessManager\UserGroup\AssignmentInformation::setRecursiveMembership()
+     * @covers  ::getType()
+     * @covers  ::getFromDate()
+     * @covers  ::getToDate()
+     * @covers  ::getRecursiveMembership()
+     * @covers  ::setRecursiveMembership()
      *
      * @param AssignmentInformation $assignmentInformation
      */

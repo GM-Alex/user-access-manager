@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class AdminSetupControllerTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\AdminSetupController
  */
 class AdminSetupControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSetupController::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -42,7 +43,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSetupController::isDatabaseUpdateNecessary()
+     * @covers ::isDatabaseUpdateNecessary()
      */
     public function testIsDatabaseUpdateNecessary()
     {
@@ -65,7 +66,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSetupController::showNetworkUpdate()
+     * @covers ::showNetworkUpdate()
      */
     public function testShowNetworkUpdate()
     {
@@ -95,7 +96,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSetupController::getBackups()
+     * @covers ::getBackups()
      */
     public function testGetBackups()
     {
@@ -118,7 +119,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSetupController::updateDatabaseAction()
+     * @covers ::updateDatabaseAction()
      */
     public function testUpdateDatabaseAction()
     {
@@ -186,7 +187,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSetupController::revertDatabaseAction()
+     * @covers ::revertDatabaseAction()
      */
     public function testRevertDatabaseAction()
     {
@@ -222,7 +223,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSetupController::deleteDatabaseBackupAction()
+     * @covers ::deleteDatabaseBackupAction()
      */
     public function testDeleteDatabaseBackupAction()
     {
@@ -258,7 +259,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSetupController::resetUamAction()
+     * @covers ::resetUamAction()
      */
     public function testResetUamAction()
     {

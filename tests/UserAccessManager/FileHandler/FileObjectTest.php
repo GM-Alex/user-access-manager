@@ -14,11 +14,17 @@
  */
 namespace UserAccessManager\FileHandler;
 
+/**
+ * Class FileObjectTest
+ *
+ * @package UserAccessManager\FileHandler
+ * @coversDefaultClass \UserAccessManager\FileHandler\FileObject
+ */
 class FileObjectTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\FileHandler\FileObject::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -28,10 +34,10 @@ class FileObjectTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\FileHandler\FileObject::getId()
-     * @covers \UserAccessManager\FileHandler\FileObject::getType()
-     * @covers \UserAccessManager\FileHandler\FileObject::getFile()
-     * @covers \UserAccessManager\FileHandler\FileObject::isImage()
+     * @covers ::getId()
+     * @covers ::getType()
+     * @covers ::getFile()
+     * @covers ::isImage()
      */
     public function testGetters()
     {

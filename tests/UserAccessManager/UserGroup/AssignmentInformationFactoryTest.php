@@ -14,6 +14,12 @@
  */
 namespace UserAccessManager\UserGroup;
 
+/**
+ * Class AssignmentInformationFactoryTest
+ *
+ * @package UserAccessManager\UserGroup
+ * @coversDefaultClass \UserAccessManager\UserGroup\AssignmentInformationFactory
+ */
 class AssignmentInformationFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -32,7 +38,7 @@ class AssignmentInformationFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\UserGroup\AssignmentInformationFactory::createAssignmentInformation()
+     * @covers  ::createAssignmentInformation()
      *
      * @param AssignmentInformationFactory $assignmentInformationFactory
      */

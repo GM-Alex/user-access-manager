@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class MultipleFormElementTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\MultipleFormElement
  */
 class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
 {
@@ -40,7 +41,7 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group             unit
-     * @covers            \UserAccessManager\Form\MultipleFormElement::__construct()
+     * @covers            ::__construct()
      * @expectedException \Exception
      */
     public function testCreateInstanceException()
@@ -51,13 +52,13 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\MultipleFormElement::__construct()
+     * @covers  ::__construct()
      *
      * @return FormElement
      */
     public function testCanCreateInstance()
     {
-        $valueMock = $this->createMock('\UserAccessManager\Form\MultipleFormElementValue');
+        $valueMock = $this->createMock(MultipleFormElementValue::class);
         $stub = $this->getStub('id', [$valueMock], 'value', 'label', 'description');
         self::assertInstanceOf(MultipleFormElement::class, $stub);
 
@@ -66,14 +67,14 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\MultipleFormElement::getPossibleValues()
+     * @covers  ::getPossibleValues()
      * @depends testCanCreateInstance
      *
      * @param MultipleFormElement $multipleFormElement
      */
     public function testGetPossibleValues(MultipleFormElement $multipleFormElement)
     {
-        $valueMock = $this->createMock('\UserAccessManager\Form\MultipleFormElementValue');
+        $valueMock = $this->createMock(MultipleFormElementValue::class);
         self::assertEquals([$valueMock], $multipleFormElement->getPossibleValues());
     }
 }

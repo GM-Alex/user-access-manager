@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
+use UserAccessManager\Cache\CacheProviderInterface;
 use UserAccessManager\Config\BooleanConfigParameter;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
@@ -26,12 +27,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class AdminSettingsControllerTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\AdminSettingsController
  */
 class AdminSettingsControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -51,7 +53,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::isNginx()
+     * @covers  ::isNginx()
      */
     public function testIsNginx()
     {
@@ -77,7 +79,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getPages()
+     * @covers  ::getPages()
      */
     public function testGetPages()
     {
@@ -104,8 +106,8 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getText()
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getGroupText()
+     * @covers ::getText()
+     * @covers ::getGroupText()
      */
     public function testGetText()
     {
@@ -137,8 +139,8 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getObjectName()
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getGroupSectionText()
+     * @covers ::getObjectName()
+     * @covers ::getGroupSectionText()
      */
     public function testGetObjectName()
     {
@@ -182,7 +184,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Controller\AdminSettingsController::getTabGroups()
+     * @covers ::getTabGroups()
      */
     public function testGetSettingsGroups()
     {
@@ -203,12 +205,12 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->method('getActiveCacheProvider')
             ->will($this->returnValue('activeCacheProvider'));
 
-        $cacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
+        $cacheProvider = $this->createMock(CacheProviderInterface::class);
         $cacheProvider->expects($this->exactly(2))
             ->method('getId')
             ->will($this->returnValue('cacheProviderId'));
 
-        $activeCacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
+        $activeCacheProvider = $this->createMock(CacheProviderInterface::class);
         $activeCacheProvider->expects($this->once())
             ->method('getId')
             ->will($this->returnValue('activeCacheProvider'));
@@ -272,15 +274,15 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getCurrentGroupForms()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getPostTypes()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getTaxonomies()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getPostSettingsForm()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getTaxonomySettingsForm()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getFilesSettingsForm()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getAuthorSettingsForm()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getOtherSettingsForm()
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::getPages()
+     * @covers  ::getCurrentGroupForms()
+     * @covers  ::getPostTypes()
+     * @covers  ::getTaxonomies()
+     * @covers  ::getPostSettingsForm()
+     * @covers  ::getTaxonomySettingsForm()
+     * @covers  ::getFilesSettingsForm()
+     * @covers  ::getAuthorSettingsForm()
+     * @covers  ::getOtherSettingsForm()
+     * @covers  ::getPages()
      */
     public function testGetCurrentGroupForms()
     {
@@ -349,7 +351,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
         $config = $this->getConfig();
 
-        $cacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
+        $cacheProvider = $this->createMock(CacheProviderInterface::class);
         $cacheProvider->expects($this->exactly(15))
             ->method('getId')
             ->will($this->returnValue('cacheProviderId'));
@@ -633,7 +635,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::updateSettingsAction()
+     * @covers  ::updateSettingsAction()
      */
     public function testUpdateSettingsAction()
     {
@@ -657,7 +659,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->method('setConfigParameters')
             ->with(['b' => '&lt;b&gt;b&lt;/b&gt;', 'i' => '&lt;i&gt;i&lt;/i&gt;']);
 
-        $cacheProvider = $this->createMock('\UserAccessManager\Cache\CacheProviderInterface');
+        $cacheProvider = $this->createMock(CacheProviderInterface::class);
         $cacheProvider->expects($this->once())
             ->method('getConfig')
             ->will($this->returnValue($config));
@@ -717,7 +719,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Controller\AdminSettingsController::isPostTypeGroup()
+     * @covers  ::isPostTypeGroup()
      */
     public function testIsPostTypeGroup()
     {

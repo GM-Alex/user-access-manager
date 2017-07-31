@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class FileProtectionFactoryTest
  *
  * @package UserAccessManager\FileHandler
+ * @coversDefaultClass \UserAccessManager\FileHandler\FileProtectionFactory
  */
 class FileProtectionFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\FileHandler\FileProtectionFactory::__construct()
+     * @covers ::__construct()
      *
      * @return FileProtectionFactory
      */
@@ -46,7 +47,7 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\FileHandler\FileProtectionFactory::createApacheFileProtection()
+     * @covers  ::createApacheFileProtection()
      *
      * @param FileProtectionFactory $fileProtectionFactory
      */
@@ -59,7 +60,7 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\FileHandler\FileProtectionFactory::createNginxFileProtection()
+     * @covers  ::createNginxFileProtection()
      *
      * @param FileProtectionFactory $fileProtectionFactory
      */

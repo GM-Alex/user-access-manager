@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class UserGroupFactoryTest
  *
  * @package UserAccessManager\UserGroup
+ * @coversDefaultClass \UserAccessManager\UserGroup\UserGroupFactory
  */
 class UserGroupFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\UserGroupFactory::__construct()
+     * @covers ::__construct()
      *
      * @return UserGroupFactory
      */
@@ -49,7 +50,7 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\UserGroup\UserGroupFactory::createUserGroup()
+     * @covers  ::createUserGroup()
      *
      * @param UserGroupFactory $userGroupFactory
      */
@@ -61,7 +62,7 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\UserGroup\UserGroupFactory::createDynamicUserGroup()
+     * @covers  ::createDynamicUserGroup()
      *
      * @param UserGroupFactory $userGroupFactory
      */

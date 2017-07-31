@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class InputTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\Input
  */
 class InputTest extends \PHPUnit_Framework_TestCase
 {

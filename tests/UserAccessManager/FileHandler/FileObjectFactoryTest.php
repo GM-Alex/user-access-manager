@@ -8,6 +8,12 @@
 
 namespace UserAccessManager\FileHandler;
 
+/**
+ * Class FileObjectFactoryTest
+ *
+ * @package UserAccessManager\FileHandler
+ * @coversDefaultClass \UserAccessManager\FileHandler\FileObjectFactory
+ */
 class FileObjectFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -27,7 +33,7 @@ class FileObjectFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  \UserAccessManager\FileHandler\FileObjectFactory::createFileObject()
+     * @covers  ::createFileObject()
      *
      * @param FileObjectFactory $fileObjectFactory
      */

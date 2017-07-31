@@ -20,12 +20,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class ObjectCommandTest
  *
  * @package UserAccessManager\Command
+ * @coversDefaultClass \UserAccessManager\Command\ObjectCommand
  */
 class ObjectCommandTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\Command\ObjectCommand::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -39,7 +40,7 @@ class ObjectCommandTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Command\ObjectCommand::__invoke()
+     * @covers ::__invoke()
      */
     public function testInvoke()
     {

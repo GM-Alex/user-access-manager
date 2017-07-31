@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class FormElementTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\FormElement
  */
 class FormElementTest extends \PHPUnit_Framework_TestCase
 {
@@ -39,7 +40,7 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Form\FormElement::__construct()
+     * @covers ::__construct()
      *
      * @return FormElement
      */
@@ -53,7 +54,7 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\FormElement::getId()
+     * @covers  ::getId()
      * @depends testCanCreateInstance
      *
      * @param FormElement $formElement
@@ -65,7 +66,7 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\FormElement::getValue()
+     * @covers  ::getValue()
      * @depends testCanCreateInstance
      *
      * @param FormElement $formElement
@@ -77,7 +78,7 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\FormElement::getLabel()
+     * @covers  ::getLabel()
      * @depends testCanCreateInstance
      *
      * @param FormElement $formElement
@@ -89,7 +90,7 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @group   unit
-     * @covers  \UserAccessManager\Form\FormElement::getDescription()
+     * @covers  ::getDescription()
      * @depends testCanCreateInstance
      *
      * @param FormElement $formElement

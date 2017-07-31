@@ -21,12 +21,13 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class DynamicUserGroupTest
  *
  * @package UserAccessManager\UserGroup
+ * @coversDefaultClass \UserAccessManager\UserGroup\DynamicUserGroup
  */
 class DynamicUserGroupTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\DynamicUserGroup::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -78,7 +79,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\DynamicUserGroup::getId()
+     * @covers ::getId()
      */
     public function testGetId()
     {
@@ -99,7 +100,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\DynamicUserGroup::getName()
+     * @covers ::getName()
      */
     public function testGetName()
     {
@@ -162,7 +163,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\UserGroup\DynamicUserGroup::addObject()
+     * @covers ::addObject()
      */
     public function testAddObject()
     {

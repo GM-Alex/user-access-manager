@@ -35,6 +35,8 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class FrontendController extends Controller
 {
+    use LoginControllerTrait;
+
     const HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
     const POST_URL_CACHE_KEY = 'PostUrls';
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
@@ -891,20 +893,6 @@ class FrontendController extends Controller
     }
 
     /**
-     * Returns the login url.
-     *
-     * @var array $parameters
-     *
-     * @return mixed
-     */
-    public function getLoginUrl(array $parameters = [])
-    {
-        $loginUrl = $this->wordpress->getBlogInfo('wpurl').'/wp-login.php';
-        $loginUrl .= (count($parameters) > 0) ? '?'.http_build_query($parameters) : '';
-        return $this->wordpress->applyFilters('uam_login_form_url', $loginUrl, $parameters);
-    }
-
-    /**
      * Returns the login redirect url.
      *
      * @return mixed
@@ -914,17 +902,6 @@ class FrontendController extends Controller
         $loginUrl = $this->wordpress->getBlogInfo('wpurl')
             .'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']);
         return $this->wordpress->applyFilters('uam_login_url', $loginUrl);
-    }
-
-    /**
-     * Returns the user login name.
-     *
-     * @return string
-     */
-    public function getUserLogin()
-    {
-        $userLogin = $this->getRequestParameter('log');
-        return $this->wordpress->escHtml(stripslashes($userLogin));
     }
 
 

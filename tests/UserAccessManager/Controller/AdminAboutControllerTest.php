@@ -20,11 +20,12 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class AdminAboutControllerTest
  *
  * @package UserAccessManager\Controller
+ * @coversDefaultClass \UserAccessManager\Controller\AdminAboutController
  */
 class AdminAboutControllerTest extends UserAccessManagerTestCase
 {
     /**
-     * @group  unit
+     * @group unit
      */
     public function testCanCreateInstance()
     {

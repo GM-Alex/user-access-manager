@@ -18,6 +18,7 @@ namespace UserAccessManager\Form;
  * Class SelectTest
  *
  * @package UserAccessManager\Form
+ * @coversDefaultClass \UserAccessManager\Form\Select
  */
 class SelectTest extends \PHPUnit_Framework_TestCase
 {

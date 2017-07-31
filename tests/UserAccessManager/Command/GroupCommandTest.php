@@ -21,6 +21,7 @@ use UserAccessManager\UserAccessManagerTestCase;
  * Class GroupCommandTest
  *
  * @package UserAccessManager\Command
+ * @coversDefaultClass \UserAccessManager\Command\GroupCommand
  */
 class GroupCommandTest extends UserAccessManagerTestCase
 {
@@ -59,7 +60,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Command\GroupCommand::__construct()
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -74,8 +75,8 @@ class GroupCommandTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Command\GroupCommand::ls()
-     * @covers \UserAccessManager\Command\GroupCommand::getFormatter()
+     * @covers ::ls()
+     * @covers ::getFormatter()
      */
     public function testLs()
     {
@@ -184,7 +185,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Command\GroupCommand::del()
+     * @covers ::del()
      */
     public function testDel()
     {
@@ -223,7 +224,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers \UserAccessManager\Command\GroupCommand::add()
+     * @covers ::add()
      */
     public function testAdd()
     {
