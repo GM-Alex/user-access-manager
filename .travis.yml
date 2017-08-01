@@ -1,8 +1,14 @@
+sudo: required
+dist: trusty
 language: php
 php:
   - 7.0
+before_install:
+  - sudo rm -rf ~/.nvm - curl -sL "https://deb.nodesource.com/setup_7.x" | sudo -E bash -
+  - sudo apt-get install -y nodejs
 install:
   - composer install
+  - npm install
 script:
   - ./vendor/bin/phpcs -p --standard=PSR2 ./src ./tests
   - ./scripts/phpunit.sh

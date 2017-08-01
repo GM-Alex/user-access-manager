@@ -6,7 +6,7 @@ PLUGIN="user-access-manager"
 PLUGIN_BUILDS_PATH="${PLUGIN_ROOT}/builds/${PLUGIN}"
 
 if [[ -d ${PLUGIN_BUILDS_PATH} ]]; then
-    rm -R ${PLUGIN_BUILDS_PATH}
+    rm -R -f ${PLUGIN_BUILDS_PATH}
 fi
 
 mkdir -p ${PLUGIN_BUILDS_PATH}
@@ -17,8 +17,9 @@ if [[ ${EXCLUDES} != '' ]]; then
     EXCLUDES="${EXCLUDES},"
 fi
 
-EXCLUDES="${EXCLUDES}README.md,.travis.yml,composer.json,composer.lock,builds,phpunit.xml.dist,humbug.json.dist,tests,scripts"
+${PLUGIN_ROOT}/node_modules/grunt-cli/bin/grunt
+
+EXCLUDES="${EXCLUDES}.gitkeep,README.md,.travis.yml,builds,phpunit.xml.dist,humbug.json.dist,tests,scripts,package.json,Gruntfile.js"
 eval "rsync -av ${PLUGIN_ROOT}/* ${PLUGIN_BUILDS_PATH} --exclude={${EXCLUDES}}"
 
-git clone https://github.com/grappler/i18n.git "${PLUGIN_ROOT}/tmp/tools"
-php "${PLUGIN_ROOT}/tmp/tools/makepot.php" wp-plugin "${PLUGIN_BUILDS_PATH}" "${PLUGIN_BUILDS_PATH}/languages/${PLUGIN}.pot"
+composer --working-dir="${PLUGIN_BUILDS_PATH}" install --no-dev

@@ -4,4 +4,5 @@ tmp
 humbuglog.txt
 humbuglog.json
 .htpasswd
+node_modules
 coverage.clover
