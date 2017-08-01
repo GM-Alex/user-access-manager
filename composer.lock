@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "eae67bcee2fe95ec7df4005d79fc0559",
+    "hash": "5c5e5b574b894202535d301f57a25937",
     "content-hash": "2742ea536d5624d42f3233344e5fe39d",
     "packages": [],
     "packages-dev": [
@@ -4162,16 +4162,16 @@
         },
         {
             "name": "wp-cli/php-cli-tools",
-            "version": "v0.11.4",
+            "version": "v0.11.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wp-cli/php-cli-tools.git",
-                "reference": "2d2b582d79c935f790c4e49e74906859025ffeb3"
+                "reference": "c5f9c034fd713dae84669ecb8da603bc52b8d826"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wp-cli/php-cli-tools/zipball/2d2b582d79c935f790c4e49e74906859025ffeb3",
-                "reference": "2d2b582d79c935f790c4e49e74906859025ffeb3",
+                "url": "https://api.github.com/repos/wp-cli/php-cli-tools/zipball/c5f9c034fd713dae84669ecb8da603bc52b8d826",
+                "reference": "c5f9c034fd713dae84669ecb8da603bc52b8d826",
                 "shasum": ""
             },
             "require": {
@@ -4208,7 +4208,7 @@
                 "cli",
                 "console"
             ],
-            "time": "2017-07-25 21:46:43"
+            "time": "2017-07-26 18:17:52"
         },
         {
             "name": "wp-cli/rewrite-command",

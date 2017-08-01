@@ -100,7 +100,7 @@
     $.uamGroupSuggest = function(input, options) {
         var $input = $(input).attr("autocomplete", "off");
         var $list = $(options.listClass);
-        var $results = $("<ul/>");
+        var $results = $("<ul>");
 
         var timeout = false;		// hold timeout ID for suggestion results to appear
         var prevLength = 0;			// last recorded length of $input.val()

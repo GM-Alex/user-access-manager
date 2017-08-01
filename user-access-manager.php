@@ -68,7 +68,7 @@ if (version_compare($wp_version, '4.6') === -1) {
 }
 
 //Defines
-require_once $basePath.'autoload.php';
+require_once $basePath.'vendor/autoload.php';
 require_once $basePath.'init.php';
 
 global $userAccessManager;

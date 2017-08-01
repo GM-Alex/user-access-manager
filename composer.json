@@ -21,5 +21,15 @@
     "humbug/humbug": "~1.0@dev",
     "squizlabs/php_codesniffer": "~2.8",
     "johnpbloch/wordpress-core": "^4.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "UserAccessManager\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "UserAccessManager\\Tests\\": "tests/"
+    }
   }
 }

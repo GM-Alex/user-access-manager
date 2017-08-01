@@ -15,8 +15,8 @@
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./src</directory>
             <exclude>
-                <directory suffix=".php">./src/UserAccessManager/View</directory>
-                <directory suffix=".php">./src/UserAccessManager/Wrapper</directory>
+                <directory suffix=".php">./src/View</directory>
+                <directory suffix=".php">./src/Wrapper</directory>
             </exclude>
         </whitelist>
     </filter>
