@@ -50,8 +50,8 @@ class Php
     /**
      * @see openssl_random_pseudo_bytes()
      *
-     * @param $length
-     * @param $strong
+     * @param int  $length
+     * @param bool $strong
      *
      * @return string
      */

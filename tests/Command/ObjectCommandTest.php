@@ -42,6 +42,8 @@ class ObjectCommandTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__invoke()
+     * @covers ::getUserGroupNameMap()
+     * @covers ::getAddRemoveUserGroups()
      */
     public function testInvoke()
     {

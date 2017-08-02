@@ -211,9 +211,9 @@ class Database
     /**
      * @see \wpdb::get_var()
      *
-     * @param null $query
-     * @param int  $column
-     * @param int  $row
+     * @param null|string $query
+     * @param int         $column
+     * @param int         $row
      *
      * @return null|string
      */

@@ -721,7 +721,7 @@ class Wordpress
     public function setMetaBoxes(array $wpMetaBoxes)
     {
         global $wp_meta_boxes;
-        $wp_meta_boxes= $wpMetaBoxes;
+        $wp_meta_boxes = $wpMetaBoxes;
     }
 
     /**

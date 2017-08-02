@@ -66,7 +66,7 @@ abstract class AbstractUserGroup
     protected $assignmentInformationFactory;
 
     /**
-     * @var int
+     * @var string
      */
     protected $id = null;
 
@@ -584,7 +584,7 @@ abstract class AbstractUserGroup
         if (isset($defaultGroupForObjectTypes[$objectType])) {
             $fromTime = $defaultGroupForObjectTypes[$objectType][0] !== null ?
                 (int)$defaultGroupForObjectTypes[$objectType][0] : null;
-            $toTime =  $defaultGroupForObjectTypes[$objectType][1] !== null ?
+            $toTime = $defaultGroupForObjectTypes[$objectType][1] !== null ?
                 (int)$defaultGroupForObjectTypes[$objectType][1] : null;
 
             return true;

@@ -140,7 +140,7 @@ class AdminObjectController extends Controller
             $this->userGroupDiff = 0;
         }
 
-        $this->objectUserGroups = $objectUserGroups;
+        $this->objectUserGroups = (array)$objectUserGroups;
     }
 
     /**
@@ -399,11 +399,131 @@ class AdminObjectController extends Controller
     }
 
     /**
+     * Returns the user groups by reference which should be add and removed from the object.
+     *
+     * @param string     $objectType
+     * @param string     $objectId
+     * @param array|null $addUserGroups
+     * @param array      $removeUserGroups
+     */
+    private function getAddRemoveGroups($objectType, $objectId, &$addUserGroups, &$removeUserGroups)
+    {
+        if ($addUserGroups === null) {
+            $updateGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
+            $addUserGroups = (is_array($updateGroups) === true) ? $updateGroups : [];
+        }
+
+        $filteredUserGroupsForObject = $this->accessHandler->getFilteredUserGroupsForObject(
+            $objectType,
+            $objectId
+        );
+        $removeUserGroups = array_flip(array_keys($filteredUserGroupsForObject));
+        $bulkType = $this->getRequestParameter('uam_bulk_type');
+
+        if ($bulkType === self::BULK_REMOVE) {
+            $removeUserGroups = $addUserGroups;
+            $addUserGroups = [];
+        }
+    }
+
+    /**
+     * Updates the user groups for the given object.
+     *
+     * @param AbstractUserGroup[] $filteredUserGroups
+     * @param string              $objectType
+     * @param string              $objectId
+     * @param array               $addUserGroups
+     * @param array               $removeUserGroups
+     */
+    private function setUserGroups(
+        array $filteredUserGroups,
+        $objectType,
+        $objectId,
+        array $addUserGroups,
+        array $removeUserGroups
+    ) {
+        foreach ($filteredUserGroups as $groupId => $userGroup) {
+            if (isset($removeUserGroups[$groupId]) === true) {
+                $userGroup->removeObject($objectType, $objectId);
+            }
+
+            if (isset($addUserGroups[$groupId]) === true
+                && isset($addUserGroups[$groupId]['id']) === true
+                && (int)$addUserGroups[$groupId]['id'] === (int)$groupId
+            ) {
+                $userGroup->addObject(
+                    $objectType,
+                    $objectId,
+                    $this->getDateParameter($addUserGroups[$groupId], 'fromDate'),
+                    $this->getDateParameter($addUserGroups[$groupId], 'toDate')
+                );
+            }
+        }
+    }
+
+    /**
+     * Sets the dynamic user groups for the given object.
+     *
+     * @param string $objectType
+     * @param string $objectId
+     */
+    private function setDynamicGroups($objectType, $objectId)
+    {
+        $addDynamicUserGroups = $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, []);
+
+        foreach ($addDynamicUserGroups as $dynamicUserGroupKey => $addDynamicUserGroup) {
+            $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
+
+            if (count($dynamicUserGroupData) === 2
+                && $addDynamicUserGroup['id'] === $dynamicUserGroupKey
+            ) {
+                $dynamicUserGroup = $this->userGroupFactory->createDynamicUserGroup(
+                    $dynamicUserGroupData[0],
+                    $dynamicUserGroupData[1]
+                );
+
+                $dynamicUserGroup->addObject(
+                    $objectType,
+                    $objectId,
+                    $this->getDateParameter($addDynamicUserGroup, 'fromDate'),
+                    $this->getDateParameter($addDynamicUserGroup, 'toDate')
+                );
+            }
+        }
+    }
+
+    /**
+     * Sets the default user groups for the given object.
+     *
+     * @param AbstractUserGroup[] $filteredUserGroups
+     * @param string              $objectType
+     * @param string              $objectId
+     */
+    private function setDefaultGroups(array $filteredUserGroups, $objectType, $objectId)
+    {
+        /**
+         * @var UserGroup[] $userGroupsToCheck
+         */
+        $userGroupsToCheck = array_diff_key($this->getUserGroups(), $filteredUserGroups);
+
+        foreach ($userGroupsToCheck as $userGroupToCheck) {
+            if ($userGroupToCheck->isDefaultGroupForObjectType($objectType, $fromTime, $toTime) === true) {
+                $userGroupToCheck->addObject(
+                    $objectType,
+                    $objectId,
+                    $this->getDateFromTime($fromTime),
+                    $this->getDateFromTime($toTime)
+                );
+            }
+        }
+    }
+
+    /**
      * Saves the object data to the database.
      *
-     * @param string  $objectType    The object type.
-     * @param integer $objectId      The id of the object.
-     * @param array   $addUserGroups The new user groups for the object.
+     * @param string $objectType    The object type.
+     * @param string $objectId      The id of the object.
+     * @param array  $addUserGroups The new user groups for the object.
      */
     private function saveObjectData($objectType, $objectId, array $addUserGroups = null)
     {
@@ -413,80 +533,14 @@ class AdminObjectController extends Controller
         $hasRights = $this->checkUserAccess() === true || $this->config->authorsCanAddPostsToGroups() === true;
 
         if ($isUpdateForm === true && $hasRights === true) {
-            if ($addUserGroups === null) {
-                $updateGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
-                $addUserGroups = (is_array($updateGroups) === true) ? $updateGroups : [];
-            }
-
-            $filteredUserGroupsForObject = $this->accessHandler->getFilteredUserGroupsForObject(
-                $objectType,
-                $objectId
-            );
-            $removeUserGroups = array_flip(array_keys($filteredUserGroupsForObject));
             $filteredUserGroups = $this->accessHandler->getFilteredUserGroups();
-            $bulkType = $this->getRequestParameter('uam_bulk_type');
-
-            if ($bulkType === self::BULK_REMOVE) {
-                $removeUserGroups = $addUserGroups;
-                $addUserGroups = [];
-            }
-
-            foreach ($filteredUserGroups as $groupId => $userGroup) {
-                if (isset($removeUserGroups[$groupId]) === true) {
-                    $userGroup->removeObject($objectType, $objectId);
-                }
-
-                if (isset($addUserGroups[$groupId]) === true
-                    && isset($addUserGroups[$groupId]['id']) === true
-                    && (int)$addUserGroups[$groupId]['id'] === (int)$groupId
-                ) {
-                    $userGroup->addObject(
-                        $objectType,
-                        $objectId,
-                        $this->getDateParameter($addUserGroups[$groupId], 'fromDate'),
-                        $this->getDateParameter($addUserGroups[$groupId], 'toDate')
-                    );
-                }
-            }
+            $this->getAddRemoveGroups($objectType, $objectId, $addUserGroups, $removeUserGroups);
+            $this->setUserGroups($filteredUserGroups, $objectType, $objectId, $addUserGroups, $removeUserGroups);
 
             if ($this->checkUserAccess() === true) {
-                $addDynamicUserGroups = $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, []);
-
-                foreach ($addDynamicUserGroups as $dynamicUserGroupKey => $addDynamicUserGroup) {
-                    $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
-
-                    if (count($dynamicUserGroupData) === 2
-                        && $addDynamicUserGroup['id'] === $dynamicUserGroupKey
-                    ) {
-                        $dynamicUserGroup = $this->userGroupFactory->createDynamicUserGroup(
-                            $dynamicUserGroupData[0],
-                            $dynamicUserGroupData[1]
-                        );
-
-                        $dynamicUserGroup->addObject(
-                            $objectType,
-                            $objectId,
-                            $this->getDateParameter($addDynamicUserGroup, 'fromDate'),
-                            $this->getDateParameter($addDynamicUserGroup, 'toDate')
-                        );
-                    }
-                }
+                $this->setDynamicGroups($objectType, $objectId);
             } else {
-                /**
-                 * @var UserGroup[] $userGroupsToCheck
-                 */
-                $userGroupsToCheck = array_diff_key($this->getUserGroups(), $filteredUserGroups);
-
-                foreach ($userGroupsToCheck as $userGroupToCheck) {
-                    if ($userGroupToCheck->isDefaultGroupForObjectType($objectType, $fromTime, $toTime) === true) {
-                        $userGroupToCheck->addObject(
-                            $objectType,
-                            $objectId,
-                            $this->getDateFromTime($fromTime),
-                            $this->getDateFromTime($toTime)
-                        );
-                    }
-                }
+                $this->setDefaultGroups($filteredUserGroups, $objectType, $objectId);
             }
 
             $this->accessHandler->unsetUserGroupsForObject();
@@ -656,7 +710,7 @@ class AdminObjectController extends Controller
             $this->setObjectInformation($post->post_type, $post->ID);
         }
 
-        $formFields[self::DEFAULT_GROUPS_FORM_NAME] =[
+        $formFields[self::DEFAULT_GROUPS_FORM_NAME] = [
             'label' => TXT_UAM_SET_UP_USER_GROUPS,
             'input' => 'editFrom',
             'editFrom' => $this->getIncludeContents('MediaAjaxEditForm.php')

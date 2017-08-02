@@ -79,7 +79,7 @@ class AccessHandler
     private $filteredUserGroups = null;
 
     /**
-     * @var null|UserGroup[]
+     * @var null|AbstractUserGroup[]
      */
     private $userGroupsForUser = null;
 
@@ -251,7 +251,7 @@ class AccessHandler
      * @param integer $objectId    The id of the object.
      * @param bool    $ignoreDates If true we ignore the dates for the object assignment.
      *
-     * @return UserGroup[]
+     * @return AbstractUserGroup[]
      */
     public function getUserGroupsForObject($objectType, $objectId, $ignoreDates = false)
     {
@@ -296,7 +296,7 @@ class AccessHandler
      *
      * @param string $ip
      *
-     * @return int
+     * @return string|false
      */
     private function calculateIp($ip)
     {
@@ -352,7 +352,7 @@ class AccessHandler
     /**
      * Returns the user groups for the user.
      *
-     * @return UserGroup[]
+     * @return AbstractUserGroup[]
      */
     public function getUserGroupsForUser()
     {
@@ -603,7 +603,7 @@ class AccessHandler
                     $this->wordpress->getCurrentUser()->ID
                 );
 
-                $ownPosts = $this->database->getResults($query);
+                $ownPosts = (array)$this->database->getResults($query);
                 $ownPostIds = [];
 
                 foreach ($ownPosts as $ownPost) {

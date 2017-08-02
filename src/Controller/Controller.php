@@ -107,7 +107,7 @@ abstract class Controller
     /**
      * Sets the update message.
      *
-     * @param $message
+     * @param string $message
      */
     protected function setUpdateMessage($message)
     {

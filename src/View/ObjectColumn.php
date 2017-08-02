@@ -38,7 +38,7 @@ if (count($objectUserGroups) > 0 || $userGroupDiff > 0) {
 
         if ($userGroupDiff > 0) {
             ?>
-            <li><?php echo sprintf(TXT_UAM_MEMBER_OF_OTHER_GROUPS, $userGroupDiff);?></li>
+            <li><?php echo sprintf(TXT_UAM_MEMBER_OF_OTHER_GROUPS, $userGroupDiff); ?></li>
             <?php
         }
         ?>

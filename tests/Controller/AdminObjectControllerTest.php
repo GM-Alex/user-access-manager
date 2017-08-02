@@ -852,6 +852,10 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::saveObjectData()
+     * @covers ::getAddRemoveGroups()
+     * @covers ::setUserGroups()
+     * @covers ::setDynamicGroups()
+     * @covers ::setDefaultGroups()
      * @covers ::savePostData()
      * @covers ::saveAttachmentData()
      * @covers ::saveAjaxAttachmentData()

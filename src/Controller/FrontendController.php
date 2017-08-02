@@ -318,6 +318,27 @@ class FrontendController extends Controller
     }
 
     /**
+     * Processes the post content and searches for the more tag.
+     *
+     * @param \WP_Post $post
+     *
+     * @return string
+     */
+    private function processPostContent(\WP_Post $post)
+    {
+        $uamPostContent = htmlspecialchars_decode($this->config->getPostTypeContent($post->post_type));
+
+        if ($post->post_type === 'post'
+            && $this->config->showPostContentBeforeMore() === true
+            && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
+        ) {
+            $uamPostContent = explode($matches[0], $post->post_content)[0]." ".$uamPostContent;
+        }
+
+        return stripslashes($uamPostContent);
+    }
+
+    /**
      * Modifies the content of the post by the given settings.
      *
      * @param \WP_Post $post    The current post.
@@ -337,16 +358,7 @@ class FrontendController extends Controller
                 return null;
             }
 
-            $uamPostContent = htmlspecialchars_decode($this->config->getPostTypeContent($post->post_type));
-
-            if ($post->post_type === 'post'
-                && $this->config->showPostContentBeforeMore() === true
-                && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
-            ) {
-                $uamPostContent = explode($matches[0], $post->post_content)[0]." ".$uamPostContent;
-            }
-
-            $post->post_content = stripslashes($uamPostContent);
+            $post->post_content = $this->processPostContent($post);
 
             if ($this->config->hidePostTypeTitle($post->post_type) === true) {
                 $post->post_title = $this->config->getPostTypeTitle($post->post_type);
@@ -361,6 +373,34 @@ class FrontendController extends Controller
     }
 
     /**
+     * Filters the raw posts.
+     *
+     * @param array $rawPosts
+     *
+     * @return array
+     */
+    private function filterRawPosts(array $rawPosts)
+    {
+        $filteredPosts = [];
+
+        foreach ($rawPosts as $rawPost) {
+            $post = $this->getPost($rawPost);
+
+            if ($post !== false) {
+                $post = $this->processPost($post);
+
+                if ($post !== null) {
+                    $filteredPosts[] = $post;
+                }
+            } else {
+                $filteredPosts[] = $rawPost;
+            }
+        }
+
+        return $filteredPosts;
+    }
+
+    /**
      * The function for the the_posts filter.
      *
      * @param array $rawPosts The posts.
@@ -369,22 +409,8 @@ class FrontendController extends Controller
      */
     public function showPosts($rawPosts = [])
     {
-        $showPosts = [];
-
         if ($this->wordpress->isFeed() === false || $this->config->protectFeed() === true) {
-            foreach ($rawPosts as $rawPost) {
-                $post = $this->getPost($rawPost);
-
-                if ($post !== false) {
-                    $post = $this->processPost($post);
-
-                    if ($post !== null) {
-                        $showPosts[] = $post;
-                    }
-                } else {
-                    $showPosts[] = $rawPost;
-                }
-            }
+            $showPosts = $this->filterRawPosts($rawPosts);
         } else {
             $showPosts = $rawPosts;
         }
@@ -403,25 +429,7 @@ class FrontendController extends Controller
      */
     public function showPages($rawPages = [])
     {
-        $showPages = [];
-
-        foreach ($rawPages as $rawPage) {
-            $page = $this->getPost($rawPage);
-
-            if ($page !== false) {
-                $page = $this->processPost($page);
-
-                if ($page !== null) {
-                    $showPages[] = $page;
-                }
-            } else {
-                $showPages[] = $rawPage;
-            }
-        }
-
-        $rawPages = $showPages;
-
-        return $rawPages;
+        return $this->filterRawPosts($rawPages);
     }
 
     /**
@@ -430,7 +438,7 @@ class FrontendController extends Controller
      * @param string $file
      * @param int    $attachmentId
      *
-     * @return string|bool
+     * @return string|false
      */
     public function getAttachedFile($file, $attachmentId)
     {
@@ -499,6 +507,26 @@ class FrontendController extends Controller
     }
 
     /**
+     * Adds the excluded posts filter to the given query.
+     *
+     * @param string $query
+     * @param string $table
+     *
+     * @return string
+     */
+    private function addQueryExcludedPostFilter($query, $table)
+    {
+        $excludedPosts = $this->accessHandler->getExcludedPosts();
+
+        if (count($excludedPosts) > 0) {
+            $excludedPostsStr = implode(', ', $excludedPosts);
+            $query .= " AND {$table}.ID NOT IN ($excludedPostsStr) ";
+        }
+
+        return $query;
+    }
+
+    /**
      * The function for the posts_where_paged filter.
      *
      * @param string $query The where sql statement.
@@ -507,14 +535,7 @@ class FrontendController extends Controller
      */
     public function showPostSql($query)
     {
-        $excludedPosts = $this->accessHandler->getExcludedPosts();
-
-        if (count($excludedPosts) > 0) {
-            $excludedPostsStr = implode(', ', $excludedPosts);
-            $query .= " AND {$this->database->getPostsTable()}.ID NOT IN ($excludedPostsStr) ";
-        }
-
-        return $query;
+        return $this->addQueryExcludedPostFilter($query, $this->database->getPostsTable());
     }
 
     /**
@@ -661,14 +682,7 @@ class FrontendController extends Controller
      */
     public function showNextPreviousPost($query)
     {
-        $excludedPosts = $this->accessHandler->getExcludedPosts();
-
-        if (count($excludedPosts) > 0) {
-            $excludedPosts = implode(', ', $excludedPosts);
-            $query .= " AND p.ID NOT IN ({$excludedPosts}) ";
-        }
-
-        return $query;
+        return $this->addQueryExcludedPostFilter($query, 'p');
     }
 
     /**
@@ -689,6 +703,36 @@ class FrontendController extends Controller
         return $this->postObjectHideConfig;
     }
 
+    /**
+     * Returns all posts for the given term.
+     *
+     * @param string $termType
+     * @param int    $termId
+     *
+     * @return array
+     */
+    private function getAllPostForTerm($termType, $termId)
+    {
+        $fullTerms = [$termId => $termType];
+        $termTreeMap = $this->objectHandler->getTermTreeMap();
+
+        if (isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType]) === true
+            && isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId]) === true
+        ) {
+            $fullTerms += $termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId];
+        }
+
+        $posts = [];
+        $termPostMap = $this->objectHandler->getTermPostMap();
+
+        foreach ($fullTerms as $fullTermId => $fullTermType) {
+            if (isset($termPostMap[$fullTermId]) === true) {
+                $posts += $termPostMap[$fullTermId];
+            }
+        }
+
+        return $posts;
+    }
 
     /**
      * Returns the post count for the term.
@@ -704,25 +748,7 @@ class FrontendController extends Controller
 
         if (isset($this->visibleElementsCount[$key]) === false) {
             $count = 0;
-
-            $fullTerms = [$termId => $termType];
-            $termTreeMap = $this->objectHandler->getTermTreeMap();
-
-            if (isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType]) === true
-                && isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId]) === true
-            ) {
-                $fullTerms += $termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId];
-            }
-
-            $posts = [];
-            $termPostMap = $this->objectHandler->getTermPostMap();
-
-            foreach ($fullTerms as $fullTermId => $fullTermType) {
-                if (isset($termPostMap[$fullTermId]) === true) {
-                    $posts += $termPostMap[$fullTermId];
-                }
-            }
-
+            $posts = $this->getAllPostForTerm($termType, $termId);
             $postTypeHiddenMap = $this->getPostObjectHideConfig();
 
             foreach ($posts as $postId => $postType) {
@@ -739,8 +765,6 @@ class FrontendController extends Controller
             $this->visibleElementsCount[$key] = $count;
         }
 
-
-
         return $this->visibleElementsCount[$key];
     }
 
@@ -750,7 +774,7 @@ class FrontendController extends Controller
      * @param \WP_Term $term     The current term.
      * @param bool     $isEmpty
      *
-     * @return mixed
+     * @return null|\WP_Term
      */
     private function processTerm($term, &$isEmpty = null)
     {
@@ -1073,22 +1097,14 @@ class FrontendController extends Controller
     }
 
     /**
-     * Redirects the user to his destination.
+     * Returns the redirect url and the permalink of the post if exists.
      *
-     * @param bool $checkPosts
+     * @param null|string $permalink
+     *
+     * @return null|string
      */
-    public function redirectUser($checkPosts = true)
+    private function getRedirectUrlAndPermalink(&$permalink)
     {
-        if ($checkPosts === true) {
-            $posts = (array)$this->wordpress->getWpQuery()->get_posts();
-
-            foreach ($posts as $post) {
-                if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID)) {
-                    return;
-                }
-            }
-        }
-
         $permalink = null;
         $redirect = $this->config->getRedirect();
 
@@ -1107,6 +1123,27 @@ class FrontendController extends Controller
             $url = $this->wordpress->getHomeUrl('/');
         }
 
+        return $url;
+    }
+
+    /**
+     * Redirects the user to his destination.
+     *
+     * @param bool $checkPosts
+     */
+    public function redirectUser($checkPosts = true)
+    {
+        if ($checkPosts === true) {
+            $posts = (array)$this->wordpress->getWpQuery()->get_posts();
+
+            foreach ($posts as $post) {
+                if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID)) {
+                    return;
+                }
+            }
+        }
+
+        $url = $this->getRedirectUrlAndPermalink($permalink);
         $currentUrl = $this->util->getCurrentUrl();
 
         if ($url !== null && $url !== $currentUrl && $permalink !== $currentUrl) {

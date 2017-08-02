@@ -45,7 +45,7 @@ class UserGroup extends AbstractUserGroup
      * @param Util                         $util
      * @param ObjectHandler                $objectHandler
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param null                         $id
+     * @param null|string                  $id
      */
     public function __construct(
         Php $php,

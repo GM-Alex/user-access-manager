@@ -16,6 +16,7 @@
 namespace UserAccessManager\Command;
 
 use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Wrapper\WordpressCli;
 
@@ -50,6 +51,79 @@ class ObjectCommand extends \WP_CLI_Command
     {
         $this->wordpressCli = $wordpressCli;
         $this->accessHandler = $accessHandler;
+    }
+
+    /**
+     * Converts the string to and associative array of index and group
+     *
+     * @param AbstractUserGroup[] $userGroups
+     *
+     * @return array|bool
+     */
+    private function getUserGroupNameMap(array $userGroups)
+    {
+        $userGroupNames = array_map(
+            function (UserGroup $userGroup) {
+                return $userGroup->getName();
+            },
+            $userGroups
+        );
+
+        foreach ($userGroups as $userGroup) {
+            $userGroupNames[$userGroup->getId()] = $userGroup->getName();
+        }
+
+        return array_flip($userGroupNames);
+    }
+
+    /**
+     * Returns the add and remove user groups by reference.
+     *
+     * @param string              $operation
+     * @param string              $objectType
+     * @param string              $objectId
+     * @param string              $userGroupsArgument
+     * @param AbstractUserGroup[] $userGroups
+     * @param array               $addUserGroups
+     * @param array               $removeUserGroups
+     *
+     * @return bool
+     */
+    private function getAddRemoveUserGroups(
+        $operation,
+        $objectType,
+        $objectId,
+        $userGroupsArgument,
+        array $userGroups,
+        &$addUserGroups,
+        &$removeUserGroups
+    ) {
+        $addUserGroups = [];
+        $userGroupIds = array_unique(explode(',', $userGroupsArgument));
+        $namesMap = $this->getUserGroupNameMap($userGroups);
+
+        // find the UserGroup object for the ids or strings given on the commandline
+        foreach ($userGroupIds as $identifier) {
+            $userGroupId = isset($namesMap[$identifier]) ? $namesMap[$identifier] : $identifier;
+
+            if (isset($userGroups[$userGroupId]) === true) {
+                $addUserGroups[$userGroupId] = $userGroups[$userGroupId];
+            } else {
+                $type = (is_numeric($identifier) === true) ? 'id' : 'name';
+                $this->wordpressCli->error("There is no group with the {$type}: {$identifier}");
+                return false;
+            }
+        }
+
+        $removeUserGroups = ($operation === self::ACTION_UPDATE) ?
+            $this->accessHandler->getUserGroupsForObject($objectType, $objectId) : [];
+
+        if ($operation === self::ACTION_REMOVE) {
+            $removeUserGroups = $addUserGroups;
+            $addUserGroups = [];
+        }
+
+        return true;
     }
 
     /**
@@ -98,47 +172,21 @@ class ObjectCommand extends \WP_CLI_Command
 
         $objectType = $arguments[1];
         $objectId = $arguments[2];
-
-        // convert the string to and associative array of index and group
-        $addUserGroups = [];
+        $userGroupsArgument = $arguments[3];
         $userGroups = $this->accessHandler->getUserGroups();
 
-        $userGroupNames = array_map(
-            function (UserGroup $userGroup) {
-                return $userGroup->getName();
-            },
-            $userGroups
+        $success = $this->getAddRemoveUserGroups(
+            $operation,
+            $objectType,
+            $objectId,
+            $userGroupsArgument,
+            $userGroups,
+            $addUserGroups,
+            $removeUserGroups
         );
 
-        foreach ($userGroups as $userGroup) {
-            $userGroupNames[$userGroup->getId()] = $userGroup->getName();
-        }
-
-        $namesMap = array_flip($userGroupNames);
-
-        // groups passes
-        $userGroupsArgument = $arguments[3];
-        $userGroupIds = array_unique(explode(',', $userGroupsArgument));
-
-        // find the UserGroup object for the ids or strings given on the commandline
-        foreach ($userGroupIds as $identifier) {
-            $userGroupId = isset($namesMap[$identifier]) ? $namesMap[$identifier] : $identifier;
-
-            if (isset($userGroups[$userGroupId]) === true) {
-                $addUserGroups[$userGroupId] = $userGroups[$userGroupId];
-            } else {
-                $type = (is_numeric($identifier) === true) ? 'id' : 'name';
-                $this->wordpressCli->error("There is no group with the {$type}: {$identifier}");
-                return;
-            }
-        }
-
-        $removeUserGroups = ($operation === self::ACTION_UPDATE) ?
-            $this->accessHandler->getUserGroupsForObject($objectType, $objectId) : [];
-
-        if ($operation === self::ACTION_REMOVE) {
-            $removeUserGroups = $addUserGroups;
-            $addUserGroups = [];
+        if ($success === false) {
+            return;
         }
 
         foreach ($userGroups as $groupId => $uamUserGroup) {

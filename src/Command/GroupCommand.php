@@ -175,6 +175,85 @@ class GroupCommand extends CommandWithDBObject
     }
 
     /**
+     * Checks if the user group already exists.
+     *
+     * @param $userGroupName
+     *
+     * @return bool
+     */
+    private function doesUserGroupExists($userGroupName)
+    {
+        $userGroups = $this->accessHandler->getUserGroups();
+
+        foreach ($userGroups as $userGroup) {
+            if ($userGroup->getName() === $userGroupName) {
+                $this->wordpressCli->error(
+                    "Group with the same name '{$userGroupName}' already exists: {$userGroup->getId()}"
+                );
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Creates the user group.
+     *
+     * @param string $userGroupName
+     * @param array  $assocArguments
+     *
+     * @return \UserAccessManager\UserGroup\UserGroup
+     */
+    private function createUserGroup($userGroupName, array $assocArguments)
+    {
+        $groupDescription = (isset($assocArguments['desc']) === true) ? $assocArguments['desc'] : '';
+        $ipRange = (isset($assocArguments['ip_range']) === true) ? $assocArguments['ip_range'] : '';
+        $readAccess = (isset($assocArguments['read_access']) === true) ? $assocArguments['read_access'] : '';
+        $writeAccess = (isset($assocArguments['write_access']) === true) ? $assocArguments['write_access'] : '';
+        $porcelain = isset($assocArguments['porcelain']);
+
+        if (in_array($readAccess, self::$allowedAccessValues) === false) {
+            if ($porcelain === true) {
+                $this->wordpressCli->line('setting read_access to '.self::$allowedAccessValues[0]);
+            }
+
+            $readAccess = self::$allowedAccessValues[0];
+        }
+
+        if (in_array($writeAccess, self::$allowedAccessValues) === false) {
+            if ($porcelain === true) {
+                $this->wordpressCli->line('setting write_access to '.self::$allowedAccessValues[0]);
+            }
+
+            $writeAccess = self::$allowedAccessValues[0];
+        }
+
+        $userGroup = $this->userGroupFactory->createUserGroup();
+        $userGroup->setName($userGroupName);
+        $userGroup->setDescription($groupDescription);
+        $userGroup->setIpRange($ipRange);
+        $userGroup->setReadAccess($readAccess);
+        $userGroup->setWriteAccess($writeAccess);
+
+        // add roles
+        if (isset($assocArguments['roles']) === true) {
+            $roles = explode(',', $assocArguments['roles']);
+
+            $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+
+            foreach ($roles as $role) {
+                $userGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($role));
+            }
+        }
+
+        $userGroup->save();
+
+        return $userGroup;
+    }
+
+    /**
      * add group
      *
      * ## OPTIONS
@@ -211,66 +290,19 @@ class GroupCommand extends CommandWithDBObject
             return;
         }
 
-        $groupName = $arguments[0];
-        $userGroups = $this->accessHandler->getUserGroups();
+        $userGroupName = $arguments[0];
 
-        foreach ($userGroups as $userGroup) {
-            if ($userGroup->getName() === $groupName) {
-                $this->wordpressCli->error(
-                    "Group with the same name '{$groupName}' already exists: {$userGroup->getId()}"
-                );
-                return;
-            }
+        if ($this->doesUserGroupExists($userGroupName) === false) {
+            return;
         }
 
-        $groupDescription = (isset($assocArguments['desc']) === true) ? $assocArguments['desc'] : '';
-        $ipRange = (isset($assocArguments['ip_range']) === true) ? $assocArguments['ip_range'] : '';
-        $readAccess = (isset($assocArguments['read_access']) === true) ? $assocArguments['read_access'] : '';
-        $writeAccess = (isset($assocArguments['write_access']) === true) ? $assocArguments['write_access'] : '';
-        $porcelain = isset($assocArguments['porcelain']);
-
-        if (in_array($readAccess, self::$allowedAccessValues) === false) {
-            if ($porcelain === true) {
-                $this->wordpressCli->line('setting read_access to '.self::$allowedAccessValues[0]);
-            }
-
-            $readAccess = self::$allowedAccessValues[0];
-        }
-
-        if (in_array($writeAccess, self::$allowedAccessValues) === false) {
-            if ($porcelain === true) {
-                $this->wordpressCli->line('setting write_access to '.self::$allowedAccessValues[0]);
-            }
-
-            $writeAccess = self::$allowedAccessValues[0];
-        }
-
-        $userGroup = $this->userGroupFactory->createUserGroup();
-        $userGroup->setName($groupName);
-        $userGroup->setDescription($groupDescription);
-        $userGroup->setIpRange($ipRange);
-        $userGroup->setReadAccess($readAccess);
-        $userGroup->setWriteAccess($writeAccess);
-
-        // add roles
-        if (isset($assocArguments['roles']) === true) {
-            $roles = explode(',', $assocArguments['roles']);
-
-            $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
-
-            foreach ($roles as $role) {
-                $userGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($role));
-            }
-        }
-
-        $userGroup->save();
-
+        $userGroup = $this->createUserGroup($userGroupName, $assocArguments);
         $this->accessHandler->addUserGroup($userGroup);
 
-        if ($porcelain === true) {
+        if (isset($assocArguments['porcelain']) === true) {
             $this->wordpressCli->line($userGroup->getId());
         } else {
-            $this->wordpressCli->success("Added new group '{$groupName}' with id {$userGroup->getId()}.");
+            $this->wordpressCli->success("Added new group '{$userGroupName}' with id {$userGroup->getId()}.");
         }
     }
 }

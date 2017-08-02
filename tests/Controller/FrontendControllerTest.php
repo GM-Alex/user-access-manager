@@ -506,6 +506,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::showPosts()
      * @covers ::showPages()
+     * @covers ::filterRawPosts()
      * @covers ::getPost()
      * @covers ::processPost()
      */
@@ -878,12 +879,13 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showPostSql()
+     * @covers ::addQueryExcludedPostFilter()
      */
     public function testShowPostSql()
     {
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(2))
+        $database->expects($this->exactly(3))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
@@ -1354,6 +1356,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showNextPreviousPost()
+     * @covers ::addQueryExcludedPostFilter()
      */
     public function testShowNextPreviousPost()
     {
@@ -1413,6 +1416,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @covers ::showTerm()
      * @covers ::showTerms()
      * @covers ::getVisibleElementsCount()
+     * @covers ::getAllPostForTerm()
      * @covers ::processTerm()
      * @covers ::getPostObjectHideConfig()
      */
@@ -2201,6 +2205,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::redirectUser()
+     * @covers ::getRedirectUrlAndPermalink()
      */
     public function testRedirectUser()
     {
