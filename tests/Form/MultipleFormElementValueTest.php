@@ -13,6 +13,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Tests\Form;
+
 use UserAccessManager\Form\Input;
 use UserAccessManager\Form\MultipleFormElement;
 use UserAccessManager\Form\MultipleFormElementValue;

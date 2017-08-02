@@ -61,7 +61,10 @@ if ($controller->hasUpdateMessage()) {
                                          name="uam_update_db_submit"
                                          value="<?php echo TXT_UAM_UPDATE; ?>"/>
                             <p>
-                                <input type="checkbox" id="uam_backup_db" checked="checked" name="uam_backup_db" value="1">
+                                <input type="checkbox"
+                                       id="uam_backup_db"
+                                       checked="checked"
+                                       name="uam_backup_db" value="1">
                                 <label for="uam_backup_db"><?php echo TXT_UAM_UPDATE_BACKUP; ?></label>
                             </p>
                             <p style="color: red; font-size: 12px; font-weight: bold;">

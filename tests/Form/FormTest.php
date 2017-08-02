@@ -13,6 +13,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 namespace UserAccessManager\Tests\Form;
+
 use UserAccessManager\Form\Form;
 use UserAccessManager\Form\FormElement;
 
