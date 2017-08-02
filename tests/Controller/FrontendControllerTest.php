@@ -509,6 +509,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @covers ::filterRawPosts()
      * @covers ::getPost()
      * @covers ::processPost()
+     * @covers ::processPostContent()
      */
     public function testShowPostsAtAdminPanel()
     {
@@ -621,6 +622,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @covers ::showPages()
      * @covers ::getPost()
      * @covers ::processPost()
+     * @covers ::processPostContent()
+     * @covers ::filterRawPosts()
      */
     public function testShowPosts()
     {
@@ -1418,6 +1421,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      * @covers ::getVisibleElementsCount()
      * @covers ::getAllPostForTerm()
      * @covers ::processTerm()
+     * @covers ::updateTermParent()
      * @covers ::getPostObjectHideConfig()
      */
     public function testShowTerm()

@@ -228,6 +228,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
      * @covers ::add()
      * @covers ::doesUserGroupExists()
      * @covers ::createUserGroup()
+     * @covers ::getAccessValue()
      */
     public function testAdd()
     {

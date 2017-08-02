@@ -769,6 +769,38 @@ class FrontendController extends Controller
     }
 
     /**
+     * Updates the term parent.
+     *
+     * @param \WP_Term $term
+     *
+     * @return \WP_Term
+     */
+    private function updateTermParent(\WP_Term $term)
+    {
+        $currentTerm = $term;
+
+        while ($currentTerm->parent != 0) {
+            $currentTerm = $this->objectHandler->getTerm($currentTerm->parent);
+
+            if ($currentTerm === false) {
+                break;
+            }
+
+            $access = $this->accessHandler->checkObjectAccess(
+                $currentTerm->taxonomy,
+                $currentTerm->term_id
+            );
+
+            if ($access === true) {
+                $term->parent = $currentTerm->term_id;
+                break;
+            }
+        }
+
+        return $term;
+    }
+
+    /**
      * Modifies the content of the term by the given settings.
      *
      * @param \WP_Term $term     The current term.
@@ -800,25 +832,7 @@ class FrontendController extends Controller
         }
 
         if ($this->config->lockRecursive() === false) {
-            $currentTerm = $term;
-
-            while ($currentTerm->parent != 0) {
-                $currentTerm = $this->objectHandler->getTerm($currentTerm->parent);
-
-                if ($currentTerm === false) {
-                    break;
-                }
-
-                $access = $this->accessHandler->checkObjectAccess(
-                    $currentTerm->taxonomy,
-                    $currentTerm->term_id
-                );
-
-                if ($access === true) {
-                    $term->parent = $currentTerm->term_id;
-                    break;
-                }
-            }
+            $term = $this->updateTermParent($term);
         }
 
         return $term;

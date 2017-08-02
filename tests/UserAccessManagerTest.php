@@ -205,6 +205,9 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::registerAdminActionsAndFilters()
+     * @covers ::addAdminActions()
+     * @covers ::addAdminFilters()
+     * @covers ::addAdminMetaBoxes()
      */
     public function testRegisterAdminActionsAndFilters()
     {

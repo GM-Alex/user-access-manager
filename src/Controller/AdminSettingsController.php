@@ -431,23 +431,17 @@ class AdminSettingsController extends Controller
         if ($group === self::GROUP_POST_TYPES) {
             $groupForms[MainConfig::DEFAULT_TYPE] = $this->getPostSettingsForm();
             $postTypes = $this->getPostTypes();
+            unset($postTypes[ObjectHandler::ATTACHMENT_OBJECT_TYPE]);
 
             foreach ($postTypes as $postType => $postTypeObject) {
-                if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
-                    continue;
-                }
-
                 $groupForms[$postType] = $this->getPostSettingsForm($postType);
             }
         } elseif ($group === self::GROUP_TAXONOMIES) {
             $groupForms[MainConfig::DEFAULT_TYPE] = $this->getTaxonomySettingsForm();
             $taxonomies = $this->getTaxonomies();
+            unset($taxonomies[ObjectHandler::POST_FORMAT_TYPE]);
 
             foreach ($taxonomies as $taxonomy => $taxonomyObject) {
-                if ($taxonomy === ObjectHandler::POST_FORMAT_TYPE) {
-                    continue;
-                }
-
                 $groupForms[$taxonomy] = $this->getTaxonomySettingsForm($taxonomy);
             }
         } elseif ($group === self::GROUP_FILES) {

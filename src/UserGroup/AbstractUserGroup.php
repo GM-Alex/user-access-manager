@@ -190,7 +190,7 @@ abstract class AbstractUserGroup
     /**
      * Returns the group _iId.
      *
-     * @return integer
+     * @return string
      */
     public function getId()
     {
@@ -639,8 +639,8 @@ abstract class AbstractUserGroup
     /**
      * Assigns recursive membership to the assignment information object.
      *
-     * @param AssignmentInformation $assignmentInformation
-     * @param array                 $recursiveMembership
+     * @param null|AssignmentInformation $assignmentInformation
+     * @param array                      $recursiveMembership
      */
     protected function assignRecursiveMembership(
         &$assignmentInformation,

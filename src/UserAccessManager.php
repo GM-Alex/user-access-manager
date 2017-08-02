@@ -20,6 +20,7 @@ use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Controller\AdminObjectController;
 use UserAccessManager\Controller\AdminSetupController;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
@@ -414,6 +415,140 @@ class UserAccessManager
     }
 
     /**
+     * Adds the admin filters.
+     *
+     * @param AdminObjectController $adminObjectController
+     * @param array                 $taxonomies
+     */
+    private function addAdminActions(AdminObjectController $adminObjectController, array $taxonomies)
+    {
+        $this->wordpress->addAction(
+            'manage_posts_custom_column',
+            [$adminObjectController, 'addPostColumn'],
+            10,
+            2
+        );
+        $this->wordpress->addAction(
+            'manage_pages_custom_column',
+            [$adminObjectController, 'addPostColumn'],
+            10,
+            2
+        );
+        $this->wordpress->addAction('save_post', [$adminObjectController, 'savePostData']);
+        $this->wordpress->addAction('edit_user_profile', [$adminObjectController, 'showUserProfile']);
+        $this->wordpress->addAction('user_new_form', [$adminObjectController, 'showUserProfile']);
+        $this->wordpress->addAction('profile_update', [$adminObjectController, 'saveUserData']);
+
+        $this->wordpress->addAction('bulk_edit_custom_box', [$adminObjectController, 'addBulkAction']);
+        $this->wordpress->addAction('create_term', [$adminObjectController, 'saveTermData']);
+        $this->wordpress->addAction('edit_term', [$adminObjectController, 'saveTermData']);
+
+        //Taxonomies
+        foreach ($taxonomies as $taxonomy) {
+            $this->wordpress->addAction(
+                'manage_'.$taxonomy.'_custom_column',
+                [$adminObjectController, 'addTermColumn'],
+                10,
+                3
+            );
+            $this->wordpress->addAction(
+                $taxonomy.'_add_form_fields',
+                [$adminObjectController, 'showTermEditForm']
+            );
+            $this->wordpress->addAction(
+                $taxonomy.'_edit_form_fields',
+                [$adminObjectController, 'showTermEditForm']
+            );
+        }
+
+        if ($this->config->lockFile() === true) {
+            $this->wordpress->addAction(
+                'manage_media_custom_column',
+                [$adminObjectController, 'addPostColumn'],
+                10,
+                2
+            );
+            $this->wordpress->addAction(
+                'attachment_fields_to_edit',
+                [$adminObjectController, 'showMediaFile'],
+                10,
+                2
+            );
+            $this->wordpress->addAction(
+                'wp_ajax_save-attachment-compat',
+                [$adminObjectController, 'saveAjaxAttachmentData'],
+                1,
+                9
+            );
+        }
+
+        //Admin ajax actions
+        $this->wordpress->addAction(
+            'wp_ajax_uam-get-dynamic-group',
+            [$adminObjectController, 'getDynamicGroupsForAjax']
+        );
+    }
+
+    /**
+     * Adds the admin filters.
+     *
+     * @param AdminObjectController $adminObjectController
+     * @param array                 $taxonomies
+     */
+    private function addAdminFilters(AdminObjectController $adminObjectController, array $taxonomies)
+    {
+        //The filter we use instead of add|edit_attachment action, reason see top
+        $this->wordpress->addFilter('attachment_fields_to_save', [$adminObjectController, 'saveAttachmentData']);
+
+        $this->wordpress->addFilter('manage_posts_columns', [$adminObjectController, 'addPostColumnsHeader']);
+        $this->wordpress->addFilter('manage_pages_columns', [$adminObjectController, 'addPostColumnsHeader']);
+
+        $this->wordpress->addFilter('manage_users_columns', [$adminObjectController, 'addUserColumnsHeader'], 10);
+        $this->wordpress->addFilter(
+            'manage_users_custom_column',
+            [$adminObjectController, 'addUserColumn'],
+            10,
+            3
+        );
+
+        foreach ($taxonomies as $taxonomy) {
+            $this->wordpress->addFilter(
+                'manage_edit-'.$taxonomy.'_columns',
+                [$adminObjectController, 'addTermColumnsHeader']
+            );
+        }
+
+        if ($this->config->lockFile() === true) {
+            $this->wordpress->addFilter('manage_media_columns', [$adminObjectController, 'addPostColumnsHeader']);
+        }
+    }
+
+    /**
+     * Adds the admin meta boxes.
+     *
+     * @param AdminObjectController $adminObjectController
+     */
+    private function addAdminMetaBoxes(AdminObjectController $adminObjectController)
+    {
+        $postTypes = $this->objectHandler->getPostTypes();
+
+        foreach ($postTypes as $postType) {
+            // there is no need for a meta box for attachments if files are locked
+            if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE && $this->config->lockFile() !== true) {
+                continue;
+            }
+
+            $this->wordpress->addMetaBox(
+                'uam_post_access',
+                TXT_UAM_COLUMN_ACCESS,
+                [$adminObjectController, 'editPostContent'],
+                $postType,
+                'side'
+            );
+        }
+    }
+
+    /**
      * Register the admin actions and filters
      */
     public function registerAdminActionsAndFilters()
@@ -443,115 +578,13 @@ class UserAccessManager
             || $this->config->authorsCanAddPostsToGroups() === true
         ) {
             //Admin actions
-            $this->wordpress->addAction(
-                'manage_posts_custom_column',
-                [$adminObjectController, 'addPostColumn'],
-                10,
-                2
-            );
-            $this->wordpress->addAction(
-                'manage_pages_custom_column',
-                [$adminObjectController, 'addPostColumn'],
-                10,
-                2
-            );
-            $this->wordpress->addAction('save_post', [$adminObjectController, 'savePostData']);
-            $this->wordpress->addAction('edit_user_profile', [$adminObjectController, 'showUserProfile']);
-            $this->wordpress->addAction('user_new_form', [$adminObjectController, 'showUserProfile']);
-            $this->wordpress->addAction('profile_update', [$adminObjectController, 'saveUserData']);
-
-            $this->wordpress->addAction('bulk_edit_custom_box', [$adminObjectController, 'addBulkAction']);
-            $this->wordpress->addAction('create_term', [$adminObjectController, 'saveTermData']);
-            $this->wordpress->addAction('edit_term', [$adminObjectController, 'saveTermData']);
-
-            //Taxonomies
-            foreach ($taxonomies as $taxonomy) {
-                $this->wordpress->addAction(
-                    'manage_'.$taxonomy.'_custom_column',
-                    [$adminObjectController, 'addTermColumn'],
-                    10,
-                    3
-                );
-                $this->wordpress->addAction(
-                    $taxonomy.'_add_form_fields',
-                    [$adminObjectController, 'showTermEditForm']
-                );
-                $this->wordpress->addAction(
-                    $taxonomy.'_edit_form_fields',
-                    [$adminObjectController, 'showTermEditForm']
-                );
-            }
-
-            if ($this->config->lockFile() === true) {
-                $this->wordpress->addAction(
-                    'manage_media_custom_column',
-                    [$adminObjectController, 'addPostColumn'],
-                    10,
-                    2
-                );
-                $this->wordpress->addAction(
-                    'attachment_fields_to_edit',
-                    [$adminObjectController, 'showMediaFile'],
-                    10,
-                    2
-                );
-                $this->wordpress->addAction(
-                    'wp_ajax_save-attachment-compat',
-                    [$adminObjectController, 'saveAjaxAttachmentData'],
-                    1,
-                    9
-                );
-            }
+            $this->addAdminActions($adminObjectController, $taxonomies);
 
             //Admin filters
-            //The filter we use instead of add|edit_attachment action, reason see top
-            $this->wordpress->addFilter('attachment_fields_to_save', [$adminObjectController, 'saveAttachmentData']);
-
-            $this->wordpress->addFilter('manage_posts_columns', [$adminObjectController, 'addPostColumnsHeader']);
-            $this->wordpress->addFilter('manage_pages_columns', [$adminObjectController, 'addPostColumnsHeader']);
-
-            $this->wordpress->addFilter('manage_users_columns', [$adminObjectController, 'addUserColumnsHeader'], 10);
-            $this->wordpress->addFilter(
-                'manage_users_custom_column',
-                [$adminObjectController, 'addUserColumn'],
-                10,
-                3
-            );
-
-            foreach ($taxonomies as $taxonomy) {
-                $this->wordpress->addFilter(
-                    'manage_edit-'.$taxonomy.'_columns',
-                    [$adminObjectController, 'addTermColumnsHeader']
-                );
-            }
-
-            if ($this->config->lockFile() === true) {
-                $this->wordpress->addFilter('manage_media_columns', [$adminObjectController, 'addPostColumnsHeader']);
-            }
+            $this->addAdminFilters($adminObjectController, $taxonomies);
 
             //Admin meta boxes
-            $postTypes = $this->objectHandler->getPostTypes();
-
-            foreach ($postTypes as $postType) {
-                // there is no need for a meta box for attachments if files are locked
-                if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE && $this->config->lockFile() !== true) {
-                    continue;
-                }
-
-                $this->wordpress->addMetaBox(
-                    'uam_post_access',
-                    TXT_UAM_COLUMN_ACCESS,
-                    [$adminObjectController, 'editPostContent'],
-                    $postType,
-                    'side'
-                );
-            }
-
-            //Admin ajax actions
-            $this->wordpress->addAction(
-                'wp_ajax_uam-get-dynamic-group',
-                [$adminObjectController, 'getDynamicGroupsForAjax']
-            );
+            $this->addAdminMetaBoxes($adminObjectController);
         }
 
         //Clean up at deleting should always be done.

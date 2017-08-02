@@ -199,6 +199,28 @@ class GroupCommand extends CommandWithDBObject
     }
 
     /**
+     * Processes the access value.
+     *
+     * @param string $accessValue
+     * @param bool   $porcelain
+     * @param string $type
+     *
+     * @return mixed
+     */
+    private function getAccessValue($accessValue, $porcelain, $type)
+    {
+        if (in_array($accessValue, self::$allowedAccessValues) === false) {
+            if ($porcelain === true) {
+                $this->wordpressCli->line("setting {$type} to ".self::$allowedAccessValues[0]);
+            }
+
+            $accessValue = self::$allowedAccessValues[0];
+        }
+
+        return $accessValue;
+    }
+
+    /**
      * Creates the user group.
      *
      * @param string $userGroupName
@@ -214,21 +236,8 @@ class GroupCommand extends CommandWithDBObject
         $writeAccess = (isset($assocArguments['write_access']) === true) ? $assocArguments['write_access'] : '';
         $porcelain = isset($assocArguments['porcelain']);
 
-        if (in_array($readAccess, self::$allowedAccessValues) === false) {
-            if ($porcelain === true) {
-                $this->wordpressCli->line('setting read_access to '.self::$allowedAccessValues[0]);
-            }
-
-            $readAccess = self::$allowedAccessValues[0];
-        }
-
-        if (in_array($writeAccess, self::$allowedAccessValues) === false) {
-            if ($porcelain === true) {
-                $this->wordpressCli->line('setting write_access to '.self::$allowedAccessValues[0]);
-            }
-
-            $writeAccess = self::$allowedAccessValues[0];
-        }
+        $readAccess = $this->getAccessValue($readAccess, $porcelain, 'read_access');
+        $writeAccess = $this->getAccessValue($writeAccess, $porcelain, 'write_access');
 
         $userGroup = $this->userGroupFactory->createUserGroup();
         $userGroup->setName($userGroupName);

@@ -212,16 +212,17 @@ class FileSystemCacheProvider implements CacheProviderInterface
             if ($method === self::METHOD_SERIALIZE) {
                 return unserialize(base64_decode(file_get_contents($cacheFile)));
             } elseif ($method === self::METHOD_IGBINARY
-                && $this->php->functionExists('igbinary_unserialize')
+                && $this->php->functionExists('igbinary_unserialize') === true
             ) {
                 /** @noinspection PhpUndefinedFunctionInspection */
                 return $this->php->igbinaryUnserialize(file_get_contents($cacheFile));
             } elseif ($method === self::METHOD_JSON) {
                 return json_decode(file_get_contents($cacheFile), true);
             } elseif ($method === self::METHOD_VAR_EXPORT) {
+                $cachedValue = null;
                 /** @noinspection PhpIncludeInspection */
                 include($cacheFile);
-                return isset($cachedValue) ? $cachedValue : null;
+                return $cachedValue;
             }
         }
 

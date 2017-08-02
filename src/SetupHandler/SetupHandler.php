@@ -321,42 +321,46 @@ class SetupHandler
     }
 
     /**
-     * Update to database version 1.0.
+     * Updates the user group table to version 1.0.
+     *
+     * @param string $userGroupTable
      */
-    private function updateTo10()
+    private function updateTo10UserGroupTableUpdate($userGroupTable)
     {
-        $prefix = $this->database->getPrefix();
-        $dbAccessGroup = $this->database->getUserGroupTable();
-        $dbUserGroup = $this->database->getVariable("SHOW TABLES LIKE '{$dbAccessGroup}'");
-
-        if ($dbUserGroup === $dbAccessGroup) {
-            $alterQuery = "ALTER TABLE {$dbAccessGroup}
+        $alterQuery = "ALTER TABLE {$userGroupTable}
                 ADD read_access TINYTEXT NOT NULL DEFAULT '', 
                 ADD write_access TINYTEXT NOT NULL DEFAULT '', 
                 ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
 
+        $this->database->query($alterQuery);
+
+        $updateQuery = "UPDATE {$userGroupTable} SET read_access = 'group', write_access = 'group'";
+        $this->database->query($updateQuery);
+
+        $selectQuery = "SHOW columns FROM {$userGroupTable} LIKE 'ip_range'";
+        $dbIpRange = $this->database->getVariable($selectQuery);
+
+        if ($dbIpRange != 'ip_range') {
+            $alterQuery = "ALTER TABLE {$userGroupTable} ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
             $this->database->query($alterQuery);
-
-            $updateQuery = "UPDATE {$dbAccessGroup} SET read_access = 'group', write_access = 'group'";
-            $this->database->query($updateQuery);
-
-            $selectQuery = "SHOW columns FROM {$dbAccessGroup} LIKE 'ip_range'";
-            $dbIpRange = $this->database->getVariable($selectQuery);
-
-            if ($dbIpRange != 'ip_range') {
-                $alterQuery = "ALTER TABLE {$dbAccessGroup} ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
-                $this->database->query($alterQuery);
-            }
         }
+    }
+
+    /**
+     * Updates the user group to object table to version 1.0.
+     */
+    private function updateTo10UserGroupToObjectTableUpdate()
+    {
+        $prefix = $this->database->getPrefix();
 
         $charsetCollate = $this->database->getCharset();
-        $dbAccessGroupToObject = $prefix.'uam_accessgroup_to_object';
-        $dbAccessGroupToPost = $prefix.'uam_accessgroup_to_post';
-        $dbAccessGroupToUser = $prefix.'uam_accessgroup_to_user';
-        $dbAccessGroupToCategory = $prefix.'uam_accessgroup_to_category';
-        $dbAccessGroupToRole = $prefix.'uam_accessgroup_to_role';
+        $userGroupToObject = $prefix.'uam_accessgroup_to_object';
+        $userGroupToPost = $prefix.'uam_accessgroup_to_post';
+        $userGroupToUser = $prefix.'uam_accessgroup_to_user';
+        $userGroupToCategory = $prefix.'uam_accessgroup_to_category';
+        $userGroupToRole = $prefix.'uam_accessgroup_to_role';
 
-        $alterQuery = "ALTER TABLE '{$dbAccessGroupToObject}'
+        $alterQuery = "ALTER TABLE '{$userGroupToObject}'
             CHANGE 'object_id' 'object_id' VARCHAR(64) {$charsetCollate}";
         $this->database->query($alterQuery);
 
@@ -368,18 +372,18 @@ class SetupHandler
 
             if ($this->objectHandler->isPostType($objectType) === true) {
                 $dbIdName = 'post_id';
-                $database = $dbAccessGroupToPost.', '.$postTable;
+                $database = $userGroupToPost.', '.$postTable;
                 $addition = " WHERE post_id = ID
                             AND post_type = '".$objectType."'";
             } elseif ($objectType === 'category') {
                 $dbIdName = 'category_id';
-                $database = $dbAccessGroupToCategory;
+                $database = $userGroupToCategory;
             } elseif ($objectType === 'user') {
                 $dbIdName = 'user_id';
-                $database = $dbAccessGroupToUser;
+                $database = $userGroupToUser;
             } elseif ($objectType === 'role') {
                 $dbIdName = 'role_name';
-                $database = $dbAccessGroupToRole;
+                $database = $userGroupToRole;
             } else {
                 continue;
             }
@@ -393,7 +397,7 @@ class SetupHandler
 
             foreach ($dbObjects as $dbObject) {
                 $this->database->insert(
-                    $dbAccessGroupToObject,
+                    $userGroupToObject,
                     [
                         'group_id' => $dbObject->groupId,
                         'object_id' => $dbObject->id,
@@ -408,12 +412,27 @@ class SetupHandler
             }
         }
 
-        $dropQuery = "DROP TABLE {$dbAccessGroupToPost},
-            {$dbAccessGroupToUser},
-            {$dbAccessGroupToCategory},
-            {$dbAccessGroupToRole}";
+        $dropQuery = "DROP TABLE {$userGroupToPost},
+            {$userGroupToUser},
+            {$userGroupToCategory},
+            {$userGroupToRole}";
 
         $this->database->query($dropQuery);
+    }
+    
+    /**
+     * Update to database version 1.0.
+     */
+    private function updateTo10()
+    {
+        $userGroupTable = $this->database->getUserGroupTable();
+        $dbUserGroup = $this->database->getVariable("SHOW TABLES LIKE '{$userGroupTable}'");
+
+        if ($dbUserGroup === $userGroupTable) {
+            $this->updateTo10UserGroupTableUpdate($userGroupTable);
+        }
+
+        $this->updateTo10UserGroupToObjectTableUpdate();
     }
 
     /**
@@ -547,7 +566,20 @@ class SetupHandler
             ['group_type' => '']
         );
     }
-    
+
+    /**
+     * Checks if an update is necessary and if yes executes the update function.
+     *
+     * @param string   $currentDbVersion
+     * @param string   $version
+     * @param callable $updateFunction
+     */
+    private function isUpdateNecessary($currentDbVersion, $version, $updateFunction)
+    {
+        if (version_compare($currentDbVersion, $version, '<=') === true) {
+            $updateFunction();
+        }
+    }
 
     /**
      * Updates the user access manager if an old version was installed.
@@ -569,29 +601,48 @@ class SetupHandler
         }
 
         if (version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
-            if (version_compare($currentDbVersion, '1.0', '<=') === true) {
-                $this->updateTo10();
-            }
-
-            if (version_compare($currentDbVersion, '1.2', '<=') === true) {
-                $this->updateTo12();
-            }
-
-            if (version_compare($currentDbVersion, '1.3', '<=') === true) {
-                $this->updateTo13();
-            }
-
-            if (version_compare($currentDbVersion, '1.4', '<=') === true) {
-                $this->updateTo14();
-            }
-
-            if (version_compare($currentDbVersion, '1.5.1', '<=') === true) {
-                $this->updateTo151();
-            }
-
-            if (version_compare($currentDbVersion, '1.6', '<=') === true) {
-                $this->updateTo16();
-            }
+            $this->isUpdateNecessary(
+                $currentDbVersion,
+                '1.0',
+                function () {
+                    $this->updateTo10();
+                }
+            );
+            $this->isUpdateNecessary(
+                $currentDbVersion,
+                '1.2',
+                function () {
+                    $this->updateTo12();
+                }
+            );
+            $this->isUpdateNecessary(
+                $currentDbVersion,
+                '1.3',
+                function () {
+                    $this->updateTo13();
+                }
+            );
+            $this->isUpdateNecessary(
+                $currentDbVersion,
+                '1.4',
+                function () {
+                    $this->updateTo14();
+                }
+            );
+            $this->isUpdateNecessary(
+                $currentDbVersion,
+                '1.5.1',
+                function () {
+                    $this->updateTo151();
+                }
+            );
+            $this->isUpdateNecessary(
+                $currentDbVersion,
+                '1.6',
+                function () {
+                    $this->updateTo16();
+                }
+            );
 
             $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
         }

@@ -2,17 +2,19 @@
   "timeout": 20,
   "source": {
     "directories": [
-      "src/UserAccessManager/AccessHandler",
-      "src/UserAccessManager/Cache",
-      "src/UserAccessManager/Command",
-      "src/UserAccessManager/Config",
-      "src/UserAccessManager/Controller",
-      "src/UserAccessManager/Database",
-      "src/UserAccessManager/FileHandler",
-      "src/UserAccessManager/ObjectHandler",
-      "src/UserAccessManager/SetupHandler",
-      "src/UserAccessManager/UserGroup",
-      "src/UserAccessManager/Util"
+      "src/AccessHandler",
+      "src/Cache",
+      "src/Command",
+      "src/Config",
+      "src/Controller",
+      "src/Database",
+      "src/FileHandler",
+      "src/Form",
+      "src/ObjectHandler",
+      "src/SetupHandler",
+      "src/UserGroup",
+      "src/Util",
+      "src/Widget"
     ],
     "excludes": [
       "vendor",

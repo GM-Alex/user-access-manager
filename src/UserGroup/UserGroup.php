@@ -125,7 +125,7 @@ class UserGroup extends AbstractUserGroup
             );
 
             if ($return !== false) {
-                $this->id = $this->database->getLastInsertId();
+                $this->id = (string)$this->database->getLastInsertId();
             }
         } else {
             $return = $this->database->update(

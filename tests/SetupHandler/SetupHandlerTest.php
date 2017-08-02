@@ -469,6 +469,10 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::update()
+     * @covers ::isUpdateNecessary()
+     * @covers ::updateTo10()
+     * @covers ::updateTo10UserGroupTableUpdate()
+     * @covers ::updateTo10UserGroupToObjectTableUpdate()
      * @covers ::updateTo10()
      * @covers ::updateTo12()
      * @covers ::updateTo13()
