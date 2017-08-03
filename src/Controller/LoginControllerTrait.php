@@ -101,4 +101,26 @@ trait LoginControllerTrait
     {
         return $this->wordpress->wpLostPasswordUrl($this->getRequestUrl());
     }
+
+    /**
+     * Checks if we allowed show the login form.
+     *
+     * @return bool
+     */
+    public function showLoginForm()
+    {
+        return $this->wordpress->isSingle() === true || $this->wordpress->isPage() === true;
+    }
+
+    /**
+     * Returns the login redirect url.
+     *
+     * @return mixed
+     */
+    public function getRedirectLoginUrl()
+    {
+        $loginUrl = $this->wordpress->getBlogInfo('wpurl')
+            .'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']);
+        return $this->wordpress->applyFilters('uam_login_url', $loginUrl);
+    }
 }

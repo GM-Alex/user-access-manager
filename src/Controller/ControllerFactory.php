@@ -268,6 +268,40 @@ class ControllerFactory
             $this->php,
             $this->wordpress,
             $this->config,
+            $this->accessHandler
+        );
+    }
+
+    /**
+     * Creates and returns a new frontend post controller.
+     *
+     * @return FrontendPostController
+     */
+    public function createFrontendPostController()
+    {
+        return new FrontendPostController(
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->database,
+            $this->util,
+            $this->cache,
+            $this->objectHandler,
+            $this->accessHandler
+        );
+    }
+
+    /**
+     * Creates and returns a new frontend redirect controller.
+     *
+     * @return FrontendRedirectController
+     */
+    public function createFrontendRedirectController()
+    {
+        return new FrontendRedirectController(
+            $this->php,
+            $this->wordpress,
+            $this->config,
             $this->database,
             $this->util,
             $this->cache,
@@ -275,6 +309,23 @@ class ControllerFactory
             $this->accessHandler,
             $this->fileHandler,
             $this->fileObjectFactory
+        );
+    }
+
+    /**
+     * Creates and returns a new frontend term controller.
+     *
+     * @return FrontendTermController
+     */
+    public function createFrontendTermController()
+    {
+        return new FrontendTermController(
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->util,
+            $this->objectHandler,
+            $this->accessHandler
         );
     }
 }

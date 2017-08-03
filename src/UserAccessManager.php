@@ -602,8 +602,6 @@ class UserAccessManager
      */
     public function addActionsAndFilters()
     {
-        $frontendController = $this->controllerFactory->createFrontendController();
-
         //Actions
         $this->wordpress->addAction('admin_menu', [$this, 'registerAdminMenu']);
         $this->wordpress->addAction('admin_init', [$this, 'registerAdminActionsAndFilters']);
@@ -611,38 +609,58 @@ class UserAccessManager
         $this->wordpress->addAction('registered_taxonomy', [$this->objectHandler, 'registeredTaxonomy'], 10, 3);
         $this->wordpress->addAction('registered_post_type', [$this->config, 'flushConfigParameters']);
         $this->wordpress->addAction('registered_taxonomy', [$this->config, 'flushConfigParameters']);
-        $this->wordpress->addAction('wp_enqueue_scripts', [$frontendController, 'enqueueStylesAndScripts']);
 
-        //Filters
+        // General frontend controller
+        $frontendController = $this->controllerFactory->createFrontendController();
+
+        $this->wordpress->addAction('wp_enqueue_scripts', [$frontendController, 'enqueueStylesAndScripts']);
+        $this->wordpress->addFilter('get_ancestors', [$frontendController, 'showAncestors'], 20, 4);
+        $this->wordpress->addFilter('wpseo_sitemap_entry', [$frontendController, 'getWpSeoUrl'], 1, 3);
+
+        // Post controller
+        $frontendPostController = $this->controllerFactory->createFrontendPostController();
+
+        $this->wordpress->addFilter('posts_pre_query', [$frontendPostController, 'postsPreQuery'], 10, 2);
+        $this->wordpress->addFilter('the_posts', [$frontendPostController, 'showPosts'], 9);
+        $this->wordpress->addFilter('get_attached_file', [$frontendPostController, 'getAttachedFile'], 10, 2);
+        $this->wordpress->addFilter('posts_where_paged', [$frontendPostController, 'showPostSql']);
+        $this->wordpress->addFilter('comments_array', [$frontendPostController, 'showComment']);
+        $this->wordpress->addFilter('the_comments', [$frontendPostController, 'showComment']);
+        $this->wordpress->addFilter('get_pages', [$frontendPostController, 'showPages'], 20);
+        $this->wordpress->addFilter('get_next_post_where', [$frontendPostController, 'showNextPreviousPost']);
+        $this->wordpress->addFilter('get_previous_post_where', [$frontendPostController, 'showNextPreviousPost']);
+        $this->wordpress->addFilter('edit_post_link', [$frontendPostController, 'showGroupMembership'], 10, 2);
+        $this->wordpress->addFilter('parse_query', [$frontendPostController, 'parseQuery']);
+        $this->wordpress->addFilter('getarchives_where', [$frontendPostController, 'showPostSql']);
+        $this->wordpress->addFilter('wp_count_posts', [$frontendPostController, 'showPostCount'], 10, 3);
+
+        $this->wordpress->addShortCode('LOGIN_FORM', [$frontendPostController, 'loginFormShortCode']); // Legacy
+        $this->wordpress->addShortCode('uam_login_form', [$frontendPostController, 'loginFormShortCode']);
+        $this->wordpress->addShortCode('uam_public', [$frontendPostController, 'publicShortCode']);
+        $this->wordpress->addShortCode('uam_private', [$frontendPostController, 'privateShortCode']);
+
+        // Term controller
+        $frontendTermController = $this->controllerFactory->createFrontendTermController();
+
+        $this->wordpress->addFilter('get_terms_args', [$frontendTermController, 'getTermArguments']);
+        $this->wordpress->addFilter('get_terms', [$frontendTermController, 'showTerms'], 20);
+        $this->wordpress->addFilter('get_term', [$frontendTermController, 'showTerm'], 20, 2);
+        $this->wordpress->addFilter('wp_get_nav_menu_items', [$frontendTermController, 'showCustomMenu']);
+
+        // Redirect controller
+        $frontendRedirectController = $this->controllerFactory->createFrontendRedirectController();
+
+        $this->wordpress->addFilter('wp_get_attachment_thumb_url', [$frontendRedirectController, 'getFileUrl'], 10, 2);
+        $this->wordpress->addFilter('wp_get_attachment_url', [$frontendRedirectController, 'getFileUrl'], 10, 2);
+        $this->wordpress->addFilter('post_link', [$frontendRedirectController, 'cachePostLinks'], 10, 2);
+
         $getFile = $frontendController->getRequestParameter('uamgetfile');
 
         if ($this->config->getRedirect() !== false || $getFile !== null) {
-            $this->wordpress->addFilter('wp_headers', [$frontendController, 'redirect'], 10, 2);
+            $this->wordpress->addFilter('wp_headers', [$frontendRedirectController, 'redirect'], 10, 2);
         }
 
-        $this->wordpress->addFilter('wp_get_attachment_thumb_url', [$frontendController, 'getFileUrl'], 10, 2);
-        $this->wordpress->addFilter('wp_get_attachment_url', [$frontendController, 'getFileUrl'], 10, 2);
-        $this->wordpress->addFilter('posts_pre_query', [$frontendController, 'postsPreQuery'], 10, 2);
-        $this->wordpress->addFilter('the_posts', [$frontendController, 'showPosts'], 9);
-        $this->wordpress->addFilter('get_attached_file', [$frontendController, 'getAttachedFile'], 10, 2);
-        $this->wordpress->addFilter('posts_where_paged', [$frontendController, 'showPostSql']);
-        $this->wordpress->addFilter('get_terms_args', [$frontendController, 'getTermArguments']);
-        $this->wordpress->addFilter('wp_get_nav_menu_items', [$frontendController, 'showCustomMenu']);
-        $this->wordpress->addFilter('comments_array', [$frontendController, 'showComment']);
-        $this->wordpress->addFilter('the_comments', [$frontendController, 'showComment']);
-        $this->wordpress->addFilter('get_pages', [$frontendController, 'showPages'], 20);
-        $this->wordpress->addFilter('get_terms', [$frontendController, 'showTerms'], 20);
-        $this->wordpress->addFilter('get_term', [$frontendController, 'showTerm'], 20, 2);
-        $this->wordpress->addFilter('get_ancestors', [$frontendController, 'showAncestors'], 20, 4);
-        $this->wordpress->addFilter('get_next_post_where', [$frontendController, 'showNextPreviousPost']);
-        $this->wordpress->addFilter('get_previous_post_where', [$frontendController, 'showNextPreviousPost']);
-        $this->wordpress->addFilter('post_link', [$frontendController, 'cachePostLinks'], 10, 2);
-        $this->wordpress->addFilter('edit_post_link', [$frontendController, 'showGroupMembership'], 10, 2);
-        $this->wordpress->addFilter('parse_query', [$frontendController, 'parseQuery']);
-        $this->wordpress->addFilter('getarchives_where', [$frontendController, 'showPostSql']);
-        $this->wordpress->addFilter('wp_count_posts', [$frontendController, 'showPostCount'], 10, 3);
-        $this->wordpress->addFilter('wpseo_sitemap_entry', [$frontendController, 'getWpSeoUrl'], 1, 3);
-
+        // Admin object controller
         $adminObjectController = $this->controllerFactory->createAdminObjectController();
 
         $this->wordpress->addFilter('clean_term_cache', [$adminObjectController, 'invalidateTermCache']);
@@ -650,13 +668,9 @@ class UserAccessManager
         $this->wordpress->addFilter('clean_post_cache', [$adminObjectController, 'invalidatePostCache']);
         $this->wordpress->addFilter('clean_attachment_cache', [$adminObjectController, 'invalidatePostCache']);
 
+        // Widgets
         $this->wordpress->addAction('widgets_init', function () {
             $this->wordpress->registerWidget($this->widgetFactory->createLoginWidget());
         });
-
-        $this->wordpress->addShortCode('LOGIN_FORM', [$frontendController, 'loginFormShortCode']); // Legacy
-        $this->wordpress->addShortCode('uam_login_form', [$frontendController, 'loginFormShortCode']);
-        $this->wordpress->addShortCode('uam_public', [$frontendController, 'publicShortCode']);
-        $this->wordpress->addShortCode('uam_private', [$frontendController, 'privateShortCode']);
     }
 }

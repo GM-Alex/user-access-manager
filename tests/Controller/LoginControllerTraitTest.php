@@ -138,4 +138,55 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
         self::assertEquals('registerUrl', $stub->getRegistrationUrl());
         self::assertEquals('lostPasswordUrl', $stub->getLostPasswordUrl());
     }
+
+    /**
+     * @group  unit
+     * @covers ::showLoginForm()
+     */
+    public function testShowLoginForm()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly(4))
+            ->method('isSingle')
+            ->will($this->onConsecutiveCalls(true, false, true, false));
+
+        $wordpress->expects($this->exactly(2))
+            ->method('isPage')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $stub = $this->getStub();
+        self:self::setValue($stub, 'wordpress', $wordpress);
+
+        self::assertTrue($stub->showLoginForm());
+        self::assertFalse($stub->showLoginForm());
+        self::assertTrue($stub->showLoginForm());
+        self::assertTrue($stub->showLoginForm());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getRedirectLoginUrl()
+     */
+    public function testGetRedirectLoginUrl()
+    {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->once())
+            ->method('getBlogInfo')
+            ->with('wpurl')
+            ->will($this->returnValue('BlogInfo'));
+
+        $wordpress->expects($this->once())
+            ->method('applyFilters')
+            ->with('uam_login_url', 'BlogInfo/wp-login.php?redirect_to=uri%40')
+            ->will($this->returnValue('filter'));
+
+        $stub = $this->getStub();
+        self:self::setValue($stub, 'wordpress', $wordpress);
+
+        $_SERVER['REQUEST_URI'] = 'uri@';
+
+        self::assertEquals('filter', $stub->getRedirectLoginUrl());
+    }
 }
