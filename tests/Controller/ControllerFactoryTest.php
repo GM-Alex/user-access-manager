@@ -22,6 +22,9 @@ use UserAccessManager\Controller\AdminSetupController;
 use UserAccessManager\Controller\AdminUserGroupController;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Controller\FrontendController;
+use UserAccessManager\Controller\FrontendPostController;
+use UserAccessManager\Controller\FrontendRedirectController;
+use UserAccessManager\Controller\FrontendTermController;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
@@ -164,6 +167,51 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
         self::assertInstanceOf(
             FrontendController::class,
             $controllerFactory->createFrontendController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createFrontendPostController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateFrontendPostController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            FrontendPostController::class,
+            $controllerFactory->createFrontendPostController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createFrontendRedirectController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateFrontendRedirectController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            FrontendRedirectController::class,
+            $controllerFactory->createFrontendRedirectController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createFrontendTermController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateFrontendTermController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            FrontendTermController::class,
+            $controllerFactory->createFrontendTermController()
         );
     }
 }

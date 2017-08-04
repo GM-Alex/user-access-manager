@@ -17,6 +17,7 @@ namespace UserAccessManager\Tests\Controller;
 use UserAccessManager\Controller\FrontendTermController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
+
 /**
  * Class FrontendTermControllerTest
  *
