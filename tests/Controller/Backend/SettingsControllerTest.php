@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminSettingsControllerTest.php
+ * SettingsControllerTest.php
  *
- * The AdminSettingsControllerTest unit test class file.
+ * The SettingsControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,7 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Backend;
 
 use UserAccessManager\Cache\CacheProviderInterface;
 use UserAccessManager\Config\BooleanConfigParameter;
@@ -20,7 +20,7 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
-use UserAccessManager\Controller\AdminSettingsController;
+use UserAccessManager\Controller\Backend\SettingsController;
 use UserAccessManager\Form\Input;
 use UserAccessManager\Form\MultipleFormElementValue;
 use UserAccessManager\Form\Radio;
@@ -29,12 +29,12 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
- * Class AdminSettingsControllerTest
+ * Class SettingsControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\AdminSettingsController
+ * @coversDefaultClass \UserAccessManager\Controller\Backend\SettingsController
  */
-class AdminSettingsControllerTest extends UserAccessManagerTestCase
+class SettingsControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -42,7 +42,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -53,7 +53,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertInstanceOf(AdminSettingsController::class, $adminSettingController);
+        self::assertInstanceOf(SettingsController::class, $adminSettingController);
     }
 
     /**
@@ -67,7 +67,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -94,7 +94,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->with('sort_column=menu_order')
             ->will($this->onConsecutiveCalls(false, ['a' => 'a']));
 
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -126,7 +126,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('text'));
 
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -166,7 +166,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 'category' => $this->createTypeObject('category')
             ]));
 
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -194,12 +194,12 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
     public function testGetSettingsGroups()
     {
         $expected = [
-            AdminSettingsController::GROUP_POST_TYPES => [MainConfig::DEFAULT_TYPE, 'attachment', 'post', 'page'],
-            AdminSettingsController::GROUP_TAXONOMIES => [MainConfig::DEFAULT_TYPE, 'category', 'post_format'],
-            AdminSettingsController::GROUP_FILES => [AdminSettingsController::GROUP_FILES],
-            AdminSettingsController::GROUP_AUTHOR => [AdminSettingsController::GROUP_AUTHOR],
-            AdminSettingsController::GROUP_CACHE => ['activeCacheProvider', 'cacheProviderId'],
-            AdminSettingsController::GROUP_OTHER => [AdminSettingsController::GROUP_OTHER]
+            SettingsController::GROUP_POST_TYPES => [MainConfig::DEFAULT_TYPE, 'attachment', 'post', 'page'],
+            SettingsController::GROUP_TAXONOMIES => [MainConfig::DEFAULT_TYPE, 'category', 'post_format'],
+            SettingsController::GROUP_FILES => [SettingsController::GROUP_FILES],
+            SettingsController::GROUP_AUTHOR => [SettingsController::GROUP_AUTHOR],
+            SettingsController::GROUP_CACHE => ['activeCacheProvider', 'cacheProviderId'],
+            SettingsController::GROUP_OTHER => [SettingsController::GROUP_OTHER]
         ];
 
         $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(1, 1);
@@ -225,7 +225,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->method('getRegisteredCacheProviders')
             ->will($this->returnValue([$activeCacheProvider, $cacheProvider]));
 
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -590,7 +590,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             ->with($config)
             ->will($this->returnValue('configForm'));
 
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $mainConfig,
@@ -610,7 +610,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $adminSettingController->getCurrentGroupForms()
         );
 
-        $_GET['tab_group'] = AdminSettingsController::GROUP_TAXONOMIES;
+        $_GET['tab_group'] = SettingsController::GROUP_TAXONOMIES;
         self::assertEquals(
             [
                 'default' => 'defaultTaxonomyForm',
@@ -619,22 +619,22 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             $adminSettingController->getCurrentGroupForms()
         );
 
-        $_GET['tab_group'] = AdminSettingsController::GROUP_FILES;
+        $_GET['tab_group'] = SettingsController::GROUP_FILES;
         self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
 
-        $_GET['tab_group'] = AdminSettingsController::GROUP_FILES;
+        $_GET['tab_group'] = SettingsController::GROUP_FILES;
         self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
 
-        $_GET['tab_group'] = AdminSettingsController::GROUP_AUTHOR;
+        $_GET['tab_group'] = SettingsController::GROUP_AUTHOR;
         self::assertEquals(['author' => 'authorForm'], $adminSettingController->getCurrentGroupForms());
 
-        $_GET['tab_group'] = AdminSettingsController::GROUP_CACHE;
+        $_GET['tab_group'] = SettingsController::GROUP_CACHE;
         self::assertEquals(
             ['none' => null, 'cacheProviderId' => 'configForm'],
             $adminSettingController->getCurrentGroupForms()
         );
 
-        $_GET['tab_group'] = AdminSettingsController::GROUP_OTHER;
+        $_GET['tab_group'] = SettingsController::GROUP_OTHER;
         self::assertEquals(['other' => 'otherForm'], $adminSettingController->getCurrentGroupForms());
     }
 
@@ -696,7 +696,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             'i' => '<i>i</i>'
         ];
 
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $mainConfig,
@@ -711,11 +711,11 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
         $adminSettingController->updateSettingsAction();
         $adminSettingController->updateSettingsAction();
 
-        $_GET['tab_group'] = AdminSettingsController::GROUP_CACHE;
+        $_GET['tab_group'] = SettingsController::GROUP_CACHE;
         $_GET['tab_group_section'] = MainConfig::CACHE_PROVIDER_NONE;
         $adminSettingController->updateSettingsAction();
 
-        $_GET['tab_group'] = AdminSettingsController::GROUP_CACHE;
+        $_GET['tab_group'] = SettingsController::GROUP_CACHE;
         $_GET['tab_group_section'] = 'cacheProviderId';
         $adminSettingController->updateSettingsAction();
 
@@ -738,7 +738,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $adminSettingController = new AdminSettingsController(
+        $adminSettingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),

@@ -1,8 +1,8 @@
 <?php
 /**
- * FrontendPostControllerTest.php
+ * PostControllerTest.php
  *
- * The FrontendPostControllerTest unit test class file.
+ * The PostControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,10 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Frontend;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\Controller\FrontendPostController;
+use UserAccessManager\Controller\Frontend\PostController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use Vfs\FileSystem;
@@ -23,12 +23,12 @@ use Vfs\Node\Directory;
 use Vfs\Node\File;
 
 /**
- * Class FrontendPostControllerTest
+ * Class PostControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\FrontendPostController
+ * @coversDefaultClass \UserAccessManager\Controller\Frontend\PostController
  */
-class FrontendPostControllerTest extends UserAccessManagerTestCase
+class PostControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -58,7 +58,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -69,7 +69,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
             $this->getAccessHandler()
         );
 
-        self::assertInstanceOf(FrontendPostController::class, $frontendPostController);
+        self::assertInstanceOf(PostController::class, $frontendPostController);
     }
 
     /**
@@ -83,7 +83,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
             ->method('getExcludedPosts')
             ->will($this->onConsecutiveCalls([3, 2, 1], [], [3], [2, 3, 5]));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -164,7 +164,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $php,
             $wordpress,
             $config,
@@ -196,7 +196,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $frontendPostControllerMock = $this->createMock(FrontendPostController::class);
+        $frontendPostControllerMock = $this->createMock(PostController::class);
         $postsFilter = new \stdClass();
         $postsFilter->callbacks = [
             9 => [],
@@ -234,7 +234,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
             ->method('setFilters')
             ->with($expectedFilters);
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -301,7 +301,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
                 'secondFilter' => 'secondFilterValue'
             ]);
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -430,7 +430,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
                 false
             ));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -543,7 +543,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -623,7 +623,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
                 return ($objectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE && $id === 1);
             }));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
             $config,
@@ -655,7 +655,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
             ->with('content')
             ->will($this->returnValue('contentShortCode'));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -694,7 +694,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
                 $this->getUserGroup(2)
             ]));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -737,7 +737,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
             ->method('getExcludedPosts')
             ->will($this->onConsecutiveCalls([], [1 => 1], [1 => 1, 3 => 3]));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -875,34 +875,34 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
 
         $cache->expects($this->exactly(6))
             ->method('getFromRuntimeCache')
-            ->with(FrontendPostController::POST_COUNTS_CACHE_KEY)
+            ->with(PostController::POST_COUNTS_CACHE_KEY)
             ->will($this->onConsecutiveCalls('cachedResult', null, null, null, null, null));
 
         $cache->expects($this->exactly(5))
             ->method('addToRuntimeCache')
             ->withConsecutive(
                 [
-                    FrontendPostController::POST_COUNTS_CACHE_KEY,
+                    PostController::POST_COUNTS_CACHE_KEY,
                     $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8])
                 ],
                 [
-                    FrontendPostController::POST_COUNTS_CACHE_KEY,
+                    PostController::POST_COUNTS_CACHE_KEY,
                     $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
                 ],
                 [
-                    FrontendPostController::POST_COUNTS_CACHE_KEY,
+                    PostController::POST_COUNTS_CACHE_KEY,
                     $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
                 ],
                 [
-                    FrontendPostController::POST_COUNTS_CACHE_KEY,
+                    PostController::POST_COUNTS_CACHE_KEY,
                     $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
                 ],
                 [
-                    FrontendPostController::POST_COUNTS_CACHE_KEY,
+                    PostController::POST_COUNTS_CACHE_KEY,
                     $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
                 ],
                 [
-                    FrontendPostController::POST_COUNTS_CACHE_KEY,
+                    PostController::POST_COUNTS_CACHE_KEY,
                     $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
                 ]
             );
@@ -919,7 +919,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
                 [1 => 1, 3 => 3]
             ));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -1065,7 +1065,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
                 false
             ));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
             $config,
@@ -1113,7 +1113,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
                 [2, 3, 5]
             ));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -1151,7 +1151,7 @@ class FrontendPostControllerTest extends UserAccessManagerTestCase
                 ]
             ));
 
-        $frontendPostController = new FrontendPostController(
+        $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),

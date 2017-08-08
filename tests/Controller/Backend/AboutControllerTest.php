@@ -12,30 +12,30 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Backend;
 
-use UserAccessManager\Controller\AdminAboutController;
+use UserAccessManager\Controller\Backend\AboutController;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
  * Class AdminAboutControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\AdminAboutController
+ * @coversDefaultClass \UserAccessManager\Controller\Backend\Backend\AboutController
  */
-class AdminAboutControllerTest extends UserAccessManagerTestCase
+class AboutControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
      */
     public function testCanCreateInstance()
     {
-        $adminAboutController = new AdminAboutController(
+        $adminAboutController = new AboutController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig()
         );
 
-        self::assertInstanceOf(AdminAboutController::class, $adminAboutController);
+        self::assertInstanceOf(AboutController::class, $adminAboutController);
     }
 }

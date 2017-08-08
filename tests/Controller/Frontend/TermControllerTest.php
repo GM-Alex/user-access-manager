@@ -1,8 +1,8 @@
 <?php
 /**
- * FrontendTermControllerTest.php
+ * TermControllerTest.php
  *
- * The FrontendTermControllerTest unit test class file.
+ * The TermControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,19 +12,19 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Frontend\Controller;
 
-use UserAccessManager\Controller\FrontendTermController;
+use UserAccessManager\Controller\Frontend\TermController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
- * Class FrontendTermControllerTest
+ * Class TermControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\FrontendTermController
+ * @coversDefaultClass \UserAccessManager\Controller\Frontend\TermController
  */
-class FrontendTermControllerTest extends UserAccessManagerTestCase
+class TermControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -32,7 +32,7 @@ class FrontendTermControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $frontendController = new FrontendTermController(
+        $frontendController = new TermController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -41,7 +41,7 @@ class FrontendTermControllerTest extends UserAccessManagerTestCase
             $this->getAccessHandler()
         );
 
-        self::assertInstanceOf(FrontendTermController::class, $frontendController);
+        self::assertInstanceOf(TermController::class, $frontendController);
     }
 
     /**
@@ -62,7 +62,7 @@ class FrontendTermControllerTest extends UserAccessManagerTestCase
             ->method('getExcludedTerms')
             ->will($this->returnValue([1, 3]));
 
-        $frontendController = new FrontendTermController(
+        $frontendController = new TermController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -263,7 +263,7 @@ class FrontendTermControllerTest extends UserAccessManagerTestCase
             ->with('taxonomy', 1)
             ->will($this->returnValue([1, 2]));
 
-        $frontendController = new FrontendTermController(
+        $frontendController = new TermController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -491,7 +491,7 @@ class FrontendTermControllerTest extends UserAccessManagerTestCase
             ->with('other', 1)
             ->will($this->returnValue([1, 2]));
 
-        $frontendController = new FrontendTermController(
+        $frontendController = new TermController(
             $this->getPhp(),
             $wordpress,
             $config,

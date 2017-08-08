@@ -12,10 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Controller;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
@@ -26,7 +27,7 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class AdminController extends Controller
+class BackendController extends Controller
 {
     const HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';
     const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';

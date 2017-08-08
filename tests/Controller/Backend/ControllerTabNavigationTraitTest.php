@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminControllerTabNavigationTraitTest.php
+ * ControllerTabNavigationTraitTest.php
  *
- * The AdminControllerTabNavigationTraitTest unit test class file.
+ * The ControllerTabNavigationTraitTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,25 +12,25 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Backend;
 
-use UserAccessManager\Controller\AdminControllerTabNavigationTrait;
+use UserAccessManager\Controller\Backend\ControllerTabNavigationTrait;
 
 /**
- * Class AdminControllerTabNavigationTraitTest
+ * Class ControllerTabNavigationTraitTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\AdminControllerTabNavigationTrait
+ * @coversDefaultClass \UserAccessManager\Controller\Backend\ControllerTabNavigationTrait
  */
-class AdminControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
+class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|AdminControllerTabNavigationTrait
+     * @return \PHPUnit_Framework_MockObject_MockObject|ControllerTabNavigationTrait
      */
     private function getStub()
     {
         $stub = $this->getMockForTrait(
-            AdminControllerTabNavigationTrait::class,
+            ControllerTabNavigationTrait::class,
             [],
             '',
             false,

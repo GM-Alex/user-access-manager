@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminUserGroupControllerTest.php
+ * UserGroupControllerTest.php
  *
- * The AdminUserGroupControllerTest unit test class file.
+ * The UserGroupControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,19 +12,19 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Backend;
 
-use UserAccessManager\Controller\AdminUserGroupController;
+use UserAccessManager\Controller\Backend\UserGroupController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
- * Class AdminUserGroupControllerTest
+ * Class UserGroupControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\AdminUserGroupController
+ * @coversDefaultClass \UserAccessManager\Controller\Backend\UserGroupController
  */
-class AdminUserGroupControllerTest extends UserAccessManagerTestCase
+class UserGroupControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -32,7 +32,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -41,7 +41,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertInstanceOf(AdminUserGroupController::class, $adminUserGroupController);
+        self::assertInstanceOf(UserGroupController::class, $adminUserGroupController);
     }
 
     /**
@@ -68,7 +68,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
                 'category' => null
             ]));
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -79,8 +79,8 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
         self::assertEquals(
             [
-                AdminUserGroupController::GROUP_USER_GROUPS => ['user_groups'],
-                AdminUserGroupController::GROUP_DEFAULT_USER_GROUPS => [
+                UserGroupController::GROUP_USER_GROUPS => ['user_groups'],
+                UserGroupController::GROUP_DEFAULT_USER_GROUPS => [
                     'attachment',
                     'post',
                     'page',
@@ -105,7 +105,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(['keyOne'], ['keyTwo'])
             ->will($this->onConsecutiveCalls('valueOne', 'valueTwo'));
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -143,7 +143,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
             ]));
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -185,7 +185,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             ->with(1)
             ->will($this->returnValue($userGroup));
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -215,7 +215,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             ->method('getUserGroups')
             ->will($this->returnValue($userGroups));
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -241,7 +241,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             ->method('getRoles')
             ->will($this->returnValue($roles));
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -259,7 +259,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testInsertUpdateUserGroupAction()
     {
-        $_GET[AdminUserGroupController::INSERT_UPDATE_GROUP_NONCE.'Nonce'] = 'insertUpdateNonce';
+        $_GET[UserGroupController::INSERT_UPDATE_GROUP_NONCE.'Nonce'] = 'insertUpdateNonce';
 
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(4))
@@ -317,7 +317,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             ->method('addUserGroup')
             ->with($userGroup);
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -354,11 +354,11 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testDeleteUserGroupAction()
     {
-        $_GET[AdminUserGroupController::DELETE_GROUP_NONCE.'Nonce'] = AdminUserGroupController::DELETE_GROUP_NONCE;
+        $_GET[UserGroupController::DELETE_GROUP_NONCE.'Nonce'] = UserGroupController::DELETE_GROUP_NONCE;
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
             ->method('verifyNonce')
-            ->with(AdminUserGroupController::DELETE_GROUP_NONCE)
+            ->with(UserGroupController::DELETE_GROUP_NONCE)
             ->will($this->returnValue(true));
 
         $accessHandler = $this->getAccessHandler();
@@ -366,7 +366,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
             ->method('deleteUserGroup')
             ->withConsecutive([1], [2]);
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -390,7 +390,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
 
         $wordpress->expects($this->once())
             ->method('verifyNonce')
-            ->with(AdminUserGroupController::SET_DEFAULT_USER_GROUPS_NONCE)
+            ->with(UserGroupController::SET_DEFAULT_USER_GROUPS_NONCE)
             ->will($this->returnValue(true));
 
         $wordpress->expects($this->exactly(2))
@@ -450,7 +450,7 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
                 $thirdUserGroup
             ]));
 
-        $adminUserGroupController = new AdminUserGroupController(
+        $adminUserGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -460,10 +460,10 @@ class AdminUserGroupControllerTest extends UserAccessManagerTestCase
         );
 
         $_POST = [
-            AdminUserGroupController::SET_DEFAULT_USER_GROUPS_NONCE.'Nonce' =>
-                AdminUserGroupController::SET_DEFAULT_USER_GROUPS_NONCE,
+            UserGroupController::SET_DEFAULT_USER_GROUPS_NONCE.'Nonce' =>
+                UserGroupController::SET_DEFAULT_USER_GROUPS_NONCE,
             'tab_group_section' => 'objectType',
-            AdminUserGroupController::DEFAULT_USER_GROUPS_FORM_FIELD => [
+            UserGroupController::DEFAULT_USER_GROUPS_FORM_FIELD => [
                 1 => ['id' => 1, 'fromTime' => 'fromTimeValue'],
                 2 => ['id' => 2, 'toTime' => 'toTimeValue'],
                 3 => ['id' => 4]

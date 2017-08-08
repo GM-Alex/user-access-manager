@@ -12,14 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Backend;
 
 /**
  * Trait AdminControllerTabNavigationTrait
  *
  * @package UserAccessManager\Controller
  */
-trait AdminControllerTabNavigationTrait
+trait ControllerTabNavigationTrait
 {
     /**
      * Returns the current request url.

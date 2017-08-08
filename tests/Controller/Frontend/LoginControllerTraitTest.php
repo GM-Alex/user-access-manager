@@ -12,16 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Frontend\Controller;
 
-use UserAccessManager\Controller\LoginControllerTrait;
+use UserAccessManager\Controller\Frontend\LoginControllerTrait;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
  * Class LoginControllerTraitTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\LoginControllerTrait
+ * @coversDefaultClass \UserAccessManager\Controller\Frontend\LoginControllerTrait
  */
 class LoginControllerTraitTest extends UserAccessManagerTestCase
 {

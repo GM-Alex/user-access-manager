@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminObjectControllerTest.php
+ * ObjectControllerTest.php
  *
- * The AdminObjectControllerTest unit test class file.
+ * The ObjectControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,10 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Backend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
-use UserAccessManager\Controller\AdminObjectController;
+use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\ObjectHandler\PluggableObject;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
@@ -25,12 +25,12 @@ use Vfs\Node\Directory;
 use Vfs\Node\File;
 
 /**
- * Class AdminObjectControllerTest
+ * Class ObjectControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\AdminObjectController
+ * @coversDefaultClass \UserAccessManager\Controller\Backend\ObjectController
  */
-class AdminObjectControllerTest extends UserAccessManagerTestCase
+class ObjectControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -156,7 +156,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -167,14 +167,14 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        self::assertInstanceOf(AdminObjectController::class, $adminObjectController);
+        self::assertInstanceOf(ObjectController::class, $adminObjectController);
     }
 
     /**
      * @group  unit
      * @covers ::setObjectInformation()
      *
-     * @return AdminObjectController
+     * @return ObjectController
      */
     public function testSetObjectInformation()
     {
@@ -199,7 +199,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->with('objectType', 'objectId', true)
             ->will($this->returnValue($filteredGroups));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -237,9 +237,9 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @covers  ::getObjectType()
      * @depends testSetObjectInformation
      *
-     * @param AdminObjectController $adminObjectController
+     * @param ObjectController $adminObjectController
      */
-    public function testGetObjectType(AdminObjectController $adminObjectController)
+    public function testGetObjectType(ObjectController $adminObjectController)
     {
         self::assertEquals('objectType', $adminObjectController->getObjectType());
     }
@@ -249,9 +249,9 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @covers  ::getObjectId()
      * @depends testSetObjectInformation
      *
-     * @param AdminObjectController $adminObjectController
+     * @param ObjectController $adminObjectController
      */
-    public function testGetObjectId(AdminObjectController $adminObjectController)
+    public function testGetObjectId(ObjectController $adminObjectController)
     {
         self::assertEquals('objectId', $adminObjectController->getObjectId());
     }
@@ -261,9 +261,9 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @covers  ::getObjectUserGroups()
      * @depends testSetObjectInformation
      *
-     * @param AdminObjectController $adminObjectController
+     * @param ObjectController $adminObjectController
      */
-    public function testGetObjectUserGroups(AdminObjectController $adminObjectController)
+    public function testGetObjectUserGroups(ObjectController $adminObjectController)
     {
         self::assertEquals([1 => $this->getUserGroup(1)], $adminObjectController->getObjectUserGroups());
     }
@@ -273,9 +273,9 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      * @covers  ::getUserGroupDiff()
      * @depends testSetObjectInformation
      *
-     * @param AdminObjectController $adminObjectController
+     * @param ObjectController $adminObjectController
      */
-    public function testGetUserGroupDiff(AdminObjectController $adminObjectController)
+    public function testGetUserGroupDiff(ObjectController $adminObjectController)
     {
         self::assertEquals(1, $adminObjectController->getUserGroupDiff());
     }
@@ -297,7 +297,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->method('getFullUserGroups')
             ->will($this->returnValue($userGroups));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -327,7 +327,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->method('getFilteredUserGroups')
             ->will($this->returnValue($userGroups));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -354,7 +354,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->with('objectId')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -389,7 +389,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->method('getRoles')
             ->will($this->returnValue($roles));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -415,7 +415,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->method('getAllObjectTypes')
             ->will($this->returnValue([1 => 1, 2 => 2]));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -441,7 +441,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->method('checkUserAccess')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -469,7 +469,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->with('date')
             ->will($this->returnValue('formattedDate'));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -489,7 +489,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      */
     public function testFormatDateForDatetimeInput()
     {
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -516,7 +516,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->with('timestamp')
             ->will($this->returnValue(100));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -653,7 +653,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->with('pluggableObject')
             ->will($this->returnValue($pluggableObject));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -753,7 +753,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(true, false, true, false));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -990,7 +990,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 $this->getDynamicUserGroupWithAdd(DynamicUserGroup::ROLE_TYPE, 'admin', ['post', 1, null, null])
             ));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -1001,10 +1001,10 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $userGroupFactory
         );
 
-        $_POST[AdminObjectController::UPDATE_GROUPS_FORM_NAME] = 1;
+        $_POST[ObjectController::UPDATE_GROUPS_FORM_NAME] = 1;
         $adminObjectController->savePostData(['ID' => 1]);
 
-        $_POST[AdminObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME] = [
+        $_POST[ObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME] = [
             DynamicUserGroup::USER_TYPE.'|1' => [
                 'id' => DynamicUserGroup::USER_TYPE.'|1',
                 'fromDate' => 'fromDate',
@@ -1013,7 +1013,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin'],
             'A|B' => ['id' => 'B|A'],
         ];
-        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+        $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             1 => ['id' => 1, 'fromDate' => 1, 'toDate' => 'toDate'],
             3 => ['id' => 3, 'fromDate' => 1, 'toDate' => 'toDate'],
             100 => [],
@@ -1021,54 +1021,54 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         ];
         $adminObjectController->savePostData(['ID' => 1]);
 
-        unset($_POST[AdminObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME]);
-        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+        unset($_POST[ObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME]);
+        $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             2 => ['id' => 2],
             4 => ['id' => 4]
         ];
         $adminObjectController->savePostData(['ID' => 2]);
 
-        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+        $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             1 => ['id' => 1, 'formDate' => '', 'toDate' => 234],
             2 => ['id' => 2, 'formDate' => '', 'toDate' => 234]
         ];
         $adminObjectController->savePostData(2);
 
-        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+        $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             3 => ['id' => 3],
             4 => ['id' => 4]
         ];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
 
-        $_POST['uam_bulk_type'] = AdminObjectController::BULK_REMOVE;
-        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+        $_POST['uam_bulk_type'] = ObjectController::BULK_REMOVE;
+        $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             2 => ['id' => 2],
             3 => ['id' => 3]
         ];
         $adminObjectController->saveAttachmentData(['ID' => 3]);
 
         $_POST = [
-            AdminObjectController::UPDATE_GROUPS_FORM_NAME => 1,
+            ObjectController::UPDATE_GROUPS_FORM_NAME => 1,
             'id' => 3,
-            AdminObjectController::DEFAULT_GROUPS_FORM_NAME => [
+            ObjectController::DEFAULT_GROUPS_FORM_NAME => [
                 3 => ['id' => 3],
                 4 => ['id' => 4]
             ]
         ];
         $adminObjectController->saveAjaxAttachmentData();
 
-        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+        $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             2 => ['id' => 2]
         ];
         $adminObjectController->saveUserData(1);
 
-        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+        $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             3 => ['id' => 3]
         ];
         $adminObjectController->saveTermData(0);
         $adminObjectController->saveTermData(1);
 
-        $_POST[AdminObjectController::DEFAULT_GROUPS_FORM_NAME] = [
+        $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             4 => ['id' => 4]
         ];
         $adminObjectController->savePluggableObjectData('objectType', 'objectId');
@@ -1117,7 +1117,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 ]
             );
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -1142,7 +1142,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      */
     public function testAddColumnsHeader()
     {
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -1154,15 +1154,15 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         );
 
         self::assertEquals(
-            ['a' => 'a', AdminObjectController::COLUMN_NAME => TXT_UAM_COLUMN_ACCESS],
+            ['a' => 'a', ObjectController::COLUMN_NAME => TXT_UAM_COLUMN_ACCESS],
             $adminObjectController->addPostColumnsHeader(['a' => 'a'])
         );
         self::assertEquals(
-            ['b' => 'b', AdminObjectController::COLUMN_NAME => TXT_UAM_COLUMN_USER_GROUPS],
+            ['b' => 'b', ObjectController::COLUMN_NAME => TXT_UAM_COLUMN_USER_GROUPS],
             $adminObjectController->addUserColumnsHeader(['b' => 'b'])
         );
         self::assertEquals(
-            ['c' => 'c', AdminObjectController::COLUMN_NAME => TXT_UAM_COLUMN_ACCESS],
+            ['c' => 'c', ObjectController::COLUMN_NAME => TXT_UAM_COLUMN_ACCESS],
             $adminObjectController->addTermColumnsHeader(['c' => 'c'])
         );
     }
@@ -1176,7 +1176,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
      */
     public function testAddColumn()
     {
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -1187,9 +1187,9 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        $adminObjectController->addPostColumn(AdminObjectController::COLUMN_NAME, 1);
-        $adminObjectController->addUserColumn('return', AdminObjectController::COLUMN_NAME, 1);
-        $adminObjectController->addTermColumn('content', AdminObjectController::COLUMN_NAME, 1);
+        $adminObjectController->addPostColumn(ObjectController::COLUMN_NAME, 1);
+        $adminObjectController->addUserColumn('return', ObjectController::COLUMN_NAME, 1);
+        $adminObjectController->addTermColumn('content', ObjectController::COLUMN_NAME, 1);
         $adminObjectController->getPluggableColumn('objectType', 'objectId');
     }
 
@@ -1269,7 +1269,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue([]));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $php,
             $this->getWordpress(),
             $config,
@@ -1301,27 +1301,27 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 [$adminObjectController, 'vfs://src/View/GroupSelectionForm.php'],
                 [$adminObjectController, 'vfs://src/View/GroupSelectionForm.php']
             )
-            ->will($this->returnCallback(function (AdminObjectController $controller, $file) {
+            ->will($this->returnCallback(function (ObjectController $controller, $file) {
                 echo '!'.get_class($controller).'|'.$file.'|'.$controller->getGroupsFormName().'!';
             }));
 
         $adminObjectController->addPostColumn('invalid', 1);
         $adminObjectController->addPostColumn('invalid', 1);
-        $adminObjectController->addPostColumn(AdminObjectController::COLUMN_NAME, 1);
+        $adminObjectController->addPostColumn(ObjectController::COLUMN_NAME, 1);
         self::assertAttributeEquals('post', 'objectType', $adminObjectController);
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
-        $expectedOutput = '!UserAccessManager\Controller\AdminObjectController|'
+        $expectedOutput = '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/ObjectColumn.php|uam_user_groups!';
 
         self::assertEquals('return', $adminObjectController->addUserColumn('return', 'invalid', 1));
         self::assertEquals('return', $adminObjectController->addUserColumn('return', 'invalid', 1));
 
-        $expected = 'return!UserAccessManager\Controller\AdminObjectController|'
+        $expected = 'return!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/UserColumn.php|uam_user_groups!';
 
         self::assertEquals(
             $expected,
-            $adminObjectController->addUserColumn('return', AdminObjectController::COLUMN_NAME, 1)
+            $adminObjectController->addUserColumn('return', ObjectController::COLUMN_NAME, 1)
         );
         self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $adminObjectController);
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
@@ -1329,24 +1329,24 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertEquals('content', $adminObjectController->addTermColumn('content', 'invalid', 1));
         self::assertEquals('content', $adminObjectController->addTermColumn('content', 'invalid', 1));
 
-        $expected = 'content!UserAccessManager\Controller\AdminObjectController|'
+        $expected = 'content!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/ObjectColumn.php|uam_user_groups!';
 
         self::assertEquals(
             $expected,
-            $adminObjectController->addTermColumn('content', AdminObjectController::COLUMN_NAME, 0)
+            $adminObjectController->addTermColumn('content', ObjectController::COLUMN_NAME, 0)
         );
         self::assertAttributeEquals(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'objectType', $adminObjectController);
         self::assertAttributeEquals(0, 'objectId', $adminObjectController);
 
         self::assertEquals(
             $expected,
-            $adminObjectController->addTermColumn('content', AdminObjectController::COLUMN_NAME, 1)
+            $adminObjectController->addTermColumn('content', ObjectController::COLUMN_NAME, 1)
         );
         self::assertAttributeEquals('taxonomy_1', 'objectType', $adminObjectController);
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
 
-        $expected = '!UserAccessManager\Controller\AdminObjectController|'
+        $expected = '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/ObjectColumn.php|uam_user_groups!';
 
         self::assertEquals(
@@ -1362,7 +1362,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController->editPostContent(null);
         self::assertAttributeEquals(null, 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
-        $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
+        $expectedOutput .= '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/PostEditForm.php|uam_user_groups!';
 
         /**
@@ -1375,7 +1375,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController->editPostContent($post);
         self::assertAttributeEquals('post', 'objectType', $adminObjectController);
         self::assertAttributeEquals(1, 'objectId', $adminObjectController);
-        $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
+        $expectedOutput .= '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/PostEditForm.php|uam_user_groups!';
         self::setValue($adminObjectController, 'objectType', null);
         self::setValue($adminObjectController, 'objectId', null);
@@ -1386,8 +1386,8 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController->addBulkAction('invalid');
         $expectedOutput .= '';
 
-        $adminObjectController->addBulkAction(AdminObjectController::COLUMN_NAME);
-        $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
+        $adminObjectController->addBulkAction(ObjectController::COLUMN_NAME);
+        $expectedOutput .= '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/BulkEditForm.php|uam_user_groups!';
 
 
@@ -1400,7 +1400,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 'uam_user_groups' => [
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
-                    'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
+                    'editFrom' => '!UserAccessManager\Controller\Backend\ObjectController|'
                         .'vfs://src/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
@@ -1416,7 +1416,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 'uam_user_groups' => [
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
-                    'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
+                    'editFrom' => '!UserAccessManager\Controller\Backend\ObjectController|'
                         .'vfs://src/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
@@ -1436,7 +1436,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 'uam_user_groups' => [
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
-                    'editFrom' => '!UserAccessManager\Controller\AdminObjectController|'
+                    'editFrom' => '!UserAccessManager\Controller\Backend\ObjectController|'
                         .'vfs://src/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
@@ -1449,14 +1449,14 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController->showUserProfile();
         self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
-        $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
+        $expectedOutput .= '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/UserProfileEditForm.php|uam_user_groups!';
 
         $_GET['user_id'] = 4;
         $adminObjectController->showUserProfile();
         self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $adminObjectController);
         self::assertAttributeEquals(4, 'objectId', $adminObjectController);
-        $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
+        $expectedOutput .= '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/UserProfileEditForm.php|uam_user_groups!';
         self::setValue($adminObjectController, 'objectType', null);
         self::setValue($adminObjectController, 'objectId', null);
@@ -1465,7 +1465,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         $adminObjectController->showTermEditForm('category');
         self::assertAttributeEquals('category', 'objectType', $adminObjectController);
         self::assertAttributeEquals(null, 'objectId', $adminObjectController);
-        $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
+        $expectedOutput .= '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/TermEditForm.php|uam_user_groups!';
 
         /**
@@ -1478,21 +1478,21 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         self::assertAttributeEquals('category', 'objectType', $adminObjectController);
         self::assertAttributeEquals(5, 'objectId', $adminObjectController);
-        $expectedOutput .= '!UserAccessManager\Controller\AdminObjectController|'
+        $expectedOutput .= '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/TermEditForm.php|uam_user_groups!';
         self::setValue($adminObjectController, 'objectType', null);
         self::setValue($adminObjectController, 'objectId', null);
 
         $return = $adminObjectController->showPluggableGroupSelectionForm('objectType', 'objectId', 'otherForm');
         self::assertEquals(
-            '!UserAccessManager\Controller\AdminObjectController|'
+            '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/GroupSelectionForm.php|otherForm!',
             $return
         );
         self::assertAttributeEquals('objectType', 'objectType', $adminObjectController);
         self::assertAttributeEquals('objectId', 'objectId', $adminObjectController);
         self::assertEquals(
-            AdminObjectController::DEFAULT_GROUPS_FORM_NAME,
+            ObjectController::DEFAULT_GROUPS_FORM_NAME,
             $adminObjectController->getGroupsFormName()
         );
         $expectedOutput .= '';
@@ -1504,7 +1504,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
 
         $return = $adminObjectController->showPluggableGroupSelectionForm('objectType', 'objectId', null, $userGroups);
         self::assertEquals(
-            '!UserAccessManager\Controller\AdminObjectController|'
+            '!UserAccessManager\Controller\Backend\ObjectController|'
             .'vfs://src/View/GroupSelectionForm.php|uam_user_groups!',
             $return
         );
@@ -1512,7 +1512,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals('objectId', 'objectId', $adminObjectController);
         self::assertAttributeEquals($userGroups, 'objectUserGroups', $adminObjectController);
         self::assertEquals(
-            AdminObjectController::DEFAULT_GROUPS_FORM_NAME,
+            ObjectController::DEFAULT_GROUPS_FORM_NAME,
             $adminObjectController->getGroupsFormName()
         );
         $expectedOutput .= '';
@@ -1539,7 +1539,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 [ObjectHandler::POST_TREE_MAP_CACHE_KEY]
             );
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -1596,7 +1596,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE
             ));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -1671,7 +1671,7 @@ class AdminObjectControllerTest extends UserAccessManagerTestCase
             ->with(AccessHandler::MANAGE_USER_GROUPS_CAPABILITY)
             ->will($this->onConsecutiveCalls(true, false));
 
-        $adminObjectController = new AdminObjectController(
+        $adminObjectController = new ObjectController(
             $php,
             $wordpress,
             $this->getMainConfig(),

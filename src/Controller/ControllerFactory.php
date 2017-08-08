@@ -17,6 +17,16 @@ namespace UserAccessManager\Controller;
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Backend\AboutController;
+use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\SettingsController;
+use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Controller\Frontend\FrontendController;
+use UserAccessManager\Controller\Frontend\PostController;
+use UserAccessManager\Controller\Frontend\RedirectController;
+use UserAccessManager\Controller\Frontend\TermController;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileObjectFactory;
@@ -159,11 +169,11 @@ class ControllerFactory
     /**
      * Creates and returns a new admin controller.
      *
-     * @return AdminController
+     * @return BackendController
      */
-    public function createAdminController()
+    public function createBackendController()
     {
-        return new AdminController(
+        return new BackendController(
             $this->php,
             $this->wordpress,
             $this->config,
@@ -175,11 +185,11 @@ class ControllerFactory
     /**
      * Creates and returns a new admin about controller.
      *
-     * @return AdminAboutController
+     * @return AboutController
      */
-    public function createAdminAboutController()
+    public function createBackendAboutController()
     {
-        return new AdminAboutController(
+        return new AboutController(
             $this->php,
             $this->wordpress,
             $this->config
@@ -189,11 +199,11 @@ class ControllerFactory
     /**
      * Creates and returns a new admin about controller.
      *
-     * @return AdminObjectController
+     * @return ObjectController
      */
-    public function createAdminObjectController()
+    public function createBackendObjectController()
     {
-        return new AdminObjectController(
+        return new ObjectController(
             $this->php,
             $this->wordpress,
             $this->config,
@@ -208,11 +218,11 @@ class ControllerFactory
     /**
      * Creates and returns a new admin setup controller.
      *
-     * @return AdminSettingsController
+     * @return SettingsController
      */
-    public function createAdminSettingsController()
+    public function createBackendSettingsController()
     {
-        return new AdminSettingsController(
+        return new SettingsController(
             $this->php,
             $this->wordpress,
             $this->config,
@@ -227,11 +237,11 @@ class ControllerFactory
     /**
      * Creates and returns a new admin setup controller.
      *
-     * @return AdminSetupController
+     * @return SetupController
      */
-    public function createAdminSetupController()
+    public function createBackendSetupController()
     {
-        return new AdminSetupController(
+        return new SetupController(
             $this->php,
             $this->wordpress,
             $this->config,
@@ -243,11 +253,11 @@ class ControllerFactory
     /**
      * Creates and returns a new admin user group controller.
      *
-     * @return AdminUserGroupController
+     * @return UserGroupController
      */
-    public function createAdminUserGroupController()
+    public function createBackendUserGroupController()
     {
-        return new AdminUserGroupController(
+        return new UserGroupController(
             $this->php,
             $this->wordpress,
             $this->config,
@@ -275,11 +285,11 @@ class ControllerFactory
     /**
      * Creates and returns a new frontend post controller.
      *
-     * @return FrontendPostController
+     * @return PostController
      */
     public function createFrontendPostController()
     {
-        return new FrontendPostController(
+        return new PostController(
             $this->php,
             $this->wordpress,
             $this->config,
@@ -294,11 +304,11 @@ class ControllerFactory
     /**
      * Creates and returns a new frontend redirect controller.
      *
-     * @return FrontendRedirectController
+     * @return RedirectController
      */
     public function createFrontendRedirectController()
     {
-        return new FrontendRedirectController(
+        return new RedirectController(
             $this->php,
             $this->wordpress,
             $this->config,
@@ -315,11 +325,11 @@ class ControllerFactory
     /**
      * Creates and returns a new frontend term controller.
      *
-     * @return FrontendTermController
+     * @return TermController
      */
     public function createFrontendTermController()
     {
-        return new FrontendTermController(
+        return new TermController(
             $this->php,
             $this->wordpress,
             $this->config,

@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminSetupControllerTest.php
+ * SetupControllerTest.php
  *
- * The AdminSetupControllerTest unit test class file.
+ * The SetupControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,18 +12,18 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Backend;
 
-use UserAccessManager\Controller\AdminSetupController;
+use UserAccessManager\Controller\Backend\SetupController;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
- * Class AdminSetupControllerTest
+ * Class SetupControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\AdminSetupController
+ * @coversDefaultClass \UserAccessManager\Controller\Backend\SetupController
  */
-class AdminSetupControllerTest extends UserAccessManagerTestCase
+class SetupControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -31,7 +31,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminSetupController = new AdminSetupController(
+        $adminSetupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -39,7 +39,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
             $this->getSetupHandler()
         );
 
-        self::assertInstanceOf(AdminSetupController::class, $adminSetupController);
+        self::assertInstanceOf(SetupController::class, $adminSetupController);
     }
 
     /**
@@ -53,7 +53,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
             ->method('isDatabaseUpdateNecessary')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $adminSetupController = new AdminSetupController(
+        $adminSetupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -76,7 +76,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, false, false, true));
 
-        $adminSetupController = new AdminSetupController(
+        $adminSetupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -107,7 +107,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
             ->method('getBackups')
             ->will($this->returnValue([1, 123, 4]));
 
-        $adminSetupController = new AdminSetupController(
+        $adminSetupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -124,7 +124,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
      */
     public function testUpdateDatabaseAction()
     {
-        $_GET[AdminSetupController::SETUP_UPDATE_NONCE.'Nonce'] = 'updateNonce';
+        $_GET[SetupController::SETUP_UPDATE_NONCE.'Nonce'] = 'updateNonce';
 
         $wordpress = $this->getWordpress();
 
@@ -155,7 +155,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 
-        $adminSetupController = new AdminSetupController(
+        $adminSetupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -167,11 +167,11 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals(null, 'updateMessage', $adminSetupController);
 
         $_GET['uam_backup_db'] = true;
-        $_GET['uam_update_db'] = AdminSetupController::UPDATE_BLOG;
+        $_GET['uam_update_db'] = SetupController::UPDATE_BLOG;
         $adminSetupController->updateDatabaseAction();
         self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $adminSetupController);
 
-        $_GET['uam_update_db'] = AdminSetupController::UPDATE_NETWORK;
+        $_GET['uam_update_db'] = SetupController::UPDATE_NETWORK;
         self::setValue($adminSetupController, 'updateMessage', null);
         $adminSetupController->updateDatabaseAction();
         self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $adminSetupController);
@@ -192,7 +192,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
      */
     public function testRevertDatabaseAction()
     {
-        $_GET[AdminSetupController::SETUP_REVERT_NONCE.'Nonce'] = 'revertNonce';
+        $_GET[SetupController::SETUP_REVERT_NONCE.'Nonce'] = 'revertNonce';
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(2))
             ->method('verifyNonce')
@@ -205,7 +205,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(['1.2'], ['1.3'])
             ->will($this->onConsecutiveCalls(false, true));
 
-        $adminSetupController = new AdminSetupController(
+        $adminSetupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -228,7 +228,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
      */
     public function testDeleteDatabaseBackupAction()
     {
-        $_GET[AdminSetupController::SETUP_DELETE_BACKUP_NONCE.'Nonce'] = 'deleteBackupNonce';
+        $_GET[SetupController::SETUP_DELETE_BACKUP_NONCE.'Nonce'] = 'deleteBackupNonce';
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(2))
             ->method('verifyNonce')
@@ -241,7 +241,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(['1.2'], ['1.3'])
             ->will($this->onConsecutiveCalls(false, true));
 
-        $adminSetupController = new AdminSetupController(
+        $adminSetupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -264,7 +264,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
      */
     public function testResetUamAction()
     {
-        $_GET[AdminSetupController::SETUP_RESET_NONCE.'Nonce'] = 'resetNonce';
+        $_GET[SetupController::SETUP_RESET_NONCE.'Nonce'] = 'resetNonce';
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(2))
             ->method('verifyNonce')
@@ -278,7 +278,7 @@ class AdminSetupControllerTest extends UserAccessManagerTestCase
             ->method('install')
             ->with(true);
 
-        $adminSetupController = new AdminSetupController(
+        $adminSetupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),

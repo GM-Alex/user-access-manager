@@ -1,8 +1,8 @@
 <?php
 /**
- * FrontendRedirectControllerTest.php
+ * RedirectControllerTest.php
  *
- * The FrontendRedirectControllerTest unit test class file.
+ * The RedirectControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,22 +12,22 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Frontend;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\Controller\FrontendRedirectController;
+use UserAccessManager\Controller\Frontend\RedirectController;
 use UserAccessManager\FileHandler\FileObject;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 
 /**
- * Class FrontendRedirectControllerTest
+ * Class RedirectControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\FrontendRedirectController
+ * @coversDefaultClass \UserAccessManager\Controller\Frontend\RedirectController
  */
-class FrontendRedirectControllerTest extends UserAccessManagerTestCase
+class RedirectControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -57,7 +57,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $frontendRedirectController = new FrontendRedirectController(
+        $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -70,7 +70,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
-        self::assertInstanceOf(FrontendRedirectController::class, $frontendRedirectController);
+        self::assertInstanceOf(RedirectController::class, $frontendRedirectController);
     }
 
     /**
@@ -116,7 +116,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
 
         $cache->expects($this->exactly(7))
             ->method('getFromRuntimeCache')
-            ->with(FrontendRedirectController::POST_URL_CACHE_KEY)
+            ->with(RedirectController::POST_URL_CACHE_KEY)
             ->will($this->onConsecutiveCalls(
                 null,
                 null,
@@ -130,11 +130,11 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
         $cache->expects($this->exactly(5))
             ->method('addToRuntimeCache')
             ->withConsecutive(
-                [FrontendRedirectController::POST_URL_CACHE_KEY, ['url/part' => 1]],
-                [FrontendRedirectController::POST_URL_CACHE_KEY, ['url-e123/part' => 2]],
-                [FrontendRedirectController::POST_URL_CACHE_KEY, ['url-123x321_z/part' => 3]],
-                [FrontendRedirectController::POST_URL_CACHE_KEY, ['url-e123-123x321/part' => 4]],
-                [FrontendRedirectController::POST_URL_CACHE_KEY, ['url/part-pdf.jpg' => 5]]
+                [RedirectController::POST_URL_CACHE_KEY, ['url/part' => 1]],
+                [RedirectController::POST_URL_CACHE_KEY, ['url-e123/part' => 2]],
+                [RedirectController::POST_URL_CACHE_KEY, ['url-123x321_z/part' => 3]],
+                [RedirectController::POST_URL_CACHE_KEY, ['url-e123-123x321/part' => 4]],
+                [RedirectController::POST_URL_CACHE_KEY, ['url/part-pdf.jpg' => 5]]
             );
 
         $database = $this->getDatabase();
@@ -174,7 +174,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
                 $this->getPost(5)
             ));
 
-        $frontendRedirectController = new FrontendRedirectController(
+        $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -256,7 +256,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
 
         $cache->expects($this->exactly(5))
             ->method('getFromRuntimeCache')
-            ->with(FrontendRedirectController::POST_URL_CACHE_KEY)
+            ->with(RedirectController::POST_URL_CACHE_KEY)
             ->will($this->returnValue(['http://baseUrl/file/pictures/url' => 1]));
 
         $objectHandler = $this->getObjectHandler();
@@ -326,7 +326,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
             }));
 
 
-        $frontendRedirectController = new FrontendRedirectController(
+        $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -453,7 +453,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(false, true));
 
-        $frontendRedirectController = new FrontendRedirectController(
+        $frontendRedirectController = new RedirectController(
             $php,
             $wordpress,
             $config,
@@ -562,7 +562,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $frontendRedirectController = new FrontendRedirectController(
+        $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -650,7 +650,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
                 $this->getPost(1)
             ));
 
-        $frontendRedirectController = new FrontendRedirectController(
+        $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -687,7 +687,7 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
 
         $cache->expects($this->exactly(2))
             ->method('getFromRuntimeCache')
-            ->with(FrontendRedirectController::POST_URL_CACHE_KEY)
+            ->with(RedirectController::POST_URL_CACHE_KEY)
             ->will($this->onConsecutiveCalls(
                 null,
                 ['firstUrl' => 1]
@@ -696,11 +696,11 @@ class FrontendRedirectControllerTest extends UserAccessManagerTestCase
         $cache->expects($this->exactly(2))
             ->method('addToRuntimeCache')
             ->withConsecutive(
-                [FrontendRedirectController::POST_URL_CACHE_KEY, ['firstUrl' => 1]],
-                [FrontendRedirectController::POST_URL_CACHE_KEY, ['firstUrl' => 1, 'secondUrl' => 2]]
+                [RedirectController::POST_URL_CACHE_KEY, ['firstUrl' => 1]],
+                [RedirectController::POST_URL_CACHE_KEY, ['firstUrl' => 1, 'secondUrl' => 2]]
             );
 
-        $frontendRedirectController = new FrontendRedirectController(
+        $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),

@@ -1,8 +1,8 @@
 <?php
 /**
- * FrontendControllerTest.php
+ * ControllerTest.php
  *
- * The FrontendControllerTest unit test class file.
+ * The ControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,48 +12,20 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Frontend;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\Controller\FrontendController;
-use UserAccessManager\FileHandler\FileObject;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Controller\Frontend\FrontendController;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
-use Vfs\FileSystem;
-use Vfs\Node\Directory;
-use Vfs\Node\File;
 
 /**
- * Class FrontendControllerTest
+ * Class ControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\FrontendController
+ * @coversDefaultClass \UserAccessManager\Controller\Frontend\FrontendController
  */
 class FrontendControllerTest extends UserAccessManagerTestCase
 {
-    /**
-     * @var FileSystem
-     */
-    private $root;
-
-    /**
-     * Setup virtual file system.
-     */
-    public function setUp()
-    {
-        $this->root = FileSystem::factory('vfs://');
-        $this->root->mount();
-    }
-
-    /**
-     * Tear down virtual file system.
-     */
-    public function tearDown()
-    {
-        $this->root->unmount();
-    }
-
     /**
      * @group  unit
      * @covers ::__construct()

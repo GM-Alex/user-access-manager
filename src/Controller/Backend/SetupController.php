@@ -12,9 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\Wrapper\Php;
@@ -25,7 +26,7 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class AdminSetupController extends Controller
+class SetupController extends Controller
 {
     const SETUP_UPDATE_NONCE = 'uamSetupUpdate';
     const SETUP_REVERT_NONCE = 'uamSetupRevert';

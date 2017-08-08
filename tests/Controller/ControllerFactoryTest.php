@@ -14,17 +14,17 @@
  */
 namespace UserAccessManager\Tests\Controller;
 
-use UserAccessManager\Controller\AdminAboutController;
-use UserAccessManager\Controller\AdminController;
-use UserAccessManager\Controller\AdminObjectController;
-use UserAccessManager\Controller\AdminSettingsController;
-use UserAccessManager\Controller\AdminSetupController;
-use UserAccessManager\Controller\AdminUserGroupController;
+use UserAccessManager\Controller\Backend\AboutController;
+use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\SettingsController;
+use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Controller\Backend\UserGroupController;
 use UserAccessManager\Controller\ControllerFactory;
-use UserAccessManager\Controller\FrontendController;
-use UserAccessManager\Controller\FrontendPostController;
-use UserAccessManager\Controller\FrontendRedirectController;
-use UserAccessManager\Controller\FrontendTermController;
+use UserAccessManager\Controller\Frontend\FrontendController;
+use UserAccessManager\Controller\Frontend\PostController;
+use UserAccessManager\Controller\Frontend\RedirectController;
+use UserAccessManager\Controller\Frontend\TermController;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
@@ -68,90 +68,90 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  ::createAdminController()
+     * @covers  ::createBackendController()
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminController(ControllerFactory $controllerFactory)
+    public function testCreateController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            AdminController::class,
-            $controllerFactory->createAdminController()
+            BackendController::class,
+            $controllerFactory->createBackendController()
         );
     }
 
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  ::createAdminAboutController()
+     * @covers  ::createBackendAboutController()
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminAboutController(ControllerFactory $controllerFactory)
+    public function testCreateAboutController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            AdminAboutController::class,
-            $controllerFactory->createAdminAboutController()
+            AboutController::class,
+            $controllerFactory->createBackendAboutController()
         );
     }
 
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  ::createAdminObjectController()
+     * @covers  ::createBackendObjectController()
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminObjectController(ControllerFactory $controllerFactory)
+    public function testCreateObjectController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            AdminObjectController::class,
-            $controllerFactory->createAdminObjectController()
+            ObjectController::class,
+            $controllerFactory->createBackendObjectController()
         );
     }
 
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  ::createAdminSettingsController()
+     * @covers  ::createBackendSettingsController()
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminSettingController(ControllerFactory $controllerFactory)
+    public function testCreateSettingController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            AdminSettingsController::class,
-            $controllerFactory->createAdminSettingsController()
+            SettingsController::class,
+            $controllerFactory->createBackendSettingsController()
         );
     }
 
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  ::createAdminSetupController()
+     * @covers  ::createBackendSetupController()
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminSetupController(ControllerFactory $controllerFactory)
+    public function testCreateSetupController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            AdminSetupController::class,
-            $controllerFactory->createAdminSetupController()
+            SetupController::class,
+            $controllerFactory->createBackendSetupController()
         );
     }
 
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  ::createAdminUserGroupController()
+     * @covers  ::createBackendUserGroupController()
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAdminUserGroupController(ControllerFactory $controllerFactory)
+    public function testCreateUserGroupController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            AdminUserGroupController::class,
-            $controllerFactory->createAdminUserGroupController()
+            UserGroupController::class,
+            $controllerFactory->createBackendUserGroupController()
         );
     }
 
@@ -180,7 +180,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     public function testCreateFrontendPostController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            FrontendPostController::class,
+            PostController::class,
             $controllerFactory->createFrontendPostController()
         );
     }
@@ -195,7 +195,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     public function testCreateFrontendRedirectController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            FrontendRedirectController::class,
+            RedirectController::class,
             $controllerFactory->createFrontendRedirectController()
         );
     }
@@ -210,7 +210,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     public function testCreateFrontendTermController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
-            FrontendTermController::class,
+            TermController::class,
             $controllerFactory->createFrontendTermController()
         );
     }

@@ -12,11 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileObject;
@@ -31,7 +32,7 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class FrontendRedirectController extends Controller
+class RedirectController extends Controller
 {
     use LoginControllerTrait;
 

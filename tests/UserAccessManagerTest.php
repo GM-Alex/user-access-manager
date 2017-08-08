@@ -14,10 +14,10 @@
  */
 namespace UserAccessManager\Tests;
 
-use UserAccessManager\Controller\AdminController;
-use UserAccessManager\Controller\AdminObjectController;
-use UserAccessManager\Controller\AdminSetupController;
-use UserAccessManager\Controller\FrontendController;
+use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Controller\Frontend\FrontendController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 
@@ -166,16 +166,16 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
         $controllerFactory = $this->getControllerFactory();
         $controllerFactory->expects($this->once())
-            ->method('createAdminUserGroupController');
+            ->method('createBackendUserGroupController');
 
         $controllerFactory->expects($this->once())
-            ->method('createAdminSettingsController');
+            ->method('createBackendSettingsController');
 
         $controllerFactory->expects($this->once())
-            ->method('createAdminSetupController');
+            ->method('createBackendSetupController');
 
         $controllerFactory->expects($this->once())
-            ->method('createAdminAboutController');
+            ->method('createBackendAboutController');
 
         $userAccessManager = new UserAccessManager(
             $this->getPhp(),
@@ -259,7 +259,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true, true));
 
 
-        $adminController = $this->createMock(AdminController::class);
+        $adminController = $this->createMock(BackendController::class);
 
         $adminController->expects($this->exactly(8))
             ->method('getRequestParameter')
@@ -274,11 +274,11 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
                 ['taxonomy']
             )
             ->will($this->onConsecutiveCalls(
-                AdminSetupController::UPDATE_BLOG,
+                SetupController::UPDATE_BLOG,
                 null,
-                AdminSetupController::UPDATE_BLOG,
+                SetupController::UPDATE_BLOG,
                 'c',
-                AdminSetupController::UPDATE_NETWORK,
+                SetupController::UPDATE_NETWORK,
                 'c',
                 null,
                 'c'
@@ -287,13 +287,13 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $controllerFactory = $this->getControllerFactory();
 
         $controllerFactory->expects($this->exactly(4))
-            ->method('createAdminController')
+            ->method('createBackendController')
             ->will($this->returnValue($adminController));
 
         $controllerFactory->expects($this->exactly(4))
-            ->method('createAdminObjectController')
+            ->method('createBackendObjectController')
             ->will($this->returnCallback(function () {
-                $adminObjectController = $this->createMock(AdminObjectController::class);
+                $adminObjectController = $this->createMock(ObjectController::class);
                 $adminObjectController->expects($this->any())
                     ->method('checkRightsToEditContent');
 
@@ -348,7 +348,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($frontendController));
 
         $controllerFactory->expects($this->exactly(3))
-            ->method('createAdminObjectController');
+            ->method('createBackendObjectController');
 
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(24))

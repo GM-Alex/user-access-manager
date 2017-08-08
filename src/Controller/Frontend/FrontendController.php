@@ -12,10 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Controller;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;

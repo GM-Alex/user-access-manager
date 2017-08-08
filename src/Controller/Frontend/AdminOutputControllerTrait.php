@@ -12,7 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
@@ -24,7 +24,7 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-trait FrontendAdminOutputControllerTrait
+trait AdminOutputControllerTrait
 {
     /**
      * @var Wordpress

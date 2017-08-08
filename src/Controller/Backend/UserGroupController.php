@@ -12,10 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Controller;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
@@ -27,9 +28,9 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class AdminUserGroupController extends Controller
+class UserGroupController extends Controller
 {
-    use AdminControllerTabNavigationTrait;
+    use ControllerTabNavigationTrait;
 
     const INSERT_UPDATE_GROUP_NONCE = 'uamInsertUpdateGroup';
     const DELETE_GROUP_NONCE = 'uamDeleteGroup';

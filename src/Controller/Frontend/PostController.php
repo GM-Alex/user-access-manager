@@ -12,11 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
@@ -29,10 +30,10 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class FrontendPostController extends Controller
+class PostController extends Controller
 {
     use LoginControllerTrait;
-    use FrontendAdminOutputControllerTrait;
+    use AdminOutputControllerTrait;
 
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
 
@@ -155,7 +156,7 @@ class FrontendPostController extends Controller
             if (isset($filters['the_posts']) === true && isset($filters['the_posts']->callbacks[10]) === true) {
                 foreach ($filters['the_posts']->callbacks[10] as $postFilter) {
                     if (is_array($postFilter['function']) === true
-                        && $postFilter['function'][0] instanceof FrontendPostController
+                        && $postFilter['function'][0] instanceof PostController
                         && $postFilter['function'][1] === 'showPosts'
                     ) {
                         $this->wordpressFilters['the_posts'] = $filters['the_posts'];

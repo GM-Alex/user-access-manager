@@ -1,8 +1,8 @@
 <?php
 /**
- * FrontendAdminOutputControllerTraitTest.php
+ * AdminOutputControllerTraitTest.php
  *
- * The FrontendAdminOutputControllerTraitTest unit test class file.
+ * The AdminOutputControllerTraitTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,25 +12,25 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Frontend;
 
-use UserAccessManager\Controller\FrontendAdminOutputControllerTrait;
+use UserAccessManager\Controller\Frontend\AdminOutputControllerTrait;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
- * Class FrontendAdminOutputControllerTraitTest
+ * Class AdminOutputControllerTraitTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\FrontendAdminOutputControllerTrait
+ * @coversDefaultClass \UserAccessManager\Controller\Frontend\AdminOutputControllerTrait
  */
-class FrontendAdminOutputControllerTraitTest extends UserAccessManagerTestCase
+class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|FrontendAdminOutputControllerTrait
+     * @return \PHPUnit_Framework_MockObject_MockObject|AdminOutputControllerTrait
      */
     private function getStub()
     {
-        return $this->getMockForTrait(FrontendAdminOutputControllerTrait::class);
+        return $this->getMockForTrait(AdminOutputControllerTrait::class);
     }
 
     /**

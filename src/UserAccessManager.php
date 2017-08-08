@@ -20,8 +20,8 @@ use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameterFactory;
-use UserAccessManager\Controller\AdminObjectController;
-use UserAccessManager\Controller\AdminSetupController;
+use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\SetupController;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
@@ -366,7 +366,7 @@ class UserAccessManager
             );
 
             //Admin sub menus
-            $adminUserGroupController = $this->controllerFactory->createAdminUserGroupController();
+            $adminUserGroupController = $this->controllerFactory->createBackendUserGroupController();
             $this->wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_MANAGE_GROUP,
@@ -376,7 +376,7 @@ class UserAccessManager
                 [$adminUserGroupController, 'render']
             );
 
-            $adminSetupController = $this->controllerFactory->createAdminSettingsController();
+            $adminSetupController = $this->controllerFactory->createBackendSettingsController();
             $this->wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_SETTINGS,
@@ -386,7 +386,7 @@ class UserAccessManager
                 [$adminSetupController, 'render']
             );
 
-            $adminSetupController = $this->controllerFactory->createAdminSetupController();
+            $adminSetupController = $this->controllerFactory->createBackendSetupController();
             $this->wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_SETUP,
@@ -396,7 +396,7 @@ class UserAccessManager
                 [$adminSetupController, 'render']
             );
 
-            $adminAboutController = $this->controllerFactory->createAdminAboutController();
+            $adminAboutController = $this->controllerFactory->createBackendAboutController();
             $this->wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_ABOUT,
@@ -417,10 +417,10 @@ class UserAccessManager
     /**
      * Adds the admin filters.
      *
-     * @param AdminObjectController $adminObjectController
-     * @param array                 $taxonomies
+     * @param ObjectController $adminObjectController
+     * @param array            $taxonomies
      */
-    private function addAdminActions(AdminObjectController $adminObjectController, array $taxonomies)
+    private function addAdminActions(ObjectController $adminObjectController, array $taxonomies)
     {
         $this->wordpress->addAction(
             'manage_posts_custom_column',
@@ -492,10 +492,10 @@ class UserAccessManager
     /**
      * Adds the admin filters.
      *
-     * @param AdminObjectController $adminObjectController
-     * @param array                 $taxonomies
+     * @param ObjectController $adminObjectController
+     * @param array            $taxonomies
      */
-    private function addAdminFilters(AdminObjectController $adminObjectController, array $taxonomies)
+    private function addAdminFilters(ObjectController $adminObjectController, array $taxonomies)
     {
         //The filter we use instead of add|edit_attachment action, reason see top
         $this->wordpress->addFilter('attachment_fields_to_save', [$adminObjectController, 'saveAttachmentData']);
@@ -526,9 +526,9 @@ class UserAccessManager
     /**
      * Adds the admin meta boxes.
      *
-     * @param AdminObjectController $adminObjectController
+     * @param ObjectController $adminObjectController
      */
-    private function addAdminMetaBoxes(AdminObjectController $adminObjectController)
+    private function addAdminMetaBoxes(ObjectController $adminObjectController)
     {
         $postTypes = $this->objectHandler->getPostTypes();
 
@@ -553,14 +553,14 @@ class UserAccessManager
      */
     public function registerAdminActionsAndFilters()
     {
-        $adminController = $this->controllerFactory->createAdminController();
+        $adminController = $this->controllerFactory->createBackendController();
         $this->wordpress->addAction('admin_enqueue_scripts', [$adminController, 'enqueueStylesAndScripts']);
         $this->wordpress->addAction('wp_dashboard_setup', [$adminController, 'setupAdminDashboard']);
         $updateAction = $adminController->getRequestParameter('uam_update_db');
 
         if ($this->setupHandler->isDatabaseUpdateNecessary() === true
-            && $updateAction !== AdminSetupController::UPDATE_BLOG
-            && $updateAction !== AdminSetupController::UPDATE_NETWORK
+            && $updateAction !== SetupController::UPDATE_BLOG
+            && $updateAction !== SetupController::UPDATE_NETWORK
         ) {
             $this->wordpress->addAction('admin_notices', [$adminController, 'showDatabaseNotice']);
         }
@@ -572,7 +572,7 @@ class UserAccessManager
             $taxonomies[$taxonomy] = $taxonomy;
         }
 
-        $adminObjectController = $this->controllerFactory->createAdminObjectController();
+        $adminObjectController = $this->controllerFactory->createBackendObjectController();
 
         if ($this->accessHandler->checkUserAccess() === true
             || $this->config->authorsCanAddPostsToGroups() === true
@@ -661,7 +661,7 @@ class UserAccessManager
         }
 
         // Admin object controller
-        $adminObjectController = $this->controllerFactory->createAdminObjectController();
+        $adminObjectController = $this->controllerFactory->createBackendObjectController();
 
         $this->wordpress->addFilter('clean_term_cache', [$adminObjectController, 'invalidateTermCache']);
         $this->wordpress->addFilter('clean_object_term_cache', [$adminObjectController, 'invalidateTermCache']);

@@ -12,10 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Controller;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
@@ -26,9 +27,9 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class FrontendTermController extends Controller
+class TermController extends Controller
 {
-    use FrontendAdminOutputControllerTrait;
+    use AdminOutputControllerTrait;
 
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
 

@@ -12,14 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Backend;
+
+use UserAccessManager\Controller\Controller;
 
 /**
  * Class AdminAboutController
  *
  * @package UserAccessManager\Controller
  */
-class AdminAboutController extends Controller
+class AboutController extends Controller
 {
     /**
      * @var string

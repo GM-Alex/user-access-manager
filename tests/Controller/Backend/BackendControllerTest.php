@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminControllerTest.php
+ * BackendControllerTest.php
  *
- * The AdminControllerTest unit test class file.
+ * The BackendControllerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,9 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Controller;
+namespace UserAccessManager\Tests\Controller\Backend;
 
-use UserAccessManager\Controller\AdminController;
+use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use Vfs\FileSystem;
@@ -22,12 +22,12 @@ use Vfs\Node\Directory;
 use Vfs\Node\File;
 
 /**
- * Class AdminControllerTest
+ * Class BackendControllerTest
  *
  * @package UserAccessManager\Controller
- * @coversDefaultClass \UserAccessManager\Controller\AdminController
+ * @coversDefaultClass \UserAccessManager\Controller\Backend\BackendController
  */
-class AdminControllerTest extends UserAccessManagerTestCase
+class BackendControllerTest extends UserAccessManagerTestCase
 {
     /**
      * @var FileSystem
@@ -67,7 +67,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminController = new AdminController(
+        $adminController = new BackendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -75,14 +75,14 @@ class AdminControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertInstanceOf(AdminController::class, $adminController);
+        self::assertInstanceOf(BackendController::class, $adminController);
     }
 
     /**
      * @group  unit
      * @covers ::showDatabaseNotice()
      *
-     * @return AdminController
+     * @return BackendController
      */
     public function testShowDatabaseNotice()
     {
@@ -93,7 +93,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
-        $adminController = new AdminController(
+        $adminController = new BackendController(
             $php,
             $this->getWordpress(),
             $config,
@@ -125,13 +125,13 @@ class AdminControllerTest extends UserAccessManagerTestCase
      * @covers  ::getNotice()
      * @depends testShowDatabaseNotice
      *
-     * @param AdminController $databaseNoticeAdminController
+     * @param BackendController $databaseNoticeBackendController
      */
-    public function testGetNotice(AdminController $databaseNoticeAdminController)
+    public function testGetNotice(BackendController $databaseNoticeBackendController)
     {
         self::assertEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
-            $databaseNoticeAdminController->getNotice()
+            $databaseNoticeBackendController->getNotice()
         );
     }
 
@@ -146,7 +146,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->once())
             ->method('registerStyle')
             ->with(
-                AdminController::HANDLE_STYLE_ADMIN,
+                BackendController::HANDLE_STYLE_ADMIN,
                 'url/assets/css/uamAdmin.css',
                 [],
                 UserAccessManager::VERSION,
@@ -157,7 +157,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->once())
             ->method('registerScript')
             ->with(
-                AdminController::HANDLE_SCRIPT_ADMIN,
+                BackendController::HANDLE_SCRIPT_ADMIN,
                 'url/assets/js/functions.js',
                 ['jquery'],
                 UserAccessManager::VERSION
@@ -165,18 +165,18 @@ class AdminControllerTest extends UserAccessManagerTestCase
 
         $wordpress->expects($this->once())
             ->method('enqueueStyle')
-            ->with(AdminController::HANDLE_STYLE_ADMIN);
+            ->with(BackendController::HANDLE_STYLE_ADMIN);
 
         $wordpress->expects($this->once())
             ->method('enqueueScript')
-            ->with(AdminController::HANDLE_SCRIPT_ADMIN);
+            ->with(BackendController::HANDLE_SCRIPT_ADMIN);
 
         $config = $this->getMainConfig();
         $config->expects($this->once())
             ->method('getUrlPath')
             ->will($this->returnValue('url/'));
 
-        $adminController = new AdminController(
+        $adminController = new BackendController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -226,7 +226,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
             ->with('manage_user_groups')
             ->will($this->onConsecutiveCalls(true, true, false));
 
-        $adminController = new AdminController(
+        $adminController = new BackendController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -255,7 +255,7 @@ class AdminControllerTest extends UserAccessManagerTestCase
         $fileHandler->expects($this->once())
             ->method('createFileProtection');
 
-        $adminController = new AdminController(
+        $adminController = new BackendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),

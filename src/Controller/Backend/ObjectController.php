@@ -12,11 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Controller;
+namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
@@ -32,7 +33,7 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class AdminObjectController extends Controller
+class ObjectController extends Controller
 {
     const COLUMN_NAME = 'uam_access';
     const BULK_REMOVE = 'remove';
