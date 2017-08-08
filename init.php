@@ -19,6 +19,7 @@ use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -40,6 +41,12 @@ function initUserAccessManger()
     $formFactory = new FormFactory();
     $formHelper = new FormHelper($php, $wordpress, $config, $formFactory);
     $assignmentInformationFactory = new AssignmentInformationFactory();
+    $membershipHandlerFactory = new ObjectMembershipHandlerFactory(
+        $php,
+        $database,
+        $objectHandler,
+        $assignmentInformationFactory
+    );
     $userGroupFactory = new UserGroupFactory(
         $php,
         $wordpress,
@@ -47,6 +54,7 @@ function initUserAccessManger()
         $config,
         $util,
         $objectHandler,
+        $membershipHandlerFactory,
         $assignmentInformationFactory
     );
     $accessHandler = new AccessHandler(

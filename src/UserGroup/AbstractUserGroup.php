@@ -17,6 +17,9 @@ namespace UserAccessManager\UserGroup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandler;
+use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
+use UserAccessManager\UserGroup\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -59,6 +62,11 @@ abstract class AbstractUserGroup
      * @var ObjectHandler
      */
     protected $objectHandler;
+
+    /**
+     * @var ObjectMembershipHandlerFactory
+     */
+    protected $membershipHandlerFactory;
 
     /**
      * @var AssignmentInformationFactory
@@ -111,29 +119,14 @@ abstract class AbstractUserGroup
     protected $assignedObjects = [];
 
     /**
-     * @var array
+     * @var null|array
      */
-    protected $roleMembership = [];
+    protected $objectMembershipHandlers = null;
 
     /**
      * @var array
      */
-    protected $userMembership = [];
-
-    /**
-     * @var array
-     */
-    protected $termMembership = [];
-
-    /**
-     * @var array
-     */
-    protected $postMembership = [];
-
-    /**
-     * @var array
-     */
-    protected $plObjectMembership = [];
+    protected $objectMembership = [];
 
     /**
      * @var array
@@ -148,14 +141,15 @@ abstract class AbstractUserGroup
     /**
      * AbstractUserGroup constructor.
      *
-     * @param Php                          $php
-     * @param Wordpress                    $wordpress
-     * @param Database                     $database
-     * @param MainConfig                   $config
-     * @param Util                         $util
-     * @param ObjectHandler                $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param string                       $id
+     * @param Php                            $php
+     * @param Wordpress                      $wordpress
+     * @param Database                       $database
+     * @param MainConfig                     $config
+     * @param Util                           $util
+     * @param ObjectHandler                  $objectHandler
+     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
+     * @param AssignmentInformationFactory   $assignmentInformationFactory
+     * @param null                           $id
      *
      * @throws UserGroupTypeException
      */
@@ -166,6 +160,7 @@ abstract class AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
+        ObjectMembershipHandlerFactory $membershipHandlerFactory,
         AssignmentInformationFactory $assignmentInformationFactory,
         $id = null
     ) {
@@ -179,6 +174,7 @@ abstract class AbstractUserGroup
         $this->config = $config;
         $this->util = $util;
         $this->objectHandler = $objectHandler;
+        $this->membershipHandlerFactory = $membershipHandlerFactory;
         $this->assignmentInformationFactory = $assignmentInformationFactory;
         $this->id = $id;
     }
@@ -337,11 +333,7 @@ abstract class AbstractUserGroup
     protected function resetObjects()
     {
         $this->assignedObjects = [];
-        $this->roleMembership = [];
-        $this->userMembership = [];
-        $this->termMembership = [];
-        $this->postMembership = [];
-        $this->plObjectMembership = [];
+        $this->objectMembership = [];
         $this->fullObjectMembership = [];
     }
 
@@ -594,21 +586,39 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns the assigned objects as array map.
+     * Returns the membership handler for the given object type.
      *
-     * @param string $objectType The object type.
+     * @param string $objectType
      *
-     * @return array
+     * @return ObjectMembershipHandler
+     *
+     * @throws MissingObjectMembershipHandlerException
      */
-    private function getSimpleAssignedObjects($objectType)
+    private function getObjectMembershipHandler($objectType)
     {
-        $objects = $this->getAssignedObjects($objectType);
-        return array_map(
-            function (AssignmentInformation $element) {
-                return $element->getType();
-            },
-            $objects
-        );
+        if ($this->objectMembershipHandlers === null) {
+            $factory = $this->membershipHandlerFactory;
+
+            $this->objectMembershipHandlers = [
+                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => $factory->createRoleMembershipHandler($this),
+                ObjectHandler::GENERAL_USER_OBJECT_TYPE => $factory->createUserMembershipHandler($this),
+                ObjectHandler::GENERAL_TERM_OBJECT_TYPE => $factory->createTermMembershipHandler($this),
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE => $factory->createPostMembershipHandler($this)
+            ];
+
+            $this->objectMembershipHandlers = $this->wordpress->applyFilters(
+                'uam_register_object_membership_handler',
+                $this->objectMembershipHandlers
+            );
+        }
+
+        $objectType = $this->objectHandler->getGeneralObjectType($objectType);
+
+        if (isset($this->objectMembershipHandlers[$objectType]) === false) {
+            throw new MissingObjectMembershipHandlerException("Missing membership handler for '{$objectType}'.");
+        }
+
+        return $this->objectMembershipHandlers[$objectType];
     }
 
     /**
@@ -620,7 +630,7 @@ abstract class AbstractUserGroup
      *
      * @return bool
      */
-    protected function isObjectAssignedToGroup(
+    public function isObjectAssignedToGroup(
         $objectType,
         $objectId,
         &$assignmentInformation = null
@@ -637,269 +647,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Assigns recursive membership to the assignment information object.
-     *
-     * @param null|AssignmentInformation $assignmentInformation
-     * @param array                      $recursiveMembership
-     */
-    protected function assignRecursiveMembership(
-        &$assignmentInformation,
-        array $recursiveMembership
-    ) {
-        if ($assignmentInformation === null) {
-            $assignmentInformation = $this->assignmentInformationFactory->createAssignmentInformation();
-        }
-
-        $assignmentInformation->setRecursiveMembership($recursiveMembership);
-    }
-
-    /**
-     * Returns the recursive membership.
-     *
-     * @param \Closure              $mapFunction
-     * @param string                $objectType
-     * @param string                $objectId
-     * @param AssignmentInformation $assignmentInformation
-     *
-     * @return bool
-     */
-    protected function isObjectRecursiveMember(
-        $mapFunction,
-        $objectType,
-        $objectId,
-        &$assignmentInformation = null
-    ) {
-        // Reset value to prevent errors
-        $recursiveMembership = [];
-
-        if ($this->config->lockRecursive() === true) {
-            $map = $mapFunction();
-            $generalMap = isset($map[ObjectHandler::TREE_MAP_PARENTS][$objectType]) ?
-                $map[ObjectHandler::TREE_MAP_PARENTS][$objectType] : [];
-
-            if (isset($generalMap[$objectId]) === true) {
-                foreach ($generalMap[$objectId] as $parentId => $type) {
-                    if ($this->isObjectAssignedToGroup($objectType, $parentId, $rmAssignmentInformation) === true) {
-                        $recursiveMembership[$objectType][$parentId] = $rmAssignmentInformation;
-                    }
-                }
-            }
-        }
-
-        $isMember = $this->isObjectAssignedToGroup($objectType, $objectId, $assignmentInformation);
-        $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
-
-        return $isMember === true || count($recursiveMembership) > 0;
-    }
-
-    /**
-     * Checks if the role is a group member.
-     *
-     * @param string                $roleId
-     * @param AssignmentInformation $assignmentInformation
-     *
-     * @return bool
-     */
-    public function isRoleMember(
-        $roleId,
-        &$assignmentInformation = null
-    ) {
-        if (isset($this->roleMembership[$roleId]) === false) {
-            $isMember = $this->isObjectAssignedToGroup(
-                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
-                $roleId,
-                $assignmentInformation
-            );
-            $this->roleMembership[$roleId] = ($isMember === true) ? $assignmentInformation : false;
-        }
-
-        $assignmentInformation = ($this->roleMembership[$roleId] instanceof AssignmentInformation) ?
-            $this->roleMembership[$roleId] : null;
-
-        return ($this->roleMembership[$roleId] !== false);
-    }
-
-    /**
-     * Checks if the user is a group member.
-     *
-     * @param int                   $userId                The user id.
-     * @param AssignmentInformation $assignmentInformation The assignment information.
-     *
-     * @return bool
-     */
-    public function isUserMember(
-        $userId,
-        &$assignmentInformation = null
-    ) {
-        if (isset($this->userMembership[$userId]) === false) {
-            $recursiveMembership = [];
-            $user = $this->objectHandler->getUser($userId);
-
-            if ($user !== false) {
-                $capabilitiesTable = $this->database->getCapabilitiesTable();
-                $capabilities = (isset($user->{$capabilitiesTable}) === true) ? $user->{$capabilitiesTable} : [];
-
-                if (is_array($capabilities) === true && count($capabilities) > 0) {
-                    $assignedRoles = $this->getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
-                    $recursiveRoles = array_intersect(
-                        array_keys($capabilities),
-                        array_keys($assignedRoles)
-                    );
-
-                    if (count($recursiveRoles) > 0) {
-                        $recursiveMembership[ObjectHandler::GENERAL_ROLE_OBJECT_TYPE] = array_combine(
-                            $recursiveRoles,
-                            $this->php->arrayFill(
-                                0,
-                                count($recursiveRoles),
-                                $this->assignmentInformationFactory->createAssignmentInformation(
-                                    ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
-                                )
-                            )
-                        );
-                    }
-                }
-            }
-
-            $isMember = $this->isObjectAssignedToGroup(
-                ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-                $userId,
-                $assignmentInformation
-            );
-            $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
-
-            $this->userMembership[$userId] = ($isMember === true || count($recursiveMembership) > 0) ?
-                $assignmentInformation : false;
-        }
-
-        $assignmentInformation = ($this->userMembership[$userId] instanceof AssignmentInformation) ?
-            $this->userMembership[$userId] : null;
-
-        return ($this->userMembership[$userId] !== false);
-    }
-
-    /**
-     * Checks if the term is a group member.
-     *
-     * @param int                   $termId
-     * @param AssignmentInformation $assignmentInformation
-     *
-     * @return bool
-     */
-    public function isTermMember(
-        $termId,
-        &$assignmentInformation = null
-    ) {
-        if (isset($this->termMembership[$termId]) === false) {
-            $isMember = $this->isObjectRecursiveMember(
-                function () {
-                    return $this->objectHandler->getTermTreeMap();
-                },
-                ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-                $termId,
-                $assignmentInformation
-            );
-
-            $this->termMembership[$termId] = ($isMember === true) ? $assignmentInformation : false;
-        }
-
-        $assignmentInformation = ($this->termMembership[$termId] instanceof AssignmentInformation) ?
-            $this->termMembership[$termId] : null;
-
-        return ($this->termMembership[$termId] !== false);
-    }
-
-    /**
-     * Checks if the post is a group member
-     *
-     * @param int                   $postId
-     * @param AssignmentInformation $assignmentInformation
-     *
-     * @return bool
-     */
-    public function isPostMember(
-        $postId,
-        &$assignmentInformation = null
-    ) {
-        if (isset($this->postMembership[$postId]) === false) {
-            $isMember = $this->isObjectRecursiveMember(
-                function () {
-                    return $this->objectHandler->getPostTreeMap();
-                },
-                ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-                $postId,
-                $assignmentInformation
-            );
-
-            if ($this->config->lockRecursive() === true) {
-                $recursiveMembership = ($assignmentInformation !== null) ?
-                    $assignmentInformation->getRecursiveMembership() : [];
-
-                $postTermMap = $this->objectHandler->getPostTermMap();
-
-                if (isset($postTermMap[$postId]) === true) {
-                    foreach ($postTermMap[$postId] as $termId => $type) {
-                        if ($this->isTermMember($termId, $rmAssignmentInformation) === true) {
-                            $recursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$termId] =
-                                $rmAssignmentInformation;
-                        }
-                    }
-                }
-
-                $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
-                $isMember = $isMember || count($recursiveMembership) > 0;
-            }
-
-            $this->postMembership[$postId] = ($isMember === true) ? $assignmentInformation : false;
-        }
-
-        $assignmentInformation = ($this->postMembership[$postId] instanceof AssignmentInformation) ?
-            $this->postMembership[$postId] : null;
-
-        return ($this->postMembership[$postId] !== false);
-    }
-
-    /**
-     * Returns a the recursive membership for a pluggable object.
-     *
-     * @param string                $objectType            The pluggable object type.
-     * @param string                $objectId              The object id.
-     * @param AssignmentInformation $assignmentInformation The assignment information
-     *
-     * @return bool
-     */
-    public function isPluggableObjectMember(
-        $objectType,
-        $objectId,
-        &$assignmentInformation = null
-    ) {
-        if (isset($this->plObjectMembership[$objectType]) === false) {
-            $this->plObjectMembership[$objectType] = [];
-        }
-
-        if (isset($this->plObjectMembership[$objectType][$objectId]) === false) {
-            $isMember = false;
-            $pluggableObject = $this->objectHandler->getPluggableObject($objectType);
-
-            if ($pluggableObject !== null) {
-                $recursiveMembership = $pluggableObject->getRecursiveMembership($this, $objectId);
-                $isMember = $this->isObjectAssignedToGroup($objectType, $objectId, $assignmentInformation)
-                    || count($recursiveMembership) > 0;
-
-                $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
-            }
-
-            $this->plObjectMembership[$objectType][$objectId] = ($isMember === true) ?
-                $assignmentInformation : false;
-        }
-
-        $assignmentInformation = ($this->plObjectMembership[$objectType][$objectId] instanceof AssignmentInformation) ?
-            $this->plObjectMembership[$objectType][$objectId] : null;
-
-        return ($this->plObjectMembership[$objectType][$objectId] !== false);
-    }
-
-    /**
      * Returns a single object.
      *
      * @param string                $objectType            The object type.
@@ -913,29 +660,77 @@ abstract class AbstractUserGroup
         $objectId,
         &$assignmentInformation = null
     ) {
-        $isMember = false;
+        if (isset($this->objectMembership[$objectType]) === false) {
+            $this->objectMembership[$objectType] = [];
+        }
 
-        if ($objectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
-            $isMember = $this->isRoleMember($objectId, $assignmentInformation);
-        } elseif ($objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
-            $isMember = $this->isUserMember($objectId, $assignmentInformation);
-        } elseif ($objectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
-            || $this->objectHandler->isTaxonomy($objectType) === true
-        ) {
-            $isMember = $this->isTermMember($objectId, $assignmentInformation);
-        } elseif ($objectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
-            || $this->objectHandler->isPostType($objectType) === true
-        ) {
-            $isMember = $this->isPostMember($objectId, $assignmentInformation);
-        } elseif ($this->objectHandler->isPluggableObject($objectType) === true) {
-            $isMember = $this->isPluggableObjectMember(
-                $objectType,
+        if (isset($this->objectMembership[$objectType][$objectId]) === false) {
+            $isMember = $this->getObjectMembershipHandler($objectType)->isMember(
+                $this->config->lockRecursive(),
                 $objectId,
                 $assignmentInformation
             );
+
+            $this->objectMembership[$objectType][$objectId] = ($isMember === true) ?
+                $assignmentInformation : false;
         }
 
-        return $isMember;
+        $assignmentInformation = ($this->objectMembership[$objectType][$objectId] instanceof AssignmentInformation) ?
+            $this->objectMembership[$objectType][$objectId] : null;
+
+        return ($this->objectMembership[$objectType][$objectId] !== false);
+    }
+
+    /**
+     * Checks if the role is a group member.
+     *
+     * @param string                $roleId
+     * @param AssignmentInformation $assignmentInformation
+     *
+     * @return bool
+     */
+    public function isRoleMember($roleId, &$assignmentInformation = null)
+    {
+        return $this->isObjectMember(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $roleId, $assignmentInformation);
+    }
+
+    /**
+     * Checks if the user is a group member.
+     *
+     * @param int                   $userId                The user id.
+     * @param AssignmentInformation $assignmentInformation The assignment information.
+     *
+     * @return bool
+     */
+    public function isUserMember($userId, &$assignmentInformation = null)
+    {
+        return $this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId, $assignmentInformation);
+    }
+
+    /**
+     * Checks if the term is a group member.
+     *
+     * @param int                   $termId
+     * @param AssignmentInformation $assignmentInformation
+     *
+     * @return bool
+     */
+    public function isTermMember($termId, &$assignmentInformation = null)
+    {
+        return $this->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $termId, $assignmentInformation);
+    }
+
+    /**
+     * Checks if the post is a group member
+     *
+     * @param int                   $postId
+     * @param AssignmentInformation $assignmentInformation
+     *
+     * @return bool
+     */
+    public function isPostMember($postId, &$assignmentInformation = null)
+    {
+        return $this->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, $assignmentInformation);
     }
 
     /**
@@ -979,59 +774,49 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns the objects by the given type including the children.
+     * Returns all objects of the given type.
      *
-     * @param \Closure $mapFunction
-     * @param string   $objectType
+     * @param string $objectType The object type.
      *
      * @return array
      */
-    protected function getFullObjects($mapFunction, $objectType)
+    public function getAssignedObjectsByType($objectType)
     {
-        $objects = $this->getSimpleAssignedObjects($objectType);
-
-        if ($this->config->lockRecursive() === true) {
-            $map = $mapFunction();
-            $map = isset($map[ObjectHandler::TREE_MAP_CHILDREN][$objectType]) ?
-                $map[ObjectHandler::TREE_MAP_CHILDREN][$objectType] : [];
-            $map = array_intersect_key($map, $objects);
-
-            foreach ($map as $childrenIds) {
-                foreach ($childrenIds as $parentId => $type) {
-                    if ($this->isObjectMember($objectType, $parentId) === true) {
-                        $objects[$parentId] = $type;
-                    }
-                }
-            }
+        if (isset($this->fullObjectMembership[$objectType]) === false) {
+            $this->fullObjectMembership[$objectType] = $this->getObjectMembershipHandler($objectType)->getFullObjects(
+                $this->config->lockRecursive(),
+                ($objectType === $this->objectHandler->getGeneralObjectType($objectType)) ? null : $objectType
+            );
         }
 
-        return $objects;
+        return $this->fullObjectMembership[$objectType];
     }
+
+    /**
+     * Returns the roles assigned to the group.
+     *
+     * @param string $roleType The role type.
+     *
+     * @return array
+     */
+    public function getFullRoles($roleType = null)
+    {
+        $roleType = ($roleType === null) ? ObjectHandler::GENERAL_ROLE_OBJECT_TYPE : $roleType;
+        return $this->getAssignedObjectsByType($roleType);
+    }
+
 
     /**
      * Returns the users assigned to the group.
      *
+     * @param string $userType The user type.
+     *
      * @return array
      */
-    public function getFullUsers()
+    public function getFullUsers($userType = null)
     {
-        if (isset($this->fullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE]) === false) {
-            $this->fullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE] = [];
-
-            $databaseUsers = (array)$this->database->getResults(
-                "SELECT ID, user_nicename
-                FROM {$this->database->getUsersTable()}"
-            );
-
-            foreach ($databaseUsers as $user) {
-                if ($this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $user->ID) === true) {
-                    $this->fullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE][$user->ID] =
-                        ObjectHandler::GENERAL_USER_OBJECT_TYPE;
-                }
-            }
-        }
-
-        return $this->fullObjectMembership[ObjectHandler::GENERAL_USER_OBJECT_TYPE];
+        $userType = ($userType === null) ? ObjectHandler::GENERAL_USER_OBJECT_TYPE : $userType;
+        return $this->getAssignedObjectsByType($userType);
     }
 
     /**
@@ -1043,18 +828,8 @@ abstract class AbstractUserGroup
      */
     public function getFullTerms($termType = null)
     {
-        if (isset($this->fullObjectMembership[$termType]) === false) {
-            $termType = ($termType === null) ? ObjectHandler::GENERAL_TERM_OBJECT_TYPE : $termType;
-
-            $this->fullObjectMembership[$termType] = $this->getFullObjects(
-                function () {
-                    return $this->objectHandler->getTermTreeMap();
-                },
-                $termType
-            );
-        }
-
-        return $this->fullObjectMembership[$termType];
+        $termType = ($termType === null) ? ObjectHandler::GENERAL_TERM_OBJECT_TYPE : $termType;
+        return $this->getAssignedObjectsByType($termType);
     }
 
     /**
@@ -1066,58 +841,7 @@ abstract class AbstractUserGroup
      */
     public function getFullPosts($postType = null)
     {
-        if (isset($this->fullObjectMembership[$postType]) === false) {
-            $postType = ($postType === null) ? ObjectHandler::GENERAL_POST_OBJECT_TYPE : $postType;
-            $posts = $this->getFullObjects(
-                function () {
-                    return $this->objectHandler->getPostTreeMap();
-                },
-                $postType
-            );
-
-            if ($this->config->lockRecursive() === true) {
-                $termsPostMap = $this->objectHandler->getTermPostMap();
-                $terms = $this->getFullTerms();
-
-                foreach ($terms as $termId => $term) {
-                    if (isset($termsPostMap[$termId]) === true) {
-                        $posts += $termsPostMap[$termId];
-                    }
-                }
-            }
-
-            $this->fullObjectMembership[$postType] = $posts;
-        }
-
-        return $this->fullObjectMembership[$postType];
-    }
-
-    /**
-     * Returns all objects of the given type.
-     *
-     * @param string $objectType The object type.
-     *
-     * @return array
-     */
-    public function getAssignedObjectsByType($objectType)
-    {
-        if ($objectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
-            return $this->getSimpleAssignedObjects($objectType);
-        } elseif ($objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
-            return $this->getFullUsers();
-        } elseif ($objectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
-            || $this->objectHandler->isTaxonomy($objectType) === true
-        ) {
-            return $this->getFullTerms($objectType);
-        } elseif ($objectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
-            || $this->objectHandler->isPostType($objectType) === true
-        ) {
-            return $this->getFullPosts($objectType);
-        } elseif ($this->objectHandler->isPluggableObject($objectType)) {
-            $pluggableObject = $this->objectHandler->getPluggableObject($objectType);
-            return ($pluggableObject !== null) ? $pluggableObject->getFullObjects($this) : [];
-        }
-
-        return [];
+        $postType = ($postType === null) ? ObjectHandler::GENERAL_POST_OBJECT_TYPE : $postType;
+        return $this->getAssignedObjectsByType($postType);
     }
 }

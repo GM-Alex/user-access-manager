@@ -21,6 +21,10 @@ use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\Controller\AdminSettingsController;
+use UserAccessManager\Form\Input;
+use UserAccessManager\Form\MultipleFormElementValue;
+use UserAccessManager\Form\Radio;
+use UserAccessManager\Form\Select;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
@@ -240,7 +244,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
      */
     private function createMultipleFormElementValue()
     {
-        return $this->createMock('\UserAccessManager\Form\MultipleFormElementValue');
+        return $this->createMock(MultipleFormElementValue::class);
     }
 
     /**
@@ -436,7 +440,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 [2, 'secondPage']
             )
             ->will($this->returnValue(
-                $this->createMock('\UserAccessManager\Form\MultipleFormElementValue')
+                $this->createMock(MultipleFormElementValue::class)
             ));
 
         $formFactory->expects($this->once())
@@ -452,7 +456,7 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
                 ]
             )
             ->will($this->returnValue(
-                $this->createMock('\UserAccessManager\Form\Select')
+                $this->createMock(Select::class)
             ));
 
         $formHelper = $this->getFormHelper();
@@ -571,11 +575,11 @@ class AdminSettingsControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnCallback(function ($configParameter) {
                 if (($configParameter instanceof StringConfigParameter) === true) {
-                    return $this->createMock('\UserAccessManager\Form\Input');
+                    return $this->createMock(Input::class);
                 } elseif (($configParameter instanceof BooleanConfigParameter) === true) {
-                    return $this->createMock('\UserAccessManager\Form\Radio');
+                    return $this->createMock(Radio::class);
                 } elseif (($configParameter instanceof SelectionConfigParameter) === true) {
-                    return $this->createMock('\UserAccessManager\Form\Select');
+                    return $this->createMock(Select::class);
                 }
 
                 return null;

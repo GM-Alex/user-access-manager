@@ -22,6 +22,8 @@ namespace UserAccessManager\UserGroup;
 class AssignmentInformationFactory
 {
     /**
+     * Creates an AssignmentInformation object.
+     *
      * @param null|string $type
      * @param null|string $fromDate
      * @param null|string $toDate

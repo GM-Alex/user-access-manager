@@ -35,6 +35,7 @@ use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\DynamicUserGroup;
+use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
@@ -273,11 +274,41 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMembershipHandlerFactory
+     */
+    protected function getObjectMembershipHandlerFactory()
+    {
+        return $this->createMock(ObjectMembershipHandlerFactory::class);
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|AssignmentInformationFactory
      */
     protected function getAssignmentInformationFactory()
     {
         return $this->createMock(AssignmentInformationFactory::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|AssignmentInformationFactory
+     */
+    protected function getExtendedAssignmentInformationFactory()
+    {
+        $assignmentInformationFactory = $this->getAssignmentInformationFactory();
+        $assignmentInformationFactory->expects($this->any())
+            ->method('createAssignmentInformation')
+            ->will($this->returnCallback(
+                function (
+                    $type,
+                    $fromDate = null,
+                    $toDate = null,
+                    array $recursiveMembership = []
+                ) {
+                    return $this->getAssignmentInformation($type, $fromDate, $toDate, $recursiveMembership);
+                }
+            ));
+
+        return $assignmentInformationFactory;
     }
 
     /**

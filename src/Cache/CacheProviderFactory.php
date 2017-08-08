@@ -16,7 +16,6 @@ namespace UserAccessManager\Cache;
 
 use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\ConfigParameterFactory;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;

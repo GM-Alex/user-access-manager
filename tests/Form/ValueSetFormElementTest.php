@@ -37,7 +37,7 @@ class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
     private function getStub($id, array $possibleValues, $value = null, $label = null, $description = null)
     {
         return $this->getMockForAbstractClass(
-            '\UserAccessManager\Form\ValueSetFormElement',
+            ValueSetFormElement::class,
             [$id, $possibleValues, $value, $label, $description]
         );
     }

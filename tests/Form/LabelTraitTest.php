@@ -30,7 +30,7 @@ class LabelTraitTest extends UserAccessManagerTestCase
      */
     private function getStub()
     {
-        return $this->getMockForTrait('\UserAccessManager\Form\LabelTrait');
+        return $this->getMockForTrait(LabelTrait::class);
     }
 
     /**

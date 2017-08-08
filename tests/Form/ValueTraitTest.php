@@ -30,7 +30,7 @@ class ValueTraitTest extends UserAccessManagerTestCase
      */
     private function getStub()
     {
-        return $this->getMockForTrait('\UserAccessManager\Form\ValueTrait');
+        return $this->getMockForTrait(ValueTrait::class);
     }
 
     /**

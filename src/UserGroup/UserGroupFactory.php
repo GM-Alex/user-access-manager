@@ -17,6 +17,7 @@ namespace UserAccessManager\UserGroup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -59,6 +60,11 @@ class UserGroupFactory
     private $objectHandler;
 
     /**
+     * @var ObjectMembershipHandlerFactory
+     */
+    private $membershipHandlerFactory;
+
+    /**
      * @var AssignmentInformationFactory
      */
     private $assignmentInformationFactory;
@@ -66,13 +72,14 @@ class UserGroupFactory
     /**
      * UserGroupFactory constructor.
      *
-     * @param Php                          $php
-     * @param Wordpress                    $wordpress
-     * @param Database                     $database
-     * @param MainConfig                   $config
-     * @param Util                         $util
-     * @param ObjectHandler                $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param Php                            $php
+     * @param Wordpress                      $wordpress
+     * @param Database                       $database
+     * @param MainConfig                     $config
+     * @param Util                           $util
+     * @param ObjectHandler                  $objectHandler
+     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
+     * @param AssignmentInformationFactory   $assignmentInformationFactory
      */
     public function __construct(
         Php $php,
@@ -81,6 +88,7 @@ class UserGroupFactory
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
+        ObjectMembershipHandlerFactory $membershipHandlerFactory,
         AssignmentInformationFactory $assignmentInformationFactory
     ) {
         $this->php = $php;
@@ -89,6 +97,7 @@ class UserGroupFactory
         $this->config = $config;
         $this->util = $util;
         $this->objectHandler = $objectHandler;
+        $this->membershipHandlerFactory = $membershipHandlerFactory;
         $this->assignmentInformationFactory = $assignmentInformationFactory;
     }
 
@@ -108,6 +117,7 @@ class UserGroupFactory
             $this->config,
             $this->util,
             $this->objectHandler,
+            $this->membershipHandlerFactory,
             $this->assignmentInformationFactory,
             $id
         );
@@ -130,6 +140,7 @@ class UserGroupFactory
             $this->config,
             $this->util,
             $this->objectHandler,
+            $this->membershipHandlerFactory,
             $this->assignmentInformationFactory,
             $type,
             $id

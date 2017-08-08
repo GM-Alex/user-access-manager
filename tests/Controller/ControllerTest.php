@@ -56,7 +56,7 @@ class ControllerTest extends UserAccessManagerTestCase
     private function getStub()
     {
         return $this->getMockForAbstractClass(
-            '\UserAccessManager\Controller\Controller',
+            Controller::class,
             [],
             '',
             false,

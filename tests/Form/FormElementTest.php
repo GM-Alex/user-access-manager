@@ -35,7 +35,7 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
     private function getStub($id, $value = null, $label = null, $description = null)
     {
         return $this->getMockForAbstractClass(
-            '\UserAccessManager\Form\FormElement',
+            FormElement::class,
             [$id, $value, $label, $description]
         );
     }

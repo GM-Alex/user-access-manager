@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Tests\Config;
 
+use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
@@ -133,7 +134,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         if ($closure === null) {
             $closure = function ($id) {
                 $stub = $this->getMockForAbstractClass(
-                    '\UserAccessManager\Config\ConfigParameter',
+                    ConfigParameter::class,
                     [],
                     '',
                     false,
@@ -481,7 +482,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         $objectHandler = $this->getDefaultObjectHandler(1);
         $configParameterFactory = $this->getFactory(function ($id) {
             $stub = $this->getMockForAbstractClass(
-                '\UserAccessManager\Config\ConfigParameter',
+                ConfigParameter::class,
                 [],
                 '',
                 false,

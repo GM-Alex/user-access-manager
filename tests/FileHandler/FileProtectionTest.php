@@ -60,7 +60,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
     private function getStub($php, $wordpress, $config, $util)
     {
         return $this->getMockForAbstractClass(
-            '\UserAccessManager\FileHandler\FileProtection',
+            FileProtection::class,
             [$php, $wordpress, $config, $util]
         );
     }

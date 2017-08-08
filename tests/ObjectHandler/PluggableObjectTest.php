@@ -32,7 +32,7 @@ class PluggableObjectTest extends \PHPUnit_Framework_TestCase
     private function getStub($objectType)
     {
         return $this->getMockForAbstractClass(
-            '\UserAccessManager\ObjectHandler\PluggableObject',
+            PluggableObject::class,
             [$objectType]
         );
     }

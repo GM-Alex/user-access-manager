@@ -42,6 +42,7 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory()
         );
 

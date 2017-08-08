@@ -14,7 +14,7 @@
  */
 
 /**
- * @var UserAccessManager\Controller\FrontendController $controller
+ * @var UserAccessManager\Controller\LoginControllerTrait $controller
  */
 if ($controller->showLoginForm() === true) {
     include 'Login/LoginForm.php';

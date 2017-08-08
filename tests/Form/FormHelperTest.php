@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Tests\Form;
 
+use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Form\Input;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -89,10 +90,10 @@ class FormHelperTest extends UserAccessManagerTestCase
         );
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter $parameter
+         * @var \PHPUnit_Framework_MockObject_MockObject|ConfigParameter $parameter
          */
         $parameter = $this->getMockForAbstractClass(
-            '\UserAccessManager\Config\ConfigParameter',
+            ConfigParameter::class,
             [],
             '',
             false,
@@ -135,10 +136,10 @@ class FormHelperTest extends UserAccessManagerTestCase
 
         define('TXT_UAM_TEST', '%s %s');
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter $parameter
+         * @var \PHPUnit_Framework_MockObject_MockObject|ConfigParameter $parameter
          */
         $parameter = $this->getMockForAbstractClass(
-            '\UserAccessManager\Config\ConfigParameter',
+            ConfigParameter::class,
             [],
             '',
             false,
@@ -221,10 +222,10 @@ class FormHelperTest extends UserAccessManagerTestCase
         );
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter $genericParameter
+         * @var \PHPUnit_Framework_MockObject_MockObject|ConfigParameter $genericParameter
          */
         $genericParameter = $this->getMockForAbstractClass(
-            '\UserAccessManager\Config\ConfigParameter',
+            ConfigParameter::class,
             [],
             '',
             false,

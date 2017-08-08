@@ -17,6 +17,7 @@ namespace UserAccessManager\UserGroup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -38,14 +39,15 @@ class UserGroup extends AbstractUserGroup
     /**
      * UserGroup constructor.
      *
-     * @param Php                          $php
-     * @param Wordpress                    $wordpress
-     * @param Database                     $database
-     * @param MainConfig                   $config
-     * @param Util                         $util
-     * @param ObjectHandler                $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param null|string                  $id
+     * @param Php                            $php
+     * @param Wordpress                      $wordpress
+     * @param Database                       $database
+     * @param MainConfig                     $config
+     * @param Util                           $util
+     * @param ObjectHandler                  $objectHandler
+     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
+     * @param AssignmentInformationFactory   $assignmentInformationFactory
+     * @param null                           $id
      */
     public function __construct(
         Php $php,
@@ -54,6 +56,7 @@ class UserGroup extends AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
+        ObjectMembershipHandlerFactory $membershipHandlerFactory,
         AssignmentInformationFactory $assignmentInformationFactory,
         $id = null
     ) {
@@ -64,6 +67,7 @@ class UserGroup extends AbstractUserGroup
             $config,
             $util,
             $objectHandler,
+            $membershipHandlerFactory,
             $assignmentInformationFactory
         );
 

@@ -17,6 +17,7 @@ namespace UserAccessManager\UserGroup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -40,15 +41,16 @@ class DynamicUserGroup extends AbstractUserGroup
     /**
      * DynamicUserGroup constructor.
      *
-     * @param Php                          $php
-     * @param Wordpress                    $wordpress
-     * @param Database                     $database
-     * @param MainConfig                   $config
-     * @param Util                         $util
-     * @param ObjectHandler                $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param null|string                  $type
-     * @param string                       $id
+     * @param Php                            $php
+     * @param Wordpress                      $wordpress
+     * @param Database                       $database
+     * @param MainConfig                     $config
+     * @param Util                           $util
+     * @param ObjectHandler                  $objectHandler
+     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
+     * @param AssignmentInformationFactory   $assignmentInformationFactory
+     * @param null                           $type
+     * @param                              $id
      *
      * @throws UserGroupTypeException
      */
@@ -59,6 +61,7 @@ class DynamicUserGroup extends AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
+        ObjectMembershipHandlerFactory $membershipHandlerFactory,
         AssignmentInformationFactory $assignmentInformationFactory,
         $type,
         $id
@@ -72,6 +75,7 @@ class DynamicUserGroup extends AbstractUserGroup
             $config,
             $util,
             $objectHandler,
+            $membershipHandlerFactory,
             $assignmentInformationFactory,
             $id
         );
