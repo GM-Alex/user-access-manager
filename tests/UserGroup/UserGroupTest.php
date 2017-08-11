@@ -39,7 +39,6 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory()
         );
 
@@ -62,7 +61,6 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory(),
             1
         );
@@ -127,7 +125,6 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory()
         );
 
@@ -246,7 +243,6 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory()
         );
 
@@ -306,7 +302,6 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler,
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory()
         );
 

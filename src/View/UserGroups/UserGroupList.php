@@ -14,7 +14,7 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminUserGroupController $controller
+ * @var \UserAccessManager\Controller\Backend\UserGroupController $controller
  */
 ?>
 <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">

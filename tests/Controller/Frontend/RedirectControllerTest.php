@@ -537,7 +537,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
 
         $objectHandler->expects($this->once())
             ->method('getPostTypes')
-            ->will($this->returnValue(['post', 'page', 'other']));
+            ->will($this->returnValue(['post' => 'post', 'page' => 'page', 'other' => 'other']));
 
         $accessHandler = $this->getAccessHandler();
 

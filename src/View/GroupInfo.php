@@ -14,7 +14,7 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminObjectController $controller
+ * @var \UserAccessManager\Controller\Backend\ObjectController $controller
  */
 ?>
 <div class="uam_tooltip">

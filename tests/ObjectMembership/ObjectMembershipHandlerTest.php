@@ -12,32 +12,29 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\UserGroup\ObjectMembership;
+namespace UserAccessManager\Tests\ObjectMembership;
 
 use UserAccessManager\Tests\UserAccessManagerTestCase;
-use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
-use UserAccessManager\UserGroup\ObjectMembership\MissingObjectTypeException;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandler;
+use UserAccessManager\ObjectMembership\MissingObjectTypeException;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
 
 /**
  * Class ObjectMembershipHandlerTest
  *
- * @package UserAccessManager\Tests\UserGroup\ObjectMembership
- * @coversDefaultClass \UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandler
+ * @package UserAccessManager\Tests\ObjectMembership
+ * @coversDefaultClass \UserAccessManager\ObjectMembership\ObjectMembershipHandler
  */
 class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param AbstractUserGroup            $abstractUserGroup
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMembershipHandler
      */
     private function getStub(
-        AssignmentInformationFactory $assignmentInformationFactory,
-        AbstractUserGroup $abstractUserGroup
+        AssignmentInformationFactory $assignmentInformationFactory
     ) {
         $stub = $this->getMockForAbstractClass(
             ObjectMembershipHandler::class,
@@ -47,7 +44,6 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
         );
 
         self::setValue($stub, 'assignmentInformationFactory', $assignmentInformationFactory);
-        self::setValue($stub, 'userGroup', $abstractUserGroup);
 
         return $stub;
     }
@@ -59,14 +55,12 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $objectMembershipHandler = $this->getStub(
-            $this->getAssignmentInformationFactory(),
-            $this->getUserGroup(1)
+            $this->getAssignmentInformationFactory()
         );
 
-        self::setValue($objectMembershipHandler, 'objectType', 'type');
+        self::setValue($objectMembershipHandler, 'generalObjectType', 'type');
         $objectMembershipHandler->__construct(
-            $this->getAssignmentInformationFactory(),
-            $this->getUserGroup(1)
+            $this->getAssignmentInformationFactory()
         );
 
         self::assertInstanceOf(ObjectMembershipHandler::class, $objectMembershipHandler);
@@ -83,10 +77,52 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
         $this->getMockForAbstractClass(
             ObjectMembershipHandler::class,
             [
-                $this->getAssignmentInformationFactory(),
-                $this->getUserGroup(1)
+                $this->getAssignmentInformationFactory()
             ]
         );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getGeneralObjectType()
+     */
+    public function testGetGeneralObjectType()
+    {
+        $objectMembershipHandler = $this->getStub(
+            $this->getAssignmentInformationFactory()
+        );
+        self::setValue($objectMembershipHandler, 'generalObjectType', 'type');
+
+        self::assertEquals('type', $objectMembershipHandler->getGeneralObjectType());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getHandledObjects()
+     */
+    public function testGetHandledObjects()
+    {
+        $objectMembershipHandler = $this->getStub(
+            $this->getAssignmentInformationFactory()
+        );
+        self::setValue($objectMembershipHandler, 'generalObjectType', 'type');
+
+        self::assertEquals(['type' => 'type'], $objectMembershipHandler->getHandledObjects());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::handlesObject()
+     */
+    public function testHandlesObject()
+    {
+        $objectMembershipHandler = $this->getStub(
+            $this->getAssignmentInformationFactory()
+        );
+        self::setValue($objectMembershipHandler, 'generalObjectType', 'type');
+
+        self::assertTrue($objectMembershipHandler->handlesObject('type'));
+        self::assertFalse($objectMembershipHandler->handlesObject('invalid'));
     }
 
     /**
@@ -102,8 +138,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($assignmentInformationOne));
 
         $objectMembershipHandler = $this->getStub(
-            $assignmentInformationFactory,
-            $this->getUserGroup(1)
+            $assignmentInformationFactory
         );
 
         /**
@@ -147,11 +182,10 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
             ]));
 
         $objectMembershipHandler = $this->getStub(
-            $this->getAssignmentInformationFactory(),
-            $userGroup
+            $this->getAssignmentInformationFactory()
         );
 
-        $result = self::callMethod($objectMembershipHandler, 'getSimpleAssignedObjects', ['objectType']);
+        $result = self::callMethod($objectMembershipHandler, 'getSimpleAssignedObjects', [$userGroup, 'objectType']);
         self::assertEquals(
             [
                 1 => 'objectType',

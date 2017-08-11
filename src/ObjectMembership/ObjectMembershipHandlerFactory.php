@@ -12,13 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\UserGroup\ObjectMembership;
+namespace UserAccessManager\ObjectMembership;
 
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\Wrapper\Php;
+use UserAccessManager\Wrapper\Wordpress;
 
 /**
  * Class MembershipHandlerFactory
@@ -33,14 +33,14 @@ class ObjectMembershipHandlerFactory
     private $php;
 
     /**
+     * @var Wordpress
+     */
+    private $wordpress;
+
+    /**
      * @var Database
      */
     private $database;
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
 
     /**
      * @var AssignmentInformationFactory
@@ -51,73 +51,70 @@ class ObjectMembershipHandlerFactory
      * MembershipHandlerFactory constructor.
      *
      * @param Php                          $php
+     * @param Wordpress                    $wordpress
      * @param Database                     $database
-     * @param ObjectHandler                $objectHandler
      * @param AssignmentInformationFactory $assignmentInformationFactory
      */
     public function __construct(
         Php $php,
+        Wordpress $wordpress,
         Database $database,
-        ObjectHandler $objectHandler,
         AssignmentInformationFactory $assignmentInformationFactory
     ) {
         $this->php = $php;
+        $this->wordpress = $wordpress;
         $this->database = $database;
-        $this->objectHandler = $objectHandler;
         $this->assignmentInformationFactory = $assignmentInformationFactory;
     }
 
     /**
      * Creates a PostMembershipHandler object.
      *
-     * @param AbstractUserGroup $userGroup
+     * @param ObjectHandler $objectHandler
      *
      * @return PostMembershipHandler
      */
-    public function createPostMembershipHandler(AbstractUserGroup $userGroup)
+    public function createPostMembershipHandler(ObjectHandler $objectHandler)
     {
-        return new PostMembershipHandler($this->objectHandler, $this->assignmentInformationFactory, $userGroup);
+        return new PostMembershipHandler($this->assignmentInformationFactory, $this->wordpress, $objectHandler);
     }
 
     /**
      * Creates a RoleMembershipHandler object.
      *
-     * @param AbstractUserGroup $userGroup
-     *
      * @return RoleMembershipHandler
      */
-    public function createRoleMembershipHandler(AbstractUserGroup $userGroup)
+    public function createRoleMembershipHandler()
     {
-        return new RoleMembershipHandler($this->assignmentInformationFactory, $userGroup);
+        return new RoleMembershipHandler($this->assignmentInformationFactory, $this->wordpress);
     }
 
     /**
      * Creates a TermMembershipHandler object.
      *
-     * @param AbstractUserGroup $userGroup
+     * @param ObjectHandler $objectHandler
      *
      * @return TermMembershipHandler
      */
-    public function createTermMembershipHandler(AbstractUserGroup $userGroup)
+    public function createTermMembershipHandler(ObjectHandler $objectHandler)
     {
-        return new TermMembershipHandler($this->objectHandler, $this->assignmentInformationFactory, $userGroup);
+        return new TermMembershipHandler($this->assignmentInformationFactory, $this->wordpress, $objectHandler);
     }
 
     /**
      * Creates an UserMembershipHandler object.
      *
-     * @param AbstractUserGroup $userGroup
+     * @param ObjectHandler $objectHandler
      *
      * @return UserMembershipHandler
      */
-    public function createUserMembershipHandler(AbstractUserGroup $userGroup)
+    public function createUserMembershipHandler(ObjectHandler $objectHandler)
     {
         return new UserMembershipHandler(
+            $this->assignmentInformationFactory,
             $this->php,
             $this->database,
-            $this->objectHandler,
-            $this->assignmentInformationFactory,
-            $userGroup
+            $objectHandler
         );
     }
 }

@@ -1,8 +1,8 @@
 <?php
 /**
- * PluggableObjectTest.php
+ * UserAccessManagerTest.php
  *
- * The PluggableObjectTest unit test class file.
+ * The UserAccessManagerTest unit test class file.
  *
  * PHP versions 5
  *
@@ -47,6 +47,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getFileHandler(),
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
+            $this->getObjectMembershipHandlerFactory(),
             $this->getControllerFactory(),
             $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
@@ -89,6 +90,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getFileHandler(),
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
+            $this->getObjectMembershipHandlerFactory(),
             $this->getControllerFactory(),
             $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
@@ -113,6 +115,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      * @covers  ::getFileHandler()
      * @covers  ::getSetupHandler()
      * @covers  ::getUserGroupFactory()
+     * @covers  ::getObjectMembershipHandlerFactory()
      * @covers  ::getControllerFactory()
      * @covers  ::getWidgetFactory()
      * @covers  ::getCacheProviderFactory()
@@ -136,6 +139,10 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getFileHandler(), $userAccessManager->getFileHandler());
         self::assertEquals($this->getSetupHandler(), $userAccessManager->getSetupHandler());
         self::assertEquals($this->getUserGroupFactory(), $userAccessManager->getUserGroupFactory());
+        self::assertEquals(
+            $this->getObjectMembershipHandlerFactory(),
+            $userAccessManager->getObjectMembershipHandlerFactory()
+        );
         self::assertEquals($this->getControllerFactory(), $userAccessManager->getControllerFactory());
         self::assertEquals($this->getWidgetFactory(), $userAccessManager->getWidgetFactory());
         self::assertEquals($this->getCacheProviderFactory(), $userAccessManager->getCacheProviderFactory());
@@ -189,6 +196,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getFileHandler(),
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
+            $this->getObjectMembershipHandlerFactory(),
             $controllerFactory,
             $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
@@ -238,11 +246,14 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
         $objectHandler->expects($this->exactly(4))
             ->method('getTaxonomies')
-            ->will($this->returnValue(['a', 'b']));
+            ->will($this->returnValue(['a' => 'a', 'b' => 'b']));
 
         $objectHandler->expects($this->exactly(2))
             ->method('getPostTypes')
-            ->will($this->returnValue(['a', ObjectHandler::ATTACHMENT_OBJECT_TYPE]));
+            ->will($this->returnValue([
+                'a' => 'a',
+                ObjectHandler::ATTACHMENT_OBJECT_TYPE => ObjectHandler::ATTACHMENT_OBJECT_TYPE
+            ]));
 
 
         $accessHandler = $this->getAccessHandler();
@@ -316,6 +327,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getFileHandler(),
             $setupHandler,
             $this->getUserGroupFactory(),
+            $this->getObjectMembershipHandlerFactory(),
             $controllerFactory,
             $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),
@@ -377,6 +389,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getFileHandler(),
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
+            $this->getObjectMembershipHandlerFactory(),
             $controllerFactory,
             $this->getWidgetFactory(),
             $this->getCacheProviderFactory(),

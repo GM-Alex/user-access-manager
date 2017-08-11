@@ -16,7 +16,12 @@ namespace UserAccessManager\Tests\ObjectHandler;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\ObjectHandler\PluggableObject;
+use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
+use UserAccessManager\ObjectMembership\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\UserMembershipHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
@@ -34,9 +39,11 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $objectHandler = new ObjectHandler(
+            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
-            $this->getCache()
+            $this->getCache(),
+            $this->getObjectMembershipHandlerFactory()
         );
 
         self::assertInstanceOf(ObjectHandler::class, $objectHandler);
@@ -62,7 +69,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $database = $this->getDatabase();
         $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
         self::assertEquals($return, $objectHandler->getPostTypes());
         self::assertEquals($return, $objectHandler->getPostTypes());
 
@@ -88,7 +101,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $database = $this->getDatabase();
         $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
         self::assertEquals($return, $objectHandler->getTaxonomies());
         self::assertEquals($return, $objectHandler->getTaxonomies());
 
@@ -117,7 +136,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $database = $this->getDatabase();
         $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
         self::assertEquals($user, $objectHandler->getUser(123));
         self::assertEquals($user, $objectHandler->getUser(123));
         self::assertFalse($objectHandler->getUser(321));
@@ -146,7 +171,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $database = $this->getDatabase();
         $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
 
         self::assertEquals($post, $objectHandler->getPost(123));
         self::assertEquals($post, $objectHandler->getPost(123));
@@ -180,7 +211,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $database = $this->getDatabase();
         $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
 
         self::assertEquals($term, $objectHandler->getTerm(123));
         self::assertEquals($term, $objectHandler->getTerm(123));
@@ -343,7 +380,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
                 [ObjectHandler::TERM_TREE_MAP_CACHE_KEY, $expectedTermResult]
             );
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
 
         self::assertEquals($expectedPostResult, $objectHandler->getPostTreeMap());
         self::assertEquals($expectedPostResult, $objectHandler->getPostTreeMap());
@@ -441,7 +484,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->method('add')
             ->with(ObjectHandler::TERM_POST_MAP_CACHE_KEY, $expectedResult);
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
 
         self::assertEquals($expectedResult, $objectHandler->getTermPostMap());
         self::assertEquals($expectedResult, $objectHandler->getTermPostMap());
@@ -513,7 +562,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->method('add')
             ->with(ObjectHandler::POST_TERM_MAP_CACHE_KEY, $expectedResult);
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
 
         self::assertEquals($expectedResult, $objectHandler->getPostTermMap());
         self::assertEquals($expectedResult, $objectHandler->getPostTermMap());
@@ -614,172 +669,22 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
         $wordpress->expects($this->once())
             ->method('getTaxonomies')
-            ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
+            ->will($this->returnValue(['taxonomyOne' => 'taxonomyOne', 'taxonomyTwo' => 'taxonomyTwo']));
 
         $database = $this->getDatabase();
         $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
 
         self::assertTrue($objectHandler->isTaxonomy('taxonomyOne'));
         self::assertTrue($objectHandler->isTaxonomy('taxonomyTwo'));
         self::assertFalse($objectHandler->isTaxonomy('invalid'));
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getGeneralObjectType()
-     */
-    public function testGetGeneralObjectType()
-    {
-        $wordpress = $this->getWordpress();
-
-        $wordpress->expects($this->once())
-            ->method('getPostTypes')
-            ->with(['public' => true])
-            ->will($this->returnValue(['a' => 'a1', 'b' => 'b1']));
-
-        $wordpress->expects($this->once())
-            ->method('getTaxonomies')
-            ->will($this->returnValue(['taxonomyOne', 'taxonomyTwo']));
-
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
-
-        self::assertEquals(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $objectHandler->getGeneralObjectType('a'));
-        self::assertEquals(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $objectHandler->getGeneralObjectType('b'));
-        self::assertEquals(
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-            $objectHandler->getGeneralObjectType('taxonomyOne')
-        );
-        self::assertEquals(
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-            $objectHandler->getGeneralObjectType('taxonomyTwo')
-        );
-        self::assertEquals(
-            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-            $objectHandler->getGeneralObjectType(ObjectHandler::GENERAL_USER_OBJECT_TYPE)
-        );
-        self::assertEquals(
-            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
-            $objectHandler->getGeneralObjectType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE)
-        );
-        self::assertEquals(
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-            $objectHandler->getGeneralObjectType(ObjectHandler::GENERAL_TERM_OBJECT_TYPE)
-        );
-        self::assertEquals(
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-            $objectHandler->getGeneralObjectType(ObjectHandler::GENERAL_POST_OBJECT_TYPE)
-        );
-
-        self::setValue($objectHandler, 'pluggableObjects', ['pluggableObject' => 'pluggableObject']);
-        self::assertEquals('pluggableObject', $objectHandler->getGeneralObjectType('pluggableObject'));
-        self::assertNull($objectHandler->getGeneralObjectType('invalid'));
-    }
-
-    /**
-     * @param string                                           $name
-     * @param \PHPUnit_Framework_MockObject_Matcher_Invocation $expectation
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|PluggableObject
-     */
-    private function getPluggableObject($name, $expectation = null)
-    {
-        $expectation = ($expectation === null) ? $this->any() : $expectation;
-
-        /**
-         * @var PluggableObject|\PHPUnit_Framework_MockObject_MockObject $pluggableObject
-         */
-        $pluggableObject = $this->createMock(PluggableObject::class);
-        $pluggableObject->expects($expectation)
-            ->method('getObjectType')
-            ->will($this->returnValue($name));
-
-        return $pluggableObject;
-    }
-
-    /**
-     * @group  unit
-     * @covers ::registerPluggableObject()
-     */
-    public function testRegisterPlObject()
-    {
-        $wordpress = $this->getWordpress();
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
-        $firstPluggableObject = $this->getPluggableObject('firstObjectName', $this->once());
-        $secondPluggableObject = $this->getPluggableObject('secondObjectName', $this->once());
-
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
-        $objectHandler->registerPluggableObject($firstPluggableObject);
-        $objectHandler->registerPluggableObject($secondPluggableObject);
-
-        self::assertAttributeEquals(
-            [
-                'firstObjectName' => $firstPluggableObject,
-                'secondObjectName' => $secondPluggableObject
-            ],
-            'pluggableObjects',
-            $objectHandler
-        );
-
-        return $objectHandler;
-    }
-
-    /**
-     * @group   unit
-     * @depends testRegisterPlObject
-     * @covers  ::getPluggableObject()
-     *
-     * @param ObjectHandler $objectHandler
-     */
-    public function testGetPluggableObject(ObjectHandler $objectHandler)
-    {
-        self::assertEquals(
-            $this->getPluggableObject('firstObjectName'),
-            $objectHandler->getPluggableObject('firstObjectName')
-        );
-        self::assertEquals(
-            $this->getPluggableObject('secondObjectName'),
-            $objectHandler->getPluggableObject('secondObjectName')
-        );
-        self::assertNull($objectHandler->getPluggableObject('invalid'));
-    }
-
-    /**
-     * @group   unit
-     * @depends testRegisterPlObject
-     * @covers  ::isPluggableObject()
-     *
-     * @param ObjectHandler $objectHandler
-     */
-    public function testIsPluggableObject(ObjectHandler $objectHandler)
-    {
-        self::assertTrue($objectHandler->isPluggableObject('firstObjectName'));
-        self::assertTrue($objectHandler->isPluggableObject('secondObjectName'));
-        self::assertFalse($objectHandler->isPluggableObject('invalid'));
-    }
-
-    /**
-     * @group   unit
-     * @depends testRegisterPlObject
-     * @covers  ::getPluggableObjects()
-     *
-     * @param ObjectHandler $objectHandler
-     */
-    public function testGetPluggableObjects(ObjectHandler $objectHandler)
-    {
-        self::assertEquals(
-            [
-                'firstObjectName' => $this->getPluggableObject('firstObjectName'),
-                'secondObjectName' => $this->getPluggableObject('secondObjectName')
-            ],
-            $objectHandler->getPluggableObjects()
-        );
     }
 
     /**
@@ -809,7 +714,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $database = $this->getDatabase();
         $cache = $this->getCache();
 
-        $objectHandler = new ObjectHandler($wordpress, $database, $cache);
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $database,
+            $cache,
+            $this->getObjectMembershipHandlerFactory()
+        );
 
         $expectation = [
             'a' => 'a1',
@@ -826,36 +737,116 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
-     * @depends testGetObjectTypes
      * @covers  ::getAllObjectTypes()
-     *
-     * @param ObjectHandler $objectHandler
+     * @covers  ::getAllObjectsTypesMap()
+     * @covers  ::getObjectMembershipHandlers()
      *
      * @return ObjectHandler
      */
-    public function testGetAllObjectTypes(ObjectHandler $objectHandler)
+    public function testGetAllObjectTypes()
     {
-        $firstPluggableObject = $this->getPluggableObject('firstObjectName', $this->once());
-        $secondPluggableObject = $this->getPluggableObject('secondObjectName', $this->once());
-        $objectHandler->registerPluggableObject($firstPluggableObject);
-        $objectHandler->registerPluggableObject($secondPluggableObject);
+        $php = $this->getPhp();
+        $php->expects($this->exactly(5))
+            ->method('arrayFill')
+            ->withConsecutive(
+                [0, 2, 'role'],
+                [0, 2, 'user'],
+                [0, 2, 'term'],
+                [0, 2, 'post'],
+                [0, 2, 'someObject']
+            )->will($this->returnCallback(function ($startIndex, $numberOfElements, $value) {
+                return array_fill($startIndex, $numberOfElements, $value);
+            }));
+
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->any())
+            ->method('applyFilters')
+            ->with('uam_register_object_membership_handler')
+            ->will($this->returnCallback(function ($filter, $objectMembershipHandlers) {
+                if ($filter === 'uam_register_object_membership_handler') {
+                    $objectMembershipHandlers['someObject'] = $this->getMembershipHandler(
+                        ObjectMembershipHandler::class,
+                        'someObject',
+                        [2]
+                    );
+
+                    return $objectMembershipHandlers;
+                }
+
+                return [];
+            }));
+
+        $postMembershipHandler = $this->getMembershipHandler(PostMembershipHandler::class, 'post', [2]);
+        $roleMembershipHandler = $this->getMembershipHandler(RoleMembershipHandler::class, 'role', [2]);
+        $termMembershipHandler = $this->getMembershipHandler(TermMembershipHandler::class, 'term', [2]);
+        $userMembershipHandler = $this->getMembershipHandler(UserMembershipHandler::class, 'user', [2]);
+
+        $membershipHandlerFactory = $this->getObjectMembershipHandlerFactory();
+
+        $membershipHandlerFactory->expects($this->any())
+            ->method('createPostMembershipHandler')
+            ->will($this->returnValue($postMembershipHandler));
+
+        $membershipHandlerFactory->expects($this->any())
+            ->method('createRoleMembershipHandler')
+            ->will($this->returnValue($roleMembershipHandler));
+
+        $membershipHandlerFactory->expects($this->any())
+            ->method('createTermMembershipHandler')
+            ->will($this->returnValue($termMembershipHandler));
+
+        $membershipHandlerFactory->expects($this->any())
+            ->method('createUserMembershipHandler')
+            ->will($this->returnValue($userMembershipHandler));
+
+        $objectHandler = new ObjectHandler(
+            $php,
+            $wordpress,
+            $this->getDatabase(),
+            $this->getCache(),
+            $membershipHandlerFactory
+        );
 
         $expectation = [
-            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
-            ObjectHandler::GENERAL_USER_OBJECT_TYPE => ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE => ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-            ObjectHandler::GENERAL_TERM_OBJECT_TYPE => ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-            'a' => 'a1',
-            'b' => 'b1',
-            'c' => 'c1',
-            'd' => 'd1',
-            'firstObjectName' => 'firstObjectName',
-            'secondObjectName' => 'secondObjectName'
+            'role' => 'role',
+            'otherRole' => 'otherRole',
+            'user' => 'user',
+            'otherUser' => 'otherUser',
+            'term' => 'term',
+            'otherTerm' => 'otherTerm',
+            'post' => 'post',
+            'otherPost' => 'otherPost',
+            'someObject' => 'someObject',
+            'otherSomeObject' => 'otherSomeObject'
         ];
 
         self::assertEquals($expectation, $objectHandler->getAllObjectTypes());
 
         return $objectHandler;
+    }
+
+    /**
+     * @group   unit
+     * @depends testGetAllObjectTypes
+     * @covers  ::getGeneralObjectType()
+     *
+     * @param ObjectHandler $objectHandler
+     */
+    public function testGetGeneralObjectType(ObjectHandler $objectHandler)
+    {
+        self::assertEquals('role', $objectHandler->getGeneralObjectType('role'));
+        self::assertEquals('role', $objectHandler->getGeneralObjectType('otherRole'));
+        self::assertEquals('user', $objectHandler->getGeneralObjectType('user'));
+        self::assertEquals('user', $objectHandler->getGeneralObjectType('otherUser'));
+        self::assertEquals('term', $objectHandler->getGeneralObjectType('term'));
+        self::assertEquals('term', $objectHandler->getGeneralObjectType('otherTerm'));
+        self::assertEquals('post', $objectHandler->getGeneralObjectType('post'));
+        self::assertEquals('post', $objectHandler->getGeneralObjectType('otherPost'));
+        self::assertEquals('someObject', $objectHandler->getGeneralObjectType('someObject'));
+        self::assertEquals('someObject', $objectHandler->getGeneralObjectType('otherSomeObject'));
+        
+        self::assertNull($objectHandler->getGeneralObjectType('invalid'));
     }
 
     /**
@@ -867,16 +858,51 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      */
     public function testIsValidObjectType(ObjectHandler $objectHandler)
     {
-        self::assertTrue($objectHandler->isValidObjectType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE));
-        self::assertTrue($objectHandler->isValidObjectType(ObjectHandler::GENERAL_USER_OBJECT_TYPE));
-        self::assertTrue($objectHandler->isValidObjectType(ObjectHandler::GENERAL_POST_OBJECT_TYPE));
-        self::assertTrue($objectHandler->isValidObjectType(ObjectHandler::GENERAL_TERM_OBJECT_TYPE));
-        self::assertTrue($objectHandler->isValidObjectType('a'));
-        self::assertTrue($objectHandler->isValidObjectType('b'));
-        self::assertTrue($objectHandler->isValidObjectType('c'));
-        self::assertTrue($objectHandler->isValidObjectType('d'));
-        self::assertTrue($objectHandler->isValidObjectType('firstObjectName'));
-        self::assertTrue($objectHandler->isValidObjectType('secondObjectName'));
+        self::assertTrue($objectHandler->isValidObjectType('role'));
+        self::assertTrue($objectHandler->isValidObjectType('otherRole'));
+        self::assertTrue($objectHandler->isValidObjectType('user'));
+        self::assertTrue($objectHandler->isValidObjectType('otherUser'));
+        self::assertTrue($objectHandler->isValidObjectType('term'));
+        self::assertTrue($objectHandler->isValidObjectType('otherTerm'));
+        self::assertTrue($objectHandler->isValidObjectType('post'));
+        self::assertTrue($objectHandler->isValidObjectType('otherPost'));
+        self::assertTrue($objectHandler->isValidObjectType('someObject'));
+        self::assertTrue($objectHandler->isValidObjectType('otherSomeObject'));
         self::assertFalse($objectHandler->isValidObjectType('invalid'));
+    }
+
+    /**
+     * @group   unit
+     * @depends testGetAllObjectTypes
+     * @covers  ::getObjectMembershipHandlers()
+     * @covers  ::getObjectMembershipHandler()
+     *
+     * @param ObjectHandler $objectHandler
+     */
+    public function testGetObjectMembershipHandler(ObjectHandler $objectHandler)
+    {
+        $postMembershipHandler = $this->getMembershipHandler(PostMembershipHandler::class, 'post', [2]);
+        $roleMembershipHandler = $this->getMembershipHandler(RoleMembershipHandler::class, 'role', [2]);
+        $termMembershipHandler = $this->getMembershipHandler(TermMembershipHandler::class, 'term', [2]);
+        $userMembershipHandler = $this->getMembershipHandler(UserMembershipHandler::class, 'user', [2]);
+
+        self::assertEquals($postMembershipHandler, $objectHandler->getObjectMembershipHandler('post'));
+        self::assertEquals($roleMembershipHandler, $objectHandler->getObjectMembershipHandler('role'));
+        self::assertEquals($termMembershipHandler, $objectHandler->getObjectMembershipHandler('term'));
+        self::assertEquals($userMembershipHandler, $objectHandler->getObjectMembershipHandler('user'));
+    }
+
+    /**
+     * @group   unit
+     * @depends testGetAllObjectTypes
+     * @covers  ::getObjectMembershipHandler()
+     *
+     * @param ObjectHandler $objectHandler
+     */
+    public function testGetObjectMembershipHandlerException(ObjectHandler $objectHandler)
+    {
+        self::expectException(MissingObjectMembershipHandlerException::class);
+        self::expectExceptionMessage('Missing membership handler for \'invalid\'.');
+        $objectHandler->getObjectMembershipHandler('invalid');
     }
 }

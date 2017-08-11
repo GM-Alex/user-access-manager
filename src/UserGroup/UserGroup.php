@@ -17,7 +17,6 @@ namespace UserAccessManager\UserGroup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -45,7 +44,6 @@ class UserGroup extends AbstractUserGroup
      * @param MainConfig                     $config
      * @param Util                           $util
      * @param ObjectHandler                  $objectHandler
-     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
      * @param AssignmentInformationFactory   $assignmentInformationFactory
      * @param null                           $id
      */
@@ -56,7 +54,6 @@ class UserGroup extends AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
-        ObjectMembershipHandlerFactory $membershipHandlerFactory,
         AssignmentInformationFactory $assignmentInformationFactory,
         $id = null
     ) {
@@ -67,7 +64,6 @@ class UserGroup extends AbstractUserGroup
             $config,
             $util,
             $objectHandler,
-            $membershipHandlerFactory,
             $assignmentInformationFactory
         );
 

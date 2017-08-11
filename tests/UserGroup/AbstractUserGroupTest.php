@@ -21,13 +21,11 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
-use UserAccessManager\UserGroup\ObjectMembership\MissingObjectMembershipHandlerException;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandler;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
-use UserAccessManager\UserGroup\ObjectMembership\PostMembershipHandler;
-use UserAccessManager\UserGroup\ObjectMembership\RoleMembershipHandler;
-use UserAccessManager\UserGroup\ObjectMembership\TermMembershipHandler;
-use UserAccessManager\UserGroup\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
+use UserAccessManager\ObjectMembership\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\UserMembershipHandler;
 use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
@@ -48,9 +46,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @param MainConfig                     $config
      * @param Util                           $util
      * @param ObjectHandler                  $objectHandler
-     * @param ObjectMembershipHandlerFactory $objectMembershipHandlerFactory
      * @param AssignmentInformationFactory   $assignmentInformationFactory
-     * @param null                           $id
+     * @param null|string                    $id
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup
      */
@@ -61,7 +58,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
-        ObjectMembershipHandlerFactory $objectMembershipHandlerFactory,
         AssignmentInformationFactory $assignmentInformationFactory,
         $id = null
     ) {
@@ -78,7 +74,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::setValue($stub, 'config', $config);
         self::setValue($stub, 'util', $util);
         self::setValue($stub, 'objectHandler', $objectHandler);
-        self::setValue($stub, 'membershipHandlerFactory', $objectMembershipHandlerFactory);
         self::setValue($stub, 'assignmentInformationFactory', $assignmentInformationFactory);
         self::setValue($stub, 'id', $id);
 
@@ -98,7 +93,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory()
         );
 
@@ -110,7 +104,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory()
         );
 
@@ -133,7 +126,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 $this->getMainConfig(),
                 $this->getUtil(),
                 $this->getObjectHandler(),
-                $this->getObjectMembershipHandlerFactory(),
                 $this->getExtendedAssignmentInformationFactory()
             ]
         );
@@ -164,7 +156,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory(),
             2
         );
@@ -346,7 +337,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler,
-            $this->getObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory()
         );
 
@@ -486,7 +476,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler,
-            $this->getObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory(),
             123
         );
@@ -542,7 +531,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory()
         );
 
@@ -654,7 +642,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory()
         );
 
@@ -760,7 +747,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory()
         );
 
@@ -832,126 +818,51 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 return $objectType;
             }));
 
-        return $objectHandler;
-    }
+        $roleMembershipHandler = $this->getMembershipHandler(RoleMembershipHandler::class, 'role', [2]);
+        $userMembershipHandler = $this->getMembershipHandler(UserMembershipHandler::class, 'user', [2]);
+        $postMembershipHandler = $this->getMembershipHandler(PostMembershipHandler::class, 'post', [2]);
+        $termMembershipHandler = $this->getMembershipHandler(TermMembershipHandler::class, 'term', [2]);
+        $someObjectHandler = $this->getMembershipHandler(ObjectMembershipHandler::class, 'someObject', [2]);
 
-
-    /**
-     * @param string $class
-     * @param string $type
-     * @param array  $falseIds
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject
-     */
-    private function getMembershipHandler($class, $type, array $falseIds)
-    {
-        $membershipHandler = $this->createMock($class);
-
-        $membershipHandler->expects($this->any())
-            ->method('isMember')
+        $objectHandler->expects($this->any())
+            ->method('getObjectMembershipHandler')
             ->will($this->returnCallback(
-                function ($lockRecursive, $objectId, &$assignmentInformation = null) use ($type, $falseIds) {
-                    if (in_array($objectId, $falseIds) === true) {
-                        $assignmentInformation = null;
-                        return false;
+                function ($objectType) use (
+                    $roleMembershipHandler,
+                    $userMembershipHandler,
+                    $postMembershipHandler,
+                    $termMembershipHandler,
+                    $someObjectHandler
+                ) {
+                    if ($objectType === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                        || $objectType === 'role'
+                        || $objectType === 'roleOther'
+                    ) {
+                        return $roleMembershipHandler;
+                    } elseif ($objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE
+                        || $objectType === 'user'
+                        || $objectType === 'userOther'
+                    ) {
+                        return $userMembershipHandler;
+                    } elseif ($objectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE
+                        || $objectType === 'term'
+                        || $objectType === 'termOther'
+                    ) {
+                        return $termMembershipHandler;
+                    } elseif ($objectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE
+                        || $objectType === 'post'
+                        || $objectType === 'postOther'
+                    ) {
+                        return $postMembershipHandler;
+                    } elseif ($objectType === 'someObject') {
+                        return $someObjectHandler;
                     }
 
-                    $recursiveAssignmentInformation = [];
-
-                    if ($lockRecursive === true) {
-                        $recursiveAssignmentInformation = [
-                            $this->getAssignmentInformation($type, 'recursiveFromDate', 'recursiveToDate')
-                        ];
-                    }
-
-                    $assignmentInformation = $this->getAssignmentInformation(
-                        $type,
-                        'fromDate',
-                        'toDate',
-                        $recursiveAssignmentInformation
-                    );
-
-                    return true;
+                    return null;
                 }
             ));
 
-        $membershipHandler->expects($this->any())
-            ->method('getFullObjects')
-            ->will($this->returnCallback(function ($lockRecursive, $objectType = null) use ($type) {
-                $return = [1 => $type, 100 => $type.'Other'];
-
-                if ($lockRecursive === true) {
-                    $return[3] = $type;
-                    $return[101] = $type.'Other';
-                }
-
-                if ($objectType !== null) {
-                    $return = array_filter($return, function ($element) use ($objectType) {
-                        return ($element === $objectType);
-                    });
-                }
-
-                return $return;
-            }));
-
-        return $membershipHandler;
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMembershipHandlerFactory
-     */
-    private function getMembershipObjectMembershipHandlerFactory()
-    {
-        $postMembershipHandler = $this->getMembershipHandler(PostMembershipHandler::class, 'post', [2]);
-        $roleMembershipHandler = $this->getMembershipHandler(RoleMembershipHandler::class, 'role', [2]);
-        $termMembershipHandler = $this->getMembershipHandler(TermMembershipHandler::class, 'term', [2]);
-        $userMembershipHandler = $this->getMembershipHandler(UserMembershipHandler::class, 'user', [2]);
-
-        $membershipHandlerFactory = $this->getObjectMembershipHandlerFactory();
-
-        $membershipHandlerFactory->expects($this->any())
-            ->method('createPostMembershipHandler')
-            ->will($this->returnValue($postMembershipHandler));
-
-        $membershipHandlerFactory->expects($this->any())
-            ->method('createRoleMembershipHandler')
-            ->will($this->returnValue($roleMembershipHandler));
-
-        $membershipHandlerFactory->expects($this->any())
-            ->method('createTermMembershipHandler')
-            ->will($this->returnValue($termMembershipHandler));
-
-        $membershipHandlerFactory->expects($this->any())
-            ->method('createUserMembershipHandler')
-            ->will($this->returnValue($userMembershipHandler));
-
-        return $membershipHandlerFactory;
-    }
-
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Wordpress
-     */
-    private function getMembershipWordpress()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->any())
-            ->method('applyFilters')
-            ->with('uam_register_object_membership_handler')
-            ->will($this->returnCallback(function ($filter, $objectMembershipHandlers) {
-                if ($filter === 'uam_register_object_membership_handler') {
-                    $objectMembershipHandlers['someObject'] = $this->getMembershipHandler(
-                        ObjectMembershipHandler::class,
-                        'someObject',
-                        [2]
-                    );
-
-                    return $objectMembershipHandlers;
-                }
-
-                return [];
-            }));
-
-        return $wordpress;
+        return $objectHandler;
     }
 
     /**
@@ -1031,7 +942,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::isObjectMember()
-     * @covers  ::getObjectMembershipHandler()
      * @covers  ::isRoleMember()
      * @covers  ::isUserMember()
      * @covers  ::isTermMember()
@@ -1052,12 +962,11 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $userGroup = $this->getStub(
             $this->getPhp(),
-            $this->getMembershipWordpress(),
+            $this->getWordpress(),
             $this->getDatabase(),
             $config,
             $this->getUtil(),
             $this->getMembershipObjectHandler(),
-            $this->getMembershipObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory()
         );
 
@@ -1133,30 +1042,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::getObjectMembershipHandler()
-     */
-    public function testGetObjectMembershipHandlerException()
-    {
-        $userGroup = $this->getStub(
-            $this->getPhp(),
-            $this->getMembershipWordpress(),
-            $this->getDatabase(),
-            $this->getMainConfig(),
-            $this->getUtil(),
-            $this->getMembershipObjectHandler(),
-            $this->getMembershipObjectMembershipHandlerFactory(),
-            $this->getExtendedAssignmentInformationFactory()
-        );
-
-        self::expectException(MissingObjectMembershipHandlerException::class);
-        self::expectExceptionMessage('Missing membership handler for \'invalid\'.');
-        self::callMethod($userGroup, 'getObjectMembershipHandler', ['invalid']);
-    }
-
-    /**
-     * @group  unit
      * @covers ::getAssignedObjectsByType()
-     * @covers ::getObjectMembershipHandler()
      * @covers ::getFullRoles()
      * @covers ::getFullUsers()
      * @covers ::getFullTerms()
@@ -1175,12 +1061,11 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $userGroup = $this->getStub(
             $this->getPhp(),
-            $this->getMembershipWordpress(),
+            $this->getWordpress(),
             $this->getDatabase(),
             $config,
             $this->getUtil(),
             $this->getMembershipObjectHandler(),
-            $this->getMembershipObjectMembershipHandlerFactory(),
             $this->getExtendedAssignmentInformationFactory()
         );
 

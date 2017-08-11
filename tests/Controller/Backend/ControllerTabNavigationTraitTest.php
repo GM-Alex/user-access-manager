@@ -55,16 +55,16 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCurrentTabGroup()
     {
-        $adminControllerTabNavigationTrait = $this->getStub();
+        $controllerTabNavigationTrait = $this->getStub();
 
-        $adminControllerTabNavigationTrait->expects($this->once())
+        $controllerTabNavigationTrait->expects($this->once())
             ->method('getRequestParameter')
             ->with('tab_group', 'groupOne')
             ->will($this->returnValue('requestParameter'));
 
         self::assertEquals(
             'requestParameter',
-            $adminControllerTabNavigationTrait->getCurrentTabGroup()
+            $controllerTabNavigationTrait->getCurrentTabGroup()
         );
     }
 
@@ -74,9 +74,9 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetSections()
     {
-        $adminControllerTabNavigationTrait = $this->getStub();
+        $controllerTabNavigationTrait = $this->getStub();
 
-        $adminControllerTabNavigationTrait->expects($this->exactly(3))
+        $controllerTabNavigationTrait->expects($this->exactly(3))
             ->method('getRequestParameter')
             ->with('tab_group', 'groupOne')
             ->will($this->onConsecutiveCalls(
@@ -85,14 +85,14 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
                 'groupTwo'
             ));
 
-        self::assertEquals([], $adminControllerTabNavigationTrait->getSections());
+        self::assertEquals([], $controllerTabNavigationTrait->getSections());
         self::assertEquals(
             ['groupOneSectionOne', 'groupOneSectionTwo', 'groupOneSectionThree'],
-            $adminControllerTabNavigationTrait->getSections()
+            $controllerTabNavigationTrait->getSections()
         );
         self::assertEquals(
             ['groupTwoSectionOne', 'groupTwoSectionTwo'],
-            $adminControllerTabNavigationTrait->getSections()
+            $controllerTabNavigationTrait->getSections()
         );
     }
 
@@ -102,9 +102,9 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCurrentTabGroupSection()
     {
-        $adminControllerTabNavigationTrait = $this->getStub();
+        $controllerTabNavigationTrait = $this->getStub();
 
-        $adminControllerTabNavigationTrait->expects($this->exactly(4))
+        $controllerTabNavigationTrait->expects($this->exactly(4))
             ->method('getRequestParameter')
             ->withConsecutive(
                 ['tab_group', 'groupOne'],
@@ -121,12 +121,12 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 
         self::assertEquals(
             'sectionRequestParameterOne',
-            $adminControllerTabNavigationTrait->getCurrentTabGroupSection()
+            $controllerTabNavigationTrait->getCurrentTabGroupSection()
         );
 
         self::assertEquals(
             'sectionRequestParameterTwo',
-            $adminControllerTabNavigationTrait->getCurrentTabGroupSection()
+            $controllerTabNavigationTrait->getCurrentTabGroupSection()
         );
     }
 
@@ -136,9 +136,9 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetTabGroupLink()
     {
-        $adminControllerTabNavigationTrait = $this->getStub();
+        $controllerTabNavigationTrait = $this->getStub();
 
-        $adminControllerTabNavigationTrait->expects($this->exactly(2))
+        $controllerTabNavigationTrait->expects($this->exactly(2))
             ->method('getRequestUrl')
             ->will($this->returnValue('url/?page=page'));
 
@@ -146,14 +146,14 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 
         self::assertEquals(
             'url/?page=page&tab_group=key',
-            $adminControllerTabNavigationTrait->getTabGroupLink('key')
+            $controllerTabNavigationTrait->getTabGroupLink('key')
         );
 
         $_SERVER['REQUEST_URI'] = 'url/?page=page&tab_group=c';
 
         self::assertEquals(
             'url/?page=page&tab_group=key',
-            $adminControllerTabNavigationTrait->getTabGroupLink('key')
+            $controllerTabNavigationTrait->getTabGroupLink('key')
         );
     }
 
@@ -163,9 +163,9 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetTabGroupSectionLink()
     {
-        $adminControllerTabNavigationTrait = $this->getStub();
+        $controllerTabNavigationTrait = $this->getStub();
 
-        $adminControllerTabNavigationTrait->expects($this->exactly(2))
+        $controllerTabNavigationTrait->expects($this->exactly(2))
             ->method('getRequestUrl')
             ->will($this->returnValue('url/?page=page'));
 
@@ -173,14 +173,14 @@ class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
 
         self::assertEquals(
             'url/?page=page&tab_group=group&tab_group_section=section',
-            $adminControllerTabNavigationTrait->getTabGroupSectionLink('group', 'section')
+            $controllerTabNavigationTrait->getTabGroupSectionLink('group', 'section')
         );
 
         $_SERVER['REQUEST_URI'] = 'url/?page=page&tab_group=c&tab_group_section=someSection';
 
         self::assertEquals(
             'url/?page=page&tab_group=group&tab_group_section=section',
-            $adminControllerTabNavigationTrait->getTabGroupSectionLink('group', 'section')
+            $controllerTabNavigationTrait->getTabGroupSectionLink('group', 'section')
         );
     }
 }

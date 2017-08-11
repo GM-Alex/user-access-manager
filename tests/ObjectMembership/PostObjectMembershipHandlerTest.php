@@ -12,17 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\UserGroup\ObjectMembership;
+namespace UserAccessManager\Tests\ObjectMembership;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
-use UserAccessManager\UserGroup\ObjectMembership\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\PostMembershipHandler;
 
 /**
  * Class PostMembershipHandlerTest
  *
- * @package UserAccessManager\Tests\UserGroup\ObjectMembership
- * @coversDefaultClass \UserAccessManager\UserGroup\ObjectMembership\PostMembershipHandler
+ * @package UserAccessManager\Tests\ObjectMembership
+ * @coversDefaultClass \UserAccessManager\ObjectMembership\PostMembershipHandler
  */
 class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
 {
@@ -33,12 +33,86 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     public function testCanCreateInstance()
     {
         $postMembershipHandler = new PostMembershipHandler(
-            $this->getObjectHandler(),
             $this->getAssignmentInformationFactory(),
-            $this->getUserGroup(1)
+            $this->getWordpress(),
+            $this->getObjectHandler()
         );
 
         self::assertInstanceOf(PostMembershipHandler::class, $postMembershipHandler);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getObjectName()
+     */
+    public function testGetObjectName()
+    {
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $postType
+         */
+        $postType = $this->getMockBuilder('\WP_Post_Type')->getMock();
+        $postType->labels = new \stdClass();
+        $postType->labels->name = 'post';
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getPostTypeObject')
+            ->with('postType')
+            ->will($this->returnValue($postType));
+
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post
+         */
+        $post = $this->getMockBuilder('\WP_Post')->getMock();
+        $post->post_title = 'postFour';
+        $post->post_type = 'postType';
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->exactly(2))
+            ->method('getPost')
+            ->withConsecutive([-1], [4])
+            ->will($this->onConsecutiveCalls(false, $post));
+
+        $postMembershipHandler = new PostMembershipHandler(
+            $this->getAssignmentInformationFactory(),
+            $wordpress,
+            $objectHandler
+        );
+
+        $typeName = 'someType';
+        self::assertEquals(-1, $postMembershipHandler->getObjectName(-1, $typeName));
+        self::assertEquals('someType', $typeName);
+
+        $typeName = 'someType';
+        self::assertEquals('postFour', $postMembershipHandler->getObjectName(4, $typeName));
+        self::assertEquals('post', $typeName);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getHandledObjects()
+     */
+    public function testGetHandledObjects()
+    {
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->once())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['post' => 'post', 'page' => 'page']));
+
+        $postMembershipHandler = new PostMembershipHandler(
+            $this->getAssignmentInformationFactory(),
+            $this->getWordpress(),
+            $objectHandler
+        );
+
+        self::assertEquals(
+            [
+                '_post_' => '_post_',
+                'post' => 'post',
+                'page' => 'page'
+            ],
+            $postMembershipHandler->getHandledObjects()
+        );
     }
 
     /**
@@ -79,17 +153,17 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             }));
 
         $postMembershipHandler = new PostMembershipHandler(
-            $this->getObjectHandler(),
             $this->getExtendedAssignmentInformationFactory(),
-            $userGroup
+            $this->getWordpress(),
+            $this->getObjectHandler()
         );
 
         // post tests
-        $return = $postMembershipHandler->isMember(false, 1, $assignmentInformation);
+        $return = $postMembershipHandler->isMember($userGroup, false, 1, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals($this->getAssignmentInformation('post'), $assignmentInformation);
 
-        $return = $postMembershipHandler->isMember(true, 2, $assignmentInformation);
+        $return = $postMembershipHandler->isMember($userGroup, true, 2, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
             $this->getAssignmentInformation(
@@ -104,11 +178,11 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             $assignmentInformation
         );
 
-        $return = $postMembershipHandler->isMember(true, 3, $assignmentInformation);
+        $return = $postMembershipHandler->isMember($userGroup, true, 3, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals($this->getAssignmentInformation('post'), $assignmentInformation);
 
-        $return = $postMembershipHandler->isMember(true, 4, $assignmentInformation);
+        $return = $postMembershipHandler->isMember($userGroup, true, 4, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
             $this->getAssignmentInformation(
@@ -120,11 +194,11 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             $assignmentInformation
         );
 
-        $return = $postMembershipHandler->isMember(true, 5, $assignmentInformation);
+        $return = $postMembershipHandler->isMember($userGroup, true, 5, $assignmentInformation);
         self::assertFalse($return);
         self::assertEquals($this->getAssignmentInformation(null), $assignmentInformation);
 
-        $return = $postMembershipHandler->isMember(true, 10, $assignmentInformation);
+        $return = $postMembershipHandler->isMember($userGroup, true, 10, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
             $this->getAssignmentInformation(
@@ -195,24 +269,24 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             ]));
 
         $postMembershipHandler = new PostMembershipHandler(
-            $this->getObjectHandler(),
             $this->getExtendedAssignmentInformationFactory(),
-            $userGroup
+            $this->getWordpress(),
+            $this->getObjectHandler()
         );
 
         self::assertEquals(
             [1 => 'post', 2 => 'post', 3 => 'post', 100 => 'page'],
-            $postMembershipHandler->getFullObjects(false)
+            $postMembershipHandler->getFullObjects($userGroup, false)
         );
 
         self::assertEquals(
             [1 => 'post', 2 => 'post', 3 => 'post', 100 => 'page', 4 => 'post', 9 => 'post', 10 => 'page'],
-            $postMembershipHandler->getFullObjects(true)
+            $postMembershipHandler->getFullObjects($userGroup, true)
         );
 
         self::assertEquals(
             [100 => 'page', 10 => 'page'],
-            $postMembershipHandler->getFullObjects(true, 'page')
+            $postMembershipHandler->getFullObjects($userGroup, true, 'page')
         );
     }
 }

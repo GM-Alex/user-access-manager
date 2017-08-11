@@ -42,7 +42,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -53,7 +53,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertInstanceOf(SettingsController::class, $adminSettingController);
+        self::assertInstanceOf(SettingsController::class, $settingController);
     }
 
     /**
@@ -67,7 +67,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->method('isNginx')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -78,8 +78,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertFalse($adminSettingController->isNginx());
-        self::assertTrue($adminSettingController->isNginx());
+        self::assertFalse($settingController->isNginx());
+        self::assertTrue($settingController->isNginx());
     }
 
     /**
@@ -94,7 +94,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->with('sort_column=menu_order')
             ->will($this->onConsecutiveCalls(false, ['a' => 'a']));
 
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -105,8 +105,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertEquals([], self::callMethod($adminSettingController, 'getPages'));
-        self::assertEquals(['a' => 'a'], self::callMethod($adminSettingController, 'getPages'));
+        self::assertEquals([], self::callMethod($settingController, 'getPages'));
+        self::assertEquals(['a' => 'a'], self::callMethod($settingController, 'getPages'));
     }
 
     /**
@@ -126,7 +126,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('text'));
 
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -137,9 +137,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $formHelper
         );
 
-        self::assertEquals('text', $adminSettingController->getText('firstKey'));
-        self::assertEquals('text', $adminSettingController->getText('secondKey', true));
-        self::assertEquals('text', $adminSettingController->getGroupText('firstKey'));
+        self::assertEquals('text', $settingController->getText('firstKey'));
+        self::assertEquals('text', $settingController->getText('secondKey', true));
+        self::assertEquals('text', $settingController->getGroupText('firstKey'));
     }
 
     /**
@@ -166,7 +166,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 'category' => $this->createTypeObject('category')
             ]));
 
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -177,14 +177,14 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertEquals('attachment', $adminSettingController->getObjectName(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
-        self::assertEquals('post', $adminSettingController->getObjectName(ObjectHandler::POST_OBJECT_TYPE));
-        self::assertEquals('something', $adminSettingController->getObjectName('something'));
+        self::assertEquals('attachment', $settingController->getObjectName(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
+        self::assertEquals('post', $settingController->getObjectName(ObjectHandler::POST_OBJECT_TYPE));
+        self::assertEquals('something', $settingController->getObjectName('something'));
         self::assertEquals(
             TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT,
-            $adminSettingController->getGroupSectionText(MainConfig::DEFAULT_TYPE)
+            $settingController->getGroupSectionText(MainConfig::DEFAULT_TYPE)
         );
-        self::assertEquals('something', $adminSettingController->getGroupSectionText('something'));
+        self::assertEquals('something', $settingController->getGroupSectionText('something'));
     }
 
     /**
@@ -225,7 +225,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->method('getRegisteredCacheProviders')
             ->will($this->returnValue([$activeCacheProvider, $cacheProvider]));
 
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -236,7 +236,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertEquals($expected, $adminSettingController->getTabGroups());
+        self::assertEquals($expected, $settingController->getTabGroups());
     }
 
     /**
@@ -590,7 +590,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->with($config)
             ->will($this->returnValue('configForm'));
 
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $mainConfig,
@@ -607,7 +607,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 'post' => 'postForm',
                 'page' => 'pageForm'
             ],
-            $adminSettingController->getCurrentGroupForms()
+            $settingController->getCurrentGroupForms()
         );
 
         $_GET['tab_group'] = SettingsController::GROUP_TAXONOMIES;
@@ -616,26 +616,26 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 'default' => 'defaultTaxonomyForm',
                 'category' => 'categoryForm'
             ],
-            $adminSettingController->getCurrentGroupForms()
+            $settingController->getCurrentGroupForms()
         );
 
         $_GET['tab_group'] = SettingsController::GROUP_FILES;
-        self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
+        self::assertEquals(['file' => 'fileForm'], $settingController->getCurrentGroupForms());
 
         $_GET['tab_group'] = SettingsController::GROUP_FILES;
-        self::assertEquals(['file' => 'fileForm'], $adminSettingController->getCurrentGroupForms());
+        self::assertEquals(['file' => 'fileForm'], $settingController->getCurrentGroupForms());
 
         $_GET['tab_group'] = SettingsController::GROUP_AUTHOR;
-        self::assertEquals(['author' => 'authorForm'], $adminSettingController->getCurrentGroupForms());
+        self::assertEquals(['author' => 'authorForm'], $settingController->getCurrentGroupForms());
 
         $_GET['tab_group'] = SettingsController::GROUP_CACHE;
         self::assertEquals(
             ['none' => null, 'cacheProviderId' => 'configForm'],
-            $adminSettingController->getCurrentGroupForms()
+            $settingController->getCurrentGroupForms()
         );
 
         $_GET['tab_group'] = SettingsController::GROUP_OTHER;
-        self::assertEquals(['other' => 'otherForm'], $adminSettingController->getCurrentGroupForms());
+        self::assertEquals(['other' => 'otherForm'], $settingController->getCurrentGroupForms());
     }
 
     /**
@@ -696,7 +696,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             'i' => '<i>i</i>'
         ];
 
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $mainConfig,
@@ -707,19 +707,19 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        $adminSettingController->updateSettingsAction();
-        $adminSettingController->updateSettingsAction();
-        $adminSettingController->updateSettingsAction();
+        $settingController->updateSettingsAction();
+        $settingController->updateSettingsAction();
+        $settingController->updateSettingsAction();
 
         $_GET['tab_group'] = SettingsController::GROUP_CACHE;
         $_GET['tab_group_section'] = MainConfig::CACHE_PROVIDER_NONE;
-        $adminSettingController->updateSettingsAction();
+        $settingController->updateSettingsAction();
 
         $_GET['tab_group'] = SettingsController::GROUP_CACHE;
         $_GET['tab_group_section'] = 'cacheProviderId';
-        $adminSettingController->updateSettingsAction();
+        $settingController->updateSettingsAction();
 
-        self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, 'updateMessage', $adminSettingController);
+        self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, 'updateMessage', $settingController);
     }
 
     /**
@@ -738,7 +738,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::PAGE_OBJECT_TYPE => $this->createTypeObject('page')
             ]));
 
-        $adminSettingController = new SettingsController(
+        $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -749,9 +749,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertTrue($adminSettingController->isPostTypeGroup(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
-        self::assertTrue($adminSettingController->isPostTypeGroup(ObjectHandler::POST_OBJECT_TYPE));
-        self::assertTrue($adminSettingController->isPostTypeGroup(ObjectHandler::PAGE_OBJECT_TYPE));
-        self::assertFalse($adminSettingController->isPostTypeGroup('something'));
+        self::assertTrue($settingController->isPostTypeGroup(ObjectHandler::ATTACHMENT_OBJECT_TYPE));
+        self::assertTrue($settingController->isPostTypeGroup(ObjectHandler::POST_OBJECT_TYPE));
+        self::assertTrue($settingController->isPostTypeGroup(ObjectHandler::PAGE_OBJECT_TYPE));
+        self::assertFalse($settingController->isPostTypeGroup('something'));
     }
 }

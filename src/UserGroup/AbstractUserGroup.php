@@ -17,9 +17,7 @@ namespace UserAccessManager\UserGroup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandler;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
-use UserAccessManager\UserGroup\ObjectMembership\MissingObjectMembershipHandlerException;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -119,11 +117,6 @@ abstract class AbstractUserGroup
     protected $assignedObjects = [];
 
     /**
-     * @var null|array
-     */
-    protected $objectMembershipHandlers = null;
-
-    /**
      * @var array
      */
     protected $objectMembership = [];
@@ -141,15 +134,14 @@ abstract class AbstractUserGroup
     /**
      * AbstractUserGroup constructor.
      *
-     * @param Php                            $php
-     * @param Wordpress                      $wordpress
-     * @param Database                       $database
-     * @param MainConfig                     $config
-     * @param Util                           $util
-     * @param ObjectHandler                  $objectHandler
-     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
-     * @param AssignmentInformationFactory   $assignmentInformationFactory
-     * @param null                           $id
+     * @param Php                          $php
+     * @param Wordpress                    $wordpress
+     * @param Database                     $database
+     * @param MainConfig                   $config
+     * @param Util                         $util
+     * @param ObjectHandler                $objectHandler
+     * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param null                         $id
      *
      * @throws UserGroupTypeException
      */
@@ -160,7 +152,6 @@ abstract class AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
-        ObjectMembershipHandlerFactory $membershipHandlerFactory,
         AssignmentInformationFactory $assignmentInformationFactory,
         $id = null
     ) {
@@ -174,7 +165,6 @@ abstract class AbstractUserGroup
         $this->config = $config;
         $this->util = $util;
         $this->objectHandler = $objectHandler;
-        $this->membershipHandlerFactory = $membershipHandlerFactory;
         $this->assignmentInformationFactory = $assignmentInformationFactory;
         $this->id = $id;
     }
@@ -586,42 +576,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns the membership handler for the given object type.
-     *
-     * @param string $objectType
-     *
-     * @return ObjectMembershipHandler
-     *
-     * @throws MissingObjectMembershipHandlerException
-     */
-    private function getObjectMembershipHandler($objectType)
-    {
-        if ($this->objectMembershipHandlers === null) {
-            $factory = $this->membershipHandlerFactory;
-
-            $this->objectMembershipHandlers = [
-                ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => $factory->createRoleMembershipHandler($this),
-                ObjectHandler::GENERAL_USER_OBJECT_TYPE => $factory->createUserMembershipHandler($this),
-                ObjectHandler::GENERAL_TERM_OBJECT_TYPE => $factory->createTermMembershipHandler($this),
-                ObjectHandler::GENERAL_POST_OBJECT_TYPE => $factory->createPostMembershipHandler($this)
-            ];
-
-            $this->objectMembershipHandlers = $this->wordpress->applyFilters(
-                'uam_register_object_membership_handler',
-                $this->objectMembershipHandlers
-            );
-        }
-
-        $objectType = $this->objectHandler->getGeneralObjectType($objectType);
-
-        if (isset($this->objectMembershipHandlers[$objectType]) === false) {
-            throw new MissingObjectMembershipHandlerException("Missing membership handler for '{$objectType}'.");
-        }
-
-        return $this->objectMembershipHandlers[$objectType];
-    }
-
-    /**
      * Checks if the object is assigned to the group.
      *
      * @param string                     $objectType            The object type.
@@ -665,7 +619,8 @@ abstract class AbstractUserGroup
         }
 
         if (isset($this->objectMembership[$objectType][$objectId]) === false) {
-            $isMember = $this->getObjectMembershipHandler($objectType)->isMember(
+            $isMember = $this->objectHandler->getObjectMembershipHandler($objectType)->isMember(
+                $this,
                 $this->config->lockRecursive(),
                 $objectId,
                 $assignmentInformation
@@ -783,7 +738,9 @@ abstract class AbstractUserGroup
     public function getAssignedObjectsByType($objectType)
     {
         if (isset($this->fullObjectMembership[$objectType]) === false) {
-            $this->fullObjectMembership[$objectType] = $this->getObjectMembershipHandler($objectType)->getFullObjects(
+            $handler = $this->objectHandler->getObjectMembershipHandler($objectType);
+            $this->fullObjectMembership[$objectType] = $handler->getFullObjects(
+                $this,
                 $this->config->lockRecursive(),
                 ($objectType === $this->objectHandler->getGeneralObjectType($objectType)) ? null : $objectType
             );

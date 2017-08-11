@@ -12,7 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\UserGroup\ObjectMembership;
+namespace UserAccessManager\Tests\ObjectMembership;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
@@ -21,7 +21,7 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
 /**
  * Class MembershipHandlerTestCase
  *
- * @package UserAccessManager\Tests\UserGroup\ObjectMembership
+ * @package UserAccessManager\Tests\ObjectMembership
  */
 abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
 {

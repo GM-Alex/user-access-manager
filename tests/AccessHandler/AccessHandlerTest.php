@@ -1072,7 +1072,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
 
         $objectHandler->expects($this->exactly(2))
             ->method('getPostTypes')
-            ->will($this->returnValue(['post', 'page']));
+            ->will($this->returnValue(['post' => 'post', 'page' => 'page']));
 
         $accessHandler = new AccessHandler(
             $wordpress,

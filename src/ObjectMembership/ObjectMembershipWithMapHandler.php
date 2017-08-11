@@ -12,9 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\UserGroup\ObjectMembership;
+namespace UserAccessManager\ObjectMembership;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 
 /**
@@ -34,38 +35,43 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
     /**
      * Uses a map function to resolve the recursive membership.
      *
+     * @param AbstractUserGroup          $userGroup
      * @param bool                       $lockRecursive
      * @param string                     $objectId
      * @param null|AssignmentInformation $assignmentInformation
      *
      * @return bool
      */
-    protected function getMembershipByMap($lockRecursive, $objectId, &$assignmentInformation = null)
-    {
+    protected function getMembershipByMap(
+        AbstractUserGroup $userGroup,
+        $lockRecursive,
+        $objectId,
+        &$assignmentInformation = null
+    ) {
         // Reset value to prevent errors
         $recursiveMembership = [];
 
         if ($lockRecursive === true) {
             $map = $this->getMap();
-            $generalMap = isset($map[ObjectHandler::TREE_MAP_PARENTS][$this->objectType]) ?
-                $map[ObjectHandler::TREE_MAP_PARENTS][$this->objectType] : [];
+            $generalMap = isset($map[ObjectHandler::TREE_MAP_PARENTS][$this->generalObjectType]) ?
+                $map[ObjectHandler::TREE_MAP_PARENTS][$this->generalObjectType] : [];
 
             if (isset($generalMap[$objectId]) === true) {
                 foreach ($generalMap[$objectId] as $parentId => $type) {
-                    $isAssignedToGroup = $this->userGroup->isObjectAssignedToGroup(
-                        $this->objectType,
+                    $isAssignedToGroup = $userGroup->isObjectAssignedToGroup(
+                        $this->generalObjectType,
                         $parentId,
                         $rmAssignmentInformation
                     );
 
                     if ($isAssignedToGroup === true) {
-                        $recursiveMembership[$this->objectType][$parentId] = $rmAssignmentInformation;
+                        $recursiveMembership[$this->generalObjectType][$parentId] = $rmAssignmentInformation;
                     }
                 }
             }
         }
 
-        $isMember = $this->userGroup->isObjectAssignedToGroup($this->objectType, $objectId, $assignmentInformation);
+        $isMember = $userGroup->isObjectAssignedToGroup($this->generalObjectType, $objectId, $assignmentInformation);
 
         if ($isMember === true || count($recursiveMembership) > 0) {
             $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
@@ -78,14 +84,15 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
     /**
      * Returns the objects by the given type including the children.
      *
-     * @param bool   $lockRecursive
-     * @param string $objectType
+     * @param AbstractUserGroup $userGroup
+     * @param bool              $lockRecursive
+     * @param string            $objectType
      *
      * @return array
      */
-    protected function getFullObjectsByMap($lockRecursive, $objectType)
+    protected function getFullObjectsByMap(AbstractUserGroup $userGroup, $lockRecursive, $objectType)
     {
-        $objects = $this->getSimpleAssignedObjects($objectType);
+        $objects = $this->getSimpleAssignedObjects($userGroup, $objectType);
 
         if ($lockRecursive === true) {
             $map = $this->getMap();
@@ -95,7 +102,7 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 
             foreach ($map as $childrenIds) {
                 foreach ($childrenIds as $parentId => $type) {
-                    if ($this->userGroup->isObjectMember($objectType, $parentId) === true) {
+                    if ($userGroup->isObjectMember($objectType, $parentId) === true) {
                         $objects[$parentId] = $type;
                     }
                 }

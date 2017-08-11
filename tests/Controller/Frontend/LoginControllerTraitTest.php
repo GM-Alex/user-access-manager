@@ -12,7 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Frontend\Controller;
+namespace UserAccessManager\Tests\Controller\Frontend;
 
 use UserAccessManager\Controller\Frontend\LoginControllerTrait;
 use UserAccessManager\Tests\UserAccessManagerTestCase;

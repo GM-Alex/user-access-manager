@@ -20,6 +20,7 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\DynamicUserGroup;
@@ -312,7 +313,6 @@ class ObjectController extends Controller
         $recursiveMembership = [];
         $objectId = $this->getObjectId();
         $objectType = $this->getObjectType();
-        $roles = $this->getRoleNames();
         $recursiveMembershipForObject = $userGroup->getRecursiveMembershipForObject($objectType, $objectId);
 
         /**
@@ -320,38 +320,13 @@ class ObjectController extends Controller
          */
         foreach ($recursiveMembershipForObject as $recursiveType => $assignmentInformation) {
             foreach ($assignmentInformation as $objectId => $information) {
-                $objectName = $objectId;
-                $typeName = $this->objectHandler->getGeneralObjectType($information->getType());
-
-                if ($typeName === ObjectHandler::GENERAL_ROLE_OBJECT_TYPE) {
-                    $objectName = isset($roles[$objectId]) ? $roles[$objectId] : $objectId;
-                } elseif ($typeName === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
-                    $user = $this->objectHandler->getUser($objectId);
-                    $objectName = ($user !== false) ? $user->display_name : $objectId;
-                } elseif ($typeName === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
-                    $term = $this->objectHandler->getTerm($objectId);
-
-                    if ($term !== false) {
-                        $taxonomy = $this->wordpress->getTaxonomy($term->taxonomy);
-                        $typeName = ($taxonomy !== false) ? $taxonomy->labels->name : $typeName;
-                        $objectName = $term->name;
-                    }
-                } elseif ($typeName === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
-                    $post = $this->objectHandler->getPost($objectId);
-
-                    if ($post !== false) {
-                        $postTypeObject = $this->wordpress->getPostTypeObject($post->post_type);
-                        $typeName = ($postTypeObject !== null) ? $postTypeObject->labels->name : $typeName;
-                        $objectName = $post->post_title;
-                    }
-                } elseif ($this->objectHandler->isPluggableObject($recursiveType) === true) {
-                    $pluggableObject = $this->objectHandler->getPluggableObject($recursiveType);
-                    $typeName = $pluggableObject->getObjectType();
-                    $objectName = $pluggableObject->getObjectName($objectId);
-                }
-
-                if ($typeName !== null) {
+                try {
+                    $membershipHandler = $this->objectHandler->getObjectMembershipHandler($information->getType());
+                    $typeName = $membershipHandler->getGeneralObjectType();
+                    $objectName = $membershipHandler->getObjectName($objectId, $typeName);
                     $recursiveMembership[$typeName][$objectId] = $objectName;
+                } catch (MissingObjectMembershipHandlerException $exception) {
+                    // Do nothing
                 }
             }
         }

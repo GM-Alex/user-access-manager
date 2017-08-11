@@ -41,7 +41,6 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory(),
             DynamicUserGroup::USER_TYPE,
             'id'
@@ -58,7 +57,6 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory(),
             DynamicUserGroup::ROLE_TYPE,
             'id'
@@ -76,7 +74,6 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory(),
             'someThing',
             'id'
@@ -96,7 +93,6 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory(),
             DynamicUserGroup::ROLE_TYPE,
             'id'
@@ -145,7 +141,6 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory(),
             DynamicUserGroup::USER_TYPE,
             0
@@ -189,7 +184,6 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler,
-            $this->getObjectMembershipHandlerFactory(),
             $this->getAssignmentInformationFactory(),
             DynamicUserGroup::USER_TYPE,
             0

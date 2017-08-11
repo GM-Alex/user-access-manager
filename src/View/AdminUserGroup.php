@@ -14,7 +14,7 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminUserGroupController $controller
+ * @var \UserAccessManager\Controller\Backend\UserGroupController $controller
  */
 if ($controller->hasUpdateMessage() === true) {
     ?>
@@ -26,7 +26,7 @@ if ($controller->hasUpdateMessage() === true) {
 
 $currentGroup = $controller->getCurrentTabGroup();
 $editUserGroup = $controller->getRequestParameter('uam_action') === 'edit_user_group';
-$userGroupOverview = $currentGroup === \UserAccessManager\Controller\AdminUserGroupController::GROUP_USER_GROUPS;
+$userGroupOverview = $currentGroup === \UserAccessManager\Controller\Backend\UserGroupController::GROUP_USER_GROUPS;
 $title = '';
 
 if ($editUserGroup === false) {

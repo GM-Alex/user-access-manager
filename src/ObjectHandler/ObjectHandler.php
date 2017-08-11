@@ -16,6 +16,10 @@ namespace UserAccessManager\ObjectHandler;
 
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Database\Database;
+use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
+use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -41,6 +45,11 @@ class ObjectHandler
     const POST_TERM_MAP_CACHE_KEY = 'uamPostTermMap';
 
     /**
+     * @var Php
+     */
+    private $php;
+
+    /**
      * @var Wordpress
      */
     private $wordpress;
@@ -54,6 +63,11 @@ class ObjectHandler
      * @var Cache
      */
     private $cache;
+
+    /**
+     * @var ObjectMembershipHandlerFactory
+     */
+    private $membershipHandlerFactory;
 
     /**
      * @var null|array
@@ -101,14 +115,19 @@ class ObjectHandler
     private $postTreeMap = null;
 
     /**
-     * @var array
+     * @var null|array
      */
-    private $pluggableObjects = [];
+    private $objectMembershipHandlers = null;
 
     /**
      * @var null|array
      */
     private $objectTypes = null;
+
+    /**
+     * @var null|array
+     */
+    private $allObjectTypesMap = null;
 
     /**
      * @var null|array
@@ -121,17 +140,26 @@ class ObjectHandler
     private $validObjectTypes = [];
 
     /**
-     * Cache constructor.
+     * ObjectHandler constructor.
      *
-     * @param Wordpress $wordpress
-     * @param Database  $database
-     * @param Cache     $cache
+     * @param Php                            $php
+     * @param Wordpress                      $wordpress
+     * @param Database                       $database
+     * @param Cache                          $cache
+     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
      */
-    public function __construct(Wordpress $wordpress, Database $database, Cache $cache)
-    {
+    public function __construct(
+        Php $php,
+        Wordpress $wordpress,
+        Database $database,
+        Cache $cache,
+        ObjectMembershipHandlerFactory $membershipHandlerFactory
+    ) {
+        $this->php = $php;
         $this->wordpress = $wordpress;
         $this->database = $database;
         $this->cache = $cache;
+        $this->membershipHandlerFactory = $membershipHandlerFactory;
     }
 
     /**
@@ -478,54 +506,6 @@ class ObjectHandler
     }
 
     /**
-     * Registers object that should be handel by the user access manager.
-     *
-     * @param PluggableObject $object The object which you want to register.
-     */
-    public function registerPluggableObject(PluggableObject $object)
-    {
-        $this->pluggableObjects[$object->getObjectType()] = $object;
-    }
-
-    /**
-     * Returns a registered pluggable object.
-     *
-     * @param string $objectName The name of the object which should be returned.
-     *
-     * @return PluggableObject
-     */
-    public function getPluggableObject($objectName)
-    {
-        if (isset($this->pluggableObjects[$objectName]) === true) {
-            return $this->pluggableObjects[$objectName];
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns true if the object is a pluggable object.
-     *
-     * @param string $objectName
-     *
-     * @return bool
-     */
-    public function isPluggableObject($objectName)
-    {
-        return isset($this->pluggableObjects[$objectName]);
-    }
-
-    /**
-     * Returns all registered pluggable objects.
-     *
-     * @return PluggableObject[]
-     */
-    public function getPluggableObjects()
-    {
-        return $this->pluggableObjects;
-    }
-
-    /**
      * Returns the predefined object types.
      *
      * @return array
@@ -543,6 +523,31 @@ class ObjectHandler
     }
 
     /**
+     * Returns the object types map.
+     *
+     * @return array
+     */
+    private function getAllObjectsTypesMap()
+    {
+        if ($this->allObjectTypesMap === null) {
+            $this->allObjectTypesMap = [];
+            $objectHandlers = $this->getObjectMembershipHandlers();
+
+            foreach ($objectHandlers as $objectHandler) {
+                $handledObjects = $objectHandler->getHandledObjects();
+                $handledObjectsMap = array_combine(
+                    $handledObjects,
+                    $this->php->arrayFill(0, count($handledObjects), $objectHandler->getGeneralObjectType())
+                );
+
+                $this->allObjectTypesMap = array_merge($this->allObjectTypesMap, $handledObjectsMap);
+            }
+        }
+
+        return $this->allObjectTypesMap;
+    }
+
+    /**
      * Returns all objects types.
      *
      * @return array
@@ -550,21 +555,8 @@ class ObjectHandler
     public function getAllObjectTypes()
     {
         if ($this->allObjectTypes === null) {
-            $objectTypes = $this->getObjectTypes();
-            $pluggableObjects = $this->getPluggableObjects();
-            $pluggableObjectKeys = array_keys($pluggableObjects);
-            $pluggableObjectKeys = array_combine($pluggableObjectKeys, $pluggableObjectKeys);
-
-            $this->allObjectTypes = array_merge(
-                [
-                    self::GENERAL_ROLE_OBJECT_TYPE => self::GENERAL_ROLE_OBJECT_TYPE,
-                    self::GENERAL_USER_OBJECT_TYPE => self::GENERAL_USER_OBJECT_TYPE,
-                    self::GENERAL_POST_OBJECT_TYPE => self::GENERAL_POST_OBJECT_TYPE,
-                    self::GENERAL_TERM_OBJECT_TYPE => self::GENERAL_TERM_OBJECT_TYPE
-                ],
-                $objectTypes,
-                $pluggableObjectKeys
-            );
+            $objectTypes = array_keys($this->getAllObjectsTypesMap());
+            $this->allObjectTypes = array_combine($objectTypes, $objectTypes);
         }
 
         return $this->allObjectTypes;
@@ -579,20 +571,8 @@ class ObjectHandler
      */
     public function getGeneralObjectType($objectType)
     {
-        if ($objectType === self::GENERAL_USER_OBJECT_TYPE
-            || $objectType === self::GENERAL_ROLE_OBJECT_TYPE
-            || $objectType === self::GENERAL_TERM_OBJECT_TYPE
-            || $objectType === self::GENERAL_POST_OBJECT_TYPE
-            || $this->isPluggableObject($objectType) === true
-        ) {
-            return $objectType;
-        } elseif ($this->isPostType($objectType) === true) {
-            return self::GENERAL_POST_OBJECT_TYPE;
-        } elseif ($this->isTaxonomy($objectType) === true) {
-            return self::GENERAL_TERM_OBJECT_TYPE;
-        }
-
-        return null;
+        $objectsTypeMap = $this->getAllObjectsTypesMap();
+        return (isset($objectsTypeMap[$objectType]) === true) ? $objectsTypeMap[$objectType] : null;
     }
 
     /**
@@ -610,5 +590,57 @@ class ObjectHandler
         }
 
         return $this->validObjectTypes[$objectType];
+    }
+
+    /**
+     * Returns the object membership handlers.
+     *
+     * @return ObjectMembershipHandler[]
+     */
+    private function getObjectMembershipHandlers()
+    {
+        if ($this->objectMembershipHandlers === null) {
+            $factory = $this->membershipHandlerFactory;
+
+            $roleMembershipHandler = $factory->createRoleMembershipHandler();
+            $userMembershipHandler = $factory->createUserMembershipHandler($this);
+            $termMembershipHandler = $factory->createTermMembershipHandler($this);
+            $postMembershipHandler = $factory->createPostMembershipHandler($this);
+
+            $this->objectMembershipHandlers = [
+                $roleMembershipHandler->getGeneralObjectType() => $roleMembershipHandler,
+                $userMembershipHandler->getGeneralObjectType() => $userMembershipHandler,
+                $termMembershipHandler->getGeneralObjectType() => $termMembershipHandler,
+                $postMembershipHandler->getGeneralObjectType() => $postMembershipHandler
+            ];
+
+            $this->objectMembershipHandlers = $this->wordpress->applyFilters(
+                'uam_register_object_membership_handler',
+                $this->objectMembershipHandlers
+            );
+        }
+
+        return $this->objectMembershipHandlers;
+    }
+
+    /**
+     * Returns the membership handler for the given object type.
+     *
+     * @param string $objectType
+     *
+     * @return ObjectMembershipHandler
+     *
+     * @throws MissingObjectMembershipHandlerException
+     */
+    public function getObjectMembershipHandler($objectType)
+    {
+        $objectMembershipHandlers = $this->getObjectMembershipHandlers();
+        $generalObjectType = $this->getGeneralObjectType($objectType);
+
+        if (isset($objectMembershipHandlers[$generalObjectType]) === false) {
+            throw new MissingObjectMembershipHandlerException("Missing membership handler for '{$objectType}'.");
+        }
+
+        return $objectMembershipHandlers[$generalObjectType];
     }
 }

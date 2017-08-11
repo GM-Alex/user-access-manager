@@ -32,7 +32,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -41,7 +41,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertInstanceOf(UserGroupController::class, $adminUserGroupController);
+        self::assertInstanceOf(UserGroupController::class, $userGroupController);
     }
 
     /**
@@ -68,7 +68,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
                 'category' => null
             ]));
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -88,7 +88,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
                     ObjectHandler::GENERAL_USER_OBJECT_TYPE
                 ]
             ],
-            $adminUserGroupController->getTabGroups()
+            $userGroupController->getTabGroups()
         );
     }
 
@@ -105,7 +105,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(['keyOne'], ['keyTwo'])
             ->will($this->onConsecutiveCalls('valueOne', 'valueTwo'));
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -114,8 +114,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $formHelper
         );
 
-        self::assertEquals('valueOne', $adminUserGroupController->getGroupText('keyOne'));
-        self::assertEquals('valueTwo', $adminUserGroupController->getGroupText('keyTwo'));
+        self::assertEquals('valueOne', $userGroupController->getGroupText('keyOne'));
+        self::assertEquals('valueTwo', $userGroupController->getGroupText('keyTwo'));
     }
 
     /**
@@ -143,7 +143,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
                 ObjectHandler::POST_FORMAT_TYPE => $this->createTypeObject('postFormat'),
             ]));
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -152,22 +152,22 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertEquals('someKey', $adminUserGroupController->getGroupSectionText('someKey'));
+        self::assertEquals('someKey', $userGroupController->getGroupSectionText('someKey'));
         self::assertEquals(
             'attachmentName',
-            $adminUserGroupController->getGroupSectionText(ObjectHandler::ATTACHMENT_OBJECT_TYPE)
+            $userGroupController->getGroupSectionText(ObjectHandler::ATTACHMENT_OBJECT_TYPE)
         );
         self::assertEquals(
             'postName ('.TXT_UAM_POST_TYPE.')',
-            $adminUserGroupController->getGroupSectionText(ObjectHandler::POST_OBJECT_TYPE)
+            $userGroupController->getGroupSectionText(ObjectHandler::POST_OBJECT_TYPE)
         );
         self::assertEquals(
             'categoryName ('.TXT_UAM_TAXONOMY_TYPE.')',
-            $adminUserGroupController->getGroupSectionText('category')
+            $userGroupController->getGroupSectionText('category')
         );
         self::assertEquals(
             TXT_UAM_USER,
-            $adminUserGroupController->getGroupSectionText(ObjectHandler::GENERAL_USER_OBJECT_TYPE)
+            $userGroupController->getGroupSectionText(ObjectHandler::GENERAL_USER_OBJECT_TYPE)
         );
     }
 
@@ -185,7 +185,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->with(1)
             ->will($this->returnValue($userGroup));
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -195,8 +195,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         );
 
         $_GET['userGroupId'] = 1;
-        self::assertEquals($userGroup, $adminUserGroupController->getUserGroup());
-        self::assertEquals($userGroup, $adminUserGroupController->getUserGroup());
+        self::assertEquals($userGroup, $userGroupController->getUserGroup());
+        self::assertEquals($userGroup, $userGroupController->getUserGroup());
     }
 
     /**
@@ -215,7 +215,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->method('getUserGroups')
             ->will($this->returnValue($userGroups));
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -224,7 +224,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertEquals($userGroups, $adminUserGroupController->getUserGroups());
+        self::assertEquals($userGroups, $userGroupController->getUserGroups());
     }
 
     /**
@@ -241,7 +241,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->method('getRoles')
             ->will($this->returnValue($roles));
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -250,7 +250,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertEquals('roleNames', $adminUserGroupController->getRoleNames());
+        self::assertEquals('roleNames', $userGroupController->getRoleNames());
     }
 
     /**
@@ -317,7 +317,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->method('addUserGroup')
             ->with($userGroup);
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -326,8 +326,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        $adminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'updateMessage', $adminUserGroupController);
+        $userGroupController->insertUpdateUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'updateMessage', $userGroupController);
 
         $_POST['userGroupName'] = 'userGroupNameValue';
         $_POST['userGroupDescription'] = 'userGroupDescriptionValue';
@@ -336,16 +336,16 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $_POST['ipRange'] = 'ipRangeValue';
         $_POST['roles'] = ['roleOne', 'roleTwo'];
 
-        $adminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'updateMessage', $adminUserGroupController);
+        $userGroupController->insertUpdateUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'updateMessage', $userGroupController);
 
-        $adminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_ADDED, 'updateMessage', $adminUserGroupController);
+        $userGroupController->insertUpdateUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_GROUP_ADDED, 'updateMessage', $userGroupController);
 
         $_POST['userGroupId'] = 1;
 
-        $adminUserGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_USER_GROUP_EDIT_SUCCESS, 'updateMessage', $adminUserGroupController);
+        $userGroupController->insertUpdateUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_USER_GROUP_EDIT_SUCCESS, 'updateMessage', $userGroupController);
     }
 
     /**
@@ -366,7 +366,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->method('deleteUserGroup')
             ->withConsecutive([1], [2]);
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -376,8 +376,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         );
 
         $_POST['delete'] = [1, 2];
-        $adminUserGroupController->deleteUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_DELETE_GROUP, 'updateMessage', $adminUserGroupController);
+        $userGroupController->deleteUserGroupAction();
+        self::assertAttributeEquals(TXT_UAM_DELETE_GROUP, 'updateMessage', $userGroupController);
     }
 
     /**
@@ -450,7 +450,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
                 $thirdUserGroup
             ]));
 
-        $adminUserGroupController = new UserGroupController(
+        $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -469,12 +469,12 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
                 3 => ['id' => 4]
             ]
         ];
-        $adminUserGroupController->setDefaultUserGroupsAction();
+        $userGroupController->setDefaultUserGroupsAction();
 
         self::assertAttributeEquals(
             TXT_UAM_SET_DEFAULT_USER_GROUP_SUCCESS,
             'updateMessage',
-            $adminUserGroupController
+            $userGroupController
         );
     }
 }

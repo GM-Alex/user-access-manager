@@ -32,10 +32,11 @@ use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\DynamicUserGroup;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
@@ -559,5 +560,113 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         $type->labels->name = $name;
 
         return $type;
+    }
+
+    
+    /**
+     * @param string $class
+     * @param string $type
+     * @param array  $falseIds
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMembershipHandler($class, $type, array $falseIds)
+    {
+        $membershipHandler = $this->createMock($class);
+
+        $membershipHandler->expects($this->any())
+            ->method('getHandledObjects')
+            ->will($this->returnValue([
+                $type => $type,
+                'other'.ucfirst($type) => 'other'.ucfirst($type)
+            ]));
+
+        $membershipHandler->expects($this->any())
+            ->method('getGeneralObjectType')
+            ->will($this->returnValue($type));
+
+        $membershipHandler->expects($this->any())
+            ->method('getObjectName')
+            ->will($this->returnCallback(
+                function (
+                    $objectId,
+                    &$typeName
+                ) use (
+                    $type,
+                    $falseIds
+                ) {
+                    if (in_array($objectId, $falseIds) === true) {
+                        $assignmentInformation = null;
+                        return $objectId;
+                    }
+
+                    $typeName = strtolower($type).'TypeName';
+
+                    return strtolower($type).'Name';
+                }
+            ));
+
+        $membershipHandler->expects($this->any())
+            ->method('isMember')
+            ->will($this->returnCallback(
+                function (
+                    AbstractUserGroup $userGroup,
+                    $lockRecursive,
+                    $objectId,
+                    &$assignmentInformation = null
+                ) use (
+                    $type,
+                    $falseIds
+                ) {
+                    if (in_array($objectId, $falseIds) === true) {
+                        $assignmentInformation = null;
+                        return false;
+                    }
+
+                    $recursiveAssignmentInformation = [];
+
+                    if ($lockRecursive === true) {
+                        $recursiveAssignmentInformation = [
+                            $this->getAssignmentInformation($type, 'recursiveFromDate', 'recursiveToDate')
+                        ];
+                    }
+
+                    $assignmentInformation = $this->getAssignmentInformation(
+                        $type,
+                        'fromDate',
+                        'toDate',
+                        $recursiveAssignmentInformation
+                    );
+
+                    return true;
+                }
+            ));
+
+        $membershipHandler->expects($this->any())
+            ->method('getFullObjects')
+            ->will($this->returnCallback(
+                function (
+                    AbstractUserGroup $userGroup,
+                    $lockRecursive,
+                    $objectType = null
+                ) use ($type) {
+                    $return = [1 => $type, 100 => $type.'Other'];
+
+                    if ($lockRecursive === true) {
+                        $return[3] = $type;
+                        $return[101] = $type.'Other';
+                    }
+
+                    if ($objectType !== null) {
+                        $return = array_filter($return, function ($element) use ($objectType) {
+                            return ($element === $objectType);
+                        });
+                    }
+
+                    return $return;
+                }
+            ));
+
+        return $membershipHandler;
     }
 }

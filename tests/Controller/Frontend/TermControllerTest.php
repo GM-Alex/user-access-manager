@@ -12,7 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Frontend\Controller;
+namespace UserAccessManager\Tests\Controller\Frontend;
 
 use UserAccessManager\Controller\Frontend\TermController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -191,7 +191,7 @@ class TermControllerTest extends UserAccessManagerTestCase
 
         $objectHandler->expects($this->once())
             ->method('getPostTypes')
-            ->will($this->returnValue(['customPost', 'post', 'page']));
+            ->will($this->returnValue(['customPost' => 'customPost', 'post' => 'post', 'page' => 'page']));
 
         $objectHandler->expects($this->exactly(8))
             ->method('getTermPostMap')
@@ -438,7 +438,7 @@ class TermControllerTest extends UserAccessManagerTestCase
 
         $objectHandler->expects($this->once())
             ->method('getPostTypes')
-            ->will($this->returnValue(['post', 'page', 'customPost']));
+            ->will($this->returnValue(['post' => 'post', 'page' => 'page', 'customPost' => 'customPost']));
 
         $objectHandler->expects($this->exactly(2))
             ->method('getTermTreeMap')

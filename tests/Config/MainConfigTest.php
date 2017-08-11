@@ -115,11 +115,11 @@ class MainConfigTest extends UserAccessManagerTestCase
 
         $objectHandler->expects($this->exactly($callExpectation))
             ->method('getPostTypes')
-            ->will($this->returnValue(['post', 'page', 'attachment']));
+            ->will($this->returnValue(['post' => 'post', 'page' => 'page', 'attachment' => 'attachment']));
 
         $objectHandler->expects($this->exactly($callExpectation))
             ->method('getTaxonomies')
-            ->will($this->returnValue(['category']));
+            ->will($this->returnValue(['category' => 'category']));
 
         return $objectHandler;
     }

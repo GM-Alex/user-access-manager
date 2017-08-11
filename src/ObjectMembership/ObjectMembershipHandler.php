@@ -12,7 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\UserGroup\ObjectMembership;
+namespace UserAccessManager\ObjectMembership;
 
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
@@ -31,14 +31,9 @@ abstract class ObjectMembershipHandler
     protected $assignmentInformationFactory;
 
     /**
-     * @var AbstractUserGroup
-     */
-    protected $userGroup;
-
-    /**
      * @var string
      */
-    protected $objectType;
+    protected $generalObjectType;
 
     /**
      * @var array
@@ -49,20 +44,60 @@ abstract class ObjectMembershipHandler
      * MembershipHandler constructor.
      *
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param AbstractUserGroup            $userGroup
      *
      * @throws \Exception
      */
     public function __construct(
-        AssignmentInformationFactory $assignmentInformationFactory,
-        AbstractUserGroup $userGroup
+        AssignmentInformationFactory $assignmentInformationFactory
     ) {
-        if ($this->objectType === null) {
-            throw new MissingObjectTypeException('Missing object type, Object type must be set.');
+        if ($this->generalObjectType === null) {
+            throw new MissingObjectTypeException('Missing general object type, Object type must be set.');
         }
 
         $this->assignmentInformationFactory = $assignmentInformationFactory;
-        $this->userGroup = $userGroup;
+    }
+
+    /**
+     * Returns the object name.
+     *
+     * @param string $objectId
+     * @param string $typeName
+     *
+     * @return string
+     */
+    abstract public function getObjectName($objectId, &$typeName = '');
+
+    /**
+     * Returns the general object type.
+     *
+     * @return string
+     */
+    public function getGeneralObjectType()
+    {
+        return $this->generalObjectType;
+    }
+
+    /**
+     * Returns the handled objects.
+     *
+     * @return array
+     */
+    public function getHandledObjects()
+    {
+        return [$this->generalObjectType => $this->generalObjectType];
+    }
+
+    /**
+     * Returns if the object is handled by this handler.
+     *
+     * @param $objectType
+     *
+     * @return bool
+     */
+    public function handlesObject($objectType)
+    {
+        $objectTypes = $this->getHandledObjects();
+        return isset($objectTypes[$objectType]);
     }
 
     /**
@@ -85,13 +120,14 @@ abstract class ObjectMembershipHandler
     /**
      * Returns the assigned objects as array map.
      *
-     * @param string $objectType The object type.
+     * @param AbstractUserGroup $userGroup
+     * @param string            $objectType
      *
      * @return array
      */
-    protected function getSimpleAssignedObjects($objectType)
+    protected function getSimpleAssignedObjects(AbstractUserGroup $userGroup, $objectType)
     {
-        $objects = $this->userGroup->getAssignedObjects($objectType);
+        $objects = $userGroup->getAssignedObjects($objectType);
 
         return array_map(
             function (AssignmentInformation $element) {
@@ -104,21 +140,28 @@ abstract class ObjectMembershipHandler
     /**
      * Checks if the object is a member of the user group.
      *
+     * @param AbstractUserGroup          $userGroup
      * @param bool                       $lockRecursive
      * @param string                     $objectId
      * @param null|AssignmentInformation $assignmentInformation
      *
      * @return bool
      */
-    abstract public function isMember($lockRecursive, $objectId, &$assignmentInformation = null);
+    abstract public function isMember(
+        AbstractUserGroup $userGroup,
+        $lockRecursive,
+        $objectId,
+        &$assignmentInformation = null
+    );
 
     /**
      * Returns the full objects.
      *
-     * @param bool   $lockRecursive
-     * @param string $objectType
+     * @param AbstractUserGroup $userGroup
+     * @param bool              $lockRecursive
+     * @param string            $objectType
      *
      * @return array
      */
-    abstract public function getFullObjects($lockRecursive, $objectType = null);
+    abstract public function getFullObjects(AbstractUserGroup $userGroup, $lockRecursive, $objectType = null);
 }

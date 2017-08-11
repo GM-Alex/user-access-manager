@@ -14,7 +14,7 @@
  */
 
 /**
- * @var UserAccessManager\Controller\AdminSetupController $controller
+ * @var UserAccessManager\Controller\Backend\SetupController $controller
  */
 if ($controller->hasUpdateMessage()) {
     ?>

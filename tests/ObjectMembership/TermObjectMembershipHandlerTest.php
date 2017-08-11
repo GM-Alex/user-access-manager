@@ -12,17 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\UserGroup\ObjectMembership;
+namespace UserAccessManager\Tests\ObjectMembership;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
-use UserAccessManager\UserGroup\ObjectMembership\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\TermMembershipHandler;
 
 /**
  * Class TermMembershipHandlerTest
  *
- * @package UserAccessManager\Tests\UserGroup\ObjectMembership
- * @coversDefaultClass \UserAccessManager\UserGroup\ObjectMembership\TermMembershipHandler
+ * @package UserAccessManager\Tests\ObjectMembership
+ * @coversDefaultClass \UserAccessManager\ObjectMembership\TermMembershipHandler
  */
 class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
 {
@@ -33,12 +33,89 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     public function testCanCreateInstance()
     {
         $termMembershipHandler = new TermMembershipHandler(
-            $this->getObjectHandler(),
             $this->getAssignmentInformationFactory(),
-            $this->getUserGroup(1)
+            $this->getWordpress(),
+            $this->getObjectHandler()
         );
 
         self::assertInstanceOf(TermMembershipHandler::class, $termMembershipHandler);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getObjectName()
+     */
+    public function testGetObjectName()
+    {
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $taxonomy
+         */
+        $taxonomy = $this->getMockBuilder('\WP_Taxonomy')->getMock();
+        $taxonomy->labels = new \stdClass();
+        $taxonomy->labels->name = 'category';
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('getTaxonomy')
+            ->with('termTaxonomy')
+            ->will($this->onConsecutiveCalls(false, $taxonomy));
+
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $term
+         */
+        $term = $this->getMockBuilder('\WP_Term')->getMock();
+        $term->name = 'categoryThree';
+        $term->taxonomy = 'termTaxonomy';
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->exactly(3))
+            ->method('getTerm')
+            ->withConsecutive([-1], [3], [3])
+            ->will($this->onConsecutiveCalls(false, $term, $term));
+
+        $termMembershipHandler = new TermMembershipHandler(
+            $this->getAssignmentInformationFactory(),
+            $wordpress,
+            $objectHandler
+        );
+
+        $typeName = 'someType';
+        self::assertEquals(-1, $termMembershipHandler->getObjectName(-1, $typeName));
+        self::assertEquals('someType', $typeName);
+
+        $typeName = 'someType';
+        self::assertEquals('categoryThree', $termMembershipHandler->getObjectName(3, $typeName));
+        self::assertEquals('someType', $typeName);
+
+        $typeName = 'someType';
+        self::assertEquals('categoryThree', $termMembershipHandler->getObjectName(3, $typeName));
+        self::assertEquals('category', $typeName);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getHandledObjects()
+     */
+    public function testGetHandledObjects()
+    {
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->once())
+            ->method('getTaxonomies')
+            ->will($this->returnValue(['category' => 'category']));
+
+        $termMembershipHandler = new TermMembershipHandler(
+            $this->getAssignmentInformationFactory(),
+            $this->getWordpress(),
+            $objectHandler
+        );
+
+        self::assertEquals(
+            [
+                '_term_' => '_term_',
+                'category' => 'category'
+            ],
+            $termMembershipHandler->getHandledObjects()
+        );
     }
 
     /**
@@ -62,17 +139,17 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
         );
 
         $termMembershipHandler = new TermMembershipHandler(
-            $this->getObjectHandler(),
             $this->getExtendedAssignmentInformationFactory(),
-            $userGroup
+            $this->getWordpress(),
+            $this->getObjectHandler()
         );
 
         // term tests
-        $return = $termMembershipHandler->isMember(false, 1, $assignmentInformation);
+        $return = $termMembershipHandler->isMember($userGroup, false, 1, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals($this->getAssignmentInformation('term'), $assignmentInformation);
 
-        $return = $termMembershipHandler->isMember(true, 2, $assignmentInformation);
+        $return = $termMembershipHandler->isMember($userGroup, true, 2, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
             $this->getAssignmentInformation(
@@ -84,11 +161,11 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             $assignmentInformation
         );
 
-        $return = $termMembershipHandler->isMember(true, 3, $assignmentInformation);
+        $return = $termMembershipHandler->isMember($userGroup, true, 3, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals($this->getAssignmentInformation('term'), $assignmentInformation);
 
-        $return = $termMembershipHandler->isMember(true, 4, $assignmentInformation);
+        $return = $termMembershipHandler->isMember($userGroup, true, 4, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
             $this->getAssignmentInformation(
@@ -100,7 +177,7 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             $assignmentInformation
         );
 
-        $return = $termMembershipHandler->isMember(true, 5, $assignmentInformation);
+        $return = $termMembershipHandler->isMember($userGroup, true, 5, $assignmentInformation);
         self::assertFalse($return);
         self::assertEquals(null, $assignmentInformation);
     }
@@ -156,24 +233,24 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
 
 
         $termMembershipHandler = new TermMembershipHandler(
-            $this->getObjectHandler(),
             $this->getExtendedAssignmentInformationFactory(),
-            $userGroup
+            $this->getWordpress(),
+            $this->getObjectHandler()
         );
 
         self::assertEquals(
             [1 => 'term', 2 => 'term', 3 => 'term', 100 => 'category'],
-            $termMembershipHandler->getFullObjects(false)
+            $termMembershipHandler->getFullObjects($userGroup, false)
         );
 
         self::assertEquals(
             [1 => 'term', 2 => 'term', 3 => 'term', 4 => 'term', 100 => 'category'],
-            $termMembershipHandler->getFullObjects(true)
+            $termMembershipHandler->getFullObjects($userGroup, true)
         );
 
         self::assertEquals(
             [100 => 'category'],
-            $termMembershipHandler->getFullObjects(true, 'category')
+            $termMembershipHandler->getFullObjects($userGroup, true, 'category')
         );
     }
 }

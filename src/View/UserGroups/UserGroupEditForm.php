@@ -14,7 +14,7 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminUserGroupController $controller
+ * @var \UserAccessManager\Controller\Backend\UserGroupController $controller
  */
 
 $userGroup = $controller->getUserGroup();

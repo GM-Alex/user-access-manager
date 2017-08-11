@@ -12,12 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\UserGroup\ObjectMembership;
+namespace UserAccessManager\ObjectMembership;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
+use UserAccessManager\Wrapper\Wordpress;
 
 /**
  * Class PostMembershipHandler
@@ -29,7 +30,12 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
     /**
      * @var string
      */
-    protected $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+    protected $generalObjectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+
+    /**
+     * @var Wordpress
+     */
+    private $wordpress;
 
     /**
      * @var ObjectHandler
@@ -39,22 +45,57 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
     /**
      * PostMembershipHandler constructor.
      *
-     * @param ObjectHandler                $objectHandler
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param AbstractUserGroup            $userGroup
+     * @param Wordpress                    $wordpress
+     * @param ObjectHandler                $objectHandler
      */
     public function __construct(
-        ObjectHandler $objectHandler,
         AssignmentInformationFactory $assignmentInformationFactory,
-        AbstractUserGroup $userGroup
+        Wordpress $wordpress,
+        ObjectHandler $objectHandler
     ) {
-        parent::__construct($assignmentInformationFactory, $userGroup);
+        parent::__construct($assignmentInformationFactory);
 
+        $this->wordpress = $wordpress;
         $this->objectHandler = $objectHandler;
     }
 
     /**
-     * @inheritdoc
+     * Returns the object and type name.
+     *
+     * @param string $objectId
+     * @param string $typeName
+     *
+     * @return string
+     */
+    public function getObjectName($objectId, &$typeName = '')
+    {
+        $post = $this->objectHandler->getPost($objectId);
+
+        if ($post !== false) {
+            $postTypeObject = $this->wordpress->getPostTypeObject($post->post_type);
+            $typeName = ($postTypeObject !== null) ? $postTypeObject->labels->name : $typeName;
+            return $post->post_title;
+        }
+
+        return $objectId;
+    }
+
+    /**
+     * Returns the handled objects.
+     *
+     * @return array
+     */
+    public function getHandledObjects()
+    {
+        $keys = array_keys($this->objectHandler->getPostTypes());
+        return array_merge(parent::getHandledObjects(), array_combine($keys, $keys));
+    }
+
+    /**
+     * Returns the map.
+     *
+     * @return array
      */
     protected function getMap()
     {
@@ -64,15 +105,20 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
     /**
      * Checks if the post is a member of the user group.
      *
+     * @param AbstractUserGroup          $userGroup
      * @param bool                       $lockRecursive
      * @param string                     $objectId
      * @param null|AssignmentInformation $assignmentInformation
      *
      * @return bool
      */
-    public function isMember($lockRecursive, $objectId, &$assignmentInformation = null)
-    {
-        $isMember = $this->getMembershipByMap($lockRecursive, $objectId, $assignmentInformation);
+    public function isMember(
+        AbstractUserGroup $userGroup,
+        $lockRecursive,
+        $objectId,
+        &$assignmentInformation = null
+    ) {
+        $isMember = $this->getMembershipByMap($userGroup, $lockRecursive, $objectId, $assignmentInformation);
 
         if ($lockRecursive === true) {
             $recursiveMembership = ($assignmentInformation !== null) ?
@@ -82,7 +128,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
 
             if (isset($postTermMap[$objectId]) === true) {
                 foreach ($postTermMap[$objectId] as $termId => $type) {
-                    if ($this->userGroup->isTermMember($termId, $rmAssignmentInformation) === true) {
+                    if ($userGroup->isTermMember($termId, $rmAssignmentInformation) === true) {
                         $recursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$termId] =
                             $rmAssignmentInformation;
                     }
@@ -99,25 +145,26 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
     /**
      * Returns the full post objects.
      *
-     * @param bool $lockRecursive
-     * @param null $objectType
+     * @param AbstractUserGroup $userGroup
+     * @param bool              $lockRecursive
+     * @param null              $objectType
      *
      * @return array
      */
-    public function getFullObjects($lockRecursive, $objectType = null)
+    public function getFullObjects(AbstractUserGroup $userGroup, $lockRecursive, $objectType = null)
     {
-        $objectType = ($objectType === null) ? $this->objectType : $objectType;
-        $posts = $this->getFullObjectsByMap($lockRecursive, $objectType);
+        $objectType = ($objectType === null) ? $this->generalObjectType : $objectType;
+        $posts = $this->getFullObjectsByMap($userGroup, $lockRecursive, $objectType);
 
         if ($lockRecursive === true) {
             $termsPostMap = $this->objectHandler->getTermPostMap();
-            $terms = $this->userGroup->getFullTerms();
+            $terms = $userGroup->getFullTerms();
 
             foreach ($terms as $termId => $term) {
                 if (isset($termsPostMap[$termId]) === true) {
                     $map = $termsPostMap[$termId];
 
-                    if ($objectType !== $this->objectType) {
+                    if ($objectType !== $this->generalObjectType) {
                         $map = array_filter(
                             $map,
                             function ($element) use ($objectType) {

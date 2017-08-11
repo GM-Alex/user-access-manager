@@ -17,7 +17,7 @@
 <ul class="uam_group_selection">
     <?php
     /**
-     * @var \UserAccessManager\Controller\AdminObjectController $controller
+     * @var \UserAccessManager\Controller\Backend\ObjectController $controller
      */
 
     $groupsFormName = $controller->getGroupsFormName();

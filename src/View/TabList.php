@@ -14,7 +14,7 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\AdminControllerTabNavigationTrait $controller
+ * @var \UserAccessManager\Controller\Backend\ControllerTabNavigationTrait $controller
  */
 ?>
 <h2 class="nav-tab-wrapper">

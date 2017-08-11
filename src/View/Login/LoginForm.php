@@ -14,7 +14,7 @@
  */
 
 /**
- * @var UserAccessManager\Controller\LoginControllerTrait $controller
+ * @var UserAccessManager\Controller\Frontend\LoginControllerTrait $controller
  */
 if ($controller->isUserLoggedIn() === false) {
     ?>

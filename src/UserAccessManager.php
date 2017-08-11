@@ -28,6 +28,7 @@ use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\FileHandler\FileObjectFactory;
 use UserAccessManager\FileHandler\FileProtectionFactory;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Util\Util;
@@ -101,6 +102,11 @@ class UserAccessManager
     private $userGroupFactory;
 
     /**
+     * @var ObjectMembershipHandlerFactory
+     */
+    private $membershipHandlerFactory;
+
+    /**
      * @var ControllerFactory
      */
     private $controllerFactory;
@@ -134,28 +140,29 @@ class UserAccessManager
      * @var FileObjectFactory
      */
     private $fileObjectFactory;
-    
+
     /**
      * UserAccessManager constructor.
      *
-     * @param Php                    $php
-     * @param Wordpress              $wordpress
-     * @param Util                   $util
-     * @param Cache                  $cache
-     * @param MainConfig             $config
-     * @param Database               $database
-     * @param ObjectHandler          $objectHandler
-     * @param AccessHandler          $accessHandler
-     * @param FileHandler            $fileHandler
-     * @param SetupHandler           $setupHandler
-     * @param UserGroupFactory       $userGroupFactory
-     * @param ControllerFactory      $controllerFactory
-     * @param WidgetFactory          $widgetFactory
-     * @param CacheProviderFactory   $cacheProviderFactory
-     * @param ConfigFactory          $configFactory
-     * @param ConfigParameterFactory $configParameterFactory
-     * @param FileProtectionFactory  $fileProtectionFactory
-     * @param FileObjectFactory      $fileObjectFactory
+     * @param Php                            $php
+     * @param Wordpress                      $wordpress
+     * @param Util                           $util
+     * @param Cache                          $cache
+     * @param MainConfig                     $config
+     * @param Database                       $database
+     * @param ObjectHandler                  $objectHandler
+     * @param AccessHandler                  $accessHandler
+     * @param FileHandler                    $fileHandler
+     * @param SetupHandler                   $setupHandler
+     * @param UserGroupFactory               $userGroupFactory
+     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
+     * @param ControllerFactory              $controllerFactory
+     * @param WidgetFactory                  $widgetFactory
+     * @param CacheProviderFactory           $cacheProviderFactory
+     * @param ConfigFactory                  $configFactory
+     * @param ConfigParameterFactory         $configParameterFactory
+     * @param FileProtectionFactory          $fileProtectionFactory
+     * @param FileObjectFactory              $fileObjectFactory
      */
     public function __construct(
         Php $php,
@@ -169,6 +176,7 @@ class UserAccessManager
         FileHandler $fileHandler,
         SetupHandler $setupHandler,
         UserGroupFactory $userGroupFactory,
+        ObjectMembershipHandlerFactory $membershipHandlerFactory,
         ControllerFactory $controllerFactory,
         WidgetFactory $widgetFactory,
         CacheProviderFactory $cacheProviderFactory,
@@ -188,6 +196,7 @@ class UserAccessManager
         $this->fileHandler = $fileHandler;
         $this->setupHandler = $setupHandler;
         $this->userGroupFactory = $userGroupFactory;
+        $this->membershipHandlerFactory = $membershipHandlerFactory;
         $this->controllerFactory = $controllerFactory;
         $this->widgetFactory = $widgetFactory;
         $this->cacheProviderFactory = $cacheProviderFactory;
@@ -285,6 +294,14 @@ class UserAccessManager
     public function getUserGroupFactory()
     {
         return $this->userGroupFactory;
+    }
+
+    /**
+     * @return ObjectMembershipHandlerFactory
+     */
+    public function getObjectMembershipHandlerFactory()
+    {
+        return $this->membershipHandlerFactory;
     }
 
     /**

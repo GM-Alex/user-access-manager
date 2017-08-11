@@ -12,17 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\UserGroup\ObjectMembership;
+namespace UserAccessManager\Tests\ObjectMembership;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
-use UserAccessManager\UserGroup\ObjectMembership\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\RoleMembershipHandler;
 
 /**
  * Class RoleObjectMembershipHandlerTest
  *
- * @package UserAccessManager\Tests\UserGroup\ObjectMembership
- * @coversDefaultClass \UserAccessManager\UserGroup\ObjectMembership\RoleMembershipHandler
+ * @package UserAccessManager\Tests\ObjectMembership
+ * @coversDefaultClass \UserAccessManager\ObjectMembership\RoleMembershipHandler
  */
 class RoleMembershipHandlerTest extends UserAccessManagerTestCase
 {
@@ -34,10 +34,38 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
     {
         $roleMembershipHandler = new RoleMembershipHandler(
             $this->getAssignmentInformationFactory(),
-            $this->getUserGroup(1)
+            $this->getWordpress()
         );
 
         self::assertInstanceOf(RoleMembershipHandler::class, $roleMembershipHandler);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getObjectName()
+     */
+    public function testGetObjectName()
+    {
+        $roles = new \stdClass();
+        $roles->role_names = [1 => 'roleOne'];
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('getRoles')
+            ->will($this->returnValue($roles));
+
+        $roleMembershipHandler = new RoleMembershipHandler(
+            $this->getAssignmentInformationFactory(),
+            $wordpress
+        );
+
+        $typeName = 'someType';
+        self::assertEquals(-1, $roleMembershipHandler->getObjectName(-1, $typeName));
+        self::assertEquals('_role_', $typeName);
+
+        $typeName = 'someType';
+        self::assertEquals('roleOne', $roleMembershipHandler->getObjectName(1, $typeName));
+        self::assertEquals('_role_', $typeName);
     }
 
     /**
@@ -60,14 +88,14 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
 
         $roleMembershipHandler = new RoleMembershipHandler(
             $this->getAssignmentInformationFactory(),
-            $userGroup
+            $this->getWordpress()
         );
 
         $assignmentInformation = null;
-        self::assertFalse($roleMembershipHandler->isMember(false, 'firstObjectId', $assignmentInformation));
+        self::assertFalse($roleMembershipHandler->isMember($userGroup, false, 'firstObjectId', $assignmentInformation));
         self::assertNull($assignmentInformation);
 
-        self::assertTrue($roleMembershipHandler->isMember(true, 'secondObjectId', $assignmentInformation));
+        self::assertTrue($roleMembershipHandler->isMember($userGroup, true, 'secondObjectId', $assignmentInformation));
         self::assertEquals(
             $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE.'|'.'secondObjectId'),
             $assignmentInformation
@@ -99,7 +127,7 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
 
         $roleMembershipHandler = new RoleMembershipHandler(
             $this->getAssignmentInformationFactory(),
-            $userGroup
+            $this->getWordpress()
         );
 
         self::assertEquals(
@@ -107,11 +135,11 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
                 1 => ObjectHandler::GENERAL_ROLE_OBJECT_TYPE,
                 2 => 'type'
             ],
-            $roleMembershipHandler->getFullObjects(false)
+            $roleMembershipHandler->getFullObjects($userGroup, false)
         );
         self::assertEquals(
             [2 => 'type'],
-            $roleMembershipHandler->getFullObjects(true, 'type')
+            $roleMembershipHandler->getFullObjects($userGroup, true, 'type')
         );
     }
 }

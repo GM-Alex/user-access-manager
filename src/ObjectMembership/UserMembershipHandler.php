@@ -12,7 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\UserGroup\ObjectMembership;
+namespace UserAccessManager\ObjectMembership;
 
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -31,7 +31,7 @@ class UserMembershipHandler extends ObjectMembershipHandler
     /**
      * @var string
      */
-    protected $objectType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
+    protected $generalObjectType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
 
     /**
      * @var Php
@@ -51,36 +51,51 @@ class UserMembershipHandler extends ObjectMembershipHandler
     /**
      * UserMembershipHandler constructor.
      *
+     *
+     * @param AssignmentInformationFactory $assignmentInformationFactory
      * @param Php                          $php
      * @param Database                     $database
      * @param ObjectHandler                $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param AbstractUserGroup            $userGroup
      */
     public function __construct(
+        AssignmentInformationFactory $assignmentInformationFactory,
         Php $php,
         Database $database,
-        ObjectHandler $objectHandler,
-        AssignmentInformationFactory $assignmentInformationFactory,
-        AbstractUserGroup $userGroup
+        ObjectHandler $objectHandler
     ) {
-        parent::__construct($assignmentInformationFactory, $userGroup);
+        parent::__construct($assignmentInformationFactory);
 
         $this->php = $php;
-        $this->objectHandler = $objectHandler;
         $this->database = $database;
+        $this->objectHandler = $objectHandler;
+    }
+
+    /**
+     * Returns the object and type name.
+     *
+     * @param string $objectId
+     * @param string $typeName
+     *
+     * @return string
+     */
+    public function getObjectName($objectId, &$typeName = '')
+    {
+        $typeName = $this->generalObjectType;
+        $user = $this->objectHandler->getUser($objectId);
+        return ($user !== false) ? $user->display_name : $objectId;
     }
 
     /**
      * Checks if the user is a member of the user group.
      *
+     * @param AbstractUserGroup          $userGroup
      * @param bool                       $lockRecursive
      * @param string                     $objectId
      * @param null|AssignmentInformation $assignmentInformation
      *
      * @return bool
      */
-    public function isMember($lockRecursive, $objectId, &$assignmentInformation = null)
+    public function isMember(AbstractUserGroup $userGroup, $lockRecursive, $objectId, &$assignmentInformation = null)
     {
         $assignmentInformation = null;
         $recursiveMembership = [];
@@ -91,7 +106,7 @@ class UserMembershipHandler extends ObjectMembershipHandler
             $capabilities = (isset($user->{$capabilitiesTable}) === true) ? $user->{$capabilitiesTable} : [];
 
             if (is_array($capabilities) === true && count($capabilities) > 0) {
-                $assignedRoles = $this->userGroup->getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+                $assignedRoles = $userGroup->getAssignedObjects(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
 
                 $recursiveRoles = array_intersect(
                     array_keys($capabilities),
@@ -113,8 +128,8 @@ class UserMembershipHandler extends ObjectMembershipHandler
             }
         }
 
-        $isMember = $this->userGroup->isObjectAssignedToGroup(
-            $this->objectType,
+        $isMember = $userGroup->isObjectAssignedToGroup(
+            $this->generalObjectType,
             $objectId,
             $assignmentInformation
         );
@@ -130,12 +145,13 @@ class UserMembershipHandler extends ObjectMembershipHandler
     /**
      * Returns the user role objects.
      *
-     * @param bool $lockRecursive
-     * @param null $objectType
+     * @param AbstractUserGroup $userGroup
+     * @param bool              $lockRecursive
+     * @param null              $objectType
      *
      * @return array
      */
-    public function getFullObjects($lockRecursive, $objectType = null)
+    public function getFullObjects(AbstractUserGroup $userGroup, $lockRecursive, $objectType = null)
     {
         $users = [];
 
@@ -145,8 +161,8 @@ class UserMembershipHandler extends ObjectMembershipHandler
         );
 
         foreach ($databaseUsers as $user) {
-            if ($this->userGroup->isObjectMember($this->objectType, $user->ID) === true) {
-                $users[$user->ID] = $this->objectType;
+            if ($userGroup->isObjectMember($this->generalObjectType, $user->ID) === true) {
+                $users[$user->ID] = $this->generalObjectType;
             }
         }
 

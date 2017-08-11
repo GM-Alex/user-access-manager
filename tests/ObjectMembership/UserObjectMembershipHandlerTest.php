@@ -12,18 +12,18 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\UserGroup\ObjectMembership;
+namespace UserAccessManager\Tests\ObjectMembership;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
-use UserAccessManager\UserGroup\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\ObjectMembership\UserMembershipHandler;
 
 /**
  * Class UserObjectMembershipHandlerTest
  *
- * @package UserAccessManager\Tests\UserGroup\ObjectMembership
- * @coversDefaultClass \UserAccessManager\UserGroup\ObjectMembership\UserMembershipHandler
+ * @package UserAccessManager\Tests\ObjectMembership
+ * @coversDefaultClass \UserAccessManager\ObjectMembership\UserMembershipHandler
  */
 class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
 {
@@ -34,14 +34,47 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     public function testCanCreateInstance()
     {
         $userMembershipHandler = new UserMembershipHandler(
+            $this->getAssignmentInformationFactory(),
             $this->getPhp(),
             $this->getDatabase(),
-            $this->getObjectHandler(),
-            $this->getAssignmentInformationFactory(),
-            $this->getUserGroup(1)
+            $this->getObjectHandler()
         );
 
         self::assertInstanceOf(UserMembershipHandler::class, $userMembershipHandler);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getObjectName()
+     */
+    public function testGetObjectName()
+    {
+        /**
+         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $user
+         */
+        $user = $this->getMockBuilder('\WP_User')->getMock();
+        $user->display_name = 'userTwo';
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->exactly(2))
+            ->method('getUser')
+            ->withConsecutive([-1], [2])
+            ->will($this->onConsecutiveCalls(false, $user));
+
+        $userMembershipHandler = new UserMembershipHandler(
+            $this->getAssignmentInformationFactory(),
+            $this->getPhp(),
+            $this->getDatabase(),
+            $objectHandler
+        );
+
+        $typeName = 'someType';
+        self::assertEquals(-1, $userMembershipHandler->getObjectName(-1, $typeName));
+        self::assertEquals('_user_', $typeName);
+
+        $typeName = 'someType';
+        self::assertEquals('userTwo', $userMembershipHandler->getObjectName(2, $typeName));
+        self::assertEquals('_user_', $typeName);
     }
 
     /**
@@ -128,11 +161,10 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             ));
 
         return new UserMembershipHandler(
+            $this->getExtendedAssignmentInformationFactory(),
             $php,
             $database,
-            $objectHandler,
-            $this->getExtendedAssignmentInformationFactory(),
-            $userGroup
+            $objectHandler
         );
     }
 
@@ -182,15 +214,15 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             $userGroup
         );
 
-        $return = $userObjectMembershipHandler->isMember(false, 4, $assignmentInformation);
+        $return = $userObjectMembershipHandler->isMember($userGroup, false, 4, $assignmentInformation);
         self::assertFalse($return);
         self::assertNull($assignmentInformation);
 
-        $return = $userObjectMembershipHandler->isMember(false, 3, $assignmentInformation);
+        $return = $userObjectMembershipHandler->isMember($userGroup, false, 3, $assignmentInformation);
         self::assertFalse($return);
         self::assertNull($assignmentInformation);
 
-        $return = $userObjectMembershipHandler->isMember(false, 1, $assignmentInformation);
+        $return = $userObjectMembershipHandler->isMember($userGroup, false, 1, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
             $this->getAssignmentInformation(
@@ -207,11 +239,11 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             $assignmentInformation
         );
 
-        $return = $userObjectMembershipHandler->isMember(false, 2, $assignmentInformation);
+        $return = $userObjectMembershipHandler->isMember($userGroup, false, 2, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals($this->getAssignmentInformation('user', 'fromDate', 'toDate'), $assignmentInformation);
 
-        $return = $userObjectMembershipHandler->isMember(false, 3, $assignmentInformation);
+        $return = $userObjectMembershipHandler->isMember($userGroup, false, 3, $assignmentInformation);
         self::assertTrue($return);
         self::assertEquals(
             $this->getAssignmentInformation(
@@ -227,7 +259,7 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             $assignmentInformation
         );
 
-        $return = $userObjectMembershipHandler->isMember(false, 5, $assignmentInformation);
+        $return = $userObjectMembershipHandler->isMember($userGroup, false, 5, $assignmentInformation);
         self::assertFalse($return);
         self::assertNull($assignmentInformation);
     }
@@ -284,11 +316,10 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             ->will($this->onConsecutiveCalls(true, true, true, false));
 
         $userObjectMembershipHandler = new UserMembershipHandler(
+            $this->getExtendedAssignmentInformationFactory(),
             $this->getPhp(),
             $database,
-            $this->getObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory(),
-            $userGroup
+            $this->getObjectHandler()
         );
 
         self::assertEquals(
@@ -297,7 +328,7 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
                 2 => ObjectHandler::GENERAL_USER_OBJECT_TYPE,
                 10 => ObjectHandler::GENERAL_USER_OBJECT_TYPE,
             ],
-            $userObjectMembershipHandler->getFullObjects(false, 'someType')
+            $userObjectMembershipHandler->getFullObjects($userGroup, false, 'someType')
         );
     }
 }

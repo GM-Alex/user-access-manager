@@ -67,7 +67,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminController = new BackendController(
+        $backendController = new BackendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -75,7 +75,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        self::assertInstanceOf(BackendController::class, $adminController);
+        self::assertInstanceOf(BackendController::class, $backendController);
     }
 
     /**
@@ -93,7 +93,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
-        $adminController = new BackendController(
+        $backendController = new BackendController(
             $php,
             $this->getWordpress(),
             $config,
@@ -103,21 +103,21 @@ class BackendControllerTest extends UserAccessManagerTestCase
 
         $php->expects($this->once())
             ->method('includeFile')
-            ->with($adminController, 'vfs://src/View/AdminNotice.php')
+            ->with($backendController, 'vfs://src/View/AdminNotice.php')
             ->will($this->returnCallback(function () {
                 echo 'DatabaseNotice';
             }));
 
-        $adminController->showDatabaseNotice();
+        $backendController->showDatabaseNotice();
 
         self::assertAttributeEquals(
             sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
             'notice',
-            $adminController
+            $backendController
         );
         self::expectOutputString('DatabaseNotice');
 
-        return $adminController;
+        return $backendController;
     }
 
     /**
@@ -176,7 +176,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             ->method('getUrlPath')
             ->will($this->returnValue('url/'));
 
-        $adminController = new BackendController(
+        $backendController = new BackendController(
             $this->getPhp(),
             $wordpress,
             $config,
@@ -184,7 +184,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        $adminController->enqueueStylesAndScripts();
+        $backendController->enqueueStylesAndScripts();
     }
 
     /**
@@ -226,7 +226,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             ->with('manage_user_groups')
             ->will($this->onConsecutiveCalls(true, true, false));
 
-        $adminController = new BackendController(
+        $backendController = new BackendController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -234,13 +234,13 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getFileHandler()
         );
 
-        $adminController->setupAdminDashboard();
+        $backendController->setupAdminDashboard();
         self::assertEquals($originalMetaBoxes, $metaBoxes);
 
-        $adminController->setupAdminDashboard();
+        $backendController->setupAdminDashboard();
         self::assertEquals($originalMetaBoxes, $metaBoxes);
 
-        $adminController->setupAdminDashboard();
+        $backendController->setupAdminDashboard();
         unset($originalMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
         self::assertEquals($originalMetaBoxes, $metaBoxes);
     }
@@ -255,7 +255,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
         $fileHandler->expects($this->once())
             ->method('createFileProtection');
 
-        $adminController = new BackendController(
+        $backendController = new BackendController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -263,6 +263,6 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $fileHandler
         );
 
-        $adminController->updatePermalink();
+        $backendController->updatePermalink();
     }
 }

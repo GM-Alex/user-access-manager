@@ -31,7 +31,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $adminSetupController = new SetupController(
+        $setupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -39,7 +39,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             $this->getSetupHandler()
         );
 
-        self::assertInstanceOf(SetupController::class, $adminSetupController);
+        self::assertInstanceOf(SetupController::class, $setupController);
     }
 
     /**
@@ -53,7 +53,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->method('isDatabaseUpdateNecessary')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $adminSetupController = new SetupController(
+        $setupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -61,8 +61,8 @@ class SetupControllerTest extends UserAccessManagerTestCase
             $setupHandler
         );
 
-        self::assertTrue($adminSetupController->isDatabaseUpdateNecessary());
-        self::assertFalse($adminSetupController->isDatabaseUpdateNecessary());
+        self::assertTrue($setupController->isDatabaseUpdateNecessary());
+        self::assertFalse($setupController->isDatabaseUpdateNecessary());
     }
 
     /**
@@ -76,7 +76,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, false, false, true));
 
-        $adminSetupController = new SetupController(
+        $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -84,15 +84,15 @@ class SetupControllerTest extends UserAccessManagerTestCase
             $this->getSetupHandler()
         );
 
-        self::assertFalse($adminSetupController->showNetworkUpdate());
+        self::assertFalse($setupController->showNetworkUpdate());
 
         define('MULTISITE', true);
-        self::assertFalse($adminSetupController->showNetworkUpdate());
+        self::assertFalse($setupController->showNetworkUpdate());
 
         define('WP_ALLOW_MULTISITE', true);
-        self::assertFalse($adminSetupController->showNetworkUpdate());
+        self::assertFalse($setupController->showNetworkUpdate());
 
-        self::assertTrue($adminSetupController->showNetworkUpdate());
+        self::assertTrue($setupController->showNetworkUpdate());
     }
 
     /**
@@ -107,7 +107,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->method('getBackups')
             ->will($this->returnValue([1, 123, 4]));
 
-        $adminSetupController = new SetupController(
+        $setupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
@@ -115,7 +115,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             $setupHandler
         );
 
-        self::assertEquals([1, 123, 4], $adminSetupController->getBackups());
+        self::assertEquals([1, 123, 4], $setupController->getBackups());
     }
 
     /**
@@ -155,7 +155,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 
-        $adminSetupController = new SetupController(
+        $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -163,27 +163,27 @@ class SetupControllerTest extends UserAccessManagerTestCase
             $setupHandler
         );
 
-        $adminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(null, 'updateMessage', $adminSetupController);
+        $setupController->updateDatabaseAction();
+        self::assertAttributeEquals(null, 'updateMessage', $setupController);
 
         $_GET['uam_backup_db'] = true;
         $_GET['uam_update_db'] = SetupController::UPDATE_BLOG;
-        $adminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $adminSetupController);
+        $setupController->updateDatabaseAction();
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $setupController);
 
         $_GET['uam_update_db'] = SetupController::UPDATE_NETWORK;
-        self::setValue($adminSetupController, 'updateMessage', null);
-        $adminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $adminSetupController);
+        self::setValue($setupController, 'updateMessage', null);
+        $setupController->updateDatabaseAction();
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $setupController);
 
-        self::setValue($adminSetupController, 'updateMessage', null);
-        $adminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $adminSetupController);
+        self::setValue($setupController, 'updateMessage', null);
+        $setupController->updateDatabaseAction();
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $setupController);
 
         unset($_GET['uam_backup_db']);
-        self::setValue($adminSetupController, 'updateMessage', null);
-        $adminSetupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $adminSetupController);
+        self::setValue($setupController, 'updateMessage', null);
+        $setupController->updateDatabaseAction();
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $setupController);
     }
 
     /**
@@ -205,7 +205,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(['1.2'], ['1.3'])
             ->will($this->onConsecutiveCalls(false, true));
 
-        $adminSetupController = new SetupController(
+        $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -214,12 +214,12 @@ class SetupControllerTest extends UserAccessManagerTestCase
         );
 
         $_GET['uam_revert_database'] = '1.2';
-        $adminSetupController->revertDatabaseAction();
-        self::assertAttributeEquals(null, 'updateMessage', $adminSetupController);
+        $setupController->revertDatabaseAction();
+        self::assertAttributeEquals(null, 'updateMessage', $setupController);
 
         $_GET['uam_revert_database'] = '1.3';
-        $adminSetupController->revertDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_REVERT_DATABASE_SUCCESS, 'updateMessage', $adminSetupController);
+        $setupController->revertDatabaseAction();
+        self::assertAttributeEquals(TXT_UAM_REVERT_DATABASE_SUCCESS, 'updateMessage', $setupController);
     }
 
     /**
@@ -241,7 +241,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(['1.2'], ['1.3'])
             ->will($this->onConsecutiveCalls(false, true));
 
-        $adminSetupController = new SetupController(
+        $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -250,12 +250,12 @@ class SetupControllerTest extends UserAccessManagerTestCase
         );
 
         $_GET['uam_delete_backup'] = '1.2';
-        $adminSetupController->deleteDatabaseBackupAction();
-        self::assertAttributeEquals(null, 'updateMessage', $adminSetupController);
+        $setupController->deleteDatabaseBackupAction();
+        self::assertAttributeEquals(null, 'updateMessage', $setupController);
 
         $_GET['uam_delete_backup'] = '1.3';
-        $adminSetupController->deleteDatabaseBackupAction();
-        self::assertAttributeEquals(TXT_UAM_DELETE_DATABASE_BACKUP_SUCCESS, 'updateMessage', $adminSetupController);
+        $setupController->deleteDatabaseBackupAction();
+        self::assertAttributeEquals(TXT_UAM_DELETE_DATABASE_BACKUP_SUCCESS, 'updateMessage', $setupController);
     }
 
     /**
@@ -278,7 +278,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->method('install')
             ->with(true);
 
-        $adminSetupController = new SetupController(
+        $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
@@ -287,11 +287,11 @@ class SetupControllerTest extends UserAccessManagerTestCase
         );
 
         $_GET['uam_reset'] = 'something';
-        $adminSetupController->resetUamAction();
-        self::assertAttributeEquals(null, 'updateMessage', $adminSetupController);
+        $setupController->resetUamAction();
+        self::assertAttributeEquals(null, 'updateMessage', $setupController);
 
         $_GET['uam_reset'] = 'reset';
-        $adminSetupController->resetUamAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_RESET_SUCCESS, 'updateMessage', $adminSetupController);
+        $setupController->resetUamAction();
+        self::assertAttributeEquals(TXT_UAM_UAM_RESET_SUCCESS, 'updateMessage', $setupController);
     }
 }

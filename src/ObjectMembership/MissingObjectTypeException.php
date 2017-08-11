@@ -12,12 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\UserGroup\ObjectMembership;
+namespace UserAccessManager\ObjectMembership;
 
 /**
  * Class MissingObjectTypeException
  *
- * @package UserAccessManager\UserGroup\ObjectMembership
+ * @package UserAccessManager\ObjectMembership
  */
 class MissingObjectTypeException extends \Exception
 {

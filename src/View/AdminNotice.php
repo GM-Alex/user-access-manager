@@ -14,7 +14,7 @@
  */
 
 /**
- * @var UserAccessManager\Controller\AdminController $controller
+ * @var UserAccessManager\Controller\Backend\BackendController $controller
  */
 ?>
 <div id="message" class="error"><p><strong><?php echo $controller->getNotice() ?></strong></p></div>

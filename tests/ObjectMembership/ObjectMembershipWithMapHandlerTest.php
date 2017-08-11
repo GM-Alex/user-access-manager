@@ -12,33 +12,30 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\UserGroup\ObjectMembership;
+namespace UserAccessManager\Tests\ObjectMembership;
 
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipWithMapHandler;
+use UserAccessManager\ObjectMembership\ObjectMembershipWithMapHandler;
 
 /**
  * Class ObjectMembershipWithMapHandlerTest
  *
- * @package UserAccessManager\Tests\UserGroup\ObjectMembership
- * @coversDefaultClass \UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipWithMapHandler
+ * @package UserAccessManager\Tests\ObjectMembership
+ * @coversDefaultClass \UserAccessManager\ObjectMembership\ObjectMembershipWithMapHandler
  */
 class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param AbstractUserGroup            $abstractUserGroup
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMembershipWithMapHandler
      */
-    private function getStub(
-        AssignmentInformationFactory $assignmentInformationFactory,
-        AbstractUserGroup $abstractUserGroup
-    ) {
+    private function getStub(AssignmentInformationFactory $assignmentInformationFactory)
+    {
         $stub = $this->getMockForAbstractClass(
             ObjectMembershipWithMapHandler::class,
             [],
@@ -46,15 +43,14 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
             false
         );
 
-        self::setValue($stub, 'objectType', 'objectType');
+        self::setValue($stub, 'generalObjectType', 'generalObjectType');
         self::setValue($stub, 'assignmentInformationFactory', $assignmentInformationFactory);
-        self::setValue($stub, 'userGroup', $abstractUserGroup);
 
         $stub->expects($this->any())
             ->method('getMap')
             ->willReturn([
                 ObjectHandler::TREE_MAP_PARENTS => [
-                    'objectType' => [
+                    'generalObjectType' => [
                         'objectIdFalse' => [
                             'parentObjectId' => 'parentObjectType',
                             'parentObjectIdFalse' => 'parentObjectType'
@@ -62,12 +58,12 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
                     ]
                 ],
                 ObjectHandler::TREE_MAP_CHILDREN => [
-                    'objectType' => [
+                    'generalObjectType' => [
                         'parentObjectId' => [
-                            'firstObjectId' => 'objectType',
-                            'secondObjectId' => 'objectType'
+                            'firstObjectId' => 'generalObjectType',
+                            'secondObjectId' => 'generalObjectType'
                         ],
-                        'otherParentObjectId'  => ['otherObjectId' => 'objectType'],
+                        'otherParentObjectId'  => ['otherObjectId' => 'generalObjectType'],
                     ]
                 ]
             ]);
@@ -85,23 +81,22 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
         $userGroup->expects($this->exactly(6))
             ->method('isObjectAssignedToGroup')
             ->withConsecutive(
-                ['objectType', 'objectIdFalse'],
-                ['objectType', 'objectId'],
-                ['objectType', 'parentObjectId'],
-                ['objectType', 'parentObjectIdFalse'],
-                ['objectType', 'objectIdFalse'],
+                ['generalObjectType', 'objectIdFalse'],
+                ['generalObjectType', 'objectId'],
+                ['generalObjectType', 'parentObjectId'],
+                ['generalObjectType', 'parentObjectIdFalse'],
+                ['generalObjectType', 'objectIdFalse'],
                 ['someObjectType', 'objectId']
             )
             ->will($this->returnCallback(
-                function ($objectType, $objectId, &$assignmentInformation) {
+                function ($generalObjectType, $objectId, &$assignmentInformation) {
                     $assignmentInformation = ($objectId === 'parentObjectId') ? 'rmInfo' : null;
                     return ($objectId === 'objectIdFalse' || $objectId === 'parentObjectIdFalse') ? false : true;
                 }
             ));
 
         $objectMembershipWithMapHandler = $this->getStub(
-            $this->getExtendedAssignmentInformationFactory(),
-            $userGroup
+            $this->getExtendedAssignmentInformationFactory()
         );
 
         /**
@@ -111,7 +106,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
         $result = self::callMethod(
             $objectMembershipWithMapHandler,
             'getMembershipByMap',
-            [false, 'objectIdFalse', &$assignmentInformation]
+            [$userGroup, false, 'objectIdFalse', &$assignmentInformation]
         );
         self::assertFalse($result);
         self::assertNull($assignmentInformation);
@@ -120,7 +115,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
         $result = self::callMethod(
             $objectMembershipWithMapHandler,
             'getMembershipByMap',
-            [false, 'objectId', &$assignmentInformation]
+            [$userGroup, false, 'objectId', &$assignmentInformation]
         );
         self::assertTrue($result);
         self::assertEquals([], $assignmentInformation->getRecursiveMembership());
@@ -129,20 +124,20 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
         $result = self::callMethod(
             $objectMembershipWithMapHandler,
             'getMembershipByMap',
-            [true, 'objectIdFalse', &$assignmentInformation]
+            [$userGroup, true, 'objectIdFalse', &$assignmentInformation]
         );
         self::assertTrue($result);
         self::assertEquals(
-            ['objectType' => ['parentObjectId' => 'rmInfo']],
+            ['generalObjectType' => ['parentObjectId' => 'rmInfo']],
             $assignmentInformation->getRecursiveMembership()
         );
 
-        self::setValue($objectMembershipWithMapHandler, 'objectType', 'someObjectType');
+        self::setValue($objectMembershipWithMapHandler, 'generalObjectType', 'someObjectType');
         $assignmentInformation = null;
         $result = self::callMethod(
             $objectMembershipWithMapHandler,
             'getMembershipByMap',
-            [true, 'objectId', &$assignmentInformation]
+            [$userGroup, true, 'objectId', &$assignmentInformation]
         );
         self::assertTrue($result);
         self::assertEquals([], $assignmentInformation->getRecursiveMembership());
@@ -162,39 +157,50 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
         $userGroup->expects($this->exactly(3))
             ->method('getAssignedObjects')
             ->withConsecutive(
-                ['objectType'],
-                ['objectType'],
+                ['generalObjectType'],
+                ['generalObjectType'],
                 ['someObjectType']
             )
-            ->will($this->returnValue(['parentObjectId' => $this->getAssignmentInformation('objectType')]));
+            ->will($this->returnValue(['parentObjectId' => $this->getAssignmentInformation('generalObjectType')]));
 
         $test = null;
         $userGroup->expects($this->exactly(2))
             ->method('isObjectMember')
             ->withConsecutive(
-                ['objectType', 'firstObjectId', &$test],
-                ['objectType', 'secondObjectId', &$test]
+                ['generalObjectType', 'firstObjectId', &$test],
+                ['generalObjectType', 'secondObjectId', &$test]
             )
             ->will($this->onConsecutiveCalls(true, false));
 
         $objectMembershipWithMapHandler = $this->getStub(
-            $this->getExtendedAssignmentInformationFactory(),
-            $userGroup
+            $this->getExtendedAssignmentInformationFactory()
         );
 
-        $result = self::callMethod($objectMembershipWithMapHandler, 'getFullObjectsByMap', [false, 'objectType']);
-        self::assertEquals(['parentObjectId' => 'objectType'], $result);
+        $result = self::callMethod(
+            $objectMembershipWithMapHandler,
+            'getFullObjectsByMap',
+            [$userGroup, false, 'generalObjectType']
+        );
+        self::assertEquals(['parentObjectId' => 'generalObjectType'], $result);
 
-        $result = self::callMethod($objectMembershipWithMapHandler, 'getFullObjectsByMap', [true, 'objectType']);
+        $result = self::callMethod(
+            $objectMembershipWithMapHandler,
+            'getFullObjectsByMap',
+            [$userGroup, true, 'generalObjectType']
+        );
         self::assertEquals(
             [
-                'parentObjectId' => 'objectType',
-                'firstObjectId' => 'objectType'
+                'parentObjectId' => 'generalObjectType',
+                'firstObjectId' => 'generalObjectType'
             ],
             $result
         );
 
-        $result = self::callMethod($objectMembershipWithMapHandler, 'getFullObjectsByMap', [true, 'someObjectType']);
-        self::assertEquals(['parentObjectId' => 'objectType'], $result);
+        $result = self::callMethod(
+            $objectMembershipWithMapHandler,
+            'getFullObjectsByMap',
+            [$userGroup, true, 'someObjectType']
+        );
+        self::assertEquals(['parentObjectId' => 'generalObjectType'], $result);
     }
 }

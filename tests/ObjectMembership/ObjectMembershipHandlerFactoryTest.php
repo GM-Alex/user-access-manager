@@ -12,20 +12,20 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\UserGroup\ObjectMembership;
+namespace UserAccessManager\Tests\ObjectMembership;
 
 use UserAccessManager\Tests\UserAccessManagerTestCase;
-use UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory;
-use UserAccessManager\UserGroup\ObjectMembership\PostMembershipHandler;
-use UserAccessManager\UserGroup\ObjectMembership\RoleMembershipHandler;
-use UserAccessManager\UserGroup\ObjectMembership\TermMembershipHandler;
-use UserAccessManager\UserGroup\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
+use UserAccessManager\ObjectMembership\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\UserMembershipHandler;
 
 /**
  * Class ObjectMembershipHandlerFactoryTest
  *
- * @package UserAccessManager\Tests\UserGroup\ObjectMembership
- * @coversDefaultClass \UserAccessManager\UserGroup\ObjectMembership\ObjectMembershipHandlerFactory
+ * @package UserAccessManager\Tests\ObjectMembership
+ * @coversDefaultClass \UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory
  */
 class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
 {
@@ -38,8 +38,8 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
     {
         $objectMembershipHandlerFactory = new ObjectMembershipHandlerFactory(
             $this->getPhp(),
+            $this->getWordpress(),
             $this->getDatabase(),
-            $this->getObjectHandler(),
             $this->getExtendedAssignmentInformationFactory()
         );
         self::assertInstanceOf(ObjectMembershipHandlerFactory::class, $objectMembershipHandlerFactory);
@@ -58,7 +58,7 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
     {
         self::assertInstanceOf(
             RoleMembershipHandler::class,
-            $objectMembershipHandlerFactory->createRoleMembershipHandler($this->getUserGroup(1))
+            $objectMembershipHandlerFactory->createRoleMembershipHandler()
         );
     }
 
@@ -73,7 +73,7 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
     {
         self::assertInstanceOf(
             PostMembershipHandler::class,
-            $objectMembershipHandlerFactory->createPostMembershipHandler($this->getUserGroup(1))
+            $objectMembershipHandlerFactory->createPostMembershipHandler($this->getObjectHandler())
         );
     }
 
@@ -88,7 +88,7 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
     {
         self::assertInstanceOf(
             TermMembershipHandler::class,
-            $objectMembershipHandlerFactory->createTermMembershipHandler($this->getUserGroup(1))
+            $objectMembershipHandlerFactory->createTermMembershipHandler($this->getObjectHandler())
         );
     }
 
@@ -103,7 +103,7 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
     {
         self::assertInstanceOf(
             UserMembershipHandler::class,
-            $objectMembershipHandlerFactory->createUserMembershipHandler($this->getUserGroup(1))
+            $objectMembershipHandlerFactory->createUserMembershipHandler($this->getObjectHandler())
         );
     }
 }
