@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\Tests\Controller\Backend;
 
-use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
@@ -22,9 +21,7 @@ use UserAccessManager\ObjectMembership\PostMembershipHandler;
 use UserAccessManager\ObjectMembership\RoleMembershipHandler;
 use UserAccessManager\ObjectMembership\TermMembershipHandler;
 use UserAccessManager\ObjectMembership\UserMembershipHandler;
-use UserAccessManager\Tests\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
-use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
 
@@ -34,29 +31,8 @@ use Vfs\Node\File;
  * @package UserAccessManager\Controller
  * @coversDefaultClass \UserAccessManager\Controller\Backend\ObjectController
  */
-class ObjectControllerTest extends UserAccessManagerTestCase
+class ObjectControllerTest extends ObjectControllerTestCase
 {
-    /**
-     * @var FileSystem
-     */
-    private $root;
-
-    /**
-     * Setup virtual file system.
-     */
-    public function setUp()
-    {
-        $this->root = FileSystem::factory('vfs://');
-        $this->root->mount();
-    }
-
-    /**
-     * Tear down virtual file system.
-     */
-    public function tearDown()
-    {
-        $this->root->unmount();
-    }
     /**
      * @param int   $id
      * @param array $withAdd
@@ -716,67 +692,7 @@ class ObjectControllerTest extends UserAccessManagerTestCase
         $objectController->checkRightsToEditContent();
     }
 
-    /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
-     */
-    private function getExtendedObjectHandler()
-    {
-        /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post
-         */
-        $post = $this->getMockBuilder('\WP_Post')->getMock();
-        $post->ID = 1;
-        $post->post_type = 'post';
 
-        /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $revisionPost
-         */
-        $revisionPost = $this->getMockBuilder('\WP_Post')->getMock();
-        $revisionPost->ID = 2;
-        $revisionPost->post_type = 'revision';
-        $revisionPost->post_parent = 1;
-
-        /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $attachment
-         */
-        $attachment = $this->getMockBuilder('\WP_Post')->getMock();
-        $attachment->ID = 3;
-        $attachment->post_type = 'attachment';
-
-        $objectHandler = $this->getObjectHandler();
-        $objectHandler->expects($this->any())
-            ->method('getPost')
-            ->will($this->returnCallback(function ($postId) use ($post, $revisionPost, $attachment) {
-                if ($postId === 1) {
-                    return $post;
-                } elseif ($postId === 2) {
-                    return $revisionPost;
-                } elseif ($postId === 3) {
-                    return $attachment;
-                }
-
-                return false;
-            }));
-
-        $objectHandler->expects($this->any())
-            ->method('getTerm')
-            ->will($this->returnCallback(function ($termId) {
-                if ($termId === 0) {
-                    return false;
-                }
-
-                /**
-                 * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $term
-                 */
-                $term = $this->getMockBuilder('\WP_Term')->getMock();
-                $term->term_id = $termId;
-                $term->taxonomy = 'taxonomy_'.$termId;
-
-                return $term;
-            }));
-
-        return $objectHandler;
-    }
 
     /**
      * @group  unit
@@ -1000,10 +916,10 @@ class ObjectControllerTest extends UserAccessManagerTestCase
         $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
             4 => ['id' => 4]
         ];
-        $objectController->savePluggableObjectData('objectType', 'objectId');
+        $objectController->saveObjectData('objectType', 'objectId');
 
         $_POST = [];
-        $objectController->savePluggableObjectData('objectType', 'objectId');
+        $objectController->saveObjectData('objectType', 'objectId');
     }
 
     /**
@@ -1060,7 +976,7 @@ class ObjectControllerTest extends UserAccessManagerTestCase
         $objectController->removePostData(1);
         $objectController->removeUserData(2);
         $objectController->removeTermData(3);
-        $objectController->removePluggableObjectData('objectType', 'objectId');
+        $objectController->removeObjectData('objectType', 'objectId');
     }
 
     /**
@@ -1101,7 +1017,7 @@ class ObjectControllerTest extends UserAccessManagerTestCase
      * @covers ::addPostColumn()
      * @covers ::addUserColumn()
      * @covers ::addTermColumn()
-     * @covers ::getPluggableColumn()
+     * @covers ::getGroupColumn()
      */
     public function testAddColumn()
     {
@@ -1119,7 +1035,7 @@ class ObjectControllerTest extends UserAccessManagerTestCase
         $objectController->addPostColumn(ObjectController::COLUMN_NAME, 1);
         $objectController->addUserColumn('return', ObjectController::COLUMN_NAME, 1);
         $objectController->addTermColumn('content', ObjectController::COLUMN_NAME, 1);
-        $objectController->getPluggableColumn('objectType', 'objectId');
+        $objectController->getGroupColumn('objectType', 'objectId');
     }
 
     /**
@@ -1484,26 +1400,6 @@ class ObjectControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int    $id
-     * @param string $displayName
-     * @param string $userLogin
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\stdClass
-     */
-    private function getUser($id, $displayName, $userLogin)
-    {
-        /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $user
-         */
-        $user = $this->getMockBuilder('\WP_User')->getMock();
-        $user->ID = $id;
-        $user->display_name = $displayName;
-        $user->user_login = $userLogin;
-
-        return $user;
-    }
-
-    /**
      * @group  unit
      * @covers ::isNewObject()
      */
@@ -1555,71 +1451,5 @@ class ObjectControllerTest extends UserAccessManagerTestCase
         $_GET['action'] = 'new';
         self::setValue($objectController, 'objectType', 'otherObjectTypeValue');
         self::assertTrue($objectController->isNewObject());
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getDynamicGroupsForAjax()
-     */
-    public function testGetDynamicGroupsForAjax()
-    {
-        $php = $this->getPhp();
-        $php->expects($this->exactly(2))
-            ->method('callExit');
-
-        $wordpress = $this->getWordpress();
-
-        $wordpress->expects($this->once())
-            ->method('getUsers')
-            ->with([
-                'search' => '*sea*',
-                'fields' => ['ID', 'display_name', 'user_login', 'user_email']
-            ])
-            ->will($this->returnValue([
-                $this->getUser(1, 'firstUser', 'firstUserLogin'),
-                $this->getUser(2, 'secondUser', 'secondUserLogin')
-            ]));
-
-        $roles = new \stdClass();
-        $roles->roles = [
-            'admin' => ['name' => 'Administrator'],
-            'editor' => ['name' => 'Editor'],
-            'search' => ['name' => 'Search']
-        ];
-
-        $wordpress->expects($this->once())
-            ->method('getRoles')
-            ->will($this->returnValue($roles));
-
-        $_GET['q'] = 'firstSearch, sea';
-
-        $accessHandler = $this->getAccessHandler();
-
-        $accessHandler->expects($this->exactly(2))
-            ->method('checkUserAccess')
-            ->with(AccessHandler::MANAGE_USER_GROUPS_CAPABILITY)
-            ->will($this->onConsecutiveCalls(true, false));
-
-        $objectController = new ObjectController(
-            $php,
-            $wordpress,
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getCache(),
-            $this->getExtendedObjectHandler(),
-            $accessHandler,
-            $this->getUserGroupFactory()
-        );
-
-        $objectController->getDynamicGroupsForAjax();
-        $objectController->getDynamicGroupsForAjax();
-
-        self::expectOutputString(
-            '['
-            .'{"id":1,"name":"User|user-access-manager: firstUser (firstUserLogin)","type":"user"},'
-            .'{"id":2,"name":"User|user-access-manager: secondUser (secondUserLogin)","type":"user"},'
-            .'{"id":"search","name":"Role|user-access-manager: Search","type":"role"}'
-            .'][]'
-        );
     }
 }

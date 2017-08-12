@@ -23,7 +23,6 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
-use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\Php;
@@ -45,52 +44,52 @@ class ObjectController extends Controller
     /**
      * @var Database
      */
-    private $database;
+    protected $database;
 
     /**
      * @var Cache
      */
-    private $cache;
+    protected $cache;
 
     /**
      * @var ObjectHandler
      */
-    private $objectHandler;
+    protected $objectHandler;
 
     /**
      * @var AccessHandler
      */
-    private $accessHandler;
+    protected $accessHandler;
 
     /**
      * @var UserGroupFactory
      */
-    private $userGroupFactory;
+    protected $userGroupFactory;
 
     /**
      * @var null|string
      */
-    private $groupsFromName = null;
+    protected $groupsFromName = null;
 
     /**
      * @var null|string
      */
-    private $objectType = null;
+    protected $objectType = null;
 
     /**
      * @var null|string
      */
-    private $objectId = null;
+    protected $objectId = null;
 
     /**
      * @var AbstractUserGroup[]
      */
-    private $objectUserGroups = [];
+    protected $objectUserGroups = [];
 
     /**
      * @var int
      */
-    private $userGroupDiff = 0;
+    protected $userGroupDiff = 0;
 
     /**
      * AdminObjectController constructor.
@@ -129,7 +128,7 @@ class ObjectController extends Controller
      * @param string $objectId
      * @param array  $objectUserGroups
      */
-    private function setObjectInformation($objectType, $objectId, array $objectUserGroups = null)
+    protected function setObjectInformation($objectType, $objectId, array $objectUserGroups = null)
     {
         $this->objectType = $objectType;
         $this->objectId = $objectId;
@@ -341,10 +340,9 @@ class ObjectController extends Controller
     {
         $noRights = false;
 
-        $postId = $this->getRequestParameter('post');
-        $postId = is_numeric($postId) === false ? $this->getRequestParameter('attachment_id') : $postId;
+        $postId = $this->getRequestParameter('post', $this->getRequestParameter('attachment_id'));
 
-        if (is_numeric($postId) === true) {
+        if ($postId !== null) {
             $post = $this->objectHandler->getPost($postId);
 
             if ($post !== false) {
@@ -354,7 +352,7 @@ class ObjectController extends Controller
 
         $tagId = $this->getRequestParameter('tag_ID');
 
-        if ($noRights === false && is_numeric($tagId)) {
+        if ($noRights === false && $tagId !== null) {
             $noRights = !$this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $tagId);
         }
 
@@ -501,7 +499,7 @@ class ObjectController extends Controller
      * @param string $objectId      The id of the object.
      * @param array  $addUserGroups The new user groups for the object.
      */
-    private function saveObjectData($objectType, $objectId, array $addUserGroups = null)
+    public function saveObjectData($objectType, $objectId, array $addUserGroups = null)
     {
         $isUpdateForm = (bool)$this->getRequestParameter(self::UPDATE_GROUPS_FORM_NAME, false) === true
             || $this->getRequestParameter('uam_bulk_type') !== null;
@@ -529,7 +527,7 @@ class ObjectController extends Controller
      * @param string $objectType The object type.
      * @param int    $id         The object id.
      */
-    private function removeObjectData($objectType, $id)
+    public function removeObjectData($objectType, $id)
     {
         $this->database->delete(
             $this->database->getUserGroupToObjectTable(),
@@ -544,328 +542,6 @@ class ObjectController extends Controller
         );
     }
 
-    /*
-     * Functions for the post actions.
-     */
-
-    /**
-     * The function for the manage_posts_columns and
-     * the manage_pages_columns filter.
-     *
-     * @param array $defaults The table headers.
-     *
-     * @return array
-     */
-    public function addPostColumnsHeader($defaults)
-    {
-        $defaults[self::COLUMN_NAME] = TXT_UAM_COLUMN_ACCESS;
-        return $defaults;
-    }
-
-    /**
-     * The function for the manage_users_custom_column action.
-     *
-     * @param string  $columnName The column name.
-     * @param integer $id         The id.
-     */
-    public function addPostColumn($columnName, $id)
-    {
-        if ($columnName === self::COLUMN_NAME) {
-            $post = $this->objectHandler->getPost($id);
-            $this->setObjectInformation($post->post_type, $post->ID);
-            echo $this->getIncludeContents('ObjectColumn.php');
-        }
-    }
-
-    /**
-     * The function for the uam_post_access meta box.
-     *
-     * @param object $post The post.
-     */
-    public function editPostContent($post)
-    {
-        if ($post instanceof \WP_Post) {
-            $this->setObjectInformation($post->post_type, $post->ID);
-        }
-
-        echo $this->getIncludeContents('PostEditForm.php');
-    }
-
-    /**
-     * Adds the bulk edit form.
-     *
-     * @param $columnName
-     */
-    public function addBulkAction($columnName)
-    {
-        if ($columnName === self::COLUMN_NAME) {
-            echo $this->getIncludeContents('BulkEditForm.php');
-        }
-    }
-
-    /**
-     * The function for the save_post action.
-     *
-     * @param mixed $postParam The post id or a array of a post.
-     */
-    public function savePostData($postParam)
-    {
-        $postId = (is_array($postParam) === true) ? $postParam['ID'] : $postParam;
-        $post = $this->objectHandler->getPost($postId);
-        $postType = $post->post_type;
-        $postId = $post->ID;
-
-        if ($postType === 'revision') {
-            $postId = $post->post_parent;
-            $parentPost = $this->objectHandler->getPost($postId);
-            $postType = $parentPost->post_type;
-        }
-
-        $this->saveObjectData($postType, $postId);
-    }
-
-    /**
-     * The function for the attachment_fields_to_save filter.
-     * We have to use this because the attachment actions work
-     * not in the way we need.
-     *
-     * @param array $attachment The attachment id.
-     *
-     * @return array
-     */
-    public function saveAttachmentData($attachment)
-    {
-        $this->savePostData($attachment['ID']);
-
-        return $attachment;
-    }
-
-    /**
-     * The function for the wp_ajax_save_attachment_compat filter.
-     */
-    public function saveAjaxAttachmentData()
-    {
-        $attachmentId = $this->getRequestParameter('id');
-        $userGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME);
-
-        $this->saveObjectData(
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-            $attachmentId,
-            $userGroups
-        );
-    }
-
-    /**
-     * The function for the delete_post action.
-     *
-     * @param integer $postId The post id.
-     */
-    public function removePostData($postId)
-    {
-        $post = $this->objectHandler->getPost($postId);
-        $this->removeObjectData($post->post_type, $postId);
-    }
-
-    /**
-     * The function for the media_meta action.
-     *
-     * @param array    $formFields The meta.
-     * @param \WP_Post $post       The post.
-     *
-     * @return array
-     */
-    public function showMediaFile(array $formFields, $post = null)
-    {
-        $attachmentId = $this->getRequestParameter('attachment_id');
-
-        if ($attachmentId !== null) {
-            $post = $this->objectHandler->getPost($attachmentId);
-        }
-
-        if ($post instanceof \WP_Post) {
-            $this->setObjectInformation($post->post_type, $post->ID);
-        }
-
-        $formFields[self::DEFAULT_GROUPS_FORM_NAME] = [
-            'label' => TXT_UAM_SET_UP_USER_GROUPS,
-            'input' => 'editFrom',
-            'editFrom' => $this->getIncludeContents('MediaAjaxEditForm.php')
-        ];
-
-        return $formFields;
-    }
-
-    /*
-     * Functions for the user actions.
-     */
-
-    /**
-     * The function for the manage_users_columns filter.
-     *
-     * @param array $defaults The table headers.
-     *
-     * @return array
-     */
-    public function addUserColumnsHeader($defaults)
-    {
-        $defaults[self::COLUMN_NAME] = TXT_UAM_COLUMN_USER_GROUPS;
-        return $defaults;
-    }
-
-    /**
-     * The function for the manage_users_custom_column action.
-     *
-     * @param string  $return     The normal return value.
-     * @param string  $columnName The column name.
-     * @param integer $id         The id.
-     *
-     * @return string|null
-     */
-    public function addUserColumn($return, $columnName, $id)
-    {
-        if ($columnName === self::COLUMN_NAME) {
-            $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $id);
-            $return .= $this->getIncludeContents('UserColumn.php');
-        }
-
-        return $return;
-    }
-
-    /**
-     * The function for the edit_user_profile action.
-     */
-    public function showUserProfile()
-    {
-        $userId = $this->getRequestParameter('user_id');
-        $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
-
-        echo $this->getIncludeContents('UserProfileEditForm.php');
-    }
-
-    /**
-     * The function for the profile_update action.
-     *
-     * @param integer $userId The user id.
-     */
-    public function saveUserData($userId)
-    {
-        $this->saveObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
-    }
-
-    /**
-     * The function for the delete_user action.
-     *
-     * @param integer $userId The user id.
-     */
-    public function removeUserData($userId)
-    {
-        $this->removeObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
-    }
-
-
-    /*
-     * Functions for the term actions.
-     */
-
-    /**
-     * The function for the manage_categories_columns filter.
-     *
-     * @param array $defaults The table headers.
-     *
-     * @return array
-     */
-    public function addTermColumnsHeader($defaults)
-    {
-        $defaults[self::COLUMN_NAME] = TXT_UAM_COLUMN_ACCESS;
-        return $defaults;
-    }
-
-    /**
-     * The function for the manage_categories_custom_column action.
-     *
-     * @param string  $content    Content for the column. Multiple filter calls are possible, so we need to append.
-     * @param string  $columnName The column name.
-     * @param integer $id         The id.
-     *
-     * @return string $content with content appended for self::COLUMN_NAME column
-     */
-    public function addTermColumn($content, $columnName, $id)
-    {
-        if ($columnName === self::COLUMN_NAME) {
-            $term = $this->objectHandler->getTerm($id);
-            $objectType = ($term !== false) ? $term->taxonomy : ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-            $this->setObjectInformation($objectType, $id);
-            $content .= $this->getIncludeContents('ObjectColumn.php');
-        }
-
-        return $content;
-    }
-
-    /**
-     * The function for the edit_{term}_form action.
-     *
-     * @param string|\WP_Term $term The term.
-     */
-    public function showTermEditForm($term)
-    {
-        if ($term instanceof \WP_Term) {
-            $this->setObjectInformation($term->taxonomy, $term->term_id);
-        } else {
-            $this->setObjectInformation($term, null);
-        }
-
-        echo $this->getIncludeContents('TermEditForm.php');
-    }
-
-    /**
-     * The function for the edit_{term} action.
-     *
-     * @param integer $termId The term id.
-     */
-    public function saveTermData($termId)
-    {
-        $term = $this->objectHandler->getTerm($termId);
-        $objectType = ($term !== false) ? $term->taxonomy : ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-        $this->saveObjectData($objectType, $termId);
-    }
-
-    /**
-     * The function for the delete_{term} action.
-     *
-     * @param integer $termId The id of the term.
-     */
-    public function removeTermData($termId)
-    {
-        $this->removeObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $termId);
-    }
-
-    /*
-     * Functions for the pluggable object actions.
-     */
-
-    /**
-     * The function for the pluggable save action.
-     *
-     * @param string              $objectType The name of the pluggable object.
-     * @param integer             $objectId   The pluggable object id.
-     * @param AbstractUserGroup[] $userGroups The user groups for the object.
-     */
-    public function savePluggableObjectData($objectType, $objectId, $userGroups = null)
-    {
-        $this->saveObjectData($objectType, $objectId, $userGroups);
-    }
-
-    /**
-     * The function for the pluggable remove action.
-     *
-     * @param string  $objectName The name of the pluggable object.
-     * @param integer $objectId   The pluggable object id.
-     */
-    public function removePluggableObjectData($objectName, $objectId)
-    {
-        $this->removeObjectData($objectName, $objectId);
-    }
-
     /**
      * Returns the group selection form for pluggable objects.
      *
@@ -876,7 +552,7 @@ class ObjectController extends Controller
      *
      * @return string
      */
-    public function showPluggableGroupSelectionForm(
+    public function showGroupSelectionForm(
         $objectType,
         $objectId,
         $formName = null,
@@ -899,7 +575,7 @@ class ObjectController extends Controller
      *
      * @return string
      */
-    public function getPluggableColumn($objectType, $objectId)
+    public function getGroupColumn($objectType, $objectId)
     {
         $this->setObjectInformation($objectType, $objectId);
         return $this->getIncludeContents('ObjectColumn.php');
@@ -942,54 +618,5 @@ class ObjectController extends Controller
         }
 
         return false;
-    }
-
-    /**
-     * Returns the dynamic user groups for the ajax request.
-     */
-    public function getDynamicGroupsForAjax()
-    {
-        if ($this->checkUserAccess() === false) {
-            echo json_encode([]);
-            $this->php->callExit();
-            return;
-        }
-
-        $search = $this->getRequestParameter('q');
-        $searches = explode(',', $search);
-        $search = trim(end($searches));
-
-        $users = $this->wordpress->getUsers([
-            'search' => '*'.$search.'*',
-            'fields' => ['ID', 'display_name', 'user_login', 'user_email']
-        ]);
-        $matches = array_map(
-            function ($element) {
-                return [
-                    'id' => $element->ID,
-                    'name' => TXT_UAM_USER.": {$element->display_name} ($element->user_login)",
-                    'type' => DynamicUserGroup::USER_TYPE
-                ];
-            },
-            $users
-        );
-
-        /**
-         * @var \WP_Role[] $roles
-         */
-        $roles = $this->wordpress->getRoles()->roles;
-
-        foreach ($roles as $key => $role) {
-            if (strpos(strtolower($role['name']), strtolower($search)) !== false) {
-                $matches[] = [
-                    'id' => $key,
-                    'name' => TXT_UAM_ROLE.': '.$role['name'],
-                    'type' => DynamicUserGroup::ROLE_TYPE
-                ];
-            }
-        }
-
-        echo json_encode($matches);
-        $this->php->callExit();
     }
 }
