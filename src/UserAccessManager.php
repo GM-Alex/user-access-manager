@@ -20,8 +20,12 @@ use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Controller\Backend\TermObjectController;
+use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
@@ -432,68 +436,76 @@ class UserAccessManager
     }
 
     /**
-     * Adds the admin filters.
+     * Adds the backend filters.
      *
-     * @param ObjectController $adminObjectController
-     * @param array            $taxonomies
+     * @param DynamicGroupsController $dynamicGroupController
+     * @param PostObjectController    $postObjectController
+     * @param TermObjectController    $termObjectController
+     * @param UserObjectController    $userObjectController
+     * @param array                   $taxonomies
      */
-    private function addAdminActions(ObjectController $adminObjectController, array $taxonomies)
-    {
+    private function addAdminActions(
+        DynamicGroupsController $dynamicGroupController,
+        PostObjectController $postObjectController,
+        TermObjectController $termObjectController,
+        UserObjectController $userObjectController,
+        array $taxonomies
+    ) {
         $this->wordpress->addAction(
             'manage_posts_custom_column',
-            [$adminObjectController, 'addPostColumn'],
+            [$postObjectController, 'addPostColumn'],
             10,
             2
         );
         $this->wordpress->addAction(
             'manage_pages_custom_column',
-            [$adminObjectController, 'addPostColumn'],
+            [$postObjectController, 'addPostColumn'],
             10,
             2
         );
-        $this->wordpress->addAction('save_post', [$adminObjectController, 'savePostData']);
-        $this->wordpress->addAction('edit_user_profile', [$adminObjectController, 'showUserProfile']);
-        $this->wordpress->addAction('user_new_form', [$adminObjectController, 'showUserProfile']);
-        $this->wordpress->addAction('profile_update', [$adminObjectController, 'saveUserData']);
+        $this->wordpress->addAction('save_post', [$postObjectController, 'savePostData']);
+        $this->wordpress->addAction('edit_user_profile', [$userObjectController, 'showUserProfile']);
+        $this->wordpress->addAction('user_new_form', [$userObjectController, 'showUserProfile']);
+        $this->wordpress->addAction('profile_update', [$userObjectController, 'saveUserData']);
 
-        $this->wordpress->addAction('bulk_edit_custom_box', [$adminObjectController, 'addBulkAction']);
-        $this->wordpress->addAction('create_term', [$adminObjectController, 'saveTermData']);
-        $this->wordpress->addAction('edit_term', [$adminObjectController, 'saveTermData']);
+        $this->wordpress->addAction('bulk_edit_custom_box', [$postObjectController, 'addBulkAction']);
+        $this->wordpress->addAction('create_term', [$termObjectController, 'saveTermData']);
+        $this->wordpress->addAction('edit_term', [$termObjectController, 'saveTermData']);
 
         //Taxonomies
         foreach ($taxonomies as $taxonomy) {
             $this->wordpress->addAction(
                 'manage_'.$taxonomy.'_custom_column',
-                [$adminObjectController, 'addTermColumn'],
+                [$termObjectController, 'addTermColumn'],
                 10,
                 3
             );
             $this->wordpress->addAction(
                 $taxonomy.'_add_form_fields',
-                [$adminObjectController, 'showTermEditForm']
+                [$termObjectController, 'showTermEditForm']
             );
             $this->wordpress->addAction(
                 $taxonomy.'_edit_form_fields',
-                [$adminObjectController, 'showTermEditForm']
+                [$termObjectController, 'showTermEditForm']
             );
         }
 
         if ($this->config->lockFile() === true) {
             $this->wordpress->addAction(
                 'manage_media_custom_column',
-                [$adminObjectController, 'addPostColumn'],
+                [$postObjectController, 'addPostColumn'],
                 10,
                 2
             );
             $this->wordpress->addAction(
                 'attachment_fields_to_edit',
-                [$adminObjectController, 'showMediaFile'],
+                [$postObjectController, 'showMediaFile'],
                 10,
                 2
             );
             $this->wordpress->addAction(
                 'wp_ajax_save-attachment-compat',
-                [$adminObjectController, 'saveAjaxAttachmentData'],
+                [$postObjectController, 'saveAjaxAttachmentData'],
                 1,
                 9
             );
@@ -502,28 +514,34 @@ class UserAccessManager
         //Admin ajax actions
         $this->wordpress->addAction(
             'wp_ajax_uam-get-dynamic-group',
-            [$adminObjectController, 'getDynamicGroupsForAjax']
+            [$dynamicGroupController, 'getDynamicGroupsForAjax']
         );
     }
 
     /**
      * Adds the admin filters.
      *
-     * @param ObjectController $adminObjectController
-     * @param array            $taxonomies
+     * @param PostObjectController $postObjectController
+     * @param TermObjectController $termObjectController
+     * @param UserObjectController $userObjectController
+     * @param array                $taxonomies
      */
-    private function addAdminFilters(ObjectController $adminObjectController, array $taxonomies)
-    {
+    private function addAdminFilters(
+        PostObjectController $postObjectController,
+        TermObjectController $termObjectController,
+        UserObjectController $userObjectController,
+        array $taxonomies
+    ) {
         //The filter we use instead of add|edit_attachment action, reason see top
-        $this->wordpress->addFilter('attachment_fields_to_save', [$adminObjectController, 'saveAttachmentData']);
+        $this->wordpress->addFilter('attachment_fields_to_save', [$postObjectController, 'saveAttachmentData']);
 
-        $this->wordpress->addFilter('manage_posts_columns', [$adminObjectController, 'addPostColumnsHeader']);
-        $this->wordpress->addFilter('manage_pages_columns', [$adminObjectController, 'addPostColumnsHeader']);
+        $this->wordpress->addFilter('manage_posts_columns', [$postObjectController, 'addPostColumnsHeader']);
+        $this->wordpress->addFilter('manage_pages_columns', [$postObjectController, 'addPostColumnsHeader']);
 
-        $this->wordpress->addFilter('manage_users_columns', [$adminObjectController, 'addUserColumnsHeader'], 10);
+        $this->wordpress->addFilter('manage_users_columns', [$userObjectController, 'addUserColumnsHeader'], 10);
         $this->wordpress->addFilter(
             'manage_users_custom_column',
-            [$adminObjectController, 'addUserColumn'],
+            [$userObjectController, 'addUserColumn'],
             10,
             3
         );
@@ -531,12 +549,12 @@ class UserAccessManager
         foreach ($taxonomies as $taxonomy) {
             $this->wordpress->addFilter(
                 'manage_edit-'.$taxonomy.'_columns',
-                [$adminObjectController, 'addTermColumnsHeader']
+                [$termObjectController, 'addTermColumnsHeader']
             );
         }
 
         if ($this->config->lockFile() === true) {
-            $this->wordpress->addFilter('manage_media_columns', [$adminObjectController, 'addPostColumnsHeader']);
+            $this->wordpress->addFilter('manage_media_columns', [$postObjectController, 'addPostColumnsHeader']);
         }
     }
 
@@ -570,48 +588,63 @@ class UserAccessManager
      */
     public function registerAdminActionsAndFilters()
     {
-        $adminController = $this->controllerFactory->createBackendController();
-        $this->wordpress->addAction('admin_enqueue_scripts', [$adminController, 'enqueueStylesAndScripts']);
-        $this->wordpress->addAction('wp_dashboard_setup', [$adminController, 'setupAdminDashboard']);
-        $updateAction = $adminController->getRequestParameter('uam_update_db');
+        $backendController = $this->controllerFactory->createBackendController();
+        $this->wordpress->addAction('admin_enqueue_scripts', [$backendController, 'enqueueStylesAndScripts']);
+        $this->wordpress->addAction('wp_dashboard_setup', [$backendController, 'setupAdminDashboard']);
+        $updateAction = $backendController->getRequestParameter('uam_update_db');
 
         if ($this->setupHandler->isDatabaseUpdateNecessary() === true
             && $updateAction !== SetupController::UPDATE_BLOG
             && $updateAction !== SetupController::UPDATE_NETWORK
         ) {
-            $this->wordpress->addAction('admin_notices', [$adminController, 'showDatabaseNotice']);
+            $this->wordpress->addAction('admin_notices', [$backendController, 'showDatabaseNotice']);
         }
 
         $taxonomies = $this->objectHandler->getTaxonomies();
-        $taxonomy = $adminController->getRequestParameter('taxonomy');
+        $taxonomy = $backendController->getRequestParameter('taxonomy');
 
         if ($taxonomy !== null) {
             $taxonomies[$taxonomy] = $taxonomy;
         }
 
-        $adminObjectController = $this->controllerFactory->createBackendObjectController();
+        $objectController = $this->controllerFactory->createBackendObjectController();
+        $postObjectController = $this->controllerFactory->createBackendPostObjectController();
+        $termObjectController = $this->controllerFactory->createBackendTermObjectController();
+        $userObjectController = $this->controllerFactory->createBackendUserObjectController();
+        $dynamicGroupController = $this->controllerFactory->createBackendDynamicGroupsController();
 
         if ($this->accessHandler->checkUserAccess() === true
             || $this->config->authorsCanAddPostsToGroups() === true
         ) {
             //Admin actions
-            $this->addAdminActions($adminObjectController, $taxonomies);
+            $this->addAdminActions(
+                $dynamicGroupController,
+                $postObjectController,
+                $termObjectController,
+                $userObjectController,
+                $taxonomies
+            );
 
             //Admin filters
-            $this->addAdminFilters($adminObjectController, $taxonomies);
+            $this->addAdminFilters(
+                $postObjectController,
+                $termObjectController,
+                $userObjectController,
+                $taxonomies
+            );
 
             //Admin meta boxes
-            $this->addAdminMetaBoxes($adminObjectController);
+            $this->addAdminMetaBoxes($objectController);
         }
 
         //Clean up at deleting should always be done.
-        $this->wordpress->addAction('update_option_permalink_structure', [$adminObjectController, 'updatePermalink']);
-        $this->wordpress->addAction('delete_post', [$adminObjectController, 'removePostData']);
-        $this->wordpress->addAction('delete_attachment', [$adminObjectController, 'removePostData']);
-        $this->wordpress->addAction('delete_user', [$adminObjectController, 'removeUserData']);
-        $this->wordpress->addAction('delete_term', [$adminObjectController, 'removeTermData']);
+        $this->wordpress->addAction('update_option_permalink_structure', [$objectController, 'updatePermalink']);
+        $this->wordpress->addAction('delete_post', [$postObjectController, 'removePostData']);
+        $this->wordpress->addAction('delete_attachment', [$postObjectController, 'removePostData']);
+        $this->wordpress->addAction('delete_user', [$userObjectController, 'removeUserData']);
+        $this->wordpress->addAction('delete_term', [$termObjectController, 'removeTermData']);
 
-        $adminObjectController->checkRightsToEditContent();
+        $objectController->checkRightsToEditContent();
     }
 
     /**
@@ -678,12 +711,12 @@ class UserAccessManager
         }
 
         // Admin object controller
-        $adminObjectController = $this->controllerFactory->createBackendObjectController();
+        $objectController = $this->controllerFactory->createBackendObjectController();
 
-        $this->wordpress->addFilter('clean_term_cache', [$adminObjectController, 'invalidateTermCache']);
-        $this->wordpress->addFilter('clean_object_term_cache', [$adminObjectController, 'invalidateTermCache']);
-        $this->wordpress->addFilter('clean_post_cache', [$adminObjectController, 'invalidatePostCache']);
-        $this->wordpress->addFilter('clean_attachment_cache', [$adminObjectController, 'invalidatePostCache']);
+        $this->wordpress->addFilter('clean_term_cache', [$objectController, 'invalidateTermCache']);
+        $this->wordpress->addFilter('clean_object_term_cache', [$objectController, 'invalidateTermCache']);
+        $this->wordpress->addFilter('clean_post_cache', [$objectController, 'invalidatePostCache']);
+        $this->wordpress->addFilter('clean_attachment_cache', [$objectController, 'invalidatePostCache']);
 
         // Widgets
         $this->wordpress->addAction('widgets_init', function () {

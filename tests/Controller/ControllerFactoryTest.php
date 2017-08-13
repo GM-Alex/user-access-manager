@@ -16,10 +16,14 @@ namespace UserAccessManager\Tests\Controller;
 
 use UserAccessManager\Controller\Backend\AboutController;
 use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\SettingsController;
 use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Controller\Frontend\FrontendController;
 use UserAccessManager\Controller\Frontend\PostController;
@@ -72,7 +76,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateController(ControllerFactory $controllerFactory)
+    public function testCreateBackendController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             BackendController::class,
@@ -87,7 +91,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateAboutController(ControllerFactory $controllerFactory)
+    public function testCreateBackendAboutController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             AboutController::class,
@@ -102,7 +106,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateObjectController(ControllerFactory $controllerFactory)
+    public function testCreateBackendObjectController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             ObjectController::class,
@@ -113,11 +117,71 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
+     * @covers  ::createBackendPostObjectController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateBackendPostObjectController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            PostObjectController::class,
+            $controllerFactory->createBackendPostObjectController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createBackendTermObjectController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateBackendTermObjectController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            TermObjectController::class,
+            $controllerFactory->createBackendTermObjectController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createBackendUserObjectController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateBackendUserObjectController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            UserObjectController::class,
+            $controllerFactory->createBackendUserObjectController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createBackendDynamicGroupsController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateDynamicGroupController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            DynamicGroupsController::class,
+            $controllerFactory->createBackendDynamicGroupsController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
      * @covers  ::createBackendSettingsController()
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateSettingController(ControllerFactory $controllerFactory)
+    public function testCreateBackendSettingController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             SettingsController::class,
@@ -132,7 +196,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateSetupController(ControllerFactory $controllerFactory)
+    public function testCreateBackendSetupController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             SetupController::class,
@@ -147,7 +211,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      *
      * @param ControllerFactory $controllerFactory
      */
-    public function testCreateUserGroupController(ControllerFactory $controllerFactory)
+    public function testCreateBackendUserGroupController(ControllerFactory $controllerFactory)
     {
         self::assertInstanceOf(
             UserGroupController::class,

@@ -114,7 +114,10 @@ class TermObjectControllerTest extends ObjectControllerTestCase
         );
 
         self::assertEquals('content', $termObjectController->addTermColumn('content', 'invalid', 1));
+        $this->resetControllerObjectInformation($termObjectController);
+
         self::assertEquals('content', $termObjectController->addTermColumn('content', 'invalid', 1));
+        $this->resetControllerObjectInformation($termObjectController);
 
         $expected = 'content!UserAccessManager\Controller\Backend\TermObjectController|'
             .'vfs://src/View/ObjectColumn.php|uam_user_groups!';
@@ -125,6 +128,7 @@ class TermObjectControllerTest extends ObjectControllerTestCase
         );
         self::assertAttributeEquals(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'objectType', $termObjectController);
         self::assertAttributeEquals(0, 'objectId', $termObjectController);
+        $this->resetControllerObjectInformation($termObjectController);
 
         self::assertEquals(
             $expected,
@@ -132,12 +136,14 @@ class TermObjectControllerTest extends ObjectControllerTestCase
         );
         self::assertAttributeEquals('taxonomy_1', 'objectType', $termObjectController);
         self::assertAttributeEquals(1, 'objectId', $termObjectController);
+        $this->resetControllerObjectInformation($termObjectController);
 
         $termObjectController->showTermEditForm('category');
         self::assertAttributeEquals('category', 'objectType', $termObjectController);
         self::assertAttributeEquals(null, 'objectId', $termObjectController);
         $expectedOutput = '!UserAccessManager\Controller\Backend\TermObjectController|'
             .'vfs://src/View/TermEditForm.php|uam_user_groups!';
+        $this->resetControllerObjectInformation($termObjectController);
 
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass|\WP_Term $term
@@ -146,22 +152,41 @@ class TermObjectControllerTest extends ObjectControllerTestCase
         $term->term_id = 5;
         $term->taxonomy = 'category';
         $termObjectController->showTermEditForm($term);
-
         self::assertAttributeEquals('category', 'objectType', $termObjectController);
         self::assertAttributeEquals(5, 'objectId', $termObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\Backend\TermObjectController|'
             .'vfs://src/View/TermEditForm.php|uam_user_groups!';
-        self::setValue($termObjectController, 'objectType', null);
-        self::setValue($termObjectController, 'objectId', null);
+        $this->resetControllerObjectInformation($termObjectController);
 
         self::expectOutputString($expectedOutput);
     }
 
     /**
      * @group  unit
+     * @covers ::saveTermData()
+     */
+    public function testSaveUserData()
+    {
+        /**
+         * @var TermObjectController $termObjectController
+         */
+        $termObjectController = $this->getTestSaveObjectDataPrototype(
+            TermObjectController::class,
+            [
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 0],
+                ['taxonomy_1', 1]
+            ]
+        );
+
+        $termObjectController->saveTermData(0);
+        $termObjectController->saveTermData(1);
+    }
+
+    /**
+     * @group  unit
      * @covers ::removeTermData()
      */
-    public function testRemoveUserData()
+    public function testRemoveTermData()
     {
         /**
          * @var TermObjectController $termObjectController

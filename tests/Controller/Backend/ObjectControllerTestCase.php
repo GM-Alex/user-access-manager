@@ -51,6 +51,103 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     }
 
     /**
+     * @param int   $id
+     * @param array $withAdd
+     * @param array $withRemove
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+     */
+    protected function getUserGroupWithAddDelete($id, array $withAdd = [], array $withRemove = [])
+    {
+        $userGroup = $this->getUserGroup($id);
+
+        if (count($withAdd) > 0) {
+            $userGroup->expects($this->exactly(count($withAdd)))
+                ->method('addObject')
+                ->withConsecutive(...$withAdd);
+        }
+
+        if (count($withRemove) > 0) {
+            $userGroup->expects($this->exactly(count($withRemove)))
+                ->method('removeObject')
+                ->withConsecutive(...$withRemove);
+        }
+
+        return $userGroup;
+    }
+
+    /**
+     * @param array $addIds
+     * @param array $removeIds
+     * @param array $with
+     * @param array $additional
+     *
+     * @return array
+     */
+    protected function getUserGroupArray(array $addIds, array $removeIds = [], array $with = [], array $additional = [])
+    {
+        $groups = [];
+
+        $both = array_intersect($addIds, $removeIds);
+        $withRemove = array_map(
+            function ($element) {
+                return array_slice($element, 0, 2);
+            },
+            $with
+        );
+
+        foreach ($both as $id) {
+            $groups[$id] = $this->getUserGroupWithAddDelete($id, $with, $withRemove);
+        }
+
+        $add = array_diff($addIds, $both);
+
+        foreach ($add as $id) {
+            $groups[$id] = $this->getUserGroupWithAddDelete($id, $with, []);
+        }
+
+        $remove = array_diff($removeIds, $both);
+
+        foreach ($remove as $id) {
+            $groups[$id] = $this->getUserGroupWithAddDelete($id, [], $withRemove);
+        }
+
+        foreach ($additional as $id) {
+            $group = $this->getUserGroup($id);
+            $group->expects($this->never())
+                ->method('addObject');
+
+            $groups[$id] = $group;
+        }
+
+        return $groups;
+    }
+
+    /**
+     * @param string $type
+     * @param string $id
+     * @param array  $with
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+     */
+    protected function getDynamicUserGroupWithAdd(
+        $type,
+        $id,
+        array $with
+    ) {
+        $dynamicUserGroup = parent::getDynamicUserGroup(
+            $type,
+            $id
+        );
+
+        $dynamicUserGroup->expects($this->once())
+            ->method('addObject')
+            ->with(...$with);
+
+        return $dynamicUserGroup;
+    }
+
+    /**
      * @param int    $id
      * @param string $displayName
      * @param string $userLogin
@@ -132,9 +229,37 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
         return $objectHandler;
     }
 
-    protected function getTestSaveObjectDataPrototype($class, array $requestedFiles, array $groupsForObject)
+    protected function getTestSaveObjectDataPrototype($class, array $expectedFilteredUserGroupsForObject)
     {
-        //TODO
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->any())
+            ->method('checkUserAccess')
+            ->with('manage_user_groups')
+            ->will($this->returnValue(true));
+
+        $accessHandler->expects($this->any())
+            ->method('getFilteredUserGroups')
+            ->will($this->returnValue([]));
+
+        $accessHandler->expects($this->exactly(count($expectedFilteredUserGroupsForObject)))
+            ->method('getFilteredUserGroupsForObject')
+            ->withConsecutive(...$expectedFilteredUserGroupsForObject)
+            ->will($this->returnValue([]));
+
+        $objectController = new $class(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getCache(),
+            $this->getExtendedObjectHandler(),
+            $accessHandler,
+            $this->getUserGroupFactory()
+        );
+
+        $_POST[ObjectController::UPDATE_GROUPS_FORM_NAME] = 1;
+
+        return $objectController;
     }
 
     /**
@@ -207,6 +332,15 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             }));
 
         return $objectController;
+    }
+
+    /**
+     * @param ObjectController $objectController
+     */
+    protected function resetControllerObjectInformation(ObjectController $objectController)
+    {
+        self::setValue($objectController, 'objectType', null);
+        self::setValue($objectController, 'objectId', null);
     }
 
     /**

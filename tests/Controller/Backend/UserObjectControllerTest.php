@@ -112,26 +112,27 @@ class UserObjectControllerTest extends ObjectControllerTestCase
         );
 
         self::assertEquals('return', $userObjectController->addUserColumn('return', 'invalid', 1));
+        $this->resetControllerObjectInformation($userObjectController);
+
         self::assertEquals('return', $userObjectController->addUserColumn('return', 'invalid', 1));
+        $this->resetControllerObjectInformation($userObjectController);
 
         $expected = 'return!UserAccessManager\Controller\Backend\UserObjectController|'
             .'vfs://src/View/UserColumn.php|uam_user_groups!';
-
         self::assertEquals(
             $expected,
             $userObjectController->addUserColumn('return', ObjectController::COLUMN_NAME, 1)
         );
         self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $userObjectController);
         self::assertAttributeEquals(1, 'objectId', $userObjectController);
-
-        self::setValue($userObjectController, 'objectType', null);
-        self::setValue($userObjectController, 'objectId', null);
+        $this->resetControllerObjectInformation($userObjectController);
 
         $userObjectController->showUserProfile();
         self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $userObjectController);
         self::assertAttributeEquals(null, 'objectId', $userObjectController);
         $expectedOutput = '!UserAccessManager\Controller\Backend\UserObjectController|'
             .'vfs://src/View/UserProfileEditForm.php|uam_user_groups!';
+        $this->resetControllerObjectInformation($userObjectController);
 
         $_GET['user_id'] = 4;
         $userObjectController->showUserProfile();
@@ -139,11 +140,28 @@ class UserObjectControllerTest extends ObjectControllerTestCase
         self::assertAttributeEquals(4, 'objectId', $userObjectController);
         $expectedOutput .= '!UserAccessManager\Controller\Backend\UserObjectController|'
             .'vfs://src/View/UserProfileEditForm.php|uam_user_groups!';
-        self::setValue($userObjectController, 'objectType', null);
-        self::setValue($userObjectController, 'objectId', null);
-        unset($_GET['user_id']);
+        $this->resetControllerObjectInformation($userObjectController);
 
         self::expectOutputString($expectedOutput);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::saveUserData()
+     */
+    public function testSaveUserData()
+    {
+        /**
+         * @var UserObjectController $userObjectController
+         */
+        $userObjectController = $this->getTestSaveObjectDataPrototype(
+            UserObjectController::class,
+            [
+                [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 1]
+            ]
+        );
+
+        $userObjectController->saveUserData(1);
     }
 
     /**

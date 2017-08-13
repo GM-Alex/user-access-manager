@@ -15,8 +15,12 @@
 namespace UserAccessManager\Tests;
 
 use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Controller\Backend\TermObjectController;
+use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserAccessManager;
@@ -270,9 +274,9 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true, true));
 
 
-        $adminController = $this->createMock(BackendController::class);
+        $backendController = $this->createMock(BackendController::class);
 
-        $adminController->expects($this->exactly(8))
+        $backendController->expects($this->exactly(8))
             ->method('getRequestParameter')
             ->withConsecutive(
                 ['uam_update_db'],
@@ -299,21 +303,43 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
 
         $controllerFactory->expects($this->exactly(4))
             ->method('createBackendController')
-            ->will($this->returnValue($adminController));
+            ->will($this->returnValue($backendController));
+
+        $objectController = $this->createMock(ObjectController::class);
+        $objectController->expects($this->any())
+            ->method('checkRightsToEditContent');
+
+        $objectController->expects($this->any())
+            ->method('getRequestParameter')
+            ->will($this->returnValue('c'));
 
         $controllerFactory->expects($this->exactly(4))
             ->method('createBackendObjectController')
-            ->will($this->returnCallback(function () {
-                $adminObjectController = $this->createMock(ObjectController::class);
-                $adminObjectController->expects($this->any())
-                    ->method('checkRightsToEditContent');
+            ->will($this->returnValue($objectController));
 
-                $adminObjectController->expects($this->any())
-                    ->method('getRequestParameter')
-                    ->will($this->returnValue('c'));
+        $postObjectController = $this->createMock(PostObjectController::class);
 
-                return $adminObjectController;
-            }));
+        $controllerFactory->expects($this->exactly(4))
+            ->method('createBackendPostObjectController')
+            ->will($this->returnValue($postObjectController));
+
+        $termObjectController = $this->createMock(TermObjectController::class);
+
+        $controllerFactory->expects($this->exactly(4))
+            ->method('createBackendTermObjectController')
+            ->will($this->returnValue($termObjectController));
+
+        $userObjectController = $this->createMock(UserObjectController::class);
+
+        $controllerFactory->expects($this->exactly(4))
+            ->method('createBackendUserObjectController')
+            ->will($this->returnValue($userObjectController));
+
+        $dynamicGroupsController = $this->createMock(DynamicGroupsController::class);
+
+        $controllerFactory->expects($this->exactly(4))
+            ->method('createBackendDynamicGroupsController')
+            ->will($this->returnValue($dynamicGroupsController));
 
         $userAccessManager = new UserAccessManager(
             $this->getPhp(),

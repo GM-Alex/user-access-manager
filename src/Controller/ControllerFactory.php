@@ -19,10 +19,14 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Controller\Backend\AboutController;
 use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\SettingsController;
 use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;
 use UserAccessManager\Controller\Frontend\PostController;
 use UserAccessManager\Controller\Frontend\RedirectController;
@@ -167,7 +171,7 @@ class ControllerFactory
     }
 
     /**
-     * Creates and returns a new admin controller.
+     * Creates and returns a new backend controller.
      *
      * @return BackendController
      */
@@ -183,7 +187,7 @@ class ControllerFactory
     }
 
     /**
-     * Creates and returns a new admin about controller.
+     * Creates and returns a new backend about controller.
      *
      * @return AboutController
      */
@@ -197,7 +201,7 @@ class ControllerFactory
     }
 
     /**
-     * Creates and returns a new admin about controller.
+     * Creates and returns a new backend object controller.
      *
      * @return ObjectController
      */
@@ -216,7 +220,83 @@ class ControllerFactory
     }
 
     /**
-     * Creates and returns a new admin setup controller.
+     * Creates and returns a new backend post object controller.
+     *
+     * @return PostObjectController
+     */
+    public function createBackendPostObjectController()
+    {
+        return new PostObjectController(
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->database,
+            $this->cache,
+            $this->objectHandler,
+            $this->accessHandler,
+            $this->userGroupFactory
+        );
+    }
+
+    /**
+     * Creates and returns a new backend term object controller.
+     *
+     * @return TermObjectController
+     */
+    public function createBackendTermObjectController()
+    {
+        return new TermObjectController(
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->database,
+            $this->cache,
+            $this->objectHandler,
+            $this->accessHandler,
+            $this->userGroupFactory
+        );
+    }
+
+    /**
+     * Creates and returns a new backend user object controller.
+     *
+     * @return UserObjectController
+     */
+    public function createBackendUserObjectController()
+    {
+        return new UserObjectController(
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->database,
+            $this->cache,
+            $this->objectHandler,
+            $this->accessHandler,
+            $this->userGroupFactory
+        );
+    }
+
+    /**
+     * Creates and returns a new backend dynamic group controller.
+     *
+     * @return DynamicGroupsController
+     */
+    public function createBackendDynamicGroupsController()
+    {
+        return new DynamicGroupsController(
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->database,
+            $this->cache,
+            $this->objectHandler,
+            $this->accessHandler,
+            $this->userGroupFactory
+        );
+    }
+
+    /**
+     * Creates and returns a new backend setup controller.
      *
      * @return SettingsController
      */
@@ -235,7 +315,7 @@ class ControllerFactory
     }
 
     /**
-     * Creates and returns a new admin setup controller.
+     * Creates and returns a new backend setup controller.
      *
      * @return SetupController
      */
@@ -251,7 +331,7 @@ class ControllerFactory
     }
 
     /**
-     * Creates and returns a new admin user group controller.
+     * Creates and returns a new backend user group controller.
      *
      * @return UserGroupController
      */
