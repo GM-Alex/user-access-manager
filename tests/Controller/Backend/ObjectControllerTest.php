@@ -620,7 +620,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectHandler = $this->getExtendedObjectHandler();
 
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(10))
+        $accessHandler->expects($this->exactly(12))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
             ->will($this->onConsecutiveCalls(
@@ -633,22 +633,26 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 true,
                 true,
                 false,
-                false
+                false,
+                true,
+                true
             ));
 
-        $accessHandler->expects($this->exactly(4))
+        $accessHandler->expects($this->exactly(5))
             ->method('getFilteredUserGroupsForObject')
             ->withConsecutive(
                 ['objectType', 1],
                 ['objectType', 1],
                 ['objectType', 1],
-                ['objectType', 'objectId']
+                ['objectType', 'objectId'],
+                ['objectType', 1]
             )
             ->will($this->onConsecutiveCalls(
                 $this->getUserGroupArray([1, 2, 3]),
                 $this->getUserGroupArray([1, 2, 4]),
                 $this->getUserGroupArray([2, 3, 4]),
-                $this->getUserGroupArray([2, 3])
+                $this->getUserGroupArray([2, 3]),
+                $this->getUserGroupArray([1, 2, 3])
             ));
 
         $fullGroupOne = $this->getUserGroupWithAddDelete(
@@ -676,16 +680,17 @@ class ObjectControllerTest extends ObjectControllerTestCase
             ->method('getFullUserGroups')
             ->will($this->returnValue([$fullGroupOne, $fullGroupTwo]));
 
-        $accessHandler->expects($this->exactly(4))
+        $accessHandler->expects($this->exactly(5))
             ->method('getFilteredUserGroups')
             ->will($this->onConsecutiveCalls(
                 $this->getUserGroupArray([1, 3], [1, 2, 3], [['objectType', 1, '1', 'toDate']], [100, 101]),
                 $this->getUserGroupArray([2, 4], [1, 2, 4], [['objectType', 1, null, null]]),
                 $this->getUserGroupArray([1, 2], [2, 3, 4], [['objectType', 1, null, '234']]),
-                $this->getUserGroupArray([4], [2, 3], [['objectType', 'objectId', null, null]])
+                $this->getUserGroupArray([4], [2, 3], [['objectType', 'objectId', null, null]]),
+                $this->getUserGroupArray([], [1, 2], [['objectType', 1, null, null]])
             ));
 
-        $accessHandler->expects($this->exactly(4))
+        $accessHandler->expects($this->exactly(5))
             ->method('unsetUserGroupsForObject');
 
         $userGroupFactory = $this->getUserGroupFactory();
@@ -754,6 +759,16 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController->saveObjectData('objectType', 'objectId');
         $_POST = [];
         $objectController->saveObjectData('objectType', 'objectId');
+
+        $_POST = [
+            ObjectController::UPDATE_GROUPS_FORM_NAME => 1,
+            'uam_bulk_type' => ObjectController::BULK_REMOVE,
+            ObjectController::DEFAULT_GROUPS_FORM_NAME => [
+                1 => ['id' => 1],
+                2 => ['id' => 2]
+            ]
+        ];
+        $objectController->saveObjectData('objectType', 1);
     }
 
     /**
