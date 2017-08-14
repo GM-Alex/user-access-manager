@@ -139,13 +139,10 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @covers  ::getDescription()
      * @covers  ::getReadAccess()
      * @covers  ::getWriteAccess()
-     * @covers  ::getIpRange()
-     * @covers  ::getIpRangeArray()
      * @covers  ::setName()
      * @covers  ::setDescription()
      * @covers  ::setReadAccess()
      * @covers  ::setWriteAccess()
-     * @covers  ::setIpRange()
      */
     public function testSimpleGetterSetter()
     {
@@ -165,7 +162,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::setValue($abstractUserGroup, 'description', 'groupDesc');
         self::setValue($abstractUserGroup, 'readAccess', 'readAccess');
         self::setValue($abstractUserGroup, 'writeAccess', 'writeAccess');
-        self::setValue($abstractUserGroup, 'ipRange', 'ipRange;ipRange2');
 
         self::assertEquals(2, $abstractUserGroup->getId());
         self::assertEquals('type', $abstractUserGroup->getType());
@@ -173,8 +169,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertEquals('groupDesc', $abstractUserGroup->getDescription());
         self::assertEquals('readAccess', $abstractUserGroup->getReadAccess());
         self::assertEquals('writeAccess', $abstractUserGroup->getWriteAccess());
-        self::assertEquals(['ipRange', 'ipRange2'], $abstractUserGroup->getIpRangeArray());
-        self::assertEquals('ipRange;ipRange2', $abstractUserGroup->getIpRange());
 
         $abstractUserGroup->setName('groupNameNew');
         self::assertAttributeEquals('groupNameNew', 'name', $abstractUserGroup);
@@ -187,9 +181,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $abstractUserGroup->setWriteAccess('writeAccessNew');
         self::assertAttributeEquals('writeAccessNew', 'writeAccess', $abstractUserGroup);
-
-        $abstractUserGroup->setIpRange(['ipRangeNew', 'ipRangeNew2']);
-        self::assertAttributeEquals('ipRangeNew;ipRangeNew2', 'ipRange', $abstractUserGroup);
     }
 
     /**

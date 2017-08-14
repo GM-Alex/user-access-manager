@@ -47,8 +47,8 @@ class DynamicUserGroup extends AbstractUserGroup
      * @param Util                           $util
      * @param ObjectHandler                  $objectHandler
      * @param AssignmentInformationFactory   $assignmentInformationFactory
-     * @param null                           $type
-     * @param                              $id
+     * @param string                         $type
+     * @param string                         $id
      *
      * @throws UserGroupTypeException
      */

@@ -36,6 +36,11 @@ class UserGroup extends AbstractUserGroup
     protected $type = self::USER_GROUP_TYPE;
 
     /**
+     * @var string
+     */
+    protected $ipRange = null;
+
+    /**
      * UserGroup constructor.
      *
      * @param Php                            $php
@@ -45,7 +50,7 @@ class UserGroup extends AbstractUserGroup
      * @param Util                           $util
      * @param ObjectHandler                  $objectHandler
      * @param AssignmentInformationFactory   $assignmentInformationFactory
-     * @param null                           $id
+     * @param null|string                    $id
      */
     public function __construct(
         Php $php,
@@ -70,6 +75,36 @@ class UserGroup extends AbstractUserGroup
         if ($id !== null) {
             $this->load((int)$id);
         }
+    }
+
+    /**
+     * Returns the ip range.
+     *
+     * @return array|string
+     */
+    public function getIpRange()
+    {
+        return $this->ipRange;
+    }
+
+    /**
+     * Returns the ip range as array
+     *
+     * @return array
+     */
+    public function getIpRangeArray()
+    {
+        return explode(';', $this->ipRange);
+    }
+
+    /**
+     * Sets the ip range.
+     *
+     * @param string|array $ipRange The new ip range.
+     */
+    public function setIpRange($ipRange)
+    {
+        $this->ipRange = (is_array($ipRange) === true) ? implode(';', $ipRange) : $ipRange;
     }
 
     /**

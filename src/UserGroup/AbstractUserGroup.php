@@ -102,11 +102,6 @@ abstract class AbstractUserGroup
     protected $writeAccess = 'group';
 
     /**
-     * @var string
-     */
-    protected $ipRange = null;
-
-    /**
      * @var bool
      */
     protected $ignoreDates = false;
@@ -141,7 +136,7 @@ abstract class AbstractUserGroup
      * @param Util                         $util
      * @param ObjectHandler                $objectHandler
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param null                         $id
+     * @param null|string                  $id
      *
      * @throws UserGroupTypeException
      */
@@ -271,36 +266,6 @@ abstract class AbstractUserGroup
     public function setWriteAccess($writeAccess)
     {
         $this->writeAccess = $writeAccess;
-    }
-
-    /**
-     * Returns the ip range.
-     *
-     * @return array|string
-     */
-    public function getIpRange()
-    {
-        return $this->ipRange;
-    }
-
-    /**
-     * Returns the ip range as array
-     *
-     * @return array
-     */
-    public function getIpRangeArray()
-    {
-        return explode(';', $this->ipRange);
-    }
-
-    /**
-     * Sets the ip range.
-     *
-     * @param string|array $ipRange The new ip range.
-     */
-    public function setIpRange($ipRange)
-    {
-        $this->ipRange = (is_array($ipRange) === true) ? implode(';', $ipRange) : $ipRange;
     }
 
     /**

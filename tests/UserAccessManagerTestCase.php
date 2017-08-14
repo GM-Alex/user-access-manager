@@ -358,17 +358,19 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
             ->method('isObjectMember')
             ->will($this->returnValue($objectIsMember));
 
-        $userGroup->expects($this->any())
-            ->method('getIpRange')
-            ->will($this->returnCallback(function () use ($ipRange) {
-                return implode(';', $ipRange);
-            }));
+        if ($type === UserGroup::class) {
+            $userGroup->expects($this->any())
+                ->method('getIpRange')
+                ->will($this->returnCallback(function () use ($ipRange) {
+                    return implode(';', $ipRange);
+                }));
 
-        $userGroup->expects($this->any())
-            ->method('getIpRangeArray')
-            ->will($this->returnCallback(function () use ($ipRange) {
-                return $ipRange;
-            }));
+            $userGroup->expects($this->any())
+                ->method('getIpRangeArray')
+                ->will($this->returnCallback(function () use ($ipRange) {
+                    return $ipRange;
+                }));
+        }
 
         $userGroup->expects($this->any())
             ->method('getReadAccess')
