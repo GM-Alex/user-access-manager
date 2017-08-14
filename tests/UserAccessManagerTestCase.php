@@ -388,6 +388,20 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
             ->method('getFullTerms')
             ->will($this->returnValue($terms));
 
+        if ($terms !== [] || $posts !== []) {
+            $userGroup->expects($this->any())
+                ->method('getAssignedObjectsByType')
+                ->will($this->returnCallback(function ($type) use ($terms, $posts) {
+                    if ($type === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
+                        return $terms;
+                    } elseif ($type === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
+                        return $posts;
+                    }
+
+                    return null;
+                }));
+        }
+
         return $userGroup;
     }
 

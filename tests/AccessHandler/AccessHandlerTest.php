@@ -965,6 +965,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getExcludedTerms()
+     * @covers ::getExcludedObjects()
      */
     public function testGetExcludedTerms()
     {
@@ -1009,6 +1010,7 @@ class AccessHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getExcludedPosts()
+     * @covers ::getExcludedObjects()
      */
     public function testGetExcludedPosts()
     {

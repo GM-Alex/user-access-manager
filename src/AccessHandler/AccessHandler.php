@@ -64,22 +64,22 @@ class AccessHandler
     private $userGroupFactory;
 
     /**
-     * @var null|array<string,UserGroup>
+     * @var null|UserGroup[]
      */
     private $userGroups = null;
 
     /**
-     * @var null|array<string,DynamicUserGroup>
+     * @var null|DynamicUserGroup[]
      */
     private $dynamicUserGroups = null;
 
     /**
-     * @var null|array<string,UserGroup>
+     * @var null|UserGroup[]
      */
     private $filteredUserGroups = null;
 
     /**
-     * @var null|array<string,AbstractUserGroup>
+     * @var null|AbstractUserGroup[]
      */
     private $userGroupsForUser = null;
 
@@ -132,7 +132,7 @@ class AccessHandler
     /**
      * Returns all user groups.
      *
-     * @return array<string,UserGroup>
+     * @return UserGroup[]
      */
     public function getUserGroups()
     {
@@ -154,7 +154,7 @@ class AccessHandler
     /**
      * Returns all dynamic user groups.
      *
-     * @return null|array<string,DynamicUserGroup>
+     * @return null|DynamicUserGroup[]
      */
     public function getDynamicUserGroups()
     {
@@ -192,7 +192,7 @@ class AccessHandler
     /**
      * Returns the full user groups
      *
-     * @return array<string,AbstractUserGroup>
+     * @return AbstractUserGroup[]
      */
     public function getFullUserGroups()
     {
@@ -202,7 +202,7 @@ class AccessHandler
     /**
      * Returns the user groups filtered by the user user groups.
      *
-     * @return array<string,AbstractUserGroup>
+     * @return AbstractUserGroup[]
      */
     public function getFilteredUserGroups()
     {
@@ -253,7 +253,7 @@ class AccessHandler
      * @param integer $objectId    The id of the object.
      * @param bool    $ignoreDates If true we ignore the dates for the object assignment.
      *
-     * @return array<string,AbstractUserGroup>
+     * @return AbstractUserGroup[]
      */
     public function getUserGroupsForObject($objectType, $objectId, $ignoreDates = false)
     {
@@ -354,7 +354,7 @@ class AccessHandler
     /**
      * Returns the user groups for the user.
      *
-     * @return array<string,AbstractUserGroup>
+     * @return AbstractUserGroup[]
      */
     public function getUserGroupsForUser()
     {
@@ -411,7 +411,7 @@ class AccessHandler
      * @param int    $objectId
      * @param bool   $ignoreDates
      *
-     * @return array<string,AbstractUserGroup>
+     * @return AbstractUserGroup[]
      */
     public function getFilteredUserGroupsForObject($objectType, $objectId, $ignoreDates = false)
     {
@@ -541,6 +541,42 @@ class AccessHandler
     }
 
     /**
+     * Returns the excluded objects.
+     *
+     * @param string $type
+     * @param array  $filterTypesMap
+     *
+     * @return array
+     */
+    private function getExcludedObjects($type, array $filterTypesMap = [])
+    {
+        $excludedObjects = [];
+        $userGroups = $this->getUserGroups();
+
+        foreach ($userGroups as $userGroup) {
+            $excludedObjects += $userGroup->getAssignedObjectsByType($type);
+        }
+
+        $userUserGroups = $this->getUserGroupsForUser();
+
+        foreach ($userUserGroups as $userGroup) {
+            $excludedObjects = array_diff_key($excludedObjects, $userGroup->getAssignedObjectsByType($type));
+        }
+
+        if ($filterTypesMap !== []) {
+            $excludedObjects = array_filter(
+                $excludedObjects,
+                function ($element) use ($filterTypesMap) {
+                    return isset($filterTypesMap[$element]) === false;
+                }
+            );
+        }
+
+        $objectIds = array_keys($excludedObjects);
+        return array_combine($objectIds, $objectIds);
+    }
+
+    /**
      * Returns the excluded terms for a user.
      *
      * @return array
@@ -552,21 +588,7 @@ class AccessHandler
         }
 
         if ($this->excludedTerms === null) {
-            $excludedTerms = [];
-            $userGroups = $this->getUserGroups();
-
-            $userUserGroups = $this->getUserGroupsForUser();
-
-            foreach ($userGroups as $userGroup) {
-                $excludedTerms += $userGroup->getFullTerms();
-            }
-
-            foreach ($userUserGroups as $userGroup) {
-                $excludedTerms = array_diff_key($excludedTerms, $userGroup->getFullTerms());
-            }
-
-            $termIds = array_keys($excludedTerms);
-            $this->excludedTerms = array_combine($termIds, $termIds);
+            $this->excludedTerms = $this->getExcludedObjects(ObjectHandler::GENERAL_TERM_OBJECT_TYPE);
         }
 
         return $this->excludedTerms;
@@ -584,18 +606,19 @@ class AccessHandler
         }
 
         if ($this->excludedPosts === null) {
-            $excludedPosts = [];
-            $userGroups = $this->getUserGroups();
+            $noneHiddenPostTypes = [];
 
-            $userUserGroups = $this->getUserGroupsForUser();
+            if ($this->wordpress->isAdmin() === false) {
+                $postTypes = $this->objectHandler->getPostTypes();
 
-            foreach ($userGroups as $userGroup) {
-                $excludedPosts += $userGroup->getFullPosts();
+                foreach ($postTypes as $postType) {
+                    if ($this->config->hidePostType($postType) === false) {
+                        $noneHiddenPostTypes[$postType] = $postType;
+                    }
+                }
             }
 
-            foreach ($userUserGroups as $userGroup) {
-                $excludedPosts = array_diff_key($excludedPosts, $userGroup->getFullPosts());
-            }
+            $excludedPosts = $this->getExcludedObjects(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $noneHiddenPostTypes);
 
             if ($this->config->authorsHasAccessToOwn() === true) {
                 $query = $this->database->prepare(
@@ -615,25 +638,7 @@ class AccessHandler
                 $excludedPosts = array_diff_key($excludedPosts, $ownPostIds);
             }
 
-            if ($this->wordpress->isAdmin() === false) {
-                $noneHiddenPostTypes = [];
-                $postTypes = $this->objectHandler->getPostTypes();
-
-                foreach ($postTypes as $postType) {
-                    if ($this->config->hidePostType($postType) === false) {
-                        $noneHiddenPostTypes[$postType] = $postType;
-                    }
-                }
-
-                foreach ($excludedPosts as $postId => $type) {
-                    if (isset($noneHiddenPostTypes[$type]) === true) {
-                        unset($excludedPosts[$postId]);
-                    }
-                }
-            }
-
-            $postIds = array_keys($excludedPosts);
-            $this->excludedPosts = array_combine($postIds, $postIds);
+            $this->excludedPosts = $excludedPosts;
         }
 
         return $this->excludedPosts;

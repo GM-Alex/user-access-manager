@@ -81,13 +81,13 @@ class MainConfig extends Config
     /**
      * Returns the default config parameters settings
      *
-     * @return array<string,ConfigParameter>
+     * @return ConfigParameter[]
      */
     protected function getDefaultConfigParameters()
     {
         if ($this->defaultConfigParameters === []) {
             /**
-             * @var array<string,ConfigParameter> $configParameters
+             * @var ConfigParameter[] $configParameters
              */
             $configParameters = [];
 

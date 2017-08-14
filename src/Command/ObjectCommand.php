@@ -56,7 +56,7 @@ class ObjectCommand extends \WP_CLI_Command
     /**
      * Converts the string to and associative array of index and group
      *
-     * @param array<string,AbstractUserGroup> $userGroups
+     * @param AbstractUserGroup[] $userGroups
      *
      * @return array|bool
      */
@@ -79,13 +79,13 @@ class ObjectCommand extends \WP_CLI_Command
     /**
      * Returns the add and remove user groups by reference.
      *
-     * @param string                          $operation
-     * @param string                          $objectType
-     * @param string                          $objectId
-     * @param string                          $userGroupsArgument
-     * @param array<string,AbstractUserGroup> $userGroups
-     * @param array                           $addUserGroups
-     * @param array                           $removeUserGroups
+     * @param string              $operation
+     * @param string              $objectType
+     * @param string              $objectId
+     * @param string              $userGroupsArgument
+     * @param AbstractUserGroup[] $userGroups
+     * @param array               $addUserGroups
+     * @param array               $removeUserGroups
      *
      * @return bool
      */

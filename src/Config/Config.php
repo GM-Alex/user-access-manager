@@ -39,12 +39,12 @@ class Config
     protected $wpOptions = [];
 
     /**
-     * @var array<string,ConfigParameter>
+     * @var ConfigParameter[]
      */
     protected $defaultConfigParameters = [];
 
     /**
-     * @var null|array<string,ConfigParameter>
+     * @var null|ConfigParameter[]
      */
     protected $configParameters = null;
 
@@ -81,7 +81,7 @@ class Config
     /**
      * Returns the default parameters for the current config.
      *
-     * @return array<string,ConfigParameter>
+     * @return ConfigParameter[]
      */
     protected function getDefaultConfigParameters()
     {
@@ -91,7 +91,7 @@ class Config
     /**
      * Sets the default config parameters
      *
-     * @param array<string,ConfigParameter> $defaultConfigParameters
+     * @param ConfigParameter[] $defaultConfigParameters
      */
     public function setDefaultConfigParameters(array $defaultConfigParameters)
     {
@@ -101,7 +101,7 @@ class Config
     /**
      * Returns the current settings
      *
-     * @return array<string,ConfigParameter>
+     * @return ConfigParameter[]
      */
     public function getConfigParameters()
     {
