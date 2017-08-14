@@ -561,9 +561,9 @@ class UserAccessManager
     /**
      * Adds the admin meta boxes.
      *
-     * @param ObjectController $adminObjectController
+     * @param PostObjectController $postObjectController
      */
-    private function addAdminMetaBoxes(ObjectController $adminObjectController)
+    private function addAdminMetaBoxes(PostObjectController $postObjectController)
     {
         $postTypes = $this->objectHandler->getPostTypes();
 
@@ -576,7 +576,7 @@ class UserAccessManager
             $this->wordpress->addMetaBox(
                 'uam_post_access',
                 TXT_UAM_COLUMN_ACCESS,
-                [$adminObjectController, 'editPostContent'],
+                [$postObjectController, 'editPostContent'],
                 $postType,
                 'side'
             );
@@ -634,7 +634,7 @@ class UserAccessManager
             );
 
             //Admin meta boxes
-            $this->addAdminMetaBoxes($objectController);
+            $this->addAdminMetaBoxes($postObjectController);
         }
 
         //Clean up at deleting should always be done.

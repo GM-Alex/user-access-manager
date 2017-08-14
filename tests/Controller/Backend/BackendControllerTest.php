@@ -154,22 +154,40 @@ class BackendControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('a'));
 
-        $wordpress->expects($this->once())
+        $wordpress->expects($this->exactly(3))
             ->method('registerScript')
-            ->with(
-                BackendController::HANDLE_SCRIPT_ADMIN,
-                'url/assets/js/functions.js',
-                ['jquery'],
-                UserAccessManager::VERSION
+            ->withConsecutive(
+                [
+                    BackendController::HANDLE_SCRIPT_GROUP_SUGGEST,
+                    'url/assets/js/jquery.uam-group-suggest.js',
+                    ['jquery'],
+                    UserAccessManager::VERSION
+                ],
+                [
+                BackendController::HANDLE_SCRIPT_TIME_INPUT,
+                    'url/assets/js/jquery.uam-time-input.js',
+                    ['jquery'],
+                    UserAccessManager::VERSION
+                ],
+                [
+                    BackendController::HANDLE_SCRIPT_ADMIN,
+                    'url/assets/js/functions.js',
+                    ['jquery'],
+                    UserAccessManager::VERSION
+                ]
             );
 
         $wordpress->expects($this->once())
             ->method('enqueueStyle')
             ->with(BackendController::HANDLE_STYLE_ADMIN);
 
-        $wordpress->expects($this->once())
+        $wordpress->expects($this->exactly(3))
             ->method('enqueueScript')
-            ->with(BackendController::HANDLE_SCRIPT_ADMIN);
+            ->withConsecutive(
+                [BackendController::HANDLE_SCRIPT_GROUP_SUGGEST],
+                [BackendController::HANDLE_SCRIPT_TIME_INPUT],
+                [BackendController::HANDLE_SCRIPT_ADMIN]
+            );
 
         $config = $this->getMainConfig();
         $config->expects($this->once())

@@ -32,7 +32,6 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class PostController extends Controller
 {
-    use LoginControllerTrait;
     use AdminOutputControllerTrait;
 
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';

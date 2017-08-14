@@ -30,6 +30,8 @@ use UserAccessManager\Wrapper\Wordpress;
 class BackendController extends Controller
 {
     const HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';
+    const HANDLE_SCRIPT_GROUP_SUGGEST = 'UserAccessManagerGroupSuggest';
+    const HANDLE_SCRIPT_TIME_INPUT = 'UserAccessManagerTimeInput';
     const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
 
     /**
@@ -104,6 +106,20 @@ class BackendController extends Controller
         );
 
         $this->wordpress->registerScript(
+            self::HANDLE_SCRIPT_GROUP_SUGGEST,
+            $urlPath.'assets/js/jquery.uam-group-suggest.js',
+            ['jquery'],
+            UserAccessManager::VERSION
+        );
+
+        $this->wordpress->registerScript(
+            self::HANDLE_SCRIPT_TIME_INPUT,
+            $urlPath.'assets/js/jquery.uam-time-input.js',
+            ['jquery'],
+            UserAccessManager::VERSION
+        );
+
+        $this->wordpress->registerScript(
             self::HANDLE_SCRIPT_ADMIN,
             $urlPath.'assets/js/functions.js',
             ['jquery'],
@@ -118,6 +134,8 @@ class BackendController extends Controller
     {
         $this->registerStylesAndScripts();
         $this->wordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
+        $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_GROUP_SUGGEST);
+        $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_TIME_INPUT);
         $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
     }
 

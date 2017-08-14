@@ -27,6 +27,8 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class ShortCodeController extends Controller
 {
+    use LoginControllerTrait;
+
     /**
      * @var AccessHandler
      */
