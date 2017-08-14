@@ -72,13 +72,7 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
         }
 
         $isMember = $userGroup->isObjectAssignedToGroup($this->generalObjectType, $objectId, $assignmentInformation);
-
-        if ($isMember === true || count($recursiveMembership) > 0) {
-            $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
-            return true;
-        }
-
-        return false;
+        return $this->checkAccessWithRecursiveMembership($isMember, $recursiveMembership, $assignmentInformation);
     }
 
     /**

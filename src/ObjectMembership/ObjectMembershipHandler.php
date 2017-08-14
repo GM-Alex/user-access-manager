@@ -118,6 +118,28 @@ abstract class ObjectMembershipHandler
     }
 
     /**
+     * Checks for the access and assigns the recursive membership array if access.
+     *
+     * @param bool                       $isMember
+     * @param array                      $recursiveMembership
+     * @param null|AssignmentInformation $assignmentInformation
+     *
+     * @return bool
+     */
+    protected function checkAccessWithRecursiveMembership(
+        $isMember,
+        array $recursiveMembership,
+        &$assignmentInformation
+    ) {
+        if ($isMember === true || count($recursiveMembership) > 0) {
+            $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the assigned objects as array map.
      *
      * @param AbstractUserGroup $userGroup

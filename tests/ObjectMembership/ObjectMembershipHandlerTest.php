@@ -165,6 +165,58 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
         self::assertEquals(['recursiveMembershipTwo'], $assignmentInformationTwo->getRecursiveMembership());
     }
 
+
+    /**
+     * @group  unit
+     * @covers ::checkAccessWithRecursiveMembership()
+     */
+    public function testCheckAccessWithRecursiveMembership()
+    {
+        $objectMembershipHandler = $this->getStub(
+            $this->getAssignmentInformationFactory()
+        );
+
+        /**
+         * @var null|AssignmentInformation $resultAssignmentInformationOne
+         */
+        $assignmentInformationOne = null;
+        $result = self::callMethod(
+            $objectMembershipHandler,
+            'checkAccessWithRecursiveMembership',
+            [false, [], &$assignmentInformationOne]
+        );
+        self::assertFalse($result);
+        self::assertNull($assignmentInformationOne);
+
+        $assignmentInformationTwo = $this->getAssignmentInformation('typeTwo');
+        $assignmentInformationTwo->expects($this->once())
+            ->method('setRecursiveMembership')
+            ->with([]);
+        $resultAssignmentInformationOne = null;
+        $result = self::callMethod(
+            $objectMembershipHandler,
+            'checkAccessWithRecursiveMembership',
+            [true, [], &$assignmentInformationTwo]
+        );
+        self::assertTrue($result);
+        self::assertNotNull($assignmentInformationTwo);
+        self::assertEquals([], $assignmentInformationTwo->getRecursiveMembership());
+
+        $assignmentInformationThree = $this->getAssignmentInformation('typeThree');
+        $assignmentInformationThree->expects($this->once())
+            ->method('setRecursiveMembership')
+            ->with(['membership']);
+        $resultAssignmentInformationOne = null;
+        $result = self::callMethod(
+            $objectMembershipHandler,
+            'checkAccessWithRecursiveMembership',
+            [false, ['membership'], &$assignmentInformationThree]
+        );
+        self::assertTrue($result);
+        self::assertNotNull($assignmentInformationThree);
+        self::assertEquals(['membership'], $assignmentInformationThree->getRecursiveMembership());
+    }
+
     /**
      * @group  unit
      * @covers ::getSimpleAssignedObjects()

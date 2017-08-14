@@ -15,11 +15,13 @@
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Cache\Cache;
+use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
+use UserAccessManager\Form\MultipleFormElementValue;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -271,6 +273,27 @@ class SettingsController extends Controller
     }
 
     /**
+     * Creates and returns the locked file types element.
+     *
+     * @param ConfigParameter $parameter
+     * @param string          $value
+     * @param string          $label
+     *
+     * @return MultipleFormElementValue
+     */
+    private function createMultipleFromElement(ConfigParameter $parameter, $value, $label)
+    {
+        $selectedValue = $this->formFactory->createMultipleFormElementValue($value, $label);
+        $convertedParameter = $this->formHelper->convertConfigParameter($parameter);
+
+        if ($convertedParameter !== null) {
+            $selectedValue->setSubElement($convertedParameter);
+        }
+
+        return $selectedValue;
+    }
+
+    /**
      * Returns the files settings form.
      *
      * @return \UserAccessManager\Form\Form
@@ -290,25 +313,21 @@ class SettingsController extends Controller
             ];
 
             if (isset($configParameters['locked_file_types']) === true) {
-                $lockFileTypes = $configParameters['locked_file_types'];
-                $selectedValue = $this->formFactory->createMultipleFormElementValue(
+                $values[] = $this->createMultipleFromElement(
+                    $configParameters['locked_file_types'],
                     'selected',
                     TXT_UAM_LOCKED_FILE_TYPES
                 );
-                $selectedValue->setSubElement($this->formHelper->convertConfigParameter($lockFileTypes));
-                $values[] = $selectedValue;
             }
 
             if ($this->wordpress->isNginx() === false
                 && isset($configParameters['not_locked_file_types']) === true
             ) {
-                $notLockFileTypes = $configParameters['not_locked_file_types'];
-                $notSelectedValue = $this->formFactory->createMultipleFormElementValue(
+                $values[] = $this->createMultipleFromElement(
+                    $configParameters['not_locked_file_types'],
                     'not_selected',
                     TXT_UAM_NOT_LOCKED_FILE_TYPES
                 );
-                $notSelectedValue->setSubElement($this->formHelper->convertConfigParameter($notLockFileTypes));
-                $values[] = $notSelectedValue;
             }
 
             $configParameter = $configParameters['lock_file_types'];
@@ -388,13 +407,11 @@ class SettingsController extends Controller
             }
 
             if (isset($configParameters['redirect_custom_url']) === true) {
-                $redirectCustomUrl = $configParameters['redirect_custom_url'];
-                $redirectCustomUrlValue = $this->formFactory->createMultipleFormElementValue(
+                $values[] = $this->createMultipleFromElement(
+                    $configParameters['redirect_custom_url'],
                     'custom_url',
                     TXT_UAM_REDIRECT_TO_URL
                 );
-                $redirectCustomUrlValue->setSubElement($this->formHelper->convertConfigParameter($redirectCustomUrl));
-                $values[] = $redirectCustomUrlValue;
             }
 
             $configParameter = $configParameters['redirect'];
@@ -423,16 +440,19 @@ class SettingsController extends Controller
      * Returns the full settings from.
      *
      * @param array    $types
+     * @param array    $ignoredTypes
      * @param Callable $formFunction
      *
      * @return array
      */
-    private function getFullSettingsFrom(array $types, $formFunction)
+    private function getFullSettingsFrom(array $types, array $ignoredTypes, $formFunction)
     {
         $groupForms = [];
         $groupForms[MainConfig::DEFAULT_TYPE] = $formFunction();
 
-        unset($types[ObjectHandler::ATTACHMENT_OBJECT_TYPE]);
+        foreach ($ignoredTypes as $ignoredType) {
+            unset($types[$ignoredType]);
+        }
 
         foreach ($types as $type => $typeObject) {
             $groupForms[$type] = $formFunction($type);
@@ -450,7 +470,8 @@ class SettingsController extends Controller
     {
         return $this->getFullSettingsFrom(
             $this->getPostTypes(),
-            function ($type = null) {
+            [ObjectHandler::ATTACHMENT_OBJECT_TYPE],
+            function ($type = MainConfig::DEFAULT_TYPE) {
                 return $this->getPostSettingsForm($type);
             }
         );
@@ -465,7 +486,8 @@ class SettingsController extends Controller
     {
         return $this->getFullSettingsFrom(
             $this->getTaxonomies(),
-            function ($type = null) {
+            [ObjectHandler::POST_FORMAT_TYPE],
+            function ($type = MainConfig::DEFAULT_TYPE) {
                 return $this->getTaxonomySettingsForm($type);
             }
         );

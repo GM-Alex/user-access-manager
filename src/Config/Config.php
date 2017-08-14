@@ -39,12 +39,12 @@ class Config
     protected $wpOptions = [];
 
     /**
-     * @var ConfigParameter[]
+     * @var array<string,ConfigParameter>
      */
     protected $defaultConfigParameters = [];
 
     /**
-     * @var null|ConfigParameter[]
+     * @var null|ConfigParameter[string]
      */
     protected $configParameters = null;
 
