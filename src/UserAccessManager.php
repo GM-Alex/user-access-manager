@@ -684,10 +684,13 @@ class UserAccessManager
         $this->wordpress->addFilter('getarchives_where', [$frontendPostController, 'showPostSql']);
         $this->wordpress->addFilter('wp_count_posts', [$frontendPostController, 'showPostCount'], 10, 3);
 
-        $this->wordpress->addShortCode('LOGIN_FORM', [$frontendPostController, 'loginFormShortCode']); // Legacy
-        $this->wordpress->addShortCode('uam_login_form', [$frontendPostController, 'loginFormShortCode']);
-        $this->wordpress->addShortCode('uam_public', [$frontendPostController, 'publicShortCode']);
-        $this->wordpress->addShortCode('uam_private', [$frontendPostController, 'privateShortCode']);
+        // Short code controller
+        $frontendShortCodeController = $this->controllerFactory->createFrontendShortCodeController();
+
+        $this->wordpress->addShortCode('LOGIN_FORM', [$frontendShortCodeController, 'loginFormShortCode']); // Legacy
+        $this->wordpress->addShortCode('uam_login_form', [$frontendShortCodeController, 'loginFormShortCode']);
+        $this->wordpress->addShortCode('uam_public', [$frontendShortCodeController, 'publicShortCode']);
+        $this->wordpress->addShortCode('uam_private', [$frontendShortCodeController, 'privateShortCode']);
 
         // Term controller
         $frontendTermController = $this->controllerFactory->createFrontendTermController();

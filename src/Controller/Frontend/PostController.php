@@ -121,22 +121,6 @@ class PostController extends Controller
     }
 
     /**
-     * Returns the login bar.
-     *
-     * @return string
-     */
-    public function getLoginFormHtml()
-    {
-        $loginForm = '';
-
-        if ($this->wordpress->isUserLoggedIn() === false) {
-            $loginForm = $this->getIncludeContents('LoginForm.php');
-        }
-
-        return $this->wordpress->applyFilters('uam_login_form', $loginForm);
-    }
-
-    /**
      * Extracts the user access manager filters and returns true if it was successful.
      *
      * @param \WP_Hook[] $filters
@@ -367,73 +351,6 @@ class PostController extends Controller
         }
 
         return $file;
-    }
-
-    /**
-     * Handles the login form short code.
-     *
-     * @return string
-     */
-    public function loginFormShortCode()
-    {
-        return $this->getLoginFormHtml();
-    }
-
-    /**
-     * Handles the public short code.
-     *
-     * @param array  $attributes
-     * @param string $content
-     *
-     * @return string
-     */
-    public function publicShortCode($attributes, $content = '')
-    {
-        return ($this->wordpress->isUserLoggedIn() === false) ? $this->wordpress->doShortCode($content) : '';
-    }
-
-    /**
-     * Returns the user group map from the short code attribute.
-     *
-     * @param array $attributes
-     *
-     * @return array
-     */
-    private function getUserGroupsMapFromAttributes(array $attributes)
-    {
-        $userGroups = (isset($attributes['group']) === true) ? explode(',', $attributes['group']) : [];
-        return (array)array_flip(array_map('trim', $userGroups));
-    }
-
-    /**
-     * Handles the private short code.
-     *
-     * @param array  $attributes
-     * @param string $content
-     *
-     * @return string
-     */
-    public function privateShortCode($attributes, $content = '')
-    {
-        if ($this->wordpress->isUserLoggedIn() === true) {
-            $userGroupMap = $this->getUserGroupsMapFromAttributes($attributes);
-
-            if ($userGroupMap === []) {
-                return $this->wordpress->doShortCode($content);
-            }
-
-            $userUserGroups = $this->accessHandler->getUserGroupsForUser();
-
-            foreach ($userUserGroups as $userGroup) {
-                if (isset($userGroupMap[$userGroup->getId()])
-                    || isset($userGroupMap[$userGroup->getName()])
-                ) {
-                    return $this->wordpress->doShortCode($content);
-                }
-            }
-        }
-
-        return '';
     }
 
     /**

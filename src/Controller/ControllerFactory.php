@@ -30,6 +30,7 @@ use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;
 use UserAccessManager\Controller\Frontend\PostController;
 use UserAccessManager\Controller\Frontend\RedirectController;
+use UserAccessManager\Controller\Frontend\ShortCodeController;
 use UserAccessManager\Controller\Frontend\TermController;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
@@ -399,6 +400,21 @@ class ControllerFactory
             $this->accessHandler,
             $this->fileHandler,
             $this->fileObjectFactory
+        );
+    }
+
+    /**
+     * Creates and returns a new frontend short code controller.
+     *
+     * @return ShortCodeController
+     */
+    public function createFrontendShortCodeController()
+    {
+        return new ShortCodeController(
+            $this->php,
+            $this->wordpress,
+            $this->config,
+            $this->accessHandler
         );
     }
 

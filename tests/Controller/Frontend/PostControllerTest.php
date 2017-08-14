@@ -18,9 +18,6 @@ use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhit
 use UserAccessManager\Controller\Frontend\PostController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
-use Vfs\FileSystem;
-use Vfs\Node\Directory;
-use Vfs\Node\File;
 
 /**
  * Class PostControllerTest
@@ -30,28 +27,6 @@ use Vfs\Node\File;
  */
 class PostControllerTest extends UserAccessManagerTestCase
 {
-    /**
-     * @var FileSystem
-     */
-    private $root;
-
-    /**
-     * Setup virtual file system.
-     */
-    public function setUp()
-    {
-        $this->root = FileSystem::factory('vfs://');
-        $this->root->mount();
-    }
-
-    /**
-     * Tear down virtual file system.
-     */
-    public function tearDown()
-    {
-        $this->root->unmount();
-    }
-
     /**
      * @group  unit
      * @covers ::__construct()
@@ -120,72 +95,6 @@ class PostControllerTest extends UserAccessManagerTestCase
 
         $frontendPostController->parseQuery($wpQuery);
         self::assertEquals([1, 2, 3, 4, 5], $wpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getLoginFormHtml()
-     * @covers ::loginFormShortCode()
-     */
-    public function testGetLoginFormHtml()
-    {
-        /**
-         * @var Directory $rootDir
-         */
-        $rootDir = $this->root->get('/');
-        $rootDir->add('src', new Directory([
-            'View' => new Directory([
-                'LoginForm.php' => new File('<?php echo \'LoginForm\';')
-            ])
-        ]));
-
-        $php = $this->getPhp();
-
-        $wordpress = $this->getWordpress();
-
-        $wordpress->expects($this->exactly(4))
-            ->method('isUserLoggedIn')
-            ->will($this->onConsecutiveCalls(true, true, false, false));
-
-        $wordpress->expects($this->exactly(4))
-            ->method('applyFilters')
-            ->withConsecutive(
-                ['uam_login_form', ''],
-                ['uam_login_form', ''],
-                ['uam_login_form', 'LoginForm'],
-                ['uam_login_form', 'LoginForm']
-            )
-            ->will($this->onConsecutiveCalls('filter', 'filter', 'LoginFormWithFilter', 'LoginFormWithFilter'));
-
-
-        $config = $this->getMainConfig();
-
-        $config->expects($this->exactly(2))
-            ->method('getRealPath')
-            ->will($this->returnValue('vfs:/'));
-
-        $frontendPostController = new PostController(
-            $php,
-            $wordpress,
-            $config,
-            $this->getDatabase(),
-            $this->getUtil(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getAccessHandler()
-        );
-
-        $php->expects($this->exactly(2))
-            ->method('includeFile')
-            ->with($frontendPostController, 'vfs://src/View/LoginForm.php')
-            ->will($this->returnCallback(function () {
-                echo 'LoginForm';
-            }));
-
-        self::assertEquals('filter', $frontendPostController->getLoginFormHtml());
-        self::assertEquals('filter', $frontendPostController->loginFormShortCode());
-        self::assertEquals('LoginFormWithFilter', $frontendPostController->getLoginFormHtml());
-        self::assertEquals('LoginFormWithFilter', $frontendPostController->loginFormShortCode());
     }
 
     /**
@@ -638,86 +547,6 @@ class PostControllerTest extends UserAccessManagerTestCase
         self::assertEquals('testFile', $frontendPostController->getAttachedFile('testFile', 1));
         self::assertEquals('firstFile', $frontendPostController->getAttachedFile('firstFile', 1));
         self::assertFalse($frontendPostController->getAttachedFile('secondFile', 2));
-    }
-
-    /**
-     * @group  unit
-     * @covers ::publicShortCode()
-     */
-    public function testPublicShortCode()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
-            ->method('isUserLoggedIn')
-            ->will($this->onConsecutiveCalls(true, false));
-
-        $wordpress->expects($this->once())
-            ->method('doShortCode')
-            ->with('content')
-            ->will($this->returnValue('contentShortCode'));
-
-        $frontendPostController = new PostController(
-            $this->getPhp(),
-            $wordpress,
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getUtil(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getAccessHandler()
-        );
-
-        self::assertEquals('', $frontendPostController->publicShortCode([], 'content'));
-        self::assertEquals('contentShortCode', $frontendPostController->publicShortCode([], 'content'));
-    }
-
-    /**
-     * @group  unit
-     * @covers ::privateShortCode()
-     * @covers ::getUserGroupsMapFromAttributes()
-     */
-    public function testPrivateShortCode()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(5))
-            ->method('isUserLoggedIn')
-            ->will($this->onConsecutiveCalls(false, true, true, true, true));
-
-        $wordpress->expects($this->exactly(3))
-            ->method('doShortCode')
-            ->with('content')
-            ->will($this->returnValue('contentShortCode'));
-
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(3))
-            ->method('getUserGroupsForUser')
-            ->will($this->returnValue([
-                $this->getUserGroup(1),
-                $this->getUserGroup(2)
-            ]));
-
-        $frontendPostController = new PostController(
-            $this->getPhp(),
-            $wordpress,
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getUtil(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $accessHandler
-        );
-
-        self::assertEquals('', $frontendPostController->privateShortCode([], 'content'));
-        self::assertEquals('contentShortCode', $frontendPostController->privateShortCode([], 'content'));
-        self::assertEquals(
-            'contentShortCode',
-            $frontendPostController->privateShortCode(['group' => 'name3,1'], 'content')
-        );
-        self::assertEquals(
-            'contentShortCode',
-            $frontendPostController->privateShortCode(['group' => '3,name2'], 'content')
-        );
-        self::assertEquals('', $frontendPostController->privateShortCode(['group' => '10'], 'content'));
     }
 
     /**

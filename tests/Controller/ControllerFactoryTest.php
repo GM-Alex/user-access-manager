@@ -28,6 +28,7 @@ use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Controller\Frontend\FrontendController;
 use UserAccessManager\Controller\Frontend\PostController;
 use UserAccessManager\Controller\Frontend\RedirectController;
+use UserAccessManager\Controller\Frontend\ShortCodeController;
 use UserAccessManager\Controller\Frontend\TermController;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
@@ -261,6 +262,21 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
         self::assertInstanceOf(
             RedirectController::class,
             $controllerFactory->createFrontendRedirectController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createFrontendShortCodeController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateFrontendShortCodeController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            ShortCodeController::class,
+            $controllerFactory->createFrontendShortCodeController()
         );
     }
 
