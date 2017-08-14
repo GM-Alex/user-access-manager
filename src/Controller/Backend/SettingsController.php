@@ -420,6 +420,78 @@ class SettingsController extends Controller
     }
 
     /**
+     * Returns the full settings from.
+     *
+     * @param array    $types
+     * @param Callable $formFunction
+     *
+     * @return array
+     */
+    private function getFullSettingsFrom(array $types, $formFunction)
+    {
+        $groupForms = [];
+        $groupForms[MainConfig::DEFAULT_TYPE] = $formFunction();
+
+        unset($types[ObjectHandler::ATTACHMENT_OBJECT_TYPE]);
+
+        foreach ($types as $type => $typeObject) {
+            $groupForms[$type] = $formFunction($type);
+        }
+
+        return $groupForms;
+    }
+
+    /**
+     * Returns the full taxonomy post forms.
+     *
+     * @return array
+     */
+    private function getFullPostSettingsForm()
+    {
+        return $this->getFullSettingsFrom(
+            $this->getPostTypes(),
+            function ($type = null) {
+                return $this->getPostSettingsForm($type);
+            }
+        );
+    }
+
+    /**
+     * Returns the full taxonomy settings forms.
+     *
+     * @return array
+     */
+    private function getFullTaxonomySettingsForm()
+    {
+        return $this->getFullSettingsFrom(
+            $this->getTaxonomies(),
+            function ($type = null) {
+                return $this->getTaxonomySettingsForm($type);
+            }
+        );
+    }
+
+    /**
+     * Returns the full cache providers froms.
+     *
+     * @return array
+     */
+    private function getFullCacheProvidersFrom()
+    {
+        $groupForms = [];
+        $cacheProviders = $this->cache->getRegisteredCacheProviders();
+        $groupForms[MainConfig::CACHE_PROVIDER_NONE] = null;
+
+        foreach ($cacheProviders as $cacheProvider) {
+            $groupForms[$cacheProvider->getId()] = $this->formHelper->getSettingsFormByConfig(
+                $cacheProvider->getConfig()
+            );
+        }
+
+        return $groupForms;
+    }
+
+    /**
      * Returns the current settings form.
      *
      * @return \UserAccessManager\Form\Form[]
@@ -430,34 +502,15 @@ class SettingsController extends Controller
         $groupForms = [];
 
         if ($group === self::GROUP_POST_TYPES) {
-            $groupForms[MainConfig::DEFAULT_TYPE] = $this->getPostSettingsForm();
-            $postTypes = $this->getPostTypes();
-            unset($postTypes[ObjectHandler::ATTACHMENT_OBJECT_TYPE]);
-
-            foreach ($postTypes as $postType => $postTypeObject) {
-                $groupForms[$postType] = $this->getPostSettingsForm($postType);
-            }
+            $groupForms = $this->getFullPostSettingsForm();
         } elseif ($group === self::GROUP_TAXONOMIES) {
-            $groupForms[MainConfig::DEFAULT_TYPE] = $this->getTaxonomySettingsForm();
-            $taxonomies = $this->getTaxonomies();
-            unset($taxonomies[ObjectHandler::POST_FORMAT_TYPE]);
-
-            foreach ($taxonomies as $taxonomy => $taxonomyObject) {
-                $groupForms[$taxonomy] = $this->getTaxonomySettingsForm($taxonomy);
-            }
+            $groupForms = $this->getFullTaxonomySettingsForm();
         } elseif ($group === self::GROUP_FILES) {
             $groupForms = [self::SECTION_FILES => $this->getFilesSettingsForm()];
         } elseif ($group === self::GROUP_AUTHOR) {
             $groupForms = [self::SECTION_AUTHOR => $this->getAuthorSettingsForm()];
         } elseif ($group === self::GROUP_CACHE) {
-            $cacheProviders = $this->cache->getRegisteredCacheProviders();
-            $groupForms[MainConfig::CACHE_PROVIDER_NONE] = null;
-
-            foreach ($cacheProviders as $cacheProvider) {
-                $groupForms[$cacheProvider->getId()] = $this->formHelper->getSettingsFormByConfig(
-                    $cacheProvider->getConfig()
-                );
-            }
+            $groupForms = $this->getFullCacheProvidersFrom();
         } elseif ($group === self::GROUP_OTHER) {
             $groupForms = [self::SECTION_OTHER => $this->getOtherSettingsForm()];
         }
