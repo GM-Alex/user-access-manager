@@ -191,6 +191,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::postsPreQuery()
+     * @covers ::extractOwnFilters()
      */
     public function testPostsPreQuery()
     {
@@ -673,6 +674,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::privateShortCode()
+     * @covers ::getUserGroupsMapFromAttributes()
      */
     public function testPrivateShortCode()
     {
@@ -772,6 +774,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showPostCount()
+     * @covers ::getPostCountQuery()
      */
     public function testShowPostCount()
     {

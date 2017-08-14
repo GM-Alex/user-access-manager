@@ -137,6 +137,31 @@ class PostController extends Controller
     }
 
     /**
+     * Extracts the user access manager filters and returns true if it was successful.
+     *
+     * @param \WP_Hook[] $filters
+     *
+     * @return bool
+     */
+    private function extractOwnFilters(array &$filters)
+    {
+        if (isset($filters['the_posts']) === true && isset($filters['the_posts']->callbacks[10]) === true) {
+            foreach ($filters['the_posts']->callbacks[10] as $postFilter) {
+                if (is_array($postFilter['function']) === true
+                    && $postFilter['function'][0] instanceof PostController
+                    && $postFilter['function'][1] === 'showPosts'
+                ) {
+                    $this->wordpressFilters['the_posts'] = $filters['the_posts'];
+                    $filters['the_posts']->callbacks = [10 => [$postFilter]];
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * If filters are suppressed we still want to filter posts, so we have to turn the suppression off,
      * remove all other filters than the ones from the user access manager and store them to restore
      * them later.
@@ -153,22 +178,10 @@ class PostController extends Controller
         ) {
             $filters = $this->wordpress->getFilters();
 
-            if (isset($filters['the_posts']) === true && isset($filters['the_posts']->callbacks[10]) === true) {
-                foreach ($filters['the_posts']->callbacks[10] as $postFilter) {
-                    if (is_array($postFilter['function']) === true
-                        && $postFilter['function'][0] instanceof PostController
-                        && $postFilter['function'][1] === 'showPosts'
-                    ) {
-                        $this->wordpressFilters['the_posts'] = $filters['the_posts'];
-                        $query->query_vars['suppress_filters'] = false;
-                        $filters['the_posts']->callbacks = [10 => [$postFilter]];
-                        break;
-                    }
-                }
-            }
-
             // Only unset filter if the user access filter is active
-            if ($query->query_vars['suppress_filters'] === false) {
+            if ($this->extractOwnFilters($filters) === true) {
+                $query->query_vars['suppress_filters'] = false;
+
                 $filtersToProcess = ['posts_results'];
 
                 foreach ($filtersToProcess as $filterToProcess) {
@@ -380,6 +393,19 @@ class PostController extends Controller
     }
 
     /**
+     * Returns the user group map from the short code attribute.
+     *
+     * @param array $attributes
+     *
+     * @return array
+     */
+    private function getUserGroupsMapFromAttributes(array $attributes)
+    {
+        $userGroups = (isset($attributes['group']) === true) ? explode(',', $attributes['group']) : [];
+        return (array)array_flip(array_map('trim', $userGroups));
+    }
+
+    /**
      * Handles the private short code.
      *
      * @param array  $attributes
@@ -390,13 +416,12 @@ class PostController extends Controller
     public function privateShortCode($attributes, $content = '')
     {
         if ($this->wordpress->isUserLoggedIn() === true) {
-            $userGroups = (isset($attributes['group']) === true) ? explode(',', $attributes['group']) : [];
+            $userGroupMap = $this->getUserGroupsMapFromAttributes($attributes);
 
-            if ($userGroups === []) {
+            if ($userGroupMap === []) {
                 return $this->wordpress->doShortCode($content);
             }
 
-            $userGroupMap = array_flip(array_map('trim', $userGroups));
             $userUserGroups = $this->accessHandler->getUserGroupsForUser();
 
             foreach ($userUserGroups as $userGroup) {
@@ -457,6 +482,39 @@ class PostController extends Controller
     }
 
     /**
+     * Returns the post count query.
+     *
+     * @param array  $excludedPosts
+     * @param string $type
+     * @param string $perm
+     *
+     * @return string
+     */
+    private function getPostCountQuery(array $excludedPosts, $type, $perm)
+    {
+        $excludedPosts = implode('\', \'', $excludedPosts);
+
+        $query = "SELECT post_status, COUNT(*) AS num_posts 
+                    FROM {$this->database->getPostsTable()} 
+                    WHERE post_type = %s
+                      AND ID NOT IN ('{$excludedPosts}')";
+
+        if ('readable' === $perm && $this->wordpress->isUserLoggedIn() === true) {
+            $postTypeObject = $this->wordpress->getPostTypeObject($type);
+
+            if ($this->wordpress->currentUserCan($postTypeObject->cap->read_private_posts) === false) {
+                $query .= $this->database->prepare(
+                    ' AND (post_status != \'private\' OR (post_author = %d AND post_status = \'private\'))',
+                    $this->wordpress->getCurrentUser()->ID
+                );
+            }
+        }
+
+        $query .= ' GROUP BY post_status';
+        return $query;
+    }
+
+    /**
      * Function for the wp_count_posts filter.
      *
      * @param \stdClass $counts
@@ -472,27 +530,8 @@ class PostController extends Controller
         if ($cachedCounts === null) {
             $excludedPosts = $this->accessHandler->getExcludedPosts();
 
-            if (count($excludedPosts) > 0) {
-                $excludedPosts = implode('\', \'', $excludedPosts);
-
-                $query = "SELECT post_status, COUNT(*) AS num_posts 
-                    FROM {$this->database->getPostsTable()} 
-                    WHERE post_type = %s
-                      AND ID NOT IN ('{$excludedPosts}')";
-
-                if ('readable' === $perm && $this->wordpress->isUserLoggedIn() === true) {
-                    $postTypeObject = $this->wordpress->getPostTypeObject($type);
-
-                    if ($this->wordpress->currentUserCan($postTypeObject->cap->read_private_posts) === false) {
-                        $query .= $this->database->prepare(
-                            ' AND (post_status != \'private\' OR (post_author = %d AND post_status = \'private\'))',
-                            $this->wordpress->getCurrentUser()->ID
-                        );
-                    }
-                }
-
-                $query .= ' GROUP BY post_status';
-
+            if ($excludedPosts !== []) {
+                $query = $this->getPostCountQuery($excludedPosts, $type, $perm);
                 $results = (array)$this->database->getResults(
                     $this->database->prepare($query, $type),
                     ARRAY_A
