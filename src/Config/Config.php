@@ -44,7 +44,7 @@ class Config
     protected $defaultConfigParameters = [];
 
     /**
-     * @var null|ConfigParameter[string]
+     * @var null|array<string,ConfigParameter>
      */
     protected $configParameters = null;
 
@@ -81,7 +81,7 @@ class Config
     /**
      * Returns the default parameters for the current config.
      *
-     * @return ConfigParameter[]
+     * @return array<string,ConfigParameter>
      */
     protected function getDefaultConfigParameters()
     {
@@ -91,7 +91,7 @@ class Config
     /**
      * Sets the default config parameters
      *
-     * @param ConfigParameter[] $defaultConfigParameters
+     * @param array<string,ConfigParameter> $defaultConfigParameters
      */
     public function setDefaultConfigParameters(array $defaultConfigParameters)
     {
@@ -101,7 +101,7 @@ class Config
     /**
      * Returns the current settings
      *
-     * @return ConfigParameter[]
+     * @return array<string,ConfigParameter>
      */
     public function getConfigParameters()
     {
@@ -124,7 +124,7 @@ class Config
     /**
      * Sets the new config parameters and saves them to the database.
      *
-     * @param $rawParameters
+     * @param array $rawParameters
      */
     public function setConfigParameters(array $rawParameters)
     {

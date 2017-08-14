@@ -82,7 +82,7 @@ class ObjectController extends Controller
     protected $objectId = null;
 
     /**
-     * @var AbstractUserGroup[]
+     * @var  array<string,AbstractUserGroup>
      */
     protected $objectUserGroups = [];
 
@@ -177,7 +177,7 @@ class ObjectController extends Controller
     /**
      * Returns the current object user groups.
      *
-     * @return AbstractUserGroup[]
+     * @return  array<string,AbstractUserGroup>
      */
     public function getObjectUserGroups()
     {
@@ -197,7 +197,7 @@ class ObjectController extends Controller
     /**
      * Returns all available user groups.
      *
-     * @return AbstractUserGroup[]
+     * @return  array<string,AbstractUserGroup>
      */
     public function getUserGroups()
     {
@@ -207,7 +207,7 @@ class ObjectController extends Controller
     /**
      * Returns the filtered user groups.
      *
-     * @return AbstractUserGroup[]
+     * @return  array<string,AbstractUserGroup>
      */
     public function getFilteredUserGroups()
     {
@@ -403,7 +403,7 @@ class ObjectController extends Controller
     /**
      * Updates the user groups for the given object.
      *
-     * @param AbstractUserGroup[] $filteredUserGroups
+     * @param  array<string,AbstractUserGroup> $filteredUserGroups
      * @param string              $objectType
      * @param string              $objectId
      * @param array               $addUserGroups
@@ -469,7 +469,7 @@ class ObjectController extends Controller
     /**
      * Sets the default user groups for the given object.
      *
-     * @param AbstractUserGroup[] $filteredUserGroups
+     * @param  array<string,AbstractUserGroup> $filteredUserGroups
      * @param string              $objectType
      * @param string              $objectId
      */

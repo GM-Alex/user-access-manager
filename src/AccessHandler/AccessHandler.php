@@ -64,22 +64,22 @@ class AccessHandler
     private $userGroupFactory;
 
     /**
-     * @var null|UserGroup[]
+     * @var null|array<string,UserGroup>
      */
     private $userGroups = null;
 
     /**
-     * @var null|DynamicUserGroup[]
+     * @var null|array<string,DynamicUserGroup>
      */
     private $dynamicUserGroups = null;
 
     /**
-     * @var null|UserGroup[]
+     * @var null|array<string,UserGroup>
      */
     private $filteredUserGroups = null;
 
     /**
-     * @var null|AbstractUserGroup[]
+     * @var null|array<string,AbstractUserGroup>
      */
     private $userGroupsForUser = null;
 
@@ -132,7 +132,7 @@ class AccessHandler
     /**
      * Returns all user groups.
      *
-     * @return UserGroup[]
+     * @return array<string,UserGroup>
      */
     public function getUserGroups()
     {
@@ -154,7 +154,7 @@ class AccessHandler
     /**
      * Returns all dynamic user groups.
      *
-     * @return null|DynamicUserGroup[]
+     * @return null|array<string,DynamicUserGroup>
      */
     public function getDynamicUserGroups()
     {
@@ -190,7 +190,9 @@ class AccessHandler
     }
 
     /**
-     * @return AbstractUserGroup[]
+     * Returns the full user groups
+     *
+     * @return array<string,AbstractUserGroup>
      */
     public function getFullUserGroups()
     {
@@ -200,7 +202,7 @@ class AccessHandler
     /**
      * Returns the user groups filtered by the user user groups.
      *
-     * @return AbstractUserGroup[]
+     * @return array<string,AbstractUserGroup>
      */
     public function getFilteredUserGroups()
     {
@@ -251,7 +253,7 @@ class AccessHandler
      * @param integer $objectId    The id of the object.
      * @param bool    $ignoreDates If true we ignore the dates for the object assignment.
      *
-     * @return AbstractUserGroup[]
+     * @return array<string,AbstractUserGroup>
      */
     public function getUserGroupsForObject($objectType, $objectId, $ignoreDates = false)
     {
@@ -352,7 +354,7 @@ class AccessHandler
     /**
      * Returns the user groups for the user.
      *
-     * @return AbstractUserGroup[]
+     * @return array<string,AbstractUserGroup>
      */
     public function getUserGroupsForUser()
     {
@@ -409,7 +411,7 @@ class AccessHandler
      * @param int    $objectId
      * @param bool   $ignoreDates
      *
-     * @return AbstractUserGroup[]
+     * @return array<string,AbstractUserGroup>
      */
     public function getFilteredUserGroupsForObject($objectType, $objectId, $ignoreDates = false)
     {
