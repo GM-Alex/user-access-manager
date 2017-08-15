@@ -21,6 +21,7 @@ use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\Controller\Backend\SettingsController;
+use UserAccessManager\Form\FormElement;
 use UserAccessManager\Form\Input;
 use UserAccessManager\Form\MultipleFormElementValue;
 use UserAccessManager\Form\Radio;
@@ -275,6 +276,48 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ]));
 
         return $wordpress;
+    }
+
+    /**
+     * @group   unit
+     * @covers  ::createMultipleFromElement()
+     */
+    public function testCreateMultipleFromElement()
+    {
+        $formElement = $this->createMock(FormElement::class);
+
+        $multipleFormElementValue = $this->createMultipleFormElementValue();
+        $multipleFormElementValue->expects($this->once())
+            ->method('setSubElement')
+            ->with();
+
+        $formFactory = $this->getFormFactory();
+        $formFactory->expects($this->exactly(2))
+            ->method('createMultipleFormElementValue')
+            ->with('value', 'label')
+            ->will($this->returnValue($multipleFormElementValue));
+
+        $parameter = $this->createMock(ConfigParameter::class);
+
+        $formHelper = $this->getFormHelper();
+        $formHelper->expects($this->exactly(2))
+            ->method('convertConfigParameter')
+            ->with($parameter)
+            ->will($this->onConsecutiveCalls(null, $formElement));
+
+        $settingController = new SettingsController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $formFactory,
+            $formHelper
+        );
+
+        self::callMethod($settingController, 'createMultipleFromElement', [$parameter, 'value', 'label']);
+        self::callMethod($settingController, 'createMultipleFromElement', [$parameter, 'value', 'label']);
     }
 
     /**
