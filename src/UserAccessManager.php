@@ -21,7 +21,6 @@ use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
-use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\SetupController;
 use UserAccessManager\Controller\Backend\TermObjectController;
@@ -35,6 +34,7 @@ use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Wrapper\Php;
@@ -84,6 +84,11 @@ class UserAccessManager
      * @var ObjectHandler
      */
     private $objectHandler;
+
+    /**
+     * @var UserHandler
+     */
+    private $userHandler;
 
     /**
      * @var AccessHandler
@@ -155,6 +160,7 @@ class UserAccessManager
      * @param MainConfig                     $config
      * @param Database                       $database
      * @param ObjectHandler                  $objectHandler
+     * @param UserHandler                    $userHandler
      * @param AccessHandler                  $accessHandler
      * @param FileHandler                    $fileHandler
      * @param SetupHandler                   $setupHandler
@@ -176,6 +182,7 @@ class UserAccessManager
         MainConfig $config,
         Database $database,
         ObjectHandler $objectHandler,
+        UserHandler $userHandler,
         AccessHandler $accessHandler,
         FileHandler $fileHandler,
         SetupHandler $setupHandler,
@@ -196,6 +203,7 @@ class UserAccessManager
         $this->config = $config;
         $this->database = $database;
         $this->objectHandler = $objectHandler;
+        $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
         $this->fileHandler = $fileHandler;
         $this->setupHandler = $setupHandler;
@@ -266,6 +274,14 @@ class UserAccessManager
     public function getObjectHandler()
     {
         return $this->objectHandler;
+    }
+
+    /**
+     * @return UserHandler
+     */
+    public function getUserHandler()
+    {
+        return $this->userHandler;
     }
 
     /**
@@ -369,7 +385,7 @@ class UserAccessManager
      */
     public function registerAdminMenu()
     {
-        if ($this->accessHandler->checkUserAccess() === true) {
+        if ($this->userHandler->checkUserAccess() === true) {
             //TODO
             /**
              * --- BOF ---
@@ -613,7 +629,7 @@ class UserAccessManager
         $userObjectController = $this->controllerFactory->createBackendUserObjectController();
         $dynamicGroupController = $this->controllerFactory->createBackendDynamicGroupsController();
 
-        if ($this->accessHandler->checkUserAccess() === true
+        if ($this->userHandler->checkUserAccess() === true
             || $this->config->authorsCanAddPostsToGroups() === true
         ) {
             //Admin actions

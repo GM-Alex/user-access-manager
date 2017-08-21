@@ -231,12 +231,13 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
 
     protected function getTestSaveObjectDataPrototype($class, array $expectedFilteredUserGroupsForObject)
     {
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->any())
+        $userHandler = $this->getUserHandler();
+        $userHandler->expects($this->any())
             ->method('checkUserAccess')
             ->with('manage_user_groups')
             ->will($this->returnValue(true));
 
+        $accessHandler = $this->getAccessHandler();
         $accessHandler->expects($this->any())
             ->method('getFilteredUserGroups')
             ->will($this->returnValue([]));
@@ -253,6 +254,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getExtendedObjectHandler(),
+            $userHandler,
             $accessHandler,
             $this->getUserGroupFactory()
         );
@@ -314,6 +316,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getExtendedObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler,
             $this->getUserGroupFactory()
         );
@@ -372,6 +375,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $database,
             $this->getCache(),
             $this->getExtendedObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );

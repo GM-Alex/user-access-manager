@@ -18,6 +18,7 @@ use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -44,6 +45,11 @@ class TermController extends Controller
     private $objectHandler;
 
     /**
+     * @var UserHandler
+     */
+    protected $userHandler;
+
+    /**
      * @var AccessHandler
      */
     protected $accessHandler;
@@ -59,13 +65,14 @@ class TermController extends Controller
     private $postObjectHideConfig = null;
 
     /**
-     * FrontendTermController constructor.
+     * TermController constructor.
      *
      * @param Php           $php
      * @param Wordpress     $wordpress
      * @param MainConfig    $config
      * @param Util          $util
      * @param ObjectHandler $objectHandler
+     * @param UserHandler   $userHandler
      * @param AccessHandler $accessHandler
      */
     public function __construct(
@@ -74,11 +81,13 @@ class TermController extends Controller
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
+        UserHandler $userHandler,
         AccessHandler $accessHandler
     ) {
         parent::__construct($php, $wordpress, $config);
         $this->util = $util;
         $this->objectHandler = $objectHandler;
+        $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
     }
 

@@ -70,7 +70,7 @@ class UserGroupController extends Controller
      * @param Php              $php
      * @param Wordpress        $wordpress
      * @param MainConfig       $config
-     * @param AccessHandler    $accessHandler
+     * @param AccessHandler    $userHandler
      * @param UserGroupFactory $userGroupFactory
      * @param FormHelper       $formHelper
      */
@@ -78,12 +78,12 @@ class UserGroupController extends Controller
         Php $php,
         Wordpress $wordpress,
         MainConfig $config,
-        AccessHandler $accessHandler,
+        AccessHandler $userHandler,
         UserGroupFactory $userGroupFactory,
         FormHelper $formHelper
     ) {
         parent::__construct($php, $wordpress, $config);
-        $this->accessHandler = $accessHandler;
+        $this->accessHandler = $userHandler;
         $this->userGroupFactory = $userGroupFactory;
         $this->formHelper = $formHelper;
     }

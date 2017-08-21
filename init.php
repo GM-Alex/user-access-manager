@@ -20,6 +20,7 @@ use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -57,12 +58,18 @@ function initUserAccessManger()
         $objectHandler,
         $assignmentInformationFactory
     );
+    $userHandler = new UserHandler(
+        $wordpress,
+        $config,
+        $database,
+        $objectHandler
+    );
     $accessHandler = new AccessHandler(
         $wordpress,
         $config,
         $database,
         $objectHandler,
-        $util,
+        $userHandler,
         $userGroupFactory
     );
     $fileProtectionFactory = new FileProtectionFactory(
@@ -91,6 +98,7 @@ function initUserAccessManger()
         $util,
         $cache,
         $objectHandler,
+        $userHandler,
         $accessHandler,
         $userGroupFactory,
         $fileHandler,
@@ -109,6 +117,7 @@ function initUserAccessManger()
         $config,
         $database,
         $objectHandler,
+        $userHandler,
         $accessHandler,
         $fileHandler,
         $setupHandler,

@@ -38,6 +38,7 @@ class UserObjectControllerTest extends ObjectControllerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -58,6 +59,7 @@ class UserObjectControllerTest extends ObjectControllerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -81,6 +83,7 @@ class UserObjectControllerTest extends ObjectControllerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getExtendedObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );

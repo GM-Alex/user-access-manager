@@ -25,6 +25,7 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -55,6 +56,11 @@ class ObjectController extends Controller
      * @var ObjectHandler
      */
     protected $objectHandler;
+
+    /**
+     * @var UserHandler
+     */
+    protected $userHandler;
 
     /**
      * @var AccessHandler
@@ -92,7 +98,7 @@ class ObjectController extends Controller
     protected $userGroupDiff = 0;
 
     /**
-     * AdminObjectController constructor.
+     * ObjectController constructor.
      *
      * @param Php              $php
      * @param Wordpress        $wordpress
@@ -100,6 +106,7 @@ class ObjectController extends Controller
      * @param Database         $database
      * @param Cache            $cache
      * @param ObjectHandler    $objectHandler
+     * @param UserHandler      $userHandler
      * @param AccessHandler    $accessHandler
      * @param UserGroupFactory $userGroupFactory
      */
@@ -110,6 +117,7 @@ class ObjectController extends Controller
         Database $database,
         Cache $cache,
         ObjectHandler $objectHandler,
+        UserHandler $userHandler,
         AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory
     ) {
@@ -117,6 +125,7 @@ class ObjectController extends Controller
         $this->database = $database;
         $this->cache = $cache;
         $this->objectHandler = $objectHandler;
+        $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
     }
@@ -224,7 +233,7 @@ class ObjectController extends Controller
         if ($this->objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE
             && $this->objectId !== null
         ) {
-            return $this->accessHandler->userIsAdmin($this->objectId);
+            return $this->userHandler->userIsAdmin($this->objectId);
         }
 
         return false;
@@ -258,7 +267,7 @@ class ObjectController extends Controller
      */
     public function checkUserAccess()
     {
-        return $this->accessHandler->checkUserAccess(AccessHandler::MANAGE_USER_GROUPS_CAPABILITY);
+        return $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY);
     }
 
     /**

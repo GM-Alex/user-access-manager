@@ -40,16 +40,16 @@ class ShortCodeController extends Controller
      * @param Php           $php
      * @param Wordpress     $wordpress
      * @param MainConfig    $config
-     * @param AccessHandler $accessHandler
+     * @param AccessHandler $userHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         MainConfig $config,
-        AccessHandler $accessHandler
+        AccessHandler $userHandler
     ) {
         parent::__construct($php, $wordpress, $config);
-        $this->accessHandler = $accessHandler;
+        $this->accessHandler = $userHandler;
     }
 
     /**

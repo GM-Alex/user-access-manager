@@ -14,8 +14,8 @@
  */
 namespace UserAccessManager\Tests\Controller\Backend;
 
-use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
+use UserAccessManager\UserHandler\UserHandler;
 
 /**
  * Class DynamicGroupsControllerTest
@@ -37,6 +37,7 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -80,11 +81,11 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
 
         $_GET['q'] = 'firstSearch, sea';
 
-        $accessHandler = $this->getAccessHandler();
+        $userHandler = $this->getUserHandler();
 
-        $accessHandler->expects($this->exactly(2))
+        $userHandler->expects($this->exactly(2))
             ->method('checkUserAccess')
-            ->with(AccessHandler::MANAGE_USER_GROUPS_CAPABILITY)
+            ->with(UserHandler::MANAGE_USER_GROUPS_CAPABILITY)
             ->will($this->onConsecutiveCalls(true, false));
 
         $objectController = new DynamicGroupsController(
@@ -94,7 +95,8 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
             $this->getDatabase(),
             $this->getCache(),
             $this->getExtendedObjectHandler(),
-            $accessHandler,
+            $userHandler,
+            $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
 

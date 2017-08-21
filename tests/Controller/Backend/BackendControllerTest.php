@@ -71,7 +71,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getAccessHandler(),
+            $this->getUserHandler(),
             $this->getFileHandler()
         );
 
@@ -97,7 +97,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $php,
             $this->getWordpress(),
             $config,
-            $this->getAccessHandler(),
+            $this->getUserHandler(),
             $this->getFileHandler()
         );
 
@@ -198,7 +198,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $config,
-            $this->getAccessHandler(),
+            $this->getUserHandler(),
             $this->getFileHandler()
         );
 
@@ -238,8 +238,8 @@ class BackendControllerTest extends UserAccessManagerTestCase
                 $metaBoxes = $newMetaBoxes;
             }));
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(3))
+        $userHandler = $this->getUserHandler();
+        $userHandler->expects($this->exactly(3))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
             ->will($this->onConsecutiveCalls(true, true, false));
@@ -248,7 +248,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getMainConfig(),
-            $accessHandler,
+            $userHandler,
             $this->getFileHandler()
         );
 
@@ -277,7 +277,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getMainConfig(),
-            $this->getAccessHandler(),
+            $this->getUserHandler(),
             $fileHandler
         );
 

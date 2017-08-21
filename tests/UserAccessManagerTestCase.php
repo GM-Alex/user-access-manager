@@ -39,6 +39,7 @@ use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Wrapper\Php;
@@ -184,6 +185,14 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getAccessHandler()
     {
         return $this->createMock(AccessHandler::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|UserHandler
+     */
+    protected function getUserHandler()
+    {
+        return $this->createMock(UserHandler::class);
     }
 
     /**

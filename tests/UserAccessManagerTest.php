@@ -47,6 +47,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
             $this->getSetupHandler(),
@@ -90,6 +91,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $config,
             $this->getDatabase(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
             $this->getSetupHandler(),
@@ -115,6 +117,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      * @covers  ::getConfig()
      * @covers  ::getDatabase()
      * @covers  ::getObjectHandler()
+     * @covers  ::getUserHandler()
      * @covers  ::getAccessHandler()
      * @covers  ::getFileHandler()
      * @covers  ::getSetupHandler()
@@ -139,6 +142,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getMainConfig(), $userAccessManager->getConfig());
         self::assertEquals($this->getDatabase(), $userAccessManager->getDatabase());
         self::assertEquals($this->getObjectHandler(), $userAccessManager->getObjectHandler());
+        self::assertEquals($this->getUserHandler(), $userAccessManager->getUserHandler());
         self::assertEquals($this->getAccessHandler(), $userAccessManager->getAccessHandler());
         self::assertEquals($this->getFileHandler(), $userAccessManager->getFileHandler());
         self::assertEquals($this->getSetupHandler(), $userAccessManager->getSetupHandler());
@@ -170,8 +174,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->once())
             ->method('doAction');
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(2))
+        $userHandler = $this->getUserHandler();
+        $userHandler->expects($this->exactly(2))
             ->method('checkUserAccess')
             ->will($this->onConsecutiveCalls(false, true));
 
@@ -196,7 +200,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
-            $accessHandler,
+            $userHandler,
+            $this->getAccessHandler(),
             $this->getFileHandler(),
             $this->getSetupHandler(),
             $this->getUserGroupFactory(),
@@ -260,9 +265,9 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ]));
 
 
-        $accessHandler = $this->getAccessHandler();
+        $userHandler = $this->getUserHandler();
 
-        $accessHandler->expects($this->exactly(4))
+        $userHandler->expects($this->exactly(4))
             ->method('checkUserAccess')
             ->will($this->onConsecutiveCalls(true, false, false, false));
 
@@ -349,7 +354,8 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $config,
             $this->getDatabase(),
             $objectHandler,
-            $accessHandler,
+            $userHandler,
+            $this->getAccessHandler(),
             $this->getFileHandler(),
             $setupHandler,
             $this->getUserGroupFactory(),
@@ -411,6 +417,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $config,
             $this->getDatabase(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
             $this->getSetupHandler(),

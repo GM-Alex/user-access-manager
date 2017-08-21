@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -40,6 +41,11 @@ trait AdminOutputControllerTrait
      * @var Util
      */
     protected $util;
+
+    /**
+     * @var UserHandler
+     */
+    protected $userHandler;
 
     /**
      * @var AccessHandler
@@ -68,7 +74,7 @@ trait AdminOutputControllerTrait
                 return $output;
             }
 
-            if ($this->accessHandler->userIsAdmin($this->wordpress->getCurrentUser()->ID) === true
+            if ($this->userHandler->userIsAdmin($this->wordpress->getCurrentUser()->ID) === true
                 && count($this->accessHandler->getUserGroupsForObject($objectType, $objectId)) > 0
             ) {
                 $output .= $hintText;

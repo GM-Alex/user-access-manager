@@ -38,6 +38,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler()
         );
 
@@ -68,6 +69,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -214,6 +216,14 @@ class TermControllerTest extends UserAccessManagerTestCase
                 return $this->getTerm($termId);
             }));
 
+        $userHandler = $this->getUserHandler();
+
+        $userHandler->expects($this->once())
+            ->method('userIsAdmin')
+            ->with(1)
+            ->will($this->returnValue(true));
+
+
         $accessHandler = $this->getAccessHandler();
 
         $accessHandler->expects($this->exactly(15))
@@ -254,11 +264,6 @@ class TermControllerTest extends UserAccessManagerTestCase
             ));
 
         $accessHandler->expects($this->once())
-            ->method('userIsAdmin')
-            ->with(1)
-            ->will($this->returnValue(true));
-
-        $accessHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('taxonomy', 1)
             ->will($this->returnValue([1, 2]));
@@ -269,6 +274,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $config,
             $util,
             $objectHandler,
+            $userHandler,
             $accessHandler
         );
 
@@ -458,6 +464,14 @@ class TermControllerTest extends UserAccessManagerTestCase
                 return $this->getTerm($termId);
             }));
 
+
+        $userHandler = $this->getUserHandler();
+
+        $userHandler->expects($this->once())
+            ->method('userIsAdmin')
+            ->with(1)
+            ->will($this->returnValue(true));
+
         $accessHandler = $this->getAccessHandler();
 
         $accessHandler->expects($this->exactly(7))
@@ -482,11 +496,6 @@ class TermControllerTest extends UserAccessManagerTestCase
             ));
 
         $accessHandler->expects($this->once())
-            ->method('userIsAdmin')
-            ->with(1)
-            ->will($this->returnValue(true));
-
-        $accessHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('other', 1)
             ->will($this->returnValue([1, 2]));
@@ -497,6 +506,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $config,
             $util,
             $objectHandler,
+            $userHandler,
             $accessHandler
         );
 

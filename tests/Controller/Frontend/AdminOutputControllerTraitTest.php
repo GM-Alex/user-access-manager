@@ -84,14 +84,16 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(true));
 
-        $accessHandler = $this->getAccessHandler();
+        $userHandler = $this->getUserHandler();
 
-        $accessHandler->expects($this->exactly(3))
+        $userHandler->expects($this->exactly(3))
             ->method('userIsAdmin')
             ->withConsecutive([2], [1], [1])
             ->will($this->returnCallback(function ($id) {
                 return ($id === 1);
             }));
+
+        $accessHandler = $this->getAccessHandler();
 
         $accessHandler->expects($this->exactly(2))
             ->method('getUserGroupsForObject')
@@ -108,6 +110,7 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
         self::setValue($stub, 'wordpress', $wordpress);
         self::setValue($stub, 'config', $config);
         self::setValue($stub, 'util', $util);
+        self::setValue($stub, 'userHandler', $userHandler);
         self::setValue($stub, 'accessHandler', $accessHandler);
 
         self::assertEquals('', $stub->adminOutput('objectType', 'objectId'));

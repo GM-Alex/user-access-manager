@@ -14,11 +14,11 @@
  */
 namespace UserAccessManager\Controller\Backend;
 
-use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -35,9 +35,9 @@ class BackendController extends Controller
     const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
 
     /**
-     * @var AccessHandler
+     * @var UserHandler
      */
-    private $accessHandler;
+    private $userHandler;
 
     /**
      * @var FileHandler
@@ -50,24 +50,23 @@ class BackendController extends Controller
     private $notice = '';
 
     /**
-     * AdminController constructor.
+     * BackendController constructor.
      *
-     *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param MainConfig    $config
-     * @param AccessHandler $accessHandler
-     * @param FileHandler   $fileHandler
+     * @param Php         $php
+     * @param Wordpress   $wordpress
+     * @param MainConfig  $config
+     * @param UserHandler $userHandler
+     * @param FileHandler $fileHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         MainConfig $config,
-        AccessHandler $accessHandler,
+        UserHandler $userHandler,
         FileHandler $fileHandler
     ) {
         parent::__construct($php, $wordpress, $config);
-        $this->accessHandler = $accessHandler;
+        $this->userHandler = $userHandler;
         $this->fileHandler = $fileHandler;
     }
 
@@ -146,7 +145,7 @@ class BackendController extends Controller
      */
     public function setupAdminDashboard()
     {
-        if ($this->accessHandler->checkUserAccess(AccessHandler::MANAGE_USER_GROUPS_CAPABILITY) === false) {
+        if ($this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === false) {
             $metaBoxes = $this->wordpress->getMetaBoxes();
             unset($metaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
             $this->wordpress->setMetaBoxes($metaBoxes);

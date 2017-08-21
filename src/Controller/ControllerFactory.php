@@ -40,6 +40,7 @@ use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\SetupHandler\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -87,6 +88,11 @@ class ControllerFactory
     private $objectHandler;
 
     /**
+     * @var UserHandler
+     */
+    private $userHandler;
+
+    /**
      * @var AccessHandler
      */
     private $accessHandler;
@@ -131,6 +137,7 @@ class ControllerFactory
      * @param Util              $util
      * @param Cache             $cache
      * @param ObjectHandler     $objectHandler
+     * @param UserHandler       $userHandler
      * @param AccessHandler     $accessHandler
      * @param UserGroupFactory  $userGroupFactory
      * @param FileHandler       $fileHandler
@@ -147,6 +154,7 @@ class ControllerFactory
         Util $util,
         Cache $cache,
         ObjectHandler $objectHandler,
+        UserHandler $userHandler,
         AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory,
         FileHandler $fileHandler,
@@ -162,6 +170,7 @@ class ControllerFactory
         $this->util = $util;
         $this->cache = $cache;
         $this->objectHandler = $objectHandler;
+        $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
         $this->fileHandler = $fileHandler;
@@ -182,7 +191,7 @@ class ControllerFactory
             $this->php,
             $this->wordpress,
             $this->config,
-            $this->accessHandler,
+            $this->userHandler,
             $this->fileHandler
         );
     }
@@ -215,6 +224,7 @@ class ControllerFactory
             $this->database,
             $this->cache,
             $this->objectHandler,
+            $this->userHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -234,6 +244,7 @@ class ControllerFactory
             $this->database,
             $this->cache,
             $this->objectHandler,
+            $this->userHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -253,6 +264,7 @@ class ControllerFactory
             $this->database,
             $this->cache,
             $this->objectHandler,
+            $this->userHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -272,6 +284,7 @@ class ControllerFactory
             $this->database,
             $this->cache,
             $this->objectHandler,
+            $this->userHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -291,6 +304,7 @@ class ControllerFactory
             $this->database,
             $this->cache,
             $this->objectHandler,
+            $this->userHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -431,6 +445,7 @@ class ControllerFactory
             $this->config,
             $this->util,
             $this->objectHandler,
+            $this->userHandler,
             $this->accessHandler
         );
     }
