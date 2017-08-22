@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminController.php
+ * BackendController.php
  *
- * The AdminController class file.
+ * The BackendController class file.
  *
  * PHP versions 5
  *
@@ -23,7 +23,7 @@ use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
- * Class AdminController
+ * Class BackendController
  *
  * @package UserAccessManager\Controller
  */

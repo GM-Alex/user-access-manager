@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminObjectController.php
+ * ObjectController.php
  *
- * The AdminObjectController class file.
+ * The ObjectController class file.
  *
  * PHP versions 5
  *
@@ -30,7 +30,7 @@ use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
- * Class AdminObjectController
+ * Class ObjectController
  *
  * @package UserAccessManager\Controller
  */
@@ -588,26 +588,6 @@ class ObjectController extends Controller
     {
         $this->setObjectInformation($objectType, $objectId);
         return $this->getIncludeContents('ObjectColumn.php');
-    }
-
-    /**
-     * Invalidates the term related cache objects.
-     */
-    public function invalidateTermCache()
-    {
-        $this->cache->invalidate(ObjectHandler::POST_TERM_MAP_CACHE_KEY);
-        $this->cache->invalidate(ObjectHandler::TERM_POST_MAP_CACHE_KEY);
-        $this->cache->invalidate(ObjectHandler::TERM_TREE_MAP_CACHE_KEY);
-    }
-
-    /**
-     * Invalidates the post related cache objects.
-     */
-    public function invalidatePostCache()
-    {
-        $this->cache->invalidate(ObjectHandler::TERM_POST_MAP_CACHE_KEY);
-        $this->cache->invalidate(ObjectHandler::POST_TERM_MAP_CACHE_KEY);
-        $this->cache->invalidate(ObjectHandler::POST_TREE_MAP_CACHE_KEY);
     }
 
     /**

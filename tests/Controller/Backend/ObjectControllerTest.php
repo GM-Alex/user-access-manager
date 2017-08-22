@@ -918,41 +918,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
 
     /**
      * @group  unit
-     * @covers ::invalidateTermCache()
-     * @covers ::invalidatePostCache()
-     */
-    public function testInvalidateCache()
-    {
-        $cache = $this->getCache();
-        $cache->expects($this->exactly(6))
-            ->method('invalidate')
-            ->withConsecutive(
-                [ObjectHandler::POST_TERM_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_POST_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_POST_MAP_CACHE_KEY],
-                [ObjectHandler::POST_TERM_MAP_CACHE_KEY],
-                [ObjectHandler::POST_TREE_MAP_CACHE_KEY]
-            );
-
-        $objectController = new ObjectController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $cache,
-            $this->getExtendedObjectHandler(),
-            $this->getUserHandler(),
-            $this->getAccessHandler(),
-            $this->getUserGroupFactory()
-        );
-
-        $objectController->invalidateTermCache();
-        $objectController->invalidatePostCache();
-    }
-
-    /**
-     * @group  unit
      * @covers ::isNewObject()
      */
     public function testIsNewObject()

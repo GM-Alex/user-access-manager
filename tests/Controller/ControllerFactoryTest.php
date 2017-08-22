@@ -16,6 +16,7 @@ namespace UserAccessManager\Tests\Controller;
 
 use UserAccessManager\Controller\Backend\AboutController;
 use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\CacheController;
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\PostObjectController;
@@ -158,6 +159,21 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
         self::assertInstanceOf(
             UserObjectController::class,
             $controllerFactory->createBackendUserObjectController()
+        );
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createBackendCacheController()
+     *
+     * @param ControllerFactory $controllerFactory
+     */
+    public function testCreateBackendCacheController(ControllerFactory $controllerFactory)
+    {
+        self::assertInstanceOf(
+            CacheController::class,
+            $controllerFactory->createBackendCacheController()
         );
     }
 

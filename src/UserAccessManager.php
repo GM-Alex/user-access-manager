@@ -730,12 +730,12 @@ class UserAccessManager
         }
 
         // Admin object controller
-        $objectController = $this->controllerFactory->createBackendObjectController();
+        $backendCacheController = $this->controllerFactory->createBackendCacheController();
 
-        $this->wordpress->addFilter('clean_term_cache', [$objectController, 'invalidateTermCache']);
-        $this->wordpress->addFilter('clean_object_term_cache', [$objectController, 'invalidateTermCache']);
-        $this->wordpress->addFilter('clean_post_cache', [$objectController, 'invalidatePostCache']);
-        $this->wordpress->addFilter('clean_attachment_cache', [$objectController, 'invalidatePostCache']);
+        $this->wordpress->addFilter('clean_term_cache', [$backendCacheController, 'invalidateTermCache']);
+        $this->wordpress->addFilter('clean_object_term_cache', [$backendCacheController, 'invalidateTermCache']);
+        $this->wordpress->addFilter('clean_post_cache', [$backendCacheController, 'invalidatePostCache']);
+        $this->wordpress->addFilter('clean_attachment_cache', [$backendCacheController, 'invalidatePostCache']);
 
         // Widgets
         $this->wordpress->addAction('widgets_init', function () {

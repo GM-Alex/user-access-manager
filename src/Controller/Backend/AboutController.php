@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminAboutController.php
+ * AboutController.php
  *
- * The AdminAboutController class file.
+ * The AboutController class file.
  *
  * PHP versions 5
  *
@@ -17,7 +17,7 @@ namespace UserAccessManager\Controller\Backend;
 use UserAccessManager\Controller\Controller;
 
 /**
- * Class AdminAboutController
+ * Class AboutController
  *
  * @package UserAccessManager\Controller
  */

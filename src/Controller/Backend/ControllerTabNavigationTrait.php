@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminControllerTabNavigationTrait.php
+ * ControllerTabNavigationTrait.php
  *
- * The AdminControllerTabNavigationTrait class file.
+ * The ControllerTabNavigationTrait class file.
  *
  * PHP versions 5
  *
@@ -15,7 +15,7 @@
 namespace UserAccessManager\Controller\Backend;
 
 /**
- * Trait AdminControllerTabNavigationTrait
+ * Trait ControllerTabNavigationTrait
  *
  * @package UserAccessManager\Controller
  */

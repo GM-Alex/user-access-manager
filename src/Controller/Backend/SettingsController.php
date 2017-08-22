@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminSettingsController.php
+ * SettingsController.php
  *
- * The AdminSettingsController class file.
+ * The SettingsController class file.
  *
  * PHP versions 5
  *
@@ -71,7 +71,7 @@ class SettingsController extends Controller
     private $formHelper;
 
     /**
-     * AdminSettingsController constructor.
+     * SettingsController constructor.
      *
      * @param Php           $php
      * @param Wordpress     $wordpress

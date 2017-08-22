@@ -392,7 +392,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($frontendController));
 
         $controllerFactory->expects($this->exactly(3))
-            ->method('createBackendObjectController');
+            ->method('createBackendCacheController');
 
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(24))

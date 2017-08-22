@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminSetupController.php
+ * SetupController.php
  *
- * The AdminSetupController class file.
+ * The SetupController class file.
  *
  * PHP versions 5
  *
@@ -22,7 +22,7 @@ use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
- * Class AdminSetupController
+ * Class SetupController
  *
  * @package UserAccessManager\Controller
  */
@@ -51,7 +51,7 @@ class SetupController extends Controller
     private $database;
 
     /**
-     * AdminSetupController constructor.
+     * SetupController constructor.
      *
      * @param Php          $php
      * @param Wordpress    $wordpress

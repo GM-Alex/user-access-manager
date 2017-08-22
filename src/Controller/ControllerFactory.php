@@ -19,6 +19,7 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Controller\Backend\AboutController;
 use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\CacheController;
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\PostObjectController;
@@ -227,6 +228,18 @@ class ControllerFactory
             $this->userHandler,
             $this->accessHandler,
             $this->userGroupFactory
+        );
+    }
+
+    /**
+     * Creates and returns a new backend cache controller.
+     *
+     * @return CacheController
+     */
+    public function createBackendCacheController()
+    {
+        return new CacheController(
+            $this->cache
         );
     }
 

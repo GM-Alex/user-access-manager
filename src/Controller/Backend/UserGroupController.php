@@ -1,8 +1,8 @@
 <?php
 /**
- * AdminUserGroupController.php
+ * UserGroupController.php
  *
- * The AdminUserGroupController class file.
+ * The UserGroupController class file.
  *
  * PHP versions 5
  *
@@ -24,7 +24,7 @@ use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
- * Class AdminUserGroupController
+ * Class UserGroupController
  *
  * @package UserAccessManager\Controller
  */
@@ -65,7 +65,7 @@ class UserGroupController extends Controller
     private $userGroup = null;
 
     /**
-     * AdminUserGroupController constructor.
+     * UserGroupController constructor.
      *
      * @param Php              $php
      * @param Wordpress        $wordpress
