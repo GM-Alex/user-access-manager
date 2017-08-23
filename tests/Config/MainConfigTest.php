@@ -201,6 +201,10 @@ class MainConfigTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getDefaultConfigParameters()
+     * @covers ::addDefaultGeneralConfigParameters()
+     * @covers ::addDefaultPostConfigParameters()
+     * @covers ::addDefaultTaxonomyConfigParameters()
+     * @covers ::addDefaultFileConfigParameters()
      *
      * @return MainConfig
      */

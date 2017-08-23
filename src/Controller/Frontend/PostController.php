@@ -468,6 +468,20 @@ class PostController extends Controller
     }
 
     /**
+     * Checks if the post comment should be completely hidden.
+     *
+     * @param string $postType
+     *
+     * @return bool
+     */
+    private function hidePostComment($postType)
+    {
+        return $this->config->lockPostTypeComments($postType) === true
+            || $this->config->hidePostType($postType) === true
+            || $this->config->atAdminPanel() === true;
+    }
+
+    /**
      * The function for the comments_array filter.
      *
      * @param \WP_Comment[] $comments The comments.
@@ -484,10 +498,7 @@ class PostController extends Controller
             if ($post !== false
                 && $this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false
             ) {
-                if ($this->config->lockPostTypeComments($post->post_type) === true
-                    || $this->config->hidePostType($post->post_type) === true
-                    || $this->config->atAdminPanel() === true
-                ) {
+                if ($this->hidePostComment($post->post_type)) {
                     continue;
                 }
 

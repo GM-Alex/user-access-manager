@@ -292,6 +292,20 @@ class AccessHandler
     }
 
     /**
+     * Checks if the current user is in the ip range or if the user group is public.
+     *
+     * @param UserGroup $userGroup
+     *
+     * @return bool
+     */
+    private function checkUserGroupAccess(UserGroup $userGroup)
+    {
+        return $this->userHandler->isIpInRange($_SERVER['REMOTE_ADDR'], $userGroup->getIpRangeArray())
+            || $this->config->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
+            || $this->config->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all';
+    }
+
+    /**
      * Returns the user groups for the user.
      *
      * @return AbstractUserGroup[]
@@ -330,9 +344,7 @@ class AccessHandler
 
             foreach ($userGroups as $userGroup) {
                 if (isset($userGroupsForUser[$userGroup->getId()]) === false
-                    && ($this->userHandler->isIpInRange($_SERVER['REMOTE_ADDR'], $userGroup->getIpRangeArray())
-                        || $this->config->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
-                        || $this->config->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all')
+                    && $this->checkUserGroupAccess($userGroup)
                 ) {
                     $userGroupsForUser[$userGroup->getId()] = $userGroup;
                 }
@@ -378,12 +390,12 @@ class AccessHandler
             $access = false;
             $currentUser = $this->wordpress->getCurrentUser();
 
-            if ($this->objectHandler->isValidObjectType($objectType) === false) {
+            if ($this->objectHandler->isValidObjectType($objectType) === false
+                || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true
+            ) {
                 $access = true;
             } else {
-                if ($this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true) {
-                    $access = true;
-                } elseif ($this->config->authorsHasAccessToOwn() === true
+                if ($this->config->authorsHasAccessToOwn() === true
                     && $this->objectHandler->isPostType($objectType)
                 ) {
                     $post = $this->objectHandler->getPost($objectId);
@@ -392,19 +404,8 @@ class AccessHandler
 
                 if ($access === false) {
                     $membership = $this->getUserGroupsForObject($objectType, $objectId);
-
-                    if (count($membership) > 0) {
-                        $userUserGroups = $this->getUserGroupsForUser();
-
-                        foreach ($membership as $userGroupId => $userGroup) {
-                            if (isset($userUserGroups[$userGroupId]) === true) {
-                                $access = true;
-                                break;
-                            }
-                        }
-                    } else {
-                        $access = true;
-                    }
+                    $access = ($membership === []
+                        || array_intersect_key($membership, $this->getUserGroupsForUser()) !== []);
                 }
             }
 

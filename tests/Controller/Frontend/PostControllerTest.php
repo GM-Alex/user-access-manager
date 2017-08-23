@@ -838,6 +838,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showComment()
+     * @covers ::hidePostComment()
      */
     public function testShowComment()
     {

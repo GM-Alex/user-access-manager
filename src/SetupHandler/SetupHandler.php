@@ -373,8 +373,7 @@ class SetupHandler
             if ($this->objectHandler->isPostType($objectType) === true) {
                 $dbIdName = 'post_id';
                 $database = $userGroupToPost.', '.$postTable;
-                $addition = " WHERE post_id = ID
-                            AND post_type = '".$objectType."'";
+                $addition = " WHERE post_id = ID AND post_type = '{$objectType}'";
             } elseif ($objectType === 'category') {
                 $dbIdName = 'category_id';
                 $database = $userGroupToCategory;
@@ -388,11 +387,7 @@ class SetupHandler
                 continue;
             }
 
-            $fullDatabase = $database.$addition;
-
-            $query = "SELECT {$dbIdName} AS id, group_id AS groupId
-                FROM {$fullDatabase}";
-
+            $query = "SELECT {$dbIdName} AS id, group_id AS groupId FROM {$database} {$addition}";
             $dbObjects = (array)$this->database->getResults($query);
 
             foreach ($dbObjects as $dbObject) {

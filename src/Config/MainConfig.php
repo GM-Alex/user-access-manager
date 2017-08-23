@@ -79,6 +79,181 @@ class MainConfig extends Config
     }
 
     /**
+     * Adds the default general config parameters to the config parameters.
+     *
+     * @param array $configParameters
+     */
+    private function addDefaultGeneralConfigParameters(array &$configParameters)
+    {
+        $id = 'redirect';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            'false',
+            ['false', 'custom_page', 'custom_url']
+        );
+
+        $id = 'redirect_custom_page';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
+
+        $id = 'redirect_custom_url';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
+
+        $id = 'lock_recursive';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
+
+        $id = 'authors_has_access_to_own';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
+
+        $id = 'authors_can_add_posts_to_groups';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+
+        $id = 'blog_admin_hint';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
+
+        $id = 'blog_admin_hint_text';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id, '[L]');
+
+        $id = 'protect_feed';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
+
+        $id = 'full_access_role';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            'administrator',
+            ['administrator', 'editor', 'author', 'contributor', 'subscriber']
+        );
+
+        $id = 'active_cache_provider';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            self::CACHE_PROVIDER_NONE,
+            array_merge([self::CACHE_PROVIDER_NONE], array_keys($this->cache->getRegisteredCacheProviders()))
+        );
+    }
+
+    /**
+     * Adds the default post config parameters to the config parameters.
+     *
+     * @param array $configParameters
+     */
+    private function addDefaultPostConfigParameters(array &$configParameters)
+    {
+        $postTypes = $this->objectHandler->getPostTypes();
+        array_unshift($postTypes, self::DEFAULT_TYPE);
+
+        foreach ($postTypes as $postType) {
+            if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+                continue;
+            }
+
+            if ($postType !== self::DEFAULT_TYPE) {
+                $id = "{$postType}_use_default";
+                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+            }
+
+            $id = "hide_{$postType}";
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+
+            $id = "hide_{$postType}_title";
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+
+            $id = "{$postType}_title";
+            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+                $id,
+                TXT_UAM_SETTING_DEFAULT_NO_RIGHTS
+            );
+
+            $id = "{$postType}_content";
+            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+                $id,
+                TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_ENTRY
+            );
+
+            $id = "hide_{$postType}_comment";
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+
+            $id = "{$postType}_comment_content";
+            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+                $id,
+                TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_COMMENTS
+            );
+
+            $id = "{$postType}_comments_locked";
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+
+            if ($postType === 'post') {
+                $id = "show_{$postType}_content_before_more";
+                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+            }
+        }
+    }
+
+    /**
+     * Adds the default taxonomy config parameters to the config parameters.
+     *
+     * @param array $configParameters
+     */
+    private function addDefaultTaxonomyConfigParameters(array &$configParameters)
+    {
+        $taxonomies = $this->objectHandler->getTaxonomies();
+        array_unshift($taxonomies, self::DEFAULT_TYPE);
+
+        foreach ($taxonomies as $taxonomy) {
+            if ($taxonomy !== self::DEFAULT_TYPE) {
+                $id = "{$taxonomy}_use_default";
+                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+            }
+
+            $id = 'hide_empty_'.$taxonomy;
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
+        }
+    }
+
+    /**
+     * Adds the default file config parameters to the config parameters.
+     *
+     * @param array $configParameters
+     */
+    private function addDefaultFileConfigParameters(array &$configParameters)
+    {
+        $id = 'lock_file';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+
+        $id = 'file_pass_type';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            'random',
+            ['random', 'user']
+        );
+
+        $id = 'download_type';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            'fopen',
+            ['fopen', 'normal']
+        );
+
+        $id = 'lock_file_types';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            'all',
+            ['all', 'selected', 'not_selected']
+        );
+
+        $id = 'locked_file_types';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+            $id,
+            'zip,rar,tar,gz'
+        );
+
+        $id = 'not_locked_file_types';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
+            $id,
+            'gif,jpg,jpeg,png'
+        );
+    }
+
+    /**
      * Returns the default config parameters settings
      *
      * @return ConfigParameter[]
@@ -91,149 +266,10 @@ class MainConfig extends Config
              */
             $configParameters = [];
 
-            $postTypes = $this->objectHandler->getPostTypes();
-            array_unshift($postTypes, self::DEFAULT_TYPE);
-
-            foreach ($postTypes as $postType) {
-                if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
-                    continue;
-                }
-
-                if ($postType !== self::DEFAULT_TYPE) {
-                    $id = "{$postType}_use_default";
-                    $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-                }
-
-                $id = "hide_{$postType}";
-                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-
-                $id = "hide_{$postType}_title";
-                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-
-                $id = "{$postType}_title";
-                $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
-                    $id,
-                    TXT_UAM_SETTING_DEFAULT_NO_RIGHTS
-                );
-
-                $id = "{$postType}_content";
-                $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
-                    $id,
-                    TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_ENTRY
-                );
-
-                $id = "hide_{$postType}_comment";
-                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-
-                $id = "{$postType}_comment_content";
-                $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
-                    $id,
-                    TXT_UAM_SETTING_DEFAULT_NO_RIGHTS_FOR_COMMENTS
-                );
-
-                $id = "{$postType}_comments_locked";
-                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-
-                if ($postType === 'post') {
-                    $id = "show_{$postType}_content_before_more";
-                    $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-                }
-            }
-
-            $id = 'redirect';
-            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
-                $id,
-                'false',
-                ['false', 'custom_page', 'custom_url']
-            );
-
-            $id = 'redirect_custom_page';
-            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
-
-            $id = 'redirect_custom_url';
-            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
-
-            $id = 'lock_recursive';
-            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
-
-            $id = 'authors_has_access_to_own';
-            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
-
-
-            $id = 'authors_can_add_posts_to_groups';
-            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-
-            $id = 'lock_file';
-            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-
-            $id = 'file_pass_type';
-            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
-                $id,
-                'random',
-                ['random', 'user']
-            );
-
-            $id = 'download_type';
-            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
-                $id,
-                'fopen',
-                ['fopen', 'normal']
-            );
-
-            $id = 'lock_file_types';
-            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
-                $id,
-                'all',
-                ['all', 'selected', 'not_selected']
-            );
-
-            $id = 'locked_file_types';
-            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
-                $id,
-                'zip,rar,tar,gz'
-            );
-
-            $id = 'not_locked_file_types';
-            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter(
-                $id,
-                'gif,jpg,jpeg,png'
-            );
-
-            $id = 'blog_admin_hint';
-            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
-
-            $id = 'blog_admin_hint_text';
-            $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id, '[L]');
-
-            $taxonomies = $this->objectHandler->getTaxonomies();
-            array_unshift($taxonomies, self::DEFAULT_TYPE);
-
-            foreach ($taxonomies as $taxonomy) {
-                if ($taxonomy !== self::DEFAULT_TYPE) {
-                    $id = "{$taxonomy}_use_default";
-                    $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-                }
-
-                $id = 'hide_empty_'.$taxonomy;
-                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
-            }
-
-            $id = 'protect_feed';
-            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
-
-            $id = 'full_access_role';
-            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
-                $id,
-                'administrator',
-                ['administrator', 'editor', 'author', 'contributor', 'subscriber']
-            );
-
-            $id = 'active_cache_provider';
-            $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
-                $id,
-                self::CACHE_PROVIDER_NONE,
-                array_merge([self::CACHE_PROVIDER_NONE], array_keys($this->cache->getRegisteredCacheProviders()))
-            );
+            $this->addDefaultGeneralConfigParameters($configParameters);
+            $this->addDefaultPostConfigParameters($configParameters);
+            $this->addDefaultTaxonomyConfigParameters($configParameters);
+            $this->addDefaultFileConfigParameters($configParameters);
 
             $this->defaultConfigParameters = $configParameters;
         }

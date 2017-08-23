@@ -455,6 +455,7 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getUserGroupsForUser()
+     * @covers ::checkUserGroupAccess()
      */
     public function testGetUserGroupsForUser()
     {
