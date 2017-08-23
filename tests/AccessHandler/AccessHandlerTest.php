@@ -756,6 +756,7 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getExcludedPosts()
+     * @covers ::getNoneHiddenPostTypes()
      * @covers ::getExcludedObjects()
      */
     public function testGetExcludedPosts()
@@ -859,16 +860,20 @@ class AccessHandlerTest extends HandlerTestCase
         ];
 
         self::setValue($accessHandler, 'userGroupsForUser', $userGroupsForUser);
-
         self::assertEquals([4 => 4, 6 => 6], $accessHandler->getExcludedPosts());
+        self::assertAttributeEquals(['page' => 'page'], 'noneHiddenPostTypes', $accessHandler);
         self::assertAttributeEquals([4 => 4, 6 => 6], 'excludedPosts', $accessHandler);
 
-        $this->setValue($accessHandler, 'excludedPosts', null);
+        self::setValue($accessHandler, 'noneHiddenPostTypes', null);
+        self::setValue($accessHandler, 'excludedPosts', null);
         self::assertEquals([2 => 2, 4 => 4, 6 => 6], $accessHandler->getExcludedPosts());
+        self::assertAttributeEquals([], 'noneHiddenPostTypes', $accessHandler);
         self::assertAttributeEquals([2 => 2, 4 => 4, 6 => 6], 'excludedPosts', $accessHandler);
 
-        $this->setValue($accessHandler, 'excludedPosts', null);
+        self::setValue($accessHandler, 'noneHiddenPostTypes', null);
+        self::setValue($accessHandler, 'excludedPosts', null);
         self::assertEquals([6 => 6], $accessHandler->getExcludedPosts());
+        self::assertAttributeEquals(['page' => 'page'], 'noneHiddenPostTypes', $accessHandler);
         self::assertAttributeEquals([6 => 6], 'excludedPosts', $accessHandler);
     }
 }

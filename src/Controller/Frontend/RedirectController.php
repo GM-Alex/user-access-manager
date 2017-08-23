@@ -286,6 +286,50 @@ class RedirectController extends Controller
     }
 
     /**
+     * Extracts the object type and id.
+     *
+     * @param object      $pageParams
+     * @param null|string $objectType
+     * @param null|string $objectId
+     */
+    private function extractObjectTypeAndId($pageParams, &$objectType, &$objectId)
+    {
+        $objectType = null;
+        $objectId = null;
+
+        if (isset($pageParams->query_vars['p']) === true) {
+            $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+            $objectId = $pageParams->query_vars['p'];
+        } elseif (isset($pageParams->query_vars['page_id']) === true) {
+            $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+            $objectId = $pageParams->query_vars['page_id'];
+        } elseif (isset($pageParams->query_vars['cat_id']) === true) {
+            $objectType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
+            $objectId = $pageParams->query_vars['cat_id'];
+        } elseif (isset($pageParams->query_vars['name']) === true) {
+            $postableTypes = implode('\',\'', $this->objectHandler->getPostTypes());
+
+            $query = $this->database->prepare(
+                "SELECT ID
+                    FROM {$this->database->getPostsTable()}
+                    WHERE post_name = %s
+                      AND post_type IN ('{$postableTypes}')",
+                $pageParams->query_vars['name']
+            );
+
+            $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
+            $objectId = (int)$this->database->getVariable($query);
+        } elseif (isset($pageParams->query_vars['pagename']) === true) {
+            $object = $this->wordpress->getPageByPath($pageParams->query_vars['pagename']);
+
+            if ($object !== null) {
+                $objectType = $object->post_type;
+                $objectId = $object->ID;
+            }
+        }
+    }
+
+    /**
      * Redirects to a page or to content.
      *
      * @param string $headers    The headers which are given from wordpress.
@@ -303,39 +347,7 @@ class RedirectController extends Controller
         } elseif ($this->config->atAdminPanel() === false
             && $this->config->getRedirect() !== 'false'
         ) {
-            $objectType = null;
-            $objectId = null;
-
-            if (isset($pageParams->query_vars['p']) === true) {
-                $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-                $objectId = $pageParams->query_vars['p'];
-            } elseif (isset($pageParams->query_vars['page_id']) === true) {
-                $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-                $objectId = $pageParams->query_vars['page_id'];
-            } elseif (isset($pageParams->query_vars['cat_id']) === true) {
-                $objectType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-                $objectId = $pageParams->query_vars['cat_id'];
-            } elseif (isset($pageParams->query_vars['name']) === true) {
-                $postableTypes = implode('\',\'', $this->objectHandler->getPostTypes());
-
-                $query = $this->database->prepare(
-                    "SELECT ID
-                    FROM {$this->database->getPostsTable()}
-                    WHERE post_name = %s
-                      AND post_type IN ('{$postableTypes}')",
-                    $pageParams->query_vars['name']
-                );
-
-                $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-                $objectId = (int)$this->database->getVariable($query);
-            } elseif (isset($pageParams->query_vars['pagename']) === true) {
-                $object = $this->wordpress->getPageByPath($pageParams->query_vars['pagename']);
-
-                if ($object !== null) {
-                    $objectType = $object->post_type;
-                    $objectId = $object->ID;
-                }
-            }
+            $this->extractObjectTypeAndId($pageParams, $objectType, $objectId);
 
             if ($this->accessHandler->checkObjectAccess($objectType, $objectId) === false) {
                 $this->redirectUser(false);

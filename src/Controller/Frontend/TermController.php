@@ -266,9 +266,7 @@ class TermController extends Controller
     public function showTerms($terms = [])
     {
         foreach ($terms as $key => $term) {
-            $isNumeric = (is_numeric($term) === true);
-
-            if ($isNumeric === true) {
+            if (is_numeric($term) === true) {
                 if ((int)$term === 0) {
                     unset($terms[$key]);
                     continue;
@@ -283,9 +281,7 @@ class TermController extends Controller
 
             $term = $this->processTerm($term, $isEmpty);
 
-            if ($term !== null && $isEmpty === false) {
-                $terms[$key] = ($isNumeric === true) ? $term->term_id : $term;
-            } else {
+            if ($term === null || $isEmpty === true) {
                 unset($terms[$key]);
             }
         }
@@ -319,21 +315,16 @@ class TermController extends Controller
                         $item->title = $this->config->getPostTypeTitle($item->object);
                     }
                 }
-
-                $showItems[$key] = $item;
             } elseif ($this->objectHandler->isTaxonomy($item->object) === true) {
-                $term = $this->objectHandler->getTerm($item->object_id);
+                $rawTerm = $this->objectHandler->getTerm($item->object_id);
+                $term = $this->processTerm($rawTerm, $isEmpty);
 
-                if ($term !== false) {
-                    $term = $this->processTerm($term, $isEmpty);
-
-                    if ($term !== null && $isEmpty === false) {
-                        $showItems[$key] = $item;
-                    }
+                if ($term === false || $term === null || $isEmpty === true) {
+                    continue;
                 }
-            } else {
-                $showItems[$key] = $item;
             }
+
+            $showItems[$key] = $item;
         }
 
         return $showItems;

@@ -104,6 +104,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::createPasswordFile()
+     * @covers  ::getDefaultPasswordFileWithPath()
      */
     public function testCreatePasswordFile()
     {

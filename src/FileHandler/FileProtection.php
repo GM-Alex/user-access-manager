@@ -89,6 +89,26 @@ abstract class FileProtection
     }
 
     /**
+     * Returns the password file name with the path.
+     *
+     * @param string $dir
+     *
+     * @return null|string
+     */
+    private function getDefaultPasswordFileWithPath($dir)
+    {
+        if ($dir === null) {
+            $wordpressUploadDir = $this->wordpress->getUploadDir();
+
+            if (empty($wordpressUploadDir['error']) === true) {
+                $dir = $wordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
+            }
+        }
+
+        return ($dir !== null) ? $dir.self::PASSWORD_FILE_NAME : null;
+    }
+
+    /**
      * Creates a htpasswd file.
      *
      * @param boolean $createNew Force to create new file.
@@ -96,34 +116,22 @@ abstract class FileProtection
      */
     public function createPasswordFile($createNew = false, $dir = null)
     {
-        // get url
-        if ($dir === null) {
-            $wordpressUploadDir = $this->wordpress->getUploadDir();
+        $file = $this->getDefaultPasswordFileWithPath($dir);
 
-            if (empty($wordpressUploadDir['error'])) {
-                $dir = $wordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
-            }
-        }
-
-        $file = $dir.self::PASSWORD_FILE_NAME;
-
-        if ($dir !== null
-            && (file_exists($file) === false || $createNew)
-        ) {
+        if ($file !== null && (file_exists($file) === false || $createNew)) {
             $currentUser = $this->wordpress->getCurrentUser();
+
+            $user = $currentUser->user_login;
+            $password = $currentUser->user_pass;
 
             if ($this->config->getFilePassType() === 'random') {
                 try {
                     $randomPassword = $this->util->getRandomPassword();
                     $password = md5($randomPassword);
                 } catch (\Exception $exception) {
-                    $password = $currentUser->user_pass;
+                    // Do nothing
                 }
-            } else {
-                $password = $currentUser->user_pass;
             }
-
-            $user = $currentUser->user_login;
 
             // make .htpasswd
             $content = "{$user}:{$password}\n";

@@ -102,6 +102,11 @@ class AccessHandler
     private $objectAccess = [];
 
     /**
+     * @var null|array
+     */
+    private $noneHiddenPostTypes = null;
+
+    /**
      * The constructor
      *
      * @param Wordpress        $wordpress
@@ -394,19 +399,16 @@ class AccessHandler
                 || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true
             ) {
                 $access = true;
-            } else {
-                if ($this->config->authorsHasAccessToOwn() === true
-                    && $this->objectHandler->isPostType($objectType)
-                ) {
-                    $post = $this->objectHandler->getPost($objectId);
-                    $access = ($post !== false && $currentUser->ID === (int)$post->post_author);
-                }
+            } elseif ($this->config->authorsHasAccessToOwn() === true
+                && $this->objectHandler->isPostType($objectType)
+            ) {
+                $post = $this->objectHandler->getPost($objectId);
+                $access = ($post !== false && $currentUser->ID === (int)$post->post_author);
+            }
 
-                if ($access === false) {
-                    $membership = $this->getUserGroupsForObject($objectType, $objectId);
-                    $access = ($membership === []
-                        || array_intersect_key($membership, $this->getUserGroupsForUser()) !== []);
-                }
+            if ($access === false) {
+                $membership = $this->getUserGroupsForObject($objectType, $objectId);
+                $access = $membership === [] || array_intersect_key($membership, $this->getUserGroupsForUser()) !== [];
             }
 
             $this->objectAccess[$objectType][$objectId] = $access;
@@ -470,6 +472,30 @@ class AccessHandler
     }
 
     /**
+     * Returns the none hidden post types map.
+     *
+     * @return array
+     */
+    private function getNoneHiddenPostTypes()
+    {
+        if ($this->noneHiddenPostTypes === null) {
+            $this->noneHiddenPostTypes = [];
+
+            if ($this->wordpress->isAdmin() === false) {
+                $postTypes = $this->objectHandler->getPostTypes();
+
+                foreach ($postTypes as $postType) {
+                    if ($this->config->hidePostType($postType) === false) {
+                        $this->noneHiddenPostTypes[$postType] = $postType;
+                    }
+                }
+            }
+        }
+
+        return $this->noneHiddenPostTypes;
+    }
+
+    /**
      * Returns the excluded posts.
      *
      * @return array
@@ -481,18 +507,7 @@ class AccessHandler
         }
 
         if ($this->excludedPosts === null) {
-            $noneHiddenPostTypes = [];
-
-            if ($this->wordpress->isAdmin() === false) {
-                $postTypes = $this->objectHandler->getPostTypes();
-
-                foreach ($postTypes as $postType) {
-                    if ($this->config->hidePostType($postType) === false) {
-                        $noneHiddenPostTypes[$postType] = $postType;
-                    }
-                }
-            }
-
+            $noneHiddenPostTypes = $this->getNoneHiddenPostTypes();
             $excludedPosts = $this->getExcludedObjects(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $noneHiddenPostTypes);
 
             if ($this->config->authorsHasAccessToOwn() === true) {

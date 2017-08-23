@@ -479,6 +479,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::redirect()
+     * @covers ::extractObjectTypeAndId()
      */
     public function testRedirect()
     {

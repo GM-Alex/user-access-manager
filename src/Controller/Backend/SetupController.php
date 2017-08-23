@@ -113,31 +113,25 @@ class SetupController extends Controller
         $backup = (bool)$this->getRequestParameter('uam_backup_db', false);
 
         if ($update === self::UPDATE_BLOG || $update === self::UPDATE_NETWORK) {
-            if ($update === self::UPDATE_NETWORK) {
-                $blogIds = $this->setupHandler->getBlogIds();
+            $currentBlogId = $this->database->getCurrentBlogId();
+            $blogIds = ($update === self::UPDATE_NETWORK) ? $this->setupHandler->getBlogIds() : [$currentBlogId];
 
-                if (count($blogIds) > 0) {
-                    $currentBlogId = $this->database->getCurrentBlogId();
+            if (count($blogIds) > 0) {
+                $currentBlogId = $this->database->getCurrentBlogId();
 
-                    foreach ($blogIds as $blogId) {
-                        $this->wordpress->switchToBlog($blogId);
+                foreach ($blogIds as $blogId) {
+                    $this->wordpress->switchToBlog($blogId);
 
-                        if ($backup === true) {
-                            $this->setupHandler->backupDatabase();
-                        }
-
-                        $this->setupHandler->update();
+                    if ($backup === true) {
+                        $this->setupHandler->backupDatabase();
                     }
 
-                    $this->wordpress->switchToBlog($currentBlogId);
-                }
-            } else {
-                if ($backup === true) {
-                    $this->setupHandler->backupDatabase();
+                    $this->setupHandler->update();
                 }
 
-                $this->setupHandler->update();
+                $this->wordpress->switchToBlog($currentBlogId);
             }
+
 
             $this->setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUCCESS);
         }
