@@ -621,6 +621,7 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::checkObjectAccess()
+     * @covers ::hasAuthorAccess()
      */
     public function testCheckObjectAccess()
     {

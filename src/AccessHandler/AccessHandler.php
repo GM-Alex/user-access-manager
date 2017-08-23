@@ -378,6 +378,27 @@ class AccessHandler
     }
 
     /**
+     * Checks it the user has access because he is the author.
+     *
+     * @param string $objectType
+     * @param string $objectId
+     *
+     * @return bool
+     */
+    private function hasAuthorAccess($objectType, $objectId)
+    {
+        if ($this->config->authorsHasAccessToOwn() === true
+            && $this->objectHandler->isPostType($objectType)
+        ) {
+            $currentUser = $this->wordpress->getCurrentUser();
+            $post = $this->objectHandler->getPost($objectId);
+            return ($post !== false && $currentUser->ID === (int)$post->post_author);
+        }
+
+        return false;
+    }
+
+    /**
      * Checks if the current_user has access to the given post.
      *
      * @param string  $objectType The object type which should be checked.
@@ -392,21 +413,12 @@ class AccessHandler
         }
 
         if (isset($this->objectAccess[$objectType][$objectId]) === false) {
-            $access = false;
-            $currentUser = $this->wordpress->getCurrentUser();
-
             if ($this->objectHandler->isValidObjectType($objectType) === false
                 || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true
+                || $this->hasAuthorAccess($objectType, $objectId) === true
             ) {
                 $access = true;
-            } elseif ($this->config->authorsHasAccessToOwn() === true
-                && $this->objectHandler->isPostType($objectType)
-            ) {
-                $post = $this->objectHandler->getPost($objectId);
-                $access = ($post !== false && $currentUser->ID === (int)$post->post_author);
-            }
-
-            if ($access === false) {
+            } else {
                 $membership = $this->getUserGroupsForObject($objectType, $objectId);
                 $access = $membership === [] || array_intersect_key($membership, $this->getUserGroupsForUser()) !== [];
             }

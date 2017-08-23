@@ -209,8 +209,8 @@ class TermController extends Controller
     /**
      * Modifies the content of the term by the given settings.
      *
-     * @param \WP_Term $term     The current term.
-     * @param bool     $isEmpty
+     * @param mixed $term
+     * @param bool  $isEmpty
      *
      * @return null|\WP_Term
      */
