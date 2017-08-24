@@ -41,6 +41,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler()
         );
 
@@ -66,6 +67,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -152,6 +154,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler()
         );
 
@@ -219,6 +222,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $this->getAccessHandler()
         );
 
@@ -348,6 +352,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -461,6 +466,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $objectHandler,
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -541,6 +547,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -576,6 +583,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -759,6 +767,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $cache,
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -906,6 +915,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $objectHandler,
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -954,6 +964,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler
         );
 
@@ -992,6 +1003,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
+            $this->getUserHandler(),
             $accessHandler
         );
 

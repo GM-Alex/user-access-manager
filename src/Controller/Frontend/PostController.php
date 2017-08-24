@@ -21,6 +21,7 @@ use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
+use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -57,6 +58,11 @@ class PostController extends Controller
     private $objectHandler;
 
     /**
+     * @var UserHandler
+     */
+    protected $userHandler;
+
+    /**
      * @var AccessHandler
      */
     protected $accessHandler;
@@ -76,6 +82,7 @@ class PostController extends Controller
      * @param Util          $util
      * @param Cache         $cache
      * @param ObjectHandler $objectHandler
+     * @param UserHandler   $userHandler
      * @param AccessHandler $accessHandler
      */
     public function __construct(
@@ -86,6 +93,7 @@ class PostController extends Controller
         Util $util,
         Cache $cache,
         ObjectHandler $objectHandler,
+        UserHandler $userHandler,
         AccessHandler $accessHandler
     ) {
         parent::__construct($php, $wordpress, $config);
@@ -93,6 +101,7 @@ class PostController extends Controller
         $this->util = $util;
         $this->cache = $cache;
         $this->objectHandler = $objectHandler;
+        $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
     }
 
