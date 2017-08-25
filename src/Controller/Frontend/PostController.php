@@ -157,7 +157,7 @@ class PostController extends Controller
      */
     private function extractOwnFilters(array &$filters)
     {
-        if (isset($filters['the_posts']) === true && isset($filters['the_posts']->callbacks[10]) === true) {
+        if (isset($filters['the_posts']->callbacks[10]) === true) {
             foreach ($filters['the_posts']->callbacks[10] as $postFilter) {
                 if (is_array($postFilter['function']) === true
                     && $postFilter['function'][0] instanceof PostController
