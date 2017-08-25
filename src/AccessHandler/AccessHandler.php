@@ -271,8 +271,6 @@ class AccessHandler
     {
         if ($this->objectHandler->isValidObjectType($objectType) === false) {
             return [];
-        } elseif (isset($this->objectUserGroups[$objectType]) === false) {
-            $this->objectUserGroups[$objectType] = [];
         }
 
         if ($ignoreDates === true || isset($this->objectUserGroups[$objectType][$objectId]) === false) {
@@ -417,10 +415,6 @@ class AccessHandler
      */
     public function checkObjectAccess($objectType, $objectId)
     {
-        if (isset($this->objectAccess[$objectType]) === false) {
-            $this->objectAccess[$objectType] = [];
-        }
-
         if (isset($this->objectAccess[$objectType][$objectId]) === false) {
             if ($this->objectHandler->isValidObjectType($objectType) === false
                 || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true

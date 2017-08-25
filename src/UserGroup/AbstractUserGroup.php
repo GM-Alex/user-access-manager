@@ -579,10 +579,6 @@ abstract class AbstractUserGroup
         $objectId,
         &$assignmentInformation = null
     ) {
-        if (isset($this->objectMembership[$objectType]) === false) {
-            $this->objectMembership[$objectType] = [];
-        }
-
         if (isset($this->objectMembership[$objectType][$objectId]) === false) {
             $isMember = $this->objectHandler->getObjectMembershipHandler($objectType)->isMember(
                 $this,

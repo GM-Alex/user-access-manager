@@ -52,6 +52,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::parseQuery()
+     * @covers ::filtersSuppressed()
      */
     public function testParseQuery()
     {
@@ -104,6 +105,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::postsPreQuery()
+     * @covers ::filtersSuppressed()
      * @covers ::extractOwnFilters()
      */
     public function testPostsPreQuery()

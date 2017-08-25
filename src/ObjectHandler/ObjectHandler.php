@@ -258,6 +258,7 @@ class ObjectHandler
 
         foreach ($processMap as $id => $subIds) {
             foreach ($subIds as $subId => $type) {
+                //TODO some thing is strange here
                 if (isset($map[$subId]) === true && isset($processed[$subId]) !== $id) {
                     $map[$id] += $this->processTreeMapElements($map, [$subId => $map[$subId]], $processed)[$subId];
                     $processed[$id] = $subId;
@@ -289,22 +290,6 @@ class ObjectHandler
         $results = (array)$this->database->getResults($select);
 
         foreach ($results as $result) {
-            if (isset($treeMap[self::TREE_MAP_CHILDREN][$result->type]) === false) {
-                $treeMap[self::TREE_MAP_CHILDREN][$result->type] = [];
-            }
-
-            if (isset($treeMap[self::TREE_MAP_PARENTS][$result->type]) === false) {
-                $treeMap[self::TREE_MAP_PARENTS][$result->type] = [];
-            }
-
-            if (isset($treeMap[self::TREE_MAP_CHILDREN][$result->type][$result->parentId]) === false) {
-                $treeMap[self::TREE_MAP_CHILDREN][$result->type][$result->parentId] = [];
-            }
-
-            if (isset($treeMap[self::TREE_MAP_PARENTS][$result->type][$result->id]) === false) {
-                $treeMap[self::TREE_MAP_PARENTS][$result->type][$result->id] = [];
-            }
-
             $treeMap[self::TREE_MAP_CHILDREN][$generalType][$result->parentId][$result->id] = $result->type;
             $treeMap[self::TREE_MAP_CHILDREN][$result->type][$result->parentId][$result->id] = $result->type;
             $treeMap[self::TREE_MAP_PARENTS][$generalType][$result->id][$result->parentId] = $result->type;
@@ -393,10 +378,6 @@ class ObjectHandler
                 $results = (array)$this->database->getResults($select);
 
                 foreach ($results as $result) {
-                    if (isset($this->termPostMap[$result->termId]) === false) {
-                        $this->termPostMap[$result->termId] = [];
-                    }
-
                     $this->termPostMap[$result->termId][$result->objectId] = $result->postType;
                 }
 
@@ -429,10 +410,6 @@ class ObjectHandler
                 $results = (array)$this->database->getResults($select);
 
                 foreach ($results as $result) {
-                    if (isset($this->postTermMap[$result->objectId]) === false) {
-                        $this->postTermMap[$result->objectId] = [];
-                    }
-
                     $this->postTermMap[$result->objectId][$result->termId] = $result->termType;
                 }
 
