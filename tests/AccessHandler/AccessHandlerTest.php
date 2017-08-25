@@ -37,6 +37,7 @@ class AccessHandlerTest extends HandlerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -147,6 +148,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $database,
             $this->getObjectHandler(),
@@ -228,6 +230,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $database,
             $this->getObjectHandler(),
@@ -253,6 +256,7 @@ class AccessHandlerTest extends HandlerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -284,6 +288,7 @@ class AccessHandlerTest extends HandlerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -378,6 +383,7 @@ class AccessHandlerTest extends HandlerTestCase
     {
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -461,8 +467,8 @@ class AccessHandlerTest extends HandlerTestCase
     {
         $wordpress = $this->getWordpressWithUser();
 
-        $config = $this->getMainConfig();
-        $config->expects($this->exactly(9))
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->exactly(9))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(false, true, true, false, false, false, false, true, false));
 
@@ -509,7 +515,8 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $userHandler,
@@ -571,6 +578,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -643,6 +651,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(0),
@@ -670,6 +679,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $config,
             $this->getDatabase(),
             $this->getObjectHandler(3),
@@ -718,6 +728,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(['manage_user_groups']),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -729,6 +740,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -770,6 +782,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $this->getWordpressWithUser(['manage_user_groups']),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
@@ -832,6 +845,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         $accessHandler = new AccessHandler(
             $wordpress,
+            $this->getWordpressConfig(),
             $config,
             $database,
             $objectHandler,

@@ -59,7 +59,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
         $frontendShortCodeController = new ShortCodeController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getAccessHandler()
         );
 
@@ -102,7 +102,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls('filter', 'filter', 'LoginFormWithFilter', 'LoginFormWithFilter'));
 
 
-        $config = $this->getMainConfig();
+        $config = $this->getWordpressConfig();
 
         $config->expects($this->exactly(2))
             ->method('getRealPath')
@@ -147,7 +147,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
         $frontendShortCodeController = new ShortCodeController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getAccessHandler()
         );
 
@@ -183,7 +183,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
         $frontendShortCodeController = new ShortCodeController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $accessHandler
         );
 

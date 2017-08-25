@@ -17,6 +17,7 @@ namespace UserAccessManager\Controller\Backend;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\Form\FormFactory;
@@ -39,6 +40,11 @@ class SettingsController extends Controller
     const GROUP_CACHE = 'cache';
     const GROUP_OTHER = 'other';
     const SECTION_OTHER = 'other';
+
+    /**
+     * @var MainConfig
+     */
+    private $mainConfig;
 
     /**
      * @var string
@@ -73,26 +79,29 @@ class SettingsController extends Controller
     /**
      * SettingsController constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param MainConfig    $config
-     * @param Cache         $cache
-     * @param ObjectHandler $objectHandler
-     * @param FileHandler   $fileHandler
-     * @param FormFactory   $formFactory
-     * @param FormHelper    $formHelper
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig      $mainConfig
+     * @param Cache           $cache
+     * @param ObjectHandler   $objectHandler
+     * @param FileHandler     $fileHandler
+     * @param FormFactory     $formFactory
+     * @param FormHelper      $formHelper
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         Cache $cache,
         ObjectHandler $objectHandler,
         FileHandler $fileHandler,
         FormFactory $formFactory,
         FormHelper $formHelper
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
+        $this->mainConfig = $mainConfig;
         $this->cache = $cache;
         $this->objectHandler = $objectHandler;
         $this->fileHandler = $fileHandler;
@@ -107,7 +116,7 @@ class SettingsController extends Controller
      */
     public function getTabGroups()
     {
-        $activeCacheProvider = $this->config->getActiveCacheProvider();
+        $activeCacheProvider = $this->mainConfig->getActiveCacheProvider();
         $cacheProviderSections = [$activeCacheProvider];
         $cacheProviders = $this->cache->getRegisteredCacheProviders();
 
@@ -225,7 +234,7 @@ class SettingsController extends Controller
     private function getPostSettingsForm($postType = MainConfig::DEFAULT_TYPE)
     {
         $textarea = null;
-        $configParameters = $this->config->getConfigParameters();
+        $configParameters = $this->mainConfig->getConfigParameters();
 
         if (isset($configParameters["{$postType}_content"]) === true) {
             $configParameter = $configParameters["{$postType}_content"];
@@ -305,7 +314,7 @@ class SettingsController extends Controller
             'download_type'
         ];
 
-        $configParameters = $this->config->getConfigParameters();
+        $configParameters = $this->mainConfig->getConfigParameters();
 
         if (isset($configParameters['lock_file_types']) === true) {
             $values = [
@@ -371,7 +380,7 @@ class SettingsController extends Controller
     private function getOtherSettingsForm()
     {
         $redirect = null;
-        $configParameters = $this->config->getConfigParameters();
+        $configParameters = $this->mainConfig->getConfigParameters();
 
         if (isset($configParameters['redirect'])) {
             $values = [
@@ -561,15 +570,15 @@ class SettingsController extends Controller
             }
         }
 
-        $this->config->setConfigParameters($newConfigParameters);
+        $this->mainConfig->setConfigParameters($newConfigParameters);
 
-        if ($this->config->lockFile() === false) {
+        if ($this->mainConfig->lockFile() === false) {
             $this->fileHandler->deleteFileProtection();
         } else {
             $this->fileHandler->createFileProtection();
         }
 
-        $this->wordpress->doAction('uam_update_options', $this->config);
+        $this->wordpress->doAction('uam_update_options', $this->mainConfig);
         $this->setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
     }
 

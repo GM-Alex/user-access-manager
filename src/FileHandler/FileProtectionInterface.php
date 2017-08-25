@@ -15,6 +15,7 @@
 namespace UserAccessManager\FileHandler;
 
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -29,12 +30,19 @@ interface FileProtectionInterface
     /**
      * FileProtectionInterface constructor.
      *
-     * @param Php        $php
-     * @param Wordpress  $wordpress
-     * @param MainConfig $config
-     * @param Util       $util
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig      $mainConfig
+     * @param Util            $util
      */
-    public function __construct(Php $php, Wordpress $wordpress, MainConfig $config, Util $util);
+    public function __construct(
+        Php $php,
+        Wordpress $wordpress,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
+        Util $util
+    );
 
     /**
      * Creates the file protection.

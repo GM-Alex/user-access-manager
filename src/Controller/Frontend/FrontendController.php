@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
@@ -31,6 +32,11 @@ class FrontendController extends Controller
     const HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
 
     /**
+     * @var MainConfig
+     */
+    private $mainConfig;
+
+    /**
      * @var AccessHandler
      */
     private $accessHandler;
@@ -38,18 +44,21 @@ class FrontendController extends Controller
     /**
      * FrontendController constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param MainConfig    $config
-     * @param AccessHandler $userHandler
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig      $mainConfig
+     * @param AccessHandler   $userHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         AccessHandler $userHandler
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
+        $this->mainConfig = $mainConfig;
         $this->accessHandler = $userHandler;
     }
 
@@ -62,7 +71,7 @@ class FrontendController extends Controller
      */
     private function registerStylesAndScripts()
     {
-        $urlPath = $this->config->getUrlPath();
+        $urlPath = $this->wordpressConfig->getUrlPath();
 
         $this->wordpress->registerStyle(
             self::HANDLE_STYLE_LOGIN_FORM,
@@ -93,7 +102,7 @@ class FrontendController extends Controller
      */
     public function showAncestors($ancestors, $objectId, $objectType)
     {
-        if ($this->config->lockRecursive() === true
+        if ($this->mainConfig->lockRecursive() === true
             && $this->accessHandler->checkObjectAccess($objectType, $objectId) === false
         ) {
             return [];

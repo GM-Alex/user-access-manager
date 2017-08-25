@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\UserHandler\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
@@ -33,9 +34,14 @@ trait AdminOutputControllerTrait
     protected $wordpress;
 
     /**
+     * @var WordpressConfig
+     */
+    protected $wordpressConfig;
+
+    /**
      * @var MainConfig
      */
-    protected $config;
+    protected $mainConfig;
 
     /**
      * @var Util
@@ -65,10 +71,10 @@ trait AdminOutputControllerTrait
     {
         $output = '';
 
-        if ($this->config->atAdminPanel() === false
-            && $this->config->blogAdminHint() === true
+        if ($this->wordpressConfig->atAdminPanel() === false
+            && $this->mainConfig->blogAdminHint() === true
         ) {
-            $hintText = $this->config->getBlogAdminHintText();
+            $hintText = $this->mainConfig->getBlogAdminHintText();
 
             if ($text !== null && $this->util->endsWith($text, $hintText) === true) {
                 return $output;

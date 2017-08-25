@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserHandler\UserHandler;
@@ -33,6 +34,11 @@ class TermController extends Controller
     use AdminOutputControllerTrait;
 
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
+
+    /**
+     * @var MainConfig
+     */
+    protected $mainConfig;
 
     /**
      * @var Util
@@ -67,24 +73,27 @@ class TermController extends Controller
     /**
      * TermController constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param MainConfig    $config
-     * @param Util          $util
-     * @param ObjectHandler $objectHandler
-     * @param UserHandler   $userHandler
-     * @param AccessHandler $accessHandler
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig      $mainConfig
+     * @param Util            $util
+     * @param ObjectHandler   $objectHandler
+     * @param UserHandler     $userHandler
+     * @param AccessHandler   $accessHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         Util $util,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
         AccessHandler $accessHandler
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
+        $this->mainConfig = $mainConfig;
         $this->util = $util;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
@@ -102,7 +111,7 @@ class TermController extends Controller
             $this->postObjectHideConfig = [];
 
             foreach ($this->objectHandler->getPostTypes() as $postType) {
-                $this->postObjectHideConfig[$postType] = $this->config->hidePostType($postType);
+                $this->postObjectHideConfig[$postType] = $this->mainConfig->hidePostType($postType);
             }
         }
 
@@ -231,13 +240,13 @@ class TermController extends Controller
 
         //For categories
         if ($term->count <= 0
-            && $this->config->atAdminPanel() === false
-            && $this->config->hideEmptyTaxonomy($term->taxonomy) === true
+            && $this->wordpressConfig->atAdminPanel() === false
+            && $this->mainConfig->hideEmptyTaxonomy($term->taxonomy) === true
         ) {
             $isEmpty = true;
         }
 
-        if ($this->config->lockRecursive() === false) {
+        if ($this->mainConfig->lockRecursive() === false) {
             $term = $this->updateTermParent($term);
         }
 
@@ -305,14 +314,14 @@ class TermController extends Controller
 
             if ($this->objectHandler->isPostType($item->object) === true) {
                 if ($this->accessHandler->checkObjectAccess($item->object, $item->object_id) === false) {
-                    if ($this->config->hidePostType($item->object) === true
-                        || $this->config->atAdminPanel() === true
+                    if ($this->mainConfig->hidePostType($item->object) === true
+                        || $this->wordpressConfig->atAdminPanel() === true
                     ) {
                         continue;
                     }
 
-                    if ($this->config->hidePostTypeTitle($item->object) === true) {
-                        $item->title = $this->config->getPostTypeTitle($item->object);
+                    if ($this->mainConfig->hidePostTypeTitle($item->object) === true) {
+                        $item->title = $this->mainConfig->getPostTypeTitle($item->object);
                     }
                 }
             } elseif ($this->objectHandler->isTaxonomy($item->object) === true) {

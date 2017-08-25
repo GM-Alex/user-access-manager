@@ -33,7 +33,7 @@ class AboutControllerTest extends UserAccessManagerTestCase
         $aboutController = new AboutController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig()
+            $this->getWordpressConfig()
         );
 
         self::assertInstanceOf(AboutController::class, $aboutController);

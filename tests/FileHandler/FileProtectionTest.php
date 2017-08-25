@@ -14,8 +14,13 @@
  */
 namespace UserAccessManager\Tests\FileHandler;
 
+use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\FileHandler\FileProtection;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
+use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
+use UserAccessManager\Wrapper\Wordpress;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 
@@ -50,18 +55,24 @@ class FileProtectionTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param $php
-     * @param $wordpress
-     * @param $config
-     * @param $util
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig      $mainConfig
+     * @param Util            $util
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|FileProtection
      */
-    private function getStub($php, $wordpress, $config, $util)
-    {
+    private function getStub(
+        Php $php,
+        Wordpress $wordpress,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
+        Util $util
+    ) {
         return $this->getMockForAbstractClass(
             FileProtection::class,
-            [$php, $wordpress, $config, $util]
+            [$php, $wordpress, $wordpressConfig, $mainConfig, $util]
         );
     }
 
@@ -71,11 +82,13 @@ class FileProtectionTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $php = $this->getPhp();
-        $wordpress = $this->getWordpress();
-        $config = $this->getMainConfig();
-        $util = $this->getUtil();
-        $stub = $this->getStub($php, $wordpress, $config, $util);
+        $stub = $this->getStub(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getUtil()
+        );
         self::assertInstanceOf(FileProtection::class, $stub);
     }
 
@@ -85,17 +98,21 @@ class FileProtectionTest extends UserAccessManagerTestCase
      */
     public function testCleanUpFileTypes()
     {
-        $php = $this->getPhp();
-        $wordpress = $this->getWordpress();
-        $config = $this->getMainConfig();
-        $config->expects($this->exactly(2))
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->exactly(2))
             ->method('getMimeTypes')
             ->will($this->onConsecutiveCalls(
                 ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
                 ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType']
             ));
-        $util = $this->getUtil();
-        $stub = $this->getStub($php, $wordpress, $config, $util);
+
+        $stub = $this->getStub(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $wordpressConfig,
+            $this->getMainConfig(),
+            $this->getUtil()
+        );
 
         self::assertEquals('a|c', self::callMethod($stub, 'cleanUpFileTypes', ['a,c']));
         self::assertEquals('b', self::callMethod($stub, 'cleanUpFileTypes', ['b,f']));
@@ -115,8 +132,6 @@ class FileProtectionTest extends UserAccessManagerTestCase
         $rootDir->add('firstTestDir', new Directory());
         $rootDir->add('secondTestDir', new Directory());
         $rootDir->add('thirdTestDir', new Directory());
-
-        $php = $this->getPhp();
 
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(6))
@@ -143,8 +158,8 @@ class FileProtectionTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getMainConfig();
-        $config->expects($this->exactly(2))
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(2))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 
@@ -154,7 +169,13 @@ class FileProtectionTest extends UserAccessManagerTestCase
             ->method('getRandomPassword')
             ->will($this->returnValue('randomPassword'));
 
-        $stub = $this->getStub($php, $wordpress, $config, $util);
+        $stub = $this->getStub(
+            $this->getPhp(),
+            $wordpress,
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $util
+        );
 
         $firstTestFile = 'vfs://firstTestDir/'.FileProtection::PASSWORD_FILE_NAME;
         $stub->createPasswordFile();
@@ -171,12 +192,18 @@ class FileProtectionTest extends UserAccessManagerTestCase
         $stub->createPasswordFile(true);
         self::assertEquals($content, file_get_contents($firstTestFile));
 
-        $config = $this->getMainConfig();
-        $config->expects($this->exactly(3))
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(3))
             ->method('getFilePassType')
             ->will($this->returnValue('random'));
 
-        $stub = $this->getStub($php, $wordpress, $config, $util);
+        $stub = $this->getStub(
+            $this->getPhp(),
+            $wordpress,
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $util
+        );
         $stub->createPasswordFile();
         self::assertEquals($content, file_get_contents($firstTestFile));
 
@@ -195,7 +222,13 @@ class FileProtectionTest extends UserAccessManagerTestCase
                 throw new \Exception('Unable to generate secure token from OpenSSL.');
             }));
 
-        $stub = $this->getStub($php, $wordpress, $config, $util);
+        $stub = $this->getStub(
+            $this->getPhp(),
+            $wordpress,
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $util
+        );
 
         $thirdTestFile = 'vfs://thirdTestDir/'.FileProtection::PASSWORD_FILE_NAME;
         $stub->createPasswordFile(true, 'vfs://thirdTestDir/');

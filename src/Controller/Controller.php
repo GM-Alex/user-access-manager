@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
-use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -43,9 +43,9 @@ abstract class Controller
     protected $wordpress;
 
     /**
-     * @var MainConfig
+     * @var WordpressConfig
      */
-    protected $config;
+    protected $wordpressConfig;
 
     /**
      * @var string
@@ -55,15 +55,15 @@ abstract class Controller
     /**
      * Controller constructor.
      *
-     * @param Php        $php
-     * @param Wordpress  $wordpress
-     * @param MainConfig $config
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
      */
-    public function __construct(Php $php, Wordpress $wordpress, MainConfig $config)
+    public function __construct(Php $php, Wordpress $wordpress, WordpressConfig $wordpressConfig)
     {
         $this->php = $php;
         $this->wordpress = $wordpress;
-        $this->config = $config;
+        $this->wordpressConfig = $wordpressConfig;
     }
 
     /**

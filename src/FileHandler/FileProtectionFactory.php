@@ -15,6 +15,7 @@
 namespace UserAccessManager\FileHandler;
 
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -37,9 +38,14 @@ class FileProtectionFactory
     private $wordpress;
 
     /**
+     * @var WordpressConfig
+     */
+    private $wordpressConfig;
+
+    /**
      * @var MainConfig
      */
-    private $config;
+    private $mainConfig;
 
     /**
      * @var Util
@@ -49,16 +55,23 @@ class FileProtectionFactory
     /**
      * FileProtectionFactory constructor.
      *
-     * @param Php        $php
-     * @param Wordpress  $wordpress
-     * @param MainConfig $config
-     * @param Util       $util
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig      $mainConfig
+     * @param Util            $util
      */
-    public function __construct(Php $php, Wordpress $wordpress, MainConfig $config, Util $util)
-    {
+    public function __construct(
+        Php $php,
+        Wordpress $wordpress,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
+        Util $util
+    ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
-        $this->config = $config;
+        $this->wordpressConfig = $wordpressConfig;
+        $this->mainConfig = $mainConfig;
         $this->util = $util;
     }
 
@@ -69,7 +82,13 @@ class FileProtectionFactory
      */
     public function createApacheFileProtection()
     {
-        return new ApacheFileProtection($this->php, $this->wordpress, $this->config, $this->util);
+        return new ApacheFileProtection(
+            $this->php,
+            $this->wordpress,
+            $this->wordpressConfig,
+            $this->mainConfig,
+            $this->util
+        );
     }
 
     /**
@@ -79,6 +98,12 @@ class FileProtectionFactory
      */
     public function createNginxFileProtection()
     {
-        return new NginxFileProtection($this->php, $this->wordpress, $this->config, $this->util);
+        return new NginxFileProtection(
+            $this->php,
+            $this->wordpress,
+            $this->wordpressConfig,
+            $this->mainConfig,
+            $this->util
+        );
     }
 }

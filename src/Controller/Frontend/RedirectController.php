@@ -17,6 +17,7 @@ namespace UserAccessManager\Controller\Frontend;
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\FileHandler\FileHandler;
@@ -37,6 +38,11 @@ class RedirectController extends Controller
     use LoginControllerTrait;
 
     const POST_URL_CACHE_KEY = 'PostUrls';
+
+    /**
+     * @var MainConfig
+     */
+    private $mainConfig;
 
     /**
      * @var Database
@@ -74,11 +80,12 @@ class RedirectController extends Controller
     private $fileObjectFactory;
 
     /**
-     * FrontendRedirectController constructor.
+     * RedirectController constructor.
      *
      * @param Php               $php
      * @param Wordpress         $wordpress
-     * @param MainConfig        $config
+     * @param WordpressConfig   $wordpressConfig
+     * @param MainConfig        $mainConfig
      * @param Database          $database
      * @param Util              $util
      * @param Cache             $cache
@@ -90,7 +97,8 @@ class RedirectController extends Controller
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         Database $database,
         Util $util,
         Cache $cache,
@@ -99,7 +107,8 @@ class RedirectController extends Controller
         FileHandler $fileHandler,
         FileObjectFactory $fileObjectFactory
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
+        $this->mainConfig = $mainConfig;
         $this->database = $database;
         $this->util = $util;
         $this->cache = $cache;
@@ -219,7 +228,7 @@ class RedirectController extends Controller
         if ($this->accessHandler->checkObjectAccess($fileObject->getType(), $fileObject->getId()) === true) {
             $file = $fileObject->getFile();
         } elseif ($fileObject->isImage() === true) {
-            $realPath = $this->config->getRealPath();
+            $realPath = $this->wordpressConfig->getRealPath();
             $file = $realPath.'assets/gfx/noAccessPic.png';
         } else {
             $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
@@ -239,10 +248,10 @@ class RedirectController extends Controller
     private function getRedirectUrlAndPermalink(&$permalink)
     {
         $permalink = null;
-        $redirect = $this->config->getRedirect();
+        $redirect = $this->mainConfig->getRedirect();
 
         if ($redirect === 'custom_page') {
-            $redirectCustomPage = $this->config->getRedirectCustomPage();
+            $redirectCustomPage = $this->mainConfig->getRedirectCustomPage();
             $post = $this->objectHandler->getPost($redirectCustomPage);
             $url = null;
 
@@ -251,7 +260,7 @@ class RedirectController extends Controller
                 $permalink = $this->wordpress->getPageLink($post);
             }
         } elseif ($redirect === 'custom_url') {
-            $url = $this->config->getRedirectCustomUrl();
+            $url = $this->mainConfig->getRedirectCustomUrl();
         } else {
             $url = $this->wordpress->getHomeUrl('/');
         }
@@ -344,8 +353,8 @@ class RedirectController extends Controller
 
         if ($fileUrl !== null && $fileType !== null) {
             $this->getFile($fileType, $fileUrl);
-        } elseif ($this->config->atAdminPanel() === false
-            && $this->config->getRedirect() !== 'false'
+        } elseif ($this->wordpressConfig->atAdminPanel() === false
+            && $this->mainConfig->getRedirect() !== 'false'
         ) {
             $this->extractObjectTypeAndId($pageParams, $objectType, $objectId);
 
@@ -367,14 +376,14 @@ class RedirectController extends Controller
      */
     public function getFileUrl($url, $id)
     {
-        if ($this->config->isPermalinksActive() === false && $this->config->lockFile() === true) {
+        if ($this->wordpressConfig->isPermalinksActive() === false && $this->mainConfig->lockFile() === true) {
             $post = $this->objectHandler->getPost($id);
 
             if ($post !== null) {
                 $type = explode('/', $post->post_mime_type);
                 $type = (isset($type[1]) === true) ? $type[1] : $type[0];
 
-                $lockedFileTypes = $this->config->getLockedFileTypes();
+                $lockedFileTypes = $this->mainConfig->getLockedFileTypes();
                 $fileTypes = explode(',', $lockedFileTypes);
 
                 if ($lockedFileTypes === 'all' || in_array($type, $fileTypes) === true) {

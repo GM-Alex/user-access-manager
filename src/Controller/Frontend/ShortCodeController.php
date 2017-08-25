@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -37,18 +38,18 @@ class ShortCodeController extends Controller
     /**
      * ShortCodeController constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param MainConfig    $config
-     * @param AccessHandler $userHandler
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param AccessHandler   $userHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
         AccessHandler $userHandler
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
         $this->accessHandler = $userHandler;
     }
 

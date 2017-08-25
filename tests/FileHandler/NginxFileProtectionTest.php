@@ -60,6 +60,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         $nginxFileProtection = new NginxFileProtection(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getUtil()
         );
@@ -86,25 +87,27 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(5))
+        $wordpressConfig->expects($this->exactly(5))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(false, false, true, true, true));
 
-        $config->expects($this->exactly(2))
-            ->method('getLockFileTypes')
-            ->will($this->onConsecutiveCalls(null, 'selected'));
-
-        $config->expects($this->once())
-            ->method('getLockedFileTypes')
-            ->will($this->returnValue('png,jpg'));
-
-        $config->expects($this->once())
+        $wordpressConfig->expects($this->once())
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
-        $config->expects($this->exactly(2))
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(2))
+            ->method('getLockFileTypes')
+            ->will($this->onConsecutiveCalls(null, 'selected'));
+
+        $mainConfig->expects($this->once())
+            ->method('getLockedFileTypes')
+            ->will($this->returnValue('png,jpg'));
+
+        $mainConfig->expects($this->exactly(2))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 
@@ -118,7 +121,8 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         $nginxFileProtection = new NginxFileProtection(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $mainConfig,
             $this->getUtil()
         );
         $file = 'vfs://testDir/'.NginxFileProtection::FILE_NAME;
@@ -180,6 +184,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         $nginxFileProtection = new NginxFileProtection(
             $php,
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getUtil()
         );

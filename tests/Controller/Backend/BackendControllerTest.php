@@ -70,7 +70,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
         $backendController = new BackendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getUserHandler(),
             $this->getFileHandler()
         );
@@ -88,15 +88,15 @@ class BackendControllerTest extends UserAccessManagerTestCase
     {
         $php = $this->getPhp();
 
-        $config = $this->getMainConfig();
-        $config->expects($this->once())
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
         $backendController = new BackendController(
             $php,
             $this->getWordpress(),
-            $config,
+            $wordpressConfig,
             $this->getUserHandler(),
             $this->getFileHandler()
         );
@@ -189,15 +189,15 @@ class BackendControllerTest extends UserAccessManagerTestCase
                 [BackendController::HANDLE_SCRIPT_ADMIN]
             );
 
-        $config = $this->getMainConfig();
-        $config->expects($this->once())
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->once())
             ->method('getUrlPath')
             ->will($this->returnValue('url/'));
 
         $backendController = new BackendController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
             $this->getUserHandler(),
             $this->getFileHandler()
         );
@@ -247,7 +247,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
         $backendController = new BackendController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $userHandler,
             $this->getFileHandler()
         );
@@ -276,7 +276,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
         $backendController = new BackendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getUserHandler(),
             $fileHandler
         );

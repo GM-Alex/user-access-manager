@@ -15,6 +15,7 @@
 namespace UserAccessManager\FileHandler;
 
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -38,10 +39,12 @@ abstract class FileProtection
      */
     protected $wordpress;
 
+    protected $wordpressConfig;
+
     /**
      * @var MainConfig
      */
-    protected $config;
+    protected $mainConfig;
 
     /**
      * @var Util
@@ -49,18 +52,25 @@ abstract class FileProtection
     protected $util;
 
     /**
-     * ApacheFileProtection constructor.
+     * FileProtection constructor.
      *
-     * @param Php        $php
-     * @param Wordpress  $wordpress
-     * @param MainConfig $config
-     * @param Util       $util
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig      $mainConfig
+     * @param Util            $util
      */
-    public function __construct(Php $php, Wordpress $wordpress, MainConfig $config, Util $util)
-    {
+    public function __construct(
+        Php $php,
+        Wordpress $wordpress,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
+        Util $util
+    ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
-        $this->config = $config;
+        $this->wordpressConfig = $wordpressConfig;
+        $this->mainConfig = $mainConfig;
         $this->util = $util;
     }
 
@@ -75,7 +85,7 @@ abstract class FileProtection
     {
         $validFileTypes = [];
         $fileTypes = explode(',', $fileTypes);
-        $mimeTypes = $this->config->getMimeTypes();
+        $mimeTypes = $this->wordpressConfig->getMimeTypes();
 
         foreach ($fileTypes as $fileType) {
             $cleanFileType = trim($fileType);
@@ -124,7 +134,7 @@ abstract class FileProtection
             $user = $currentUser->user_login;
             $password = $currentUser->user_pass;
 
-            if ($this->config->getFilePassType() === 'random') {
+            if ($this->mainConfig->getFilePassType() === 'random') {
                 try {
                     $randomPassword = $this->util->getRandomPassword();
                     $password = md5($randomPassword);

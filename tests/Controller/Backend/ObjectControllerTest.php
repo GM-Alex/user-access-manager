@@ -40,6 +40,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -84,6 +85,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -183,6 +185,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -214,6 +217,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -242,6 +246,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -278,6 +283,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -305,6 +311,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -332,6 +339,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -361,6 +369,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -382,6 +391,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -410,6 +420,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -474,6 +485,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -574,6 +586,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -625,8 +638,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             ->with('timestamp')
             ->will($this->returnValue(100));
 
-        $config = $this->getMainConfig();
-        $config->expects($this->exactly(3))
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(3))
             ->method('authorsCanAddPostsToGroups')
             ->will($this->onConsecutiveCalls(false, true, true));
 
@@ -727,7 +740,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $this->getWordpressConfig(),
+            $mainConfig,
             $this->getDatabase(),
             $this->getCache(),
             $objectHandler,
@@ -809,6 +823,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $database,
             $this->getCache(),
@@ -830,6 +845,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -941,6 +957,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController = new ObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),

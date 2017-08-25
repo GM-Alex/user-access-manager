@@ -59,13 +59,13 @@ class LoginWidgetTest extends UserAccessManagerTestCase
         $loginWidget = new LoginWidget(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig()
+            $this->getWordpressConfig()
         );
 
         self::assertInstanceOf(LoginWidget::class, $loginWidget);
         self::assertAttributeEquals($this->getPhp(), 'php', $loginWidget);
         self::assertAttributeEquals($this->getWordpress(), 'wordpress', $loginWidget);
-        self::assertAttributeEquals($this->getMainConfig(), 'config', $loginWidget);
+        self::assertAttributeEquals($this->getWordpressConfig(), 'wordpressConfig', $loginWidget);
 
         self::assertAttributeEquals('uam_login_widget', 'id_base', $loginWidget);
         self::assertAttributeEquals('UAM login widget|user-access-manager', 'name', $loginWidget);
@@ -100,15 +100,15 @@ class LoginWidgetTest extends UserAccessManagerTestCase
 
         $php = $this->getPhp();
 
-        $config = $this->getMainConfig();
-        $config->expects($this->once())
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
         $loginWidget = new LoginWidget(
             $php,
             $this->getWordpress(),
-            $config
+            $wordpressConfig
         );
 
         $php->expects($this->any())

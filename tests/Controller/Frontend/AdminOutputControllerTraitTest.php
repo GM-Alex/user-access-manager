@@ -61,17 +61,19 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
                 $adminUser
             ));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(6))
+        $wordpressConfig->expects($this->exactly(6))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
 
-        $config->expects($this->exactly(5))
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(5))
             ->method('blogAdminHint')
             ->will($this->onConsecutiveCalls(false, true, true, true, true, true));
 
-        $config->expects($this->exactly(4))
+        $mainConfig->expects($this->exactly(4))
             ->method('getBlogAdminHintText')
             ->will($this->returnValue('hintText'));
 
@@ -108,7 +110,8 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
 
         $stub = $this->getStub();
         self::setValue($stub, 'wordpress', $wordpress);
-        self::setValue($stub, 'config', $config);
+        self::setValue($stub, 'wordpressConfig', $wordpressConfig);
+        self::setValue($stub, 'mainConfig', $mainConfig);
         self::setValue($stub, 'util', $util);
         self::setValue($stub, 'userHandler', $userHandler);
         self::setValue($stub, 'accessHandler', $accessHandler);

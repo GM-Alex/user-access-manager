@@ -17,6 +17,7 @@ namespace UserAccessManager\Controller;
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Backend\AboutController;
 use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\CacheController;
@@ -69,9 +70,14 @@ class ControllerFactory
     private $database;
 
     /**
+     * @var WordpressConfig
+     */
+    private $wordpressConfig;
+
+    /**
      * @var MainConfig
      */
-    private $config;
+    private $mainConfig;
 
     /**
      * @var Util
@@ -134,7 +140,8 @@ class ControllerFactory
      * @param Php               $php
      * @param Wordpress         $wordpress
      * @param Database          $database
-     * @param MainConfig        $config
+     * @param WordpressConfig   $wordpressConfig
+     * @param MainConfig        $mainConfig
      * @param Util              $util
      * @param Cache             $cache
      * @param ObjectHandler     $objectHandler
@@ -151,7 +158,8 @@ class ControllerFactory
         Php $php,
         Wordpress $wordpress,
         Database $database,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         Util $util,
         Cache $cache,
         ObjectHandler $objectHandler,
@@ -167,7 +175,8 @@ class ControllerFactory
         $this->php = $php;
         $this->wordpress = $wordpress;
         $this->database = $database;
-        $this->config = $config;
+        $this->wordpressConfig = $wordpressConfig;
+        $this->mainConfig = $mainConfig;
         $this->util = $util;
         $this->cache = $cache;
         $this->objectHandler = $objectHandler;
@@ -191,7 +200,7 @@ class ControllerFactory
         return new BackendController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
             $this->userHandler,
             $this->fileHandler
         );
@@ -207,7 +216,7 @@ class ControllerFactory
         return new AboutController(
             $this->php,
             $this->wordpress,
-            $this->config
+            $this->wordpressConfig
         );
     }
 
@@ -221,7 +230,8 @@ class ControllerFactory
         return new ObjectController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->database,
             $this->cache,
             $this->objectHandler,
@@ -253,7 +263,8 @@ class ControllerFactory
         return new PostObjectController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->database,
             $this->cache,
             $this->objectHandler,
@@ -273,7 +284,8 @@ class ControllerFactory
         return new TermObjectController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->database,
             $this->cache,
             $this->objectHandler,
@@ -293,7 +305,8 @@ class ControllerFactory
         return new UserObjectController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->database,
             $this->cache,
             $this->objectHandler,
@@ -313,7 +326,8 @@ class ControllerFactory
         return new DynamicGroupsController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->database,
             $this->cache,
             $this->objectHandler,
@@ -333,7 +347,8 @@ class ControllerFactory
         return new SettingsController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->cache,
             $this->objectHandler,
             $this->fileHandler,
@@ -352,7 +367,7 @@ class ControllerFactory
         return new SetupController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
             $this->database,
             $this->setupHandler
         );
@@ -368,7 +383,7 @@ class ControllerFactory
         return new UserGroupController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
             $this->accessHandler,
             $this->userGroupFactory,
             $this->formHelper
@@ -385,7 +400,8 @@ class ControllerFactory
         return new FrontendController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->accessHandler
         );
     }
@@ -400,7 +416,8 @@ class ControllerFactory
         return new PostController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->database,
             $this->util,
             $this->cache,
@@ -420,7 +437,8 @@ class ControllerFactory
         return new RedirectController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->database,
             $this->util,
             $this->cache,
@@ -441,7 +459,7 @@ class ControllerFactory
         return new ShortCodeController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
             $this->accessHandler
         );
     }
@@ -456,7 +474,8 @@ class ControllerFactory
         return new TermController(
             $this->php,
             $this->wordpress,
-            $this->config,
+            $this->wordpressConfig,
+            $this->mainConfig,
             $this->util,
             $this->objectHandler,
             $this->userHandler,

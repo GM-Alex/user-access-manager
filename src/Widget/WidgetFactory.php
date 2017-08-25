@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Widget;
 
-use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -36,22 +36,22 @@ class WidgetFactory
     protected $wordpress;
 
     /**
-     * @var MainConfig
+     * @var WordpressConfig
      */
-    protected $config;
+    protected $wordpressConfig;
 
     /**
      * WidgetFactory constructor.
      *
-     * @param Php        $php
-     * @param Wordpress  $wordpress
-     * @param MainConfig $config
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
      */
-    public function __construct(Php $php, Wordpress $wordpress, MainConfig $config)
+    public function __construct(Php $php, Wordpress $wordpress, WordpressConfig $wordpressConfig)
     {
         $this->php = $php;
         $this->wordpress = $wordpress;
-        $this->config = $config;
+        $this->wordpressConfig = $wordpressConfig;
     }
 
     /**
@@ -61,6 +61,6 @@ class WidgetFactory
      */
     public function createLoginWidget()
     {
-        return new LoginWidget($this->php, $this->wordpress, $this->config);
+        return new LoginWidget($this->php, $this->wordpress, $this->wordpressConfig);
     }
 }

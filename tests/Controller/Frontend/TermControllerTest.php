@@ -35,6 +35,7 @@ class TermControllerTest extends UserAccessManagerTestCase
         $frontendController = new TermController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
@@ -66,6 +67,7 @@ class TermControllerTest extends UserAccessManagerTestCase
         $frontendController = new TermController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
@@ -125,13 +127,9 @@ class TermControllerTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(8))
-            ->method('lockRecursive')
-            ->will($this->onConsecutiveCalls(true, false, false, true, true, false, true, true));
-
-        $config->expects($this->exactly(14))
+        $wordpressConfig->expects($this->exactly(14))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(
                 false,
@@ -150,22 +148,28 @@ class TermControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $config->expects($this->once())
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(8))
+            ->method('lockRecursive')
+            ->will($this->onConsecutiveCalls(true, false, false, true, true, false, true, true));
+
+        $mainConfig->expects($this->once())
             ->method('blogAdminHint')
             ->will($this->onConsecutiveCalls(true));
 
-        $config->expects($this->once())
+        $mainConfig->expects($this->once())
             ->method('getBlogAdminHintText')
             ->will($this->returnValue('BlogAdminHintText'));
 
-        $config->expects($this->exactly(3))
+        $mainConfig->expects($this->exactly(3))
             ->method('hidePostType')
             ->withConsecutive(['customPost'], ['post'], ['page'])
             ->will($this->returnCallback(function ($type) {
                 return ($type === 'customPost') ? false : true;
             }));
 
-        $config->expects($this->exactly(4))
+        $mainConfig->expects($this->exactly(4))
             ->method('hideEmptyTaxonomy')
             ->withConsecutive(['taxonomy'], ['taxonomy'], ['taxonomy'], ['taxonomy'])
             ->will($this->onConsecutiveCalls(false, true, true, false));
@@ -271,7 +275,8 @@ class TermControllerTest extends UserAccessManagerTestCase
         $frontendController = new TermController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $mainConfig,
             $util,
             $objectHandler,
             $userHandler,
@@ -353,9 +358,9 @@ class TermControllerTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(15))
+        $wordpressConfig->expects($this->exactly(15))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(
                 false,
@@ -375,37 +380,39 @@ class TermControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $config->expects($this->once())
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->once())
             ->method('blogAdminHint')
             ->will($this->onConsecutiveCalls(true));
 
-        $config->expects($this->once())
+        $mainConfig->expects($this->once())
             ->method('getBlogAdminHintText')
             ->will($this->returnValue('BlogAdminHintText'));
 
-        $config->expects($this->exactly(6))
+        $mainConfig->expects($this->exactly(6))
             ->method('hidePostType')
             ->withConsecutive(['post'], ['post'], ['customPost'], ['post'], ['page'], ['customPost'])
             ->will($this->returnCallback(function ($type) {
                 return ($type !== 'post');
             }));
 
-        $config->expects($this->once())
+        $mainConfig->expects($this->once())
             ->method('hidePostTypeTitle')
             ->with('post')
             ->will($this->returnValue(true));
 
-        $config->expects($this->once())
+        $mainConfig->expects($this->once())
             ->method('getPostTypeTitle')
             ->with('post')
             ->will($this->returnValue('PostTypeTitle'));
 
-        $config->expects($this->once())
+        $mainConfig->expects($this->once())
             ->method('hideEmptyTaxonomy')
             ->with('taxonomy')
             ->will($this->returnValue(true));
 
-        $config->expects($this->exactly(2))
+        $mainConfig->expects($this->exactly(2))
             ->method('lockRecursive')
             ->will($this->returnValue(true));
 
@@ -503,7 +510,8 @@ class TermControllerTest extends UserAccessManagerTestCase
         $frontendController = new TermController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $mainConfig,
             $util,
             $objectHandler,
             $userHandler,

@@ -40,11 +40,11 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         $absPath = rtrim($absPath, '/').'/';
         $areaName = 'WP-Files';
 
-        if ($this->config->isPermalinksActive() === false) {
+        if ($this->wordpressConfig->isPermalinksActive() === false) {
             $fileTypes = null;
 
-            if ($this->config->getLockFileTypes() === 'selected') {
-                $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
+            if ($this->mainConfig->getLockFileTypes() === 'selected') {
+                $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFileTypes());
                 $fileTypes = "\\.({$fileTypes})";
             }
 

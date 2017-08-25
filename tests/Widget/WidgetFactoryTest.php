@@ -37,7 +37,7 @@ class WidgetFactoryTest extends UserAccessManagerTestCase
         $widgetFactory = new WidgetFactory(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig()
+            $this->getWordpressConfig()
         );
 
         self::assertInstanceOf(WidgetFactory::class, $widgetFactory);

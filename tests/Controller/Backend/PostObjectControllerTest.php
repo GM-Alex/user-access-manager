@@ -34,6 +34,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $postObjectController = new PostObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -55,6 +56,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $postObjectController = new PostObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -79,6 +81,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $postObjectController = new PostObjectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),

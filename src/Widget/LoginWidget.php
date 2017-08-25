@@ -16,6 +16,7 @@ namespace UserAccessManager\Widget;
 
 use UserAccessManager\Config\Config;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Frontend\LoginControllerTrait;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -42,9 +43,9 @@ class LoginWidget extends \WP_Widget
     protected $wordpress;
 
     /**
-     * @var Config
+     * @var WordpressConfig
      */
-    protected $config;
+    protected $wordpressConfig;
 
     /**
      * @var null|string
@@ -54,16 +55,16 @@ class LoginWidget extends \WP_Widget
     /**
      * LoginWidget constructor.
      *
-     * @param Php        $php
-     * @param Wordpress  $wordpress
-     * @param MainConfig $config
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
      */
-    public function __construct(Php $php, Wordpress $wordpress, MainConfig $config)
+    public function __construct(Php $php, Wordpress $wordpress, WordpressConfig $wordpressConfig)
     {
         $this->template = 'LoginWidget.php';
         $this->php = $php;
         $this->wordpress = $wordpress;
-        $this->config = $config;
+        $this->wordpressConfig = $wordpressConfig;
 
         parent::__construct(
             self::WIDGET_ID,

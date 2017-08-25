@@ -59,6 +59,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         $apacheFileProtection = new ApacheFileProtection(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getUtil()
         );
@@ -89,30 +90,31 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
-        $config = $this->getMainConfig();
-        $util = $this->getUtil();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(6))
+        $wordpressConfig->expects($this->exactly(6))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
 
-        $config->expects($this->exactly(6))
-            ->method('getLockFileTypes')
-            ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected', null, 'selected', null));
-
-        $config->expects($this->exactly(2))
-            ->method('getLockedFileTypes')
-            ->will($this->returnValue('png,jpg'));
-
-        $config->expects($this->once())
-            ->method('getNotLockedFileTypes')
-            ->will($this->returnValue('png,jpg'));
-
-        $config->expects($this->exactly(3))
+        $wordpressConfig->expects($this->exactly(3))
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
-        $config->expects($this->exactly(3))
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(6))
+            ->method('getLockFileTypes')
+            ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected', null, 'selected', null));
+
+        $mainConfig->expects($this->exactly(2))
+            ->method('getLockedFileTypes')
+            ->will($this->returnValue('png,jpg'));
+
+        $mainConfig->expects($this->once())
+            ->method('getNotLockedFileTypes')
+            ->will($this->returnValue('png,jpg'));
+
+        $mainConfig->expects($this->exactly(3))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 
@@ -126,8 +128,9 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         $apacheFileProtection = new ApacheFileProtection(
             $this->getPhp(),
             $wordpress,
-            $config,
-            $util
+            $wordpressConfig,
+            $mainConfig,
+            $this->getUtil()
         );
 
         $file = 'vfs://testDir/'.ApacheFileProtection::FILE_NAME;
@@ -206,6 +209,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         $apacheFileProtection = new ApacheFileProtection(
             $php,
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getUtil()
         );

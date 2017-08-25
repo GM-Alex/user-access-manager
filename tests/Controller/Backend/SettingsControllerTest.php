@@ -46,6 +46,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -71,6 +72,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -98,6 +100,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -130,6 +133,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -170,6 +174,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -229,6 +234,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $config,
             $cache,
             $this->getObjectHandler(),
@@ -308,6 +314,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
             $this->getObjectHandler(),
@@ -641,6 +648,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $mainConfig,
             $cache,
             $this->getObjectHandler(),
@@ -747,6 +755,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $mainConfig,
             $cache,
             $this->getObjectHandler(),
@@ -789,6 +798,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
             $this->getObjectHandler(),

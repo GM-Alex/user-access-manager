@@ -35,7 +35,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory(),
             $this->getFormHelper()
@@ -71,7 +71,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory(),
             $this->getFormHelper()
@@ -108,7 +108,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory(),
             $formHelper
@@ -146,7 +146,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory(),
             $this->getFormHelper()
@@ -188,7 +188,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getAccessHandler(),
             $userGroupFactory,
             $this->getFormHelper()
@@ -218,7 +218,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $accessHandler,
             $this->getUserGroupFactory(),
             $this->getFormHelper()
@@ -244,7 +244,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory(),
             $this->getFormHelper()
@@ -320,7 +320,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $accessHandler,
             $userGroupFactory,
             $this->getFormHelper()
@@ -369,7 +369,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $accessHandler,
             $this->getUserGroupFactory(),
             $this->getFormHelper()
@@ -453,7 +453,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $userGroupController = new UserGroupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $accessHandler,
             $this->getUserGroupFactory(),
             $this->getFormHelper()

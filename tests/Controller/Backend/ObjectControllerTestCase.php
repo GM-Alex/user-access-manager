@@ -15,6 +15,9 @@
 namespace UserAccessManager\Tests\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\PostObjectController;
+use UserAccessManager\Controller\Backend\TermObjectController;
+use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use Vfs\FileSystem;
@@ -247,17 +250,39 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             ->withConsecutive(...$expectedFilteredUserGroupsForObject)
             ->will($this->returnValue([]));
 
-        $objectController = new $class(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getCache(),
-            $this->getExtendedObjectHandler(),
-            $userHandler,
-            $accessHandler,
-            $this->getUserGroupFactory()
-        );
+        $mainConfigClasses = [
+            UserObjectController::class,
+            TermObjectController::class,
+            PostObjectController::class,
+            ObjectController::class
+        ];
+
+        if (in_array($class, $mainConfigClasses) === true) {
+            $objectController = new $class(
+                $this->getPhp(),
+                $this->getWordpress(),
+                $this->getWordpressConfig(),
+                $this->getMainConfig(),
+                $this->getDatabase(),
+                $this->getCache(),
+                $this->getExtendedObjectHandler(),
+                $userHandler,
+                $accessHandler,
+                $this->getUserGroupFactory()
+            );
+        } else {
+            $objectController = new $class(
+                $this->getPhp(),
+                $this->getWordpress(),
+                $this->getWordpressConfig(),
+                $this->getDatabase(),
+                $this->getCache(),
+                $this->getExtendedObjectHandler(),
+                $userHandler,
+                $accessHandler,
+                $this->getUserGroupFactory()
+            );
+        }
 
         $_POST[ObjectController::UPDATE_GROUPS_FORM_NAME] = 1;
 
@@ -292,8 +317,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
 
         $php = $this->getPhp();
 
-        $config = $this->getMainConfig();
-        $config->expects($this->exactly(count($requestedFiles)))
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->exactly(count($requestedFiles)))
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
@@ -312,7 +337,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
         $objectController = new $class(
             $php,
             $this->getWordpress(),
-            $config,
+            $wordpressConfig,
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
             $this->getExtendedObjectHandler(),
@@ -371,6 +397,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
         return new $class(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $database,
             $this->getCache(),

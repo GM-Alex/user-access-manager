@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Controller\Backend;
 
-use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\FileHandler\FileHandler;
 use UserAccessManager\UserAccessManager;
@@ -52,20 +52,20 @@ class BackendController extends Controller
     /**
      * BackendController constructor.
      *
-     * @param Php         $php
-     * @param Wordpress   $wordpress
-     * @param MainConfig  $config
-     * @param UserHandler $userHandler
-     * @param FileHandler $fileHandler
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param UserHandler     $userHandler
+     * @param FileHandler     $fileHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
         UserHandler $userHandler,
         FileHandler $fileHandler
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
         $this->userHandler = $userHandler;
         $this->fileHandler = $fileHandler;
     }
@@ -94,7 +94,7 @@ class BackendController extends Controller
      */
     private function registerStylesAndScripts()
     {
-        $urlPath = $this->config->getUrlPath();
+        $urlPath = $this->wordpressConfig->getUrlPath();
 
         $this->wordpress->registerStyle(
             self::HANDLE_STYLE_ADMIN,

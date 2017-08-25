@@ -35,6 +35,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getAccessHandler()
         );
@@ -64,15 +65,16 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             ->method('enqueueStyle')
             ->with(FrontendController::HANDLE_STYLE_LOGIN_FORM);
 
-        $config = $this->getMainConfig();
-        $config->expects($this->once())
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->once())
             ->method('getUrlPath')
             ->will($this->returnValue('http://url/'));
 
         $frontendController = new FrontendController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $this->getMainConfig(),
             $this->getAccessHandler()
         );
 
@@ -85,9 +87,9 @@ class FrontendControllerTest extends UserAccessManagerTestCase
      */
     public function testShowAncestors()
     {
-        $config = $this->getMainConfig();
+        $mainConfig = $this->getMainConfig();
 
-        $config->expects($this->exactly(2))
+        $mainConfig->expects($this->exactly(2))
             ->method('lockRecursive')
             ->will($this->onConsecutiveCalls(true, true));
 
@@ -113,7 +115,8 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
-            $config,
+            $this->getWordpressConfig(),
+            $mainConfig,
             $accessHandler
         );
 
@@ -152,6 +155,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         $frontendController = new FrontendController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $accessHandler
         );

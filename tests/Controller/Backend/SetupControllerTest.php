@@ -34,7 +34,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $setupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getDatabase(),
             $this->getSetupHandler()
         );
@@ -56,7 +56,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $setupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getDatabase(),
             $setupHandler
         );
@@ -79,7 +79,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getDatabase(),
             $this->getSetupHandler()
         );
@@ -110,7 +110,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $setupController = new SetupController(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getDatabase(),
             $setupHandler
         );
@@ -158,7 +158,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $database,
             $setupHandler
         );
@@ -208,7 +208,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getDatabase(),
             $setupHandler
         );
@@ -244,7 +244,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getDatabase(),
             $setupHandler
         );
@@ -281,7 +281,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $setupController = new SetupController(
             $this->getPhp(),
             $wordpress,
-            $this->getMainConfig(),
+            $this->getWordpressConfig(),
             $this->getDatabase(),
             $setupHandler
         );

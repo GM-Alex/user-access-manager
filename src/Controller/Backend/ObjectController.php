@@ -17,6 +17,7 @@ namespace UserAccessManager\Controller\Backend;
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -41,6 +42,11 @@ class ObjectController extends Controller
     const DEFAULT_GROUPS_FORM_NAME = 'uam_user_groups';
     const DEFAULT_DYNAMIC_GROUPS_FORM_NAME = 'uam_dynamic_user_groups';
     const UPDATE_GROUPS_FORM_NAME = 'uam_update_groups';
+
+    /**
+     * @var MainConfig
+     */
+    protected $mainConfig;
 
     /**
      * @var Database
@@ -102,7 +108,8 @@ class ObjectController extends Controller
      *
      * @param Php              $php
      * @param Wordpress        $wordpress
-     * @param MainConfig       $config
+     * @param WordpressConfig  $wordpressConfig
+     * @param MainConfig       $mainConfig
      * @param Database         $database
      * @param Cache            $cache
      * @param ObjectHandler    $objectHandler
@@ -113,7 +120,8 @@ class ObjectController extends Controller
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         Database $database,
         Cache $cache,
         ObjectHandler $objectHandler,
@@ -121,7 +129,8 @@ class ObjectController extends Controller
         AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
+        $this->mainConfig = $mainConfig;
         $this->database = $database;
         $this->cache = $cache;
         $this->objectHandler = $objectHandler;
@@ -513,7 +522,7 @@ class ObjectController extends Controller
         $isUpdateForm = (bool)$this->getRequestParameter(self::UPDATE_GROUPS_FORM_NAME, false) === true
             || $this->getRequestParameter('uam_bulk_type') !== null;
 
-        $hasRights = $this->checkUserAccess() === true || $this->config->authorsCanAddPostsToGroups() === true;
+        $hasRights = $this->checkUserAccess() === true || $this->mainConfig->authorsCanAddPostsToGroups() === true;
 
         if ($isUpdateForm === true && $hasRights === true) {
             $filteredUserGroups = $this->accessHandler->getFilteredUserGroups();

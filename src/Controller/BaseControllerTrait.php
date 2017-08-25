@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Controller;
 
-use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Wrapper\Php;
 
 /**
@@ -30,9 +30,9 @@ trait BaseControllerTrait
     protected $php;
 
     /**
-     * @var MainConfig
+     * @var WordpressConfig
      */
-    protected $config;
+    protected $wordpressConfig;
 
     /**
      * @var string
@@ -106,7 +106,7 @@ trait BaseControllerTrait
     protected function getIncludeContents($fileName)
     {
         $contents = '';
-        $realPath = $this->config->getRealPath();
+        $realPath = $this->wordpressConfig->getRealPath();
         $path = [$realPath, 'src', 'View'];
         $path = implode(DIRECTORY_SEPARATOR, $path).DIRECTORY_SEPARATOR;
         $fileWithPath = $path.$fileName;

@@ -15,6 +15,7 @@
 namespace UserAccessManager\FileHandler;
 
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -36,9 +37,14 @@ class FileHandler
     private $wordpress;
 
     /**
+     * @var WordpressConfig
+     */
+    private $wordpressConfig;
+
+    /**
      * @var MainConfig
      */
-    private $config;
+    private $mainConfig;
 
     /**
      * @var FileProtectionFactory
@@ -50,18 +56,21 @@ class FileHandler
      *
      * @param Php                   $php
      * @param Wordpress             $wordpress
-     * @param MainConfig            $config
+     * @param WordpressConfig       $wordpressConfig
+     * @param MainConfig            $mainConfig
      * @param FileProtectionFactory $fileProtectionFactory
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         FileProtectionFactory $fileProtectionFactory
     ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
-        $this->config = $config;
+        $this->wordpressConfig = $wordpressConfig;
+        $this->mainConfig = $mainConfig;
         $this->fileProtectionFactory = $fileProtectionFactory;
     }
 
@@ -99,7 +108,7 @@ class FileHandler
             $lastElement = array_pop($explodedFileName);
             $fileExt = strtolower($lastElement);
 
-            $mimeTypes = $this->config->getMimeTypes();
+            $mimeTypes = $this->wordpressConfig->getMimeTypes();
 
             if ($this->php->functionExists('finfo_open') === true) {
                 $fileInfo = finfo_open(FILEINFO_MIME);
@@ -125,7 +134,7 @@ class FileHandler
             header('Content-Length: '.filesize($file));
             $this->clearBuffer();
 
-            if ($this->config->getDownloadType() === 'fopen'
+            if ($this->mainConfig->getDownloadType() === 'fopen'
                 && $isImage === false
             ) {
                 $handler = fopen($file, 'r');
@@ -161,7 +170,7 @@ class FileHandler
      */
     public function createFileProtection($dir = null, $objectType = null)
     {
-        $dir = ($dir === null) ? $this->config->getUploadDirectory() : $dir;
+        $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
         if ($dir !== null) {
             if ($this->wordpress->isNginx() === true) {
@@ -184,7 +193,7 @@ class FileHandler
      */
     public function deleteFileProtection($dir = null)
     {
-        $dir = ($dir === null) ? $this->config->getUploadDirectory() : $dir;
+        $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
         if ($dir !== null) {
             if ($this->wordpress->isNginx() === true) {

@@ -191,8 +191,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getObjectHandler(),
             $this->getCache(),
-            $this->getConfigParameterFactory(),
-            'baseFile'
+            $this->getConfigParameterFactory()
         );
 
         self::assertInstanceOf(MainConfig::class, $config);
@@ -249,8 +248,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             $wordpress,
             $objectHandler,
             $this->getCache(),
-            $configParameterFactory,
-            'baseFile'
+            $configParameterFactory
         );
 
         self::assertEquals($this->defaultValues, $config->getConfigParameters());
@@ -275,8 +273,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             $wordpress,
             $objectHandler,
             $this->getCache(),
-            $configParameterFactory,
-            'baseFile'
+            $configParameterFactory
         );
 
         $parameters = $config->getConfigParameters();
@@ -286,190 +283,6 @@ class MainConfigTest extends UserAccessManagerTestCase
         }
 
         return $config;
-    }
-
-    /**
-     * @group   unit
-     * @covers  ::atAdminPanel()
-     */
-    public function testAtAdminPanel()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
-            ->method('isAdmin')
-            ->will($this->onConsecutiveCalls(true, false));
-
-        $config = new MainConfig(
-            $wordpress,
-            $this->getObjectHandler(),
-            $this->getCache(),
-            $this->getConfigParameterFactory(),
-            'baseFile'
-        );
-
-        self::assertTrue($config->atAdminPanel());
-        self::assertFalse($config->atAdminPanel());
-    }
-
-    /**
-     * @group  unit
-     * @covers ::isPermalinksActive()
-     */
-    public function testIsPermalinksActive()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
-            ->method('getOption')
-            ->will($this->onConsecutiveCalls('aaa', ''));
-
-        $config = new MainConfig(
-            $wordpress,
-            $this->getObjectHandler(),
-            $this->getCache(),
-            $this->getConfigParameterFactory(),
-            'baseFile'
-        );
-
-        self::assertTrue($config->isPermalinksActive());
-        self::setValue($config, 'wpOptions', []);
-        self::assertFalse($config->isPermalinksActive());
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getUploadDirectory()
-     */
-    public function testGetUploadDirectory()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
-            ->method('getUploadDir')
-            ->will(
-                $this->onConsecutiveCalls(
-                    [
-                        'error' => 'error',
-                        'basedir' => 'baseDir'
-                    ],
-                    [
-                        'error' => null,
-                        'basedir' => 'baseDir'
-                    ]
-                )
-            );
-
-        $config = new MainConfig(
-            $wordpress,
-            $this->getObjectHandler(),
-            $this->getCache(),
-            $this->getConfigParameterFactory(),
-            'baseFile'
-        );
-
-        self::assertEquals(null, $config->getUploadDirectory());
-        self::assertEquals('baseDir/', $config->getUploadDirectory());
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getMimeTypes()
-     */
-    public function testGetMimeTypes()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
-            ->method('getAllowedMimeTypes')
-            ->will(
-                $this->onConsecutiveCalls(
-                    ['a|b' => 'firstType', 'c' => 'secondType'],
-                    ['c|b' => 'firstType', 'a' => 'secondType']
-                )
-            );
-
-        $config = new MainConfig(
-            $wordpress,
-            $this->getObjectHandler(),
-            $this->getCache(),
-            $this->getConfigParameterFactory(),
-            'baseFile'
-        );
-
-        self::assertEquals(
-            ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
-            $config->getMimeTypes()
-        );
-        self::assertEquals(
-            ['a' => 'firstType', 'b' => 'firstType', 'c' => 'secondType'],
-            $config->getMimeTypes()
-        );
-
-        $config = new MainConfig(
-            $wordpress,
-            $this->getObjectHandler(),
-            $this->getCache(),
-            $this->getConfigParameterFactory(),
-            'baseFile'
-        );
-
-        self::assertEquals(
-            ['c' => 'firstType', 'b' => 'firstType', 'a' => 'secondType'],
-            $config->getMimeTypes()
-        );
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getUrlPath()
-     */
-    public function testGetUrlPath()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->once())
-            ->method('pluginsUrl')
-            ->will($this->returnValue('pluginsUrl'));
-
-        $configParameterFactory = $this->getFactory();
-
-        $config = new MainConfig(
-            $wordpress,
-            $this->getObjectHandler(),
-            $this->getCache(),
-            $configParameterFactory,
-            'baseFile'
-        );
-
-        self::assertEquals(
-            'pluginsUrl/',
-            $config->getUrlPath()
-        );
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getRealPath()
-     */
-    public function testGetRealPath()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->once())
-            ->method('getPluginDir')
-            ->will($this->returnValue('pluginDir'));
-        $wordpress->expects($this->once())
-            ->method('pluginBasename')
-            ->will($this->returnValue('pluginBasename'));
-
-        $configParameterFactory = $this->getFactory();
-
-        $config = new MainConfig(
-            $wordpress,
-            $this->getObjectHandler(),
-            $this->getCache(),
-            $configParameterFactory,
-            'baseFile'
-        );
-        self::assertEquals(
-            'pluginDir'.DIRECTORY_SEPARATOR.'pluginBasename'.DIRECTORY_SEPARATOR,
-            $config->getRealPath()
-        );
     }
 
     /**
@@ -520,8 +333,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             $wordpress,
             $objectHandler,
             $this->getCache(),
-            $configParameterFactory,
-            'baseFile'
+            $configParameterFactory
         );
 
         self::assertEquals(null, self::callMethod($config, 'getObjectParameter', ['post', 'something_%s']));
@@ -556,8 +368,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             $wordpress,
             $objectHandler,
             $this->getCache(),
-            $configParameterFactory,
-            'baseFile'
+            $configParameterFactory
         );
 
         self::assertTrue(self::callMethod($config, 'hideObject', ['post', 'something_%s']));
@@ -604,8 +415,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             $wordpress,
             $objectHandler,
             $this->getCache(),
-            $configParameterFactory,
-            'baseFile'
+            $configParameterFactory
         );
 
         self::assertEquals('post_title', $config->getPostTypeTitle('post'));
@@ -669,8 +479,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             $wordpress,
             $objectHandler,
             $this->getCache(),
-            $configParameterFactory,
-            'baseFile'
+            $configParameterFactory
         );
 
         foreach ($methods as $method => $expected) {

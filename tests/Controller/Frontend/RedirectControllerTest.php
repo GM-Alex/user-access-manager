@@ -60,6 +60,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -177,6 +178,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $database,
             $this->getUtil(),
@@ -246,9 +248,9 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(null, $fileObject));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->once())
+        $wordpressConfig->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('realPath/'));
 
@@ -329,7 +331,8 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
             $cache,
@@ -456,6 +459,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController = new RedirectController(
             $php,
             $wordpress,
+            $this->getWordpressConfig(),
             $config,
             $this->getDatabase(),
             $util,
@@ -495,13 +499,15 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->with('pageNameValue')
             ->will($this->onConsecutiveCalls(null, $this->getPost(2)));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(9))
+        $wordpressConfig->expects($this->exactly(9))
             ->method('atAdminPanel')
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false, false, false));
 
-        $config->expects($this->exactly(9))
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(9))
             ->method('getRedirect')
             ->will($this->onConsecutiveCalls('false', null, null, null, null, null, null, null, null));
 
@@ -566,7 +572,8 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $mainConfig,
             $database,
             $util,
             $this->getCache(),
@@ -625,17 +632,19 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->with('/')
             ->will($this->returnValue('homeUrl'));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(6))
+        $wordpressConfig->expects($this->exactly(6))
             ->method('isPermalinksActive')
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
 
-        $config->expects($this->exactly(5))
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(5))
             ->method('lockFile')
             ->will($this->onConsecutiveCalls(false, true, true, true, true));
 
-        $config->expects($this->exactly(3))
+        $mainConfig->expects($this->exactly(3))
             ->method('getLockedFileTypes')
             ->will($this->onConsecutiveCalls('none', 'all', 'aaa,mime'));
 
@@ -654,7 +663,8 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -704,6 +714,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController = new RedirectController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),

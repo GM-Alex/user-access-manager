@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\SetupHandler\SetupHandler;
@@ -53,20 +54,20 @@ class SetupController extends Controller
     /**
      * SetupController constructor.
      *
-     * @param Php          $php
-     * @param Wordpress    $wordpress
-     * @param MainConfig   $config
-     * @param Database     $database
-     * @param SetupHandler $setupHandler
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param Database        $database
+     * @param SetupHandler    $setupHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
         Database $database,
         SetupHandler $setupHandler
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
         $this->database = $database;
         $this->setupHandler = $setupHandler;
     }

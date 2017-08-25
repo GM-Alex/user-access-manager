@@ -16,6 +16,7 @@ namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -69,7 +70,7 @@ class UserGroupController extends Controller
      *
      * @param Php              $php
      * @param Wordpress        $wordpress
-     * @param MainConfig       $config
+     * @param WordpressConfig  $wordpressConfig
      * @param AccessHandler    $userHandler
      * @param UserGroupFactory $userGroupFactory
      * @param FormHelper       $formHelper
@@ -77,12 +78,12 @@ class UserGroupController extends Controller
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
         AccessHandler $userHandler,
         UserGroupFactory $userGroupFactory,
         FormHelper $formHelper
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
         $this->accessHandler = $userHandler;
         $this->userGroupFactory = $userGroupFactory;
         $this->formHelper = $formHelper;

@@ -39,17 +39,17 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $content = '';
         $areaName = 'WP-Files';
         $fileTypes = null;
-        $lockFileTypes = $this->config->getLockFileTypes();
+        $lockFileTypes = $this->mainConfig->getLockFileTypes();
 
         if ($lockFileTypes === 'selected') {
-            $fileTypes = $this->cleanUpFileTypes($this->config->getLockedFileTypes());
+            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFileTypes());
             $fileTypes = ($fileTypes !== '') ? "\.({$fileTypes})" : null;
         } elseif ($lockFileTypes === 'not_selected') {
-            $fileTypes = $this->cleanUpFileTypes($this->config->getNotLockedFileTypes());
+            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getNotLockedFileTypes());
             $fileTypes = ($fileTypes !== '') ? "^\.({$fileTypes})" : null;
         }
 
-        if ($this->config->isPermalinksActive() === false) {
+        if ($this->wordpressConfig->isPermalinksActive() === false) {
             // make .htaccess and .htpasswd
             $content .= "AuthType Basic"."\n";
             $content .= "AuthName \"{$areaName}\""."\n";

@@ -125,8 +125,8 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
 
         $php = $this->getPhp();
 
-        $config = $this->getMainConfig();
-        $config->expects($this->once())
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->once())
             ->method('getRealPath')
             ->will($this->returnValue('vfs:/'));
 
@@ -141,7 +141,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
 
 
         self::setValue($stub, 'php', $php);
-        self::setValue($stub, 'config', $config);
+        self::setValue($stub, 'wordpressConfig', $wordpressConfig);
         self::setValue($stub, 'template', 'TestView.php');
 
         $stub->render();

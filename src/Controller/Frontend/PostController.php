@@ -17,6 +17,7 @@ namespace UserAccessManager\Controller\Frontend;
 use UserAccessManager\AccessHandler\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
@@ -36,6 +37,11 @@ class PostController extends Controller
     use AdminOutputControllerTrait;
 
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
+
+    /**
+     * @var MainConfig
+     */
+    protected $mainConfig;
 
     /**
      * @var Database
@@ -73,22 +79,24 @@ class PostController extends Controller
     private $wordpressFilters = [];
 
     /**
-     * FrontendPostController constructor.
+     * PostController constructor.
      *
-     * @param Php           $php
-     * @param Wordpress     $wordpress
-     * @param MainConfig    $config
-     * @param Database      $database
-     * @param Util          $util
-     * @param Cache         $cache
-     * @param ObjectHandler $objectHandler
-     * @param UserHandler   $userHandler
-     * @param AccessHandler $accessHandler
+     * @param Php             $php
+     * @param Wordpress       $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig      $mainConfig
+     * @param Database        $database
+     * @param Util            $util
+     * @param Cache           $cache
+     * @param ObjectHandler   $objectHandler
+     * @param UserHandler     $userHandler
+     * @param AccessHandler   $accessHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         Database $database,
         Util $util,
         Cache $cache,
@@ -96,7 +104,8 @@ class PostController extends Controller
         UserHandler $userHandler,
         AccessHandler $accessHandler
     ) {
-        parent::__construct($php, $wordpress, $config);
+        parent::__construct($php, $wordpress, $wordpressConfig);
+        $this->mainConfig = $mainConfig;
         $this->database = $database;
         $this->util = $util;
         $this->cache = $cache;
@@ -236,10 +245,10 @@ class PostController extends Controller
      */
     private function processPostContent(\WP_Post $post)
     {
-        $uamPostContent = htmlspecialchars_decode($this->config->getPostTypeContent($post->post_type));
+        $uamPostContent = htmlspecialchars_decode($this->mainConfig->getPostTypeContent($post->post_type));
 
         if ($post->post_type === 'post'
-            && $this->config->showPostContentBeforeMore() === true
+            && $this->mainConfig->showPostContentBeforeMore() === true
             && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
         ) {
             $uamPostContent = explode($matches[0], $post->post_content)[0]." ".$uamPostContent;
@@ -262,19 +271,19 @@ class PostController extends Controller
         $locked = ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false);
 
         if ($locked === true) {
-            if ($this->config->hidePostType($post->post_type) === true
-                || $this->config->atAdminPanel() === true
+            if ($this->mainConfig->hidePostType($post->post_type) === true
+                || $this->wordpressConfig->atAdminPanel() === true
             ) {
                 return null;
             }
 
             $post->post_content = $this->processPostContent($post);
 
-            if ($this->config->hidePostTypeTitle($post->post_type) === true) {
-                $post->post_title = $this->config->getPostTypeTitle($post->post_type);
+            if ($this->mainConfig->hidePostTypeTitle($post->post_type) === true) {
+                $post->post_title = $this->mainConfig->getPostTypeTitle($post->post_type);
             }
 
-            if ($this->config->lockPostTypeComments($post->post_type) === true) {
+            if ($this->mainConfig->lockPostTypeComments($post->post_type) === true) {
                 $post->comment_status = 'close';
             }
         }
@@ -319,7 +328,7 @@ class PostController extends Controller
      */
     public function showPosts($rawPosts = [])
     {
-        if ($this->wordpress->isFeed() === false || $this->config->protectFeed() === true) {
+        if ($this->wordpress->isFeed() === false || $this->mainConfig->protectFeed() === true) {
             $showPosts = $this->filterRawPosts($rawPosts);
         } else {
             $showPosts = $rawPosts;
@@ -353,7 +362,7 @@ class PostController extends Controller
     public function getAttachedFile($file, $attachmentId)
     {
         //TODO add check for images
-        if ($this->config->lockFile() === true) {
+        if ($this->mainConfig->lockFile() === true) {
             $hasAccess = $this->accessHandler->checkObjectAccess(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $attachmentId);
             return ($hasAccess === true) ? $file : false;
         }
@@ -485,9 +494,9 @@ class PostController extends Controller
      */
     private function hidePostComment($postType)
     {
-        return $this->config->lockPostTypeComments($postType) === true
-            || $this->config->hidePostType($postType) === true
-            || $this->config->atAdminPanel() === true;
+        return $this->mainConfig->lockPostTypeComments($postType) === true
+            || $this->mainConfig->hidePostType($postType) === true
+            || $this->wordpressConfig->atAdminPanel() === true;
     }
 
     /**
@@ -511,8 +520,8 @@ class PostController extends Controller
                     continue;
                 }
 
-                if ($this->config->hidePostTypeComments($post->post_type) === true) {
-                    $comment->comment_content = $this->config->getPostTypeCommentContent($post->post_type);
+                if ($this->mainConfig->hidePostTypeComments($post->post_type) === true) {
+                    $comment->comment_content = $this->mainConfig->getPostTypeCommentContent($post->post_type);
                 }
             }
 

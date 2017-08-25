@@ -15,6 +15,7 @@
 namespace UserAccessManager\AccessHandler;
 
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectHandler\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
@@ -37,9 +38,14 @@ class AccessHandler
     private $wordpress;
 
     /**
+     * @var WordpressConfig
+     */
+    private $wordpressConfig;
+
+    /**
      * @var MainConfig
      */
-    private $config;
+    private $mainConfig;
 
     /**
      * @var Database
@@ -107,10 +113,11 @@ class AccessHandler
     private $noneHiddenPostTypes = null;
 
     /**
-     * The constructor
+     * AccessHandler constructor.
      *
      * @param Wordpress        $wordpress
-     * @param MainConfig       $config
+     * @param WordpressConfig  $wordpressConfig
+     * @param MainConfig       $mainConfig
      * @param Database         $database
      * @param ObjectHandler    $objectHandler
      * @param UserHandler      $userHandler
@@ -118,14 +125,16 @@ class AccessHandler
      */
     public function __construct(
         Wordpress $wordpress,
-        MainConfig $config,
+        WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         Database $database,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
         UserGroupFactory $userGroupFactory
     ) {
         $this->wordpress = $wordpress;
-        $this->config = $config;
+        $this->wordpressConfig = $wordpressConfig;
+        $this->mainConfig = $mainConfig;
         $this->database = $database;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
@@ -306,8 +315,8 @@ class AccessHandler
     private function checkUserGroupAccess(UserGroup $userGroup)
     {
         return $this->userHandler->isIpInRange($_SERVER['REMOTE_ADDR'], $userGroup->getIpRangeArray())
-            || $this->config->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
-            || $this->config->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all';
+            || $this->wordpressConfig->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
+            || $this->wordpressConfig->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all';
     }
 
     /**
@@ -387,7 +396,7 @@ class AccessHandler
      */
     private function hasAuthorAccess($objectType, $objectId)
     {
-        if ($this->config->authorsHasAccessToOwn() === true
+        if ($this->mainConfig->authorsHasAccessToOwn() === true
             && $this->objectHandler->isPostType($objectType)
         ) {
             $currentUser = $this->wordpress->getCurrentUser();
@@ -497,7 +506,7 @@ class AccessHandler
                 $postTypes = $this->objectHandler->getPostTypes();
 
                 foreach ($postTypes as $postType) {
-                    if ($this->config->hidePostType($postType) === false) {
+                    if ($this->mainConfig->hidePostType($postType) === false) {
                         $this->noneHiddenPostTypes[$postType] = $postType;
                     }
                 }
@@ -522,7 +531,7 @@ class AccessHandler
             $noneHiddenPostTypes = $this->getNoneHiddenPostTypes();
             $excludedPosts = $this->getExcludedObjects(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $noneHiddenPostTypes);
 
-            if ($this->config->authorsHasAccessToOwn() === true) {
+            if ($this->mainConfig->authorsHasAccessToOwn() === true) {
                 $query = $this->database->prepare(
                     "SELECT ID
                     FROM {$this->database->getPostsTable()}

@@ -33,6 +33,7 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
         $termObjectController = new DynamicGroupsController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),
@@ -91,6 +92,7 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
         $objectController = new DynamicGroupsController(
             $php,
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getCache(),

@@ -36,6 +36,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -62,6 +63,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -149,6 +151,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -217,6 +220,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -282,13 +286,19 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->method('isFeed')
             ->will($this->onConsecutiveCalls(true, true, false, false));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(2))
+        $wordpressConfig->expects($this->exactly(15))
+            ->method('atAdminPanel')
+            ->will($this->returnValue(true));
+
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(2))
             ->method('protectFeed')
             ->will($this->onConsecutiveCalls(false, true));
 
-        $config->expects($this->exactly(7))
+        $mainConfig->expects($this->exactly(7))
             ->method('hidePostType')
             ->withConsecutive(
                 ['post'],
@@ -308,10 +318,6 @@ class PostControllerTest extends UserAccessManagerTestCase
                 true,
                 false
             ));
-
-        $config->expects($this->exactly(15))
-            ->method('atAdminPanel')
-            ->will($this->returnValue(true));
 
         $accessHandler = $this->getAccessHandler();
 
@@ -347,7 +353,8 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -395,37 +402,39 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->method('isFeed')
             ->will($this->returnValue(false));
 
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(6))
+        $wordpressConfig->expects($this->exactly(12))
+            ->method('atAdminPanel')
+            ->will($this->returnValue(false));
+
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(6))
             ->method('hidePostType')
             ->withConsecutive(['post'], ['other'], ['post'], ['page'], ['post'], ['other'])
             ->will($this->onConsecutiveCalls(false, false, true, false, false, false));
 
-        $config->expects($this->exactly(12))
-            ->method('atAdminPanel')
-            ->will($this->returnValue(false));
-
-        $config->expects($this->exactly(5))
+        $mainConfig->expects($this->exactly(5))
             ->method('getPostTypeContent')
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->returnValue('postContent'));
 
-        $config->expects($this->exactly(2))
+        $mainConfig->expects($this->exactly(2))
             ->method('showPostContentBeforeMore')
             ->will($this->onConsecutiveCalls(true, false));
 
-        $config->expects($this->exactly(5))
+        $mainConfig->expects($this->exactly(5))
             ->method('hidePostTypeTitle')
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->onConsecutiveCalls(true, false, true, false, true));
 
-        $config->expects($this->exactly(3))
+        $mainConfig->expects($this->exactly(3))
             ->method('getPostTypeTitle')
             ->withConsecutive(['post'], ['page'], ['other'])
             ->will($this->returnValue('postTitle'));
 
-        $config->expects($this->exactly(5))
+        $mainConfig->expects($this->exactly(5))
             ->method('lockPostTypeComments')
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->onConsecutiveCalls(false, true, true, false, false));
@@ -461,7 +470,8 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
-            $config,
+            $wordpressConfig,
+            $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -542,6 +552,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $config,
             $this->getDatabase(),
             $this->getUtil(),
@@ -578,6 +589,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $database,
             $this->getUtil(),
@@ -762,6 +774,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $database,
             $this->getUtil(),
@@ -851,28 +864,30 @@ class PostControllerTest extends UserAccessManagerTestCase
      */
     public function testShowComment()
     {
-        $config = $this->getMainConfig();
+        $wordpressConfig = $this->getWordpressConfig();
 
-        $config->expects($this->exactly(5))
+        $wordpressConfig->expects($this->exactly(3))
+            ->method('atAdminPanel')
+            ->will($this->onConsecutiveCalls(true, false, false));
+
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(5))
             ->method('lockPostTypeComments')
             ->withConsecutive(['post'], ['page'], ['post'], ['post'], ['post'])
             ->will($this->onConsecutiveCalls(true, false, false, false, false));
 
-        $config->expects($this->exactly(4))
+        $mainConfig->expects($this->exactly(4))
             ->method('hidePostType')
             ->withConsecutive(['page'], ['post'], ['post'], ['post'])
             ->will($this->onConsecutiveCalls(true, false, false, false));
 
-        $config->expects($this->exactly(3))
-            ->method('atAdminPanel')
-            ->will($this->onConsecutiveCalls(true, false, false));
-
-        $config->expects($this->exactly(2))
+        $mainConfig->expects($this->exactly(2))
             ->method('hidePostTypeComments')
             ->withConsecutive(['post'], ['post'])
             ->will($this->onConsecutiveCalls(true, false));
 
-        $config->expects($this->once())
+        $mainConfig->expects($this->once())
             ->method('getPostTypeCommentContent')
             ->with('post')
             ->will($this->returnValue('PostTypeCommentContent'));
@@ -910,7 +925,8 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
-            $config,
+            $wordpressConfig,
+            $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getCache(),
@@ -959,6 +975,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
@@ -998,6 +1015,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
+            $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),

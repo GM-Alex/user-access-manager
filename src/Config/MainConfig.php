@@ -45,35 +45,22 @@ class MainConfig extends Config
     protected $configParameterFactory;
 
     /**
-     * @var string
-     */
-    private $baseFile;
-
-    /**
-     * @var array
-     */
-    private $mimeTypes = null;
-
-    /**
-     * Config constructor.
+     * MainConfig constructor.
      *
      * @param Wordpress              $wordpress
      * @param ObjectHandler          $objectHandler
      * @param Cache                  $cache
      * @param ConfigParameterFactory $configParameterFactory
-     * @param String                 $baseFile
      */
     public function __construct(
         Wordpress $wordpress,
         ObjectHandler $objectHandler,
         Cache $cache,
-        ConfigParameterFactory $configParameterFactory,
-        $baseFile
+        ConfigParameterFactory $configParameterFactory
     ) {
         $this->objectHandler = $objectHandler;
         $this->cache = $cache;
         $this->configParameterFactory = $configParameterFactory;
-        $this->baseFile = $baseFile;
 
         parent::__construct($wordpress, self::MAIN_CONFIG_KEY);
     }
@@ -275,91 +262,6 @@ class MainConfig extends Config
         }
 
         return $this->defaultConfigParameters;
-    }
-
-    /**
-     * Returns true if a user is at the admin panel.
-     *
-     * @return bool
-     */
-    public function atAdminPanel()
-    {
-        return $this->wordpress->isAdmin();
-    }
-
-    /**
-     * Returns true if permalinks are active otherwise false.
-     *
-     * @return bool
-     */
-    public function isPermalinksActive()
-    {
-        $permalinkStructure = $this->getWpOption('permalink_structure');
-        return (empty($permalinkStructure) === false);
-    }
-
-    /**
-     * Returns the upload directory.
-     *
-     * @return null|string
-     */
-    public function getUploadDirectory()
-    {
-        $wordpressUploadDir = $this->wordpress->getUploadDir();
-
-        if (empty($wordpressUploadDir['error'])) {
-            return $wordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns the full supported mine types.
-     *
-     * @return array
-     */
-    public function getMimeTypes()
-    {
-        if ($this->mimeTypes === null) {
-            $mimeTypes = $this->wordpress->getAllowedMimeTypes();
-            $fullMimeTypes = [];
-
-            foreach ($mimeTypes as $extensions => $mineType) {
-                $extensions = explode('|', $extensions);
-
-                foreach ($extensions as $extension) {
-                    $fullMimeTypes[$extension] = $mineType;
-                }
-            }
-
-            $this->mimeTypes = $fullMimeTypes;
-        }
-
-        return $this->mimeTypes;
-    }
-
-    /**
-     * Returns the module url path.
-     *
-     * @return string
-     */
-    public function getUrlPath()
-    {
-        return $this->wordpress->pluginsUrl('', $this->baseFile).'/';
-    }
-
-    /**
-     * Returns the module real path.
-     *
-     * @return string
-     */
-    public function getRealPath()
-    {
-        $dirName = dirname($this->baseFile);
-
-        return $this->wordpress->getPluginDir().DIRECTORY_SEPARATOR
-            .$this->wordpress->pluginBasename($dirName).DIRECTORY_SEPARATOR;
     }
 
     /**
