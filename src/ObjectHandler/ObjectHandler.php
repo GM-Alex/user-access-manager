@@ -252,14 +252,15 @@ class ObjectHandler
      *
      * @return array
      */
-    private function processTreeMapElements(array &$map, array $subMap = null, array $processed = [])
+    private function processTreeMapElements(array &$map, array $subMap = null, array &$processed = [])
     {
         $processMap = ($subMap === null) ? $map : $subMap;
 
         foreach ($processMap as $id => $subIds) {
             foreach ($subIds as $subId => $type) {
-                //TODO some thing is strange here
-                if (isset($map[$subId]) === true && isset($processed[$subId]) !== $id) {
+                if (isset($map[$subId]) === true
+                    && (isset($processed[$id]) === false || $processed[$id] !== $subId)
+                ) {
                     $map[$id] += $this->processTreeMapElements($map, [$subId => $map[$subId]], $processed)[$subId];
                     $processed[$id] = $subId;
                 }
