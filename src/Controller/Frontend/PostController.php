@@ -115,15 +115,26 @@ class PostController extends Controller
     }
 
     /**
+     * Returns true if the filters are suppressed.
+     *
+     * @param \WP_Query $wpQuery
+     *
+     * @return bool
+     */
+    private function filtersSuppressed($wpQuery)
+    {
+        return isset($wpQuery->query_vars['suppress_filters']) === true
+            && $wpQuery->query_vars['suppress_filters'] === true;
+    }
+
+    /**
      * Manipulates the wordpress query object to filter content.
      *
      * @param \WP_Query $wpQuery The wordpress query object.
      */
     public function parseQuery($wpQuery)
     {
-        if (isset($wpQuery->query_vars['suppress_filters']) === true
-            && $wpQuery->query_vars['suppress_filters'] === true
-        ) {
+        if ($this->filtersSuppressed($wpQuery) === true) {
             $excludedPosts = $this->accessHandler->getExcludedPosts();
 
             if (count($excludedPosts) > 0) {
@@ -174,9 +185,7 @@ class PostController extends Controller
      */
     public function postsPreQuery($posts, \WP_Query $query)
     {
-        if (isset($query->query_vars['suppress_filters']) === true
-            && $query->query_vars['suppress_filters'] === true
-        ) {
+        if ($this->filtersSuppressed($query) === true) {
             $filters = $this->wordpress->getFilters();
 
             // Only unset filter if the user access filter is active
