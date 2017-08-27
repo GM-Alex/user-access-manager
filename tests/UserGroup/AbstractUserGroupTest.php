@@ -1086,10 +1086,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                     [1 => $generalObjectType, 100 => $otherType],
                     $userGroup->{$extraFunction}()
                 );
-                self::assertEquals(
-                    [100 => $otherType],
-                    $userGroup->{$extraFunction}($otherType)
-                );
             }
 
             /** @noinspection PhpUnusedLocalVariableInspection */
@@ -1105,10 +1101,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 self::assertEquals(
                     [1 => $generalObjectType, 3 => $generalObjectType, 100 => $otherType, 101 => $otherType],
                     $userGroup->{$extraFunction}()
-                );
-                self::assertEquals(
-                    [100 => $otherType, 101 => $otherType],
-                    $userGroup->{$extraFunction}($otherType)
                 );
             }
         }

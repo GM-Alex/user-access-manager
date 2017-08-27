@@ -192,13 +192,9 @@ class PostController extends Controller
             if ($this->extractOwnFilters($filters) === true) {
                 $query->query_vars['suppress_filters'] = false;
 
-                $filtersToProcess = ['posts_results'];
-
-                foreach ($filtersToProcess as $filterToProcess) {
-                    if (isset($filters[$filterToProcess]) === true) {
-                        $this->wordpressFilters[$filterToProcess] = $filters[$filterToProcess];
-                        unset($filters[$filterToProcess]);
-                    }
+                if (isset($filters['posts_results']) === true) {
+                    $this->wordpressFilters['posts_results'] = $filters['posts_results'];
+                    unset($filters['posts_results']);
                 }
 
                 $this->wordpress->setFilters($filters);

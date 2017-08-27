@@ -713,53 +713,41 @@ abstract class AbstractUserGroup
     /**
      * Returns the roles assigned to the group.
      *
-     * @param string $roleType The role type.
-     *
      * @return array
      */
-    public function getFullRoles($roleType = null)
+    public function getFullRoles()
     {
-        $roleType = ($roleType === null) ? ObjectHandler::GENERAL_ROLE_OBJECT_TYPE : $roleType;
-        return $this->getAssignedObjectsByType($roleType);
+        return $this->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
     }
 
 
     /**
      * Returns the users assigned to the group.
      *
-     * @param string $userType The user type.
-     *
      * @return array
      */
-    public function getFullUsers($userType = null)
+    public function getFullUsers()
     {
-        $userType = ($userType === null) ? ObjectHandler::GENERAL_USER_OBJECT_TYPE : $userType;
-        return $this->getAssignedObjectsByType($userType);
+        return $this->getAssignedObjectsByType(ObjectHandler::GENERAL_USER_OBJECT_TYPE);
     }
 
     /**
      * Returns the terms assigned to the group.
      *
-     * @param string $termType The term type.
-     *
      * @return array
      */
-    public function getFullTerms($termType = null)
+    public function getFullTerms()
     {
-        $termType = ($termType === null) ? ObjectHandler::GENERAL_TERM_OBJECT_TYPE : $termType;
-        return $this->getAssignedObjectsByType($termType);
+        return $this->getAssignedObjectsByType(ObjectHandler::GENERAL_TERM_OBJECT_TYPE);
     }
 
     /**
      * Returns the posts assigned to the group.
      *
-     * @param string $postType The post type.
-     *
      * @return array
      */
-    public function getFullPosts($postType = null)
+    public function getFullPosts()
     {
-        $postType = ($postType === null) ? ObjectHandler::GENERAL_POST_OBJECT_TYPE : $postType;
-        return $this->getAssignedObjectsByType($postType);
+        return $this->getAssignedObjectsByType(ObjectHandler::GENERAL_POST_OBJECT_TYPE);
     }
 }
