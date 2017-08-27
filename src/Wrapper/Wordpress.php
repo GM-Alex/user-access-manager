@@ -997,4 +997,16 @@ class Wordpress
     {
         return \do_shortcode($content, $ignoreHtml);
     }
+
+    /**
+     * @see \attachment_url_to_postid()
+     *
+     * @param string $url
+     *
+     * @return int
+     */
+    public function attachmentUrlToPostId($url)
+    {
+        return \attachment_url_to_postid($url);
+    }
 }

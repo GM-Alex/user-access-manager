@@ -133,8 +133,6 @@ class RedirectController extends Controller
             return $postUrls[$url];
         }
 
-        $postUrls[$url] = null;
-
         //Filter edit string
         $newUrlPieces = preg_split('/-e[0-9]{1,}/', $url);
         $newUrl = (count($newUrlPieces) === 2) ? $newUrlPieces[0].$newUrlPieces[1] : $newUrlPieces[0];
@@ -144,20 +142,8 @@ class RedirectController extends Controller
         $newUrl = (count($newUrlPieces) === 2) ? $newUrlPieces[0].$newUrlPieces[1] : $newUrlPieces[0];
         $newUrl = preg_replace('/\-pdf\.jpg$/', '.pdf', $newUrl);
 
-        $query = $this->database->prepare(
-            "SELECT ID
-            FROM {$this->database->getPostsTable()}
-            WHERE guid = '%s'
-            LIMIT 1",
-            $newUrl
-        );
-
-        $dbPost = $this->database->getRow($query);
-
-        if ($dbPost !== null) {
-            $postUrls[$url] = $dbPost->ID;
-            $this->cache->addToRuntimeCache(self::POST_URL_CACHE_KEY, $postUrls);
-        }
+        $postUrls[$url] = $this->wordpress->attachmentUrlToPostId($newUrl);
+        $this->cache->addToRuntimeCache(self::POST_URL_CACHE_KEY, $postUrls);
 
         return $postUrls[$url];
     }

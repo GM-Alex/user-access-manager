@@ -113,6 +113,20 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      */
     public function testGetPostIdByUrl()
     {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly(6))
+            ->method('attachmentUrlToPostId')
+            ->withConsecutive(
+                ['url/part'],
+                ['url/part'],
+                ['url/part'],
+                ['url/part'],
+                ['url/part'],
+                ['url/part.pdf']
+            )
+            ->will($this->onConsecutiveCalls(0, 1, 2, 3, 4, 5, 1));
+
         $cache = $this->getCache();
 
         $cache->expects($this->exactly(7))
@@ -128,9 +142,10 @@ class RedirectControllerTest extends UserAccessManagerTestCase
                 ['url/part' => 1]
             ));
 
-        $cache->expects($this->exactly(5))
+        $cache->expects($this->exactly(6))
             ->method('addToRuntimeCache')
             ->withConsecutive(
+                [RedirectController::POST_URL_CACHE_KEY, ['url/part' => 0]],
                 [RedirectController::POST_URL_CACHE_KEY, ['url/part' => 1]],
                 [RedirectController::POST_URL_CACHE_KEY, ['url-e123/part' => 2]],
                 [RedirectController::POST_URL_CACHE_KEY, ['url-123x321_z/part' => 3]],
@@ -138,49 +153,12 @@ class RedirectControllerTest extends UserAccessManagerTestCase
                 [RedirectController::POST_URL_CACHE_KEY, ['url/part-pdf.jpg' => 5]]
             );
 
-        $database = $this->getDatabase();
-
-        $database->expects($this->exactly(6))
-            ->method('getPostsTable')
-            ->will($this->returnValue('postTable'));
-
-        $defaultQuery = new MatchIgnoreWhitespace(
-            'SELECT ID
-                    FROM postTable
-                    WHERE guid = \'%s\' 
-                    LIMIT 1'
-        );
-
-        $database->expects($this->exactly(6))
-            ->method('prepare')
-            ->withConsecutive(
-                [$defaultQuery, 'url/part'],
-                [$defaultQuery, 'url/part'],
-                [$defaultQuery, 'url/part'],
-                [$defaultQuery, 'url/part'],
-                [$defaultQuery, 'url/part'],
-                [$defaultQuery, 'url/part.pdf']
-            )
-            ->will($this->returnValue('preparedQuery'));
-
-        $database->expects($this->exactly(6))
-            ->method('getRow')
-            ->with('preparedQuery')
-            ->will($this->onConsecutiveCalls(
-                null,
-                $this->getPost(1),
-                $this->getPost(2),
-                $this->getPost(3),
-                $this->getPost(4),
-                $this->getPost(5)
-            ));
-
         $frontendRedirectController = new RedirectController(
             $this->getPhp(),
-            $this->getWordpress(),
+            $wordpress,
             $this->getWordpressConfig(),
             $this->getMainConfig(),
-            $database,
+            $this->getDatabase(),
             $this->getUtil(),
             $cache,
             $this->getObjectHandler(),
@@ -189,7 +167,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
-        self::assertEquals(null, $frontendRedirectController->getPostIdByUrl('url/part'));
+        self::assertEquals(0, $frontendRedirectController->getPostIdByUrl('url/part'));
         self::assertEquals(1, $frontendRedirectController->getPostIdByUrl('url/part'));
         self::assertEquals(2, $frontendRedirectController->getPostIdByUrl('url-e123/part'));
         self::assertEquals(3, $frontendRedirectController->getPostIdByUrl('url-123x321_z/part'));
