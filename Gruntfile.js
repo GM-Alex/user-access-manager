@@ -1,5 +1,4 @@
 module.exports = function(grunt) {
-
     // Project configuration.
     grunt.initConfig({
         pot: {
@@ -23,5 +22,4 @@ module.exports = function(grunt) {
 
     // Default task(s).
     grunt.registerTask('default', ['pot']);
-
 };

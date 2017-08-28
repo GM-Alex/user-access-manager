@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Tests;
 
-use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Cache\FileSystemCacheProvider;
@@ -25,13 +25,13 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
-use UserAccessManager\FileHandler\FileHandler;
-use UserAccessManager\FileHandler\FileObjectFactory;
-use UserAccessManager\FileHandler\FileProtectionFactory;
+use UserAccessManager\File\FileHandler;
+use UserAccessManager\File\FileObjectFactory;
+use UserAccessManager\File\FileProtectionFactory;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
-use UserAccessManager\ObjectHandler\ObjectHandler;
-use UserAccessManager\SetupHandler\SetupHandler;
+use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
@@ -40,7 +40,7 @@ use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
-use UserAccessManager\UserHandler\UserHandler;
+use UserAccessManager\User\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Wrapper\Php;

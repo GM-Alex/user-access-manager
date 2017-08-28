@@ -26,7 +26,7 @@ use UserAccessManager\Form\Input;
 use UserAccessManager\Form\MultipleFormElementValue;
 use UserAccessManager\Form\Radio;
 use UserAccessManager\Form\Select;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**

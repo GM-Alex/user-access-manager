@@ -16,8 +16,8 @@ namespace UserAccessManager\Tests\Controller\Frontend;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Controller\Frontend\RedirectController;
-use UserAccessManager\FileHandler\FileObject;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\File\FileObject;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 

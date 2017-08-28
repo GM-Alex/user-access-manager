@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Tests\ObjectMembership;
 
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\ObjectMembership\PostMembershipHandler;
 

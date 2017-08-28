@@ -15,7 +15,7 @@
 namespace UserAccessManager\ObjectMembership;
 
 use UserAccessManager\Database\Database;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;

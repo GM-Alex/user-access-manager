@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Tests\UserGroup;
 
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroupAssignmentException;

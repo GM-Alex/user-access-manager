@@ -15,7 +15,7 @@
 namespace UserAccessManager\Tests\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
-use UserAccessManager\UserHandler\UserHandler;
+use UserAccessManager\User\UserHandler;
 
 /**
  * Class DynamicGroupsControllerTest

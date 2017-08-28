@@ -107,7 +107,7 @@ class MainConfigTest extends UserAccessManagerTestCase
     /**
      * @param int $callExpectation
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\ObjectHandler\ObjectHandler
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Object\ObjectHandler
      */
     protected function getDefaultObjectHandler($callExpectation)
     {

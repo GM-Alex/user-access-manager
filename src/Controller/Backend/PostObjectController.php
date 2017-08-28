@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Controller\Backend;
 
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 
 /**
  * Class PostObjectController

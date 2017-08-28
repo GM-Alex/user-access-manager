@@ -1,6 +1,6 @@
 <?php
 //Classes
-use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigFactory;
@@ -10,18 +10,18 @@ use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Database\Database;
-use UserAccessManager\FileHandler\FileHandler;
-use UserAccessManager\FileHandler\FileObjectFactory;
-use UserAccessManager\FileHandler\FileProtectionFactory;
+use UserAccessManager\File\FileHandler;
+use UserAccessManager\File\FileObjectFactory;
+use UserAccessManager\File\FileProtectionFactory;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
-use UserAccessManager\SetupHandler\SetupHandler;
+use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupFactory;
-use UserAccessManager\UserHandler\UserHandler;
+use UserAccessManager\User\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;

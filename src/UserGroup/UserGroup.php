@@ -16,7 +16,7 @@ namespace UserAccessManager\UserGroup;
 
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;

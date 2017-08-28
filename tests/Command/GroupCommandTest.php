@@ -15,7 +15,7 @@
 namespace UserAccessManager\Tests\Command;
 
 use UserAccessManager\Command\GroupCommand;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**

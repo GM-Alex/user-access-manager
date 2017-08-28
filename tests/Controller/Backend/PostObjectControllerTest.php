@@ -16,7 +16,7 @@ namespace UserAccessManager\Tests\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\PostObjectController;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 
 /**
  * Class PostObjectControllerTest

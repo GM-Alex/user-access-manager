@@ -15,7 +15,7 @@
 namespace UserAccessManager\Tests\ObjectMembership;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\ObjectMembership\UserMembershipHandler;
 

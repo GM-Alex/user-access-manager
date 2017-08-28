@@ -19,11 +19,11 @@ use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
-use UserAccessManager\FileHandler\FileHandler;
+use UserAccessManager\File\FileHandler;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Form\MultipleFormElementValue;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 

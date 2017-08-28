@@ -22,7 +22,7 @@ use UserAccessManager\Controller\Backend\SetupController;
 use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 
 /**

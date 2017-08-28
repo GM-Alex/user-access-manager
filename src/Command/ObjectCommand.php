@@ -15,7 +15,7 @@
  */
 namespace UserAccessManager\Command;
 
-use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Wrapper\WordpressCli;

@@ -16,7 +16,7 @@ namespace UserAccessManager\Tests\Controller\Frontend;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Controller\Frontend\PostController;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**

@@ -15,7 +15,7 @@
 namespace UserAccessManager\Config;
 
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**

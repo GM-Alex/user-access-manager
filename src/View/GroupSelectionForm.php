@@ -112,7 +112,7 @@
     ?>
 </ul>
 <?php
-if ($controller->getObjectType() !== \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_USER_OBJECT_TYPE
+if ($controller->getObjectType() !== \UserAccessManager\Object\ObjectHandler::GENERAL_USER_OBJECT_TYPE
     && $controller->checkUserAccess() === true
 ) {
     ?>

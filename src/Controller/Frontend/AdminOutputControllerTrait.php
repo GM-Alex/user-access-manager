@@ -14,10 +14,10 @@
  */
 namespace UserAccessManager\Controller\Frontend;
 
-use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
-use UserAccessManager\UserHandler\UserHandler;
+use UserAccessManager\User\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 

@@ -15,8 +15,8 @@
  */
 namespace UserAccessManager\Command;
 
-use UserAccessManager\AccessHandler\AccessHandler;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Access\AccessHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\Wrapper\WordpressCli;
 use WP_CLI\CommandWithDBObject;

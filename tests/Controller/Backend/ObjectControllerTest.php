@@ -15,7 +15,7 @@
 namespace UserAccessManager\Tests\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\ObjectController;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\PostMembershipHandler;
 use UserAccessManager\ObjectMembership\RoleMembershipHandler;

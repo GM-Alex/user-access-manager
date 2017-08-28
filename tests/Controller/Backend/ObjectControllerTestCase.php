@@ -18,7 +18,7 @@ use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;

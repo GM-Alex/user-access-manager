@@ -15,7 +15,7 @@
 namespace UserAccessManager\Tests\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\UserGroupController;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**

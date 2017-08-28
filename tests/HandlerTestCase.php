@@ -2,7 +2,7 @@
 
 namespace UserAccessManager\Tests;
 
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 
 abstract class HandlerTestCase extends UserAccessManagerTestCase
 {

@@ -85,7 +85,7 @@
                     <?php
                     $roleNames = $controller->getRoleNames();
                     $groupRoles = $userGroup->getAssignedObjectsByType(
-                        \UserAccessManager\ObjectHandler\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                        \UserAccessManager\Object\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                     );
 
                     if (count($groupRoles) > 0) {

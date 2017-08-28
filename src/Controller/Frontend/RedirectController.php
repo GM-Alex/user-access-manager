@@ -14,16 +14,16 @@
  */
 namespace UserAccessManager\Controller\Frontend;
 
-use UserAccessManager\AccessHandler\AccessHandler;
+use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
-use UserAccessManager\FileHandler\FileHandler;
-use UserAccessManager\FileHandler\FileObject;
-use UserAccessManager\FileHandler\FileObjectFactory;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\File\FileHandler;
+use UserAccessManager\File\FileObject;
+use UserAccessManager\File\FileObjectFactory;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;

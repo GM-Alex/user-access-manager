@@ -18,7 +18,7 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
-use UserAccessManager\SetupHandler\SetupHandler;
+use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 

@@ -17,7 +17,7 @@ namespace UserAccessManager\Tests\Form;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Form\Input;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**

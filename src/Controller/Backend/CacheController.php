@@ -15,7 +15,7 @@
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\ObjectHandler\ObjectHandler;
+use UserAccessManager\Object\ObjectHandler;
 
 /**
  * Class CacheController
