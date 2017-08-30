@@ -79,6 +79,11 @@ class PostController extends Controller
     private $wordpressFilters = [];
 
     /**
+     * @var null|\stdClass
+     */
+    private $cachedCounts = null;
+
+    /**
      * PostController constructor.
      *
      * @param Php             $php
@@ -87,7 +92,6 @@ class PostController extends Controller
      * @param MainConfig      $mainConfig
      * @param Database        $database
      * @param Util            $util
-     * @param Cache           $cache
      * @param ObjectHandler   $objectHandler
      * @param UserHandler     $userHandler
      * @param AccessHandler   $accessHandler
@@ -99,7 +103,6 @@ class PostController extends Controller
         MainConfig $mainConfig,
         Database $database,
         Util $util,
-        Cache $cache,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
         AccessHandler $accessHandler
@@ -108,7 +111,6 @@ class PostController extends Controller
         $this->mainConfig = $mainConfig;
         $this->database = $database;
         $this->util = $util;
-        $this->cache = $cache;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
@@ -234,7 +236,7 @@ class PostController extends Controller
             return $post;
         } elseif (is_int($post) === true) {
             return $this->objectHandler->getPost($post);
-        } elseif (($post instanceof \stdClass) === true && isset($post->ID) === true) {
+        } elseif (isset($post->ID) === true) {
             return $this->objectHandler->getPost($post->ID);
         }
 
@@ -432,21 +434,21 @@ class PostController extends Controller
     private function getPostCountQuery(array $excludedPosts, $type, $perm)
     {
         $excludedPosts = implode('\', \'', $excludedPosts);
-
         $query = "SELECT post_status, COUNT(*) AS num_posts 
                     FROM {$this->database->getPostsTable()} 
                     WHERE post_type = %s
                       AND ID NOT IN ('{$excludedPosts}')";
 
-        if ('readable' === $perm && $this->wordpress->isUserLoggedIn() === true) {
-            $postTypeObject = $this->wordpress->getPostTypeObject($type);
-
-            if ($this->wordpress->currentUserCan($postTypeObject->cap->read_private_posts) === false) {
-                $query .= $this->database->prepare(
-                    ' AND (post_status != \'private\' OR (post_author = %d AND post_status = \'private\'))',
-                    $this->wordpress->getCurrentUser()->ID
-                );
-            }
+        if ('readable' === $perm
+            && $this->wordpress->isUserLoggedIn() === true
+            && $this->wordpress->currentUserCan(
+                $this->wordpress->getPostTypeObject($type)->cap->read_private_posts
+            ) === false
+        ) {
+            $query .= $this->database->prepare(
+                ' AND (post_status != \'private\' OR (post_author = %d AND post_status = \'private\'))',
+                $this->wordpress->getCurrentUser()->ID
+            );
         }
 
         $query .= ' GROUP BY post_status';
@@ -464,9 +466,7 @@ class PostController extends Controller
      */
     public function showPostCount($counts, $type, $perm)
     {
-        $cachedCounts = $this->cache->getFromRuntimeCache(self::POST_COUNTS_CACHE_KEY);
-
-        if ($cachedCounts === null) {
+        if ($this->cachedCounts === null) {
             $excludedPosts = $this->accessHandler->getExcludedPosts();
 
             if ($excludedPosts !== []) {
@@ -483,11 +483,10 @@ class PostController extends Controller
                 }
             }
 
-            $cachedCounts = $counts;
-            $this->cache->addToRuntimeCache(self::POST_COUNTS_CACHE_KEY, $cachedCounts);
+            $this->cachedCounts = $counts;
         }
 
-        return $cachedCounts;
+        return $this->cachedCounts;
     }
 
     /**

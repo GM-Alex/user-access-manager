@@ -420,7 +420,6 @@ class ControllerFactory
             $this->mainConfig,
             $this->database,
             $this->util,
-            $this->cache,
             $this->objectHandler,
             $this->userHandler,
             $this->accessHandler

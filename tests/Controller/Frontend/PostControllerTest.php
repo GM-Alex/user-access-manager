@@ -40,7 +40,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getAccessHandler()
@@ -68,7 +67,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $accessHandler
@@ -157,7 +155,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getAccessHandler()
@@ -226,7 +223,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getAccessHandler()
@@ -359,7 +355,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $accessHandler
@@ -476,7 +471,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
             $accessHandler
@@ -558,7 +552,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $config,
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $accessHandler
@@ -595,7 +588,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $database,
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $accessHandler
@@ -725,42 +717,6 @@ class PostControllerTest extends UserAccessManagerTestCase
                 'preparedQuery'
             ));
 
-        $cache = $this->getCache();
-
-        $cache->expects($this->exactly(6))
-            ->method('getFromRuntimeCache')
-            ->with(PostController::POST_COUNTS_CACHE_KEY)
-            ->will($this->onConsecutiveCalls('cachedResult', null, null, null, null, null));
-
-        $cache->expects($this->exactly(5))
-            ->method('addToRuntimeCache')
-            ->withConsecutive(
-                [
-                    PostController::POST_COUNTS_CACHE_KEY,
-                    $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8])
-                ],
-                [
-                    PostController::POST_COUNTS_CACHE_KEY,
-                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
-                ],
-                [
-                    PostController::POST_COUNTS_CACHE_KEY,
-                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
-                ],
-                [
-                    PostController::POST_COUNTS_CACHE_KEY,
-                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
-                ],
-                [
-                    PostController::POST_COUNTS_CACHE_KEY,
-                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
-                ],
-                [
-                    PostController::POST_COUNTS_CACHE_KEY,
-                    $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8])
-                ]
-            );
-
         $accessHandler = $this->getAccessHandler();
 
         $accessHandler->expects($this->exactly(5))
@@ -780,12 +736,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $database,
             $this->getUtil(),
-            $cache,
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $accessHandler
         );
 
+        self::setValue($frontendPostController, 'cachedCounts', 'cachedResult');
         self::assertEquals(
             'cachedResult',
             $frontendPostController->showPostCount(
@@ -795,6 +751,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
+        self::setValue($frontendPostController, 'cachedCounts', null);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -804,6 +761,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
+        self::setValue($frontendPostController, 'cachedCounts', null);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -813,6 +771,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
+        self::setValue($frontendPostController, 'cachedCounts', null);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -822,6 +781,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
+        self::setValue($frontendPostController, 'cachedCounts', null);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -831,6 +791,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
+        self::setValue($frontendPostController, 'cachedCounts', null);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -931,7 +892,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
             $accessHandler
@@ -981,7 +941,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $accessHandler
@@ -1021,7 +980,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $accessHandler
