@@ -2,16 +2,18 @@
   "timeout": 20,
   "source": {
     "directories": [
-      "src/AccessHandler",
+      "src/Access",
       "src/Cache",
       "src/Command",
       "src/Config",
       "src/Controller",
       "src/Database",
-      "src/FileHandler",
+      "src/File",
       "src/Form",
-      "src/ObjectHandler",
-      "src/SetupHandler",
+      "src/Object",
+      "src/ObjectMembership",
+      "src/Setup",
+      "src/User",
       "src/UserGroup",
       "src/Util",
       "src/Widget"

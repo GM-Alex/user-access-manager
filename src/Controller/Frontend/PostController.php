@@ -49,11 +49,6 @@ class PostController extends Controller
     private $database;
 
     /**
-     * @var Cache
-     */
-    private $cache;
-
-    /**
      * @var Util
      */
     protected $util;
