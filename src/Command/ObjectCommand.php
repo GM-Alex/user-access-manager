@@ -106,13 +106,13 @@ class ObjectCommand extends \WP_CLI_Command
         foreach ($userGroupIds as $identifier) {
             $userGroupId = isset($namesMap[$identifier]) ? $namesMap[$identifier] : $identifier;
 
-            if (isset($userGroups[$userGroupId]) === true) {
-                $addUserGroups[$userGroupId] = $userGroups[$userGroupId];
-            } else {
+            if (isset($userGroups[$userGroupId]) !== true) {
                 $type = (is_numeric($identifier) === true) ? 'id' : 'name';
                 $this->wordpressCli->error("There is no group with the {$type}: {$identifier}");
                 return false;
             }
+
+            $addUserGroups[$userGroupId] = $userGroups[$userGroupId];
         }
 
         $removeUserGroups = ($operation === self::ACTION_UPDATE) ?
