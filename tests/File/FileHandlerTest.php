@@ -72,7 +72,9 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getFile()
+     * @covers ::getFileMineType()
      * @covers ::clearBuffer()
+     * @covers ::deliverFileViaFopen()
      * @runInSeparateProcess
      */
     public function testGetFile()

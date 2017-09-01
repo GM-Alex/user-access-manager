@@ -47,12 +47,12 @@ interface FileProtectionInterface
     /**
      * Creates the file protection.
      *
-     * @param string $dir
+     * @param string $directory
      * @param string $objectType
      *
      * @return bool
      */
-    public function create($dir, $objectType = null);
+    public function create($directory, $objectType = null);
 
     /**
      * Deletes the file protection.

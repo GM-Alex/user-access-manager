@@ -46,6 +46,7 @@ class UserHandlerTest extends HandlerTestCase
      * @group  unit
      * @covers ::isIpInRange()
      * @covers ::calculateIp()
+     * @covers ::getCalculatedRange()
      */
     public function testIsIpInRange()
     {

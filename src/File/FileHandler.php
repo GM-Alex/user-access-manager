@@ -88,6 +88,61 @@ class FileHandler
     }
 
     /**
+     * Returns the file mine type.
+     *
+     * @param $file
+     *
+     * @return string
+     */
+    private function getFileMineType($file)
+    {
+        $fileName = basename($file);
+
+        /*
+         * This only for compatibility
+         * mime_content_type has been deprecated as the PECL extension file info
+         * provides the same functionality (and more) in a much cleaner way.
+         */
+        $explodedFileName = explode('.', $fileName);
+        $lastElement = array_pop($explodedFileName);
+        $fileExt = strtolower($lastElement);
+
+        $mimeTypes = $this->wordpressConfig->getMimeTypes();
+
+        if ($this->php->functionExists('finfo_open') === true) {
+            $fileInfo = finfo_open(FILEINFO_MIME);
+            $fileMimeType = finfo_file($fileInfo, $file);
+            finfo_close($fileInfo);
+        } elseif ($this->php->functionExists('mime_content_type')) {
+            $fileMimeType = mime_content_type($file);
+        } elseif (isset($mimeTypes[$fileExt]) === true) {
+            $fileMimeType = $mimeTypes[$fileExt];
+        } else {
+            $fileMimeType = 'application/octet-stream';
+        }
+
+        return (string)$fileMimeType;
+    }
+
+    /**
+     * Delivers the file via fopen.
+     *
+     * @param string $file
+     */
+    private function deliverFileViaFopen($file)
+    {
+        $handler = fopen($file, 'r');
+
+        while (feof($handler) === false) {
+            if ($this->php->iniGet('safe_mode') !== '') {
+                $this->php->setTimeLimit(30);
+            }
+
+            echo $this->php->fread($handler, 1024);
+        }
+    }
+
+    /**
      * Delivers the content of the requested file.
      *
      * @param string $file
@@ -97,30 +152,7 @@ class FileHandler
     {
         //Deliver content
         if (file_exists($file) === true) {
-            $fileName = basename($file);
-
-            /*
-             * This only for compatibility
-             * mime_content_type has been deprecated as the PECL extension file info
-             * provides the same functionality (and more) in a much cleaner way.
-             */
-            $explodedFileName = explode('.', $fileName);
-            $lastElement = array_pop($explodedFileName);
-            $fileExt = strtolower($lastElement);
-
-            $mimeTypes = $this->wordpressConfig->getMimeTypes();
-
-            if ($this->php->functionExists('finfo_open') === true) {
-                $fileInfo = finfo_open(FILEINFO_MIME);
-                $fileMimeType = finfo_file($fileInfo, $file);
-                finfo_close($fileInfo);
-            } elseif ($this->php->functionExists('mime_content_type')) {
-                $fileMimeType = mime_content_type($file);
-            } elseif (isset($mimeTypes[$fileExt]) === true) {
-                $fileMimeType = $mimeTypes[$fileExt];
-            } else {
-                $fileMimeType = 'application/octet-stream';
-            }
+            $fileMimeType = $this->getFileMineType($file);
 
             header('Content-Description: File Transfer');
             header('Content-Type: '.$fileMimeType);
@@ -137,15 +169,7 @@ class FileHandler
             if ($this->mainConfig->getDownloadType() === 'fopen'
                 && $isImage === false
             ) {
-                $handler = fopen($file, 'r');
-
-                while (feof($handler) === false) {
-                    if ($this->php->iniGet('safe_mode') !== '') {
-                        $this->php->setTimeLimit(30);
-                    }
-
-                    echo $this->php->fread($handler, 1024);
-                }
+                $this->deliverFileViaFopen($file);
             } else {
                 readfile($file);
             }

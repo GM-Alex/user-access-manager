@@ -26,58 +26,87 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
     const FILE_NAME = 'uam.conf';
 
     /**
-     * Generates the conf file.
+     * Creates the file content if permalinks are active.
      *
-     * @param string $dir
-     * @param string $objectType
-     * @param string $absPath
+     * @param string $absolutePath
+     * @param string $directory
      *
-     * @return bool
+     * @return string
      */
-    public function create($dir, $objectType = null, $absPath = ABSPATH)
+    private function getPermalinkFileContent($absolutePath, $directory)
     {
-        $dir = rtrim($dir, '/').'/';
-        $absPath = rtrim($absPath, '/').'/';
         $areaName = 'WP-Files';
+        $fileTypes = null;
 
-        if ($this->wordpressConfig->isPermalinksActive() === false) {
-            $fileTypes = null;
+        if ($this->mainConfig->getLockFileTypes() === 'selected') {
+            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFileTypes());
+            $fileTypes = "\\.({$fileTypes})";
+        }
 
-            if ($this->mainConfig->getLockFileTypes() === 'selected') {
-                $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFileTypes());
-                $fileTypes = "\\.({$fileTypes})";
-            }
+        $content = "location ".str_replace($absolutePath, '/', $directory)." {\n";
 
-            $content = "location ".str_replace($absPath, '/', $dir)." {\n";
+        if ($fileTypes !== null) {
+            $content .= "location ~ {$fileTypes} {\n";
+        }
 
-            if ($fileTypes !== null) {
-                $content .= "location ~ {$fileTypes} {\n";
-            }
+        $content .= "auth_basic \"{$areaName}\";\n";
+        $content .= "auth_basic_user_file {$directory}.htpasswd;\n";
+        $content .= "}\n";
 
-            $content .= "auth_basic \"{$areaName}\";\n";
-            $content .= "auth_basic_user_file {$dir}.htpasswd;\n";
-            $content .= "}\n";
-
-            if ($fileTypes !== null) {
-                $content .= "}\n";
-            }
-
-            $this->createPasswordFile(true, $dir);
-        } else {
-            if ($objectType === null) {
-                $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
-            }
-
-            $content = "location ".str_replace($absPath, '/', $dir)." {\n";
-            $content .= "rewrite ^([^?]*)$ /index.php?uamfiletype={$objectType}&uamgetfile=$1 last;\n";
-            $content .= "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ ";
-            $content .= "/index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 last;\n";
-            $content .= "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n";
+        if ($fileTypes !== null) {
             $content .= "}\n";
         }
 
+        return $content;
+    }
+
+    /**
+     * Creates the file content if no permalinks are active.
+     *
+     * @param string $absolutePath
+     * @param string $directory
+     * @param string $objectType
+     *
+     * @return string
+     */
+    private function getFileContent($absolutePath, $directory, $objectType)
+    {
+        if ($objectType === null) {
+            $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
+        }
+
+        $content = "location ".str_replace($absolutePath, '/', $directory)." {\n";
+        $content .= "rewrite ^([^?]*)$ /index.php?uamfiletype={$objectType}&uamgetfile=$1 last;\n";
+        $content .= "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ ";
+        $content .= "/index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 last;\n";
+        $content .= "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n";
+        $content .= "}\n";
+
+        return $content;
+    }
+
+    /**
+     * Generates the conf file.
+     *
+     * @param string $directory
+     * @param string $objectType
+     * @param string $absolutePath
+     *
+     * @return bool
+     */
+    public function create($directory, $objectType = null, $absolutePath = ABSPATH)
+    {
+        $directory = rtrim($directory, '/').'/';
+        $absolutePath = rtrim($absolutePath, '/').'/';
+        if ($this->wordpressConfig->isPermalinksActive() === false) {
+            $content = $this->getPermalinkFileContent($absolutePath, $directory);
+            $this->createPasswordFile(true, $directory);
+        } else {
+            $content = $this->getFileContent($absolutePath, $directory, $objectType);
+        }
+
         // save files
-        $fileWithPath = $absPath.self::FILE_NAME;
+        $fileWithPath = $absolutePath.self::FILE_NAME;
 
         try {
             file_put_contents($fileWithPath, $content);

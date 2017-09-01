@@ -15,7 +15,6 @@
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Access\AccessHandler;
-use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Form\FormHelper;
@@ -252,6 +251,29 @@ class UserGroupController extends Controller
     }
 
     /**
+     * Checks if the default user group type should be added.
+     *
+     * @param array       $defaultUserGroups
+     * @param string      $userGroupId
+     * @param null|string $fromTime
+     * @param null|string $toTime
+     *
+     * @return bool
+     */
+    private function isDefaultTypeAdd(array $defaultUserGroups, $userGroupId, &$fromTime = null, &$toTime = null)
+    {
+        $userGroupInfo = isset($defaultUserGroups[$userGroupId]) === true ? $defaultUserGroups[$userGroupId] : [];
+
+        if (isset($userGroupInfo['id']) === true && (string)$userGroupInfo['id'] === (string)$userGroupId) {
+            $fromTime = empty($userGroupInfo['fromTime']) === false ? $userGroupInfo['fromTime'] : null;
+            $toTime = empty($userGroupInfo['toTime']) === false ? $userGroupInfo['toTime'] : null;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Action to set default user groups.
      */
     public function setDefaultUserGroupsAction()
@@ -264,16 +286,9 @@ class UserGroupController extends Controller
         foreach ($userGroups as $userGroup) {
             $userGroupId = $userGroup->getId();
             $userGroup->removeDefaultType($objectType);
-            $userGroupInfo = isset($defaultUserGroups[$userGroupId]) === true ? $defaultUserGroups[$userGroupId] : [];
 
-            if (isset($userGroupInfo['id']) === true
-                && (string)$userGroupInfo['id'] === (string)$userGroupId
-            ) {
-                $userGroup->addDefaultType(
-                    $objectType,
-                    empty($userGroupInfo['fromTime']) === false ? $userGroupInfo['fromTime'] : null,
-                    empty($userGroupInfo['toTime']) === false ? $userGroupInfo['toTime'] : null
-                );
+            if ($this->isDefaultTypeAdd($defaultUserGroups, $userGroupId, $fromTime, $toTime) === true) {
+                $userGroup->addDefaultType($objectType, $fromTime, $toTime);
             }
         }
 

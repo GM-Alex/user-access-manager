@@ -77,6 +77,21 @@ class ObjectCommand extends \WP_CLI_Command
     }
 
     /**
+     * Returns the user group id and the type of the id.
+     *
+     * @param array  $namesMap
+     * @param string $identifier
+     * @param string $type
+     *
+     * @return mixed
+     */
+    private function getUserGroupIdAndType(array $namesMap, $identifier, &$type)
+    {
+        $type = (is_numeric($identifier) === true) ? 'id' : 'name';
+        return isset($namesMap[$identifier]) ? $namesMap[$identifier] : $identifier;
+    }
+
+    /**
      * Returns the add and remove user groups by reference.
      *
      * @param string              $operation
@@ -104,10 +119,9 @@ class ObjectCommand extends \WP_CLI_Command
 
         // find the UserGroup object for the ids or strings given on the commandline
         foreach ($userGroupIds as $identifier) {
-            $userGroupId = isset($namesMap[$identifier]) ? $namesMap[$identifier] : $identifier;
+            $userGroupId = $this->getUserGroupIdAndType($namesMap, $identifier, $type);
 
             if (isset($userGroups[$userGroupId]) !== true) {
-                $type = (is_numeric($identifier) === true) ? 'id' : 'name';
                 $this->wordpressCli->error("There is no group with the {$type}: {$identifier}");
                 return false;
             }
@@ -160,12 +174,14 @@ class ObjectCommand extends \WP_CLI_Command
         }
 
         $operation = $arguments[0];
+        $messages = [
+            self::ACTION_ADD => 'Groups %1$s successfully added to %2$s %3$s',
+            self::ACTION_UPDATE => 'Successfully updated %2$s %3$s with groups %1$s',
+            self::ACTION_REMOVE => 'Successfully removed groups: %1$s from %2$s %3$s'
+        ];
 
         // check that operation is valid
-        if ($operation !== self::ACTION_ADD
-            && $operation !== self::ACTION_UPDATE
-            && $operation !== self::ACTION_REMOVE
-        ) {
+        if (isset($messages[$operation]) === false) {
             $this->wordpressCli->error("Operation is not valid: {$operation}");
             return;
         }
@@ -201,18 +217,6 @@ class ObjectCommand extends \WP_CLI_Command
             $uamUserGroup->save();
         }
 
-        if ($operation === self::ACTION_ADD) {
-            $this->wordpressCli->success(
-                "Groups {$userGroupsArgument} successfully added to {$objectType} {$objectId}"
-            );
-        } elseif ($operation === self::ACTION_UPDATE) {
-            $this->wordpressCli->success(
-                "Successfully updated {$objectType} {$objectId} with groups {$userGroupsArgument}"
-            );
-        } elseif ($operation === self::ACTION_REMOVE) {
-            $this->wordpressCli->success(
-                "Successfully removed groups: {$userGroupsArgument} from {$objectType} {$objectId}"
-            );
-        }
+        $this->wordpressCli->success(sprintf($messages[$operation], $userGroupsArgument, $objectType, $objectId));
     }
 }

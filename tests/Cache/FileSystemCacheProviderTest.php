@@ -222,6 +222,8 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::add()
+     * @covers ::getCacheMethod()
+     * @covers ::getCacheFile()
      */
     public function testAdd()
     {
@@ -233,10 +235,14 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
         $php = $this->getPhp();
 
-        $php->expects($this->exactly(2))
+        $php->expects($this->exactly(3))
             ->method('functionExists')
-            ->with('igbinary_serialize')
-            ->will($this->onConsecutiveCalls(false, true));
+            ->withConsecutive(
+                ['igbinary_serialize'],
+                ['igbinary_serialize'],
+                ['igbinary_unserialize']
+            )
+            ->will($this->onConsecutiveCalls(false, true, true));
 
         $php->expects($this->exactly(4))
             ->method('filePutContents')
@@ -295,6 +301,8 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::get()
+     * @covers ::getCacheMethod()
+     * @covers ::getCacheFile()
      */
     public function testGet()
     {
@@ -310,10 +318,17 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
         $php = $this->getPhp();
 
-        $php->expects($this->exactly(2))
+        $php->expects($this->exactly(6))
             ->method('functionExists')
-            ->with('igbinary_unserialize')
-            ->will($this->onConsecutiveCalls(false, true));
+            ->withConsecutive(
+                ['igbinary_serialize'],
+                ['igbinary_unserialize'],
+                ['igbinary_serialize'],
+                ['igbinary_unserialize'],
+                ['igbinary_serialize'],
+                ['igbinary_unserialize']
+            )
+            ->will($this->onConsecutiveCalls(true, false, true, true, true, true));
 
         $php->expects($this->once())
             ->method('igbinaryUnserialize')
@@ -363,6 +378,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::invalidate()
+     * @covers ::getCacheFile()
      */
     public function testInvalidate()
     {

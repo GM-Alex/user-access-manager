@@ -72,6 +72,15 @@ class FileSystemCacheProvider implements CacheProviderInterface
      */
     private $path = null;
 
+    /**
+     * FileSystemCacheProvider constructor.
+     *
+     * @param Php                    $php
+     * @param Wordpress              $wordpress
+     * @param Util                   $util
+     * @param ConfigFactory          $configFactory
+     * @param ConfigParameterFactory $configParameterFactory
+     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
@@ -170,6 +179,43 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
+     * Returns the caching method.
+     *
+     * @return string|null
+     */
+    private function getCacheMethod()
+    {
+        $method = (string)$this->getConfig()->getParameterValue(self::CONFIG_METHOD);
+
+        if ($method === self::METHOD_IGBINARY
+            && (
+                $this->php->functionExists('igbinary_serialize') === false
+                || $this->php->functionExists('igbinary_unserialize') === false
+            )
+        ) {
+            $method = null;
+        }
+
+        return $method;
+    }
+
+    /**
+     * Returns the cache file name with path.
+     *
+     * @param string $method
+     * @param string $key
+     *
+     * @return string
+     */
+    private function getCacheFile($method, $key)
+    {
+        $cacheFile = $this->getPath().$key;
+        $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
+
+        return $cacheFile;
+    }
+
+    /**
      * Adds a value to the cache.
      *
      * @param string $key
@@ -177,15 +223,12 @@ class FileSystemCacheProvider implements CacheProviderInterface
      */
     public function add($key, $value)
     {
-        $method = $this->getConfig()->getParameterValue(self::CONFIG_METHOD);
-        $cacheFile = $this->getPath().$key;
-        $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
+        $method = $this->getCacheMethod();
+        $cacheFile = $this->getCacheFile($method, $key);
 
         if ($method === self::METHOD_SERIALIZE) {
             $this->php->filePutContents($cacheFile, base64_encode(serialize($value)), LOCK_EX);
-        } elseif ($method === self::METHOD_IGBINARY
-            && $this->php->functionExists('igbinary_serialize')
-        ) {
+        } elseif ($method === self::METHOD_IGBINARY) {
             /** @noinspection PhpUndefinedFunctionInspection */
             $this->php->filePutContents($cacheFile, $this->php->igbinarySerialize($value), LOCK_EX);
         } elseif ($method === self::METHOD_JSON) {
@@ -204,16 +247,13 @@ class FileSystemCacheProvider implements CacheProviderInterface
      */
     public function get($key)
     {
-        $method = $this->getConfig()->getParameterValue(self::CONFIG_METHOD);
-        $cacheFile = $this->getPath().$key;
-        $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
+        $method = $this->getCacheMethod();
+        $cacheFile = $this->getCacheFile($method, $key);
 
         if ((file_exists($cacheFile) === true)) {
             if ($method === self::METHOD_SERIALIZE) {
                 return unserialize(base64_decode(file_get_contents($cacheFile)));
-            } elseif ($method === self::METHOD_IGBINARY
-                && $this->php->functionExists('igbinary_unserialize') === true
-            ) {
+            } elseif ($method === self::METHOD_IGBINARY) {
                 /** @noinspection PhpUndefinedFunctionInspection */
                 return $this->php->igbinaryUnserialize(file_get_contents($cacheFile));
             } elseif ($method === self::METHOD_JSON) {
@@ -236,9 +276,8 @@ class FileSystemCacheProvider implements CacheProviderInterface
      */
     public function invalidate($key)
     {
-        $method = $this->getConfig()->getParameterValue(self::CONFIG_METHOD);
-        $cacheFile = $this->getPath().$key;
-        $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
+        $method = $this->getCacheMethod();
+        $cacheFile = $this->getCacheFile($method, $key);
 
         if ((file_exists($cacheFile) === true)) {
             unlink($cacheFile);

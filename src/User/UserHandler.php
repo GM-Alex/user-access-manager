@@ -97,6 +97,25 @@ class UserHandler
     }
 
     /**
+     * Calculates the ip range.
+     *
+     * @param string $ipRange
+     *
+     * @return array
+     */
+    private function getCalculatedRange($ipRange)
+    {
+        $ipRange = explode('-', $ipRange);
+        $rangeBegin = $ipRange[0];
+        $rangeEnd = isset($ipRange[1]) ? $ipRange[1] : $ipRange[0];
+
+        return [
+            $this->calculateIp($rangeBegin),
+            $this->calculateIp($rangeEnd)
+        ];
+    }
+
+    /**
      * Checks if the given ip matches with the range.
      *
      * @param string $currentIp The ip of the current user.
@@ -110,14 +129,10 @@ class UserHandler
 
         if ($currentIp !== false) {
             foreach ($ipRanges as $ipRange) {
-                $ipRange = explode('-', $ipRange);
-                $rangeBegin = $ipRange[0];
-                $rangeEnd = isset($ipRange[1]) ? $ipRange[1] : $ipRange[0];
-                $rangeBegin = $this->calculateIp($rangeBegin);
-                $rangeEnd = $this->calculateIp($rangeEnd);
+                $calculatedIpRange = $this->getCalculatedRange($ipRange);
 
-                if ($rangeBegin !== false && $rangeEnd !== false
-                    && $rangeBegin <= $currentIp && $currentIp <= $rangeEnd
+                if ($calculatedIpRange[0] !== false && $calculatedIpRange[1] !== false
+                    && $calculatedIpRange[0] <= $currentIp && $currentIp <= $calculatedIpRange[1]
                 ) {
                     return true;
                 }

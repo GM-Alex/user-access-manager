@@ -26,18 +26,76 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     const FILE_NAME = '.htaccess';
 
     /**
+     * Creates the file content if permalinks are active.
+     *
+     * @param string $directory
+     * @param string $fileTypes
+     *
+     * @return string
+     */
+    private function getPermalinkFileContent($directory, $fileTypes)
+    {
+        $areaName = 'WP-Files';
+        // make .htaccess and .htpasswd
+        $content = "AuthType Basic"."\n";
+        $content .= "AuthName \"{$areaName}\""."\n";
+        $content .= "AuthUserFile {$directory}.htpasswd"."\n";
+        $content .= "require valid-user"."\n";
+
+        if ($fileTypes !== null) {
+            /** @noinspection */
+            $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
+        }
+
+        return $content;
+    }
+
+    /**
+     * Creates the file content if no permalinks are active.
+     *
+     * @param string $fileTypes
+     * @param string $objectType
+     *
+     * @return string
+     */
+    private function getFileContent($fileTypes, $objectType)
+    {
+        if ($objectType === null) {
+            $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
+        }
+
+        $homeRoot = parse_url($this->wordpress->getHomeUrl());
+        $homeRoot = (isset($homeRoot['path']) === true) ? '/'.trim($homeRoot['path'], '/\\').'/' : '/';
+
+        $content = "RewriteEngine On\n";
+        $content .= "RewriteBase {$homeRoot}\n";
+        $content .= "RewriteRule ^index\\.php$ - [L]\n";
+        $content .= "RewriteRule ^([^?]*)$ {$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1 [QSA,L]\n";
+        $content .= "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ ";
+        $content .= "{$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 [QSA,L]\n";
+        $content .= "RewriteRule ^(.*)\\?(.*)$ {$homeRoot}index.php?uamgetfile=$1&$2 [QSA,L]\n";
+
+        if ($fileTypes !== null) {
+            /** @noinspection */
+            $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
+        }
+
+        $content = "<IfModule mod_rewrite.c>\n$content</IfModule>\n";
+
+        return $content;
+    }
+
+    /**
      * Generates the htaccess file.
      *
-     * @param string $dir
+     * @param string $directory
      * @param string $objectType
      *
      * @return bool
      */
-    public function create($dir, $objectType = null)
+    public function create($directory, $objectType = null)
     {
-        $dir = rtrim($dir, '/').'/';
-        $content = '';
-        $areaName = 'WP-Files';
+        $directory = rtrim($directory, '/').'/';
         $fileTypes = null;
         $lockFileTypes = $this->mainConfig->getLockFileTypes();
 
@@ -50,44 +108,14 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         }
 
         if ($this->wordpressConfig->isPermalinksActive() === false) {
-            // make .htaccess and .htpasswd
-            $content .= "AuthType Basic"."\n";
-            $content .= "AuthName \"{$areaName}\""."\n";
-            $content .= "AuthUserFile {$dir}.htpasswd"."\n";
-            $content .= "require valid-user"."\n";
-
-            if ($fileTypes !== null) {
-                /** @noinspection */
-                $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
-            }
-
-            $this->createPasswordFile(true, $dir);
+            $content = $this->getPermalinkFileContent($directory, $fileTypes);
+            $this->createPasswordFile(true, $directory);
         } else {
-            if ($objectType === null) {
-                $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
-            }
-
-            $homeRoot = parse_url($this->wordpress->getHomeUrl());
-            $homeRoot = (isset($homeRoot['path']) === true) ? '/'.trim($homeRoot['path'], '/\\').'/' : '/';
-
-            $content = "RewriteEngine On\n";
-            $content .= "RewriteBase {$homeRoot}\n";
-            $content .= "RewriteRule ^index\\.php$ - [L]\n";
-            $content .= "RewriteRule ^([^?]*)$ {$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1 [QSA,L]\n";
-            $content .= "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ ";
-            $content .= "{$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 [QSA,L]\n";
-            $content .= "RewriteRule ^(.*)\\?(.*)$ {$homeRoot}index.php?uamgetfile=$1&$2 [QSA,L]\n";
-
-            if ($fileTypes !== null) {
-                /** @noinspection */
-                $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
-            }
-
-            $content = "<IfModule mod_rewrite.c>\n$content</IfModule>\n";
+            $content = $this->getFileContent($fileTypes, $objectType);
         }
 
         // save files
-        $fileWithPath = $dir.self::FILE_NAME;
+        $fileWithPath = $directory.self::FILE_NAME;
 
         try {
             file_put_contents($fileWithPath, $content);

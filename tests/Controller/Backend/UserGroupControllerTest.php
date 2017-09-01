@@ -383,6 +383,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::setDefaultUserGroupsAction()
+     * @covers ::isDefaultTypeAdd()
      */
     public function testSetDefaultUserGroupsAction()
     {

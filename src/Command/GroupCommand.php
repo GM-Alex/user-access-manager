@@ -199,19 +199,34 @@ class GroupCommand extends CommandWithDBObject
     }
 
     /**
+     * Returns the argument value.
+     *
+     * @param array  $arguments
+     * @param string $value
+     *
+     * @return string
+     */
+    private function getArgumentValue(array $arguments, $value)
+    {
+        return (isset($arguments[$value]) === true) ? (string)$arguments[$value] : '';
+    }
+
+    /**
      * Processes the access value.
      *
-     * @param string $accessValue
+     * @param array  $arguments
+     * @param string $value
      * @param bool   $porcelain
-     * @param string $type
      *
      * @return mixed
      */
-    private function getAccessValue($accessValue, $porcelain, $type)
+    private function getAccessValue(array $arguments, $value, $porcelain)
     {
+        $accessValue = $this->getArgumentValue($arguments, $value);
+
         if (in_array($accessValue, self::$allowedAccessValues) === false) {
             if ($porcelain === true) {
-                $this->wordpressCli->line("setting {$type} to ".self::$allowedAccessValues[0]);
+                $this->wordpressCli->line("setting {$value} to ".self::$allowedAccessValues[0]);
             }
 
             $accessValue = self::$allowedAccessValues[0];
@@ -230,14 +245,11 @@ class GroupCommand extends CommandWithDBObject
      */
     private function createUserGroup($userGroupName, array $assocArguments)
     {
-        $groupDescription = (isset($assocArguments['desc']) === true) ? $assocArguments['desc'] : '';
-        $ipRange = (isset($assocArguments['ip_range']) === true) ? $assocArguments['ip_range'] : '';
-        $readAccess = (isset($assocArguments['read_access']) === true) ? $assocArguments['read_access'] : '';
-        $writeAccess = (isset($assocArguments['write_access']) === true) ? $assocArguments['write_access'] : '';
+        $groupDescription = $this->getArgumentValue($assocArguments, 'desc');
+        $ipRange = $this->getArgumentValue($assocArguments, 'ip_range');
         $porcelain = isset($assocArguments['porcelain']);
-
-        $readAccess = $this->getAccessValue($readAccess, $porcelain, 'read_access');
-        $writeAccess = $this->getAccessValue($writeAccess, $porcelain, 'write_access');
+        $readAccess = $this->getAccessValue($assocArguments, 'read_access', $porcelain);
+        $writeAccess = $this->getAccessValue($assocArguments, 'write_access', $porcelain);
 
         $userGroup = $this->userGroupFactory->createUserGroup();
         $userGroup->setName($userGroupName);

@@ -281,6 +281,28 @@ class RedirectController extends Controller
     }
 
     /**
+     * Returns the post id by the post name.
+     *
+     * @param string $name
+     *
+     * @return int
+     */
+    private function getPostIdByName($name)
+    {
+        $postableTypes = implode('\',\'', $this->objectHandler->getPostTypes());
+
+        $query = $this->database->prepare(
+            "SELECT ID
+                FROM {$this->database->getPostsTable()}
+                WHERE post_name = %s
+                  AND post_type IN ('{$postableTypes}')",
+            $name
+        );
+
+        return (int)$this->database->getVariable($query);
+    }
+
+    /**
      * Extracts the object type and id.
      *
      * @param object      $pageParams
@@ -292,28 +314,22 @@ class RedirectController extends Controller
         $objectType = null;
         $objectId = null;
 
-        if (isset($pageParams->query_vars['p']) === true) {
-            $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-            $objectId = $pageParams->query_vars['p'];
-        } elseif (isset($pageParams->query_vars['page_id']) === true) {
-            $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-            $objectId = $pageParams->query_vars['page_id'];
-        } elseif (isset($pageParams->query_vars['cat_id']) === true) {
-            $objectType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-            $objectId = $pageParams->query_vars['cat_id'];
-        } elseif (isset($pageParams->query_vars['name']) === true) {
-            $postableTypes = implode('\',\'', $this->objectHandler->getPostTypes());
+        $simpleTypes = [
+            'p' => ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            'page_id' => ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+            'cat_id' => ObjectHandler::GENERAL_TERM_OBJECT_TYPE
+        ];
 
-            $query = $this->database->prepare(
-                "SELECT ID
-                    FROM {$this->database->getPostsTable()}
-                    WHERE post_name = %s
-                      AND post_type IN ('{$postableTypes}')",
-                $pageParams->query_vars['name']
-            );
+        foreach ($simpleTypes as $queryVar => $newObjectType) {
+            if (isset($pageParams->query_vars[$queryVar]) === true) {
+                $objectType = $newObjectType;
+                $objectId = $pageParams->query_vars[$queryVar];
+            }
+        }
 
+        if (isset($pageParams->query_vars['name']) === true) {
             $objectType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-            $objectId = (int)$this->database->getVariable($query);
+            $objectId = $this->getPostIdByName($pageParams->query_vars['name']);
         } elseif (isset($pageParams->query_vars['pagename']) === true) {
             $object = $this->wordpress->getPageByPath($pageParams->query_vars['pagename']);
 
