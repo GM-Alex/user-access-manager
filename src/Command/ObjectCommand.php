@@ -58,7 +58,7 @@ class ObjectCommand extends \WP_CLI_Command
      *
      * @param AbstractUserGroup[] $userGroups
      *
-     * @return array|bool
+     * @return array
      */
     private function getUserGroupNameMap(array $userGroups)
     {
@@ -73,7 +73,8 @@ class ObjectCommand extends \WP_CLI_Command
             $userGroupNames[$userGroup->getId()] = $userGroup->getName();
         }
 
-        return array_flip($userGroupNames);
+        $userGroupNames = array_flip($userGroupNames);
+        return (is_array($userGroupNames) === true) ? $userGroupNames : [];
     }
 
     /**
