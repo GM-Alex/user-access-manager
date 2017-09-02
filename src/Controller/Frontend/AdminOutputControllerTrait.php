@@ -59,6 +59,16 @@ trait AdminOutputControllerTrait
     protected $accessHandler;
 
     /**
+     * Returns true if the hint text should be shown.
+     *
+     * @return bool
+     */
+    private function showAdminHint()
+    {
+        return $this->wordpressConfig->atAdminPanel() === false && $this->mainConfig->blogAdminHint() === true;
+    }
+
+    /**
      * Returns the admin hint.
      *
      * @param string  $objectType The object type.
@@ -71,9 +81,7 @@ trait AdminOutputControllerTrait
     {
         $output = '';
 
-        if ($this->wordpressConfig->atAdminPanel() === false
-            && $this->mainConfig->blogAdminHint() === true
-        ) {
+        if ($this->showAdminHint() === true) {
             $hintText = $this->mainConfig->getBlogAdminHintText();
 
             if ($text !== null && $this->util->endsWith($text, $hintText) === true) {

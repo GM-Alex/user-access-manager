@@ -70,6 +70,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::create()
+     * @covers  ::getFileTypes()
      * @covers  ::getPermalinkFileContent()
      * @covers  ::getFileContent()
      */

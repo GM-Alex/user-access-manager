@@ -184,6 +184,20 @@ class TermController extends Controller
     }
 
     /**
+     * Checks if the category is empty.
+     *
+     * @param $term
+     *
+     * @return bool
+     */
+    private function isCategoryEmpty($term)
+    {
+        return $term->count <= 0
+            && $this->wordpressConfig->atAdminPanel() === false
+            && $this->mainConfig->hideEmptyTaxonomy($term->taxonomy) === true;
+    }
+
+    /**
      * Updates the term parent.
      *
      * @param \WP_Term $term
@@ -237,14 +251,7 @@ class TermController extends Controller
 
         $term->name .= $this->adminOutput($term->taxonomy, $term->term_id, $term->name);
         $term->count = $this->getVisibleElementsCount($term->taxonomy, $term->term_id);
-
-        //For categories
-        if ($term->count <= 0
-            && $this->wordpressConfig->atAdminPanel() === false
-            && $this->mainConfig->hideEmptyTaxonomy($term->taxonomy) === true
-        ) {
-            $isEmpty = true;
-        }
+        $isEmpty = $this->isCategoryEmpty($term);
 
         if ($this->mainConfig->lockRecursive() === false) {
             $term = $this->updateTermParent($term);
@@ -284,10 +291,6 @@ class TermController extends Controller
                 $term = $this->objectHandler->getTerm($term);
             }
 
-            if (($term instanceof \WP_Term) === false) {
-                continue;
-            }
-
             $term = $this->processTerm($term, $isEmpty);
 
             if ($term === null || $isEmpty === true) {
@@ -296,6 +299,45 @@ class TermController extends Controller
         }
 
         return $terms;
+    }
+
+    /**
+     * Processes a post menu item.
+     *
+     * @param \stdClass $item
+     *
+     * @return bool
+     */
+    private function processPostMenuItem(&$item)
+    {
+        if ($this->accessHandler->checkObjectAccess($item->object, $item->object_id) === false) {
+            if ($this->mainConfig->hidePostType($item->object) === true
+                || $this->wordpressConfig->atAdminPanel() === true
+            ) {
+                return false;
+            }
+
+            if ($this->mainConfig->hidePostTypeTitle($item->object) === true) {
+                $item->title = $this->mainConfig->getPostTypeTitle($item->object);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Processes a term menu item.
+     *
+     * @param \stdClass $item
+     *
+     * @return bool
+     */
+    private function processTermMenuItem(&$item)
+    {
+        $rawTerm = $this->objectHandler->getTerm($item->object_id);
+        $term = $this->processTerm($rawTerm, $isEmpty);
+
+        return !($term === false || $term === null || $isEmpty === true);
     }
 
     /**
@@ -313,24 +355,13 @@ class TermController extends Controller
             $item->title .= $this->adminOutput($item->object, $item->object_id, $item->title);
 
             if ($this->objectHandler->isPostType($item->object) === true) {
-                if ($this->accessHandler->checkObjectAccess($item->object, $item->object_id) === false) {
-                    if ($this->mainConfig->hidePostType($item->object) === true
-                        || $this->wordpressConfig->atAdminPanel() === true
-                    ) {
-                        continue;
-                    }
-
-                    if ($this->mainConfig->hidePostTypeTitle($item->object) === true) {
-                        $item->title = $this->mainConfig->getPostTypeTitle($item->object);
-                    }
-                }
-            } elseif ($this->objectHandler->isTaxonomy($item->object) === true) {
-                $rawTerm = $this->objectHandler->getTerm($item->object_id);
-                $term = $this->processTerm($rawTerm, $isEmpty);
-
-                if ($term === false || $term === null || $isEmpty === true) {
+                if ($this->processPostMenuItem($item) === false) {
                     continue;
                 }
+            } elseif ($this->objectHandler->isTaxonomy($item->object) === true
+                && $this->processTermMenuItem($item) === false
+            ) {
+                continue;
             }
 
             $showItems[$key] = $item;

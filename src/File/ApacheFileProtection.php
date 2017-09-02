@@ -26,6 +26,27 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     const FILE_NAME = '.htaccess';
 
     /**
+     * Returns the file types.
+     *
+     * @return null|string
+     */
+    private function getFileTypes()
+    {
+        $fileTypes = null;
+        $lockFileTypes = $this->mainConfig->getLockFileTypes();
+
+        if ($lockFileTypes === 'selected') {
+            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFileTypes());
+            $fileTypes = ($fileTypes !== '') ? "\.({$fileTypes})" : null;
+        } elseif ($lockFileTypes === 'not_selected') {
+            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getNotLockedFileTypes());
+            $fileTypes = ($fileTypes !== '') ? "^\.({$fileTypes})" : null;
+        }
+
+        return $fileTypes;
+    }
+
+    /**
      * Creates the file content if permalinks are active.
      *
      * @param string $directory
@@ -96,16 +117,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     public function create($directory, $objectType = null)
     {
         $directory = rtrim($directory, '/').'/';
-        $fileTypes = null;
-        $lockFileTypes = $this->mainConfig->getLockFileTypes();
-
-        if ($lockFileTypes === 'selected') {
-            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFileTypes());
-            $fileTypes = ($fileTypes !== '') ? "\.({$fileTypes})" : null;
-        } elseif ($lockFileTypes === 'not_selected') {
-            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getNotLockedFileTypes());
-            $fileTypes = ($fileTypes !== '') ? "^\.({$fileTypes})" : null;
-        }
+        $fileTypes = $this->getFileTypes();
 
         if ($this->wordpressConfig->isPermalinksActive() === false) {
             $content = $this->getPermalinkFileContent($directory, $fileTypes);

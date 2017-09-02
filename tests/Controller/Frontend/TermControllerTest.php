@@ -108,6 +108,7 @@ class TermControllerTest extends UserAccessManagerTestCase
      * @covers ::showTerm()
      * @covers ::showTerms()
      * @covers ::getVisibleElementsCount()
+     * @covers ::isCategoryEmpty()
      * @covers ::getAllPostForTerm()
      * @covers ::processTerm()
      * @covers ::updateTermParent()
@@ -343,6 +344,8 @@ class TermControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showCustomMenu()
+     * @covers ::processPostMenuItem()
+     * @covers ::processTermMenuItem()
      */
     public function testShowCustomMenu()
     {

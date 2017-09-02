@@ -98,6 +98,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
     {
         $directory = rtrim($directory, '/').'/';
         $absolutePath = rtrim($absolutePath, '/').'/';
+
         if ($this->wordpressConfig->isPermalinksActive() === false) {
             $content = $this->getPermalinkFileContent($absolutePath, $directory);
             $this->createPasswordFile(true, $directory);

@@ -36,6 +36,7 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::adminOutput()
+     * @covers ::showAdminHint()
      */
     public function testAdminOutput()
     {
