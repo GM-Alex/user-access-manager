@@ -103,6 +103,29 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
     }
 
     /**
+     * Assigns the recursive member ship by the group terms.
+     *
+     * @param AbstractUserGroup $userGroup
+     * @param string            $objectId
+     * @param array             $recursiveMembership
+     */
+    private function assignRecursiveMembershipByTerm(
+        AbstractUserGroup $userGroup,
+        $objectId,
+        array &$recursiveMembership
+    ) {
+        $postTermMap = $this->objectHandler->getPostTermMap();
+
+        if (isset($postTermMap[$objectId]) === true) {
+            foreach ($postTermMap[$objectId] as $termId => $type) {
+                if ($userGroup->isTermMember($termId, $rmAssignmentInformation) === true) {
+                    $recursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$termId] = $rmAssignmentInformation;
+                }
+            }
+        }
+    }
+
+    /**
      * Checks if the post is a member of the user group.
      *
      * @param AbstractUserGroup          $userGroup
@@ -124,17 +147,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
             $recursiveMembership = ($assignmentInformation !== null) ?
                 $assignmentInformation->getRecursiveMembership() : [];
 
-            $postTermMap = $this->objectHandler->getPostTermMap();
-
-            if (isset($postTermMap[$objectId]) === true) {
-                foreach ($postTermMap[$objectId] as $termId => $type) {
-                    if ($userGroup->isTermMember($termId, $rmAssignmentInformation) === true) {
-                        $recursiveMembership[ObjectHandler::GENERAL_TERM_OBJECT_TYPE][$termId] =
-                            $rmAssignmentInformation;
-                    }
-                }
-            }
-
+            $this->assignRecursiveMembershipByTerm($userGroup, $objectId, $recursiveMembership);
             $this->assignRecursiveMembership($assignmentInformation, $recursiveMembership);
             $isMember = $isMember || count($recursiveMembership) > 0;
         }

@@ -118,6 +118,7 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::isMember()
+     * @covers ::assignRecursiveMembershipByTerm()
      * @covers ::getMap()
      */
     public function testIsMember()
