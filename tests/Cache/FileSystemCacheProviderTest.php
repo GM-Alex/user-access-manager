@@ -378,6 +378,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::invalidate()
+     * @covers ::getCacheMethod()
      * @covers ::getCacheFile()
      */
     public function testInvalidate()

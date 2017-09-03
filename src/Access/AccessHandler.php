@@ -273,7 +273,7 @@ class AccessHandler
             return [];
         }
 
-        if ($ignoreDates === true || isset($this->objectUserGroups[$objectType][$objectId]) === false) {
+        if (isset($this->objectUserGroups[(int)$ignoreDates][$objectType][$objectId]) === false) {
             $objectUserGroups = [];
             $userGroups = $this->getFullUserGroups();
 
@@ -285,14 +285,10 @@ class AccessHandler
                 }
             }
 
-            if ($ignoreDates === true) {
-                return $objectUserGroups;
-            }
-
-            $this->objectUserGroups[$objectType][$objectId] = $objectUserGroups;
+            $this->objectUserGroups[(int)$ignoreDates][$objectType][$objectId] = $objectUserGroups;
         }
 
-        return $this->objectUserGroups[$objectType][$objectId];
+        return $this->objectUserGroups[(int)$ignoreDates][$objectType][$objectId];
     }
 
     /**
@@ -318,6 +314,32 @@ class AccessHandler
     }
 
     /**
+     * Assigns the dynamic user groups to the user user groups.
+     *
+     * @param \WP_User $currentUser
+     * @param array    $userGroupsForUser
+     */
+    private function assignDynamicUserGroupsForUser(\WP_User $currentUser, array &$userGroupsForUser)
+    {
+        $userUserGroup = $this->userGroupFactory->createDynamicUserGroup(
+            DynamicUserGroup::USER_TYPE,
+            $currentUser->ID
+        );
+        $userGroupsForUser[$userUserGroup->getId()] = $userUserGroup;
+
+        $roles = $this->userHandler->getUserRole($currentUser);
+
+        foreach ($roles as $role) {
+            $group = $this->userGroupFactory->createDynamicUserGroup(
+                DynamicUserGroup::ROLE_TYPE,
+                $role
+            );
+
+            $userGroupsForUser[$group->getId()] = $group;
+        }
+    }
+
+    /**
      * Returns the user groups for the user.
      *
      * @return AbstractUserGroup[]
@@ -335,23 +357,7 @@ class AccessHandler
                 $currentUser->ID
             );
 
-            $userUserGroup = $this->userGroupFactory->createDynamicUserGroup(
-                DynamicUserGroup::USER_TYPE,
-                $currentUser->ID
-            );
-            $userGroupsForUser[$userUserGroup->getId()] = $userUserGroup;
-
-            $roles = $this->userHandler->getUserRole($currentUser);
-
-            foreach ($roles as $role) {
-                $group = $this->userGroupFactory->createDynamicUserGroup(
-                    DynamicUserGroup::ROLE_TYPE,
-                    $role
-                );
-
-                $userGroupsForUser[$group->getId()] = $group;
-            }
-
+            $this->assignDynamicUserGroupsForUser($currentUser, $userGroupsForUser);
             $userGroups = $this->getUserGroups();
 
             foreach ($userGroups as $userGroup) {

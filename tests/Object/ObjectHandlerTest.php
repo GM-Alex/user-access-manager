@@ -302,6 +302,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::processTreeMapElements()
+     * @covers ::getCachedTreeMap()
      * @covers ::getTreeMap()
      * @covers ::getPostTreeMap()
      * @covers ::getTermTreeMap()
@@ -338,11 +339,11 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $wordpress = $this->getWordpress();
         $database = $this->getDatabase();
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getTermTaxonomyTable')
             ->will($this->returnValue('termTaxonomyTable'));
 
@@ -403,36 +404,35 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @param int    $objectId
      * @param int    $termId
-     * @param string $postType
-     * @param string $termType
+     * @param string $type
      *
      * @return \stdClass
      */
-    private function createTermMapDbResultElement($objectId, $termId, $postType = 'post', $termType = 'category')
+    private function createTermMapDbResultElement($objectId, $termId, $type)
     {
         $element = new \stdClass();
         $element->objectId = $objectId;
-        $element->termId = $termId;
-        $element->postType = $postType;
-        $element->termType = $termType;
+        $element->parentId = $termId;
+        $element->type = $type;
 
         return $element;
     }
 
     /**
      * @group  unit
+     * @covers ::getCachedMap()
      * @covers ::getTermPostMap()
      */
     public function testGetTermPostMap()
     {
         $databaseResult = [];
-        $databaseResult[] = $this->createTermMapDbResultElement(1, 1);
-        $databaseResult[] = $this->createTermMapDbResultElement(2, 1);
-        $databaseResult[] = $this->createTermMapDbResultElement(1, 2);
-        $databaseResult[] = $this->createTermMapDbResultElement(3, 2);
-        $databaseResult[] = $this->createTermMapDbResultElement(4, 2);
-        $databaseResult[] = $this->createTermMapDbResultElement(123, 3);
-        $databaseResult[] = $this->createTermMapDbResultElement(321, 3);
+        $databaseResult[] = $this->createTermMapDbResultElement(1, 1, 'post');
+        $databaseResult[] = $this->createTermMapDbResultElement(2, 1, 'post');
+        $databaseResult[] = $this->createTermMapDbResultElement(1, 2, 'post');
+        $databaseResult[] = $this->createTermMapDbResultElement(3, 2, 'post');
+        $databaseResult[] = $this->createTermMapDbResultElement(4, 2, 'post');
+        $databaseResult[] = $this->createTermMapDbResultElement(123, 3, 'post');
+        $databaseResult[] = $this->createTermMapDbResultElement(321, 3, 'post');
         $databaseResult[] = $this->createTermMapDbResultElement(7, 6, 'page');
         $databaseResult[] = $this->createTermMapDbResultElement(8, 7, 'page');
 
@@ -447,15 +447,15 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $wordpress = $this->getWordpress();
         $database = $this->getDatabase();
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getTermTaxonomyTable')
             ->will($this->returnValue('termTaxonomyTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getTermRelationshipsTable')
             ->will($this->returnValue('termRelationshipsTable'));
 
@@ -463,7 +463,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->method('getResults')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SELECT tr.object_id AS objectId, tt.term_id AS termId, p.post_type AS postType
+                    'SELECT tr.object_id AS objectId, tt.term_id AS parentId, p.post_type AS type
                     FROM termRelationshipsTable AS tr 
                     LEFT JOIN postTable AS p ON (tr.object_id = p.ID)
                     LEFT JOIN termTaxonomyTable AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
@@ -500,21 +500,22 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @covers  ::getPostTermMap()
+     * @group  unit
+     * @covers ::getCachedMap()
+     * @covers ::getPostTermMap()
      */
     public function testGetPostTermMap()
     {
         $databaseResult = [];
-        $databaseResult[] = $this->createTermMapDbResultElement(1, 1);
-        $databaseResult[] = $this->createTermMapDbResultElement(2, 1);
-        $databaseResult[] = $this->createTermMapDbResultElement(1, 2);
-        $databaseResult[] = $this->createTermMapDbResultElement(3, 2);
-        $databaseResult[] = $this->createTermMapDbResultElement(4, 2);
-        $databaseResult[] = $this->createTermMapDbResultElement(123, 3);
-        $databaseResult[] = $this->createTermMapDbResultElement(321, 3);
-        $databaseResult[] = $this->createTermMapDbResultElement(7, 6, 'page', 'term');
-        $databaseResult[] = $this->createTermMapDbResultElement(8, 7, 'page', 'term');
+        $databaseResult[] = $this->createTermMapDbResultElement(1, 1, 'category');
+        $databaseResult[] = $this->createTermMapDbResultElement(1, 2, 'category');
+        $databaseResult[] = $this->createTermMapDbResultElement(2, 1, 'category');
+        $databaseResult[] = $this->createTermMapDbResultElement(2, 3, 'category');
+        $databaseResult[] = $this->createTermMapDbResultElement(2, 4, 'category');
+        $databaseResult[] = $this->createTermMapDbResultElement(3, 123, 'category');
+        $databaseResult[] = $this->createTermMapDbResultElement(3, 321, 'category');
+        $databaseResult[] = $this->createTermMapDbResultElement(6, 7, 'term');
+        $databaseResult[] = $this->createTermMapDbResultElement(7, 8, 'term');
 
         $expectedResult = [
             1 => [1 => 'category', 2 => 'category'],
@@ -530,11 +531,11 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $wordpress = $this->getWordpress();
         $database = $this->getDatabase();
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getTermTaxonomyTable')
             ->will($this->returnValue('termTaxonomyTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getTermRelationshipsTable')
             ->will($this->returnValue('termRelationshipsTable'));
 
@@ -542,7 +543,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->method('getResults')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SELECT tr.object_id AS objectId, tt.term_id AS termId, tt.taxonomy AS termType
+                    'SELECT tr.object_id AS parentId, tt.term_id AS objectId, tt.taxonomy AS type
                     FROM termRelationshipsTable AS tr 
                     LEFT JOIN termTaxonomyTable AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
                 )

@@ -429,7 +429,7 @@ class AccessHandlerTest extends HandlerTestCase
             $accessHandler->getUserGroupsForObject('objectType', 2)
         );
 
-        self::setValue($accessHandler, 'objectUserGroups', ['objectType' => []]);
+        self::setValue($accessHandler, 'objectUserGroups', [0 => ['objectType' => []]]);
 
         self::assertEquals(
             [
@@ -439,7 +439,21 @@ class AccessHandlerTest extends HandlerTestCase
             $accessHandler->getUserGroupsForObject('objectType', 2, true)
         );
 
-        self::assertAttributeEquals(['objectType' => []], 'objectUserGroups', $accessHandler);
+        self::assertAttributeEquals(
+            [
+                0 => ['objectType' => []],
+                1 => [
+                    'objectType' => [
+                        2 => [
+                            2 => $this->getUserGroup(2, true, true),
+                            3 => $this->getUserGroup(3, true, true)
+                        ]
+                    ]
+                ]
+            ],
+            'objectUserGroups',
+            $accessHandler
+        );
 
         return $accessHandler;
     }
@@ -461,6 +475,7 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getUserGroupsForUser()
+     * @covers ::assignDynamicUserGroupsForUser()
      * @covers ::checkUserGroupAccess()
      */
     public function testGetUserGroupsForUser()
@@ -539,10 +554,12 @@ class AccessHandlerTest extends HandlerTestCase
         self::setValue($accessHandler, 'userGroups', $userGroups);
 
         $objectUserGroups = [
-            ObjectHandler::GENERAL_USER_OBJECT_TYPE => [
-                1 => [
-                    0 => $this->getUserGroup(0),
-                    5 => $this->getUserGroup(5)
+            0 => [
+                ObjectHandler::GENERAL_USER_OBJECT_TYPE => [
+                    1 => [
+                        0 => $this->getUserGroup(0),
+                        5 => $this->getUserGroup(5)
+                    ]
                 ]
             ]
         ];
@@ -605,12 +622,14 @@ class AccessHandlerTest extends HandlerTestCase
         self::setValue($accessHandler, 'userGroupsForUser', $userUserGroups);
 
         $objectUserGroups = [
-            'objectType' => [
-                1 => [
-                    0 => $this->getUserGroup(0),
-                    2 => $this->getUserGroup(2, true, false, [''], 'all'),
-                    4 => $this->getUserGroup(4),
-                    5 => $this->getUserGroup(5)
+            0 => [
+                'objectType' => [
+                    1 => [
+                        0 => $this->getUserGroup(0),
+                        2 => $this->getUserGroup(2, true, false, [''], 'all'),
+                        4 => $this->getUserGroup(4),
+                        5 => $this->getUserGroup(5)
+                    ]
                 ]
             ]
         ];
@@ -634,12 +653,14 @@ class AccessHandlerTest extends HandlerTestCase
     public function testCheckObjectAccess()
     {
         $objectUserGroups = [
-            'postType' => [
-                -1 => [3 => $this->getUserGroup(11)],
-                1 => [3 => $this->getUserGroup(3)],
-                2 => [0 => $this->getUserGroup(0)],
-                3 => [],
-                4 => [10 => $this->getUserGroup(10)]
+            0 => [
+                'postType' => [
+                    -1 => [3 => $this->getUserGroup(11)],
+                    1 => [3 => $this->getUserGroup(3)],
+                    2 => [0 => $this->getUserGroup(0)],
+                    3 => [],
+                    4 => [10 => $this->getUserGroup(10)]
+                ]
             ]
         ];
 
