@@ -105,7 +105,7 @@ class Update4Test extends UserAccessManagerTestCase
                     WHERE gto.general_object_type = \'_term_\''
                 )]
             )
-            ->will($this->returnValue(1));
+            ->will($this->returnValue(true));
 
         $update = new Update4($database, $this->getObjectHandler());
         self::assertTrue($update->update());

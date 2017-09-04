@@ -143,7 +143,10 @@ class Update1Test extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(
                 'userGroupTable',
-                'ip_range'
+                'ip_range',
+                true,
+                true,
+                true
             ));
 
         $objectHandler = $this->getObjectHandler();

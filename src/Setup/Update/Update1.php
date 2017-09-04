@@ -78,7 +78,7 @@ class Update1 extends Update implements UpdateInterface
 
         $alterQuery = "ALTER TABLE '{$userGroupToObject}'
             CHANGE 'object_id' 'object_id' VARCHAR(64) {$charsetCollate}";
-        $this->database->query($alterQuery);
+        $success = $this->database->query($alterQuery) !== false;
 
         $objectTypes = $this->objectHandler->getObjectTypes();
         $postTable = $this->database->getPostsTable();
@@ -128,7 +128,7 @@ class Update1 extends Update implements UpdateInterface
             {$userGroupToCategory},
             {$userGroupToRole}";
 
-        return $this->database->query($dropQuery) !== false;
+        return $success && $this->database->query($dropQuery) !== false;
     }
 
     /**

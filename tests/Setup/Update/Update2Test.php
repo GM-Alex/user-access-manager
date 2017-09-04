@@ -74,7 +74,7 @@ class Update2Test extends UserAccessManagerTestCase
                     CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL'
                 )
             )
-            ->will($this->returnValue(1));
+            ->will($this->returnValue(true));
 
         $update = new Update2($database, $this->getObjectHandler());
         self::assertTrue($update->update());

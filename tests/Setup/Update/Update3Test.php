@@ -72,7 +72,8 @@ class Update3Test extends UserAccessManagerTestCase
                 'userGroupToObjectTable',
                 ['object_type' => ObjectHandler::GENERAL_TERM_OBJECT_TYPE],
                 ['object_type' => 'category']
-            );
+            )
+            ->will($this->returnValue(true));
 
         $update = new Update3($database, $this->getObjectHandler());
         self::assertTrue($update->update());

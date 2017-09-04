@@ -81,7 +81,7 @@ class Update6Test extends UserAccessManagerTestCase
                     ADD PRIMARY KEY (object_id, object_type, group_id, group_type)'
                 )
             )
-            ->will($this->returnValue(1));
+            ->will($this->returnValue(true));
 
         $database->expects($this->once())
             ->method('update')
@@ -89,7 +89,8 @@ class Update6Test extends UserAccessManagerTestCase
                 'userGroupToObjectTable',
                 ['group_type' => UserGroup::USER_GROUP_TYPE],
                 ['group_type' => '']
-            );
+            )
+            ->will($this->returnValue(true));
 
         $update = new Update6($database, $this->getObjectHandler());
         self::assertTrue($update->update());

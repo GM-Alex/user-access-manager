@@ -88,7 +88,8 @@ class Update5Test extends UserAccessManagerTestCase
                 'userGroupToObjectTable',
                 ['general_object_type' => 'generalCustomPostType'],
                 ['object_id' => 123, 'group_id' => 321, 'object_type' => 'customPostType']
-            );
+            )
+            ->will($this->returnValue(true));
 
         $objectHandler = $this->getObjectHandler();
 

@@ -188,10 +188,8 @@ class FileSystemCacheProvider implements CacheProviderInterface
         $method = (string)$this->getConfig()->getParameterValue(self::CONFIG_METHOD);
 
         if ($method === self::METHOD_IGBINARY
-            && (
-                $this->php->functionExists('igbinary_serialize') === false
-                || $this->php->functionExists('igbinary_unserialize') === false
-            )
+            && ($this->php->functionExists('igbinary_serialize') === false
+                || $this->php->functionExists('igbinary_unserialize') === false)
         ) {
             $method = null;
         }
