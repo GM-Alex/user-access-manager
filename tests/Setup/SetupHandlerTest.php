@@ -16,11 +16,10 @@ namespace UserAccessManager\Tests\Setup;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Config\MainConfig;
-use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Setup\SetupHandler;
+use UserAccessManager\Setup\Update\UpdateInterface;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
-use UserAccessManager\UserGroup\UserGroup;
 
 /**
  * Class SetupHandlerTest
@@ -40,7 +39,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getObjectHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getUpdateFactory()
         );
 
         self::assertInstanceOf(SetupHandler::class, $setupHandler);
@@ -89,7 +89,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $this->getObjectHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getUpdateFactory()
         );
 
         $blogIds = $setupHandler->getBlogIds();
@@ -203,7 +204,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $objectHandler,
-            $fileHandler
+            $fileHandler,
+            $this->getUpdateFactory()
         );
 
         $setupHandler->install();
@@ -261,7 +263,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $objectHandler,
-            $fileHandler
+            $fileHandler,
+            $this->getUpdateFactory()
         );
 
         self::assertFalse($setupHandler->isDatabaseUpdateNecessary());
@@ -309,7 +312,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $this->getObjectHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getUpdateFactory()
         );
 
         self::assertFalse($setupHandler->backupDatabase());
@@ -345,7 +349,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $database,
             $this->getObjectHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getUpdateFactory()
         );
 
         self::assertEquals(
@@ -407,7 +412,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $this->getObjectHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getUpdateFactory()
         );
 
         self::assertTrue($setupHandler->revertDatabase('1.2'));
@@ -459,7 +465,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $database,
             $this->getObjectHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getUpdateFactory()
         );
 
         self::assertTrue($setupHandler->deleteBackup('1.2'));
@@ -467,18 +474,28 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @param string $version
+     * @param bool  $executeUpdate
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|UpdateInterface
+     */
+    private function getUpdate($version, $executeUpdate = false)
+    {
+        $update = $this->createMock(UpdateInterface::class);
+        $update->expects($this->exactly(2))
+            ->method('getVersion')
+            ->will($this->returnValue($version));
+
+        $update->expects($this->exactly(($executeUpdate === true) ? 1 : 0))
+            ->method('update');
+
+        return $update;
+    }
+
+    /**
      * @group  unit
      * @covers ::update()
-     * @covers ::isUpdateNecessary()
-     * @covers ::updateTo10()
-     * @covers ::updateTo10UserGroupTableUpdate()
-     * @covers ::updateTo10UserGroupToObjectTableUpdate()
-     * @covers ::updateTo10()
-     * @covers ::updateTo12()
-     * @covers ::updateTo13()
-     * @covers ::updateTo14()
-     * @covers ::updateTo151()
-     * @covers ::updateTo16()
+     * @covers ::getOrderedUpdates()
      */
     public function testUpdate()
     {
@@ -500,206 +517,21 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             ->method('updateOption')
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
 
-        $database = $this->getDatabase();
-        $database->expects($this->once())
-            ->method('getUserGroupTable')
-            ->will($this->returnValue('userGroupTable'));
-
-        $database->expects($this->exactly(5))
-            ->method('getUserGroupToObjectTable')
-            ->will($this->returnValue('userGroupToObjectTable'));
-
-        $database->expects($this->once())
-            ->method('getPrefix')
-            ->will($this->returnValue('prefix_'));
-
-        $database->expects($this->once())
-            ->method('getCharset')
-            ->will($this->returnValue('CHARSET testCharset'));
-
-        $database->expects($this->once())
-            ->method('getPostsTable')
-            ->will($this->returnValue('postsTable'));
-
-        $database->expects($this->once())
-            ->method('getTermTaxonomyTable')
-            ->will($this->returnValue('termTaxonomyTable'));
-
-        $database->expects($this->exactly(2))
-            ->method('getVariable')
-            ->withConsecutive(
-                ['SHOW TABLES LIKE \'userGroupTable\''],
-                ['SHOW columns FROM userGroupTable LIKE \'ip_range\'']
-            )
-            ->will($this->onConsecutiveCalls(
-                'userGroupTable',
-                'not_ip_range'
-            ));
-
-        $firstDbObject = new \stdClass();
-        $firstDbObject->groupId = 123;
-        $firstDbObject->id = 321;
-
-        $secondDbObject = new \stdClass();
-        $secondDbObject->objectId = 123;
-        $secondDbObject->groupId = 321;
-        $secondDbObject->objectType = 'customPostType';
-
-        $database->expects($this->exactly(5))
-            ->method('getResults')
-            ->withConsecutive(
-                [new MatchIgnoreWhitespace(
-                    'SELECT post_id AS id, group_id AS groupId
-                    FROM prefix_uam_accessgroup_to_post, postsTable WHERE post_id = ID
-                    AND post_type = \'post\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'SELECT category_id AS id, group_id AS groupId
-                    FROM prefix_uam_accessgroup_to_category'
-                )],
-                [new MatchIgnoreWhitespace(
-                    'SELECT user_id AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_user'
-                )],
-                [new MatchIgnoreWhitespace(
-                    'SELECT role_name AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_role'
-                )],
-                [new MatchIgnoreWhitespace(
-                    'SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
-                    FROM userGroupToObjectTable
-                    WHERE general_object_type = \'\''
-                )]
-            )
-            ->will($this->onConsecutiveCalls([$firstDbObject], [], [], [], [$secondDbObject]));
-
-        $database->expects($this->exactly(13))
-            ->method('query')
-            ->withConsecutive(
-                [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupTable
-                    ADD read_access TINYTEXT NOT NULL DEFAULT \'\', 
-                    ADD write_access TINYTEXT NOT NULL DEFAULT \'\', 
-                    ADD ip_range MEDIUMTEXT NULL DEFAULT \'\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupTable SET read_access = \'group\', write_access = \'group\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupTable ADD ip_range MEDIUMTEXT NULL DEFAULT \'\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\'
-                    CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
-                )],
-                [new MatchIgnoreWhitespace(
-                    'DROP TABLE prefix_uam_accessgroup_to_post,
-                    prefix_uam_accessgroup_to_user,
-                    prefix_uam_accessgroup_to_category,
-                    prefix_uam_accessgroup_to_role'
-                )],
-                [new MatchIgnoreWhitespace(
-                    'ALTER TABLE `userGroupToObjectTable`
-                    CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
-                    CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL'
-                )],
-                [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupToObjectTable
-                    ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id'
-                )],
-                [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable
-                    SET general_object_type = \'_post_\'
-                    WHERE object_type IN (\'post\', \'page\', \'attachment\')'
-                )],
-                [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable
-                    SET general_object_type = \'_role_\'
-                    WHERE object_type = \'role\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable
-                    SET general_object_type = \'_user_\'
-                    WHERE object_type = \'user\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable
-                    SET general_object_type = \'_term_\'
-                    WHERE object_type = \'term\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable AS gto
-                    LEFT JOIN termTaxonomyTable AS tt 
-                      ON gto.object_id = tt.term_id
-                    SET gto.object_type = tt.taxonomy
-                    WHERE gto.general_object_type = \'_term_\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupToObjectTable
-                    ADD group_type VARCHAR(64) NOT NULL AFTER group_id,
-                    ADD from_date DATETIME NULL DEFAULT NULL,
-                    ADD to_date DATETIME NULL DEFAULT NULL,
-                    MODIFY group_id VARCHAR(64) NOT NULL,
-                    MODIFY object_id VARCHAR(64) NOT NULL,
-                    DROP PRIMARY KEY,
-                    ADD PRIMARY KEY (object_id, object_type, group_id, group_type)'
-                )]
-            )
-            ->will($this->onConsecutiveCalls(
-                'userGroupTable',
-                'ip_range'
-            ));
-
-        $database->expects($this->exactly(3))
-            ->method('update')
-            ->withConsecutive(
-                [
-                    'userGroupToObjectTable',
-                    ['object_type' => ObjectHandler::GENERAL_TERM_OBJECT_TYPE],
-                    ['object_type' => 'category']
-                ],
-                [
-                    'userGroupToObjectTable',
-                    ['general_object_type' => 'generalCustomPostType'],
-                    ['object_id' => 123, 'group_id' => 321, 'object_type' => 'customPostType']
-                ],
-                [
-                    'userGroupToObjectTable',
-                    ['group_type' => UserGroup::USER_GROUP_TYPE],
-                    ['group_type' => '']
-                ]
-            );
-
-        $objectHandler = $this->getObjectHandler();
-
-        $objectHandler->expects($this->once())
-            ->method('getObjectTypes')
-            ->will($this->returnValue(
-                ['post', 'nothing', 'category', 'nothing', 'user', 'nothing', 'role', 'nothing']
-            ));
-
-        $objectHandler->expects($this->exactly(8))
-            ->method('isPostType')
-            ->withConsecutive(
-                ['post'],
-                ['nothing'],
-                ['category'],
-                ['nothing'],
-                ['user'],
-                ['nothing'],
-                ['role'],
-                ['nothing']
-            )
-            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false));
-
-        $objectHandler->expects($this->once())
-            ->method('getGeneralObjectType')
-            ->with('customPostType')
-            ->will($this->returnValue('generalCustomPostType'));
+        $updateFactory = $this->getUpdateFactory();
+        $updateFactory->expects($this->once())
+            ->method('getUpdates')
+            ->will($this->returnValue([
+                $this->getUpdate(0),
+                $this->getUpdate(10, true),
+                $this->getUpdate(1, true),
+            ]));
 
         $setupHandler = new SetupHandler(
             $wordpress,
-            $database,
-            $objectHandler,
-            $this->getFileHandler()
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $this->getFileHandler(),
+            $updateFactory
         );
 
         self::assertFalse($setupHandler->update());
@@ -761,7 +593,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $this->getObjectHandler(),
-            $fileHandler
+            $fileHandler,
+            $this->getUpdateFactory()
         );
 
         $setupHandler->uninstall();
@@ -786,7 +619,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $objectHandler,
-            $fileHandler
+            $fileHandler,
+            $this->getUpdateFactory()
         );
 
         self::assertFalse($setupHandler->deactivate());

@@ -16,6 +16,7 @@ namespace UserAccessManager\ObjectMembership;
 
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -43,6 +44,11 @@ class ObjectMembershipHandlerFactory
     private $database;
 
     /**
+     * @var ObjectMapHandler
+     */
+    private $objectMapHandler;
+
+    /**
      * @var AssignmentInformationFactory
      */
     private $assignmentInformationFactory;
@@ -53,17 +59,20 @@ class ObjectMembershipHandlerFactory
      * @param Php                          $php
      * @param Wordpress                    $wordpress
      * @param Database                     $database
+     * @param ObjectMapHandler             $objectMapHandler
      * @param AssignmentInformationFactory $assignmentInformationFactory
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         Database $database,
+        ObjectMapHandler $objectMapHandler,
         AssignmentInformationFactory $assignmentInformationFactory
     ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
         $this->database = $database;
+        $this->objectMapHandler = $objectMapHandler;
         $this->assignmentInformationFactory = $assignmentInformationFactory;
     }
 
@@ -76,7 +85,12 @@ class ObjectMembershipHandlerFactory
      */
     public function createPostMembershipHandler(ObjectHandler $objectHandler)
     {
-        return new PostMembershipHandler($this->assignmentInformationFactory, $this->wordpress, $objectHandler);
+        return new PostMembershipHandler(
+            $this->assignmentInformationFactory,
+            $this->wordpress,
+            $objectHandler,
+            $this->objectMapHandler
+        );
     }
 
     /**
@@ -98,7 +112,12 @@ class ObjectMembershipHandlerFactory
      */
     public function createTermMembershipHandler(ObjectHandler $objectHandler)
     {
-        return new TermMembershipHandler($this->assignmentInformationFactory, $this->wordpress, $objectHandler);
+        return new TermMembershipHandler(
+            $this->assignmentInformationFactory,
+            $this->wordpress,
+            $objectHandler,
+            $this->objectMapHandler
+        );
     }
 
     /**

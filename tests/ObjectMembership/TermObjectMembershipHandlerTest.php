@@ -35,7 +35,8 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
         $termMembershipHandler = new TermMembershipHandler(
             $this->getAssignmentInformationFactory(),
             $this->getWordpress(),
-            $this->getObjectHandler()
+            $this->getObjectHandler(),
+            $this->getObjectMapHandler()
         );
 
         self::assertInstanceOf(TermMembershipHandler::class, $termMembershipHandler);
@@ -76,7 +77,8 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
         $termMembershipHandler = new TermMembershipHandler(
             $this->getAssignmentInformationFactory(),
             $wordpress,
-            $objectHandler
+            $objectHandler,
+            $this->getObjectMapHandler()
         );
 
         $typeName = 'someType';
@@ -106,7 +108,8 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
         $termMembershipHandler = new TermMembershipHandler(
             $this->getAssignmentInformationFactory(),
             $this->getWordpress(),
-            $objectHandler
+            $objectHandler,
+            $this->getObjectMapHandler()
         );
 
         self::assertEquals(
@@ -141,7 +144,8 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
         $termMembershipHandler = new TermMembershipHandler(
             $this->getExtendedAssignmentInformationFactory(),
             $this->getWordpress(),
-            $this->getObjectHandler()
+            $this->getObjectHandler(),
+            $this->getObjectMapHandler()
         );
 
         // term tests
@@ -235,7 +239,8 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
         $termMembershipHandler = new TermMembershipHandler(
             $this->getExtendedAssignmentInformationFactory(),
             $this->getWordpress(),
-            $this->getObjectHandler()
+            $this->getObjectHandler(),
+            $this->getObjectMapHandler()
         );
 
         self::assertEquals(

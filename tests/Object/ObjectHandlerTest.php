@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\Tests\Object;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
@@ -41,8 +40,6 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $objectHandler = new ObjectHandler(
             $this->getPhp(),
             $this->getWordpress(),
-            $this->getDatabase(),
-            $this->getCache(),
             $this->getObjectMembershipHandlerFactory()
         );
 
@@ -66,14 +63,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->with(['public' => true])
             ->will($this->returnValue($return));
 
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
         $objectHandler = new ObjectHandler(
             $this->getPhp(),
             $wordpress,
-            $database,
-            $cache,
             $this->getObjectMembershipHandlerFactory()
         );
         self::assertEquals($return, $objectHandler->getPostTypes());
@@ -98,14 +90,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->method('getTaxonomies')
             ->will($this->returnValue($return));
 
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
         $objectHandler = new ObjectHandler(
             $this->getPhp(),
             $wordpress,
-            $database,
-            $cache,
             $this->getObjectMembershipHandlerFactory()
         );
         self::assertEquals($return, $objectHandler->getTaxonomies());
@@ -133,14 +120,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->withConsecutive([123], [321])
             ->will($this->onConsecutiveCalls($user, false));
 
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
         $objectHandler = new ObjectHandler(
             $this->getPhp(),
             $wordpress,
-            $database,
-            $cache,
             $this->getObjectMembershipHandlerFactory()
         );
         self::assertEquals($user, $objectHandler->getUser(123));
@@ -168,14 +150,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->withConsecutive([123], [321], [231])
             ->will($this->onConsecutiveCalls($post, null, ['id' => 2]));
 
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
         $objectHandler = new ObjectHandler(
             $this->getPhp(),
             $wordpress,
-            $database,
-            $cache,
             $this->getObjectMembershipHandlerFactory()
         );
 
@@ -208,14 +185,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->withConsecutive([123, ''], [321, 'firstTax'], [231, 'secondTax'], [231])
             ->will($this->onConsecutiveCalls($term, null, ['id' => 2], $error));
 
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
         $objectHandler = new ObjectHandler(
             $this->getPhp(),
             $wordpress,
-            $database,
-            $cache,
             $this->getObjectMembershipHandlerFactory()
         );
 
@@ -227,355 +199,6 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertFalse($objectHandler->getTerm(231, 'secondTax'));
         self::assertFalse($objectHandler->getTerm(231));
         self::assertFalse($objectHandler->getTerm(231));
-    }
-
-    /**
-     * @param int    $id
-     * @param int    $parentId
-     * @param string $type
-     *
-     * @return \stdClass
-     */
-    private function createTreeMapDbResultElement($id, $parentId = 0, $type = 'post')
-    {
-        $element = new \stdClass();
-        $element->id = $id;
-        $element->type = $type;
-        $element->parentId = $parentId;
-
-        return $element;
-    }
-
-    /**
-     * @param string $generalType
-     * @param string $firstType
-     * @param string $secondType
-     *
-     * @return array
-     */
-    private function getExpectedMapResult($generalType, $firstType = 'post', $secondType = 'page')
-    {
-        $result = [
-            ObjectHandler::TREE_MAP_CHILDREN => [
-                $firstType => [
-                    0 => [
-                        1 => $firstType, 2 => $firstType, 3 => $firstType,
-                        4 => $firstType, 123 => $firstType, 321 => $firstType
-                    ],
-                    1 => [2 => $firstType, 3 => $firstType, 4 => $firstType, 123 => $firstType, 321 => $firstType],
-                    2 => [3 => $firstType, 4 => $firstType, 123 => $firstType, 321 => $firstType],
-                    3 => [123 => $firstType, 321 => $firstType, 4 => $firstType],
-                    11 => [4 => $firstType]
-                ],
-                $secondType => [
-                    6 => [7 => $secondType, 8 => $secondType],
-                    7 => [8 => $secondType]
-                ]
-            ],
-            ObjectHandler::TREE_MAP_PARENTS => [
-                $firstType => [
-                    1 => [0 => $firstType],
-                    2 => [0 => $firstType, 1 => $firstType],
-                    3 => [0 => $firstType, 1 => $firstType, 2 => $firstType],
-                    4 => [0 => $firstType, 1 => $firstType, 2 => $firstType, 3 => $firstType, 11 => $firstType],
-                    123 => [0 => $firstType, 1 => $firstType, 2 => $firstType, 3 => $firstType],
-                    321 => [0 => $firstType, 1 => $firstType, 2 => $firstType, 3 => $firstType]
-                ],
-                $secondType => [
-                    7 => [6 => $secondType],
-                    8 => [6 => $secondType, 7 => $secondType]
-                ]
-            ]
-        ];
-
-        $result[ObjectHandler::TREE_MAP_CHILDREN][$generalType] =
-            $result[ObjectHandler::TREE_MAP_CHILDREN][$firstType]
-            + $result[ObjectHandler::TREE_MAP_CHILDREN][$secondType];
-
-        $result[ObjectHandler::TREE_MAP_PARENTS][$generalType] =
-            $result[ObjectHandler::TREE_MAP_PARENTS][$firstType]
-            + $result[ObjectHandler::TREE_MAP_PARENTS][$secondType];
-        
-        return $result;
-    }
-
-    /**
-     * @group  unit
-     * @covers ::processTreeMapElements()
-     * @covers ::getCachedTreeMap()
-     * @covers ::getTreeMap()
-     * @covers ::getPostTreeMap()
-     * @covers ::getTermTreeMap()
-     */
-    public function testTreeMap()
-    {
-        $postResult = [];
-        $postResult[] = $this->createTreeMapDbResultElement(1);
-        $postResult[] = $this->createTreeMapDbResultElement(2, 1);
-        $postResult[] = $this->createTreeMapDbResultElement(3, 2);
-        $postResult[] = $this->createTreeMapDbResultElement(4, 2);
-        $postResult[] = $this->createTreeMapDbResultElement(4, 3);
-        $postResult[] = $this->createTreeMapDbResultElement(4, 11);
-        $postResult[] = $this->createTreeMapDbResultElement(123, 3);
-        $postResult[] = $this->createTreeMapDbResultElement(321, 3);
-        $postResult[] = $this->createTreeMapDbResultElement(7, 6, 'page');
-        $postResult[] = $this->createTreeMapDbResultElement(8, 7, 'page');
-
-        $termResult = [];
-        $termResult[] = $this->createTreeMapDbResultElement(1, 0, 'category');
-        $termResult[] = $this->createTreeMapDbResultElement(2, 1, 'category');
-        $termResult[] = $this->createTreeMapDbResultElement(3, 2, 'category');
-        $termResult[] = $this->createTreeMapDbResultElement(4, 2, 'category');
-        $termResult[] = $this->createTreeMapDbResultElement(4, 3, 'category');
-        $termResult[] = $this->createTreeMapDbResultElement(4, 11, 'category');
-        $termResult[] = $this->createTreeMapDbResultElement(123, 3, 'category');
-        $termResult[] = $this->createTreeMapDbResultElement(321, 3, 'category');
-        $termResult[] = $this->createTreeMapDbResultElement(7, 6, 'term');
-        $termResult[] = $this->createTreeMapDbResultElement(8, 7, 'term');
-
-        $expectedPostResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_POST_OBJECT_TYPE);
-        $expectedTermResult = $this->getExpectedMapResult(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'category', 'term');
-
-        $wordpress = $this->getWordpress();
-        $database = $this->getDatabase();
-
-        $database->expects($this->exactly(2))
-            ->method('getPostsTable')
-            ->will($this->returnValue('postTable'));
-
-        $database->expects($this->exactly(2))
-            ->method('getTermTaxonomyTable')
-            ->will($this->returnValue('termTaxonomyTable'));
-
-        $database->expects($this->exactly(2))
-            ->method('getResults')
-            ->withConsecutive(
-                [new MatchIgnoreWhitespace(
-                    'SELECT ID AS id, post_parent AS parentId, post_type AS type 
-                    FROM postTable
-                    WHERE post_parent != 0 AND post_type != \'revision\''
-                )],
-                [new MatchIgnoreWhitespace(
-                    'SELECT term_id AS id, parent AS parentId, taxonomy AS type
-                    FROM termTaxonomyTable
-                    WHERE parent != 0'
-                )]
-            )->will($this->onConsecutiveCalls($postResult, $termResult));
-
-        $cache = $this->getCache();
-        $cache->expects($this->exactly(4))
-            ->method('get')
-            ->withConsecutive(
-                [ObjectHandler::POST_TREE_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY],
-                [ObjectHandler::POST_TREE_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY]
-            )
-            ->will($this->onConsecutiveCalls(null, null, ['cachedPostTree'], ['cachedTermTree']));
-
-
-        $cache->expects($this->exactly(2))
-            ->method('add')
-            ->withConsecutive(
-                [ObjectHandler::POST_TREE_MAP_CACHE_KEY, $expectedPostResult],
-                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY, $expectedTermResult]
-            );
-
-        $objectHandler = new ObjectHandler(
-            $this->getPhp(),
-            $wordpress,
-            $database,
-            $cache,
-            $this->getObjectMembershipHandlerFactory()
-        );
-
-        self::assertEquals($expectedPostResult, $objectHandler->getPostTreeMap());
-        self::assertEquals($expectedPostResult, $objectHandler->getPostTreeMap());
-        self::assertEquals($expectedTermResult, $objectHandler->getTermTreeMap());
-        self::assertEquals($expectedTermResult, $objectHandler->getTermTreeMap());
-
-        self::setValue($objectHandler, 'postTreeMap', null);
-        self::assertEquals(['cachedPostTree'], $objectHandler->getPostTreeMap());
-
-        self::setValue($objectHandler, 'termTreeMap', null);
-        self::assertEquals(['cachedTermTree'], $objectHandler->getTermTreeMap());
-    }
-
-    /**
-     * @param int    $objectId
-     * @param int    $termId
-     * @param string $type
-     *
-     * @return \stdClass
-     */
-    private function createTermMapDbResultElement($objectId, $termId, $type)
-    {
-        $element = new \stdClass();
-        $element->objectId = $objectId;
-        $element->parentId = $termId;
-        $element->type = $type;
-
-        return $element;
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getCachedMap()
-     * @covers ::getTermPostMap()
-     */
-    public function testGetTermPostMap()
-    {
-        $databaseResult = [];
-        $databaseResult[] = $this->createTermMapDbResultElement(1, 1, 'post');
-        $databaseResult[] = $this->createTermMapDbResultElement(2, 1, 'post');
-        $databaseResult[] = $this->createTermMapDbResultElement(1, 2, 'post');
-        $databaseResult[] = $this->createTermMapDbResultElement(3, 2, 'post');
-        $databaseResult[] = $this->createTermMapDbResultElement(4, 2, 'post');
-        $databaseResult[] = $this->createTermMapDbResultElement(123, 3, 'post');
-        $databaseResult[] = $this->createTermMapDbResultElement(321, 3, 'post');
-        $databaseResult[] = $this->createTermMapDbResultElement(7, 6, 'page');
-        $databaseResult[] = $this->createTermMapDbResultElement(8, 7, 'page');
-
-        $expectedResult = [
-            1 => [1 => 'post', 2 => 'post'],
-            2 => [1 => 'post', 3 => 'post', 4 => 'post'],
-            3 => [123 => 'post', 321 => 'post'],
-            6 => [7 => 'page'],
-            7 => [8 => 'page']
-        ];
-
-        $wordpress = $this->getWordpress();
-        $database = $this->getDatabase();
-
-        $database->expects($this->exactly(2))
-            ->method('getPostsTable')
-            ->will($this->returnValue('postTable'));
-
-        $database->expects($this->exactly(2))
-            ->method('getTermTaxonomyTable')
-            ->will($this->returnValue('termTaxonomyTable'));
-
-        $database->expects($this->exactly(2))
-            ->method('getTermRelationshipsTable')
-            ->will($this->returnValue('termRelationshipsTable'));
-
-        $database->expects($this->once())
-            ->method('getResults')
-            ->with(
-                new MatchIgnoreWhitespace(
-                    'SELECT tr.object_id AS objectId, tt.term_id AS parentId, p.post_type AS type
-                    FROM termRelationshipsTable AS tr 
-                    LEFT JOIN postTable AS p ON (tr.object_id = p.ID)
-                    LEFT JOIN termTaxonomyTable AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
-                )
-            )->will($this->returnValue($databaseResult));
-
-        $cache = $this->getCache();
-
-        $cache->expects($this->exactly(2))
-            ->method('get')
-            ->withConsecutive(
-                [ObjectHandler::TERM_POST_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_POST_MAP_CACHE_KEY]
-            )
-            ->will($this->onConsecutiveCalls(null, ['cachedTermPostMap']));
-
-        $cache->expects($this->once())
-            ->method('add')
-            ->with(ObjectHandler::TERM_POST_MAP_CACHE_KEY, $expectedResult);
-
-        $objectHandler = new ObjectHandler(
-            $this->getPhp(),
-            $wordpress,
-            $database,
-            $cache,
-            $this->getObjectMembershipHandlerFactory()
-        );
-
-        self::assertEquals($expectedResult, $objectHandler->getTermPostMap());
-        self::assertEquals($expectedResult, $objectHandler->getTermPostMap());
-
-        self::setValue($objectHandler, 'termPostMap', null);
-        self::assertEquals(['cachedTermPostMap'], $objectHandler->getTermPostMap());
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getCachedMap()
-     * @covers ::getPostTermMap()
-     */
-    public function testGetPostTermMap()
-    {
-        $databaseResult = [];
-        $databaseResult[] = $this->createTermMapDbResultElement(1, 1, 'category');
-        $databaseResult[] = $this->createTermMapDbResultElement(1, 2, 'category');
-        $databaseResult[] = $this->createTermMapDbResultElement(2, 1, 'category');
-        $databaseResult[] = $this->createTermMapDbResultElement(2, 3, 'category');
-        $databaseResult[] = $this->createTermMapDbResultElement(2, 4, 'category');
-        $databaseResult[] = $this->createTermMapDbResultElement(3, 123, 'category');
-        $databaseResult[] = $this->createTermMapDbResultElement(3, 321, 'category');
-        $databaseResult[] = $this->createTermMapDbResultElement(6, 7, 'term');
-        $databaseResult[] = $this->createTermMapDbResultElement(7, 8, 'term');
-
-        $expectedResult = [
-            1 => [1 => 'category', 2 => 'category'],
-            2 => [1 => 'category'],
-            3 => [2 => 'category'],
-            4 => [2 => 'category'],
-            123 => [3 => 'category'],
-            321 => [3 => 'category'],
-            7 => [6 => 'term'],
-            8 => [7 => 'term']
-        ];
-
-        $wordpress = $this->getWordpress();
-        $database = $this->getDatabase();
-
-        $database->expects($this->exactly(2))
-            ->method('getTermTaxonomyTable')
-            ->will($this->returnValue('termTaxonomyTable'));
-
-        $database->expects($this->exactly(2))
-            ->method('getTermRelationshipsTable')
-            ->will($this->returnValue('termRelationshipsTable'));
-
-        $database->expects($this->once())
-            ->method('getResults')
-            ->with(
-                new MatchIgnoreWhitespace(
-                    'SELECT tr.object_id AS parentId, tt.term_id AS objectId, tt.taxonomy AS type
-                    FROM termRelationshipsTable AS tr 
-                    LEFT JOIN termTaxonomyTable AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
-                )
-            )->will($this->returnValue($databaseResult));
-
-        $cache = $this->getCache();
-
-        $cache->expects($this->exactly(2))
-            ->method('get')
-            ->withConsecutive(
-                [ObjectHandler::POST_TERM_MAP_CACHE_KEY],
-                [ObjectHandler::POST_TERM_MAP_CACHE_KEY]
-            )
-            ->will($this->onConsecutiveCalls(null, ['cachedPostTermMap']));
-
-        $cache->expects($this->once())
-            ->method('add')
-            ->with(ObjectHandler::POST_TERM_MAP_CACHE_KEY, $expectedResult);
-
-        $objectHandler = new ObjectHandler(
-            $this->getPhp(),
-            $wordpress,
-            $database,
-            $cache,
-            $this->getObjectMembershipHandlerFactory()
-        );
-
-        self::assertEquals($expectedResult, $objectHandler->getPostTermMap());
-        self::assertEquals($expectedResult, $objectHandler->getPostTermMap());
-
-        self::setValue($objectHandler, 'postTermMap', null);
-        self::assertEquals(['cachedPostTermMap'], $objectHandler->getPostTermMap());
     }
 
     /**
@@ -672,14 +295,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->method('getTaxonomies')
             ->will($this->returnValue(['taxonomyOne' => 'taxonomyOne', 'taxonomyTwo' => 'taxonomyTwo']));
 
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
         $objectHandler = new ObjectHandler(
             $this->getPhp(),
             $wordpress,
-            $database,
-            $cache,
             $this->getObjectMembershipHandlerFactory()
         );
 
@@ -712,14 +330,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->with(['public' => true])
             ->will($this->returnValue($postTypesReturn));
 
-        $database = $this->getDatabase();
-        $cache = $this->getCache();
-
         $objectHandler = new ObjectHandler(
             $this->getPhp(),
             $wordpress,
-            $database,
-            $cache,
             $this->getObjectMembershipHandlerFactory()
         );
 
@@ -804,8 +417,6 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $objectHandler = new ObjectHandler(
             $php,
             $wordpress,
-            $this->getDatabase(),
-            $this->getCache(),
             $membershipHandlerFactory
         );
 

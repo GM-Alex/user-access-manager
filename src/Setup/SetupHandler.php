@@ -18,8 +18,9 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Setup\Update\UpdateFactory;
+use UserAccessManager\Setup\Update\UpdateInterface;
 use UserAccessManager\UserAccessManager;
-use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -50,23 +51,31 @@ class SetupHandler
     private $fileHandler;
 
     /**
+     * @var UpdateFactory
+     */
+    private $updateFactory;
+
+    /**
      * SetupHandler constructor.
      *
      * @param Wordpress     $wordpress
      * @param Database      $database
      * @param ObjectHandler $objectHandler
      * @param FileHandler   $fileHandler
+     * @param UpdateFactory $updateFactory
      */
     public function __construct(
         Wordpress $wordpress,
         Database $database,
         ObjectHandler $objectHandler,
-        FileHandler $fileHandler
+        FileHandler $fileHandler,
+        UpdateFactory $updateFactory
     ) {
         $this->wordpress = $wordpress;
         $this->database = $database;
         $this->objectHandler = $objectHandler;
         $this->fileHandler = $fileHandler;
+        $this->updateFactory = $updateFactory;
     }
 
     /**
@@ -321,259 +330,21 @@ class SetupHandler
     }
 
     /**
-     * Updates the user group table to version 1.0.
+     * Returns the ordered updates.
      *
-     * @param string $userGroupTable
+     * @return UpdateInterface[]
      */
-    private function updateTo10UserGroupTableUpdate($userGroupTable)
+    private function getOrderedUpdates()
     {
-        $alterQuery = "ALTER TABLE {$userGroupTable}
-                ADD read_access TINYTEXT NOT NULL DEFAULT '', 
-                ADD write_access TINYTEXT NOT NULL DEFAULT '', 
-                ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+        $rawUpdates = $this->updateFactory->getUpdates();
+        $updates = [];
 
-        $this->database->query($alterQuery);
-
-        $updateQuery = "UPDATE {$userGroupTable} SET read_access = 'group', write_access = 'group'";
-        $this->database->query($updateQuery);
-
-        $selectQuery = "SHOW columns FROM {$userGroupTable} LIKE 'ip_range'";
-        $dbIpRange = $this->database->getVariable($selectQuery);
-
-        if ($dbIpRange != 'ip_range') {
-            $alterQuery = "ALTER TABLE {$userGroupTable} ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
-            $this->database->query($alterQuery);
-        }
-    }
-
-    /**
-     * Updates the user group to object table to version 1.0.
-     */
-    private function updateTo10UserGroupToObjectTableUpdate()
-    {
-        $prefix = $this->database->getPrefix();
-
-        $charsetCollate = $this->database->getCharset();
-        $userGroupToObject = $prefix.'uam_accessgroup_to_object';
-        $userGroupToPost = $prefix.'uam_accessgroup_to_post';
-        $userGroupToUser = $prefix.'uam_accessgroup_to_user';
-        $userGroupToCategory = $prefix.'uam_accessgroup_to_category';
-        $userGroupToRole = $prefix.'uam_accessgroup_to_role';
-
-        $alterQuery = "ALTER TABLE '{$userGroupToObject}'
-            CHANGE 'object_id' 'object_id' VARCHAR(64) {$charsetCollate}";
-        $this->database->query($alterQuery);
-
-        $objectTypes = $this->objectHandler->getObjectTypes();
-        $postTable = $this->database->getPostsTable();
-
-        foreach ($objectTypes as $objectType) {
-            $addition = '';
-
-            if ($this->objectHandler->isPostType($objectType) === true) {
-                $dbIdName = 'post_id';
-                $database = $userGroupToPost.', '.$postTable;
-                $addition = " WHERE post_id = ID AND post_type = '{$objectType}'";
-            } elseif ($objectType === 'category') {
-                $dbIdName = 'category_id';
-                $database = $userGroupToCategory;
-            } elseif ($objectType === 'user') {
-                $dbIdName = 'user_id';
-                $database = $userGroupToUser;
-            } elseif ($objectType === 'role') {
-                $dbIdName = 'role_name';
-                $database = $userGroupToRole;
-            } else {
-                continue;
-            }
-
-            $query = "SELECT {$dbIdName} AS id, group_id AS groupId FROM {$database} {$addition}";
-            $dbObjects = (array)$this->database->getResults($query);
-
-            foreach ($dbObjects as $dbObject) {
-                $this->database->insert(
-                    $userGroupToObject,
-                    [
-                        'group_id' => $dbObject->groupId,
-                        'object_id' => $dbObject->id,
-                        'object_type' => $objectType,
-                    ],
-                    [
-                        '%d',
-                        '%d',
-                        '%s',
-                    ]
-                );
-            }
+        foreach ($rawUpdates as $rawUpdate) {
+            $updates[$rawUpdate->getVersion()] = $rawUpdate;
         }
 
-        $dropQuery = "DROP TABLE {$userGroupToPost},
-            {$userGroupToUser},
-            {$userGroupToCategory},
-            {$userGroupToRole}";
-
-        $this->database->query($dropQuery);
-    }
-    
-    /**
-     * Update to database version 1.0.
-     */
-    private function updateTo10()
-    {
-        $userGroupTable = $this->database->getUserGroupTable();
-        $dbUserGroup = $this->database->getVariable("SHOW TABLES LIKE '{$userGroupTable}'");
-
-        if ($dbUserGroup === $userGroupTable) {
-            $this->updateTo10UserGroupTableUpdate($userGroupTable);
-        }
-
-        $this->updateTo10UserGroupToObjectTableUpdate();
-    }
-
-    /**
-     * Update to database version 1.2.
-     */
-    private function updateTo12()
-    {
-        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
-        $query = "ALTER TABLE `{$dbAccessGroupToObject}`
-            CHANGE `object_id` `object_id` VARCHAR(64) NOT NULL,
-            CHANGE `object_type` `object_type` VARCHAR(64) NOT NULL";
-
-        $this->database->query($query);
-    }
-
-    /**
-     * Update to database version 1.3.
-     */
-    private function updateTo13()
-    {
-        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
-        $generalTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-        $this->database->update(
-            $dbAccessGroupToObject,
-            ['object_type' => $generalTermType],
-            ['object_type' => 'category']
-        );
-    }
-
-    /**
-     * Update to database version 1.4.
-     */
-    private function updateTo14()
-    {
-        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
-        $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
-            ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id";
-
-        $this->database->query($alterQuery);
-
-        // Update post entries
-        $generalPostType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-
-        $query = "UPDATE {$dbAccessGroupToObject}
-            SET general_object_type = '{$generalPostType}'
-            WHERE object_type IN ('post', 'page', 'attachment')";
-
-        $this->database->query($query);
-
-        // Update role entries
-        $generalRoleType = ObjectHandler::GENERAL_ROLE_OBJECT_TYPE;
-
-        $query = "UPDATE {$dbAccessGroupToObject}
-            SET general_object_type = '{$generalRoleType}'
-            WHERE object_type = 'role'";
-
-        $this->database->query($query);
-
-        // Update user entries
-        $generalUserType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
-
-        $query = "UPDATE {$dbAccessGroupToObject}
-            SET general_object_type = '{$generalUserType}'
-            WHERE object_type = 'user'";
-
-        $this->database->query($query);
-
-        // Update term entries
-        $generalTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
-
-        $query = "UPDATE {$dbAccessGroupToObject}
-            SET general_object_type = '{$generalTermType}'
-            WHERE object_type = 'term'";
-
-        $this->database->query($query);
-
-        $query = "UPDATE {$dbAccessGroupToObject} AS gto
-            LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt 
-              ON gto.object_id = tt.term_id
-            SET gto.object_type = tt.taxonomy
-            WHERE gto.general_object_type = '{$generalTermType}'";
-
-        $this->database->query($query);
-    }
-
-    /**
-     * Update to database version 1.5.1.
-     */
-    private function updateTo151()
-    {
-        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
-        $query = "SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
-            FROM {$dbAccessGroupToObject}
-            WHERE general_object_type = ''";
-
-        $dbObjects = (array)$this->database->getResults($query);
-
-        foreach ($dbObjects as $dbObject) {
-            $this->database->update(
-                $dbAccessGroupToObject,
-                ['general_object_type' => $this->objectHandler->getGeneralObjectType($dbObject->objectType)],
-                [
-                    'object_id' => $dbObject->objectId,
-                    'group_id' => $dbObject->groupId,
-                    'object_type' => $dbObject->objectType
-                ]
-            );
-        }
-    }
-    
-    /**
-     * Update to database version 1.6.
-     */
-    private function updateTo16()
-    {
-        $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
-        $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
-            ADD group_type VARCHAR(64) NOT NULL AFTER group_id,
-            ADD from_date DATETIME NULL DEFAULT NULL,
-            ADD to_date DATETIME NULL DEFAULT NULL,
-            MODIFY group_id VARCHAR(64) NOT NULL,
-            MODIFY object_id VARCHAR(64) NOT NULL,
-            DROP PRIMARY KEY,
-            ADD PRIMARY KEY (object_id, object_type, group_id, group_type)";
-
-        $this->database->query($alterQuery);
-
-        $this->database->update(
-            $dbAccessGroupToObject,
-            ['group_type' => UserGroup::USER_GROUP_TYPE],
-            ['group_type' => '']
-        );
-    }
-
-    /**
-     * Checks if an update is necessary and if yes executes the update function.
-     *
-     * @param string   $currentDbVersion
-     * @param string   $version
-     * @param callable $updateFunction
-     */
-    private function isUpdateNecessary($currentDbVersion, $version, $updateFunction)
-    {
-        if (version_compare($currentDbVersion, $version, '<=') === true) {
-            $updateFunction();
-        }
+        uksort($updates, 'version_compare');
+        return $updates;
     }
 
     /**
@@ -596,48 +367,11 @@ class SetupHandler
         }
 
         if (version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
-            $this->isUpdateNecessary(
-                $currentDbVersion,
-                '1.0',
-                function () {
-                    $this->updateTo10();
+            foreach ($this->getOrderedUpdates() as $orderedUpdate) {
+                if (version_compare($currentDbVersion, $orderedUpdate->getVersion(), '<=') === true) {
+                    $orderedUpdate->update();
                 }
-            );
-            $this->isUpdateNecessary(
-                $currentDbVersion,
-                '1.2',
-                function () {
-                    $this->updateTo12();
-                }
-            );
-            $this->isUpdateNecessary(
-                $currentDbVersion,
-                '1.3',
-                function () {
-                    $this->updateTo13();
-                }
-            );
-            $this->isUpdateNecessary(
-                $currentDbVersion,
-                '1.4',
-                function () {
-                    $this->updateTo14();
-                }
-            );
-            $this->isUpdateNecessary(
-                $currentDbVersion,
-                '1.5.1',
-                function () {
-                    $this->updateTo151();
-                }
-            );
-            $this->isUpdateNecessary(
-                $currentDbVersion,
-                '1.6',
-                function () {
-                    $this->updateTo16();
-                }
-            );
+            }
 
             $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
         }

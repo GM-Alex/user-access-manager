@@ -27,6 +27,7 @@ use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\Util\DateUtil;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -57,6 +58,11 @@ class ObjectController extends Controller
      * @var Cache
      */
     protected $cache;
+
+    /**
+     * @var DateUtil
+     */
+    protected $dateUtil;
 
     /**
      * @var ObjectHandler
@@ -111,6 +117,7 @@ class ObjectController extends Controller
      * @param WordpressConfig  $wordpressConfig
      * @param MainConfig       $mainConfig
      * @param Database         $database
+     * @param DateUtil         $dateUtil
      * @param Cache            $cache
      * @param ObjectHandler    $objectHandler
      * @param UserHandler      $userHandler
@@ -123,6 +130,7 @@ class ObjectController extends Controller
         WordpressConfig $wordpressConfig,
         MainConfig $mainConfig,
         Database $database,
+        DateUtil $dateUtil,
         Cache $cache,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
@@ -133,6 +141,7 @@ class ObjectController extends Controller
         $this->mainConfig = $mainConfig;
         $this->database = $database;
         $this->cache = $cache;
+        $this->dateUtil = $dateUtil;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
@@ -233,6 +242,16 @@ class ObjectController extends Controller
     }
 
     /**
+     * Returns the date util.
+     *
+     * @return DateUtil
+     */
+    public function getDateUtil()
+    {
+        return $this->dateUtil;
+    }
+
+    /**
      * Checks if the current user is an admin.
      *
      * @return bool
@@ -277,45 +296,6 @@ class ObjectController extends Controller
     public function checkUserAccess()
     {
         return $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY);
-    }
-
-    /**
-     * Formats the date to the wordpress default format.
-     *
-     * @param string $date
-     *
-     * @return string
-     */
-    public function formatDate($date)
-    {
-        return $this->wordpress->formatDate($date);
-    }
-
-    /**
-     * Formats the date for the datetime input field.
-     *
-     * @param string $date
-     *
-     * @return string
-     */
-    public function formatDateForDatetimeInput($date)
-    {
-        return ($date !== null) ? strftime('%Y-%m-%dT%H:%M:%S', strtotime($date)) : $date;
-    }
-
-    /**
-     * @param int $time
-     *
-     * @return null|string
-     */
-    public function getDateFromTime($time)
-    {
-        if ($time !== null && (int)$time !== 0) {
-            $currentTime = $this->wordpress->currentTime('timestamp');
-            return gmdate('Y-m-d H:i:s', $time + $currentTime);
-        }
-
-        return null;
     }
 
     /**
@@ -503,8 +483,8 @@ class ObjectController extends Controller
                 $userGroupToCheck->addObject(
                     $objectType,
                     $objectId,
-                    $this->getDateFromTime($fromTime),
-                    $this->getDateFromTime($toTime)
+                    $this->dateUtil->getDateFromTime($fromTime),
+                    $this->dateUtil->getDateFromTime($toTime)
                 );
             }
         }

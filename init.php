@@ -16,8 +16,10 @@ use UserAccessManager\File\FileProtectionFactory;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Setup\SetupHandler;
+use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupFactory;
@@ -37,14 +39,16 @@ function initUserAccessManger()
     $cacheProviderFactory = new CacheProviderFactory($php, $wordpress, $util, $configFactory, $configParameterFactory);
     $cache = new Cache($wordpress, $cacheProviderFactory);
     $database = new Database($wordpress);
+    $objectMapHandler = new ObjectMapHandler($database, $cache);
     $assignmentInformationFactory = new AssignmentInformationFactory();
     $membershipHandlerFactory = new ObjectMembershipHandlerFactory(
         $php,
         $wordpress,
         $database,
+        $objectMapHandler,
         $assignmentInformationFactory
     );
-    $objectHandler = new ObjectHandler($php, $wordpress, $database, $cache, $membershipHandlerFactory);
+    $objectHandler = new ObjectHandler($php, $wordpress, $membershipHandlerFactory);
     $wordpressConfig = new WordpressConfig($wordpress, $file);
     $mainConfig = new MainConfig($wordpress, $objectHandler, $cache, $configParameterFactory);
     $fileObjectFactory = new FileObjectFactory();
@@ -89,11 +93,13 @@ function initUserAccessManger()
         $mainConfig,
         $fileProtectionFactory
     );
+    $updateFactory = new UpdateFactory($database, $objectHandler);
     $setupHandler = new SetupHandler(
         $wordpress,
         $database,
         $objectHandler,
-        $fileHandler
+        $fileHandler,
+        $updateFactory
     );
     $controllerFactory = new ControllerFactory(
         $php,
@@ -164,14 +170,16 @@ function initUserAccessManger()
                 $configParameterFactory
             );
             $cache = new Cache($wordpress, $cacheProviderFactory);
+            $objectMapHandler = new ObjectMapHandler($database, $cache);
             $assignmentInformationFactory = new AssignmentInformationFactory();
             $membershipHandlerFactory = new ObjectMembershipHandlerFactory(
                 $php,
                 $wordpress,
                 $database,
+                $objectMapHandler,
                 $assignmentInformationFactory
             );
-            $objectHandler = new ObjectHandler($php, $wordpress, $database, $cache, $membershipHandlerFactory);
+            $objectHandler = new ObjectHandler($php, $wordpress, $membershipHandlerFactory);
             $wordpressConfig = new WordpressConfig($wordpress, $file);
             $mainConfig = new MainConfig($wordpress, $objectHandler, $cache, $configParameterFactory);
 
@@ -189,11 +197,13 @@ function initUserAccessManger()
                 $mainConfig,
                 $fileProtectionFactory
             );
+            $updateFactory = new UpdateFactory($database, $objectHandler);
             $setupHandler = new SetupHandler(
                 $wordpress,
                 $database,
                 $objectHandler,
-                $fileHandler
+                $fileHandler,
+                $updateFactory
             );
 
             $setupHandler->uninstall();

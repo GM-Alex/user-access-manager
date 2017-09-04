@@ -15,6 +15,7 @@
 namespace UserAccessManager\ObjectMembership;
 
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
@@ -43,21 +44,29 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
     private $objectHandler;
 
     /**
+     * @var ObjectMapHandler
+     */
+    private $objectMapHandler;
+
+    /**
      * PostMembershipHandler constructor.
      *
      * @param AssignmentInformationFactory $assignmentInformationFactory
      * @param Wordpress                    $wordpress
      * @param ObjectHandler                $objectHandler
+     * @param ObjectMapHandler             $objectMapHandler
      */
     public function __construct(
         AssignmentInformationFactory $assignmentInformationFactory,
         Wordpress $wordpress,
-        ObjectHandler $objectHandler
+        ObjectHandler $objectHandler,
+        ObjectMapHandler $objectMapHandler
     ) {
         parent::__construct($assignmentInformationFactory);
 
         $this->wordpress = $wordpress;
         $this->objectHandler = $objectHandler;
+        $this->objectMapHandler = $objectMapHandler;
     }
 
     /**
@@ -99,7 +108,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
      */
     protected function getMap()
     {
-        return $this->objectHandler->getPostTreeMap();
+        return $this->objectMapHandler->getPostTreeMap();
     }
 
     /**
@@ -114,7 +123,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
         $objectId,
         array &$recursiveMembership
     ) {
-        $postTermMap = $this->objectHandler->getPostTermMap();
+        $postTermMap = $this->objectMapHandler->getPostTermMap();
 
         if (isset($postTermMap[$objectId]) === true) {
             foreach ($postTermMap[$objectId] as $termId => $type) {
@@ -170,7 +179,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
         $posts = $this->getFullObjectsByMap($userGroup, $lockRecursive, $objectType);
 
         if ($lockRecursive === true) {
-            $termsPostMap = $this->objectHandler->getTermPostMap();
+            $termsPostMap = $this->objectMapHandler->getTermPostMap();
             $terms = $userGroup->getFullTerms();
 
             foreach ($terms as $termId => $term) {

@@ -1,0 +1,151 @@
+<?php
+/**
+ * Update1.php
+ *
+ * The Update1 class file.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+namespace UserAccessManager\Setup\Update;
+
+/**
+ * Class Update1
+ *
+ * @package UserAccessManager\Setup\Update
+ */
+class Update1 extends Update implements UpdateInterface
+{
+    /**
+     * Returns the version.
+     *
+     * @return string
+     */
+    public function getVersion()
+    {
+        return '1.0';
+    }
+
+    /**
+     * Updates the user group table to version 1.0.
+     *
+     * @param string $userGroupTable
+     *
+     * @return bool
+     */
+    private function updateToUserGroupTableUpdate($userGroupTable)
+    {
+        $success = true;
+        $alterQuery = "ALTER TABLE {$userGroupTable}
+                ADD read_access TINYTEXT NOT NULL DEFAULT '', 
+                ADD write_access TINYTEXT NOT NULL DEFAULT '', 
+                ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+
+        $this->database->query($alterQuery);
+
+        $updateQuery = "UPDATE {$userGroupTable} SET read_access = 'group', write_access = 'group'";
+        $this->database->query($updateQuery);
+
+        $selectQuery = "SHOW columns FROM {$userGroupTable} LIKE 'ip_range'";
+        $dbIpRange = (string)$this->database->getVariable($selectQuery);
+
+        if ($dbIpRange !== 'ip_range') {
+            $alterQuery = "ALTER TABLE {$userGroupTable} ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+            $success = $this->database->query($alterQuery) !== false;
+        }
+
+        return $success;
+    }
+
+    /**
+     * Updates the user group to object table to version 1.0.
+     */
+    private function updateToUserGroupToObjectTableUpdate()
+    {
+        $prefix = $this->database->getPrefix();
+
+        $charsetCollate = $this->database->getCharset();
+        $userGroupToObject = $prefix.'uam_accessgroup_to_object';
+        $userGroupToPost = $prefix.'uam_accessgroup_to_post';
+        $userGroupToUser = $prefix.'uam_accessgroup_to_user';
+        $userGroupToCategory = $prefix.'uam_accessgroup_to_category';
+        $userGroupToRole = $prefix.'uam_accessgroup_to_role';
+
+        $alterQuery = "ALTER TABLE '{$userGroupToObject}'
+            CHANGE 'object_id' 'object_id' VARCHAR(64) {$charsetCollate}";
+        $this->database->query($alterQuery);
+
+        $objectTypes = $this->objectHandler->getObjectTypes();
+        $postTable = $this->database->getPostsTable();
+
+        foreach ($objectTypes as $objectType) {
+            $addition = '';
+
+            if ($this->objectHandler->isPostType($objectType) === true) {
+                $dbIdName = 'post_id';
+                $database = $userGroupToPost.', '.$postTable;
+                $addition = " WHERE post_id = ID AND post_type = '{$objectType}'";
+            } elseif ($objectType === 'category') {
+                $dbIdName = 'category_id';
+                $database = $userGroupToCategory;
+            } elseif ($objectType === 'user') {
+                $dbIdName = 'user_id';
+                $database = $userGroupToUser;
+            } elseif ($objectType === 'role') {
+                $dbIdName = 'role_name';
+                $database = $userGroupToRole;
+            } else {
+                continue;
+            }
+
+            $query = "SELECT {$dbIdName} AS id, group_id AS groupId FROM {$database} {$addition}";
+            $dbObjects = (array)$this->database->getResults($query);
+
+            foreach ($dbObjects as $dbObject) {
+                $this->database->insert(
+                    $userGroupToObject,
+                    [
+                        'group_id' => $dbObject->groupId,
+                        'object_id' => $dbObject->id,
+                        'object_type' => $objectType,
+                    ],
+                    [
+                        '%d',
+                        '%d',
+                        '%s',
+                    ]
+                );
+            }
+        }
+
+        $dropQuery = "DROP TABLE {$userGroupToPost},
+            {$userGroupToUser},
+            {$userGroupToCategory},
+            {$userGroupToRole}";
+
+        return $this->database->query($dropQuery) !== false;
+    }
+
+    /**
+     * Executes the update.
+     *
+     * @return bool
+     */
+    public function update()
+    {
+        $success = true;
+        $userGroupTable = $this->database->getUserGroupTable();
+        $dbUserGroup = $this->database->getVariable("SHOW TABLES LIKE '{$userGroupTable}'");
+
+        if ($dbUserGroup === $userGroupTable) {
+            $success = $this->updateToUserGroupTableUpdate($userGroupTable);
+        }
+
+        return $success && $this->updateToUserGroupToObjectTableUpdate();
+    }
+}

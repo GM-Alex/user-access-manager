@@ -31,7 +31,9 @@ use UserAccessManager\File\FileProtectionFactory;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Setup\SetupHandler;
+use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
@@ -41,6 +43,7 @@ use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\Util\DateUtil;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Wrapper\Php;
@@ -150,6 +153,14 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|DateUtil
+     */
+    protected function getDateUtil()
+    {
+        return $this->createMock(DateUtil::class);
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject|Cache
      */
     protected function getCache()
@@ -187,6 +198,14 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getObjectHandler()
     {
         return $this->createMock(ObjectHandler::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMapHandler
+     */
+    protected function getObjectMapHandler()
+    {
+        return $this->createMock(ObjectMapHandler::class);
     }
 
     /**
@@ -307,6 +326,14 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getAssignmentInformationFactory()
     {
         return $this->createMock(AssignmentInformationFactory::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|UpdateFactory
+     */
+    protected function getUpdateFactory()
+    {
+        return $this->createMock(UpdateFactory::class);
     }
 
     /**

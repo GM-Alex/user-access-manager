@@ -16,6 +16,7 @@ namespace UserAccessManager\Tests\Controller\Frontend;
 
 use UserAccessManager\Controller\Frontend\TermController;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
@@ -39,6 +40,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getObjectMapHandler(),
             $this->getUserHandler(),
             $this->getAccessHandler()
         );
@@ -71,6 +73,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
+            $this->getObjectMapHandler(),
             $this->getUserHandler(),
             $accessHandler
         );
@@ -184,30 +187,9 @@ class TermControllerTest extends UserAccessManagerTestCase
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->exactly(8))
-            ->method('getTermTreeMap')
-            ->will($this->returnValue(
-                [
-                    ObjectHandler::TREE_MAP_CHILDREN => [
-                        'taxonomy' => [
-                            1 => [2 => 'taxonomy', 3 => 'taxonomy']
-                        ]
-                    ]
-                ]
-            ));
-
         $objectHandler->expects($this->once())
             ->method('getPostTypes')
             ->will($this->returnValue(['customPost' => 'customPost', 'post' => 'post', 'page' => 'page']));
-
-        $objectHandler->expects($this->exactly(8))
-            ->method('getTermPostMap')
-            ->will($this->returnValue(
-                [
-                    1 => [10 => 'customPost', 11 => 'post', 12 => 'page'],
-                    2 => [13 => 'post']
-                ]
-            ));
 
         $objectHandler->expects($this->exactly(5))
             ->method('getTerm')
@@ -221,6 +203,29 @@ class TermControllerTest extends UserAccessManagerTestCase
                 return $this->getTerm($termId);
             }));
 
+        $objectMapHandler = $this->getObjectMapHandler();
+
+        $objectMapHandler->expects($this->exactly(8))
+            ->method('getTermPostMap')
+            ->will($this->returnValue(
+                [
+                    1 => [10 => 'customPost', 11 => 'post', 12 => 'page'],
+                    2 => [13 => 'post']
+                ]
+            ));
+
+        $objectMapHandler->expects($this->exactly(8))
+            ->method('getTermTreeMap')
+            ->will($this->returnValue(
+                [
+                    ObjectMapHandler::TREE_MAP_CHILDREN => [
+                        'taxonomy' => [
+                            1 => [2 => 'taxonomy', 3 => 'taxonomy']
+                        ]
+                    ]
+                ]
+            ));
+        
         $userHandler = $this->getUserHandler();
 
         $userHandler->expects($this->once())
@@ -280,6 +285,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $mainConfig,
             $util,
             $objectHandler,
+            $objectMapHandler,
             $userHandler,
             $accessHandler
         );
@@ -455,15 +461,7 @@ class TermControllerTest extends UserAccessManagerTestCase
         $objectHandler->expects($this->once())
             ->method('getPostTypes')
             ->will($this->returnValue(['post' => 'post', 'page' => 'page', 'customPost' => 'customPost']));
-
-        $objectHandler->expects($this->exactly(2))
-            ->method('getTermTreeMap')
-            ->will($this->returnValue([]));
-
-        $objectHandler->expects($this->exactly(2))
-            ->method('getTermPostMap')
-            ->will($this->returnValue([]));
-
+        
         $objectHandler->expects($this->exactly(4))
             ->method('getTerm')
             ->will($this->returnCallback(function ($termId) {
@@ -473,7 +471,16 @@ class TermControllerTest extends UserAccessManagerTestCase
 
                 return $this->getTerm($termId);
             }));
+        
+        $objectMapHandler = $this->getObjectMapHandler();
+        
+        $objectMapHandler->expects($this->exactly(2))
+            ->method('getTermTreeMap')
+            ->will($this->returnValue([]));
 
+        $objectMapHandler->expects($this->exactly(2))
+            ->method('getTermPostMap')
+            ->will($this->returnValue([]));
 
         $userHandler = $this->getUserHandler();
 
@@ -517,6 +524,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $mainConfig,
             $util,
             $objectHandler,
+            $objectMapHandler,
             $userHandler,
             $accessHandler
         );

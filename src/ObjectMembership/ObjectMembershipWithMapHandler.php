@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\ObjectMembership;
 
-use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 
@@ -53,8 +53,8 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 
         if ($lockRecursive === true) {
             $map = $this->getMap();
-            $generalMap = isset($map[ObjectHandler::TREE_MAP_PARENTS][$this->generalObjectType]) ?
-                $map[ObjectHandler::TREE_MAP_PARENTS][$this->generalObjectType] : [];
+            $generalMap = isset($map[ObjectMapHandler::TREE_MAP_PARENTS][$this->generalObjectType]) ?
+                $map[ObjectMapHandler::TREE_MAP_PARENTS][$this->generalObjectType] : [];
 
             if (isset($generalMap[$objectId]) === true) {
                 foreach ($generalMap[$objectId] as $parentId => $type) {
@@ -90,8 +90,8 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 
         if ($lockRecursive === true) {
             $map = $this->getMap();
-            $map = isset($map[ObjectHandler::TREE_MAP_CHILDREN][$objectType]) ?
-                $map[ObjectHandler::TREE_MAP_CHILDREN][$objectType] : [];
+            $map = isset($map[ObjectMapHandler::TREE_MAP_CHILDREN][$objectType]) ?
+                $map[ObjectMapHandler::TREE_MAP_CHILDREN][$objectType] : [];
             $map = array_intersect_key($map, $objects);
 
             foreach ($map as $childrenIds) {

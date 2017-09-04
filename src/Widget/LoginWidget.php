@@ -14,8 +14,6 @@
  */
 namespace UserAccessManager\Widget;
 
-use UserAccessManager\Config\Config;
-use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Frontend\LoginControllerTrait;
 use UserAccessManager\Wrapper\Php;

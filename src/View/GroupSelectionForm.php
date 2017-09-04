@@ -24,6 +24,7 @@
     $objectType = $controller->getObjectType();
     $objectId = $controller->getObjectId();
     $userGroups = $controller->getFilteredUserGroups();
+    $dateUtil = $controller->getDateUtil();
 
     /**
      * @var \UserAccessManager\UserGroup\UserGroup[] $userGroups
@@ -48,8 +49,8 @@
             && $userGroup->isDefaultGroupForObjectType($objectType, $fromTime, $toTime) === true
         ) {
             $attributes .= 'checked="checked" ';
-            $fromDate = $controller->getDateFromTime($fromTime);
-            $toDate = $controller->getDateFromTime($toTime);
+            $fromDate = $dateUtil->getDateFromTime($fromTime);
+            $toDate = $dateUtil->getDateFromTime($toTime);
         } elseif ($userGroup instanceof \UserAccessManager\UserGroup\DynamicUserGroup
             && $userGroup->getId() !== \UserAccessManager\UserGroup\DynamicUserGroup::USER_TYPE.'|0'
         ) {
@@ -72,12 +73,12 @@
             $dateText = TXT_UAM_GROUP_ASSIGNMENT_TIME;
 
             if ($fromDate !== null) {
-                $dateText = TXT_UAM_GROUP_FROM_DATE.' '.$controller->formatDate($fromDate);
+                $dateText = TXT_UAM_GROUP_FROM_DATE.' '.$dateUtil->formatDate($fromDate);
             }
 
             if ($toDate !== null) {
                 $dateText = ($dateText !== TXT_UAM_GROUP_ASSIGNMENT_TIME) ? $dateText.'<br>' : '';
-                $dateText .= TXT_UAM_GROUP_TO_DATE.' '.$controller->formatDate($toDate);
+                $dateText .= TXT_UAM_GROUP_TO_DATE.' '.$dateUtil->formatDate($toDate);
             }
 
             if ($isLockedRecursive === false) {
@@ -91,7 +92,7 @@
                         <input type="datetime-local"
                                id="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>-fromDate"
                                name="<?php echo $groupsFormName; ?>[<?php echo $userGroup->getId(); ?>][fromDate]"
-                               value="<?php echo $controller->formatDateForDatetimeInput($fromDate); ?>"/>
+                               value="<?php echo $dateUtil->formatDateForDatetimeInput($fromDate); ?>"/>
                     </div>
                     <div>
                         <label for="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>-toDate">
@@ -100,7 +101,7 @@
                         <input type="datetime-local"
                                id="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>-toDate"
                                name="<?php echo $groupsFormName; ?>[<?php echo $userGroup->getId(); ?>][toDate]"
-                               value="<?php echo $controller->formatDateForDatetimeInput($toDate); ?>"/>
+                               value="<?php echo $dateUtil->formatDateForDatetimeInput($toDate); ?>"/>
                     </div>
                 </div>
                 <?php

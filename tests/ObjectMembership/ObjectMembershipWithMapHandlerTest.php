@@ -14,7 +14,7 @@
  */
 namespace UserAccessManager\Tests\ObjectMembership;
 
-use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
@@ -49,7 +49,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
         $stub->expects($this->any())
             ->method('getMap')
             ->willReturn([
-                ObjectHandler::TREE_MAP_PARENTS => [
+                ObjectMapHandler::TREE_MAP_PARENTS => [
                     'generalObjectType' => [
                         'objectIdFalse' => [
                             'parentObjectId' => 'parentObjectType',
@@ -57,7 +57,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
                         ]
                     ]
                 ],
-                ObjectHandler::TREE_MAP_CHILDREN => [
+                ObjectMapHandler::TREE_MAP_CHILDREN => [
                     'generalObjectType' => [
                         'parentObjectId' => [
                             'firstObjectId' => 'generalObjectType',

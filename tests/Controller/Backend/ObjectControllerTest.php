@@ -43,6 +43,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -88,6 +89,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -188,6 +190,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -220,6 +223,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -228,6 +232,29 @@ class ObjectControllerTest extends ObjectControllerTestCase
         );
 
         self::assertEquals($userGroups, $objectController->getFilteredUserGroups());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getDateUtil()
+     */
+    public function testGetDateUtil()
+    {
+        $objectController = new ObjectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getDateUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
+        );
+
+        self::assertEquals($this->getDateUtil(), $objectController->getDateUtil());
     }
 
     /**
@@ -249,6 +276,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
             $userHandler,
@@ -286,6 +314,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -314,6 +343,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
@@ -342,6 +372,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getObjectHandler(),
             $userHandler,
@@ -351,88 +382,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
 
         self::assertFalse($objectController->checkUserAccess());
         self::assertTrue($objectController->checkUserAccess());
-    }
-
-    /**
-     * @group  unit
-     * @covers ::formatDate()
-     */
-    public function testFormatDate()
-    {
-        $wordpress = $this->getWordpress();
-
-        $wordpress->expects($this->once())
-            ->method('formatDate')
-            ->with('date')
-            ->will($this->returnValue('formattedDate'));
-
-        $objectController = new ObjectController(
-            $this->getPhp(),
-            $wordpress,
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getUserHandler(),
-            $this->getAccessHandler(),
-            $this->getUserGroupFactory()
-        );
-
-        self::assertEquals('formattedDate', $objectController->formatDate('date'));
-    }
-
-    /**
-     * @group  unit
-     * @covers ::formatDateForDatetimeInput()
-     */
-    public function testFormatDateForDatetimeInput()
-    {
-        $objectController = new ObjectController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getUserHandler(),
-            $this->getAccessHandler(),
-            $this->getUserGroupFactory()
-        );
-
-        self::assertEquals(null, $objectController->formatDateForDatetimeInput(null));
-        self::assertEquals('1970-01-01T00:00:00', $objectController->formatDateForDatetimeInput(0));
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getDateFromTime()
-     */
-    public function testGetDateFromTime()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->once())
-            ->method('currentTime')
-            ->with('timestamp')
-            ->will($this->returnValue(100));
-
-        $objectController = new ObjectController(
-            $this->getPhp(),
-            $wordpress,
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getUserHandler(),
-            $this->getAccessHandler(),
-            $this->getUserGroupFactory()
-        );
-
-        self::assertEquals(null, $objectController->getDateFromTime(null));
-        self::assertEquals(null, $objectController->getDateFromTime(0));
-        self::assertEquals('1970-01-01 00:01:41', $objectController->getDateFromTime(1));
     }
 
     /**
@@ -488,6 +437,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
@@ -589,6 +539,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
@@ -632,16 +583,22 @@ class ObjectControllerTest extends ObjectControllerTestCase
      */
     public function testSaveObjectData()
     {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
-            ->method('currentTime')
-            ->with('timestamp')
-            ->will($this->returnValue(100));
-
         $mainConfig = $this->getMainConfig();
         $mainConfig->expects($this->exactly(3))
             ->method('authorsCanAddPostsToGroups')
             ->will($this->onConsecutiveCalls(false, true, true));
+
+        $dateUtil = $this->getDateUtil();
+        $dateUtil->expects($this->exactly(2))
+            ->method('getDateFromTime')
+            ->withConsecutive(
+                [1],
+                [2]
+            )
+            ->will($this->onConsecutiveCalls(
+                '1970-01-01 00:01:41',
+                '1970-01-01 00:01:42'
+            ));
 
         $objectHandler = $this->getExtendedObjectHandler();
 
@@ -739,10 +696,11 @@ class ObjectControllerTest extends ObjectControllerTestCase
 
         $objectController = new ObjectController(
             $this->getPhp(),
-            $wordpress,
+            $this->getWordpress(),
             $this->getWordpressConfig(),
             $mainConfig,
             $this->getDatabase(),
+            $dateUtil,
             $this->getCache(),
             $objectHandler,
             $userHandler,
@@ -826,6 +784,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $database,
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
@@ -848,6 +807,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
@@ -960,6 +920,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getDatabase(),
+            $this->getDateUtil(),
             $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),

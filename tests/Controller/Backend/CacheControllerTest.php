@@ -15,7 +15,7 @@
 namespace UserAccessManager\Tests\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\CacheController;
-use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
@@ -50,12 +50,12 @@ class CacheControllerTest extends UserAccessManagerTestCase
         $cache->expects($this->exactly(6))
             ->method('invalidate')
             ->withConsecutive(
-                [ObjectHandler::POST_TERM_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_POST_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_TREE_MAP_CACHE_KEY],
-                [ObjectHandler::TERM_POST_MAP_CACHE_KEY],
-                [ObjectHandler::POST_TERM_MAP_CACHE_KEY],
-                [ObjectHandler::POST_TREE_MAP_CACHE_KEY]
+                [ObjectMapHandler::POST_TERM_MAP_CACHE_KEY],
+                [ObjectMapHandler::TERM_POST_MAP_CACHE_KEY],
+                [ObjectMapHandler::TERM_TREE_MAP_CACHE_KEY],
+                [ObjectMapHandler::TERM_POST_MAP_CACHE_KEY],
+                [ObjectMapHandler::POST_TERM_MAP_CACHE_KEY],
+                [ObjectMapHandler::POST_TREE_MAP_CACHE_KEY]
             );
 
         $objectController = new CacheController(

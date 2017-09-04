@@ -15,7 +15,7 @@
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 
 /**
  * Class CacheController
@@ -44,9 +44,9 @@ class CacheController
      */
     public function invalidateTermCache()
     {
-        $this->cache->invalidate(ObjectHandler::POST_TERM_MAP_CACHE_KEY);
-        $this->cache->invalidate(ObjectHandler::TERM_POST_MAP_CACHE_KEY);
-        $this->cache->invalidate(ObjectHandler::TERM_TREE_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectMapHandler::POST_TERM_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectMapHandler::TERM_POST_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectMapHandler::TERM_TREE_MAP_CACHE_KEY);
     }
 
     /**
@@ -54,8 +54,8 @@ class CacheController
      */
     public function invalidatePostCache()
     {
-        $this->cache->invalidate(ObjectHandler::TERM_POST_MAP_CACHE_KEY);
-        $this->cache->invalidate(ObjectHandler::POST_TERM_MAP_CACHE_KEY);
-        $this->cache->invalidate(ObjectHandler::POST_TREE_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectMapHandler::TERM_POST_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectMapHandler::POST_TERM_MAP_CACHE_KEY);
+        $this->cache->invalidate(ObjectMapHandler::POST_TREE_MAP_CACHE_KEY);
     }
 }

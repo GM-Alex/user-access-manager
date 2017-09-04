@@ -40,6 +40,7 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
+            $this->getObjectMapHandler(),
             $this->getExtendedAssignmentInformationFactory()
         );
         self::assertInstanceOf(ObjectMembershipHandlerFactory::class, $objectMembershipHandlerFactory);

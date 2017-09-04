@@ -15,7 +15,6 @@
 namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\Access\AccessHandler;
-use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Wrapper\Php;

@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\Controller\Backend;
 
-use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;

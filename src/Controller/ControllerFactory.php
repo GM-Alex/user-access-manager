@@ -40,9 +40,11 @@ use UserAccessManager\File\FileObjectFactory;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\Util\DateUtil;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -85,6 +87,11 @@ class ControllerFactory
     private $util;
 
     /**
+     * @var DateUtil
+     */
+    private $dateUtil;
+
+    /**
      * @var Cache
      */
     private $cache;
@@ -93,6 +100,11 @@ class ControllerFactory
      * @var ObjectHandler
      */
     private $objectHandler;
+
+    /**
+     * @var ObjectMapHandler
+     */
+    private $objectMapHandler;
 
     /**
      * @var UserHandler
@@ -143,8 +155,10 @@ class ControllerFactory
      * @param WordpressConfig   $wordpressConfig
      * @param MainConfig        $mainConfig
      * @param Util              $util
+     * @param DateUtil          $dateUtil
      * @param Cache             $cache
      * @param ObjectHandler     $objectHandler
+     * @param ObjectMapHandler  $objectMapHandler
      * @param UserHandler       $userHandler
      * @param AccessHandler     $accessHandler
      * @param UserGroupFactory  $userGroupFactory
@@ -161,8 +175,10 @@ class ControllerFactory
         WordpressConfig $wordpressConfig,
         MainConfig $mainConfig,
         Util $util,
+        DateUtil $dateUtil,
         Cache $cache,
         ObjectHandler $objectHandler,
+        ObjectMapHandler $objectMapHandler,
         UserHandler $userHandler,
         AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory,
@@ -178,8 +194,10 @@ class ControllerFactory
         $this->wordpressConfig = $wordpressConfig;
         $this->mainConfig = $mainConfig;
         $this->util = $util;
+        $this->dateUtil = $dateUtil;
         $this->cache = $cache;
         $this->objectHandler = $objectHandler;
+        $this->objectMapHandler = $objectMapHandler;
         $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
@@ -233,6 +251,7 @@ class ControllerFactory
             $this->wordpressConfig,
             $this->mainConfig,
             $this->database,
+            $this->dateUtil,
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
@@ -266,6 +285,7 @@ class ControllerFactory
             $this->wordpressConfig,
             $this->mainConfig,
             $this->database,
+            $this->dateUtil,
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
@@ -287,6 +307,7 @@ class ControllerFactory
             $this->wordpressConfig,
             $this->mainConfig,
             $this->database,
+            $this->dateUtil,
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
@@ -308,6 +329,7 @@ class ControllerFactory
             $this->wordpressConfig,
             $this->mainConfig,
             $this->database,
+            $this->dateUtil,
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
@@ -329,6 +351,7 @@ class ControllerFactory
             $this->wordpressConfig,
             $this->mainConfig,
             $this->database,
+            $this->dateUtil,
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
@@ -477,6 +500,7 @@ class ControllerFactory
             $this->mainConfig,
             $this->util,
             $this->objectHandler,
+            $this->objectMapHandler,
             $this->userHandler,
             $this->accessHandler
         );

@@ -14,8 +14,6 @@
  */
 namespace UserAccessManager\Object;
 
-use UserAccessManager\Cache\Cache;
-use UserAccessManager\Database\Database;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
@@ -29,8 +27,6 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class ObjectHandler
 {
-    const TREE_MAP_PARENTS = 'PARENT';
-    const TREE_MAP_CHILDREN = 'CHILDREN';
     const GENERAL_ROLE_OBJECT_TYPE = '_role_';
     const GENERAL_USER_OBJECT_TYPE = '_user_';
     const GENERAL_POST_OBJECT_TYPE = '_post_';
@@ -39,10 +35,6 @@ class ObjectHandler
     const POST_OBJECT_TYPE = 'post';
     const PAGE_OBJECT_TYPE = 'page';
     const POST_FORMAT_TYPE = 'post_format';
-    const POST_TREE_MAP_CACHE_KEY = 'uamPostTreeMap';
-    const TERM_TREE_MAP_CACHE_KEY = 'uamTermTreeMap';
-    const TERM_POST_MAP_CACHE_KEY = 'uamTermPostMap';
-    const POST_TERM_MAP_CACHE_KEY = 'uamPostTermMap';
 
     /**
      * @var Php
@@ -53,16 +45,6 @@ class ObjectHandler
      * @var Wordpress
      */
     private $wordpress;
-
-    /**
-     * @var Database
-     */
-    private $database;
-
-    /**
-     * @var Cache
-     */
-    private $cache;
 
     /**
      * @var ObjectMembershipHandlerFactory
@@ -97,26 +79,6 @@ class ObjectHandler
     /**
      * @var null|array
      */
-    private $termPostMap = null;
-
-    /**
-     * @var null|array
-     */
-    private $postTermMap = null;
-
-    /**
-     * @var null|array
-     */
-    private $termTreeMap = null;
-
-    /**
-     * @var null|array
-     */
-    private $postTreeMap = null;
-
-    /**
-     * @var null|array
-     */
     private $objectMembershipHandlers = null;
 
     /**
@@ -144,21 +106,15 @@ class ObjectHandler
      *
      * @param Php                            $php
      * @param Wordpress                      $wordpress
-     * @param Database                       $database
-     * @param Cache                          $cache
      * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
-        Database $database,
-        Cache $cache,
         ObjectMembershipHandlerFactory $membershipHandlerFactory
     ) {
         $this->php = $php;
         $this->wordpress = $wordpress;
-        $this->database = $database;
-        $this->cache = $cache;
         $this->membershipHandlerFactory = $membershipHandlerFactory;
     }
 
@@ -241,200 +197,6 @@ class ObjectHandler
         }
 
         return $this->terms[$fullId];
-    }
-
-    /**
-     * Resolves all tree map elements
-     *
-     * @param array $map
-     * @param array $subMap
-     * @param array $processed
-     *
-     * @return array
-     */
-    private function processTreeMapElements(array &$map, array $subMap = null, array &$processed = [])
-    {
-        $processMap = ($subMap === null) ? $map : $subMap;
-
-        foreach ($processMap as $id => $subIds) {
-            foreach ($subIds as $subId => $type) {
-                if (isset($map[$subId]) === true
-                    && (isset($processed[$id]) === false || $processed[$id] !== $subId)
-                ) {
-                    $map[$id] += $this->processTreeMapElements($map, [$subId => $map[$subId]], $processed)[$subId];
-                    $processed[$id] = $subId;
-                }
-            }
-        }
-
-        return $map;
-    }
-
-    /**
-     * Returns the tree map for the query.
-     *
-     * @param string $select
-     * @param string $generalType
-     *
-     * @return array
-     */
-    private function getTreeMap($select, $generalType)
-    {
-        $treeMap = [
-            self::TREE_MAP_CHILDREN => [
-                $generalType => []
-            ],
-            self::TREE_MAP_PARENTS => [
-                $generalType => []
-            ]
-        ];
-        $results = (array)$this->database->getResults($select);
-
-        foreach ($results as $result) {
-            $treeMap[self::TREE_MAP_CHILDREN][$generalType][$result->parentId][$result->id] = $result->type;
-            $treeMap[self::TREE_MAP_CHILDREN][$result->type][$result->parentId][$result->id] = $result->type;
-            $treeMap[self::TREE_MAP_PARENTS][$generalType][$result->id][$result->parentId] = $result->type;
-            $treeMap[self::TREE_MAP_PARENTS][$result->type][$result->id][$result->parentId] = $result->type;
-        }
-
-        //Process elements
-        foreach ($treeMap as $mapType => $mayTypeMap) {
-            foreach ($mayTypeMap as $objectType => $map) {
-                $treeMap[$mapType][$objectType] = $this->processTreeMapElements($map);
-            }
-        }
-
-        return $treeMap;
-    }
-
-    /**
-     * Checks if a cache key exists and returns the map.
-     *
-     * @param string $cacheKey
-     * @param string $generalType
-     * @param string $query
-     *
-     * @return array
-     */
-    private function getCachedTreeMap($cacheKey, $generalType, $query)
-    {
-        $map = $this->cache->get($cacheKey);
-
-        if ($map === null) {
-            $map = $this->getTreeMap($query, $generalType);
-            $this->cache->add($cacheKey, $map);
-        }
-
-
-        return $map;
-    }
-
-    /**
-     * Returns the post tree map.
-     *
-     * @return array
-     */
-    public function getPostTreeMap()
-    {
-        if ($this->postTreeMap === null) {
-            $this->postTreeMap = $this->getCachedTreeMap(
-                self::POST_TREE_MAP_CACHE_KEY,
-                self::GENERAL_POST_OBJECT_TYPE,
-                "SELECT ID AS id, post_parent AS parentId, post_type AS type 
-                FROM {$this->database->getPostsTable()}
-                  WHERE post_parent != 0 AND post_type != 'revision'"
-            );
-        }
-
-        return $this->postTreeMap;
-    }
-
-    /**
-     * Returns the term tree map.
-     *
-     * @return array
-     */
-    public function getTermTreeMap()
-    {
-        if ($this->termTreeMap === null) {
-            $this->termTreeMap = $this->getCachedTreeMap(
-                self::TERM_TREE_MAP_CACHE_KEY,
-                self::GENERAL_TERM_OBJECT_TYPE,
-                "SELECT term_id AS id, parent AS parentId, taxonomy AS type
-                FROM {$this->database->getTermTaxonomyTable()}
-                  WHERE parent != 0"
-            );
-        }
-
-        return $this->termTreeMap;
-    }
-
-    /**
-     * Returns the cached map.
-     *
-     * @param string $cacheKey
-     * @param string $query
-     *
-     * @return array
-     */
-    private function getCachedMap($cacheKey, $query)
-    {
-        $map = $this->cache->get($cacheKey);
-
-        if ($map === null) {
-            $map = [];
-            $results = (array)$this->database->getResults($query);
-
-            foreach ($results as $result) {
-                $map[$result->parentId][$result->objectId] = $result->type;
-            }
-
-            $this->cache->add($cacheKey, $map);
-        }
-
-        return $map;
-    }
-
-    /**
-     * Returns the term post map.
-     *
-     * @return array
-     */
-    public function getTermPostMap()
-    {
-        if ($this->termPostMap === null) {
-            $select = "
-                SELECT tr.object_id AS objectId, tt.term_id AS parentId, p.post_type AS type
-                FROM {$this->database->getTermRelationshipsTable()} AS tr
-                  LEFT JOIN {$this->database->getPostsTable()} AS p
-                   ON (tr.object_id = p.ID)
-                  LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
-                    ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
-
-            $this->termPostMap = $this->getCachedMap(self::TERM_POST_MAP_CACHE_KEY, $select);
-        }
-
-        return $this->termPostMap;
-    }
-
-    /**
-     * Returns the post term map.
-     *
-     * @return array
-     */
-    public function getPostTermMap()
-    {
-        if ($this->postTermMap === null) {
-            $select = "
-                SELECT tr.object_id AS parentId, tt.term_id AS objectId, tt.taxonomy AS type
-                FROM {$this->database->getTermRelationshipsTable()} AS tr 
-                  LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
-                    ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
-
-            $this->postTermMap = $this->getCachedMap(self::POST_TERM_MAP_CACHE_KEY, $select);
-        }
-
-        return $this->postTermMap;
     }
 
     /**

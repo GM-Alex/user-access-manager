@@ -19,6 +19,7 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
@@ -51,6 +52,11 @@ class TermController extends Controller
     private $objectHandler;
 
     /**
+     * @var ObjectMapHandler
+     */
+    private $objectMapHandler;
+
+    /**
      * @var UserHandler
      */
     protected $userHandler;
@@ -73,14 +79,15 @@ class TermController extends Controller
     /**
      * TermController constructor.
      *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param MainConfig      $mainConfig
-     * @param Util            $util
-     * @param ObjectHandler   $objectHandler
-     * @param UserHandler     $userHandler
-     * @param AccessHandler   $accessHandler
+     * @param Php              $php
+     * @param Wordpress        $wordpress
+     * @param WordpressConfig  $wordpressConfig
+     * @param MainConfig       $mainConfig
+     * @param Util             $util
+     * @param ObjectHandler    $objectHandler
+     * @param ObjectMapHandler $objectMapHandler
+     * @param UserHandler      $userHandler
+     * @param AccessHandler    $accessHandler
      */
     public function __construct(
         Php $php,
@@ -89,6 +96,7 @@ class TermController extends Controller
         MainConfig $mainConfig,
         Util $util,
         ObjectHandler $objectHandler,
+        ObjectMapHandler $objectMapHandler,
         UserHandler $userHandler,
         AccessHandler $accessHandler
     ) {
@@ -96,6 +104,7 @@ class TermController extends Controller
         $this->mainConfig = $mainConfig;
         $this->util = $util;
         $this->objectHandler = $objectHandler;
+        $this->objectMapHandler = $objectMapHandler;
         $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
     }
@@ -129,16 +138,16 @@ class TermController extends Controller
     private function getAllPostForTerm($termType, $termId)
     {
         $fullTerms = [$termId => $termType];
-        $termTreeMap = $this->objectHandler->getTermTreeMap();
+        $termTreeMap = $this->objectMapHandler->getTermTreeMap();
 
-        if (isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType]) === true
-            && isset($termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId]) === true
+        if (isset($termTreeMap[ObjectMapHandler::TREE_MAP_CHILDREN][$termType]) === true
+            && isset($termTreeMap[ObjectMapHandler::TREE_MAP_CHILDREN][$termType][$termId]) === true
         ) {
-            $fullTerms += $termTreeMap[ObjectHandler::TREE_MAP_CHILDREN][$termType][$termId];
+            $fullTerms += $termTreeMap[ObjectMapHandler::TREE_MAP_CHILDREN][$termType][$termId];
         }
 
         $posts = [];
-        $termPostMap = $this->objectHandler->getTermPostMap();
+        $termPostMap = $this->objectMapHandler->getTermPostMap();
 
         foreach ($fullTerms as $fullTermId => $fullTermType) {
             if (isset($termPostMap[$fullTermId]) === true) {
