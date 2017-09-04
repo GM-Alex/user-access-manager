@@ -25,6 +25,7 @@ use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\Util\Util;
+use UserAccessManager\Util\DateUtil;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -34,6 +35,7 @@ function initUserAccessManger()
     $php = new Php();
     $wordpress = new Wordpress();
     $util = new Util($php);
+    $dateUtil = new DateUtil($wordpress);
     $configFactory = new ConfigFactory($wordpress);
     $configParameterFactory = new ConfigParameterFactory();
     $cacheProviderFactory = new CacheProviderFactory($php, $wordpress, $util, $configFactory, $configParameterFactory);
@@ -108,6 +110,7 @@ function initUserAccessManger()
         $wordpressConfig,
         $mainConfig,
         $util,
+        $dateUtil,
         $cache,
         $objectHandler,
         $userHandler,
