@@ -490,48 +490,24 @@ class ObjectControllerTest extends ObjectControllerTestCase
     public function testCheckRightsToEditContent()
     {
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(4))
             ->method('wpDie')
             ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
 
-        /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post
-         */
-        $post = $this->getMockBuilder('\WP_Post')->getMock();
-        $post->ID = 1;
-        $post->post_type = 'post';
-
-        /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $noAccessPost
-         */
-        $noAccessPost = $this->getMockBuilder('\WP_Post')->getMock();
-        $noAccessPost->ID = 2;
-        $noAccessPost->post_type = 'post';
-
-        /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $attachment
-         */
-        $attachment = $this->getMockBuilder('\WP_Post')->getMock();
-        $attachment->ID = 3;
-        $attachment->post_type = 'attachment';
-
-        $objectHandler = $this->getObjectHandler();
-        $objectHandler->expects($this->exactly(4))
-            ->method('getPost')
-            ->withConsecutive([-1], [1], [2], [3])
-            ->will($this->onConsecutiveCalls(false, $post, $noAccessPost, $attachment));
-
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(5))
+        $accessHandler->expects($this->exactly(8))
             ->method('checkObjectAccess')
             ->withConsecutive(
-                ['post', 1],
-                ['post', 2],
-                ['attachment', 3],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, -1],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3],
                 [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 4],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5]
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 6]
             )
-            ->will($this->onConsecutiveCalls(true, false, true, false));
+            ->will($this->onConsecutiveCalls(false, false, true, true, false, true, true, false));
 
         $objectController = new ObjectController(
             $this->getPhp(),
@@ -541,7 +517,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getDatabase(),
             $this->getDateUtil(),
             $this->getCache(),
-            $objectHandler,
+            $this->getObjectHandler(),
             $this->getUserHandler(),
             $accessHandler,
             $this->getUserGroupFactory()
@@ -558,6 +534,9 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $_GET['post'] = 2;
         $objectController->checkRightsToEditContent();
 
+        $_GET['post'] = 2;
+        $objectController->checkRightsToEditContent();
+
         unset($_GET['post']);
         $_GET['attachment_id'] = 3;
         $objectController->checkRightsToEditContent();
@@ -567,6 +546,9 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController->checkRightsToEditContent();
 
         $_GET['tag_ID'] = 5;
+        $objectController->checkRightsToEditContent();
+
+        $_GET['tag_ID'] = 6;
         $objectController->checkRightsToEditContent();
     }
 

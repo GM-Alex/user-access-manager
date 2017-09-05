@@ -59,42 +59,64 @@ class Update1Test extends UserAccessManagerTestCase
      * @covers ::update()
      * @covers ::updateToUserGroupTableUpdate()
      * @covers ::updateToUserGroupToObjectTableUpdate()
+     * @covers ::getObjectSelectQuery()
      */
     public function testUpdate()
     {
         $database = $this->getDatabase();
-        $database->expects($this->once())
+        $database->expects($this->exactly(4))
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(3))
             ->method('getPrefix')
             ->will($this->returnValue('prefix_'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(3))
             ->method('getCharset')
             ->will($this->returnValue('CHARSET testCharset'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getPostsTable')
             ->will($this->returnValue('postsTable'));
 
-        $database->expects($this->exactly(2))
+        $database->expects($this->exactly(6))
             ->method('getVariable')
             ->withConsecutive(
                 ['SHOW TABLES LIKE \'userGroupTable\''],
-                ['SHOW columns FROM userGroupTable LIKE \'ip_range\'']
+                ['SHOW columns FROM userGroupTable LIKE \'ip_range\''],
+                ['SHOW TABLES LIKE \'userGroupTable\''],
+                ['SHOW TABLES LIKE \'userGroupTable\''],
+                ['SHOW columns FROM userGroupTable LIKE \'ip_range\''],
+                ['SHOW TABLES LIKE \'userGroupTable\'']
             )
             ->will($this->onConsecutiveCalls(
                 'userGroupTable',
-                'not_ip_range'
+                'not_ip_range',
+                'someUserGroupTable',
+                'userGroupTable',
+                'ip_range',
+                'someUserGroupTable'
             ));
+
+        $database->expects($this->exactly(2))
+            ->method('insert')
+            ->with(
+                'prefix_uam_accessgroup_to_object',
+                [
+                    'group_id' => 123,
+                    'object_id' => 321,
+                    'object_type' => 'post'
+                ],
+                ['%d', '%d', '%s']
+            )
+            ->will($this->onConsecutiveCalls(true, false));
 
         $firstDbObject = new \stdClass();
         $firstDbObject->groupId = 123;
         $firstDbObject->id = 321;
 
-        $database->expects($this->exactly(4))
+        $database->expects($this->exactly(5))
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -111,11 +133,16 @@ class Update1Test extends UserAccessManagerTestCase
                 )],
                 [new MatchIgnoreWhitespace(
                     'SELECT role_name AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_role'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'SELECT post_id AS id, group_id AS groupId
+                    FROM prefix_uam_accessgroup_to_post, postsTable WHERE post_id = ID
+                    AND post_type = \'post\''
                 )]
             )
-            ->will($this->onConsecutiveCalls([$firstDbObject], [], [], []));
+            ->will($this->onConsecutiveCalls([$firstDbObject], [], [], [], [$firstDbObject]));
 
-        $database->expects($this->exactly(5))
+        $database->expects($this->exactly(9))
             ->method('query')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -139,6 +166,23 @@ class Update1Test extends UserAccessManagerTestCase
                     prefix_uam_accessgroup_to_user,
                     prefix_uam_accessgroup_to_category,
                     prefix_uam_accessgroup_to_role'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\'
+                    CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'ALTER TABLE userGroupTable
+                    ADD read_access TINYTEXT NOT NULL DEFAULT \'\', 
+                    ADD write_access TINYTEXT NOT NULL DEFAULT \'\', 
+                    ADD ip_range MEDIUMTEXT NULL DEFAULT \'\''
+                )],
+                [new MatchIgnoreWhitespace(
+                    'UPDATE userGroupTable SET read_access = \'group\', write_access = \'group\''
+                )],
+                [new MatchIgnoreWhitespace(
+                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\'
+                    CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
                 )]
             )
             ->will($this->onConsecutiveCalls(
@@ -146,18 +190,24 @@ class Update1Test extends UserAccessManagerTestCase
                 'ip_range',
                 true,
                 true,
+                true,
+                false,
+                true,
+                false,
+                true,
                 true
             ));
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->once())
+        $objectHandler->expects($this->exactly(2))
             ->method('getObjectTypes')
-            ->will($this->returnValue(
-                ['post', 'nothing', 'category', 'nothing', 'user', 'nothing', 'role', 'nothing']
+            ->will($this->onConsecutiveCalls(
+                ['post', 'nothing', 'category', 'nothing', 'user', 'nothing', 'role', 'nothing'],
+                ['post']
             ));
 
-        $objectHandler->expects($this->exactly(8))
+        $objectHandler->expects($this->exactly(9))
             ->method('isPostType')
             ->withConsecutive(
                 ['post'],
@@ -167,11 +217,15 @@ class Update1Test extends UserAccessManagerTestCase
                 ['user'],
                 ['nothing'],
                 ['role'],
-                ['nothing']
+                ['nothing'],
+                ['post']
             )
-            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false));
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false, true));
 
         $update = new Update1($database, $objectHandler);
         self::assertTrue($update->update());
+        self::assertFalse($update->update());
+        self::assertFalse($update->update());
+        self::assertFalse($update->update());
     }
 }

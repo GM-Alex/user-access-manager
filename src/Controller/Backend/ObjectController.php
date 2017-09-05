@@ -341,11 +341,7 @@ class ObjectController extends Controller
         $postId = $this->getRequestParameter('post', $this->getRequestParameter('attachment_id'));
 
         if ($postId !== null) {
-            $post = $this->objectHandler->getPost($postId);
-
-            if ($post !== false) {
-                $noRights = !$this->accessHandler->checkObjectAccess($post->post_type, $post->ID);
-            }
+            $noRights = !$this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId);
         }
 
         $tagId = $this->getRequestParameter('tag_ID');
@@ -419,8 +415,7 @@ class ObjectController extends Controller
                 $userGroup->removeObject($objectType, $objectId);
             }
 
-            if (isset($addUserGroups[$groupId]) === true
-                && isset($addUserGroups[$groupId]['id']) === true
+            if (isset($addUserGroups[$groupId]['id']) === true
                 && (int)$addUserGroups[$groupId]['id'] === (int)$groupId
             ) {
                 $userGroup->addObject(

@@ -113,6 +113,7 @@ function initUserAccessManger()
         $dateUtil,
         $cache,
         $objectHandler,
+        $objectMapHandler,
         $userHandler,
         $accessHandler,
         $userGroupFactory,

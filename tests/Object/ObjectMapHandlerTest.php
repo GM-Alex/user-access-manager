@@ -17,6 +17,7 @@ namespace UserAccessManager\Tests\Object;
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
+use UserAccessManager\Tests\CountableArrayHelper;
 use UserAccessManager\Tests\UserAccessManagerTestCase;
 
 /**
@@ -207,6 +208,29 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
 
         self::setValue($objectMapHandler, 'termTreeMap', null);
         self::assertEquals(['cachedTermTree'], $objectMapHandler->getTermTreeMap());
+        
+        $map = [
+            0 => [1 => 'post'],
+            1 => [2 => 'post'],
+            2 => [3 => 'post', 4 => 'post'],
+            3 => [4 => 'post', 123 => 'post', 321 => 'post'],
+            11 => [4 => 'post'],
+            6 => [7 => 'page'],
+            7 => [8 => 'page']
+        ];
+        $processed = [0 => [1 => 1]];
+        $expected = [
+            0 => [1 => 'post'],
+            1 => [2 => 'post', 3 => 'post', 4 => 'post', 123 => 'post', 321 => 'post'],
+            2 => [3 => 'post', 4 => 'post', 123 => 'post', 321 => 'post'],
+            3 => [4 => 'post', 123 => 'post', 321 => 'post'],
+            11 => [4 => 'post'],
+            6 => [7 => 'page', 8 => 'page'],
+            7 => [8 => 'page']
+        ];
+
+        $result = self::callMethod($objectMapHandler, 'processTreeMapElements', [&$map, null, &$processed]);
+        self::assertEquals($expected, $result);
     }
 
     /**

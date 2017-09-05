@@ -23,8 +23,6 @@ class Update6 extends Update implements UpdateInterface
      */
     public function update()
     {
-        $success = true;
-
         $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
         $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
             ADD group_type VARCHAR(64) NOT NULL AFTER group_id,
@@ -35,7 +33,7 @@ class Update6 extends Update implements UpdateInterface
             DROP PRIMARY KEY,
             ADD PRIMARY KEY (object_id, object_type, group_id, group_type)";
 
-        $success = $success && $this->database->query($alterQuery) !== false;
+        $success = $this->database->query($alterQuery) !== false;
 
         $update = $this->database->update(
             $dbAccessGroupToObject,

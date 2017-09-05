@@ -62,16 +62,16 @@ class Update5Test extends UserAccessManagerTestCase
     {
         $database = $this->getDatabase();
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $secondDbObject = new \stdClass();
-        $secondDbObject->objectId = 123;
-        $secondDbObject->groupId = 321;
-        $secondDbObject->objectType = 'customPostType';
+        $dbObject = new \stdClass();
+        $dbObject->objectId = 123;
+        $dbObject->groupId = 321;
+        $dbObject->objectType = 'customPostType';
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getResults')
             ->with(
                 new MatchIgnoreWhitespace(
@@ -80,25 +80,26 @@ class Update5Test extends UserAccessManagerTestCase
                     WHERE general_object_type = \'\''
                 )
             )
-            ->will($this->returnValue([$secondDbObject]));
+            ->will($this->returnValue([$dbObject, $dbObject]));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(4))
             ->method('update')
             ->with(
                 'userGroupToObjectTable',
                 ['general_object_type' => 'generalCustomPostType'],
                 ['object_id' => 123, 'group_id' => 321, 'object_type' => 'customPostType']
             )
-            ->will($this->returnValue(true));
+            ->will($this->onConsecutiveCalls(true, false, true, true));
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->once())
+        $objectHandler->expects($this->exactly(4))
             ->method('getGeneralObjectType')
             ->with('customPostType')
             ->will($this->returnValue('generalCustomPostType'));
 
         $update = new Update5($database, $objectHandler);
+        self::assertFalse($update->update());
         self::assertTrue($update->update());
     }
 }

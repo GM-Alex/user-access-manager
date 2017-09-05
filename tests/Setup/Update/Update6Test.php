@@ -63,11 +63,11 @@ class Update6Test extends UserAccessManagerTestCase
     {
         $database = $this->getDatabase();
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(3))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(3))
             ->method('query')
             ->with(
                 new MatchIgnoreWhitespace(
@@ -81,18 +81,20 @@ class Update6Test extends UserAccessManagerTestCase
                     ADD PRIMARY KEY (object_id, object_type, group_id, group_type)'
                 )
             )
-            ->will($this->returnValue(true));
+            ->will($this->onConsecutiveCalls(false, true, true));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(3))
             ->method('update')
             ->with(
                 'userGroupToObjectTable',
                 ['group_type' => UserGroup::USER_GROUP_TYPE],
                 ['group_type' => '']
             )
-            ->will($this->returnValue(true));
+            ->will($this->onConsecutiveCalls(false, false, true));
 
         $update = new Update6($database, $this->getObjectHandler());
+        self::assertFalse($update->update());
+        self::assertFalse($update->update());
         self::assertTrue($update->update());
     }
 }

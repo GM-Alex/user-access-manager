@@ -91,11 +91,9 @@ class ObjectMapHandler
 
         foreach ($processMap as $id => $subIds) {
             foreach ($subIds as $subId => $type) {
-                if (isset($map[$subId]) === true
-                    && (isset($processed[$id]) === false || $processed[$id] !== $subId)
-                ) {
+                if (isset($map[$subId]) === true && isset($processed[$id][$subId]) === false) {
                     $map[$id] += $this->processTreeMapElements($map, [$subId => $map[$subId]], $processed)[$subId];
-                    $processed[$id] = $subId;
+                    $processed[$id][$subId] = $subId;
                 }
             }
         }

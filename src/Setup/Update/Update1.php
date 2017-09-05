@@ -40,16 +40,15 @@ class Update1 extends Update implements UpdateInterface
      */
     private function updateToUserGroupTableUpdate($userGroupTable)
     {
-        $success = true;
         $alterQuery = "ALTER TABLE {$userGroupTable}
-                ADD read_access TINYTEXT NOT NULL DEFAULT '', 
-                ADD write_access TINYTEXT NOT NULL DEFAULT '', 
-                ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+            ADD read_access TINYTEXT NOT NULL DEFAULT '', 
+            ADD write_access TINYTEXT NOT NULL DEFAULT '', 
+            ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
 
         $this->database->query($alterQuery);
 
         $updateQuery = "UPDATE {$userGroupTable} SET read_access = 'group', write_access = 'group'";
-        $this->database->query($updateQuery);
+        $success = $this->database->query($updateQuery) !== false;
 
         $selectQuery = "SHOW columns FROM {$userGroupTable} LIKE 'ip_range'";
         $dbIpRange = (string)$this->database->getVariable($selectQuery);
@@ -60,6 +59,46 @@ class Update1 extends Update implements UpdateInterface
         }
 
         return $success;
+    }
+
+    /**
+     * Returns the select query for the object type.
+     *
+     * @param string $objectType
+     * @param string $userGroupToPost
+     * @param string $userGroupToCategory
+     * @param string $userGroupToUser
+     * @param string $userGroupToRole
+     *
+     * @return null|string
+     */
+    private function getObjectSelectQuery(
+        $objectType,
+        $userGroupToPost,
+        $userGroupToCategory,
+        $userGroupToUser,
+        $userGroupToRole
+    ) {
+        $addition = '';
+
+        if ($this->objectHandler->isPostType($objectType) === true) {
+            $dbIdName = 'post_id';
+            $database = $userGroupToPost.', '.$this->database->getPostsTable();
+            $addition = " WHERE post_id = ID AND post_type = '{$objectType}'";
+        } elseif ($objectType === 'category') {
+            $dbIdName = 'category_id';
+            $database = $userGroupToCategory;
+        } elseif ($objectType === 'user') {
+            $dbIdName = 'user_id';
+            $database = $userGroupToUser;
+        } elseif ($objectType === 'role') {
+            $dbIdName = 'role_name';
+            $database = $userGroupToRole;
+        } else {
+            return null;
+        }
+
+        return "SELECT {$dbIdName} AS id, group_id AS groupId FROM {$database} {$addition}";
     }
 
     /**
@@ -80,46 +119,42 @@ class Update1 extends Update implements UpdateInterface
             CHANGE 'object_id' 'object_id' VARCHAR(64) {$charsetCollate}";
         $success = $this->database->query($alterQuery) !== false;
 
+        if ($success === false) {
+            return false;
+        }
+
         $objectTypes = $this->objectHandler->getObjectTypes();
-        $postTable = $this->database->getPostsTable();
 
         foreach ($objectTypes as $objectType) {
-            $addition = '';
+            $query = $this->getObjectSelectQuery(
+                $objectType,
+                $userGroupToPost,
+                $userGroupToCategory,
+                $userGroupToUser,
+                $userGroupToRole
+            );
 
-            if ($this->objectHandler->isPostType($objectType) === true) {
-                $dbIdName = 'post_id';
-                $database = $userGroupToPost.', '.$postTable;
-                $addition = " WHERE post_id = ID AND post_type = '{$objectType}'";
-            } elseif ($objectType === 'category') {
-                $dbIdName = 'category_id';
-                $database = $userGroupToCategory;
-            } elseif ($objectType === 'user') {
-                $dbIdName = 'user_id';
-                $database = $userGroupToUser;
-            } elseif ($objectType === 'role') {
-                $dbIdName = 'role_name';
-                $database = $userGroupToRole;
-            } else {
+            if ($query === null) {
                 continue;
             }
 
-            $query = "SELECT {$dbIdName} AS id, group_id AS groupId FROM {$database} {$addition}";
             $dbObjects = (array)$this->database->getResults($query);
 
             foreach ($dbObjects as $dbObject) {
-                $this->database->insert(
+                $insert = $this->database->insert(
                     $userGroupToObject,
                     [
                         'group_id' => $dbObject->groupId,
                         'object_id' => $dbObject->id,
-                        'object_type' => $objectType,
+                        'object_type' => $objectType
                     ],
                     [
                         '%d',
                         '%d',
-                        '%s',
+                        '%s'
                     ]
                 );
+                $success = $success && $insert !== false;
             }
         }
 
