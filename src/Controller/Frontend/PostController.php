@@ -133,7 +133,7 @@ class PostController extends Controller
         if ($this->filtersSuppressed($wpQuery) === true) {
             $excludedPosts = $this->accessHandler->getExcludedPosts();
 
-            if (count($excludedPosts) > 0) {
+            if ($excludedPosts !== []) {
                 $postsNotIn = (isset($wpQuery->query_vars['post__not_in']) === true) ?
                     $wpQuery->query_vars['post__not_in'] : [];
 
@@ -252,7 +252,7 @@ class PostController extends Controller
             && $this->mainConfig->showPostContentBeforeMore() === true
             && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
         ) {
-            $uamPostContent = explode($matches[0], $post->post_content)[0]." ".$uamPostContent;
+            $uamPostContent = explode($matches[0], $post->post_content)[0].' '.$uamPostContent;
         }
 
         return stripslashes($uamPostContent);
@@ -261,17 +261,15 @@ class PostController extends Controller
     /**
      * Modifies the content of the post by the given settings.
      *
-     * @param \WP_Post $post    The current post.
-     * @param bool     $locked
+     * @param \WP_Post $post The current post.
      *
      * @return null|\WP_Post
      */
-    private function processPost(\WP_Post $post, &$locked = null)
+    private function processPost(\WP_Post $post)
     {
         $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
-        $locked = ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false);
 
-        if ($locked === true) {
+        if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false) {
             if ($this->mainConfig->hidePostType($post->post_type) === true
                 || $this->wordpressConfig->atAdminPanel() === true
             ) {
@@ -323,16 +321,14 @@ class PostController extends Controller
     /**
      * The function for the the_posts filter.
      *
-     * @param array $rawPosts The posts.
+     * @param array $showPosts The posts.
      *
      * @return array
      */
-    public function showPosts($rawPosts = [])
+    public function showPosts($showPosts = [])
     {
         if ($this->wordpress->isFeed() === false || $this->mainConfig->protectFeed() === true) {
-            $showPosts = $this->filterRawPosts($rawPosts);
-        } else {
-            $showPosts = $rawPosts;
+            $showPosts = $this->filterRawPosts($showPosts);
         }
 
         $this->restoreFilters();
@@ -383,7 +379,7 @@ class PostController extends Controller
     {
         $excludedPosts = $this->accessHandler->getExcludedPosts();
 
-        if (count($excludedPosts) > 0) {
+        if ($excludedPosts !== []) {
             $excludedPostsStr = implode(', ', $excludedPosts);
             $query .= " AND {$table}.ID NOT IN ($excludedPostsStr) ";
         }
@@ -429,9 +425,9 @@ class PostController extends Controller
     {
         $excludedPosts = implode('\', \'', $excludedPosts);
         $query = "SELECT post_status, COUNT(*) AS num_posts 
-                    FROM {$this->database->getPostsTable()} 
-                    WHERE post_type = %s
-                      AND ID NOT IN ('{$excludedPosts}')";
+            FROM {$this->database->getPostsTable()} 
+            WHERE post_type = %s
+              AND ID NOT IN ('{$excludedPosts}')";
 
         if ('readable' === $perm
             && $this->wordpress->isUserLoggedIn() === true

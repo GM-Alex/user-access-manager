@@ -486,6 +486,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::checkRightsToEditContent()
+     * @covers ::dieOnNoAccess()
      */
     public function testCheckRightsToEditContent()
     {

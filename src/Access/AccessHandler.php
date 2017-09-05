@@ -326,7 +326,6 @@ class AccessHandler
             $currentUser->ID
         );
         $userGroupsForUser[$userUserGroup->getId()] = $userUserGroup;
-
         $roles = $this->userHandler->getUserRole($currentUser);
 
         foreach ($roles as $role) {
@@ -362,7 +361,7 @@ class AccessHandler
 
             foreach ($userGroups as $userGroup) {
                 if (isset($userGroupsForUser[$userGroup->getId()]) === false
-                    && $this->checkUserGroupAccess($userGroup)
+                    && $this->checkUserGroupAccess($userGroup) === true
                 ) {
                     $userGroupsForUser[$userGroup->getId()] = $userGroup;
                 }

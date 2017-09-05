@@ -159,13 +159,12 @@ class ObjectController extends Controller
     {
         $this->objectType = $objectType;
         $this->objectId = $objectId;
+        $this->userGroupDiff = 0;
 
         if ($objectUserGroups === null && $objectId !== null) {
             $objectUserGroups = $this->accessHandler->getFilteredUserGroupsForObject($objectType, $objectId, true);
             $fullObjectUserGroups = $this->accessHandler->getUserGroupsForObject($objectType, $objectId, true);
             $this->userGroupDiff = count($fullObjectUserGroups) - count($objectUserGroups);
-        } else {
-            $this->userGroupDiff = 0;
         }
 
         $this->objectUserGroups = (array)$objectUserGroups;
@@ -308,8 +307,8 @@ class ObjectController extends Controller
     public function getRecursiveMembership(AbstractUserGroup $userGroup)
     {
         $recursiveMembership = [];
-        $objectId = $this->getObjectId();
         $objectType = $this->getObjectType();
+        $objectId = $this->getObjectId();
         $recursiveMembershipForObject = $userGroup->getRecursiveMembershipForObject($objectType, $objectId);
 
         /**
@@ -332,26 +331,33 @@ class ObjectController extends Controller
     }
 
     /**
+     * Checks the access and dies if the user has no access.
+     *
+     * @param string $objectType
+     * @param string $objectId
+     */
+    private function dieOnNoAccess($objectType, $objectId)
+    {
+        if ($this->accessHandler->checkObjectAccess($objectType, $objectId) === false) {
+            $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
+        }
+    }
+
+    /**
      * Shows the error if the user has no rights to edit the content.
      */
     public function checkRightsToEditContent()
     {
-        $noRights = false;
-
         $postId = $this->getRequestParameter('post', $this->getRequestParameter('attachment_id'));
 
         if ($postId !== null) {
-            $noRights = !$this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId);
+            $this->dieOnNoAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId);
         }
 
         $tagId = $this->getRequestParameter('tag_ID');
 
-        if ($noRights === false && $tagId !== null) {
-            $noRights = !$this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $tagId);
-        }
-
-        if ($noRights === true) {
-            $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
+        if ($tagId !== null) {
+            $this->dieOnNoAccess(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $tagId);
         }
     }
 
@@ -377,8 +383,7 @@ class ObjectController extends Controller
     private function getAddRemoveGroups($objectType, $objectId, &$addUserGroups, &$removeUserGroups)
     {
         if ($addUserGroups === null) {
-            $updateGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
-            $addUserGroups = (is_array($updateGroups) === true) ? $updateGroups : [];
+            $addUserGroups = (array)$this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
         }
 
         $filteredUserGroupsForObject = $this->accessHandler->getFilteredUserGroupsForObject(
