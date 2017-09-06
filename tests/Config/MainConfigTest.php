@@ -86,7 +86,8 @@ class MainConfigTest extends UserAccessManagerTestCase
             'protect_feed' => 'bool|protect_feed|true',
             'full_access_role' => 'selection|full_access_role|administrator|'
                 .'administrator|editor|author|contributor|subscriber',
-            'active_cache_provider' => 'selection|active_cache_provider|none|none'
+            'active_cache_provider' => 'selection|active_cache_provider|none|none',
+            'show_assigned_groups' => 'bool|show_assigned_groups|true'
         ];
     }
 
@@ -218,7 +219,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         $objectHandler = $this->getDefaultObjectHandler(2);
 
         $configParameterFactory = $this->getConfigParameterFactory();
-        $configParameterFactory->expects($this->exactly(24))
+        $configParameterFactory->expects($this->exactly(25))
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -439,6 +440,7 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::getNotLockedFileTypes
      * @covers ::blogAdminHint
      * @covers ::getBlogAdminHintText
+     * @covers ::showAssignedGroups
      * @covers ::protectFeed
      * @covers ::showPostContentBeforeMore
      * @covers ::getFullAccessRole
@@ -461,6 +463,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'getNotLockedFileTypes' => 'not_locked_file_types',
             'blogAdminHint' => 'blog_admin_hint',
             'getBlogAdminHintText' => 'blog_admin_hint_text',
+            'showAssignedGroups' => 'show_assigned_groups',
             'protectFeed' => 'protect_feed',
             'showPostContentBeforeMore' => 'show_post_content_before_more',
             'getFullAccessRole' => 'full_access_role',

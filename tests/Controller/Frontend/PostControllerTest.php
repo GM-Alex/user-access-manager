@@ -957,6 +957,11 @@ class PostControllerTest extends UserAccessManagerTestCase
      */
     public function testShowGroupMembership()
     {
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(4))
+            ->method('showAssignedGroups')
+            ->will($this->onConsecutiveCalls(false, true, true, true));
+
         $accessHandler = $this->getAccessHandler();
 
         $accessHandler->expects($this->exactly(3))
@@ -977,7 +982,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
-            $this->getMainConfig(),
+            $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
@@ -985,6 +990,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
+        self::assertEquals('link', $frontendPostController->showGroupMembership('link', 1));
         self::assertEquals('link', $frontendPostController->showGroupMembership('link', 1));
         self::assertEquals(
             'link | '.TXT_UAM_ASSIGNED_GROUPS.': name2',

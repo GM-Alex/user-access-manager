@@ -74,6 +74,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
      * @covers ::getFile()
      * @covers ::getFileMineType()
      * @covers ::clearBuffer()
+     * @covers ::deliverFile()
      * @covers ::deliverFileViaFopen()
      * @runInSeparateProcess
      */
@@ -187,6 +188,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
+        self::assertEquals(false, http_response_code());
 
         $fileHandler->getFile($testFileTwo, true);
         self::assertEquals('Test text2', self::getActualOutput());
@@ -200,6 +202,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
+        self::assertEquals(false, http_response_code());
 
         $fileHandler->getFile($testFileThree, false);
         self::assertEquals('Test text3', self::getActualOutput());
@@ -213,6 +216,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
+        self::assertEquals(false, http_response_code());
 
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals('Test text', self::getActualOutput());
@@ -226,6 +230,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
+        self::assertEquals(false, http_response_code());
 
         $fileHandler->getFile($testFileTwo, false);
         self::assertEquals('Test text2', self::getActualOutput());
@@ -239,7 +244,9 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
+        self::assertEquals(false, http_response_code());
 
+        $_SERVER['REQUEST_METHOD'] = 'something=0-4';
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals('Test text', self::getActualOutput());
         self::assertEquals(
@@ -253,6 +260,242 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
         self::expectOutputString('Test text');
+        self::assertEquals(false, http_response_code());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getFile()
+     * @covers ::getFileMineType()
+     * @covers ::clearBuffer()
+     * @covers ::deliverFilePartial()
+     * @covers ::getSeekStartEnd()
+     * @runInSeparateProcess
+     */
+    public function testGetPartialFile()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->exactly(10))
+            ->method('functionExists')
+            ->with('finfo_open')
+            ->will($this->returnValue(true));
+
+        $php->expects($this->exactly(7))
+            ->method('fread')
+            ->with($this->anything(), 8192)
+            ->will($this->returnCallback(function ($handle, $length) {
+                return fread($handle, $length);
+            }));
+
+        $php->expects($this->exactly(10))
+            ->method('callExit');
+
+        $php->expects($this->once())
+            ->method('fClose');
+
+        $php->expects($this->exactly(7))
+            ->method('connectionStatus')
+            ->will($this->onConsecutiveCalls(0, 0, 0, 0, 0, 0, 1));
+
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->exactly(10))
+            ->method('getMimeTypes')
+            ->will($this->returnValue(['txt' => 'textFile']));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(2))
+            ->method('getDownloadType')
+            ->will($this->returnValue(null));
+
+        $fileHandler = new FileHandler(
+            $php,
+            $this->getWordpress(),
+            $wordpressConfig,
+            $mainConfig,
+            $this->getFileProtectionFactory()
+        );
+
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory([
+            'testFile.txt' => new File('Test text'),
+            'testFile2.txt' => new File('Test text2'),
+            'testFile3.txt' => new File('Test text3')
+        ]));
+
+        $testDir = 'vfs://testDir/';
+        $notExistingFile = $testDir.'notExistingFile.txt';
+
+        $fileHandler->getFile($notExistingFile, false);
+
+        $testFileOne = $testDir.'testFile.txt';
+
+        $_SERVER['REQUEST_METHOD'] = 'something=0-4';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals('Test text', self::getActualOutput());
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(false, http_response_code());
+
+        unset($_SERVER['HTTP_RANGE']);
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals('Test text', self::getActualOutput());
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(false, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'something=0-4';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9',
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(416, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Range: bytes 0-8/9',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(206, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=4-4';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Range: bytes 4-4/9',
+                'Content-Length: 1'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(206, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=5-4';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Range: bytes 0-4/9',
+                'Content-Length: 5'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(206, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=1-4';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Range: bytes 1-4/9',
+                'Content-Length: 4'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(206, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=2';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Range: bytes 2-8/9',
+                'Content-Length: 7'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(206, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=a-10';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Range: bytes 0-8/9',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(206, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=10-a';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Range: bytes 0-8/9',
+                'Content-Length: 9'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(206, http_response_code());
     }
 
     /**

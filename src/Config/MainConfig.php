@@ -100,6 +100,9 @@ class MainConfig extends Config
         $id = 'blog_admin_hint_text';
         $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id, '[L]');
 
+        $id = 'show_assigned_groups';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
+
         $id = 'protect_feed';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
@@ -495,6 +498,14 @@ class MainConfig extends Config
     public function getBlogAdminHintText()
     {
         return $this->getParameterValue('blog_admin_hint_text');
+    }
+
+    /**
+     * @return string
+     */
+    public function showAssignedGroups()
+    {
+        return $this->getParameterValue('show_assigned_groups');
     }
 
     /**

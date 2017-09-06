@@ -57,9 +57,9 @@ interface FileProtectionInterface
     /**
      * Deletes the file protection.
      *
-     * @param string $dir
+     * @param string $directory
      *
      * @return bool
      */
-    public function delete($dir);
+    public function delete($directory);
 }

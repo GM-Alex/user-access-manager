@@ -439,7 +439,8 @@ class SettingsController extends Controller
             'protect_feed',
             $redirect,
             'blog_admin_hint',
-            'blog_admin_hint_text'
+            'blog_admin_hint_text',
+            'show_assigned_groups'
         ];
 
         return $this->formHelper->getSettingsForm($parameters);

@@ -23,6 +23,7 @@ use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
+use Vfs\Node\File;
 
 /**
  * Class FileProtectionTest
@@ -234,5 +235,44 @@ class FileProtectionTest extends UserAccessManagerTestCase
         $stub->createPasswordFile(true, 'vfs://thirdTestDir/');
         $content = file_get_contents($thirdTestFile);
         self::assertEquals("userLogin:userPass\n", $content);
+    }
+
+    /**
+     * @group   unit
+     * @covers  ::deleteFiles()
+     */
+    public function testDeleteFiles()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->exactly(6))
+            ->method('unlink')
+            ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
+
+        $stub = $this->getStub(
+            $php,
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getUtil()
+        );
+
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory([
+            FileProtection::FILE_NAME => new File('htaccess'),
+            FileProtection::PASSWORD_FILE_NAME => new File('password')
+        ]));
+
+        $testDir = 'vfs://testDir/';
+        $file = $testDir.FileProtection::FILE_NAME;
+        $passwordFile = $testDir.FileProtection::PASSWORD_FILE_NAME;
+
+        self::assertTrue(file_exists($file));
+        self::assertTrue(file_exists($passwordFile));
+        self::assertTrue($stub->deleteFiles($testDir));
+        self::assertFalse($stub->deleteFiles($testDir));
+        self::assertFalse($stub->deleteFiles($testDir));
     }
 }

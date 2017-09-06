@@ -143,26 +143,12 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     /**
      * Deletes the htaccess files.
      *
-     * @param string $dir
+     * @param string $directory
      *
      * @return bool
      */
-    public function delete($dir)
+    public function delete($directory)
     {
-        $success = true;
-        $dir = rtrim($dir, '/').'/';
-        $fileName = $dir.self::FILE_NAME;
-
-        if (file_exists($fileName) === true) {
-            $success = ($this->php->unlink($fileName) === true) && $success;
-        }
-
-        $passwordFile = $dir.self::PASSWORD_FILE_NAME;
-
-        if (file_exists($passwordFile) === true) {
-            $success = ($this->php->unlink($passwordFile) === true) && $success;
-        }
-
-        return $success;
+        return $this->deleteFiles($directory);
     }
 }

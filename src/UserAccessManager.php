@@ -403,44 +403,44 @@ class UserAccessManager
             );
 
             //Admin sub menus
-            $adminUserGroupController = $this->controllerFactory->createBackendUserGroupController();
+            $backendUserGroupController = $this->controllerFactory->createBackendUserGroupController();
             $this->wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_MANAGE_GROUP,
                 TXT_UAM_MANAGE_GROUP,
                 'read',
                 'uam_user_group',
-                [$adminUserGroupController, 'render']
+                [$backendUserGroupController, 'render']
             );
 
-            $adminSetupController = $this->controllerFactory->createBackendSettingsController();
+            $backendSettingsController = $this->controllerFactory->createBackendSettingsController();
             $this->wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_SETTINGS,
                 TXT_UAM_SETTINGS,
                 'read',
                 'uam_settings',
-                [$adminSetupController, 'render']
+                [$backendSettingsController, 'render']
             );
 
-            $adminSetupController = $this->controllerFactory->createBackendSetupController();
+            $backendSetupController = $this->controllerFactory->createBackendSetupController();
             $this->wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_SETUP,
                 TXT_UAM_SETUP,
                 'read',
                 'uam_setup',
-                [$adminSetupController, 'render']
+                [$backendSetupController, 'render']
             );
 
-            $adminAboutController = $this->controllerFactory->createBackendAboutController();
+            $backendAboutController = $this->controllerFactory->createBackendAboutController();
             $this->wordpress->addSubmenuPage(
                 'uam_user_group',
                 TXT_UAM_ABOUT,
                 TXT_UAM_ABOUT,
                 'read',
                 'uam_about',
-                [$adminAboutController, 'render']
+                [$backendAboutController, 'render']
             );
 
             $this->wordpress->doAction('uam_add_sub_menu');

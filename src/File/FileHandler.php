@@ -143,6 +143,84 @@ class FileHandler
     }
 
     /**
+     * Delivers the file.
+     *
+     * @param string $file
+     * @param bool   $isImage
+     */
+    private function deliverFile($file, $isImage)
+    {
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Length: '.filesize($file));
+        $this->clearBuffer();
+
+        if ($this->mainConfig->getDownloadType() === 'fopen' && $isImage === false) {
+            $this->deliverFileViaFopen($file);
+        } else {
+            readfile($file);
+        }
+    }
+
+    /**
+     * Sets the seek start and end.
+     *
+     * @param string $rangeOrigin
+     * @param int    $fileSize
+     * @param int    $seekStart
+     * @param int    $seekEnd
+     */
+    private function getSeekStartEnd($rangeOrigin, $fileSize, &$seekStart, &$seekEnd)
+    {
+        //just serve the first range
+        $range = explode(',', $rangeOrigin)[0];
+        //figure out download piece from range (if set)
+        $seek = explode('-', $range);
+        $seekStart = abs((int)$seek[0]);
+        $seekEnd = isset($seek[1]) === true ? abs((int)$seek[1]) : 0;
+        //start and end based on range (if set), else set defaults also check for invalid ranges.
+        $seekEnd = ($seekEnd === 0) ? ($fileSize - 1) : min($seekEnd, ($fileSize - 1));
+        $seekStart = ($seekEnd < $seekStart) ? 0 : max($seekStart, 0);
+    }
+
+    /**
+     * Delivers the file partial.
+     *
+     * @param string $file
+     */
+    private function deliverFilePartial($file)
+    {
+        $httpRange = explode('=', $_SERVER['HTTP_RANGE']);
+        $sizeUnit = $httpRange[0];
+        $rangeOrigin = isset($httpRange[1]) === true ? $httpRange[1] : '';
+
+        if ($sizeUnit === 'bytes') {
+            $fileSize = filesize($file);
+            $this->getSeekStartEnd($rangeOrigin, $fileSize, $seekStart, $seekEnd);
+
+            header('HTTP/1.1 206 Partial Content');
+            header('Content-Transfer-Encoding: binary');
+            header('Accept-Ranges: bytes');
+            header('Content-Range: bytes '.$seekStart.'-'.$seekEnd.'/'.$fileSize);
+            header('Content-Length: '.($seekEnd - $seekStart + 1));
+
+            $handler = fopen($file, 'r');
+            fseek($handler, $seekStart);
+
+            while (feof($handler) === false) {
+                echo $this->php->fread($handler, 1024*8);
+                $this->clearBuffer();
+
+                if ($this->php->connectionStatus() !== 0) {
+                    $this->php->fClose($handler);
+                    break;
+                }
+            }
+        } else {
+            header('HTTP/1.1 416 Requested Range Not Satisfiable');
+        }
+    }
+
+    /**
      * Delivers the content of the requested file.
      *
      * @param string $file
@@ -162,16 +240,13 @@ class FileHandler
                 header('Content-Disposition: attachment; filename="'.$baseName.'"');
             }
 
-            header('Content-Transfer-Encoding: binary');
-            header('Content-Length: '.filesize($file));
-            $this->clearBuffer();
-
-            if ($this->mainConfig->getDownloadType() === 'fopen'
-                && $isImage === false
+            if (isset($_SERVER['HTTP_RANGE']) === true
+                && isset($_SERVER['REQUEST_METHOD']) === true
+                && $_SERVER['REQUEST_METHOD'] === 'GET'
             ) {
-                $this->deliverFileViaFopen($file);
+                $this->deliverFilePartial($file);
             } else {
-                readfile($file);
+                $this->deliverFile($file, $isImage);
             }
 
             $this->php->callExit();

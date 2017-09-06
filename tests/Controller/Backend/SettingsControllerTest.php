@@ -594,7 +594,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'protect_feed',
                         'redirectRadio',
                         'blog_admin_hint',
-                        'blog_admin_hint_text'
+                        'blog_admin_hint_text',
+                        'show_assigned_groups'
                     ]
                 ]
             )

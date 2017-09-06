@@ -535,21 +535,23 @@ class PostController extends Controller
      */
     public function showGroupMembership($link, $postId)
     {
-        $userGroups = $this->accessHandler->getFilteredUserGroupsForObject(
-            ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-            $postId
-        );
-
-        if (count($userGroups) > 0) {
-            $escapedGroups = array_map(
-                function (AbstractUserGroup $group) {
-                    return htmlentities($group->getName());
-                },
-                $userGroups
+        if ($this->mainConfig->showAssignedGroups() === true) {
+            $userGroups = $this->accessHandler->getFilteredUserGroupsForObject(
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+                $postId
             );
 
-            $link .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
-            $link .= implode(', ', $escapedGroups);
+            if (count($userGroups) > 0) {
+                $escapedGroups = array_map(
+                    function (AbstractUserGroup $group) {
+                        return htmlentities($group->getName());
+                    },
+                    $userGroups
+                );
+
+                $link .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
+                $link .= implode(', ', $escapedGroups);
+            }
         }
 
         return $link;

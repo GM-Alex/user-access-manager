@@ -190,4 +190,26 @@ class Php
         return ($context !== null) ?
             mkdir($pathname, $mode, $recursive, $context) : mkdir($pathname, $mode, $recursive);
     }
+
+    /**
+     * @see connection_status()
+     *
+     * @return int
+     */
+    public function connectionStatus()
+    {
+        return connection_status();
+    }
+
+    /**
+     * @see fclose()
+     *
+     * @param resource $handle
+     *
+     * @return bool
+     */
+    public function fClose($handle)
+    {
+        return fclose($handle);
+    }
 }

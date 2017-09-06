@@ -27,6 +27,7 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 abstract class FileProtection
 {
+    const FILE_NAME = null;
     const PASSWORD_FILE_NAME = '.htpasswd';
 
     /**
@@ -39,6 +40,9 @@ abstract class FileProtection
      */
     protected $wordpress;
 
+    /**
+     * @var WordpressConfig
+     */
     protected $wordpressConfig;
 
     /**
@@ -151,5 +155,31 @@ abstract class FileProtection
             fwrite($fileHandler, $content);
             fclose($fileHandler);
         }
+    }
+
+    /**
+     * Deletes the htaccess files.
+     *
+     * @param string $directory
+     *
+     * @return bool
+     */
+    public function deleteFiles($directory)
+    {
+        $success = true;
+        $directory = rtrim($directory, '/').'/';
+        $fileName = $directory.self::FILE_NAME;
+
+        if (file_exists($fileName) === true) {
+            $success = ($this->php->unlink($fileName) === true) && $success;
+        }
+
+        $passwordFile = $directory.self::PASSWORD_FILE_NAME;
+
+        if (file_exists($passwordFile) === true) {
+            $success = ($this->php->unlink($passwordFile) === true) && $success;
+        }
+
+        return $success;
     }
 }
