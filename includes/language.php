@@ -227,15 +227,18 @@ define('TXT_UAM_ABOUT', __('About', 'user-access-manager'));
 
 // --- About page -> support ---
 define('TXT_UAM_HOW_TO_SUPPORT', __('How to support me?', 'user-access-manager'));
-define('TXT_UAM_SEND_REPORTS', __('<strong>Send me bug reports, bug fixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin.', 'user-access-manager'));
-define('TXT_UAM_MAKE_TRANSLATION', __('<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages.', 'user-access-manager'));
-define('TXT_UAM_DONATE', __('<strong>Donate via PayPal</strong>', 'user-access-manager'));
-define('TXT_UAM_SUPPORT_ON_STEADY', __('<strong>Support me on Steady</strong>', 'user-access-manager'));
-define('TXT_UAM_PLACE_LINK', __('<strong>Spread the word</strong><br/>Write about the plugin and place a link to the plugin in your blog/website.', 'user-access-manager'));
+define('TXT_UAM_SEND_REPORTS_HEAD', __('Help me to improve the plugin', 'user-access-manager'));
+define('TXT_UAM_SEND_REPORTS', __('Send me bug reports, bug fixes, pull requests or your ideas. See: <a href="https://github.com/GM-Alex/user-access-manager">https://github.com/GM-Alex/user-access-manager</a>', 'user-access-manager'));
+define('TXT_UAM_CREATE_TRANSLATION_HEAD', __('Create a translation of the plugin', 'user-access-manager'));
+define('TXT_UAM_CREATE_TRANSLATION', __('Give other users more comfort help me to translate it to all languages. See: <a href="https://translate.wordpress.org/projects/wp-plugins/user-access-manager">https://translate.wordpress.org/projects/wp-plugins/user-access-manager</a>', 'user-access-manager'));
+define('TXT_UAM_DONATE_HEAD', __('Donate via PayPal', 'user-access-manager'));
+define('TXT_UAM_SUPPORT_ME_ON_STEADY_HEAD', __('Support me on Steady', 'user-access-manager'));
+define('TXT_UAM_SPREAD_THE_WORD_HEAD', __('Spread the word', 'user-access-manager'));
+define('TXT_UAM_SPREAD_THE_WORD', __('Write about the plugin and place a link to the plugin in your blog/website.', 'user-access-manager'));
 
 // --- About page -> thanks ---
 define('TXT_UAM_THANKS', __('Thanks', 'user-access-manager'));
-define('TXT_UAM_SUPPORT_BE_THE_FIRST', __('Be the first one!', 'user-access-manager'));
+define('TXT_UAM_STEADY_BE_THE_FIRST', __('Be the first one supporting me on steady!', 'user-access-manager'));
 define('TXT_UAM_TOP_SUPPORTERS', __('Top supporters', 'user-access-manager'));
 define('TXT_UAM_SUPPORTERS', __('Supporters', 'user-access-manager'));
 define('TXT_UAM_SPECIAL_THANKS', __('Special thanks', 'user-access-manager'));
@@ -309,7 +312,7 @@ define('TXT_UAM_LOGIN_WIDGET_TITLE', __('UAM login widget', 'user-access-manager
 define('TXT_UAM_LOGIN_WIDGET_DESC', __('User Access Manager login widget for users.', 'user-access-manager'));
 
 // --- Info bar ---
-define('TXT_UAM_INFO_BOX_UAM_PRO_HEAD', __('Get User Access Manager Pro', 'user-access-manager'));
+define('TXT_UAM_INFO_BOX_UAM_PRO_HEAD', __('Get User Access Manager Pro!', 'user-access-manager'));
 define('TXT_UAM_INFO_BOX_UAM_PRO_CONTENT', __('Want to get all features? Guess what? You are already using the Pro version, because there is none. So it would be nice if you support me and become a supporter at steady.', 'user-access-manager'));
 define('TXT_UAM_INFO_BOX_DOCUMENTATION_HEAD', __('Need help?', 'user-access-manager'));
-define('TXT_UAM_INFO_BOX_DOCUMENTATION_CONTENT', __('You got stuck using the User access manager?', 'user-access-manager'));
+define('TXT_UAM_INFO_BOX_DOCUMENTATION_CONTENT', __('You got stuck using the User access manager? See <a href="https://github.com/GM-Alex/user-access-manager/wiki">https://github.com/GM-Alex/user-access-manager/wiki</a>', 'user-access-manager'));

@@ -23,24 +23,21 @@
         <div class="postbox">
             <h3 class="hndle"><?php echo TXT_UAM_HOW_TO_SUPPORT; ?></h3>
             <div class="inside">
+                <h3><?php echo TXT_UAM_SEND_REPORTS_HEAD; ?></h3>
                 <p><?php echo TXT_UAM_SEND_REPORTS; ?></p>
-                <p><?php echo TXT_UAM_MAKE_TRANSLATION; ?></p>
+                <h3><?php echo TXT_UAM_CREATE_TRANSLATION_HEAD; ?></h3>
+                <p><?php echo TXT_UAM_CREATE_TRANSLATION; ?></p>
+                <h3><?php echo TXT_UAM_SUPPORT_ME_ON_STEADY_HEAD; ?></h3>
+                <p><?php include 'SteadyBanner.php'; ?></p>
+                <h3><?php echo TXT_UAM_DONATE_HEAD; ?></h3>
                 <p>
-                    <?php echo TXT_UAM_SUPPORT_ON_STEADY; ?><br/>
-                    <a href="https://steadyhq.com/useraccessmanager?utm_source=publication&utm_medium=banner">
-                        <img alt="Support me on Steady"
-                             src="https://steady.imgix.net/gfx/banners/support_me_on_steady.png"
-                             style="width: 240px;" />
-                    </a>
-                </p>
-                <p>
-                    <?php echo TXT_UAM_DONATE; ?><br/>
                     <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052">
                         <img style="margin:4px 0;" alt="Make payments with PayPal - it's fast, free and secure!"
                              name="submit" src="https://www.paypal.com/en_US/i/btn/x-click-but21.gif"/>
                     </a>
                 </p>
-                <p><?php echo TXT_UAM_PLACE_LINK; ?></p>
+                <h3><?php echo TXT_UAM_SPREAD_THE_WORD_HEAD; ?></h3>
+                <p><?php echo TXT_UAM_SPREAD_THE_WORD; ?></p>
             </div>
         </div>
         <div class="postbox">
@@ -51,12 +48,8 @@
 
                 if ($topSupporters === []) {
                     ?>
-                    <strong><?php echo TXT_UAM_SUPPORT_BE_THE_FIRST; ?></strong><br/>
-                    <a href="https://steadyhq.com/useraccessmanager?utm_source=publication&utm_medium=banner">
-                        <img alt="Support me on Steady"
-                             src="https://steady.imgix.net/gfx/banners/support_me_on_steady.png"
-                             style="width: 240px;" />
-                    </a>
+                    <h3><?php echo TXT_UAM_STEADY_BE_THE_FIRST; ?></h3>
+                    <p><?php include 'SteadyBanner.php'; ?></p>
                     <?php
                 } else {
                     ?>
@@ -82,12 +75,8 @@
 
                 if ($supporters === []) {
                     ?>
-                    <strong><?php echo TXT_UAM_SUPPORT_BE_THE_FIRST; ?></strong><br/>
-                    <a href="https://steadyhq.com/useraccessmanager?utm_source=publication&utm_medium=banner">
-                        <img alt="Support me on Steady"
-                             src="https://steady.imgix.net/gfx/banners/support_me_on_steady.png"
-                             style="width: 240px;" />
-                    </a>
+                    <h3><?php echo TXT_UAM_STEADY_BE_THE_FIRST; ?></h3>
+                    <p><?php include 'SteadyBanner.php'; ?></p>
                     <?php
                 } else {
                     ?>
