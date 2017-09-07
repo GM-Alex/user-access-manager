@@ -1,0 +1,33 @@
+
+-
+    request:
+        method: GET
+        url: 'https://gm-alex.github.io/user-access-manager/supporters.json'
+        headers:
+            Host: gm-alex.github.io
+    response:
+        status:
+            http_version: '1.1'
+            code: '200'
+            message: OK
+        headers:
+            Server: GitHub.com
+            Content-Type: 'application/json; charset=utf-8'
+            Last-Modified: 'Thu, 07 Sep 2017 21:21:47 GMT'
+            Access-Control-Allow-Origin: '*'
+            Expires: 'Thu, 07 Sep 2017 21:33:03 GMT'
+            Cache-Control: max-age=600
+            X-GitHub-Request-Id: 'B30C:21B9:22D3A01:30B2CA5:59B1B8B7'
+            Content-Length: '627'
+            Accept-Ranges: bytes
+            Date: 'Thu, 07 Sep 2017 21:23:03 GMT'
+            Via: '1.1 varnish'
+            Age: '0'
+            Connection: keep-alive
+            X-Served-By: cache-hhn1547-HHN
+            X-Cache: MISS
+            X-Cache-Hits: '0'
+            X-Timer: 'S1504819383.337957,VS0,VE100'
+            Vary: Accept-Encoding
+            X-Fastly-Request-ID: cd406160cbcbcb20a3be425ab636d07ed739fcdd
+        body: "{\n  \"special-thanks\": [\n    \"Luke Crouch\",\n    \"Juan Rodriguez\",\n    \"mkosel\",\n    \"Jan\",\n    \"GeorgWP\",\n    \"Ron Harding\",\n    \"Zina\",\n    \"Erik Franz&eacute;n\",\n    \"Ivan Marevic\",\n    \"J&uuml;rgen Wiesenbauer\",\n    \"Patric Schwarz\",\n    \"Mark LeRoy\",\n    \"Huska\",\n    \"macbidule\",\n    \"Helmut\",\n    \"-sCo-\",\n    \"Hadi Mostafapour\",\n    \"Diego Valobra\",\n    \"PoleeK\",\n    \"Konsult\",\n    \"Mesut Soylu\",\n    \"ranwaldo\",\n    \"Robert Egger\",\n    \"akiko.pusu\",\n    \"r3d pill\",\n    \"michel.weimerskirch\",\n    \"arjenbreur\",\n    \"jpr105\",\n    \"nwoetzel (https://github.com/nwoetzel)\"\n  ],\n  \"top-supporters\": [],\n  \"supporters\": []\n}"

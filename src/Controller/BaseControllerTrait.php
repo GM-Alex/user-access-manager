@@ -106,7 +106,7 @@ trait BaseControllerTrait
     protected function getIncludeContents($fileName)
     {
         $contents = '';
-        $realPath = $this->wordpressConfig->getRealPath();
+        $realPath = rtrim($this->wordpressConfig->getRealPath(), DIRECTORY_SEPARATOR);
         $path = [$realPath, 'src', 'View'];
         $path = implode(DIRECTORY_SEPARATOR, $path).DIRECTORY_SEPARATOR;
         $fileWithPath = $path.$fileName;

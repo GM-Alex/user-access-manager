@@ -147,6 +147,8 @@ define('TXT_UAM_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manage
 define('TXT_UAM_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behind the post/page.', 'user-access-manager'));
 define('TXT_UAM_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
 define('TXT_UAM_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behind the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_UAM_BLOG_ADMIN_HINT_TEXT));
+define('TXT_UAM_SHOW_ASSIGNED_GROUPS', __('Show assigned groups', 'user-access-manager'));
+define('TXT_UAM_SHOW_ASSIGNED_GROUPS_DESC', __('Show assigned groups next to the edit link', 'user-access-manager'));
 
 // --- Setting Page -> default values ---
 define('TXT_UAM_SETTING_DEFAULT_NO_RIGHTS', __('No rights!', 'user-access-manager'));
@@ -228,13 +230,17 @@ define('TXT_UAM_HOW_TO_SUPPORT', __('How to support me?', 'user-access-manager')
 define('TXT_UAM_SEND_REPORTS', __('<strong>Send me bug reports, bug fixes, code modifications or your ideas.</strong><br/>Help me to improve the plugin.', 'user-access-manager'));
 define('TXT_UAM_MAKE_TRANSLATION', __('<strong>Make a translation of the plugin.</strong><br/>The give other users more comfort help me to translate it to all languages.', 'user-access-manager'));
 define('TXT_UAM_DONATE', __('<strong>Donate via PayPal</strong>', 'user-access-manager'));
-define('TXT_UAM_PLACE_LINK', __('<strong>Place a link to the plugin in your blog/website.</strong>', 'user-access-manager'));
+define('TXT_UAM_SUPPORT_ON_STEADY', __('<strong>Support me on Steady</strong>', 'user-access-manager'));
+define('TXT_UAM_PLACE_LINK', __('<strong>Spread the word</strong><br/>Write about the plugin and place a link to the plugin in your blog/website.', 'user-access-manager'));
 
 // --- About page -> thanks ---
 define('TXT_UAM_THANKS', __('Thanks', 'user-access-manager'));
-define('TXT_UAM_SPECIAL_THANKS', __('Special thanks go out to my wife for giving me the time to develop this plugin.', 'user-access-manager'));
-define('TXT_UAM_THANKS_TO', __('I would like to thank all the guys which has helped me with this plugin:', 'user-access-manager'));
-define('TXT_UAM_THANKS_OTHERS', __('all beta testers and all others I forgot', 'user-access-manager'));
+define('TXT_UAM_SUPPORT_BE_THE_FIRST', __('Be the first one!', 'user-access-manager'));
+define('TXT_UAM_TOP_SUPPORTERS', __('Top supporters', 'user-access-manager'));
+define('TXT_UAM_SUPPORTERS', __('Supporters', 'user-access-manager'));
+define('TXT_UAM_SPECIAL_THANKS', __('Special thanks', 'user-access-manager'));
+define('TXT_UAM_SPECIAL_THANKS_FIRST', __('My wife for giving me the time to develop this plugin', 'user-access-manager'));
+define('TXT_UAM_SPECIAL_THANKS_LAST', __('All testers and all others I forgot', 'user-access-manager'));
 
 
 // --- Columns ---

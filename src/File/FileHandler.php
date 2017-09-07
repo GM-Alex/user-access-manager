@@ -207,7 +207,7 @@ class FileHandler
             fseek($handler, $seekStart);
 
             while (feof($handler) === false) {
-                echo $this->php->fread($handler, 1024*8);
+                echo $this->php->fread($handler, 1024 * 8);
                 $this->clearBuffer();
 
                 if ($this->php->connectionStatus() !== 0) {

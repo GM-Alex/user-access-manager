@@ -12,6 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+/**
+ * @var \UserAccessManager\Controller\Backend\AboutController $controller
+ */
 ?>
 <div class="wrap">
     <h2><?php echo TXT_UAM_ABOUT; ?></h2>
@@ -21,6 +25,14 @@
             <div class="inside">
                 <p><?php echo TXT_UAM_SEND_REPORTS; ?></p>
                 <p><?php echo TXT_UAM_MAKE_TRANSLATION; ?></p>
+                <p>
+                    <?php echo TXT_UAM_SUPPORT_ON_STEADY; ?><br/>
+                    <a href="https://steadyhq.com/useraccessmanager?utm_source=publication&utm_medium=banner">
+                        <img alt="Support me on Steady"
+                             src="https://steady.imgix.net/gfx/banners/support_me_on_steady.png"
+                             style="width: 240px;" />
+                    </a>
+                </p>
                 <p>
                     <?php echo TXT_UAM_DONATE; ?><br/>
                     <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052">
@@ -32,17 +44,82 @@
             </div>
         </div>
         <div class="postbox">
-            <h3 class="hndle"><?php echo TXT_UAM_THANKS; ?></h3>
+            <h3 class="hndle"><?php echo TXT_UAM_TOP_SUPPORTERS; ?></h3>
             <div class="inside">
-                <p>
-                    <strong><?php echo TXT_UAM_SPECIAL_THANKS; ?></strong><br/>
-                    <br/>
-                    <?php echo TXT_UAM_THANKS_TO; ?> Luke Crouch, Juan Rodriguez, mkosel, Jan, GeorgWP, Ron Harding,
-                    Zina, Erik Franz&eacute;n, Ivan Marevic, J&uuml;rgen Wiesenbauer, Patric Schwarz, Mark LeRoy, Huska,
-                    macbidule, Helmut, -sCo-, Hadi Mostafapour, Diego Valobra, PoleeK, Konsult, Mesut Soylu, ranwaldo,
-                    Robert Egger, akiko.pusu, r3d pill, michel.weimerskirch, arjenbreur, jpr105, nwoetzel
-                    (https://github.com/nwoetzel) <?php echo TXT_UAM_THANKS_OTHERS; ?>.
-                </p>
+                <?php
+                $topSupporters = $controller->getTopSupporters();
+
+                if ($topSupporters === []) {
+                    ?>
+                    <strong><?php echo TXT_UAM_SUPPORT_BE_THE_FIRST; ?></strong><br/>
+                    <a href="https://steadyhq.com/useraccessmanager?utm_source=publication&utm_medium=banner">
+                        <img alt="Support me on Steady"
+                             src="https://steady.imgix.net/gfx/banners/support_me_on_steady.png"
+                             style="width: 240px;" />
+                    </a>
+                    <?php
+                } else {
+                    ?>
+                    <ul class="uam_supporters">
+                        <?php
+                        foreach ($topSupporters as $topSupporter) {
+                            ?>
+                            <li><?php echo $topSupporter; ?></li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                    <?php
+                }
+                ?>
+            </div>
+        </div>
+        <div class="postbox">
+            <h3 class="hndle"><?php echo TXT_UAM_SUPPORTERS; ?></h3>
+            <div class="inside">
+                <?php
+                $supporters = $controller->getSupporters();
+
+                if ($supporters === []) {
+                    ?>
+                    <strong><?php echo TXT_UAM_SUPPORT_BE_THE_FIRST; ?></strong><br/>
+                    <a href="https://steadyhq.com/useraccessmanager?utm_source=publication&utm_medium=banner">
+                        <img alt="Support me on Steady"
+                             src="https://steady.imgix.net/gfx/banners/support_me_on_steady.png"
+                             style="width: 240px;" />
+                    </a>
+                    <?php
+                } else {
+                    ?>
+                    <ul class="uam_supporters">
+                        <?php
+                        foreach ($supporters as $supporter) {
+                            ?>
+                            <li><?php echo $supporter; ?></li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                    <?php
+                }
+                ?>
+                </ul>
+            </div>
+        </div>
+        <div class="postbox">
+            <h3 class="hndle"><?php echo TXT_UAM_SPECIAL_THANKS; ?></h3>
+            <div class="inside">
+                <ul class="uam_supporters">
+                    <li><?php echo TXT_UAM_SPECIAL_THANKS_FIRST; ?></li>
+                    <?php
+                    foreach ($controller->getSpecialThanks() as $specialThank) {
+                        ?>
+                        <li><?php echo $specialThank; ?></li>
+                        <?php
+                    }
+                    ?>
+                    <li><?php echo TXT_UAM_SPECIAL_THANKS_LAST; ?></li>
+                </ul>
             </div>
         </div>
     </div>

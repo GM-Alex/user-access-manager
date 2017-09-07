@@ -170,6 +170,11 @@ ul.uam_group_selection_ajax > li > input {
 }
 
 #uam_dynamic_groups {
-      height: 28px;
-      margin: 0 4px 0 0;
-  }
+    height: 28px;
+    margin: 0 4px 0 0;
+}
+
+.uam_supporters {
+    list-style: disc;
+    padding-left: 20px;
+}

@@ -10,3 +10,5 @@ if (class_exists('WP_CLI_Command') === false) {
 if (class_exists('\WP_Widget') === false) {
     require_once __DIR__.'/../vendor/johnpbloch/wordpress-core/wp-includes/class-wp-widget.php';
 }
+
+\VCR\VCR::configure()->setCassettePath(__DIR__.'/fixtures/vcr');
