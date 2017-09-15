@@ -10,24 +10,23 @@ With the "User Access Manager"-plugin you can manage the access to your posts, p
 
 == Description ==
 
-With the "User Access Manager"-plugin you can manage the access to your posts, pages and files. You only create a user group, put registered users to this and set up the rights for this group. From now on the post/page is only accessible and writable for the specified group. This plugin is useful if you need a member area or a private section at your blog or you want that other people can write at your blog but not everywhere.
-
-Appeal: If it works click the "Works" button, if it don't works click the "Broken" button and report the issue. That is the only way to find bugs and see if the plugin works proper. Thanks.
+The “User Access Manager”-plugin for Wordpress allows you to manage the access of your content. This is useful if you need a member area, a private section at your blog or you want that other people can write at your blog but not everywhere. Including all post type (post, pages etc.), taxonomies (categories etc.) and files by creating user groups. Just assign the content you want to restrict und and your registered users which should have a access to a group. From now on the content is only accessible and writable for the specified group.
 
 <em>Feature list</em>
 
 * User groups
 * Set separate access for readers and editors
 * Set access by user groups
-* Set access by post categories
-* User-defined post/page title (if no access)
-* User-defined post/page text (if no access)
+* Set default user groups
+* Set time based access
+* User-defined post type (posts, pages etc.) title (if no access)
+* User-defined post type (posts, pages etc.) text (if no access)
 * Optional login form (if no access)
 * User-defined comment text (if no access)
-* Hide complete post/page
-* Hide pages in navigation
+* Hide complete post types (posts, pages etc.)
+* Hide elements in the navigation
 * Redirecting users to other pages (if no access)
-* Recursive locking of posts/pages
+* Recursive locking of content
 * Limited access to uploaded files
 * Full integrated at the admin panel
 * Multilingual support
@@ -58,6 +57,17 @@ To stay up-to-date follow me on thttp://wordpress_web_1.local.docker/wp-content/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.1.0       2017/09/15  Refactor code
+                            Add default user groups
+                            Add time based access
+                            Add dynamic user groups #64
+                            Implement caching #75
+                            Allow html as no access content #63 #93
+                            Optimize settings screen #61
+                            Support of partial download #118
+                            Add option to toggle visibility of assigned groups text next to the edit link #111
+                            Fix incorrectly retrieving of a ID for attachments/media #116
 
     2.0.13      2017/07/26  Add ipv6 support - Fix issue #97
                             Change "Hide Comments" logic - Fix issue #100

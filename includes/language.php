@@ -313,6 +313,6 @@ define('TXT_UAM_LOGIN_WIDGET_DESC', __('User Access Manager login widget for use
 
 // --- Info bar ---
 define('TXT_UAM_INFO_BOX_UAM_PRO_HEAD', __('Get User Access Manager Pro!', 'user-access-manager'));
-define('TXT_UAM_INFO_BOX_UAM_PRO_CONTENT', __('Want to get all features? Guess what? You are already using the Pro version, because there is none. So it would be nice if you support me and become a supporter at steady.', 'user-access-manager'));
+define('TXT_UAM_INFO_BOX_UAM_PRO_CONTENT', __('You want all the features? Guess what? You are already using the Pro version, because there is none. So it would be nice if you support me and become a supporter at steady.', 'user-access-manager'));
 define('TXT_UAM_INFO_BOX_DOCUMENTATION_HEAD', __('Need help?', 'user-access-manager'));
 define('TXT_UAM_INFO_BOX_DOCUMENTATION_CONTENT', __('You got stuck using the User access manager? See <a href="https://github.com/GM-Alex/user-access-manager/wiki">https://github.com/GM-Alex/user-access-manager/wiki</a>', 'user-access-manager'));
