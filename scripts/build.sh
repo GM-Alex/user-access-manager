@@ -17,6 +17,7 @@ if [[ ${EXCLUDES} != '' ]]; then
     EXCLUDES="${EXCLUDES},"
 fi
 
+npm install
 ${PLUGIN_ROOT}/node_modules/grunt-cli/bin/grunt
 
 EXCLUDES="${EXCLUDES}.gitkeep,README.md,.travis.yml,builds,phpunit.xml.dist,humbug.json.dist,tests,scripts,package.json,Gruntfile.js"
