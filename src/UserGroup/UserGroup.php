@@ -110,7 +110,7 @@ class UserGroup extends AbstractUserGroup
     /**
      * Loads the user group.
      *
-     * @param $id
+     * @param string $id
      *
      * @return bool
      */
