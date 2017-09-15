@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 2.0.13
+Stable tag: 2.1.0
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -33,6 +33,7 @@ The “User Access Manager”-plugin for Wordpress allows you to manage the acce
 * Also protect your rss feeds
 * Give access by IP-address
 * Plugin-Api to use the User Access Manager in your on plugins or extend other plugins
+* [UAMPPE](https://github.com/GM-Alex/user-access-manager) like behaviour is now build in (Expect negation like !groupName and showprivate and shownotauthorized parameter)
 
 <em>Included languages</em>
 
@@ -59,6 +60,7 @@ Here you found the changes in each version.
     Version     Date        Changes
 
     2.1.0       2017/09/15  Refactor code
+                            Implement content tags for partly restriction like UAMPPE #84
                             Add default user groups
                             Add time based access
                             Add dynamic user groups #64

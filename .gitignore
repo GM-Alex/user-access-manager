@@ -5,4 +5,5 @@ humbuglog.txt
 humbuglog.json
 .htpasswd
 node_modules
+languages/user-access-manager.pot
 coverage.clover
