@@ -366,17 +366,21 @@ class SetupHandler
             $this->wordpress->deleteOption('allow_comments_locked');
         }
 
+        $success = true;
+
         if (version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
             foreach ($this->getOrderedUpdates() as $orderedUpdate) {
                 if (version_compare($currentDbVersion, $orderedUpdate->getVersion(), '<=') === true) {
-                    $orderedUpdate->update();
+                    $success = $success && $orderedUpdate->update();
                 }
             }
 
-            $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
+            if ($success === true) {
+                $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
+            }
         }
 
-        return true;
+        return $success;
     }
 
     /**

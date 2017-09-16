@@ -479,15 +479,18 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|UpdateInterface
      */
-    private function getUpdate($version, $executeUpdate = false)
+    private function getUpdate($version, $executeUpdate = false, $success = false)
     {
         $update = $this->createMock(UpdateInterface::class);
-        $update->expects($this->exactly(2))
+        $update->expects($this->any())
             ->method('getVersion')
             ->will($this->returnValue($version));
 
-        $update->expects($this->exactly(($executeUpdate === true) ? 1 : 0))
-            ->method('update');
+        $updateExpects = ($executeUpdate === true) ? $this->any() : $this->never();
+
+        $update->expects($updateExpects)
+            ->method('update')
+            ->will($this->returnValue($success));
 
         return $update;
     }
@@ -500,14 +503,18 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     public function testUpdate()
     {
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(7))
             ->method('getOption')
             ->withConsecutive(
                 ['uam_db_version', false],
                 ['uam_db_version', false],
+                ['uam_version', '0'],
+                ['uam_db_version', false],
+                ['uam_version', '0'],
+                ['uam_db_version', false],
                 ['uam_version', '0']
             )
-            ->will($this->onConsecutiveCalls('0', '0.0', '0.0'));
+            ->will($this->onConsecutiveCalls('0', '0.0', '0.0', '1.0', '1.0', '1.0', '1.0'));
 
         $wordpress->expects($this->once())
             ->method('deleteOption')
@@ -517,14 +524,23 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             ->method('updateOption')
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
 
+        $updatesWithError = [
+            $this->getUpdate(0),
+            $this->getUpdate(10, true),
+            $this->getUpdate(1, true, true),
+        ];
+
         $updateFactory = $this->getUpdateFactory();
-        $updateFactory->expects($this->once())
+        $updateFactory->expects($this->exactly(3))
             ->method('getUpdates')
-            ->will($this->returnValue([
-                $this->getUpdate(0),
-                $this->getUpdate(10, true),
-                $this->getUpdate(1, true),
-            ]));
+            ->will($this->onConsecutiveCalls(
+                $updatesWithError,
+                $updatesWithError,
+                [
+                    $this->getUpdate(10, true, true),
+                    $this->getUpdate(1, true, true),
+                ]
+            ));
 
         $setupHandler = new SetupHandler(
             $wordpress,
@@ -534,6 +550,8 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $updateFactory
         );
 
+        self::assertFalse($setupHandler->update());
+        self::assertFalse($setupHandler->update());
         self::assertFalse($setupHandler->update());
         self::assertTrue($setupHandler->update());
     }

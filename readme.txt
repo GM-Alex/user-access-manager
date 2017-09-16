@@ -59,6 +59,7 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.1.1       2017/09/16  Fix issue for users with small innodb page size #121
     2.1.0       2017/09/15  Refactor code
                             Implement content tags for partly restriction like UAMPPE #84
                             Add default user groups

@@ -30,7 +30,7 @@ class Update6 extends Update implements UpdateInterface
      */
     public function getVersion()
     {
-        return '1.6';
+        return '1.6.1';
     }
 
     /**
@@ -41,15 +41,29 @@ class Update6 extends Update implements UpdateInterface
     public function update()
     {
         $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
-        $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
-            ADD group_type VARCHAR(32) NOT NULL AFTER group_id,
-            ADD from_date DATETIME NULL DEFAULT NULL,
-            ADD to_date DATETIME NULL DEFAULT NULL,
-            MODIFY group_id VARCHAR(32) NOT NULL,
-            MODIFY object_id VARCHAR(32) NOT NULL,
-            MODIFY object_type VARCHAR(32) NOT NULL,
-            DROP PRIMARY KEY,
-            ADD PRIMARY KEY (object_id, object_type, group_id, group_type)";
+
+        $dbGroupTypeColumn = $this->database->getVariable(
+            "SHOW COLUMNS FROM {$dbAccessGroupToObject}
+            LIKE 'group_type'"
+        );
+
+        if ($dbGroupTypeColumn !== 'group_type') {
+            $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
+                ADD group_type VARCHAR(32) NOT NULL AFTER group_id,
+                ADD from_date DATETIME NULL DEFAULT NULL,
+                ADD to_date DATETIME NULL DEFAULT NULL,
+                MODIFY group_id VARCHAR(32) NOT NULL,
+                MODIFY object_id VARCHAR(32) NOT NULL,
+                MODIFY object_type VARCHAR(32) NOT NULL,
+                DROP PRIMARY KEY,
+                ADD PRIMARY KEY (object_id, object_type, group_id, group_type)";
+        } else {
+            $alterQuery = "ALTER TABLE {$dbAccessGroupToObject}
+                MODIFY group_type VARCHAR(32) NOT NULL,
+                MODIFY group_id VARCHAR(32) NOT NULL,
+                MODIFY object_id VARCHAR(32) NOT NULL,
+                MODIFY object_type VARCHAR(32) NOT NULL";
+        }
 
         $success = $this->database->query($alterQuery) !== false;
 

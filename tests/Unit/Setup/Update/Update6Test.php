@@ -52,7 +52,7 @@ class Update6Test extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::assertEquals('1.6', $update->getVersion());
+        self::assertEquals('1.6.1', $update->getVersion());
     }
 
     /**
@@ -63,39 +63,59 @@ class Update6Test extends UserAccessManagerTestCase
     {
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(3))
+        $database->expects($this->exactly(4))
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $database->expects($this->exactly(3))
-            ->method('query')
+        $database->expects($this->exactly(4))
+            ->method('getVariable')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupToObjectTable
-                    ADD group_type VARCHAR(32) NOT NULL AFTER group_id,
-                    ADD from_date DATETIME NULL DEFAULT NULL,
-                    ADD to_date DATETIME NULL DEFAULT NULL,
-                    MODIFY group_id VARCHAR(32) NOT NULL,
-                    MODIFY object_id VARCHAR(32) NOT NULL,
-                    MODIFY object_type VARCHAR(32) NOT NULL,
-                    DROP PRIMARY KEY,
-                    ADD PRIMARY KEY (object_id, object_type, group_id, group_type)'
+                    'SHOW COLUMNS FROM userGroupToObjectTable
+                    LIKE \'group_type\''
                 )
             )
-            ->will($this->onConsecutiveCalls(false, true, true));
+            ->will($this->onConsecutiveCalls('', '', '', 'group_type'));
 
-        $database->expects($this->exactly(3))
+        $alterTableAddQuery = 'ALTER TABLE userGroupToObjectTable
+            ADD group_type VARCHAR(32) NOT NULL AFTER group_id,
+            ADD from_date DATETIME NULL DEFAULT NULL,
+            ADD to_date DATETIME NULL DEFAULT NULL,
+            MODIFY group_id VARCHAR(32) NOT NULL,
+            MODIFY object_id VARCHAR(32) NOT NULL,
+            MODIFY object_type VARCHAR(32) NOT NULL,
+            DROP PRIMARY KEY,
+            ADD PRIMARY KEY (object_id, object_type, group_id, group_type)';
+
+        $database->expects($this->exactly(4))
+            ->method('query')
+            ->withConsecutive(
+                [new MatchIgnoreWhitespace($alterTableAddQuery)],
+                [new MatchIgnoreWhitespace($alterTableAddQuery)],
+                [new MatchIgnoreWhitespace($alterTableAddQuery)],
+                [new MatchIgnoreWhitespace(
+                    'ALTER TABLE userGroupToObjectTable
+                    MODIFY group_type VARCHAR(32) NOT NULL,
+                    MODIFY group_id VARCHAR(32) NOT NULL,
+                    MODIFY object_id VARCHAR(32) NOT NULL,
+                    MODIFY object_type VARCHAR(32) NOT NULL'
+                )]
+            )
+            ->will($this->onConsecutiveCalls(false, true, true, true));
+
+        $database->expects($this->exactly(4))
             ->method('update')
             ->with(
                 'userGroupToObjectTable',
                 ['group_type' => UserGroup::USER_GROUP_TYPE],
                 ['group_type' => '']
             )
-            ->will($this->onConsecutiveCalls(false, false, true));
+            ->will($this->onConsecutiveCalls(false, false, true, true));
 
         $update = new Update6($database, $this->getObjectHandler());
         self::assertFalse($update->update());
         self::assertFalse($update->update());
+        self::assertTrue($update->update());
         self::assertTrue($update->update());
     }
 }
