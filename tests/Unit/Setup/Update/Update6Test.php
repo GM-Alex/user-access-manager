@@ -72,11 +72,12 @@ class Update6Test extends UserAccessManagerTestCase
             ->with(
                 new MatchIgnoreWhitespace(
                     'ALTER TABLE userGroupToObjectTable
-                    ADD group_type VARCHAR(64) NOT NULL AFTER group_id,
+                    ADD group_type VARCHAR(32) NOT NULL AFTER group_id,
                     ADD from_date DATETIME NULL DEFAULT NULL,
                     ADD to_date DATETIME NULL DEFAULT NULL,
-                    MODIFY group_id VARCHAR(64) NOT NULL,
-                    MODIFY object_id VARCHAR(64) NOT NULL,
+                    MODIFY group_id VARCHAR(32) NOT NULL,
+                    MODIFY object_id VARCHAR(32) NOT NULL,
+                    MODIFY object_type VARCHAR(32) NOT NULL,
                     DROP PRIMARY KEY,
                     ADD PRIMARY KEY (object_id, object_type, group_id, group_type)'
                 )

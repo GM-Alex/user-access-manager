@@ -155,11 +155,11 @@ class SetupHandler
         if ($dbAccessGroupToObject !== $dbAccessGroupToObjectTable) {
             $this->database->dbDelta(
                 "CREATE TABLE {$dbAccessGroupToObjectTable} (
-                    object_id VARCHAR(64) NOT NULL,
+                    object_id VARCHAR(32) NOT NULL,
                     general_object_type VARCHAR(64) NOT NULL,
-                    object_type VARCHAR(64) NOT NULL,
-                    group_id VARCHAR(64) NOT NULL,
-                    group_type VARCHAR(64) NOT NULL,
+                    object_type VARCHAR(32) NOT NULL,
+                    group_id VARCHAR(32) NOT NULL,
+                    group_type VARCHAR(32) NOT NULL,
                     from_date DATETIME NULL DEFAULT NULL,
                     to_date DATETIME NULL DEFAULT NULL,
                     PRIMARY KEY (object_id, object_type, group_id, group_type)

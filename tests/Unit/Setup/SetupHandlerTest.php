@@ -165,11 +165,11 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 )],
                 [new MatchIgnoreWhitespace(
                     'CREATE TABLE user_group_to_object_table (
-                        object_id VARCHAR(64) NOT NULL,
+                        object_id VARCHAR(32) NOT NULL,
                         general_object_type VARCHAR(64) NOT NULL,
-                        object_type VARCHAR(64) NOT NULL,
-                        group_id VARCHAR(64) NOT NULL,
-                        group_type VARCHAR(64) NOT NULL,
+                        object_type VARCHAR(32) NOT NULL,
+                        group_id VARCHAR(32) NOT NULL,
+                        group_type VARCHAR(32) NOT NULL,
                         from_date DATETIME NULL DEFAULT NULL,
                         to_date DATETIME NULL DEFAULT NULL,
                         PRIMARY KEY (object_id, object_type, group_id, group_type)
@@ -188,11 +188,11 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 )],
                 [new MatchIgnoreWhitespace(
                     'CREATE TABLE user_group_to_object_table (
-                        object_id VARCHAR(64) NOT NULL,
+                        object_id VARCHAR(32) NOT NULL,
                         general_object_type VARCHAR(64) NOT NULL,
-                        object_type VARCHAR(64) NOT NULL,
-                        group_id VARCHAR(64) NOT NULL,
-                        group_type VARCHAR(64) NOT NULL,
+                        object_type VARCHAR(32) NOT NULL,
+                        group_id VARCHAR(32) NOT NULL,
+                        group_type VARCHAR(32) NOT NULL,
                         from_date DATETIME NULL DEFAULT NULL,
                         to_date DATETIME NULL DEFAULT NULL,
                         PRIMARY KEY (object_id, object_type, group_id, group_type)
