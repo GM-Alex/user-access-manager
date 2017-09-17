@@ -250,7 +250,9 @@ class TermController extends Controller
     {
         $isEmpty = false;
 
-        if (($term instanceof \WP_Term) === false) {
+        if (($term instanceof \WP_Term) === false
+            || $this->objectHandler->isValidObjectType($term->taxonomy) === false
+        ) {
             return $term;
         }
 

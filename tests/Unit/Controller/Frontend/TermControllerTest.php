@@ -203,6 +203,24 @@ class TermControllerTest extends UserAccessManagerTestCase
                 return $this->getTerm($termId);
             }));
 
+        $objectHandler->expects($this->exactly(10))
+            ->method('isValidObjectType')
+            ->withConsecutive(
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy'],
+                ['invalidTaxonomy']
+            )
+            ->will($this->returnCallback(function ($termType) {
+                return ($termType !== 'invalidTaxonomy');
+            }));
+
         $objectMapHandler = $this->getObjectMapHandler();
 
         $objectMapHandler->expects($this->exactly(8))
@@ -316,7 +334,8 @@ class TermControllerTest extends UserAccessManagerTestCase
             11 => $this->getTerm(11),
             12 => $this->getTerm(12),
             2 => $this->getTerm(2),
-            50 => 50
+            50 => 50,
+            100 => $this->getTerm(2, 'invalidTaxonomy')
         ];
         self::assertEquals(
             [
@@ -324,7 +343,8 @@ class TermControllerTest extends UserAccessManagerTestCase
                 12 => $this->getTerm(12),
                 11 => $this->getTerm(11),
                 2 => $this->getTerm(2, 'taxonomy', null, 1),
-                50 => 50
+                50 => 50,
+                100 => $this->getTerm(2, 'invalidTaxonomy')
             ],
             $frontendController->showTerms($terms)
         );
