@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -59,6 +59,7 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.1.2       2017/09/17  Fix issue with not handled taxonomies #123
     2.1.1       2017/09/16  Fix issue for users with small innodb page size #121
     2.1.0       2017/09/15  Refactor code
                             Implement content tags for partly restriction like UAMPPE #84
