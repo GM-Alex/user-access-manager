@@ -18,6 +18,7 @@ use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhit
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
@@ -849,7 +850,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                         return $someObjectHandler;
                     }
 
-                    return null;
+                    throw new MissingObjectMembershipHandlerException('MissingObjectMembershipHandler');
                 }
             ));
 
@@ -1029,6 +1030,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             );
             $this->memberFunctionAssertions($userGroup, $extraFunction, $objectType, 2, false);
         }
+
+        self::assertFalse($userGroup->isObjectMember('someInvalidType', 'someId', $assignmentInformation));
+        self::assertNull($assignmentInformation);
     }
 
     /**
@@ -1104,5 +1108,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 );
             }
         }
+
+        self::assertEquals([], $userGroup->getAssignedObjectsByType('someInvalidType'));
     }
 }

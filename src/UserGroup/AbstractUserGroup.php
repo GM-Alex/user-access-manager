@@ -17,6 +17,7 @@ namespace UserAccessManager\UserGroup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
@@ -580,12 +581,16 @@ abstract class AbstractUserGroup
         &$assignmentInformation = null
     ) {
         if (isset($this->objectMembership[$objectType][$objectId]) === false) {
-            $isMember = $this->objectHandler->getObjectMembershipHandler($objectType)->isMember(
-                $this,
-                $this->config->lockRecursive(),
-                $objectId,
-                $assignmentInformation
-            );
+            try {
+                $isMember = $this->objectHandler->getObjectMembershipHandler($objectType)->isMember(
+                    $this,
+                    $this->config->lockRecursive(),
+                    $objectId,
+                    $assignmentInformation
+                );
+            } catch (MissingObjectMembershipHandlerException $exception) {
+                $isMember = false;
+            }
 
             $this->objectMembership[$objectType][$objectId] = ($isMember === true) ?
                 $assignmentInformation : false;
@@ -699,12 +704,16 @@ abstract class AbstractUserGroup
     public function getAssignedObjectsByType($objectType)
     {
         if (isset($this->fullObjectMembership[$objectType]) === false) {
-            $handler = $this->objectHandler->getObjectMembershipHandler($objectType);
-            $this->fullObjectMembership[$objectType] = $handler->getFullObjects(
-                $this,
-                $this->config->lockRecursive(),
-                ($objectType === $this->objectHandler->getGeneralObjectType($objectType)) ? null : $objectType
-            );
+            try {
+                $handler = $this->objectHandler->getObjectMembershipHandler($objectType);
+                $this->fullObjectMembership[$objectType] = $handler->getFullObjects(
+                    $this,
+                    $this->config->lockRecursive(),
+                    ($objectType === $this->objectHandler->getGeneralObjectType($objectType)) ? null : $objectType
+                );
+            } catch (MissingObjectMembershipHandlerException $exception) {
+                $this->fullObjectMembership[$objectType] = [];
+            }
         }
 
         return $this->fullObjectMembership[$objectType];
