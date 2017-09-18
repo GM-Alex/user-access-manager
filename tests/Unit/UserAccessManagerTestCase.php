@@ -629,19 +629,24 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
      * @param string $class
      * @param string $type
      * @param array  $falseIds
+     * @param array  $handledObjects
      *
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
-    protected function getMembershipHandler($class, $type, array $falseIds)
+    protected function getMembershipHandler($class, $type, array $falseIds, array $handledObjects = null)
     {
         $membershipHandler = $this->createMock($class);
 
-        $membershipHandler->expects($this->any())
-            ->method('getHandledObjects')
-            ->will($this->returnValue([
+        if ($handledObjects === null) {
+            $handledObjects = [
                 $type => $type,
                 'other'.ucfirst($type) => 'other'.ucfirst($type)
-            ]));
+            ];
+        }
+
+        $membershipHandler->expects($this->any())
+            ->method('getHandledObjects')
+            ->will($this->returnValue($handledObjects));
 
         $membershipHandler->expects($this->any())
             ->method('getGeneralObjectType')

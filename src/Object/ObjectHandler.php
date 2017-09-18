@@ -213,6 +213,7 @@ class ObjectHandler
             $this->postTypes[$postType] = $postType;
             $this->objectTypes = null;
             $this->allObjectTypes = null;
+            $this->allObjectTypesMap = null;
             $this->validObjectTypes = [];
         }
     }
@@ -231,6 +232,7 @@ class ObjectHandler
             $this->taxonomies[$taxonomy] = $taxonomy;
             $this->objectTypes = null;
             $this->allObjectTypes = null;
+            $this->allObjectTypesMap = null;
             $this->validObjectTypes = [];
         }
     }
@@ -291,6 +293,11 @@ class ObjectHandler
 
             foreach ($objectHandlers as $objectHandler) {
                 $handledObjects = $objectHandler->getHandledObjects();
+
+                if ($handledObjects === []) {
+                    continue;
+                }
+
                 $handledObjectsMap = array_combine(
                     $handledObjects,
                     $this->php->arrayFill(0, count($handledObjects), $objectHandler->getGeneralObjectType())

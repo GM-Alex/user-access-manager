@@ -233,6 +233,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals($expectedResult, 'postTypes', $objectHandler);
         self::assertAttributeEquals(null, 'objectTypes', $objectHandler);
         self::assertAttributeEquals(null, 'allObjectTypes', $objectHandler);
+        self::assertAttributeEquals(null, 'allObjectTypesMap', $objectHandler);
         self::assertAttributeEquals([], 'validObjectTypes', $objectHandler);
 
         return $objectHandler;
@@ -265,6 +266,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals($expectedResult, 'taxonomies', $objectHandler);
         self::assertAttributeEquals(null, 'objectTypes', $objectHandler);
         self::assertAttributeEquals(null, 'allObjectTypes', $objectHandler);
+        self::assertAttributeEquals(null, 'allObjectTypesMap', $objectHandler);
         self::assertAttributeEquals([], 'validObjectTypes', $objectHandler);
 
         return $objectHandler;
@@ -360,9 +362,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     public function testGetAllObjectTypes()
     {
         $php = $this->getPhp();
-        $php->expects($this->exactly(5))
+        $php->expects($this->exactly(9))
             ->method('arrayFill')
             ->withConsecutive(
+                [0, 2, 'role'],
+                [0, 2, 'term'],
+                [0, 2, 'post'],
+                [0, 2, 'someObject'],
                 [0, 2, 'role'],
                 [0, 2, 'user'],
                 [0, 2, 'term'],
@@ -395,6 +401,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         $roleMembershipHandler = $this->getMembershipHandler(RoleMembershipHandler::class, 'role', [2]);
         $termMembershipHandler = $this->getMembershipHandler(TermMembershipHandler::class, 'term', [2]);
         $userMembershipHandler = $this->getMembershipHandler(UserMembershipHandler::class, 'user', [2]);
+        $emptyUserMembershipHandler = $this->getMembershipHandler(UserMembershipHandler::class, 'user', [2], []);
 
         $membershipHandlerFactory = $this->getObjectMembershipHandlerFactory();
 
@@ -410,9 +417,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             ->method('createTermMembershipHandler')
             ->will($this->returnValue($termMembershipHandler));
 
-        $membershipHandlerFactory->expects($this->any())
+        $membershipHandlerFactory->expects($this->exactly(2))
             ->method('createUserMembershipHandler')
-            ->will($this->returnValue($userMembershipHandler));
+            ->will($this->onConsecutiveCalls($emptyUserMembershipHandler, $userMembershipHandler));
 
         $objectHandler = new ObjectHandler(
             $php,
@@ -432,7 +439,15 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
             'someObject' => 'someObject',
             'otherSomeObject' => 'otherSomeObject'
         ];
+        $reducedExpectation = $expectation;
+        unset($reducedExpectation['user']);
+        unset($reducedExpectation['otherUser']);
 
+        self::assertEquals($reducedExpectation, $objectHandler->getAllObjectTypes());
+
+        self::setValue($objectHandler, 'allObjectTypes', null);
+        self::setValue($objectHandler, 'allObjectTypesMap', null);
+        self::setValue($objectHandler, 'objectMembershipHandlers', null);
         self::assertEquals($expectation, $objectHandler->getAllObjectTypes());
 
         return $objectHandler;
