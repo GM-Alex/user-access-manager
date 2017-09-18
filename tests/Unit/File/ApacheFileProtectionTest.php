@@ -207,6 +207,14 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         $php = $this->getPhp();
         $php->expects($this->exactly(6))
             ->method('unlink')
+            ->withConsecutive(
+                ['vfs://testDir/.htaccess'],
+                ['vfs://testDir/.htpasswd'],
+                ['vfs://testDir/.htaccess'],
+                ['vfs://testDir/.htpasswd'],
+                ['vfs://testDir/.htaccess'],
+                ['vfs://testDir/.htpasswd']
+            )
             ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
 
         $apacheFileProtection = new ApacheFileProtection(

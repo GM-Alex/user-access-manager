@@ -181,6 +181,14 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         $php = $this->getPhp();
         $php->expects($this->exactly(6))
             ->method('unlink')
+            ->withConsecutive(
+                ['vfs://testDir/uam.conf'],
+                ['vfs://testDir/.htpasswd'],
+                ['vfs://testDir/uam.conf'],
+                ['vfs://testDir/.htpasswd'],
+                ['vfs://testDir/uam.conf'],
+                ['vfs://testDir/.htpasswd']
+            )
             ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
 
         $nginxFileProtection = new NginxFileProtection(

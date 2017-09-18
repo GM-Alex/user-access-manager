@@ -119,7 +119,7 @@ abstract class FileProtection
             }
         }
 
-        return ($dir !== null) ? $dir.self::PASSWORD_FILE_NAME : null;
+        return ($dir !== null) ? $dir.static::PASSWORD_FILE_NAME : null;
     }
 
     /**
@@ -168,13 +168,13 @@ abstract class FileProtection
     {
         $success = true;
         $directory = rtrim($directory, '/').'/';
-        $fileName = $directory.self::FILE_NAME;
+        $fileName = $directory.static::FILE_NAME;
 
         if (file_exists($fileName) === true) {
             $success = ($this->php->unlink($fileName) === true) && $success;
         }
 
-        $passwordFile = $directory.self::PASSWORD_FILE_NAME;
+        $passwordFile = $directory.static::PASSWORD_FILE_NAME;
 
         if (file_exists($passwordFile) === true) {
             $success = ($this->php->unlink($passwordFile) === true) && $success;
