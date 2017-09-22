@@ -37,16 +37,6 @@ class TermController extends Controller
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
 
     /**
-     * @var MainConfig
-     */
-    protected $mainConfig;
-
-    /**
-     * @var Util
-     */
-    protected $util;
-
-    /**
      * @var ObjectHandler
      */
     private $objectHandler;
@@ -55,16 +45,6 @@ class TermController extends Controller
      * @var ObjectMapHandler
      */
     private $objectMapHandler;
-
-    /**
-     * @var UserHandler
-     */
-    protected $userHandler;
-
-    /**
-     * @var AccessHandler
-     */
-    protected $accessHandler;
 
     /**
      * @var array

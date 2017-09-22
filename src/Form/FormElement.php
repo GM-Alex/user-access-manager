@@ -30,16 +30,6 @@ abstract class FormElement
     protected $id;
 
     /**
-     * @var mixed
-     */
-    protected $value;
-
-    /**
-     * @var string
-     */
-    protected $label;
-
-    /**
      * @var string
      */
     protected $description;

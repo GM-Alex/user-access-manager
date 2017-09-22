@@ -31,26 +31,6 @@ class LoginWidget extends \WP_Widget
     const WIDGET_ID = 'uam_login_widget';
 
     /**
-     * @var Php
-     */
-    protected $php;
-
-    /**
-     * @var Wordpress
-     */
-    protected $wordpress;
-
-    /**
-     * @var WordpressConfig
-     */
-    protected $wordpressConfig;
-
-    /**
-     * @var null|string
-     */
-    protected $template = null;
-
-    /**
      * LoginWidget constructor.
      *
      * @param Php             $php

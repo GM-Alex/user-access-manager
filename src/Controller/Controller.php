@@ -33,19 +33,9 @@ abstract class Controller
     const ACTION_SUFFIX = 'Action';
 
     /**
-     * @var Php
-     */
-    protected $php;
-
-    /**
      * @var Wordpress
      */
     protected $wordpress;
-
-    /**
-     * @var WordpressConfig
-     */
-    protected $wordpressConfig;
 
     /**
      * @var string

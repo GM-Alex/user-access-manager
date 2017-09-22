@@ -25,16 +25,6 @@ class ValueSetFormElementValue
     use LabelTrait;
 
     /**
-     * @var mixed
-     */
-    protected $value;
-
-    /**
-     * @var string
-     */
-    protected $label;
-
-    /**
      * ValueSetFormElementValue constructor.
      *
      * @param mixed  $value

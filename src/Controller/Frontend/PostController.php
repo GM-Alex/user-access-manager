@@ -38,34 +38,13 @@ class PostController extends Controller
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
 
     /**
-     * @var MainConfig
-     */
-    protected $mainConfig;
-
-    /**
      * @var Database
      */
     private $database;
-
-    /**
-     * @var Util
-     */
-    protected $util;
-
     /**
      * @var ObjectHandler
      */
     private $objectHandler;
-
-    /**
-     * @var UserHandler
-     */
-    protected $userHandler;
-
-    /**
-     * @var AccessHandler
-     */
-    protected $accessHandler;
 
     /**
      * @var array
