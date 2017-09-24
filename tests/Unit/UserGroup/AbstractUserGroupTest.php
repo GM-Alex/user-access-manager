@@ -413,7 +413,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                         'DELETE FROM userGroupToObjectTable
                             WHERE group_id = %d
                               AND group_type = \'%s\'
-                              AND (general_object_type = \'%s\' OR object_type = \'%s\')
+                              AND object_type = \'%s\'
                               AND object_id = %d'
                     ),
                     [123, 'type', 'defaultObjectType', 'defaultObjectType', '']

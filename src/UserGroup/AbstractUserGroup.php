@@ -362,12 +362,13 @@ abstract class AbstractUserGroup
     /**
      * Removes a object of the given type.
      *
-     * @param string $objectType The object type.
-     * @param string $objectId   The object id.
+     * @param string $objectType        The object type.
+     * @param string $objectId          The object id.
+     * @param bool   $ignoreGeneralType
      *
      * @return bool
      */
-    public function removeObject($objectType, $objectId = null)
+    public function removeObject($objectType, $objectId = null, $ignoreGeneralType = false)
     {
         $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
 
@@ -377,10 +378,13 @@ abstract class AbstractUserGroup
             return false;
         }
 
+        $objectTypeQuery = ($ignoreGeneralType === false) ?
+            " AND (general_object_type = '%s' OR object_type = '%s') " : " AND object_type = '%s' ";
+
         $query = "DELETE FROM {$this->database->getUserGroupToObjectTable()}
             WHERE group_id = %d
               AND group_type = '%s'
-              AND (general_object_type = '%s' OR object_type = '%s')";
+              {$objectTypeQuery}";
 
         $values = [
             $this->id,
@@ -474,7 +478,7 @@ abstract class AbstractUserGroup
      */
     public function removeDefaultType($objectType)
     {
-        return $this->removeObject($objectType, '');
+        return $this->removeObject($objectType, '', true);
     }
 
     /**
