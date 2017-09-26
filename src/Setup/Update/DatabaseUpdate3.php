@@ -1,8 +1,8 @@
 <?php
 /**
- * Update3.php
+ * DatabaseUpdate3.php
  *
- * The Update3 class file.
+ * The DatabaseUpdate3 class file.
  *
  * PHP versions 5
  *
@@ -18,11 +18,11 @@ namespace UserAccessManager\Setup\Update;
 use UserAccessManager\Object\ObjectHandler;
 
 /**
- * Class Update3
+ * Class DatabaseUpdate3
  *
  * @package UserAccessManager\Setup\Update
  */
-class Update3 extends Update implements UpdateInterface
+class DatabaseUpdate3 extends DatabaseUpdate implements UpdateInterface
 {
     /**
      * Returns the version.

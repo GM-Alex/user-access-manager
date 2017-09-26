@@ -14,12 +14,12 @@
  */
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
-use UserAccessManager\Setup\Update\Update1;
-use UserAccessManager\Setup\Update\Update2;
-use UserAccessManager\Setup\Update\Update3;
-use UserAccessManager\Setup\Update\Update4;
-use UserAccessManager\Setup\Update\Update5;
-use UserAccessManager\Setup\Update\Update6;
+use UserAccessManager\Setup\Update\DatabaseUpdate1;
+use UserAccessManager\Setup\Update\DatabaseUpdate2;
+use UserAccessManager\Setup\Update\DatabaseUpdate3;
+use UserAccessManager\Setup\Update\DatabaseUpdate4;
+use UserAccessManager\Setup\Update\DatabaseUpdate5;
+use UserAccessManager\Setup\Update\DatabaseUpdate6;
 use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -52,19 +52,19 @@ class UpdateFactoryTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @depends testCanCreateInstance
-     * @covers  ::getUpdates()
+     * @covers  ::getDatabaseUpdates()
      *
      * @param UpdateFactory $updateFactory
      */
-    public function testGetUpdates(UpdateFactory $updateFactory)
+    public function testGetDatabaseUpdates(UpdateFactory $updateFactory)
     {
-        $updates = $updateFactory->getUpdates();
+        $updates = $updateFactory->getDatabaseUpdates();
 
-        self::assertInstanceOf(Update1::class, $updates[0]);
-        self::assertInstanceOf(Update2::class, $updates[1]);
-        self::assertInstanceOf(Update3::class, $updates[2]);
-        self::assertInstanceOf(Update4::class, $updates[3]);
-        self::assertInstanceOf(Update5::class, $updates[4]);
-        self::assertInstanceOf(Update6::class, $updates[5]);
+        self::assertInstanceOf(DatabaseUpdate1::class, $updates[0]);
+        self::assertInstanceOf(DatabaseUpdate2::class, $updates[1]);
+        self::assertInstanceOf(DatabaseUpdate3::class, $updates[2]);
+        self::assertInstanceOf(DatabaseUpdate4::class, $updates[3]);
+        self::assertInstanceOf(DatabaseUpdate5::class, $updates[4]);
+        self::assertInstanceOf(DatabaseUpdate6::class, $updates[5]);
     }
 }

@@ -1,8 +1,8 @@
 <?php
 /**
- * Update4.php
+ * DatabaseUpdate4.php
  *
- * The Update4 class file.
+ * The DatabaseUpdate4 class file.
  *
  * PHP versions 5
  *
@@ -17,11 +17,11 @@ namespace UserAccessManager\Setup\Update;
 use UserAccessManager\Object\ObjectHandler;
 
 /**
- * Class Update4
+ * Class DatabaseUpdate4
  *
  * @package UserAccessManager\Setup\Update
  */
-class Update4 extends Update implements UpdateInterface
+class DatabaseUpdate4 extends DatabaseUpdate implements UpdateInterface
 {
     /**
      * Returns the version.

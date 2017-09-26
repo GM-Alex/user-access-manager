@@ -22,7 +22,7 @@ use UserAccessManager\Object\ObjectHandler;
  *
  * @package UserAccessManager\Setup\Update
  */
-abstract class Update
+abstract class DatabaseUpdate
 {
     /**
      * @var Database

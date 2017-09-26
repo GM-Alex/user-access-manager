@@ -14,24 +14,24 @@
  */
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
-use UserAccessManager\Setup\Update\Update;
+use UserAccessManager\Setup\Update\DatabaseUpdate;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
  * Class UpdateTest
  *
  * @package UserAccessManager\Tests\Unit\Setup\Update
- * @coversDefaultClass \UserAccessManager\Setup\Update\Update
+ * @coversDefaultClass \UserAccessManager\Setup\Update\DatabaseUpdate
  */
 class UpdateTest extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Update
+     * @return \PHPUnit_Framework_MockObject_MockObject|DatabaseUpdate
      */
     private function getStub()
     {
         return $this->getMockForAbstractClass(
-            Update::class,
+            DatabaseUpdate::class,
             [],
             '',
             false,

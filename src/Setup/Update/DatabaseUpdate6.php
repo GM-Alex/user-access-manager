@@ -1,8 +1,8 @@
 <?php
 /**
- * Update6.php
+ * DatabaseUpdate6.php
  *
- * The Update6 class file.
+ * The DatabaseUpdate6 class file.
  *
  * PHP versions 5
  *
@@ -17,11 +17,11 @@ namespace UserAccessManager\Setup\Update;
 use UserAccessManager\UserGroup\UserGroup;
 
 /**
- * Class Update6
+ * Class DatabaseUpdate6
  *
  * @package UserAccessManager\Setup\Update
  */
-class Update6 extends Update implements UpdateInterface
+class DatabaseUpdate6 extends DatabaseUpdate implements UpdateInterface
 {
     /**
      * Returns the version.

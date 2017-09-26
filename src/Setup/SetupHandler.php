@@ -334,9 +334,9 @@ class SetupHandler
      *
      * @return UpdateInterface[]
      */
-    private function getOrderedUpdates()
+    private function getOrderedDatabaseUpdates()
     {
-        $rawUpdates = $this->updateFactory->getUpdates();
+        $rawUpdates = $this->updateFactory->getDatabaseUpdates();
         $updates = [];
 
         foreach ($rawUpdates as $rawUpdate) {
@@ -348,11 +348,11 @@ class SetupHandler
     }
 
     /**
-     * Updates the user access manager if an old version was installed.
+     * Updates the database.
      *
      * @return bool
      */
-    public function update()
+    private function updateDatabase()
     {
         $currentDbVersion = $this->wordpress->getOption('uam_db_version');
 
@@ -360,17 +360,11 @@ class SetupHandler
             return false;
         }
 
-        $uamVersion = $this->wordpress->getOption('uam_version', '0');
-
-        if (version_compare($uamVersion, '1.0', '<') === true) {
-            $this->wordpress->deleteOption('allow_comments_locked');
-        }
-
         $success = true;
 
         if (version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
-            foreach ($this->getOrderedUpdates() as $orderedUpdate) {
-                if (version_compare($currentDbVersion, $orderedUpdate->getVersion(), '<=') === true) {
+            foreach ($this->getOrderedDatabaseUpdates() as $orderedUpdate) {
+                if (version_compare($currentDbVersion, $orderedUpdate->getVersion(), '<') === true) {
                     $success = $success && $orderedUpdate->update();
                 }
             }
@@ -381,6 +375,22 @@ class SetupHandler
         }
 
         return $success;
+    }
+
+    /**
+     * Updates the user access manager if an old version was installed.
+     *
+     * @return bool
+     */
+    public function update()
+    {
+        $uamVersion = $this->wordpress->getOption('uam_version', '0');
+
+        if (version_compare($uamVersion, '1.0', '<') === true) {
+            $this->wordpress->deleteOption('allow_comments_locked');
+        }
+
+        return $this->updateDatabase();
     }
 
     /**

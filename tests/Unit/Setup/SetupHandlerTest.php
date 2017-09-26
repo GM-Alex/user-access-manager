@@ -498,23 +498,25 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::update()
-     * @covers ::getOrderedUpdates()
+     * @covers ::getOrderedDatabaseUpdates()
+     * @covers ::updateDatabase()
      */
     public function testUpdate()
     {
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(7))
+        $wordpress->expects($this->exactly(8))
             ->method('getOption')
             ->withConsecutive(
-                ['uam_db_version', false],
-                ['uam_db_version', false],
                 ['uam_version', '0'],
                 ['uam_db_version', false],
                 ['uam_version', '0'],
                 ['uam_db_version', false],
-                ['uam_version', '0']
+                ['uam_version', '0'],
+                ['uam_db_version', false],
+                ['uam_version', '0'],
+                ['uam_db_version', false]
             )
-            ->will($this->onConsecutiveCalls('0', '0.0', '0.0', '1.0', '1.0', '1.0', '1.0'));
+            ->will($this->onConsecutiveCalls('0', '0', '1.0', '0.0', '1.0', '1.0', '1.0', '1.0'));
 
         $wordpress->expects($this->once())
             ->method('deleteOption')
@@ -532,7 +534,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
 
         $updateFactory = $this->getUpdateFactory();
         $updateFactory->expects($this->exactly(3))
-            ->method('getUpdates')
+            ->method('getDatabaseUpdates')
             ->will($this->onConsecutiveCalls(
                 $updatesWithError,
                 $updatesWithError,

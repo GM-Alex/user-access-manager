@@ -1,8 +1,8 @@
 <?php
 /**
- * Update1Test.php
+ * DatabaseUpdate1Test.php
  *
- * The Update1Test unit test class file.
+ * The DatabaseUpdate1Test unit test class file.
  *
  * PHP versions 5
  *
@@ -15,16 +15,16 @@
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\Setup\Update\Update1;
+use UserAccessManager\Setup\Update\DatabaseUpdate1;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class Update1Test
+ * Class DatabaseUpdate1Test
  *
  * @package UserAccessManager\Tests\Unit\Setup\Update
- * @coversDefaultClass \UserAccessManager\Setup\Update\Update1
+ * @coversDefaultClass \UserAccessManager\Setup\Update\DatabaseUpdate1
  */
-class Update1Test extends UserAccessManagerTestCase
+class DatabaseUpdate1Test extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -32,12 +32,12 @@ class Update1Test extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $update = new Update1(
+        $update = new DatabaseUpdate1(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf(Update1::class, $update);
+        self::assertInstanceOf(DatabaseUpdate1::class, $update);
     }
 
     /**
@@ -46,7 +46,7 @@ class Update1Test extends UserAccessManagerTestCase
      */
     public function testGetVersion()
     {
-        $update = new Update1(
+        $update = new DatabaseUpdate1(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
@@ -222,7 +222,7 @@ class Update1Test extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false, true));
 
-        $update = new Update1($database, $objectHandler);
+        $update = new DatabaseUpdate1($database, $objectHandler);
         self::assertTrue($update->update());
         self::assertFalse($update->update());
         self::assertFalse($update->update());

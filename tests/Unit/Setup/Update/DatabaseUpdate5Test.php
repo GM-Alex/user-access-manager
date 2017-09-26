@@ -1,8 +1,8 @@
 <?php
 /**
- * Update5Test.php
+ * DatabaseUpdate5Test.php
  *
- * The Update5Test unit test class file.
+ * The DatabaseUpdate5Test unit test class file.
  *
  * PHP versions 5
  *
@@ -15,16 +15,16 @@
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\Setup\Update\Update5;
+use UserAccessManager\Setup\Update\DatabaseUpdate5;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class Update5Test
+ * Class DatabaseUpdate5Test
  *
  * @package UserAccessManager\Tests\Unit\Setup\Update
- * @coversDefaultClass \UserAccessManager\Setup\Update\Update5
+ * @coversDefaultClass \UserAccessManager\Setup\Update\DatabaseUpdate5
  */
-class Update5Test extends UserAccessManagerTestCase
+class DatabaseUpdate5Test extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -32,12 +32,12 @@ class Update5Test extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $update = new Update5(
+        $update = new DatabaseUpdate5(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf(Update5::class, $update);
+        self::assertInstanceOf(DatabaseUpdate5::class, $update);
     }
 
     /**
@@ -46,7 +46,7 @@ class Update5Test extends UserAccessManagerTestCase
      */
     public function testGetVersion()
     {
-        $update = new Update5(
+        $update = new DatabaseUpdate5(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
@@ -98,7 +98,7 @@ class Update5Test extends UserAccessManagerTestCase
             ->with('customPostType')
             ->will($this->returnValue('generalCustomPostType'));
 
-        $update = new Update5($database, $objectHandler);
+        $update = new DatabaseUpdate5($database, $objectHandler);
         self::assertFalse($update->update());
         self::assertTrue($update->update());
     }

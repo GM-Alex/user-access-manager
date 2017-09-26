@@ -1,8 +1,8 @@
 <?php
 /**
- * Update3Test.php
+ * DatabaseUpdate3Test.php
  *
- * The Update3Test unit test class file.
+ * The DatabaseUpdate3Test unit test class file.
  *
  * PHP versions 5
  *
@@ -15,16 +15,16 @@
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\Setup\Update\Update3;
+use UserAccessManager\Setup\Update\DatabaseUpdate3;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class Update3Test
+ * Class DatabaseUpdate3Test
  *
  * @package UserAccessManager\Tests\Unit\Setup\Update
- * @coversDefaultClass \UserAccessManager\Setup\Update\Update3
+ * @coversDefaultClass \UserAccessManager\Setup\Update\DatabaseUpdate3
  */
-class Update3Test extends UserAccessManagerTestCase
+class DatabaseUpdate3Test extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -32,12 +32,12 @@ class Update3Test extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $update = new Update3(
+        $update = new DatabaseUpdate3(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf(Update3::class, $update);
+        self::assertInstanceOf(DatabaseUpdate3::class, $update);
     }
 
     /**
@@ -46,7 +46,7 @@ class Update3Test extends UserAccessManagerTestCase
      */
     public function testGetVersion()
     {
-        $update = new Update3(
+        $update = new DatabaseUpdate3(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
@@ -75,7 +75,7 @@ class Update3Test extends UserAccessManagerTestCase
             )
             ->will($this->returnValue(true));
 
-        $update = new Update3($database, $this->getObjectHandler());
+        $update = new DatabaseUpdate3($database, $this->getObjectHandler());
         self::assertTrue($update->update());
     }
 }

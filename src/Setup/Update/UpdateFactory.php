@@ -51,15 +51,15 @@ class UpdateFactory
      *
      * @return UpdateInterface[]
      */
-    public function getUpdates()
+    public function getDatabaseUpdates()
     {
         return [
-            new Update1($this->database, $this->objectHandler),
-            new Update2($this->database, $this->objectHandler),
-            new Update3($this->database, $this->objectHandler),
-            new Update4($this->database, $this->objectHandler),
-            new Update5($this->database, $this->objectHandler),
-            new Update6($this->database, $this->objectHandler)
+            new DatabaseUpdate1($this->database, $this->objectHandler),
+            new DatabaseUpdate2($this->database, $this->objectHandler),
+            new DatabaseUpdate3($this->database, $this->objectHandler),
+            new DatabaseUpdate4($this->database, $this->objectHandler),
+            new DatabaseUpdate5($this->database, $this->objectHandler),
+            new DatabaseUpdate6($this->database, $this->objectHandler)
         ];
     }
 }

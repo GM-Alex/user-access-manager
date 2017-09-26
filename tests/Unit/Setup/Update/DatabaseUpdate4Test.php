@@ -1,8 +1,8 @@
 <?php
 /**
- * Update4Test.php
+ * DatabaseUpdate4Test.php
  *
- * The Update4Test unit test class file.
+ * The DatabaseUpdate4Test unit test class file.
  *
  * PHP versions 5
  *
@@ -15,16 +15,16 @@
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
-use UserAccessManager\Setup\Update\Update4;
+use UserAccessManager\Setup\Update\DatabaseUpdate4;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class Update4Test
+ * Class DatabaseUpdate4Test
  *
  * @package UserAccessManager\Tests\Unit\Setup\Update
- * @coversDefaultClass \UserAccessManager\Setup\Update\Update4
+ * @coversDefaultClass \UserAccessManager\Setup\Update\DatabaseUpdate4
  */
-class Update4Test extends UserAccessManagerTestCase
+class DatabaseUpdate4Test extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -32,12 +32,12 @@ class Update4Test extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $update = new Update4(
+        $update = new DatabaseUpdate4(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf(Update4::class, $update);
+        self::assertInstanceOf(DatabaseUpdate4::class, $update);
     }
 
     /**
@@ -46,7 +46,7 @@ class Update4Test extends UserAccessManagerTestCase
      */
     public function testGetVersion()
     {
-        $update = new Update4(
+        $update = new DatabaseUpdate4(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
@@ -107,7 +107,7 @@ class Update4Test extends UserAccessManagerTestCase
             )
             ->will($this->returnValue(true));
 
-        $update = new Update4($database, $this->getObjectHandler());
+        $update = new DatabaseUpdate4($database, $this->getObjectHandler());
         self::assertTrue($update->update());
     }
 }
