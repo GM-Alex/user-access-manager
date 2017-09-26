@@ -308,7 +308,9 @@ class AccessHandler
      */
     private function checkUserGroupAccess(UserGroup $userGroup)
     {
-        return $this->userHandler->isIpInRange($_SERVER['REMOTE_ADDR'], $userGroup->getIpRangeArray())
+        $userIp = isset($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] : $_SERVER['REMOTE_ADDR'];
+
+        return $this->userHandler->isIpInRange($userIp, $userGroup->getIpRangeArray())
             || $this->wordpressConfig->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
             || $this->wordpressConfig->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all';
     }

@@ -483,21 +483,21 @@ class AccessHandlerTest extends HandlerTestCase
         $wordpress = $this->getWordpressWithUser();
 
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->exactly(9))
+        $wordpressConfig->expects($this->exactly(11))
             ->method('atAdminPanel')
-            ->will($this->onConsecutiveCalls(false, true, true, false, false, false, false, true, false));
+            ->will($this->onConsecutiveCalls(false, true, true, false, false, false, false, true, false, false, false));
 
         $userHandler = $this->getUserHandler();
 
-        $userHandler->expects($this->exactly(2))
+        $userHandler->expects($this->exactly(3))
             ->method('checkUserAccess')
-            ->will($this->onConsecutiveCalls(false, true));
+            ->will($this->onConsecutiveCalls(false, true, false));
 
-        $userHandler->expects($this->once())
+        $userHandler->expects($this->exactly(2))
             ->method('getUserRole')
             ->will($this->returnValue([UserGroup::NONE_ROLE]));
 
-        $userHandler->expects($this->exactly(6))
+        $userHandler->expects($this->exactly(7))
             ->method('isIpInRange')
             ->withConsecutive(
                 ['1.1.1.1', ['1.1.1.1']],
@@ -505,7 +505,8 @@ class AccessHandlerTest extends HandlerTestCase
                 ['1.1.1.1', ['']],
                 ['1.1.1.1', ['']],
                 ['1.1.1.1', ['']],
-                ['1.1.1.1', ['']]
+                ['1.1.1.1', ['']],
+                ['1.1.1.2', ['1.1.1.2']]
             )
             ->will($this->onConsecutiveCalls(
                 true,
@@ -518,9 +519,11 @@ class AccessHandlerTest extends HandlerTestCase
 
         $userGroupFactory = $this->getUserGroupFactory();
 
-        $userGroupFactory->expects($this->exactly(2))
+        $userGroupFactory->expects($this->exactly(4))
             ->method('createDynamicUserGroup')
             ->withConsecutive(
+                [DynamicUserGroup::USER_TYPE, 1],
+                [DynamicUserGroup::ROLE_TYPE, '_none-role_'],
                 [DynamicUserGroup::USER_TYPE, 1],
                 [DynamicUserGroup::ROLE_TYPE, '_none-role_']
             )
@@ -575,6 +578,13 @@ class AccessHandlerTest extends HandlerTestCase
 
         self::assertEquals($expected, $accessHandler->getUserGroupsForUser());
         self::assertEquals($userGroups, $accessHandler->getUserGroupsForUser());
+
+
+        $_SERVER['HTTP_X_REAL_IP'] = '1.1.1.2';
+        $userGroups = [1 => $this->getUserGroup(1, true, false, ['1.1.1.2'])];
+        self::setValue($accessHandler, 'userGroups', $userGroups);
+        self::setValue($accessHandler, 'userGroupsForUser', null);
+        $accessHandler->getUserGroupsForUser();
     }
 
     /**
