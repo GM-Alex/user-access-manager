@@ -491,15 +491,16 @@ class ObjectControllerTest extends ObjectControllerTestCase
     public function testCheckRightsToEditContent()
     {
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(5))
             ->method('wpDie')
             ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
 
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(7))
+        $accessHandler->expects($this->exactly(8))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, -1],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3],
@@ -507,7 +508,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5],
                 [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 6]
             )
-            ->will($this->onConsecutiveCalls(false, false, true, false, true, true, false));
+            ->will($this->onConsecutiveCalls(false, false, false, true, false, true, true, false));
 
         $objectController = new ObjectController(
             $this->getPhp(),
@@ -531,7 +532,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $_GET['post'] = 1;
         $objectController->checkRightsToEditContent();
 
-        $_GET['post'] = 2;
+        $_GET['post'] = [1, 2];
         $objectController->checkRightsToEditContent();
 
         unset($_GET['post']);

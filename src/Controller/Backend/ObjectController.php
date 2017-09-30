@@ -348,10 +348,14 @@ class ObjectController extends Controller
      */
     public function checkRightsToEditContent()
     {
-        $postId = $this->getRequestParameter('post', $this->getRequestParameter('attachment_id'));
+        $postIdParameter = $this->getRequestParameter('post', $this->getRequestParameter('attachment_id'));
 
-        if ($postId !== null) {
-            $this->dieOnNoAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId);
+        if ($postIdParameter !== null) {
+            $postIds = is_array($postIdParameter) === false ? [$postIdParameter] : $postIdParameter;
+
+            foreach ($postIds as $postId) {
+                $this->dieOnNoAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId);
+            }
         }
 
         $tagId = $this->getRequestParameter('tag_ID');
