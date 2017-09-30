@@ -53,13 +53,11 @@ class FormHelperTest extends UserAccessManagerTestCase
     public function testGetText()
     {
         $php = $this->getPhp();
-        $php->expects($this->exactly(5))
+        $php->expects($this->exactly(3))
             ->method('arrayFill')
             ->withConsecutive(
                 [0, 1, 'category'],
                 [0, 1, 'attachment'],
-                [0, 0, 'post'],
-                [0, 0, 'post'],
                 [0, 2, 'post']
             )->will($this->returnCallback(function ($startIndex, $numberOfElements, $value) {
                 return array_fill($startIndex, $numberOfElements, $value);

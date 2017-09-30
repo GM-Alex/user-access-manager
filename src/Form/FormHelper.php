@@ -91,8 +91,13 @@ class FormHelper
                 $ident = str_replace(strtoupper($objectKey), 'OBJECT', $ident);
                 $text = (defined($ident) === true) ? constant($ident) : $ident;
                 $count = substr_count($text, '%s');
-                $arguments = $this->php->arrayFill(0, $count, $objects[$objectKey]->labels->name);
-                return vsprintf($text, $arguments);
+
+                if ($count > 0) {
+                    $arguments = $this->php->arrayFill(0, $count, $objects[$objectKey]->labels->name);
+                    $text = vsprintf($text, $arguments);
+                }
+
+                return $text;
             }
         }
 
