@@ -1,8 +1,8 @@
 <?php
 /**
- * UpdateTest.php
+ * DatabaseUpdateTest.php
  *
- * The UpdateTest unit test class file.
+ * The DatabaseUpdateTest unit test class file.
  *
  * PHP versions 5
  *
@@ -12,18 +12,18 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Tests\Unit\Setup\Update;
+namespace UserAccessManager\Tests\Unit\Setup\Database;
 
-use UserAccessManager\Setup\Update\DatabaseUpdate;
+use UserAccessManager\Setup\Database\DatabaseUpdate;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class UpdateTest
+ * Class DatabaseUpdateTest
  *
  * @package UserAccessManager\Tests\Unit\Setup\Update
- * @coversDefaultClass \UserAccessManager\Setup\Update\DatabaseUpdate
+ * @coversDefaultClass \UserAccessManager\Setup\Database\DatabaseUpdate
  */
-class UpdateTest extends UserAccessManagerTestCase
+class DatabaseUpdateTest extends UserAccessManagerTestCase
 {
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|DatabaseUpdate

@@ -48,10 +48,15 @@ class SetupControllerTest extends UserAccessManagerTestCase
      */
     public function testIsDatabaseUpdateNecessary()
     {
-        $setupHandler = $this->getSetupHandler();
-        $setupHandler->expects($this->exactly(2))
+        $databaseHandler = $this->getDatabaseHandler();
+        $databaseHandler->expects($this->exactly(2))
             ->method('isDatabaseUpdateNecessary')
             ->will($this->onConsecutiveCalls(true, false));
+
+        $setupHandler = $this->getSetupHandler();
+        $setupHandler->expects($this->exactly(2))
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
 
         $setupController = new SetupController(
             $this->getPhp(),
@@ -101,11 +106,15 @@ class SetupControllerTest extends UserAccessManagerTestCase
      */
     public function testGetBackups()
     {
-        $setupHandler = $this->getSetupHandler();
-
-        $setupHandler->expects($this->once())
+        $databaseHandler = $this->getDatabaseHandler();
+        $databaseHandler->expects($this->once())
             ->method('getBackups')
             ->will($this->returnValue([1, 123, 4]));
+
+        $setupHandler = $this->getSetupHandler();
+        $setupHandler->expects($this->once())
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
 
         $setupController = new SetupController(
             $this->getPhp(),
@@ -137,13 +146,19 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->method('switchToBlog')
             ->withConsecutive([1], [1], [1], [1], [1], [1], [2], [3], [1]);
 
+        $databaseHandler = $this->getDatabaseHandler();
+
+        $databaseHandler->expects($this->exactly(2))
+            ->method('backupDatabase');
+
         $setupHandler = $this->getSetupHandler();
+
+        $setupHandler->expects($this->exactly(2))
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
 
         $setupHandler->expects($this->exactly(5))
             ->method('update');
-
-        $setupHandler->expects($this->exactly(2))
-            ->method('backupDatabase');
 
         $setupHandler->expects($this->exactly(3))
             ->method('getBlogIds')
@@ -199,11 +214,16 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->with('revertNonce')
             ->will($this->returnValue(true));
 
-        $setupHandler = $this->getSetupHandler();
-        $setupHandler->expects($this->exactly(2))
+        $databaseHandler = $this->getDatabaseHandler();
+        $databaseHandler->expects($this->exactly(2))
             ->method('revertDatabase')
             ->withConsecutive(['1.2'], ['1.3'])
             ->will($this->onConsecutiveCalls(false, true));
+
+        $setupHandler = $this->getSetupHandler();
+        $setupHandler->expects($this->exactly(2))
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
 
         $setupController = new SetupController(
             $this->getPhp(),
@@ -235,11 +255,16 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->with('deleteBackupNonce')
             ->will($this->returnValue(true));
 
-        $setupHandler = $this->getSetupHandler();
-        $setupHandler->expects($this->exactly(2))
+        $databaseHandler = $this->getDatabaseHandler();
+        $databaseHandler->expects($this->exactly(2))
             ->method('deleteBackup')
             ->withConsecutive(['1.2'], ['1.3'])
             ->will($this->onConsecutiveCalls(false, true));
+
+        $setupHandler = $this->getSetupHandler();
+        $setupHandler->expects($this->exactly(2))
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
 
         $setupController = new SetupController(
             $this->getPhp(),

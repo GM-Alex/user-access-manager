@@ -18,8 +18,7 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\Setup\Update\UpdateFactory;
-use UserAccessManager\Setup\Update\UpdateInterface;
+use UserAccessManager\Setup\Database\DatabaseHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -41,9 +40,9 @@ class SetupHandler
     private $database;
 
     /**
-     * @var ObjectHandler
+     * @var DatabaseHandler
      */
-    private $objectHandler;
+    private $databaseHandler;
 
     /**
      * @var FileHandler
@@ -51,31 +50,35 @@ class SetupHandler
     private $fileHandler;
 
     /**
-     * @var UpdateFactory
-     */
-    private $updateFactory;
-
-    /**
      * SetupHandler constructor.
      *
-     * @param Wordpress     $wordpress
-     * @param Database      $database
-     * @param ObjectHandler $objectHandler
-     * @param FileHandler   $fileHandler
-     * @param UpdateFactory $updateFactory
+     * @param Wordpress       $wordpress
+     * @param Database        $database
+     * @param DatabaseHandler $databaseHandler
+     * @param ObjectHandler   $objectHandler
+     * @param FileHandler     $fileHandler
      */
     public function __construct(
         Wordpress $wordpress,
         Database $database,
+        DatabaseHandler $databaseHandler,
         ObjectHandler $objectHandler,
-        FileHandler $fileHandler,
-        UpdateFactory $updateFactory
+        FileHandler $fileHandler
     ) {
         $this->wordpress = $wordpress;
         $this->database = $database;
-        $this->objectHandler = $objectHandler;
+        $this->databaseHandler = $databaseHandler;
         $this->fileHandler = $fileHandler;
-        $this->updateFactory = $updateFactory;
+    }
+
+    /**
+     * Returns the database handler object.
+     *
+     * @return DatabaseHandler
+     */
+    public function getDatabaseHandler()
+    {
+        return $this->databaseHandler;
     }
 
     /**
@@ -94,6 +97,14 @@ class SetupHandler
         }
 
         return $blogIds;
+    }
+
+    /**
+     * Creates the needed tables at the database and adds the options
+     */
+    private function runInstall()
+    {
+        $this->databaseHandler->install();
     }
 
     /**
@@ -119,265 +130,6 @@ class SetupHandler
     }
 
     /**
-     * Creates the needed tables at the database and adds the options
-     */
-    private function runInstall()
-    {
-        $charsetCollate = $this->database->getCharset();
-        $dbAccessGroupTable = $this->database->getUserGroupTable();
-
-        $dbUserGroup = $this->database->getVariable(
-            "SHOW TABLES 
-            LIKE '{$dbAccessGroupTable}'"
-        );
-
-        if ($dbUserGroup !== $dbAccessGroupTable) {
-            $this->database->dbDelta(
-                "CREATE TABLE {$dbAccessGroupTable} (
-                    ID INT(11) NOT NULL AUTO_INCREMENT,
-                    groupname TINYTEXT NOT NULL,
-                    groupdesc TEXT NOT NULL,
-                    read_access TINYTEXT NOT NULL,
-                    write_access TINYTEXT NOT NULL,
-                    ip_range MEDIUMTEXT NULL,
-                    PRIMARY KEY (ID)
-                ) {$charsetCollate};"
-            );
-        }
-
-        $dbAccessGroupToObjectTable = $this->database->getUserGroupToObjectTable();
-
-        $dbAccessGroupToObject = (string)$this->database->getVariable(
-            "SHOW TABLES 
-            LIKE '".$dbAccessGroupToObjectTable."'"
-        );
-
-        if ($dbAccessGroupToObject !== $dbAccessGroupToObjectTable) {
-            $this->database->dbDelta(
-                "CREATE TABLE {$dbAccessGroupToObjectTable} (
-                    object_id VARCHAR(32) NOT NULL,
-                    general_object_type VARCHAR(64) NOT NULL,
-                    object_type VARCHAR(32) NOT NULL,
-                    group_id VARCHAR(32) NOT NULL,
-                    group_type VARCHAR(32) NOT NULL,
-                    from_date DATETIME NULL DEFAULT NULL,
-                    to_date DATETIME NULL DEFAULT NULL,
-                    PRIMARY KEY (object_id, object_type, group_id, group_type)
-                ) {$charsetCollate};"
-            );
-        }
-
-        $this->wordpress->addOption('uam_db_version', UserAccessManager::DB_VERSION);
-    }
-
-    /**
-     * Checks if a database update is necessary.
-     *
-     * @return bool
-     */
-    public function isDatabaseUpdateNecessary()
-    {
-        $blogIds = $this->getBlogIds();
-
-        if ($this->wordpress->isSuperAdmin() === true) {
-            foreach ($blogIds as $blogId) {
-                $table = $this->database->getBlogPrefix($blogId).'options';
-                $select = "SELECT option_value FROM {$table} WHERE option_name = '%s' LIMIT 1";
-                $select = $this->database->prepare($select, 'uam_db_version');
-                $currentDbVersion = $this->database->getVariable($select);
-
-                if ($currentDbVersion !== null
-                    && version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true
-                ) {
-                    return true;
-                }
-            }
-        }
-
-        $currentDbVersion = $this->wordpress->getOption('uam_db_version');
-        return version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<');
-    }
-
-    /**
-     * Creates a database backup.
-     *
-     * @return bool
-     */
-    public function backupDatabase()
-    {
-        $currentDbVersion = $this->wordpress->getOption('uam_db_version');
-
-        if (empty($currentDbVersion) === true
-            || version_compare($currentDbVersion, '1.2', '<') === true
-        ) {
-            return false;
-        }
-
-        $tables = [
-            $this->database->getUserGroupTable(),
-            $this->database->getUserGroupToObjectTable()
-        ];
-
-        $currentDbVersion = str_replace('.', '-', $currentDbVersion);
-        $success = true;
-
-        foreach ($tables as $table) {
-            $createQuery = "CREATE TABLE `{$table}_{$currentDbVersion}` LIKE `{$table}`";
-            $success = $success && ($this->database->query($createQuery) !== false);
-            $insertQuery = "INSERT `{$table}_{$currentDbVersion}` SELECT * FROM `{$table}`";
-            $success = $success && ($this->database->query($insertQuery) !== false);
-        }
-
-        return $success;
-    }
-
-    /**
-     * Returns the version for which a backup was created.
-     *
-     * @return array
-     */
-    public function getBackups()
-    {
-        $versions = [];
-        $tables = (array)$this->database->getColumn(
-            "SHOW TABLES LIKE '{$this->database->getPrefix()}uam_%'"
-        );
-
-        foreach ($tables as $table) {
-            if (preg_match('/.*\_([0-9\-]+)/i', $table, $matches) === 1) {
-                $version = str_replace('-', '.', $matches[1]);
-                $versions[$version] = $version;
-            }
-        }
-
-        return $versions;
-    }
-
-    /**
-     * Returns the backup tables for the given version.
-     *
-     * @param string $version
-     *
-     * @return array
-     */
-    private function getBackupTables($version)
-    {
-        $backupTables = [];
-        $tables = [
-            $this->database->getUserGroupTable(),
-            $this->database->getUserGroupToObjectTable()
-        ];
-
-        $versionForDb = str_replace('.', '-', $version);
-
-        foreach ($tables as $table) {
-            $backupTable = (string)$this->database->getVariable(
-                "SHOW TABLES LIKE '{$table}_{$versionForDb}'"
-            );
-
-            if ($backupTable !== '') {
-                $backupTables[$table] = $backupTable;
-            }
-        }
-
-        return $backupTables;
-    }
-
-    /**
-     * Reverts the database to the given version.
-     *
-     * @param string $version
-     *
-     * @return bool
-     */
-    public function revertDatabase($version)
-    {
-        $success = true;
-        $tables = $this->getBackupTables($version);
-
-        foreach ($tables as $table => $backupTable) {
-            $dropQuery = "DROP TABLE IF EXISTS `{$table}`";
-            $success = $success && ($this->database->query($dropQuery) !== false);
-            $renameQuery = "RENAME TABLE `{$backupTable}` TO `{$table}`";
-            $success = $success && ($this->database->query($renameQuery) !== false);
-        }
-
-        if ($success === true) {
-            $this->wordpress->updateOption('uam_db_version', $version);
-        }
-
-        return $success;
-    }
-
-    /**
-     * Deletes the given database backup.
-     *
-     * @param string $version
-     *
-     * @return bool
-     */
-    public function deleteBackup($version)
-    {
-        $success = true;
-        $tables = $this->getBackupTables($version);
-
-        foreach ($tables as $table => $backupTable) {
-            $dropQuery = "DROP TABLE IF EXISTS `{$backupTable}`";
-            $success = $success && ($this->database->query($dropQuery) !== false);
-        }
-
-        return $success;
-    }
-
-    /**
-     * Returns the ordered updates.
-     *
-     * @return UpdateInterface[]
-     */
-    private function getOrderedDatabaseUpdates()
-    {
-        $rawUpdates = $this->updateFactory->getDatabaseUpdates();
-        $updates = [];
-
-        foreach ($rawUpdates as $rawUpdate) {
-            $updates[$rawUpdate->getVersion()] = $rawUpdate;
-        }
-
-        uksort($updates, 'version_compare');
-        return $updates;
-    }
-
-    /**
-     * Updates the database.
-     *
-     * @return bool
-     */
-    private function updateDatabase()
-    {
-        $currentDbVersion = $this->wordpress->getOption('uam_db_version');
-
-        if (empty($currentDbVersion) === true) {
-            return false;
-        }
-
-        $success = true;
-
-        if (version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
-            foreach ($this->getOrderedDatabaseUpdates() as $orderedUpdate) {
-                if (version_compare($currentDbVersion, $orderedUpdate->getVersion(), '<') === true) {
-                    $success = $success && $orderedUpdate->update();
-                }
-            }
-
-            if ($success === true) {
-                $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
-            }
-        }
-
-        return $success;
-    }
-
-    /**
      * Updates the user access manager if an old version was installed.
      *
      * @return bool
@@ -390,7 +142,7 @@ class SetupHandler
             $this->wordpress->deleteOption('allow_comments_locked');
         }
 
-        return $this->updateDatabase();
+        return $this->databaseHandler->updateDatabase();
     }
 
     /**
@@ -403,11 +155,7 @@ class SetupHandler
 
         foreach ($blogIds as $blogId) {
             $this->wordpress->switchToBlog($blogId);
-            $userGroupTable = $this->database->getUserGroupTable();
-            $userGroupToObjectTable = $this->database->getUserGroupToObjectTable();
-
-            $dropQuery = "DROP TABLE IF EXISTS {$userGroupTable}, {$userGroupToObjectTable}";
-            $this->database->query($dropQuery);
+            $this->databaseHandler->removeTables();
 
             $this->wordpress->deleteOption(MainConfig::MAIN_CONFIG_KEY);
             $this->wordpress->deleteOption('uam_version');

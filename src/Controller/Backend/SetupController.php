@@ -78,7 +78,7 @@ class SetupController extends Controller
      */
     public function isDatabaseUpdateNecessary()
     {
-        return $this->setupHandler->isDatabaseUpdateNecessary();
+        return $this->setupHandler->getDatabaseHandler()->isDatabaseUpdateNecessary();
     }
 
     /**
@@ -100,7 +100,7 @@ class SetupController extends Controller
      */
     public function getBackups()
     {
-        return $this->setupHandler->getBackups();
+        return $this->setupHandler->getDatabaseHandler()->getBackups();
     }
 
     /**
@@ -121,7 +121,7 @@ class SetupController extends Controller
                 $this->wordpress->switchToBlog($blogId);
 
                 if ($backup === true) {
-                    $this->setupHandler->backupDatabase();
+                    $this->setupHandler->getDatabaseHandler()->backupDatabase();
                 }
 
                 $this->setupHandler->update();
@@ -140,7 +140,7 @@ class SetupController extends Controller
         $this->verifyNonce(self::SETUP_REVERT_NONCE);
         $version = $this->getRequestParameter('uam_revert_database');
 
-        if ($this->setupHandler->revertDatabase($version) === true) {
+        if ($this->setupHandler->getDatabaseHandler()->revertDatabase($version) === true) {
             $this->setUpdateMessage(TXT_UAM_REVERT_DATABASE_SUCCESS);
         }
     }
@@ -153,7 +153,7 @@ class SetupController extends Controller
         $this->verifyNonce(self::SETUP_DELETE_BACKUP_NONCE);
         $version = $this->getRequestParameter('uam_delete_backup');
 
-        if ($this->setupHandler->deleteBackup($version) === true) {
+        if ($this->setupHandler->getDatabaseHandler()->deleteBackup($version) === true) {
             $this->setUpdateMessage(TXT_UAM_DELETE_DATABASE_BACKUP_SUCCESS);
         }
     }

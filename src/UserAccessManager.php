@@ -609,7 +609,7 @@ class UserAccessManager
         $this->wordpress->addAction('wp_dashboard_setup', [$backendController, 'setupAdminDashboard']);
         $updateAction = $backendController->getRequestParameter('uam_update_db');
 
-        if ($this->setupHandler->isDatabaseUpdateNecessary() === true
+        if ($this->setupHandler->getDatabaseHandler()->isDatabaseUpdateNecessary() === true
             && $updateAction !== SetupController::UPDATE_BLOG
             && $updateAction !== SetupController::UPDATE_NETWORK
         ) {

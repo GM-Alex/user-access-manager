@@ -271,13 +271,17 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->method('checkUserAccess')
             ->will($this->onConsecutiveCalls(true, false, false, false));
 
+        $databaseHandler = $this->getDatabaseHandler();
+
+        $databaseHandler->expects($this->exactly(4))
+            ->method('isDatabaseUpdateNecessary')
+            ->will($this->onConsecutiveCalls(false, true, true, true));
 
         $setupHandler = $this->getSetupHandler();
 
         $setupHandler->expects($this->exactly(4))
-            ->method('isDatabaseUpdateNecessary')
-            ->will($this->onConsecutiveCalls(false, true, true, true));
-
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
 
         $backendController = $this->createMock(BackendController::class);
 

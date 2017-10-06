@@ -18,6 +18,8 @@ use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
+use UserAccessManager\Setup\Database\DatabaseObjectFactory;
+use UserAccessManager\Setup\Database\DatabaseHandler;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\UserAccessManager;
@@ -96,12 +98,14 @@ function initUserAccessManger()
         $fileProtectionFactory
     );
     $updateFactory = new UpdateFactory($database, $objectHandler);
+    $databaseObjectFactory = new DatabaseObjectFactory();
+    $databaseHandler = new DatabaseHandler($wordpress, $database, $databaseObjectFactory, $updateFactory);
     $setupHandler = new SetupHandler(
         $wordpress,
         $database,
+        $databaseHandler,
         $objectHandler,
-        $fileHandler,
-        $updateFactory
+        $fileHandler
     );
     $controllerFactory = new ControllerFactory(
         $php,
@@ -202,12 +206,14 @@ function initUserAccessManger()
                 $fileProtectionFactory
             );
             $updateFactory = new UpdateFactory($database, $objectHandler);
+            $databaseObjectFactory = new DatabaseObjectFactory();
+            $databaseHandler = new DatabaseHandler($wordpress, $database, $databaseObjectFactory, $updateFactory);
             $setupHandler = new SetupHandler(
                 $wordpress,
                 $database,
+                $databaseHandler,
                 $objectHandler,
-                $fileHandler,
-                $updateFactory
+                $fileHandler
             );
 
             $setupHandler->uninstall();

@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Setup\Update;
 
+use UserAccessManager\Setup\Database\DatabaseUpdate;
 use UserAccessManager\UserGroup\UserGroup;
 
 /**
@@ -21,7 +22,7 @@ use UserAccessManager\UserGroup\UserGroup;
  *
  * @package UserAccessManager\Setup\Update
  */
-class DatabaseUpdate6 extends DatabaseUpdate implements UpdateInterface
+class DatabaseUpdate6 extends DatabaseUpdate
 {
     /**
      * Returns the version.

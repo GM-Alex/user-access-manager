@@ -12,17 +12,18 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
-namespace UserAccessManager\Setup\Update;
+namespace UserAccessManager\Setup\Database;
 
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Setup\Update\UpdateInterface;
 
 /**
  * Class Update
  *
  * @package UserAccessManager\Setup\Update
  */
-abstract class DatabaseUpdate
+abstract class DatabaseUpdate implements UpdateInterface
 {
     /**
      * @var Database

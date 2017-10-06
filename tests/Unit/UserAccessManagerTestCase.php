@@ -32,6 +32,8 @@ use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
+use UserAccessManager\Setup\Database\DatabaseHandler;
+use UserAccessManager\Setup\Database\DatabaseObjectFactory;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\UserAccessManager;
@@ -142,6 +144,22 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getDatabase()
     {
         return $this->createMock(Database::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|DatabaseHandler
+     */
+    protected function getDatabaseHandler()
+    {
+        return $this->createMock(DatabaseHandler::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|DatabaseObjectFactory
+     */
+    protected function getDatabaseObjectFactory()
+    {
+        return $this->createMock(DatabaseObjectFactory::class);
     }
 
     /**
@@ -735,5 +753,26 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
             ));
 
         return $membershipHandler;
+    }
+
+    /**
+     * @param int $numberOfSites
+     *
+     * @return array
+     */
+    protected function getSites($numberOfSites = 3)
+    {
+        $sites = [];
+
+        for ($count = 1; $count <= $numberOfSites; $count++) {
+            /**
+             * @var \stdClass $site
+             */
+            $site = $this->getMockBuilder('\WP_Site')->getMock();
+            $site->blog_id = $count;
+            $sites[] = $site;
+        }
+
+        return $sites;
     }
 }

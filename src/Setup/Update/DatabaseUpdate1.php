@@ -14,12 +14,14 @@
  */
 namespace UserAccessManager\Setup\Update;
 
+use UserAccessManager\Setup\Database\DatabaseUpdate;
+
 /**
  * Class DatabaseUpdate1
  *
  * @package UserAccessManager\Setup\Update
  */
-class DatabaseUpdate1 extends DatabaseUpdate implements UpdateInterface
+class DatabaseUpdate1 extends DatabaseUpdate
 {
     /**
      * Returns the version.
