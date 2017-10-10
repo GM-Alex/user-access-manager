@@ -19,7 +19,6 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Setup\Database\DatabaseHandler;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**

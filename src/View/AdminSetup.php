@@ -78,6 +78,37 @@ if ($controller->hasUpdateMessage()) {
             <?php
         }
 
+        $isDatabaseBroken = $controller->isDatabaseBroken();
+        ?>
+        <table class="form-table">
+            <tbody>
+            <tr valign="top">
+                <th scope="row"><?php echo TXT_UAM_REPAIR_DATABASE; ?></th>
+                <td>
+                    <p>
+                        <?php echo ($isDatabaseBroken === true) ? TXT_UAM_DATABASE_BROKEN : TXT_UAM_DATABASE_OK; ?>
+                    </p>
+                    <?php
+                    if ($isDatabaseBroken === true) {
+                        ?>
+                        <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
+                            <?php $controller->createNonceField('uamSetupRepair'); ?>
+                            <input type="hidden" value="repair_database" name="uam_action"/>
+                            <input type="submit" class="button"
+                                   name="uam_repair_db_submit"
+                                   value="<?php echo TXT_UAM_REPAIR_DATABASE_REPAIR_NOW; ?>"/>
+                            <p style="font-size: 12px;">
+                                <?php echo TXT_UAM_REPAIR_DATABASE_DESCRIPTION; ?>
+                            </p>
+                        </form>
+                        <?php
+                    }
+                    ?>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <?php
         $backups = $controller->getBackups();
 
         if (count($backups) > 0) {
@@ -102,7 +133,7 @@ if ($controller->hasUpdateMessage()) {
                             }
                             ?>
                             &nbsp;<input type="submit" class="button"
-                                         name="uam_update_db_submit"
+                                         name="uam_revert_db_submit"
                                          value="<?php echo TXT_UAM_REVERT_DATABASE_REVERT_NOW; ?>"/>
                             <p style="font-size: 12px;">
                                 <?php echo TXT_UAM_REVERT_DATABASE_DESCRIPTION; ?>
@@ -132,7 +163,7 @@ if ($controller->hasUpdateMessage()) {
                             }
                             ?>
                             &nbsp;<input type="submit" class="button"
-                                         name="uam_update_db_submit"
+                                         name="uam_delete_db_backup_submit"
                                          value="<?php echo TXT_UAM_DELETE_DATABASE_BACKUP_DELETE_NOW; ?>"/>
                             <p style="font-size: 12px;">
                                 <?php echo TXT_UAM_DELETE_DATABASE_BACKUP_DESCRIPTION; ?>

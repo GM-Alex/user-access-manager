@@ -17,7 +17,6 @@ namespace UserAccessManager\Tests\Unit\Object;
 use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
-use UserAccessManager\Tests\Unit\CountableArrayHelper;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**

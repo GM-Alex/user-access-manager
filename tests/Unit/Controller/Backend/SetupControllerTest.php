@@ -15,7 +15,9 @@
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Setup\Database\DatabaseHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserAccessManager;
 
 /**
  * Class SetupControllerTest
@@ -240,6 +242,97 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $_GET['uam_revert_database'] = '1.3';
         $setupController->revertDatabaseAction();
         self::assertAttributeEquals(TXT_UAM_REVERT_DATABASE_SUCCESS, 'updateMessage', $setupController);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::isDatabaseBroken()
+     */
+    public function testIsDatabaseBroken()
+    {
+        $information = [
+            DatabaseHandler::MISSING_TABLES => [],
+            DatabaseHandler::MISSING_COLUMNS => [],
+            DatabaseHandler::MODIFIED_COLUMNS => [],
+            DatabaseHandler::EXTRA_COLUMNS => []
+        ];
+
+        $brokenInformation = $information;
+        $brokenInformation[DatabaseHandler::MISSING_TABLES] = ['table'];
+
+        $databaseHandler = $this->getDatabaseHandler();
+        $databaseHandler->expects($this->exactly(2))
+            ->method('getCorruptedDatabaseInformation')
+            ->will($this->onConsecutiveCalls($information, $brokenInformation));
+
+        $setupHandler = $this->getSetupHandler();
+        $setupHandler->expects($this->exactly(2))
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
+
+        $setupController = new SetupController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getDatabase(),
+            $setupHandler
+        );
+
+        self::assertFalse($setupController->isDatabaseBroken());
+        self::assertTrue($setupController->isDatabaseBroken());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::repairDatabaseAction()
+     */
+    public function testRepairDatabaseAction()
+    {
+        $information = [
+            DatabaseHandler::MISSING_TABLES => [],
+            DatabaseHandler::MISSING_COLUMNS => [],
+            DatabaseHandler::MODIFIED_COLUMNS => [],
+            DatabaseHandler::EXTRA_COLUMNS => []
+        ];
+
+        $brokenInformation = $information;
+        $brokenInformation[DatabaseHandler::MISSING_TABLES] = ['table'];
+
+        $databaseHandler = $this->getDatabaseHandler();
+
+        $databaseHandler->expects($this->exactly(3))
+            ->method('getBackups')
+            ->will($this->onConsecutiveCalls(
+                [UserAccessManager::DB_VERSION => UserAccessManager::DB_VERSION],
+                [UserAccessManager::DB_VERSION => UserAccessManager::DB_VERSION],
+                []
+            ));
+
+        $databaseHandler->expects($this->once())
+            ->method('backupDatabase');
+
+        $databaseHandler->expects($this->exactly(3))
+            ->method('repairDatabase')
+            ->will($this->onConsecutiveCalls(false, false, true));
+
+        $setupHandler = $this->getSetupHandler();
+        $setupHandler->expects($this->exactly(3))
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
+
+        $setupController = new SetupController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getDatabase(),
+            $setupHandler
+        );
+
+        $setupController->repairDatabaseAction();
+        $setupController->repairDatabaseAction();
+        self::assertAttributeEquals(null, 'updateMessage', $setupController);
+        $setupController->repairDatabaseAction();
+        self::assertAttributeEquals(TXT_UAM_REPAIR_DATABASE_SUCCESS, 'updateMessage', $setupController);
     }
 
     /**

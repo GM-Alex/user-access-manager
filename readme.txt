@@ -43,7 +43,7 @@ The documentation can be found here: [https://github.com/GM-Alex/user-access-man
 Please report bugs and feature requests here: [https://github.com/GM-Alex/user-access-manager/issues](https://github.com/GM-Alex/user-access-manager/issues)
 If you are a developer and want to contribute please visit [https://github.com/GM-Alex/user-access-manager](https://github.com/GM-Alex/user-access-manager)
 For general questions, like how to setup, best practice and so on please use the support thread here (don't post issues here): [https://wordpress.org/support/plugin/user-access-manager](https://wordpress.org/support/plugin/user-access-manager)
-To stay up-to-date follow me on thttp://wordpress_web_1.local.docker/wp-content/uploads/2017/04/Bilendo-API-23.Juli_-300x165.pngwitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
+To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
 == Installation ==
@@ -59,6 +59,13 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.1.4       2017/10/10  Fix strict warnings #134
+                            Fix "Unable to select default user group for both page and post" issue #126
+                            Add NGINX reverse proxy handling #117
+                            Improve code
+                            Fix bulk edit issue #135
+                            Fix array filly issue #138
+                            Add database repair tool
     2.1.3       2017/09/18  Possible fix for custom post types / taxonomies issues
                             Fix .htaccess deletion issue
     2.1.2       2017/09/17  Fix issue with not handled taxonomies #123

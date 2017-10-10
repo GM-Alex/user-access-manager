@@ -17,7 +17,6 @@ namespace UserAccessManager\Tests\Unit\Setup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Setup\Database\DatabaseHandler;
 use UserAccessManager\Setup\SetupHandler;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**

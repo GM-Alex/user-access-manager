@@ -92,7 +92,6 @@
                     <?php
                 }
                 ?>
-                </ul>
             </div>
         </div>
         <div class="postbox">

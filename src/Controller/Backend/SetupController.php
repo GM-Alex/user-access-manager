@@ -18,6 +18,7 @@ use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Setup\SetupHandler;
+use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -30,6 +31,7 @@ class SetupController extends Controller
 {
     const SETUP_UPDATE_NONCE = 'uamSetupUpdate';
     const SETUP_REVERT_NONCE = 'uamSetupRevert';
+    const SETUP_REPAIR_NONCE = 'uamSetupRepair';
     const SETUP_DELETE_BACKUP_NONCE = 'uamSetupDeleteBackup';
     const SETUP_RESET_NONCE = 'uamSetupReset';
     const UPDATE_BLOG = 'blog';
@@ -142,6 +144,45 @@ class SetupController extends Controller
 
         if ($this->setupHandler->getDatabaseHandler()->revertDatabase($version) === true) {
             $this->setUpdateMessage(TXT_UAM_REVERT_DATABASE_SUCCESS);
+        }
+    }
+
+    /**
+     * Checks if the database is broken.
+     *
+     * @return bool
+     */
+    public function isDatabaseBroken()
+    {
+        $information = $this->setupHandler->getDatabaseHandler()->getCorruptedDatabaseInformation();
+
+        $numberOfIssues = array_reduce(
+            $information,
+            function ($carry, $item) {
+                $carry += count($item);
+                return $carry;
+            }
+        );
+
+        return $numberOfIssues > 0;
+    }
+
+    /**
+     * Repairs the database.
+     */
+    public function repairDatabaseAction()
+    {
+        $this->verifyNonce(self::SETUP_REPAIR_NONCE);
+
+        $databaseHandler = $this->setupHandler->getDatabaseHandler();
+        $backups = $databaseHandler->getBackups();
+
+        if (isset($backups[UserAccessManager::DB_VERSION]) === false) {
+            $databaseHandler->backupDatabase();
+        }
+
+        if ($databaseHandler->repairDatabase() === true) {
+            $this->setUpdateMessage(TXT_UAM_REPAIR_DATABASE_SUCCESS);
         }
     }
 

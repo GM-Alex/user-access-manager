@@ -48,10 +48,11 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @param string $name
+     * @param array  $columns
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|Table
      */
-    private function getTable($name)
+    private function getTable($name, array $columns = [])
     {
         $table = $this->createMock(Table::class);
         $table->expects($this->any())
@@ -61,6 +62,30 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         $table->expects($this->any())
             ->method('__toString')
             ->will($this->returnValue("CREATE TABLE `{$name}` LIKE `{$name}`"));
+
+        $table->expects($this->any())
+            ->method('getColumns')
+            ->will($this->returnValue($columns));
+
+        return $table;
+    }
+
+    /**
+     * @param string $name
+     * @param string $type
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|Table
+     */
+    private function getColumn($name, $type)
+    {
+        $table = $this->createMock(Column::class);
+        $table->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue($name));
+
+        $table->expects($this->any())
+            ->method('__toString')
+            ->will($this->returnValue("`{$name}` {$type}"));
 
         return $table;
     }
@@ -96,8 +121,8 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         $database->expects($this->exactly(2))
             ->method('getVariable')
             ->withConsecutive(
-                ['SHOW TABLES  LIKE \'userGroupTable\''],
-                ['SHOW TABLES  LIKE \'userGroupToObjectTable\'']
+                ['SHOW TABLES LIKE \'userGroupTable\''],
+                ['SHOW TABLES LIKE \'userGroupToObjectTable\'']
             )
             ->will($this->onConsecutiveCalls('', 'userGroupToObjectTable'));
 
@@ -146,6 +171,217 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         );
 
         $databaseHandler->install();
+    }
+
+    /**
+     * @param int $number
+     *
+     * @return array
+     */
+    private function getDatabaseColumns($number)
+    {
+        $columns = [];
+
+        for ($columnNumber = 1; $columnNumber <= $number; $columnNumber++) {
+            $column = new \stdClass();
+            $column->Field = "field{$columnNumber}";
+            $column->Type = "type{$columnNumber}";
+            $column->Null = ($columnNumber === 1) ? 'YES' : '';
+            $column->Default = "default{$columnNumber}";
+            $column->Key = ($columnNumber === 1) ? 'PRI' : '';
+            $column->Extra = ($columnNumber === 1) ? 'auto_increment' : '';
+            $columns[] = $column;
+        }
+
+        return $columns;
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getCorruptedDatabaseInformation()
+     * @covers ::getExistingColumns()
+     */
+    public function testGetCorruptedDatabaseInformation()
+    {
+        $database = $this->getDatabase();
+        $database->expects($this->once())
+            ->method('getCharset')
+            ->will($this->returnValue('charset'));
+
+        $database->expects($this->once())
+            ->method('getUserGroupTable')
+            ->will($this->returnValue('userGroupTable'));
+
+        $database->expects($this->once())
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $database->expects($this->exactly(2))
+            ->method('getVariable')
+            ->withConsecutive(
+                ['SHOW TABLES LIKE \'userGroupTable\''],
+                ['SHOW TABLES LIKE \'userGroupToObjectTable\'']
+            )
+            ->will($this->onConsecutiveCalls('', 'userGroupToObjectTable'));
+
+        $database->expects($this->once())
+            ->method('getResults')
+            ->with('SHOW COLUMNS FROM `userGroupToObjectTable`;')
+            ->will($this->returnValue($this->getDatabaseColumns(3)));
+
+        $databaseObjectFactory = $this->getDatabaseObjectFactory();
+
+        $missingTable = $this->getTable('userGroupTable');
+
+        $validColumn = $this->getColumn('field1', 'TYPE1');
+        $modifiedColumn = $this->getColumn('field2', 'MODIFIED_TYPE');
+        $missingColumn = $this->getColumn('additionalColumn', 'SOME_TYPE');
+        $existingTable = $this->getTable(
+            'userGroupToObjectTable',
+            [$validColumn, $modifiedColumn, $missingColumn]
+        );
+
+        $databaseObjectFactory->expects($this->exactly(2))
+            ->method('createTable')
+            ->will($this->onConsecutiveCalls($missingTable, $existingTable));
+
+        $databaseObjectFactory->expects($this->exactly(16))
+            ->method('createColumn')
+            ->withConsecutive(
+                ['ID', 'INT(11)', false, null, true, true],
+                ['groupname', 'TINYTEXT'],
+                ['groupdesc', 'TEXT'],
+                ['read_access', 'TINYTEXT'],
+                ['write_access', 'TINYTEXT'],
+                ['ip_range', 'MEDIUMTEXT', true],
+                ['object_id', 'VARCHAR(32)', false, null, true],
+                ['general_object_type', 'VARCHAR(64)'],
+                ['object_type', 'VARCHAR(32)', false, null, true],
+                ['group_id', 'VARCHAR(32)', false, null, true],
+                ['group_type', 'VARCHAR(32)', false, null, true],
+                ['from_date', 'DATETIME', true],
+                ['to_date', 'DATETIME', true],
+                ['field1', 'TYPE1', true, 'default1', true, true],
+                ['field2', 'TYPE2', false, 'default2', false, false],
+                ['field3', 'TYPE3', false, 'default3', false, false]
+            )
+            ->will($this->returnCallback(function ($field, $type) {
+                return $this->getColumn($field, $type);
+            }));
+
+        $databaseHandler = new DatabaseHandler(
+            $this->getWordpress(),
+            $database,
+            $databaseObjectFactory,
+            $this->getUpdateFactory()
+        );
+
+        $expectedInformation = [
+            DatabaseHandler::MISSING_TABLES => [$missingTable],
+            DatabaseHandler::MISSING_COLUMNS => [[$existingTable, $missingColumn]],
+            DatabaseHandler::MODIFIED_COLUMNS => [[$existingTable, $modifiedColumn]],
+            DatabaseHandler::EXTRA_COLUMNS => [[$existingTable, $this->getColumn('field3', 'type3')]]
+        ];
+
+        $result = $databaseHandler->getCorruptedDatabaseInformation();
+        self::assertEquals($expectedInformation, $result);
+        self::assertSame(
+            $expectedInformation[DatabaseHandler::MODIFIED_COLUMNS],
+            $result[DatabaseHandler::MODIFIED_COLUMNS]
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::repairDatabase()
+     * @covers ::addTable()
+     * @covers ::addColumn()
+     * @covers ::modifyColumn()
+     * @covers ::dropColumn()
+     */
+    public function testRepairDatabase()
+    {
+        $database = $this->getDatabase();
+
+        $database->expects($this->exactly(6))
+            ->method('dbDelta')
+            ->withConsecutive(
+                ['CREATE TABLE `userGroupTable` LIKE `userGroupTable`'],
+                ['CREATE TABLE `userGroupTable` LIKE `userGroupTable`'],
+                ['CREATE TABLE `userGroupTable` LIKE `userGroupTable`'],
+                ['CREATE TABLE `userGroupTable` LIKE `userGroupTable`'],
+                ['CREATE TABLE `someTable` LIKE `someTable`'],
+                ['CREATE TABLE `someTable` LIKE `someTable`']
+            );
+
+        $database->expects($this->exactly(9))
+            ->method('query')
+            ->withConsecutive(
+                ['ALTER TABLE `userGroupToObjectTable` ADD `additionalColumn` VARCHAR(64);'],
+                ['ALTER TABLE `userGroupToObjectTable` ADD `additionalColumn` VARCHAR(64);'],
+                ['ALTER TABLE `userGroupToObjectTable` MODIFY `field2` TEXT;'],
+                ['ALTER TABLE `userGroupToObjectTable` ADD `additionalColumn` VARCHAR(64);'],
+                ['ALTER TABLE `userGroupToObjectTable` MODIFY `field2` TEXT;'],
+                ['ALTER TABLE `userGroupToObjectTable` DROP `field3`;'],
+                ['ALTER TABLE `userGroupToObjectTable` ADD `additionalColumn` VARCHAR(64);'],
+                ['ALTER TABLE `userGroupToObjectTable` MODIFY `field2` TEXT;'],
+                ['ALTER TABLE `userGroupToObjectTable` DROP `field3`;']
+            )->will($this->onConsecutiveCalls(
+                false,
+                true,
+                false,
+                true,
+                true,
+                false,
+                true,
+                true,
+                true
+            ));
+
+        $database->expects($this->exactly(2))
+            ->method('getVariable')
+            ->with('SHOW TABLES LIKE \'someTable\'')
+            ->will($this->onConsecutiveCalls('', ''));
+
+        $databaseObjectFactory = $this->getDatabaseObjectFactory();
+        $databaseObjectFactory->expects($this->any())
+            ->method('createTable')
+            ->will($this->returnValue($this->getTable('someTable')));
+
+        $databaseObjectFactory->expects($this->any())
+            ->method('createColumn')
+            ->will($this->returnCallback(function ($field, $type) {
+                return $this->getColumn($field, $type);
+            }));
+
+        $databaseHandler = new DatabaseHandler(
+            $this->getWordpress(),
+            $database,
+            $databaseObjectFactory,
+            $this->getUpdateFactory()
+        );
+
+        $missingTable = $this->getTable('userGroupTable');
+        $validColumn = $this->getColumn('field1', 'TYPE1');
+        $modifiedColumn = $this->getColumn('field2', 'TEXT');
+        $missingColumn = $this->getColumn('additionalColumn', 'VARCHAR(64)');
+        $existingTable = $this->getTable(
+            'userGroupToObjectTable',
+            [$validColumn, $modifiedColumn, $missingColumn]
+        );
+
+        $information = [
+            DatabaseHandler::MISSING_TABLES => [$missingTable],
+            DatabaseHandler::MISSING_COLUMNS => [[$existingTable, $missingColumn]],
+            DatabaseHandler::MODIFIED_COLUMNS => [[$existingTable, $modifiedColumn]],
+            DatabaseHandler::EXTRA_COLUMNS => [[$existingTable, $this->getColumn('field3', 'type3')]]
+        ];
+
+        self::assertFalse($databaseHandler->repairDatabase($information));
+        self::assertFalse($databaseHandler->repairDatabase($information));
+        self::assertFalse($databaseHandler->repairDatabase($information));
+        self::assertTrue($databaseHandler->repairDatabase($information));
+        self::assertTrue($databaseHandler->repairDatabase([]));
     }
 
     /**

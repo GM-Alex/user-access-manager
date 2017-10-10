@@ -27,6 +27,11 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class DatabaseHandler
 {
+    const MISSING_TABLES = 'MISSING_TABLE';
+    const MISSING_COLUMNS = 'MISSING_COLUMNS';
+    const MODIFIED_COLUMNS = 'MODIFIED_COLUMNS';
+    const EXTRA_COLUMNS = 'EXTRA_COLUMNS';
+
     /**
      * @var Wordpress
      */
@@ -76,7 +81,7 @@ class DatabaseHandler
      */
     private function tableExists($table)
     {
-        $dbTable = $this->database->getVariable("SHOW TABLES  LIKE '{$table}'");
+        $dbTable = $this->database->getVariable("SHOW TABLES LIKE '{$table}'");
 
         return ($table === $dbTable);
     }
@@ -88,9 +93,7 @@ class DatabaseHandler
      */
     private function addTable(Table $table)
     {
-        if ($this->tableExists($table->getName()) === false) {
-            $this->database->dbDelta((string)$table);
-        }
+        $this->database->dbDelta((string)$table);
     }
 
     /**
@@ -139,7 +142,9 @@ class DatabaseHandler
     public function install()
     {
         foreach ($this->getTables() as $table) {
-            $this->addTable($table);
+            if ($this->tableExists($table->getName()) === false) {
+                $this->addTable($table);
+            }
         }
 
         $this->wordpress->addOption('uam_db_version', UserAccessManager::DB_VERSION);
@@ -173,46 +178,20 @@ class DatabaseHandler
     }
 
     /**
-     * Adds a new column.
-     *
-     * @param Table  $table
-     * @param Column $column
+     * @return array
      */
-    private function addColumn(Table $table, Column $column)
+    public function getCorruptedDatabaseInformation()
     {
-        $this->database->query("ALTER TABLE `{$table->getName()}` ADD $column;");
-    }
+        $information = [
+            self::MISSING_TABLES => [],
+            self::MISSING_COLUMNS => [],
+            self::MODIFIED_COLUMNS => [],
+            self::EXTRA_COLUMNS => []
+        ];
 
-    /**
-     * Modify an existing column.
-     *
-     * @param Table  $table
-     * @param Column $column
-     */
-    private function modifyColumn(Table $table, Column $column)
-    {
-        $this->database->query("ALTER TABLE `{$table->getName()}` MODIFY $column;");
-    }
-
-    /**
-     * Drops an existing column.
-     *
-     * @param Table  $table
-     * @param Column $column
-     */
-    private function dropColumn(Table $table, Column $column)
-    {
-        $this->database->query("ALTER TABLE `{$table->getName()}` DROP `{$column->getName()}`;");
-    }
-
-    /**
-     * Repairs a corrupt database.
-     */
-    public function repairDatabase()
-    {
         foreach ($this->getTables() as $table) {
             if ($this->tableExists($table->getName()) === false) {
-                $this->addTable($table);
+                $information[self::MISSING_TABLES][] = $table;
                 continue;
             }
 
@@ -220,7 +199,7 @@ class DatabaseHandler
 
             foreach ($table->getColumns() as $column) {
                 if (isset($existingColumns[$column->getName()]) === false) {
-                    $this->addColumn($table, $column);
+                    $information[self::MISSING_COLUMNS][] = [$table, $column];
                     continue;
                 }
 
@@ -228,15 +207,87 @@ class DatabaseHandler
                 unset($existingColumns[$column->getName()]);
 
                 if ((string)$column !== (string)$existingColumn) {
-                    $this->modifyColumn($table, $column);
+                    $information[self::MODIFIED_COLUMNS][] = [$table, $column];
                     continue;
                 }
             }
 
             foreach ($existingColumns as $existingColumn) {
-                $this->dropColumn($table, $existingColumn);
+                $information[self::EXTRA_COLUMNS][] = [$table, $existingColumn];
             }
         }
+
+        return $information;
+    }
+
+    /**
+     * Adds a new column.
+     *
+     * @param Table  $table
+     * @param Column $column
+     *
+     * @return bool
+     */
+    private function addColumn(Table $table, Column $column)
+    {
+        return $this->database->query("ALTER TABLE `{$table->getName()}` ADD $column;") !== false;
+    }
+
+    /**
+     * Modify an existing column.
+     *
+     * @param Table  $table
+     * @param Column $column
+     *
+     * @return bool
+     */
+    private function modifyColumn(Table $table, Column $column)
+    {
+        return $this->database->query("ALTER TABLE `{$table->getName()}` MODIFY $column;") !== false;
+    }
+
+    /**
+     * Drops an existing column.
+     *
+     * @param Table  $table
+     * @param Column $column
+     *
+     * @return bool
+     */
+    private function dropColumn(Table $table, Column $column)
+    {
+        return $this->database->query("ALTER TABLE `{$table->getName()}` DROP `{$column->getName()}`;") !== false;
+    }
+
+    /**
+     * Repairs a corrupt database.
+     *
+     * @param array $information
+     *
+     * @return bool
+     */
+    public function repairDatabase(array $information = [])
+    {
+        $success = true;
+        $information = ($information === []) ? $this->getCorruptedDatabaseInformation() : $information;
+
+        foreach ($information[self::MISSING_TABLES] as $table) {
+            $this->addTable($table);
+        }
+
+        foreach ($information[self::MISSING_COLUMNS] as $columnInformation) {
+            $success = $success && $this->addColumn($columnInformation[0], $columnInformation[1]);
+        }
+
+        foreach ($information[self::MODIFIED_COLUMNS] as $columnInformation) {
+            $success = $success && $this->modifyColumn($columnInformation[0], $columnInformation[1]);
+        }
+
+        foreach ($information[self::EXTRA_COLUMNS] as $columnInformation) {
+            $success = $success && $this->dropColumn($columnInformation[0], $columnInformation[1]);
+        }
+
+        return $success;
     }
 
     /**
@@ -429,16 +480,14 @@ class DatabaseHandler
 
         $success = true;
 
-        if (version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true) {
-            foreach ($this->getOrderedDatabaseUpdates() as $orderedUpdate) {
-                if (version_compare($currentDbVersion, $orderedUpdate->getVersion(), '<') === true) {
-                    $success = $success && $orderedUpdate->update();
-                }
+        foreach ($this->getOrderedDatabaseUpdates() as $orderedUpdate) {
+            if (version_compare($currentDbVersion, $orderedUpdate->getVersion(), '<') === true) {
+                $success = $success && $orderedUpdate->update();
             }
+        }
 
-            if ($success === true) {
-                $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
-            }
+        if ($success === true) {
+            $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
         }
 
         return $success;

@@ -14,7 +14,7 @@
  */
 
 // --- Error Messages ---
-define('TXT_UAM_PHP_VERSION_TO_LOW', __('Sorry you need at least PHP version 5.4 to use the User Access Manager. Your current PHP version is %s. See <a href="https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot"/>https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot</a> for more information.', 'user-access-manager'));
+define('TXT_UAM_PHP_VERSION_TO_LOW', __('Sorry you need at least PHP version 5.4 to use the User Access Manager. Your current PHP version is %s. See <a href="https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot">https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot</a> for more information.', 'user-access-manager'));
 define('TXT_UAM_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s.', 'user-access-manager'));
 /** @noinspection HtmlUnknownTarget */
 define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the User Access Manager. <a href="%s">Click here to proceed</a>', 'user-access-manager'));
@@ -212,6 +212,12 @@ define('TXT_UAM_UAM_DB_UPDATE_SUCCESS', __('User Access Manager database was upd
 define('TXT_UAM_UPDATE_BLOG', __('Update current blog', 'user-access-manager'));
 define('TXT_UAM_UPDATE_NETWORK', __('Update network wide', 'user-access-manager'));
 define('TXT_UAM_UPDATE_BACKUP', __('Backup the uam database tables', 'user-access-manager'));
+define('TXT_UAM_REPAIR_DATABASE', __('Repair the database', 'user-access-manager'));
+define('TXT_UAM_REPAIR_DATABASE_DESCRIPTION', __('Try to repair the database.', 'user-access-manager'));
+define('TXT_UAM_REPAIR_DATABASE_REPAIR_NOW', __('repair now', 'user-access-manager'));
+define('TXT_UAM_REPAIR_DATABASE_SUCCESS', __('Database repair successfull', 'user-access-manager'));
+define('TXT_UAM_DATABASE_BROKEN', __('<b style="color:red;">Your UAM database seems broken. You should try to repair it.</b>', 'user-access-manager'));
+define('TXT_UAM_DATABASE_OK', __('<b style="color:green;">Your UAM database seems to be in good condition.</b>', 'user-access-manager'));
 define('TXT_UAM_REVERT_DATABASE', __('Revert the database', 'user-access-manager'));
 define('TXT_UAM_REVERT_DATABASE_DESCRIPTION', __('Choose a backup to revert the database to this user access manager database version. <b>Note: The user access manager database version differs from the user access manager version.</b>', 'user-access-manager'));
 define('TXT_UAM_REVERT_DATABASE_REVERT_NOW', __('revert now', 'user-access-manager'));
