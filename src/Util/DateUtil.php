@@ -63,6 +63,30 @@ class DateUtil
     }
 
     /**
+     * Formats the date for the datetime input field.
+     *
+     * @param string $date
+     *
+     * @return string
+     */
+    public function formatDateForDateInput($date)
+    {
+        return ($date !== null) ? strftime('%Y-%m-%d', strtotime($date)) : $date;
+    }
+
+    /**
+     * Formats the date for the datetime input field.
+     *
+     * @param string $date
+     *
+     * @return string
+     */
+    public function formatDateForTimeInput($date)
+    {
+        return ($date !== null) ? strftime('%H:%M:%S', strtotime($date)) : $date;
+    }
+
+    /**
      * @param int $time
      *
      * @return null|string

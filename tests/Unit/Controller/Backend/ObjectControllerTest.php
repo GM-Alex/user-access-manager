@@ -648,9 +648,9 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $accessHandler->expects($this->exactly(5))
             ->method('getFilteredUserGroups')
             ->will($this->onConsecutiveCalls(
-                $this->getUserGroupArray([1, 3], [1, 2, 3], [['objectType', 1, '1', 'toDate']], [100, 101]),
+                $this->getUserGroupArray([1, 3], [1, 2, 3], [['objectType', 1, '1T2', 'toTDate']], [100, 101]),
                 $this->getUserGroupArray([2, 4], [1, 2, 4], [['objectType', 1, null, null]]),
-                $this->getUserGroupArray([1, 2], [2, 3, 4], [['objectType', 1, null, '234']]),
+                $this->getUserGroupArray([1, 2], [2, 3, 4], [['objectType', 1, null, '23T4']]),
                 $this->getUserGroupArray([4], [2, 3], [['objectType', 'objectId', null, null]]),
                 $this->getUserGroupArray([], [1, 2], [['objectType', 1, null, null]])
             ));
@@ -669,7 +669,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 $this->getDynamicUserGroupWithAdd(
                     DynamicUserGroup::USER_TYPE,
                     '1',
-                    ['objectType', 1, 'fromDate', 'toDate']
+                    ['objectType', 1, 'fromTDate', 'toTDate']
                 ),
                 $this->getDynamicUserGroupWithAdd(DynamicUserGroup::ROLE_TYPE, 'admin', ['objectType', 1, null, null])
             ));
@@ -694,15 +694,15 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $_POST[ObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME] = [
             DynamicUserGroup::USER_TYPE.'|1' => [
                 'id' => DynamicUserGroup::USER_TYPE.'|1',
-                'fromDate' => 'fromDate',
-                'toDate' => 'toDate'
+                'fromDate' => ['date' => 'from', 'time' => 'Date'],
+                'toDate' => ['date' => 'to', 'time' => 'Date']
             ],
             DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin'],
             'A|B' => ['id' => 'B|A'],
         ];
         $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
-            1 => ['id' => 1, 'fromDate' => 1, 'toDate' => 'toDate'],
-            3 => ['id' => 3, 'fromDate' => 1, 'toDate' => 'toDate'],
+            1 => ['id' => 1, 'fromDate' => ['date' => 1, 'time' => 2], 'toDate' => ['date' => 'to', 'time' => 'Date']],
+            3 => ['id' => 3, 'fromDate' => ['date' => 1, 'time' => 2], 'toDate' => ['date' => 'to', 'time' => 'Date']],
             100 => [],
             101 => ['id' => 100]
         ];
@@ -716,8 +716,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController->saveObjectData('objectType', 1);
 
         $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
-            1 => ['id' => 1, 'formDate' => '', 'toDate' => 234],
-            2 => ['id' => 2, 'formDate' => '', 'toDate' => 234]
+            1 => ['id' => 1, 'formDate' => ['date' => '', 'time' => ''], 'toDate' => ['date' => 23, 'time' => 4]],
+            2 => ['id' => 2, 'formDate' => ['date' => '', 'time' => ''], 'toDate' => ['date' => 23, 'time' => 4]]
         ];
         $objectController->saveObjectData('objectType', 1);
 

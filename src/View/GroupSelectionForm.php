@@ -82,26 +82,37 @@
             }
 
             if ($isLockedRecursive === false) {
+                $formPrefix = $groupsFormName.'-'.$userGroup->getId();
                 ?>
                 <span class="uam_group_date"><?php echo $dateText; ?></span>
                 <div class="uam_group_date_form">
                     <div>
-                        <label for="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>-fromDate">
+                        <label class="uam_date_label" for="<?php echo $formPrefix; ?>-fromDate-date">
                             <?php echo TXT_UAM_GROUP_FROM_DATE; ?>
                         </label>
-                        <input type="datetime-local"
-                               id="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>-fromDate"
-                               name="<?php echo $groupsFormName; ?>[<?php echo $userGroup->getId(); ?>][fromDate]"
-                               value="<?php echo $dateUtil->formatDateForDatetimeInput($fromDate); ?>"/>
+                        <input type="date"
+                               id="<?php echo $formPrefix ?>-fromDate-date"
+                               name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][fromDate][date]"; ?>"
+                               value="<?php echo $dateUtil->formatDateForDateInput($fromDate); ?>"/>
+                        <label for="<?php echo $formPrefix; ?>-fromDate-time">@</label>
+                        <input type="time"
+                               id="<?php echo $formPrefix; ?>-fromDate-time"
+                               name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][fromDate][time]"; ?>"
+                               value="<?php echo $dateUtil->formatDateForTimeInput($fromDate);?>" />
                     </div>
                     <div>
-                        <label for="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>-toDate">
+                        <label class="uam_date_label"  for="<?php echo $formPrefix; ?>-toDate-date">
                             <?php echo TXT_UAM_GROUP_TO_DATE; ?>
                         </label>
-                        <input type="datetime-local"
-                               id="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>-toDate"
-                               name="<?php echo $groupsFormName; ?>[<?php echo $userGroup->getId(); ?>][toDate]"
-                               value="<?php echo $dateUtil->formatDateForDatetimeInput($toDate); ?>"/>
+                        <input type="date"
+                               id="<?php echo $formPrefix ?>-toDate-date"
+                               name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][toDate][date]"; ?>"
+                               value="<?php echo $dateUtil->formatDateForDateInput($toDate); ?>"/>
+                        <label for="<?php echo $formPrefix; ?>-toDate-time">@</label>
+                        <input type="time"
+                               id="<?php echo $formPrefix; ?>-toDate-time"
+                               name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][toDate][time]"; ?>"
+                               value="<?php echo $dateUtil->formatDateForTimeInput($toDate);?>" />
                     </div>
                 </div>
                 <?php
