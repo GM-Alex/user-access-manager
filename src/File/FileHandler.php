@@ -90,7 +90,7 @@ class FileHandler
     /**
      * Returns the file mine type.
      *
-     * @param $file
+     * @param string $file
      *
      * @return string
      */

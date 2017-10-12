@@ -98,7 +98,7 @@
                         <input type="time"
                                id="<?php echo $formPrefix; ?>-fromDate-time"
                                name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][fromDate][time]"; ?>"
-                               value="<?php echo $dateUtil->formatDateForTimeInput($fromDate);?>" />
+                               value="<?php echo $dateUtil->formatDateForTimeInput($fromDate); ?>" />
                     </div>
                     <div>
                         <label class="uam_date_label"  for="<?php echo $formPrefix; ?>-toDate-date">
@@ -112,7 +112,7 @@
                         <input type="time"
                                id="<?php echo $formPrefix; ?>-toDate-time"
                                name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][toDate][time]"; ?>"
-                               value="<?php echo $dateUtil->formatDateForTimeInput($toDate);?>" />
+                               value="<?php echo $dateUtil->formatDateForTimeInput($toDate); ?>" />
                     </div>
                 </div>
                 <?php

@@ -218,7 +218,7 @@ class GroupCommand extends CommandWithDBObject
      * @param string $value
      * @param bool   $porcelain
      *
-     * @return mixed
+     * @return string
      */
     private function getAccessValue(array $arguments, $value, $porcelain)
     {
