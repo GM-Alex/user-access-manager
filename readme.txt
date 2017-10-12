@@ -59,6 +59,8 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.1.5       2017/10/12  Refactor traits
+                            Fix datetime issue with not supported browsers
     2.1.4       2017/10/10  Fix strict warnings #134
                             Fix "Unable to select default user group for both page and post" issue #126
                             Add NGINX reverse proxy handling #117

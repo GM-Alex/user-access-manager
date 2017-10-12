@@ -68,6 +68,22 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers ::getWordpress()
+     */
+    public function testSimpleGetters()
+    {
+        $frontendShortCodeController = new ShortCodeController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getAccessHandler()
+        );
+
+        self::assertEquals($this->getWordpress(), self::callMethod($frontendShortCodeController, 'getWordpress'));
+    }
+
+    /**
+     * @group  unit
      * @covers ::getLoginFormHtml()
      * @covers ::loginFormShortCode()
      */

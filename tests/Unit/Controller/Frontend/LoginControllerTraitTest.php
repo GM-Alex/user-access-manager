@@ -47,7 +47,10 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
             ->will($this->returnValue('escHtml'));
 
         $stub = $this->getStub();
-        self:self::setValue($stub, 'wordpress', $wordpress);
+
+        $stub->expects($this->any())
+            ->method('getWordpress')
+            ->will($this->returnValue($wordpress));
 
         $_GET['log'] = '/log\/';
 
@@ -67,7 +70,10 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(true, false));
 
         $stub = $this->getStub();
-        self:self::setValue($stub, 'wordpress', $wordpress);
+
+        $stub->expects($this->any())
+            ->method('getWordpress')
+            ->will($this->returnValue($wordpress));
 
         self::assertTrue($stub->isUserLoggedIn());
         self::assertFalse($stub->isUserLoggedIn());
@@ -93,7 +99,10 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
             ->will($this->returnValue($user));
 
         $stub = $this->getStub();
-        self:self::setValue($stub, 'wordpress', $wordpress);
+
+        $stub->expects($this->any())
+            ->method('getWordpress')
+            ->will($this->returnValue($wordpress));
 
         self::assertEquals('displayName', $stub->getCurrentUserName());
     }
@@ -131,7 +140,10 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
             ->will($this->returnValue('lostPasswordUrl'));
 
         $stub = $this->getStub();
-        self:self::setValue($stub, 'wordpress', $wordpress);
+
+        $stub->expects($this->any())
+            ->method('getWordpress')
+            ->will($this->returnValue($wordpress));
 
         self::assertEquals('loginUrl', $stub->getLoginUrl());
         self::assertEquals('logoutUrl', $stub->getLogoutUrl());
@@ -156,7 +168,10 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $stub = $this->getStub();
-        self:self::setValue($stub, 'wordpress', $wordpress);
+
+        $stub->expects($this->any())
+            ->method('getWordpress')
+            ->will($this->returnValue($wordpress));
 
         self::assertTrue($stub->showLoginForm());
         self::assertFalse($stub->showLoginForm());
@@ -183,7 +198,10 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
             ->will($this->returnValue('filter'));
 
         $stub = $this->getStub();
-        self:self::setValue($stub, 'wordpress', $wordpress);
+
+        $stub->expects($this->any())
+            ->method('getWordpress')
+            ->will($this->returnValue($wordpress));
 
         $_SERVER['REQUEST_URI'] = 'uri@';
 

@@ -38,13 +38,34 @@ class PostController extends Controller
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
 
     /**
+     * @var MainConfig
+     */
+    private $mainConfig;
+
+    /**
      * @var Database
      */
     private $database;
+
+    /**
+     * @var Util
+     */
+    private $util;
+
     /**
      * @var ObjectHandler
      */
     private $objectHandler;
+
+    /**
+     * @var UserHandler
+     */
+    private $userHandler;
+
+    /**
+     * @var AccessHandler
+     */
+    private $accessHandler;
 
     /**
      * @var array
@@ -87,6 +108,46 @@ class PostController extends Controller
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
+    }
+
+    /**
+     * @return Wordpress
+     */
+    protected function getWordpress()
+    {
+        return $this->wordpress;
+    }
+
+    /**
+     * @return MainConfig
+     */
+    protected function getMainConfig()
+    {
+        return $this->mainConfig;
+    }
+
+    /**
+     * @return Util
+     */
+    protected function getUtil()
+    {
+        return $this->util;
+    }
+
+    /**
+     * @return UserHandler
+     */
+    protected function getUserHandler()
+    {
+        return $this->userHandler;
+    }
+
+    /**
+     * @return AccessHandler
+     */
+    protected function getAccessHandler()
+    {
+        return $this->accessHandler;
     }
 
     /**

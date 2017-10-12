@@ -119,6 +119,14 @@ class RedirectController extends Controller
     }
 
     /**
+     * @return Wordpress
+     */
+    protected function getWordpress()
+    {
+        return $this->wordpress;
+    }
+
+    /**
      * Returns the post by the given url.
      *
      * @param string $url The url of the post(attachment).

@@ -31,6 +31,21 @@ class LoginWidget extends \WP_Widget
     const WIDGET_ID = 'uam_login_widget';
 
     /**
+     * @var Php
+     */
+    private $php;
+
+    /**
+     * @var Wordpress
+     */
+    private $wordpress;
+
+    /**
+     * @var WordpressConfig
+     */
+    private $wordpressConfig;
+
+    /**
      * LoginWidget constructor.
      *
      * @param Php             $php
@@ -49,6 +64,30 @@ class LoginWidget extends \WP_Widget
             TXT_UAM_LOGIN_WIDGET_TITLE,
             ['description' => TXT_UAM_LOGIN_WIDGET_DESC]
         );
+    }
+
+    /**
+     * @return Php
+     */
+    protected function getPhp()
+    {
+        return $this->php;
+    }
+
+    /**
+     * @return Wordpress
+     */
+    protected function getWordpress()
+    {
+        return $this->wordpress;
+    }
+
+    /**
+     * @return WordpressConfig
+     */
+    protected function getWordpressConfig()
+    {
+        return $this->wordpressConfig;
     }
 
     /**

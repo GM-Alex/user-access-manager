@@ -329,7 +329,7 @@ abstract class AbstractUserGroup
             return false;
         }
 
-        $return = $this->database->insert(
+        $return = $this->database->replace(
             $this->database->getUserGroupToObjectTable(),
             [
                 'group_id' => $this->id,

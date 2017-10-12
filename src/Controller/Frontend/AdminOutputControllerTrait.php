@@ -29,34 +29,34 @@ use UserAccessManager\Wrapper\Wordpress;
 trait AdminOutputControllerTrait
 {
     /**
-     * @var Wordpress
+     * @return Wordpress
      */
-    protected $wordpress;
+    abstract protected function getWordpress();
 
     /**
-     * @var WordpressConfig
+     * @return WordpressConfig
      */
-    protected $wordpressConfig;
+    abstract protected function getWordpressConfig();
 
     /**
-     * @var MainConfig
+     * @return MainConfig
      */
-    protected $mainConfig;
+    abstract protected function getMainConfig();
 
     /**
-     * @var Util
+     * @return Util
      */
-    protected $util;
+    abstract protected function getUtil();
 
     /**
-     * @var UserHandler
+     * @return UserHandler
      */
-    protected $userHandler;
+    abstract protected function getUserHandler();
 
     /**
-     * @var AccessHandler
+     * @return AccessHandler
      */
-    protected $accessHandler;
+    abstract protected function getAccessHandler();
 
     /**
      * Returns true if the hint text should be shown.
@@ -65,7 +65,8 @@ trait AdminOutputControllerTrait
      */
     private function showAdminHint()
     {
-        return $this->wordpressConfig->atAdminPanel() === false && $this->mainConfig->blogAdminHint() === true;
+        return $this->getWordpressConfig()->atAdminPanel() === false
+            && $this->getMainConfig()->blogAdminHint() === true;
     }
 
     /**
@@ -82,14 +83,14 @@ trait AdminOutputControllerTrait
         $output = '';
 
         if ($this->showAdminHint() === true) {
-            $hintText = $this->mainConfig->getBlogAdminHintText();
+            $hintText = $this->getMainConfig()->getBlogAdminHintText();
 
-            if ($text !== null && $this->util->endsWith($text, $hintText) === true) {
+            if ($text !== null && $this->getUtil()->endsWith($text, $hintText) === true) {
                 return $output;
             }
 
-            if ($this->userHandler->userIsAdmin($this->wordpress->getCurrentUser()->ID) === true
-                && count($this->accessHandler->getUserGroupsForObject($objectType, $objectId)) > 0
+            if ($this->getUserHandler()->userIsAdmin($this->getWordpress()->getCurrentUser()->ID) === true
+                && count($this->getAccessHandler()->getUserGroupsForObject($objectType, $objectId)) > 0
             ) {
                 $output .= $hintText;
             }

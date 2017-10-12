@@ -27,9 +27,9 @@ trait LoginControllerTrait
     use BaseControllerTrait;
 
     /**
-     * @var Wordpress
+     * @return Wordpress
      */
-    protected $wordpress;
+    abstract protected function getWordpress();
 
     /**
      * Returns the user login name.
@@ -39,7 +39,7 @@ trait LoginControllerTrait
     public function getUserLogin()
     {
         $userLogin = $this->getRequestParameter('log');
-        return $this->wordpress->escHtml(stripslashes($userLogin));
+        return $this->getWordpress()->escHtml(stripslashes($userLogin));
     }
 
     /**
@@ -49,7 +49,7 @@ trait LoginControllerTrait
      */
     public function isUserLoggedIn()
     {
-        return $this->wordpress->isUserLoggedIn();
+        return $this->getWordpress()->isUserLoggedIn();
     }
 
     /**
@@ -59,7 +59,7 @@ trait LoginControllerTrait
      */
     public function getCurrentUserName()
     {
-        return $this->wordpress->getCurrentUser()->display_name;
+        return $this->getWordpress()->getCurrentUser()->display_name;
     }
 
     /**
@@ -69,7 +69,7 @@ trait LoginControllerTrait
      */
     public function getLoginUrl()
     {
-        return $this->wordpress->wpLoginUrl($this->getRequestUrl());
+        return $this->getWordpress()->wpLoginUrl($this->getRequestUrl());
     }
 
     /**
@@ -79,7 +79,7 @@ trait LoginControllerTrait
      */
     public function getLogoutUrl()
     {
-        return $this->wordpress->wpLogoutUrl($this->getRequestUrl());
+        return $this->getWordpress()->wpLogoutUrl($this->getRequestUrl());
     }
 
 
@@ -90,7 +90,7 @@ trait LoginControllerTrait
      */
     public function getRegistrationUrl()
     {
-        return $this->wordpress->wpRegistrationUrl();
+        return $this->getWordpress()->wpRegistrationUrl();
     }
 
     /**
@@ -100,7 +100,7 @@ trait LoginControllerTrait
      */
     public function getLostPasswordUrl()
     {
-        return $this->wordpress->wpLostPasswordUrl($this->getRequestUrl());
+        return $this->getWordpress()->wpLostPasswordUrl($this->getRequestUrl());
     }
 
     /**
@@ -110,7 +110,7 @@ trait LoginControllerTrait
      */
     public function showLoginForm()
     {
-        return $this->wordpress->isSingle() === true || $this->wordpress->isPage() === true;
+        return $this->getWordpress()->isSingle() === true || $this->getWordpress()->isPage() === true;
     }
 
     /**
@@ -120,8 +120,8 @@ trait LoginControllerTrait
      */
     public function getRedirectLoginUrl()
     {
-        $loginUrl = $this->wordpress->getBlogInfo('wpurl')
+        $loginUrl = $this->getWordpress()->getBlogInfo('wpurl')
             .'/wp-login.php?redirect_to='.urlencode($_SERVER['REQUEST_URI']);
-        return $this->wordpress->applyFilters('uam_login_url', $loginUrl);
+        return $this->getWordpress()->applyFilters('uam_login_url', $loginUrl);
     }
 }

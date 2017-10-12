@@ -37,6 +37,16 @@ class TermController extends Controller
     const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
 
     /**
+     * @var MainConfig
+     */
+    private $mainConfig;
+
+    /**
+     * @var Util
+     */
+    private $util;
+
+    /**
      * @var ObjectHandler
      */
     private $objectHandler;
@@ -45,6 +55,16 @@ class TermController extends Controller
      * @var ObjectMapHandler
      */
     private $objectMapHandler;
+
+    /**
+     * @var UserHandler
+     */
+    private $userHandler;
+
+    /**
+     * @var AccessHandler
+     */
+    private $accessHandler;
 
     /**
      * @var array
@@ -87,6 +107,46 @@ class TermController extends Controller
         $this->objectMapHandler = $objectMapHandler;
         $this->userHandler = $userHandler;
         $this->accessHandler = $accessHandler;
+    }
+
+    /**
+     * @return MainConfig
+     */
+    protected function getMainConfig()
+    {
+        return $this->mainConfig;
+    }
+
+    /**
+     * @return Util
+     */
+    protected function getUtil()
+    {
+        return $this->util;
+    }
+
+    /**
+     * @return Wordpress
+     */
+    protected function getWordpress()
+    {
+        return $this->wordpress;
+    }
+
+    /**
+     * @return UserHandler
+     */
+    protected function getUserHandler()
+    {
+        return $this->userHandler;
+    }
+
+    /**
+     * @return AccessHandler
+     */
+    protected function getAccessHandler()
+    {
+        return $this->accessHandler;
     }
 
     /**

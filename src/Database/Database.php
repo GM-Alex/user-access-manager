@@ -303,6 +303,20 @@ class Database
     }
 
     /**
+     * @see \wpdb::insert()
+     *
+     * @param string       $table
+     * @param array        $data
+     * @param array|string $format
+     *
+     * @return false|int
+     */
+    public function replace($table, array $data, $format = null)
+    {
+        return $this->wpDatabase->replace($table, $data, $format);
+    }
+
+    /**
      * @see \wpdb::delete()
      *
      * @param string       $table

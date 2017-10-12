@@ -33,7 +33,7 @@ class TermControllerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $frontendController = new TermController(
+        $frontendTermController = new TermController(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
@@ -45,7 +45,36 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getAccessHandler()
         );
 
-        self::assertInstanceOf(TermController::class, $frontendController);
+        self::assertInstanceOf(TermController::class, $frontendTermController);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getWordpress()
+     * @covers ::getMainConfig()
+     * @covers ::getUtil()
+     * @covers ::getUserHandler()
+     * @covers ::getAccessHandler()
+     */
+    public function testSimpleGetters()
+    {
+        $frontendTermController = new TermController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getUtil(),
+            $this->getObjectHandler(),
+            $this->getObjectMapHandler(),
+            $this->getUserHandler(),
+            $this->getAccessHandler()
+        );
+
+        self::assertEquals($this->getWordpress(), self::callMethod($frontendTermController, 'getWordpress'));
+        self::assertEquals($this->getMainConfig(), self::callMethod($frontendTermController, 'getMainConfig'));
+        self::assertEquals($this->getUtil(), self::callMethod($frontendTermController, 'getUtil'));
+        self::assertEquals($this->getUserHandler(), self::callMethod($frontendTermController, 'getUserHandler'));
+        self::assertEquals($this->getAccessHandler(), self::callMethod($frontendTermController, 'getAccessHandler'));
     }
 
     /**
@@ -66,7 +95,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             ->method('getExcludedTerms')
             ->will($this->returnValue([1, 3]));
 
-        $frontendController = new TermController(
+        $frontendTermController = new TermController(
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
@@ -78,8 +107,8 @@ class TermControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
-        self::assertEquals(['exclude' => [1, 3]], $frontendController->getTermArguments([]));
-        self::assertEquals(['exclude' => [3, 4, 1]], $frontendController->getTermArguments(['exclude' => '3,4']));
+        self::assertEquals(['exclude' => [1, 3]], $frontendTermController->getTermArguments([]));
+        self::assertEquals(['exclude' => [3, 4, 1]], $frontendTermController->getTermArguments(['exclude' => '3,4']));
     }
 
     /**
@@ -296,7 +325,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             ->with('taxonomy', 1)
             ->will($this->returnValue([1, 2]));
 
-        $frontendController = new TermController(
+        $frontendTermController = new TermController(
             $this->getPhp(),
             $wordpress,
             $wordpressConfig,
@@ -312,20 +341,20 @@ class TermControllerTest extends UserAccessManagerTestCase
          * @var \WP_Term $fakeTerm
          */
         $fakeTerm = new \stdClass();
-        self::assertEquals($fakeTerm, $frontendController->showTerm($fakeTerm));
+        self::assertEquals($fakeTerm, $frontendTermController->showTerm($fakeTerm));
 
         $term = $this->getTerm(1);
-        self::assertEquals(null, $frontendController->showTerm($term));
+        self::assertEquals(null, $frontendTermController->showTerm($term));
         self::assertEquals(
             $this->getTerm(1, 'taxonomy', 'name1BlogAdminHintText', 3),
-            $frontendController->showTerm($term)
+            $frontendTermController->showTerm($term)
         );
 
         $term = $this->getTerm(107, 'taxonomy', null, 0, 106);
-        self::assertEquals($this->getTerm(107, 'taxonomy', null, 0, 105), $frontendController->showTerm($term));
+        self::assertEquals($this->getTerm(107, 'taxonomy', null, 0, 105), $frontendTermController->showTerm($term));
 
         $term = $this->getTerm(105, 'taxonomy', null, 0, 104);
-        self::assertEquals($this->getTerm(105, 'taxonomy', null, 0, 104), $frontendController->showTerm($term));
+        self::assertEquals($this->getTerm(105, 'taxonomy', null, 0, 104), $frontendTermController->showTerm($term));
 
         $terms = [
             1 => new \stdClass(),
@@ -346,7 +375,7 @@ class TermControllerTest extends UserAccessManagerTestCase
                 50 => 50,
                 100 => $this->getTerm(2, 'invalidTaxonomy')
             ],
-            $frontendController->showTerms($terms)
+            $frontendTermController->showTerms($terms)
         );
     }
 
@@ -537,7 +566,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             ->with('other', 1)
             ->will($this->returnValue([1, 2]));
 
-        $frontendController = new TermController(
+        $frontendTermController = new TermController(
             $this->getPhp(),
             $wordpress,
             $wordpressConfig,
@@ -568,7 +597,7 @@ class TermControllerTest extends UserAccessManagerTestCase
                 3 => $this->getItem('post', 2, 'PostTypeTitle'),
                 8 => $this->getItem('taxonomy', 3)
             ],
-            $frontendController->showCustomMenu($items)
+            $frontendTermController->showCustomMenu($items)
         );
     }
 }

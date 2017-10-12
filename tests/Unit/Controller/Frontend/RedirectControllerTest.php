@@ -75,6 +75,29 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @group  unit
+     * @covers ::getWordpress()
+     */
+    public function testSimpleGetters()
+    {
+        $frontendRedirectController = new RedirectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
+        self::assertEquals($this->getWordpress(), self::callMethod($frontendRedirectController, 'getWordpress'));
+    }
+
+    /**
      * @param int    $id
      * @param string $postType
      * @param string $title

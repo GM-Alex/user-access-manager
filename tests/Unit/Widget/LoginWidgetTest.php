@@ -84,6 +84,25 @@ class LoginWidgetTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers ::getPhp()
+     * @covers ::getWordpress()
+     * @covers ::getWordpressConfig()
+     */
+    public function testSimpleGetters()
+    {
+        $loginWidget = new LoginWidget(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig()
+        );
+
+        self::assertEquals($this->getPhp(), self::callMethod($loginWidget, 'getPhp'));
+        self::assertEquals($this->getWordpress(), self::callMethod($loginWidget, 'getWordpress'));
+        self::assertEquals($this->getWordpressConfig(), self::callMethod($loginWidget, 'getWordpressConfig'));
+    }
+
+    /**
+     * @group  unit
      * @covers ::widget()
      */
     public function testWidget()

@@ -550,7 +550,73 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController->checkRightsToEditContent();
     }
 
+    /**
+     * @group  unit
+     * @covers ::getDateParameter()
+     */
+    public function testGetDataParameter()
+    {
+        $objectController = new ObjectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getDateUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
+        );
 
+        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'someName']));
+        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'name']));
+        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'name']));
+        self::assertNull(
+            self::callMethod(
+                $objectController,
+                'getDateParameter',
+                [['name' => ['date' => 'dateValue']], 'name']
+            )
+        );
+        self::assertNull(
+            self::callMethod(
+                $objectController,
+                'getDateParameter',
+                [['name' => ['time' => 'timeValue']], 'name']
+            )
+        );
+        self::assertNull(
+            self::callMethod(
+                $objectController,
+                'getDateParameter',
+                [['name' => ['date' => '', 'time' => '']], 'name']
+            )
+        );
+        self::assertNull(
+            self::callMethod(
+                $objectController,
+                'getDateParameter',
+                [['name' => ['date' => 'dateValue', 'time' => '']], 'name']
+            )
+        );
+        self::assertNull(
+            self::callMethod(
+                $objectController,
+                'getDateParameter',
+                [['name' => ['date' => '', 'time' => 'timeValue']], 'name']
+            )
+        );
+        self::assertEquals(
+            'dateValueTtimeValue',
+            self::callMethod(
+                $objectController,
+                'getDateParameter',
+                [['name' => ['date' => 'dateValue', 'time' => 'timeValue']], 'name']
+            )
+        );
+    }
 
     /**
      * @group  unit
@@ -559,7 +625,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
      * @covers ::setUserGroups()
      * @covers ::setDynamicGroups()
      * @covers ::setDefaultGroups()
-     * @covers ::getDateParameter()
      */
     public function testSaveObjectData()
     {

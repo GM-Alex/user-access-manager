@@ -374,7 +374,7 @@ class ObjectController extends Controller
     private function getDateParameter(array $data, $name)
     {
         $isValid = isset($data[$name]['date']) === true && isset($data[$name]['time']) === true
-            && ((string)$data[$name]['date'] !== '' || (string)$data[$name]['time'] !== '');
+            && (string)$data[$name]['date'] !== '' && (string)$data[$name]['time'] !== '';
 
         return ($isValid === true) ? (string)$data[$name]['date'].'T'.$data[$name]['time'] : null;
     }

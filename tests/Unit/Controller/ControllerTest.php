@@ -86,6 +86,24 @@ class ControllerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @group  unit
+     * @covers ::getPhp()
+     * @covers ::getWordpressConfig()
+     */
+    public function testSimpleGetters()
+    {
+        $stub = $this->getStub();
+        $stub->__construct(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig()
+        );
+
+        self::assertEquals($this->getPhp(), self::callMethod($stub, 'getPhp'));
+        self::assertEquals($this->getWordpressConfig(), self::callMethod($stub, 'getWordpressConfig'));
+    }
+
+    /**
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createNonceField()

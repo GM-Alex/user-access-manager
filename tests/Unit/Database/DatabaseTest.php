@@ -175,6 +175,7 @@ class DatabaseTest extends UserAccessManagerTestCase
      * @covers ::getResults()
      * @covers ::insert()
      * @covers ::update()
+     * @covers ::replace()
      * @covers ::delete()
      */
     public function testFunctionWrapper()
@@ -233,6 +234,12 @@ class DatabaseTest extends UserAccessManagerTestCase
                 [['table', ['a'], ['b'], null, null], ['table', ['c'], ['d'], 'format', 'where']],
                 ['firstReturn', 'secondReturn'],
                 [['table', ['a'], ['b']], ['table', ['c'], ['d'], 'format', 'where']]
+            ],
+            'replace' => [
+                'replace',
+                [['table', ['a'], null], ['table', ['b'], 'format']],
+                ['firstReturn', 'secondReturn'],
+                [['table', ['a']], ['table', ['b'], 'format']]
             ],
             'delete' => [
                 'delete',

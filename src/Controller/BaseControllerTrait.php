@@ -25,14 +25,14 @@ use UserAccessManager\Wrapper\Php;
 trait BaseControllerTrait
 {
     /**
-     * @var Php
+     * @return Php
      */
-    protected $php;
+    abstract protected function getPhp();
 
     /**
-     * @var WordpressConfig
+     * @return WordpressConfig
      */
-    protected $wordpressConfig;
+    abstract protected function getWordpressConfig();
 
     /**
      * @var string
@@ -106,14 +106,14 @@ trait BaseControllerTrait
     protected function getIncludeContents($fileName)
     {
         $contents = '';
-        $realPath = rtrim($this->wordpressConfig->getRealPath(), DIRECTORY_SEPARATOR);
+        $realPath = rtrim($this->getWordpressConfig()->getRealPath(), DIRECTORY_SEPARATOR);
         $path = [$realPath, 'src', 'View'];
         $path = implode(DIRECTORY_SEPARATOR, $path).DIRECTORY_SEPARATOR;
         $fileWithPath = $path.$fileName;
 
         if (is_file($fileWithPath) === true) {
             ob_start();
-            $this->php->includeFile($this, $fileWithPath);
+            $this->getPhp()->includeFile($this, $fileWithPath);
             $contents = ob_get_contents();
             ob_end_clean();
         }

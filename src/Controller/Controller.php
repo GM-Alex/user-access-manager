@@ -33,6 +33,16 @@ abstract class Controller
     const ACTION_SUFFIX = 'Action';
 
     /**
+     * @var Php
+     */
+    protected $php;
+
+    /**
+     * @var WordpressConfig
+     */
+    protected $wordpressConfig;
+
+    /**
      * @var Wordpress
      */
     protected $wordpress;
@@ -54,6 +64,22 @@ abstract class Controller
         $this->php = $php;
         $this->wordpress = $wordpress;
         $this->wordpressConfig = $wordpressConfig;
+    }
+
+    /**
+     * @return Php
+     */
+    protected function getPhp()
+    {
+        return $this->php;
+    }
+
+    /**
+     * @return WordpressConfig
+     */
+    protected function getWordpressConfig()
+    {
+        return $this->wordpressConfig;
     }
 
     /**

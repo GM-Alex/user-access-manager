@@ -110,12 +110,30 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
             ));
 
         $stub = $this->getStub();
-        self::setValue($stub, 'wordpress', $wordpress);
-        self::setValue($stub, 'wordpressConfig', $wordpressConfig);
-        self::setValue($stub, 'mainConfig', $mainConfig);
-        self::setValue($stub, 'util', $util);
-        self::setValue($stub, 'userHandler', $userHandler);
-        self::setValue($stub, 'accessHandler', $accessHandler);
+
+        $stub->expects($this->any())
+            ->method('getWordpress')
+            ->will($this->returnValue($wordpress));
+
+        $stub->expects($this->any())
+            ->method('getWordpressConfig')
+            ->will($this->returnValue($wordpressConfig));
+
+        $stub->expects($this->any())
+            ->method('getMainConfig')
+            ->will($this->returnValue($mainConfig));
+
+        $stub->expects($this->any())
+            ->method('getUtil')
+            ->will($this->returnValue($util));
+
+        $stub->expects($this->any())
+            ->method('getUserHandler')
+            ->will($this->returnValue($userHandler));
+
+        $stub->expects($this->any())
+            ->method('getAccessHandler')
+            ->will($this->returnValue($accessHandler));
 
         self::assertEquals('', $stub->adminOutput('objectType', 'objectId'));
         self::assertEquals('', $stub->adminOutput('objectType', 'objectId'));

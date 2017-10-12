@@ -53,6 +53,14 @@ class ShortCodeController extends Controller
     }
 
     /**
+     * @return Wordpress
+     */
+    protected function getWordpress()
+    {
+        return $this->wordpress;
+    }
+
+    /**
      * Returns the login bar.
      *
      * @return string

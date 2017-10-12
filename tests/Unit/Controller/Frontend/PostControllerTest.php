@@ -50,6 +50,35 @@ class PostControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers ::getWordpress()
+     * @covers ::getMainConfig()
+     * @covers ::getUtil()
+     * @covers ::getUserHandler()
+     * @covers ::getAccessHandler()
+     */
+    public function testSimpleGetters()
+    {
+        $frontendPostController = new PostController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $this->getAccessHandler()
+        );
+
+        self::assertEquals($this->getWordpress(), self::callMethod($frontendPostController, 'getWordpress'));
+        self::assertEquals($this->getMainConfig(), self::callMethod($frontendPostController, 'getMainConfig'));
+        self::assertEquals($this->getUtil(), self::callMethod($frontendPostController, 'getUtil'));
+        self::assertEquals($this->getUserHandler(), self::callMethod($frontendPostController, 'getUserHandler'));
+        self::assertEquals($this->getAccessHandler(), self::callMethod($frontendPostController, 'getAccessHandler'));
+    }
+
+    /**
+     * @group  unit
      * @covers ::parseQuery()
      * @covers ::filtersSuppressed()
      */

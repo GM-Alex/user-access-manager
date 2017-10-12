@@ -134,6 +134,14 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
 
         $stub = $this->getStub();
 
+        $stub->expects($this->any())
+            ->method('getPhp')
+            ->will($this->returnValue($php));
+
+        $stub->expects($this->any())
+            ->method('getWordpressConfig')
+            ->will($this->returnValue($wordpressConfig));
+
         $php->expects($this->once())
             ->method('includeFile')
             ->with($stub, 'vfs://root/src/View/TestView.php')
@@ -141,9 +149,6 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
                 echo 'testContent';
             }));
 
-
-        self::setValue($stub, 'php', $php);
-        self::setValue($stub, 'wordpressConfig', $wordpressConfig);
         self::setValue($stub, 'template', 'TestView.php');
 
         $stub->render();

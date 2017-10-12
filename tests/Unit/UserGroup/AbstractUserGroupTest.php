@@ -199,7 +199,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             ->will($this->returnValue('userGroupToObjectTable'));
 
         $database->expects($this->exactly(6))
-            ->method('insert')
+            ->method('replace')
             ->withConsecutive(
                 [
                     'userGroupToObjectTable',
