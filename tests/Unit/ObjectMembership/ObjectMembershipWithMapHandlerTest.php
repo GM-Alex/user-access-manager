@@ -20,6 +20,7 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\ObjectMembership\ObjectMembershipWithMapHandler;
+use UserAccessManager\UserGroup\UserGroup;
 
 /**
  * Class ObjectMembershipWithMapHandlerTest
@@ -77,23 +78,36 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetMembershipByMap()
     {
-        $userGroup = $this->getUserGroup(1);
-        $userGroup->expects($this->exactly(6))
+        $userGroup = $this->createMock(UserGroup::class);
+
+        $userGroup->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue(1));
+
+        $returnCallback = $this->returnCallback(
+            function ($generalObjectType, $objectId, &$assignmentInformation) {
+                $assignmentInformation = ($objectId === 'parentObjectId') ? 'rmInfo' : null;
+                return ($objectId === 'objectIdFalse' || $objectId === 'parentObjectIdFalse') ? false : true;
+            }
+        );
+
+        $userGroup->expects($this->exactly(2))
+            ->method('isObjectMember')
+            ->withConsecutive(
+                ['generalObjectType', 'parentObjectId'],
+                ['generalObjectType', 'parentObjectIdFalse']
+            )
+            ->will($returnCallback);
+
+        $userGroup->expects($this->exactly(4))
             ->method('isObjectAssignedToGroup')
             ->withConsecutive(
                 ['generalObjectType', 'objectIdFalse'],
                 ['generalObjectType', 'objectId'],
-                ['generalObjectType', 'parentObjectId'],
-                ['generalObjectType', 'parentObjectIdFalse'],
                 ['generalObjectType', 'objectIdFalse'],
                 ['someObjectType', 'objectId']
             )
-            ->will($this->returnCallback(
-                function ($generalObjectType, $objectId, &$assignmentInformation) {
-                    $assignmentInformation = ($objectId === 'parentObjectId') ? 'rmInfo' : null;
-                    return ($objectId === 'objectIdFalse' || $objectId === 'parentObjectIdFalse') ? false : true;
-                }
-            ));
+            ->will($returnCallback);
 
         $objectMembershipWithMapHandler = $this->getStub(
             $this->getExtendedAssignmentInformationFactory()

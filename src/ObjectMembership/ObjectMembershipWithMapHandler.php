@@ -58,13 +58,13 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 
             if (isset($generalMap[$objectId]) === true) {
                 foreach ($generalMap[$objectId] as $parentId => $type) {
-                    $isAssignedToGroup = $userGroup->isObjectAssignedToGroup(
+                    $isObjectMember = $userGroup->isObjectMember(
                         $this->generalObjectType,
                         $parentId,
                         $rmAssignmentInformation
                     );
 
-                    if ($isAssignedToGroup === true) {
+                    if ($isObjectMember === true) {
                         $recursiveMembership[$this->generalObjectType][$parentId] = $rmAssignmentInformation;
                     }
                 }

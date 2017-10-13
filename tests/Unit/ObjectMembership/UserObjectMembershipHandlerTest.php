@@ -175,6 +175,7 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     public function testIsMember()
     {
         $userGroup = $this->getMembershipUserGroup(
+            [],
             [
                 [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 4],
                 [ObjectHandler::GENERAL_USER_OBJECT_TYPE, 3],

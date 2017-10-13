@@ -169,7 +169,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
      *
      * @param AbstractUserGroup $userGroup
      * @param bool              $lockRecursive
-     * @param null              $objectType
+     * @param null|string       $objectType
      *
      * @return array
      */

@@ -24,12 +24,23 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 trait LoginControllerTrait
 {
-    use BaseControllerTrait;
-
     /**
      * @return Wordpress
      */
     abstract protected function getWordpress();
+
+    /**
+     * @return string
+     */
+    abstract public function getRequestUrl();
+
+    /**
+     * @param string $name
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    abstract public function getRequestParameter($name, $default = null);
 
     /**
      * Returns the user login name.

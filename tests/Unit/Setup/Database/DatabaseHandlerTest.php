@@ -199,6 +199,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getCorruptedDatabaseInformation()
+     * @covers ::addCorruptedRows()
      * @covers ::getExistingColumns()
      */
     public function testGetCorruptedDatabaseInformation()

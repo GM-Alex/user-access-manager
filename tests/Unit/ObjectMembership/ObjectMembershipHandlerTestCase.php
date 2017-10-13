@@ -102,50 +102,63 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @param array       $with
+     * @param array       $withIsObjectMember
+     * @param array       $withIsObjectAssignedToGroup
      * @param array       $falseIds
      * @param null|string $fromDate
      * @param null|string $toDate
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup
      */
-    protected function getMembershipUserGroup(array $with, array $falseIds, $fromDate = null, $toDate = null)
-    {
+    protected function getMembershipUserGroup(
+        array $withIsObjectMember,
+        array $withIsObjectAssignedToGroup,
+        array $falseIds,
+        $fromDate = null,
+        $toDate = null
+    ) {
         /**
          * @var \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup $userGroup
          */
         $userGroup = $this->createMock(AbstractUserGroup::class);
 
-        $userGroup->expects($this->exactly(count($with)))
-            ->method('isObjectAssignedToGroup')
-            ->withConsecutive(...$with)
-            ->will($this->returnCallback(
-                function (
-                    $objectType,
-                    $objectId,
-                    &$assignmentInformation = null
-                ) use (
-                    $falseIds,
-                    $fromDate,
-                    $toDate
-                ) {
-                    if (in_array($objectId, $falseIds) === true) {
-                        $assignmentInformation = null;
-                        return false;
-                    }
-
-                    if ($objectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
-                        $objectType = 'post';
-                    } elseif ($objectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
-                        $objectType = 'term';
-                    } elseif ($objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
-                        $objectType = 'user';
-                    }
-
-                    $assignmentInformation = $this->getAssignmentInformation($objectType, $fromDate, $toDate);
-                    return true;
+        $return = $this->returnCallback(
+            function (
+                $objectType,
+                $objectId,
+                &$assignmentInformation = null
+            ) use (
+                $falseIds,
+                $fromDate,
+                $toDate
+            ) {
+                if (in_array($objectId, $falseIds) === true) {
+                    $assignmentInformation = null;
+                    return false;
                 }
-            ));
+
+                if ($objectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
+                    $objectType = 'post';
+                } elseif ($objectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
+                    $objectType = 'term';
+                } elseif ($objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
+                    $objectType = 'user';
+                }
+
+                $assignmentInformation = $this->getAssignmentInformation($objectType, $fromDate, $toDate);
+                return true;
+            }
+        );
+
+        $userGroup->expects($this->exactly(count($withIsObjectMember)))
+            ->method('isObjectMember')
+            ->withConsecutive(...$withIsObjectMember)
+            ->will($return);
+
+        $userGroup->expects($this->exactly(count($withIsObjectAssignedToGroup)))
+            ->method('isObjectAssignedToGroup')
+            ->withConsecutive(...$withIsObjectAssignedToGroup)
+            ->will($return);
 
         return $userGroup;
     }

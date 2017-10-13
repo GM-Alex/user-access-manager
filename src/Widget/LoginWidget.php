@@ -15,6 +15,7 @@
 namespace UserAccessManager\Widget;
 
 use UserAccessManager\Config\WordpressConfig;
+use UserAccessManager\Controller\BaseControllerTrait;
 use UserAccessManager\Controller\Frontend\LoginControllerTrait;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -26,6 +27,7 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class LoginWidget extends \WP_Widget
 {
+    use BaseControllerTrait;
     use LoginControllerTrait;
 
     const WIDGET_ID = 'uam_login_widget';

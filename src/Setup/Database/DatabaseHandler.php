@@ -178,6 +178,38 @@ class DatabaseHandler
     }
 
     /**
+     * Add corrupted columns to the information array if the are some.
+     *
+     * @param Table $table
+     * @param array $information
+     */
+    private function addCorruptedRows(Table $table, array &$information)
+    {
+        $existingColumns = $this->getExistingColumns($table);
+
+        foreach ($table->getColumns() as $column) {
+            if (isset($existingColumns[$column->getName()]) === false) {
+                $information[self::MISSING_COLUMNS][] = [$table, $column];
+                continue;
+            }
+
+            $existingColumn = $existingColumns[$column->getName()];
+            unset($existingColumns[$column->getName()]);
+
+            if ((string)$column !== (string)$existingColumn) {
+                $information[self::MODIFIED_COLUMNS][] = [$table, $column];
+                continue;
+            }
+        }
+
+        foreach ($existingColumns as $existingColumn) {
+            $information[self::EXTRA_COLUMNS][] = [$table, $existingColumn];
+        }
+    }
+
+    /**
+     * Returns corrupted database information.
+     *
      * @return array
      */
     public function getCorruptedDatabaseInformation()
@@ -195,26 +227,7 @@ class DatabaseHandler
                 continue;
             }
 
-            $existingColumns = $this->getExistingColumns($table);
-
-            foreach ($table->getColumns() as $column) {
-                if (isset($existingColumns[$column->getName()]) === false) {
-                    $information[self::MISSING_COLUMNS][] = [$table, $column];
-                    continue;
-                }
-
-                $existingColumn = $existingColumns[$column->getName()];
-                unset($existingColumns[$column->getName()]);
-
-                if ((string)$column !== (string)$existingColumn) {
-                    $information[self::MODIFIED_COLUMNS][] = [$table, $column];
-                    continue;
-                }
-            }
-
-            foreach ($existingColumns as $existingColumn) {
-                $information[self::EXTRA_COLUMNS][] = [$table, $existingColumn];
-            }
+            $this->addCorruptedRows($table, $information);
         }
 
         return $information;

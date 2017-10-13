@@ -131,11 +131,13 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
          */
         $userGroup = $this->getMembershipUserGroup(
             [
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 1],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 3],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 1]
+            ],
+            [
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 1],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 2],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 3],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 1],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 4],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 5],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 10]

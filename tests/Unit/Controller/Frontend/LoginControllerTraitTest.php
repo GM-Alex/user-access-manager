@@ -52,7 +52,9 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
             ->method('getWordpress')
             ->will($this->returnValue($wordpress));
 
-        $_GET['log'] = '/log\/';
+        $stub->expects($this->any())
+            ->method('getRequestParameter')
+            ->will($this->returnValue('/log\/'));
 
         self::assertEquals('escHtml', $stub->getUserLogin());
     }
@@ -144,6 +146,10 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
         $stub->expects($this->any())
             ->method('getWordpress')
             ->will($this->returnValue($wordpress));
+
+        $stub->expects($this->any())
+            ->method('getRequestUrl')
+            ->will($this->returnValue('requestUri'));
 
         self::assertEquals('loginUrl', $stub->getLoginUrl());
         self::assertEquals('logoutUrl', $stub->getLogoutUrl());
