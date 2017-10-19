@@ -1,0 +1,25 @@
+
+-
+    request:
+        method: GET
+        url: 'https://localhost?testXSendFile'
+        headers:
+            Host: localhost
+    response:
+        status:
+            http_version: '1.1'
+            code: '200'
+            message: OK
+        headers:
+            Server: localhost
+            Content-Type: 'application/text; charset=utf-8'
+            Last-Modified: 'Thu, 07 Sep 2017 21:21:47 GMT'
+            Access-Control-Allow-Origin: '*'
+            Expires: 'Thu, 07 Sep 2017 21:33:03 GMT'
+            Cache-Control: max-age=600
+            Content-Length: '7'
+            Accept-Ranges: bytes
+            Date: 'Thu, 07 Sep 2017 21:23:03 GMT'
+            Connection: keep-alive
+            Vary: Accept-Encoding
+        body: "success"

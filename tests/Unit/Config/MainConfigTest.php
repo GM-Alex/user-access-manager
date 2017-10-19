@@ -75,7 +75,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'authors_can_add_posts_to_groups' => 'bool|authors_can_add_posts_to_groups|false',
             'lock_file' => 'bool|lock_file|false',
             'file_pass_type' => 'selection|file_pass_type|random|random|user',
-            'download_type' => 'selection|download_type|fopen|fopen|normal',
+            'download_type' => 'selection|download_type|fopen|xsendfile|fopen|normal',
             'lock_file_types' => 'selection|lock_file_types|all|all|selected|not_selected',
             'locked_file_types' => 'string|locked_file_types|zip,rar,tar,gz',
             'not_locked_file_types' => 'string|not_locked_file_types|gif,jpg,jpeg,png',

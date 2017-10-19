@@ -75,13 +75,14 @@ class FileHandlerTest extends UserAccessManagerTestCase
      * @covers ::getFileMineType()
      * @covers ::clearBuffer()
      * @covers ::deliverFile()
+     * @covers ::addDefaultHeader()
      * @covers ::deliverFileViaFopen()
      * @runInSeparateProcess
      */
     public function testGetFile()
     {
         $php = $this->getPhp();
-        $php->expects($this->exactly(9))
+        $php->expects($this->exactly(10))
             ->method('functionExists')
             ->withConsecutive(
                 ['finfo_open'],
@@ -92,7 +93,8 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 ['finfo_open'],
                 ['mime_content_type'],
                 ['finfo_open'],
-                ['mime_content_type']
+                ['mime_content_type'],
+                ['finfo_open']
             )
             ->will($this->onConsecutiveCalls(
                 true,
@@ -103,26 +105,27 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 false,
                 false,
                 false,
-                false
+                false,
+                true
             ));
 
-        $php->expects($this->exactly(4))
+        $php->expects($this->exactly(5))
             ->method('iniGet')
             ->with('safe_mode')
-            ->will($this->onConsecutiveCalls('On', '', 'On', 'On'));
+            ->will($this->onConsecutiveCalls('On', 'On', '', 'On', 'On'));
 
-        $php->expects($this->exactly(3))
+        $php->expects($this->exactly(4))
             ->method('setTimeLimit')
             ->with(30);
 
-        $php->expects($this->exactly(4))
+        $php->expects($this->exactly(5))
             ->method('fread')
             ->with($this->anything(), 1024)
             ->will($this->returnCallback(function ($handle, $length) {
                 return fread($handle, $length);
             }));
 
-        $php->expects($this->exactly(6))
+        $php->expects($this->exactly(7))
             ->method('callExit');
 
         $wordpress = $this->getWordpress();
@@ -132,7 +135,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue(null));
 
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->exactly(6))
+        $wordpressConfig->expects($this->exactly(7))
             ->method('getMimeTypes')
             ->will($this->onConsecutiveCalls(
                 ['txt' => 'textFile'],
@@ -140,13 +143,14 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 ['txt' => 'textFile'],
                 ['txt' => 'textFile'],
                 ['txt' => 'textFile'],
-                ['jpg' => 'pictureFile']
+                ['jpg' => 'pictureFile'],
+                ['txt' => 'textFile']
             ));
 
         $mainConfig = $this->getMainConfig();
-        $mainConfig->expects($this->exactly(6))
+        $mainConfig->expects($this->exactly(7))
             ->method('getDownloadType')
-            ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen', 'fopen', 'fopen', 'fopen'));
+            ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen', 'fopen', 'fopen', 'fopen', 'xsendfile'));
 
         $fileHandler = new FileHandler(
             $php,
@@ -194,9 +198,9 @@ class FileHandlerTest extends UserAccessManagerTestCase
         self::assertEquals('Test text2', self::getActualOutput());
         self::assertEquals(
             [
-                'Content-Disposition: attachment; filename="testFile.txt"',
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: inline; filename="testFile2.txt"',
                 'Content-Transfer-Encoding: binary',
                 'Content-Length: 10'
             ],
@@ -261,6 +265,20 @@ class FileHandlerTest extends UserAccessManagerTestCase
         );
         self::expectOutputString('Test text');
         self::assertEquals(false, http_response_code());
+
+        header_remove();
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals('Test text', self::getActualOutput());
+        self::assertEquals(
+            [
+                'X-Sendfile: vfs://testDir/testFile.txt',
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(false, http_response_code());
     }
 
     /**
@@ -275,7 +293,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     public function testGetPartialFile()
     {
         $php = $this->getPhp();
-        $php->expects($this->exactly(10))
+        $php->expects($this->exactly(9))
             ->method('functionExists')
             ->with('finfo_open')
             ->will($this->returnValue(true));
@@ -298,7 +316,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(0, 0, 0, 0, 0, 0, 1));
 
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->exactly(10))
+        $wordpressConfig->expects($this->exactly(9))
             ->method('getMimeTypes')
             ->will($this->returnValue(['txt' => 'textFile']));
 
@@ -368,11 +386,11 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals(
             [
-                'Content-Transfer-Encoding: binary',
-                'Content-Length: 9',
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
-                'Content-Disposition: attachment; filename="testFile.txt"'
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Transfer-Encoding: binary',
+                'Content-Length: 9',
             ],
             xdebug_get_headers()
         );
@@ -628,5 +646,85 @@ class FileHandlerTest extends UserAccessManagerTestCase
         self::assertTrue($fileHandler->deleteFileProtection());
         self::assertTrue($fileHandler->deleteFileProtection());
         self::assertTrue($fileHandler->deleteFileProtection('otherDirectory'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::deliverXSendFileTestFile()
+     * @runInSeparateProcess
+     */
+    public function testDeliverXSendFileTestFile()
+    {
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('uploadDir', new Directory([
+            'testFile.txt' => new File('Test text'),
+            'testFile2.txt' => new File('Test text2'),
+            'testFile3.txt' => new File('Test text3')
+        ]));
+
+        $uploadDir = 'vfs://uploadDir/';
+
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->once())
+            ->method('getUploadDirectory')
+            ->will($this->returnValue($uploadDir));
+
+        $fileHandler = new FileHandler(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $wordpressConfig,
+            $this->getMainConfig(),
+            $this->getFileProtectionFactory()
+        );
+
+        self::assertFalse(file_exists($uploadDir.FileHandler::X_SEND_FILE_TEST_FILE));
+        $fileHandler->deliverXSendFileTestFile();
+        self::assertEquals(
+            [
+                'X-Sendfile: vfs://uploadDir//xSendFileTestFile',
+                'Content-Type: application/octet-stream',
+                'Content-Disposition: attachment; filename="xSendFileTestFile"'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(false, http_response_code());
+        self::assertTrue(file_exists($uploadDir.FileHandler::X_SEND_FILE_TEST_FILE));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::removeXSendFileTestFile()
+     */
+    public function testRemoveXSendFileTestFile()
+    {
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('uploadDir', new Directory([
+            FileHandler::X_SEND_FILE_TEST_FILE => new File('success')
+        ]));
+
+        $uploadDir = 'vfs://uploadDir/';
+
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->once())
+            ->method('getUploadDirectory')
+            ->will($this->returnValue($uploadDir));
+
+        $fileHandler = new FileHandler(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $wordpressConfig,
+            $this->getMainConfig(),
+            $this->getFileProtectionFactory()
+        );
+
+        self::assertTrue(file_exists($uploadDir.FileHandler::X_SEND_FILE_TEST_FILE));
+        $fileHandler->removeXSendFileTestFile();
+        self::assertFalse(file_exists($uploadDir.FileHandler::X_SEND_FILE_TEST_FILE));
     }
 }

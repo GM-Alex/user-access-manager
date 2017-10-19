@@ -730,4 +730,31 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         self::assertEquals('firstUrl', $frontendRedirectController->cachePostLinks('firstUrl', $this->getPost(1)));
         self::assertEquals('secondUrl', $frontendRedirectController->cachePostLinks('secondUrl', $this->getPost(2)));
     }
+
+    /**
+     * @group  unit
+     * @covers ::testXSendFile()
+     */
+    public function testTestXSendFile()
+    {
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->once())
+            ->method('deliverXSendFileTestFile');
+
+        $frontendRedirectController = new RedirectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $fileHandler,
+            $this->getFileObjectFactory()
+        );
+
+        $frontendRedirectController->testXSendFile();
+    }
 }

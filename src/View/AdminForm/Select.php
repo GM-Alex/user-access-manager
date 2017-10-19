@@ -34,6 +34,9 @@
             if ($select->getValue() === $possibleValue->getValue()) {
                 echo 'selected="selected"';
             }
+            if ($possibleValue->isDisabled() === true) {
+                echo 'disabled="disabled"';
+            }
             ?> >
                 <?php echo $possibleValue->getLabel(); ?>
             </option>

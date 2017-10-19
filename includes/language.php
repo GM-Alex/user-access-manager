@@ -90,6 +90,7 @@ define('TXT_UAM_DOWNLOAD_TYPE', __('Download type', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_NORMAL', __('Normal', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_FOPEN', __('fopen', 'user-access-manager'));
+define('TXT_UAM_DOWNLOAD_TYPE_XSENDFILE', __('XSendfile', 'user-access-manager'));
 
 // --- Setting Page -> editor settings ---
 define('TXT_UAM_AUTHOR_SETTING', __('Authors settings', 'user-access-manager'));

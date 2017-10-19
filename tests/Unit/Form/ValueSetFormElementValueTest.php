@@ -61,4 +61,19 @@ class ValueSetFormElementValueTest extends \PHPUnit_Framework_TestCase
     {
         self::assertEquals('label', $valueSetFormElementValue->getLabel());
     }
+
+    /**
+     * @group   unit
+     * @covers  ::isDisabled()
+     * @covers  ::markDisabled()
+     * @depends testCanCreateInstance
+     *
+     * @param ValueSetFormElementValue $valueSetFormElementValue
+     */
+    public function testDisabled(ValueSetFormElementValue $valueSetFormElementValue)
+    {
+        self::assertFalse($valueSetFormElementValue->isDisabled());
+        $valueSetFormElementValue->markDisabled();
+        self::assertTrue($valueSetFormElementValue->isDisabled());
+    }
 }

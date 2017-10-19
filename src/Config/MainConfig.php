@@ -220,7 +220,7 @@ class MainConfig extends Config
         $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
             $id,
             'fopen',
-            ['fopen', 'normal']
+            ['xsendfile', 'fopen', 'normal']
         );
 
         $id = 'lock_file_types';

@@ -420,4 +420,12 @@ class RedirectController extends Controller
         $this->cache->addToRuntimeCache(self::POST_URL_CACHE_KEY, $postUrls);
         return $url;
     }
+
+    /**
+     * Tries to load the file via x send file
+     */
+    public function testXSendFile()
+    {
+        $this->fileHandler->deliverXSendFileTestFile();
+    }
 }

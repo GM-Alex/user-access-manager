@@ -21,13 +21,17 @@ use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\Controller\Backend\SettingsController;
+use UserAccessManager\Form\Form;
 use UserAccessManager\Form\FormElement;
 use UserAccessManager\Form\Input;
 use UserAccessManager\Form\MultipleFormElementValue;
 use UserAccessManager\Form\Radio;
 use UserAccessManager\Form\Select;
+use UserAccessManager\Form\ValueSetFormElement;
+use UserAccessManager\Form\ValueSetFormElementValue;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use VCR\VCR;
 
 /**
  * Class SettingsControllerTest
@@ -340,13 +344,15 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      * @covers  ::getPostSettingsForm()
      * @covers  ::getTaxonomySettingsForm()
      * @covers  ::getFilesSettingsForm()
+     * @covers  ::isXSendFileAvailable()
+     * @covers  ::disableXSendFileOption()
      * @covers  ::getAuthorSettingsForm()
      * @covers  ::getOtherSettingsForm()
      * @covers  ::getPages()
      */
     public function testGetCurrentGroupForms()
     {
-        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(8, 8);
+        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(9, 9);
 
         $wordpress->expects($this->exactly(2))
             ->method('isNginx')
@@ -368,6 +374,10 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->method('getPages')
             ->with('sort_column=menu_order')
             ->will($this->returnValue($pages));
+
+        $wordpress->expects($this->exactly(3))
+            ->method('getHomeUrl')
+            ->will($this->returnValue('https://localhost'));
 
         $configValues = [
             'hide_post' => $this->getConfigParameter('boolean'),
@@ -405,14 +415,16 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         ];
 
         $mainConfig = $this->getMainConfig();
-        $mainConfig->expects($this->exactly(6))
+        $mainConfig->expects($this->exactly(7))
             ->method('getConfigParameters')
-            ->will($this->returnValue($configValues));
+            ->will($this->returnCallback(function () use (&$configValues) {
+                return $configValues;
+            }));
 
         $config = $this->getConfig();
 
         $cacheProvider = $this->createMock(CacheProviderInterface::class);
-        $cacheProvider->expects($this->exactly(15))
+        $cacheProvider->expects($this->exactly(17))
             ->method('getId')
             ->will($this->returnValue('cacheProviderId'));
         $cacheProvider->expects($this->once())
@@ -420,7 +432,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($config));
 
         $cache = $this->getCache();
-        $cache->expects($this->exactly(8))
+        $cache->expects($this->exactly(9))
             ->method('getRegisteredCacheProviders')
             ->will($this->returnValue([$cacheProvider]));
 
@@ -514,8 +526,22 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 $this->createMock(Select::class)
             ));
 
+        $xSendFileValue = $this->createMock(ValueSetFormElementValue::class);
+        $xSendFileValue->expects($this->exactly(2))
+            ->method('markDisabled');
+
+        $downloadTypeElement = $this->createMock(ValueSetFormElement::class);
+        $downloadTypeElement->expects($this->exactly(2))
+            ->method('getPossibleValues')
+            ->will($this->returnValue(['xsendfile' => $xSendFileValue]));
+
+        $fileFrom = $this->createMock(Form::class);
+        $fileFrom->expects($this->exactly(2))
+            ->method('getElements')
+            ->will($this->returnValue(['download_type' => $downloadTypeElement]));
+
         $formHelper = $this->getFormHelper();
-        $formHelper->expects($this->exactly(9))
+        $formHelper->expects($this->exactly(10))
             ->method('getSettingsForm')
             ->withConsecutive(
                 [
@@ -583,6 +609,13 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 ],
                 [
                     [
+                        'lock_file',
+                        'download_type',
+                        'file_pass_type'
+                    ]
+                ],
+                [
+                    [
                         'authors_has_access_to_own',
                         'authors_can_add_posts_to_groups',
                         'full_access_role'
@@ -605,8 +638,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 'pageForm',
                 'defaultTaxonomyForm',
                 'categoryForm',
-                'fileForm',
-                'fileForm',
+                $fileFrom,
+                $fileFrom,
+                $fileFrom,
                 'authorForm',
                 'otherForm'
             ));
@@ -646,6 +680,11 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->with($config)
             ->will($this->returnValue('configForm'));
 
+        $fileHandler = $this->getFileHandler();
+
+        $fileHandler->expects($this->exactly(3))
+            ->method('removeXSendFileTestFile');
+
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
@@ -653,7 +692,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $mainConfig,
             $cache,
             $this->getObjectHandler(),
-            $this->getFileHandler(),
+            $fileHandler,
             $formFactory,
             $formHelper
         );
@@ -676,11 +715,20 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $settingController->getCurrentGroupForms()
         );
 
+        VCR::turnOn();
+        VCR::insertCassette('testXSendFileSuccess');
         $_GET['tab_group'] = SettingsController::GROUP_FILES;
-        self::assertEquals(['file' => 'fileForm'], $settingController->getCurrentGroupForms());
+        self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
+        VCR::eject();
 
+        VCR::insertCassette('testXSendFileFailure');
         $_GET['tab_group'] = SettingsController::GROUP_FILES;
-        self::assertEquals(['file' => 'fileForm'], $settingController->getCurrentGroupForms());
+        self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
+
+        unset($configValues['lock_file_types']);
+        self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
+        VCR::eject();
+        VCR::turnOff();
 
         $_GET['tab_group'] = SettingsController::GROUP_AUTHOR;
         self::assertEquals(['author' => 'authorForm'], $settingController->getCurrentGroupForms());

@@ -35,4 +35,27 @@ class ValueSetFormElementValue
         $this->value = $value;
         $this->label = $label;
     }
+
+    /**
+     * @var bool
+     */
+    private $isDisabled = false;
+
+    /**
+     * Marks the option as disabled.
+     */
+    public function markDisabled()
+    {
+        $this->isDisabled = true;
+    }
+
+    /**
+     * Returns true if the option is disabled.
+     *
+     * @return bool
+     */
+    public function isDisabled()
+    {
+        return $this->isDisabled;
+    }
 }

@@ -26,6 +26,8 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class FileHandler
 {
+    const X_SEND_FILE_TEST_FILE = 'xSendFileTestFile';
+
     /**
      * @var Php
      */
@@ -125,6 +127,23 @@ class FileHandler
     }
 
     /**
+     * Adds the default header.
+     *
+     * @param string $file
+     * @param bool   $isInline
+     */
+    private function addDefaultHeader($file, $isInline)
+    {
+        $fileMimeType = $this->getFileMineType($file);
+        $contentDisposition = ($isInline === true) ? 'inline' : 'attachment';
+        $baseName = str_replace(' ', '_', basename($file));
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: '.$fileMimeType);
+        header("Content-Disposition: {$contentDisposition}; filename=\"{$baseName}\"");
+    }
+
+    /**
      * Delivers the file via fopen.
      *
      * @param string $file
@@ -146,18 +165,28 @@ class FileHandler
      * Delivers the file.
      *
      * @param string $file
-     * @param bool   $isImage
+     * @param bool   $isInline
      */
-    private function deliverFile($file, $isImage)
+    private function deliverFile($file, $isInline)
     {
-        header('Content-Transfer-Encoding: binary');
-        header('Content-Length: '.filesize($file));
-        $this->clearBuffer();
+        $downloadType = $this->mainConfig->getDownloadType();
 
-        if ($this->mainConfig->getDownloadType() === 'fopen' && $isImage === false) {
-            $this->deliverFileViaFopen($file);
-        } else {
-            readfile($file);
+        if ($downloadType === 'xsendfile') {
+            header("X-Sendfile: {$file}");
+        }
+
+        $this->addDefaultHeader($file, $isInline);
+
+        if ($downloadType !== 'xsendfile') {
+            header('Content-Transfer-Encoding: binary');
+            header('Content-Length: '.filesize($file));
+            $this->clearBuffer();
+
+            if ($downloadType === 'fopen') {
+                $this->deliverFileViaFopen($file);
+            } else {
+                readfile($file);
+            }
         }
     }
 
@@ -186,8 +215,9 @@ class FileHandler
      * Delivers the file partial.
      *
      * @param string $file
+     * @param bool   $isInline
      */
-    private function deliverFilePartial($file)
+    private function deliverFilePartial($file, $isInline)
     {
         $httpRange = explode('=', $_SERVER['HTTP_RANGE']);
         $sizeUnit = $httpRange[0];
@@ -197,6 +227,7 @@ class FileHandler
             $fileSize = filesize($file);
             $this->getSeekStartEnd($rangeOrigin, $fileSize, $seekStart, $seekEnd);
 
+            $this->addDefaultHeader($file, $isInline);
             header('HTTP/1.1 206 Partial Content');
             header('Content-Transfer-Encoding: binary');
             header('Accept-Ranges: bytes');
@@ -230,23 +261,16 @@ class FileHandler
     {
         //Deliver content
         if (file_exists($file) === true) {
-            $fileMimeType = $this->getFileMineType($file);
-
-            header('Content-Description: File Transfer');
-            header('Content-Type: '.$fileMimeType);
-
-            if ($isImage === false) {
-                $baseName = str_replace(' ', '_', basename($file));
-                header('Content-Disposition: attachment; filename="'.$baseName.'"');
-            }
+            //TODO check for inline files
+            $isInline = $isImage;
 
             if (isset($_SERVER['HTTP_RANGE']) === true
                 && isset($_SERVER['REQUEST_METHOD']) === true
                 && $_SERVER['REQUEST_METHOD'] === 'GET'
             ) {
-                $this->deliverFilePartial($file);
+                $this->deliverFilePartial($file, $isInline);
             } else {
-                $this->deliverFile($file, $isImage);
+                $this->deliverFile($file, $isInline);
             }
 
             $this->php->callExit();
@@ -282,7 +306,6 @@ class FileHandler
         return false;
     }
 
-
     /**
      * Deletes the protection files.
      *
@@ -303,5 +326,31 @@ class FileHandler
         }
 
         return false;
+    }
+
+    /**
+     * Delivers a xsendfile test file.
+     */
+    public function deliverXSendFileTestFile()
+    {
+        $file = $this->wordpressConfig->getUploadDirectory().DIRECTORY_SEPARATOR.self::X_SEND_FILE_TEST_FILE;
+        file_put_contents($file, 'success');
+
+        header("X-Sendfile: {$file}");
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="'.basename($file).'"');
+        $this->php->callExit();
+    }
+
+    /**
+     * Removes the xsendfile test file if exists.
+     */
+    public function removeXSendFileTestFile()
+    {
+        $file = $this->wordpressConfig->getUploadDirectory().DIRECTORY_SEPARATOR.self::X_SEND_FILE_TEST_FILE;
+
+        if (file_exists($file) === true) {
+            unlink($file);
+        }
     }
 }

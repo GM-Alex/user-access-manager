@@ -17,12 +17,15 @@ namespace UserAccessManager\Controller\Backend;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\File\FileHandler;
+use UserAccessManager\Form\Form;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Form\MultipleFormElementValue;
+use UserAccessManager\Form\ValueSetFormElement;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -303,6 +306,41 @@ class SettingsController extends Controller
     }
 
     /**
+     * Checks if x send file is available.
+     *
+     * @return bool
+     */
+    private function isXSendFileAvailable()
+    {
+        $content = file_get_contents($this->wordpress->getHomeUrl().'?testXSendFile');
+        $this->fileHandler->removeXSendFileTestFile();
+
+        return ($content === 'success');
+    }
+
+    /**
+     * Disables the xSendFileOption
+     *
+     * @param Form $form
+     */
+    private function disableXSendFileOption(Form $form)
+    {
+        $formElements = $form->getElements();
+
+        if (isset($formElements['download_type']) === true) {
+            /** @var ValueSetFormElement $downloadType */
+            $downloadType = $formElements['download_type'];
+            $possibleValues = $downloadType->getPossibleValues();
+
+
+
+            if (isset($possibleValues['xsendfile']) === true) {
+                $possibleValues['xsendfile']->markDisabled();
+            }
+        }
+    }
+
+    /**
      * Returns the files settings form.
      *
      * @return \UserAccessManager\Form\Form
@@ -352,8 +390,13 @@ class SettingsController extends Controller
         }
 
         $parameters[] = 'file_pass_type';
+        $form = $this->formHelper->getSettingsForm($parameters);
 
-        return $this->formHelper->getSettingsForm($parameters);
+        if ($this->isXSendFileAvailable() === false) {
+            $this->disableXSendFileOption($form);
+        }
+
+        return $form;
     }
 
     /**

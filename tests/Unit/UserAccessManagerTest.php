@@ -386,9 +386,24 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     public function testAddActionsAndFilters()
     {
         $frontendController = $this->createMock(FrontendController::class);
-        $frontendController->expects($this->exactly(3))
+        $frontendController->expects($this->exactly(6))
             ->method('getRequestParameter')
-            ->will($this->onConsecutiveCalls(null, true, true));
+            ->withConsecutive(
+                ['uamgetfile'],
+                ['testXSendFile'],
+                ['uamgetfile'],
+                ['testXSendFile'],
+                ['uamgetfile'],
+                ['testXSendFile']
+            )
+            ->will($this->onConsecutiveCalls(
+                null,
+                null,
+                true,
+                null,
+                true,
+                true
+            ));
 
         $controllerFactory = $this->getControllerFactory();
         $controllerFactory->expects($this->exactly(3))
@@ -402,7 +417,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(24))
             ->method('addAction');
 
-        $wordpress->expects($this->exactly(80))
+        $wordpress->expects($this->exactly(81))
             ->method('addFilter');
 
         $wordpress->expects($this->exactly(12))

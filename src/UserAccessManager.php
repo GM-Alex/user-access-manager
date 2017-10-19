@@ -729,6 +729,12 @@ class UserAccessManager
             $this->wordpress->addFilter('wp_headers', [$frontendRedirectController, 'redirect'], 10, 2);
         }
 
+        $testXSendFile = $frontendController->getRequestParameter('testXSendFile');
+
+        if ($testXSendFile !== null) {
+            $this->wordpress->addFilter('wp_headers', [$frontendRedirectController, 'testXSendFile'], 10, 2);
+        }
+
         // Admin object controller
         $backendCacheController = $this->controllerFactory->createBackendCacheController();
 

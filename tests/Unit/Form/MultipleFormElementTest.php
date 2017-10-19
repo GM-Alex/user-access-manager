@@ -63,6 +63,10 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
     public function testCanCreateInstance()
     {
         $valueMock = $this->createMock(MultipleFormElementValue::class);
+        $valueMock->expects($this->once())
+            ->method('getValue')
+            ->will($this->returnValue('value'));
+
         $stub = $this->getStub('id', [$valueMock], 'value', 'label', 'description');
         self::assertInstanceOf(MultipleFormElement::class, $stub);
 
@@ -79,6 +83,6 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
     public function testGetPossibleValues(MultipleFormElement $multipleFormElement)
     {
         $valueMock = $this->createMock(MultipleFormElementValue::class);
-        self::assertEquals([$valueMock], $multipleFormElement->getPossibleValues());
+        self::assertEquals(['value' => $valueMock], $multipleFormElement->getPossibleValues());
     }
 }

@@ -38,7 +38,15 @@ abstract class ValueSetFormElement extends FormElement
     public function __construct($id, array $possibleValues, $value = null, $label = null, $description = null)
     {
         parent::__construct($id, $value, $label, $description);
-        $this->possibleValues = $possibleValues;
+
+        $keys = array_map(
+            function (ValueSetFormElementValue $value) {
+                return $value->getValue();
+            },
+            $possibleValues
+        );
+
+        $this->possibleValues = array_combine($keys, $possibleValues);
     }
 
     /**

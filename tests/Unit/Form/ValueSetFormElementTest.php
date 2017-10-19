@@ -16,6 +16,7 @@ namespace UserAccessManager\Tests\Unit\Form;
 
 use UserAccessManager\Form\FormElement;
 use UserAccessManager\Form\ValueSetFormElement;
+use UserAccessManager\Form\ValueSetFormElementValue;
 
 /**
  * Class ValueSetFormElementTest
@@ -50,7 +51,13 @@ class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanCreateInstance()
     {
-        $stub = $this->getStub('id', ['possibleValue'], 'value', 'label', 'description');
+        $possibleValue = $this->createMock(ValueSetFormElementValue::class);
+
+        $possibleValue->expects($this->any())
+            ->method('getValue')
+            ->will($this->returnValue('value'));
+
+        $stub = $this->getStub('id', [$possibleValue], 'value', 'label', 'description');
         self::assertInstanceOf(ValueSetFormElement::class, $stub);
 
         return $stub;
@@ -65,6 +72,9 @@ class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetPossibleValues(ValueSetFormElement $valueSetFormElement)
     {
-        self::assertEquals(['possibleValue'], $valueSetFormElement->getPossibleValues());
+        self::assertEquals(
+            ['value' => $this->createMock(ValueSetFormElementValue::class)],
+            $valueSetFormElement->getPossibleValues()
+        );
     }
 }
