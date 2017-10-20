@@ -654,7 +654,6 @@ class UserAccessManager
         }
 
         //Clean up at deleting should always be done.
-        $this->wordpress->addAction('update_option_permalink_structure', [$objectController, 'updatePermalink']);
         $this->wordpress->addAction('delete_post', [$postObjectController, 'removePostData']);
         $this->wordpress->addAction('delete_attachment', [$postObjectController, 'removePostData']);
         $this->wordpress->addAction('delete_user', [$userObjectController, 'removeUserData']);

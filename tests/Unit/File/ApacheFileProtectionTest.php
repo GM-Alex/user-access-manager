@@ -68,11 +68,31 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @group  unit
+     * @covers ::getFileNameWithPath()
+     */
+    public function testGetFileNameWithPath()
+    {
+        $nginxFileProtection = new ApacheFileProtection(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getUtil()
+        );
+
+        self::assertEquals(ApacheFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath());
+        self::assertEquals('dir/'.ApacheFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath('dir/'));
+    }
+
+    /**
      * @group   unit
      * @covers  ::create()
-     * @covers  ::getFileTypes()
      * @covers  ::getPermalinkFileContent()
      * @covers  ::getFileContent()
+     * @covers  ::applyFilters()
+     * @covers  ::getDirectoryMatch()
+     * @covers  ::getFileTypes()
      */
     public function testCreate()
     {
@@ -103,23 +123,48 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
+        $wordpressConfig->expects($this->once())
+            ->method('getUploadDirectory')
+            ->will($this->returnValue('uploadDirectory/'));
+
         $mainConfig = $this->getMainConfig();
 
         $mainConfig->expects($this->exactly(6))
-            ->method('getLockFileTypes')
+            ->method('getLockedFileType')
             ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected', null, 'selected', null));
 
         $mainConfig->expects($this->exactly(2))
-            ->method('getLockedFileTypes')
+            ->method('getLockedFiles')
             ->will($this->returnValue('png,jpg'));
 
         $mainConfig->expects($this->once())
-            ->method('getNotLockedFileTypes')
+            ->method('getNotLockedFiles')
             ->will($this->returnValue('png,jpg'));
 
         $mainConfig->expects($this->exactly(3))
             ->method('getFilePassType')
             ->will($this->returnValue(null));
+
+        $mainConfig->expects($this->exactly(12))
+            ->method('getLockedDirectoryType')
+            ->will($this->onConsecutiveCalls(
+                'all',
+                'all',
+                'wordpress',
+                'wordpress',
+                'custom',
+                'custom',
+                'all',
+                'all',
+                'all',
+                'all',
+                'all',
+                'all'
+            ));
+
+        $mainConfig->expects($this->once())
+            ->method('getCustomLockedDirectories')
+            ->will($this->returnValue('customLockedDirectories'));
 
         /**
          * @var Directory $rootDir
@@ -153,19 +198,23 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
-            "<FilesMatch '\.(jpg)'>\n"
+            "<DirecoryMatch '^uploadDirectory/[0-9]{4}/[0-9]{2}'>\n"
+            ."<FilesMatch '\.(jpg)'>\n"
             ."AuthType Basic\nAuthName \"WP-Files\"\n"
             ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
-            ."</FilesMatch>\n",
+            ."</FilesMatch>\n"
+            ."</DirecoryMatch>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
-            "<FilesMatch '^\.(jpg)'>"
+            "<DirecoryMatch 'customLockedDirectories'>\n"
+            ."<FilesMatch '^\.(jpg)'>"
             ."\nAuthType Basic\nAuthName \"WP-Files\"\n"
             ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
-            ."</FilesMatch>\n",
+            ."</FilesMatch>\n"
+            ."</DirecoryMatch>\n",
             file_get_contents($file)
         );
 

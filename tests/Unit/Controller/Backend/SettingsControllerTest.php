@@ -63,8 +63,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @covers  ::isNginx()
+     * @group  unit
+     * @covers ::isNginx()
      */
     public function testIsNginx()
     {
@@ -90,8 +90,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @covers  ::getPages()
+     * @group  unit
+     * @covers ::getPages()
      */
     public function testGetPages()
     {
@@ -289,8 +289,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @covers  ::createMultipleFromElement()
+     * @group  unit
+     * @covers ::createMultipleFromElement()
      */
     public function testCreateMultipleFromElement()
     {
@@ -332,23 +332,23 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @covers  ::getCurrentGroupForms()
-     * @covers  ::getFullPostSettingsForm()
-     * @covers  ::getFullTaxonomySettingsForm()
-     * @covers  ::getFullCacheProvidersFrom()
-     * @covers  ::getFullSettingsFrom()
-     * @covers  ::createMultipleFromElement()
-     * @covers  ::getPostTypes()
-     * @covers  ::getTaxonomies()
-     * @covers  ::getPostSettingsForm()
-     * @covers  ::getTaxonomySettingsForm()
-     * @covers  ::getFilesSettingsForm()
-     * @covers  ::isXSendFileAvailable()
-     * @covers  ::disableXSendFileOption()
-     * @covers  ::getAuthorSettingsForm()
-     * @covers  ::getOtherSettingsForm()
-     * @covers  ::getPages()
+     * @group  unit
+     * @covers ::getCurrentGroupForms()
+     * @covers ::getFullPostSettingsForm()
+     * @covers ::getFullTaxonomySettingsForm()
+     * @covers ::getFullCacheProvidersFrom()
+     * @covers ::getFullSettingsFrom()
+     * @covers ::createMultipleFromElement()
+     * @covers ::getPostTypes()
+     * @covers ::getTaxonomies()
+     * @covers ::getPostSettingsForm()
+     * @covers ::getTaxonomySettingsForm()
+     * @covers ::getFilesSettingsForm()
+     * @covers ::isXSendFileAvailable()
+     * @covers ::disableXSendFileOption()
+     * @covers ::getAuthorSettingsForm()
+     * @covers ::getOtherSettingsForm()
+     * @covers ::getPages()
      */
     public function testGetCurrentGroupForms()
     {
@@ -398,6 +398,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             'hide_empty_category' => $this->getConfigParameter('boolean'),
             'lock_file' => $this->getConfigParameter('boolean'),
             'download_type' => $this->getConfigParameter('selection'),
+            'use_custom_file_handling_file' => $this->getConfigParameter('boolean'),
+            'locked_directory_type' => $this->getConfigParameter('selection'),
+            'custom_locked_directories' => $this->getConfigParameter('string'),
             'lock_file_types' => $this->getConfigParameter('selection'),
             'locked_file_types' => $this->getConfigParameter('string'),
             'not_locked_file_types' => $this->getConfigParameter('string'),
@@ -438,22 +441,55 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $formFactory = $this->getFormFactory();
 
-        $formFactory->expects($this->exactly(2))
+        $formFactory->expects($this->exactly(5))
             ->method('createTextarea')
             ->withConsecutive(
                 ['stringId', 'stringValue', 'stringIdPost', 'stringIdPostDesc'],
-                ['stringId', 'stringValue', 'stringIdPage', 'stringIdPageDesc']
+                ['stringId', 'stringValue', 'stringIdPage', 'stringIdPageDesc'],
+                [
+                    'custom_file_handling_file',
+                    'fileProtectionFileName',
+                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
+                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
+                ],
+                [
+                    'custom_file_handling_file',
+                    'fileProtectionFileName',
+                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
+                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
+                ],
+                [
+                    'custom_file_handling_file',
+                    'fileProtectionFileName',
+                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
+                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
+                ]
             )
-            ->will($this->onConsecutiveCalls('postTextarea', 'pageTextarea'));
+            ->will($this->onConsecutiveCalls(
+                'postTextarea',
+                'pageTextarea',
+                'custom_file_handling_file',
+                'custom_file_handling_file',
+                'custom_file_handling_file'
+            ));
 
-        $formFactory->expects($this->exactly(9))
+        $formFactory->expects($this->exactly(18))
             ->method('createMultipleFormElementValue')
             ->withConsecutive(
+                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
+                ['all', TXT_UAM_ALL],
+                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
                 ['all', TXT_UAM_ALL],
                 ['selected', TXT_UAM_LOCKED_FILE_TYPES],
                 ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
+                ['all', TXT_UAM_ALL],
+                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
                 ['all', TXT_UAM_ALL],
                 ['selected', TXT_UAM_LOCKED_FILE_TYPES],
+                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
+                ['all', TXT_UAM_ALL],
+                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
                 ['false', TXT_UAM_NO],
                 ['blog', TXT_UAM_REDIRECT_TO_BLOG],
                 ['selected', TXT_UAM_REDIRECT_TO_PAGE],
@@ -461,9 +497,20 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue($this->createMultipleFormElementValue()));
 
-        $formFactory->expects($this->exactly(3))
+        $formFactory->expects($this->exactly(6))
             ->method('createRadio')
             ->withConsecutive(
+                [
+                    'selectionId',
+                    [
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue()
+                    ],
+                    'selectionValue',
+                    TXT_UAM_LOCKED_DIRECTORY_TYPE,
+                    TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
+                ],
                 [
                     'selectionId',
                     [
@@ -479,11 +526,33 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     'selectionId',
                     [
                         $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue()
+                    ],
+                    'selectionValue',
+                    TXT_UAM_LOCKED_DIRECTORY_TYPE,
+                    TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
+                ],
+                [
+                    'selectionId',
+                    [
+                        $this->createMultipleFormElementValue(),
                         $this->createMultipleFormElementValue()
                     ],
                     'selectionValue',
                     TXT_UAM_LOCK_FILE_TYPES,
                     TXT_UAM_LOCK_FILE_TYPES_DESC
+                ],
+                [
+                    'selectionId',
+                    [
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue()
+                    ],
+                    'selectionValue',
+                    TXT_UAM_LOCKED_DIRECTORY_TYPE,
+                    TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
                 ],
                 [
                     'selectionId',
@@ -498,7 +567,14 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     TXT_UAM_REDIRECT_DESC
                 ]
             )
-            ->will($this->onConsecutiveCalls('fileRadio', 'fileRadio', 'redirectRadio'));
+            ->will($this->onConsecutiveCalls(
+                'lockedDirectoryRadio',
+                'fileRadio',
+                'lockedDirectoryRadio',
+                'fileRadio',
+                'lockedDirectoryRadio',
+                'redirectRadio'
+            ));
 
         $formFactory->expects($this->exactly(2))
             ->method('createValueSetFromElementValue')
@@ -595,6 +671,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     [
                         'lock_file',
                         'download_type',
+                        'use_custom_file_handling_file',
+                        'custom_file_handling_file',
+                        'lockedDirectoryRadio',
                         'fileRadio',
                         'file_pass_type'
                     ]
@@ -603,6 +682,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     [
                         'lock_file',
                         'download_type',
+                        'use_custom_file_handling_file',
+                        'custom_file_handling_file',
+                        'lockedDirectoryRadio',
                         'fileRadio',
                         'file_pass_type'
                     ]
@@ -611,6 +693,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     [
                         'lock_file',
                         'download_type',
+                        'use_custom_file_handling_file',
+                        'custom_file_handling_file',
+                        'lockedDirectoryRadio',
                         'file_pass_type'
                     ]
                 ],
@@ -655,9 +740,12 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $formHelper->expects($this->exactly(4))
+        $formHelper->expects($this->exactly(7))
             ->method('convertConfigParameter')
             ->withConsecutive(
+                [],
+                [],
+                [],
                 [],
                 [],
                 [],
@@ -684,6 +772,10 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $fileHandler->expects($this->exactly(3))
             ->method('removeXSendFileTestFile');
+
+        $fileHandler->expects($this->exactly(3))
+            ->method('getFileProtectionFileName')
+            ->will($this->returnValue('fileProtectionFileName'));
 
         $settingController = new SettingsController(
             $this->getPhp(),
@@ -744,8 +836,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @covers  ::updateSettingsAction()
+     * @group  unit
+     * @covers ::updateSettingsAction()
      */
     public function testUpdateSettingsAction()
     {
@@ -763,6 +855,10 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $mainConfig->expects($this->exactly(5))
             ->method('lockFile')
             ->will($this->onConsecutiveCalls(false, true, true, true, true));
+
+        $mainConfig->expects($this->exactly(4))
+            ->method('useCustomFileHandlingFile')
+            ->will($this->onConsecutiveCalls(true, false, false, false));
 
         $config = $this->getConfig();
         $config->expects($this->once())
@@ -790,7 +886,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $fileHandler = $this->getFileHandler();
 
-        $fileHandler->expects($this->exactly(4))
+        $fileHandler->expects($this->exactly(3))
             ->method('createFileProtection');
 
         $fileHandler->expects($this->once())
@@ -829,8 +925,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @covers  ::isPostTypeGroup()
+     * @group  unit
+     * @covers ::isPostTypeGroup()
      */
     public function testIsPostTypeGroup()
     {

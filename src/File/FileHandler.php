@@ -284,6 +284,32 @@ class FileHandler
     }
 
     /**
+     * Returns the current file protection handler.
+     *
+     * @return FileProtectionInterface
+     */
+    private function getCurrentFileProtectionHandler()
+    {
+        if ($this->wordpress->isNginx() === true) {
+            return $this->fileProtectionFactory->createNginxFileProtection();
+        }
+
+        return $this->fileProtectionFactory->createApacheFileProtection();
+    }
+
+    /**
+     * Returns the file protection file.
+     *
+     * @return string
+     */
+    public function getFileProtectionFileName()
+    {
+        return $this->getCurrentFileProtectionHandler()->getFileNameWithPath(
+            $this->wordpressConfig->getUploadDirectory()
+        );
+    }
+
+    /**
      * Creates a protection file.
      *
      * @param string $dir        The destination directory.
@@ -296,11 +322,7 @@ class FileHandler
         $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
         if ($dir !== null) {
-            if ($this->wordpress->isNginx() === true) {
-                return $this->fileProtectionFactory->createNginxFileProtection()->create($dir, $objectType);
-            } else {
-                return $this->fileProtectionFactory->createApacheFileProtection()->create($dir, $objectType);
-            }
+            return $this->getCurrentFileProtectionHandler()->create($dir, $objectType);
         }
 
         return false;
@@ -318,11 +340,7 @@ class FileHandler
         $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
         if ($dir !== null) {
-            if ($this->wordpress->isNginx() === true) {
-                return $this->fileProtectionFactory->createNginxFileProtection()->delete($dir);
-            } else {
-                return $this->fileProtectionFactory->createApacheFileProtection()->delete($dir);
-            }
+            return $this->getCurrentFileProtectionHandler()->delete($dir);
         }
 
         return false;

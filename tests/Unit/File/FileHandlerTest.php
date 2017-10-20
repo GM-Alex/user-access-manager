@@ -516,9 +516,61 @@ class FileHandlerTest extends UserAccessManagerTestCase
         self::assertEquals(206, http_response_code());
     }
 
+
+    /**
+     * @group  unit
+     * @covers ::getFileProtectionFileName()
+     * @covers ::getCurrentFileProtectionHandler()
+     */
+    public function testGetFileProtectionFileName()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('isNginx')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->exactly(2))
+            ->method('getUploadDirectory')
+            ->will($this->returnValue('uploadDirectory'));
+
+
+        $apacheFileProtection = $this->createMock(ApacheFileProtection::class);
+        $apacheFileProtection->expects($this->once())
+            ->method('getFileNameWithPath')
+            ->with('uploadDirectory')
+            ->will($this->returnValue('apacheUploadDirectory'));
+
+        $nginxFileProtection = $this->createMock(NginxFileProtection::class);
+        $nginxFileProtection->expects($this->once())
+            ->method('getFileNameWithPath')
+            ->with('uploadDirectory')
+            ->will($this->returnValue('nginxUploadDirectory'));
+
+        $fileProtectionFactory = $this->getFileProtectionFactory();
+        $fileProtectionFactory->expects($this->once())
+            ->method('createApacheFileProtection')
+            ->will($this->returnValue($apacheFileProtection));
+        $fileProtectionFactory->expects($this->once())
+            ->method('createNginxFileProtection')
+            ->will($this->returnValue($nginxFileProtection));
+
+        $fileHandler = new FileHandler(
+            $this->getPhp(),
+            $wordpress,
+            $wordpressConfig,
+            $this->getMainConfig(),
+            $fileProtectionFactory
+        );
+
+        self::assertEquals('apacheUploadDirectory', $fileHandler->getFileProtectionFileName());
+        self::assertEquals('nginxUploadDirectory', $fileHandler->getFileProtectionFileName());
+    }
+
     /**
      * @group  unit
      * @covers ::createFileProtection()
+     * @covers ::getCurrentFileProtectionHandler()
      */
     public function testCreateFileProtection()
     {
@@ -588,6 +640,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::deleteFileProtection()
+     * @covers ::getCurrentFileProtectionHandler()
      */
     public function testDeleteFileProtection()
     {

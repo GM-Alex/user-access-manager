@@ -393,7 +393,7 @@ class RedirectController extends Controller
                 $type = explode('/', $post->post_mime_type);
                 $type = (isset($type[1]) === true) ? $type[1] : $type[0];
 
-                $lockedFileTypes = $this->mainConfig->getLockedFileTypes();
+                $lockedFileTypes = $this->mainConfig->getLockedFiles();
                 $fileTypes = explode(',', $lockedFileTypes);
 
                 if ($lockedFileTypes === 'all' || in_array($type, $fileTypes) === true) {

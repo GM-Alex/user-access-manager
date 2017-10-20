@@ -349,10 +349,40 @@ class SettingsController extends Controller
     {
         $parameters = [
             'lock_file',
-            'download_type'
+            'download_type',
+            'use_custom_file_handling_file',
+            $this->formFactory->createTextarea(
+                'custom_file_handling_file',
+                $this->fileHandler->getFileProtectionFileName(),
+                TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
+                TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
+            )
         ];
 
         $configParameters = $this->mainConfig->getConfigParameters();
+
+        if (isset($configParameters['locked_directory_type']) === true) {
+            $configParameter = $configParameters['locked_directory_type'];
+
+            $parameters[] = $this->formFactory->createRadio(
+                $configParameter->getId(),
+                [
+                    $this->formFactory->createMultipleFormElementValue(
+                        'wordpress',
+                        TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS
+                    ),
+                    $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL),
+                    $this->createMultipleFromElement(
+                        $configParameters['custom_locked_directories'],
+                        'custom',
+                        TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM
+                    )
+                ],
+                $configParameter->getValue(),
+                TXT_UAM_LOCKED_DIRECTORY_TYPE,
+                TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
+            );
+        }
 
         if (isset($configParameters['lock_file_types']) === true) {
             $values = [
@@ -379,14 +409,13 @@ class SettingsController extends Controller
 
             $configParameter = $configParameters['lock_file_types'];
 
-            $lockFileTypes = $this->formFactory->createRadio(
+            $parameters[] = $this->formFactory->createRadio(
                 $configParameter->getId(),
                 $values,
                 $configParameter->getValue(),
                 TXT_UAM_LOCK_FILE_TYPES,
                 TXT_UAM_LOCK_FILE_TYPES_DESC
             );
-            $parameters[] = $lockFileTypes;
         }
 
         $parameters[] = 'file_pass_type';
@@ -618,7 +647,7 @@ class SettingsController extends Controller
 
         if ($this->mainConfig->lockFile() === false) {
             $this->fileHandler->deleteFileProtection();
-        } else {
+        } elseif ($this->mainConfig->useCustomFileHandlingFile() === false) {
             $this->fileHandler->createFileProtection();
         }
 

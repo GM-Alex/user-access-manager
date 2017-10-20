@@ -38,8 +38,8 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         $areaName = 'WP-Files';
         $fileTypes = null;
 
-        if ($this->mainConfig->getLockFileTypes() === 'selected') {
-            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFileTypes());
+        if ($this->mainConfig->getLockedFileType() === 'selected') {
+            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFiles());
             $fileTypes = "\\.({$fileTypes})";
         }
 
@@ -83,6 +83,18 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         $content .= "}\n";
 
         return $content;
+    }
+
+    /**
+     * Returns the nginx config file name with path.
+     *
+     * @param string null|$directory
+     *
+     * @return string
+     */
+    public function getFileNameWithPath($directory = null)
+    {
+        return ABSPATH.self::FILE_NAME;
     }
 
     /**

@@ -647,7 +647,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true, true, true, true));
 
         $mainConfig->expects($this->exactly(3))
-            ->method('getLockedFileTypes')
+            ->method('getLockedFiles')
             ->will($this->onConsecutiveCalls('none', 'all', 'aaa,mime'));
 
         $objectHandler = $this->getObjectHandler();

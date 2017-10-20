@@ -95,6 +95,34 @@ class FileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
+     * @covers  ::getDirectoryMatch()
+     */
+    public function testGetDirectoryMatch()
+    {
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(3))
+            ->method('getLockedDirectoryType')
+            ->will($this->onConsecutiveCalls('all', 'wordpress', 'custom'));
+
+        $mainConfig->expects($this->once())
+            ->method('getCustomLockedDirectories')
+            ->will($this->returnValue('customLockedDirectories'));
+
+        $stub = $this->getStub(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $this->getUtil()
+        );
+
+        self::assertNull(self::callMethod($stub, 'getDirectoryMatch'));
+        self::assertEquals('[0-9]{4}'.DIRECTORY_SEPARATOR.'[0-9]{2}', self::callMethod($stub, 'getDirectoryMatch'));
+        self::assertEquals('customLockedDirectories', self::callMethod($stub, 'getDirectoryMatch'));
+    }
+
+    /**
+     * @group   unit
      * @covers  ::cleanUpFileTypes()
      */
     public function testCleanUpFileTypes()

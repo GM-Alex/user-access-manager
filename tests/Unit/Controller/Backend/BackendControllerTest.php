@@ -264,25 +264,4 @@ class BackendControllerTest extends UserAccessManagerTestCase
         unset($originalMetaBoxes['dashboard']['normal']['core']['dashboard_recent_comments']);
         self::assertEquals($originalMetaBoxes, $metaBoxes);
     }
-
-    /**
-     * @group  unit
-     * @covers ::updatePermalink()
-     */
-    public function testUpdatePermalink()
-    {
-        $fileHandler = $this->getFileHandler();
-        $fileHandler->expects($this->once())
-            ->method('createFileProtection');
-
-        $backendController = new BackendController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getUserHandler(),
-            $fileHandler
-        );
-
-        $backendController->updatePermalink();
-    }
 }

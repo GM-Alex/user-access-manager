@@ -20,8 +20,8 @@ define('TXT_UAM_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least Wordpress
 define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the User Access Manager. <a href="%s">Click here to proceed</a>', 'user-access-manager'));
 
 // --- Multiple use ---
-define('TXT_UAM_ALL', __('all', 'user-access-manager'));
-define('TXT_UAM_ONLY_GROUP_USERS', __('only group users', 'user-access-manager'));
+define('TXT_UAM_ALL', __('All', 'user-access-manager'));
+define('TXT_UAM_ONLY_GROUP_USERS', __('Only group users', 'user-access-manager'));
 define('TXT_UAM_YES', __('Yes', 'user-access-manager'));
 define('TXT_UAM_NO', __('No', 'user-access-manager'));
 
@@ -77,7 +77,15 @@ define('TXT_UAM_SHOW_OBJECT_CONTENT_BEFORE_MORE_DESC', __('Shows the %s content 
 define('TXT_UAM_FILE_SETTING', __('File settings', 'user-access-manager'));
 define('TXT_UAM_FILE_SETTING_DESC', __('Set up the behaviour of files', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE', __('Lock files', 'user-access-manager'));
+define('TXT_UAM_USE_CUSTOM_FILE_HANDLING_FILE', __('Use custom file handling file', 'user-access-manager'));
+define('TXT_UAM_USE_CUSTOM_FILE_HANDLING_FILE_DESC', __('Selecting "Yes" will allow you to use your own config file.', 'user-access-manager'));
+define('TXT_UAM_CUSTOM_FILE_HANDLING_FILE', __('Custom file handling file', 'user-access-manager'));
+define('TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC', __('Edit this content if you are using the custom file handling file setting.', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style="color:red;">Note: If you activate this option the plugin will overwrite a \'.htaccess\' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a \'.htaccess\' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>', 'user-access-manager'));
+define('TXT_UAM_LOCKED_DIRECTORY_TYPE', __('Locked directory type', 'user-access-manager'));
+define('TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC', __('"Wordpress" will only lock files handled by the wordpress media manager (recommended), "All" will lock all files at the upload directory, "Custom" will use a custom string.', 'user-access-manager'));
+define('TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS', __('Wordpress', 'user-access-manager'));
+define('TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM', __('Custom', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE_TYPES', __('Locked file types', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE_TYPES_DESC', __('Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <strong>Note:</strong> If you have no problems use all to get the maximum security.', 'user-access-manager'));
 define('TXT_UAM_LOCKED_FILE_TYPES', __('File types to lock: ', 'user-access-manager'));

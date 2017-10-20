@@ -209,6 +209,19 @@ class MainConfig extends Config
         $id = 'lock_file';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
+        $id = 'use_custom_file_handling_file';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+
+        $id = 'locked_directory_type';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            'wordpress',
+            ['wordpress', 'all', 'custom']
+        );
+
+        $id = 'custom_locked_directories';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
+
         $id = 'file_pass_type';
         $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
             $id,
@@ -445,19 +458,35 @@ class MainConfig extends Config
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function getFilePassType()
+    public function useCustomFileHandlingFile()
     {
-        return $this->getParameterValue('file_pass_type');
+        return $this->getParameterValue('use_custom_file_handling_file');
     }
 
     /**
      * @return string
      */
-    public function getLockFileTypes()
+    public function getLockedDirectoryType()
     {
-        return $this->getParameterValue('lock_file_types');
+        return $this->getParameterValue('locked_directory_type');
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomLockedDirectories()
+    {
+        return $this->getParameterValue('custom_locked_directories');
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilePassType()
+    {
+        return $this->getParameterValue('file_pass_type');
     }
 
     /**
@@ -471,7 +500,15 @@ class MainConfig extends Config
     /**
      * @return string
      */
-    public function getLockedFileTypes()
+    public function getLockedFileType()
+    {
+        return $this->getParameterValue('lock_file_types');
+    }
+
+    /**
+     * @return string
+     */
+    public function getLockedFiles()
     {
         return $this->getParameterValue('locked_file_types');
     }
@@ -479,7 +516,7 @@ class MainConfig extends Config
     /**
      * @return string
      */
-    public function getNotLockedFileTypes()
+    public function getNotLockedFiles()
     {
         return $this->getParameterValue('not_locked_file_types');
     }

@@ -74,6 +74,9 @@ class MainConfigTest extends UserAccessManagerTestCase
             'authors_has_access_to_own' => 'bool|authors_has_access_to_own|true',
             'authors_can_add_posts_to_groups' => 'bool|authors_can_add_posts_to_groups|false',
             'lock_file' => 'bool|lock_file|false',
+            'use_custom_file_handling_file' => 'bool|use_custom_file_handling_file|false',
+            'locked_directory_type' => 'selection|locked_directory_type|wordpress|wordpress|all|custom',
+            'custom_locked_directories' => 'string|custom_locked_directories|',
             'file_pass_type' => 'selection|file_pass_type|random|random|user',
             'download_type' => 'selection|download_type|fopen|xsendfile|fopen|normal',
             'lock_file_types' => 'selection|lock_file_types|all|all|selected|not_selected',
@@ -219,7 +222,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         $objectHandler = $this->getDefaultObjectHandler(2);
 
         $configParameterFactory = $this->getConfigParameterFactory();
-        $configParameterFactory->expects($this->exactly(25))
+        $configParameterFactory->expects($this->exactly(26))
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -229,7 +232,7 @@ class MainConfigTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $configParameterFactory->expects($this->exactly(14))
+        $configParameterFactory->expects($this->exactly(15))
             ->method('createStringConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -237,7 +240,7 @@ class MainConfigTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $configParameterFactory->expects($this->exactly(6))
+        $configParameterFactory->expects($this->exactly(7))
             ->method('createSelectionConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value, $selections) {
@@ -433,11 +436,14 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::authorsHasAccessToOwn
      * @covers ::authorsCanAddPostsToGroups
      * @covers ::lockFile
+     * @covers ::useCustomFileHandlingFile
+     * @covers ::getLockedDirectoryType
+     * @covers ::getCustomLockedDirectories
      * @covers ::getFilePassType
-     * @covers ::getLockFileTypes
      * @covers ::getDownloadType
-     * @covers ::getLockedFileTypes
-     * @covers ::getNotLockedFileTypes
+     * @covers ::getLockedFileType
+     * @covers ::getLockedFiles
+     * @covers ::getNotLockedFiles
      * @covers ::blogAdminHint
      * @covers ::getBlogAdminHintText
      * @covers ::showAssignedGroups
@@ -456,11 +462,14 @@ class MainConfigTest extends UserAccessManagerTestCase
             'authorsHasAccessToOwn' => 'authors_has_access_to_own',
             'authorsCanAddPostsToGroups' => 'authors_can_add_posts_to_groups',
             'lockFile' => 'lock_file',
+            'useCustomFileHandlingFile' => 'use_custom_file_handling_file',
+            'getLockedDirectoryType' => 'locked_directory_type',
+            'getCustomLockedDirectories' => 'custom_locked_directories',
             'getFilePassType' => 'file_pass_type',
-            'getLockFileTypes' => 'lock_file_types',
             'getDownloadType' => 'download_type',
-            'getLockedFileTypes' => 'locked_file_types',
-            'getNotLockedFileTypes' => 'not_locked_file_types',
+            'getLockedFileType' => 'lock_file_types',
+            'getLockedFiles' => 'locked_file_types',
+            'getNotLockedFiles' => 'not_locked_file_types',
             'blogAdminHint' => 'blog_admin_hint',
             'getBlogAdminHintText' => 'blog_admin_hint_text',
             'showAssignedGroups' => 'show_assigned_groups',

@@ -79,6 +79,25 @@ abstract class FileProtection
     }
 
     /**
+     * Returns the directory match.
+     *
+     * @return null|string
+     */
+    protected function getDirectoryMatch()
+    {
+        $directoryMatch = null;
+        $lockedDirectoryType = $this->mainConfig->getLockedDirectoryType();
+
+        if ($lockedDirectoryType === 'wordpress') {
+            $directoryMatch = '[0-9]{4}'.DIRECTORY_SEPARATOR.'[0-9]{2}';
+        } elseif ($lockedDirectoryType === 'custom') {
+            $directoryMatch = $this->mainConfig->getCustomLockedDirectories();
+        }
+
+        return $directoryMatch;
+    }
+
+    /**
      * Cleans up the file types.
      *
      * @param string $fileTypes The file types which should be cleaned up.

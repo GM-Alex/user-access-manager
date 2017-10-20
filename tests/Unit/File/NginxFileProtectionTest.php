@@ -52,7 +52,6 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     *
      * @covers ::__construct()
      */
     public function testCanCreateInstance()
@@ -66,6 +65,23 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         );
 
         self::assertInstanceOf(NginxFileProtection::class, $nginxFileProtection);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getFileNameWithPath()
+     */
+    public function testGetFileNameWithPath()
+    {
+        $nginxFileProtection = new NginxFileProtection(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getUtil()
+        );
+
+        self::assertEquals('ABSPATH'.NginxFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath());
     }
 
     /**
@@ -102,11 +118,11 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         $mainConfig = $this->getMainConfig();
 
         $mainConfig->expects($this->exactly(2))
-            ->method('getLockFileTypes')
+            ->method('getLockedFileType')
             ->will($this->onConsecutiveCalls(null, 'selected'));
 
         $mainConfig->expects($this->once())
-            ->method('getLockedFileTypes')
+            ->method('getLockedFiles')
             ->will($this->returnValue('png,jpg'));
 
         $mainConfig->expects($this->exactly(2))

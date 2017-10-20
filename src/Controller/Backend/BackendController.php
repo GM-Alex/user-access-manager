@@ -151,12 +151,4 @@ class BackendController extends Controller
             $this->wordpress->setMetaBoxes($metaBoxes);
         }
     }
-
-    /**
-     * The function for the update_option_permalink_structure action.
-     */
-    public function updatePermalink()
-    {
-        $this->fileHandler->createFileProtection();
-    }
 }

@@ -33,13 +33,13 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     private function getFileTypes()
     {
         $fileTypes = null;
-        $lockFileTypes = $this->mainConfig->getLockFileTypes();
+        $lockedFileTypes = $this->mainConfig->getLockedFileType();
 
-        if ($lockFileTypes === 'selected') {
-            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFileTypes());
+        if ($lockedFileTypes === 'selected') {
+            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFiles());
             $fileTypes = ($fileTypes !== '') ? "\.({$fileTypes})" : null;
-        } elseif ($lockFileTypes === 'not_selected') {
-            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getNotLockedFileTypes());
+        } elseif ($lockedFileTypes === 'not_selected') {
+            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getNotLockedFiles());
             $fileTypes = ($fileTypes !== '') ? "^\.({$fileTypes})" : null;
         }
 
@@ -47,14 +47,51 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     }
 
     /**
-     * Creates the file content if no permalinks are active.
+     * Returns the directory match.
      *
-     * @param string $directory
-     * @param string $fileTypes
+     * @return null|string
+     */
+    protected function getDirectoryMatch()
+    {
+        if ($this->mainConfig->getLockedDirectoryType() === 'wordpress') {
+            return "^{$this->wordpressConfig->getUploadDirectory()}".parent::getDirectoryMatch();
+        }
+
+        return parent::getDirectoryMatch();
+    }
+
+    /**
+     * @param string $content
      *
      * @return string
      */
-    private function getFileContent($directory, $fileTypes)
+    private function applyFilters($content)
+    {
+        $fileTypes = $this->getFileTypes();
+
+        if ($fileTypes !== null) {
+            /** @noinspection */
+            $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
+        }
+
+        $directoryMatch = $this->getDirectoryMatch();
+
+        if ($directoryMatch !== null) {
+            /** @noinspection */
+            $content = "<DirecoryMatch '{$directoryMatch}'>\n{$content}</DirecoryMatch>\n";
+        }
+
+        return $content;
+    }
+
+    /**
+     * Creates the file content if no permalinks are active.
+     *
+     * @param string $directory
+     *
+     * @return string
+     */
+    private function getFileContent($directory)
     {
         $areaName = 'WP-Files';
         // make .htaccess and .htpasswd
@@ -63,23 +100,17 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $content .= "AuthUserFile {$directory}.htpasswd"."\n";
         $content .= "require valid-user"."\n";
 
-        if ($fileTypes !== null) {
-            /** @noinspection */
-            $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
-        }
-
-        return $content;
+        return $this->applyFilters($content);
     }
 
     /**
      * Creates the file content if permalinks are active.
      *
-     * @param string $fileTypes
      * @param string $objectType
      *
      * @return string
      */
-    private function getPermalinkFileContent($fileTypes, $objectType)
+    private function getPermalinkFileContent($objectType)
     {
         if ($objectType === null) {
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
@@ -95,15 +126,23 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $content .= "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ ";
         $content .= "{$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 [QSA,L]\n";
         $content .= "RewriteRule ^(.*)\\?(.*)$ {$homeRoot}index.php?uamgetfile=$1&$2 [QSA,L]\n";
-
-        if ($fileTypes !== null) {
-            /** @noinspection */
-            $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
-        }
+        $content = $this->applyFilters($content);
 
         $content = "<IfModule mod_rewrite.c>\n$content</IfModule>\n";
 
         return $content;
+    }
+
+    /**
+     * Returns the htaccess file name with path.
+     *
+     * @param null|string $directory
+     *
+     * @return string
+     */
+    public function getFileNameWithPath($directory = null)
+    {
+        return $directory.self::FILE_NAME;
     }
 
     /**
@@ -117,17 +156,16 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     public function create($directory, $objectType = null)
     {
         $directory = rtrim($directory, '/').'/';
-        $fileTypes = $this->getFileTypes();
 
         if ($this->wordpressConfig->isPermalinksActive() === false) {
-            $content = $this->getFileContent($directory, $fileTypes);
+            $content = $this->getFileContent($directory);
             $this->createPasswordFile(true, $directory);
         } else {
-            $content = $this->getPermalinkFileContent($fileTypes, $objectType);
+            $content = $this->getPermalinkFileContent($objectType);
         }
 
         // save files
-        $fileWithPath = $directory.self::FILE_NAME;
+        $fileWithPath = $this->getFileNameWithPath($directory);
 
         try {
             file_put_contents($fileWithPath, $content);

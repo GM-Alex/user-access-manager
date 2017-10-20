@@ -45,6 +45,15 @@ interface FileProtectionInterface
     );
 
     /**
+     * Returns the file with path.
+     *
+     * @param null|string $directory
+     *
+     * @return string
+     */
+    public function getFileNameWithPath($directory = null);
+
+    /**
      * Creates the file protection.
      *
      * @param string $directory
