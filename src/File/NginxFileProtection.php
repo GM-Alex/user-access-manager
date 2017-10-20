@@ -26,41 +26,6 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
     const FILE_NAME = 'uam.conf';
 
     /**
-     * Creates the file content if no permalinks are active.
-     *
-     * @param string $absolutePath
-     * @param string $directory
-     *
-     * @return string
-     */
-    private function getFileContent($absolutePath, $directory)
-    {
-        $areaName = 'WP-Files';
-        $fileTypes = null;
-
-        if ($this->mainConfig->getLockedFileType() === 'selected') {
-            $fileTypes = $this->cleanUpFileTypes($this->mainConfig->getLockedFiles());
-            $fileTypes = "\\.({$fileTypes})";
-        }
-
-        $content = "location ".str_replace($absolutePath, '/', $directory)." {\n";
-
-        if ($fileTypes !== null) {
-            $content .= "location ~ {$fileTypes} {\n";
-        }
-
-        $content .= "auth_basic \"{$areaName}\";\n";
-        $content .= "auth_basic_user_file {$directory}.htpasswd;\n";
-        $content .= "}\n";
-
-        if ($fileTypes !== null) {
-            $content .= "}\n";
-        }
-
-        return $content;
-    }
-
-    /**
      * Creates the file content if permalinks are active.
      *
      * @param string $absolutePath
@@ -69,7 +34,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
      *
      * @return string
      */
-    private function getPermalinkFileContent($absolutePath, $directory, $objectType)
+    private function getFileContent($absolutePath, $directory, $objectType)
     {
         if ($objectType === null) {
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
@@ -110,13 +75,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
     {
         $directory = rtrim($directory, '/').'/';
         $absolutePath = rtrim($absolutePath, '/').'/';
-
-        if ($this->wordpressConfig->isPermalinksActive() === false) {
-            $content = $this->getFileContent($absolutePath, $directory);
-            $this->createPasswordFile(true, $directory);
-        } else {
-            $content = $this->getPermalinkFileContent($absolutePath, $directory, $objectType);
-        }
+        $content = $this->getFileContent($absolutePath, $directory, $objectType);
 
         // save files
         $fileWithPath = $absolutePath.self::FILE_NAME;

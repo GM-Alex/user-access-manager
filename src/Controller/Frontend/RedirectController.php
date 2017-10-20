@@ -386,7 +386,9 @@ class RedirectController extends Controller
      */
     public function getFileUrl($url, $id)
     {
-        if ($this->wordpressConfig->isPermalinksActive() === false && $this->mainConfig->lockFile() === true) {
+        if ($this->mainConfig->lockFile() === true
+            && ($this->wordpress->isNginx() === false || $this->wordpress->gotModRewrite() === false)
+        ) {
             $post = $this->objectHandler->getPost($id);
 
             if ($post !== null) {

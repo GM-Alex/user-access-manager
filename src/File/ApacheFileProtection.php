@@ -157,7 +157,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     {
         $directory = rtrim($directory, '/').'/';
 
-        if ($this->wordpressConfig->isPermalinksActive() === false) {
+        if ($this->wordpress->gotModRewrite() === false) {
             $content = $this->getFileContent($directory);
             $this->createPasswordFile(true, $directory);
         } else {

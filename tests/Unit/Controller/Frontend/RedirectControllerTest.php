@@ -634,17 +634,21 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->with('/')
             ->will($this->returnValue('homeUrl'));
 
-        $wordpressConfig = $this->getWordpressConfig();
+        $wordpress->expects($this->exactly(5))
+            ->method('isNginx')
+            ->will($this->onConsecutiveCalls(true, true, true, false, false));
 
-        $wordpressConfig->expects($this->exactly(6))
-            ->method('isPermalinksActive')
-            ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
+        $wordpress->expects($this->exactly(3))
+            ->method('gotModRewrite')
+            ->will($this->onConsecutiveCalls(true, false, false));
+
+        $wordpressConfig = $this->getWordpressConfig();
 
         $mainConfig = $this->getMainConfig();
 
-        $mainConfig->expects($this->exactly(5))
+        $mainConfig->expects($this->exactly(6))
             ->method('lockFile')
-            ->will($this->onConsecutiveCalls(false, true, true, true, true));
+            ->will($this->onConsecutiveCalls(false, true, true, true, true, true));
 
         $mainConfig->expects($this->exactly(3))
             ->method('getLockedFiles')

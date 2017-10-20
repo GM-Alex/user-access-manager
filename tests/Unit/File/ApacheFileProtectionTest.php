@@ -102,6 +102,10 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->method('getHomeUrl')
             ->will($this->returnValue('http://www.test.com/path'));
 
+        $wordpress->expects($this->exactly(6))
+            ->method('gotModRewrite')
+            ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
+
         /**
          * @var \stdClass $user
          */
@@ -114,10 +118,6 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->will($this->returnValue($user));
 
         $wordpressConfig = $this->getWordpressConfig();
-
-        $wordpressConfig->expects($this->exactly(6))
-            ->method('isPermalinksActive')
-            ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
 
         $wordpressConfig->expects($this->exactly(3))
             ->method('getMimeTypes')

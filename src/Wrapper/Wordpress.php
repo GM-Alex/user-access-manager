@@ -39,6 +39,7 @@ class Wordpress
      */
     public function isNginx()
     {
+        return true;
         global $is_nginx;
         return $is_nginx;
     }
@@ -1008,5 +1009,15 @@ class Wordpress
     public function attachmentUrlToPostId($url)
     {
         return \attachment_url_to_postid($url);
+    }
+
+    /**
+     * @see \got_mod_rewrite()
+     *
+     * @return bool
+     */
+    public function gotModRewrite()
+    {
+        return \got_mod_rewrite();
     }
 }
