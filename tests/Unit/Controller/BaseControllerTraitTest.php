@@ -78,14 +78,14 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
 
         $_GET['objectParam'] = new \stdClass();
         $_GET['arrayParam'] = [
-            'normalKey' => '<script>alert(\'evilValue\');</script>',
+            'normalKey' => '<script>alert(\'evil\\\Value\');</script>',
             '<script>alert(\'evilKey\');</script>' => 'normalValue',
             'array' => ['a' => '<script>alert(\'otherEvil\');</script>']
         ];
         self::assertEquals(new \stdClass(), $stub->getRequestParameter('objectParam'));
         self::assertEquals(
             [
-                'normalKey' => '&lt;script&gt;alert(\'evilValue\');&lt;/script&gt;',
+                'normalKey' => '&lt;script&gt;alert(\'evil\Value\');&lt;/script&gt;',
                 '&lt;script&gt;alert(\'evilKey\');&lt;/script&gt;' => 'normalValue',
                 'array' => ['a' => '&lt;script&gt;alert(\'otherEvil\');&lt;/script&gt;']
             ],

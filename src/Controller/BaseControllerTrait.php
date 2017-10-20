@@ -71,6 +71,7 @@ trait BaseControllerTrait
             $value = $newValue;
         } elseif (is_string($value) === true) {
             $value = preg_replace('/[\\\\]+(["|\']{1})/', '$1', $value);
+            $value = stripslashes($value);
             $value = htmlspecialchars($value);
         }
 

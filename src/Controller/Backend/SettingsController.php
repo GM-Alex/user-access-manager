@@ -347,13 +347,17 @@ class SettingsController extends Controller
      */
     private function getFilesSettingsForm()
     {
+        $fileProtectionFileName = $this->fileHandler->getFileProtectionFileName();
+        $fileContent = (file_exists($fileProtectionFileName) === true) ?
+            file_get_contents($fileProtectionFileName) : '';
+
         $parameters = [
             'lock_file',
             'download_type',
             'use_custom_file_handling_file',
             $this->formFactory->createTextarea(
                 'custom_file_handling_file',
-                $this->fileHandler->getFileProtectionFileName(),
+                $fileContent,
                 TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
                 TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
             )
@@ -643,12 +647,21 @@ class SettingsController extends Controller
             }
         }
 
+        $customFileHandlingFile = isset($newConfigParameters['custom_file_handling_file']) === true ?
+            $newConfigParameters['custom_file_handling_file'] : null;
+        unset($newConfigParameters['custom_file_handling_file']);
+
         $this->mainConfig->setConfigParameters($newConfigParameters);
 
         if ($this->mainConfig->lockFile() === false) {
             $this->fileHandler->deleteFileProtection();
         } elseif ($this->mainConfig->useCustomFileHandlingFile() === false) {
             $this->fileHandler->createFileProtection();
+        } elseif ($customFileHandlingFile !== null) {
+            $this->php->filePutContents(
+                $this->fileHandler->getFileProtectionFileName(),
+                htmlspecialchars_decode($customFileHandlingFile)
+            );
         }
 
         $this->wordpress->doAction('uam_update_options', $this->mainConfig);

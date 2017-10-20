@@ -7,18 +7,21 @@ jQuery(document).ready(function ($) {
     });
 
     //Functions for the setting page
-    var toggleGroup = function (group, elementIndex) {
+    var toggleGroup = function (group, elementIndex, hiddenFlag, elementsToHide) {
+        hiddenFlag = hiddenFlag || 'true';
         var $group = jQuery(group);
         var $inputs = jQuery('tr:eq('+elementIndex+') input', $group);
 
         var toggleElement = function (element) {
             var $element = jQuery(element);
             var $subElements = jQuery('tr:gt('+elementIndex+')', $group);
+            var currentState = ($element.val() === hiddenFlag);
+            elementsToHide = elementsToHide || $subElements.length;
 
-            $subElements.each(function (index, subElement) {
-                var $subElement = jQuery(subElement);
+            for (var index = 0; index < $subElements.length; index++) {
+                var $subElement = jQuery($subElements[index]);
                 var data = $subElement.data('hidden') || {};
-                data[elementIndex] = ($element.val() === 'true');
+                data[elementIndex] = (index < elementsToHide) ? currentState : !currentState;
                 $subElement.data('hidden', data);
 
                 var showElement = true;
@@ -31,7 +34,7 @@ jQuery(document).ready(function ($) {
                 });
 
                 $subElement.toggle(showElement);
-            });
+            }
         };
 
         $inputs.change(function () {
@@ -44,6 +47,9 @@ jQuery(document).ready(function ($) {
     toggleGroup('.uam_settings_group_post_type', 0);
     toggleGroup('.uam_settings_group_post_type:not(.default)', 1);
     toggleGroup('.uam_settings_group_taxonomies:not(.default)', 0);
+    toggleGroup('.uam_settings_group_file:not(.default)', 1);
+    toggleGroup('#uam_settings_group_file', 0, 'false');
+    toggleGroup('#uam_settings_group_file', 2, 'false', 1);
 
     // Functions for the setup page
     jQuery('#uam_reset_confirm').on('change paste keyup', function () {

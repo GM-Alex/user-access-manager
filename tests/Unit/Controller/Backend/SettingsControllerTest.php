@@ -32,6 +32,9 @@ use UserAccessManager\Form\ValueSetFormElementValue;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use VCR\VCR;
+use Vfs\FileSystem;
+use Vfs\Node\Directory;
+use Vfs\Node\File;
 
 /**
  * Class SettingsControllerTest
@@ -41,6 +44,28 @@ use VCR\VCR;
  */
 class SettingsControllerTest extends UserAccessManagerTestCase
 {
+    /**
+     * @var FileSystem
+     */
+    private $root;
+
+    /**
+     * Setup virtual file system.
+     */
+    public function setUp()
+    {
+        $this->root = FileSystem::factory('vfs://');
+        $this->root->mount();
+    }
+
+    /**
+     * Tear down virtual file system.
+     */
+    public function tearDown()
+    {
+        $this->root->unmount();
+    }
+
     /**
      * @group  unit
      * @covers ::__construct()
@@ -448,19 +473,19 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 ['stringId', 'stringValue', 'stringIdPage', 'stringIdPageDesc'],
                 [
                     'custom_file_handling_file',
-                    'fileProtectionFileName',
+                    'fileProtectionFileContent',
                     TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
                     TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
                 ],
                 [
                     'custom_file_handling_file',
-                    'fileProtectionFileName',
+                    'fileProtectionFileContent',
                     TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
                     TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
                 ],
                 [
                     'custom_file_handling_file',
-                    'fileProtectionFileName',
+                    'fileProtectionFileContent',
                     TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
                     TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
                 ]
@@ -773,9 +798,18 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $fileHandler->expects($this->exactly(3))
             ->method('removeXSendFileTestFile');
 
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory([
+            'fileProtectionFileName' => new File('fileProtectionFileContent')
+        ]));
+        $testFileWithDir = 'vfs://testDir/fileProtectionFileName';
+
         $fileHandler->expects($this->exactly(3))
             ->method('getFileProtectionFileName')
-            ->will($this->returnValue('fileProtectionFileName'));
+            ->will($this->returnValue($testFileWithDir));
 
         $settingController = new SettingsController(
             $this->getPhp(),
@@ -841,6 +875,11 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testUpdateSettingsAction()
     {
+        $php = $this->getPhp();
+        $php->expects($this->once())
+            ->method('filePutContents')
+            ->with('fileProtectionFileName', 'newFileContent');
+
         $mainConfig = $this->getMainConfig();
         $mainConfig->expects($this->exactly(5))
             ->method('setConfigParameters')
@@ -858,7 +897,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $mainConfig->expects($this->exactly(4))
             ->method('useCustomFileHandlingFile')
-            ->will($this->onConsecutiveCalls(true, false, false, false));
+            ->will($this->onConsecutiveCalls(true, true, false, false));
 
         $config = $this->getConfig();
         $config->expects($this->once())
@@ -886,19 +925,24 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $fileHandler = $this->getFileHandler();
 
-        $fileHandler->expects($this->exactly(3))
+        $fileHandler->expects($this->exactly(2))
             ->method('createFileProtection');
 
         $fileHandler->expects($this->once())
             ->method('deleteFileProtection');
 
+        $fileHandler->expects($this->once())
+            ->method('getFileProtectionFileName')
+            ->will($this->returnValue('fileProtectionFileName'));
+
         $_POST['config_parameters'] = [
             'b' => '<b>b</b>',
-            'i' => '<i>i</i>'
+            'i' => '<i>i</i>',
+            'custom_file_handling_file' => 'newFileContent'
         ];
 
         $settingController = new SettingsController(
-            $this->getPhp(),
+            $php,
             $wordpress,
             $this->getWordpressConfig(),
             $mainConfig,
@@ -911,6 +955,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $settingController->updateSettingsAction();
         $settingController->updateSettingsAction();
+
+        unset($_POST['config_parameters']['custom_file_handling_file']);
         $settingController->updateSettingsAction();
 
         $_GET['tab_group'] = SettingsController::GROUP_CACHE;
