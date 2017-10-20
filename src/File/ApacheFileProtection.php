@@ -47,14 +47,14 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     }
 
     /**
-     * Creates the file content if permalinks are active.
+     * Creates the file content if no permalinks are active.
      *
      * @param string $directory
      * @param string $fileTypes
      *
      * @return string
      */
-    private function getPermalinkFileContent($directory, $fileTypes)
+    private function getFileContent($directory, $fileTypes)
     {
         $areaName = 'WP-Files';
         // make .htaccess and .htpasswd
@@ -72,14 +72,14 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     }
 
     /**
-     * Creates the file content if no permalinks are active.
+     * Creates the file content if permalinks are active.
      *
      * @param string $fileTypes
      * @param string $objectType
      *
      * @return string
      */
-    private function getFileContent($fileTypes, $objectType)
+    private function getPermalinkFileContent($fileTypes, $objectType)
     {
         if ($objectType === null) {
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
@@ -120,10 +120,10 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $fileTypes = $this->getFileTypes();
 
         if ($this->wordpressConfig->isPermalinksActive() === false) {
-            $content = $this->getPermalinkFileContent($directory, $fileTypes);
+            $content = $this->getFileContent($directory, $fileTypes);
             $this->createPasswordFile(true, $directory);
         } else {
-            $content = $this->getFileContent($fileTypes, $objectType);
+            $content = $this->getPermalinkFileContent($fileTypes, $objectType);
         }
 
         // save files
