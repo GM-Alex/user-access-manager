@@ -39,7 +39,6 @@ class Wordpress
      */
     public function isNginx()
     {
-        return true;
         global $is_nginx;
         return $is_nginx;
     }
