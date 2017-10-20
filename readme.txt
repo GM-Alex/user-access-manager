@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 2.1.5
+Stable tag: 2.1.6
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -59,8 +59,8 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
-    2.1.6       2017/??/??  Fix "Inherited group membership for media attachments" issue #133
-                            Fix traits strict warning
+    2.1.6       2017/10/20  Fix "Inherited group membership for media attachments" issue #133
+                            Fix traits strict warning #145
     2.1.5       2017/10/12  Refactor traits
                             Fix datetime issue with not supported browsers
     2.1.4       2017/10/10  Fix strict warnings #134
