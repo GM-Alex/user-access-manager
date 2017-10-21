@@ -209,6 +209,16 @@ class MainConfig extends Config
         $id = 'lock_file';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
+        $id = 'download_type';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            'fopen',
+            ['xsendfile', 'fopen', 'normal']
+        );
+
+        $id = 'inline_files';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id, 'pdf');
+
         $id = 'use_custom_file_handling_file';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
@@ -227,13 +237,6 @@ class MainConfig extends Config
             $id,
             'random',
             ['random', 'user']
-        );
-
-        $id = 'download_type';
-        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
-            $id,
-            'fopen',
-            ['xsendfile', 'fopen', 'normal']
         );
 
         $id = 'lock_file_types';
@@ -455,6 +458,14 @@ class MainConfig extends Config
     public function lockFile()
     {
         return $this->getParameterValue('lock_file');
+    }
+
+    /**
+     * @return string
+     */
+    public function getInlineFiles()
+    {
+        return $this->getParameterValue('inline_files');
     }
 
     /**

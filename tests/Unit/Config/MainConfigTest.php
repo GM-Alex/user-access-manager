@@ -74,11 +74,12 @@ class MainConfigTest extends UserAccessManagerTestCase
             'authors_has_access_to_own' => 'bool|authors_has_access_to_own|true',
             'authors_can_add_posts_to_groups' => 'bool|authors_can_add_posts_to_groups|false',
             'lock_file' => 'bool|lock_file|false',
+            'download_type' => 'selection|download_type|fopen|xsendfile|fopen|normal',
+            'inline_files' => 'string|inline_files|pdf',
             'use_custom_file_handling_file' => 'bool|use_custom_file_handling_file|false',
             'locked_directory_type' => 'selection|locked_directory_type|wordpress|wordpress|all|custom',
             'custom_locked_directories' => 'string|custom_locked_directories|',
             'file_pass_type' => 'selection|file_pass_type|random|random|user',
-            'download_type' => 'selection|download_type|fopen|xsendfile|fopen|normal',
             'lock_file_types' => 'selection|lock_file_types|all|all|selected|not_selected',
             'locked_file_types' => 'string|locked_file_types|zip,rar,tar,gz',
             'not_locked_file_types' => 'string|not_locked_file_types|gif,jpg,jpeg,png',
@@ -232,7 +233,7 @@ class MainConfigTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $configParameterFactory->expects($this->exactly(15))
+        $configParameterFactory->expects($this->exactly(16))
             ->method('createStringConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -436,11 +437,12 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::authorsHasAccessToOwn
      * @covers ::authorsCanAddPostsToGroups
      * @covers ::lockFile
+     * @covers ::getDownloadType
+     * @covers ::getInlineFiles
      * @covers ::useCustomFileHandlingFile
      * @covers ::getLockedDirectoryType
      * @covers ::getCustomLockedDirectories
      * @covers ::getFilePassType
-     * @covers ::getDownloadType
      * @covers ::getLockedFileType
      * @covers ::getLockedFiles
      * @covers ::getNotLockedFiles
@@ -462,11 +464,12 @@ class MainConfigTest extends UserAccessManagerTestCase
             'authorsHasAccessToOwn' => 'authors_has_access_to_own',
             'authorsCanAddPostsToGroups' => 'authors_can_add_posts_to_groups',
             'lockFile' => 'lock_file',
+            'getDownloadType' => 'download_type',
+            'getInlineFiles' => 'inline_files',
             'useCustomFileHandlingFile' => 'use_custom_file_handling_file',
             'getLockedDirectoryType' => 'locked_directory_type',
             'getCustomLockedDirectories' => 'custom_locked_directories',
             'getFilePassType' => 'file_pass_type',
-            'getDownloadType' => 'download_type',
             'getLockedFileType' => 'lock_file_types',
             'getLockedFiles' => 'locked_file_types',
             'getNotLockedFiles' => 'not_locked_file_types',

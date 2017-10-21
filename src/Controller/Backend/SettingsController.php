@@ -354,6 +354,7 @@ class SettingsController extends Controller
         $parameters = [
             'lock_file',
             'download_type',
+            'inline_files',
             'use_custom_file_handling_file',
             $this->formFactory->createTextarea(
                 'custom_file_handling_file',
@@ -368,27 +369,34 @@ class SettingsController extends Controller
         if (isset($configParameters['locked_directory_type']) === true) {
             $configParameter = $configParameters['locked_directory_type'];
 
+            $values = [
+                $this->formFactory->createMultipleFormElementValue(
+                    'wordpress',
+                    TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS
+                ),
+                $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL),
+            ];
+
+            if (isset($configParameters['custom_locked_directories']) === true) {
+                $values[] = $this->createMultipleFromElement(
+                    $configParameters['custom_locked_directories'],
+                    'custom',
+                    TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM
+                );
+            }
+
             $parameters[] = $this->formFactory->createRadio(
                 $configParameter->getId(),
-                [
-                    $this->formFactory->createMultipleFormElementValue(
-                        'wordpress',
-                        TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS
-                    ),
-                    $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL),
-                    $this->createMultipleFromElement(
-                        $configParameters['custom_locked_directories'],
-                        'custom',
-                        TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM
-                    )
-                ],
+                $values,
                 $configParameter->getValue(),
                 TXT_UAM_LOCKED_DIRECTORY_TYPE,
                 TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
             );
         }
 
-        if (isset($configParameters['lock_file_types']) === true) {
+        if (isset($configParameters['lock_file_types']) === true
+            && $this->wordpress->isNginx() === false
+        ) {
             $values = [
                 $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL)
             ];
@@ -401,9 +409,7 @@ class SettingsController extends Controller
                 );
             }
 
-            if ($this->wordpress->isNginx() === false
-                && isset($configParameters['not_locked_file_types']) === true
-            ) {
+            if (isset($configParameters['not_locked_file_types']) === true) {
                 $values[] = $this->createMultipleFromElement(
                     $configParameters['not_locked_file_types'],
                     'not_selected',
@@ -420,9 +426,12 @@ class SettingsController extends Controller
                 TXT_UAM_LOCK_FILE_TYPES,
                 TXT_UAM_LOCK_FILE_TYPES_DESC
             );
+
+            if ($this->wordpress->gotModRewrite() === false) {
+                $parameters[] = 'file_pass_type';
+            }
         }
 
-        $parameters[] = 'file_pass_type';
         $form = $this->formHelper->getSettingsForm($parameters);
 
         if ($this->isXSendFileAvailable() === false) {

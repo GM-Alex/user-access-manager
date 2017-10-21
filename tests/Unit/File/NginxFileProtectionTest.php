@@ -85,9 +85,10 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @covers  ::create()
-     * @covers  ::getFileContent()
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getFileContent()
+     * @covers ::getLocation()
      */
     public function testCreate()
     {
@@ -98,11 +99,20 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         $rootDir->add('testDir', new Directory());
         $testDir = 'vfs://testDir';
 
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(8))
+            ->method('getLockedDirectoryType')
+            ->will($this->onConsecutiveCalls('all', 'all', 'wordpress', 'wordpress', 'custom', 'custom', 'all', 'all'));
+
+        $mainConfig->expects($this->once())
+            ->method('getCustomLockedDirectories')
+            ->will($this->returnValue('custom'));
+
         $nginxFileProtection = new NginxFileProtection(
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
-            $this->getMainConfig(),
+            $mainConfig,
             $this->getUtil()
         );
         $file = 'vfs://testDir/'.NginxFileProtection::FILE_NAME;
@@ -119,7 +129,17 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
 
         self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
         self::assertEquals(
-            "location / {\n"
+            "location ^/[0-9]{4}/[0-9]{2} {\n"
+            ."rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
+            ."rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
+            ."rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
+            ."}\n",
+            file_get_contents($file)
+        );
+
+        self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
+        self::assertEquals(
+            "location custom {\n"
             ."rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
             ."rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
             ."rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"

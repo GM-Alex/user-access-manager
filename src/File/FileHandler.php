@@ -16,6 +16,7 @@ namespace UserAccessManager\File;
 
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
+use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -81,7 +82,7 @@ class FileHandler
      */
     private function clearBuffer()
     {
-        //TODO find better solution (prevent '\n' / '0A')
+        //prevent '\n' / '0A'
         if (is_numeric(ob_get_length()) === true) {
             ob_clean();
         }
@@ -252,6 +253,22 @@ class FileHandler
     }
 
     /**
+     * Checks if the file is an inline file
+     *
+     * @param string $file
+     *
+     * @return bool
+     */
+    private function isInlineFile($file)
+    {
+        $inlineFiles = array_map('trim', explode(',', $this->mainConfig->getInlineFiles()));
+        $map = array_flip($inlineFiles);
+        $extension = pathinfo($file, PATHINFO_EXTENSION);
+
+        return isset($map[$extension]);
+    }
+
+    /**
      * Delivers the content of the requested file.
      *
      * @param string $file
@@ -261,8 +278,7 @@ class FileHandler
     {
         //Deliver content
         if (file_exists($file) === true) {
-            //TODO check for inline files
-            $isInline = $isImage;
+            $isInline = $isImage  === true || $this->isInlineFile($file) === true;
 
             if (isset($_SERVER['HTTP_RANGE']) === true
                 && isset($_SERVER['REQUEST_METHOD']) === true

@@ -26,6 +26,23 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
     const FILE_NAME = 'uam.conf';
 
     /**
+     * Returns the location.
+     *
+     * @param string $directory
+     *
+     * @return string
+     */
+    protected function getLocation($directory)
+    {
+        if ($this->mainConfig->getLockedDirectoryType() === 'wordpress') {
+            return "^{$directory}".$this->getDirectoryMatch();
+        }
+
+        $directoryMatch = $this->getDirectoryMatch();
+        return $directoryMatch === null ? $directory : $directoryMatch;
+    }
+
+    /**
      * Creates the file content if permalinks are active.
      *
      * @param string $absolutePath
@@ -40,7 +57,9 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
         }
 
-        $content = "location ".str_replace($absolutePath, '/', $directory)." {\n";
+        $location = $this->getLocation(str_replace($absolutePath, '/', $directory));
+
+        $content = "location {$location} {\n";
         $content .= "rewrite ^([^?]*)$ /index.php?uamfiletype={$objectType}&uamgetfile=$1 last;\n";
         $content .= "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ ";
         $content .= "/index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 last;\n";
@@ -73,8 +92,8 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
      */
     public function create($directory, $objectType = null, $absolutePath = ABSPATH)
     {
-        $directory = rtrim($directory, '/').'/';
-        $absolutePath = rtrim($absolutePath, '/').'/';
+        $directory = rtrim($directory, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+        $absolutePath = rtrim($absolutePath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
         $content = $this->getFileContent($absolutePath, $directory, $objectType);
 
         // save files

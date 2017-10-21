@@ -377,11 +377,11 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testGetCurrentGroupForms()
     {
-        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(9, 9);
+        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(11, 11);
 
-        $wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->exactly(4))
             ->method('isNginx')
-            ->will($this->onConsecutiveCalls(false, true));
+            ->will($this->onConsecutiveCalls(true, false, false, false));
 
         $pages = [];
 
@@ -400,9 +400,13 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->with('sort_column=menu_order')
             ->will($this->returnValue($pages));
 
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(5))
             ->method('getHomeUrl')
             ->will($this->returnValue('https://localhost'));
+
+        $wordpress->expects($this->exactly(3))
+            ->method('gotModRewrite')
+            ->will($this->onConsecutiveCalls(true, true, false));
 
         $configValues = [
             'hide_post' => $this->getConfigParameter('boolean'),
@@ -443,7 +447,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         ];
 
         $mainConfig = $this->getMainConfig();
-        $mainConfig->expects($this->exactly(7))
+        $mainConfig->expects($this->exactly(9))
             ->method('getConfigParameters')
             ->will($this->returnCallback(function () use (&$configValues) {
                 return $configValues;
@@ -452,7 +456,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $config = $this->getConfig();
 
         $cacheProvider = $this->createMock(CacheProviderInterface::class);
-        $cacheProvider->expects($this->exactly(17))
+        $cacheProvider->expects($this->exactly(21))
             ->method('getId')
             ->will($this->returnValue('cacheProviderId'));
         $cacheProvider->expects($this->once())
@@ -460,47 +464,46 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($config));
 
         $cache = $this->getCache();
-        $cache->expects($this->exactly(9))
+        $cache->expects($this->exactly(11))
             ->method('getRegisteredCacheProviders')
             ->will($this->returnValue([$cacheProvider]));
 
         $formFactory = $this->getFormFactory();
 
-        $formFactory->expects($this->exactly(5))
+        $customFileHandlingFileTextarea = [
+            'custom_file_handling_file',
+            'fileProtectionFileContent',
+            TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
+            TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
+        ];
+
+        $formFactory->expects($this->exactly(7))
             ->method('createTextarea')
             ->withConsecutive(
                 ['stringId', 'stringValue', 'stringIdPost', 'stringIdPostDesc'],
                 ['stringId', 'stringValue', 'stringIdPage', 'stringIdPageDesc'],
-                [
-                    'custom_file_handling_file',
-                    'fileProtectionFileContent',
-                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
-                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
-                ],
-                [
-                    'custom_file_handling_file',
-                    'fileProtectionFileContent',
-                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
-                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
-                ],
-                [
-                    'custom_file_handling_file',
-                    'fileProtectionFileContent',
-                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
-                    TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
-                ]
+                $customFileHandlingFileTextarea,
+                $customFileHandlingFileTextarea,
+                $customFileHandlingFileTextarea,
+                $customFileHandlingFileTextarea,
+                $customFileHandlingFileTextarea
             )
             ->will($this->onConsecutiveCalls(
                 'postTextarea',
                 'pageTextarea',
                 'custom_file_handling_file',
                 'custom_file_handling_file',
+                'custom_file_handling_file',
+                'custom_file_handling_file',
                 'custom_file_handling_file'
             ));
 
-        $formFactory->expects($this->exactly(18))
+        $formFactory->expects($this->exactly(28))
             ->method('createMultipleFormElementValue')
             ->withConsecutive(
+                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
+                ['all', TXT_UAM_ALL],
+                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
                 ['all', TXT_UAM_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
@@ -512,6 +515,13 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
                 ['all', TXT_UAM_ALL],
                 ['selected', TXT_UAM_LOCKED_FILE_TYPES],
+                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
+                ['all', TXT_UAM_ALL],
+                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
+                ['all', TXT_UAM_ALL],
+                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
+                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
                 ['all', TXT_UAM_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
@@ -522,77 +532,60 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue($this->createMultipleFormElementValue()));
 
-        $formFactory->expects($this->exactly(6))
+        $lockedDirectoryType = [
+            'selectionId',
+            [
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue()
+            ],
+            'selectionValue',
+            TXT_UAM_LOCKED_DIRECTORY_TYPE,
+            TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
+        ];
+
+        $lockFileTypes = [
+            'selectionId',
+            [
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue()
+            ],
+            'selectionValue',
+            TXT_UAM_LOCK_FILE_TYPES,
+            TXT_UAM_LOCK_FILE_TYPES_DESC
+        ];
+
+        $redirect = [
+            'selectionId',
+            [
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue()
+            ],
+            'selectionValue',
+            TXT_UAM_REDIRECT,
+            TXT_UAM_REDIRECT_DESC
+        ];
+
+        $formFactory->expects($this->exactly(9))
             ->method('createRadio')
             ->withConsecutive(
-                [
-                    'selectionId',
-                    [
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue()
-                    ],
-                    'selectionValue',
-                    TXT_UAM_LOCKED_DIRECTORY_TYPE,
-                    TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
-                ],
-                [
-                    'selectionId',
-                    [
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue()
-                    ],
-                    'selectionValue',
-                    TXT_UAM_LOCK_FILE_TYPES,
-                    TXT_UAM_LOCK_FILE_TYPES_DESC
-                ],
-                [
-                    'selectionId',
-                    [
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue()
-                    ],
-                    'selectionValue',
-                    TXT_UAM_LOCKED_DIRECTORY_TYPE,
-                    TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
-                ],
-                [
-                    'selectionId',
-                    [
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue()
-                    ],
-                    'selectionValue',
-                    TXT_UAM_LOCK_FILE_TYPES,
-                    TXT_UAM_LOCK_FILE_TYPES_DESC
-                ],
-                [
-                    'selectionId',
-                    [
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue()
-                    ],
-                    'selectionValue',
-                    TXT_UAM_LOCKED_DIRECTORY_TYPE,
-                    TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
-                ],
-                [
-                    'selectionId',
-                    [
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue(),
-                        $this->createMultipleFormElementValue()
-                    ],
-                    'selectionValue',
-                    TXT_UAM_REDIRECT,
-                    TXT_UAM_REDIRECT_DESC
-                ]
+                $lockedDirectoryType,
+                $lockedDirectoryType,
+                $lockFileTypes,
+                $lockedDirectoryType,
+                $lockFileTypes,
+                $lockedDirectoryType,
+                $lockFileTypes,
+                $lockedDirectoryType,
+                $redirect
             )
             ->will($this->onConsecutiveCalls(
+                'lockedDirectoryRadio',
+                'lockedDirectoryRadio',
+                'fileRadio',
                 'lockedDirectoryRadio',
                 'fileRadio',
                 'lockedDirectoryRadio',
@@ -628,21 +621,21 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ));
 
         $xSendFileValue = $this->createMock(ValueSetFormElementValue::class);
-        $xSendFileValue->expects($this->exactly(2))
+        $xSendFileValue->expects($this->exactly(4))
             ->method('markDisabled');
 
         $downloadTypeElement = $this->createMock(ValueSetFormElement::class);
-        $downloadTypeElement->expects($this->exactly(2))
+        $downloadTypeElement->expects($this->exactly(4))
             ->method('getPossibleValues')
             ->will($this->returnValue(['xsendfile' => $xSendFileValue]));
 
         $fileFrom = $this->createMock(Form::class);
-        $fileFrom->expects($this->exactly(2))
+        $fileFrom->expects($this->exactly(4))
             ->method('getElements')
             ->will($this->returnValue(['download_type' => $downloadTypeElement]));
 
         $formHelper = $this->getFormHelper();
-        $formHelper->expects($this->exactly(10))
+        $formHelper->expects($this->exactly(12))
             ->method('getSettingsForm')
             ->withConsecutive(
                 [
@@ -696,6 +689,40 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     [
                         'lock_file',
                         'download_type',
+                        'inline_files',
+                        'use_custom_file_handling_file',
+                        'custom_file_handling_file',
+                        'lockedDirectoryRadio'
+                    ]
+                ],
+                [
+                    [
+                        'lock_file',
+                        'download_type',
+                        'inline_files',
+                        'use_custom_file_handling_file',
+                        'custom_file_handling_file',
+                        'lockedDirectoryRadio',
+                        'fileRadio'
+                    ]
+                ],
+                [
+                    [
+                        'lock_file',
+                        'download_type',
+                        'inline_files',
+                        'use_custom_file_handling_file',
+                        'custom_file_handling_file',
+                        'lockedDirectoryRadio',
+                        'fileRadio'
+                    ]
+                ],
+                [
+                    [
+
+                        'lock_file',
+                        'download_type',
+                        'inline_files',
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
                         'lockedDirectoryRadio',
@@ -705,23 +732,13 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 ],
                 [
                     [
+
                         'lock_file',
                         'download_type',
+                        'inline_files',
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
-                        'lockedDirectoryRadio',
-                        'fileRadio',
-                        'file_pass_type'
-                    ]
-                ],
-                [
-                    [
-                        'lock_file',
-                        'download_type',
-                        'use_custom_file_handling_file',
-                        'custom_file_handling_file',
-                        'lockedDirectoryRadio',
-                        'file_pass_type'
+                        'lockedDirectoryRadio'
                     ]
                 ],
                 [
@@ -751,6 +768,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 $fileFrom,
                 $fileFrom,
                 $fileFrom,
+                $fileFrom,
+                $fileFrom,
                 'authorForm',
                 'otherForm'
             ));
@@ -765,17 +784,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $formHelper->expects($this->exactly(7))
+        $formHelper->expects($this->exactly(12))
             ->method('convertConfigParameter')
-            ->withConsecutive(
-                [],
-                [],
-                [],
-                [],
-                [],
-                [],
-                []
-            )
             ->will($this->returnCallback(function ($configParameter) {
                 if (($configParameter instanceof StringConfigParameter) === true) {
                     return $this->createMock(Input::class);
@@ -795,7 +805,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $fileHandler = $this->getFileHandler();
 
-        $fileHandler->expects($this->exactly(3))
+        $fileHandler->expects($this->exactly(5))
             ->method('removeXSendFileTestFile');
 
         /**
@@ -807,7 +817,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         ]));
         $testFileWithDir = 'vfs://testDir/fileProtectionFileName';
 
-        $fileHandler->expects($this->exactly(3))
+        $fileHandler->expects($this->exactly(5))
             ->method('getFileProtectionFileName')
             ->will($this->returnValue($testFileWithDir));
 
@@ -848,7 +858,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         VCR::eject();
 
         VCR::insertCassette('testXSendFileFailure');
-        $_GET['tab_group'] = SettingsController::GROUP_FILES;
+        self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
+        self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
         self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
 
         unset($configValues['lock_file_types']);

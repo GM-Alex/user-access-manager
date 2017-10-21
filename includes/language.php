@@ -96,6 +96,8 @@ define('TXT_UAM_FILE_PASS_TYPE_RANDOM', __('Use a random generated password.', '
 define('TXT_UAM_FILE_PASS_TYPE_USER', __('Use the password of the current logged in admin.', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE', __('Download type', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_DESC', __('Selecting the type for downloading. <strong>Note:</strong> For using fopen you need "safe_mode = off".', 'user-access-manager'));
+define('TXT_UAM_INLINE_FILES', __('Inline file types', 'user-access-manager'));
+define('TXT_UAM_INLINE_FILES_DESC', __('These files (comma separated) will be shown within the browser window and not downloaded (images are always inline).', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_NORMAL', __('Normal', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_FOPEN', __('fopen', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_XSENDFILE', __('XSendfile', 'user-access-manager'));

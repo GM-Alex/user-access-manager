@@ -72,6 +72,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getFile()
+     * @covers ::isInlineFile()
      * @covers ::getFileMineType()
      * @covers ::clearBuffer()
      * @covers ::deliverFile()
@@ -152,6 +153,11 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('getDownloadType')
             ->will($this->onConsecutiveCalls(null, 'fopen', 'fopen', 'fopen', 'fopen', 'fopen', 'xsendfile'));
 
+
+        $mainConfig->expects($this->exactly(6))
+            ->method('getInlineFiles')
+            ->will($this->returnValue('pdf ,some'));
+
         $fileHandler = new FileHandler(
             $php,
             $wordpress,
@@ -167,7 +173,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $rootDir->add('testDir', new Directory([
             'testFile.txt' => new File('Test text'),
             'testFile2.txt' => new File('Test text2'),
-            'testFile3.txt' => new File('Test text3')
+            'testFile3.pdf' => new File('Test text3')
         ]));
 
         $testDir = 'vfs://testDir/';
@@ -177,7 +183,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
 
         $testFileOne = $testDir.'testFile.txt';
         $testFileTwo = $testDir.'testFile2.txt';
-        $testFileThree = $testDir.'testFile3.txt';
+        $testFileThree = $testDir.'testFile3.pdf';
 
         echo 'output'; //Test output must be cleared by getFile method
         $fileHandler->getFile($testFileOne, false);
@@ -214,7 +220,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             [
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
-                'Content-Disposition: attachment; filename="testFile3.txt"',
+                'Content-Disposition: inline; filename="testFile3.pdf"',
                 'Content-Transfer-Encoding: binary',
                 'Content-Length: 10'
             ],

@@ -49,7 +49,7 @@ jQuery(document).ready(function ($) {
     toggleGroup('.uam_settings_group_taxonomies:not(.default)', 0);
     toggleGroup('.uam_settings_group_file:not(.default)', 1);
     toggleGroup('#uam_settings_group_file', 0, 'false');
-    toggleGroup('#uam_settings_group_file', 2, 'false', 1);
+    toggleGroup('#uam_settings_group_file', 3, 'false', 1);
 
     // Functions for the setup page
     jQuery('#uam_reset_confirm').on('change paste keyup', function () {
