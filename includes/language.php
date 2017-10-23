@@ -77,6 +77,10 @@ define('TXT_UAM_SHOW_OBJECT_CONTENT_BEFORE_MORE_DESC', __('Shows the %s content 
 define('TXT_UAM_FILE_SETTING', __('File settings', 'user-access-manager'));
 define('TXT_UAM_FILE_SETTING_DESC', __('Set up the behaviour of files', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE', __('Lock files', 'user-access-manager'));
+define('TXT_UAM_NO_ACCESS_IMAGE_TYPE', __('No access image type', 'user-access-manager'));
+define('TXT_UAM_NO_ACCESS_IMAGE_TYPE_DESC', __('If you choose "Custom", please specify the full path to your image.', 'user-access-manager'));
+define('TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT', __('Default', 'user-access-manager'));
+define('TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM', __('Custom', 'user-access-manager'));
 define('TXT_UAM_USE_CUSTOM_FILE_HANDLING_FILE', __('Use custom file handling file', 'user-access-manager'));
 define('TXT_UAM_USE_CUSTOM_FILE_HANDLING_FILE_DESC', __('Selecting "Yes" will allow you to use your own config file.', 'user-access-manager'));
 define('TXT_UAM_CUSTOM_FILE_HANDLING_FILE', __('Custom file handling file', 'user-access-manager'));

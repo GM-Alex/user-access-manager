@@ -219,6 +219,16 @@ class MainConfig extends Config
         $id = 'inline_files';
         $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id, 'pdf');
 
+        $id = 'no_access_image_type';
+        $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
+            $id,
+            'default',
+            ['default', 'custom']
+        );
+
+        $id = 'custom_no_access_image';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
+
         $id = 'use_custom_file_handling_file';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
@@ -466,6 +476,22 @@ class MainConfig extends Config
     public function getInlineFiles()
     {
         return $this->getParameterValue('inline_files');
+    }
+
+    /**
+     * @return string
+     */
+    public function getNoAccessImageType()
+    {
+        return $this->getParameterValue('no_access_image_type');
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomNoAccessImage()
+    {
+        return $this->getParameterValue('custom_no_access_image');
     }
 
     /**

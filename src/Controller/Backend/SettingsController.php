@@ -17,7 +17,6 @@ namespace UserAccessManager\Controller\Backend;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\MainConfig;
-use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\File\FileHandler;
@@ -351,20 +350,48 @@ class SettingsController extends Controller
         $fileContent = (file_exists($fileProtectionFileName) === true) ?
             file_get_contents($fileProtectionFileName) : '';
 
+        $configParameters = $this->mainConfig->getConfigParameters();
+
         $parameters = [
             'lock_file',
             'download_type',
-            'inline_files',
-            'use_custom_file_handling_file',
-            $this->formFactory->createTextarea(
-                'custom_file_handling_file',
-                $fileContent,
-                TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
-                TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
-            )
+            'inline_files'
         ];
 
-        $configParameters = $this->mainConfig->getConfigParameters();
+        if (isset($configParameters['no_access_image_type']) === true) {
+            $configParameter = $configParameters['no_access_image_type'];
+
+            $values = [
+                $this->formFactory->createMultipleFormElementValue(
+                    'default',
+                    TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT
+                )
+            ];
+
+            if (isset($configParameters['custom_no_access_image']) === true) {
+                $values[] = $this->createMultipleFromElement(
+                    $configParameters['custom_no_access_image'],
+                    'custom',
+                    TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM
+                );
+            }
+
+            $parameters[] = $this->formFactory->createRadio(
+                $configParameter->getId(),
+                $values,
+                $configParameter->getValue(),
+                TXT_UAM_NO_ACCESS_IMAGE_TYPE,
+                TXT_UAM_NO_ACCESS_IMAGE_TYPE_DESC
+            );
+        }
+
+        $parameters[] = 'use_custom_file_handling_file';
+        $parameters[] = $this->formFactory->createTextarea(
+            'custom_file_handling_file',
+            $fileContent,
+            TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
+            TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
+        );
 
         if (isset($configParameters['locked_directory_type']) === true) {
             $configParameter = $configParameters['locked_directory_type'];

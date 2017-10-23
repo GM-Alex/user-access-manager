@@ -208,16 +208,16 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(5))
+        $wordpress->expects($this->exactly(7))
             ->method('getUploadDir')
             ->will($this->returnValue([
                 'basedir' => '/baseDirectory/file/pictures/',
                 'baseurl' => 'http://baseUrl/file/pictures/'
             ]));
 
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(5))
             ->method('attachmentIsImage')
-            ->will($this->onConsecutiveCalls(false, true, false));
+            ->will($this->onConsecutiveCalls(false, true, false, true, true));
 
         $wordpress->expects($this->once())
             ->method('wpDie')
@@ -251,25 +251,37 @@ class RedirectControllerTest extends UserAccessManagerTestCase
 
         $wordpressConfig = $this->getWordpressConfig();
 
-        $wordpressConfig->expects($this->once())
+        $wordpressConfig->expects($this->exactly(2))
             ->method('getRealPath')
             ->will($this->returnValue('realPath/'));
 
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(3))
+            ->method('getNoAccessImageType')
+            ->will($this->onConsecutiveCalls('default', 'custom', 'default'));
+
+        $mainConfig->expects($this->once())
+            ->method('getCustomNoAccessImage')
+            ->will($this->returnValue('customImage.jpg'));
+
         $cache = $this->getCache();
 
-        $cache->expects($this->exactly(5))
+        $cache->expects($this->exactly(7))
             ->method('getFromRuntimeCache')
             ->with(RedirectController::POST_URL_CACHE_KEY)
             ->will($this->returnValue(['http://baseUrl/file/pictures/url' => 1]));
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->exactly(5))
+        $objectHandler->expects($this->exactly(7))
             ->method('getPost')
-            ->withConsecutive([1], [1], [1], [1], [1])
+            ->withConsecutive([1], [1], [1], [1], [1], [1], [1])
             ->will($this->onConsecutiveCalls(
                 false,
                 $this->getPost(1),
+                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
+                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
                 $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
                 $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
                 $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE)
@@ -277,34 +289,40 @@ class RedirectControllerTest extends UserAccessManagerTestCase
 
         $accessHandler = $this->getAccessHandler();
 
-        $accessHandler->expects($this->exactly(4))
+        $accessHandler->expects($this->exactly(6))
             ->method('checkObjectAccess')
             ->withConsecutive(
                 ['type', 1],
                 [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
                 [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
+                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
                 [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1]
             )
-            ->will($this->onConsecutiveCalls(true, false, false, true));
+            ->will($this->onConsecutiveCalls(true, false, false, true, false, false));
 
         $fileHandler = $this->getFileHandler();
 
-        $fileHandler->expects($this->exactly(3))
+        $fileHandler->expects($this->exactly(5))
             ->method('getFile')
             ->withConsecutive(
                 ['file', false],
                 ['realPath/assets/gfx/noAccessPic.png', true],
-                ['/baseDirectory/file/pictures/url', false]
+                ['/baseDirectory/file/pictures/url', false],
+                ['customImage.jpg', true],
+                ['realPath/assets/gfx/noAccessPic.png', true]
             );
 
         $fileObjectFactory = $this->getFileObjectFactory();
 
-        $fileObjectFactory->expects($this->exactly(3))
+        $fileObjectFactory->expects($this->exactly(5))
             ->method('createFileObject')
             ->withConsecutive(
                 [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', false],
                 [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', true],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', false]
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', false],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', true],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', true]
             )
             ->will($this->returnCallback(function ($id, $type, $file, $isImage) {
                 $fileObject = $this->createMock(FileObject::class);
@@ -333,7 +351,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $wordpressConfig,
-            $this->getMainConfig(),
+            $mainConfig,
             $this->getDatabase(),
             $this->getUtil(),
             $cache,
@@ -346,6 +364,8 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController->getFile('customType', 'url');
         $_GET['uamextra'] = 'extra';
         $frontendRedirectController->getFile('customType', 'url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
         $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
         $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
         $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');

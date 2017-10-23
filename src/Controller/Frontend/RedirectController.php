@@ -222,8 +222,12 @@ class RedirectController extends Controller
         if ($this->accessHandler->checkObjectAccess($fileObject->getType(), $fileObject->getId()) === true) {
             $file = $fileObject->getFile();
         } elseif ($fileObject->isImage() === true) {
-            $realPath = $this->wordpressConfig->getRealPath();
-            $file = $realPath.'assets/gfx/noAccessPic.png';
+            if ($this->mainConfig->getNoAccessImageType() === 'custom') {
+                $file = $this->mainConfig->getCustomNoAccessImage();
+            } else {
+                $realPath = $this->wordpressConfig->getRealPath();
+                $file = $realPath.'assets'.DIRECTORY_SEPARATOR.'gfx'.DIRECTORY_SEPARATOR.'noAccessPic.png';
+            }
         } else {
             $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
             return;

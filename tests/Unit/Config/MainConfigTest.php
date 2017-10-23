@@ -76,6 +76,8 @@ class MainConfigTest extends UserAccessManagerTestCase
             'lock_file' => 'bool|lock_file|false',
             'download_type' => 'selection|download_type|fopen|xsendfile|fopen|normal',
             'inline_files' => 'string|inline_files|pdf',
+            'no_access_image_type' => 'selection|no_access_image_type|default|default|custom',
+            'custom_no_access_image' => 'string|custom_no_access_image|',
             'use_custom_file_handling_file' => 'bool|use_custom_file_handling_file|false',
             'locked_directory_type' => 'selection|locked_directory_type|wordpress|wordpress|all|custom',
             'custom_locked_directories' => 'string|custom_locked_directories|',
@@ -233,7 +235,7 @@ class MainConfigTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $configParameterFactory->expects($this->exactly(16))
+        $configParameterFactory->expects($this->exactly(17))
             ->method('createStringConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -241,7 +243,7 @@ class MainConfigTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $configParameterFactory->expects($this->exactly(7))
+        $configParameterFactory->expects($this->exactly(8))
             ->method('createSelectionConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value, $selections) {
@@ -439,6 +441,8 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::lockFile
      * @covers ::getDownloadType
      * @covers ::getInlineFiles
+     * @covers ::getNoAccessImageType
+     * @covers ::getCustomNoAccessImage
      * @covers ::useCustomFileHandlingFile
      * @covers ::getLockedDirectoryType
      * @covers ::getCustomLockedDirectories
@@ -466,6 +470,8 @@ class MainConfigTest extends UserAccessManagerTestCase
             'lockFile' => 'lock_file',
             'getDownloadType' => 'download_type',
             'getInlineFiles' => 'inline_files',
+            'getNoAccessImageType' => 'no_access_image_type',
+            'getCustomNoAccessImage' => 'custom_no_access_image',
             'useCustomFileHandlingFile' => 'use_custom_file_handling_file',
             'getLockedDirectoryType' => 'locked_directory_type',
             'getCustomLockedDirectories' => 'custom_locked_directories',

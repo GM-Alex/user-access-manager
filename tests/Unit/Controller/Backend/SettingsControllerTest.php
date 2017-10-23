@@ -427,6 +427,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             'hide_empty_category' => $this->getConfigParameter('boolean'),
             'lock_file' => $this->getConfigParameter('boolean'),
             'download_type' => $this->getConfigParameter('selection'),
+            'inline_files' => $this->getConfigParameter('string'),
+            'no_access_image_type' => $this->getConfigParameter('selection'),
+            'custom_no_access_image' => $this->getConfigParameter('string'),
             'use_custom_file_handling_file' => $this->getConfigParameter('boolean'),
             'locked_directory_type' => $this->getConfigParameter('selection'),
             'custom_locked_directories' => $this->getConfigParameter('string'),
@@ -498,30 +501,40 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 'custom_file_handling_file'
             ));
 
-        $formFactory->expects($this->exactly(28))
+        $formFactory->expects($this->exactly(38))
             ->method('createMultipleFormElementValue')
             ->withConsecutive(
+                ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
+                ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
                 ['all', TXT_UAM_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
-                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
-                ['all', TXT_UAM_ALL],
-                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
-                ['all', TXT_UAM_ALL],
-                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
-                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
-                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
-                ['all', TXT_UAM_ALL],
-                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
-                ['all', TXT_UAM_ALL],
-                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
-                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
+                ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
                 ['all', TXT_UAM_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
                 ['all', TXT_UAM_ALL],
                 ['selected', TXT_UAM_LOCKED_FILE_TYPES],
                 ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
+                ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
+                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
+                ['all', TXT_UAM_ALL],
+                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
+                ['all', TXT_UAM_ALL],
+                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
+                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
+                ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
+                ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
+                ['all', TXT_UAM_ALL],
+                ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
+                ['all', TXT_UAM_ALL],
+                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
+                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
+                ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
                 ['all', TXT_UAM_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
@@ -531,6 +544,17 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 ['custom_url', TXT_UAM_REDIRECT_TO_URL]
             )
             ->will($this->returnValue($this->createMultipleFormElementValue()));
+
+        $noAccessImageType = [
+            'selectionId',
+            [
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue()
+            ],
+            'selectionValue',
+            TXT_UAM_NO_ACCESS_IMAGE_TYPE,
+            TXT_UAM_NO_ACCESS_IMAGE_TYPE_DESC
+        ];
 
         $lockedDirectoryType = [
             'selectionId',
@@ -569,27 +593,37 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             TXT_UAM_REDIRECT_DESC
         ];
 
-        $formFactory->expects($this->exactly(9))
+        $formFactory->expects($this->exactly(14))
             ->method('createRadio')
             ->withConsecutive(
+                $noAccessImageType,
                 $lockedDirectoryType,
-                $lockedDirectoryType,
-                $lockFileTypes,
-                $lockedDirectoryType,
-                $lockFileTypes,
+                $noAccessImageType,
                 $lockedDirectoryType,
                 $lockFileTypes,
+                $noAccessImageType,
+                $lockedDirectoryType,
+                $lockFileTypes,
+                $noAccessImageType,
+                $lockedDirectoryType,
+                $lockFileTypes,
+                $noAccessImageType,
                 $lockedDirectoryType,
                 $redirect
             )
             ->will($this->onConsecutiveCalls(
+                'noAccessImageType',
                 'lockedDirectoryRadio',
-                'lockedDirectoryRadio',
-                'fileRadio',
-                'lockedDirectoryRadio',
-                'fileRadio',
+                'noAccessImageType',
                 'lockedDirectoryRadio',
                 'fileRadio',
+                'noAccessImageType',
+                'lockedDirectoryRadio',
+                'fileRadio',
+                'noAccessImageType',
+                'lockedDirectoryRadio',
+                'fileRadio',
+                'noAccessImageType',
                 'lockedDirectoryRadio',
                 'redirectRadio'
             ));
@@ -690,6 +724,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
+                        'noAccessImageType',
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
                         'lockedDirectoryRadio'
@@ -700,6 +735,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
+                        'noAccessImageType',
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
                         'lockedDirectoryRadio',
@@ -711,6 +747,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
+                        'noAccessImageType',
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
                         'lockedDirectoryRadio',
@@ -723,6 +760,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
+                        'noAccessImageType',
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
                         'lockedDirectoryRadio',
@@ -736,6 +774,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
+                        'noAccessImageType',
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
                         'lockedDirectoryRadio'
@@ -784,7 +823,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $formHelper->expects($this->exactly(12))
+        $formHelper->expects($this->exactly(17))
             ->method('convertConfigParameter')
             ->will($this->returnCallback(function ($configParameter) {
                 if (($configParameter instanceof StringConfigParameter) === true) {
