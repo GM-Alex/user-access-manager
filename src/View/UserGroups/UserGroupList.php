@@ -78,6 +78,8 @@
                         echo TXT_UAM_ALL;
                     } elseif ($userGroup->getWriteAccess() === 'group') {
                         echo TXT_UAM_ONLY_GROUP_USERS;
+                    } elseif ($userGroup->getWriteAccess() === 'none') {
+                        echo TXT_UAM_NONE;
                     }
                     ?>
                 </td>

@@ -22,6 +22,7 @@ define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the Use
 // --- Multiple use ---
 define('TXT_UAM_ALL', __('All', 'user-access-manager'));
 define('TXT_UAM_ONLY_GROUP_USERS', __('Only group users', 'user-access-manager'));
+define('TXT_UAM_NONE', __('None', 'user-access-manager'));
 define('TXT_UAM_YES', __('Yes', 'user-access-manager'));
 define('TXT_UAM_NO', __('No', 'user-access-manager'));
 
@@ -201,7 +202,6 @@ define('TXT_UAM_GROUP_WRITE_ACCESS_DESC', __('The write access.', 'user-access-m
 define('TXT_UAM_GROUP_ADDED', __('Group was added successfully.', 'user-access-manager'));
 define('TXT_UAM_GROUP_NAME_ERROR', __('Group name can not be empty.', 'user-access-manager'));
 define('TXT_UAM_DELETE_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
-define('TXT_UAM_NONE', __('none', 'user-access-manager'));
 define('TXT_UAM_USER_GROUP_EDIT_SUCCESS', __('User group edit successfully.', 'user-access-manager'));
 define('TXT_UAM_IP_RANGE', __('IP range', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_USER_GROUPS_SETTING', __('Default user groups', 'user-access-manager'));

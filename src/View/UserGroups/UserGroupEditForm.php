@@ -88,6 +88,15 @@ $userGroup = $controller->getUserGroup();
             </th>
             <td>
                 <select id="writeAccess" name="writeAccess">
+                    <option value="none"
+                        <?php
+                        if ($userGroup->getWriteAccess() === 'none') {
+                            echo 'selected="selected"';
+                        }
+                        ?>
+                    >
+                        <?php echo TXT_UAM_NONE ?>
+                    </option>
                     <option value="group"
                         <?php
                         if ($userGroup->getWriteAccess() === 'group') {

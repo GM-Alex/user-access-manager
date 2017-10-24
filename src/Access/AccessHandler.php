@@ -413,6 +413,27 @@ class AccessHandler
     }
 
     /**
+     * Returns the user user groups filtered by the write access.
+     *
+     * @return AbstractUserGroup[]
+     */
+    private function getUserUserGroupsForObjectAccess()
+    {
+        $userUserGroups = $this->getUserGroupsForUser();
+
+        if ($this->wordpress->isAdmin() === true) {
+            $userUserGroups = array_filter(
+                $userUserGroups,
+                function (AbstractUserGroup $userGroup) {
+                    return $userGroup->getWriteAccess() !== 'none';
+                }
+            );
+        }
+
+        return $userUserGroups;
+    }
+
+    /**
      * Checks if the current_user has access to the given post.
      *
      * @param string  $objectType The object type which should be checked.
@@ -422,7 +443,9 @@ class AccessHandler
      */
     public function checkObjectAccess($objectType, $objectId)
     {
-        if (isset($this->objectAccess[$objectType][$objectId]) === false) {
+        $admin = $this->wordpress->isAdmin() === true ? 'admin' : 'noAdmin';
+
+        if (isset($this->objectAccess[$admin][$objectType][$objectId]) === false) {
             if ($this->objectHandler->isValidObjectType($objectType) === false
                 || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true
                 || $this->hasAuthorAccess($objectType, $objectId) === true
@@ -430,13 +453,14 @@ class AccessHandler
                 $access = true;
             } else {
                 $membership = $this->getUserGroupsForObject($objectType, $objectId);
-                $access = $membership === [] || array_intersect_key($membership, $this->getUserGroupsForUser()) !== [];
+                $access = $membership === []
+                    || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess()) !== [];
             }
 
-            $this->objectAccess[$objectType][$objectId] = $access;
+            $this->objectAccess[$admin][$objectType][$objectId] = $access;
         }
 
-        return $this->objectAccess[$objectType][$objectId];
+        return $this->objectAccess[$admin][$objectType][$objectId];
     }
 
     /**

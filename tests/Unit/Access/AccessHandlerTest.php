@@ -87,8 +87,8 @@ class AccessHandlerTest extends HandlerTestCase
         $deletable = true,
         $objectIsMember = false,
         array $ipRange = [''],
-        $readAccess = 'none',
-        $writeAccess = 'none',
+        $readAccess = 'unset',
+        $writeAccess = 'unset',
         array $posts = [],
         array $terms = [],
         $name = null,
@@ -113,6 +113,12 @@ class AccessHandlerTest extends HandlerTestCase
         } else {
             $userGroup->expects($this->never())
                 ->method('setIgnoreDates');
+        }
+
+        if ($writeAccess !== null) {
+            $userGroup->expects($this->any())
+                ->method('getWriteAccess')
+                ->will($this->returnValue($writeAccess));
         }
 
         return $userGroup;
@@ -659,6 +665,7 @@ class AccessHandlerTest extends HandlerTestCase
      * @group  unit
      * @covers ::checkObjectAccess()
      * @covers ::hasAuthorAccess()
+     * @covers ::getUserUserGroupsForObjectAccess()
      */
     public function testCheckObjectAccess()
     {
@@ -696,20 +703,38 @@ class AccessHandlerTest extends HandlerTestCase
         self::assertTrue($accessHandler->checkObjectAccess('invalid', 1));
         self::assertTrue($accessHandler->checkObjectAccess('postType', 2));
 
+        $wordpress = $this->getWordpressWithUser();
+        $wordpress->expects($this->exactly(12))
+            ->method('isAdmin')
+            ->will($this->onConsecutiveCalls(
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                true,
+                true,
+                true,
+                true
+            ));
+
         $config = $this->getMainConfig();
 
-        $config->expects($this->exactly(5))
+        $config->expects($this->exactly(7))
             ->method('authorsHasAccessToOwn')
-            ->will($this->onConsecutiveCalls(true, true, false, false, true));
+            ->will($this->onConsecutiveCalls(true, true, false, false, true, false, false));
 
         $userHandler = $this->getUserHandler();
 
-        $userHandler->expects($this->exactly(8))
+        $userHandler->expects($this->exactly(12))
             ->method('checkUserAccess')
             ->will($this->returnValue(false));
 
         $accessHandler = new AccessHandler(
-            $this->getWordpressWithUser(),
+            $wordpress,
             $this->getWordpressConfig(),
             $config,
             $this->getDatabase(),
@@ -720,7 +745,7 @@ class AccessHandlerTest extends HandlerTestCase
 
         self::setValue($accessHandler, 'objectUserGroups', $objectUserGroups);
 
-        $userUserGroups = [0 => $this->getUserGroup(0)];
+        $userUserGroups = [0 => $this->getUserGroup(0, true, false, [''], 'none', 'none')];
         self::setValue($accessHandler, 'userGroupsForUser', $userUserGroups);
 
         self::assertTrue($accessHandler->checkObjectAccess('postType', 1));
@@ -731,14 +756,38 @@ class AccessHandlerTest extends HandlerTestCase
 
         self::assertAttributeEquals(
             [
-                'postType' => [
-                    1 => true,
-                    2 => true,
-                    3 => true,
-                    4 => false,
-                    -1 => false
+                'noAdmin' => [
+                    'postType' => [
+                        1 => true,
+                        2 => true,
+                        3 => true,
+                        4 => false,
+                        -1 => false
+                    ]
                 ]
             ],
+            'objectAccess',
+            $accessHandler
+        );
+
+        $userUserGroups = [3 => $this->getUserGroup(3, true, false, [''], 'none', 'none')];
+        self::setValue($accessHandler, 'userGroupsForUser', $userUserGroups);
+        self::setValue($accessHandler, 'objectAccess', []);
+        self::assertFalse($accessHandler->checkObjectAccess('postType', 1));
+
+        self::assertAttributeEquals(
+            ['admin' => ['postType' => [1 => false]]],
+            'objectAccess',
+            $accessHandler
+        );
+
+        $userUserGroups = [3 => $this->getUserGroup(3, true, false, [''], 'none', 'all')];
+        self::setValue($accessHandler, 'userGroupsForUser', $userUserGroups);
+        self::setValue($accessHandler, 'objectAccess', []);
+        self::assertTrue($accessHandler->checkObjectAccess('postType', 1));
+
+        self::assertAttributeEquals(
+            ['admin' => ['postType' => [1 => true]]],
             'objectAccess',
             $accessHandler
         );
