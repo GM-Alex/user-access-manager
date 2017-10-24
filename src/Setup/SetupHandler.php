@@ -54,14 +54,12 @@ class SetupHandler
      * @param Wordpress       $wordpress
      * @param Database        $database
      * @param DatabaseHandler $databaseHandler
-     * @param ObjectHandler   $objectHandler
      * @param FileHandler     $fileHandler
      */
     public function __construct(
         Wordpress $wordpress,
         Database $database,
         DatabaseHandler $databaseHandler,
-        ObjectHandler $objectHandler,
         FileHandler $fileHandler
     ) {
         $this->wordpress = $wordpress;

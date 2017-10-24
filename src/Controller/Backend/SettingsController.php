@@ -340,24 +340,13 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the files settings form.
+     * Adds the no access image type config parameter to the parameters.
      *
-     * @return \UserAccessManager\Form\Form
+     * @param array $configParameters
+     * @param array $parameters
      */
-    private function getFilesSettingsForm()
+    private function addNoAccessImageType(array $configParameters, array &$parameters)
     {
-        $fileProtectionFileName = $this->fileHandler->getFileProtectionFileName();
-        $fileContent = (file_exists($fileProtectionFileName) === true) ?
-            file_get_contents($fileProtectionFileName) : '';
-
-        $configParameters = $this->mainConfig->getConfigParameters();
-
-        $parameters = [
-            'lock_file',
-            'download_type',
-            'inline_files'
-        ];
-
         if (isset($configParameters['no_access_image_type']) === true) {
             $configParameter = $configParameters['no_access_image_type'];
 
@@ -384,15 +373,16 @@ class SettingsController extends Controller
                 TXT_UAM_NO_ACCESS_IMAGE_TYPE_DESC
             );
         }
+    }
 
-        $parameters[] = 'use_custom_file_handling_file';
-        $parameters[] = $this->formFactory->createTextarea(
-            'custom_file_handling_file',
-            $fileContent,
-            TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
-            TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
-        );
-
+    /**
+     * Adds the locked directory type config parameter to the parameters.
+     *
+     * @param array $configParameters
+     * @param array $parameters
+     */
+    private function addLockedDirectoryType(array $configParameters, array &$parameters)
+    {
         if (isset($configParameters['locked_directory_type']) === true) {
             $configParameter = $configParameters['locked_directory_type'];
 
@@ -420,7 +410,16 @@ class SettingsController extends Controller
                 TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
             );
         }
+    }
 
+    /**
+     * Adds the lock file types config parameter to the parameters.
+     *
+     * @param array $configParameters
+     * @param array $parameters
+     */
+    private function addLockFileTypes(array $configParameters, array &$parameters)
+    {
         if (isset($configParameters['lock_file_types']) === true
             && $this->wordpress->isNginx() === false
         ) {
@@ -458,6 +457,39 @@ class SettingsController extends Controller
                 $parameters[] = 'file_pass_type';
             }
         }
+    }
+
+    /**
+     * Returns the files settings form.
+     *
+     * @return \UserAccessManager\Form\Form
+     */
+    private function getFilesSettingsForm()
+    {
+        $fileProtectionFileName = $this->fileHandler->getFileProtectionFileName();
+        $fileContent = (file_exists($fileProtectionFileName) === true) ?
+            file_get_contents($fileProtectionFileName) : '';
+
+        $configParameters = $this->mainConfig->getConfigParameters();
+
+        $parameters = [
+            'lock_file',
+            'download_type',
+            'inline_files'
+        ];
+
+        $this->addNoAccessImageType($configParameters, $parameters);
+
+        $parameters[] = 'use_custom_file_handling_file';
+        $parameters[] = $this->formFactory->createTextarea(
+            'custom_file_handling_file',
+            $fileContent,
+            TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
+            TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
+        );
+
+        $this->addLockedDirectoryType($configParameters, $parameters);
+        $this->addLockFileTypes($configParameters, $parameters);
 
         $form = $this->formHelper->getSettingsForm($parameters);
 

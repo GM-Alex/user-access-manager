@@ -37,7 +37,6 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getDatabaseHandler(),
-            $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
@@ -54,7 +53,6 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getDatabaseHandler(),
-            $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
@@ -83,7 +81,6 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $this->getDatabaseHandler(),
-            $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
@@ -123,7 +120,6 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $databaseHandler,
-            $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
@@ -162,7 +158,6 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getDatabase(),
             $databaseHandler,
-            $this->getObjectHandler(),
             $this->getFileHandler()
         );
 
@@ -217,7 +212,6 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $databaseHandler,
-            $this->getObjectHandler(),
             $fileHandler
         );
 
@@ -230,9 +224,6 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      */
     public function testDeactivate()
     {
-        $wordpress = $this->getWordpress();
-        $database = $this->getDatabase();
-        $objectHandler = $this->getObjectHandler();
         $fileHandler = $this->getFileHandler();
 
         $fileHandler->expects($this->exactly(2))
@@ -240,10 +231,9 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $setupHandler = new SetupHandler(
-            $wordpress,
-            $database,
+            $this->getWordpress(),
+            $this->getDatabase(),
             $this->getDatabaseHandler(),
-            $objectHandler,
             $fileHandler
         );
 

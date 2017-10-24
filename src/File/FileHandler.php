@@ -16,7 +16,6 @@ namespace UserAccessManager\File;
 
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
-use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -278,7 +277,7 @@ class FileHandler
     {
         //Deliver content
         if (file_exists($file) === true) {
-            $isInline = $isImage  === true || $this->isInlineFile($file) === true;
+            $isInline = $isImage === true || $this->isInlineFile($file) === true;
 
             if (isset($_SERVER['HTTP_RANGE']) === true
                 && isset($_SERVER['REQUEST_METHOD']) === true
