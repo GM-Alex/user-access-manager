@@ -15,9 +15,9 @@
  */
 namespace UserAccessManager\Command;
 
-use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Wrapper\WordpressCli;
 
 /**
@@ -37,20 +37,20 @@ class ObjectCommand extends \WP_CLI_Command
     private $wordpressCli;
 
     /**
-     * @var AccessHandler
+     * @var UserGroupHandler
      */
-    private $accessHandler;
+    private $userGroupHandler;
 
     /**
      * ObjectCommand constructor.
      *
-     * @param WordpressCli  $wordpressCli
-     * @param AccessHandler $accessHandler
+     * @param WordpressCli     $wordpressCli
+     * @param UserGroupHandler $userGroupHandler
      */
-    public function __construct(WordpressCli $wordpressCli, AccessHandler $accessHandler)
+    public function __construct(WordpressCli $wordpressCli, UserGroupHandler $userGroupHandler)
     {
         $this->wordpressCli = $wordpressCli;
-        $this->accessHandler = $accessHandler;
+        $this->userGroupHandler = $userGroupHandler;
     }
 
     /**
@@ -131,7 +131,7 @@ class ObjectCommand extends \WP_CLI_Command
         }
 
         $removeUserGroups = ($operation === self::ACTION_UPDATE) ?
-            $this->accessHandler->getUserGroupsForObject($objectType, $objectId) : [];
+            $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId) : [];
 
         if ($operation === self::ACTION_REMOVE) {
             $removeUserGroups = $addUserGroups;
@@ -190,7 +190,7 @@ class ObjectCommand extends \WP_CLI_Command
         $objectType = $arguments[1];
         $objectId = $arguments[2];
         $userGroupsArgument = $arguments[3];
-        $userGroups = $this->accessHandler->getUserGroups();
+        $userGroups = $this->userGroupHandler->getUserGroups();
 
         $success = $this->getAddRemoveUserGroups(
             $operation,
@@ -206,16 +206,16 @@ class ObjectCommand extends \WP_CLI_Command
             return;
         }
 
-        foreach ($userGroups as $groupId => $uamUserGroup) {
+        foreach ($userGroups as $groupId => $userGroup) {
             if (isset($removeUserGroups[$groupId]) === true) {
-                $uamUserGroup->removeObject($objectType, $objectId);
+                $userGroup->removeObject($objectType, $objectId);
             }
 
             if (isset($addUserGroups[$groupId]) === true) {
-                $uamUserGroup->addObject($objectType, $objectId);
+                $userGroup->addObject($objectType, $objectId);
             }
 
-            $uamUserGroup->save();
+            $userGroup->save();
         }
 
         $this->wordpressCli->success(sprintf($messages[$operation], $userGroupsArgument, $objectType, $objectId));

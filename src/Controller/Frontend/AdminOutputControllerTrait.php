@@ -14,10 +14,10 @@
  */
 namespace UserAccessManager\Controller\Frontend;
 
-use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -54,9 +54,9 @@ trait AdminOutputControllerTrait
     abstract protected function getUserHandler();
 
     /**
-     * @return AccessHandler
+     * @return UserGroupHandler
      */
-    abstract protected function getAccessHandler();
+    abstract protected function getUserGroupHandler();
 
     /**
      * Returns true if the hint text should be shown.
@@ -90,7 +90,7 @@ trait AdminOutputControllerTrait
             }
 
             if ($this->getUserHandler()->userIsAdmin($this->getWordpress()->getCurrentUser()->ID) === true
-                && count($this->getAccessHandler()->getUserGroupsForObject($objectType, $objectId)) > 0
+                && count($this->getUserGroupHandler()->getUserGroupsForObject($objectType, $objectId)) > 0
             ) {
                 $output .= $hintText;
             }

@@ -14,9 +14,9 @@
  */
 namespace UserAccessManager\Controller\Frontend;
 
-use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -30,26 +30,26 @@ class ShortCodeController extends Controller
     use LoginControllerTrait;
 
     /**
-     * @var AccessHandler
+     * @var UserGroupHandler
      */
-    protected $accessHandler;
+    protected $userGroupHandler;
 
     /**
      * ShortCodeController constructor.
      *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param AccessHandler   $userHandler
+     * @param Php              $php
+     * @param Wordpress        $wordpress
+     * @param WordpressConfig  $wordpressConfig
+     * @param UserGroupHandler $userGroupHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
-        AccessHandler $userHandler
+        UserGroupHandler $userGroupHandler
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->accessHandler = $userHandler;
+        $this->userGroupHandler = $userGroupHandler;
     }
 
     /**
@@ -129,7 +129,7 @@ class ShortCodeController extends Controller
                 return $this->wordpress->doShortCode($content);
             }
 
-            $userUserGroups = $this->accessHandler->getUserGroupsForUser();
+            $userUserGroups = $this->userGroupHandler->getUserGroupsForUser();
 
             foreach ($userUserGroups as $userGroup) {
                 if (isset($userGroupMap[$userGroup->getId()])

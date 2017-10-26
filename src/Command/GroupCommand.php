@@ -15,9 +15,9 @@
  */
 namespace UserAccessManager\Command;
 
-use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Wrapper\WordpressCli;
 use WP_CLI\CommandWithDBObject;
 
@@ -41,9 +41,9 @@ class GroupCommand extends CommandWithDBObject
     private $wordpressCli;
 
     /**
-     * @var AccessHandler
+     * @var UserGroupHandler
      */
-    private $accessHandler;
+    private $userGroupHandler;
 
     /**
      * @var UserGroupFactory
@@ -54,16 +54,16 @@ class GroupCommand extends CommandWithDBObject
      * ObjectCommand constructor.
      *
      * @param WordpressCli     $wordpressCli
-     * @param AccessHandler    $accessHandler
+     * @param UserGroupHandler $userGroupHandler
      * @param UserGroupFactory $userGroupFactory
      */
     public function __construct(
         WordpressCli $wordpressCli,
-        AccessHandler $accessHandler,
+        UserGroupHandler $userGroupHandler,
         UserGroupFactory $userGroupFactory
     ) {
         $this->wordpressCli = $wordpressCli;
-        $this->accessHandler = $accessHandler;
+        $this->userGroupHandler = $userGroupHandler;
         $this->userGroupFactory = $userGroupFactory;
     }
 
@@ -115,7 +115,7 @@ class GroupCommand extends CommandWithDBObject
             return;
         }
 
-        $userGroups = $this->accessHandler->getUserGroups();
+        $userGroups = $this->userGroupHandler->getUserGroups();
 
         if (count($userGroups) <= 0) {
             $this->wordpressCli->error('No groups defined yet!');
@@ -166,7 +166,7 @@ class GroupCommand extends CommandWithDBObject
         }
 
         foreach ($arguments as $userGroupId) {
-            if ($this->accessHandler->deleteUserGroup($userGroupId) === true) {
+            if ($this->userGroupHandler->deleteUserGroup($userGroupId) === true) {
                 $this->wordpressCli->success("Successfully deleted group with id '{$userGroupId}'.");
             } else {
                 $this->wordpressCli->error("Group id '{$userGroupId}' doesn't exists.");
@@ -183,7 +183,7 @@ class GroupCommand extends CommandWithDBObject
      */
     private function doesUserGroupExists($userGroupName)
     {
-        $userGroups = $this->accessHandler->getUserGroups();
+        $userGroups = $this->userGroupHandler->getUserGroups();
 
         foreach ($userGroups as $userGroup) {
             if ($userGroup->getName() === $userGroupName) {
@@ -318,7 +318,7 @@ class GroupCommand extends CommandWithDBObject
         }
 
         $userGroup = $this->createUserGroup($userGroupName, $assocArguments);
-        $this->accessHandler->addUserGroup($userGroup);
+        $this->userGroupHandler->addUserGroup($userGroup);
 
         if (isset($assocArguments['porcelain']) === true) {
             $this->wordpressCli->line($userGroup->getId());

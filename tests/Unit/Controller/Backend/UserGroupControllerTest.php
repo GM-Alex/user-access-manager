@@ -36,7 +36,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
-            $this->getAccessHandler(),
+            $this->getUserGroupHandler(),
             $this->getUserGroupFactory(),
             $this->getFormHelper()
         );
@@ -72,7 +72,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
-            $this->getAccessHandler(),
+            $this->getUserGroupHandler(),
             $this->getUserGroupFactory(),
             $this->getFormHelper()
         );
@@ -109,7 +109,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
-            $this->getAccessHandler(),
+            $this->getUserGroupHandler(),
             $this->getUserGroupFactory(),
             $formHelper
         );
@@ -147,7 +147,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
-            $this->getAccessHandler(),
+            $this->getUserGroupHandler(),
             $this->getUserGroupFactory(),
             $this->getFormHelper()
         );
@@ -189,7 +189,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
-            $this->getAccessHandler(),
+            $this->getUserGroupHandler(),
             $userGroupFactory,
             $this->getFormHelper()
         );
@@ -210,8 +210,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             2 => $this->getUserGroup(2)
         ];
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->once())
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->once())
             ->method('getUserGroups')
             ->will($this->returnValue($userGroups));
 
@@ -219,7 +219,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
-            $accessHandler,
+            $userGroupHandler,
             $this->getUserGroupFactory(),
             $this->getFormHelper()
         );
@@ -245,7 +245,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
-            $this->getAccessHandler(),
+            $this->getUserGroupHandler(),
             $this->getUserGroupFactory(),
             $this->getFormHelper()
         );
@@ -312,8 +312,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->withConsecutive([null], [null], [null], [1])
             ->will($this->returnValue($userGroup));
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(2))
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->exactly(2))
             ->method('addUserGroup')
             ->with($userGroup);
 
@@ -321,7 +321,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
-            $accessHandler,
+            $userGroupHandler,
             $userGroupFactory,
             $this->getFormHelper()
         );
@@ -361,8 +361,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->with(UserGroupController::DELETE_GROUP_NONCE)
             ->will($this->returnValue(true));
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(2))
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->exactly(2))
             ->method('deleteUserGroup')
             ->withConsecutive([1], [2]);
 
@@ -370,7 +370,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
-            $accessHandler,
+            $userGroupHandler,
             $this->getUserGroupFactory(),
             $this->getFormHelper()
         );
@@ -441,9 +441,9 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             ->method('removeDefaultType')
             ->with('objectType');
 
-        $accessHandler = $this->getAccessHandler();
+        $userGroupHandler = $this->getUserGroupHandler();
 
-        $accessHandler->expects($this->once())
+        $userGroupHandler->expects($this->once())
             ->method('getUserGroups')
             ->will($this->returnValue([
                 $firstUserGroup,
@@ -455,7 +455,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
-            $accessHandler,
+            $userGroupHandler,
             $this->getUserGroupFactory(),
             $this->getFormHelper()
         );

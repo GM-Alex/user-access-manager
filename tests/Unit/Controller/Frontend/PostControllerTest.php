@@ -42,6 +42,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler()
         );
 
@@ -54,7 +55,7 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @covers ::getMainConfig()
      * @covers ::getUtil()
      * @covers ::getUserHandler()
-     * @covers ::getAccessHandler()
+     * @covers ::getUserGroupHandler()
      */
     public function testSimpleGetters()
     {
@@ -67,6 +68,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler()
         );
 
@@ -74,7 +76,10 @@ class PostControllerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getMainConfig(), self::callMethod($frontendPostController, 'getMainConfig'));
         self::assertEquals($this->getUtil(), self::callMethod($frontendPostController, 'getUtil'));
         self::assertEquals($this->getUserHandler(), self::callMethod($frontendPostController, 'getUserHandler'));
-        self::assertEquals($this->getAccessHandler(), self::callMethod($frontendPostController, 'getAccessHandler'));
+        self::assertEquals(
+            $this->getUserGroupHandler(),
+            self::callMethod($frontendPostController, 'getUserGroupHandler')
+        );
     }
 
     /**
@@ -98,6 +103,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -186,6 +192,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler()
         );
 
@@ -254,6 +261,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler()
         );
 
@@ -386,6 +394,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -502,6 +511,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $objectHandler,
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -583,6 +593,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -619,6 +630,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -767,6 +779,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -923,6 +936,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $objectHandler,
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -972,6 +986,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -991,9 +1006,9 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->method('showAssignedGroups')
             ->will($this->onConsecutiveCalls(false, true, true, true));
 
-        $accessHandler = $this->getAccessHandler();
+        $userGroupHandler = $this->getUserGroupHandler();
 
-        $accessHandler->expects($this->exactly(3))
+        $userGroupHandler->expects($this->exactly(3))
             ->method('getFilteredUserGroupsForObject')
             ->with(ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1)
             ->will($this->onConsecutiveCalls(
@@ -1016,7 +1031,8 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
-            $accessHandler
+            $userGroupHandler,
+            $this->getAccessHandler()
         );
 
         self::assertEquals('link', $frontendPostController->showGroupMembership('link', 1));

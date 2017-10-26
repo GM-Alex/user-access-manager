@@ -33,7 +33,7 @@ class ObjectCommandTest extends UserAccessManagerTestCase
     {
         $objectCommand = new ObjectCommand(
             $this->getWordpressCli(),
-            $this->getAccessHandler()
+            $this->getUserGroupHandler()
         );
 
         self::assertInstanceOf(ObjectCommand::class, $objectCommand);
@@ -96,20 +96,19 @@ class ObjectCommandTest extends UserAccessManagerTestCase
                 ['category', 3]
             );
 
-
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(4))
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->exactly(4))
             ->method('getUserGroups')
             ->will($this->returnValue([1 => $firstUserGroup, 2 => $secondUserGroup]));
 
-        $accessHandler->expects($this->once())
+        $userGroupHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('user', 2)
             ->will($this->returnValue([1 => $firstUserGroup]));
 
         $objectCommand = new ObjectCommand(
             $wordpressCli,
-            $accessHandler
+            $userGroupHandler
         );
 
         $objectCommand->__invoke([], []);

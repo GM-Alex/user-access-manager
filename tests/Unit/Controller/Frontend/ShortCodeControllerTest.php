@@ -60,7 +60,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
-            $this->getAccessHandler()
+            $this->getUserGroupHandler()
         );
 
         self::assertInstanceOf(ShortCodeController::class, $frontendShortCodeController);
@@ -76,7 +76,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $this->getWordpress(),
             $this->getWordpressConfig(),
-            $this->getAccessHandler()
+            $this->getUserGroupHandler()
         );
 
         self::assertEquals($this->getWordpress(), self::callMethod($frontendShortCodeController, 'getWordpress'));
@@ -130,7 +130,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
             $php,
             $wordpress,
             $config,
-            $this->getAccessHandler()
+            $this->getUserGroupHandler()
         );
 
         $php->expects($this->exactly(2))
@@ -166,7 +166,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
-            $this->getAccessHandler()
+            $this->getUserGroupHandler()
         );
 
         self::assertEquals('', $frontendShortCodeController->publicShortCode([], 'content'));
@@ -190,8 +190,8 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
             ->with('content')
             ->will($this->returnValue('contentShortCode'));
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(3))
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->exactly(3))
             ->method('getUserGroupsForUser')
             ->will($this->returnValue([
                 $this->getUserGroup(1),
@@ -202,7 +202,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
             $this->getPhp(),
             $wordpress,
             $this->getWordpressConfig(),
-            $accessHandler
+            $userGroupHandler
         );
 
         self::assertEquals('', $frontendShortCodeController->privateShortCode([], 'content'));

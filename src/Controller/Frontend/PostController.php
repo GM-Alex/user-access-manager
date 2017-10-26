@@ -22,6 +22,7 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -63,6 +64,11 @@ class PostController extends Controller
     private $userHandler;
 
     /**
+     * @var UserGroupHandler
+     */
+    private $userGroupHandler;
+
+    /**
      * @var AccessHandler
      */
     private $accessHandler;
@@ -80,15 +86,16 @@ class PostController extends Controller
     /**
      * PostController constructor.
      *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param MainConfig      $mainConfig
-     * @param Database        $database
-     * @param Util            $util
-     * @param ObjectHandler   $objectHandler
-     * @param UserHandler     $userHandler
-     * @param AccessHandler   $accessHandler
+     * @param Php              $php
+     * @param Wordpress        $wordpress
+     * @param WordpressConfig  $wordpressConfig
+     * @param MainConfig       $mainConfig
+     * @param Database         $database
+     * @param Util             $util
+     * @param ObjectHandler    $objectHandler
+     * @param UserHandler      $userHandler
+     * @param UserGroupHandler $userGroupHandler
+     * @param AccessHandler    $accessHandler
      */
     public function __construct(
         Php $php,
@@ -99,6 +106,7 @@ class PostController extends Controller
         Util $util,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
+        UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
@@ -107,6 +115,7 @@ class PostController extends Controller
         $this->util = $util;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
+        $this->userGroupHandler = $userGroupHandler;
         $this->accessHandler = $accessHandler;
     }
 
@@ -143,11 +152,11 @@ class PostController extends Controller
     }
 
     /**
-     * @return AccessHandler
+     * @return UserGroupHandler
      */
-    protected function getAccessHandler()
+    protected function getUserGroupHandler()
     {
-        return $this->accessHandler;
+        return $this->userGroupHandler;
     }
 
     /**
@@ -576,7 +585,7 @@ class PostController extends Controller
     public function showGroupMembership($link, $postId)
     {
         if ($this->mainConfig->showAssignedGroups() === true) {
-            $userGroups = $this->accessHandler->getFilteredUserGroupsForObject(
+            $userGroups = $this->userGroupHandler->getFilteredUserGroupsForObject(
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE,
                 $postId
             );

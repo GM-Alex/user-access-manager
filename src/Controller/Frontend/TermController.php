@@ -21,6 +21,7 @@ use UserAccessManager\Controller\Controller;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -62,6 +63,11 @@ class TermController extends Controller
     private $userHandler;
 
     /**
+     * @var UserGroupHandler
+     */
+    private $userGroupHandler;
+
+    /**
      * @var AccessHandler
      */
     private $accessHandler;
@@ -87,6 +93,7 @@ class TermController extends Controller
      * @param ObjectHandler    $objectHandler
      * @param ObjectMapHandler $objectMapHandler
      * @param UserHandler      $userHandler
+     * @param UserGroupHandler $userGroupHandler
      * @param AccessHandler    $accessHandler
      */
     public function __construct(
@@ -98,6 +105,7 @@ class TermController extends Controller
         ObjectHandler $objectHandler,
         ObjectMapHandler $objectMapHandler,
         UserHandler $userHandler,
+        UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
@@ -106,6 +114,7 @@ class TermController extends Controller
         $this->objectHandler = $objectHandler;
         $this->objectMapHandler = $objectMapHandler;
         $this->userHandler = $userHandler;
+        $this->userGroupHandler = $userGroupHandler;
         $this->accessHandler = $accessHandler;
     }
 
@@ -142,11 +151,11 @@ class TermController extends Controller
     }
 
     /**
-     * @return AccessHandler
+     * @return UserGroupHandler
      */
-    protected function getAccessHandler()
+    protected function getUserGroupHandler()
     {
-        return $this->accessHandler;
+        return $this->userGroupHandler;
     }
 
     /**

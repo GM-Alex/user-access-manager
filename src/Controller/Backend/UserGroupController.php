@@ -14,12 +14,12 @@
  */
 namespace UserAccessManager\Controller\Backend;
 
-use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -45,9 +45,9 @@ class UserGroupController extends Controller
     protected $template = 'AdminUserGroup.php';
 
     /**
-     * @var AccessHandler
+     * @var UserGroupHandler
      */
-    private $accessHandler;
+    private $userGroupHandler;
 
     /**
      * @var UserGroupFactory
@@ -70,7 +70,7 @@ class UserGroupController extends Controller
      * @param Php              $php
      * @param Wordpress        $wordpress
      * @param WordpressConfig  $wordpressConfig
-     * @param AccessHandler    $userHandler
+     * @param UserGroupHandler $userGroupHandler
      * @param UserGroupFactory $userGroupFactory
      * @param FormHelper       $formHelper
      */
@@ -78,12 +78,12 @@ class UserGroupController extends Controller
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
-        AccessHandler $userHandler,
+        UserGroupHandler $userGroupHandler,
         UserGroupFactory $userGroupFactory,
         FormHelper $formHelper
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->accessHandler = $userHandler;
+        $this->userGroupHandler = $userGroupHandler;
         $this->userGroupFactory = $userGroupFactory;
         $this->formHelper = $formHelper;
     }
@@ -168,7 +168,7 @@ class UserGroupController extends Controller
      */
     public function getUserGroups()
     {
-        return $this->accessHandler->getUserGroups();
+        return $this->userGroupHandler->getUserGroups();
     }
 
     /**
@@ -231,7 +231,7 @@ class UserGroupController extends Controller
                 $this->setUpdateMessage(TXT_UAM_USER_GROUP_EDIT_SUCCESS);
             }
 
-            $this->accessHandler->addUserGroup($userGroup);
+            $this->userGroupHandler->addUserGroup($userGroup);
         }
     }
 
@@ -244,7 +244,7 @@ class UserGroupController extends Controller
         $userGroups = $this->getRequestParameter('delete', []);
 
         foreach ($userGroups as $id) {
-            $this->accessHandler->deleteUserGroup($id);
+            $this->userGroupHandler->deleteUserGroup($id);
         }
 
         $this->setUpdateMessage(TXT_UAM_DELETE_GROUP);

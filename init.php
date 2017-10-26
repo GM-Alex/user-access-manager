@@ -25,6 +25,7 @@ use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Util\DateUtil;
@@ -74,14 +75,21 @@ function initUserAccessManger()
         $database,
         $objectHandler
     );
-    $accessHandler = new AccessHandler(
+    $userGroupHandler = new UserGroupHandler(
         $wordpress,
         $wordpressConfig,
-        $mainConfig,
         $database,
         $objectHandler,
         $userHandler,
         $userGroupFactory
+    );
+    $accessHandler = new AccessHandler(
+        $wordpress,
+        $mainConfig,
+        $database,
+        $objectHandler,
+        $userHandler,
+        $userGroupHandler
     );
     $fileProtectionFactory = new FileProtectionFactory(
         $php,
@@ -118,6 +126,7 @@ function initUserAccessManger()
         $objectHandler,
         $objectMapHandler,
         $userHandler,
+        $userGroupHandler,
         $accessHandler,
         $userGroupFactory,
         $fileHandler,
@@ -231,10 +240,10 @@ function initUserAccessManger()
     if (defined('WP_CLI') === true && WP_CLI === true) {
         $cliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
 
-        $groupCommand = new \UserAccessManager\Command\GroupCommand($cliWrapper, $accessHandler, $userGroupFactory);
+        $groupCommand = new \UserAccessManager\Command\GroupCommand($cliWrapper, $userGroupHandler, $userGroupFactory);
         \WP_CLI::add_command('uam groups', $groupCommand);
 
-        $objectCommand = new \UserAccessManager\Command\ObjectCommand($cliWrapper, $accessHandler);
+        $objectCommand = new \UserAccessManager\Command\ObjectCommand($cliWrapper, $userGroupHandler);
         \WP_CLI::add_command('uam objects', $objectCommand);
     }
 

@@ -96,9 +96,9 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
                 return ($id === 1);
             }));
 
-        $accessHandler = $this->getAccessHandler();
+        $userGroupHandler = $this->getUserGroupHandler();
 
-        $accessHandler->expects($this->exactly(2))
+        $userGroupHandler->expects($this->exactly(2))
             ->method('getUserGroupsForObject')
             ->withConsecutive(
                 ['objectType', 'objectId'],
@@ -132,8 +132,8 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
             ->will($this->returnValue($userHandler));
 
         $stub->expects($this->any())
-            ->method('getAccessHandler')
-            ->will($this->returnValue($accessHandler));
+            ->method('getUserGroupHandler')
+            ->will($this->returnValue($userGroupHandler));
 
         self::assertEquals('', $stub->adminOutput('objectType', 'objectId'));
         self::assertEquals('', $stub->adminOutput('objectType', 'objectId'));

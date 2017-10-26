@@ -27,6 +27,7 @@ use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\DateUtil;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -75,6 +76,11 @@ class ObjectController extends Controller
     protected $userHandler;
 
     /**
+     * @var UserGroupHandler
+     */
+    protected $userGroupHandler;
+
+    /**
      * @var AccessHandler
      */
     protected $accessHandler;
@@ -121,6 +127,7 @@ class ObjectController extends Controller
      * @param Cache            $cache
      * @param ObjectHandler    $objectHandler
      * @param UserHandler      $userHandler
+     * @param UserGroupHandler $userGroupHandler
      * @param AccessHandler    $accessHandler
      * @param UserGroupFactory $userGroupFactory
      */
@@ -134,6 +141,7 @@ class ObjectController extends Controller
         Cache $cache,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
+        UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory
     ) {
@@ -144,6 +152,7 @@ class ObjectController extends Controller
         $this->dateUtil = $dateUtil;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
+        $this->userGroupHandler = $userGroupHandler;
         $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
     }
@@ -162,8 +171,8 @@ class ObjectController extends Controller
         $this->userGroupDiff = 0;
 
         if ($objectUserGroups === null && $objectId !== null) {
-            $objectUserGroups = $this->accessHandler->getFilteredUserGroupsForObject($objectType, $objectId, true);
-            $fullObjectUserGroups = $this->accessHandler->getUserGroupsForObject($objectType, $objectId, true);
+            $objectUserGroups = $this->userGroupHandler->getFilteredUserGroupsForObject($objectType, $objectId, true);
+            $fullObjectUserGroups = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId, true);
             $this->userGroupDiff = count($fullObjectUserGroups) - count($objectUserGroups);
         }
 
@@ -227,7 +236,7 @@ class ObjectController extends Controller
      */
     public function getUserGroups()
     {
-        return $this->accessHandler->getFullUserGroups();
+        return $this->userGroupHandler->getFullUserGroups();
     }
 
     /**
@@ -237,7 +246,7 @@ class ObjectController extends Controller
      */
     public function getFilteredUserGroups()
     {
-        return $this->accessHandler->getFilteredUserGroups();
+        return $this->userGroupHandler->getFilteredUserGroups();
     }
 
     /**
@@ -393,7 +402,7 @@ class ObjectController extends Controller
             $addUserGroups = (array)$this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
         }
 
-        $filteredUserGroupsForObject = $this->accessHandler->getFilteredUserGroupsForObject(
+        $filteredUserGroupsForObject = $this->userGroupHandler->getFilteredUserGroupsForObject(
             $objectType,
             $objectId
         );
@@ -512,7 +521,7 @@ class ObjectController extends Controller
         $hasRights = $this->checkUserAccess() === true || $this->mainConfig->authorsCanAddPostsToGroups() === true;
 
         if ($isUpdateForm === true && $hasRights === true) {
-            $filteredUserGroups = $this->accessHandler->getFilteredUserGroups();
+            $filteredUserGroups = $this->userGroupHandler->getFilteredUserGroups();
             $this->getAddRemoveGroups($objectType, $objectId, $addUserGroups, $removeUserGroups);
             $this->setUserGroups($filteredUserGroups, $objectType, $objectId, $addUserGroups, $removeUserGroups);
 
@@ -522,7 +531,7 @@ class ObjectController extends Controller
                 $this->setDefaultGroups($filteredUserGroups, $objectType, $objectId);
             }
 
-            $this->accessHandler->unsetUserGroupsForObject();
+            $this->userGroupHandler->unsetUserGroupsForObject();
         }
     }
 

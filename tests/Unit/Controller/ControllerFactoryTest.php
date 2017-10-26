@@ -61,6 +61,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
             $this->getObjectHandler(),
             $this->getObjectMapHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory(),
             $this->getFileHandler(),

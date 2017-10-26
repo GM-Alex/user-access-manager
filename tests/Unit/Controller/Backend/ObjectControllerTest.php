@@ -47,6 +47,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -71,14 +72,14 @@ class ObjectControllerTest extends ObjectControllerTestCase
             1 => $this->getUserGroup(1)
         ];
 
-        $accessHandler = $this->getAccessHandler();
+        $userGroupHandler = $this->getUserGroupHandler();
 
-        $accessHandler->expects($this->once())
+        $userGroupHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('objectType', 'objectId', true)
             ->will($this->returnValue($fullGroups));
 
-        $accessHandler->expects($this->once())
+        $userGroupHandler->expects($this->once())
             ->method('getFilteredUserGroupsForObject')
             ->with('objectType', 'objectId', true)
             ->will($this->returnValue($filteredGroups));
@@ -93,7 +94,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
-            $accessHandler,
+            $userGroupHandler,
+            $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
 
@@ -179,8 +181,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             3 => $this->getUserGroup(3)
         ];
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->once())
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->once())
             ->method('getFullUserGroups')
             ->will($this->returnValue($userGroups));
 
@@ -194,7 +196,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
-            $accessHandler,
+            $userGroupHandler,
+            $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
 
@@ -212,8 +215,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             2 => $this->getUserGroup(2)
         ];
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->once())
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->once())
             ->method('getFilteredUserGroups')
             ->will($this->returnValue($userGroups));
 
@@ -227,7 +230,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
-            $accessHandler,
+            $userGroupHandler,
+            $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
 
@@ -250,6 +254,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -280,6 +285,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $userHandler,
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -318,6 +324,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -347,6 +354,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -376,6 +384,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $userHandler,
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -441,6 +450,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -520,6 +530,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler,
             $this->getUserGroupFactory()
         );
@@ -566,6 +577,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -666,9 +678,9 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 true
             ));
 
-        $accessHandler = $this->getAccessHandler();
+        $userGroupHandler = $this->getUserGroupHandler();
 
-        $accessHandler->expects($this->exactly(5))
+        $userGroupHandler->expects($this->exactly(5))
             ->method('getFilteredUserGroupsForObject')
             ->withConsecutive(
                 ['objectType', 1],
@@ -706,11 +718,11 @@ class ObjectControllerTest extends ObjectControllerTestCase
             ->with('objectType', 1, 2)
             ->will($this->returnValue(false));
 
-        $accessHandler->expects($this->once())
+        $userGroupHandler->expects($this->once())
             ->method('getFullUserGroups')
             ->will($this->returnValue([$fullGroupOne, $fullGroupTwo]));
 
-        $accessHandler->expects($this->exactly(5))
+        $userGroupHandler->expects($this->exactly(5))
             ->method('getFilteredUserGroups')
             ->will($this->onConsecutiveCalls(
                 $this->getUserGroupArray([1, 3], [1, 2, 3], [['objectType', 1, '1T2', 'toTDate']], [100, 101]),
@@ -720,7 +732,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 $this->getUserGroupArray([], [1, 2], [['objectType', 1, null, null]])
             ));
 
-        $accessHandler->expects($this->exactly(5))
+        $userGroupHandler->expects($this->exactly(5))
             ->method('unsetUserGroupsForObject');
 
         $userGroupFactory = $this->getUserGroupFactory();
@@ -749,7 +761,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $objectHandler,
             $userHandler,
-            $accessHandler,
+            $userGroupHandler,
+            $this->getAccessHandler(),
             $userGroupFactory
         );
 
@@ -833,6 +846,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -856,6 +870,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
@@ -969,6 +984,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );

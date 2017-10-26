@@ -240,12 +240,12 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             ->with('manage_user_groups')
             ->will($this->returnValue(true));
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->any())
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->any())
             ->method('getFilteredUserGroups')
             ->will($this->returnValue([]));
 
-        $accessHandler->expects($this->exactly(count($expectedFilteredUserGroupsForObject)))
+        $userGroupHandler->expects($this->exactly(count($expectedFilteredUserGroupsForObject)))
             ->method('getFilteredUserGroupsForObject')
             ->withConsecutive(...$expectedFilteredUserGroupsForObject)
             ->will($this->returnValue([]));
@@ -268,7 +268,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
                 $this->getCache(),
                 $this->getExtendedObjectHandler(),
                 $userHandler,
-                $accessHandler,
+                $userGroupHandler,
+                $this->getAccessHandler(),
                 $this->getUserGroupFactory()
             );
         } else {
@@ -325,14 +326,14 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             ->method('getRealPath')
             ->will($this->returnValue('vfs://root/'));
 
-        $accessHandler = $this->getAccessHandler();
+        $userGroupHandler = $this->getUserGroupHandler();
 
-        $accessHandler->expects($this->exactly(count($groupsForObject)))
+        $userGroupHandler->expects($this->exactly(count($groupsForObject)))
             ->method('getUserGroupsForObject')
             ->withConsecutive(...$groupsForObject)
             ->will($this->returnValue([]));
 
-        $accessHandler->expects($this->exactly(count($groupsForObject)))
+        $userGroupHandler->expects($this->exactly(count($groupsForObject)))
             ->method('getFilteredUserGroupsForObject')
             ->withConsecutive(...$groupsForObject)
             ->will($this->returnValue([]));
@@ -347,7 +348,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
-            $accessHandler,
+            $userGroupHandler,
+            $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );
 
@@ -408,6 +410,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $this->getCache(),
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getUserGroupFactory()
         );

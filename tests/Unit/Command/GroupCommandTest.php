@@ -67,7 +67,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
     {
         $groupCommand = new GroupCommand(
             $this->getWordpressCli(),
-            $this->getAccessHandler(),
+            $this->getUserGroupHandler(),
             $this->getUserGroupFactory()
         );
 
@@ -163,8 +163,8 @@ class GroupCommandTest extends UserAccessManagerTestCase
             [3, 4]
         );
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(3))
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->exactly(3))
             ->method('getUserGroups')
             ->will($this->onConsecutiveCalls(
                 [],
@@ -174,7 +174,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
 
         $groupCommand = new GroupCommand(
             $wordpressCli,
-            $accessHandler,
+            $userGroupHandler,
             $this->getUserGroupFactory()
         );
 
@@ -206,15 +206,15 @@ class GroupCommandTest extends UserAccessManagerTestCase
                 ['Successfully deleted group with id \'2\'.']
             );
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(4))
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->exactly(4))
             ->method('deleteUserGroup')
             ->withConsecutive([1], [1], [2], [3])
             ->will($this->onConsecutiveCalls(true, true, true, false));
 
         $groupCommand = new GroupCommand(
             $wordpressCli,
-            $accessHandler,
+            $userGroupHandler,
             $this->getUserGroupFactory()
         );
 
@@ -273,8 +273,8 @@ class GroupCommandTest extends UserAccessManagerTestCase
             [3, 4]
         );
 
-        $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->exactly(3))
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->exactly(3))
             ->method('getUserGroups')
             ->will($this->returnValue([1 => $firstUserGroup, 2 => $secondUserGroup]));
 
@@ -317,7 +317,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
 
         $groupCommand = new GroupCommand(
             $wordpressCli,
-            $accessHandler,
+            $userGroupHandler,
             $userGroupFactory
         );
 

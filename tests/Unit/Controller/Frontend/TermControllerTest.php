@@ -42,6 +42,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getObjectHandler(),
             $this->getObjectMapHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler()
         );
 
@@ -54,7 +55,7 @@ class TermControllerTest extends UserAccessManagerTestCase
      * @covers ::getMainConfig()
      * @covers ::getUtil()
      * @covers ::getUserHandler()
-     * @covers ::getAccessHandler()
+     * @covers ::getUserGroupHandler()
      */
     public function testSimpleGetters()
     {
@@ -67,6 +68,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getObjectHandler(),
             $this->getObjectMapHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler()
         );
 
@@ -74,7 +76,10 @@ class TermControllerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getMainConfig(), self::callMethod($frontendTermController, 'getMainConfig'));
         self::assertEquals($this->getUtil(), self::callMethod($frontendTermController, 'getUtil'));
         self::assertEquals($this->getUserHandler(), self::callMethod($frontendTermController, 'getUserHandler'));
-        self::assertEquals($this->getAccessHandler(), self::callMethod($frontendTermController, 'getAccessHandler'));
+        self::assertEquals(
+            $this->getUserGroupHandler(),
+            self::callMethod($frontendTermController, 'getUserGroupHandler')
+        );
     }
 
     /**
@@ -104,6 +109,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getObjectHandler(),
             $this->getObjectMapHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $accessHandler
         );
 
@@ -320,7 +326,9 @@ class TermControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $accessHandler->expects($this->once())
+        $userGroupHandler = $this->getUserGroupHandler();
+
+        $userGroupHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('taxonomy', 1)
             ->will($this->returnValue([1, 2]));
@@ -334,6 +342,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $objectHandler,
             $objectMapHandler,
             $userHandler,
+            $userGroupHandler,
             $accessHandler
         );
 
@@ -561,7 +570,9 @@ class TermControllerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $accessHandler->expects($this->once())
+        $userGroupHandler = $this->getUserGroupHandler();
+
+        $userGroupHandler->expects($this->once())
             ->method('getUserGroupsForObject')
             ->with('other', 1)
             ->will($this->returnValue([1, 2]));
@@ -575,6 +586,7 @@ class TermControllerTest extends UserAccessManagerTestCase
             $objectHandler,
             $objectMapHandler,
             $userHandler,
+            $userGroupHandler,
             $accessHandler
         );
 

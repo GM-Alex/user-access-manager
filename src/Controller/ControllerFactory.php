@@ -44,6 +44,7 @@ use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\DateUtil;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
@@ -112,6 +113,11 @@ class ControllerFactory
     private $userHandler;
 
     /**
+     * @var UserGroupHandler
+     */
+    private $userGroupHandler;
+
+    /**
      * @var AccessHandler
      */
     private $accessHandler;
@@ -160,6 +166,7 @@ class ControllerFactory
      * @param ObjectHandler     $objectHandler
      * @param ObjectMapHandler  $objectMapHandler
      * @param UserHandler       $userHandler
+     * @param UserGroupHandler  $userGroupHandler
      * @param AccessHandler     $accessHandler
      * @param UserGroupFactory  $userGroupFactory
      * @param FileHandler       $fileHandler
@@ -180,6 +187,7 @@ class ControllerFactory
         ObjectHandler $objectHandler,
         ObjectMapHandler $objectMapHandler,
         UserHandler $userHandler,
+        UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory,
         FileHandler $fileHandler,
@@ -199,6 +207,7 @@ class ControllerFactory
         $this->objectHandler = $objectHandler;
         $this->objectMapHandler = $objectMapHandler;
         $this->userHandler = $userHandler;
+        $this->userGroupHandler = $userGroupHandler;
         $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
         $this->fileHandler = $fileHandler;
@@ -255,6 +264,7 @@ class ControllerFactory
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
+            $this->userGroupHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -289,6 +299,7 @@ class ControllerFactory
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
+            $this->userGroupHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -311,6 +322,7 @@ class ControllerFactory
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
+            $this->userGroupHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -333,6 +345,7 @@ class ControllerFactory
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
+            $this->userGroupHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -355,6 +368,7 @@ class ControllerFactory
             $this->cache,
             $this->objectHandler,
             $this->userHandler,
+            $this->userGroupHandler,
             $this->accessHandler,
             $this->userGroupFactory
         );
@@ -407,7 +421,7 @@ class ControllerFactory
             $this->php,
             $this->wordpress,
             $this->wordpressConfig,
-            $this->accessHandler,
+            $this->userGroupHandler,
             $this->userGroupFactory,
             $this->formHelper
         );
@@ -445,6 +459,7 @@ class ControllerFactory
             $this->util,
             $this->objectHandler,
             $this->userHandler,
+            $this->userGroupHandler,
             $this->accessHandler
         );
     }
@@ -482,7 +497,7 @@ class ControllerFactory
             $this->php,
             $this->wordpress,
             $this->wordpressConfig,
-            $this->accessHandler
+            $this->userGroupHandler
         );
     }
 
@@ -502,6 +517,7 @@ class ControllerFactory
             $this->objectHandler,
             $this->objectMapHandler,
             $this->userHandler,
+            $this->userGroupHandler,
             $this->accessHandler
         );
     }
