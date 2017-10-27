@@ -54,7 +54,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     protected function getDirectoryMatch()
     {
         if ($this->mainConfig->getLockedDirectoryType() === 'wordpress') {
-            return "^{$this->wordpressConfig->getUploadDirectory()}".parent::getDirectoryMatch();
+            return '^.*'.DIRECTORY_SEPARATOR.parent::getDirectoryMatch().'.*$';
         }
 
         return parent::getDirectoryMatch();
@@ -72,13 +72,6 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         if ($fileTypes !== null) {
             /** @noinspection */
             $content = "<FilesMatch '{$fileTypes}'>\n{$content}</FilesMatch>\n";
-        }
-
-        $directoryMatch = $this->getDirectoryMatch();
-
-        if ($directoryMatch !== null) {
-            /** @noinspection */
-            $content = "<DirecoryMatch '{$directoryMatch}'>\n{$content}</DirecoryMatch>\n";
         }
 
         return $content;
@@ -122,6 +115,13 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $content = "RewriteEngine On\n";
         $content .= "RewriteBase {$homeRoot}\n";
         $content .= "RewriteRule ^index\\.php$ - [L]\n";
+
+        $directoryMatch = $this->getDirectoryMatch();
+
+        if ($directoryMatch !== null) {
+            $content .= "RewriteCond %{REQUEST_URI} {$directoryMatch}\n";
+        }
+
         $content .= "RewriteRule ^([^?]*)$ {$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1 [QSA,L]\n";
         $content .= "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ ";
         $content .= "{$homeRoot}index.php?uamfiletype={$objectType}&uamgetfile=$1&$2 [QSA,L]\n";

@@ -98,13 +98,13 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(4))
             ->method('getHomeUrl')
             ->will($this->returnValue('http://www.test.com/path'));
 
-        $wordpress->expects($this->exactly(6))
+        $wordpress->expects($this->exactly(7))
             ->method('gotModRewrite')
-            ->will($this->onConsecutiveCalls(false, false, false, true, true, true));
+            ->will($this->onConsecutiveCalls(false, false, false, true, true, true, true));
 
         /**
          * @var \stdClass $user
@@ -123,15 +123,11 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->method('getMimeTypes')
             ->will($this->returnValue(['jpg' => 'firstType']));
 
-        $wordpressConfig->expects($this->once())
-            ->method('getUploadDirectory')
-            ->will($this->returnValue('uploadDirectory/'));
-
         $mainConfig = $this->getMainConfig();
 
-        $mainConfig->expects($this->exactly(6))
+        $mainConfig->expects($this->exactly(7))
             ->method('getLockedFileType')
-            ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected', null, 'selected', null));
+            ->will($this->onConsecutiveCalls(null, 'selected', 'not_selected', null, 'selected', null, null));
 
         $mainConfig->expects($this->exactly(2))
             ->method('getLockedFiles')
@@ -145,17 +141,13 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->method('getFilePassType')
             ->will($this->returnValue(null));
 
-        $mainConfig->expects($this->exactly(12))
+        $mainConfig->expects($this->exactly(8))
             ->method('getLockedDirectoryType')
             ->will($this->onConsecutiveCalls(
-                'all',
-                'all',
                 'wordpress',
                 'wordpress',
                 'custom',
                 'custom',
-                'all',
-                'all',
                 'all',
                 'all',
                 'all',
@@ -198,30 +190,29 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
-            "<DirecoryMatch '^uploadDirectory/[0-9]{4}/[0-9]{2}'>\n"
-            ."<FilesMatch '\.(jpg)'>\n"
+            "<FilesMatch '\.(jpg)'>\n"
             ."AuthType Basic\nAuthName \"WP-Files\"\n"
             ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
-            ."</FilesMatch>\n"
-            ."</DirecoryMatch>\n",
+            ."</FilesMatch>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
-            "<DirecoryMatch 'customLockedDirectories'>\n"
-            ."<FilesMatch '^\.(jpg)'>"
+            "<FilesMatch '^\.(jpg)'>"
             ."\nAuthType Basic\nAuthName \"WP-Files\"\n"
             ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
-            ."</FilesMatch>\n"
-            ."</DirecoryMatch>\n",
+            ."</FilesMatch>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\n"
-            ."RewriteEngine On\nRewriteBase /path/\nRewriteRule ^index\.php$ - [L]\n"
+            ."RewriteEngine On\n"
+            ."RewriteBase /path/\n"
+            ."RewriteRule ^index\.php$ - [L]\n"
+            ."RewriteCond %{REQUEST_URI} ^.*/[0-9]{4}/[0-9]{2}.*$\n"
             ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
                 ."/path/index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"
@@ -234,12 +225,29 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         self::assertEquals(
             "<IfModule mod_rewrite.c>\n"
             ."<FilesMatch '\.(jpg)'>\n"
-            ."RewriteEngine On\nRewriteBase /path/\nRewriteRule ^index\.php$ - [L]\n"
+            ."RewriteEngine On\n"
+            ."RewriteBase /path/\n"
+            ."RewriteRule ^index\.php$ - [L]\n"
+            ."RewriteCond %{REQUEST_URI} customLockedDirectories\n"
             ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
                 ."/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
             ."</FilesMatch>\n"
+            ."</IfModule>\n",
+            file_get_contents($file)
+        );
+
+        self::assertTrue($apacheFileProtection->create($testDir, 'objectType'));
+        self::assertEquals(
+            "<IfModule mod_rewrite.c>\n"
+            ."RewriteEngine On\n"
+            ."RewriteBase /path/\n"
+            ."RewriteRule ^index\.php$ - [L]\n"
+            ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
+            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
+            ."/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
+            ."RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
             ."</IfModule>\n",
             file_get_contents($file)
         );
