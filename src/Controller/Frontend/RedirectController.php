@@ -141,12 +141,8 @@ class RedirectController extends Controller
             return $postUrls[$url];
         }
 
-        //Filter edit string
-        $newUrlPieces = preg_split('/-e[0-9]{1,}/', $url);
-        $newUrl = (count($newUrlPieces) === 2) ? $newUrlPieces[0].$newUrlPieces[1] : $newUrlPieces[0];
-
         //Filter size
-        $newUrlPieces = preg_split('/-[0-9]{1,}x[0-9]{1,}(_[a-z])?/', $newUrl);
+        $newUrlPieces = preg_split('/-[0-9]{1,}x[0-9]{1,}(_[a-z])?/', $url);
         $newUrl = (count($newUrlPieces) === 2) ? $newUrlPieces[0].$newUrlPieces[1] : $newUrlPieces[0];
         $newUrl = preg_replace('/\-pdf\.jpg$/', '.pdf', $newUrl);
 
