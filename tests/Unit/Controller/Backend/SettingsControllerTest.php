@@ -369,8 +369,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      * @covers ::getPostSettingsForm()
      * @covers ::getTaxonomySettingsForm()
      * @covers ::getFilesSettingsForm()
-     * @covers ::addNoAccessImageType()
-     * @covers ::addLockedDirectoryType()
+     * @covers ::addRadio()
+     * @covers ::addRadioValue()
      * @covers ::addLockFileTypes()
      * @covers ::isXSendFileAvailable()
      * @covers ::disableXSendFileOption()
@@ -510,36 +510,36 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
                 ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
-                ['all', TXT_UAM_ALL],
+                ['all', TXT_UAM_LOCKED_DIRECTORY_TYPE_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
                 ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
                 ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
-                ['all', TXT_UAM_ALL],
+                ['all', TXT_UAM_LOCKED_DIRECTORY_TYPE_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
-                ['all', TXT_UAM_ALL],
-                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
-                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['all', TXT_UAM_LOCKED_FILE_TYPES_ALL],
+                ['selected', TXT_UAM_LOCKED_FILE_TYPES_SELECTED],
+                ['not_selected', TXT_UAM_LOCKED_FILE_TYPES_NOT_SELECTED],
                 ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
                 ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
-                ['all', TXT_UAM_ALL],
+                ['all', TXT_UAM_LOCKED_DIRECTORY_TYPE_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
-                ['all', TXT_UAM_ALL],
-                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
-                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['all', TXT_UAM_LOCKED_FILE_TYPES_ALL],
+                ['selected', TXT_UAM_LOCKED_FILE_TYPES_SELECTED],
+                ['not_selected', TXT_UAM_LOCKED_FILE_TYPES_NOT_SELECTED],
                 ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
                 ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
-                ['all', TXT_UAM_ALL],
+                ['all', TXT_UAM_LOCKED_DIRECTORY_TYPE_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
-                ['all', TXT_UAM_ALL],
-                ['selected', TXT_UAM_LOCKED_FILE_TYPES],
-                ['not_selected', TXT_UAM_NOT_LOCKED_FILE_TYPES],
+                ['all', TXT_UAM_LOCKED_FILE_TYPES_ALL],
+                ['selected', TXT_UAM_LOCKED_FILE_TYPES_SELECTED],
+                ['not_selected', TXT_UAM_LOCKED_FILE_TYPES_NOT_SELECTED],
                 ['default', TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT],
                 ['custom', TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM],
                 ['wordpress', TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS],
-                ['all', TXT_UAM_ALL],
+                ['all', TXT_UAM_LOCKED_DIRECTORY_TYPE_ALL],
                 ['custom', TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM],
                 ['false', TXT_UAM_NO],
                 ['blog', TXT_UAM_REDIRECT_TO_BLOG],
@@ -579,8 +579,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 $this->createMultipleFormElementValue()
             ],
             'selectionValue',
-            TXT_UAM_LOCK_FILE_TYPES,
-            TXT_UAM_LOCK_FILE_TYPES_DESC
+            TXT_UAM_LOCKED_FILE_TYPES,
+            TXT_UAM_LOCKED_FILE_TYPES_DESC
         ];
 
         $redirect = [

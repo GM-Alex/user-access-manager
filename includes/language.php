@@ -90,11 +90,13 @@ define('TXT_UAM_LOCK_FILE_DESC', __('If you select "Yes" all files will locked b
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE', __('Locked directory type', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC', __('"Wordpress" will only lock files handled by the wordpress media manager (recommended), "All" will lock all files at the upload directory, "Custom" will use a custom string.', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS', __('Wordpress', 'user-access-manager'));
+define('TXT_UAM_LOCKED_DIRECTORY_TYPE_ALL', __('All', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM', __('Custom', 'user-access-manager'));
-define('TXT_UAM_LOCK_FILE_TYPES', __('Locked file types', 'user-access-manager'));
-define('TXT_UAM_LOCK_FILE_TYPES_DESC', __('Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <strong>Note:</strong> If you have no problems use all to get the maximum security.', 'user-access-manager'));
-define('TXT_UAM_LOCKED_FILE_TYPES', __('File types to lock: ', 'user-access-manager'));
-define('TXT_UAM_NOT_LOCKED_FILE_TYPES', __('File types not to lock: ', 'user-access-manager'));
+define('TXT_UAM_LOCKED_FILE_TYPES', __('Locked file types', 'user-access-manager'));
+define('TXT_UAM_LOCKED_FILE_TYPES_DESC', __('Lock all files, type in file types which you will lock if the post/page is locked or define file types which will not be locked. <strong>Note:</strong> If you have no problems use all to get the maximum security.', 'user-access-manager'));
+define('TXT_UAM_LOCKED_FILE_TYPES_ALL', __('All', 'user-access-manager'));
+define('TXT_UAM_LOCKED_FILE_TYPES_SELECTED', __('File types to lock: ', 'user-access-manager'));
+define('TXT_UAM_LOCKED_FILE_TYPES_NOT_SELECTED', __('File types not to lock: ', 'user-access-manager'));
 define('TXT_UAM_FILE_PASS_TYPE', __('.htaccess password', 'user-access-manager'));
 define('TXT_UAM_FILE_PASS_TYPE_DESC', __('Set up the password for the .htaccess access. This password is only needed if you need a direct access to your files.', 'user-access-manager'));
 define('TXT_UAM_FILE_PASS_TYPE_RANDOM', __('Use a random generated password.', 'user-access-manager'));

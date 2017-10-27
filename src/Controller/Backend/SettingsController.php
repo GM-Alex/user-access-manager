@@ -340,74 +340,69 @@ class SettingsController extends Controller
     }
 
     /**
-     * Adds the no access image type config parameter to the parameters.
+     * Adds a new radio value to the radio values.
      *
-     * @param array $configParameters
-     * @param array $parameters
+     * @param array  $values
+     * @param string $value
+     * @param string $prefix
+     * @param array  $configParameters
+     * @param null   $configParameter
      */
-    private function addNoAccessImageType(array $configParameters, array &$parameters)
-    {
-        if (isset($configParameters['no_access_image_type']) === true) {
-            $configParameter = $configParameters['no_access_image_type'];
-
-            $values = [
-                $this->formFactory->createMultipleFormElementValue(
-                    'default',
-                    TXT_UAM_NO_ACCESS_IMAGE_TYPE_DEFAULT
-                )
-            ];
-
-            if (isset($configParameters['custom_no_access_image']) === true) {
-                $values[] = $this->createMultipleFromElement(
-                    $configParameters['custom_no_access_image'],
-                    'custom',
-                    TXT_UAM_NO_ACCESS_IMAGE_TYPE_CUSTOM
-                );
-            }
-
-            $parameters[] = $this->formFactory->createRadio(
-                $configParameter->getId(),
-                $values,
-                $configParameter->getValue(),
-                TXT_UAM_NO_ACCESS_IMAGE_TYPE,
-                TXT_UAM_NO_ACCESS_IMAGE_TYPE_DESC
+    private function addRadioValue(
+        array &$values,
+        $prefix,
+        $value,
+        array $configParameters = [],
+        $configParameter = null
+    ) {
+        if (isset($configParameters[$configParameter]) === true) {
+            $values[] = $this->createMultipleFromElement(
+                $configParameters[$configParameter],
+                $value,
+                constant($prefix.'_'.strtoupper($value))
+            );
+        } elseif ($configParameters === []) {
+            $values[] = $this->formFactory->createMultipleFormElementValue(
+                $value,
+                constant($prefix.'_'.strtoupper($value))
             );
         }
     }
 
     /**
-     * Adds the locked directory type config parameter to the parameters.
+     * Adds a new radio to the parameters.
      *
-     * @param array $configParameters
-     * @param array $parameters
+     * @param array  $parameters
+     * @param array  $configParameters
+     * @param string $configParameter
+     * @param string $labelKey
+     * @param array  $addValues
      */
-    private function addLockedDirectoryType(array $configParameters, array &$parameters)
-    {
-        if (isset($configParameters['locked_directory_type']) === true) {
-            $configParameter = $configParameters['locked_directory_type'];
+    private function addRadio(
+        array &$parameters,
+        array $configParameters,
+        $configParameter,
+        $labelKey,
+        array $addValues
+    ) {
+        if (isset($configParameters[$configParameter]) === true) {
+            $values = [];
 
-            $values = [
-                $this->formFactory->createMultipleFormElementValue(
-                    'wordpress',
-                    TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS
-                ),
-                $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL),
-            ];
-
-            if (isset($configParameters['custom_locked_directories']) === true) {
-                $values[] = $this->createMultipleFromElement(
-                    $configParameters['custom_locked_directories'],
-                    'custom',
-                    TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM
-                );
+            foreach ($addValues as $addValue => $configParametersKey) {
+                if ($configParametersKey === null) {
+                    $this->addRadioValue($values, $labelKey, $addValue);
+                } else {
+                    $this->addRadioValue($values, $labelKey, $addValue, $configParameters, $configParametersKey);
+                }
             }
 
+            $configParameter = $configParameters[$configParameter];
             $parameters[] = $this->formFactory->createRadio(
                 $configParameter->getId(),
                 $values,
                 $configParameter->getValue(),
-                TXT_UAM_LOCKED_DIRECTORY_TYPE,
-                TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC
+                constant($labelKey),
+                constant($labelKey.'_DESC')
             );
         }
     }
@@ -423,34 +418,16 @@ class SettingsController extends Controller
         if (isset($configParameters['lock_file_types']) === true
             && $this->wordpress->isNginx() === false
         ) {
-            $values = [
-                $this->formFactory->createMultipleFormElementValue('all', TXT_UAM_ALL)
-            ];
-
-            if (isset($configParameters['locked_file_types']) === true) {
-                $values[] = $this->createMultipleFromElement(
-                    $configParameters['locked_file_types'],
-                    'selected',
-                    TXT_UAM_LOCKED_FILE_TYPES
-                );
-            }
-
-            if (isset($configParameters['not_locked_file_types']) === true) {
-                $values[] = $this->createMultipleFromElement(
-                    $configParameters['not_locked_file_types'],
-                    'not_selected',
-                    TXT_UAM_NOT_LOCKED_FILE_TYPES
-                );
-            }
-
-            $configParameter = $configParameters['lock_file_types'];
-
-            $parameters[] = $this->formFactory->createRadio(
-                $configParameter->getId(),
-                $values,
-                $configParameter->getValue(),
-                TXT_UAM_LOCK_FILE_TYPES,
-                TXT_UAM_LOCK_FILE_TYPES_DESC
+            $this->addRadio(
+                $parameters,
+                $configParameters,
+                'lock_file_types',
+                'TXT_UAM_LOCKED_FILE_TYPES',
+                [
+                    'all' => null,
+                    'selected' => 'locked_file_types',
+                    'not_selected' => 'not_locked_file_types'
+                ]
             );
 
             if ($this->wordpress->gotModRewrite() === false) {
@@ -478,7 +455,16 @@ class SettingsController extends Controller
             'inline_files'
         ];
 
-        $this->addNoAccessImageType($configParameters, $parameters);
+        $this->addRadio(
+            $parameters,
+            $configParameters,
+            'no_access_image_type',
+            'TXT_UAM_NO_ACCESS_IMAGE_TYPE',
+            [
+                'default' => null,
+                'custom' => 'custom_no_access_image'
+            ]
+        );
 
         $parameters[] = 'use_custom_file_handling_file';
         $parameters[] = $this->formFactory->createTextarea(
@@ -488,7 +474,17 @@ class SettingsController extends Controller
             TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
         );
 
-        $this->addLockedDirectoryType($configParameters, $parameters);
+        $this->addRadio(
+            $parameters,
+            $configParameters,
+            'locked_directory_type',
+            'TXT_UAM_LOCKED_DIRECTORY_TYPE',
+            [
+                'wordpress' => null,
+                'all' => null,
+                'custom' => 'custom_locked_directories'
+            ]
+        );
         $this->addLockFileTypes($configParameters, $parameters);
 
         $form = $this->formHelper->getSettingsForm($parameters);
