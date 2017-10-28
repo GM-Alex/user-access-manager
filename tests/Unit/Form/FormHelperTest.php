@@ -15,6 +15,7 @@
 namespace UserAccessManager\Tests\Unit\Form;
 
 use UserAccessManager\Config\ConfigParameter;
+use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\Form\FormElement;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Form\Input;
@@ -156,6 +157,45 @@ class FormHelperTest extends UserAccessManagerTestCase
             'post post',
             $formHelper->getParameterText($parameter, false, ObjectHandler::POST_OBJECT_TYPE)
         );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::createMultipleFromElement()
+     */
+    public function testCreateMultipleFromElement()
+    {
+        $multipleFormElementValue = $this->createMock(MultipleFormElementValue::class);
+        $multipleFormElementValue->expects($this->once())
+            ->method('setSubElement')
+            ->with();
+
+        $formFactory = $this->getFormFactory();
+
+        $formFactory->expects($this->exactly(2))
+            ->method('createInput')
+            ->will($this->onConsecutiveCalls(
+                $this->createMock(Input::class),
+                null
+            ));
+
+        $formFactory->expects($this->exactly(2))
+            ->method('createMultipleFormElementValue')
+            ->with('value', 'label')
+            ->will($this->returnValue($multipleFormElementValue));
+
+        /** @var ConfigParameter $parameter */
+        $parameter = $this->createMock(StringConfigParameter::class);
+
+        $formHelper = new FormHelper(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getMainConfig(),
+            $formFactory
+        );
+
+        $formHelper->createMultipleFromElement('value', 'label', $parameter);
+        $formHelper->createMultipleFromElement('value', 'label', $parameter);
     }
 
     /**

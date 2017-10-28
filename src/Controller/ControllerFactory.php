@@ -387,7 +387,6 @@ class ControllerFactory
             $this->wordpressConfig,
             $this->mainConfig,
             $this->cache,
-            $this->objectHandler,
             $this->fileHandler,
             $this->formFactory,
             $this->formHelper

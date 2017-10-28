@@ -78,7 +78,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
-            $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
             $this->getFormHelper()
@@ -105,7 +104,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
-            $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
             $this->getFormHelper()
@@ -138,7 +136,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
-            $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
             $formHelper
@@ -179,7 +176,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
-            $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
             $this->getFormHelper()
@@ -239,7 +235,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getWordpressConfig(),
             $config,
             $cache,
-            $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
             $this->getFormHelper()
@@ -288,55 +283,11 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::createMultipleFromElement()
-     */
-    public function testCreateMultipleFromElement()
-    {
-        $formElement = $this->createMock(FormElement::class);
-
-        $multipleFormElementValue = $this->createMultipleFormElementValue();
-        $multipleFormElementValue->expects($this->once())
-            ->method('setSubElement')
-            ->with();
-
-        $formFactory = $this->getFormFactory();
-        $formFactory->expects($this->exactly(2))
-            ->method('createMultipleFormElementValue')
-            ->with('value', 'label')
-            ->will($this->returnValue($multipleFormElementValue));
-
-        $parameter = $this->createMock(ConfigParameter::class);
-
-        $formHelper = $this->getFormHelper();
-        $formHelper->expects($this->exactly(2))
-            ->method('convertConfigParameter')
-            ->with($parameter)
-            ->will($this->onConsecutiveCalls(null, $formElement));
-
-        $settingController = new SettingsController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getFileHandler(),
-            $formFactory,
-            $formHelper
-        );
-
-        self::callMethod($settingController, 'createMultipleFromElement', [$parameter, 'value', 'label']);
-        self::callMethod($settingController, 'createMultipleFromElement', [$parameter, 'value', 'label']);
-    }
-
-    /**
-     * @group  unit
      * @covers ::getCurrentGroupForms()
      * @covers ::getFullPostSettingsForm()
      * @covers ::getFullTaxonomySettingsForm()
      * @covers ::getFullCacheProvidersFrom()
      * @covers ::getFullSettingsFrom()
-     * @covers ::createMultipleFromElement()
      * @covers ::getPostTypes()
      * @covers ::getTaxonomies()
      * @covers ::getPostSettingsForm()
@@ -475,13 +426,12 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 'custom_file_handling_file'
             ));
 
-        $formFactory->expects($this->exactly(4))
+        $formFactory->expects($this->exactly(3))
             ->method('createMultipleFormElementValue')
             ->withConsecutive(
                 ['false', TXT_UAM_NO],
                 ['blog', TXT_UAM_REDIRECT_TO_BLOG],
-                ['selected', TXT_UAM_REDIRECT_TO_PAGE],
-                ['custom_url', TXT_UAM_REDIRECT_TO_URL]
+                ['selected', TXT_UAM_REDIRECT_TO_PAGE]
             )
             ->will($this->returnValue($this->createMultipleFormElementValue()));
 
@@ -702,7 +652,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $formHelper->expects($this->exactly(14))
+        $formHelper->expects($this->exactly(13))
             ->method('convertConfigParameter')
             ->will($this->returnCallback(
                 function (
@@ -731,6 +681,13 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->with($config)
             ->will($this->returnValue('configForm'));
 
+        $formHelper->expects($this->exactly(1))
+            ->method('createMultipleFromElement')
+            ->withConsecutive(
+                ['custom_url', TXT_UAM_REDIRECT_TO_URL]
+            )
+            ->will($this->returnValue($this->createMock(MultipleFormElementValue::class)));
+
         $fileHandler = $this->getFileHandler();
 
         $fileHandler->expects($this->exactly(5))
@@ -755,7 +712,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getWordpressConfig(),
             $mainConfig,
             $cache,
-            $this->getObjectHandler(),
             $fileHandler,
             $formFactory,
             $formHelper
@@ -887,7 +843,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getWordpressConfig(),
             $mainConfig,
             $cache,
-            $this->getObjectHandler(),
             $fileHandler,
             $this->getFormFactory(),
             $this->getFormHelper()
@@ -932,7 +887,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getCache(),
-            $this->getObjectHandler(),
             $this->getFileHandler(),
             $this->getFormFactory(),
             $this->getFormHelper()

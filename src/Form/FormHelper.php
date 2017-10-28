@@ -140,8 +140,32 @@ class FormHelper
     }
 
     /**
+     * Creates a multiple form element.
+     *
+     * @param string          $value
+     * @param string          $label
+     * @param ConfigParameter $parameter
+     *
+     * @return MultipleFormElementValue
+     */
+    public function createMultipleFromElement($value, $label, ConfigParameter $parameter = null)
+    {
+        $value = $this->formFactory->createMultipleFormElementValue($value, $label);
+
+        if ($parameter !== null) {
+            $convertedParameter = $this->convertConfigParameter($parameter);
+
+            if ($convertedParameter !== null) {
+                $value->setSubElement($convertedParameter);
+            }
+        }
+
+        return $value;
+    }
+
+    /**
      * @param SelectionConfigParameter $configParameter
-     * @param null                     $objectKey
+     * @param null|string              $objectKey
      * @param array                    $overwrittenValues
      *
      * @return mixed
@@ -160,13 +184,8 @@ class FormHelper
             if ($overwrittenValues === []) {
                 $values[] = $this->formFactory->createValueSetFromElementValue($selection, $label);
             } else {
-                $value = $this->formFactory->createMultipleFormElementValue($selection, $label);
-
-                if (isset($overwrittenValues[$selection])) {
-                    $value->setSubElement($this->convertConfigParameter($overwrittenValues[$selection]));
-                }
-
-                $values[] = $value;
+                $parameter = (isset($overwrittenValues[$selection]) === true) ? $overwrittenValues[$selection] : null;
+                $values[] = $this->createMultipleFromElement($selection, $label, $parameter);
             }
         }
 

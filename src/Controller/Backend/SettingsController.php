@@ -59,11 +59,6 @@ class SettingsController extends Controller
     private $cache;
 
     /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
      * @var FileHandler
      */
     private $fileHandler;
@@ -86,7 +81,6 @@ class SettingsController extends Controller
      * @param WordpressConfig $wordpressConfig
      * @param MainConfig      $mainConfig
      * @param Cache           $cache
-     * @param ObjectHandler   $objectHandler
      * @param FileHandler     $fileHandler
      * @param FormFactory     $formFactory
      * @param FormHelper      $formHelper
@@ -97,7 +91,6 @@ class SettingsController extends Controller
         WordpressConfig $wordpressConfig,
         MainConfig $mainConfig,
         Cache $cache,
-        ObjectHandler $objectHandler,
         FileHandler $fileHandler,
         FormFactory $formFactory,
         FormHelper $formHelper
@@ -105,7 +98,6 @@ class SettingsController extends Controller
         parent::__construct($php, $wordpress, $wordpressConfig);
         $this->mainConfig = $mainConfig;
         $this->cache = $cache;
-        $this->objectHandler = $objectHandler;
         $this->fileHandler = $fileHandler;
         $this->formFactory = $formFactory;
         $this->formHelper = $formHelper;
@@ -271,27 +263,6 @@ class SettingsController extends Controller
         ]);
 
         return $this->formHelper->getSettingsForm($parameters, $taxonomy);
-    }
-
-    /**
-     * Creates a multiple form element.
-     *
-     * @param ConfigParameter $parameter
-     * @param string          $value
-     * @param string          $label
-     *
-     * @return MultipleFormElementValue
-     */
-    private function createMultipleFromElement(ConfigParameter $parameter, $value, $label)
-    {
-        $selectedValue = $this->formFactory->createMultipleFormElementValue($value, $label);
-        $convertedParameter = $this->formHelper->convertConfigParameter($parameter);
-
-        if ($convertedParameter !== null) {
-            $selectedValue->setSubElement($convertedParameter);
-        }
-
-        return $selectedValue;
     }
 
     /**
@@ -468,10 +439,10 @@ class SettingsController extends Controller
             }
 
             if (isset($configParameters['redirect_custom_url']) === true) {
-                $values[] = $this->createMultipleFromElement(
-                    $configParameters['redirect_custom_url'],
+                $values[] = $this->formHelper->createMultipleFromElement(
                     'custom_url',
-                    TXT_UAM_REDIRECT_TO_URL
+                    TXT_UAM_REDIRECT_TO_URL,
+                    $configParameters['redirect_custom_url']
                 );
             }
 
