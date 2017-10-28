@@ -89,33 +89,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::isNginx()
-     */
-    public function testIsNginx()
-    {
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(2))
-            ->method('isNginx')
-            ->will($this->onConsecutiveCalls(false, true));
-
-        $settingController = new SettingsController(
-            $this->getPhp(),
-            $wordpress,
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getFileHandler(),
-            $this->getFormFactory(),
-            $this->getFormHelper()
-        );
-
-        self::assertFalse($settingController->isNginx());
-        self::assertTrue($settingController->isNginx());
-    }
-
-    /**
-     * @group  unit
      * @covers ::getPages()
      */
     public function testGetPages()
@@ -925,6 +898,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::updateSettingsAction()
+     * @covers ::updateFileProtectionFile()
      */
     public function testUpdateSettingsAction()
     {

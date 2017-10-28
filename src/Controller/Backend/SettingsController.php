@@ -139,16 +139,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns true if the server is a nginx server.
-     *
-     * @return bool
-     */
-    public function isNginx()
-    {
-        return $this->wordpress->isNginx();
-    }
-
-    /**
      * Returns the pages.
      *
      * @return array
@@ -284,7 +274,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Creates and returns the locked file types element.
+     * Creates a multiple form element.
      *
      * @param ConfigParameter $parameter
      * @param string          $value
@@ -330,8 +320,6 @@ class SettingsController extends Controller
             /** @var ValueSetFormElement $downloadType */
             $downloadType = $formElements['download_type'];
             $possibleValues = $downloadType->getPossibleValues();
-
-
 
             if (isset($possibleValues['xsendfile']) === true) {
                 $possibleValues['xsendfile']->markDisabled();
@@ -691,6 +679,31 @@ class SettingsController extends Controller
     }
 
     /**
+     * Updates the file handling file.
+     *
+     * @param array $configParameters
+     */
+    private function updateFileProtectionFile(array $configParameters)
+    {
+        $key = 'custom_file_handling_file';
+        $customFileHandlingFile = isset($configParameters[$key]) === true ? $configParameters[$key] : null;
+        unset($configParameters[$key]);
+
+        $this->mainConfig->setConfigParameters($configParameters);
+
+        if ($this->mainConfig->lockFile() === false) {
+            $this->fileHandler->deleteFileProtection();
+        } elseif ($this->mainConfig->useCustomFileHandlingFile() === false) {
+            $this->fileHandler->createFileProtection();
+        } elseif ($customFileHandlingFile !== null) {
+            $this->php->filePutContents(
+                $this->fileHandler->getFileProtectionFileName(),
+                htmlspecialchars_decode($customFileHandlingFile)
+            );
+        }
+    }
+
+    /**
      * Update settings action.
      */
     public function updateSettingsAction()
@@ -711,23 +724,7 @@ class SettingsController extends Controller
             }
         }
 
-        $customFileHandlingFile = isset($newConfigParameters['custom_file_handling_file']) === true ?
-            $newConfigParameters['custom_file_handling_file'] : null;
-        unset($newConfigParameters['custom_file_handling_file']);
-
-        $this->mainConfig->setConfigParameters($newConfigParameters);
-
-        if ($this->mainConfig->lockFile() === false) {
-            $this->fileHandler->deleteFileProtection();
-        } elseif ($this->mainConfig->useCustomFileHandlingFile() === false) {
-            $this->fileHandler->createFileProtection();
-        } elseif ($customFileHandlingFile !== null) {
-            $this->php->filePutContents(
-                $this->fileHandler->getFileProtectionFileName(),
-                htmlspecialchars_decode($customFileHandlingFile)
-            );
-        }
-
+        $this->updateFileProtectionFile($newConfigParameters);
         $this->wordpress->doAction('uam_update_options', $this->mainConfig);
         $this->setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
     }
