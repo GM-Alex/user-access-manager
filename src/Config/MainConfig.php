@@ -76,7 +76,7 @@ class MainConfig extends Config
         $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
             $id,
             'false',
-            ['false', 'custom_page', 'custom_url']
+            ['false', 'blog', 'custom_page', 'custom_url']
         );
 
         $id = 'redirect_custom_page';

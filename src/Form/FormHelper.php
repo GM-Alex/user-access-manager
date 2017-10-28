@@ -140,15 +140,61 @@ class FormHelper
     }
 
     /**
+     * @param SelectionConfigParameter $configParameter
+     * @param null                     $objectKey
+     * @param array                    $overwrittenValues
+     *
+     * @return mixed
+     */
+    private function convertSelectionParameter(
+        SelectionConfigParameter $configParameter,
+        $objectKey = null,
+        array $overwrittenValues = []
+    ) {
+        $values = [];
+
+        foreach ($configParameter->getSelections() as $selection) {
+            $optionNameKey = 'TXT_UAM_'.strtoupper($configParameter->getId().'_'.$selection);
+            $label = (defined($optionNameKey) === true) ? constant($optionNameKey) : $optionNameKey;
+
+            if ($overwrittenValues === []) {
+                $values[] = $this->formFactory->createValueSetFromElementValue($selection, $label);
+            } else {
+                $value = $this->formFactory->createMultipleFormElementValue($selection, $label);
+
+                if (isset($overwrittenValues[$selection])) {
+                    $value->setSubElement($this->convertConfigParameter($overwrittenValues[$selection]));
+                }
+
+                $values[] = $value;
+            }
+        }
+
+        $objectMethod = $overwrittenValues === [] ? 'createSelect' : 'createRadio';
+
+        return $this->formFactory->{$objectMethod}(
+            $configParameter->getId(),
+            $values,
+            $configParameter->getValue(),
+            $this->getParameterText($configParameter, false, $objectKey),
+            $this->getParameterText($configParameter, true, $objectKey)
+        );
+    }
+
+    /**
      * Converts a config parameter to a form element.
      *
      * @param ConfigParameter $configParameter
      * @param string          $objectKey
+     * @param array           $overwrittenValues
      *
      * @return null|Input|Radio|Select
      */
-    public function convertConfigParameter(ConfigParameter $configParameter, $objectKey = null)
-    {
+    public function convertConfigParameter(
+        ConfigParameter $configParameter,
+        $objectKey = null,
+        array $overwrittenValues = []
+    ) {
         if (($configParameter instanceof StringConfigParameter) === true) {
             return $this->formFactory->createInput(
                 $configParameter->getId(),
@@ -168,25 +214,8 @@ class FormHelper
                 $this->getParameterText($configParameter, true, $objectKey)
             );
         } elseif (($configParameter instanceof SelectionConfigParameter) === true) {
-            $possibleValues = [];
-            /**
-             * @var SelectionConfigParameter $configParameter
-             */
-            $selections = $configParameter->getSelections();
-
-            foreach ($selections as $selection) {
-                $optionNameKey = 'TXT_UAM_'.strtoupper($configParameter->getId().'_'.$selection);
-                $label = (defined($optionNameKey) === true) ? constant($optionNameKey) : $optionNameKey;
-                $possibleValues[] = $this->formFactory->createValueSetFromElementValue($selection, $label);
-            }
-
-            return $this->formFactory->createSelect(
-                $configParameter->getId(),
-                $possibleValues,
-                $configParameter->getValue(),
-                $this->getParameterText($configParameter, false, $objectKey),
-                $this->getParameterText($configParameter, true, $objectKey)
-            );
+            /** @var SelectionConfigParameter $configParameter */
+            return $this->convertSelectionParameter($configParameter, $objectKey, $overwrittenValues);
         }
 
         return null;

@@ -160,7 +160,7 @@ class DatabaseHandler
     private function getExistingColumns(Table $table)
     {
         $query = "SHOW COLUMNS FROM `{$table->getName()}`;";
-        $existingRawColumns = $this->database->getResults($query);
+        $existingRawColumns = (array)$this->database->getResults($query);
         $existingColumns = [];
 
         foreach ($existingRawColumns as $existingRawColumn) {
