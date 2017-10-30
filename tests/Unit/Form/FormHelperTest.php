@@ -315,13 +315,21 @@ class FormHelperTest extends UserAccessManagerTestCase
      */
     public function testGetSettingsFrom()
     {
+        $five = $this->getConfigParameter('selection', 'Five');
+        $five->expects($this->once())
+            ->method('getSelections')
+            ->will($this->returnValue(['a', 'b']));
+
         $config = $this->getMainConfig();
         $config->expects($this->once())
             ->method('getConfigParameters')
             ->will($this->returnValue(
                 [
                     'one' => $this->getConfigParameter('string', 'One'),
-                    'two' => $this->getConfigParameter('string', 'Two')
+                    'two' => $this->getConfigParameter('string', 'Two'),
+                    'five' => $five,
+                    'six' => $this->getConfigParameter('string', 'Six'),
+                    'seven' => $this->getConfigParameter('string', 'Seven')
                 ]
             ));
 
@@ -343,11 +351,12 @@ class FormHelperTest extends UserAccessManagerTestCase
             ->method('createFrom')
             ->will($this->returnValue($form));
 
-        $formFactory->expects($this->exactly(2))
+        $formFactory->expects($this->exactly(3))
             ->method('createInput')
             ->withConsecutive(
                 ['stringOneId', 'stringOneValue', 'TXT_UAM_STRINGONEID', 'TXT_UAM_STRINGONEID_DESC'],
-                ['stringTwoId', 'stringTwoValue', 'TXT_UAM_STRINGTWOID', 'TXT_UAM_STRINGTWOID_DESC']
+                ['stringTwoId', 'stringTwoValue', 'TXT_UAM_STRINGTWOID', 'TXT_UAM_STRINGTWOID_DESC'],
+                ['stringSevenId', 'stringSevenValue', 'TXT_UAM_STRINGSEVENID', 'TXT_UAM_STRINGSEVENID_DESC']
             )
             ->will($this->onConsecutiveCalls(
                 $formInputOne,
@@ -361,7 +370,21 @@ class FormHelperTest extends UserAccessManagerTestCase
             $formFactory
         );
 
-        self::assertEquals($form, $formHelper->getSettingsForm(['one', 'two', 'invalid', $formInputThree]));
+        self::assertEquals(
+            $form,
+            $formHelper->getSettingsForm(
+                [
+                    'one',
+                    'two',
+                    'invalid',
+                    $formInputThree,
+                    'five' => [
+                        'a' => 'invalid',
+                        'b' => 'seven'
+                    ]
+                ]
+            )
+        );
     }
 
     /**

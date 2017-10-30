@@ -253,9 +253,25 @@ class FormHelper
         $configParameters = $this->config->getConfigParameters();
         $form = $this->formFactory->createFrom();
 
-        foreach ($parameters as $parameter) {
+        foreach ($parameters as $key => $parameter) {
+            $overwrittenValues = [];
+
+            if (is_array($parameter) === true) {
+                $overwrittenValues = array_map(
+                    function ($parameterKey) use ($configParameters) {
+                        return isset($configParameters[$parameterKey]) ? $configParameters[$parameterKey] : null;
+                    },
+                    $parameter
+                );
+                $parameter = $key;
+            }
+
             if (is_string($parameter) === true && isset($configParameters[$parameter]) === true) {
-                $formElement = $this->convertConfigParameter($configParameters[$parameter], $objectKey);
+                $formElement = $this->convertConfigParameter(
+                    $configParameters[$parameter],
+                    $objectKey,
+                    $overwrittenValues
+                );
 
                 if ($formElement !== null) {
                     $form->addElement($formElement);

@@ -15,7 +15,6 @@
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
@@ -23,7 +22,6 @@ use UserAccessManager\File\FileHandler;
 use UserAccessManager\Form\Form;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
-use UserAccessManager\Form\MultipleFormElementValue;
 use UserAccessManager\Form\ValueSetFormElement;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Wrapper\Php;
@@ -309,14 +307,10 @@ class SettingsController extends Controller
         if (isset($configParameters['lock_file_types']) === true
             && $this->wordpress->isNginx() === false
         ) {
-            $parameters[] = $this->formHelper->convertConfigParameter(
-                $configParameters['lock_file_types'],
-                null,
-                [
-                    'selected' => $configParameters['locked_file_types'],
-                    'not_selected' => $configParameters['not_locked_file_types']
-                ]
-            );
+            $parameters['lock_file_types'] = [
+                'selected' => 'locked_file_types',
+                'not_selected' => 'not_locked_file_types'
+            ];
 
             if ($this->wordpress->gotModRewrite() === false) {
                 $parameters[] = 'file_pass_type';
@@ -340,33 +334,17 @@ class SettingsController extends Controller
         $parameters = [
             'lock_file',
             'download_type',
-            'inline_files'
+            'inline_files',
+            'no_access_image_type' => ['custom' => 'custom_no_access_image'],
+            'use_custom_file_handling_file',
+            $this->formFactory->createTextarea(
+                'custom_file_handling_file',
+                $fileContent,
+                TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
+                TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
+            ),
+            'locked_directory_type' => ['custom' => 'custom_locked_directories']
         ];
-
-        if (isset($configParameters['no_access_image_type']) === true) {
-            $parameters[] = $this->formHelper->convertConfigParameter(
-                $configParameters['no_access_image_type'],
-                null,
-                ['custom' => $configParameters['custom_no_access_image']]
-            );
-        }
-
-        $parameters[] = 'use_custom_file_handling_file';
-        $parameters[] = $this->formFactory->createTextarea(
-            'custom_file_handling_file',
-            $fileContent,
-            TXT_UAM_CUSTOM_FILE_HANDLING_FILE,
-            TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC
-        );
-
-
-        if (isset($configParameters['no_access_image_type']) === true) {
-            $parameters[] = $this->formHelper->convertConfigParameter(
-                $configParameters['locked_directory_type'],
-                null,
-                ['custom' => $configParameters['custom_locked_directories']]
-            );
-        }
 
         $this->addLockFileTypes($configParameters, $parameters);
 

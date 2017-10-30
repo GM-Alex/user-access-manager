@@ -553,10 +553,10 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
-                        'selectionId|Radio',
+                        'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
-                        'selectionId|Radio'
+                        'locked_directory_type' => ['custom' => 'custom_locked_directories']
                     ]
                 ],
                 [
@@ -564,11 +564,14 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
-                        'selectionId|Radio',
+                        'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
-                        'selectionId|Radio',
-                        'selectionId|Radio'
+                        'locked_directory_type' => ['custom' => 'custom_locked_directories'],
+                        'lock_file_types' => [
+                            'selected' => 'locked_file_types',
+                            'not_selected' => 'not_locked_file_types'
+                        ]
                     ]
                 ],
                 [
@@ -576,11 +579,14 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
-                        'selectionId|Radio',
+                        'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
-                        'selectionId|Radio',
-                        'selectionId|Radio'
+                        'locked_directory_type' => ['custom' => 'custom_locked_directories'],
+                        'lock_file_types' => [
+                            'selected' => 'locked_file_types',
+                            'not_selected' => 'not_locked_file_types'
+                        ]
                     ]
                 ],
                 [
@@ -589,11 +595,14 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
-                        'selectionId|Radio',
+                        'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
-                        'selectionId|Radio',
-                        'selectionId|Radio',
+                        'locked_directory_type' => ['custom' => 'custom_locked_directories'],
+                        'lock_file_types' => [
+                            'selected' => 'locked_file_types',
+                            'not_selected' => 'not_locked_file_types'
+                        ],
                         'file_pass_type'
                     ]
                 ],
@@ -603,10 +612,10 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_file',
                         'download_type',
                         'inline_files',
-                        'selectionId|Radio',
+                        'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
                         'custom_file_handling_file',
-                        'selectionId|Radio'
+                        'locked_directory_type' => ['custom' => 'custom_locked_directories']
                     ]
                 ],
                 [
@@ -649,30 +658,6 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     $text = $configParameter->getId().ucfirst($postType);
                     $text .= ($description === true) ? 'Desc' : '';
                     return $text;
-                }
-            ));
-
-        $formHelper->expects($this->exactly(13))
-            ->method('convertConfigParameter')
-            ->will($this->returnCallback(
-                function (
-                    ConfigParameter $configParameter,
-                    $label = null,
-                    $overwrittenValues = []
-                ) {
-                    if (($configParameter instanceof StringConfigParameter) === true) {
-                        return $this->createMock(Input::class);
-                    } elseif (($configParameter instanceof BooleanConfigParameter) === true) {
-                        return $this->createMock(Radio::class);
-                    } elseif (($configParameter instanceof SelectionConfigParameter) === true) {
-                        if ($overwrittenValues !== []) {
-                            return $configParameter->getId().'|Radio';
-                        }
-                        
-                        return $this->createMock(Select::class);
-                    }
-    
-                    return null;
                 }
             ));
 
