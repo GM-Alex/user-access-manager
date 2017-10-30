@@ -482,6 +482,7 @@ class UserAccessManager
         $this->wordpress->addAction('save_post', [$postObjectController, 'savePostData']);
         $this->wordpress->addAction('edit_user_profile', [$userObjectController, 'showUserProfile']);
         $this->wordpress->addAction('user_new_form', [$userObjectController, 'showUserProfile']);
+        $this->wordpress->addAction('user_register', [$userObjectController, 'saveUserData']);
         $this->wordpress->addAction('profile_update', [$userObjectController, 'saveUserData']);
 
         $this->wordpress->addAction('bulk_edit_custom_box', [$postObjectController, 'addBulkAction']);
