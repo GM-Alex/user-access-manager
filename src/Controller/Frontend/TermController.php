@@ -17,7 +17,6 @@ namespace UserAccessManager\Controller\Frontend;
 use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
-use UserAccessManager\Controller\Controller;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\User\UserHandler;
@@ -31,47 +30,8 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class TermController extends Controller
+class TermController extends ContentController
 {
-    use AdminOutputControllerTrait;
-
-    const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
-
-    /**
-     * @var MainConfig
-     */
-    private $mainConfig;
-
-    /**
-     * @var Util
-     */
-    private $util;
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
-     * @var ObjectMapHandler
-     */
-    private $objectMapHandler;
-
-    /**
-     * @var UserHandler
-     */
-    private $userHandler;
-
-    /**
-     * @var UserGroupHandler
-     */
-    private $userGroupHandler;
-
-    /**
-     * @var AccessHandler
-     */
-    private $accessHandler;
-
     /**
      * @var array
      */
@@ -108,54 +68,18 @@ class TermController extends Controller
         UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler
     ) {
-        parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->mainConfig = $mainConfig;
-        $this->util = $util;
-        $this->objectHandler = $objectHandler;
+        parent::__construct(
+            $php,
+            $wordpress,
+            $wordpressConfig,
+            $mainConfig,
+            $util,
+            $objectHandler,
+            $userHandler,
+            $userGroupHandler,
+            $accessHandler
+        );
         $this->objectMapHandler = $objectMapHandler;
-        $this->userHandler = $userHandler;
-        $this->userGroupHandler = $userGroupHandler;
-        $this->accessHandler = $accessHandler;
-    }
-
-    /**
-     * @return MainConfig
-     */
-    protected function getMainConfig()
-    {
-        return $this->mainConfig;
-    }
-
-    /**
-     * @return Util
-     */
-    protected function getUtil()
-    {
-        return $this->util;
-    }
-
-    /**
-     * @return Wordpress
-     */
-    protected function getWordpress()
-    {
-        return $this->wordpress;
-    }
-
-    /**
-     * @return UserHandler
-     */
-    protected function getUserHandler()
-    {
-        return $this->userHandler;
-    }
-
-    /**
-     * @return UserGroupHandler
-     */
-    protected function getUserGroupHandler()
-    {
-        return $this->userGroupHandler;
     }
 
     /**
@@ -371,9 +295,7 @@ class TermController extends Controller
     private function processPostMenuItem(&$item)
     {
         if ($this->accessHandler->checkObjectAccess($item->object, $item->object_id) === false) {
-            if ($this->mainConfig->hidePostType($item->object) === true
-                || $this->wordpressConfig->atAdminPanel() === true
-            ) {
+            if ($this->removePostFromList($item->object) === true) {
                 return false;
             }
 

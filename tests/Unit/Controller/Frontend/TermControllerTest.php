@@ -51,39 +51,6 @@ class TermControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::getWordpress()
-     * @covers ::getMainConfig()
-     * @covers ::getUtil()
-     * @covers ::getUserHandler()
-     * @covers ::getUserGroupHandler()
-     */
-    public function testSimpleGetters()
-    {
-        $frontendTermController = new TermController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getUtil(),
-            $this->getObjectHandler(),
-            $this->getObjectMapHandler(),
-            $this->getUserHandler(),
-            $this->getUserGroupHandler(),
-            $this->getAccessHandler()
-        );
-
-        self::assertEquals($this->getWordpress(), self::callMethod($frontendTermController, 'getWordpress'));
-        self::assertEquals($this->getMainConfig(), self::callMethod($frontendTermController, 'getMainConfig'));
-        self::assertEquals($this->getUtil(), self::callMethod($frontendTermController, 'getUtil'));
-        self::assertEquals($this->getUserHandler(), self::callMethod($frontendTermController, 'getUserHandler'));
-        self::assertEquals(
-            $this->getUserGroupHandler(),
-            self::callMethod($frontendTermController, 'getUserGroupHandler')
-        );
-    }
-
-    /**
-     * @group  unit
      * @covers ::getTermArguments()
      */
     public function testGetTermArguments()

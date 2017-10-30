@@ -17,7 +17,6 @@ namespace UserAccessManager\Controller\Frontend;
 use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
-use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
@@ -32,46 +31,12 @@ use UserAccessManager\Wrapper\Wordpress;
  *
  * @package UserAccessManager\Controller
  */
-class PostController extends Controller
+class PostController extends ContentController
 {
-    use AdminOutputControllerTrait;
-
-    const POST_COUNTS_CACHE_KEY = 'WpPostCounts';
-
-    /**
-     * @var MainConfig
-     */
-    private $mainConfig;
-
     /**
      * @var Database
      */
     private $database;
-
-    /**
-     * @var Util
-     */
-    private $util;
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
-     * @var UserHandler
-     */
-    private $userHandler;
-
-    /**
-     * @var UserGroupHandler
-     */
-    private $userGroupHandler;
-
-    /**
-     * @var AccessHandler
-     */
-    private $accessHandler;
 
     /**
      * @var array
@@ -109,55 +74,21 @@ class PostController extends Controller
         UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler
     ) {
-        parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->mainConfig = $mainConfig;
+        parent::__construct(
+            $php,
+            $wordpress,
+            $wordpressConfig,
+            $mainConfig,
+            $util,
+            $objectHandler,
+            $userHandler,
+            $userGroupHandler,
+            $accessHandler
+        );
         $this->database = $database;
-        $this->util = $util;
-        $this->objectHandler = $objectHandler;
-        $this->userHandler = $userHandler;
-        $this->userGroupHandler = $userGroupHandler;
-        $this->accessHandler = $accessHandler;
     }
 
-    /**
-     * @return Wordpress
-     */
-    protected function getWordpress()
-    {
-        return $this->wordpress;
-    }
 
-    /**
-     * @return MainConfig
-     */
-    protected function getMainConfig()
-    {
-        return $this->mainConfig;
-    }
-
-    /**
-     * @return Util
-     */
-    protected function getUtil()
-    {
-        return $this->util;
-    }
-
-    /**
-     * @return UserHandler
-     */
-    protected function getUserHandler()
-    {
-        return $this->userHandler;
-    }
-
-    /**
-     * @return UserGroupHandler
-     */
-    protected function getUserGroupHandler()
-    {
-        return $this->userGroupHandler;
-    }
 
     /**
      * Returns true if the filters are suppressed.
@@ -319,9 +250,7 @@ class PostController extends Controller
         $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
 
         if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false) {
-            if ($this->mainConfig->hidePostType($post->post_type) === true
-                || $this->wordpressConfig->atAdminPanel() === true
-            ) {
+            if ($this->removePostFromList($post->post_type) === true) {
                 return null;
             }
 
