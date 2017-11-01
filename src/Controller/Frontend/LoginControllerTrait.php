@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\Controller\Frontend;
 
-use UserAccessManager\Controller\BaseControllerTrait;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**

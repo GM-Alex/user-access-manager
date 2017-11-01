@@ -15,17 +15,11 @@
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
 use UserAccessManager\Cache\CacheProviderInterface;
-use UserAccessManager\Config\BooleanConfigParameter;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
-use UserAccessManager\Config\SelectionConfigParameter;
-use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\Controller\Backend\SettingsController;
 use UserAccessManager\Form\Form;
-use UserAccessManager\Form\FormElement;
-use UserAccessManager\Form\Input;
 use UserAccessManager\Form\MultipleFormElementValue;
-use UserAccessManager\Form\Radio;
 use UserAccessManager\Form\Select;
 use UserAccessManager\Form\ValueSetFormElement;
 use UserAccessManager\Form\ValueSetFormElementValue;

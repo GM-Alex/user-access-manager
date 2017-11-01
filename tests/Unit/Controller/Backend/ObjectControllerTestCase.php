@@ -281,7 +281,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
                 $this->getCache(),
                 $this->getExtendedObjectHandler(),
                 $userHandler,
-                $accessHandler,
+                $userGroupHandler,
+                $this->getAccessHandler(),
                 $this->getUserGroupFactory()
             );
         }

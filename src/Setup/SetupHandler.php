@@ -17,7 +17,6 @@ namespace UserAccessManager\Setup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
-use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Setup\Database\DatabaseHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
