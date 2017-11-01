@@ -77,7 +77,7 @@ $userGroup = $controller->getUserGroup();
                         }
                         ?>
                     >
-                        <?php echo TXT_UAM_ALL ?>
+                        <?php echo TXT_UAM_ALL_USERS ?>
                     </option>
                 </select><br/>
                 <?php echo TXT_UAM_GROUP_READ_ACCESS_DESC; ?>
@@ -113,7 +113,7 @@ $userGroup = $controller->getUserGroup();
                         }
                         ?>
                     >
-                        <?php echo TXT_UAM_ALL ?>
+                        <?php echo TXT_UAM_ALL_USERS ?>
                     </option>
                 </select><br/>
                 <?php echo TXT_UAM_GROUP_WRITE_ACCESS_DESC; ?>

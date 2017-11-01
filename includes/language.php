@@ -21,6 +21,7 @@ define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the Use
 
 // --- Multiple use ---
 define('TXT_UAM_ALL', __('All', 'user-access-manager'));
+define('TXT_UAM_ALL_USERS', __('All users (group and none group users)', 'user-access-manager'));
 define('TXT_UAM_ONLY_GROUP_USERS', __('Only group users', 'user-access-manager'));
 define('TXT_UAM_NONE', __('None', 'user-access-manager'));
 define('TXT_UAM_YES', __('Yes', 'user-access-manager'));
