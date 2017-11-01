@@ -37,6 +37,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getDatabaseHandler(),
+            $this->getMainConfig(),
             $this->getFileHandler()
         );
 
@@ -53,6 +54,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getDatabaseHandler(),
+            $this->getMainConfig(),
             $this->getFileHandler()
         );
 
@@ -81,6 +83,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $this->getDatabaseHandler(),
+            $this->getMainConfig(),
             $this->getFileHandler()
         );
 
@@ -120,6 +123,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $databaseHandler,
+            $this->getMainConfig(),
             $this->getFileHandler()
         );
 
@@ -154,10 +158,16 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             ->method('updateDatabase')
             ->will($this->onConsecutiveCalls(false, false, false, true));
 
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(4))
+            ->method('setConfigParameters')
+            ->with(['locked_directory_type' => 'all']);
+
         $setupHandler = new SetupHandler(
             $wordpress,
             $this->getDatabase(),
             $databaseHandler,
+            $mainConfig,
             $this->getFileHandler()
         );
 
@@ -212,6 +222,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $wordpress,
             $database,
             $databaseHandler,
+            $this->getMainConfig(),
             $fileHandler
         );
 
@@ -234,6 +245,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getDatabaseHandler(),
+            $this->getMainConfig(),
             $fileHandler
         );
 

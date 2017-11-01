@@ -44,6 +44,11 @@ class SetupHandler
     private $databaseHandler;
 
     /**
+     * @var MainConfig
+     */
+    private $mainConfig;
+
+    /**
      * @var FileHandler
      */
     private $fileHandler;
@@ -54,17 +59,20 @@ class SetupHandler
      * @param Wordpress       $wordpress
      * @param Database        $database
      * @param DatabaseHandler $databaseHandler
+     * @param MainConfig      $mainConfig
      * @param FileHandler     $fileHandler
      */
     public function __construct(
         Wordpress $wordpress,
         Database $database,
         DatabaseHandler $databaseHandler,
+        MainConfig $mainConfig,
         FileHandler $fileHandler
     ) {
         $this->wordpress = $wordpress;
         $this->database = $database;
         $this->databaseHandler = $databaseHandler;
+        $this->mainConfig = $mainConfig;
         $this->fileHandler = $fileHandler;
     }
 
@@ -137,6 +145,10 @@ class SetupHandler
 
         if (version_compare($uamVersion, '1.0', '<') === true) {
             $this->wordpress->deleteOption('allow_comments_locked');
+        }
+
+        if (version_compare($uamVersion, '2.1.7', '<') === true) {
+            $this->mainConfig->setConfigParameters(['locked_directory_type' => 'all']);
         }
 
         return $this->databaseHandler->updateDatabase();
