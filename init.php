@@ -112,6 +112,7 @@ function initUserAccessManger()
         $wordpress,
         $database,
         $databaseHandler,
+        $mainConfig,
         $fileHandler
     );
     $controllerFactory = new ControllerFactory(
@@ -220,6 +221,7 @@ function initUserAccessManger()
                 $wordpress,
                 $database,
                 $databaseHandler,
+                $mainConfig,
                 $fileHandler
             );
 
