@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Setup\Database;
 
+use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\Setup\Update\UpdateInterface;
@@ -304,6 +305,31 @@ class DatabaseHandler
     }
 
     /**
+     * Returns all sites where the user access manager is active.
+     *
+     * @return array
+     */
+    private function getActivePluginSites()
+    {
+        $currentBlogId = $this->database->getCurrentBlogId();
+        $activeSites = [];
+
+        foreach ($this->wordpress->getSites() as $site) {
+            $this->wordpress->switchToBlog($site->blog_id);
+            $plugins = (array)$this->wordpress->getOption('active_plugins', []);
+            $pluginsMap = array_flip($plugins);
+
+            if (isset($pluginsMap['user-access-manager/user-access-manager.php']) === true) {
+                $activeSites[$site->blog_id] = $site->blog_id;
+            }
+        }
+
+        $this->wordpress->switchToBlog($currentBlogId);
+
+        return $activeSites;
+    }
+
+    /**
      * Checks if a database update is necessary.
      *
      * @return bool
@@ -311,8 +337,8 @@ class DatabaseHandler
     public function isDatabaseUpdateNecessary()
     {
         if ($this->wordpress->isSuperAdmin() === true) {
-            foreach ($this->wordpress->getSites() as $site) {
-                $table = $this->database->getBlogPrefix($site->blog_id).'options';
+            foreach ($this->getActivePluginSites() as $siteId) {
+                $table = $this->database->getBlogPrefix($siteId).'options';
                 $select = "SELECT option_value FROM {$table} WHERE option_name = '%s' LIMIT 1";
                 $select = $this->database->prepare($select, 'uam_db_version');
                 $currentDbVersion = $this->database->getVariable($select);

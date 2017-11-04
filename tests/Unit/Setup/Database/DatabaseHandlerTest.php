@@ -388,6 +388,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::isDatabaseUpdateNecessary()
+     * @covers ::getActivePluginSites()
      */
     public function testIsDatabaseUpdateNecessary()
     {
@@ -399,7 +400,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
                 $this->getSites(),
                 [],
                 $this->getSites(1),
-                $this->getSites(2)
+                $this->getSites(3)
             ));
 
         $wordpress->expects($this->exactly(6))
@@ -407,10 +408,34 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, false, true, true, true, true));
 
 
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(11))
             ->method('getOption')
-            ->with('uam_db_version')
-            ->will($this->onConsecutiveCalls('1000.0.0', '0.0', '1000.0', '1000.0'));
+            ->withConsecutive(
+                ['uam_db_version'],
+                ['uam_db_version'],
+                ['active_plugins'],
+                ['active_plugins'],
+                ['active_plugins'],
+                ['uam_db_version'],
+                ['active_plugins'],
+                ['active_plugins'],
+                ['active_plugins'],
+                ['active_plugins'],
+                ['uam_db_version']
+            )
+            ->will($this->onConsecutiveCalls(
+                '1000.0.0',
+                '0.0',
+                ['some/plugin', 'user-access-manager/user-access-manager.php'],
+                ['some/plugin', 'user-access-manager/user-access-manager.php'],
+                ['some/plugin', 'user-access-manager/user-access-manager.php'],
+                '1000.0',
+                ['some/plugin', 'user-access-manager/user-access-manager.php'],
+                ['some/plugin', 'user-access-manager/user-access-manager.php'],
+                ['some/plugin', 'user-access-manager/user-access-manager.php'],
+                ['some/plugin'],
+                '1000.0'
+            ));
 
         $database = $this->getDatabase();
         $database->expects($this->exactly(5))
