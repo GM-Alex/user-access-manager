@@ -50,7 +50,7 @@ define('TXT_UAM_DEFAULT_COMMENT_CONTENT', __('Comment text', 'user-access-manage
 define('TXT_UAM_DEFAULT_COMMENT_CONTENT_DESC', __('Displayed text as comment text if user has no access', 'user-access-manager'));
 define('TXT_UAM_HIDE_DEFAULT_COMMENT', __('Hide comments', 'user-access-manager'));
 define('TXT_UAM_HIDE_DEFAULT_COMMENT_DESC', __('Selecting "Yes" will show the text which is defined at "%s comment text" if user has no access.', 'user-access-manager'));
-define('TXT_UAM_DEFAULT_COMMENTS_LOCKED', __('Allow comments', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_COMMENTS_LOCKED', __('Lock comments', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment even if the content is locked', 'user-access-manager'));
 define('TXT_UAM_SHOW_DEFAULT_CONTENT_BEFORE_MORE', __('Show content before &lt;!--more--&gt; tag', 'user-access-manager'));
 define('TXT_UAM_SHOW_DEFAULT_CONTENT_BEFORE_MORE_DESC', __('Shows the content before the &lt;!--more--&gt; tag and after that the defined text at "%s content". If no &lt;!--more--&gt; is set the defined text at "%s content" will shown.', 'user-access-manager')); //TODO
@@ -337,6 +337,6 @@ define('TXT_UAM_LOGIN_WIDGET_DESC', __('User Access Manager login widget for use
 
 // --- Info bar ---
 define('TXT_UAM_INFO_BOX_UAM_PRO_HEAD', __('Get User Access Manager Pro!', 'user-access-manager'));
-define('TXT_UAM_INFO_BOX_UAM_PRO_CONTENT', __('You want all the features? Guess what? You are already using the Pro version, because there is none. So it would be nice if you support me and become a supporter at steady.', 'user-access-manager'));
+define('TXT_UAM_INFO_BOX_UAM_PRO_CONTENT', __('You want all the features? Guess what? You are already using the Pro version, because there is none. So it would be nice if you support me and become a supporter at steady, <b>especially if you use the plugin on a commercial site</b>. This will keep me motivated to do the support and spend my free time for the plugin. ;)', 'user-access-manager'));
 define('TXT_UAM_INFO_BOX_DOCUMENTATION_HEAD', __('Need help?', 'user-access-manager'));
 define('TXT_UAM_INFO_BOX_DOCUMENTATION_CONTENT', __('You got stuck using the User access manager? See <a href="https://github.com/GM-Alex/user-access-manager/wiki">https://github.com/GM-Alex/user-access-manager/wiki</a>', 'user-access-manager'));
