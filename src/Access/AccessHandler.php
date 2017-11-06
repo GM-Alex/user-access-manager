@@ -146,6 +146,16 @@ class AccessHandler
 
         return $userUserGroups;
     }
+    
+   /**
+     * Returns all user groups.
+     *
+     * @return UserGroup[]
+     */
+    public function getUserGroups()
+    {
+        return $this->userGroupHandler->getUserGroups();
+    }
 
     /**
      * Checks if the current_user has access to the given post.
