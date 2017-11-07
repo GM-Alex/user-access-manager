@@ -48,6 +48,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
             $this->getSetupHandler(),
@@ -92,6 +93,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
             $this->getSetupHandler(),
@@ -118,6 +120,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      * @covers  ::getDatabase()
      * @covers  ::getObjectHandler()
      * @covers  ::getUserHandler()
+     * @covers  ::getUserGroupHandler()
      * @covers  ::getAccessHandler()
      * @covers  ::getFileHandler()
      * @covers  ::getSetupHandler()
@@ -143,6 +146,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getDatabase(), $userAccessManager->getDatabase());
         self::assertEquals($this->getObjectHandler(), $userAccessManager->getObjectHandler());
         self::assertEquals($this->getUserHandler(), $userAccessManager->getUserHandler());
+        self::assertEquals($this->getUserGroupHandler(), $userAccessManager->getUserGroupHandler());
         self::assertEquals($this->getAccessHandler(), $userAccessManager->getAccessHandler());
         self::assertEquals($this->getFileHandler(), $userAccessManager->getFileHandler());
         self::assertEquals($this->getSetupHandler(), $userAccessManager->getSetupHandler());
@@ -201,6 +205,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getObjectHandler(),
             $userHandler,
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
             $this->getSetupHandler(),
@@ -359,6 +364,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $objectHandler,
             $userHandler,
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
             $setupHandler,
@@ -437,6 +443,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
+            $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
             $this->getSetupHandler(),

@@ -147,6 +147,7 @@ function initUserAccessManger()
         $database,
         $objectHandler,
         $userHandler,
+        $userGroupHandler,
         $accessHandler,
         $fileHandler,
         $setupHandler,

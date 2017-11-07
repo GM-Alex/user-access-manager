@@ -35,6 +35,7 @@ use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Wrapper\Php;
@@ -47,7 +48,7 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserAccessManager
 {
-    const VERSION = '2.1.7';
+    const VERSION = '2.1.8';
     const DB_VERSION = '1.6.1';
 
     /**
@@ -89,6 +90,11 @@ class UserAccessManager
      * @var UserHandler
      */
     private $userHandler;
+
+    /**
+     * @var UserGroupHandler
+     */
+    private $userGroupHandler;
 
     /**
      * @var AccessHandler
@@ -161,6 +167,7 @@ class UserAccessManager
      * @param Database                       $database
      * @param ObjectHandler                  $objectHandler
      * @param UserHandler                    $userHandler
+     * @param UserGroupHandler               $userGroupHandler
      * @param AccessHandler                  $accessHandler
      * @param FileHandler                    $fileHandler
      * @param SetupHandler                   $setupHandler
@@ -183,6 +190,7 @@ class UserAccessManager
         Database $database,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
+        UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler,
         FileHandler $fileHandler,
         SetupHandler $setupHandler,
@@ -204,6 +212,7 @@ class UserAccessManager
         $this->database = $database;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
+        $this->userGroupHandler = $userGroupHandler;
         $this->accessHandler = $accessHandler;
         $this->fileHandler = $fileHandler;
         $this->setupHandler = $setupHandler;
@@ -282,6 +291,11 @@ class UserAccessManager
     public function getUserHandler()
     {
         return $this->userHandler;
+    }
+
+    public function getUserGroupHandler()
+    {
+        return $this->userGroupHandler;
     }
 
     /**
