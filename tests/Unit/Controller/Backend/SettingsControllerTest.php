@@ -320,7 +320,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($pages));
 
         $wordpress->expects($this->exactly(5))
-            ->method('getHomeUrl')
+            ->method('getSiteUrl')
             ->will($this->returnValue('https://localhost'));
 
         $wordpress->expects($this->exactly(3))

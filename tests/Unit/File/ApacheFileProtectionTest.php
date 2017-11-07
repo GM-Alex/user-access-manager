@@ -99,7 +99,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         $wordpress = $this->getWordpress();
 
         $wordpress->expects($this->exactly(4))
-            ->method('getHomeUrl')
+            ->method('getSiteUrl')
             ->will($this->returnValue('http://www.test.com/path'));
 
         $wordpress->expects($this->exactly(7))
@@ -212,6 +212,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ."RewriteEngine On\n"
             ."RewriteBase /path/\n"
             ."RewriteRule ^index\.php$ - [L]\n"
+            ."RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
             ."RewriteCond %{REQUEST_URI} ^.*/[0-9]{4}/[0-9]{2}.*$\n"
             ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
@@ -228,6 +229,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ."RewriteEngine On\n"
             ."RewriteBase /path/\n"
             ."RewriteRule ^index\.php$ - [L]\n"
+            ."RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
             ."RewriteCond %{REQUEST_URI} customLockedDirectories\n"
             ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
@@ -244,6 +246,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ."RewriteEngine On\n"
             ."RewriteBase /path/\n"
             ."RewriteRule ^index\.php$ - [L]\n"
+            ."RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
             ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
             ."/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"

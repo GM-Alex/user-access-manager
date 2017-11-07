@@ -270,7 +270,7 @@ class SettingsController extends Controller
      */
     private function isXSendFileAvailable()
     {
-        $content = file_get_contents($this->wordpress->getHomeUrl().'?testXSendFile');
+        $content = file_get_contents($this->wordpress->getSiteUrl().'?testXSendFile');
         $this->fileHandler->removeXSendFileTestFile();
 
         return ($content === 'success');

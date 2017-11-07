@@ -384,14 +384,27 @@ class Wordpress
     /**
      * @see \home_url()
      *
-     * @param string $path
-     * @param string $scheme
+     * @param string      $path
+     * @param null|string $scheme
      *
      * @return string
      */
     public function getHomeUrl($path = '', $scheme = null)
     {
         return \home_url($path, $scheme);
+    }
+
+    /**
+     * @see \site_url();
+     *
+     * @param string      $path
+     * @param null|string $scheme
+     *
+     * @return string
+     */
+    public function getSiteUrl($path = '', $scheme = null)
+    {
+        return \site_url($path, $scheme);
     }
 
     /**

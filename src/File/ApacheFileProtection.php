@@ -109,12 +109,13 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
         }
 
-        $homeRoot = parse_url($this->wordpress->getHomeUrl());
+        $homeRoot = parse_url($this->wordpress->getSiteUrl());
         $homeRoot = (isset($homeRoot['path']) === true) ? '/'.trim($homeRoot['path'], '/\\').'/' : '/';
 
         $content = "RewriteEngine On\n";
         $content .= "RewriteBase {$homeRoot}\n";
         $content .= "RewriteRule ^index\\.php$ - [L]\n";
+        $content .= "RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n";
 
         $directoryMatch = $this->getDirectoryMatch();
 
