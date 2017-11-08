@@ -59,6 +59,7 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.1.9       2017/11/??  Add show content before <!--more--> tag option for all post types
     2.1.8       2017/11/07  Add getter for the user group handler fixes #160
                             Fix multi site file handling issue #159
     2.1.7       2017/11/01  Improve database update prompt fixes #153

@@ -503,7 +503,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         null,
                         'hide_default_comment',
                         'default_comment_content',
-                        'default_comments_locked'
+                        'default_comments_locked',
+                        'show_default_content_before_more'
                     ],
                     MainConfig::DEFAULT_TYPE
                 ],
@@ -530,7 +531,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'pageTextarea',
                         'hide_page_comment',
                         'page_comment_content',
-                        'page_comments_locked'
+                        'page_comments_locked',
+                        'show_page_content_before_more'
                     ],
                     'page'
                 ],

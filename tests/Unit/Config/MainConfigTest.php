@@ -41,6 +41,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'hide_default' => 'bool|hide_default|false',
             'hide_default_title' => 'bool|hide_default_title|false',
             'default_title' => 'string|default_title|No rights!|user-access-manager',
+            'show_default_content_before_more' => 'bool|show_default_content_before_more|false',
             'default_content' => 'string|default_content|'
                 .'Sorry you have no rights to view this entry!|user-access-manager',
             'hide_default_comment' => 'bool|hide_default_comment|false',
@@ -62,6 +63,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'hide_page' => 'bool|hide_page|false',
             'hide_page_title' => 'bool|hide_page_title|false',
             'page_title' => 'string|page_title|No rights!|user-access-manager',
+            'show_page_content_before_more' => 'bool|show_page_content_before_more|false',
             'page_content' => 'string|page_content|Sorry you have no rights to view this entry!|user-access-manager',
             'hide_page_comment' => 'bool|hide_page_comment|false',
             'page_comment_content' => 'string|page_comment_content|'
@@ -225,7 +227,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         $objectHandler = $this->getDefaultObjectHandler(2);
 
         $configParameterFactory = $this->getConfigParameterFactory();
-        $configParameterFactory->expects($this->exactly(26))
+        $configParameterFactory->expects($this->exactly(28))
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -406,6 +408,7 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::getPostTypeTitle()
      * @covers ::getPostTypeContent()
      * @covers ::getPostTypeCommentContent()
+     * @covers ::showPostTypeContentBeforeMore()
      * @covers ::getObjectContent()
      */
     public function testObjectGetter()
@@ -428,6 +431,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         self::assertEquals('post_title', $config->getPostTypeTitle('post'));
         self::assertEquals('post_content', $config->getPostTypeContent('post'));
         self::assertEquals('post_comment_content', $config->getPostTypeCommentContent('post'));
+        self::assertEquals('show_post_content_before_more', $config->showPostTypeContentBeforeMore('post'));
     }
 
     /**
@@ -454,7 +458,6 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::getBlogAdminHintText
      * @covers ::showAssignedGroups
      * @covers ::protectFeed
-     * @covers ::showPostContentBeforeMore
      * @covers ::getFullAccessRole
      * @covers ::getActiveCacheProvider
      */
@@ -483,7 +486,6 @@ class MainConfigTest extends UserAccessManagerTestCase
             'getBlogAdminHintText' => 'blog_admin_hint_text',
             'showAssignedGroups' => 'show_assigned_groups',
             'protectFeed' => 'protect_feed',
-            'showPostContentBeforeMore' => 'show_post_content_before_more',
             'getFullAccessRole' => 'full_access_role',
             'getActiveCacheProvider' => 'active_cache_provider'
         ];

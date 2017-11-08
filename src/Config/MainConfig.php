@@ -171,10 +171,8 @@ class MainConfig extends Config
             $id = "{$postType}_comments_locked";
             $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
-            if ($postType === 'post') {
-                $id = "show_{$postType}_content_before_more";
-                $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
-            }
+            $id = "show_{$postType}_content_before_more";
+            $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
         }
     }
 
@@ -415,6 +413,16 @@ class MainConfig extends Config
     }
 
     /**
+     * @param string $postType
+     *
+     * @return bool
+     */
+    public function showPostTypeContentBeforeMore($postType)
+    {
+        return $this->getObjectContent($postType, 'show_%s_content_before_more');
+    }
+
+    /**
      * @return string
      */
     public function getRedirect()
@@ -599,14 +607,6 @@ class MainConfig extends Config
     public function protectFeed()
     {
         return $this->getParameterValue('protect_feed');
-    }
-
-    /**
-     * @return bool
-     */
-    public function showPostContentBeforeMore()
-    {
-        return $this->getParameterValue('show_post_content_before_more');
     }
 
     /**

@@ -422,9 +422,22 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(['post'], ['other'], ['page'], ['post'], ['other'])
             ->will($this->returnValue('postContent'));
 
-        $mainConfig->expects($this->exactly(2))
-            ->method('showPostContentBeforeMore')
-            ->will($this->onConsecutiveCalls(true, false));
+        $mainConfig->expects($this->exactly(5))
+            ->method('showPostTypeContentBeforeMore')
+            ->withConsecutive(
+                ['post'],
+                ['other'],
+                ['page'],
+                ['post'],
+                ['other']
+            )
+            ->will($this->onConsecutiveCalls(
+                true,
+                false,
+                false,
+                false,
+                false
+            ));
 
         $mainConfig->expects($this->exactly(5))
             ->method('hidePostTypeTitle')

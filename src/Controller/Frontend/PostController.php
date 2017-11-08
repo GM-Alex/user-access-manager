@@ -228,8 +228,7 @@ class PostController extends ContentController
     {
         $uamPostContent = htmlspecialchars_decode($this->mainConfig->getPostTypeContent($post->post_type));
 
-        if ($post->post_type === 'post'
-            && $this->mainConfig->showPostContentBeforeMore() === true
+        if ($this->mainConfig->showPostTypeContentBeforeMore($post->post_type) === true
             && preg_match('/<!--more(.*?)?-->/', $post->post_content, $matches)
         ) {
             $uamPostContent = explode($matches[0], $post->post_content)[0].' '.$uamPostContent;

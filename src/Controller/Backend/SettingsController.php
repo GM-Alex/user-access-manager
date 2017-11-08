@@ -236,12 +236,9 @@ class SettingsController extends Controller
             $textarea,
             "hide_{$postType}_comment",
             "{$postType}_comment_content",
-            "{$postType}_comments_locked"
+            "{$postType}_comments_locked",
+            "show_{$postType}_content_before_more"
         ]);
-
-        if ($postType === 'post') {
-            $parameters[] = "show_{$postType}_content_before_more";
-        }
 
         return $this->formHelper->getSettingsForm($parameters, $postType);
     }
