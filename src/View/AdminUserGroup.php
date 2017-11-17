@@ -25,13 +25,13 @@ if ($controller->hasUpdateMessage() === true) {
 }
 
 $currentGroup = $controller->getCurrentTabGroup();
-$editUserGroup = $controller->getRequestParameter('uam_action') === 'edit_user_group';
+$editUserGroup = $controller->getUserGroup()->getId() !== null;
 $userGroupOverview = $currentGroup === \UserAccessManager\Controller\Backend\UserGroupController::GROUP_USER_GROUPS;
 $title = '';
 
 if ($editUserGroup === false) {
     $title = TXT_UAM_MANAGE_GROUP;
-} elseif ($controller->getUserGroup()->getId() !== null) {
+} else {
     $title = TXT_UAM_EDIT_GROUP;
 }
 ?>

@@ -183,7 +183,7 @@ class UserGroupHandler
     /**
      * Adds a user group.
      *
-     * @param UserGroup $userGroup The user group which we want to add.
+     * @param UserGroup $userGroup
      */
     public function addUserGroup(UserGroup $userGroup)
     {
@@ -195,7 +195,7 @@ class UserGroupHandler
     /**
      * Deletes a user group.
      *
-     * @param integer $userGroupId The user group _iId which we want to delete.
+     * @param int $userGroupId
      *
      * @return bool
      */

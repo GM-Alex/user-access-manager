@@ -18,6 +18,7 @@ use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Wrapper\Php;
@@ -162,13 +163,53 @@ class UserGroupController extends Controller
     }
 
     /**
+     * Returns the sort url.
+     *
+     * @param string $sort
+     *
+     * @return string
+     */
+    public function getSortUrl($sort)
+    {
+        $requestUrl = $this->getRequestUrl();
+        $requestUrl = preg_replace('/&amp;orderby[^&]*/i', '', $requestUrl);
+        $requestUrl = preg_replace('/&amp;order[^&]*/i', '', $requestUrl);
+        $divider = strpos($requestUrl, '?') === false ? '?' : '&amp;';
+        $order = (string) $this->getRequestParameter('order') === 'asc' ? 'desc' : 'asc';
+        return "{$requestUrl}{$divider}orderby={$sort}&amp;order={$order}";
+    }
+
+    /**
      * Returns all user groups.
      *
      * @return \UserAccessManager\UserGroup\UserGroup[]
      */
     public function getUserGroups()
     {
-        return $this->userGroupHandler->getUserGroups();
+        $userGroups = $this->userGroupHandler->getUserGroups();
+
+        $sort = $this->getRequestParameter('orderby');
+
+        if ($sort !== null) {
+            $reverse = (string) $this->getRequestParameter('order') === 'desc' ? true : false;
+
+            uasort(
+                $userGroups,
+                function (UserGroup $userGroupOne, UserGroup $userGroupTwo) use ($sort, $reverse) {
+                    $values = ['', ''];
+                    $method = 'get'.ucfirst($sort);
+
+                    if (method_exists($userGroupOne, $method) === true) {
+                        $values = [(string)$userGroupOne->{$method}(), (string)$userGroupTwo->{$method}()];
+                        $values = ($reverse === true) ? array_reverse($values) : $values;
+                    }
+
+                    return strnatcasecmp($values[0], $values[1]);
+                }
+            );
+        }
+
+        return $userGroups;
     }
 
     /**
@@ -225,7 +266,6 @@ class UserGroupController extends Controller
             }
 
             if ($userGroupId === null) {
-                $this->userGroup = $userGroup;
                 $this->setUpdateMessage(TXT_UAM_GROUP_ADDED);
             } else {
                 $this->setUpdateMessage(TXT_UAM_USER_GROUP_EDIT_SUCCESS);

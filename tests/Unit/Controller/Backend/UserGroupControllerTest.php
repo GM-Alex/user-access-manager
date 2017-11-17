@@ -201,17 +201,60 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers ::getSortUrl()
+     */
+    public function testGetSortUrl()
+    {
+        $_SERVER['REQUEST_URI'] = 'url/?page=page';
+
+        $userGroupController = new UserGroupController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getUserGroupHandler(),
+            $this->getUserGroupFactory(),
+            $this->getFormHelper()
+        );
+
+        self::assertEquals(
+            'url/?page=page&amp;orderby=sort&amp;order=asc',
+            $userGroupController->getSortUrl('sort')
+        );
+
+        $_GET['order'] = 'asc';
+        self::assertEquals(
+            'url/?page=page&amp;orderby=sort&amp;order=desc',
+            $userGroupController->getSortUrl('sort')
+        );
+
+        $_SERVER['REQUEST_URI'] = 'url/?page=page&orderby=some&order=some';
+        self::assertEquals(
+            'url/?page=page&amp;orderby=sort&amp;order=desc',
+            $userGroupController->getSortUrl('sort')
+        );
+
+        $_SERVER['REQUEST_URI'] = 'url/';
+        self::assertEquals(
+            'url/?orderby=sort&amp;order=desc',
+            $userGroupController->getSortUrl('sort')
+        );
+    }
+
+    /**
+     * @group  unit
      * @covers ::getUserGroups()
      */
     public function testGetUserGroups()
     {
         $userGroups = [
-            1 => $this->getUserGroup(1),
-            2 => $this->getUserGroup(2)
+            1 => $this->getUserGroup(1, true, false, [''], 'none', 'none', [], [], 'b'),
+            2 => $this->getUserGroup(2, true, false, [''], 'none', 'none', [], [], 'd'),
+            3 => $this->getUserGroup(3, true, false, [''], 'none', 'none', [], [], 'a'),
+            4 => $this->getUserGroup(4, true, false, [''], 'none', 'none', [], [], 'c')
         ];
 
         $userGroupHandler = $this->getUserGroupHandler();
-        $userGroupHandler->expects($this->once())
+        $userGroupHandler->expects($this->exactly(5))
             ->method('getUserGroups')
             ->will($this->returnValue($userGroups));
 
@@ -225,6 +268,25 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         );
 
         self::assertEquals($userGroups, $userGroupController->getUserGroups());
+
+        $_GET['orderby'] = 'some';
+        self::assertEquals($userGroups, $userGroupController->getUserGroups());
+
+        $orderedUserGroups = [
+            3 => $userGroups[3],
+            1 => $userGroups[1],
+            4 => $userGroups[4],
+            2 => $userGroups[2]
+        ];
+
+        $_GET['orderby'] = 'name';
+        self::assertSame($orderedUserGroups, $userGroupController->getUserGroups());
+
+        $_GET['order'] = 'asc';
+        self::assertSame($orderedUserGroups, $userGroupController->getUserGroups());
+
+        $_GET['order'] = 'desc';
+        self::assertSame(array_reverse($orderedUserGroups, true), $userGroupController->getUserGroups());
     }
 
     /**

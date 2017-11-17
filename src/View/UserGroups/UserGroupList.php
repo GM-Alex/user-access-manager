@@ -16,6 +16,23 @@
 /**
  * @var \UserAccessManager\Controller\Backend\UserGroupController $controller
  */
+
+/**
+ * @param string $name
+ * @param string $sortingParameter
+ *
+ * @return string
+ */
+$createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
+    $isSorted = $controller->getRequestParameter('orderby') === $sortingParameter;
+    $class = $isSorted === true ? 'sorted' : 'sortable';
+    $sortOrder = $isSorted === true ? $controller->getRequestParameter('order') : 'asc';
+
+    $inner = "<span>{$name}</span><span class=\"sorting-indicator\"></span>";
+    $link = "<a href=\"{$controller->getSortUrl($sortingParameter)}\" >{$inner}</a>";
+    return "<th scope=\"col\" class=\"{$class} {$sortOrder}\">{$link}</th>";
+}
+
 ?>
 <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
     <?php $controller->createNonceField('uamDeleteGroup'); ?>
@@ -31,12 +48,12 @@
         <thead>
         <tr class="thead">
             <th scope="col"></th>
-            <th scope="col"><?php echo TXT_UAM_NAME; ?></th>
-            <th scope="col"><?php echo TXT_UAM_DESCRIPTION; ?></th>
-            <th scope="col"><?php echo TXT_UAM_READ_ACCESS; ?></th>
-            <th scope="col"><?php echo TXT_UAM_WRITE_ACCESS; ?></th>
+            <?php echo $createHeaderColumn(TXT_UAM_NAME, 'name'); ?>
+            <?php echo $createHeaderColumn(TXT_UAM_DESCRIPTION, 'description'); ?>
+            <?php echo $createHeaderColumn(TXT_UAM_READ_ACCESS, 'readAccess'); ?>
+            <?php echo $createHeaderColumn(TXT_UAM_WRITE_ACCESS, 'writeAccess'); ?>
             <th scope="col"><?php echo TXT_UAM_GROUP_ROLE; ?></th>
-            <th scope="col"><?php echo TXT_UAM_IP_RANGE; ?></th>
+            <?php echo $createHeaderColumn(TXT_UAM_IP_RANGE, 'ipRange'); ?>
         </tr>
         </thead>
         <tbody>
