@@ -378,20 +378,22 @@ abstract class AbstractUserGroup
             return false;
         }
 
-        $objectTypeQuery = ($ignoreGeneralType === false) ?
-            " AND (general_object_type = '%s' OR object_type = '%s') " : " AND object_type = '%s' ";
+        $objectTypeQuery = " AND object_type = '%s' ";
+        $values = [
+            $this->id,
+            $this->type,
+            $objectType
+        ];
+
+        if ($ignoreGeneralType === false) {
+            $objectTypeQuery = " AND (object_type = '%s' OR general_object_type = '%s') ";
+            $values[] = $generalObjectType;
+        }
 
         $query = "DELETE FROM {$this->database->getUserGroupToObjectTable()}
             WHERE group_id = %d
               AND group_type = '%s'
               {$objectTypeQuery}";
-
-        $values = [
-            $this->id,
-            $this->type,
-            $generalObjectType,
-            $objectType
-        ];
 
         if ($objectId !== null) {
             $query .= ' AND object_id = %d';

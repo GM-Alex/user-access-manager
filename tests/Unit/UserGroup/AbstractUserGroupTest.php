@@ -376,7 +376,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                         'DELETE FROM userGroupToObjectTable
                         WHERE group_id = %d
                           AND group_type = \'%s\'
-                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                          AND (object_type = \'%s\' OR general_object_type = \'%s\')'
                     ),
                     [123, 'type', 'objectType', 'objectType']
                 ],
@@ -385,7 +385,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                         'DELETE FROM userGroupToObjectTable
                         WHERE group_id = %d
                           AND group_type = \'%s\'
-                          AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                          AND (object_type = \'%s\' OR general_object_type = \'%s\')'
                     ),
                     [123, 'type', 'objectType', 'objectType']
                 ],
@@ -394,7 +394,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                         'DELETE FROM userGroupToObjectTable
                             WHERE group_id = %d
                               AND group_type = \'%s\'
-                              AND (general_object_type = \'%s\' OR object_type = \'%s\')'
+                              AND (object_type = \'%s\' OR general_object_type = \'%s\')'
                     ),
                     [123, 'type', 'objectType', 'objectType']
                 ],
@@ -403,7 +403,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                         'DELETE FROM userGroupToObjectTable
                             WHERE group_id = %d
                               AND group_type = \'%s\'
-                              AND (general_object_type = \'%s\' OR object_type = \'%s\')
+                              AND (object_type = \'%s\' OR general_object_type = \'%s\')
                               AND object_id = %d'
                     ),
                     [123, 'type', 'objectType', 'objectType', 1]
@@ -416,7 +416,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                               AND object_type = \'%s\'
                               AND object_id = %d'
                     ),
-                    [123, 'type', 'defaultObjectType', 'defaultObjectType', '']
+                    [123, 'type', 'defaultObjectType', '']
                 ]
             )
             ->will($this->returnValue('preparedQuery'));
