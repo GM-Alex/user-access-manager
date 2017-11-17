@@ -42,7 +42,7 @@
             });
 
             return sum + value * multiplier;
-        });
+        }, 0);
     };
 
     $.uamTimeInput = function(targetInput) {
@@ -65,23 +65,22 @@
                 || rawInput === ''
                 || $.inArray(event.keyCode, [38, 40, 37, 39]) !== -1
             ) {
-                $input.val('');
                 return;
             }
 
-            delay(function () {
-                var domElement = $this.get(0);
-                var cursorStart = domElement.selectionStart;
-                var cursorEnd = domElement.selectionEnd;
-                var inputRegex = /(\d{3})(\d{2})(\d{2})(\d{2})/g;
-                var inputValue = rawInput.replace(/^\D+|:|-/g, '')
-                    .substr(0, 9)
-                    .padStart(9, 0);
+            var domElement = $this.get(0);
+            var cursorStart = domElement.selectionStart;
+            var cursorEnd = domElement.selectionEnd;
+            var inputRegex = /(\d{3})(\d{2})(\d{2})(\d{2})/g;
+            var inputValue = rawInput.replace(/^\D+|:|-/g, '')
+                .substr(0, 9)
+                .padStart(9, 0);
+            var chunks = inputRegex.exec(inputValue);
+            chunks = convertRawChunksToTime([chunks[1], chunks[2], chunks[3], chunks[4]]);
+            $input.val(convertChunksToSeconds(chunks));
 
-                var chunks = inputRegex.exec(inputValue);
-                chunks = convertRawChunksToTime([chunks[1], chunks[2], chunks[3], chunks[4]]);
+            delay(function () {
                 $this.val(formatChunks(chunks));
-                $input.val(convertChunksToSeconds(chunks));
                 domElement.setSelectionRange(cursorStart, cursorEnd);
             }, 1000);
         });
