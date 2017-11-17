@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 4.9
-Stable tag: 2.1.8
+Stable tag: 2.1.9
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -59,7 +59,7 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
-    2.1.9       2017/11/??  Add show content before <!--more--> tag option for all post types
+    2.1.9       2017/11/18  Add show content before <!--more--> tag option for all post types
                             Fix js time input issue
                             Fix small prepare query issue
                             Don't switch to edit mode after user group creation #171
