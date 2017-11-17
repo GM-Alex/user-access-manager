@@ -230,6 +230,10 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         );
         $this->resetControllerObjectInformation($postObjectController);
 
+        $_GET['action'] = 'edit';
+        $return = $postObjectController->showMediaFile(['a' => 'b'], $post);
+        self::assertEquals(['a' => 'b'], $return);
+
         self::expectOutputString($expectedOutput);
     }
 

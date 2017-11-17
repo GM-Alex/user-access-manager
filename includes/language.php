@@ -168,6 +168,8 @@ define('TXT_UAM_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-ma
 define('TXT_UAM_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behind the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_UAM_BLOG_ADMIN_HINT_TEXT));
 define('TXT_UAM_SHOW_ASSIGNED_GROUPS', __('Show assigned groups', 'user-access-manager'));
 define('TXT_UAM_SHOW_ASSIGNED_GROUPS_DESC', __('Show assigned groups next to the edit link', 'user-access-manager'));
+define('TXT_UAM_HIDE_EDIT_LINK_ON_NO_ACCESS', __('Hide edit link on no access', 'user-access-manager'));
+define('TXT_UAM_HIDE_EDIT_LINK_ON_NO_ACCESS_DESC', __('Hides the edit link if the user has no write access.', 'user-access-manager'));
 
 // --- Setting Page -> default values ---
 define('TXT_UAM_SETTING_DEFAULT_NO_RIGHTS', __('No rights!', 'user-access-manager'));

@@ -3,7 +3,7 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
-Tested up to: 4.8
+Tested up to: 4.9
 Stable tag: 2.1.8
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
@@ -33,7 +33,7 @@ The “User Access Manager”-plugin for Wordpress allows you to manage the acce
 * Also protect your rss feeds
 * Give access by IP-address
 * Plugin-Api to use the User Access Manager in your on plugins or extend other plugins
-* [UAMPPE](https://github.com/GM-Alex/user-access-manager) like behaviour is now build in (Expect negation like !groupName and showprivate and shownotauthorized parameter)
+* [UAMPPE](https://wordpress.org/plugins/user-access-manager-private-public-extension/) like behaviour is now build in (Expect negation like !groupName and showprivate and shownotauthorized parameter)
 
 <em>Included languages</em>
 
@@ -60,6 +60,13 @@ Here you found the changes in each version.
     Version     Date        Changes
 
     2.1.9       2017/11/??  Add show content before <!--more--> tag option for all post types
+                            Fix js time input issue
+                            Fix small prepare query issue
+                            Don't switch to edit mode after user group creation #171
+                            Add sortable columns for user groups list #172
+                            Show no access image again instead of broken image
+                            Fix double user group form for media files
+                            Add option to hide the edit page option if the user doesn't have the right to edit this page #174
     2.1.8       2017/11/07  Add getter for the user group handler fixes #160
                             Fix multi site file handling issue #159
     2.1.7       2017/11/01  Improve database update prompt fixes #153

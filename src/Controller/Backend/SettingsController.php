@@ -438,7 +438,8 @@ class SettingsController extends Controller
             $redirect,
             'blog_admin_hint',
             'blog_admin_hint_text',
-            'show_assigned_groups'
+            'show_assigned_groups',
+            'hide_edit_link_on_no_access'
         ];
 
         return $this->formHelper->getSettingsForm($parameters);

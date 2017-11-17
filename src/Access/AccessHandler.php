@@ -127,15 +127,29 @@ class AccessHandler
     }
 
     /**
+     * Checks if the is admin value is set if not grabs it from the wordpress function.
+     *
+     * @param null|bool $isAdmin
+     *
+     * @return bool
+     */
+    private function isAdmin($isAdmin)
+    {
+        return ($isAdmin === null) ? $this->wordpress->isAdmin() : $isAdmin;
+    }
+
+    /**
      * Returns the user user groups filtered by the write access.
+     *
+     * @param null|bool $isAdmin If set we force the admin mode.
      *
      * @return AbstractUserGroup[]
      */
-    private function getUserUserGroupsForObjectAccess()
+    private function getUserUserGroupsForObjectAccess($isAdmin = null)
     {
         $userUserGroups = $this->userGroupHandler->getUserGroupsForUser();
 
-        if ($this->wordpress->isAdmin() === true) {
+        if ($this->isAdmin($isAdmin) === true) {
             $userUserGroups = array_filter(
                 $userUserGroups,
                 function (AbstractUserGroup $userGroup) {
@@ -150,14 +164,16 @@ class AccessHandler
     /**
      * Checks if the current_user has access to the given post.
      *
-     * @param string  $objectType The object type which should be checked.
-     * @param integer $objectId   The id of the object.
+     * @param string    $objectType The object type which should be checked.
+     * @param int       $objectId   The id of the object.
+     * @param null|bool $isAdmin    If set we force the admin mode.
      *
      * @return bool
      */
-    public function checkObjectAccess($objectType, $objectId)
+    public function checkObjectAccess($objectType, $objectId, $isAdmin = null)
     {
-        $admin = $this->wordpress->isAdmin() === true ? 'admin' : 'noAdmin';
+        $isAdmin = $this->isAdmin($isAdmin);
+        $admin = $isAdmin === true ? 'admin' : 'noAdmin';
 
         if (isset($this->objectAccess[$admin][$objectType][$objectId]) === false) {
             if ($this->objectHandler->isValidObjectType($objectType) === false
@@ -168,7 +184,7 @@ class AccessHandler
             } else {
                 $membership = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId);
                 $access = $membership === []
-                    || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess()) !== [];
+                    || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [];
             }
 
             $this->objectAccess[$admin][$objectType][$objectId] = $access;

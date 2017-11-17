@@ -47,6 +47,7 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::checkObjectAccess()
+     * @covers ::isAdmin()
      * @covers ::hasAuthorAccess()
      * @covers ::getUserUserGroupsForObjectAccess()
      */
@@ -71,19 +72,13 @@ class AccessHandlerTest extends HandlerTestCase
         self::assertTrue($accessHandler->checkObjectAccess('postType', 2));
 
         $wordpress = $this->getWordpressWithUser();
-        $wordpress->expects($this->exactly(12))
+        $wordpress->expects($this->exactly(6))
             ->method('isAdmin')
             ->will($this->onConsecutiveCalls(
                 false,
                 false,
                 false,
                 false,
-                false,
-                false,
-                false,
-                false,
-                true,
-                true,
                 true,
                 true
             ));
@@ -141,7 +136,7 @@ class AccessHandlerTest extends HandlerTestCase
             $userGroupHandler
         );
 
-        self::assertTrue($accessHandler->checkObjectAccess('postType', 1));
+        self::assertTrue($accessHandler->checkObjectAccess('postType', 1, false));
         self::assertTrue($accessHandler->checkObjectAccess('postType', 2));
         self::assertTrue($accessHandler->checkObjectAccess('postType', 3));
         self::assertFalse($accessHandler->checkObjectAccess('postType', 4));

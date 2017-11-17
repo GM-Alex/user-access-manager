@@ -709,7 +709,7 @@ class UserAccessManager
         $this->wordpress->addFilter('get_pages', [$frontendPostController, 'showPages'], 20);
         $this->wordpress->addFilter('get_next_post_where', [$frontendPostController, 'showNextPreviousPost']);
         $this->wordpress->addFilter('get_previous_post_where', [$frontendPostController, 'showNextPreviousPost']);
-        $this->wordpress->addFilter('edit_post_link', [$frontendPostController, 'showGroupMembership'], 10, 2);
+        $this->wordpress->addFilter('edit_post_link', [$frontendPostController, 'showEditLink'], 10, 2);
         $this->wordpress->addFilter('parse_query', [$frontendPostController, 'parseQuery']);
         $this->wordpress->addFilter('getarchives_where', [$frontendPostController, 'showPostSql']);
         $this->wordpress->addFilter('wp_count_posts', [$frontendPostController, 'showPostCount'], 10, 3);

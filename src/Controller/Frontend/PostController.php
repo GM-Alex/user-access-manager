@@ -335,8 +335,9 @@ class PostController extends ContentController
      */
     public function getAttachedFile($file, $attachmentId)
     {
-        //TODO add check for images
-        if ($this->mainConfig->lockFile() === true) {
+        $isImage = (bool) preg_match('/(?i)\.(jpg|jpeg|jpe|png|gif)$/', $file);
+
+        if ($this->mainConfig->lockFile() === true && $isImage === false) {
             $hasAccess = $this->accessHandler->checkObjectAccess(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $attachmentId);
             return ($hasAccess === true) ? $file : false;
         }
@@ -510,8 +511,14 @@ class PostController extends ContentController
      *
      * @return string
      */
-    public function showGroupMembership($link, $postId)
+    public function showEditLink($link, $postId)
     {
+        if ($this->mainConfig->hideEditLinkOnNoAccess() === true
+            && $this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, true) === false
+        ) {
+            $link = '';
+        }
+
         if ($this->mainConfig->showAssignedGroups() === true) {
             $userGroups = $this->userGroupHandler->getFilteredUserGroupsForObject(
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE,
@@ -526,8 +533,8 @@ class PostController extends ContentController
                     $userGroups
                 );
 
-                $link .= ' | '.TXT_UAM_ASSIGNED_GROUPS.': ';
-                $link .= implode(', ', $escapedGroups);
+                $link .= $link !== '' ? ' | ' : ' ';
+                $link .= TXT_UAM_ASSIGNED_GROUPS.': '.implode(', ', $escapedGroups);
             }
         }
 

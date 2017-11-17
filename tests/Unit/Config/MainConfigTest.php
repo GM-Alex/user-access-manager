@@ -95,7 +95,8 @@ class MainConfigTest extends UserAccessManagerTestCase
             'full_access_role' => 'selection|full_access_role|administrator|'
                 .'administrator|editor|author|contributor|subscriber',
             'active_cache_provider' => 'selection|active_cache_provider|none|none',
-            'show_assigned_groups' => 'bool|show_assigned_groups|true'
+            'show_assigned_groups' => 'bool|show_assigned_groups|true',
+            'hide_edit_link_on_no_access' => 'bool|hide_edit_link_on_no_access|true'
         ];
     }
 
@@ -227,7 +228,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         $objectHandler = $this->getDefaultObjectHandler(2);
 
         $configParameterFactory = $this->getConfigParameterFactory();
-        $configParameterFactory->expects($this->exactly(28))
+        $configParameterFactory->expects($this->exactly(29))
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -457,6 +458,7 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::blogAdminHint
      * @covers ::getBlogAdminHintText
      * @covers ::showAssignedGroups
+     * @covers ::hideEditLinkOnNoAccess
      * @covers ::protectFeed
      * @covers ::getFullAccessRole
      * @covers ::getActiveCacheProvider
@@ -485,6 +487,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'blogAdminHint' => 'blog_admin_hint',
             'getBlogAdminHintText' => 'blog_admin_hint_text',
             'showAssignedGroups' => 'show_assigned_groups',
+            'hideEditLinkOnNoAccess' => 'hide_edit_link_on_no_access',
             'protectFeed' => 'protect_feed',
             'getFullAccessRole' => 'full_access_role',
             'getActiveCacheProvider' => 'active_cache_provider'

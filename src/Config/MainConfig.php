@@ -103,6 +103,9 @@ class MainConfig extends Config
         $id = 'show_assigned_groups';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
+        $id = 'hide_edit_link_on_no_access';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
+
         $id = 'protect_feed';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
@@ -583,11 +586,19 @@ class MainConfig extends Config
     }
 
     /**
-     * @return string
+     * @return bool
      */
     public function showAssignedGroups()
     {
         return $this->getParameterValue('show_assigned_groups');
+    }
+
+    /**
+     * @return bool
+     */
+    public function hideEditLinkOnNoAccess()
+    {
+        return $this->getParameterValue('hide_edit_link_on_no_access');
     }
 
     /**

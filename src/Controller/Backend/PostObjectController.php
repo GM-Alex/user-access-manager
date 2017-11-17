@@ -150,21 +150,23 @@ class PostObjectController extends ObjectController
      */
     public function showMediaFile(array $formFields, $post = null)
     {
-        $attachmentId = $this->getRequestParameter('attachment_id');
+        if ($this->getRequestParameter('action') !== 'edit') {
+            $attachmentId = $this->getRequestParameter('attachment_id');
 
-        if ($attachmentId !== null) {
-            $post = $this->objectHandler->getPost($attachmentId);
+            if ($attachmentId !== null) {
+                $post = $this->objectHandler->getPost($attachmentId);
+            }
+
+            if ($post instanceof \WP_Post) {
+                $this->setObjectInformation($post->post_type, $post->ID);
+            }
+
+            $formFields[self::DEFAULT_GROUPS_FORM_NAME] = [
+                'label' => TXT_UAM_SET_UP_USER_GROUPS,
+                'input' => 'editFrom',
+                'editFrom' => $this->getIncludeContents('MediaAjaxEditForm.php')
+            ];
         }
-
-        if ($post instanceof \WP_Post) {
-            $this->setObjectInformation($post->post_type, $post->ID);
-        }
-
-        $formFields[self::DEFAULT_GROUPS_FORM_NAME] = [
-            'label' => TXT_UAM_SET_UP_USER_GROUPS,
-            'input' => 'editFrom',
-            'editFrom' => $this->getIncludeContents('MediaAjaxEditForm.php')
-        ];
 
         return $formFields;
     }

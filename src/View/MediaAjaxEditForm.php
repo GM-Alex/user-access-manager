@@ -17,6 +17,24 @@
  * @var \UserAccessManager\Controller\Backend\ObjectController $controller
  */
 $userGroups = $controller->getFilteredUserGroups();
+uasort(
+    $userGroups,
+    function (
+        \UserAccessManager\UserGroup\AbstractUserGroup $userGroupOne,
+        \UserAccessManager\UserGroup\AbstractUserGroup $userGroupTwo
+    ) {
+        $notLoggedInUserGroupId = \UserAccessManager\UserGroup\DynamicUserGroup::USER_TYPE
+            .'|'.\UserAccessManager\UserGroup\DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
+
+        if ($userGroupOne->getId() === $notLoggedInUserGroupId) {
+            return 1;
+        } elseif ($userGroupTwo->getId() === $notLoggedInUserGroupId) {
+            return 0;
+        }
+
+        return strnatcasecmp($userGroupOne->getName(), $userGroupTwo->getName());
+    }
+);
 $objectUserGroups = $controller->getObjectUserGroups();
 
 if (count($userGroups) > 0) {
@@ -51,7 +69,7 @@ if (count($userGroups) > 0) {
                 <input type="checkbox"
                        id="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" <?php echo $attributes; ?>
                        value="<?php echo $userGroup->getId(); ?>"
-                       name="<?php echo "{$groupsFormName}[{$userGroup->getId()}]"; ?>"
+                       name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][id]"; ?>"
                 data-="uam_user_groups"/>
                 <label for="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" class="selectit"
                        style="display:inline;">

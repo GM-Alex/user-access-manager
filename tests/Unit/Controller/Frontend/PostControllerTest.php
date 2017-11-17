@@ -977,13 +977,17 @@ class PostControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::showGroupMembership()
+     * @covers ::showEditLink()
      */
-    public function testShowGroupMembership()
+    public function testShowEditLink()
     {
         $mainConfig = $this->getMainConfig();
         $mainConfig->expects($this->exactly(4))
             ->method('showAssignedGroups')
+            ->will($this->onConsecutiveCalls(false, true, true, true));
+
+        $mainConfig->expects($this->exactly(4))
+            ->method('hideEditLinkOnNoAccess')
             ->will($this->onConsecutiveCalls(false, true, true, true));
 
         $userGroupHandler = $this->getUserGroupHandler();
@@ -1002,6 +1006,16 @@ class PostControllerTest extends UserAccessManagerTestCase
                 ]
             ));
 
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(3))
+            ->method('checkObjectAccess')
+            ->withConsecutive(
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1, true],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1, true],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1, true]
+            )
+            ->will($this->onConsecutiveCalls(true, true, false));
+
         $frontendPostController = new PostController(
             $this->getPhp(),
             $this->getWordpress(),
@@ -1012,18 +1026,18 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $userGroupHandler,
-            $this->getAccessHandler()
+            $accessHandler
         );
 
-        self::assertEquals('link', $frontendPostController->showGroupMembership('link', 1));
-        self::assertEquals('link', $frontendPostController->showGroupMembership('link', 1));
+        self::assertEquals('link', $frontendPostController->showEditLink('link', 1));
+        self::assertEquals('link', $frontendPostController->showEditLink('link', 1));
         self::assertEquals(
             'link | '.TXT_UAM_ASSIGNED_GROUPS.': name2',
-            $frontendPostController->showGroupMembership('link', 1)
+            $frontendPostController->showEditLink('link', 1)
         );
         self::assertEquals(
-            'link | '.TXT_UAM_ASSIGNED_GROUPS.': &lt;a&gt;test&lt;/a&gt;, name2',
-            $frontendPostController->showGroupMembership('link', 1)
+            ' '.TXT_UAM_ASSIGNED_GROUPS.': &lt;a&gt;test&lt;/a&gt;, name2',
+            $frontendPostController->showEditLink('link', 1)
         );
     }
 }
