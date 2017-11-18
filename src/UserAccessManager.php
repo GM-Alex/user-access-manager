@@ -48,7 +48,7 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserAccessManager
 {
-    const VERSION = '2.1.9';
+    const VERSION = '2.1.10';
     const DB_VERSION = '1.6.1';
 
     /**
