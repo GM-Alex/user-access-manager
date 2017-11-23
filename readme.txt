@@ -61,6 +61,7 @@ Here you found the changes in each version.
 
     2.1.10      2017/11/??  Fix Posts removed from WP_Query results in Ajax requests for unprivileged users #176
                             Improve partly download handler
+                            Suppress errors on file delivery
     2.1.9       2017/11/18  Add show content before <!--more--> tag option for all post types
                             Fix js time input issue
                             Fix small prepare query issue

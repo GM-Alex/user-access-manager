@@ -94,7 +94,7 @@ class Php
      */
     public function setTimeLimit($seconds)
     {
-        return set_time_limit($seconds);
+        return @set_time_limit($seconds);
     }
 
     /**
