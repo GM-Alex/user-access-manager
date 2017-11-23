@@ -110,10 +110,34 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 true
             ));
 
-        $php->expects($this->exactly(5))
+        $php->expects($this->exactly(11))
             ->method('iniGet')
-            ->with('safe_mode')
-            ->will($this->onConsecutiveCalls('On', 'On', '', 'On', 'On'));
+            ->withConsecutive(
+                ['output_buffering'],
+                ['output_buffering'],
+                ['safe_mode'],
+                ['output_buffering'],
+                ['safe_mode'],
+                ['output_buffering'],
+                ['safe_mode'],
+                ['output_buffering'],
+                ['safe_mode'],
+                ['output_buffering'],
+                ['safe_mode']
+            )
+            ->will($this->onConsecutiveCalls(
+                0,
+                0,
+                'On',
+                0,
+                'On',
+                0,
+                '',
+                0,
+                'On',
+                1,
+                'On'
+            ));
 
         $php->expects($this->exactly(4))
             ->method('setTimeLimit')
@@ -258,7 +282,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
 
         $_SERVER['REQUEST_METHOD'] = 'something=0-4';
         $fileHandler->getFile($testFileOne, false);
-        self::assertEquals('Test text', self::getActualOutput());
+        self::assertEquals('Test text2Test text', self::getActualOutput());
         self::assertEquals(
             [
                 'Content-Description: File Transfer',
@@ -269,12 +293,12 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::expectOutputString('Test text');
+        self::expectOutputString('Test text2Test text');
         self::assertEquals(false, http_response_code());
 
         header_remove();
         $fileHandler->getFile($testFileOne, false);
-        self::assertEquals('Test text', self::getActualOutput());
+        self::assertEquals('Test text2Test text', self::getActualOutput());
         self::assertEquals(
             [
                 'X-Sendfile: vfs://testDir/testFile.txt',
@@ -294,6 +318,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
      * @covers ::clearBuffer()
      * @covers ::deliverFilePartial()
      * @covers ::getSeekStartEnd()
+     * @covers ::readFilePartly()
      * @runInSeparateProcess
      */
     public function testGetPartialFile()
@@ -304,22 +329,36 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->with('finfo_open')
             ->will($this->returnValue(true));
 
-        $php->expects($this->exactly(7))
+        $php->expects($this->exactly(8))
             ->method('fread')
-            ->with($this->anything(), 8192)
+            ->withConsecutive(
+                [$this->anything(), 4],
+                [$this->anything(), 7],
+                [$this->anything(), 9],
+                [$this->anything(), 2],
+                [$this->anything(), 2],
+                [$this->anything(), 4],
+                [$this->anything(), 1024],
+                [$this->anything(), 1]
+            )
             ->will($this->returnCallback(function ($handle, $length) {
                 return fread($handle, $length);
             }));
 
-        $php->expects($this->exactly(10))
+        $php->expects($this->exactly(13))
             ->method('callExit');
 
         $php->expects($this->once())
             ->method('fClose');
 
-        $php->expects($this->exactly(7))
+        $php->expects($this->exactly(8))
             ->method('connectionStatus')
-            ->will($this->onConsecutiveCalls(0, 0, 0, 0, 0, 0, 1));
+            ->will($this->onConsecutiveCalls(0, 0, 0, 0, 1, 0, 0, 0));
+
+        $php->expects($this->exactly(11))
+            ->method('iniGet')
+            ->with('output_buffering')
+            ->will($this->returnValue(0));
 
         $wordpressConfig = $this->getWordpressConfig();
         $wordpressConfig->expects($this->exactly(9))
@@ -345,8 +384,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $rootDir = $this->root->get('/');
         $rootDir->add('testDir', new Directory([
             'testFile.txt' => new File('Test text'),
-            'testFile2.txt' => new File('Test text2'),
-            'testFile3.txt' => new File('Test text3')
+            'testFile2.txt' => new File(str_repeat('a', 1025))
         ]));
 
         $testDir = 'vfs://testDir/';
@@ -355,8 +393,9 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $fileHandler->getFile($notExistingFile, false);
 
         $testFileOne = $testDir.'testFile.txt';
+        $testFileTwo = $testDir.'testFile2.txt';
 
-        $_SERVER['REQUEST_METHOD'] = 'something=0-4';
+        $_SERVER['HTTP_RANGE'] = 'something=0-4';
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals('Test text', self::getActualOutput());
         self::assertEquals(
@@ -397,6 +436,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'Content-Disposition: attachment; filename="testFile.txt"',
                 'Content-Transfer-Encoding: binary',
                 'Content-Length: 9',
+                'Content-Range: */9'
             ],
             xdebug_get_headers()
         );
@@ -411,13 +451,12 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'Content-Type: text/plain; charset=us-ascii',
                 'Content-Disposition: attachment; filename="testFile.txt"',
                 'Content-Transfer-Encoding: binary',
-                'Accept-Ranges: bytes',
-                'Content-Range: bytes 0-8/9',
-                'Content-Length: 9'
+                'Content-Length: 9',
+                'Content-Range: */9'
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(206, http_response_code());
+        self::assertEquals(416, http_response_code());
 
         $_SERVER['HTTP_RANGE'] = 'bytes=4-4';
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -428,13 +467,12 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'Content-Type: text/plain; charset=us-ascii',
                 'Content-Disposition: attachment; filename="testFile.txt"',
                 'Content-Transfer-Encoding: binary',
-                'Accept-Ranges: bytes',
-                'Content-Range: bytes 4-4/9',
-                'Content-Length: 1'
+                'Content-Length: 9',
+                'Content-Range: */9'
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(206, http_response_code());
+        self::assertEquals(416, http_response_code());
 
         $_SERVER['HTTP_RANGE'] = 'bytes=5-4';
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -445,24 +483,23 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'Content-Type: text/plain; charset=us-ascii',
                 'Content-Disposition: attachment; filename="testFile.txt"',
                 'Content-Transfer-Encoding: binary',
-                'Accept-Ranges: bytes',
-                'Content-Range: bytes 0-4/9',
-                'Content-Length: 5'
+                'Content-Length: 9',
+                'Content-Range: */9'
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(206, http_response_code());
+        self::assertEquals(416, http_response_code());
 
         $_SERVER['HTTP_RANGE'] = 'bytes=1-4';
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals(
             [
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
                 'Content-Disposition: attachment; filename="testFile.txt"',
-                'Content-Transfer-Encoding: binary',
-                'Accept-Ranges: bytes',
                 'Content-Range: bytes 1-4/9',
                 'Content-Length: 4'
             ],
@@ -475,11 +512,11 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals(
             [
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
                 'Content-Disposition: attachment; filename="testFile.txt"',
-                'Content-Transfer-Encoding: binary',
-                'Accept-Ranges: bytes',
                 'Content-Range: bytes 2-8/9',
                 'Content-Length: 7'
             ],
@@ -492,11 +529,11 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals(
             [
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
                 'Content-Disposition: attachment; filename="testFile.txt"',
-                'Content-Transfer-Encoding: binary',
-                'Accept-Ranges: bytes',
                 'Content-Range: bytes 0-8/9',
                 'Content-Length: 9'
             ],
@@ -509,17 +546,66 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals(
             [
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
                 'Content-Description: File Transfer',
                 'Content-Type: text/plain; charset=us-ascii',
                 'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Length: 9',
+                'Content-Range: */9'
+            ],
+            xdebug_get_headers()
+        );
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=1-2,3-4';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Description: File Transfer',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Range: */9',
                 'Content-Transfer-Encoding: binary',
                 'Accept-Ranges: bytes',
-                'Content-Range: bytes 0-8/9',
-                'Content-Length: 9'
+                'Content-Type: multipart/x-byteranges; boundary=g45d64df96bmdf4sdgh45hf5',
+                'Content-Length: 248'
             ],
             xdebug_get_headers()
         );
         self::assertEquals(206, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=-4';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileOne, false);
+        self::assertEquals(
+            [
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile.txt"',
+                'Content-Range: bytes 5-8/9',
+                'Content-Length: 4'
+            ],
+            xdebug_get_headers()
+        );
+        self::assertEquals(206, http_response_code());
+
+        $_SERVER['HTTP_RANGE'] = 'bytes=0-';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $fileHandler->getFile($testFileTwo, false);
+        self::assertEquals(
+            [
+                'Content-Transfer-Encoding: binary',
+                'Accept-Ranges: bytes',
+                'Content-Description: File Transfer',
+                'Content-Type: text/plain; charset=us-ascii',
+                'Content-Disposition: attachment; filename="testFile2.txt"',
+                'Content-Range: bytes 0-1024/1025',
+                'Content-Length: 1025'
+            ],
+            xdebug_get_headers()
+        );
     }
 
 
