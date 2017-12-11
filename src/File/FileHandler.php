@@ -279,7 +279,7 @@ class FileHandler
             $boundary = 'g45d64df96bmdf4sdgh45hf5';
             $fullBoundary = "\r\n--{$boundary}--\r\n";
 
-            if (count($ranges)>1) {
+            if (count($ranges) > 1) {
                 //More than one range is requested.
 
                 //compute content length
