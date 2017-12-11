@@ -59,7 +59,7 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
-    2.1.10      2017/11/??  Fix Posts removed from WP_Query results in Ajax requests for unprivileged users #176
+    2.1.10      2017/12/??  Fix Posts removed from WP_Query results in Ajax requests for unprivileged users #176
                             Improve partly download handler
                             Suppress errors on file delivery
                             Improve error handling
