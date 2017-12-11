@@ -24,6 +24,7 @@ use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
+use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupAssignmentException;
 use UserAccessManager\UserGroup\UserGroupFactory;
@@ -248,6 +249,32 @@ class ObjectController extends Controller
     public function getFilteredUserGroups()
     {
         return $this->userGroupHandler->getFilteredUserGroups();
+    }
+
+    /**
+     * Sorts the user groups.
+     *
+     * @param array $userGroups
+     */
+    public function sortUserGroups(array &$userGroups)
+    {
+        uasort(
+            $userGroups,
+            function (
+                AbstractUserGroup $userGroupOne,
+                AbstractUserGroup $userGroupTwo
+            ) {
+                $notLoggedInUserGroupId = DynamicUserGroup::USER_TYPE.'|'.DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
+
+                if ($userGroupOne->getId() === $notLoggedInUserGroupId) {
+                    return 1;
+                } elseif ($userGroupTwo->getId() === $notLoggedInUserGroupId) {
+                    return 0;
+                }
+
+                return strnatcasecmp($userGroupOne->getName(), $userGroupTwo->getName());
+            }
+        );
     }
 
     /**

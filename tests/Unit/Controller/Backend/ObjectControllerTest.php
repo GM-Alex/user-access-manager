@@ -241,6 +241,57 @@ class ObjectControllerTest extends ObjectControllerTestCase
 
     /**
      * @group  unit
+     * @covers ::sortUserGroups()
+     */
+    public function testSortUserGroups()
+    {
+        $objectController = new ObjectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getDateUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $this->getUserGroupHandler(),
+            $this->getAccessHandler(),
+            $this->getUserGroupFactory()
+        );
+
+        $notLoggedInUserGroupId = DynamicUserGroup::USER_TYPE.'|'.DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
+        $userGroups = [
+            1 => $this->getUserGroup(1, true, false, [''], 'none', 'none', [], [], 'A'),
+            $notLoggedInUserGroupId => $this->getUserGroup(
+                $notLoggedInUserGroupId,
+                true,
+                false,
+                [''],
+                'none',
+                'none',
+                [],
+                [],
+                'NotLoggedIn'
+            ),
+            2 => $this->getUserGroup(2, true, false, [''], 'none', 'none', [], [], 'Z'),
+            3 => $this->getUserGroup(3, true, false, [''], 'none', 'none', [], [], 'B')
+        ];
+        $objectController->sortUserGroups($userGroups);
+
+        self::assertSame(
+            [
+                1 => $userGroups[1],
+                3 => $userGroups[3],
+                2 => $userGroups[2],
+                $notLoggedInUserGroupId => $userGroups[$notLoggedInUserGroupId]
+            ],
+            $userGroups
+        );
+    }
+
+    /**
+     * @group  unit
      * @covers ::getDateUtil()
      */
     public function testGetDateUtil()

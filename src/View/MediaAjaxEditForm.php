@@ -17,24 +17,7 @@
  * @var \UserAccessManager\Controller\Backend\ObjectController $controller
  */
 $userGroups = $controller->getFilteredUserGroups();
-uasort(
-    $userGroups,
-    function (
-        \UserAccessManager\UserGroup\AbstractUserGroup $userGroupOne,
-        \UserAccessManager\UserGroup\AbstractUserGroup $userGroupTwo
-    ) {
-        $notLoggedInUserGroupId = \UserAccessManager\UserGroup\DynamicUserGroup::USER_TYPE
-            .'|'.\UserAccessManager\UserGroup\DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
-
-        if ($userGroupOne->getId() === $notLoggedInUserGroupId) {
-            return 1;
-        } elseif ($userGroupTwo->getId() === $notLoggedInUserGroupId) {
-            return 0;
-        }
-
-        return strnatcasecmp($userGroupOne->getName(), $userGroupTwo->getName());
-    }
-);
+$controller->sortUserGroups($userGroups);
 $objectUserGroups = $controller->getObjectUserGroups();
 
 if (count($userGroups) > 0) {
