@@ -209,7 +209,7 @@ class AccessHandlerTest extends HandlerTestCase
         ];
 
         $userGroupHandler->expects($this->once())
-            ->method('getUserGroups')
+            ->method('getFullUserGroups')
             ->will($this->returnValue($userGroups));
 
         $userGroupsForUser = [
@@ -326,7 +326,7 @@ class AccessHandlerTest extends HandlerTestCase
         ];
 
         $userGroupHandler->expects($this->exactly(3))
-            ->method('getUserGroups')
+            ->method('getFullUserGroups')
             ->will($this->returnValue($userGroups));
 
         $userGroupsForUser = [

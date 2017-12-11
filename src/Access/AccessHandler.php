@@ -204,7 +204,7 @@ class AccessHandler
     private function getExcludedObjects($type, array $filterTypesMap = [])
     {
         $excludedObjects = [];
-        $userGroups = $this->userGroupHandler->getUserGroups();
+        $userGroups = $this->userGroupHandler->getFullUserGroups();
 
         foreach ($userGroups as $userGroup) {
             $excludedObjects += $userGroup->getAssignedObjectsByType($type);
