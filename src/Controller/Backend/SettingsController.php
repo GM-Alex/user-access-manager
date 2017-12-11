@@ -379,6 +379,46 @@ class SettingsController extends Controller
     }
 
     /**
+     * Adds the custom page redirect from element.
+     *
+     * @param array $configParameters
+     * @param array $values
+     */
+    private function addCustomPageRedirectFormElement(array $configParameters, array &$values)
+    {
+        if (isset($configParameters['redirect_custom_page']) === true) {
+            $redirectCustomPage = $configParameters['redirect_custom_page'];
+            $redirectCustomPageValue = $this->formFactory->createMultipleFormElementValue(
+                'custom_page',
+                TXT_UAM_REDIRECT_TO_PAGE
+            );
+
+            $possibleValues = [];
+            $pages = $this->getPages();
+
+            foreach ($pages as $page) {
+                $possibleValues[] = $this->formFactory->createValueSetFromElementValue(
+                    (int)$page->ID,
+                    $page->post_title
+                );
+            }
+
+            $formElement = $this->formFactory->createSelect(
+                $redirectCustomPage->getId(),
+                $possibleValues,
+                (int)$redirectCustomPage->getValue()
+            );
+
+            try {
+                $redirectCustomPageValue->setSubElement($formElement);
+                $values[] = $redirectCustomPageValue;
+            } catch (\Exception $exception) {
+                // Do Nothing
+            }
+        }
+    }
+
+    /**
      * Returns the author settings form.
      *
      * @return \UserAccessManager\Form\Form
@@ -394,38 +434,10 @@ class SettingsController extends Controller
             $values = [
                 $this->formFactory->createMultipleFormElementValue('false', TXT_UAM_NO),
                 $this->formFactory->createMultipleFormElementValue('blog', TXT_UAM_REDIRECT_TO_BLOG),
+                $this->formFactory->createMultipleFormElementValue('login', TXT_UAM_REDIRECT_TO_LOGIN)
             ];
 
-            if (isset($configParameters['redirect_custom_page']) === true) {
-                $redirectCustomPage = $configParameters['redirect_custom_page'];
-                $redirectCustomPageValue = $this->formFactory->createMultipleFormElementValue(
-                    'custom_page',
-                    TXT_UAM_REDIRECT_TO_PAGE
-                );
-
-                $possibleValues = [];
-                $pages = $this->getPages();
-
-                foreach ($pages as $page) {
-                    $possibleValues[] = $this->formFactory->createValueSetFromElementValue(
-                        (int)$page->ID,
-                        $page->post_title
-                    );
-                }
-
-                $formElement = $this->formFactory->createSelect(
-                    $redirectCustomPage->getId(),
-                    $possibleValues,
-                    (int)$redirectCustomPage->getValue()
-                );
-
-                try {
-                    $redirectCustomPageValue->setSubElement($formElement);
-                    $values[] = $redirectCustomPageValue;
-                } catch (\Exception $exception) {
-                    // Do Nothing
-                }
-            }
+            $this->addCustomPageRedirectFormElement($configParameters, $values);
 
             if (isset($configParameters['redirect_custom_url']) === true) {
                 try {

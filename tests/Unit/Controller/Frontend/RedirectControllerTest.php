@@ -421,7 +421,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
 
         $config = $this->getMainConfig();
 
-        $config->expects($this->exactly(7))
+        $config->expects($this->exactly(8))
             ->method('getRedirect')
             ->will($this->onConsecutiveCalls(
                 'custom_page',
@@ -429,6 +429,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
                 'custom_page',
                 'custom_page',
                 'custom_url',
+                'login',
                 null,
                 null
             ));
@@ -443,12 +444,13 @@ class RedirectControllerTest extends UserAccessManagerTestCase
 
         $util = $this->getUtil();
 
-        $util->expects($this->exactly(7))
+        $util->expects($this->exactly(8))
             ->method('getCurrentUrl')
             ->will($this->onConsecutiveCalls(
                 'currentUrl',
                 'guid',
                 'PageLink',
+                'currentUrl',
                 'currentUrl',
                 'currentUrl',
                 'HomeUrl',
@@ -491,7 +493,9 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
+        $_SERVER['REQUEST_URI'] = 'requestUri';
         $frontendRedirectController->redirectUser();
+        $frontendRedirectController->redirectUser(false);
         $frontendRedirectController->redirectUser(false);
         $frontendRedirectController->redirectUser(false);
         $frontendRedirectController->redirectUser(false);

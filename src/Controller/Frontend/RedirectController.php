@@ -255,6 +255,8 @@ class RedirectController extends Controller
             }
         } elseif ($redirect === 'custom_url') {
             $url = $this->mainConfig->getRedirectCustomUrl();
+        } elseif ($redirect === 'login') {
+            $url = $this->getLoginUrl();
         } else {
             $url = $this->wordpress->getHomeUrl('/');
         }

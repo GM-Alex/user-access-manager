@@ -293,6 +293,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      * @covers ::disableXSendFileOption()
      * @covers ::getAuthorSettingsForm()
      * @covers ::getOtherSettingsForm()
+     * @covers ::addCustomPageRedirectFormElement()
      * @covers ::getPages()
      */
     public function testGetCurrentGroupForms()
@@ -421,7 +422,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 'custom_file_handling_file'
             ));
 
-        $createMultipleFormElementValueReturn = array_fill(0, 5, $this->createMultipleFormElementValue());
+        $createMultipleFormElementValueReturn = array_fill(0, 7, $this->createMultipleFormElementValue());
         $exceptionElement = $this->createMultipleFormElementValue();
         $exceptionElement->expects($this->once())
             ->method('setSubElement')
@@ -430,14 +431,16 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             }));
         $createMultipleFormElementValueReturn[] = $exceptionElement;
 
-        $formFactory->expects($this->exactly(6))
+        $formFactory->expects($this->exactly(8))
             ->method('createMultipleFormElementValue')
             ->withConsecutive(
                 ['false', TXT_UAM_NO],
                 ['blog', TXT_UAM_REDIRECT_TO_BLOG],
+                ['login', TXT_UAM_REDIRECT_TO_LOGIN],
                 ['custom_page', TXT_UAM_REDIRECT_TO_PAGE],
                 ['false', TXT_UAM_NO],
                 ['blog', TXT_UAM_REDIRECT_TO_BLOG],
+                ['login', TXT_UAM_REDIRECT_TO_LOGIN],
                 ['custom_page', TXT_UAM_REDIRECT_TO_PAGE]
             )
             ->will($this->onConsecutiveCalls(...$createMultipleFormElementValueReturn));
@@ -445,6 +448,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $redirectOne = [
             'selectionId',
             [
+                $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
@@ -458,6 +462,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $redirectTwo = [
             'selectionId',
             [
+                $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue()
             ],

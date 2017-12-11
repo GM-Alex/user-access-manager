@@ -69,7 +69,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'page_comment_content' => 'string|page_comment_content|'
                 .'Sorry no rights to view comments!|user-access-manager',
             'page_comments_locked' => 'bool|page_comments_locked|false',
-            'redirect' => 'selection|redirect|false|false|blog|custom_page|custom_url',
+            'redirect' => 'selection|redirect|false|false|blog|login|custom_page|custom_url',
             'redirect_custom_page' => 'string|redirect_custom_page|',
             'redirect_custom_url' => 'string|redirect_custom_url|',
             'lock_recursive' => 'bool|lock_recursive|true',
