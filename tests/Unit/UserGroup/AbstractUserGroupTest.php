@@ -84,6 +84,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws UserGroupTypeException
      */
     public function testCanCreateInstance()
     {

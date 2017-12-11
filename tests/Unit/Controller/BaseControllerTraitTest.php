@@ -128,7 +128,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
         $php = $this->getPhp();
 
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->once())
+        $wordpressConfig->expects($this->exactly(2))
             ->method('getRealPath')
             ->will($this->returnValue('vfs://root/'));
 
@@ -142,10 +142,16 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
             ->method('getWordpressConfig')
             ->will($this->returnValue($wordpressConfig));
 
-        $php->expects($this->once())
+        $throwException = false;
+
+        $php->expects($this->exactly(2))
             ->method('includeFile')
             ->with($stub, 'vfs://root/src/View/TestView.php')
-            ->will($this->returnCallback(function () {
+            ->will($this->returnCallback(function () use (&$throwException) {
+                if ($throwException === true) {
+                    throw new \Exception('Include file exception');
+                }
+
                 echo 'testContent';
             }));
 
@@ -153,6 +159,13 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
 
         $stub->render();
 
-        self::expectOutputString('testContent');
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $throwException = true;
+        $stub->render();
+
+        self::expectOutputString(
+            'testContent'
+            .'Error on including content \'vfs://root/src/View/TestView.php\': Include file exception'
+        );
     }
 }

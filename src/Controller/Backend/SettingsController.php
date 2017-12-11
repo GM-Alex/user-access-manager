@@ -212,6 +212,8 @@ class SettingsController extends Controller
      * @param string $postType
      *
      * @return \UserAccessManager\Form\Form
+     *
+     * @throws \Exception
      */
     private function getPostSettingsForm($postType = MainConfig::DEFAULT_TYPE)
     {
@@ -249,6 +251,8 @@ class SettingsController extends Controller
      * @param string $taxonomy
      *
      * @return \UserAccessManager\Form\Form
+     *
+     * @throws \Exception
      */
     private function getTaxonomySettingsForm($taxonomy = MainConfig::DEFAULT_TYPE)
     {
@@ -319,6 +323,8 @@ class SettingsController extends Controller
      * Returns the files settings form.
      *
      * @return \UserAccessManager\Form\Form
+     *
+     * @throws \Exception
      */
     private function getFilesSettingsForm()
     {
@@ -358,6 +364,8 @@ class SettingsController extends Controller
      * Returns the author settings form.
      *
      * @return \UserAccessManager\Form\Form
+     *
+     * @throws \Exception
      */
     private function getAuthorSettingsForm()
     {
@@ -374,6 +382,8 @@ class SettingsController extends Controller
      * Returns the author settings form.
      *
      * @return \UserAccessManager\Form\Form
+     *
+     * @throws \Exception
      */
     private function getOtherSettingsForm()
     {
@@ -389,7 +399,7 @@ class SettingsController extends Controller
             if (isset($configParameters['redirect_custom_page']) === true) {
                 $redirectCustomPage = $configParameters['redirect_custom_page'];
                 $redirectCustomPageValue = $this->formFactory->createMultipleFormElementValue(
-                    'selected',
+                    'custom_page',
                     TXT_UAM_REDIRECT_TO_PAGE
                 );
 
@@ -409,16 +419,24 @@ class SettingsController extends Controller
                     (int)$redirectCustomPage->getValue()
                 );
 
-                $redirectCustomPageValue->setSubElement($formElement);
-                $values[] = $redirectCustomPageValue;
+                try {
+                    $redirectCustomPageValue->setSubElement($formElement);
+                    $values[] = $redirectCustomPageValue;
+                } catch (\Exception $exception) {
+                    // Do Nothing
+                }
             }
 
             if (isset($configParameters['redirect_custom_url']) === true) {
-                $values[] = $this->formHelper->createMultipleFromElement(
-                    'custom_url',
-                    TXT_UAM_REDIRECT_TO_URL,
-                    $configParameters['redirect_custom_url']
-                );
+                try {
+                    $values[] = $this->formHelper->createMultipleFromElement(
+                        'custom_url',
+                        TXT_UAM_REDIRECT_TO_URL,
+                        $configParameters['redirect_custom_url']
+                    );
+                } catch (\Exception $exception) {
+                    // Do nothing.
+                }
             }
 
             $configParameter = $configParameters['redirect'];
@@ -506,6 +524,8 @@ class SettingsController extends Controller
      * Returns the full cache providers froms.
      *
      * @return array
+     *
+     * @throws \Exception
      */
     private function getFullCacheProvidersFrom()
     {
@@ -532,18 +552,22 @@ class SettingsController extends Controller
         $group = $this->getCurrentTabGroup();
         $groupForms = [];
 
-        if ($group === self::GROUP_POST_TYPES) {
-            $groupForms = $this->getFullPostSettingsForm();
-        } elseif ($group === self::GROUP_TAXONOMIES) {
-            $groupForms = $this->getFullTaxonomySettingsForm();
-        } elseif ($group === self::GROUP_FILES) {
-            $groupForms = [self::SECTION_FILES => $this->getFilesSettingsForm()];
-        } elseif ($group === self::GROUP_AUTHOR) {
-            $groupForms = [self::SECTION_AUTHOR => $this->getAuthorSettingsForm()];
-        } elseif ($group === self::GROUP_CACHE) {
-            $groupForms = $this->getFullCacheProvidersFrom();
-        } elseif ($group === self::GROUP_OTHER) {
-            $groupForms = [self::SECTION_OTHER => $this->getOtherSettingsForm()];
+        try {
+            if ($group === self::GROUP_POST_TYPES) {
+                $groupForms = $this->getFullPostSettingsForm();
+            } elseif ($group === self::GROUP_TAXONOMIES) {
+                $groupForms = $this->getFullTaxonomySettingsForm();
+            } elseif ($group === self::GROUP_FILES) {
+                $groupForms = [self::SECTION_FILES => $this->getFilesSettingsForm()];
+            } elseif ($group === self::GROUP_AUTHOR) {
+                $groupForms = [self::SECTION_AUTHOR => $this->getAuthorSettingsForm()];
+            } elseif ($group === self::GROUP_CACHE) {
+                $groupForms = $this->getFullCacheProvidersFrom();
+            } elseif ($group === self::GROUP_OTHER) {
+                $groupForms = [self::SECTION_OTHER => $this->getOtherSettingsForm()];
+            }
+        } catch (\Exception $exception) {
+            $this->addErrorMessage(sprintf(TXT_UAM_ERROR, $exception->getMessage()));
         }
 
         return $groupForms;

@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
@@ -737,18 +738,29 @@ class ObjectControllerTest extends ObjectControllerTestCase
 
         $userGroupFactory = $this->getUserGroupFactory();
 
-        $userGroupFactory->expects($this->exactly(2))
+        $userGroupFactory->expects($this->exactly(3))
             ->method('createDynamicUserGroup')
             ->withConsecutive(
                 [DynamicUserGroup::USER_TYPE, '1'],
-                [DynamicUserGroup::ROLE_TYPE, 'admin']
+                [DynamicUserGroup::ROLE_TYPE, 'admin'],
+                [DynamicUserGroup::ROLE_TYPE, 'some']
             )->will($this->onConsecutiveCalls(
                 $this->getDynamicUserGroupWithAdd(
                     DynamicUserGroup::USER_TYPE,
                     '1',
                     ['objectType', 1, 'fromTDate', 'toTDate']
                 ),
-                $this->getDynamicUserGroupWithAdd(DynamicUserGroup::ROLE_TYPE, 'admin', ['objectType', 1, null, null])
+                $this->getDynamicUserGroupWithAdd(
+                    DynamicUserGroup::ROLE_TYPE,
+                    'admin',
+                    ['objectType', 1, null, null]
+                ),
+                $this->getDynamicUserGroupWithAdd(
+                    DynamicUserGroup::ROLE_TYPE,
+                    'some',
+                    ['objectType', 1, null, null],
+                    true
+                )
             ));
 
         $objectController = new ObjectController(
@@ -776,6 +788,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 'toDate' => ['date' => 'to', 'time' => 'Date']
             ],
             DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin'],
+            DynamicUserGroup::ROLE_TYPE.'|some' => ['id' => DynamicUserGroup::ROLE_TYPE.'|some'],
             'A|B' => ['id' => 'B|A'],
         ];
         $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
@@ -785,6 +798,11 @@ class ObjectControllerTest extends ObjectControllerTestCase
             101 => ['id' => 100]
         ];
         $objectController->saveObjectData('objectType', 1);
+
+        self::assertEquals(
+            ['The following error occurred: User group assignment exception|user-access-manager'],
+            $_SESSION[BackendController::UAM_ERRORS]
+        );
 
         unset($_POST[ObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME]);
         $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [

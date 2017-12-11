@@ -20,6 +20,7 @@ use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Wrapper\WordpressCli;
 use WP_CLI\CommandWithDBObject;
+use WP_CLI\ExitException;
 
 /**
  * Class GroupCommand
@@ -107,6 +108,8 @@ class GroupCommand extends CommandWithDBObject
      *
      * @param array $arguments
      * @param array $assocArguments
+     *
+     * @throws ExitException
      */
     public function ls(array $arguments, array $assocArguments)
     {
@@ -157,6 +160,8 @@ class GroupCommand extends CommandWithDBObject
      * @subcommand del
      *
      * @param array $arguments
+     *
+     * @throws ExitException
      */
     public function del(array $arguments)
     {
@@ -180,6 +185,8 @@ class GroupCommand extends CommandWithDBObject
      * @param $userGroupName
      *
      * @return bool
+     *
+     * @throws ExitException
      */
     private function doesUserGroupExists($userGroupName)
     {
@@ -303,6 +310,8 @@ class GroupCommand extends CommandWithDBObject
      *
      * @param array $arguments
      * @param array $assocArguments
+     *
+     * @throws ExitException
      */
     public function add(array $arguments, array $assocArguments)
     {

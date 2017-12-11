@@ -46,6 +46,8 @@ class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
      * @expectedException \Exception
      *
      * @param MultipleFormElementValue $multipleFormElementValue
+     *
+     * @throws \Exception
      */
     public function testSetSubElementException(MultipleFormElementValue $multipleFormElementValue)
     {
@@ -64,6 +66,8 @@ class MultipleFormElementValueTest extends \PHPUnit_Framework_TestCase
      * @param MultipleFormElementValue $multipleFormElementValue
      *
      * @return MultipleFormElementValue
+     *
+     * @throws \Exception
      */
     public function testSetSubElement(MultipleFormElementValue $multipleFormElementValue)
     {

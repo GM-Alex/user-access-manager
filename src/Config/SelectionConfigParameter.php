@@ -32,6 +32,8 @@ class SelectionConfigParameter extends ConfigParameter
      * @param string $id
      * @param mixed  $defaultValue
      * @param array  $selections
+     *
+     * @throws \Exception
      */
     public function __construct($id, $defaultValue, array $selections)
     {

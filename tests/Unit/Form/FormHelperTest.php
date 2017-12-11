@@ -162,6 +162,8 @@ class FormHelperTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::createMultipleFromElement()
+     *
+     * @throws \Exception
      */
     public function testCreateMultipleFromElement()
     {
@@ -202,6 +204,8 @@ class FormHelperTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::convertConfigParameter()
      * @covers ::convertSelectionParameter()
+     *
+     * @throws \Exception
      */
     public function testConvertConfigParameter()
     {
@@ -312,6 +316,8 @@ class FormHelperTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getSettingsForm()
+     *
+     * @throws \Exception
      */
     public function testGetSettingsFrom()
     {
@@ -390,6 +396,8 @@ class FormHelperTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getSettingsFormByConfig()
+     *
+     * @throws \Exception
      */
     public function testGetSettingsFormByConfig()
     {

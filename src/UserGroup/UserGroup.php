@@ -43,14 +43,16 @@ class UserGroup extends AbstractUserGroup
     /**
      * UserGroup constructor.
      *
-     * @param Php                            $php
-     * @param Wordpress                      $wordpress
-     * @param Database                       $database
-     * @param MainConfig                     $config
-     * @param Util                           $util
-     * @param ObjectHandler                  $objectHandler
-     * @param AssignmentInformationFactory   $assignmentInformationFactory
-     * @param null|string                    $id
+     * @param Php                          $php
+     * @param Wordpress                    $wordpress
+     * @param Database                     $database
+     * @param MainConfig                   $config
+     * @param Util                         $util
+     * @param ObjectHandler                $objectHandler
+     * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param null|string                  $id
+     *
+     * @throws UserGroupTypeException
      */
     public function __construct(
         Php $php,

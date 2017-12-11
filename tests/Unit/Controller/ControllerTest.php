@@ -14,6 +14,7 @@
  */
 namespace UserAccessManager\Tests\Unit\Controller;
 
+use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use Vfs\FileSystem;
@@ -196,6 +197,20 @@ class ControllerTest extends UserAccessManagerTestCase
         self::assertAttributeEquals('updateMessage', 'updateMessage', $stub);
 
         return $stub;
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::addErrorMessage()
+     *
+     * @param Controller $stub
+     */
+    public function testAddErrorMessage(Controller $stub)
+    {
+        self::callMethod($stub, 'addErrorMessage', ['errorMessageOne']);
+        self::callMethod($stub, 'addErrorMessage', ['errorMessageTwo']);
+        self::assertEquals(['errorMessageOne', 'errorMessageTwo'], $_SESSION[BackendController::UAM_ERRORS]);
     }
 
     /**

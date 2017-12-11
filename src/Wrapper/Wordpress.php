@@ -198,6 +198,20 @@ class Wordpress
     }
 
     /**
+     * @see \restore_current_blog()
+     *
+     * @return bool
+     */
+    public function restoreCurrentBlog()
+    {
+        if (function_exists('\restore_current_blog') === true) {
+            return restore_current_blog();
+        }
+
+        return true;
+    }
+
+    /**
      * @see \is_multisite()
      *
      * @return bool

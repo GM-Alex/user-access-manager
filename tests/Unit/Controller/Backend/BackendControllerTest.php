@@ -15,6 +15,7 @@
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\BackendController;
+use UserAccessManager\Controller\Backend\SetupController;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use Vfs\FileSystem;
@@ -74,7 +75,8 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $this->getUserHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getSetupHandler()
         );
 
         self::assertInstanceOf(BackendController::class, $backendController);
@@ -82,42 +84,75 @@ class BackendControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::showDatabaseNotice()
+     * @covers ::showAdminNotice()
      *
      * @return BackendController
      */
-    public function testShowDatabaseNotice()
+    public function testShowAdminNotice()
     {
         $php = $this->getPhp();
 
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->once())
+        $wordpressConfig->expects($this->exactly(3))
             ->method('getRealPath')
             ->will($this->returnValue('vfs://root/'));
+
+        $databaseHandler = $this->getDatabaseHandler();
+
+        $databaseHandler->expects($this->exactly(6))
+            ->method('isDatabaseUpdateNecessary')
+            ->will($this->onConsecutiveCalls(false, false, true, true, true, true));
+
+        $setupHandler = $this->getSetupHandler();
+
+        $setupHandler->expects($this->exactly(6))
+            ->method('getDatabaseHandler')
+            ->will($this->returnValue($databaseHandler));
 
         $backendController = new BackendController(
             $php,
             $this->getWordpress(),
             $wordpressConfig,
             $this->getUserHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $setupHandler
         );
 
-        $php->expects($this->once())
+        $php->expects($this->exactly(3))
             ->method('includeFile')
             ->with($backendController, 'vfs://root/src/View/AdminNotice.php')
             ->will($this->returnCallback(function () {
                 echo 'DatabaseNotice';
             }));
 
-        $backendController->showDatabaseNotice();
+        $databaseUpdateMessage = sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup');
 
-        self::assertAttributeEquals(
-            sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
-            'notice',
-            $backendController
-        );
-        self::expectOutputString('DatabaseNotice');
+        $backendController->showAdminNotice();
+        self::assertAttributeEquals('', 'notice', $backendController);
+
+        $_SESSION[BackendController::UAM_ERRORS] = ['errorOne', 'errorTwo'];
+        $backendController->showAdminNotice();
+        self::assertAttributeEquals('errorOne<br>errorTwo', 'notice', $backendController);
+        self::setValue($backendController, 'notice', '');
+
+        unset($_SESSION[BackendController::UAM_ERRORS]);
+        $_GET['uam_update_db'] = SetupController::UPDATE_BLOG;
+        $backendController->showAdminNotice();
+        self::assertAttributeEquals('', 'notice', $backendController);
+
+        $_GET['uam_update_db'] = SetupController::UPDATE_NETWORK;
+        $backendController->showAdminNotice();
+        self::assertAttributeEquals('', 'notice', $backendController);
+
+        unset($_GET['uam_update_db']);
+        $backendController->showAdminNotice();
+        self::assertAttributeEquals($databaseUpdateMessage, 'notice', $backendController);
+
+        $_SESSION[BackendController::UAM_ERRORS] = ['errorOne', 'errorTwo'];
+        $backendController->showAdminNotice();
+        self::assertAttributeEquals('errorOne<br>errorTwo<br>'.$databaseUpdateMessage, 'notice', $backendController);
+
+        self::expectOutputString('DatabaseNoticeDatabaseNoticeDatabaseNotice');
 
         return $backendController;
     }
@@ -125,14 +160,14 @@ class BackendControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::getNotice()
-     * @depends testShowDatabaseNotice
+     * @depends testShowAdminNotice
      *
      * @param BackendController $databaseNoticeBackendController
      */
     public function testGetNotice(BackendController $databaseNoticeBackendController)
     {
         self::assertEquals(
-            sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
+            'errorOne<br>errorTwo<br>'.sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
             $databaseNoticeBackendController->getNotice()
         );
     }
@@ -201,7 +236,8 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $wordpressConfig,
             $this->getUserHandler(),
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getSetupHandler()
         );
 
         $backendController->enqueueStylesAndScripts();
@@ -251,7 +287,8 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getWordpressConfig(),
             $userHandler,
-            $this->getFileHandler()
+            $this->getFileHandler(),
+            $this->getSetupHandler()
         );
 
         $backendController->setupAdminDashboard();

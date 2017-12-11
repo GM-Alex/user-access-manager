@@ -235,7 +235,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(65))
+        $wordpress->expects($this->exactly(68))
             ->method('addAction');
 
         $wordpress->expects($this->exactly(16))
@@ -276,40 +276,20 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->method('checkUserAccess')
             ->will($this->onConsecutiveCalls(true, false, false, false));
 
-        $databaseHandler = $this->getDatabaseHandler();
-
-        $databaseHandler->expects($this->exactly(4))
-            ->method('isDatabaseUpdateNecessary')
-            ->will($this->onConsecutiveCalls(false, true, true, true));
-
-        $setupHandler = $this->getSetupHandler();
-
-        $setupHandler->expects($this->exactly(4))
-            ->method('getDatabaseHandler')
-            ->will($this->returnValue($databaseHandler));
-
         $backendController = $this->createMock(BackendController::class);
 
-        $backendController->expects($this->exactly(8))
+        $backendController->expects($this->exactly(4))
             ->method('getRequestParameter')
             ->withConsecutive(
-                ['uam_update_db'],
                 ['taxonomy'],
-                ['uam_update_db'],
                 ['taxonomy'],
-                ['uam_update_db'],
                 ['taxonomy'],
-                ['uam_update_db'],
                 ['taxonomy']
             )
             ->will($this->onConsecutiveCalls(
-                SetupController::UPDATE_BLOG,
                 null,
-                SetupController::UPDATE_BLOG,
                 'c',
-                SetupController::UPDATE_NETWORK,
                 'c',
-                null,
                 'c'
             ));
 
@@ -367,7 +347,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
             $this->getFileHandler(),
-            $setupHandler,
+            $this->getSetupHandler(),
             $this->getUserGroupFactory(),
             $this->getObjectMembershipHandlerFactory(),
             $controllerFactory,

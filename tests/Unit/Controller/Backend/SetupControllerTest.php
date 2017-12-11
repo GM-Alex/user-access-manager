@@ -144,9 +144,13 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->with('updateNonce')
             ->will($this->returnValue(true));
 
-        $wordpress->expects($this->exactly(9))
+        $wordpress->expects($this->exactly(5))
+            ->method('restoreCurrentBlog')
+            ->withConsecutive();
+
+        $wordpress->expects($this->exactly(5))
             ->method('switchToBlog')
-            ->withConsecutive([1], [1], [1], [1], [1], [1], [2], [3], [1]);
+            ->withConsecutive([1], [1], [1], [2], [3]);
 
         $databaseHandler = $this->getDatabaseHandler();
 
@@ -168,7 +172,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
 
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(8))
+        $database->expects($this->exactly(4))
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 

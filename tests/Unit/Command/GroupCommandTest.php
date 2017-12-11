@@ -78,6 +78,10 @@ class GroupCommandTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::ls()
      * @covers ::getFormatter()
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
      */
     public function testLs()
     {
@@ -187,6 +191,9 @@ class GroupCommandTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::del()
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
      */
     public function testDel()
     {
@@ -230,6 +237,10 @@ class GroupCommandTest extends UserAccessManagerTestCase
      * @covers ::createUserGroup()
      * @covers ::getArgumentValue()
      * @covers ::getAccessValue()
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
      */
     public function testAdd()
     {

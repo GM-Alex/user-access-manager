@@ -20,6 +20,7 @@ use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroupAssignmentException;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -130,13 +131,15 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
      * @param string $type
      * @param string $id
      * @param array  $with
+     * @param bool   $throwException
      *
      * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
      */
     protected function getDynamicUserGroupWithAdd(
         $type,
         $id,
-        array $with
+        array $with,
+        $throwException = false
     ) {
         $dynamicUserGroup = parent::getDynamicUserGroup(
             $type,
@@ -145,7 +148,14 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
 
         $dynamicUserGroup->expects($this->once())
             ->method('addObject')
-            ->with(...$with);
+            ->with(...$with)
+            ->will($this->returnCallback(function () use ($throwException) {
+                if ($throwException === true) {
+                    throw new UserGroupAssignmentException('User group assignment exception');
+                }
+
+                return null;
+            }));
 
         return $dynamicUserGroup;
     }
@@ -232,6 +242,12 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
         return $objectHandler;
     }
 
+    /**
+     * @param string $class
+     * @param array  $expectedFilteredUserGroupsForObject
+     *
+     * @return mixed
+     */
     protected function getTestSaveObjectDataPrototype($class, array $expectedFilteredUserGroupsForObject)
     {
         $userHandler = $this->getUserHandler();

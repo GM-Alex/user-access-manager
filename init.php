@@ -244,10 +244,14 @@ function initUserAccessManger()
         $cliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
 
         $groupCommand = new \UserAccessManager\Command\GroupCommand($cliWrapper, $userGroupHandler, $userGroupFactory);
-        \WP_CLI::add_command('uam groups', $groupCommand);
-
         $objectCommand = new \UserAccessManager\Command\ObjectCommand($cliWrapper, $userGroupHandler);
-        \WP_CLI::add_command('uam objects', $objectCommand);
+
+        try {
+            \WP_CLI::add_command('uam groups', $groupCommand);
+            \WP_CLI::add_command('uam objects', $objectCommand);
+        } catch (Exception $exception) {
+            // Do nothing
+        }
     }
 
     return $userAccessManager;

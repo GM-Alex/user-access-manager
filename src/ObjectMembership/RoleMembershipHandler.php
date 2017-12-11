@@ -42,6 +42,8 @@ class RoleMembershipHandler extends ObjectMembershipHandler
      *
      * @param AssignmentInformationFactory $assignmentInformationFactory
      * @param Wordpress                    $wordpress
+     *
+     * @throws \Exception
      */
     public function __construct(AssignmentInformationFactory $assignmentInformationFactory, Wordpress $wordpress)
     {

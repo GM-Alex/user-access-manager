@@ -51,6 +51,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws \Exception
      */
     public function testCanCreateInstance()
     {

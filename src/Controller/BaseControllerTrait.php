@@ -113,10 +113,15 @@ trait BaseControllerTrait
         $fileWithPath = $path.$fileName;
 
         if (is_file($fileWithPath) === true) {
-            ob_start();
-            $this->getPhp()->includeFile($this, $fileWithPath);
-            $contents = ob_get_contents();
-            ob_end_clean();
+            try {
+                ob_start();
+                $this->getPhp()->includeFile($this, $fileWithPath);
+                $contents = ob_get_contents();
+                ob_end_clean();
+            } catch (\Exception $exception) {
+                $contents = "Error on including content '{$fileWithPath}': {$exception->getMessage()}";
+                ob_end_clean();
+            }
         }
 
         return $contents;

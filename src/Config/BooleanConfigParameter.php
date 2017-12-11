@@ -25,6 +25,8 @@ class BooleanConfigParameter extends ConfigParameter
      *
      * @param string $id
      * @param bool   $defaultValue
+     *
+     * @throws \Exception
      */
     public function __construct($id, $defaultValue = false)
     {

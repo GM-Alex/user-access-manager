@@ -42,6 +42,8 @@ class WordpressCli
      * @param bool|integer     $exit    True defaults to exit(1).
      *
      * @return null
+     *
+     * @throws \WP_CLI\ExitException
      */
     public function error($message, $exit = true)
     {

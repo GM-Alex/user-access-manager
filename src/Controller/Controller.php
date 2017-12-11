@@ -15,6 +15,7 @@
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\WordpressConfig;
+use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -128,6 +129,20 @@ abstract class Controller
     protected function setUpdateMessage($message)
     {
         $this->updateMessage = $message;
+    }
+
+    /**
+     * Adds an error message.
+     *
+     * @param string $message
+     */
+    protected function addErrorMessage($message)
+    {
+        if (isset($_SESSION[BackendController::UAM_ERRORS]) === false) {
+            $_SESSION[BackendController::UAM_ERRORS] = [];
+        }
+
+        $_SESSION[BackendController::UAM_ERRORS][] = $message;
     }
 
     /**

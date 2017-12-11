@@ -120,14 +120,12 @@ class SetupHandler
     {
         if ($networkWide === true) {
             $blogIds = $this->getBlogIds();
-            $currentBlogId = $this->database->getCurrentBlogId();
 
             foreach ($blogIds as $blogId) {
                 $this->wordpress->switchToBlog($blogId);
                 $this->runInstall();
+                $this->wordpress->restoreCurrentBlog();
             }
-
-            $this->wordpress->switchToBlog($currentBlogId);
         } else {
             $this->runInstall();
         }
@@ -158,7 +156,6 @@ class SetupHandler
      */
     public function uninstall()
     {
-        $currentBlogId = $this->database->getCurrentBlogId();
         $blogIds = $this->getBlogIds();
 
         foreach ($blogIds as $blogId) {
@@ -168,9 +165,9 @@ class SetupHandler
             $this->wordpress->deleteOption(MainConfig::MAIN_CONFIG_KEY);
             $this->wordpress->deleteOption('uam_version');
             $this->wordpress->deleteOption('uam_db_version');
+            $this->wordpress->restoreCurrentBlog();
         }
 
-        $this->wordpress->switchToBlog($currentBlogId);
         $this->fileHandler->deleteFileProtection();
     }
 

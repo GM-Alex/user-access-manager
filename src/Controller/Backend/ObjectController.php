@@ -25,6 +25,7 @@ use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\UserGroupAssignmentException;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroupHandler;
@@ -418,7 +419,7 @@ class ObjectController extends Controller
     /**
      * Updates the user groups for the given object.
      *
-     * @param  AbstractUserGroup[] $filteredUserGroups
+     * @param AbstractUserGroup[] $filteredUserGroups
      * @param string              $objectType
      * @param string              $objectId
      * @param array               $addUserGroups
@@ -470,12 +471,16 @@ class ObjectController extends Controller
                     $dynamicUserGroupData[1]
                 );
 
-                $dynamicUserGroup->addObject(
-                    $objectType,
-                    $objectId,
-                    $this->getDateParameter($addDynamicUserGroup, 'fromDate'),
-                    $this->getDateParameter($addDynamicUserGroup, 'toDate')
-                );
+                try {
+                    $dynamicUserGroup->addObject(
+                        $objectType,
+                        $objectId,
+                        $this->getDateParameter($addDynamicUserGroup, 'fromDate'),
+                        $this->getDateParameter($addDynamicUserGroup, 'toDate')
+                    );
+                } catch (UserGroupAssignmentException $exception) {
+                    $this->addErrorMessage(sprintf(TXT_UAM_ERROR, $exception->getMessage()));
+                }
             }
         }
     }

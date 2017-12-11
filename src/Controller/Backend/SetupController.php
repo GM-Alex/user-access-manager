@@ -117,7 +117,6 @@ class SetupController extends Controller
         if ($update === self::UPDATE_BLOG || $update === self::UPDATE_NETWORK) {
             $currentBlogId = $this->database->getCurrentBlogId();
             $blogIds = ($update === self::UPDATE_NETWORK) ? $this->setupHandler->getBlogIds() : [$currentBlogId];
-            $currentBlogId = $this->database->getCurrentBlogId();
 
             foreach ($blogIds as $blogId) {
                 $this->wordpress->switchToBlog($blogId);
@@ -127,9 +126,9 @@ class SetupController extends Controller
                 }
 
                 $this->setupHandler->update();
+                $this->wordpress->restoreCurrentBlog();
             }
 
-            $this->wordpress->switchToBlog($currentBlogId);
             $this->setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUCCESS);
         }
     }

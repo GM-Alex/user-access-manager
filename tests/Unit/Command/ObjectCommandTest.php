@@ -45,6 +45,12 @@ class ObjectCommandTest extends UserAccessManagerTestCase
      * @covers ::getUserGroupNameMap()
      * @covers ::getAddRemoveUserGroups()
      * @covers ::getUserGroupIdAndType()
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
+     * @throws \WP_CLI\ExitException
      */
     public function testInvoke()
     {

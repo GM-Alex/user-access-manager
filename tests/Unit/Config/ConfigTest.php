@@ -219,6 +219,8 @@ class ConfigTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getParameterValue()
+     * @covers ::getParameterValueRaw()
+     * @throws \Exception
      */
     public function testGetParameterValue()
     {
@@ -239,8 +241,9 @@ class ConfigTest extends UserAccessManagerTestCase
         $config->setDefaultConfigParameters($defaultValues);
 
         self::assertEquals('booleanValue', $config->getParameterValue('bool'));
+        self::assertNull($config->getParameterValue('undefined'));
 
         self::expectException('\Exception');
-        $config->getParameterValue('undefined');
+        $config->getParameterValueRaw('undefined');
     }
 }

@@ -73,7 +73,7 @@ class TermObjectController extends ObjectController
     }
 
     /**
-     * The function for the edit_{term} action.
+     * The function for the edit_term action.
      *
      * @param integer $termId The term id.
      */

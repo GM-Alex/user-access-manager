@@ -41,6 +41,8 @@ abstract class ConfigParameter implements ConfigParameterInterface
      *
      * @param string $id
      * @param mixed  $defaultValue
+     *
+     * @throws \Exception
      */
     public function __construct($id, $defaultValue = null)
     {

@@ -21,6 +21,8 @@ class StringConfigParameter extends ConfigParameter
      *
      * @param string $id
      * @param string $defaultValue
+     *
+     * @throws \Exception
      */
     public function __construct($id, $defaultValue = '')
     {

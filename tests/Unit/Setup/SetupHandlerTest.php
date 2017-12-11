@@ -104,13 +104,17 @@ class SetupHandlerTest extends UserAccessManagerTestCase
             ->method('getSites')
             ->will($this->returnValue($this->getSites(1)));
 
-        $wordpress->expects(($this->exactly(2)))
+        $wordpress->expects($this->once())
+            ->method('restoreCurrentBlog')
+            ->withConsecutive();
+
+        $wordpress->expects(($this->once()))
             ->method('switchToBlog')
-            ->withConsecutive([1], [1]);
+            ->withConsecutive([1]);
 
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(2))
+        $database->expects($this->once())
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 
@@ -200,13 +204,17 @@ class SetupHandlerTest extends UserAccessManagerTestCase
                 ['uam_db_version']
             );
 
-        $wordpress->expects(($this->exactly(3)))
+        $wordpress->expects($this->exactly(2))
+            ->method('restoreCurrentBlog')
+            ->withConsecutive();
+
+        $wordpress->expects(($this->exactly(2)))
             ->method('switchToBlog')
-            ->withConsecutive([1], [2], [1]);
+            ->withConsecutive([1], [2]);
 
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(2))
+        $database->expects($this->once())
             ->method('getCurrentBlogId')
             ->will($this->returnValue(1));
 

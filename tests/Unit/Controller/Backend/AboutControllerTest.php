@@ -147,6 +147,8 @@ class AboutControllerTest extends UserAccessManagerTestCase
          * @var File $jsonFile
          */
         $jsonFile = $rootDir->get('root')->get('assets')->get('supporters.json');
+
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $currentTime = $jsonFile->getDateCreated()->getTimestamp();
         $jsonFile->setContent('{}');
 
@@ -173,12 +175,14 @@ class AboutControllerTest extends UserAccessManagerTestCase
         self::assertEquals(['c', 'd'], $aboutController->getTopSupporters());
         self::assertEquals(['e', 'f'], $aboutController->getSupporters());
 
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $currentTime = $jsonFile->getDateCreated()->getTimestamp() + 24 * 60 * 60;
         self::setValue($aboutController, 'supporters', null);
         self::assertEquals(['a', 'b'], $aboutController->getSpecialThanks());
         self::assertEquals(['c', 'd'], $aboutController->getTopSupporters());
         self::assertEquals(['e', 'f'], $aboutController->getSupporters());
 
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $currentTime = $jsonFile->getDateCreated()->getTimestamp() + 24 * 60 * 60 + 1;
         self::setValue($aboutController, 'supporters', null);
         self::assertEquals($this->remoteSupporters, $aboutController->getSpecialThanks());

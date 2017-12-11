@@ -68,6 +68,10 @@ class UtilTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getRandomPassword()
+     * @throws \Exception
+     * @throws \Exception
+     * @throws \Exception
+     * @throws \Exception
      */
     public function testGetRandomPassword()
     {
@@ -126,6 +130,7 @@ class UtilTest extends UserAccessManagerTestCase
      * @covers                   ::getRandomPassword()
      * @expectedException        \Exception
      * @expectedExceptionMessage Unable to generate secure token from OpenSSL.
+     * @throws \Exception
      */
     public function testGetRandomPasswordException()
     {
@@ -150,6 +155,7 @@ class UtilTest extends UserAccessManagerTestCase
      * @covers                   ::getRandomPassword()
      * @expectedException        \Exception
      * @expectedExceptionMessage Unable to generate secure token from OpenSSL.
+     * @throws \Exception
      */
     public function testSecondGetRandomPasswordSecondException()
     {

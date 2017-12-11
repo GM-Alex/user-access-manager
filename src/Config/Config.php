@@ -165,7 +165,7 @@ class Config
      *
      * @throws \Exception
      */
-    public function getParameterValue($parameterName)
+    public function getParameterValueRaw($parameterName)
     {
         $options = $this->getConfigParameters();
 
@@ -174,5 +174,21 @@ class Config
         }
 
         return $options[$parameterName]->getValue();
+    }
+
+    /**
+     * Returns the requested parameter value but suppresses exceptions.
+     *
+     * @param string $parameterName
+     *
+     * @return mixed
+     */
+    public function getParameterValue($parameterName)
+    {
+        try {
+            return $this->getParameterValueRaw($parameterName);
+        } catch (\Exception $exception) {
+            return null;
+        }
     }
 }

@@ -14,7 +14,6 @@
  */
 namespace UserAccessManager\Setup\Database;
 
-use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\Setup\Update\UpdateInterface;
@@ -311,7 +310,6 @@ class DatabaseHandler
      */
     private function getActivePluginSites()
     {
-        $currentBlogId = $this->database->getCurrentBlogId();
         $activeSites = [];
 
         foreach ($this->wordpress->getSites() as $site) {
@@ -322,9 +320,9 @@ class DatabaseHandler
             if (isset($pluginsMap['user-access-manager/user-access-manager.php']) === true) {
                 $activeSites[$site->blog_id] = $site->blog_id;
             }
-        }
 
-        $this->wordpress->switchToBlog($currentBlogId);
+            $this->wordpress->restoreCurrentBlog();
+        }
 
         return $activeSites;
     }

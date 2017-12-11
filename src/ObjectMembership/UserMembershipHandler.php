@@ -51,11 +51,12 @@ class UserMembershipHandler extends ObjectMembershipHandler
     /**
      * UserMembershipHandler constructor.
      *
-     *
      * @param AssignmentInformationFactory $assignmentInformationFactory
      * @param Php                          $php
      * @param Database                     $database
      * @param ObjectHandler                $objectHandler
+     *
+     * @throws \Exception
      */
     public function __construct(
         AssignmentInformationFactory $assignmentInformationFactory,

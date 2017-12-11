@@ -167,6 +167,8 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::addObject()
+     * @throws UserGroupAssignmentException
+     * @throws UserGroupAssignmentException
      */
     public function testAddObject()
     {

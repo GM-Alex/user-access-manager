@@ -147,6 +147,8 @@ class FormHelper
      * @param ConfigParameter $parameter
      *
      * @return MultipleFormElementValue
+     *
+     * @throws \Exception
      */
     public function createMultipleFromElement($value, $label, ConfigParameter $parameter = null)
     {
@@ -169,6 +171,8 @@ class FormHelper
      * @param array                    $overwrittenValues
      *
      * @return mixed
+     *
+     * @throws \Exception
      */
     private function convertSelectionParameter(
         SelectionConfigParameter $configParameter,
@@ -201,13 +205,13 @@ class FormHelper
     }
 
     /**
-     * Converts a config parameter to a form element.
-     *
      * @param ConfigParameter $configParameter
-     * @param string          $objectKey
+     * @param null|string     $objectKey
      * @param array           $overwrittenValues
      *
      * @return null|Input|Radio|Select
+     *
+     * @throws \Exception
      */
     public function convertConfigParameter(
         ConfigParameter $configParameter,
@@ -247,6 +251,8 @@ class FormHelper
      * @param string|null $objectKey
      *
      * @return \UserAccessManager\Form\Form
+     *
+     * @throws \Exception
      */
     public function getSettingsForm(array $parameters, $objectKey = null)
     {
@@ -290,6 +296,8 @@ class FormHelper
      * @param Config $config
      *
      * @return Form
+     *
+     * @throws \Exception
      */
     public function getSettingsFormByConfig(Config $config)
     {

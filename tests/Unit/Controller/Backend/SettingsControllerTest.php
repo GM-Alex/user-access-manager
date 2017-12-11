@@ -17,6 +17,7 @@ namespace UserAccessManager\Tests\Unit\Controller\Backend;
 use UserAccessManager\Cache\CacheProviderInterface;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
+use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\SettingsController;
 use UserAccessManager\Form\Form;
 use UserAccessManager\Form\MultipleFormElementValue;
@@ -296,7 +297,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      */
     public function testGetCurrentGroupForms()
     {
-        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(11, 11);
+        $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(12, 12);
 
         $wordpress->expects($this->exactly(4))
             ->method('isNginx')
@@ -314,7 +315,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $secondPage->post_title = 'secondPage';
         $pages[] = $secondPage;
 
-        $wordpress->expects($this->once())
+        $wordpress->expects($this->exactly(2))
             ->method('getPages')
             ->with('sort_column=menu_order')
             ->will($this->returnValue($pages));
@@ -369,7 +370,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         ];
 
         $mainConfig = $this->getMainConfig();
-        $mainConfig->expects($this->exactly(9))
+        $mainConfig->expects($this->exactly(10))
             ->method('getConfigParameters')
             ->will($this->returnCallback(function () use (&$configValues) {
                 return $configValues;
@@ -378,7 +379,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $config = $this->getConfig();
 
         $cacheProvider = $this->createMock(CacheProviderInterface::class);
-        $cacheProvider->expects($this->exactly(21))
+        $cacheProvider->expects($this->exactly(23))
             ->method('getId')
             ->will($this->returnValue('cacheProviderId'));
         $cacheProvider->expects($this->once())
@@ -386,7 +387,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue($config));
 
         $cache = $this->getCache();
-        $cache->expects($this->exactly(11))
+        $cache->expects($this->exactly(12))
             ->method('getRegisteredCacheProviders')
             ->will($this->returnValue([$cacheProvider]));
 
@@ -420,16 +421,28 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 'custom_file_handling_file'
             ));
 
-        $formFactory->expects($this->exactly(3))
+        $createMultipleFormElementValueReturn = array_fill(0, 5, $this->createMultipleFormElementValue());
+        $exceptionElement = $this->createMultipleFormElementValue();
+        $exceptionElement->expects($this->once())
+            ->method('setSubElement')
+            ->will($this->returnCallback(function () {
+                throw new \Exception('error');
+            }));
+        $createMultipleFormElementValueReturn[] = $exceptionElement;
+
+        $formFactory->expects($this->exactly(6))
             ->method('createMultipleFormElementValue')
             ->withConsecutive(
                 ['false', TXT_UAM_NO],
                 ['blog', TXT_UAM_REDIRECT_TO_BLOG],
-                ['selected', TXT_UAM_REDIRECT_TO_PAGE]
+                ['custom_page', TXT_UAM_REDIRECT_TO_PAGE],
+                ['false', TXT_UAM_NO],
+                ['blog', TXT_UAM_REDIRECT_TO_BLOG],
+                ['custom_page', TXT_UAM_REDIRECT_TO_PAGE]
             )
-            ->will($this->returnValue($this->createMultipleFormElementValue()));
+            ->will($this->onConsecutiveCalls(...$createMultipleFormElementValueReturn));
 
-        $redirect = [
+        $redirectOne = [
             'selectionId',
             [
                 $this->createMultipleFormElementValue(),
@@ -442,18 +455,33 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             TXT_UAM_REDIRECT_DESC
         ];
 
-        $formFactory->expects($this->once())
+        $redirectTwo = [
+            'selectionId',
+            [
+                $this->createMultipleFormElementValue(),
+                $this->createMultipleFormElementValue()
+            ],
+            'selectionValue',
+            TXT_UAM_REDIRECT,
+            TXT_UAM_REDIRECT_DESC
+        ];
+
+        $formFactory->expects($this->exactly(2))
             ->method('createRadio')
             ->withConsecutive(
-                $redirect
+                $redirectOne,
+                $redirectTwo
             )
             ->will($this->onConsecutiveCalls(
+                'redirectRadio',
                 'redirectRadio'
             ));
 
-        $formFactory->expects($this->exactly(2))
+        $formFactory->expects($this->exactly(4))
             ->method('createValueSetFromElementValue')
             ->withConsecutive(
+                [1, 'firstPage'],
+                [2, 'secondPage'],
                 [1, 'firstPage'],
                 [2, 'secondPage']
             )
@@ -461,9 +489,17 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 $this->createMock(MultipleFormElementValue::class)
             ));
 
-        $formFactory->expects($this->once())
+        $formFactory->expects($this->exactly(2))
             ->method('createSelect')
             ->withConsecutive(
+                [
+                    'stringId',
+                    [
+                        $this->createMultipleFormElementValue(),
+                        $this->createMultipleFormElementValue()
+                    ],
+                    0
+                ],
                 [
                     'stringId',
                     [
@@ -492,7 +528,23 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue(['download_type' => $downloadTypeElement]));
 
         $formHelper = $this->getFormHelper();
-        $formHelper->expects($this->exactly(12))
+
+        $settingsFormReturns = [
+            'defaultPostTypeForm',
+            'postForm',
+            'pageForm',
+            'defaultTaxonomyForm',
+            'categoryForm',
+            $fileFrom,
+            $fileFrom,
+            $fileFrom,
+            $fileFrom,
+            $fileFrom,
+            'authorForm',
+            'otherForm'
+        ];
+
+        $formHelper->expects($this->exactly(13))
             ->method('getSettingsForm')
             ->withConsecutive(
                 [
@@ -631,22 +683,26 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'show_assigned_groups',
                         'hide_edit_link_on_no_access'
                     ]
+                ],
+                [
+                    [
+                        'lock_recursive',
+                        'protect_feed',
+                        'redirectRadio',
+                        'blog_admin_hint',
+                        'blog_admin_hint_text',
+                        'show_assigned_groups',
+                        'hide_edit_link_on_no_access'
+                    ]
                 ]
             )
-            ->will($this->onConsecutiveCalls(
-                'defaultPostTypeForm',
-                'postForm',
-                'pageForm',
-                'defaultTaxonomyForm',
-                'categoryForm',
-                $fileFrom,
-                $fileFrom,
-                $fileFrom,
-                $fileFrom,
-                $fileFrom,
-                'authorForm',
-                'otherForm'
-            ));
+            ->will($this->returnCallback(function () use (&$settingsFormReturns) {
+                if (count($settingsFormReturns) <= 0) {
+                    throw new \Exception('error');
+                }
+
+                return array_shift($settingsFormReturns);
+            }));
 
         $formHelper->expects($this->exactly(4))
             ->method('getParameterText')
@@ -663,12 +719,21 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->with($config)
             ->will($this->returnValue('configForm'));
 
-        $formHelper->expects($this->exactly(1))
+        $throwException = false;
+
+        $formHelper->expects($this->exactly(2))
             ->method('createMultipleFromElement')
             ->withConsecutive(
+                ['custom_url', TXT_UAM_REDIRECT_TO_URL],
                 ['custom_url', TXT_UAM_REDIRECT_TO_URL]
             )
-            ->will($this->returnValue($this->createMock(MultipleFormElementValue::class)));
+            ->will($this->returnCallback(function () use (&$throwException) {
+                if ($throwException === true) {
+                    throw new \Exception('error');
+                }
+
+                return $this->createMock(MultipleFormElementValue::class);
+            }));
 
         $fileHandler = $this->getFileHandler();
 
@@ -744,6 +809,14 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $_GET['tab_group'] = SettingsController::GROUP_OTHER;
         self::assertEquals(['other' => 'otherForm'], $settingController->getCurrentGroupForms());
+
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $throwException = true;
+        self::assertEquals([], $settingController->getCurrentGroupForms());
+        self::assertEquals(
+            ['The following error occurred: error|user-access-manager'],
+            $_SESSION[BackendController::UAM_ERRORS]
+        );
     }
 
     /**

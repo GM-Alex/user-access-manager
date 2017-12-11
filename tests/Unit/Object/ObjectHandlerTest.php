@@ -505,6 +505,11 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @covers  ::getObjectMembershipHandler()
      *
      * @param ObjectHandler $objectHandler
+     *
+     * @throws MissingObjectMembershipHandlerException
+     * @throws MissingObjectMembershipHandlerException
+     * @throws MissingObjectMembershipHandlerException
+     * @throws MissingObjectMembershipHandlerException
      */
     public function testGetObjectMembershipHandler(ObjectHandler $objectHandler)
     {
@@ -525,6 +530,8 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @covers  ::getObjectMembershipHandler()
      *
      * @param ObjectHandler $objectHandler
+     *
+     * @throws MissingObjectMembershipHandlerException
      */
     public function testGetObjectMembershipHandlerException(ObjectHandler $objectHandler)
     {

@@ -19,6 +19,7 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Wrapper\WordpressCli;
+use WP_CLI\ExitException;
 
 /**
  * Class ObjectCommand
@@ -104,6 +105,8 @@ class ObjectCommand extends \WP_CLI_Command
      * @param array               $removeUserGroups
      *
      * @return bool
+     *
+     * @throws ExitException
      */
     private function getAddRemoveUserGroups(
         $operation,
@@ -166,6 +169,8 @@ class ObjectCommand extends \WP_CLI_Command
      *
      * @param array $arguments
      * @param array $assocArguments
+     *
+     * @throws ExitException
      */
     public function __invoke(array $arguments, array $assocArguments)
     {

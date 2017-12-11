@@ -55,6 +55,8 @@ class TermMembershipHandler extends ObjectMembershipWithMapHandler
      * @param Wordpress                    $wordpress
      * @param ObjectHandler                $objectHandler
      * @param ObjectMapHandler             $objectMapHandler
+     *
+     * @throws \Exception
      */
     public function __construct(
         AssignmentInformationFactory $assignmentInformationFactory,

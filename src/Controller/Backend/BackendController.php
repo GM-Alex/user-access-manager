@@ -17,6 +17,7 @@ namespace UserAccessManager\Controller\Backend;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\File\FileHandler;
+use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\Wrapper\Php;
@@ -33,6 +34,7 @@ class BackendController extends Controller
     const HANDLE_SCRIPT_GROUP_SUGGEST = 'UserAccessManagerGroupSuggest';
     const HANDLE_SCRIPT_TIME_INPUT = 'UserAccessManagerTimeInput';
     const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
+    const UAM_ERRORS = 'UAM_ERRORS';
 
     /**
      * @var UserHandler
@@ -43,6 +45,11 @@ class BackendController extends Controller
      * @var FileHandler
      */
     private $fileHandler;
+
+    /**
+     * @var SetupHandler
+     */
+    private $setupHandler;
 
     /**
      * @var string
@@ -57,26 +64,41 @@ class BackendController extends Controller
      * @param WordpressConfig $wordpressConfig
      * @param UserHandler     $userHandler
      * @param FileHandler     $fileHandler
+     * @param SetupHandler    $setupHandler
      */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
         UserHandler $userHandler,
-        FileHandler $fileHandler
+        FileHandler $fileHandler,
+        SetupHandler $setupHandler
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
         $this->userHandler = $userHandler;
         $this->fileHandler = $fileHandler;
+        $this->setupHandler = $setupHandler;
     }
 
     /**
-     * Shows the database notice.
+     * Shows the admin notices.
      */
-    public function showDatabaseNotice()
+    public function showAdminNotice()
     {
-        $this->notice = sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup');
-        echo $this->getIncludeContents('AdminNotice.php');
+        $messages = isset($_SESSION[self::UAM_ERRORS]) === true ? $_SESSION[self::UAM_ERRORS] : [];
+        $updateAction = $this->getRequestParameter('uam_update_db');
+
+        if ($this->setupHandler->getDatabaseHandler()->isDatabaseUpdateNecessary() === true
+            && $updateAction !== SetupController::UPDATE_BLOG
+            && $updateAction !== SetupController::UPDATE_NETWORK
+        ) {
+            $messages[] = sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup');
+        }
+
+        if ($messages !== []) {
+            $this->notice = implode('<br>', $messages);
+            echo $this->getIncludeContents('AdminNotice.php');
+        }
     }
 
     /**

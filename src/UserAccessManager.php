@@ -622,14 +622,7 @@ class UserAccessManager
         $backendController = $this->controllerFactory->createBackendController();
         $this->wordpress->addAction('admin_enqueue_scripts', [$backendController, 'enqueueStylesAndScripts']);
         $this->wordpress->addAction('wp_dashboard_setup', [$backendController, 'setupAdminDashboard']);
-        $updateAction = $backendController->getRequestParameter('uam_update_db');
-
-        if ($this->setupHandler->getDatabaseHandler()->isDatabaseUpdateNecessary() === true
-            && $updateAction !== SetupController::UPDATE_BLOG
-            && $updateAction !== SetupController::UPDATE_NETWORK
-        ) {
-            $this->wordpress->addAction('admin_notices', [$backendController, 'showDatabaseNotice']);
-        }
+        $this->wordpress->addAction('admin_notices', [$backendController, 'showAdminNotice']);
 
         $taxonomies = $this->objectHandler->getTaxonomies();
         $taxonomy = $backendController->getRequestParameter('taxonomy');
