@@ -539,7 +539,7 @@ class SettingsController extends Controller
      *
      * @throws \Exception
      */
-    private function getFullCacheProvidersFrom()
+    private function getFullCacheProvidersForm()
     {
         $groupForms = [];
         $cacheProviders = $this->cache->getRegisteredCacheProviders();
@@ -565,18 +565,29 @@ class SettingsController extends Controller
         $groupForms = [];
 
         try {
-            if ($group === self::GROUP_POST_TYPES) {
-                $groupForms = $this->getFullPostSettingsForm();
-            } elseif ($group === self::GROUP_TAXONOMIES) {
-                $groupForms = $this->getFullTaxonomySettingsForm();
-            } elseif ($group === self::GROUP_FILES) {
-                $groupForms = [self::SECTION_FILES => $this->getFilesSettingsForm()];
-            } elseif ($group === self::GROUP_AUTHOR) {
-                $groupForms = [self::SECTION_AUTHOR => $this->getAuthorSettingsForm()];
-            } elseif ($group === self::GROUP_CACHE) {
-                $groupForms = $this->getFullCacheProvidersFrom();
-            } elseif ($group === self::GROUP_OTHER) {
-                $groupForms = [self::SECTION_OTHER => $this->getOtherSettingsForm()];
+            $formMap = [
+                self::GROUP_POST_TYPES => function () {
+                    return $this->getFullPostSettingsForm();
+                },
+                self::GROUP_TAXONOMIES => function () {
+                    return $this->getFullTaxonomySettingsForm();
+                },
+                self::GROUP_FILES => function () {
+                    return [self::SECTION_FILES => $this->getFilesSettingsForm()];
+                },
+                self::GROUP_AUTHOR => function () {
+                    return [self::SECTION_AUTHOR => $this->getAuthorSettingsForm()];
+                },
+                self::GROUP_CACHE => function () {
+                    return $this->getFullCacheProvidersForm();
+                },
+                self::GROUP_OTHER => function () {
+                    return [self::SECTION_OTHER => $this->getOtherSettingsForm()];
+                }
+            ];
+
+            if (isset($formMap[$group]) === true) {
+                return $formMap[$group]();
             }
         } catch (\Exception $exception) {
             $this->addErrorMessage(sprintf(TXT_UAM_ERROR, $exception->getMessage()));

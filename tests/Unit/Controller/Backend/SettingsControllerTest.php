@@ -281,7 +281,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      * @covers ::getCurrentGroupForms()
      * @covers ::getFullPostSettingsForm()
      * @covers ::getFullTaxonomySettingsForm()
-     * @covers ::getFullCacheProvidersFrom()
+     * @covers ::getFullCacheProvidersForm()
      * @covers ::getFullSettingsFrom()
      * @covers ::getPostTypes()
      * @covers ::getTaxonomies()

@@ -317,6 +317,8 @@ class FileHandlerTest extends UserAccessManagerTestCase
      * @covers ::getFileMineType()
      * @covers ::clearBuffer()
      * @covers ::deliverFilePartial()
+     * @covers ::getRanges()
+     * @covers ::getExtraContents()
      * @covers ::getSeekStartEnd()
      * @covers ::readFilePartly()
      * @runInSeparateProcess
