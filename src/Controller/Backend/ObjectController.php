@@ -15,7 +15,6 @@
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Access\AccessHandler;
-use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
@@ -58,11 +57,6 @@ class ObjectController extends Controller
     protected $database;
 
     /**
-     * @var Cache
-     */
-    protected $cache;
-
-    /**
      * @var DateUtil
      */
     protected $dateUtil;
@@ -93,11 +87,6 @@ class ObjectController extends Controller
     protected $userGroupFactory;
 
     /**
-     * @var ObjectInformationFactory
-     */
-    protected $objectInformationFactory;
-
-    /**
      * @var ObjectInformation
      */
     protected $objectInformation;
@@ -116,7 +105,6 @@ class ObjectController extends Controller
      * @param MainConfig               $mainConfig
      * @param Database                 $database
      * @param DateUtil                 $dateUtil
-     * @param Cache                    $cache
      * @param ObjectHandler            $objectHandler
      * @param UserHandler              $userHandler
      * @param UserGroupHandler         $userGroupHandler
@@ -131,7 +119,6 @@ class ObjectController extends Controller
         MainConfig $mainConfig,
         Database $database,
         DateUtil $dateUtil,
-        Cache $cache,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
         UserGroupHandler $userGroupHandler,
@@ -142,14 +129,12 @@ class ObjectController extends Controller
         parent::__construct($php, $wordpress, $wordpressConfig);
         $this->mainConfig = $mainConfig;
         $this->database = $database;
-        $this->cache = $cache;
         $this->dateUtil = $dateUtil;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
         $this->userGroupHandler = $userGroupHandler;
-        $this->accessHandler = $accessHandler;
+        $this->accessHandler = $accessHandler; #
         $this->userGroupFactory = $userGroupFactory;
-        $this->objectInformationFactory = $objectInformationFactory;
         $this->objectInformation = $objectInformationFactory->createObjectInformation();
     }
 

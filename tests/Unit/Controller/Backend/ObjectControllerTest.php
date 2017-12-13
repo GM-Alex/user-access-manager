@@ -46,7 +46,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -94,7 +93,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $userGroupHandler,
@@ -138,7 +136,10 @@ class ObjectControllerTest extends ObjectControllerTestCase
         self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
         self::assertEquals('objectId', $objectController->getObjectInformation()->getObjectId());
         self::assertEquals(1, $objectController->getObjectInformation()->getUserGroupDiff());
-        self::assertEquals([1 => $this->getUserGroup(1)], $objectController->getObjectInformation()->getObjectUserGroups());
+        self::assertEquals(
+            [1 => $this->getUserGroup(1)],
+            $objectController->getObjectInformation()->getObjectUserGroups()
+        );
     }
 
     /**
@@ -164,7 +165,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $userGroupHandler,
@@ -189,7 +189,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -241,7 +240,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -273,7 +271,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $userHandler,
             $this->getUserGroupHandler(),
@@ -320,7 +317,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -351,7 +347,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $userHandler,
             $this->getUserGroupHandler(),
@@ -418,7 +413,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -506,7 +500,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -554,7 +547,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -750,7 +742,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $mainConfig,
             $this->getDatabase(),
             $dateUtil,
-            $this->getCache(),
             $objectHandler,
             $userHandler,
             $userGroupHandler,
@@ -842,7 +833,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $database,
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -867,7 +857,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
@@ -980,7 +969,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getMainConfig(),
             $this->getDatabase(),
             $this->getDateUtil(),
-            $this->getCache(),
             $objectHandler,
             $this->getUserHandler(),
             $this->getUserGroupHandler(),

@@ -53,5 +53,4 @@ class ObjectInformationFactoryTest extends \PHPUnit_Framework_TestCase
             $objectInformationFactory->createObjectInformation()
         );
     }
-
 }
