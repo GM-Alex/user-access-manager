@@ -72,6 +72,18 @@ class AccessHandlerTest extends HandlerTestCase
         self::assertTrue($accessHandler->checkObjectAccess('postType', 2));
 
         $wordpress = $this->getWordpressWithUser();
+
+        $tags = [];
+        $isAdmins = [];
+
+        $wordpress->expects($this->exactly(5))
+            ->method('applyFilters')
+            ->will($this->returnCallback(function ($tag, $userGroups, $isAdmin) use (&$tags, &$isAdmins) {
+                $tags[] = $tag;
+                $isAdmins[] = $isAdmin;
+                return $userGroups;
+            }));
+
         $wordpress->expects($this->exactly(6))
             ->method('isAdmin')
             ->will($this->onConsecutiveCalls(
@@ -175,6 +187,18 @@ class AccessHandlerTest extends HandlerTestCase
             'objectAccess',
             $accessHandler
         );
+
+        self::assertEquals(
+            [
+                'uam_get_user_user_groups_for_object_access',
+                'uam_get_user_user_groups_for_object_access',
+                'uam_get_user_user_groups_for_object_access',
+                'uam_get_user_user_groups_for_object_access',
+                'uam_get_user_user_groups_for_object_access'
+            ],
+            $tags
+        );
+        self::assertEquals([false, false, false, true, true], $isAdmins);
     }
 
     /**

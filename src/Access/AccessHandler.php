@@ -158,7 +158,7 @@ class AccessHandler
             );
         }
 
-        return $userUserGroups;
+        return $this->wordpress->applyFilters('uam_get_user_user_groups_for_object_access', $userUserGroups, $isAdmin);
     }
 
     /**
