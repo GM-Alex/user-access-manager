@@ -82,7 +82,7 @@ class FileHandler
     private function clearBuffer()
     {
         //prevent '\n' / '0A'
-        if ((int) $this->php->iniGet('output_buffering') === 0
+        if ((int)$this->php->iniGet('output_buffering') === 0
             && is_numeric(ob_get_length()) === true
         ) {
             ob_clean();
@@ -248,19 +248,19 @@ class FileHandler
     }
 
     /**
-     * Delivers the file partial.
+     * Returns the http ranges.
      *
-     * @param string $file
-     * @param bool   $isInline
+     * @param int $fileSize
+     *
+     * @return array
      */
-    private function deliverFilePartial($file, $isInline)
+    private function getRanges($fileSize)
     {
         $httpRange = explode('=', $_SERVER['HTTP_RANGE']);
-        $sizeUnit = $httpRange[0];
         $originRanges = isset($httpRange[1]) === true ? $httpRange[1] : '';
         $originRanges = explode(',', $originRanges);
+        $sizeUnit = $httpRange[0];
         $ranges = [];
-        $fileSize = filesize($file);
 
         if ($sizeUnit === 'bytes') {
             foreach ($originRanges as $originRange) {
@@ -273,27 +273,61 @@ class FileHandler
             }
         }
 
-        if ($ranges !== []) {
-            $contentLength = 0;
-            $extraContents = [];
+        return $ranges;
+    }
+
+    /**
+     * Returns the extra contents.
+     *
+     * @param string $file
+     * @param array  $ranges
+     * @param int    $contentLength
+     * @param string $boundary
+     *
+     * @return array
+     */
+    private function getExtraContents($file, array $ranges, &$contentLength, &$boundary)
+    {
+        $contentLength = 0;
+        $extraContents = [];
+
+        //More than one range is requested?
+        if (count($ranges) > 1) {
             $boundary = 'g45d64df96bmdf4sdgh45hf5';
             $fullBoundary = "\r\n--{$boundary}--\r\n";
+            $fileSize = filesize($file);
+            $mineType = $this->getFileMineType($file);
 
-            if (count($ranges) > 1) {
-                //More than one range is requested.
-
-                //compute content length
-                foreach ($ranges as $index => $range) {
-                    list($seekStart, $seekEnd) = $range;
-                    $extraContent = $fullBoundary;
-                    $extraContent .= "Content-Type: {$this->getFileMineType($file)}\r\n";
-                    $extraContent .= "Content-Range: bytes $seekStart-$seekEnd/$fileSize\r\n\r\n";
-                    $extraContents[$index] = $extraContent;
-                    $contentLength += strlen($extraContent) + ($seekEnd - $seekStart + 1);
-                }
-
-                $contentLength += strlen($fullBoundary);
+            //compute content length
+            foreach ($ranges as $index => $range) {
+                list($seekStart, $seekEnd) = $range;
+                $extraContent = $fullBoundary;
+                $extraContent .= "Content-Type: {$mineType}\r\n";
+                $extraContent .= "Content-Range: bytes $seekStart-$seekEnd/$fileSize\r\n\r\n";
+                $extraContents[$index] = $extraContent;
+                $contentLength += strlen($extraContent) + ($seekEnd - $seekStart + 1);
             }
+
+            $contentLength += strlen($fullBoundary);
+            $extraContents[] = $fullBoundary;
+        }
+
+        return $extraContents;
+    }
+
+    /**
+     * Delivers the file partial.
+     *
+     * @param string $file
+     * @param bool   $isInline
+     */
+    private function deliverFilePartial($file, $isInline)
+    {
+        $fileSize = filesize($file);
+        $ranges = $this->getRanges($fileSize);
+
+        if ($ranges !== []) {
+            $extraContents = $this->getExtraContents($file, $ranges, $contentLength, $boundary);
 
             header('HTTP/1.1 206 Partial Content');
             header('Content-Transfer-Encoding: binary');
@@ -322,7 +356,7 @@ class FileHandler
             }
 
             if ($extraContents !== []) {
-                echo $fullBoundary;
+                echo end($extraContents);
                 $this->clearBuffer();
             }
         } else {

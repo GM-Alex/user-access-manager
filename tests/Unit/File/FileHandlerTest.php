@@ -324,7 +324,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     public function testGetPartialFile()
     {
         $php = $this->getPhp();
-        $php->expects($this->exactly(9))
+        $php->expects($this->exactly(8))
             ->method('functionExists')
             ->with('finfo_open')
             ->will($this->returnValue(true));
@@ -361,7 +361,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->will($this->returnValue(0));
 
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->exactly(9))
+        $wordpressConfig->expects($this->exactly(8))
             ->method('getMimeTypes')
             ->will($this->returnValue(['txt' => 'textFile']));
 
