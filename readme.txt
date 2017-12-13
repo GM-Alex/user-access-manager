@@ -68,6 +68,7 @@ Here you found the changes in each version.
                             Improve user group sorting. closes #180
                             Add new redirect type to the login page. closes #155
                             Add dynamic user groups for exclude object calculation. closes #181
+                            Add filter for getUserUserGroupsForObjectAccess. #closes 157
     2.1.9       2017/11/18  Add show content before <!--more--> tag option for all post types
                             Fix js time input issue
                             Fix small prepare query issue

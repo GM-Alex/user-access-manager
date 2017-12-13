@@ -23,6 +23,7 @@ use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
+use UserAccessManager\Controller\Backend\ObjectInformationFactory;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
@@ -361,6 +362,14 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getUpdateFactory()
     {
         return $this->createMock(UpdateFactory::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectInformationFactory
+     */
+    protected function getObjectInformationFactory()
+    {
+        return $this->createMock(ObjectInformationFactory::class);
     }
 
     /**

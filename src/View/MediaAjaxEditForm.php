@@ -18,7 +18,7 @@
  */
 $userGroups = $controller->getFilteredUserGroups();
 $controller->sortUserGroups($userGroups);
-$objectUserGroups = $controller->getObjectUserGroups();
+$objectUserGroups = $controller->getObjectInformation()->getObjectUserGroups();
 
 if (count($userGroups) > 0) {
     ?>
@@ -26,8 +26,8 @@ if (count($userGroups) > 0) {
     <ul class="uam_group_selection_ajax" style="margin: 0;">
         <?php
         $groupsFormName = $controller->getGroupsFormName();
-        $objectType = $controller->getObjectType();
-        $objectId = $controller->getObjectId();
+        $objectType = $controller->getObjectInformation()->getObjectType();
+        $objectId = $controller->getObjectInformation()->getObjectId();
 
         /**
          * @var \UserAccessManager\UserGroup\UserGroup[] $userGroups

@@ -93,45 +93,36 @@ class ObjectController extends Controller
     protected $userGroupFactory;
 
     /**
+     * @var ObjectInformationFactory
+     */
+    protected $objectInformationFactory;
+
+    /**
+     * @var ObjectInformation
+     */
+    protected $objectInformation;
+
+    /**
      * @var null|string
      */
     protected $groupsFromName = null;
 
     /**
-     * @var null|string
-     */
-    protected $objectType = null;
-
-    /**
-     * @var null|string
-     */
-    protected $objectId = null;
-
-    /**
-     * @var  AbstractUserGroup[]
-     */
-    protected $objectUserGroups = [];
-
-    /**
-     * @var int
-     */
-    protected $userGroupDiff = 0;
-
-    /**
      * ObjectController constructor.
      *
-     * @param Php              $php
-     * @param Wordpress        $wordpress
-     * @param WordpressConfig  $wordpressConfig
-     * @param MainConfig       $mainConfig
-     * @param Database         $database
-     * @param DateUtil         $dateUtil
-     * @param Cache            $cache
-     * @param ObjectHandler    $objectHandler
-     * @param UserHandler      $userHandler
-     * @param UserGroupHandler $userGroupHandler
-     * @param AccessHandler    $accessHandler
-     * @param UserGroupFactory $userGroupFactory
+     * @param Php                      $php
+     * @param Wordpress                $wordpress
+     * @param WordpressConfig          $wordpressConfig
+     * @param MainConfig               $mainConfig
+     * @param Database                 $database
+     * @param DateUtil                 $dateUtil
+     * @param Cache                    $cache
+     * @param ObjectHandler            $objectHandler
+     * @param UserHandler              $userHandler
+     * @param UserGroupHandler         $userGroupHandler
+     * @param AccessHandler            $accessHandler
+     * @param UserGroupFactory         $userGroupFactory
+     * @param ObjectInformationFactory $objectInformationFactory
      */
     public function __construct(
         Php $php,
@@ -145,7 +136,8 @@ class ObjectController extends Controller
         UserHandler $userHandler,
         UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler,
-        UserGroupFactory $userGroupFactory
+        UserGroupFactory $userGroupFactory,
+        ObjectInformationFactory $objectInformationFactory
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
         $this->mainConfig = $mainConfig;
@@ -157,6 +149,8 @@ class ObjectController extends Controller
         $this->userGroupHandler = $userGroupHandler;
         $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
+        $this->objectInformationFactory = $objectInformationFactory;
+        $this->objectInformation = $objectInformationFactory->createObjectInformation();
     }
 
     /**
@@ -168,17 +162,28 @@ class ObjectController extends Controller
      */
     protected function setObjectInformation($objectType, $objectId, array $objectUserGroups = null)
     {
-        $this->objectType = $objectType;
-        $this->objectId = $objectId;
-        $this->userGroupDiff = 0;
+        $userGroupDiff = 0;
 
         if ($objectUserGroups === null && $objectId !== null) {
             $objectUserGroups = $this->userGroupHandler->getFilteredUserGroupsForObject($objectType, $objectId, true);
             $fullObjectUserGroups = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId, true);
-            $this->userGroupDiff = count($fullObjectUserGroups) - count($objectUserGroups);
+            $userGroupDiff = count($fullObjectUserGroups) - count($objectUserGroups);
         }
 
-        $this->objectUserGroups = (array)$objectUserGroups;
+        $this->objectInformation->setObjectType($objectType)
+            ->setObjectId($objectId)
+            ->setObjectUserGroups((array)$objectUserGroups)
+            ->setUserGroupDiff($userGroupDiff);
+    }
+
+    /**
+     * Returns the object information.
+     *
+     * @return ObjectInformation
+     */
+    public function getObjectInformation()
+    {
+        return $this->objectInformation;
     }
 
     /**
@@ -189,56 +194,6 @@ class ObjectController extends Controller
     public function getGroupsFormName()
     {
         return ($this->groupsFromName !== null) ? (string)$this->groupsFromName : self::DEFAULT_GROUPS_FORM_NAME;
-    }
-
-    /**
-     * Returns the current object type.
-     *
-     * @return string
-     */
-    public function getObjectType()
-    {
-        return $this->objectType;
-    }
-
-    /**
-     * Returns the current object id.
-     *
-     * @return string
-     */
-    public function getObjectId()
-    {
-        return $this->objectId;
-    }
-
-    /**
-     * Returns the current object user groups.
-     *
-     * @return  AbstractUserGroup[]
-     */
-    public function getObjectUserGroups()
-    {
-        return $this->objectUserGroups;
-    }
-
-    /**
-     * Returns the user group count diff.
-     *
-     * @return int
-     */
-    public function getUserGroupDiff()
-    {
-        return $this->userGroupDiff;
-    }
-
-    /**
-     * Returns all available user groups.
-     *
-     * @return  AbstractUserGroup[]
-     */
-    public function getUserGroups()
-    {
-        return $this->userGroupHandler->getFullUserGroups();
     }
 
     /**
@@ -294,10 +249,10 @@ class ObjectController extends Controller
      */
     public function isCurrentUserAdmin()
     {
-        if ($this->objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE
-            && $this->objectId !== null
+        if ($this->objectInformation->getObjectType() === ObjectHandler::GENERAL_USER_OBJECT_TYPE
+            && $this->objectInformation->getObjectId() !== null
         ) {
-            return $this->userHandler->userIsAdmin($this->objectId);
+            return $this->userHandler->userIsAdmin($this->objectInformation->getObjectId());
         }
 
         return false;
@@ -312,16 +267,6 @@ class ObjectController extends Controller
     {
         $roles = $this->wordpress->getRoles();
         return $roles->role_names;
-    }
-
-    /**
-     * Returns all object types.
-     *
-     * @return array
-     */
-    public function getAllObjectTypes()
-    {
-        return $this->objectHandler->getAllObjectTypes();
     }
 
     /**
@@ -344,8 +289,8 @@ class ObjectController extends Controller
     public function getRecursiveMembership(AbstractUserGroup $userGroup)
     {
         $recursiveMembership = [];
-        $objectType = $this->getObjectType();
-        $objectId = $this->getObjectId();
+        $objectType = $this->objectInformation->getObjectType();
+        $objectId = $this->objectInformation->getObjectId();
         $recursiveMembershipForObject = $userGroup->getRecursiveMembershipForObject($objectType, $objectId);
 
         /**
@@ -524,7 +469,7 @@ class ObjectController extends Controller
         /**
          * @var UserGroup[] $userGroupsToCheck
          */
-        $userGroupsToCheck = array_diff_key($this->getUserGroups(), $filteredUserGroups);
+        $userGroupsToCheck = array_diff_key($this->userGroupHandler->getFullUserGroups(), $filteredUserGroups);
 
         foreach ($userGroupsToCheck as $userGroupToCheck) {
             if ($userGroupToCheck->isDefaultGroupForObjectType($objectType, $fromTime, $toTime) === true) {
@@ -634,10 +579,12 @@ class ObjectController extends Controller
      */
     public function isNewObject()
     {
-        if ($this->objectType !== null) {
-            $generalObjectType = $this->objectHandler->getGeneralObjectType($this->objectType);
+        $objectType = $this->objectInformation->getObjectType();
 
-            return ($this->objectId === null
+        if ($objectType !== null) {
+            $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
+
+            return ($this->objectInformation->getObjectId() === null
                 || ($generalObjectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE &&
                     $this->getRequestParameter('action') !== 'edit')
             );

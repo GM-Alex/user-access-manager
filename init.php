@@ -8,6 +8,7 @@ use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Controller\ControllerFactory;
+use UserAccessManager\Controller\Backend\ObjectInformationFactory;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
@@ -115,6 +116,7 @@ function initUserAccessManger()
         $mainConfig,
         $fileHandler
     );
+    $objectInformationFactory = new ObjectInformationFactory();
     $controllerFactory = new ControllerFactory(
         $php,
         $wordpress,
@@ -134,7 +136,8 @@ function initUserAccessManger()
         $fileObjectFactory,
         $setupHandler,
         $formFactory,
-        $formHelper
+        $formHelper,
+        $objectInformationFactory
     );
     $widgetFactory = new WidgetFactory($php, $wordpress, $wordpressConfig);
 

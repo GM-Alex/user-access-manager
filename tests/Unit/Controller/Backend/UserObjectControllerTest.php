@@ -43,7 +43,8 @@ class UserObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertInstanceOf(UserObjectController::class, $userObjectController);
@@ -67,7 +68,8 @@ class UserObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertEquals(
@@ -94,7 +96,8 @@ class UserObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $userObjectController->addUserColumn('return', ObjectController::COLUMN_NAME, 1);
@@ -135,21 +138,30 @@ class UserObjectControllerTest extends ObjectControllerTestCase
             $expected,
             $userObjectController->addUserColumn('return', ObjectController::COLUMN_NAME, 1)
         );
-        self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $userObjectController);
-        self::assertAttributeEquals(1, 'objectId', $userObjectController);
+        self::assertEquals(
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            $userObjectController->getObjectInformation()->getObjectType()
+        );
+        self::assertEquals(1, $userObjectController->getObjectInformation()->getObjectId());
         $this->resetControllerObjectInformation($userObjectController);
 
         $userObjectController->showUserProfile();
-        self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $userObjectController);
-        self::assertAttributeEquals(null, 'objectId', $userObjectController);
+        self::assertEquals(
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            $userObjectController->getObjectInformation()->getObjectType()
+        );
+        self::assertEquals(null, $userObjectController->getObjectInformation()->getObjectId());
         $expectedOutput = '!UserAccessManager\Controller\Backend\UserObjectController|'
             .'vfs://root/src/View/UserProfileEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($userObjectController);
 
         $_GET['user_id'] = 4;
         $userObjectController->showUserProfile();
-        self::assertAttributeEquals(ObjectHandler::GENERAL_USER_OBJECT_TYPE, 'objectType', $userObjectController);
-        self::assertAttributeEquals(4, 'objectId', $userObjectController);
+        self::assertEquals(
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            $userObjectController->getObjectInformation()->getObjectType()
+        );
+        self::assertEquals(4, $userObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\UserObjectController|'
             .'vfs://root/src/View/UserProfileEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($userObjectController);

@@ -16,7 +16,7 @@
 /**
  * @var \UserAccessManager\Controller\Backend\ObjectController $controller
  */
-$objectUserGroups = $controller->getObjectUserGroups();
+$objectUserGroups = $controller->getObjectInformation()->getObjectUserGroups();
 $controller->sortUserGroups($objectUserGroups);
 
 if (count($objectUserGroups) > 0) {

@@ -43,7 +43,8 @@ class TermObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertInstanceOf(TermObjectController::class, $termObjectController);
@@ -67,7 +68,8 @@ class TermObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertEquals(
@@ -94,7 +96,8 @@ class TermObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $termObjectController->addTermColumn('return', ObjectController::COLUMN_NAME, 1);
@@ -138,21 +141,24 @@ class TermObjectControllerTest extends ObjectControllerTestCase
             $expected,
             $termObjectController->addTermColumn('content', ObjectController::COLUMN_NAME, 0)
         );
-        self::assertAttributeEquals(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'objectType', $termObjectController);
-        self::assertAttributeEquals(0, 'objectId', $termObjectController);
+        self::assertEquals(
+            ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
+            $termObjectController->getObjectInformation()->getObjectType()
+        );
+        self::assertEquals(0, $termObjectController->getObjectInformation()->getObjectId());
         $this->resetControllerObjectInformation($termObjectController);
 
         self::assertEquals(
             $expected,
             $termObjectController->addTermColumn('content', ObjectController::COLUMN_NAME, 1)
         );
-        self::assertAttributeEquals('taxonomy_1', 'objectType', $termObjectController);
-        self::assertAttributeEquals(1, 'objectId', $termObjectController);
+        self::assertEquals('taxonomy_1', $termObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(1, $termObjectController->getObjectInformation()->getObjectId());
         $this->resetControllerObjectInformation($termObjectController);
 
         $termObjectController->showTermEditForm('category');
-        self::assertAttributeEquals('category', 'objectType', $termObjectController);
-        self::assertAttributeEquals(null, 'objectId', $termObjectController);
+        self::assertEquals('category', $termObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(null, $termObjectController->getObjectInformation()->getObjectId());
         $expectedOutput = '!UserAccessManager\Controller\Backend\TermObjectController|'
             .'vfs://root/src/View/TermEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($termObjectController);
@@ -164,8 +170,8 @@ class TermObjectControllerTest extends ObjectControllerTestCase
         $term->term_id = 5;
         $term->taxonomy = 'category';
         $termObjectController->showTermEditForm($term);
-        self::assertAttributeEquals('category', 'objectType', $termObjectController);
-        self::assertAttributeEquals(5, 'objectId', $termObjectController);
+        self::assertEquals('category', $termObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(5, $termObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\TermObjectController|'
             .'vfs://root/src/View/TermEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($termObjectController);

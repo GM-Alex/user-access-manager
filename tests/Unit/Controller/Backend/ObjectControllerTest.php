@@ -16,6 +16,7 @@ namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectInformation;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\PostMembershipHandler;
@@ -50,7 +51,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertInstanceOf(ObjectController::class, $objectController);
@@ -97,7 +99,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $userGroupHandler,
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $userGroups = [
@@ -107,102 +110,35 @@ class ObjectControllerTest extends ObjectControllerTestCase
 
         self::callMethod($objectController, 'setObjectInformation', ['objectType', 'objectId', $userGroups]);
 
-        self::assertAttributeEquals('objectType', 'objectType', $objectController);
-        self::assertAttributeEquals('objectId', 'objectId', $objectController);
-        self::assertAttributeEquals($userGroups, 'objectUserGroups', $objectController);
-        self::assertAttributeEquals(0, 'userGroupDiff', $objectController);
+        self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
+        self::assertEquals('objectId', $objectController->getObjectInformation()->getObjectId());
+        self::assertEquals($userGroups, $objectController->getObjectInformation()->getObjectUserGroups());
+        self::assertEquals(0, $objectController->getObjectInformation()->getUserGroupDiff());
 
         self::callMethod($objectController, 'setObjectInformation', ['objectType', 'objectId']);
 
-        self::assertAttributeEquals('objectType', 'objectType', $objectController);
-        self::assertAttributeEquals('objectId', 'objectId', $objectController);
-        self::assertAttributeEquals($filteredGroups, 'objectUserGroups', $objectController);
-        self::assertAttributeEquals(1, 'userGroupDiff', $objectController);
+        self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
+        self::assertEquals('objectId', $objectController->getObjectInformation()->getObjectId());
+        self::assertEquals($filteredGroups, $objectController->getObjectInformation()->getObjectUserGroups());
+        self::assertEquals(1, $objectController->getObjectInformation()->getUserGroupDiff());
 
         return $objectController;
     }
 
     /**
      * @group   unit
-     * @covers  ::getObjectType()
+     * @covers  ::getObjectInformation()
      * @depends testSetObjectInformation
      *
      * @param ObjectController $objectController
      */
-    public function testGetObjectType(ObjectController $objectController)
+    public function testGetObjectInformation(ObjectController $objectController)
     {
-        self::assertEquals('objectType', $objectController->getObjectType());
-    }
-
-    /**
-     * @group   unit
-     * @covers  ::getObjectId()
-     * @depends testSetObjectInformation
-     *
-     * @param ObjectController $objectController
-     */
-    public function testGetObjectId(ObjectController $objectController)
-    {
-        self::assertEquals('objectId', $objectController->getObjectId());
-    }
-
-    /**
-     * @group   unit
-     * @covers  ::getObjectUserGroups()
-     * @depends testSetObjectInformation
-     *
-     * @param ObjectController $objectController
-     */
-    public function testGetObjectUserGroups(ObjectController $objectController)
-    {
-        self::assertEquals([1 => $this->getUserGroup(1)], $objectController->getObjectUserGroups());
-    }
-
-    /**
-     * @group   unit
-     * @covers  ::getUserGroupDiff()
-     * @depends testSetObjectInformation
-     *
-     * @param ObjectController $objectController
-     */
-    public function testGetUserGroupDiff(ObjectController $objectController)
-    {
-        self::assertEquals(1, $objectController->getUserGroupDiff());
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getUserGroups()
-     */
-    public function testGetUserGroups()
-    {
-        $userGroups = [
-            1 => $this->getUserGroup(1),
-            2 => $this->getUserGroup(2),
-            3 => $this->getUserGroup(3)
-        ];
-
-        $userGroupHandler = $this->getUserGroupHandler();
-        $userGroupHandler->expects($this->once())
-            ->method('getFullUserGroups')
-            ->will($this->returnValue($userGroups));
-
-        $objectController = new ObjectController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getDateUtil(),
-            $this->getCache(),
-            $this->getObjectHandler(),
-            $this->getUserHandler(),
-            $userGroupHandler,
-            $this->getAccessHandler(),
-            $this->getUserGroupFactory()
-        );
-
-        self::assertEquals($userGroups, $objectController->getUserGroups());
+        self::assertInstanceOf(ObjectInformation::class, $objectController->getObjectInformation());
+        self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
+        self::assertEquals('objectId', $objectController->getObjectInformation()->getObjectId());
+        self::assertEquals(1, $objectController->getObjectInformation()->getUserGroupDiff());
+        self::assertEquals([1 => $this->getUserGroup(1)], $objectController->getObjectInformation()->getObjectUserGroups());
     }
 
     /**
@@ -233,7 +169,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $userGroupHandler,
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertEquals($userGroups, $objectController->getFilteredUserGroups());
@@ -257,7 +194,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $notLoggedInUserGroupId = DynamicUserGroup::USER_TYPE.'|'.DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
@@ -308,7 +246,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertEquals($this->getDateUtil(), $objectController->getDateUtil());
@@ -339,15 +278,23 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $userHandler,
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertFalse($objectController->isCurrentUserAdmin());
 
-        self::setValue($objectController, 'objectType', ObjectHandler::GENERAL_USER_OBJECT_TYPE);
+        $objectInformation = $this->createMock(ObjectInformation::class);
+        $objectInformation->expects($this->exactly(3))
+            ->method('getObjectType')
+            ->will($this->returnValue(ObjectHandler::GENERAL_USER_OBJECT_TYPE));
+        $objectInformation->expects($this->exactly(5))
+            ->method('getObjectId')
+            ->will($this->onConsecutiveCalls(null, 'objectId', 'objectId', 'objectId', 'objectId'));
+
+        self::setValue($objectController, 'objectInformation', $objectInformation);
         self::assertFalse($objectController->isCurrentUserAdmin());
 
-        self::setValue($objectController, 'objectId', 'objectId');
         self::assertFalse($objectController->isCurrentUserAdmin());
         self::assertTrue($objectController->isCurrentUserAdmin());
     }
@@ -378,40 +325,11 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertEquals('roleNames', $objectController->getRoleNames());
-    }
-
-    /**
-     * @group  unit
-     * @covers ::getAllObjectTypes()
-     */
-    public function testGetAllObjectTypes()
-    {
-        $objectHandler = $this->getObjectHandler();
-
-        $objectHandler->expects($this->once())
-            ->method('getAllObjectTypes')
-            ->will($this->returnValue([1 => 1, 2 => 2]));
-
-        $objectController = new ObjectController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getDateUtil(),
-            $this->getCache(),
-            $objectHandler,
-            $this->getUserHandler(),
-            $this->getUserGroupHandler(),
-            $this->getAccessHandler(),
-            $this->getUserGroupFactory()
-        );
-
-        self:self::assertEquals([1 => 1, 2 => 2], $objectController->getAllObjectTypes());
     }
 
     /**
@@ -438,7 +356,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $userHandler,
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertFalse($objectController->checkUserAccess());
@@ -504,11 +423,19 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
-        self::setValue($objectController, 'objectId', 'objectId');
-        self::setValue($objectController, 'objectType', 'objectType');
+        $objectInformation = $this->createMock(ObjectInformation::class);
+        $objectInformation->expects($this->once())
+            ->method('getObjectType')
+            ->will($this->returnValue('objectType'));
+        $objectInformation->expects($this->once())
+            ->method('getObjectId')
+            ->will($this->returnValue('objectId'));
+
+        self::setValue($objectController, 'objectInformation', $objectInformation);
 
         $userGroup = $this->getUserGroup(1);
         $userGroup->expects($this->once())
@@ -584,7 +511,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $accessHandler,
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $objectController->checkRightsToEditContent();
@@ -631,7 +559,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'someName']));
@@ -826,7 +755,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $userHandler,
             $userGroupHandler,
             $this->getAccessHandler(),
-            $userGroupFactory
+            $userGroupFactory,
+            $this->getObjectInformationFactory()
         );
 
         $_POST[ObjectController::UPDATE_GROUPS_FORM_NAME] = 1;
@@ -917,7 +847,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $objectController->removeObjectData('objectType', 'objectId');
@@ -941,7 +872,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $objectController->getGroupColumn('objectType', 'objectId');
@@ -978,11 +910,9 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $expected,
             $objectController->getGroupColumn('objectType', 'objectId')
         );
-        self::assertAttributeEquals('objectType', 'objectType', $objectController);
-        self::assertAttributeEquals('objectId', 'objectId', $objectController);
-
-        self::setValue($objectController, 'objectType', null);
-        self::setValue($objectController, 'objectId', null);
+        self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
+        self::assertEquals('objectId', $objectController->getObjectInformation()->getObjectId());
+        self::setValue($objectController, 'objectInformation', $this->getObjectInformation());
 
         $return = $objectController->showGroupSelectionForm('objectType', 'objectId', 'otherForm');
         self::assertEquals(
@@ -990,8 +920,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             .'vfs://root/src/View/GroupSelectionForm.php|otherForm!',
             $return
         );
-        self::assertAttributeEquals('objectType', 'objectType', $objectController);
-        self::assertAttributeEquals('objectId', 'objectId', $objectController);
+        self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
+        self::assertEquals('objectId', $objectController->getObjectInformation()->getObjectId());
         self::assertEquals(
             ObjectController::DEFAULT_GROUPS_FORM_NAME,
             $objectController->getGroupsFormName()
@@ -1009,9 +939,9 @@ class ObjectControllerTest extends ObjectControllerTestCase
             .'vfs://root/src/View/GroupSelectionForm.php|uam_user_groups!',
             $return
         );
-        self::assertAttributeEquals('objectType', 'objectType', $objectController);
-        self::assertAttributeEquals('objectId', 'objectId', $objectController);
-        self::assertAttributeEquals($userGroups, 'objectUserGroups', $objectController);
+        self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
+        self::assertEquals('objectId', $objectController->getObjectInformation()->getObjectId());
+        self::assertEquals($userGroups, $objectController->getObjectInformation()->getObjectUserGroups());
         self::assertEquals(
             ObjectController::DEFAULT_GROUPS_FORM_NAME,
             $objectController->getGroupsFormName()
@@ -1055,27 +985,36 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
-        self::setValue($objectController, 'objectType', null);
-        self::setValue($objectController, 'objectId', null);
+        $objectInformation = $this->createMock(ObjectInformation::class);
+
+        $objectInformation->expects($this->exactly(5))
+            ->method('getObjectType')
+            ->will($this->onConsecutiveCalls(
+                null,
+                'objectTypeValue',
+                'objectTypeValue',
+                'otherObjectTypeValue',
+                'otherObjectTypeValue'
+            ));
+
+        $objectInformation->expects($this->exactly(4))
+            ->method('getObjectId')
+            ->will($this->onConsecutiveCalls(null, 1, 1, 1));
+
+        self::setValue($objectController, 'objectInformation', $objectInformation);
+
         self::assertFalse($objectController->isNewObject());
-
-        self::setValue($objectController, 'objectType', 'objectTypeValue');
-        self::setValue($objectController, 'objectId', null);
         self::assertTrue($objectController->isNewObject());
-
-        self::setValue($objectController, 'objectType', 'objectTypeValue');
-        self::setValue($objectController, 'objectId', 1);
         self::assertFalse($objectController->isNewObject());
 
         $_GET['action'] = 'edit';
-        self::setValue($objectController, 'objectType', 'otherObjectTypeValue');
         self::assertFalse($objectController->isNewObject());
 
         $_GET['action'] = 'new';
-        self::setValue($objectController, 'objectType', 'otherObjectTypeValue');
         self::assertTrue($objectController->isNewObject());
     }
 }

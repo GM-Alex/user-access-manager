@@ -15,6 +15,7 @@
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectInformation;
 use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
@@ -52,6 +53,86 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     public function tearDown()
     {
         $this->root->unmount();
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectInformation
+     */
+    protected function getObjectInformation()
+    {
+        $objectInformation = $this->createMock(ObjectInformation::class);
+
+        $objectType = null;
+        $objectId = null;
+        $userGroupDiff = 0;
+        $objectUserGroups = [];
+
+        $objectInformation->expects($this->any())
+            ->method('getObjectType')
+            ->will($this->returnCallback(function () use (&$objectType) {
+                return $objectType;
+            }));
+
+        $objectInformation->expects($this->any())
+            ->method('setObjectType')
+            ->will($this->returnCallback(function ($newObjectType) use (&$objectType, &$objectInformation) {
+                $objectType = $newObjectType;
+                return $objectInformation;
+            }));
+
+        $objectInformation->expects($this->any())
+            ->method('getObjectId')
+            ->will($this->returnCallback(function () use (&$objectId) {
+                return $objectId;
+            }));
+
+        $objectInformation->expects($this->any())
+            ->method('setObjectId')
+            ->will($this->returnCallback(function ($newObjectId) use (&$objectId, &$objectInformation) {
+                $objectId = $newObjectId;
+                return $objectInformation;
+            }));
+
+        $objectInformation->expects($this->any())
+            ->method('getUserGroupDiff')
+            ->will($this->returnCallback(function () use (&$userGroupDiff) {
+                return $userGroupDiff;
+            }));
+
+        $objectInformation->expects($this->any())
+            ->method('setUserGroupDiff')
+            ->will($this->returnCallback(function ($newUserGroupDiff) use (&$userGroupDiff, &$objectInformation) {
+                $userGroupDiff = $newUserGroupDiff;
+                return $objectInformation;
+            }));
+
+        $objectInformation->expects($this->any())
+            ->method('getObjectUserGroups')
+            ->will($this->returnCallback(function () use (&$objectUserGroups) {
+                return $objectUserGroups;
+            }));
+
+        $objectInformation->expects($this->any())
+            ->method('setObjectUserGroups')
+            ->will($this->returnCallback(function ($newObjectUserGroups) use (&$objectUserGroups, &$objectInformation) {
+                $objectUserGroups = $newObjectUserGroups;
+                return $objectInformation;
+            }));
+
+        return $objectInformation;
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Controller\Backend\ObjectInformationFactory
+     */
+    protected function getObjectInformationFactory()
+    {
+        $objectInformationFactory = parent::getObjectInformationFactory();
+        $objectInformationFactory->expects($this->once())
+            ->method('createObjectInformation')
+            ->will($this->returnValue($this->getObjectInformation()));
+
+        return $objectInformationFactory;
     }
 
     /**
@@ -286,7 +367,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
                 $userHandler,
                 $userGroupHandler,
                 $this->getAccessHandler(),
-                $this->getUserGroupFactory()
+                $this->getUserGroupFactory(),
+                $this->getObjectInformationFactory()
             );
         } else {
             $objectController = new $class(
@@ -299,7 +381,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
                 $userHandler,
                 $userGroupHandler,
                 $this->getAccessHandler(),
-                $this->getUserGroupFactory()
+                $this->getUserGroupFactory(),
+                $this->getObjectInformationFactory()
             );
         }
 
@@ -367,7 +450,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $this->getUserHandler(),
             $userGroupHandler,
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $requestedFilesParam = [];
@@ -391,8 +475,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
      */
     protected function resetControllerObjectInformation(ObjectController $objectController)
     {
-        self::setValue($objectController, 'objectType', null);
-        self::setValue($objectController, 'objectId', null);
+        self::setValue($objectController, 'objectInformation', $this->getObjectInformation());
     }
 
     /**
@@ -429,7 +512,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
     }
 }

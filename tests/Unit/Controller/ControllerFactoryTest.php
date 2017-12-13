@@ -68,7 +68,8 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory(),
             $this->getSetupHandler(),
             $this->getFormFactory(),
-            $this->getFormHelper()
+            $this->getFormHelper(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertInstanceOf(ControllerFactory::class, $controllerFactory);

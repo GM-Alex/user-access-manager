@@ -42,7 +42,8 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertInstanceOf(DynamicGroupsController::class, $termObjectController);
@@ -103,7 +104,8 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
             $userHandler,
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $objectController->getDynamicGroupsForAjax();

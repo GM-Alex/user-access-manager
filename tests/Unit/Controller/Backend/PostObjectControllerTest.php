@@ -43,7 +43,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertInstanceOf(PostObjectController::class, $postObjectController);
@@ -67,7 +68,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         self::assertEquals(
@@ -94,7 +96,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory()
+            $this->getUserGroupFactory(),
+            $this->getObjectInformationFactory()
         );
 
         $postObjectController->addPostColumn(ObjectController::COLUMN_NAME, 1);
@@ -138,15 +141,15 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $this->resetControllerObjectInformation($postObjectController);
 
         $postObjectController->addPostColumn(ObjectController::COLUMN_NAME, 1);
-        self::assertAttributeEquals('post', 'objectType', $postObjectController);
-        self::assertAttributeEquals(1, 'objectId', $postObjectController);
+        self::assertEquals('post', $postObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(1, $postObjectController->getObjectInformation()->getObjectId());
         $expectedOutput = '!UserAccessManager\Controller\Backend\PostObjectController|'
             .'vfs://root/src/View/ObjectColumn.php|uam_user_groups!';
         $this->resetControllerObjectInformation($postObjectController);
 
         $postObjectController->editPostContent(null);
-        self::assertAttributeEquals(null, 'objectType', $postObjectController);
-        self::assertAttributeEquals(null, 'objectId', $postObjectController);
+        self::assertEquals(null, $postObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(null, $postObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\PostObjectController|'
             .'vfs://root/src/View/PostEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($postObjectController);
@@ -159,8 +162,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $post->post_type = 'post';
 
         $postObjectController->editPostContent($post);
-        self::assertAttributeEquals('post', 'objectType', $postObjectController);
-        self::assertAttributeEquals(1, 'objectId', $postObjectController);
+        self::assertEquals('post', $postObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(1, $postObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\PostObjectController|'
             .'vfs://root/src/View/PostEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($postObjectController);
@@ -179,8 +182,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $this->resetControllerObjectInformation($postObjectController);
 
         $return = $postObjectController->showMediaFile(['a' => 'b']);
-        self::assertAttributeEquals(null, 'objectType', $postObjectController);
-        self::assertAttributeEquals(null, 'objectId', $postObjectController);
+        self::assertEquals(null, $postObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(null, $postObjectController->getObjectInformation()->getObjectId());
         self::assertEquals(
             [
                 'a' => 'b',
@@ -196,8 +199,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $this->resetControllerObjectInformation($postObjectController);
 
         $return = $postObjectController->showMediaFile(['a' => 'b'], $post);
-        self::assertAttributeEquals('post', 'objectType', $postObjectController);
-        self::assertAttributeEquals(1, 'objectId', $postObjectController);
+        self::assertEquals('post', $postObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(1, $postObjectController->getObjectInformation()->getObjectId());
         self::assertEquals(
             [
                 'a' => 'b',
@@ -214,8 +217,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
 
         $_GET['attachment_id'] = 3;
         $return = $postObjectController->showMediaFile(['a' => 'b'], $post);
-        self::assertAttributeEquals('attachment', 'objectType', $postObjectController);
-        self::assertAttributeEquals(3, 'objectId', $postObjectController);
+        self::assertEquals('attachment', $postObjectController->getObjectInformation()->getObjectType());
+        self::assertEquals(3, $postObjectController->getObjectInformation()->getObjectId());
         self::assertEquals(
             [
                 'a' => 'b',
