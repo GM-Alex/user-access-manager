@@ -136,112 +136,6 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int   $id
-     * @param array $withAdd
-     * @param array $withRemove
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
-     */
-    protected function getUserGroupWithAddDelete($id, array $withAdd = [], array $withRemove = [])
-    {
-        $userGroup = $this->getUserGroup($id);
-
-        if (count($withAdd) > 0) {
-            $userGroup->expects($this->exactly(count($withAdd)))
-                ->method('addObject')
-                ->withConsecutive(...$withAdd);
-        }
-
-        if (count($withRemove) > 0) {
-            $userGroup->expects($this->exactly(count($withRemove)))
-                ->method('removeObject')
-                ->withConsecutive(...$withRemove);
-        }
-
-        return $userGroup;
-    }
-
-    /**
-     * @param array $addIds
-     * @param array $removeIds
-     * @param array $with
-     * @param array $additional
-     *
-     * @return array
-     */
-    protected function getUserGroupArray(array $addIds, array $removeIds = [], array $with = [], array $additional = [])
-    {
-        $groups = [];
-
-        $both = array_intersect($addIds, $removeIds);
-        $withRemove = array_map(
-            function ($element) {
-                return array_slice($element, 0, 2);
-            },
-            $with
-        );
-
-        foreach ($both as $id) {
-            $groups[$id] = $this->getUserGroupWithAddDelete($id, $with, $withRemove);
-        }
-
-        $add = array_diff($addIds, $both);
-
-        foreach ($add as $id) {
-            $groups[$id] = $this->getUserGroupWithAddDelete($id, $with, []);
-        }
-
-        $remove = array_diff($removeIds, $both);
-
-        foreach ($remove as $id) {
-            $groups[$id] = $this->getUserGroupWithAddDelete($id, [], $withRemove);
-        }
-
-        foreach ($additional as $id) {
-            $group = $this->getUserGroup($id);
-            $group->expects($this->never())
-                ->method('addObject');
-
-            $groups[$id] = $group;
-        }
-
-        return $groups;
-    }
-
-    /**
-     * @param string $type
-     * @param string $id
-     * @param array  $with
-     * @param bool   $throwException
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
-     */
-    protected function getDynamicUserGroupWithAdd(
-        $type,
-        $id,
-        array $with,
-        $throwException = false
-    ) {
-        $dynamicUserGroup = parent::getDynamicUserGroup(
-            $type,
-            $id
-        );
-
-        $dynamicUserGroup->expects($this->once())
-            ->method('addObject')
-            ->with(...$with)
-            ->will($this->returnCallback(function () use ($throwException) {
-                if ($throwException === true) {
-                    throw new UserGroupAssignmentException('User group assignment exception');
-                }
-
-                return null;
-            }));
-
-        return $dynamicUserGroup;
-    }
-
-    /**
      * @param int    $id
      * @param string $displayName
      * @param string $userLogin
@@ -365,8 +259,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
                 $this->getExtendedObjectHandler(),
                 $userHandler,
                 $userGroupHandler,
+                $this->getUserGroupAssignmentHandler(),
                 $this->getAccessHandler(),
-                $this->getUserGroupFactory(),
                 $this->getObjectInformationFactory()
             );
         } else {
@@ -379,8 +273,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
                 $this->getExtendedObjectHandler(),
                 $userHandler,
                 $userGroupHandler,
+                $this->getUserGroupAssignmentHandler(),
                 $this->getAccessHandler(),
-                $this->getUserGroupFactory(),
                 $this->getObjectInformationFactory()
             );
         }
@@ -447,8 +341,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
             $userGroupHandler,
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -508,8 +402,8 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
     }

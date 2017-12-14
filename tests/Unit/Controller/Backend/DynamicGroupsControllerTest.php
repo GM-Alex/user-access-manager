@@ -40,8 +40,8 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -101,8 +101,8 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
             $this->getExtendedObjectHandler(),
             $userHandler,
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 

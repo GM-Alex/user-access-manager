@@ -24,9 +24,8 @@ use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\DynamicUserGroup;
-use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupAssignmentException;
-use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\DateUtil;
@@ -82,9 +81,9 @@ class ObjectController extends Controller
     protected $accessHandler;
 
     /**
-     * @var UserGroupFactory
+     * @var UserGroupAssignmentHandler
      */
-    protected $userGroupFactory;
+    protected $userGroupAssignmentHandler;
 
     /**
      * @var ObjectInformation
@@ -99,18 +98,18 @@ class ObjectController extends Controller
     /**
      * ObjectController constructor.
      *
-     * @param Php                      $php
-     * @param Wordpress                $wordpress
-     * @param WordpressConfig          $wordpressConfig
-     * @param MainConfig               $mainConfig
-     * @param Database                 $database
-     * @param DateUtil                 $dateUtil
-     * @param ObjectHandler            $objectHandler
-     * @param UserHandler              $userHandler
-     * @param UserGroupHandler         $userGroupHandler
-     * @param AccessHandler            $accessHandler
-     * @param UserGroupFactory         $userGroupFactory
-     * @param ObjectInformationFactory $objectInformationFactory
+     * @param Php                        $php
+     * @param Wordpress                  $wordpress
+     * @param WordpressConfig            $wordpressConfig
+     * @param MainConfig                 $mainConfig
+     * @param Database                   $database
+     * @param DateUtil                   $dateUtil
+     * @param ObjectHandler              $objectHandler
+     * @param UserHandler                $userHandler
+     * @param UserGroupHandler           $userGroupHandler
+     * @param UserGroupAssignmentHandler $userGroupAssignmentHandler
+     * @param AccessHandler              $accessHandler
+     * @param ObjectInformationFactory   $objectInformationFactory
      */
     public function __construct(
         Php $php,
@@ -122,8 +121,8 @@ class ObjectController extends Controller
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
         UserGroupHandler $userGroupHandler,
+        UserGroupAssignmentHandler $userGroupAssignmentHandler,
         AccessHandler $accessHandler,
-        UserGroupFactory $userGroupFactory,
         ObjectInformationFactory $objectInformationFactory
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
@@ -133,8 +132,8 @@ class ObjectController extends Controller
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
         $this->userGroupHandler = $userGroupHandler;
-        $this->accessHandler = $accessHandler; #
-        $this->userGroupFactory = $userGroupFactory;
+        $this->userGroupAssignmentHandler = $userGroupAssignmentHandler;
+        $this->accessHandler = $accessHandler;
         $this->objectInformation = $objectInformationFactory->createObjectInformation();
     }
 
@@ -333,20 +332,6 @@ class ObjectController extends Controller
     }
 
     /**
-     * @param array  $data
-     * @param string $name
-     *
-     * @return null|string
-     */
-    private function getDateParameter(array $data, $name)
-    {
-        $isValid = isset($data[$name]['date']) === true && isset($data[$name]['time']) === true
-            && (string)$data[$name]['date'] !== '' && (string)$data[$name]['time'] !== '';
-
-        return ($isValid === true) ? (string)$data[$name]['date'].'T'.$data[$name]['time'] : null;
-    }
-
-    /**
      * Returns the user groups by reference which should be add and removed from the object.
      *
      * @param string     $objectType
@@ -374,101 +359,6 @@ class ObjectController extends Controller
     }
 
     /**
-     * Updates the user groups for the given object.
-     *
-     * @param AbstractUserGroup[] $filteredUserGroups
-     * @param string              $objectType
-     * @param string              $objectId
-     * @param array               $addUserGroups
-     * @param array               $removeUserGroups
-     */
-    private function setUserGroups(
-        array $filteredUserGroups,
-        $objectType,
-        $objectId,
-        array $addUserGroups,
-        array $removeUserGroups
-    ) {
-        foreach ($filteredUserGroups as $groupId => $userGroup) {
-            if (isset($removeUserGroups[$groupId]) === true) {
-                $userGroup->removeObject($objectType, $objectId);
-            }
-
-            if (isset($addUserGroups[$groupId]['id']) === true
-                && (int)$addUserGroups[$groupId]['id'] === (int)$groupId
-            ) {
-                $userGroup->addObject(
-                    $objectType,
-                    $objectId,
-                    $this->getDateParameter($addUserGroups[$groupId], 'fromDate'),
-                    $this->getDateParameter($addUserGroups[$groupId], 'toDate')
-                );
-            }
-        }
-    }
-
-    /**
-     * Sets the dynamic user groups for the given object.
-     *
-     * @param string $objectType
-     * @param string $objectId
-     */
-    private function setDynamicGroups($objectType, $objectId)
-    {
-        $addDynamicUserGroups = $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, []);
-
-        foreach ($addDynamicUserGroups as $dynamicUserGroupKey => $addDynamicUserGroup) {
-            $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
-
-            if (count($dynamicUserGroupData) === 2
-                && $addDynamicUserGroup['id'] === $dynamicUserGroupKey
-            ) {
-                $dynamicUserGroup = $this->userGroupFactory->createDynamicUserGroup(
-                    $dynamicUserGroupData[0],
-                    $dynamicUserGroupData[1]
-                );
-
-                try {
-                    $dynamicUserGroup->addObject(
-                        $objectType,
-                        $objectId,
-                        $this->getDateParameter($addDynamicUserGroup, 'fromDate'),
-                        $this->getDateParameter($addDynamicUserGroup, 'toDate')
-                    );
-                } catch (UserGroupAssignmentException $exception) {
-                    $this->addErrorMessage(sprintf(TXT_UAM_ERROR, $exception->getMessage()));
-                }
-            }
-        }
-    }
-
-    /**
-     * Sets the default user groups for the given object.
-     *
-     * @param  AbstractUserGroup[] $filteredUserGroups
-     * @param string              $objectType
-     * @param string              $objectId
-     */
-    private function setDefaultGroups(array $filteredUserGroups, $objectType, $objectId)
-    {
-        /**
-         * @var UserGroup[] $userGroupsToCheck
-         */
-        $userGroupsToCheck = array_diff_key($this->userGroupHandler->getFullUserGroups(), $filteredUserGroups);
-
-        foreach ($userGroupsToCheck as $userGroupToCheck) {
-            if ($userGroupToCheck->isDefaultGroupForObjectType($objectType, $fromTime, $toTime) === true) {
-                $userGroupToCheck->addObject(
-                    $objectType,
-                    $objectId,
-                    $this->dateUtil->getDateFromTime($fromTime),
-                    $this->dateUtil->getDateFromTime($toTime)
-                );
-            }
-        }
-    }
-
-    /**
      * Saves the object data to the database.
      *
      * @param string $objectType    The object type.
@@ -483,17 +373,19 @@ class ObjectController extends Controller
         $hasRights = $this->checkUserAccess() === true || $this->mainConfig->authorsCanAddPostsToGroups() === true;
 
         if ($isUpdateForm === true && $hasRights === true) {
-            $filteredUserGroups = $this->userGroupHandler->getFilteredUserGroups();
             $this->getAddRemoveGroups($objectType, $objectId, $addUserGroups, $removeUserGroups);
-            $this->setUserGroups($filteredUserGroups, $objectType, $objectId, $addUserGroups, $removeUserGroups);
 
-            if ($this->checkUserAccess() === true) {
-                $this->setDynamicGroups($objectType, $objectId);
-            } else {
-                $this->setDefaultGroups($filteredUserGroups, $objectType, $objectId);
+            try {
+                $this->userGroupAssignmentHandler->assignObjectToUserGroups(
+                    $objectType,
+                    $objectId,
+                    $addUserGroups,
+                    $removeUserGroups,
+                    $this->getRequestParameter(self::DEFAULT_DYNAMIC_GROUPS_FORM_NAME, [])
+                );
+            } catch (UserGroupAssignmentException $exception) {
+                $this->addErrorMessage(sprintf(TXT_UAM_ERROR, $exception->getMessage()));
             }
-
-            $this->userGroupHandler->unsetUserGroupsForObject();
         }
     }
 

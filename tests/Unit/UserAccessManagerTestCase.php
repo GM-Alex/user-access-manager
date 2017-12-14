@@ -44,6 +44,7 @@ use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroupHandler;
@@ -298,6 +299,14 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     protected function getUserGroupFactory()
     {
         return $this->createMock(UserGroupFactory::class);
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|UserGroupAssignmentHandler
+     */
+    protected function getUserGroupAssignmentHandler()
+    {
+        return $this->createMock(UserGroupAssignmentHandler::class);
     }
 
     /**
@@ -792,5 +801,78 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         }
 
         return $sites;
+    }
+
+    /**
+     * @param int   $id
+     * @param array $withAdd
+     * @param array $withRemove
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+     */
+    protected function getUserGroupWithAddDelete($id, array $withAdd = [], array $withRemove = [])
+    {
+        $userGroup = $this->getUserGroup($id);
+
+        if (count($withAdd) > 0) {
+            $userGroup->expects($this->exactly(count($withAdd)))
+                ->method('addObject')
+                ->withConsecutive(...$withAdd);
+        }
+
+        if (count($withRemove) > 0) {
+            $userGroup->expects($this->exactly(count($withRemove)))
+                ->method('removeObject')
+                ->withConsecutive(...$withRemove);
+        }
+
+        return $userGroup;
+    }
+
+    /**
+     * @param array $addIds
+     * @param array $removeIds
+     * @param array $with
+     * @param array $additional
+     *
+     * @return array
+     */
+    protected function getUserGroupArray(array $addIds, array $removeIds = [], array $with = [], array $additional = [])
+    {
+        $groups = [];
+
+        $both = array_intersect($addIds, $removeIds);
+        $withRemove = array_map(
+            function ($element) {
+                return array_slice($element, 0, 2);
+            },
+            $with
+        );
+
+        foreach ($both as $id) {
+            $groups[$id] = $this->getUserGroupWithAddDelete($id, $with, $withRemove);
+        }
+
+        $add = array_diff($addIds, $both);
+
+        foreach ($add as $id) {
+            $groups[$id] = $this->getUserGroupWithAddDelete($id, $with, []);
+        }
+
+        $remove = array_diff($removeIds, $both);
+
+        foreach ($remove as $id) {
+            $groups[$id] = $this->getUserGroupWithAddDelete($id, [], $withRemove);
+        }
+
+        foreach ($additional as $id) {
+            $group = $this->getUserGroup($id);
+            $group->expects($this->never())
+                ->method('addObject');
+
+            $groups[$id] = $group;
+        }
+
+        return $groups;
     }
 }

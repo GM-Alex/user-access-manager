@@ -41,8 +41,8 @@ class TermObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -65,8 +65,8 @@ class TermObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -92,8 +92,8 @@ class TermObjectControllerTest extends ObjectControllerTestCase
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 

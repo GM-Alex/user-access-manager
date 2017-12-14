@@ -25,6 +25,7 @@ use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
+use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\User\UserHandler;
@@ -117,6 +118,12 @@ function initUserAccessManger()
         $fileHandler
     );
     $objectInformationFactory = new ObjectInformationFactory();
+    $userGroupAssignmentHandler = new UserGroupAssignmentHandler(
+        $dateUtil,
+        $userHandler,
+        $userGroupHandler,
+        $userGroupFactory
+    );
     $controllerFactory = new ControllerFactory(
         $php,
         $wordpress,
@@ -130,8 +137,9 @@ function initUserAccessManger()
         $objectMapHandler,
         $userHandler,
         $userGroupHandler,
-        $accessHandler,
         $userGroupFactory,
+        $userGroupAssignmentHandler,
+        $accessHandler,
         $fileHandler,
         $fileObjectFactory,
         $setupHandler,

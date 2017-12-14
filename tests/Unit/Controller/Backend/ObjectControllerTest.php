@@ -24,6 +24,7 @@ use UserAccessManager\ObjectMembership\RoleMembershipHandler;
 use UserAccessManager\ObjectMembership\TermMembershipHandler;
 use UserAccessManager\ObjectMembership\UserMembershipHandler;
 use UserAccessManager\UserGroup\DynamicUserGroup;
+use UserAccessManager\UserGroup\UserGroupAssignmentException;
 
 /**
  * Class ObjectControllerTest
@@ -49,8 +50,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -96,8 +97,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $userGroupHandler,
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -168,8 +169,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $userGroupHandler,
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -192,8 +193,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -243,8 +244,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -274,8 +275,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $userHandler,
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -320,8 +321,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -350,8 +351,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $userHandler,
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -416,8 +417,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $objectHandler,
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -503,8 +504,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $accessHandler,
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -536,80 +537,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
 
     /**
      * @group  unit
-     * @covers ::getDateParameter()
-     */
-    public function testGetDataParameter()
-    {
-        $objectController = new ObjectController(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getDatabase(),
-            $this->getDateUtil(),
-            $this->getObjectHandler(),
-            $this->getUserHandler(),
-            $this->getUserGroupHandler(),
-            $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
-            $this->getObjectInformationFactory()
-        );
-
-        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'someName']));
-        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'name']));
-        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'name']));
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => 'dateValue']], 'name']
-            )
-        );
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['time' => 'timeValue']], 'name']
-            )
-        );
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => '', 'time' => '']], 'name']
-            )
-        );
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => 'dateValue', 'time' => '']], 'name']
-            )
-        );
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => '', 'time' => 'timeValue']], 'name']
-            )
-        );
-        self::assertEquals(
-            'dateValueTtimeValue',
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => 'dateValue', 'time' => 'timeValue']], 'name']
-            )
-        );
-    }
-
-    /**
-     * @group  unit
      * @covers ::saveObjectData()
      * @covers ::getAddRemoveGroups()
-     * @covers ::setUserGroups()
-     * @covers ::setDynamicGroups()
-     * @covers ::setDefaultGroups()
      */
     public function testSaveObjectData()
     {
@@ -618,22 +547,10 @@ class ObjectControllerTest extends ObjectControllerTestCase
             ->method('authorsCanAddPostsToGroups')
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $dateUtil = $this->getDateUtil();
-        $dateUtil->expects($this->exactly(2))
-            ->method('getDateFromTime')
-            ->withConsecutive(
-                [1],
-                [2]
-            )
-            ->will($this->onConsecutiveCalls(
-                '1970-01-01 00:01:41',
-                '1970-01-01 00:01:42'
-            ));
-
         $objectHandler = $this->getExtendedObjectHandler();
 
         $userHandler = $this->getUserHandler();
-        $userHandler->expects($this->exactly(12))
+        $userHandler->expects($this->exactly(7))
             ->method('checkUserAccess')
             ->with('manage_user_groups')
             ->will($this->onConsecutiveCalls(
@@ -642,12 +559,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 true,
                 true,
                 true,
-                true,
-                true,
-                true,
                 false,
-                false,
-                true,
                 true
             ));
 
@@ -670,70 +582,15 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 $this->getUserGroupArray([1, 2, 3])
             ));
 
-        $fullGroupOne = $this->getUserGroupWithAddDelete(
-            1000,
-            [['objectType', 'objectId', '1970-01-01 00:01:41', '1970-01-01 00:01:42']]
-        );
-
-        $fullGroupOne->expects($this->once())
-            ->method('isDefaultGroupForObjectType')
-            ->with('objectType', null, null)
-            ->will($this->returnCallback(function ($objectType, &$fromTime, &$toTime) {
-                $fromTime = 1;
-                $toTime = 2;
-                return true;
+        $throwException = false;
+        $userGroupAssignmentHandler = $this->getUserGroupAssignmentHandler();
+        $userGroupAssignmentHandler->expects($this->exactly(5))
+            ->method('assignObjectToUserGroups')
+            ->will($this->returnCallback(function () use (&$throwException) {
+                if ($throwException === true) {
+                    throw new UserGroupAssignmentException('User group assignment exception');
+                }
             }));
-
-        $fullGroupTwo = $this->getUserGroupWithAddDelete(1001);
-
-        $fullGroupTwo->expects($this->once())
-            ->method('isDefaultGroupForObjectType')
-            ->with('objectType', 1, 2)
-            ->will($this->returnValue(false));
-
-        $userGroupHandler->expects($this->once())
-            ->method('getFullUserGroups')
-            ->will($this->returnValue([$fullGroupOne, $fullGroupTwo]));
-
-        $userGroupHandler->expects($this->exactly(5))
-            ->method('getFilteredUserGroups')
-            ->will($this->onConsecutiveCalls(
-                $this->getUserGroupArray([1, 3], [1, 2, 3], [['objectType', 1, '1T2', 'toTDate']], [100, 101]),
-                $this->getUserGroupArray([2, 4], [1, 2, 4], [['objectType', 1, null, null]]),
-                $this->getUserGroupArray([1, 2], [2, 3, 4], [['objectType', 1, null, '23T4']]),
-                $this->getUserGroupArray([4], [2, 3], [['objectType', 'objectId', null, null]]),
-                $this->getUserGroupArray([], [1, 2], [['objectType', 1, null, null]])
-            ));
-
-        $userGroupHandler->expects($this->exactly(5))
-            ->method('unsetUserGroupsForObject');
-
-        $userGroupFactory = $this->getUserGroupFactory();
-
-        $userGroupFactory->expects($this->exactly(3))
-            ->method('createDynamicUserGroup')
-            ->withConsecutive(
-                [DynamicUserGroup::USER_TYPE, '1'],
-                [DynamicUserGroup::ROLE_TYPE, 'admin'],
-                [DynamicUserGroup::ROLE_TYPE, 'some']
-            )->will($this->onConsecutiveCalls(
-                $this->getDynamicUserGroupWithAdd(
-                    DynamicUserGroup::USER_TYPE,
-                    '1',
-                    ['objectType', 1, 'fromTDate', 'toTDate']
-                ),
-                $this->getDynamicUserGroupWithAdd(
-                    DynamicUserGroup::ROLE_TYPE,
-                    'admin',
-                    ['objectType', 1, null, null]
-                ),
-                $this->getDynamicUserGroupWithAdd(
-                    DynamicUserGroup::ROLE_TYPE,
-                    'some',
-                    ['objectType', 1, null, null],
-                    true
-                )
-            ));
 
         $objectController = new ObjectController(
             $this->getPhp(),
@@ -741,12 +598,12 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getWordpressConfig(),
             $mainConfig,
             $this->getDatabase(),
-            $dateUtil,
+            $this->getDateUtil(),
             $objectHandler,
             $userHandler,
             $userGroupHandler,
+            $userGroupAssignmentHandler,
             $this->getAccessHandler(),
-            $userGroupFactory,
             $this->getObjectInformationFactory()
         );
 
@@ -769,12 +626,16 @@ class ObjectControllerTest extends ObjectControllerTestCase
             100 => [],
             101 => ['id' => 100]
         ];
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $throwException = true;
         $objectController->saveObjectData('objectType', 1);
 
         self::assertEquals(
             ['The following error occurred: User group assignment exception|user-access-manager'],
             $_SESSION[BackendController::UAM_ERRORS]
         );
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $throwException = false;
 
         unset($_POST[ObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME]);
         $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
@@ -836,8 +697,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -860,8 +721,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getExtendedObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 
@@ -972,8 +833,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $objectHandler,
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
+            $this->getUserGroupAssignmentHandler(),
             $this->getAccessHandler(),
-            $this->getUserGroupFactory(),
             $this->getObjectInformationFactory()
         );
 

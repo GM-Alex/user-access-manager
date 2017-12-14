@@ -43,6 +43,7 @@ use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Setup\SetupHandler;
+use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroupHandler;
@@ -119,14 +120,19 @@ class ControllerFactory
     private $userGroupHandler;
 
     /**
-     * @var AccessHandler
-     */
-    private $accessHandler;
-
-    /**
      * @var UserGroupFactory
      */
     private $userGroupFactory;
+
+    /**
+     * @var UserGroupAssignmentHandler
+     */
+    private $userGroupAssignmentHandler;
+
+    /**
+     * @var AccessHandler
+     */
+    private $accessHandler;
 
     /**
      * @var FileHandler
@@ -161,26 +167,27 @@ class ControllerFactory
     /**
      * ControllerFactory constructor.
      *
-     * @param Php                      $php
-     * @param Wordpress                $wordpress
-     * @param Database                 $database
-     * @param WordpressConfig          $wordpressConfig
-     * @param MainConfig               $mainConfig
-     * @param Util                     $util
-     * @param DateUtil                 $dateUtil
-     * @param Cache                    $cache
-     * @param ObjectHandler            $objectHandler
-     * @param ObjectMapHandler         $objectMapHandler
-     * @param UserHandler              $userHandler
-     * @param UserGroupHandler         $userGroupHandler
-     * @param AccessHandler            $accessHandler
-     * @param UserGroupFactory         $userGroupFactory
-     * @param FileHandler              $fileHandler
-     * @param FileObjectFactory        $fileObjectFactory
-     * @param SetupHandler             $setupHandler
-     * @param FormFactory              $formFactory
-     * @param FormHelper               $formHelper
-     * @param ObjectInformationFactory $objectInformationFactory
+     * @param Php                        $php
+     * @param Wordpress                  $wordpress
+     * @param Database                   $database
+     * @param WordpressConfig            $wordpressConfig
+     * @param MainConfig                 $mainConfig
+     * @param Util                       $util
+     * @param DateUtil                   $dateUtil
+     * @param Cache                      $cache
+     * @param ObjectHandler              $objectHandler
+     * @param ObjectMapHandler           $objectMapHandler
+     * @param UserHandler                $userHandler
+     * @param UserGroupHandler           $userGroupHandler
+     * @param UserGroupFactory           $userGroupFactory
+     * @param UserGroupAssignmentHandler $userGroupAssignmentHandler
+     * @param AccessHandler              $accessHandler
+     * @param FileHandler                $fileHandler
+     * @param FileObjectFactory          $fileObjectFactory
+     * @param SetupHandler               $setupHandler
+     * @param FormFactory                $formFactory
+     * @param FormHelper                 $formHelper
+     * @param ObjectInformationFactory   $objectInformationFactory
      */
     public function __construct(
         Php $php,
@@ -195,8 +202,9 @@ class ControllerFactory
         ObjectMapHandler $objectMapHandler,
         UserHandler $userHandler,
         UserGroupHandler $userGroupHandler,
-        AccessHandler $accessHandler,
         UserGroupFactory $userGroupFactory,
+        UserGroupAssignmentHandler $userGroupAssignmentHandler,
+        AccessHandler $accessHandler,
         FileHandler $fileHandler,
         FileObjectFactory $fileObjectFactory,
         SetupHandler $setupHandler,
@@ -216,8 +224,9 @@ class ControllerFactory
         $this->objectMapHandler = $objectMapHandler;
         $this->userHandler = $userHandler;
         $this->userGroupHandler = $userGroupHandler;
-        $this->accessHandler = $accessHandler;
         $this->userGroupFactory = $userGroupFactory;
+        $this->userGroupAssignmentHandler = $userGroupAssignmentHandler;
+        $this->accessHandler = $accessHandler;
         $this->fileHandler = $fileHandler;
         $this->fileObjectFactory = $fileObjectFactory;
         $this->setupHandler = $setupHandler;
@@ -274,8 +283,8 @@ class ControllerFactory
             $this->objectHandler,
             $this->userHandler,
             $this->userGroupHandler,
+            $this->userGroupAssignmentHandler,
             $this->accessHandler,
-            $this->userGroupFactory,
             $this->objectInformationFactory
         );
     }
@@ -309,8 +318,8 @@ class ControllerFactory
             $this->objectHandler,
             $this->userHandler,
             $this->userGroupHandler,
+            $this->userGroupAssignmentHandler,
             $this->accessHandler,
-            $this->userGroupFactory,
             $this->objectInformationFactory
         );
     }
@@ -332,8 +341,8 @@ class ControllerFactory
             $this->objectHandler,
             $this->userHandler,
             $this->userGroupHandler,
+            $this->userGroupAssignmentHandler,
             $this->accessHandler,
-            $this->userGroupFactory,
             $this->objectInformationFactory
         );
     }
@@ -355,8 +364,8 @@ class ControllerFactory
             $this->objectHandler,
             $this->userHandler,
             $this->userGroupHandler,
+            $this->userGroupAssignmentHandler,
             $this->accessHandler,
-            $this->userGroupFactory,
             $this->objectInformationFactory
         );
     }
@@ -378,8 +387,8 @@ class ControllerFactory
             $this->objectHandler,
             $this->userHandler,
             $this->userGroupHandler,
+            $this->userGroupAssignmentHandler,
             $this->accessHandler,
-            $this->userGroupFactory,
             $this->objectInformationFactory
         );
     }
