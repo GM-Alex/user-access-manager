@@ -69,6 +69,7 @@ Here you found the changes in each version.
                             Add new redirect type to the login page. closes #155
                             Add dynamic user groups for exclude object calculation. closes #181
                             Add filter for getUserUserGroupsForObjectAccess. #closes 157
+                            Make it possible to set a default group for new media files.
     2.1.9       2017/11/18  Add show content before <!--more--> tag option for all post types
                             Fix js time input issue
                             Fix small prepare query issue

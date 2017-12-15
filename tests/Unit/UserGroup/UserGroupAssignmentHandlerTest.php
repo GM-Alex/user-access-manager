@@ -260,8 +260,8 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
                 'toDate' => ['date' => 'to', 'time' => 'Date']
             ],
             DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin'],
-            DynamicUserGroup::ROLE_TYPE.'|some' => ['id' => DynamicUserGroup::ROLE_TYPE.'|some'],
             'A|B' => ['id' => 'B|A'],
+            DynamicUserGroup::ROLE_TYPE.'|some' => ['id' => DynamicUserGroup::ROLE_TYPE.'|some']
         ];
 
         $exception = null;

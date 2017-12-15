@@ -99,6 +99,27 @@ class PostObjectController extends ObjectController
     }
 
     /**
+     * The function for the add_attachment action.
+     *
+     * @param int $postId
+     */
+    public function addAttachment($postId)
+    {
+        $post = $this->objectHandler->getPost($postId);
+        $postType = $post->post_type;
+        $postId = $post->ID;
+        $defaultGroups = [];
+
+        foreach ($this->userGroupHandler->getFullUserGroups() as $userGroup) {
+            if ($userGroup->isDefaultGroupForObjectType($postType) === true) {
+                $defaultGroups[$userGroup->getId()] = ['id' => $userGroup->getId()];
+            }
+        }
+
+        $this->saveObjectData($postType, $postId, $defaultGroups, true);
+    }
+
+    /**
      * The function for the attachment_fields_to_save filter.
      * We have to use this because the attachment actions work
      * not in the way we need.

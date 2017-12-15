@@ -494,6 +494,7 @@ class UserAccessManager
             2
         );
         $this->wordpress->addAction('save_post', [$postObjectController, 'savePostData']);
+        $this->wordpress->addAction('add_attachment', [$postObjectController, 'addAttachment']);
         $this->wordpress->addAction('edit_user_profile', [$userObjectController, 'showUserProfile']);
         $this->wordpress->addAction('user_new_form', [$userObjectController, 'showUserProfile']);
         $this->wordpress->addAction('user_register', [$userObjectController, 'saveUserData']);

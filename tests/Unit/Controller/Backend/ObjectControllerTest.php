@@ -586,6 +586,13 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $userGroupAssignmentHandler = $this->getUserGroupAssignmentHandler();
         $userGroupAssignmentHandler->expects($this->exactly(5))
             ->method('assignObjectToUserGroups')
+            ->withConsecutive(
+                ['objectType', 1],
+                ['objectType', 1],
+                ['objectType', 1],
+                ['objectType', 'objectId'],
+                ['objectType', 1, [], [1 => ['id' => 1], 2 => ['id' => 2]], []]
+            )
             ->will($this->returnCallback(function () use (&$throwException) {
                 if ($throwException === true) {
                     throw new UserGroupAssignmentException('User group assignment exception');

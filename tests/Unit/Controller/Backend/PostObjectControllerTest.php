@@ -269,6 +269,88 @@ class PostObjectControllerTest extends ObjectControllerTestCase
     }
 
     /**
+     * @param string $id
+     * @param string $isDefault
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+     */
+    private function getUserGroupWithDefault($id, $isDefault)
+    {
+        $userGroups = $this->getUserGroup($id);
+        $userGroups->expects($this->any())
+            ->method('isDefaultGroupForObjectType')
+            ->will($this->returnValue($isDefault));
+
+        return $userGroups;
+    }
+
+    /**
+     * @group  unit
+     * @covers ::addAttachment()
+     */
+    public function testAddAttachment()
+    {
+        $userHandler = $this->getUserHandler();
+        $userHandler->expects($this->any())
+            ->method('checkUserAccess')
+            ->with('manage_user_groups')
+            ->will($this->returnValue(false));
+
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->any())
+            ->method('getFilteredUserGroups')
+            ->will($this->returnValue([]));
+
+        $userGroupHandler->expects($this->once())
+            ->method('getFilteredUserGroupsForObject')
+            ->withConsecutive(
+                []
+            )
+            ->will($this->returnValue([]));
+
+        $userGroupHandler->expects($this->once())
+            ->method('getFullUserGroups')
+            ->will($this->returnValue([
+                $this->getUserGroupWithDefault(1, false),
+                $this->getUserGroupWithDefault(2, true),
+                $this->getUserGroupWithDefault(3, false),
+                $this->getUserGroupWithDefault(4, true)
+            ]));
+
+        $userGroupAssignmentHandler = $this->getUserGroupAssignmentHandler();
+        $userGroupAssignmentHandler->expects($this->once())
+            ->method('assignObjectToUserGroups')
+            ->with(
+                ObjectHandler::POST_OBJECT_TYPE,
+                1,
+                [
+                    2 => ['id' => 2],
+                    4 => ['id' => 4]
+                ]
+            );
+
+        /**
+         * @var PostObjectController $postObjectController
+         */
+        $postObjectController = new PostObjectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getDateUtil(),
+            $this->getExtendedObjectHandler(),
+            $userHandler,
+            $userGroupHandler,
+            $userGroupAssignmentHandler,
+            $this->getAccessHandler(),
+            $this->getObjectInformationFactory()
+        );
+
+        $postObjectController->addAttachment(1);
+    }
+
+    /**
      * @group  unit
      * @covers ::removePostData()
      */

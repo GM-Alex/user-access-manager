@@ -53,10 +53,12 @@ class ObjectInformationTest extends \PHPUnit_Framework_TestCase
         self::assertEquals(0, $objectInformation->getUserGroupDiff());
         self::assertEquals([], $objectInformation->getObjectUserGroups());
 
-        $objectInformation->setObjectType('objectType')
+        $return = $objectInformation->setObjectType('objectType')
             ->setObjectId('objectId')
             ->setUserGroupDiff(10)
             ->setObjectUserGroups(['userGroups']);
+
+        self::assertInstanceOf(ObjectInformation::class, $return);
 
         self::assertEquals('objectType', $objectInformation->getObjectType());
         self::assertEquals('objectId', $objectInformation->getObjectId());

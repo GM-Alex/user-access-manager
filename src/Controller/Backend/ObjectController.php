@@ -364,15 +364,16 @@ class ObjectController extends Controller
      * @param string $objectType    The object type.
      * @param string $objectId      The id of the object.
      * @param array  $addUserGroups The new user groups for the object.
+     * @param bool   $force         If true we force the assignment.
      */
-    public function saveObjectData($objectType, $objectId, array $addUserGroups = null)
+    public function saveObjectData($objectType, $objectId, array $addUserGroups = null, $force = false)
     {
         $isUpdateForm = (bool)$this->getRequestParameter(self::UPDATE_GROUPS_FORM_NAME, false) === true
             || $this->getRequestParameter('uam_bulk_type') !== null;
 
         $hasRights = $this->checkUserAccess() === true || $this->mainConfig->authorsCanAddPostsToGroups() === true;
 
-        if ($isUpdateForm === true && $hasRights === true) {
+        if ($isUpdateForm === true && $hasRights === true || $force === true) {
             $this->getAddRemoveGroups($objectType, $objectId, $addUserGroups, $removeUserGroups);
 
             try {

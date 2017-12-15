@@ -235,7 +235,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(68))
+        $wordpress->expects($this->exactly(70))
             ->method('addAction');
 
         $wordpress->expects($this->exactly(16))
