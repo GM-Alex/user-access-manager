@@ -44,8 +44,6 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      * @group   unit
      * @covers  ::__construct()
      * @throws \Exception
-     * @throws \Exception
-     * @throws \Exception
      */
     public function testCanCreateInstance()
     {
