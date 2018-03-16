@@ -763,7 +763,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
-        self::setValue($frontendPostController, 'cachedCounts', 'cachedResult');
+        self::setValue($frontendPostController, 'cachedCounts', ['type' => 'cachedResult']);
         self::assertEquals(
             'cachedResult',
             $frontendPostController->showPostCount(
@@ -773,7 +773,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
-        self::setValue($frontendPostController, 'cachedCounts', null);
+        self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -783,7 +783,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
-        self::setValue($frontendPostController, 'cachedCounts', null);
+        self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -793,7 +793,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
-        self::setValue($frontendPostController, 'cachedCounts', null);
+        self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -803,7 +803,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
-        self::setValue($frontendPostController, 'cachedCounts', null);
+        self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
@@ -813,7 +813,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             )
         );
 
-        self::setValue($frontendPostController, 'cachedCounts', null);
+        self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
             $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(

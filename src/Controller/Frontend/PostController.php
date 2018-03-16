@@ -46,7 +46,7 @@ class PostController extends ContentController
     /**
      * @var null|\stdClass
      */
-    private $cachedCounts = null;
+    private $cachedCounts = [];
 
     /**
      * PostController constructor.
@@ -434,7 +434,7 @@ class PostController extends ContentController
      */
     public function showPostCount($counts, $type, $perm)
     {
-        if ($this->cachedCounts === null) {
+        if (isset($this->cachedCounts[$type]) === false) {
             $excludedPosts = $this->accessHandler->getExcludedPosts();
 
             if ($excludedPosts !== []) {
@@ -451,10 +451,10 @@ class PostController extends ContentController
                 }
             }
 
-            $this->cachedCounts = $counts;
+            $this->cachedCounts[$type] = $counts;
         }
 
-        return $this->cachedCounts;
+        return $this->cachedCounts[$type];
     }
 
     /**
