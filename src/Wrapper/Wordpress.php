@@ -1053,6 +1053,10 @@ class Wordpress
      */
     public function gotModRewrite()
     {
+        if (function_exists('\got_mod_rewirte') === false) {
+            require_once(ABSPATH.'wp-admin/includes/misc.php');
+        }
+
         return \got_mod_rewrite();
     }
 }
