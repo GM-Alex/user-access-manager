@@ -231,6 +231,7 @@ define('TXT_UAM_UPDATE_UAM_DB_DESCRIPTION', __('Updates the database of the User
 define('TXT_UAM_UPDATE', __('update now', 'user-access-manager'));
 define('TXT_UAM_UAM_RESET_SUCCESS', __('User Access Manager was reset successfully', 'user-access-manager'));
 define('TXT_UAM_UAM_DB_UPDATE_SUCCESS', __('User Access Manager database was updated successfully', 'user-access-manager'));
+define('TXT_UAM_UAM_DB_UPDATE_FAILURE', __('Failure on User Access Manager database update', 'user-access-manager'));
 define('TXT_UAM_UPDATE_BLOG', __('Update current blog', 'user-access-manager'));
 define('TXT_UAM_UPDATE_NETWORK', __('Update network wide', 'user-access-manager'));
 define('TXT_UAM_UPDATE_BACKUP', __('Backup the uam database tables', 'user-access-manager'));

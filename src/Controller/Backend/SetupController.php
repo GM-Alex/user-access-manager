@@ -110,6 +110,7 @@ class SetupController extends Controller
      */
     public function updateDatabaseAction()
     {
+        $success = true;
         $this->verifyNonce(self::SETUP_UPDATE_NONCE);
         $update = $this->getRequestParameter('uam_update_db');
         $backup = (bool)$this->getRequestParameter('uam_backup_db', false);
@@ -125,11 +126,12 @@ class SetupController extends Controller
                     $this->setupHandler->getDatabaseHandler()->backupDatabase();
                 }
 
-                $this->setupHandler->update();
+                $success = $success && $this->setupHandler->update();
                 $this->wordpress->restoreCurrentBlog();
             }
 
-            $this->setUpdateMessage(TXT_UAM_UAM_DB_UPDATE_SUCCESS);
+                $message = $success === true ? TXT_UAM_UAM_DB_UPDATE_SUCCESS : TXT_UAM_UAM_DB_UPDATE_FAILURE;
+                $this->setUpdateMessage($message);
         }
     }
 
@@ -182,6 +184,7 @@ class SetupController extends Controller
 
         if ($databaseHandler->repairDatabase() === true) {
             $this->setUpdateMessage(TXT_UAM_REPAIR_DATABASE_SUCCESS);
+            $this->wordpress->updateOption('uam_db_version', UserAccessManager::DB_VERSION);
         }
     }
 

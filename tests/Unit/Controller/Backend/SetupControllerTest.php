@@ -163,7 +163,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
             ->method('getDatabaseHandler')
             ->will($this->returnValue($databaseHandler));
 
-        $setupHandler->expects($this->exactly(5))
+        $setupHandler->expects($this->exactly(3))
             ->method('update');
 
         $setupHandler->expects($this->exactly(3))
@@ -190,7 +190,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $_GET['uam_backup_db'] = true;
         $_GET['uam_update_db'] = SetupController::UPDATE_BLOG;
         $setupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $setupController);
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, 'updateMessage', $setupController);
 
         $_GET['uam_update_db'] = SetupController::UPDATE_NETWORK;
         self::setValue($setupController, 'updateMessage', null);
@@ -199,12 +199,12 @@ class SetupControllerTest extends UserAccessManagerTestCase
 
         self::setValue($setupController, 'updateMessage', null);
         $setupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $setupController);
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, 'updateMessage', $setupController);
 
         unset($_GET['uam_backup_db']);
         self::setValue($setupController, 'updateMessage', null);
         $setupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $setupController);
+        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, 'updateMessage', $setupController);
     }
 
     /**
@@ -292,6 +292,12 @@ class SetupControllerTest extends UserAccessManagerTestCase
      */
     public function testRepairDatabaseAction()
     {
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->once())
+            ->method('updateOption')
+            ->with('uam_db_version', UserAccessManager::DB_VERSION);
+
         $information = [
             DatabaseHandler::MISSING_TABLES => [],
             DatabaseHandler::MISSING_COLUMNS => [],
@@ -326,7 +332,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
 
         $setupController = new SetupController(
             $this->getPhp(),
-            $this->getWordpress(),
+            $wordpress,
             $this->getWordpressConfig(),
             $this->getDatabase(),
             $setupHandler
