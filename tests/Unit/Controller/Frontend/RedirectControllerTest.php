@@ -658,21 +658,21 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->with('/')
             ->will($this->returnValue('homeUrl'));
 
-        $wordpress->expects($this->exactly(5))
+        $wordpress->expects($this->exactly(6))
             ->method('isNginx')
-            ->will($this->onConsecutiveCalls(true, true, true, false, false));
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
 
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(5))
             ->method('gotModRewrite')
-            ->will($this->onConsecutiveCalls(true, false, false));
+            ->will($this->onConsecutiveCalls(true, false, false, false, false));
 
         $wordpressConfig = $this->getWordpressConfig();
 
         $mainConfig = $this->getMainConfig();
 
-        $mainConfig->expects($this->exactly(6))
+        $mainConfig->expects($this->exactly(7))
             ->method('lockFile')
-            ->will($this->onConsecutiveCalls(false, true, true, true, true, true));
+            ->will($this->onConsecutiveCalls(false, true, true, true, true, true, true));
 
         $mainConfig->expects($this->exactly(3))
             ->method('getLockedFiles')
@@ -704,6 +704,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
+        self::assertEquals('url', $frontendRedirectController->getFileUrl('url', 1));
         self::assertEquals('url', $frontendRedirectController->getFileUrl('url', 1));
         self::assertEquals('url', $frontendRedirectController->getFileUrl('url', 1));
         self::assertEquals('url', $frontendRedirectController->getFileUrl('url', 1));

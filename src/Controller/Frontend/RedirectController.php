@@ -388,8 +388,11 @@ class RedirectController extends Controller
      */
     public function getFileUrl($url, $id)
     {
+        // Nginx always supports real urls so we need the new urls only
+        // if we don't use nginx and mod_rewrite is disabled
         if ($this->mainConfig->lockFile() === true
-            && ($this->wordpress->isNginx() === false || $this->wordpress->gotModRewrite() === false)
+            && $this->wordpress->isNginx() === false
+            && $this->wordpress->gotModRewrite() === false
         ) {
             $post = $this->objectHandler->getPost($id);
 
