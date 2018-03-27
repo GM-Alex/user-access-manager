@@ -263,11 +263,13 @@ class UserGroupHandler
      *
      * @return bool
      */
+
     private function checkUserGroupAccess(UserGroup $userGroup)
     {
         $userIp = isset($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] : $_SERVER['REMOTE_ADDR'];
+        $filteredUserIp = apply_filters('uam/checkUserGroupAccess/userIp',$userIp);
 
-        return $this->userHandler->isIpInRange($userIp, $userGroup->getIpRangeArray())
+        return $this->userHandler->isIpInRange($filteredUserIp, $userGroup->getIpRangeArray())
             || $this->wordpressConfig->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
             || $this->wordpressConfig->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all';
     }
