@@ -100,10 +100,11 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
      * Creates the file content if permalinks are active.
      *
      * @param string $objectType
+     * @param bool   $isSubSite
      *
      * @return string
      */
-    private function getPermalinkFileContent($objectType)
+    private function getPermalinkFileContent($objectType, $isSubSite = false)
     {
         if ($objectType === null) {
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
@@ -115,7 +116,10 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $content = "RewriteEngine On\n";
         $content .= "RewriteBase {$homeRoot}\n";
         $content .= "RewriteRule ^index\\.php$ - [L]\n";
-        $content .= "RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n";
+
+        if ($isSubSite === false) {
+            $content .= "RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n";
+        }
 
         $directoryMatch = $this->getDirectoryMatch();
 
@@ -162,7 +166,10 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
             $content = $this->getFileContent($directory);
             $this->createPasswordFile(true, $directory);
         } else {
-            $content = $this->getPermalinkFileContent($objectType);
+            $content = $this->getPermalinkFileContent(
+                $objectType,
+                preg_match('/.*\/sites\/[0-9]+\/$/', $directory) !== 0
+            );
         }
 
         // save files

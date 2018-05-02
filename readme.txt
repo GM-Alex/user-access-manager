@@ -59,6 +59,8 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.1.12      2018/05/??  Fix multi site file handling issue. #222
+
     2.1.11      2018/03/16  Fix missing got_mod_rewrite function. #212
                             Fix wrong media urls. #207
                             Fix wrong post counts at the admin panel.
