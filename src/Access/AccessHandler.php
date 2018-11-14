@@ -184,7 +184,7 @@ class AccessHandler
             } else {
                 $membership = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId);
                 $access = $membership === []
-                    || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [];
+                    || ( array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [] && is_user_member_of_blog() );
             }
 
             $this->objectAccess[$admin][$objectType][$objectId] = $access;
