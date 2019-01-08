@@ -22,7 +22,6 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\PostObjectController;
-use UserAccessManager\Controller\Backend\SetupController;
 use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\ControllerFactory;
@@ -33,6 +32,7 @@ use UserAccessManager\File\FileProtectionFactory;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Setup\SetupHandler;
+use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroupHandler;
@@ -48,7 +48,7 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserAccessManager
 {
-    const VERSION = '2.1.11';
+    const VERSION = '2.1.12';
     const DB_VERSION = '1.6.1';
 
     /**
@@ -95,6 +95,11 @@ class UserAccessManager
      * @var UserGroupHandler
      */
     private $userGroupHandler;
+
+    /**
+     * @var UserGroupAssignmentHandler
+     */
+    private $userGroupAssignmentHandler;
 
     /**
      * @var AccessHandler
@@ -293,6 +298,9 @@ class UserAccessManager
         return $this->userHandler;
     }
 
+    /**
+     * @return UserGroupHandler
+     */
     public function getUserGroupHandler()
     {
         return $this->userGroupHandler;
