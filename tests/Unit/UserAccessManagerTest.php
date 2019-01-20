@@ -18,7 +18,6 @@ use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\PostObjectController;
-use UserAccessManager\Controller\Backend\SetupController;
 use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;

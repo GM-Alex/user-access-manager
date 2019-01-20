@@ -21,7 +21,6 @@ use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
-use UserAccessManager\UserGroup\UserGroupAssignmentException;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;

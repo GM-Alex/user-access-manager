@@ -10,7 +10,7 @@ install:
   - composer install
   - npm install
 script:
-  - ./vendor/bin/phpcs -p --standard=PSR2 ./src ./tests
+  - ./vendor/bin/phpcs -p --standard=PSR2 ./src ./tests --ignore=./tests/bootstrap.php
   - ./scripts/phpunit.sh
   - ./scripts/humbug.sh
   - ./scripts/build.sh

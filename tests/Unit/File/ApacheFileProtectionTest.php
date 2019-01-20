@@ -163,7 +163,13 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
          */
         $rootDir = $this->root->get('/');
         $rootDir->add('testDir', new Directory());
+        $rootDir->add('secondTestDir', new Directory([
+            'sites' => new Directory([
+                '2' => new Directory()
+            ])
+        ]));
         $testDir = 'vfs://testDir';
+        $secondTestDir = 'vfs://secondTestDir/sites/2/';
 
         $apacheFileProtection = new ApacheFileProtection(
             $this->getPhp(),
@@ -173,8 +179,8 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             $this->getUtil()
         );
 
-        $file = 'vfs://testDir/'.ApacheFileProtection::FILE_NAME;
-        $passwordFile = 'vfs://testDir/'.ApacheFileProtection::PASSWORD_FILE_NAME;
+        $file = $testDir.'/'.ApacheFileProtection::FILE_NAME;
+        $passwordFile = $testDir.'/'.ApacheFileProtection::PASSWORD_FILE_NAME;
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertTrue(file_exists($file));
@@ -240,19 +246,20 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             file_get_contents($file)
         );
 
-        self::assertTrue($apacheFileProtection->create($testDir, 'objectType'));
+        $secondFile = $secondTestDir.'/'.ApacheFileProtection::FILE_NAME;
+
+        self::assertTrue($apacheFileProtection->create($secondTestDir, 'objectType'));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\n"
             ."RewriteEngine On\n"
             ."RewriteBase /path/\n"
             ."RewriteRule ^index\.php$ - [L]\n"
-            ."RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
             ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
             ."/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
             ."RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
             ."</IfModule>\n",
-            file_get_contents($file)
+            file_get_contents($secondFile)
         );
 
         self::assertFalse($apacheFileProtection->create('invalid', 'invalid'));
