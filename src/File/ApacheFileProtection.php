@@ -54,7 +54,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     protected function getDirectoryMatch()
     {
         if ($this->mainConfig->getLockedDirectoryType() === 'wordpress') {
-            return '^.*'.DIRECTORY_SEPARATOR.parent::getDirectoryMatch().'.*$';
+            return '^.*/'.parent::getDirectoryMatch().'.*$';
         }
 
         return parent::getDirectoryMatch();
