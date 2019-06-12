@@ -51,7 +51,7 @@ class DatabaseUpdate4Test extends UserAccessManagerTestCase
             $this->getObjectHandler()
         );
 
-        self::assertEquals('1.4', $update->getVersion());
+        self::assertEquals('1.4.1', $update->getVersion());
     }
 
     /**
