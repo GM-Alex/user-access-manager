@@ -151,7 +151,7 @@ class ObjectController extends Controller
         if ($objectUserGroups === null && $objectId !== null) {
             $objectUserGroups = $this->userGroupHandler->getFilteredUserGroupsForObject($objectType, $objectId, true);
             $fullObjectUserGroups = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId, true);
-            $userGroupDiff = count($fullObjectUserGroups) - count($objectUserGroups);
+            $userGroupDiff = count((array) $fullObjectUserGroups) - count((array) $objectUserGroups);
         }
 
         $this->objectInformation->setObjectType($objectType)

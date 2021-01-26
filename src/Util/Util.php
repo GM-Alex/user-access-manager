@@ -97,7 +97,8 @@ class Util
             $serverRequestUri = $_SERVER['REQUEST_URI'];
         }
 
-        $secure = empty($_SERVER['HTTPS']) ? '' : ($_SERVER['HTTPS'] === 'on') ? 's' : '';
+        $https = $_SERVER['HTTPS'] ?? '';
+        $secure = $https === 'on' ? 's' : '';
         $protocols = explode('/', strtolower($_SERVER['SERVER_PROTOCOL']));
         $protocol = $protocols[0].$secure;
         $port = ((int)$_SERVER['SERVER_PORT'] === 80) ? '' : (':'.$_SERVER['SERVER_PORT']);

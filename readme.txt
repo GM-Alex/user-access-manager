@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
-Tested up to: 5.0
-Stable tag: 2.1.12
+Tested up to: 5.6
+Stable tag: 2.1.13
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -59,12 +59,15 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.1.13      2021/01/26  Fix possible update bug.
+
     2.1.12      2019/01/08  Fix multi site file handling issue. #222
 
     2.1.11      2018/03/16  Fix missing got_mod_rewrite function. #212
                             Fix wrong media urls. #207
                             Fix wrong post counts at the admin panel.
                             Improve database updates/repairs.
+
 
     2.1.10      2017/12/15  Fix Posts removed from WP_Query results in Ajax requests for unprivileged users #176
                             Improve partly download handler
@@ -77,6 +80,7 @@ Here you found the changes in each version.
                             Add dynamic user groups for exclude object calculation. closes #181
                             Add filter for getUserUserGroupsForObjectAccess. closes #157
                             Make it possible to set a default group for new media files.
+
     2.1.9       2017/11/18  Add show content before <!--more--> tag option for all post types
                             Fix js time input issue
                             Fix small prepare query issue
@@ -85,17 +89,22 @@ Here you found the changes in each version.
                             Show no access image again instead of broken image
                             Fix double user group form for media files
                             Add option to hide the edit page option if the user doesn't have the right to edit this page #174
+
     2.1.8       2017/11/07  Add getter for the user group handler fixes #160
                             Fix multi site file handling issue #159
+
     2.1.7       2017/11/01  Improve database update prompt fixes #153
                             Fix user group selection not saved when adding a new user issue fixes #154
                             Add none read access option for user groups closes #144
                             Extend file settings
                             Add xsendfile support
+
     2.1.6       2017/10/20  Fix "Inherited group membership for media attachments" issue #133
                             Fix traits strict warning #145
+
     2.1.5       2017/10/12  Refactor traits
                             Fix datetime issue with not supported browsers
+
     2.1.4       2017/10/10  Fix strict warnings #134
                             Fix "Unable to select default user group for both page and post" issue #126
                             Add NGINX reverse proxy handling #117
@@ -103,10 +112,14 @@ Here you found the changes in each version.
                             Fix bulk edit issue #135
                             Fix array filly issue #138
                             Add database repair tool
+
     2.1.3       2017/09/18  Possible fix for custom post types / taxonomies issues
                             Fix .htaccess deletion issue
+
     2.1.2       2017/09/17  Fix issue with not handled taxonomies #123
+
     2.1.1       2017/09/16  Fix issue for users with small innodb page size #121
+
     2.1.0       2017/09/15  Refactor code
                             Implement content tags for partly restriction like UAMPPE #84
                             Add default user groups

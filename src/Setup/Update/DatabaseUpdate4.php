@@ -31,7 +31,7 @@ class DatabaseUpdate4 extends DatabaseUpdate
      */
     public function getVersion()
     {
-        return '1.4';
+        return '1.4.1';
     }
 
     /**
