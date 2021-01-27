@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Form;
 
 /**
@@ -26,11 +29,10 @@ class ValueSetFormElementValue
 
     /**
      * ValueSetFormElementValue constructor.
-     *
-     * @param mixed  $value
+     * @param mixed $value
      * @param string $label
      */
-    public function __construct($value, $label)
+    public function __construct($value, string $label)
     {
         $this->value = $value;
         $this->label = $label;
@@ -51,10 +53,9 @@ class ValueSetFormElementValue
 
     /**
      * Returns true if the option is disabled.
-     *
      * @return bool
      */
-    public function isDisabled()
+    public function isDisabled(): bool
     {
         return $this->isDisabled;
     }

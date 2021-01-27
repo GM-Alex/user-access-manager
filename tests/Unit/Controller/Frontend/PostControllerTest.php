@@ -12,12 +12,22 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Controller\Frontend\PostController;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_Comment;
+use WP_Post;
+use WP_Post_Type;
+use WP_Query;
+use WP_User;
 
 /**
  * Class PostControllerTest
@@ -53,6 +63,7 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::parseQuery()
      * @covers ::filtersSuppressed()
+     * @throws UserGroupTypeException
      */
     public function testParseQuery()
     {
@@ -75,7 +86,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         );
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $wpQuery
+         * @var MockObject|WP_Query $wpQuery
          */
         $wpQuery = $this->getMockBuilder('\WP_Query')->getMock();
         $wpQuery->query_vars = [];
@@ -96,10 +107,10 @@ class PostControllerTest extends UserAccessManagerTestCase
         self::assertEquals([1, 1, 2, 4], $wpQuery->query_vars['post__not_in']);
 
         $frontendPostController->parseQuery($wpQuery);
-        self::assertEquals([1, 2, 3, 4], $wpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
+        self::assertEqualsCanonicalizing([1, 2, 3, 4], $wpQuery->query_vars['post__not_in']);
 
         $frontendPostController->parseQuery($wpQuery);
-        self::assertEquals([1, 2, 3, 4, 5], $wpQuery->query_vars['post__not_in'], '', 0.0, 10, true);
+        self::assertEqualsCanonicalizing([1, 2, 3, 4, 5], $wpQuery->query_vars['post__not_in']);
     }
 
     /**
@@ -107,17 +118,18 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @covers ::postsPreQuery()
      * @covers ::filtersSuppressed()
      * @covers ::extractOwnFilters()
+     * @covers ::getWordpressFilters()
      */
     public function testPostsPreQuery()
     {
         $wordpress = $this->getWordpress();
 
         $frontendPostControllerMock = $this->createMock(PostController::class);
-        $postsFilter = new \stdClass();
+        $postsFilter = new stdClass();
         $postsFilter->callbacks = [
-            9 => [],
+            5 => [],
             10 => [
-                ['function' => [new \stdClass(), 'showPosts']],
+                ['function' => [new stdClass(), 'showPosts']],
                 ['function' => [$frontendPostControllerMock, 'someFunction']],
                 ['function' => [$frontendPostControllerMock, 'showPosts']],
                 ['function' => 'someFunction']
@@ -139,7 +151,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->method('getFilters')
             ->will($this->onConsecutiveCalls($firstFilter, $secondFilters));
 
-        $expectedPostsFilter = new \stdClass();
+        $expectedPostsFilter = new stdClass();
         $expectedPostsFilter->callbacks = [10 => [['function' => [$frontendPostControllerMock, 'showPosts']]]];
         $expectedFilters = [
             'the_posts' => $expectedPostsFilter,
@@ -164,7 +176,7 @@ class PostControllerTest extends UserAccessManagerTestCase
         );
 
         /**
-         * @var \WP_Query $wpQuery
+         * @var WP_Query $wpQuery
          */
         $wpQuery = $this->getMockBuilder('\WP_Query')->getMock();
 
@@ -182,28 +194,25 @@ class PostControllerTest extends UserAccessManagerTestCase
 
         self::assertEquals(['firstPost'], $frontendPostController->postsPreQuery(['firstPost'], $wpQuery));
         self::assertTrue($wpQuery->query_vars['suppress_filters']);
-        self::assertAttributeEquals(
-            [],
-            'wordpressFilters',
-            $frontendPostController
-        );
+        self::assertEquals([], $frontendPostController->getWordpressFilters());
 
         $wpQuery->query_vars = ['suppress_filters' => true];
         self::assertEquals(['firstPost'], $frontendPostController->postsPreQuery(['firstPost'], $wpQuery));
         self::assertFalse($wpQuery->query_vars['suppress_filters']);
-        self::assertAttributeEquals(
+        self::assertEquals(
             [
                 'the_posts' => $expectedPostsFilter,
                 'posts_results' => 'posts_results_content'
             ],
-            'wordpressFilters',
-            $frontendPostController
+            $frontendPostController->getWordpressFilters()
         );
     }
 
     /**
      * @group  unit
      * @covers ::restoreFilters()
+     * @covers ::getWordpressFilters()
+     * @throws ReflectionException
      */
     public function testRestoreFilters()
     {
@@ -235,29 +244,29 @@ class PostControllerTest extends UserAccessManagerTestCase
         $this->callMethod($frontendPostController, 'restoreFilters');
         $this->setValue($frontendPostController, 'wordpressFilters', ['secondFilter' => 'secondFilterValue']);
         $this->callMethod($frontendPostController, 'restoreFilters');
-        self::assertAttributeEquals([], 'wordpressFilters', $frontendPostController);
+        self::assertEquals([], $frontendPostController->getWordpressFilters());
     }
 
     /**
-     * @param int    $id
+     * @param int $id
      * @param string $postType
-     * @param string $title
-     * @param string $content
-     * @param bool   $closed
+     * @param null $title
+     * @param null $content
+     * @param bool $closed
      * @param string $postMimeType
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\WP_Post
+     * @return MockObject|WP_Post
      */
     private function getPost(
-        $id,
+        int $id,
         $postType = 'post',
         $title = null,
         $content = null,
         $closed = false,
         $postMimeType = 'post/mime/type'
-    ) {
+    )
+    {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Post $post
+         * @var MockObject|WP_Post $post
          */
         $post = $this->getMockBuilder('\WP_Post')->getMock();
         $post->ID = $id;
@@ -279,6 +288,8 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @covers ::getPost()
      * @covers ::processPost()
      * @covers ::processPostContent()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testShowPostsAtAdminPanel()
     {
@@ -287,6 +298,12 @@ class PostControllerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(4))
             ->method('isFeed')
             ->will($this->onConsecutiveCalls(true, true, false, false));
+
+        $wordpress->expects($this->once())
+            ->method('getFilters');
+
+        $wordpress->expects($this->once())
+            ->method('setFilters');
 
         $wordpressConfig = $this->getWordpressConfig();
 
@@ -382,7 +399,9 @@ class PostControllerTest extends UserAccessManagerTestCase
         self::assertEquals($posts, $frontendPostController->showPosts($posts));
         self::assertEquals([$this->getPost(2)], $frontendPostController->showPosts($posts));
         self::assertEquals([$this->getPost(1), $this->getPost(2)], $frontendPostController->showPosts($posts));
+        self::setValue($frontendPostController, 'wordpressFilters', ['a' => 'b']);
         self::assertEquals([], $frontendPostController->showPosts());
+        self::setValue($frontendPostController, 'wordpressFilters', []);
         self::assertEquals([], $frontendPostController->showPages());
         self::assertEquals([$this->getPost(2, 'page')], $frontendPostController->showPages($pages));
     }
@@ -395,6 +414,7 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @covers ::processPost()
      * @covers ::processPostContent()
      * @covers ::filterRawPosts()
+     * @throws UserGroupTypeException
      */
     public function testShowPosts()
     {
@@ -495,10 +515,10 @@ class PostControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
-        $stdClassPost = new \stdClass();
+        $stdClassPost = new stdClass();
         $stdClassPost->ID = 2;
 
-        $invalidStdClassPost = new \stdClass();
+        $invalidStdClassPost = new stdClass();
 
         $posts = [
             1 => 1,
@@ -543,6 +563,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getAttachedFile()
+     * @throws UserGroupTypeException
      */
     public function testGetAttachedFile()
     {
@@ -577,7 +598,8 @@ class PostControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
-        self::assertEquals('testFile', $frontendPostController->getAttachedFile('testFile', 1));
+        self::assertEquals('testFile.gif', $frontendPostController->getAttachedFile('testFile.gif', 1));
+        self::assertEquals('testFile.gif  ', $frontendPostController->getAttachedFile('testFile.gif  ', 1));
         self::assertEquals('firstFile', $frontendPostController->getAttachedFile('firstFile', 1));
         self::assertFalse($frontendPostController->getAttachedFile('secondFile', 2));
     }
@@ -586,6 +608,7 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::showPostSql()
      * @covers ::addQueryExcludedPostFilter()
+     * @throws UserGroupTypeException
      */
     public function testShowPostSql()
     {
@@ -621,12 +644,11 @@ class PostControllerTest extends UserAccessManagerTestCase
 
     /**
      * @param array $properties
-     *
-     * @return \stdClass
+     * @return stdClass
      */
-    private function createCounts(array $properties)
+    private function createCounts(array $properties): stdClass
     {
-        $counts = new \stdClass();
+        $counts = new stdClass();
 
         foreach ($properties as $property => $value) {
             $counts->{$property} = $value;
@@ -639,6 +661,8 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::showPostCount()
      * @covers ::getPostCountQuery()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testShowPostCount()
     {
@@ -647,8 +671,8 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->method('isUserLoggedIn')
             ->will($this->onConsecutiveCalls(false, true, true));
 
-        $postTypeObject = new \stdClass();
-        $postTypeObject->cap = new \stdClass();
+        $postTypeObject = $this->createMock(WP_Post_Type::class);
+        $postTypeObject->cap = new stdClass();
         $postTypeObject->cap->read_private_posts = 'readPrivatePostsValue';
 
         $wordpress->expects($this->exactly(2))
@@ -661,7 +685,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(true, false));
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_User $user
+         * @var MockObject|WP_User $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->ID = 1;
@@ -680,7 +704,7 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->method('getResults')
             ->with('preparedQuery', ARRAY_A)
             ->will($this->returnValue([
-                ['post_status' => 'firstStatus', 'num_posts' => 2],
+                ['post_status' => 'firstStatus', 'num_posts' => 3],
                 ['post_status' => 'thirdStatus', 'num_posts' => 5],
                 ['post_status' => 'invalid', 'num_posts' => 5],
             ]));
@@ -763,9 +787,11 @@ class PostControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
-        self::setValue($frontendPostController, 'cachedCounts', ['type' => 'cachedResult']);
+        $cachedResult = new stdClass();
+        $cachedResult->test = 'cachedResult';
+        self::setValue($frontendPostController, 'cachedCounts', ['type' => $cachedResult]);
         self::assertEquals(
-            'cachedResult',
+            $cachedResult,
             $frontendPostController->showPostCount(
                 $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
                 'type',
@@ -785,7 +811,7 @@ class PostControllerTest extends UserAccessManagerTestCase
 
         self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
-            $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+            $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
                 $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
                 'type',
@@ -795,7 +821,7 @@ class PostControllerTest extends UserAccessManagerTestCase
 
         self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
-            $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+            $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
                 $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
                 'type',
@@ -805,7 +831,7 @@ class PostControllerTest extends UserAccessManagerTestCase
 
         self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
-            $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+            $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
                 $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
                 'type',
@@ -815,7 +841,7 @@ class PostControllerTest extends UserAccessManagerTestCase
 
         self::setValue($frontendPostController, 'cachedCounts', []);
         self::assertEquals(
-            $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
+            $this->createCounts(['firstStatus' => 3, 'secondStatus' => 8]),
             $frontendPostController->showPostCount(
                 $this->createCounts(['firstStatus' => 2, 'secondStatus' => 8]),
                 'type',
@@ -825,15 +851,14 @@ class PostControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int    $postId
-     * @param string $content
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\WP_Comment
+     * @param int $postId
+     * @param null $content
+     * @return MockObject|WP_Comment
      */
-    private function getComment($postId, $content = null)
+    private function getComment(int $postId, $content = null)
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Comment $comment
+         * @var MockObject|WP_Comment $comment
          */
         $comment = $this->getMockBuilder('\WP_Comment')->getMock();
         $comment->comment_post_ID = $postId;
@@ -846,6 +871,7 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::showComment()
      * @covers ::hidePostComment()
+     * @throws UserGroupTypeException
      */
     public function testShowComment()
     {
@@ -945,6 +971,7 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::showNextPreviousPost()
      * @covers ::addQueryExcludedPostFilter()
+     * @throws UserGroupTypeException
      */
     public function testShowNextPreviousPost()
     {
@@ -978,6 +1005,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showEditLink()
+     * @throws UserGroupTypeException
      */
     public function testShowEditLink()
     {
@@ -1032,11 +1060,11 @@ class PostControllerTest extends UserAccessManagerTestCase
         self::assertEquals('link', $frontendPostController->showEditLink('link', 1));
         self::assertEquals('link', $frontendPostController->showEditLink('link', 1));
         self::assertEquals(
-            'link | '.TXT_UAM_ASSIGNED_GROUPS.': name2',
+            'link | ' . TXT_UAM_ASSIGNED_GROUPS . ': name2',
             $frontendPostController->showEditLink('link', 1)
         );
         self::assertEquals(
-            ' '.TXT_UAM_ASSIGNED_GROUPS.': &lt;a&gt;test&lt;/a&gt;, name2',
+            ' ' . TXT_UAM_ASSIGNED_GROUPS . ': &lt;a&gt;test&lt;/a&gt;, name2',
             $frontendPostController->showEditLink('link', 1)
         );
     }

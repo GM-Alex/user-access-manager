@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Util;
 
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;

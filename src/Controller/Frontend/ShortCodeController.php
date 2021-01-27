@@ -12,11 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\UserGroup\UserGroupHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -36,8 +40,7 @@ class ShortCodeController extends Controller
 
     /**
      * ShortCodeController constructor.
-     *
-     * @param Php              $php
+      * @param Php              $php
      * @param Wordpress        $wordpress
      * @param WordpressConfig  $wordpressConfig
      * @param UserGroupHandler $userGroupHandler
@@ -55,17 +58,16 @@ class ShortCodeController extends Controller
     /**
      * @return Wordpress
      */
-    protected function getWordpress()
+    protected function getWordpress(): Wordpress
     {
         return $this->wordpress;
     }
 
     /**
      * Returns the login bar.
-     *
-     * @return string
+      * @return string
      */
-    public function getLoginFormHtml()
+    public function getLoginFormHtml(): string
     {
         $loginForm = '';
 
@@ -78,49 +80,43 @@ class ShortCodeController extends Controller
 
     /**
      * Handles the login form short code.
-     *
-     * @return string
+      * @return string
      */
-    public function loginFormShortCode()
+    public function loginFormShortCode(): string
     {
         return $this->getLoginFormHtml();
     }
 
     /**
      * Handles the public short code.
-     *
-     * @param array  $attributes
+      * @param array $attributes
      * @param string $content
-     *
-     * @return string
+      * @return string
      */
-    public function publicShortCode($attributes, $content = '')
+    public function publicShortCode(array $attributes, $content = ''): string
     {
         return ($this->wordpress->isUserLoggedIn() === false) ? $this->wordpress->doShortCode($content) : '';
     }
 
     /**
      * Returns the user group map from the short code attribute.
-     *
-     * @param array $attributes
-     *
-     * @return array
+      * @param array $attributes
+      * @return array
      */
-    private function getUserGroupsMapFromAttributes(array $attributes)
+    private function getUserGroupsMapFromAttributes(array $attributes): array
     {
         $userGroups = (isset($attributes['group']) === true) ? explode(',', $attributes['group']) : [];
-        return (array)array_flip(array_map('trim', $userGroups));
+        return (array) array_flip(array_map('trim', $userGroups));
     }
 
     /**
      * Handles the private short code.
-     *
-     * @param array  $attributes
+      * @param array $attributes
      * @param string $content
-     *
-     * @return string
+      * @return string
+     * @throws UserGroupTypeException
      */
-    public function privateShortCode($attributes, $content = '')
+    public function privateShortCode(array $attributes, $content = ''): string
     {
         if ($this->wordpress->isUserLoggedIn() === true) {
             $userGroupMap = $this->getUserGroupsMapFromAttributes($attributes);

@@ -12,10 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use ReflectionException;
 use UserAccessManager\Controller\Backend\SetupController;
 use UserAccessManager\Setup\Database\DatabaseHandler;
+use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserAccessManager;
 
@@ -132,10 +135,11 @@ class SetupControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::updateDatabaseAction()
+     * @throws ReflectionException
      */
     public function testUpdateDatabaseAction()
     {
-        $_GET[SetupController::SETUP_UPDATE_NONCE.'Nonce'] = 'updateNonce';
+        $_GET[SetupController::SETUP_UPDATE_NONCE . 'Nonce'] = 'updateNonce';
 
         $wordpress = $this->getWordpress();
 
@@ -185,26 +189,26 @@ class SetupControllerTest extends UserAccessManagerTestCase
         );
 
         $setupController->updateDatabaseAction();
-        self::assertAttributeEquals(null, 'updateMessage', $setupController);
+        self::assertEquals(null, $setupController->getUpdateMessage());
 
         $_GET['uam_backup_db'] = true;
         $_GET['uam_update_db'] = SetupController::UPDATE_BLOG;
         $setupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, 'updateMessage', $setupController);
+        self::assertEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, $setupController->getUpdateMessage());
 
         $_GET['uam_update_db'] = SetupController::UPDATE_NETWORK;
         self::setValue($setupController, 'updateMessage', null);
         $setupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, 'updateMessage', $setupController);
+        self::assertEquals(TXT_UAM_UAM_DB_UPDATE_SUCCESS, $setupController->getUpdateMessage());
 
         self::setValue($setupController, 'updateMessage', null);
         $setupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, 'updateMessage', $setupController);
+        self::assertEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, $setupController->getUpdateMessage());
 
         unset($_GET['uam_backup_db']);
         self::setValue($setupController, 'updateMessage', null);
         $setupController->updateDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, 'updateMessage', $setupController);
+        self::assertEquals(TXT_UAM_UAM_DB_UPDATE_FAILURE, $setupController->getUpdateMessage());
     }
 
     /**
@@ -213,7 +217,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
      */
     public function testRevertDatabaseAction()
     {
-        $_GET[SetupController::SETUP_REVERT_NONCE.'Nonce'] = 'revertNonce';
+        $_GET[SetupController::SETUP_REVERT_NONCE . 'Nonce'] = 'revertNonce';
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(2))
             ->method('verifyNonce')
@@ -241,16 +245,17 @@ class SetupControllerTest extends UserAccessManagerTestCase
 
         $_GET['uam_revert_database'] = '1.2';
         $setupController->revertDatabaseAction();
-        self::assertAttributeEquals(null, 'updateMessage', $setupController);
+        self::assertEquals(null, $setupController->getUpdateMessage());
 
         $_GET['uam_revert_database'] = '1.3';
         $setupController->revertDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_REVERT_DATABASE_SUCCESS, 'updateMessage', $setupController);
+        self::assertEquals(TXT_UAM_REVERT_DATABASE_SUCCESS, $setupController->getUpdateMessage());
     }
 
     /**
      * @group  unit
      * @covers ::isDatabaseBroken()
+     * @throws MissingColumnsException
      */
     public function testIsDatabaseBroken()
     {
@@ -289,6 +294,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::repairDatabaseAction()
+     * @throws MissingColumnsException
      */
     public function testRepairDatabaseAction()
     {
@@ -297,6 +303,10 @@ class SetupControllerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->once())
             ->method('updateOption')
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
+
+
+        $wordpress->expects($this->exactly(3))
+            ->method('verifyNonce');
 
         $information = [
             DatabaseHandler::MISSING_TABLES => [],
@@ -340,9 +350,9 @@ class SetupControllerTest extends UserAccessManagerTestCase
 
         $setupController->repairDatabaseAction();
         $setupController->repairDatabaseAction();
-        self::assertAttributeEquals(null, 'updateMessage', $setupController);
+        self::assertEquals(null, $setupController->getUpdateMessage());
         $setupController->repairDatabaseAction();
-        self::assertAttributeEquals(TXT_UAM_REPAIR_DATABASE_SUCCESS, 'updateMessage', $setupController);
+        self::assertEquals(TXT_UAM_REPAIR_DATABASE_SUCCESS, $setupController->getUpdateMessage());
     }
 
     /**
@@ -351,7 +361,7 @@ class SetupControllerTest extends UserAccessManagerTestCase
      */
     public function testDeleteDatabaseBackupAction()
     {
-        $_GET[SetupController::SETUP_DELETE_BACKUP_NONCE.'Nonce'] = 'deleteBackupNonce';
+        $_GET[SetupController::SETUP_DELETE_BACKUP_NONCE . 'Nonce'] = 'deleteBackupNonce';
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(2))
             ->method('verifyNonce')
@@ -379,20 +389,21 @@ class SetupControllerTest extends UserAccessManagerTestCase
 
         $_GET['uam_delete_backup'] = '1.2';
         $setupController->deleteDatabaseBackupAction();
-        self::assertAttributeEquals(null, 'updateMessage', $setupController);
+        self::assertEquals(null, $setupController->getUpdateMessage());
 
         $_GET['uam_delete_backup'] = '1.3';
         $setupController->deleteDatabaseBackupAction();
-        self::assertAttributeEquals(TXT_UAM_DELETE_DATABASE_BACKUP_SUCCESS, 'updateMessage', $setupController);
+        self::assertEquals(TXT_UAM_DELETE_DATABASE_BACKUP_SUCCESS, $setupController->getUpdateMessage());
     }
 
     /**
      * @group  unit
      * @covers ::resetUamAction()
+     * @throws MissingColumnsException
      */
     public function testResetUamAction()
     {
-        $_GET[SetupController::SETUP_RESET_NONCE.'Nonce'] = 'resetNonce';
+        $_GET[SetupController::SETUP_RESET_NONCE . 'Nonce'] = 'resetNonce';
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(2))
             ->method('verifyNonce')
@@ -416,10 +427,10 @@ class SetupControllerTest extends UserAccessManagerTestCase
 
         $_GET['uam_reset'] = 'something';
         $setupController->resetUamAction();
-        self::assertAttributeEquals(null, 'updateMessage', $setupController);
+        self::assertEquals(null, $setupController->getUpdateMessage());
 
         $_GET['uam_reset'] = 'reset';
         $setupController->resetUamAction();
-        self::assertAttributeEquals(TXT_UAM_UAM_RESET_SUCCESS, 'updateMessage', $setupController);
+        self::assertEquals(TXT_UAM_UAM_RESET_SUCCESS, $setupController->getUpdateMessage());
     }
 }

@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller;
 
 use UserAccessManager\Controller\Backend\AboutController;
@@ -44,10 +45,9 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return ControllerFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): ControllerFactory
     {
         $controllerFactory = new ControllerFactory(
             $this->getPhp(),
@@ -82,7 +82,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendController(ControllerFactory $controllerFactory)
@@ -97,7 +96,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendAboutController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendAboutController(ControllerFactory $controllerFactory)
@@ -112,7 +110,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendObjectController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendObjectController(ControllerFactory $controllerFactory)
@@ -127,7 +124,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendPostObjectController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendPostObjectController(ControllerFactory $controllerFactory)
@@ -142,7 +138,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendTermObjectController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendTermObjectController(ControllerFactory $controllerFactory)
@@ -157,7 +152,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendUserObjectController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendUserObjectController(ControllerFactory $controllerFactory)
@@ -172,7 +166,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendCacheController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendCacheController(ControllerFactory $controllerFactory)
@@ -187,7 +180,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendDynamicGroupsController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateDynamicGroupController(ControllerFactory $controllerFactory)
@@ -202,7 +194,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendSettingsController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendSettingController(ControllerFactory $controllerFactory)
@@ -217,7 +208,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendSetupController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendSetupController(ControllerFactory $controllerFactory)
@@ -232,7 +222,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendUserGroupController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendUserGroupController(ControllerFactory $controllerFactory)
@@ -247,7 +236,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFrontendController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateFrontendController(ControllerFactory $controllerFactory)
@@ -262,7 +250,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFrontendPostController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateFrontendPostController(ControllerFactory $controllerFactory)
@@ -277,7 +264,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFrontendRedirectController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateFrontendRedirectController(ControllerFactory $controllerFactory)
@@ -292,7 +278,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFrontendShortCodeController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateFrontendShortCodeController(ControllerFactory $controllerFactory)
@@ -307,7 +292,6 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFrontendTermController()
-     *
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateFrontendTermController(ControllerFactory $controllerFactory)

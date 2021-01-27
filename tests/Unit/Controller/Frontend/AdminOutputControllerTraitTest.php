@@ -12,10 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use UserAccessManager\Controller\Frontend\AdminOutputControllerTrait;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_User;
 
 /**
  * Class AdminOutputControllerTraitTest
@@ -26,7 +31,7 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|AdminOutputControllerTrait
+     * @return MockObject|AdminOutputControllerTrait
      */
     private function getStub()
     {
@@ -37,19 +42,20 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::adminOutput()
      * @covers ::showAdminHint()
+     * @throws UserGroupTypeException
      */
     public function testAdminOutput()
     {
         $wordpress = $this->getWordpress();
 
         /**
-         * @var \WP_User|\stdClass $adminUser
+         * @var WP_User|stdClass $adminUser
          */
         $adminUser = $this->getMockBuilder('\WP_User')->getMock();
         $adminUser->ID = 1;
 
         /**
-         * @var \WP_User|\stdClass $user
+         * @var WP_User|stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->ID = 2;

@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\Textarea;
 
 /**
@@ -22,7 +24,7 @@ use UserAccessManager\Form\Textarea;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\Textarea
  */
-class TextareaTest extends \PHPUnit_Framework_TestCase
+class TextareaTest extends TestCase
 {
     /**
      * @group unit

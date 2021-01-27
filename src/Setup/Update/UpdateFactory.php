@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Update;
 
 use UserAccessManager\Database\Database;
@@ -36,8 +39,7 @@ class UpdateFactory
 
     /**
      * UpdateFactory constructor.
-     *
-     * @param Database      $database
+     * @param Database $database
      * @param ObjectHandler $objectHandler
      */
     public function __construct(Database $database, ObjectHandler $objectHandler)
@@ -48,10 +50,9 @@ class UpdateFactory
 
     /**
      * Returns all available updates.
-     *
      * @return UpdateInterface[]
      */
-    public function getDatabaseUpdates()
+    public function getDatabaseUpdates(): array
     {
         return [
             new DatabaseUpdate1($this->database, $this->objectHandler),

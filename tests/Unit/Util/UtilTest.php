@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Util;
 
+use Exception;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\Util\Util;
 
@@ -27,10 +29,9 @@ class UtilTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
-     *
      * @return Util
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): Util
     {
         $util = new Util(
             $this->getPhp()
@@ -43,10 +44,9 @@ class UtilTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::startsWith()
-     *
      * @param Util $util
      */
-    public function testStartsWith($util)
+    public function testStartsWith(Util $util)
     {
         self::assertTrue($util->startsWith('prefixTestSuffix', 'prefix'));
         self::assertFalse($util->startsWith('prefixTestSuffix', 'prefIx'));
@@ -56,10 +56,9 @@ class UtilTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::endsWith()
-     *
      * @param Util $util
      */
-    public function testEndsWith($util)
+    public function testEndsWith(Util $util)
     {
         self::assertTrue($util->endsWith('prefixTestSuffix', 'Suffix'));
         self::assertFalse($util->endsWith('prefixTestSuffix', 'suffix'));
@@ -68,10 +67,7 @@ class UtilTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getRandomPassword()
-     * @throws \Exception
-     * @throws \Exception
-     * @throws \Exception
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetRandomPassword()
     {
@@ -128,12 +124,12 @@ class UtilTest extends UserAccessManagerTestCase
     /**
      * @group                    unit
      * @covers                   ::getRandomPassword()
-     * @expectedException        \Exception
-     * @expectedExceptionMessage Unable to generate secure token from OpenSSL.
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetRandomPasswordException()
     {
+        $this->expectExceptionMessage("Unable to generate secure token from OpenSSL.");
+        $this->expectException(Exception::class);
         $php = $this->getPhp();
         $php->expects($this->exactly(1))
             ->method('opensslRandomPseudoBytes')
@@ -153,12 +149,12 @@ class UtilTest extends UserAccessManagerTestCase
     /**
      * @group                    unit
      * @covers                   ::getRandomPassword()
-     * @expectedException        \Exception
-     * @expectedExceptionMessage Unable to generate secure token from OpenSSL.
-     * @throws \Exception
+     * @throws Exception
      */
     public function testSecondGetRandomPasswordSecondException()
     {
+        $this->expectExceptionMessage("Unable to generate secure token from OpenSSL.");
+        $this->expectException(Exception::class);
         $php = $this->getPhp();
         $php->expects($this->exactly(1))
             ->method('opensslRandomPseudoBytes')
@@ -179,10 +175,9 @@ class UtilTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::getCurrentUrl()
-     *
      * @param Util $util
      */
-    public function testGetCurrentUrl($util)
+    public function testGetCurrentUrl(Util $util)
     {
         $serverTemp = $_SERVER;
 

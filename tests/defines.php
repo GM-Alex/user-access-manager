@@ -1,6 +1,6 @@
 <?php
 if (function_exists('__') === false) {
-    function __($string, $domain = 'default')
+    function __($string, $domain = 'default'): string
     {
         return $string.'|'.$domain;
     }
@@ -18,7 +18,7 @@ if (function_exists('wp_parse_args') === false) {
 }
 
 if (function_exists('wp_parse_args') === false) {
-    function wp_parse_args($args, $defaults = '')
+    function wp_parse_args($args, $defaults = ''): array
     {
         if (is_object($args) === true) {
             $r = get_object_vars($args);

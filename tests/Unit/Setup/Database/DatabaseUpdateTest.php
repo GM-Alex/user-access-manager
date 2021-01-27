@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup\Database;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use UserAccessManager\Setup\Database\DatabaseUpdate;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -26,7 +28,7 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 class DatabaseUpdateTest extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|DatabaseUpdate
+     * @return MockObject|DatabaseUpdate
      */
     private function getStub()
     {
@@ -48,5 +50,6 @@ class DatabaseUpdateTest extends UserAccessManagerTestCase
     {
         $stub = $this->getStub();
         $stub->__construct($this->getDatabase(), $this->getObjectHandler());
+        self::assertInstanceOf(DatabaseUpdate::class, $stub);
     }
 }

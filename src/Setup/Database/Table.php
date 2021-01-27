@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Database;
 
 /**
@@ -38,14 +41,12 @@ class Table
 
     /**
      * Table constructor.
-     *
      * @param string $name
      * @param string $charsetCollate
-     * @param array  $columns
-     *
+     * @param array $columns
      * @throws MissingColumnsException
      */
-    public function __construct($name, $charsetCollate, array $columns)
+    public function __construct(string $name, string $charsetCollate, array $columns)
     {
         $this->name = $name;
         $this->charsetCollate = $charsetCollate;
@@ -60,7 +61,7 @@ class Table
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -68,7 +69,7 @@ class Table
     /**
      * @return string
      */
-    public function getCharsetCollate()
+    public function getCharsetCollate(): string
     {
         return $this->charsetCollate;
     }
@@ -76,17 +77,16 @@ class Table
     /**
      * @return Column[]
      */
-    public function getColumns()
+    public function getColumns(): array
     {
         return $this->columns;
     }
 
     /**
      * Returns the table in sql format.
-     *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $columns = implode(', ', $this->columns);
         $primaryKeys = [];
@@ -104,10 +104,8 @@ class Table
             $primaryKeysQuery = ", PRIMARY KEY ({$primaryKeysQuery})";
         }
 
-        $table = "CREATE TABLE `{$this->name}` (
+        return "CREATE TABLE `{$this->name}` (
                 {$columns}{$primaryKeysQuery}
             ) {$this->charsetCollate};";
-
-        return $table;
     }
 }

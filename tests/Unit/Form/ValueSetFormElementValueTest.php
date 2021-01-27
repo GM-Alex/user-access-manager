@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\ValueSetFormElementValue;
 
 /**
@@ -22,15 +24,14 @@ use UserAccessManager\Form\ValueSetFormElementValue;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\ValueSetFormElementValue
  */
-class ValueSetFormElementValueTest extends \PHPUnit_Framework_TestCase
+class ValueSetFormElementValueTest extends TestCase
 {
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return ValueSetFormElementValue
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): ValueSetFormElementValue
     {
         $valueSetFormElementValue = new ValueSetFormElementValue('value', 'label');
         self::assertInstanceOf(ValueSetFormElementValue::class, $valueSetFormElementValue);
@@ -42,7 +43,6 @@ class ValueSetFormElementValueTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::getValue()
      * @depends testCanCreateInstance
-     *
      * @param ValueSetFormElementValue $valueSetFormElementValue
      */
     public function testGetValue(ValueSetFormElementValue $valueSetFormElementValue)
@@ -54,7 +54,6 @@ class ValueSetFormElementValueTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::getLabel()
      * @depends testCanCreateInstance
-     *
      * @param ValueSetFormElementValue $valueSetFormElementValue
      */
     public function testGetLabel(ValueSetFormElementValue $valueSetFormElementValue)
@@ -67,7 +66,6 @@ class ValueSetFormElementValueTest extends \PHPUnit_Framework_TestCase
      * @covers  ::isDisabled()
      * @covers  ::markDisabled()
      * @depends testCanCreateInstance
-     *
      * @param ValueSetFormElementValue $valueSetFormElementValue
      */
     public function testDisabled(ValueSetFormElementValue $valueSetFormElementValue)

@@ -13,9 +13,18 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
+use UserAccessManager\Controller\Backend\SettingsController;
+use UserAccessManager\Form\Form;
+use UserAccessManager\Form\Input;
+use UserAccessManager\Form\Radio;
+use UserAccessManager\Form\Select;
+use UserAccessManager\Form\Textarea;
+
 /**
- * @var \UserAccessManager\Controller\Backend\SettingsController $controller
+ * @var SettingsController $controller
+ * @var string $currentGroupKey
  */
+
 if ($controller->hasUpdateMessage()) {
     ?>
     <div class="updated">
@@ -47,23 +56,23 @@ if ($controller->hasUpdateMessage()) {
                    class="form-table<?php echo $cssClass; ?>">
                 <tbody>
                 <?php
-                if ($form instanceof \UserAccessManager\Form\Form) {
+                if ($form instanceof Form) {
                     $formElements = $form->getElements();
 
                     foreach ($formElements as $formElement) {
                         ?>
                         <tr valign="top">
                             <?php
-                            if ($formElement instanceof \UserAccessManager\Form\Input) {
+                            if ($formElement instanceof Input) {
                                 $input = $formElement;
                                 include 'AdminForm/Input.php';
-                            } elseif ($formElement instanceof \UserAccessManager\Form\Textarea) {
+                            } elseif ($formElement instanceof Textarea) {
                                 $textarea = $formElement;
                                 include 'AdminForm/Textarea.php';
-                            } elseif ($formElement instanceof \UserAccessManager\Form\Select) {
+                            } elseif ($formElement instanceof Select) {
                                 $select = $formElement;
                                 include 'AdminForm/Select.php';
-                            } elseif ($formElement instanceof \UserAccessManager\Form\Radio) {
+                            } elseif ($formElement instanceof Radio) {
                                 $radio = $formElement;
                                 include 'AdminForm/Radio.php';
                             }

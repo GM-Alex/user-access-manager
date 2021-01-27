@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\File;
 
 use UserAccessManager\File\ApacheFileProtection;
@@ -30,10 +31,9 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return FileProtectionFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): FileProtectionFactory
     {
         $fileProtectionFactory = new FileProtectionFactory(
             $this->getPhp(),
@@ -52,7 +52,6 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createApacheFileProtection()
-     *
      * @param FileProtectionFactory $fileProtectionFactory
      */
     public function testCreateApacheFileProtection(FileProtectionFactory $fileProtectionFactory)
@@ -65,7 +64,6 @@ class FileProtectionFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createNginxFileProtection()
-     *
      * @param FileProtectionFactory $fileProtectionFactory
      */
     public function testCreateNginxFileProtection(FileProtectionFactory $fileProtectionFactory)

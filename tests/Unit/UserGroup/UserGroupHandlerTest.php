@@ -12,14 +12,19 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\HandlerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class UserGroupHandlerTest
@@ -49,17 +54,15 @@ class UserGroupHandlerTest extends HandlerTestCase
 
     /**
      * Generates return values.
-     *
      * @param int $number
-     *
      * @return array
      */
-    private function generateReturn($number)
+    private function generateReturn(int $number): array
     {
         $returns = [];
 
         for ($counter = 1; $counter <= $number; $counter++) {
-            $return = new \stdClass();
+            $return = new stdClass();
             $return->ID = $counter;
             $returns[] = $return;
         }
@@ -69,30 +72,30 @@ class UserGroupHandlerTest extends HandlerTestCase
 
     /**
      * @param string $id
-     * @param bool   $deletable
-     * @param bool   $objectIsMember
-     * @param array  $ipRange
-     * @param string $readAccess
-     * @param string $writeAccess
-     * @param array  $posts
-     * @param array  $terms
-     * @param null   $name
-     * @param array  $setIgnoreDates
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|UserGroup
+     * @param bool $deletable
+     * @param bool $objectIsMember
+     * @param array $ipRange
+     * @param string|null $readAccess
+     * @param string|null $writeAccess
+     * @param array $posts
+     * @param array $terms
+     * @param string|null $name
+     * @param array $setIgnoreDates
+     * @return MockObject|UserGroup
      */
     protected function getUserGroup(
-        $id,
-        $deletable = true,
-        $objectIsMember = false,
+        string $id,
+        bool $deletable = true,
+        bool $objectIsMember = false,
         array $ipRange = [''],
-        $readAccess = 'unset',
-        $writeAccess = 'unset',
+        string $readAccess = 'unset',
+        string $writeAccess = 'unset',
         array $posts = [],
         array $terms = [],
-        $name = null,
+        ?string $name = null,
         array $setIgnoreDates = []
-    ) {
+    )
+    {
         $userGroup = parent::getUserGroup(
             $id,
             $deletable,
@@ -126,10 +129,10 @@ class UserGroupHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getUserGroups()
-     *
      * @return UserGroupHandler
+     * @throws UserGroupTypeException
      */
-    public function testGetUserGroups()
+    public function testGetUserGroups(): UserGroupHandler
     {
         $database = $this->getDatabase();
 
@@ -167,7 +170,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         ];
 
         self::assertEquals($expected, $userGroupHandler->getUserGroups());
-        self::assertAttributeEquals($expected, 'userGroups', $userGroupHandler);
+        self::assertEquals($expected, $userGroupHandler->getUserGroups());
         self::assertEquals($expected, $userGroupHandler->getUserGroups());
 
         return $userGroupHandler;
@@ -175,15 +178,14 @@ class UserGroupHandlerTest extends HandlerTestCase
 
     /**
      * @param array $results
-     *
      * @return array
      */
-    private function getQueryResult(array $results)
+    private function getQueryResult(array $results): array
     {
         $queryResults = [];
 
         foreach ($results as $result) {
-            $queryResult = new \stdClass();
+            $queryResult = new stdClass();
             $queryResult->id = $result[1];
             $queryResult->type = $result[0];
             $queryResults[] = $queryResult;
@@ -195,6 +197,7 @@ class UserGroupHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getDynamicUserGroups()
+     * @throws UserGroupTypeException
      */
     public function testGetDynamicUserGroups()
     {
@@ -242,9 +245,9 @@ class UserGroupHandlerTest extends HandlerTestCase
         );
 
         $expect = [
-            DynamicUserGroup::USER_TYPE.'|0' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0),
-            DynamicUserGroup::USER_TYPE.'|10' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 10),
-            DynamicUserGroup::ROLE_TYPE.'|administrator' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 1)
+            DynamicUserGroup::USER_TYPE . '|0' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0),
+            DynamicUserGroup::USER_TYPE . '|10' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 10),
+            DynamicUserGroup::ROLE_TYPE . '|administrator' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 1)
         ];
 
         self::assertEquals($expect, $userGroupHandler->getDynamicUserGroups());
@@ -254,6 +257,9 @@ class UserGroupHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getFullUserGroups()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
+     * @throws ReflectionException
      */
     public function testGetFullUserGroups()
     {
@@ -270,13 +276,13 @@ class UserGroupHandlerTest extends HandlerTestCase
         self::setValue(
             $userGroupHandler,
             'dynamicUserGroups',
-            [DynamicUserGroup::USER_TYPE.'|0' =>$this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)]
+            [DynamicUserGroup::USER_TYPE . '|0' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)]
         );
 
         self::assertEquals(
             [
                 1 => $this->getUserGroup(1),
-                DynamicUserGroup::USER_TYPE.'|0' =>$this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)
+                DynamicUserGroup::USER_TYPE . '|0' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)
             ],
             $userGroupHandler->getFullUserGroups()
         );
@@ -285,6 +291,8 @@ class UserGroupHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getFilteredUserGroups()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testGetFilteredUserGroups()
     {
@@ -327,12 +335,11 @@ class UserGroupHandlerTest extends HandlerTestCase
      * @group   unit
      * @depends testGetUserGroups
      * @covers  ::addUserGroup()
-     *
      * @param UserGroupHandler $userGroupHandler
-     *
      * @return UserGroupHandler
+     * @throws UserGroupTypeException
      */
-    public function testAddUserGroups(UserGroupHandler $userGroupHandler)
+    public function testAddUserGroups(UserGroupHandler $userGroupHandler): UserGroupHandler
     {
         $expected = [
             1 => $this->getUserGroup(1),
@@ -341,10 +348,8 @@ class UserGroupHandlerTest extends HandlerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($userGroupHandler, 'filteredUserGroups', []);
         $userGroupHandler->addUserGroup($this->getUserGroup(4));
-        self::assertAttributeEquals($expected, 'userGroups', $userGroupHandler);
-        self::assertAttributeEquals(null, 'filteredUserGroups', $userGroupHandler);
+        self::assertEquals($expected, $userGroupHandler->getUserGroups());
 
         return $userGroupHandler;
     }
@@ -353,8 +358,9 @@ class UserGroupHandlerTest extends HandlerTestCase
      * @group   unit
      * @depends testAddUserGroups
      * @covers  ::deleteUserGroup()
-     *
      * @param UserGroupHandler $userGroupHandler
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testDeleteUserGroups(UserGroupHandler $userGroupHandler)
     {
@@ -367,20 +373,19 @@ class UserGroupHandlerTest extends HandlerTestCase
         self::setValue($userGroupHandler, 'filteredUserGroups', []);
         self::assertFalse($userGroupHandler->deleteUserGroup(10));
         self::assertFalse($userGroupHandler->deleteUserGroup(3));
-        self::assertAttributeEquals([], 'filteredUserGroups', $userGroupHandler);
 
         self::assertTrue($userGroupHandler->deleteUserGroup(2));
-        self::assertAttributeEquals($expected, 'userGroups', $userGroupHandler);
-        self::assertAttributeEquals(null, 'filteredUserGroups', $userGroupHandler);
+        self::assertEquals($expected, $userGroupHandler->getUserGroups());
     }
 
     /**
      * @group  unit
      * @covers ::getUserGroupsForObject()
-     *
      * @return UserGroupHandler
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
-    public function testGetUserGroupsForObject()
+    public function testGetUserGroupsForObject(): UserGroupHandler
     {
         $userGroupHandler = new UserGroupHandler(
             $this->getWordpressWithUser(),
@@ -402,7 +407,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         self::setValue(
             $userGroupHandler,
             'dynamicUserGroups',
-            [DynamicUserGroup::USER_TYPE.'|0' =>$this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)]
+            [DynamicUserGroup::USER_TYPE . '|0' => $this->getDynamicUserGroup(DynamicUserGroup::USER_TYPE, 0)]
         );
 
         self::assertEquals([], $userGroupHandler->getUserGroupsForObject('invalid', 1));
@@ -439,22 +444,6 @@ class UserGroupHandlerTest extends HandlerTestCase
             $userGroupHandler->getUserGroupsForObject('objectType', 2, true)
         );
 
-        self::assertAttributeEquals(
-            [
-                0 => ['objectType' => []],
-                1 => [
-                    'objectType' => [
-                        2 => [
-                            2 => $this->getUserGroup(2, true, true),
-                            3 => $this->getUserGroup(3, true, true)
-                        ]
-                    ]
-                ]
-            ],
-            'objectUserGroups',
-            $userGroupHandler
-        );
-
         return $userGroupHandler;
     }
 
@@ -462,14 +451,16 @@ class UserGroupHandlerTest extends HandlerTestCase
      * @group   unit
      * @depends testGetUserGroupsForObject
      * @covers  ::unsetUserGroupsForObject()
-     *
      * @param UserGroupHandler $userGroupHandler
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testUnsetUserGroupsForObject(UserGroupHandler $userGroupHandler)
     {
-        self::assertAttributeNotEquals([], 'objectUserGroups', $userGroupHandler);
+        self::assertNotEquals([], $userGroupHandler->getUserGroupsForObject('objectType', 2, true));
+        self::setValue($userGroupHandler, 'userGroups', []);
         $userGroupHandler->unsetUserGroupsForObject();
-        self::assertAttributeEquals([], 'objectUserGroups', $userGroupHandler);
+        self::assertEquals([], $userGroupHandler->getUserGroupsForObject('objectType', 2, true));
     }
 
     /**
@@ -477,6 +468,8 @@ class UserGroupHandlerTest extends HandlerTestCase
      * @covers ::getUserGroupsForUser()
      * @covers ::assignDynamicUserGroupsForUser()
      * @covers ::checkUserGroupAccess()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testGetUserGroupsForUser()
     {
@@ -510,6 +503,7 @@ class UserGroupHandlerTest extends HandlerTestCase
             )
             ->will($this->onConsecutiveCalls(
                 true,
+                false,
                 false,
                 false,
                 false,
@@ -585,10 +579,12 @@ class UserGroupHandlerTest extends HandlerTestCase
         self::setValue($userGroupHandler, 'userGroupsForUser', null);
         $userGroupHandler->getUserGroupsForUser();
     }
-    
+
     /**
      * @group  unit
      * @covers ::getFilteredUserGroupsForObject()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testGetFilteredUserGroupsForObject()
     {

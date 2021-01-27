@@ -12,11 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Access;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Access\AccessHandler;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\HandlerTestCase;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class AccessHandlerTest
@@ -50,6 +54,8 @@ class AccessHandlerTest extends HandlerTestCase
      * @covers ::isAdmin()
      * @covers ::hasAuthorAccess()
      * @covers ::getUserUserGroupsForObjectAccess()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testCheckObjectAccess()
     {
@@ -71,7 +77,7 @@ class AccessHandlerTest extends HandlerTestCase
         self::assertTrue($accessHandler->checkObjectAccess('invalid', 1));
         self::assertTrue($accessHandler->checkObjectAccess('postType', 2));
 
-        $wordpress = $this->getWordpressWithUser();
+        $wordpress = $this->getWordpressWithUser(null, null, 2);
 
         $tags = [];
         $isAdmins = [];
@@ -84,13 +90,14 @@ class AccessHandlerTest extends HandlerTestCase
                 return $userGroups;
             }));
 
-        $wordpress->expects($this->exactly(6))
+        $wordpress->expects($this->exactly(7))
             ->method('isAdmin')
             ->will($this->onConsecutiveCalls(
                 false,
                 false,
                 false,
                 false,
+                true,
                 true,
                 true
             ));
@@ -115,7 +122,7 @@ class AccessHandlerTest extends HandlerTestCase
                 1 => [3 => $this->getUserGroup(3)],
                 2 => [0 => $this->getUserGroup(0)],
                 3 => [],
-                4 => [10 => $this->getUserGroup(10)]
+                4 => [10 => $this->getUserGroup(10)],
             ]
         ];
 
@@ -125,8 +132,8 @@ class AccessHandlerTest extends HandlerTestCase
                 return $objectUserGroups[$objectType][$objectId];
             }));
 
-        $firstUserUserGroups = [0 => $this->getUserGroup(0, true, false, [''], 'none', 'none')];
-        $secondUserGroups = [3 => $this->getUserGroup(3, true, false, [''], 'none', 'none')];
+        $firstUserUserGroups = [0 => $this->getUserGroup(0, true, false, [''])];
+        $secondUserGroups = [3 => $this->getUserGroup(3, true, false, [''])];
         $thirdUserGroups = [3 => $this->getUserGroup(3, true, false, [''], 'none', 'all')];
 
         $userGroupHandler->expects($this->exactly(5))
@@ -143,7 +150,7 @@ class AccessHandlerTest extends HandlerTestCase
             $wordpress,
             $mainConfig,
             $this->getDatabase(),
-            $this->getObjectHandler(3),
+            $this->getObjectHandler(3, 7),
             $userHandler,
             $userGroupHandler
         );
@@ -154,39 +161,12 @@ class AccessHandlerTest extends HandlerTestCase
         self::assertFalse($accessHandler->checkObjectAccess('postType', 4));
         self::assertFalse($accessHandler->checkObjectAccess('postType', -1));
 
-        self::assertAttributeEquals(
-            [
-                'noAdmin' => [
-                    'postType' => [
-                        1 => true,
-                        2 => true,
-                        3 => true,
-                        4 => false,
-                        -1 => false
-                    ]
-                ]
-            ],
-            'objectAccess',
-            $accessHandler
-        );
-
         self::setValue($accessHandler, 'objectAccess', []);
         self::assertFalse($accessHandler->checkObjectAccess('postType', 1));
 
-        self::assertAttributeEquals(
-            ['admin' => ['postType' => [1 => false]]],
-            'objectAccess',
-            $accessHandler
-        );
-
         self::setValue($accessHandler, 'objectAccess', []);
         self::assertTrue($accessHandler->checkObjectAccess('postType', 1));
-
-        self::assertAttributeEquals(
-            ['admin' => ['postType' => [1 => true]]],
-            'objectAccess',
-            $accessHandler
-        );
+        self::assertTrue($accessHandler->checkObjectAccess('postType', 1));
 
         self::assertEquals(
             [
@@ -205,6 +185,7 @@ class AccessHandlerTest extends HandlerTestCase
      * @group  unit
      * @covers ::getExcludedTerms()
      * @covers ::getExcludedObjects()
+     * @throws UserGroupTypeException
      */
     public function testGetExcludedTerms()
     {
@@ -255,7 +236,6 @@ class AccessHandlerTest extends HandlerTestCase
         );
 
         self::assertEquals([2 => 2, 4 => 4], $accessHandler->getExcludedTerms());
-        self::assertAttributeEquals([2 => 2, 4 => 4], 'excludedTerms', $accessHandler);
     }
 
     /**
@@ -263,6 +243,8 @@ class AccessHandlerTest extends HandlerTestCase
      * @covers ::getExcludedPosts()
      * @covers ::getNoneHiddenPostTypes()
      * @covers ::getExcludedObjects()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testGetExcludedPosts()
     {
@@ -293,9 +275,9 @@ class AccessHandlerTest extends HandlerTestCase
 
         $config = $this->getMainConfig();
 
-        $config->expects($this->exactly(3))
+        $config->expects($this->exactly(4))
             ->method('authorsHasAccessToOwn')
-            ->will($this->onConsecutiveCalls(false, false, true));
+            ->will($this->onConsecutiveCalls(false, false, true, true));
 
 
         $config->expects($this->exactly(4))
@@ -305,11 +287,11 @@ class AccessHandlerTest extends HandlerTestCase
 
         $database = $this->getDatabase();
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('prepare')
             ->with(
                 new MatchIgnoreWhitespace(
@@ -319,14 +301,20 @@ class AccessHandlerTest extends HandlerTestCase
                 ),
                 1
             )
-            ->will($this->returnValue('ownPostQuery'));
+            ->will($this->onConsecutiveCalls('ownPostQuery', 'invalid'));
 
-        $database->expects($this->once())
+        $database->expects($this->exactly(2))
             ->method('getResults')
-            ->with('ownPostQuery')
-            ->will($this->returnCallback(function () {
-                $post = new \stdClass();
+            ->withConsecutive(['ownPostQuery'], ['invalid'])
+            ->will($this->returnCallback(function ($query) {
+                if ($query === 'invalid') {
+                    return '';
+                }
+
+                $post = new stdClass();
                 $post->ID = 4;
+
+                // Don't return an array to check type cast
                 return [$post];
             }));
 
@@ -349,7 +337,7 @@ class AccessHandlerTest extends HandlerTestCase
             1 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [3 => 'post', 2 => 'page', 4 => 'post'])
         ];
 
-        $userGroupHandler->expects($this->exactly(3))
+        $userGroupHandler->expects($this->exactly(4))
             ->method('getFullUserGroups')
             ->will($this->returnValue($userGroups));
 
@@ -358,7 +346,7 @@ class AccessHandlerTest extends HandlerTestCase
             4 => $this->getUserGroup(0, true, false, [''], 'none', 'none', [5 => 'post', 3 => 'post'])
         ];
 
-        $userGroupHandler->expects($this->exactly(3))
+        $userGroupHandler->expects($this->exactly(4))
             ->method('getUserGroupsForUser')
             ->will($this->returnValue($userGroupsForUser));
 
@@ -372,19 +360,15 @@ class AccessHandlerTest extends HandlerTestCase
         );
 
         self::assertEquals([4 => 4, 6 => 6], $accessHandler->getExcludedPosts());
-        self::assertAttributeEquals(['page' => 'page'], 'noneHiddenPostTypes', $accessHandler);
-        self::assertAttributeEquals([4 => 4, 6 => 6], 'excludedPosts', $accessHandler);
 
         self::setValue($accessHandler, 'noneHiddenPostTypes', null);
         self::setValue($accessHandler, 'excludedPosts', null);
         self::assertEquals([2 => 2, 4 => 4, 6 => 6], $accessHandler->getExcludedPosts());
-        self::assertAttributeEquals([], 'noneHiddenPostTypes', $accessHandler);
-        self::assertAttributeEquals([2 => 2, 4 => 4, 6 => 6], 'excludedPosts', $accessHandler);
 
         self::setValue($accessHandler, 'noneHiddenPostTypes', null);
         self::setValue($accessHandler, 'excludedPosts', null);
         self::assertEquals([6 => 6], $accessHandler->getExcludedPosts());
-        self::assertAttributeEquals(['page' => 'page'], 'noneHiddenPostTypes', $accessHandler);
-        self::assertAttributeEquals([6 => 6], 'excludedPosts', $accessHandler);
+        self::setValue($accessHandler, 'excludedPosts', null);
+        self::assertEquals([4 => 4, 6 => 6], $accessHandler->getExcludedPosts());
     }
 }

@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\Wrapper\Wordpress;
@@ -26,27 +29,25 @@ trait LoginControllerTrait
     /**
      * @return Wordpress
      */
-    abstract protected function getWordpress();
+    abstract protected function getWordpress(): Wordpress;
 
     /**
      * @return string
      */
-    abstract public function getRequestUrl();
+    abstract public function getRequestUrl(): string;
 
     /**
      * @param string $name
-     * @param mixed  $default
-     *
-     * @return mixed
+     * @param mixed $default
+      * @return mixed
      */
-    abstract public function getRequestParameter($name, $default = null);
+    abstract public function getRequestParameter(string $name, $default = null);
 
     /**
      * Returns the user login name.
-     *
-     * @return string
+      * @return string
      */
-    public function getUserLogin()
+    public function getUserLogin(): string
     {
         $userLogin = $this->getRequestParameter('log');
         return $this->getWordpress()->escHtml(stripslashes($userLogin));
@@ -54,40 +55,36 @@ trait LoginControllerTrait
 
     /**
      * Returns true if the user is logged in.
-     *
-     * @return bool
+      * @return bool
      */
-    public function isUserLoggedIn()
+    public function isUserLoggedIn(): bool
     {
         return $this->getWordpress()->isUserLoggedIn();
     }
 
     /**
      * Returns the user name of the current user
-     *
-     * @return string
+      * @return string
      */
-    public function getCurrentUserName()
+    public function getCurrentUserName(): string
     {
         return $this->getWordpress()->getCurrentUser()->display_name;
     }
 
     /**
      * Returns the login url.
-     *
-     * @return string
+      * @return string
      */
-    public function getLoginUrl()
+    public function getLoginUrl(): string
     {
         return $this->getWordpress()->wpLoginUrl($this->getRequestUrl());
     }
 
     /**
      * Returns the logout url.
-     *
-     * @return string
+      * @return string
      */
-    public function getLogoutUrl()
+    public function getLogoutUrl(): string
     {
         return $this->getWordpress()->wpLogoutUrl($this->getRequestUrl());
     }
@@ -95,38 +92,34 @@ trait LoginControllerTrait
 
     /**
      * Returns the registration url.
-     *
-     * @return string
+      * @return string
      */
-    public function getRegistrationUrl()
+    public function getRegistrationUrl(): string
     {
         return $this->getWordpress()->wpRegistrationUrl();
     }
 
     /**
      * Returns the lost password url.
-     *
-     * @return string
+      * @return string
      */
-    public function getLostPasswordUrl()
+    public function getLostPasswordUrl(): string
     {
         return $this->getWordpress()->wpLostPasswordUrl($this->getRequestUrl());
     }
 
     /**
      * Checks if we allowed show the login form.
-     *
-     * @return bool
+      * @return bool
      */
-    public function showLoginForm()
+    public function showLoginForm(): bool
     {
         return $this->getWordpress()->isSingle() === true || $this->getWordpress()->isPage() === true;
     }
 
     /**
      * Returns the login redirect url.
-     *
-     * @return mixed
+      * @return mixed
      */
     public function getRedirectLoginUrl()
     {

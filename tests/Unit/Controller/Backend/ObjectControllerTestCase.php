@@ -12,10 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\ObjectInformation;
+use UserAccessManager\Controller\Backend\ObjectInformationFactory;
 use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
@@ -40,7 +45,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -49,13 +54,13 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectInformation
+     * @return MockObject|ObjectInformation
      */
     protected function getObjectInformation()
     {
@@ -122,7 +127,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Controller\Backend\ObjectInformationFactory
+     * @return MockObject|ObjectInformationFactory
      */
     protected function getObjectInformationFactory()
     {
@@ -135,16 +140,15 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int    $id
+     * @param int $id
      * @param string $displayName
      * @param string $userLogin
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\stdClass
+     * @return MockObject|stdClass
      */
-    protected function getUser($id, $displayName, $userLogin)
+    protected function getUser(int $id, string $displayName, string $userLogin)
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $user
+         * @var MockObject|stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->ID = $id;
@@ -155,19 +159,19 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
+     * @return MockObject|ObjectHandler
      */
     protected function getExtendedObjectHandler()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post
+         * @var MockObject|stdClass $post
          */
         $post = $this->getMockBuilder('\WP_Post')->getMock();
         $post->ID = 1;
         $post->post_type = 'post';
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $revisionPost
+         * @var MockObject|stdClass $revisionPost
          */
         $revisionPost = $this->getMockBuilder('\WP_Post')->getMock();
         $revisionPost->ID = 2;
@@ -175,7 +179,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
         $revisionPost->post_parent = 1;
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $attachment
+         * @var MockObject|stdClass $attachment
          */
         $attachment = $this->getMockBuilder('\WP_Post')->getMock();
         $attachment->ID = 3;
@@ -204,11 +208,11 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
                 }
 
                 /**
-                 * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $term
+                 * @var MockObject|stdClass $term
                  */
                 $term = $this->getMockBuilder('\WP_Term')->getMock();
                 $term->term_id = $termId;
-                $term->taxonomy = 'taxonomy_'.$termId;
+                $term->taxonomy = 'taxonomy_' . $termId;
 
                 return $term;
             }));
@@ -218,11 +222,10 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
 
     /**
      * @param string $class
-     * @param array  $expectedFilteredUserGroupsForObject
-     *
+     * @param array $expectedFilteredUserGroupsForObject
      * @return mixed
      */
-    protected function getTestSaveObjectDataPrototype($class, array $expectedFilteredUserGroupsForObject)
+    protected function getTestSaveObjectDataPrototype(string $class, array $expectedFilteredUserGroupsForObject)
     {
         $userHandler = $this->getUserHandler();
         $userHandler->expects($this->any())
@@ -285,12 +288,11 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
 
     /**
      * @param string $class
-     * @param array  $requestedFiles
-     * @param array  $groupsForObject
-     *
+     * @param array $requestedFiles
+     * @param array $groupsForObject
      * @return mixed
      */
-    protected function getTestEditFormPrototype($class, array $requestedFiles, array $groupsForObject)
+    protected function getTestEditFormPrototype(string $class, array $requestedFiles, array $groupsForObject)
     {
         /**
          * @var Directory $rootDir
@@ -298,7 +300,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
         $rootDir = $this->root->get('/');
         $rootDir->add('root', new Directory([
             'src' => new Directory([
-                'View'  => new Directory([
+                'View' => new Directory([
                     'ObjectColumn.php' => new File('<?php echo \'ObjectColumn\';'),
                     'UserColumn.php' => new File('<?php echo \'UserColumn\';'),
                     'PostEditForm.php' => new File('<?php echo \'PostEditForm\';'),
@@ -355,7 +357,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
             ->method('includeFile')
             ->withConsecutive(...$requestedFilesParam)
             ->will($this->returnCallback(function (ObjectController $controller, $file) {
-                echo '!'.get_class($controller).'|'.$file.'|'.$controller->getGroupsFormName().'!';
+                echo '!' . get_class($controller) . '|' . $file . '|' . $controller->getGroupsFormName() . '!';
             }));
 
         return $objectController;
@@ -363,6 +365,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
 
     /**
      * @param ObjectController $objectController
+     * @throws ReflectionException
      */
     protected function resetControllerObjectInformation(ObjectController $objectController)
     {
@@ -373,10 +376,9 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
      * @param string $class
      * @param string $id
      * @param string $type
-     *
      * @return mixed
      */
-    protected function getTestRemoveObjectDataPrototype($class, $id, $type)
+    protected function getTestRemoveObjectDataPrototype(string $class, string $id, string $type)
     {
         $database = $this->getDatabase();
         $database->expects($this->once())

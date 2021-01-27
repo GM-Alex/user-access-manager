@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\WordpressConfig;
@@ -55,8 +58,7 @@ abstract class Controller
 
     /**
      * Controller constructor.
-     *
-     * @param Php             $php
+      * @param Php             $php
      * @param Wordpress       $wordpress
      * @param WordpressConfig $wordpressConfig
      */
@@ -70,7 +72,7 @@ abstract class Controller
     /**
      * @return Php
      */
-    protected function getPhp()
+    protected function getPhp(): Php
     {
         return $this->php;
     }
@@ -78,41 +80,36 @@ abstract class Controller
     /**
      * @return WordpressConfig
      */
-    protected function getWordpressConfig()
+    protected function getWordpressConfig(): WordpressConfig
     {
         return $this->wordpressConfig;
     }
 
     /**
      * Returns the nonce field.
-     *
-     * @param string $name
-     *
-     * @return string
+      * @param string $name
+      * @return string
      */
-    public function createNonceField($name)
+    public function createNonceField(string $name): string
     {
         return $this->wordpress->getNonceField($name, $name.'Nonce');
     }
 
     /**
      * Returns the nonce.
-     *
-     * @param string $name
-     *
-     * @return string
+      * @param string $name
+      * @return string
      */
-    public function getNonce($name)
+    public function getNonce(string $name): string
     {
         return $this->wordpress->createNonce($name);
     }
 
     /**
      * Verifies the nonce and terminates the application if the nonce is wrong.
-     *
-     * @param string $name
+      * @param string $name
      */
-    protected function verifyNonce($name)
+    protected function verifyNonce(string $name)
     {
         $nonce = $this->getRequestParameter($name.'Nonce');
 
@@ -123,20 +120,18 @@ abstract class Controller
 
     /**
      * Sets the update message.
-     *
-     * @param string $message
+      * @param string $message
      */
-    protected function setUpdateMessage($message)
+    protected function setUpdateMessage(string $message)
     {
         $this->updateMessage = $message;
     }
 
     /**
      * Adds an error message.
-     *
-     * @param string $message
+      * @param string $message
      */
-    protected function addErrorMessage($message)
+    protected function addErrorMessage(string $message)
     {
         if (isset($_SESSION[BackendController::UAM_ERRORS]) === false) {
             $_SESSION[BackendController::UAM_ERRORS] = [];
@@ -147,20 +142,18 @@ abstract class Controller
 
     /**
      * Returns the update message.
-     *
-     * @return string
+      * @return string
      */
-    public function getUpdateMessage()
+    public function getUpdateMessage(): ?string
     {
         return $this->updateMessage;
     }
 
     /**
      * Returns true if a update message is set.
-     *
-     * @return bool
+      * @return bool
      */
-    public function hasUpdateMessage()
+    public function hasUpdateMessage(): bool
     {
         return $this->updateMessage !== null;
     }
@@ -170,7 +163,7 @@ abstract class Controller
      */
     protected function processAction()
     {
-        $postAction = $this->getRequestParameter(self::ACTION_PARAMETER);
+        $postAction = (string) $this->getRequestParameter(self::ACTION_PARAMETER);
         $postActionSplit = explode('_', $postAction);
         $postAction = array_shift($postActionSplit);
         $postAction .= implode('', array_map('ucfirst', $postActionSplit));

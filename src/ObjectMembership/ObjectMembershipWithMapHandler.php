@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\ObjectMembership;
 
+use Exception;
 use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
@@ -27,27 +31,25 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 {
     /**
      * Returns the map.
-     *
-     * @return array
+      * @return array
      */
-    abstract protected function getMap();
+    abstract protected function getMap(): array;
 
     /**
      * Uses a map function to resolve the recursive membership.
-     *
-     * @param AbstractUserGroup          $userGroup
-     * @param bool                       $lockRecursive
-     * @param string                     $objectId
+      * @param AbstractUserGroup $userGroup
+     * @param bool $lockRecursive
+     * @param int|string $objectId
      * @param null|AssignmentInformation $assignmentInformation
-     *
-     * @return bool
+      * @return bool
+     * @throws Exception
      */
     protected function getMembershipByMap(
         AbstractUserGroup $userGroup,
-        $lockRecursive,
+        bool $lockRecursive,
         $objectId,
         &$assignmentInformation = null
-    ) {
+    ): bool {
         // Reset value to prevent errors
         $recursiveMembership = [];
 
@@ -77,14 +79,13 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 
     /**
      * Returns the objects by the given type including the children.
-     *
-     * @param AbstractUserGroup $userGroup
-     * @param bool              $lockRecursive
-     * @param string            $objectType
-     *
-     * @return array
+      * @param AbstractUserGroup $userGroup
+     * @param bool $lockRecursive
+     * @param string $objectType
+      * @return array
+     * @throws Exception
      */
-    protected function getFullObjectsByMap(AbstractUserGroup $userGroup, $lockRecursive, $objectType)
+    protected function getFullObjectsByMap(AbstractUserGroup $userGroup, bool $lockRecursive, string $objectType): array
     {
         $objects = $this->getSimpleAssignedObjects($userGroup, $objectType);
 

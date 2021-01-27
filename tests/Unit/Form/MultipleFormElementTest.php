@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\FormElement;
 use UserAccessManager\Form\MultipleFormElement;
 use UserAccessManager\Form\MultipleFormElementValue;
@@ -24,18 +28,17 @@ use UserAccessManager\Form\MultipleFormElementValue;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\MultipleFormElement
  */
-class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
+class MultipleFormElementTest extends TestCase
 {
     /**
      * @param string $id
-     * @param array  $possibleValues
-     * @param mixed  $value
-     * @param string $label
-     * @param string $description
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|MultipleFormElement
+     * @param array $possibleValues
+     * @param mixed $value
+     * @param null $label
+     * @param null $description
+     * @return MockObject|MultipleFormElement
      */
-    private function getStub($id, array $possibleValues, $value = null, $label = null, $description = null)
+    private function getStub(string $id, array $possibleValues, $value = null, $label = null, $description = null)
     {
         return $this->getMockForAbstractClass(
             MultipleFormElement::class,
@@ -46,10 +49,10 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
     /**
      * @group             unit
      * @covers            ::__construct()
-     * @expectedException \Exception
      */
     public function testCreateInstanceException()
     {
+        $this->expectException(Exception::class);
         $stub = $this->getStub('id', ['possibleValue'], 'value', 'label', 'description');
         self::assertInstanceOf(MultipleFormElement::class, $stub);
     }
@@ -57,7 +60,6 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @covers  ::__construct()
-     *
      * @return FormElement
      */
     public function testCanCreateInstance()
@@ -77,7 +79,6 @@ class MultipleFormElementTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::getPossibleValues()
      * @depends testCanCreateInstance
-     *
      * @param MultipleFormElement $multipleFormElement
      */
     public function testGetPossibleValues(MultipleFormElement $multipleFormElement)

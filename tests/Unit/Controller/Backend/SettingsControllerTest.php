@@ -12,20 +12,28 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Cache\CacheProviderInterface;
-use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\SettingsController;
 use UserAccessManager\Form\Form;
 use UserAccessManager\Form\MultipleFormElementValue;
+use UserAccessManager\Form\Radio;
 use UserAccessManager\Form\Select;
+use UserAccessManager\Form\Textarea;
 use UserAccessManager\Form\ValueSetFormElement;
 use UserAccessManager\Form\ValueSetFormElementValue;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\Wrapper\Wordpress;
 use VCR\VCR;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
@@ -47,18 +55,20 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
+        parent::setUp();
     }
 
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     /**
@@ -84,6 +94,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getPages()
+     * @throws ReflectionException
      */
     public function testGetPages()
     {
@@ -197,7 +208,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             SettingsController::GROUP_TAXONOMIES => [MainConfig::DEFAULT_TYPE, 'category', 'post_format'],
             SettingsController::GROUP_FILES => [SettingsController::GROUP_FILES],
             SettingsController::GROUP_AUTHOR => [SettingsController::GROUP_AUTHOR],
-            SettingsController::GROUP_CACHE => ['activeCacheProvider', 'cacheProviderId'],
+            SettingsController::GROUP_CACHE => ['activeCacheProvider', 'cacheProviderId', 'none'],
             SettingsController::GROUP_OTHER => [SettingsController::GROUP_OTHER]
         ];
 
@@ -239,9 +250,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
-    private function createMultipleFormElementValue()
+    private function createMultipleFormElementValue(): MockObject
     {
         return $this->createMock(MultipleFormElementValue::class);
     }
@@ -249,8 +260,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     /**
      * @param $expectedPostTypes
      * @param $expectedTaxonomies
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
+     * @return MockObject|Wordpress
      */
     private function getWordpressWithPostTypesAndTaxonomies($expectedPostTypes, $expectedTaxonomies)
     {
@@ -306,12 +316,12 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $pages = [];
 
-        $firstPage = new \stdClass();
+        $firstPage = new stdClass();
         $firstPage->ID = 1;
         $firstPage->post_title = 'firstPage';
         $pages[] = $firstPage;
 
-        $secondPage = new \stdClass();
+        $secondPage = new stdClass();
         $secondPage->ID = 2;
         $secondPage->post_title = 'secondPage';
         $pages[] = $secondPage;
@@ -394,6 +404,10 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $formFactory = $this->getFormFactory();
 
+        $postTextarea = $this->createMock(Textarea::class);
+        $pageTextarea = $this->createMock(Textarea::class);
+        $customFileHandlingFile = $this->createMock(Textarea::class);
+
         $customFileHandlingFileTextarea = [
             'custom_file_handling_file',
             'fileProtectionFileContent',
@@ -413,13 +427,13 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 $customFileHandlingFileTextarea
             )
             ->will($this->onConsecutiveCalls(
-                'postTextarea',
-                'pageTextarea',
-                'custom_file_handling_file',
-                'custom_file_handling_file',
-                'custom_file_handling_file',
-                'custom_file_handling_file',
-                'custom_file_handling_file'
+                $postTextarea,
+                $pageTextarea,
+                $customFileHandlingFile,
+                $customFileHandlingFile,
+                $customFileHandlingFile,
+                $customFileHandlingFile,
+                $customFileHandlingFile
             ));
 
         $createMultipleFormElementValueReturn = array_fill(0, 7, $this->createMultipleFormElementValue());
@@ -427,7 +441,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $exceptionElement->expects($this->once())
             ->method('setSubElement')
             ->will($this->returnCallback(function () {
-                throw new \Exception('error');
+                throw new Exception('error');
             }));
         $createMultipleFormElementValueReturn[] = $exceptionElement;
 
@@ -471,6 +485,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             TXT_UAM_REDIRECT_DESC
         ];
 
+        $redirectRadio = $this->createMock(Radio::class);
         $formFactory->expects($this->exactly(2))
             ->method('createRadio')
             ->withConsecutive(
@@ -478,8 +493,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 $redirectTwo
             )
             ->will($this->onConsecutiveCalls(
-                'redirectRadio',
-                'redirectRadio'
+                $redirectRadio,
+                $redirectRadio
             ));
 
         $formFactory->expects($this->exactly(4))
@@ -534,19 +549,27 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $formHelper = $this->getFormHelper();
 
+        $defaultPostTypeForm = $this->createMock(Form::class);
+        $postForm = $this->createMock(Form::class);
+        $pageForm = $this->createMock(Form::class);
+        $defaultTaxonomyForm = $this->createMock(Form::class);
+        $categoryForm = $this->createMock(Form::class);
+        $authorForm = $this->createMock(Form::class);
+        $otherForm = $this->createMock(Form::class);
+
         $settingsFormReturns = [
-            'defaultPostTypeForm',
-            'postForm',
-            'pageForm',
-            'defaultTaxonomyForm',
-            'categoryForm',
+            $defaultPostTypeForm,
+            $postForm,
+            $pageForm,
+            $defaultTaxonomyForm,
+            $categoryForm,
             $fileFrom,
             $fileFrom,
             $fileFrom,
             $fileFrom,
             $fileFrom,
-            'authorForm',
-            'otherForm'
+            $authorForm,
+            $otherForm
         ];
 
         $formHelper->expects($this->exactly(13))
@@ -571,7 +594,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'hide_post',
                         'hide_post_title',
                         'post_title',
-                        'postTextarea',
+                        $postTextarea,
                         'hide_post_comment',
                         'post_comment_content',
                         'post_comments_locked',
@@ -585,7 +608,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'hide_page',
                         'hide_page_title',
                         'page_title',
-                        'pageTextarea',
+                        $pageTextarea,
                         'hide_page_comment',
                         'page_comment_content',
                         'page_comments_locked',
@@ -608,7 +631,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'inline_files',
                         'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
-                        'custom_file_handling_file',
+                        $customFileHandlingFile,
                         'locked_directory_type' => ['custom' => 'custom_locked_directories']
                     ]
                 ],
@@ -619,7 +642,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'inline_files',
                         'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
-                        'custom_file_handling_file',
+                        $customFileHandlingFile,
                         'locked_directory_type' => ['custom' => 'custom_locked_directories'],
                         'lock_file_types' => [
                             'selected' => 'locked_file_types',
@@ -634,7 +657,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'inline_files',
                         'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
-                        'custom_file_handling_file',
+                        $customFileHandlingFile,
                         'locked_directory_type' => ['custom' => 'custom_locked_directories'],
                         'lock_file_types' => [
                             'selected' => 'locked_file_types',
@@ -650,7 +673,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'inline_files',
                         'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
-                        'custom_file_handling_file',
+                        $customFileHandlingFile,
                         'locked_directory_type' => ['custom' => 'custom_locked_directories'],
                         'lock_file_types' => [
                             'selected' => 'locked_file_types',
@@ -667,7 +690,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'inline_files',
                         'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
-                        'custom_file_handling_file',
+                        $customFileHandlingFile,
                         'locked_directory_type' => ['custom' => 'custom_locked_directories']
                     ]
                 ],
@@ -682,7 +705,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     [
                         'lock_recursive',
                         'protect_feed',
-                        'redirectRadio',
+                        $redirectRadio,
                         'blog_admin_hint',
                         'blog_admin_hint_text',
                         'show_assigned_groups',
@@ -693,7 +716,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                     [
                         'lock_recursive',
                         'protect_feed',
-                        'redirectRadio',
+                        $redirectRadio,
                         'blog_admin_hint',
                         'blog_admin_hint_text',
                         'show_assigned_groups',
@@ -703,7 +726,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnCallback(function () use (&$settingsFormReturns) {
                 if (count($settingsFormReturns) <= 0) {
-                    throw new \Exception('error');
+                    throw new Exception('error');
                 }
 
                 return array_shift($settingsFormReturns);
@@ -713,16 +736,17 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->method('getParameterText')
             ->will($this->returnCallback(
                 function (ConfigParameter $configParameter, $description, $postType) {
-                    $text = $configParameter->getId().ucfirst($postType);
+                    $text = $configParameter->getId() . ucfirst($postType);
                     $text .= ($description === true) ? 'Desc' : '';
                     return $text;
                 }
             ));
 
+        $configForm = $this->createMock(Form::class);
         $formHelper->expects($this->once())
             ->method('getSettingsFormByConfig')
             ->with($config)
-            ->will($this->returnValue('configForm'));
+            ->will($this->returnValue($configForm));
 
         $throwException = false;
 
@@ -734,7 +758,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->returnCallback(function () use (&$throwException) {
                 if ($throwException === true) {
-                    throw new \Exception('error');
+                    throw new Exception('error');
                 }
 
                 return $this->createMock(MultipleFormElementValue::class);
@@ -758,6 +782,10 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->method('getFileProtectionFileName')
             ->will($this->returnValue($testFileWithDir));
 
+        if (defined('_SESSION')) {
+            unset($_SESSION[BackendController::UAM_ERRORS]);
+        }
+
         $settingController = new SettingsController(
             $this->getPhp(),
             $wordpress,
@@ -771,9 +799,9 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         self::assertEquals(
             [
-                'default' => 'defaultPostTypeForm',
-                'post' => 'postForm',
-                'page' => 'pageForm'
+                'default' => $defaultPostTypeForm,
+                'post' => $postForm,
+                'page' => $pageForm
             ],
             $settingController->getCurrentGroupForms()
         );
@@ -781,8 +809,8 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $_GET['tab_group'] = SettingsController::GROUP_TAXONOMIES;
         self::assertEquals(
             [
-                'default' => 'defaultTaxonomyForm',
-                'category' => 'categoryForm'
+                'default' => $defaultTaxonomyForm,
+                'category' => $categoryForm
             ],
             $settingController->getCurrentGroupForms()
         );
@@ -804,18 +832,17 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         VCR::turnOff();
 
         $_GET['tab_group'] = SettingsController::GROUP_AUTHOR;
-        self::assertEquals(['author' => 'authorForm'], $settingController->getCurrentGroupForms());
+        self::assertEquals(['author' => $authorForm], $settingController->getCurrentGroupForms());
 
         $_GET['tab_group'] = SettingsController::GROUP_CACHE;
         self::assertEquals(
-            ['none' => null, 'cacheProviderId' => 'configForm'],
+            ['none' => null, 'cacheProviderId' => $configForm],
             $settingController->getCurrentGroupForms()
         );
 
         $_GET['tab_group'] = SettingsController::GROUP_OTHER;
-        self::assertEquals(['other' => 'otherForm'], $settingController->getCurrentGroupForms());
+        self::assertEquals(['other' => $otherForm], $settingController->getCurrentGroupForms());
 
-        /** @noinspection PhpUnusedLocalVariableInspection */
         $throwException = true;
         self::assertEquals([], $settingController->getCurrentGroupForms());
         self::assertEquals(
@@ -922,7 +949,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $_GET['tab_group_section'] = 'cacheProviderId';
         $settingController->updateSettingsAction();
 
-        self::assertAttributeEquals(TXT_UAM_UPDATE_SETTINGS, 'updateMessage', $settingController);
+        self::assertEquals(TXT_UAM_UPDATE_SETTINGS, $settingController->getUpdateMessage());
     }
 
     /**

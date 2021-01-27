@@ -12,11 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\ObjectMembership\PostMembershipHandler;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 
 /**
  * Class PostMembershipHandlerTest
@@ -29,6 +33,7 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws Exception
      */
     public function testCanCreateInstance()
     {
@@ -45,14 +50,15 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::getObjectName()
+     * @throws Exception
      */
     public function testGetObjectName()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $postType
+         * @var MockObject|stdClass $postType
          */
         $postType = $this->getMockBuilder('\WP_Post_Type')->getMock();
-        $postType->labels = new \stdClass();
+        $postType->labels = new stdClass();
         $postType->labels->name = 'post';
 
         $wordpress = $this->getWordpress();
@@ -62,7 +68,7 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             ->will($this->returnValue($postType));
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post
+         * @var MockObject|stdClass $post
          */
         $post = $this->getMockBuilder('\WP_Post')->getMock();
         $post->post_title = 'postFour';
@@ -93,6 +99,7 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::getHandledObjects()
+     * @throws Exception
      */
     public function testGetHandledObjects()
     {
@@ -123,24 +130,25 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
      * @covers ::isMember()
      * @covers ::assignRecursiveMembershipByTerm()
      * @covers ::getMap()
+     * @throws Exception
      */
     public function testIsMember()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup $userGroup
+         * @var MockObject|AbstractUserGroup $userGroup
          */
         $userGroup = $this->getMembershipUserGroup(
             [
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 3],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 1]
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1]
             ],
             [
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 1],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 2],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 3],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 4],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 5],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE , 10]
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 2],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 3],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 4],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 5],
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 10]
             ],
             [4, 5, 10]
         );
@@ -222,11 +230,12 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
      * @group  unit
      * @covers ::getFullObjects()
      * @covers ::getMap()
+     * @throws Exception
      */
     public function testGetFullObjects()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup $userGroup
+         * @var MockObject|AbstractUserGroup $userGroup
          */
         $userGroup = $this->createMock(AbstractUserGroup::class);
 

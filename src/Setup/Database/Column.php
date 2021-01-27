@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Database;
 
 /**
@@ -34,7 +37,7 @@ class Column
     /**
      * @var int|string
      */
-    private $default = null;
+    private $default;
 
     /**
      * @var bool
@@ -53,17 +56,16 @@ class Column
 
     /**
      * Column constructor.
-     *
      * @param string $name
      * @param string $type
-     * @param bool   $isNull
-     * @param mixed  $default
-     * @param bool   $isKey
-     * @param bool   $isAutoIncrement
+     * @param bool $isNull
+     * @param mixed $default
+     * @param bool $isKey
+     * @param bool $isAutoIncrement
      */
     public function __construct(
-        $name,
-        $type,
+        string $name,
+        string $type,
         $isNull = false,
         $default = null,
         $isKey = false,
@@ -80,7 +82,7 @@ class Column
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -88,7 +90,7 @@ class Column
     /**
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
@@ -104,7 +106,7 @@ class Column
     /**
      * @return bool
      */
-    public function isNull()
+    public function isNull(): bool
     {
         return $this->isNull;
     }
@@ -112,7 +114,7 @@ class Column
     /**
      * @return bool
      */
-    public function isKey()
+    public function isKey(): bool
     {
         return $this->isKey;
     }
@@ -120,17 +122,16 @@ class Column
     /**
      * @return bool
      */
-    public function isAutoIncrement()
+    public function isAutoIncrement(): bool
     {
         return $this->isAutoIncrement;
     }
 
     /**
      * Returns a mysql column string.
-     *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $nullConstraint = ($this->isNull) ? 'NULL' : 'NOT NULL';
         $column = "`{$this->name}` {$this->type} {$nullConstraint}";

@@ -12,11 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_Term;
 
 /**
  * Class TermObjectControllerTest
@@ -79,6 +85,7 @@ class TermObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::addTermColumn()
+     * @throws UserGroupTypeException
      */
     public function testAddTermColumn()
     {
@@ -104,6 +111,8 @@ class TermObjectControllerTest extends ObjectControllerTestCase
      * @group  unit
      * @covers ::addTermColumn()
      * @covers ::showTermEditForm()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testEditForm()
     {
@@ -132,7 +141,7 @@ class TermObjectControllerTest extends ObjectControllerTestCase
         $this->resetControllerObjectInformation($termObjectController);
 
         $expected = 'content!UserAccessManager\Controller\Backend\TermObjectController|'
-            .'vfs://root/src/View/ObjectColumn.php|uam_user_groups!';
+            . 'vfs://root/src/View/ObjectColumn.php|uam_user_groups!';
 
         self::assertEquals(
             $expected,
@@ -157,11 +166,11 @@ class TermObjectControllerTest extends ObjectControllerTestCase
         self::assertEquals('category', $termObjectController->getObjectInformation()->getObjectType());
         self::assertEquals(null, $termObjectController->getObjectInformation()->getObjectId());
         $expectedOutput = '!UserAccessManager\Controller\Backend\TermObjectController|'
-            .'vfs://root/src/View/TermEditForm.php|uam_user_groups!';
+            . 'vfs://root/src/View/TermEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($termObjectController);
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass|\WP_Term $term
+         * @var MockObject|stdClass|WP_Term $term
          */
         $term = $this->getMockBuilder('\WP_Term')->getMock();
         $term->term_id = 5;
@@ -170,7 +179,7 @@ class TermObjectControllerTest extends ObjectControllerTestCase
         self::assertEquals('category', $termObjectController->getObjectInformation()->getObjectType());
         self::assertEquals(5, $termObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\TermObjectController|'
-            .'vfs://root/src/View/TermEditForm.php|uam_user_groups!';
+            . 'vfs://root/src/View/TermEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($termObjectController);
 
         self::expectOutputString($expectedOutput);
@@ -179,6 +188,7 @@ class TermObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::saveTermData()
+     * @throws UserGroupTypeException
      */
     public function testSaveUserData()
     {

@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Widget;
 
 use UserAccessManager\Config\WordpressConfig;
@@ -42,9 +45,8 @@ class WidgetFactory
 
     /**
      * WidgetFactory constructor.
-     *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
+     * @param Php $php
+     * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
      */
     public function __construct(Php $php, Wordpress $wordpress, WordpressConfig $wordpressConfig)
@@ -56,10 +58,9 @@ class WidgetFactory
 
     /**
      * Creates and returns a login widget.
-     *
      * @return LoginWidget
      */
-    public function createLoginWidget()
+    public function createLoginWidget(): LoginWidget
     {
         return new LoginWidget($this->php, $this->wordpress, $this->wordpressConfig);
     }

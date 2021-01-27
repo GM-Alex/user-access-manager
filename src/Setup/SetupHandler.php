@@ -12,12 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup;
 
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
 use UserAccessManager\Setup\Database\DatabaseHandler;
+use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -54,12 +58,11 @@ class SetupHandler
 
     /**
      * SetupHandler constructor.
-     *
-     * @param Wordpress       $wordpress
-     * @param Database        $database
+     * @param Wordpress $wordpress
+     * @param Database $database
      * @param DatabaseHandler $databaseHandler
-     * @param MainConfig      $mainConfig
-     * @param FileHandler     $fileHandler
+     * @param MainConfig $mainConfig
+     * @param FileHandler $fileHandler
      */
     public function __construct(
         Wordpress $wordpress,
@@ -77,20 +80,18 @@ class SetupHandler
 
     /**
      * Returns the database handler object.
-     *
      * @return DatabaseHandler
      */
-    public function getDatabaseHandler()
+    public function getDatabaseHandler(): DatabaseHandler
     {
         return $this->databaseHandler;
     }
 
     /**
      * Returns all blog of the network.
-     *
      * @return integer[]
      */
-    public function getBlogIds()
+    public function getBlogIds(): array
     {
         $currentBlogId = $this->database->getCurrentBlogId();
         $blogIds = [$currentBlogId => $currentBlogId];
@@ -105,6 +106,7 @@ class SetupHandler
 
     /**
      * Creates the needed tables at the database and adds the options
+     * @throws MissingColumnsException
      */
     private function runInstall()
     {
@@ -113,8 +115,8 @@ class SetupHandler
 
     /**
      * Installs the user access manager.
-     *
      * @param bool $networkWide
+     * @throws MissingColumnsException
      */
     public function install($networkWide = false)
     {
@@ -133,10 +135,9 @@ class SetupHandler
 
     /**
      * Updates the user access manager if an old version was installed.
-     *
      * @return bool
      */
-    public function update()
+    public function update(): bool
     {
         $uamVersion = $this->wordpress->getOption('uam_version', '0');
 
@@ -153,6 +154,7 @@ class SetupHandler
 
     /**
      * Clean up wordpress if the plugin will be uninstalled.
+     * @throws MissingColumnsException
      */
     public function uninstall()
     {
@@ -173,10 +175,9 @@ class SetupHandler
 
     /**
      * Remove the htaccess file if the plugin is deactivated.
-     *
      * @return bool
      */
-    public function deactivate()
+    public function deactivate(): bool
     {
         return $this->fileHandler->deleteFileProtection();
     }

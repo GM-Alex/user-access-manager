@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
 use UserAccessManager\Setup\Update\DatabaseUpdate1;
@@ -34,10 +35,9 @@ class UpdateFactoryTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return UpdateFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): UpdateFactory
     {
         $updateFactory = new UpdateFactory(
             $this->getDatabase(),
@@ -53,7 +53,6 @@ class UpdateFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::getDatabaseUpdates()
-     *
      * @param UpdateFactory $updateFactory
      */
     public function testGetDatabaseUpdates(UpdateFactory $updateFactory)

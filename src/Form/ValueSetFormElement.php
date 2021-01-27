@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Form;
 
 /**
@@ -28,14 +31,13 @@ abstract class ValueSetFormElement extends FormElement
 
     /**
      * MultipleFormElement constructor.
-     *
-     * @param string                     $id
+     * @param string $id
      * @param ValueSetFormElementValue[] $possibleValues
-     * @param mixed|null                 $value
-     * @param string|null                $label
-     * @param string|null                $description
+     * @param mixed|null $value
+     * @param string|null $label
+     * @param string|null $description
      */
-    public function __construct($id, array $possibleValues, $value = null, $label = null, $description = null)
+    public function __construct(string $id, array $possibleValues, $value = null, $label = null, $description = null)
     {
         parent::__construct($id, $value, $label, $description);
 
@@ -52,7 +54,7 @@ abstract class ValueSetFormElement extends FormElement
     /**
      * @return ValueSetFormElementValue[]
      */
-    public function getPossibleValues()
+    public function getPossibleValues(): array
     {
         return $this->possibleValues;
     }

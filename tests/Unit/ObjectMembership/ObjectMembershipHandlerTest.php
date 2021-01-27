@@ -12,13 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use UserAccessManager\ObjectMembership\MissingObjectTypeException;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
-use UserAccessManager\ObjectMembership\MissingObjectTypeException;
-use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
 
 /**
  * Class ObjectMembershipHandlerTest
@@ -30,12 +34,13 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMembershipHandler
+     * @return MockObject|ObjectMembershipHandler
+     * @throws ReflectionException
      */
     private function getStub(
         AssignmentInformationFactory $assignmentInformationFactory
-    ) {
+    )
+    {
         $stub = $this->getMockForAbstractClass(
             ObjectMembershipHandler::class,
             [],
@@ -51,7 +56,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCanCreateInstance()
     {
@@ -86,6 +91,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getGeneralObjectType()
+     * @throws ReflectionException
      */
     public function testGetGeneralObjectType()
     {
@@ -100,6 +106,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getHandledObjects()
+     * @throws ReflectionException
      */
     public function testGetHandledObjects()
     {
@@ -114,6 +121,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::handlesObject()
+     * @throws ReflectionException
      */
     public function testHandlesObject()
     {
@@ -129,6 +137,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::assignRecursiveMembership()
+     * @throws ReflectionException
      */
     public function testAssignRecursiveMembership()
     {
@@ -157,7 +166,8 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
         $assignmentInformationTwo = $this->getAssignmentInformation('typeTwo');
         $assignmentInformationTwo->expects($this->once())
             ->method('setRecursiveMembership')
-            ->with(['recursiveMembershipTwo']);
+            ->with(['recursiveMembershipTwo'])
+            ->will($this->returnValue($assignmentInformationTwo));
         self::callMethod(
             $objectMembershipHandler,
             'assignRecursiveMembership',
@@ -170,6 +180,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::checkAccessWithRecursiveMembership()
+     * @throws ReflectionException
      */
     public function testCheckAccessWithRecursiveMembership()
     {
@@ -192,7 +203,8 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
         $assignmentInformationTwo = $this->getAssignmentInformation('typeTwo');
         $assignmentInformationTwo->expects($this->once())
             ->method('setRecursiveMembership')
-            ->with([]);
+            ->with([])
+            ->will($this->returnValue($assignmentInformationTwo));
         $resultAssignmentInformationOne = null;
         $result = self::callMethod(
             $objectMembershipHandler,
@@ -206,7 +218,8 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
         $assignmentInformationThree = $this->getAssignmentInformation('typeThree');
         $assignmentInformationThree->expects($this->once())
             ->method('setRecursiveMembership')
-            ->with(['membership']);
+            ->with(['membership'])
+            ->will($this->returnValue($assignmentInformationThree));
         $resultAssignmentInformationOne = null;
         $result = self::callMethod(
             $objectMembershipHandler,
@@ -221,6 +234,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getSimpleAssignedObjects()
+     * @throws ReflectionException
      */
     public function testGetSimpleAssignedObjects()
     {

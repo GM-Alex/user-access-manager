@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
+use Exception;
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Config\BooleanConfigParameter;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Config\SelectionConfigParameter;
@@ -25,12 +28,12 @@ use UserAccessManager\Config\StringConfigParameter;
  * @package UserAccessManager\Tests\Unit\Config
  * @coversDefaultClass \UserAccessManager\Config\ConfigParameterFactory
  */
-class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
+class ConfigParameterFactoryTest extends TestCase
 {
     /**
      * @group unit
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): ConfigParameterFactory
     {
         $configParameterFactory = new ConfigParameterFactory();
         self::assertInstanceOf(ConfigParameterFactory::class, $configParameterFactory);
@@ -42,8 +45,8 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBooleanConfigParameter()
-     *
      * @param ConfigParameterFactory $configParameterFactory
+     * @throws Exception
      */
     public function testCreateBooleanConfigParameter(ConfigParameterFactory $configParameterFactory)
     {
@@ -60,8 +63,8 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createStringConfigParameter()
-     *
      * @param ConfigParameterFactory $configParameterFactory
+     * @throws Exception
      */
     public function testCreateStringConfigParameter(ConfigParameterFactory $configParameterFactory)
     {
@@ -78,8 +81,8 @@ class ConfigParameterFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createSelectionConfigParameter()
-     *
      * @param ConfigParameterFactory $configParameterFactory
+     * @throws Exception
      */
     public function testCreateSelectionConfigParameter(ConfigParameterFactory $configParameterFactory)
     {

@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use Exception;
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\Radio;
 
 /**
@@ -22,10 +25,11 @@ use UserAccessManager\Form\Radio;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\Radio
  */
-class RadioTest extends \PHPUnit_Framework_TestCase
+class RadioTest extends TestCase
 {
     /**
      * @group unit
+     * @throws Exception
      */
     public function testCanCreateInstance()
     {

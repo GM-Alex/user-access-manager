@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller;
 
+use Exception;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Wrapper\Php;
 
@@ -27,12 +31,12 @@ trait BaseControllerTrait
     /**
      * @return Php
      */
-    abstract protected function getPhp();
+    abstract protected function getPhp(): Php;
 
     /**
      * @return WordpressConfig
      */
-    abstract protected function getWordpressConfig();
+    abstract protected function getWordpressConfig(): WordpressConfig;
 
     /**
      * @var string
@@ -41,20 +45,17 @@ trait BaseControllerTrait
 
     /**
      * Returns the current request url.
-     *
-     * @return string
+      * @return string
      */
-    public function getRequestUrl()
+    public function getRequestUrl(): string
     {
         return htmlentities($_SERVER['REQUEST_URI']);
     }
 
     /**
      * Sanitize the given value.
-     *
-     * @param mixed $value
-     *
-     * @return mixed
+      * @param mixed $value
+      * @return array|string
      */
     private function sanitizeValue($value)
     {
@@ -80,13 +81,11 @@ trait BaseControllerTrait
 
     /**
      * Returns the request parameter.
-     *
-     * @param string $name
-     * @param mixed  $default
-     *
-     * @return mixed
+      * @param string $name
+     * @param mixed $default
+      * @return mixed
      */
-    public function getRequestParameter($name, $default = null)
+    public function getRequestParameter(string $name, $default = null)
     {
         $return = (isset($_POST[$name]) === true) ? $this->sanitizeValue($_POST[$name]) : null;
 
@@ -99,12 +98,10 @@ trait BaseControllerTrait
 
     /**
      * Returns the content of the excluded php file.
-     *
-     * @param string $fileName The view file name
-     *
-     * @return string
+      * @param string $fileName The view file name
+      * @return string
      */
-    protected function getIncludeContents($fileName)
+    protected function getIncludeContents(string $fileName): string
     {
         $contents = '';
         $realPath = rtrim($this->getWordpressConfig()->getRealPath(), DIRECTORY_SEPARATOR);
@@ -118,7 +115,7 @@ trait BaseControllerTrait
                 $this->getPhp()->includeFile($this, $fileWithPath);
                 $contents = ob_get_contents();
                 ob_end_clean();
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $contents = "Error on including content '{$fileWithPath}': {$exception->getMessage()}";
                 ob_end_clean();
             }

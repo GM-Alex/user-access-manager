@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 use UserAccessManager\Form\LabelTrait;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -26,7 +29,7 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 class LabelTraitTest extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|LabelTrait
+     * @return MockObject|LabelTrait
      */
     private function getStub()
     {
@@ -36,6 +39,7 @@ class LabelTraitTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getLabel()
+     * @throws ReflectionException
      */
     public function testGetGetLabel()
     {

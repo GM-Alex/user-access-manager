@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 /**
@@ -23,65 +26,55 @@ trait ControllerTabNavigationTrait
 {
     /**
      * Returns the current request url.
-     *
      * @return string
      */
-    abstract public function getRequestUrl();
+    abstract public function getRequestUrl(): string;
 
     /**
      * Returns the request parameter.
-     *
      * @param string $name
-     * @param mixed  $default
-     *
+     * @param mixed $default
      * @return mixed
      */
-    abstract public function getRequestParameter($name, $default = null);
+    abstract public function getRequestParameter(string $name, $default = null);
 
     /**
      * Translates the given group by the group key.
-     *
      * @param string $key
-     *
      * @return string
      */
-    abstract public function getGroupText($key);
+    abstract public function getGroupText(string $key): string;
 
     /**
      * Translates the given group section by the group key.
-     *
      * @param string $key
-     *
      * @return string
      */
-    abstract public function getGroupSectionText($key);
+    abstract public function getGroupSectionText(string $key): string;
 
     /**
      * Returns the tab groups.
-     *
      * @return array
      */
-    abstract public function getTabGroups();
+    abstract public function getTabGroups(): array;
 
     /**
      * Returns the current tab group.
-     *
      * @return string
      */
-    public function getCurrentTabGroup()
+    public function getCurrentTabGroup(): string
     {
         $groups = $this->getTabGroups();
         $keys = array_keys($groups);
 
-        return (string)$this->getRequestParameter('tab_group', reset($keys));
+        return (string) $this->getRequestParameter('tab_group', reset($keys));
     }
 
     /**
      * Returns the tab group sections.
-     *
      * @return array
      */
-    public function getSections()
+    public function getSections(): array
     {
         $groups = $this->getTabGroups();
         $group = $this->getCurrentTabGroup();
@@ -91,10 +84,9 @@ trait ControllerTabNavigationTrait
 
     /**
      * Returns the current tab group section.
-     *
      * @return string
      */
-    public function getCurrentTabGroupSection()
+    public function getCurrentTabGroupSection(): string
     {
         $groups = $this->getTabGroups();
         $group = $this->getCurrentTabGroup();
@@ -106,35 +98,31 @@ trait ControllerTabNavigationTrait
             $default = reset($firstGroup);
         }
 
-        return (string)$this->getRequestParameter('tab_group_section', $default);
+        return (string) $this->getRequestParameter('tab_group_section', $default);
     }
 
     /**
      * Returns the settings group link by the given group key.
-     *
      * @param string $groupKey
-     *
      * @return string
      */
-    public function getTabGroupLink($groupKey)
+    public function getTabGroupLink(string $groupKey): string
     {
         $rawUrl = $this->getRequestUrl();
         $url = preg_replace('/&amp;tab_group[^&]*/i', '', $rawUrl);
-        return $url.'&tab_group='.$groupKey;
+        return $url . '&tab_group=' . $groupKey;
     }
 
     /**
      * Returns the settings section link by the given group and section key.
-     *
      * @param string $groupKey
      * @param string $sectionKey
-     *
      * @return string
      */
-    public function getTabGroupSectionLink($groupKey, $sectionKey)
+    public function getTabGroupSectionLink(string $groupKey, string $sectionKey): string
     {
         $rawUrl = $this->getTabGroupLink($groupKey);
         $url = preg_replace('/&amp;tab_group_section[^&]*/i', '', $rawUrl);
-        return $url.'&tab_group_section='.$sectionKey;
+        return $url . '&tab_group_section=' . $sectionKey;
     }
 }

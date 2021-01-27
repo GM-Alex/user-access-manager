@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use Exception;
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\Form;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\Input;
@@ -29,14 +32,13 @@ use UserAccessManager\Form\ValueSetFormElementValue;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\FormFactory
  */
-class FormFactoryTest extends \PHPUnit_Framework_TestCase
+class FormFactoryTest extends TestCase
 {
     /**
      * @group  unit
-     *
      * @return FormFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): FormFactory
     {
         $formFactory = new FormFactory();
 
@@ -49,7 +51,6 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFrom()
-     *
      * @param FormFactory $formFactory
      */
     public function testCreateFrom(FormFactory $formFactory)
@@ -61,7 +62,6 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createValueSetFromElementValue()
-     *
      * @param FormFactory $formFactory
      */
     public function testCreateValueSetFromElementValue(FormFactory $formFactory)
@@ -76,7 +76,6 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createMultipleFormElementValue()
-     *
      * @param FormFactory $formFactory
      */
     public function testCreateMultipleFormElementValue(FormFactory $formFactory)
@@ -91,7 +90,6 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createInput()
-     *
      * @param FormFactory $formFactory
      */
     public function testCreateInput(FormFactory $formFactory)
@@ -103,7 +101,6 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createTextarea()
-     *
      * @param FormFactory $formFactory
      */
     public function testCreateTextarea(FormFactory $formFactory)
@@ -115,7 +112,6 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createSelect()
-     *
      * @param FormFactory $formFactory
      */
     public function testCreateSelect(FormFactory $formFactory)
@@ -127,8 +123,8 @@ class FormFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createRadio()
-     *
      * @param FormFactory $formFactory
+     * @throws Exception
      */
     public function testCreateRadio(FormFactory $formFactory)
     {

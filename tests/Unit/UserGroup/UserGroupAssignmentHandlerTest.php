@@ -12,12 +12,18 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use Throwable;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
+use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupAssignmentException;
 use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class UserGroupAssignmentHandlerTest
@@ -46,17 +52,17 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
     /**
      * @param string $type
      * @param string $id
-     * @param array  $with
-     * @param bool   $throwException
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+     * @param array $with
+     * @param bool $throwException
+     * @return MockObject|UserGroup
      */
     private function getDynamicUserGroupWithAdd(
-        $type,
-        $id,
+        string $type,
+        string $id,
         array $with,
         $throwException = false
-    ) {
+    )
+    {
         $dynamicUserGroup = parent::getDynamicUserGroup(
             $type,
             $id
@@ -70,7 +76,7 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
                     throw new UserGroupAssignmentException('User group assignment exception');
                 }
 
-                return null;
+                return true;
             }));
 
         return $dynamicUserGroup;
@@ -79,6 +85,7 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getDateParameter()
+     * @throws ReflectionException
      */
     public function testGetDataParameter()
     {
@@ -143,8 +150,8 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
      * @covers ::setUserGroups()
      * @covers ::setDynamicGroups()
      * @covers ::setDefaultGroups()
-     *
      * @throws UserGroupAssignmentException
+     * @throws UserGroupTypeException
      */
     public function testSaveObjectData()
     {
@@ -254,14 +261,14 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
         ];
         $removeUserGroups = [1 => 1, 2 => 2, 3 => 3];
         $dynamicUserGroups = [
-            DynamicUserGroup::USER_TYPE.'|1' => [
-                'id' => DynamicUserGroup::USER_TYPE.'|1',
+            DynamicUserGroup::USER_TYPE . '|1' => [
+                'id' => DynamicUserGroup::USER_TYPE . '|1',
                 'fromDate' => ['date' => 'from', 'time' => 'Date'],
                 'toDate' => ['date' => 'to', 'time' => 'Date']
             ],
-            DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin'],
+            DynamicUserGroup::ROLE_TYPE . '|admin' => ['id' => DynamicUserGroup::ROLE_TYPE . '|admin'],
             'A|B' => ['id' => 'B|A'],
-            DynamicUserGroup::ROLE_TYPE.'|some' => ['id' => DynamicUserGroup::ROLE_TYPE.'|some']
+            DynamicUserGroup::ROLE_TYPE . '|some' => ['id' => DynamicUserGroup::ROLE_TYPE . '|some']
         ];
 
         $exception = null;
@@ -274,7 +281,7 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
                 $removeUserGroups,
                 $dynamicUserGroups
             );
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             $exception = $throwable;
         }
 
@@ -300,7 +307,7 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
             1 => ['id' => 1, 'formDate' => ['date' => '', 'time' => ''], 'toDate' => ['date' => 23, 'time' => 4]],
             2 => ['id' => 2, 'formDate' => ['date' => '', 'time' => ''], 'toDate' => ['date' => 23, 'time' => 4]]
         ];
-        $removeUserGroups = [2 => 2, 3 => 3,4 => 4];
+        $removeUserGroups = [2 => 2, 3 => 3, 4 => 4];
         $objectController->assignObjectToUserGroups(
             'objectType',
             1,

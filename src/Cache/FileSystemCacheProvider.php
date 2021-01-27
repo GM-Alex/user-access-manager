@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Cache;
 
+use Exception;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\ConfigParameterFactory;
@@ -74,11 +78,10 @@ class FileSystemCacheProvider implements CacheProviderInterface
 
     /**
      * FileSystemCacheProvider constructor.
-     *
-     * @param Php                    $php
-     * @param Wordpress              $wordpress
-     * @param Util                   $util
-     * @param ConfigFactory          $configFactory
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param Util $util
+     * @param ConfigFactory $configFactory
      * @param ConfigParameterFactory $configParameterFactory
      */
     public function __construct(
@@ -94,23 +97,22 @@ class FileSystemCacheProvider implements CacheProviderInterface
         $this->configFactory = $configFactory;
         $this->configParameterFactory = $configParameterFactory;
     }
-    
+
     /**
      * Returns the id.
-     *
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return self::ID;
     }
 
     /**
      * Returns the cache path.
-     *
      * @return string
+     * @throws Exception
      */
-    private function getPath()
+    private function getPath(): string
     {
         if ($this->path === null) {
             $this->path = $this->getConfig()->getParameterValue(self::CONFIG_PATH);
@@ -125,6 +127,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
 
     /**
      * Initialise the caching path.
+     * @throws Exception
      */
     public function init()
     {
@@ -134,7 +137,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
             $this->php->mkdir($path, 0775, true);
         }
 
-        $htaccessFile = $path.'.htaccess';
+        $htaccessFile = $path . '.htaccess';
 
         if (file_exists($htaccessFile) === false) {
             file_put_contents($htaccessFile, 'Deny from all');
@@ -143,10 +146,10 @@ class FileSystemCacheProvider implements CacheProviderInterface
 
     /**
      * Returns the cache config.
-     *
      * @return Config
+     * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): Config
     {
         if ($this->config === null) {
             $this->config = $this->configFactory->createConfig(self::CONFIG_KEY);
@@ -164,7 +167,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
             $configParameters = [
                 self::CONFIG_PATH => $this->configParameterFactory->createStringConfigParameter(
                     self::CONFIG_PATH,
-                    $this->wordpress->getHomePath().'cache/uam'
+                    $this->wordpress->getHomePath() . 'cache/uam'
                 ),
                 self::CONFIG_METHOD => $this->configParameterFactory->createSelectionConfigParameter(
                     self::CONFIG_METHOD,
@@ -180,12 +183,12 @@ class FileSystemCacheProvider implements CacheProviderInterface
 
     /**
      * Returns the caching method.
-     *
      * @return string|null
+     * @throws Exception
      */
-    private function getCacheMethod()
+    private function getCacheMethod(): ?string
     {
-        $method = (string)$this->getConfig()->getParameterValue(self::CONFIG_METHOD);
+        $method = (string) $this->getConfig()->getParameterValue(self::CONFIG_METHOD);
 
         if ($method === self::METHOD_IGBINARY
             && ($this->php->functionExists('igbinary_serialize') === false
@@ -199,15 +202,14 @@ class FileSystemCacheProvider implements CacheProviderInterface
 
     /**
      * Returns the cache file name with path.
-     *
-     * @param string $method
+     * @param string|null $method
      * @param string $key
-     *
      * @return string
+     * @throws Exception
      */
-    private function getCacheFile($method, $key)
+    private function getCacheFile(?string $method, string $key): string
     {
-        $cacheFile = $this->getPath().$key;
+        $cacheFile = $this->getPath() . $key;
         $cacheFile .= ($method === self::METHOD_VAR_EXPORT) ? '.php' : '.cache';
 
         return $cacheFile;
@@ -215,11 +217,11 @@ class FileSystemCacheProvider implements CacheProviderInterface
 
     /**
      * Adds a value to the cache.
-     *
      * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
+     * @throws Exception
      */
-    public function add($key, $value)
+    public function add(string $key, $value)
     {
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);
@@ -232,18 +234,21 @@ class FileSystemCacheProvider implements CacheProviderInterface
         } elseif ($method === self::METHOD_JSON) {
             $this->php->filePutContents($cacheFile, json_encode($value), LOCK_EX);
         } elseif ($method === self::METHOD_VAR_EXPORT) {
-            $this->php->filePutContents($cacheFile, "<?php\n\$cachedValue = ".var_export($value, true).';', LOCK_EX);
+            $this->php->filePutContents(
+                $cacheFile,
+                "<?php\n\$cachedValue = " . var_export($value, true) . ';',
+                LOCK_EX
+            );
         }
     }
 
     /**
      * Returns a value from the cache.
-     *
      * @param string $key
-     *
      * @return mixed
+     * @throws Exception
      */
-    public function get($key)
+    public function get(string $key)
     {
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);
@@ -269,10 +274,10 @@ class FileSystemCacheProvider implements CacheProviderInterface
 
     /**
      * Invalidates the cache.
-     *
      * @param string $key
+     * @throws Exception
      */
-    public function invalidate($key)
+    public function invalidate(string $key)
     {
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);

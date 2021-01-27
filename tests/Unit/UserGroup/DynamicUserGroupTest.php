@@ -12,13 +12,19 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroupAssignmentException;
 use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_Roles;
+use WP_User;
 
 /**
  * Class DynamicUserGroupTest
@@ -31,6 +37,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws UserGroupTypeException
      */
     public function testCanCreateInstance()
     {
@@ -47,8 +54,8 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
         );
 
         self::assertInstanceOf(DynamicUserGroup::class, $dynamicUserGroup);
-        self::assertAttributeEquals('id', 'id', $dynamicUserGroup);
-        self::assertAttributeEquals(DynamicUserGroup::USER_TYPE, 'type', $dynamicUserGroup);
+        self::assertEquals('user|id', $dynamicUserGroup->getId());
+        self::assertEquals(DynamicUserGroup::USER_TYPE, $dynamicUserGroup->getType());
 
         $dynamicUserGroup = new DynamicUserGroup(
             $this->getPhp(),
@@ -63,8 +70,8 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
         );
 
         self::assertInstanceOf(DynamicUserGroup::class, $dynamicUserGroup);
-        self::assertAttributeEquals('id', 'id', $dynamicUserGroup);
-        self::assertAttributeEquals(DynamicUserGroup::ROLE_TYPE, 'type', $dynamicUserGroup);
+        self::assertEquals('role|id', $dynamicUserGroup->getId());
+        self::assertEquals(DynamicUserGroup::ROLE_TYPE, $dynamicUserGroup->getType());
 
         self::expectException(UserGroupTypeException::class);
         new DynamicUserGroup(
@@ -83,6 +90,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getId()
+     * @throws UserGroupTypeException
      */
     public function testGetId()
     {
@@ -98,21 +106,23 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             'id'
         );
 
-        self::assertEquals(DynamicUserGroup::ROLE_TYPE.'|id', $dynamicUserGroup->getId());
+        self::assertEquals(DynamicUserGroup::ROLE_TYPE . '|id', $dynamicUserGroup->getId());
     }
 
     /**
      * @group  unit
      * @covers ::getName()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testGetName()
     {
         $wordpress = $this->getWordpress();
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $user
+         * @var MockObject|stdClass $user
          */
-        $user = $this->getMockBuilder('\WP_User')
+        $user = $this->getMockBuilder(WP_User::class)
             ->getMock();
         $user->ID = 1;
         $user->display_name = 'displayName';
@@ -123,7 +133,7 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             ->with(1)
             ->will($this->returnValue($user));
 
-        $roles = new \stdClass();
+        $roles = $this->getMockBuilder(WP_Roles::class)->allowMockingUnknownTypes()->getMock();
         $roles->roles = [
             'administrator' => [
                 'name' => 'Admin'
@@ -152,23 +162,23 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
         self::assertEquals(TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS, $dynamicUserGroup->getName());
 
         self::setValue($dynamicUserGroup, 'name', null);
-        self::assertEquals(TXT_UAM_USER.': displayName (userLogin)', $dynamicUserGroup->getName());
+        self::assertEquals(TXT_UAM_USER . ': displayName (userLogin)', $dynamicUserGroup->getName());
 
         self::setValue($dynamicUserGroup, 'type', DynamicUserGroup::ROLE_TYPE);
         self::setValue($dynamicUserGroup, 'id', 'roleId');
         self::setValue($dynamicUserGroup, 'name', null);
-        self::assertEquals(TXT_UAM_ROLE.': roleId', $dynamicUserGroup->getName());
+        self::assertEquals(TXT_UAM_ROLE . ': roleId', $dynamicUserGroup->getName());
 
         self::setValue($dynamicUserGroup, 'id', 'administrator');
         self::setValue($dynamicUserGroup, 'name', null);
-        self::assertEquals(TXT_UAM_ROLE.': Admin', $dynamicUserGroup->getName());
+        self::assertEquals(TXT_UAM_ROLE . ': Admin', $dynamicUserGroup->getName());
     }
 
     /**
      * @group  unit
      * @covers ::addObject()
      * @throws UserGroupAssignmentException
-     * @throws UserGroupAssignmentException
+     * @throws UserGroupTypeException
      */
     public function testAddObject()
     {

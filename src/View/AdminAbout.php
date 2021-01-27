@@ -14,8 +14,11 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\Backend\AboutController $controller
+ * @var AboutController $controller
  */
+
+use UserAccessManager\Controller\Backend\AboutController;
+
 ?>
 <div class="wrap">
     <h2><?php echo TXT_UAM_ABOUT; ?></h2>

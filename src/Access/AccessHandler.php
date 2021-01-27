@@ -12,19 +12,23 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Access;
 
+use Exception;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\UserGroupHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
  * Class AccessHandler
- *
  * @package UserAccessManager\AccessHandler
  */
 class AccessHandler
@@ -81,12 +85,11 @@ class AccessHandler
 
     /**
      * AccessHandler constructor.
-     *
-     * @param Wordpress        $wordpress
-     * @param MainConfig       $mainConfig
-     * @param Database         $database
-     * @param ObjectHandler    $objectHandler
-     * @param UserHandler      $userHandler
+     * @param Wordpress $wordpress
+     * @param MainConfig $mainConfig
+     * @param Database $database
+     * @param ObjectHandler $objectHandler
+     * @param UserHandler $userHandler
      * @param UserGroupHandler $userGroupHandler
      */
     public function __construct(
@@ -107,20 +110,18 @@ class AccessHandler
 
     /**
      * Checks it the user has access because he is the author.
-     *
      * @param string $objectType
-     * @param string $objectId
-     *
+     * @param int|string $objectId
      * @return bool
      */
-    private function hasAuthorAccess($objectType, $objectId)
+    private function hasAuthorAccess(string $objectType, $objectId): bool
     {
         if ($this->mainConfig->authorsHasAccessToOwn() === true
             && $this->objectHandler->isPostType($objectType)
         ) {
-            $currentUser = $this->wordpress->getCurrentUser();
             $post = $this->objectHandler->getPost($objectId);
-            return ($post !== false && $currentUser->ID === (int)$post->post_author);
+            return $post !== false
+                && $this->wordpress->getCurrentUser()->ID === (int) $post->post_author;
         }
 
         return false;
@@ -128,24 +129,21 @@ class AccessHandler
 
     /**
      * Checks if the is admin value is set if not grabs it from the wordpress function.
-     *
      * @param null|bool $isAdmin
-     *
      * @return bool
      */
-    private function isAdmin($isAdmin)
+    private function isAdmin(?bool $isAdmin): bool
     {
         return ($isAdmin === null) ? $this->wordpress->isAdmin() : $isAdmin;
     }
 
     /**
      * Returns the user user groups filtered by the write access.
-     *
      * @param null|bool $isAdmin If set we force the admin mode.
-     *
      * @return AbstractUserGroup[]
+     * @throws UserGroupTypeException
      */
-    private function getUserUserGroupsForObjectAccess($isAdmin = null)
+    private function getUserUserGroupsForObjectAccess($isAdmin = null): array
     {
         $userUserGroups = $this->userGroupHandler->getUserGroupsForUser();
 
@@ -163,19 +161,18 @@ class AccessHandler
 
     /**
      * Checks if the current_user has access to the given post.
-     *
-     * @param string    $objectType The object type which should be checked.
-     * @param int       $objectId   The id of the object.
-     * @param null|bool $isAdmin    If set we force the admin mode.
-     *
+     * @param string|null $objectType The object type which should be checked.
+     * @param int|string $objectId The id of the object.
+     * @param null|bool $isAdmin If set we force the admin mode.
      * @return bool
+     * @throws UserGroupTypeException
+     * @throws Exception
      */
-    public function checkObjectAccess($objectType, $objectId, $isAdmin = null)
+    public function checkObjectAccess(?string $objectType, $objectId, $isAdmin = null): bool
     {
         $isAdmin = $this->isAdmin($isAdmin);
-        $admin = $isAdmin === true ? 'admin' : 'noAdmin';
 
-        if (isset($this->objectAccess[$admin][$objectType][$objectId]) === false) {
+        if (isset($this->objectAccess[$isAdmin][$objectType][$objectId]) === false) {
             if ($this->objectHandler->isValidObjectType($objectType) === false
                 || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true
                 || $this->hasAuthorAccess($objectType, $objectId) === true
@@ -187,21 +184,21 @@ class AccessHandler
                     || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [];
             }
 
-            $this->objectAccess[$admin][$objectType][$objectId] = $access;
+            $this->objectAccess[$isAdmin][$objectType][$objectId] = $access;
         }
 
-        return $this->objectAccess[$admin][$objectType][$objectId];
+        return $this->objectAccess[$isAdmin][$objectType][$objectId];
     }
 
     /**
      * Returns the excluded objects.
-     *
      * @param string $type
-     * @param array  $filterTypesMap
-     *
+     * @param array $filterTypesMap
      * @return array
+     * @throws UserGroupTypeException
+     * @throws Exception
      */
-    private function getExcludedObjects($type, array $filterTypesMap = [])
+    private function getExcludedObjects(string $type, array $filterTypesMap = []): array
     {
         $excludedObjects = [];
         $userGroups = $this->userGroupHandler->getFullUserGroups();
@@ -231,10 +228,10 @@ class AccessHandler
 
     /**
      * Returns the excluded terms for a user.
-     *
      * @return array
+     * @throws UserGroupTypeException
      */
-    public function getExcludedTerms()
+    public function getExcludedTerms(): ?array
     {
         if ($this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY)) {
             $this->excludedTerms = [];
@@ -249,10 +246,9 @@ class AccessHandler
 
     /**
      * Returns the none hidden post types map.
-     *
      * @return array
      */
-    private function getNoneHiddenPostTypes()
+    private function getNoneHiddenPostTypes(): ?array
     {
         if ($this->noneHiddenPostTypes === null) {
             $this->noneHiddenPostTypes = [];
@@ -273,10 +269,10 @@ class AccessHandler
 
     /**
      * Returns the excluded posts.
-     *
      * @return array
+     * @throws UserGroupTypeException
      */
-    public function getExcludedPosts()
+    public function getExcludedPosts(): ?array
     {
         if ($this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY)) {
             $this->excludedPosts = [];
@@ -288,13 +284,17 @@ class AccessHandler
 
             if ($this->mainConfig->authorsHasAccessToOwn() === true) {
                 $query = $this->database->prepare(
-                    "SELECT ID
-                    FROM {$this->database->getPostsTable()}
+                    "SELECT ID FROM {$this->database->getPostsTable()}
                     WHERE post_author = %d",
                     $this->wordpress->getCurrentUser()->ID
                 );
 
-                $ownPosts = (array)$this->database->getResults($query);
+                $ownPosts = array_filter(
+                    (array) $this->database->getResults($query),
+                    function ($ownPost) {
+                        return isset($ownPost->ID);
+                    }
+                );
                 $ownPostIds = [];
 
                 foreach ($ownPosts as $ownPost) {

@@ -12,11 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Command;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use UserAccessManager\Command\GroupCommand;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_CLI\ExitException;
 
 /**
  * Class GroupCommandTest
@@ -32,21 +37,33 @@ class GroupCommandTest extends UserAccessManagerTestCase
      * @param string $description
      * @param string $readAccess
      * @param string $writeAccess
-     * @param array  $roles
-     * @param array  $ipRanges
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+     * @param array $roles
+     * @param array $ipRanges
+     * @param int|null $saveExpected
+     * @return MockObject|UserGroup
      */
     private function getExtendedUserGroup(
-        $id,
-        $name,
-        $description,
-        $readAccess,
-        $writeAccess,
+        string $id,
+        string $name,
+        string $description,
+        string $readAccess,
+        string $writeAccess,
         array $roles,
-        $ipRanges
-    ) {
-        $userGroup = $this->getUserGroup($id, true, false, $ipRanges, $readAccess, $writeAccess, [], [], $name);
+        array $ipRanges,
+        ?int $saveExpected = null
+    )
+    {
+        $userGroup = $this->getUserGroup(
+            $id,
+            true,
+            false,
+            $ipRanges,
+            $readAccess,
+            $writeAccess,
+            [],
+            [],
+            $name)
+        ;
 
         $userGroup->expects($this->any())
             ->method('getDescription')
@@ -54,6 +71,10 @@ class GroupCommandTest extends UserAccessManagerTestCase
 
         $userGroup->expects($this->any())
             ->method('getAssignedObjectsByType')
+            ->will($this->returnValue($roles));
+
+        $userGroup->expects($saveExpected === null ? $this->any() : $this->exactly($saveExpected))
+            ->method('save')
             ->will($this->returnValue($roles));
 
         return $userGroup;
@@ -78,10 +99,8 @@ class GroupCommandTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::ls()
      * @covers ::getFormatter()
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
+     * @throws ExitException
+     * @throws UserGroupTypeException
      */
     public function testLs()
     {
@@ -133,7 +152,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
         $wordpressCli->expects($this->exactly(2))
             ->method('createFormatter')
             ->with(
-                ['a' => 'b'],
+                ['a' => '1'],
                 [
                     'ID',
                     'group_name',
@@ -153,8 +172,9 @@ class GroupCommandTest extends UserAccessManagerTestCase
             'firstGroupDescription',
             'all',
             'none',
-            ['roleOne' => 'roleOne', 'roleTwo' => 'roleTwo'],
-            [1, 2]
+            ['roleOne' => 'roleOneName', 'roleTwo' => 'roleTwoName'],
+            [1, 2],
+            0
         );
 
         $secondUserGroup = $this->getExtendedUserGroup(
@@ -163,8 +183,9 @@ class GroupCommandTest extends UserAccessManagerTestCase
             'secondGroupDescription',
             'none',
             'all',
-            ['roleThree' => 'roleThree', 'roleFour' => 'roleFour'],
-            [3, 4]
+            ['roleThree' => 'roleThreeName', 'roleFour' => 'roleFourName'],
+            [3, 4],
+            0
         );
 
         $userGroupHandler = $this->getUserGroupHandler();
@@ -182,18 +203,17 @@ class GroupCommandTest extends UserAccessManagerTestCase
             $this->getUserGroupFactory()
         );
 
-        $groupCommand->ls(['arguments'], ['a' => 'b']);
-        $groupCommand->ls([], ['a' => 'b']);
-        $groupCommand->ls([], ['a' => 'b']);
-        $groupCommand->ls([], ['a' => 'b']);
+        $groupCommand->ls(['arguments'], ['a' => 1]);
+        $groupCommand->ls([], ['a' => 1]);
+        $groupCommand->ls([], ['a' => 1]);
+        $groupCommand->ls([], ['a' => 1]);
     }
 
     /**
      * @group  unit
      * @covers ::del()
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
+     * @throws ExitException
+     * @throws UserGroupTypeException
      */
     public function testDel()
     {
@@ -237,10 +257,8 @@ class GroupCommandTest extends UserAccessManagerTestCase
      * @covers ::createUserGroup()
      * @covers ::getArgumentValue()
      * @covers ::getAccessValue()
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
+     * @throws ExitException
+     * @throws UserGroupTypeException
      */
     public function testAdd()
     {
@@ -270,8 +288,9 @@ class GroupCommandTest extends UserAccessManagerTestCase
             'firstGroupDescription',
             'all',
             'none',
-            ['roleOne' => 'roleOne', 'roleTwo' => 'roleTwo'],
-            [1, 2]
+            ['roleOne' => 'roleOneName', 'roleTwo' => 'roleTwoName'],
+            [1, 2],
+            0
         );
 
         $secondUserGroup = $this->getExtendedUserGroup(
@@ -280,14 +299,18 @@ class GroupCommandTest extends UserAccessManagerTestCase
             'secondGroupDescription',
             'none',
             'all',
-            ['roleThree' => 'roleThree', 'roleFour' => 'roleFour'],
-            [3, 4]
+            ['roleThree' => 'roleThreeName', 'roleFour' => 'roleFourName'],
+            [3, 4],
+            0
         );
 
         $userGroupHandler = $this->getUserGroupHandler();
         $userGroupHandler->expects($this->exactly(3))
             ->method('getUserGroups')
             ->will($this->returnValue([1 => $firstUserGroup, 2 => $secondUserGroup]));
+
+        $userGroupHandler->expects($this->exactly(2))
+            ->method('addUserGroup');
 
         $createdUserGroup = $this->getUserGroup(3);
         $createdUserGroup->expects($this->exactly(2))
@@ -320,6 +343,9 @@ class GroupCommandTest extends UserAccessManagerTestCase
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleOne'],
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'roleTwo']
             );
+
+        $createdUserGroup->expects($this->exactly(2))
+            ->method('save');
 
         $userGroupFactory = $this->getUserGroupFactory();
         $userGroupFactory->expects($this->exactly(2))

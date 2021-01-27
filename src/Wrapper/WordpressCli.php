@@ -12,9 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Wrapper;
 
+use WP_CLI;
+use WP_CLI\ExitException;
 use WP_CLI\Formatter;
+use WP_Error;
 
 /**
  * Class WordpressCli
@@ -24,54 +30,45 @@ use WP_CLI\Formatter;
 class WordpressCli
 {
     /**
-     * @see \WP_CLI::success()
-     *
      * @param string $message
-     *
      * @return null
+     * @see \WP_CLI::success()
      */
-    public function success($message)
+    public function success(string $message)
     {
-        return \WP_CLI::success($message);
+        return WP_CLI::success($message);
     }
 
     /**
-     * @see \WP_CLI::error()
-     *
-     * @param string|\WP_Error $message Message to write to STDERR.
-     * @param bool|integer     $exit    True defaults to exit(1).
-     *
+     * @param string|WP_Error $message Message to write to STDERR.
+     * @param bool|integer $exit True defaults to exit(1).
      * @return null
-     *
-     * @throws \WP_CLI\ExitException
+     * @throws ExitException
+     * @see \WP_CLI::error()
      */
     public function error($message, $exit = true)
     {
-        return \WP_CLI::error($message, $exit);
+        return WP_CLI::error($message, $exit);
     }
 
     /**
-     * @see \WP_CLI::line()
-     *
      * @param string $message
-     *
      * @return null
+     * @see \WP_CLI::line()
      */
     public function line($message = '')
     {
-        return \WP_CLI::line($message);
+        return WP_CLI::line($message);
     }
 
     /**
-     * @see Formatter
-     *
-     * @param array       $assocArguments
-     * @param array       $fields
+     * @param array $assocArguments
+     * @param array|null $fields
      * @param bool|string $prefix
-     *
      * @return Formatter
+     * @see Formatter
      */
-    public function createFormatter(array &$assocArguments, array $fields = null, $prefix = false)
+    public function createFormatter(array &$assocArguments, array $fields = null, $prefix = false): Formatter
     {
         return new Formatter($assocArguments, $fields, $prefix);
     }

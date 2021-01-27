@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Object;
 
 use UserAccessManager\Cache\Cache;
@@ -64,9 +67,8 @@ class ObjectMapHandler
 
     /**
      * ObjectMapHandler constructor.
-     *
      * @param Database $database
-     * @param Cache    $cache
+     * @param Cache $cache
      */
     public function __construct(
         Database $database,
@@ -78,14 +80,12 @@ class ObjectMapHandler
 
     /**
      * Resolves all tree map elements
-     *
      * @param array $map
-     * @param array $subMap
+     * @param array|null $subMap
      * @param array $processed
-     *
      * @return array
      */
-    private function processTreeMapElements(array &$map, array $subMap = null, array &$processed = [])
+    private function processTreeMapElements(array &$map, array $subMap = null, array &$processed = []): array
     {
         $processMap = ($subMap === null) ? $map : $subMap;
 
@@ -103,13 +103,11 @@ class ObjectMapHandler
 
     /**
      * Returns the tree map for the query.
-     *
      * @param string $select
      * @param string $generalType
-     *
      * @return array
      */
-    private function getTreeMap($select, $generalType)
+    private function getTreeMap(string $select, string $generalType): array
     {
         $treeMap = [
             self::TREE_MAP_CHILDREN => [
@@ -119,7 +117,7 @@ class ObjectMapHandler
                 $generalType => []
             ]
         ];
-        $results = (array)$this->database->getResults($select);
+        $results = (array) $this->database->getResults($select);
 
         foreach ($results as $result) {
             $treeMap[self::TREE_MAP_CHILDREN][$generalType][$result->parentId][$result->id] = $result->type;
@@ -140,14 +138,12 @@ class ObjectMapHandler
 
     /**
      * Checks if a cache key exists and returns the map.
-     *
      * @param string $cacheKey
      * @param string $generalType
      * @param string $query
-     *
      * @return array
      */
-    private function getCachedTreeMap($cacheKey, $generalType, $query)
+    private function getCachedTreeMap(string $cacheKey, string $generalType, string $query): array
     {
         $map = $this->cache->get($cacheKey);
 
@@ -162,18 +158,19 @@ class ObjectMapHandler
 
     /**
      * Returns the post tree map.
-     *
      * @return array
      */
-    public function getPostTreeMap()
+    public function getPostTreeMap(): ?array
     {
         if ($this->postTreeMap === null) {
+            $query = "SELECT ID AS id, post_parent AS parentId, post_type AS type 
+                FROM {$this->database->getPostsTable()}
+                WHERE post_parent != 0 AND post_type != 'revision'";
+
             $this->postTreeMap = $this->getCachedTreeMap(
                 self::POST_TREE_MAP_CACHE_KEY,
                 ObjectHandler::GENERAL_POST_OBJECT_TYPE,
-                "SELECT ID AS id, post_parent AS parentId, post_type AS type 
-                FROM {$this->database->getPostsTable()}
-                  WHERE post_parent != 0 AND post_type != 'revision'"
+                $query
             );
         }
 
@@ -182,18 +179,19 @@ class ObjectMapHandler
 
     /**
      * Returns the term tree map.
-     *
      * @return array
      */
-    public function getTermTreeMap()
+    public function getTermTreeMap(): ?array
     {
         if ($this->termTreeMap === null) {
+            $query = "SELECT term_id AS id, parent AS parentId, taxonomy AS type
+                FROM {$this->database->getTermTaxonomyTable()}
+                WHERE parent != 0";
+
             $this->termTreeMap = $this->getCachedTreeMap(
                 self::TERM_TREE_MAP_CACHE_KEY,
                 ObjectHandler::GENERAL_TERM_OBJECT_TYPE,
-                "SELECT term_id AS id, parent AS parentId, taxonomy AS type
-                FROM {$this->database->getTermTaxonomyTable()}
-                  WHERE parent != 0"
+                $query
             );
         }
 
@@ -202,19 +200,17 @@ class ObjectMapHandler
 
     /**
      * Returns the cached map.
-     *
      * @param string $cacheKey
      * @param string $query
-     *
      * @return array
      */
-    private function getCachedMap($cacheKey, $query)
+    private function getCachedMap(string $cacheKey, string $query): array
     {
         $map = $this->cache->get($cacheKey);
 
         if ($map === null) {
             $map = [];
-            $results = (array)$this->database->getResults($query);
+            $results = (array) $this->database->getResults($query);
 
             foreach ($results as $result) {
                 $map[$result->parentId][$result->objectId] = $result->type;
@@ -228,10 +224,9 @@ class ObjectMapHandler
 
     /**
      * Returns the term post map.
-     *
      * @return array
      */
-    public function getTermPostMap()
+    public function getTermPostMap(): ?array
     {
         if ($this->termPostMap === null) {
             $select = "
@@ -250,10 +245,9 @@ class ObjectMapHandler
 
     /**
      * Returns the post term map.
-     *
      * @return array
      */
-    public function getPostTermMap()
+    public function getPostTermMap(): ?array
     {
         if ($this->postTermMap === null) {
             $select = "

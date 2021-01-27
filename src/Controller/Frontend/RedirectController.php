@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\Access\AccessHandler;
@@ -24,6 +27,7 @@ use UserAccessManager\File\FileHandler;
 use UserAccessManager\File\FileObject;
 use UserAccessManager\File\FileObjectFactory;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -81,17 +85,16 @@ class RedirectController extends Controller
 
     /**
      * RedirectController constructor.
-     *
-     * @param Php               $php
-     * @param Wordpress         $wordpress
-     * @param WordpressConfig   $wordpressConfig
-     * @param MainConfig        $mainConfig
-     * @param Database          $database
-     * @param Util              $util
-     * @param Cache             $cache
-     * @param ObjectHandler     $objectHandler
-     * @param AccessHandler     $accessHandler
-     * @param FileHandler       $fileHandler
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig $mainConfig
+     * @param Database $database
+     * @param Util $util
+     * @param Cache $cache
+     * @param ObjectHandler $objectHandler
+     * @param AccessHandler $accessHandler
+     * @param FileHandler $fileHandler
      * @param FileObjectFactory $fileObjectFactory
      */
     public function __construct(
@@ -121,19 +124,17 @@ class RedirectController extends Controller
     /**
      * @return Wordpress
      */
-    protected function getWordpress()
+    protected function getWordpress(): Wordpress
     {
         return $this->wordpress;
     }
 
     /**
      * Returns the post by the given url.
-     *
      * @param string $url The url of the post(attachment).
-     *
      * @return int
      */
-    public function getPostIdByUrl($url)
+    public function getPostIdByUrl(string $url): int
     {
         $postUrls = (array)$this->cache->getFromRuntimeCache(self::POST_URL_CACHE_KEY);
 
@@ -142,9 +143,9 @@ class RedirectController extends Controller
         }
 
         //Filter size
-        $newUrlPieces = preg_split('/-[0-9]{1,}x[0-9]{1,}(_[a-z])?/', $url);
-        $newUrl = (count($newUrlPieces) === 2) ? $newUrlPieces[0].$newUrlPieces[1] : $newUrlPieces[0];
-        $newUrl = preg_replace('/\-pdf\.jpg$/', '.pdf', $newUrl);
+        $newUrlPieces = preg_split('/-[0-9]+x[0-9]+(_[a-z])?/', $url);
+        $newUrl = (count($newUrlPieces) === 2) ? $newUrlPieces[0] . $newUrlPieces[1] : $newUrlPieces[0];
+        $newUrl = preg_replace('/-pdf\.jpg$/', '.pdf', $newUrl);
 
         $postUrls[$url] = $this->wordpress->attachmentUrlToPostId($newUrl);
         $this->cache->addToRuntimeCache(self::POST_URL_CACHE_KEY, $postUrls);
@@ -154,35 +155,32 @@ class RedirectController extends Controller
 
     /**
      * Returns the file object by the given type and url.
-     *
      * @param string $objectType The type of the requested file.
-     * @param string $objectUrl  The file url.
-     *
+     * @param string $objectUrl The file url.
      * @return null|FileObject
      */
-    private function getFileSettingsByType($objectType, $objectUrl)
+    private function getFileSettingsByType(string $objectType, string $objectUrl): ?FileObject
     {
         $fileObject = null;
 
         if ($objectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
             $uploadDirs = $this->wordpress->getUploadDir();
             $uploadDir = str_replace(ABSPATH, '/', $uploadDirs['basedir']);
-            $regex = '/.*'.str_replace('/', '\/', $uploadDir).'\//i';
+            $regex = '/.*' . str_replace('/', '\/', $uploadDir) . '\//i';
             $cleanObjectUrl = preg_replace($regex, '', $objectUrl);
             $uploadUrl = str_replace('/files', $uploadDir, $uploadDirs['baseurl']);
-            $objectUrl = rtrim($uploadUrl, '/').'/'.ltrim($cleanObjectUrl, '/');
+            $objectUrl = rtrim($uploadUrl, '/') . '/' . ltrim($cleanObjectUrl, '/');
 
             $post = $this->objectHandler->getPost($this->getPostIdByUrl($objectUrl));
+            $postType = $post->post_type ?? '';
 
-            if ($post !== false
-                && $post->post_type === ObjectHandler::ATTACHMENT_OBJECT_TYPE
-            ) {
+            if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
                 $multiPath = str_replace('/files', $uploadDir, $uploadDirs['baseurl']);
 
                 $fileObject = $this->fileObjectFactory->createFileObject(
                     $post->ID,
                     $objectType,
-                    $uploadDirs['basedir'].str_replace($multiPath, '', $objectUrl),
+                    $uploadDirs['basedir'] . str_replace($multiPath, '', $objectUrl),
                     $this->wordpress->attachmentIsImage($post->ID)
                 );
             }
@@ -203,11 +201,11 @@ class RedirectController extends Controller
 
     /**
      * Delivers the content of the requested file.
-     *
      * @param string $objectType The type of the requested file.
-     * @param string $objectUrl  The file url.
+     * @param string $objectUrl The file url.
+     * @throws UserGroupTypeException
      */
-    public function getFile($objectType, $objectUrl)
+    public function getFile(string $objectType, string $objectUrl)
     {
         $fileObject = $this->getFileSettingsByType($objectType, $objectUrl);
 
@@ -222,7 +220,7 @@ class RedirectController extends Controller
                 $file = $this->mainConfig->getCustomNoAccessImage();
             } else {
                 $realPath = $this->wordpressConfig->getRealPath();
-                $file = $realPath.'assets'.DIRECTORY_SEPARATOR.'gfx'.DIRECTORY_SEPARATOR.'noAccessPic.png';
+                $file = $realPath . 'assets' . DIRECTORY_SEPARATOR . 'gfx' . DIRECTORY_SEPARATOR . 'noAccessPic.png';
             }
         } else {
             $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
@@ -234,12 +232,10 @@ class RedirectController extends Controller
 
     /**
      * Returns the redirect url and the permalink of the post if exists.
-     *
      * @param null|string $permalink
-     *
      * @return null|string
      */
-    private function getRedirectUrlAndPermalink(&$permalink)
+    private function getRedirectUrlAndPermalink(?string &$permalink): ?string
     {
         $permalink = null;
         $redirect = $this->mainConfig->getRedirect();
@@ -266,8 +262,8 @@ class RedirectController extends Controller
 
     /**
      * Redirects the user to his destination.
-     *
      * @param bool $checkPosts
+     * @throws UserGroupTypeException
      */
     public function redirectUser($checkPosts = true)
     {
@@ -292,12 +288,10 @@ class RedirectController extends Controller
 
     /**
      * Returns the post id by the post name.
-     *
      * @param string $name
-     *
      * @return int
      */
-    private function getPostIdByName($name)
+    private function getPostIdByName(string $name): int
     {
         $postableTypes = implode('\',\'', $this->objectHandler->getPostTypes());
 
@@ -309,17 +303,16 @@ class RedirectController extends Controller
             $name
         );
 
-        return (int)$this->database->getVariable($query);
+        return (int) $this->database->getVariable($query);
     }
 
     /**
      * Extracts the object type and id.
-     *
-     * @param object      $pageParams
+     * @param object $pageParams
      * @param null|string $objectType
-     * @param null|string $objectId
+     * @param null|int|string $objectId
      */
-    private function extractObjectTypeAndId($pageParams, &$objectType, &$objectId)
+    private function extractObjectTypeAndId(object $pageParams, ?string &$objectType, ?string &$objectId)
     {
         $objectType = null;
         $objectId = null;
@@ -344,21 +337,20 @@ class RedirectController extends Controller
             $object = $this->wordpress->getPageByPath($pageParams->query_vars['pagename']);
 
             if ($object !== null) {
-                $objectType = $object->post_type;
-                $objectId = $object->ID;
+                $objectType = $object->post_type ?? null;
+                $objectId = $object->ID ?? null;
             }
         }
     }
 
     /**
      * Redirects to a page or to content.
-     *
-     * @param string $headers    The headers which are given from wordpress.
+     * @param array $headers The headers which are given from wordpress.
      * @param object $pageParams The params of the current page.
-     *
-     * @return string
+     * @return array
+     * @throws UserGroupTypeException
      */
-    public function redirect($headers, $pageParams)
+    public function redirect(array $headers, object $pageParams): array
     {
         $fileUrl = $this->getRequestParameter('uamgetfile');
         $fileType = $this->getRequestParameter('uamfiletype');
@@ -380,13 +372,11 @@ class RedirectController extends Controller
 
     /**
      * Returns the url for a locked file.
-     *
-     * @param string  $url The base url.
-     * @param integer $id  The _iId of the file.
-     *
+     * @param string $url The base url.
+     * @param integer $id The _iId of the file.
      * @return string
      */
-    public function getFileUrl($url, $id)
+    public function getFileUrl(string $url, int $id): string
     {
         // Nginx always supports real urls so we need the new urls only
         // if we don't use nginx and mod_rewrite is disabled
@@ -398,13 +388,13 @@ class RedirectController extends Controller
 
             if ($post !== null) {
                 $type = explode('/', $post->post_mime_type);
-                $type = (isset($type[1]) === true) ? $type[1] : $type[0];
+                $type = $type[1] ?? $type[0];
 
                 $lockedFileTypes = $this->mainConfig->getLockedFiles();
                 $fileTypes = explode(',', $lockedFileTypes);
 
                 if ($lockedFileTypes === 'all' || in_array($type, $fileTypes) === true) {
-                    $url = $this->wordpress->getHomeUrl('/').'?uamfiletype=attachment&uamgetfile='.$url;
+                    $url = $this->wordpress->getHomeUrl('/') . '?uamfiletype=attachment&uamgetfile=' . $url;
                 }
             }
         }
@@ -414,15 +404,13 @@ class RedirectController extends Controller
 
     /**
      * Caches the urls for the post for a later lookup.
-     *
-     * @param string $url  The url of the post.
+     * @param string $url The url of the post.
      * @param object $post The post object.
-     *
      * @return string
      */
-    public function cachePostLinks($url, $post)
+    public function cachePostLinks(string $url, object $post): string
     {
-        $postUrls = (array)$this->cache->getFromRuntimeCache(self::POST_URL_CACHE_KEY);
+        $postUrls = (array) $this->cache->getFromRuntimeCache(self::POST_URL_CACHE_KEY);
         $postUrls[$url] = $post->ID;
         $this->cache->addToRuntimeCache(self::POST_URL_CACHE_KEY, $postUrls);
         return $url;

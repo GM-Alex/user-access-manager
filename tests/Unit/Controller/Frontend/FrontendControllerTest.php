@@ -12,11 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
+use stdClass;
 use UserAccessManager\Controller\Frontend\FrontendController;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class ControllerTest
@@ -84,6 +87,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showAncestors()
+     * @throws UserGroupTypeException
      */
     public function testShowAncestors()
     {
@@ -136,6 +140,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getWpSeoUrl()
+     * @throws UserGroupTypeException
      */
     public function testGetWpSeoUrl()
     {
@@ -160,7 +165,7 @@ class FrontendControllerTest extends UserAccessManagerTestCase
             $accessHandler
         );
 
-        $object = new \stdClass();
+        $object = new stdClass();
         $object->ID = 1;
 
         self::assertEquals('url', $frontendController->getWpSeoUrl('url', 'type', $object));

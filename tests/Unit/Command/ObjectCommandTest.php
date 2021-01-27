@@ -12,10 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Command;
 
 use UserAccessManager\Command\ObjectCommand;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_CLI\ExitException;
 
 /**
  * Class ObjectCommandTest
@@ -45,12 +48,8 @@ class ObjectCommandTest extends UserAccessManagerTestCase
      * @covers ::getUserGroupNameMap()
      * @covers ::getAddRemoveUserGroups()
      * @covers ::getUserGroupIdAndType()
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
-     * @throws \WP_CLI\ExitException
+     * @throws ExitException
+     * @throws UserGroupTypeException
      */
     public function testInvoke()
     {
@@ -66,12 +65,14 @@ class ObjectCommandTest extends UserAccessManagerTestCase
         $wordpressCli->expects($this->exactly(3))
             ->method('success')
             ->withConsecutive(
-                ['Groups 1,2 successfully added to post 1'],
-                ['Successfully updated user 2 with groups 1,2'],
-                ['Successfully removed groups: firstGroupName,secondGroupName from category 3']
+                ['Groups 1, 2 successfully added to post 1'],
+                ['Successfully updated user 2 with groups 1, 2'],
+                ['Successfully removed groups: firstGroupName, secondGroupName from category 3']
             );
 
         $firstUserGroup = $this->getUserGroup(1, true, false, [''], 'none', 'none', [], [], 'firstGroupName');
+        $firstUserGroup->expects($this->exactly(3))
+            ->method('save');
 
         $firstUserGroup->expects($this->exactly(2))
             ->method('addObject')
@@ -118,10 +119,10 @@ class ObjectCommandTest extends UserAccessManagerTestCase
         );
 
         $objectCommand->__invoke([], []);
-        $objectCommand->__invoke(['invalid', 'post', 1, '1,2'], []);
+        $objectCommand->__invoke(['invalid', 'post', 1, '1,2,2'], []);
         $objectCommand->__invoke(['add', 'post', 1, '1,2,3'], []);
         $objectCommand->__invoke(['add', 'post', 1, '1,2'], []);
         $objectCommand->__invoke(['update', 'user', 2, '1,2'], []);
-        $objectCommand->__invoke(['remove', 'category', 3, 'firstGroupName,secondGroupName'], []);
+        $objectCommand->__invoke(['remove', 'category', 3, 'firstGroupName,secondGroupName,secondGroupName'], []);
     }
 }

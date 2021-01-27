@@ -2,6 +2,8 @@
 
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
@@ -23,17 +25,16 @@ use UserAccessManager\Wrapper\Wordpress;
 class ContentControllerTest extends UserAccessManagerTestCase
 {
     /**
-     * @param Php              $php
-     * @param Wordpress        $wordpress
-     * @param WordpressConfig  $wordpressConfig
-     * @param MainConfig       $mainConfig
-     * @param Util             $util
-     * @param ObjectHandler    $objectHandler
-     * @param UserHandler      $userHandler
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param WordpressConfig $wordpressConfig
+     * @param MainConfig $mainConfig
+     * @param Util $util
+     * @param ObjectHandler $objectHandler
+     * @param UserHandler $userHandler
      * @param UserGroupHandler $userGroupHandler
-     * @param AccessHandler    $accessHandler
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ContentController
+     * @param AccessHandler $accessHandler
+     * @return MockObject|ContentController
      */
     private function getStub(
         Php $php,
@@ -45,7 +46,8 @@ class ContentControllerTest extends UserAccessManagerTestCase
         UserHandler $userHandler,
         UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler
-    ) {
+    )
+    {
         return $this->getMockForAbstractClass(
             ContentController::class,
             [
@@ -89,6 +91,7 @@ class ContentControllerTest extends UserAccessManagerTestCase
      * @covers ::getUtil()
      * @covers ::getUserHandler()
      * @covers ::getUserGroupHandler()
+     * @throws ReflectionException
      */
     public function testSimpleGetters()
     {
@@ -114,6 +117,7 @@ class ContentControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::removePostFromList()
+     * @throws ReflectionException
      */
     public function testRemovePostFromList()
     {

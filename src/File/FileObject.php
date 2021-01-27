@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\File;
 
 /**
@@ -42,13 +45,12 @@ class FileObject
 
     /**
      * FileObject constructor.
-     *
      * @param string $id
      * @param string $type
      * @param string $file
-     * @param bool   $isImage
+     * @param bool $isImage
      */
-    public function __construct($id, $type, $file, $isImage = false)
+    public function __construct(string $id, string $type, string $file, $isImage = false)
     {
         $this->id = $id;
         $this->type = $type;
@@ -58,8 +60,7 @@ class FileObject
 
     /**
      * Returns the file object id.
-     *
-     * @return string
+     * @return string|int
      */
     public function getId()
     {
@@ -68,30 +69,27 @@ class FileObject
 
     /**
      * Returns the file object type.
-     *
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
     /**
      * Returns the file object file.
-     *
      * @return string
      */
-    public function getFile()
+    public function getFile(): string
     {
         return $this->file;
     }
 
     /**
      * Returns true if the file is a image.
-     *
      * @return bool
      */
-    public function isImage()
+    public function isImage(): bool
     {
         return $this->isImage;
     }

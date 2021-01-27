@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Database;
 
 use UserAccessManager\Database\Database;
@@ -37,8 +40,7 @@ abstract class DatabaseUpdate implements UpdateInterface
 
     /**
      * Update constructor.
-     *
-     * @param Database      $database
+     * @param Database $database
      * @param ObjectHandler $objectHandler
      */
     public function __construct(Database $database, ObjectHandler $objectHandler)

@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\User;
 
 use UserAccessManager\Config\MainConfig;
@@ -19,6 +22,7 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Wrapper\Wordpress;
+use WP_User;
 
 /**
  * Class UserHandler
@@ -51,11 +55,10 @@ class UserHandler
 
     /**
      * The constructor
-     *
-     * @param Wordpress        $wordpress
-     * @param MainConfig       $config
-     * @param Database         $database
-     * @param ObjectHandler    $objectHandler
+     * @param Wordpress $wordpress
+     * @param MainConfig $config
+     * @param Database $database
+     * @param ObjectHandler $objectHandler
      */
     public function __construct(
         Wordpress $wordpress,
@@ -71,12 +74,10 @@ class UserHandler
 
     /**
      * Converts the ip to an integer.
-     *
      * @param string $ip
-     *
      * @return string|false
      */
-    private function calculateIp($ip)
+    private function calculateIp(string $ip)
     {
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
             return base_convert(ip2long($ip), 10, 2);
@@ -89,7 +90,7 @@ class UserHandler
         $binaryIp = '';
 
         while ($bits >= 0) {
-            $binaryIp = sprintf('%08b', (ord($packedIp[$bits]))).$binaryIp;
+            $binaryIp = sprintf('%08b', (ord($packedIp[$bits]))) . $binaryIp;
             $bits--;
         }
 
@@ -98,12 +99,10 @@ class UserHandler
 
     /**
      * Calculates the ip range.
-     *
      * @param string $ipRange
-     *
      * @return array
      */
-    private function getCalculatedRange($ipRange)
+    private function getCalculatedRange(string $ipRange): array
     {
         $ipRange = explode('-', $ipRange);
         $rangeBegin = $ipRange[0];
@@ -117,13 +116,11 @@ class UserHandler
 
     /**
      * Checks if the given ip matches with the range.
-     *
      * @param string $currentIp The ip of the current user.
-     * @param array  $ipRanges  The ip ranges.
-     *
+     * @param array $ipRanges The ip ranges.
      * @return bool
      */
-    public function isIpInRange($currentIp, array $ipRanges)
+    public function isIpInRange(string $currentIp, array $ipRanges): bool
     {
         $currentIp = $this->calculateIp($currentIp);
 
@@ -144,15 +141,13 @@ class UserHandler
 
     /**
      * Return the role of the user.
-     *
-     * @param \WP_User|false $user The user.
-     *
+     * @param WP_User|false $user The user.
      * @return array
      */
-    public function getUserRole($user)
+    public function getUserRole($user): array
     {
-        if ($user instanceof \WP_User && isset($user->{$this->database->getPrefix().'capabilities'}) === true) {
-            $capabilities = (array)$user->{$this->database->getPrefix().'capabilities'};
+        if ($user instanceof WP_User && isset($user->{$this->database->getPrefix() . 'capabilities'}) === true) {
+            $capabilities = (array) $user->{$this->database->getPrefix() . 'capabilities'};
         } else {
             $capabilities = [];
         }
@@ -162,12 +157,10 @@ class UserHandler
 
     /**
      * Checks the user access by user level.
-     *
      * @param bool|string $allowedCapability If set check also for the capability.
-     *
      * @return bool
      */
-    public function checkUserAccess($allowedCapability = false)
+    public function checkUserAccess($allowedCapability = false): bool
     {
         $currentUser = $this->wordpress->getCurrentUser();
 
@@ -194,12 +187,10 @@ class UserHandler
 
     /**
      * Checks if the user is an admin user
-     *
-     * @param integer $userId The user id.
-     *
+     * @param int|string $userId The user id.
      * @return bool
      */
-    public function userIsAdmin($userId)
+    public function userIsAdmin($userId): bool
     {
         $user = $this->objectHandler->getUser($userId);
         $roles = $this->getUserRole($user);

@@ -12,9 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\UserGroup\DynamicUserGroup;
+use WP_Role;
 
 /**
  * Class DynamicGroupsController
@@ -39,14 +43,14 @@ class DynamicGroupsController extends ObjectController
         $search = trim(end($searches));
 
         $users = $this->wordpress->getUsers([
-            'search' => '*'.$search.'*',
+            'search' => '*' . $search . '*',
             'fields' => ['ID', 'display_name', 'user_login', 'user_email']
         ]);
         $matches = array_map(
             function ($element) {
                 return [
                     'id' => $element->ID,
-                    'name' => TXT_UAM_USER.": {$element->display_name} ($element->user_login)",
+                    'name' => TXT_UAM_USER . ": {$element->display_name} ($element->user_login)",
                     'type' => DynamicUserGroup::USER_TYPE
                 ];
             },
@@ -54,7 +58,7 @@ class DynamicGroupsController extends ObjectController
         );
 
         /**
-         * @var \WP_Role[] $roles
+         * @var WP_Role[] $roles
          */
         $roles = $this->wordpress->getRoles()->roles;
 
@@ -62,7 +66,7 @@ class DynamicGroupsController extends ObjectController
             if (strpos(strtolower($role['name']), strtolower($search)) !== false) {
                 $matches[] = [
                     'id' => $key,
-                    'name' => TXT_UAM_ROLE.': '.$role['name'],
+                    'name' => TXT_UAM_ROLE . ': ' . $role['name'],
                     'type' => DynamicUserGroup::ROLE_TYPE
                 ];
             }

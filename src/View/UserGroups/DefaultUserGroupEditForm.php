@@ -14,8 +14,14 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\Backend\UserGroupController $controller
+ * @var UserGroupController $controller
  */
+
+use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\UserGroup\AssignmentInformation;
+use UserAccessManager\UserGroup\DynamicUserGroup;
+use UserAccessManager\UserGroup\UserGroup;
+
 ?>
 <form method="post" action="<?php echo $controller->getRequestUrl(); ?>">
     <input type="hidden" value="set_default_user_groups" name="uam_action"/>
@@ -26,14 +32,14 @@
         $userGroups = $controller->getUserGroups();
 
         /**
-         * @var \UserAccessManager\UserGroup\UserGroup[] $userGroups
+         * @var UserGroup[] $userGroups
          */
         foreach ($userGroups as $userGroup) {
             /**
-             * @var \UserAccessManager\UserGroup\AssignmentInformation $assignmentInformation
+             * @var AssignmentInformation $assignmentInformation
              */
-            if ($userGroup instanceof \UserAccessManager\UserGroup\DynamicUserGroup
-                && $userGroup->getId() !== \UserAccessManager\UserGroup\DynamicUserGroup::USER_TYPE.'|0'
+            if ($userGroup instanceof DynamicUserGroup
+                && $userGroup->getId() !== DynamicUserGroup::USER_TYPE . '|0'
             ) {
                 continue;
             }
@@ -46,7 +52,7 @@
                 <input type="checkbox" <?php echo $attributes; ?>
                        id="defaultGroups-<?php echo $userGroup->getId(); ?>"
                        value="<?php echo $userGroup->getId(); ?>"
-                       name="default_user_groups[<?php echo $userGroup->getId(); ?>][id]" />
+                       name="default_user_groups[<?php echo $userGroup->getId(); ?>][id]"/>
                 <label for="defaultGroups-<?php echo $userGroup->getId(); ?>"
                        class="selectit"
                        style="display:inline;">
@@ -77,11 +83,11 @@
             </li>
             <?php
         }
-    ?>
+        ?>
     </ul>
     <p class="submit">
         <input type="submit"
                value="<?php echo TXT_UAM_UPDATE_DEFAULT_USER_GROUPS; ?>"
                name="submit" class="button"/>
     </p>
-    </form>
+</form>

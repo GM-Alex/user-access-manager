@@ -12,10 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\User\UserHandler;
+use WP_Roles;
 
 /**
  * Class DynamicGroupsControllerTest
@@ -63,7 +65,7 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
         $wordpress->expects($this->once())
             ->method('getUsers')
             ->with([
-                'search' => '*sea*',
+                'search' => '*Sea*',
                 'fields' => ['ID', 'display_name', 'user_login', 'user_email']
             ])
             ->will($this->returnValue([
@@ -71,7 +73,7 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
                 $this->getUser(2, 'secondUser', 'secondUserLogin')
             ]));
 
-        $roles = new \stdClass();
+        $roles = $this->getMockBuilder(WP_Roles::class)->allowMockingUnknownTypes()->getMock();
         $roles->roles = [
             'admin' => ['name' => 'Administrator'],
             'editor' => ['name' => 'Editor'],
@@ -82,7 +84,7 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
             ->method('getRoles')
             ->will($this->returnValue($roles));
 
-        $_GET['q'] = 'firstSearch, sea';
+        $_GET['q'] = 'firstSearch, Sea';
 
         $userHandler = $this->getUserHandler();
 
@@ -111,10 +113,10 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
 
         self::expectOutputString(
             '['
-            .'{"id":1,"name":"User|user-access-manager: firstUser (firstUserLogin)","type":"user"},'
-            .'{"id":2,"name":"User|user-access-manager: secondUser (secondUserLogin)","type":"user"},'
-            .'{"id":"search","name":"Role|user-access-manager: Search","type":"role"}'
-            .'][]'
+            . '{"id":1,"name":"User|user-access-manager: firstUser (firstUserLogin)","type":"user"},'
+            . '{"id":2,"name":"User|user-access-manager: secondUser (secondUserLogin)","type":"user"},'
+            . '{"id":"search","name":"Role|user-access-manager: Search","type":"role"}'
+            . '][]'
         );
     }
 }

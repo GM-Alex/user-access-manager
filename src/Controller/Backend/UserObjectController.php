@@ -12,9 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class UserObjectController
@@ -25,12 +29,10 @@ class UserObjectController extends ObjectController
 {
     /**
      * The function for the manage_users_columns filter.
-     *
      * @param array $defaults The table headers.
-     *
      * @return array
      */
-    public function addUserColumnsHeader($defaults)
+    public function addUserColumnsHeader(array $defaults): array
     {
         $defaults[self::COLUMN_NAME] = TXT_UAM_COLUMN_USER_GROUPS;
         return $defaults;
@@ -38,14 +40,14 @@ class UserObjectController extends ObjectController
 
     /**
      * The function for the manage_users_custom_column action.
-     *
-     * @param string  $return     The normal return value.
-     * @param string  $columnName The column name.
-     * @param integer $id         The id.
-     *
+     * @param string $return The normal return value.
+     * @param string $columnName The column name.
+     * @param integer $id The id.
      * @return string|null
+     * @throws UserGroupTypeException
+     * @throws UserGroupTypeException
      */
-    public function addUserColumn($return, $columnName, $id)
+    public function addUserColumn(string $return, string $columnName, int $id): ?string
     {
         if ($columnName === self::COLUMN_NAME) {
             $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $id);
@@ -57,6 +59,7 @@ class UserObjectController extends ObjectController
 
     /**
      * The function for the edit_user_profile action.
+     * @throws UserGroupTypeException
      */
     public function showUserProfile()
     {
@@ -68,20 +71,20 @@ class UserObjectController extends ObjectController
 
     /**
      * The function for the profile_update action.
-     *
      * @param integer $userId The user id.
+     * @throws UserGroupTypeException
+     * @throws UserGroupTypeException
      */
-    public function saveUserData($userId)
+    public function saveUserData(int $userId)
     {
         $this->saveObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
     }
 
     /**
      * The function for the delete_user action.
-     *
      * @param integer $userId The user id.
      */
-    public function removeUserData($userId)
+    public function removeUserData(int $userId)
     {
         $this->removeObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
     }

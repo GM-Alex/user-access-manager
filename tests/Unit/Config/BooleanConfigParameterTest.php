@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
+use ReflectionException;
 use UserAccessManager\Config\BooleanConfigParameter;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -28,22 +30,21 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::__construct()
-     *
      * @return BooleanConfigParameter
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): BooleanConfigParameter
     {
         $booleanConfigParameter = new BooleanConfigParameter('testId');
 
         self::assertInstanceOf(BooleanConfigParameter::class, $booleanConfigParameter);
-        self::assertAttributeEquals('testId', 'id', $booleanConfigParameter);
-        self::assertAttributeEquals(false, 'defaultValue', $booleanConfigParameter);
+        self::assertEquals('testId', $booleanConfigParameter->getId());
+        self::assertEquals(false, $booleanConfigParameter->getValue());
 
         $booleanConfigParameter = new BooleanConfigParameter('otherId', true);
 
         self::assertInstanceOf(BooleanConfigParameter::class, $booleanConfigParameter);
-        self::assertAttributeEquals('otherId', 'id', $booleanConfigParameter);
-        self::assertAttributeEquals(true, 'defaultValue', $booleanConfigParameter);
+        self::assertEquals('otherId', $booleanConfigParameter->getId());
+        self::assertEquals(true, $booleanConfigParameter->getValue());
 
         return $booleanConfigParameter;
     }
@@ -52,10 +53,10 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::stringToBoolConverter()
-     *
      * @param BooleanConfigParameter $booleanConfigParameter
+     * @throws ReflectionException
      */
-    public function testStringToBoolConverter($booleanConfigParameter)
+    public function testStringToBoolConverter(BooleanConfigParameter $booleanConfigParameter)
     {
         self::assertEquals(
             true,
@@ -77,32 +78,33 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::setValue()
-     *
      * @param BooleanConfigParameter $booleanConfigParameter
      */
-    public function testSetValue($booleanConfigParameter)
+    public function testSetValue(BooleanConfigParameter $booleanConfigParameter)
     {
+        $booleanConfigParameter->setValue(1);
+        self::assertEquals(true, $booleanConfigParameter->getValue());
+
         $booleanConfigParameter->setValue(true);
-        self::assertAttributeEquals(true, 'value', $booleanConfigParameter);
+        self::assertEquals(true, $booleanConfigParameter->getValue());
 
         $booleanConfigParameter->setValue(false);
-        self::assertAttributeEquals(false, 'value', $booleanConfigParameter);
+        self::assertEquals(false, $booleanConfigParameter->getValue());
 
         $booleanConfigParameter->setValue('true');
-        self::assertAttributeEquals(true, 'value', $booleanConfigParameter);
+        self::assertEquals(true, $booleanConfigParameter->getValue());
 
         $booleanConfigParameter->setValue('false');
-        self::assertAttributeEquals(false, 'value', $booleanConfigParameter);
+        self::assertEquals(false, $booleanConfigParameter->getValue());
     }
 
     /**
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::isValidValue()
-     *
      * @param BooleanConfigParameter $booleanConfigParameter
      */
-    public function testIsValidValue($booleanConfigParameter)
+    public function testIsValidValue(BooleanConfigParameter $booleanConfigParameter)
     {
         self::assertTrue($booleanConfigParameter->isValidValue(true));
         self::assertTrue($booleanConfigParameter->isValidValue(false));

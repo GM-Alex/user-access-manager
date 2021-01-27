@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Database;
 
 /**
@@ -23,38 +26,35 @@ class DatabaseObjectFactory
 {
     /**
      * Creates a table object.
-     *
      * @param string $name
      * @param string $charsetCollate
-     * @param array  $columns
-     *
+     * @param array $columns
      * @return Table
+     * @throws MissingColumnsException
      */
-    public function createTable($name, $charsetCollate, array $columns)
+    public function createTable(string $name, string $charsetCollate, array $columns): Table
     {
         return new Table($name, $charsetCollate, $columns);
     }
 
     /**
      * Creates a column object.
-     *
      * @param string $name
      * @param string $type
-     * @param bool   $isNull
-     * @param mixed  $default
-     * @param bool   $isKey
-     * @param bool   $isAutoIncrement
-     *
+     * @param bool $isNull
+     * @param mixed $default
+     * @param bool $isKey
+     * @param bool $isAutoIncrement
      * @return Column
      */
     public function createColumn(
-        $name,
-        $type,
+        string $name,
+        string $type,
         $isNull = false,
         $default = null,
         $isKey = false,
         $isAutoIncrement = false
-    ) {
+    ): Column {
         return new Column($name, $type, $isNull, $default, $isKey, $isAutoIncrement);
     }
 }

@@ -12,7 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Config;
+
+use Exception;
 
 /**
  * Class ConfigParameterFactory
@@ -23,40 +28,40 @@ class ConfigParameterFactory
 {
     /**
      * Creates a boolean config parameter object.
-     *
      * @param string $id
-     * @param mixed  $defaultValue
-     *
+     * @param mixed $defaultValue
      * @return BooleanConfigParameter
+     * @throws Exception
      */
-    public function createBooleanConfigParameter($id, $defaultValue = false)
+    public function createBooleanConfigParameter(string $id, $defaultValue = false): BooleanConfigParameter
     {
         return new BooleanConfigParameter($id, $defaultValue);
     }
 
     /**
      * Creates a selection config parameter object.
-     *
      * @param string $id
-     * @param mixed  $defaultValue
-     * @param array  $selection
-     *
+     * @param mixed $defaultValue
+     * @param array $selection
      * @return SelectionConfigParameter
+     * @throws Exception
      */
-    public function createSelectionConfigParameter($id, $defaultValue, array $selection)
-    {
+    public function createSelectionConfigParameter(
+        string $id,
+        $defaultValue,
+        array $selection
+    ): SelectionConfigParameter {
         return new SelectionConfigParameter($id, $defaultValue, $selection);
     }
 
     /**
      * Creates a string config parameter object.
-     *
      * @param string $id
-     * @param mixed  $defaultValue
-     *
+     * @param mixed $defaultValue
      * @return StringConfigParameter
+     * @throws Exception
      */
-    public function createStringConfigParameter($id, $defaultValue = '')
+    public function createStringConfigParameter(string $id, $defaultValue = ''): StringConfigParameter
     {
         return new StringConfigParameter($id, $defaultValue);
     }

@@ -12,11 +12,18 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
-use UserAccessManager\Config\ConfigParameter;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use UserAccessManager\Cache\Cache;
+use UserAccessManager\Config\BooleanConfigParameter;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\SelectionConfigParameter;
+use UserAccessManager\Config\StringConfigParameter;
+use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
@@ -35,7 +42,7 @@ class MainConfigTest extends UserAccessManagerTestCase
     /**
      * Create default mocked objects.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->defaultValues = [
             'hide_default' => 'bool|hide_default|false',
@@ -43,10 +50,10 @@ class MainConfigTest extends UserAccessManagerTestCase
             'default_title' => 'string|default_title|No rights!|user-access-manager',
             'show_default_content_before_more' => 'bool|show_default_content_before_more|false',
             'default_content' => 'string|default_content|'
-                .'Sorry you have no rights to view this entry!|user-access-manager',
+                . 'Sorry you have no rights to view this entry!|user-access-manager',
             'hide_default_comment' => 'bool|hide_default_comment|false',
             'default_comment_content' => 'string|default_comment_content|'
-                .'Sorry no rights to view comments!|user-access-manager',
+                . 'Sorry no rights to view comments!|user-access-manager',
             'default_comments_locked' => 'bool|default_comments_locked|false',
             'hide_empty_default' => 'bool|hide_empty_default|true',
             'post_use_default' => 'bool|post_use_default|false',
@@ -57,7 +64,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'post_content' => 'string|post_content|Sorry you have no rights to view this entry!|user-access-manager',
             'hide_post_comment' => 'bool|hide_post_comment|false',
             'post_comment_content' => 'string|post_comment_content|'
-                .'Sorry no rights to view comments!|user-access-manager',
+                . 'Sorry no rights to view comments!|user-access-manager',
             'post_comments_locked' => 'bool|post_comments_locked|false',
             'page_use_default' => 'bool|page_use_default|false',
             'hide_page' => 'bool|hide_page|false',
@@ -67,7 +74,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'page_content' => 'string|page_content|Sorry you have no rights to view this entry!|user-access-manager',
             'hide_page_comment' => 'bool|hide_page_comment|false',
             'page_comment_content' => 'string|page_comment_content|'
-                .'Sorry no rights to view comments!|user-access-manager',
+                . 'Sorry no rights to view comments!|user-access-manager',
             'page_comments_locked' => 'bool|page_comments_locked|false',
             'redirect' => 'selection|redirect|false|false|blog|login|custom_page|custom_url',
             'redirect_custom_page' => 'string|redirect_custom_page|',
@@ -93,15 +100,15 @@ class MainConfigTest extends UserAccessManagerTestCase
             'hide_empty_category' => 'bool|hide_empty_category|true',
             'protect_feed' => 'bool|protect_feed|true',
             'full_access_role' => 'selection|full_access_role|administrator|'
-                .'administrator|editor|author|contributor|subscriber',
-            'active_cache_provider' => 'selection|active_cache_provider|none|none',
+                . 'administrator|editor|author|contributor|subscriber',
+            'active_cache_provider' => 'selection|active_cache_provider|none|none|one',
             'show_assigned_groups' => 'bool|show_assigned_groups|true',
             'hide_edit_link_on_no_access' => 'bool|hide_edit_link_on_no_access|true'
         ];
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Cache\Cache
+     * @return MockObject|Cache
      */
     protected function getCache()
     {
@@ -109,23 +116,22 @@ class MainConfigTest extends UserAccessManagerTestCase
 
         $cache->expects($this->any())
             ->method('getRegisteredCacheProviders')
-            ->will($this->returnValue([]));
+            ->will($this->returnValue(['one' => 'cacheOne']));
 
         return $cache;
     }
 
     /**
      * @param int $callExpectation
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Object\ObjectHandler
+     * @return MockObject|ObjectHandler
      */
-    protected function getDefaultObjectHandler($callExpectation)
+    protected function getDefaultObjectHandler(int $callExpectation)
     {
         $objectHandler = $this->getObjectHandler();
 
         $objectHandler->expects($this->exactly($callExpectation))
             ->method('getPostTypes')
-            ->will($this->returnValue(['post' => 'post', 'page' => 'page', 'attachment' => 'attachment']));
+            ->will($this->returnValue(['post' => 'post', 'attachment' => 'attachment', 'page' => 'page']));
 
         $objectHandler->expects($this->exactly($callExpectation))
             ->method('getTaxonomies')
@@ -136,41 +142,32 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     /**
      * @param callable $closure
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameterFactory
+     * @return MockObject|ConfigParameterFactory
      */
     protected function getFactory($closure = null)
     {
         if ($closure === null) {
-            $closure = function ($id) {
-                $stub = $this->getMockForAbstractClass(
-                    ConfigParameter::class,
-                    [],
-                    '',
-                    false,
-                    true,
-                    true,
-                    [
-                        'getId',
-                        'setValue',
-                        'getValue'
-                    ]
-                );
+            $closure = function ($type) {
+                return function ($id) use ($type) {
+                    $stub = $this->createMock(
+                        $type
+                    );
 
-                $stub->expects(self::any())
-                    ->method('getId')
-                    ->will($this->returnValue($id));
+                    $stub->expects(self::any())
+                        ->method('getId')
+                        ->will($this->returnValue($id));
 
-                $stub->expects(self::any())
-                    ->method('setValue')
-                    ->with($id.'|value')
-                    ->will($this->returnValue(null));
+                    $stub->expects(self::any())
+                        ->method('setValue')
+                        ->with($id . '|value')
+                        ->will($this->returnValue(null));
 
-                $stub->expects(self::any())
-                    ->method('getValue')
-                    ->will($this->returnValue($id));
+                    $stub->expects(self::any())
+                        ->method('getValue')
+                        ->will($this->returnValue($type === BooleanConfigParameter::class ? false : $id));
 
-                return $stub;
+                    return $stub;
+                };
             };
         }
 
@@ -178,15 +175,15 @@ class MainConfigTest extends UserAccessManagerTestCase
         $configParameterFactory = $this->getConfigParameterFactory();
         $configParameterFactory->expects($this->any())
             ->method('createBooleanConfigParameter')
-            ->will($this->returnCallback($closure));
+            ->will($this->returnCallback($closure(BooleanConfigParameter::class)));
 
         $configParameterFactory->expects($this->any())
             ->method('createStringConfigParameter')
-            ->will($this->returnCallback($closure));
+            ->will($this->returnCallback($closure(StringConfigParameter::class)));
 
         $configParameterFactory->expects($this->any())
             ->method('createSelectionConfigParameter')
-            ->will($this->returnCallback($closure));
+            ->will($this->returnCallback($closure(SelectionConfigParameter::class)));
 
         return $configParameterFactory;
     }
@@ -214,10 +211,9 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::addDefaultPostConfigParameters()
      * @covers ::addDefaultTaxonomyConfigParameters()
      * @covers ::addDefaultFileConfigParameters()
-     *
      * @return MainConfig
      */
-    public function testGetDefaultConfigParameters()
+    public function testGetDefaultConfigParameters(): MainConfig
     {
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
@@ -232,9 +228,22 @@ class MainConfigTest extends UserAccessManagerTestCase
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
-                    $return = 'bool|'.$id.'|';
-                    $return .= ($value === true) ? 'true' : 'false';
-                    return $return;
+                    $configParameter = $this->createMock(BooleanConfigParameter::class);
+
+                    $configParameter->expects(self::any())
+                        ->method('getId')
+                        ->will($this->returnValue($id));
+
+                    $configParameter->expects(self::any())
+                        ->method('setValue')
+                        ->with($value)
+                        ->will($this->returnValue(null));
+
+                    $configParameter->expects(self::any())
+                        ->method('getValue')
+                        ->will($this->returnValue($value));
+
+                    return $configParameter;
                 }
             ));
 
@@ -242,7 +251,22 @@ class MainConfigTest extends UserAccessManagerTestCase
             ->method('createStringConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
-                    return 'string|'.$id.'|'.$value;
+                    $configParameter = $this->createMock(StringConfigParameter::class);
+
+                    $configParameter->expects(self::any())
+                        ->method('getId')
+                        ->will($this->returnValue($id));
+
+                    $configParameter->expects(self::any())
+                        ->method('setValue')
+                        ->with($value)
+                        ->will($this->returnValue(null));
+
+                    $configParameter->expects(self::any())
+                        ->method('getValue')
+                        ->will($this->returnValue($value));
+
+                    return $configParameter;
                 }
             ));
 
@@ -250,7 +274,26 @@ class MainConfigTest extends UserAccessManagerTestCase
             ->method('createSelectionConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value, $selections) {
-                    return 'selection|'.$id.'|'.$value.'|'.implode('|', $selections);
+                    $configParameter = $this->createMock(SelectionConfigParameter::class);
+
+                    $configParameter->expects(self::any())
+                        ->method('getId')
+                        ->will($this->returnValue($id));
+
+                    $configParameter->expects(self::any())
+                        ->method('setValue')
+                        ->with($value)
+                        ->will($this->returnValue(null));
+
+                    $configParameter->expects(self::any())
+                        ->method('getValue')
+                        ->will($this->returnValue($value));
+
+                    $configParameter->expects(self::any())
+                        ->method('getSelections')
+                        ->will($this->returnValue($selections));
+
+                    return $configParameter;
                 }
             ));
 
@@ -261,11 +304,30 @@ class MainConfigTest extends UserAccessManagerTestCase
             $configParameterFactory
         );
 
-        self::assertEquals($this->defaultValues, $config->getConfigParameters());
+        foreach ($config->getConfigParameters() as $configParameterKey => $configParameter) {
+            $expectedValues = explode('|', $this->defaultValues[$configParameterKey]);
+            [$type, $id, $value] = $expectedValues;
+
+            if ($type === 'bool') {
+                $value = $value === 'true';
+                self::assertInstanceOf(BooleanConfigParameter::class, $configParameter);
+            } elseif ($type === 'string') {
+                if (count($expectedValues) > 3) {
+                    $value .= '|' . implode('|', array_slice($expectedValues, 3));
+                }
+                self::assertInstanceOf(StringConfigParameter::class, $configParameter);
+            } elseif ($type === 'selection') {
+                self::assertInstanceOf(SelectionConfigParameter::class, $configParameter);
+                self::assertEquals(array_slice($expectedValues, 3), $configParameter->getSelections());
+            }
+
+            self::assertEquals($id, $configParameter->getId());
+            self::assertEquals($value, $configParameter->getValue());
+        }
 
         $optionKeys = array_keys($this->defaultValues);
         $testValues = array_map(function ($element) {
-            return $element.'|value';
+            return $element . '|value';
         }, $optionKeys);
 
         $options = array_combine($optionKeys, $testValues);
@@ -286,11 +348,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             $configParameterFactory
         );
 
-        $parameters = $config->getConfigParameters();
-
-        foreach ($parameters as $parameter) {
-            self::assertEquals($parameter->getId(), $parameter->getValue());
-        }
+        $config->getConfigParameters();
 
         return $config;
     }
@@ -298,6 +356,7 @@ class MainConfigTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getObjectParameter()
+     * @throws ReflectionException
      */
     public function testGetObjectParameter()
     {
@@ -307,36 +366,38 @@ class MainConfigTest extends UserAccessManagerTestCase
             ->will($this->returnValue(null));
 
         $objectHandler = $this->getDefaultObjectHandler(1);
-        $configParameterFactory = $this->getFactory(function ($id) {
-            $stub = $this->getMockForAbstractClass(
-                ConfigParameter::class,
-                [],
-                '',
-                false,
-                true,
-                true,
-                [
-                    'getId',
-                    'setValue',
-                    'getValue'
-                ]
-            );
+        $configParameterFactory = $this->getFactory(function ($type) {
+            return function ($id) use ($type) {
+                $stub = $this->getMockForAbstractClass(
+                    $type,
+                    [],
+                    '',
+                    false,
+                    true,
+                    true,
+                    [
+                        'getId',
+                        'setValue',
+                        'getValue'
+                    ]
+                );
 
-            $stub->expects(self::any())
-                ->method('getId')
-                ->will($this->returnValue($id));
+                $stub->expects(self::any())
+                    ->method('getId')
+                    ->will($this->returnValue($id));
 
-            $stub->expects(self::any())
-                ->method('setValue')
-                ->will($this->returnValue(null));
+                $stub->expects(self::any())
+                    ->method('setValue')
+                    ->will($this->returnValue(null));
 
-            $stub->expects(self::any())
-                ->method('getValue')
-                ->will($this->returnCallback(function () use ($id) {
-                    return ($id === 'post_use_default') ? true : $id;
-                }));
+                $stub->expects(self::any())
+                    ->method('getValue')
+                    ->will($this->returnCallback(function () use ($id) {
+                        return ($id === 'post_use_default') ? true : $id;
+                    }));
 
-            return $stub;
+                return $stub;
+            };
         });
 
         $config = new MainConfig(
@@ -363,6 +424,7 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::hidePostTypeComments()
      * @covers ::lockPostTypeComments()
      * @covers ::hideEmptyTaxonomy()
+     * @throws ReflectionException
      */
     public function testHideObject()
     {
@@ -382,23 +444,23 @@ class MainConfigTest extends UserAccessManagerTestCase
         );
 
         self::assertTrue(self::callMethod($config, 'hideObject', ['post', 'something_%s']));
-        self::assertEquals('hide_post', self::callMethod($config, 'hideObject', ['post', 'hide_%s']));
-        self::assertEquals('hide_default', self::callMethod($config, 'hideObject', ['undefined', 'hide_%s']));
+        self::assertFalse(self::callMethod($config, 'hideObject', ['post', 'hide_%s']));
+        self::assertFalse(self::callMethod($config, 'hideObject', ['undefined', 'hide_%s']));
 
-        self::assertEquals('hide_post', $config->hidePostType('post'));
-        self::assertEquals('hide_default', $config->hidePostType('undefined'));
+        self::assertFalse($config->hidePostType('post'));
+        self::assertFalse($config->hidePostType('undefined'));
 
-        self::assertEquals('hide_post_title', $config->hidePostTypeTitle('post'));
-        self::assertEquals('hide_default_title', $config->hidePostTypeTitle('undefined'));
+        self::assertFalse($config->hidePostTypeTitle('post'));
+        self::assertFalse($config->hidePostTypeTitle('undefined'));
 
-        self::assertEquals('hide_post_comment', $config->hidePostTypeComments('post'));
-        self::assertEquals('hide_default_comment', $config->hidePostTypeComments('undefined'));
+        self::assertFalse($config->hidePostTypeComments('post'));
+        self::assertFalse($config->hidePostTypeComments('undefined'));
 
-        self::assertEquals('post_comments_locked', $config->lockPostTypeComments('post'));
-        self::assertEquals('default_comments_locked', $config->lockPostTypeComments('undefined'));
+        self::assertFalse($config->lockPostTypeComments('post'));
+        self::assertFalse($config->lockPostTypeComments('undefined'));
 
-        self::assertEquals('hide_empty_category', $config->hideEmptyTaxonomy('category'));
-        self::assertEquals('hide_empty_default', $config->hideEmptyTaxonomy('undefined'));
+        self::assertFalse($config->hideEmptyTaxonomy('category'));
+        self::assertFalse($config->hideEmptyTaxonomy('undefined'));
 
         self::setValue($config, 'configParameters', []);
         self::assertFalse($config->hideEmptyTaxonomy('undefined'));
@@ -432,7 +494,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         self::assertEquals('post_title', $config->getPostTypeTitle('post'));
         self::assertEquals('post_content', $config->getPostTypeContent('post'));
         self::assertEquals('post_comment_content', $config->getPostTypeCommentContent('post'));
-        self::assertEquals('show_post_content_before_more', $config->showPostTypeContentBeforeMore('post'));
+        self::assertEquals(false, $config->showPostTypeContentBeforeMore('post'));
     }
 
     /**
@@ -469,26 +531,26 @@ class MainConfigTest extends UserAccessManagerTestCase
             'getRedirect' => 'redirect',
             'getRedirectCustomPage' => 'redirect_custom_page',
             'getRedirectCustomUrl' => 'redirect_custom_url',
-            'lockRecursive' => 'lock_recursive',
-            'authorsHasAccessToOwn' => 'authors_has_access_to_own',
-            'authorsCanAddPostsToGroups' => 'authors_can_add_posts_to_groups',
-            'lockFile' => 'lock_file',
+            'lockRecursive' => false,
+            'authorsHasAccessToOwn' => false,
+            'authorsCanAddPostsToGroups' => false,
+            'lockFile' => false,
             'getDownloadType' => 'download_type',
             'getInlineFiles' => 'inline_files',
             'getNoAccessImageType' => 'no_access_image_type',
             'getCustomNoAccessImage' => 'custom_no_access_image',
-            'useCustomFileHandlingFile' => 'use_custom_file_handling_file',
+            'useCustomFileHandlingFile' => false,
             'getLockedDirectoryType' => 'locked_directory_type',
             'getCustomLockedDirectories' => 'custom_locked_directories',
             'getFilePassType' => 'file_pass_type',
             'getLockedFileType' => 'lock_file_types',
             'getLockedFiles' => 'locked_file_types',
             'getNotLockedFiles' => 'not_locked_file_types',
-            'blogAdminHint' => 'blog_admin_hint',
+            'blogAdminHint' => false,
             'getBlogAdminHintText' => 'blog_admin_hint_text',
-            'showAssignedGroups' => 'show_assigned_groups',
-            'hideEditLinkOnNoAccess' => 'hide_edit_link_on_no_access',
-            'protectFeed' => 'protect_feed',
+            'showAssignedGroups' => false,
+            'hideEditLinkOnNoAccess' => false,
+            'protectFeed' => false,
             'getFullAccessRole' => 'full_access_role',
             'getActiveCacheProvider' => 'active_cache_provider'
         ];

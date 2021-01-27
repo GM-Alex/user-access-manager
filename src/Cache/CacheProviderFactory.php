@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Cache;
 
 use UserAccessManager\Config\ConfigFactory;
@@ -54,11 +57,10 @@ class CacheProviderFactory
 
     /**
      * CacheProviderFactory constructor.
-     *
-     * @param Php                    $php
-     * @param Wordpress              $wordpress
-     * @param Util                   $util
-     * @param ConfigFactory          $configFactory
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param Util $util
+     * @param ConfigFactory $configFactory
      * @param ConfigParameterFactory $configParameterFactory
      */
     public function __construct(
@@ -77,10 +79,9 @@ class CacheProviderFactory
 
     /**
      * Creates a FileSystemCacheProvider object.
-     *
      * @return FileSystemCacheProvider
      */
-    public function createFileSystemCacheProvider()
+    public function createFileSystemCacheProvider(): FileSystemCacheProvider
     {
         return new FileSystemCacheProvider(
             $this->php,

@@ -12,8 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\File;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\File\FileProtection;
@@ -41,7 +46,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -50,19 +55,18 @@ class FileProtectionTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
 
     /**
-     * @param Php             $php
-     * @param Wordpress       $wordpress
+     * @param Php $php
+     * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
-     * @param MainConfig      $mainConfig
-     * @param Util            $util
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|FileProtection
+     * @param MainConfig $mainConfig
+     * @param Util $util
+     * @return MockObject|FileProtection
      */
     private function getStub(
         Php $php,
@@ -70,7 +74,8 @@ class FileProtectionTest extends UserAccessManagerTestCase
         WordpressConfig $wordpressConfig,
         MainConfig $mainConfig,
         Util $util
-    ) {
+    )
+    {
         return $this->getMockForAbstractClass(
             FileProtection::class,
             [$php, $wordpress, $wordpressConfig, $mainConfig, $util]
@@ -96,6 +101,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::getDirectoryMatch()
+     * @throws ReflectionException
      */
     public function testGetDirectoryMatch()
     {
@@ -117,13 +123,14 @@ class FileProtectionTest extends UserAccessManagerTestCase
         );
 
         self::assertNull(self::callMethod($stub, 'getDirectoryMatch'));
-        self::assertEquals('[0-9]{4}'.DIRECTORY_SEPARATOR.'[0-9]{2}', self::callMethod($stub, 'getDirectoryMatch'));
+        self::assertEquals('[0-9]{4}' . DIRECTORY_SEPARATOR . '[0-9]{2}', self::callMethod($stub, 'getDirectoryMatch'));
         self::assertEquals('customLockedDirectories', self::callMethod($stub, 'getDirectoryMatch'));
     }
 
     /**
      * @group   unit
      * @covers  ::cleanUpFileTypes()
+     * @throws ReflectionException
      */
     public function testCleanUpFileTypes()
     {
@@ -177,7 +184,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
             );
 
         /**
-         * @var \stdClass $user
+         * @var stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->user_login = 'userLogin';
@@ -206,7 +213,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
             $util
         );
 
-        $firstTestFile = 'vfs://firstTestDir/'.FileProtection::PASSWORD_FILE_NAME;
+        $firstTestFile = 'vfs://firstTestDir/' . FileProtection::PASSWORD_FILE_NAME;
         $stub->createPasswordFile();
         $this->assertFalse(file_exists($firstTestFile));
 
@@ -237,18 +244,18 @@ class FileProtectionTest extends UserAccessManagerTestCase
         self::assertEquals($content, file_get_contents($firstTestFile));
 
         $stub->createPasswordFile(true);
-        self::assertEquals("userLogin:".md5('randomPassword')."\n", file_get_contents($firstTestFile));
+        self::assertEquals("userLogin:" . md5('randomPassword') . "\n", file_get_contents($firstTestFile));
         self::assertNotEquals($content, file_get_contents($firstTestFile));
 
-        $secondTestFile = 'vfs://secondTestDir/'.FileProtection::PASSWORD_FILE_NAME;
+        $secondTestFile = 'vfs://secondTestDir/' . FileProtection::PASSWORD_FILE_NAME;
         $stub->createPasswordFile(true, 'vfs://secondTestDir/');
-        self::assertEquals("userLogin:".md5('randomPassword')."\n", file_get_contents($secondTestFile));
+        self::assertEquals("userLogin:" . md5('randomPassword') . "\n", file_get_contents($secondTestFile));
 
         $util = $this->getUtil();
         $util->expects($this->exactly(1))
             ->method('getRandomPassword')
             ->will($this->returnCallback(function () {
-                throw new \Exception('Unable to generate secure token from OpenSSL.');
+                throw new Exception('Unable to generate secure token from OpenSSL.');
             }));
 
         $stub = $this->getStub(
@@ -259,7 +266,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
             $util
         );
 
-        $thirdTestFile = 'vfs://thirdTestDir/'.FileProtection::PASSWORD_FILE_NAME;
+        $thirdTestFile = 'vfs://thirdTestDir/' . FileProtection::PASSWORD_FILE_NAME;
         $stub->createPasswordFile(true, 'vfs://thirdTestDir/');
         $content = file_get_contents($thirdTestFile);
         self::assertEquals("userLogin:userPass\n", $content);
@@ -294,8 +301,8 @@ class FileProtectionTest extends UserAccessManagerTestCase
         ]));
 
         $testDir = 'vfs://testDir/';
-        $file = $testDir.FileProtection::FILE_NAME;
-        $passwordFile = $testDir.FileProtection::PASSWORD_FILE_NAME;
+        $file = $testDir . FileProtection::FILE_NAME;
+        $passwordFile = $testDir . FileProtection::PASSWORD_FILE_NAME;
 
         self::assertTrue(file_exists($file));
         self::assertTrue(file_exists($passwordFile));

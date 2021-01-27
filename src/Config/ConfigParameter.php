@@ -12,7 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Config;
+
+use Exception;
 
 /**
  * Class ConfigParameter
@@ -38,13 +43,11 @@ abstract class ConfigParameter implements ConfigParameterInterface
 
     /**
      * ConfigParameter constructor.
-     *
      * @param string $id
-     * @param mixed  $defaultValue
-     *
-     * @throws \Exception
+     * @param mixed $defaultValue
+     * @throws Exception
      */
-    public function __construct($id, $defaultValue = null)
+    public function __construct(string $id, $defaultValue = null)
     {
         $this->id = $id;
 
@@ -54,31 +57,27 @@ abstract class ConfigParameter implements ConfigParameterInterface
 
     /**
      * Returns the id.
-     *
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
     /**
      * Checks the value type and throws an exception if the value isn't the required type.
-     *
      * @param mixed $value
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function validateValue($value)
     {
         if ($this->isValidValue($value) === false) {
-            throw new \Exception("Wrong value '{$value}' type given for '{$this->id}'.'");
+            throw new Exception("Wrong value '{$value}' type given for '{$this->id}'.'");
         }
     }
 
     /**
      * Sets the current value.
-     *
      * @param mixed $value
      */
     public function setValue($value)
@@ -89,7 +88,6 @@ abstract class ConfigParameter implements ConfigParameterInterface
 
     /**
      * Returns the current parameter value.
-     *
      * @return mixed
      */
     public function getValue()

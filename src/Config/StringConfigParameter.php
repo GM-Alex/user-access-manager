@@ -12,31 +12,32 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Config;
+
+use Exception;
 
 class StringConfigParameter extends ConfigParameter
 {
     /**
      * StringConfigParameter constructor.
-     *
      * @param string $id
      * @param string $defaultValue
-     *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function __construct($id, $defaultValue = '')
+    public function __construct(string $id, $defaultValue = '')
     {
         parent::__construct($id, $defaultValue);
     }
 
     /**
      * Checks if the given value is a string.
-     *
      * @param mixed $value
-     *
      * @return bool
      */
-    public function isValidValue($value)
+    public function isValidValue($value): bool
     {
         return is_string($value) === true;
     }

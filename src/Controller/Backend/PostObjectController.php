@@ -12,9 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_Post;
 
 /**
  * Class PostObjectController
@@ -26,12 +31,10 @@ class PostObjectController extends ObjectController
     /**
      * The function for the manage_posts_columns and
      * the manage_pages_columns filter.
-     *
      * @param array $defaults The table headers.
-     *
      * @return array
      */
-    public function addPostColumnsHeader($defaults)
+    public function addPostColumnsHeader(array $defaults): array
     {
         $defaults[self::COLUMN_NAME] = TXT_UAM_COLUMN_ACCESS;
         return $defaults;
@@ -39,11 +42,11 @@ class PostObjectController extends ObjectController
 
     /**
      * The function for the manage_users_custom_column action.
-     *
-     * @param string  $columnName The column name.
-     * @param integer $id         The id.
+     * @param string $columnName The column name.
+     * @param integer $id The id.
+     * @throws UserGroupTypeException
      */
-    public function addPostColumn($columnName, $id)
+    public function addPostColumn(string $columnName, int $id)
     {
         if ($columnName === self::COLUMN_NAME) {
             $post = $this->objectHandler->getPost($id);
@@ -53,12 +56,12 @@ class PostObjectController extends ObjectController
 
     /**
      * The function for the uam_post_access meta box.
-     *
-     * @param object $post The post.
+     * @param mixed $post The post.
+     * @throws UserGroupTypeException
      */
     public function editPostContent($post)
     {
-        if ($post instanceof \WP_Post) {
+        if ($post instanceof WP_Post) {
             $this->setObjectInformation($post->post_type, $post->ID);
         }
 
@@ -67,7 +70,6 @@ class PostObjectController extends ObjectController
 
     /**
      * Adds the bulk edit form.
-     *
      * @param $columnName
      */
     public function addBulkAction($columnName)
@@ -79,8 +81,8 @@ class PostObjectController extends ObjectController
 
     /**
      * The function for the save_post action.
-     *
      * @param mixed $postParam The post id or a array of a post.
+     * @throws UserGroupTypeException
      */
     public function savePostData($postParam)
     {
@@ -100,10 +102,10 @@ class PostObjectController extends ObjectController
 
     /**
      * The function for the add_attachment action.
-     *
      * @param int $postId
+     * @throws UserGroupTypeException
      */
-    public function addAttachment($postId)
+    public function addAttachment(int $postId)
     {
         $post = $this->objectHandler->getPost($postId);
         $postType = $post->post_type;
@@ -123,12 +125,11 @@ class PostObjectController extends ObjectController
      * The function for the attachment_fields_to_save filter.
      * We have to use this because the attachment actions work
      * not in the way we need.
-     *
      * @param array $attachment The attachment id.
-     *
      * @return array
+     * @throws UserGroupTypeException
      */
-    public function saveAttachmentData($attachment)
+    public function saveAttachmentData(array $attachment): array
     {
         $this->savePostData($attachment['ID']);
 
@@ -137,6 +138,7 @@ class PostObjectController extends ObjectController
 
     /**
      * The function for the wp_ajax_save_attachment_compat filter.
+     * @throws UserGroupTypeException
      */
     public function saveAjaxAttachmentData()
     {
@@ -152,10 +154,9 @@ class PostObjectController extends ObjectController
 
     /**
      * The function for the delete_post action.
-     *
      * @param integer $postId The post id.
      */
-    public function removePostData($postId)
+    public function removePostData(int $postId)
     {
         $post = $this->objectHandler->getPost($postId);
         $this->removeObjectData($post->post_type, $postId);
@@ -163,13 +164,12 @@ class PostObjectController extends ObjectController
 
     /**
      * The function for the media_meta action.
-     *
-     * @param array    $formFields The meta.
-     * @param \WP_Post $post       The post.
-     *
+     * @param array $formFields The meta.
+     * @param WP_Post $post The post.
      * @return array
+     * @throws UserGroupTypeException
      */
-    public function showMediaFile(array $formFields, $post = null)
+    public function showMediaFile(array $formFields, $post = null): array
     {
         if ($this->getRequestParameter('action') !== 'edit') {
             $attachmentId = $this->getRequestParameter('attachment_id');
@@ -178,7 +178,7 @@ class PostObjectController extends ObjectController
                 $post = $this->objectHandler->getPost($attachmentId);
             }
 
-            if ($post instanceof \WP_Post) {
+            if ($post instanceof WP_Post) {
                 $this->setObjectInformation($post->post_type, $post->ID);
             }
 

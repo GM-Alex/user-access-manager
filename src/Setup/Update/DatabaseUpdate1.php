@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Update;
 
 use UserAccessManager\Setup\Database\DatabaseUpdate;
@@ -25,22 +28,19 @@ class DatabaseUpdate1 extends DatabaseUpdate
 {
     /**
      * Returns the version.
-     *
      * @return string
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         return '1.0';
     }
 
     /**
      * Updates the user group table to version 1.0.
-     *
      * @param string $userGroupTable
-     *
      * @return bool
      */
-    private function updateToUserGroupTableUpdate($userGroupTable)
+    private function updateToUserGroupTableUpdate(string $userGroupTable): bool
     {
         $alterQuery = "ALTER TABLE {$userGroupTable}
             ADD read_access TINYTEXT NOT NULL DEFAULT '', 
@@ -53,7 +53,7 @@ class DatabaseUpdate1 extends DatabaseUpdate
         $success = $this->database->query($updateQuery) !== false;
 
         $selectQuery = "SHOW columns FROM {$userGroupTable} LIKE 'ip_range'";
-        $dbIpRange = (string)$this->database->getVariable($selectQuery);
+        $dbIpRange = (string) $this->database->getVariable($selectQuery);
 
         if ($dbIpRange !== 'ip_range') {
             $alterQuery = "ALTER TABLE {$userGroupTable} ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
@@ -65,27 +65,25 @@ class DatabaseUpdate1 extends DatabaseUpdate
 
     /**
      * Returns the select query for the object type.
-     *
      * @param string $objectType
      * @param string $userGroupToPost
      * @param string $userGroupToCategory
      * @param string $userGroupToUser
      * @param string $userGroupToRole
-     *
      * @return null|string
      */
     private function getObjectSelectQuery(
-        $objectType,
-        $userGroupToPost,
-        $userGroupToCategory,
-        $userGroupToUser,
-        $userGroupToRole
-    ) {
+        string $objectType,
+        string $userGroupToPost,
+        string $userGroupToCategory,
+        string $userGroupToUser,
+        string $userGroupToRole
+    ): ?string {
         $addition = '';
 
         if ($this->objectHandler->isPostType($objectType) === true) {
             $dbIdName = 'post_id';
-            $database = $userGroupToPost.', '.$this->database->getPostsTable();
+            $database = $userGroupToPost . ', ' . $this->database->getPostsTable();
             $addition = " WHERE post_id = ID AND post_type = '{$objectType}'";
         } elseif ($objectType === 'category') {
             $dbIdName = 'category_id';
@@ -106,16 +104,16 @@ class DatabaseUpdate1 extends DatabaseUpdate
     /**
      * Updates the user group to object table to version 1.0.
      */
-    private function updateToUserGroupToObjectTableUpdate()
+    private function updateToUserGroupToObjectTableUpdate(): bool
     {
         $prefix = $this->database->getPrefix();
 
         $charsetCollate = $this->database->getCharset();
-        $userGroupToObject = $prefix.'uam_accessgroup_to_object';
-        $userGroupToPost = $prefix.'uam_accessgroup_to_post';
-        $userGroupToUser = $prefix.'uam_accessgroup_to_user';
-        $userGroupToCategory = $prefix.'uam_accessgroup_to_category';
-        $userGroupToRole = $prefix.'uam_accessgroup_to_role';
+        $userGroupToObject = $prefix . 'uam_accessgroup_to_object';
+        $userGroupToPost = $prefix . 'uam_accessgroup_to_post';
+        $userGroupToUser = $prefix . 'uam_accessgroup_to_user';
+        $userGroupToCategory = $prefix . 'uam_accessgroup_to_category';
+        $userGroupToRole = $prefix . 'uam_accessgroup_to_role';
 
         $alterQuery = "ALTER TABLE '{$userGroupToObject}'
             CHANGE 'object_id' 'object_id' VARCHAR(64) {$charsetCollate}";
@@ -140,7 +138,7 @@ class DatabaseUpdate1 extends DatabaseUpdate
                 continue;
             }
 
-            $dbObjects = (array)$this->database->getResults($query);
+            $dbObjects = (array) $this->database->getResults($query);
 
             foreach ($dbObjects as $dbObject) {
                 $insert = $this->database->insert(
@@ -170,10 +168,9 @@ class DatabaseUpdate1 extends DatabaseUpdate
 
     /**
      * Executes the update.
-     *
      * @return bool
      */
-    public function update()
+    public function update(): bool
     {
         $success = true;
         $userGroupTable = $this->database->getUserGroupTable();

@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Cache;
 
 use UserAccessManager\Wrapper\Wordpress;
@@ -50,8 +53,7 @@ class Cache
 
     /**
      * Cache constructor.
-     *
-     * @param Wordpress            $wordpress
+     * @param Wordpress $wordpress
      * @param CacheProviderFactory $cacheProviderFactory
      */
     public function __construct(Wordpress $wordpress, CacheProviderFactory $cacheProviderFactory)
@@ -61,11 +63,19 @@ class Cache
     }
 
     /**
-     * Sets a cache provider
-     *
-     * @param string $key
+     * Return the cache provider.
+     * @return CacheProviderInterface|null
      */
-    public function setActiveCacheProvider($key)
+    public function getCacheProvider(): ?CacheProviderInterface
+    {
+        return $this->cacheProvider;
+    }
+
+    /**
+     * Sets a cache provider
+     * @param null|string $key
+     */
+    public function setActiveCacheProvider(?string $key)
     {
         $cacheProviders = $this->getRegisteredCacheProviders();
 
@@ -78,10 +88,9 @@ class Cache
 
     /**
      * Returns a generated cache key.
-     *
      * @return string
      */
-    public function generateCacheKey()
+    public function generateCacheKey(): string
     {
         $arguments = func_get_args();
 
@@ -90,11 +99,10 @@ class Cache
 
     /**
      * Adds the variable to the cache.
-     *
-     * @param string $key   The cache key
-     * @param mixed  $value The value.
+     * @param string $key The cache key
+     * @param mixed $value The value.
      */
-    public function add($key, $value)
+    public function add(string $key, $value)
     {
         if ($this->cacheProvider !== null) {
             $this->cacheProvider->add($key, $value);
@@ -105,12 +113,10 @@ class Cache
 
     /**
      * Returns a value from the cache by the given key.
-     *
      * @param string $key
-     *
      * @return mixed
      */
-    public function get($key)
+    public function get(string $key)
     {
         if (isset($this->cache[$key]) === false) {
             $this->cache[$key] = ($this->cacheProvider !== null) ? $this->cacheProvider->get($key) : null;
@@ -121,10 +127,9 @@ class Cache
 
     /**
      * Invalidates the cached object.
-     *
      * @param string $key
      */
-    public function invalidate($key)
+    public function invalidate(string $key)
     {
         if ($this->cacheProvider !== null) {
             $this->cacheProvider->invalidate($key);
@@ -135,23 +140,20 @@ class Cache
 
     /**
      * Adds the variable to the runtime cache.
-     *
-     * @param string $key   The cache key
-     * @param mixed  $value The value.
+     * @param string $key The cache key
+     * @param mixed $value The value.
      */
-    public function addToRuntimeCache($key, $value)
+    public function addToRuntimeCache(string $key, $value)
     {
         $this->runtimeCache[$key] = $value;
     }
 
     /**
      * Returns a value from the runtime cache by the given key.
-     *
      * @param string $key
-     *
      * @return mixed
      */
-    public function getFromRuntimeCache($key)
+    public function getFromRuntimeCache(string $key)
     {
         if (isset($this->runtimeCache[$key]) === true) {
             return $this->runtimeCache[$key];
@@ -171,10 +173,9 @@ class Cache
 
     /**
      * Returns a list of the registered cache handlers.
-     *
      * @return CacheProviderInterface[]
      */
-    public function getRegisteredCacheProviders()
+    public function getRegisteredCacheProviders(): array
     {
         $fileSystemCacheProvider = $this->cacheProviderFactory->createFileSystemCacheProvider();
 

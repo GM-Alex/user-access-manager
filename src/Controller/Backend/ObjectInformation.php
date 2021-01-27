@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\UserGroup\AbstractUserGroup;
@@ -45,12 +48,10 @@ class ObjectInformation
 
     /**
      * Sets the object type.
-     *
      * @param string $objectType
-     *
      * @return $this
      */
-    public function setObjectType($objectType)
+    public function setObjectType(string $objectType): ObjectInformation
     {
         $this->objectType = $objectType;
         return $this;
@@ -58,22 +59,19 @@ class ObjectInformation
 
     /**
      * Returns the current object type.
-     *
      * @return null|string
      */
-    public function getObjectType()
+    public function getObjectType(): ?string
     {
         return $this->objectType;
     }
 
     /**
      * Sets the object id.
-     *
      * @param $objectId
-     *
      * @return $this
      */
-    public function setObjectId($objectId)
+    public function setObjectId($objectId): ObjectInformation
     {
         $this->objectId = $objectId;
         return $this;
@@ -81,8 +79,7 @@ class ObjectInformation
 
     /**
      * Returns the current object id.
-     *
-     * @return null|string
+     * @return int|string|null
      */
     public function getObjectId()
     {
@@ -91,12 +88,10 @@ class ObjectInformation
 
     /**
      * Sets the user group diff count.
-     *
      * @param int $userGroupDiff
-     *
      * @return $this
      */
-    public function setUserGroupDiff($userGroupDiff)
+    public function setUserGroupDiff(int $userGroupDiff): ObjectInformation
     {
         $this->userGroupDiff = $userGroupDiff;
         return $this;
@@ -104,22 +99,19 @@ class ObjectInformation
 
     /**
      * Returns the user group count diff.
-     *
      * @return int
      */
-    public function getUserGroupDiff()
+    public function getUserGroupDiff(): int
     {
         return $this->userGroupDiff;
     }
 
     /**
      * Sets the user group diff count.
-     *
      * @param $objectUserGroups
-     *
      * @return $this
      */
-    public function setObjectUserGroups($objectUserGroups)
+    public function setObjectUserGroups($objectUserGroups): ObjectInformation
     {
         $this->objectUserGroups = $objectUserGroups;
         return $this;
@@ -127,10 +119,9 @@ class ObjectInformation
 
     /**
      * Returns the current object user groups.
-     *
      * @return AbstractUserGroup[]
      */
-    public function getObjectUserGroups()
+    public function getObjectUserGroups(): array
     {
         return $this->objectUserGroups;
     }

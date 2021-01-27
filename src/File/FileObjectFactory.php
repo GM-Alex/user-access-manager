@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\File;
 
 /**
@@ -22,16 +25,14 @@ class FileObjectFactory
 {
     /**
      * Returns a new file object.
-     *
-     * @param string $id
+     * @param int|string $id
      * @param string $type
      * @param string $file
-     * @param bool   $isImage
-     *
+     * @param bool $isImage
      * @return FileObject
      */
-    public function createFileObject($id, $type, $file, $isImage = false)
+    public function createFileObject($id, string $type, string $file, $isImage = false): FileObject
     {
-        return new FileObject($id, $type, $file, $isImage);
+        return new FileObject((string) $id, $type, $file, $isImage);
     }
 }

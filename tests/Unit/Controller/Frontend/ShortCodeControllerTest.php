@@ -12,10 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
+use ReflectionException;
 use UserAccessManager\Controller\Frontend\ShortCodeController;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -36,7 +39,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -45,11 +48,11 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
-    
+
     /**
      * @group  unit
      * @covers ::__construct()
@@ -69,6 +72,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getWordpress()
+     * @throws ReflectionException
      */
     public function testSimpleGetters()
     {
@@ -177,6 +181,7 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::privateShortCode()
      * @covers ::getUserGroupsMapFromAttributes()
+     * @throws UserGroupTypeException
      */
     public function testPrivateShortCode()
     {
@@ -209,12 +214,12 @@ class ShortCodeControllerTest extends UserAccessManagerTestCase
         self::assertEquals('contentShortCode', $frontendShortCodeController->privateShortCode([], 'content'));
         self::assertEquals(
             'contentShortCode',
-            $frontendShortCodeController->privateShortCode(['group' => 'name3,1'], 'content')
+            $frontendShortCodeController->privateShortCode(['group' => 'name3,1 '], 'content')
         );
         self::assertEquals(
             'contentShortCode',
             $frontendShortCodeController->privateShortCode(['group' => '3,name2'], 'content')
         );
-        self::assertEquals('', $frontendShortCodeController->privateShortCode(['group' => '10'], 'content'));
+        self::assertEquals('', $frontendShortCodeController->privateShortCode(['group' => '10,9'], 'content'));
     }
 }

@@ -12,21 +12,26 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
-use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
-use UserAccessManager\UserGroup\AbstractUserGroup;
-use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
 use UserAccessManager\ObjectMembership\PostMembershipHandler;
 use UserAccessManager\ObjectMembership\RoleMembershipHandler;
 use UserAccessManager\ObjectMembership\TermMembershipHandler;
 use UserAccessManager\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\AbstractUserGroup;
+use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
@@ -41,16 +46,16 @@ use UserAccessManager\Wrapper\Wordpress;
 class AbstractUserGroupTest extends UserAccessManagerTestCase
 {
     /**
-     * @param Php                            $php
-     * @param Wordpress                      $wordpress
-     * @param Database                       $database
-     * @param MainConfig                     $config
-     * @param Util                           $util
-     * @param ObjectHandler                  $objectHandler
-     * @param AssignmentInformationFactory   $assignmentInformationFactory
-     * @param null|string                    $id
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param Database $database
+     * @param MainConfig $config
+     * @param Util $util
+     * @param ObjectHandler $objectHandler
+     * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param null|string $id
+     * @return MockObject|AbstractUserGroup
+     * @throws ReflectionException
      */
     private function getStub(
         Php $php,
@@ -61,7 +66,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         ObjectHandler $objectHandler,
         AssignmentInformationFactory $assignmentInformationFactory,
         $id = null
-    ) {
+    )
+    {
         $stub = $this->getMockForAbstractClass(
             AbstractUserGroup::class,
             [],
@@ -85,6 +91,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::__construct()
      * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testCanCreateInstance()
     {
@@ -145,6 +152,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @covers  ::setDescription()
      * @covers  ::setReadAccess()
      * @covers  ::setWriteAccess()
+     * @throws ReflectionException
      */
     public function testSimpleGetterSetter()
     {
@@ -173,16 +181,16 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertEquals('writeAccess', $abstractUserGroup->getWriteAccess());
 
         $abstractUserGroup->setName('groupNameNew');
-        self::assertAttributeEquals('groupNameNew', 'name', $abstractUserGroup);
+        self::assertEquals('groupNameNew', $abstractUserGroup->getName());
 
         $abstractUserGroup->setDescription('groupDescNew');
-        self::assertAttributeEquals('groupDescNew', 'description', $abstractUserGroup);
+        self::assertEquals('groupDescNew', $abstractUserGroup->getDescription());
 
         $abstractUserGroup->setReadAccess('readAccessNew');
-        self::assertAttributeEquals('readAccessNew', 'readAccess', $abstractUserGroup);
+        self::assertEquals('readAccessNew', $abstractUserGroup->getReadAccess());
 
         $abstractUserGroup->setWriteAccess('writeAccessNew');
-        self::assertAttributeEquals('writeAccessNew', 'writeAccess', $abstractUserGroup);
+        self::assertEquals('writeAccessNew', $abstractUserGroup->getWriteAccess());
     }
 
     /**
@@ -190,6 +198,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @covers ::addObject()
      * @covers ::resetObjects()
      * @covers ::addDefaultType()
+     * @throws Exception
      */
     public function testAddObject()
     {
@@ -321,7 +330,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 ['defaultObjectType'],
                 ['defaultObjectType']
             )
-            ->will($this->onConsecutiveCalls(false, true, true, true, true, true));
+            ->will($this->onConsecutiveCalls(false, true, true, true, true, true, true));
 
         $abstractUserGroup = $this->getStub(
             $this->getPhp(),
@@ -348,10 +357,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType', 1, 2));
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType', 1, 0));
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType', 1, 1));
-
-        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
-        self::assertAttributeEquals([], 'objectMembership', $abstractUserGroup);
-        self::assertAttributeEquals([], 'fullObjectMembership', $abstractUserGroup);
     }
 
     /**
@@ -360,6 +365,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @covers ::removeObject()
      * @covers ::resetObjects()
      * @covers ::removeDefaultType()
+     * @throws Exception
      */
     public function testDelete()
     {
@@ -480,10 +486,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         self::assertTrue($abstractUserGroup->delete());
 
-        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
-        self::assertAttributeEquals([], 'objectMembership', $abstractUserGroup);
-        self::assertAttributeEquals([], 'fullObjectMembership', $abstractUserGroup);
-
         self::setValue($abstractUserGroup, 'assignedObjects', [1 => 1]);
         self::setValue($abstractUserGroup, 'objectMembership', [2 => 2]);
         self::setValue($abstractUserGroup, 'fullObjectMembership', [3 => 3]);
@@ -491,21 +493,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertFalse($abstractUserGroup->removeObject('invalid'));
         self::assertFalse($abstractUserGroup->removeObject('invalidObjectType'));
 
-        self::assertAttributeEquals([1 => 1], 'assignedObjects', $abstractUserGroup);
-        self::assertAttributeEquals([2 => 2], 'objectMembership', $abstractUserGroup);
-        self::assertAttributeEquals([3 => 3], 'fullObjectMembership', $abstractUserGroup);
-
         self::assertFalse($abstractUserGroup->removeObject('objectType'));
 
-        self::assertAttributeEquals([1 => 1], 'assignedObjects', $abstractUserGroup);
-        self::assertAttributeEquals([2 => 2], 'objectMembership', $abstractUserGroup);
-        self::assertAttributeEquals([3 => 3], 'fullObjectMembership', $abstractUserGroup);
-
         self::assertTrue($abstractUserGroup->removeObject('objectType'));
-
-        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
-        self::assertAttributeEquals([], 'objectMembership', $abstractUserGroup);
-        self::assertAttributeEquals([], 'fullObjectMembership', $abstractUserGroup);
 
         self::assertTrue($abstractUserGroup->removeObject('objectType', 1));
         self::assertTrue($abstractUserGroup->removeDefaultType('defaultObjectType'));
@@ -514,6 +504,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::setIgnoreDates()
+     * @covers ::getIgnoreDates()
+     * @throws ReflectionException
      */
     public function testSetIgnoreDates()
     {
@@ -529,34 +521,29 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         self::setValue($abstractUserGroup, 'assignedObjects', ['someValue']);
         $abstractUserGroup->setIgnoreDates(false);
-        self::assertAttributeEquals(false, 'ignoreDates', $abstractUserGroup);
-        self::assertAttributeEquals(['someValue'], 'assignedObjects', $abstractUserGroup);
+        self::assertEquals(false, $abstractUserGroup->getIgnoreDates());
 
         $abstractUserGroup->setIgnoreDates(true);
-        self::assertAttributeEquals(true, 'ignoreDates', $abstractUserGroup);
-        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
+        self::assertEquals(true, $abstractUserGroup->getIgnoreDates());
 
         $abstractUserGroup->setIgnoreDates(false);
-        self::assertAttributeEquals(false, 'ignoreDates', $abstractUserGroup);
-        self::assertAttributeEquals([], 'assignedObjects', $abstractUserGroup);
+        self::assertEquals(false, $abstractUserGroup->getIgnoreDates());
     }
 
     /**
      * Generates return values.
-     *
-     * @param int    $number
+     * @param int $number
      * @param string $type
-     * @param string $fromDate
-     * @param string $toDate
-     *
+     * @param null $fromDate
+     * @param null $toDate
      * @return array
      */
-    private function generateReturn($number, $type, $fromDate = null, $toDate = null)
+    private function generateReturn(int $number, string $type, $fromDate = null, $toDate = null): array
     {
         $returns = [];
 
         for ($counter = 1; $counter <= $number; $counter++) {
-            $return = new \stdClass();
+            $return = new stdClass();
             $return->id = $counter;
             $return->objectType = $type;
             $return->fromDate = $fromDate;
@@ -571,6 +558,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getAssignedObjects()
      * @covers  ::isObjectAssignedToGroup()
+     * @throws ReflectionException
      */
     public function testAssignedObject()
     {
@@ -597,7 +585,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
               AND object_id != \'\'
               AND (general_object_type = \'%s\' OR object_type = \'%s\')';
 
-        $query = $queryWithoutDates.' AND (from_date IS NULL OR from_date <= \'%s\')
+        $query = $queryWithoutDates . ' AND (from_date IS NULL OR from_date <= \'%s\')
               AND (to_date IS NULL OR to_date >= \'%s\')';
 
         $database->expects($this->exactly(4))
@@ -642,7 +630,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         $result = self::callMethod($abstractUserGroup, 'getAssignedObjects', ['noResultObjectType']);
         self::assertEquals([], $result);
-        self::assertAttributeEquals(['noResultObjectType' => []], 'assignedObjects', $abstractUserGroup);
 
         $result = self::callMethod($abstractUserGroup, 'getAssignedObjects', ['objectType']);
         self::assertEquals(
@@ -652,18 +639,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 3 => $this->getAssignmentInformation('objectType')
             ],
             $result
-        );
-        self::assertAttributeEquals(
-            [
-                'noResultObjectType' => [],
-                'objectType' => [
-                    1 => $this->getAssignmentInformation('objectType'),
-                    2 => $this->getAssignmentInformation('objectType'),
-                    3 => $this->getAssignmentInformation('objectType')
-                ]
-            ],
-            'assignedObjects',
-            $abstractUserGroup
         );
 
         $result = self::callMethod($abstractUserGroup, 'getAssignedObjects', ['objectType']);
@@ -698,8 +673,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getDefaultGroupForObjectTypes()
-     *
      * @return AbstractUserGroup
+     * @throws ReflectionException
      */
     public function testGetDefaultGroupForObjectTypes()
     {
@@ -730,7 +705,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 $this->generateReturn(2, 'typeOne'),
                 $this->generateReturn(1, 'typeTwo', '01-01-1970 00:00:10', '01-01-1970 00:00:20'),
                 $this->generateReturn(1, 'typeThree', null, '01-01-1970 00:01:00'),
-                $this->generateReturn(1, 'typeFour', '01-01-1970 00:02:00', null)
+                $this->generateReturn(1, 'typeFour', '01-01-1970 00:02:00')
             )));
 
         $abstractUserGroup = $this->getStub(
@@ -763,7 +738,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @group  unit
      * @depends testGetDefaultGroupForObjectTypes
      * @covers ::isDefaultGroupForObjectType()
-     *
      * @param AbstractUserGroup $abstractUserGroup
      */
     public function testIsDefaultGroupForObjectType(AbstractUserGroup $abstractUserGroup)
@@ -790,7 +764,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
+     * @return MockObject|ObjectHandler
      */
     private function getMembershipObjectHandler()
     {
@@ -860,28 +834,29 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * Assertion helper for testIsMemberFunctions
-     *
      * @param AbstractUserGroup $abstractUserGroup
-     * @param string            $extraFunction
-     * @param string            $objectType
-     * @param string            $objectId
-     * @param bool              $expectedReturn
-     * @param string            $object
-     * @param string            $fromDate
-     * @param string            $toDate
-     * @param array             $expectedRecursiveMembership
+     * @param string|null $extraFunction
+     * @param string $objectType
+     * @param string $objectId
+     * @param bool $expectedReturn
+     * @param string $object
+     * @param null $fromDate
+     * @param null $toDate
+     * @param array $expectedRecursiveMembership
+     * @throws Exception
      */
     private function memberFunctionAssertions(
         AbstractUserGroup $abstractUserGroup,
-        $extraFunction,
-        $objectType,
-        $objectId,
-        $expectedReturn,
+        ?string $extraFunction,
+        string $objectType,
+        string $objectId,
+        bool $expectedReturn,
         $object = '',
         $fromDate = null,
         $toDate = null,
         array $expectedRecursiveMembership = []
-    ) {
+    )
+    {
         if ($expectedReturn === true || count($expectedRecursiveMembership)) {
             $expectedAssignmentInformation = $this->getAssignmentInformation(
                 $object,
@@ -941,6 +916,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @covers  ::isPostMember()
      * @covers  ::getRecursiveMembershipForObject()
      * @covers  ::isLockedRecursive()
+     * @throws Exception
      */
     public function testIsMemberFunctions()
     {
@@ -966,21 +942,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         $this->memberFunctionAssertions($userGroup, 'isRoleMember', 'role', 1, true, 'role', 'fromDate', 'toDate');
         $this->memberFunctionAssertions($userGroup, 'isRoleMember', 'role', 3, true, 'role', 'fromDate', 'toDate');
 
-        self::assertAttributeEquals(
-            [
-                'role' => [
-                    1 => $this->getAssignmentInformation('role', 'fromDate', 'toDate'),
-                    3 => $this->getAssignmentInformation('role', 'fromDate', 'toDate')
-                ],
-                '_role_' => [
-                    1 => $this->getAssignmentInformation('role', 'fromDate', 'toDate'),
-                    3 => $this->getAssignmentInformation('role', 'fromDate', 'toDate')
-                ]
-            ],
-            'objectMembership',
-            $userGroup
-        );
-
         $objectTypes = [
             ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => 'isRoleMember',
             'role' => 'isRoleMember',
@@ -996,7 +957,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         foreach ($objectTypes as $objectType => $extraFunction) {
             $generalObjectType = str_replace('_', '', $objectType);
 
-            /** @noinspection PhpUnusedLocalVariableInspection */
             $lockRecursive = false;
             self::setValue($userGroup, 'objectMembership', []);
 
@@ -1012,10 +972,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             );
             $this->memberFunctionAssertions($userGroup, $extraFunction, $objectType, 2, false);
 
-            /** @noinspection PhpUnusedLocalVariableInspection */
             $lockRecursive = true;
             self::setValue($userGroup, 'objectMembership', []);
-            
+
             $this->memberFunctionAssertions(
                 $userGroup,
                 $extraFunction,
@@ -1043,6 +1002,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @covers ::getFullUsers()
      * @covers ::getFullTerms()
      * @covers ::getFullPosts()
+     * @throws Exception
      */
     public function testGetAssignedObjectsByType()
     {
@@ -1075,9 +1035,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         foreach ($objectTypes as $objectType => $extraFunction) {
             $generalObjectType = str_replace('_', '', $objectType);
-            $otherType = $generalObjectType.'Other';
+            $otherType = $generalObjectType . 'Other';
 
-            /** @noinspection PhpUnusedLocalVariableInspection */
             $lockRecursive = false;
             self::setValue($userGroup, 'fullObjectMembership', []);
 
@@ -1093,7 +1052,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 );
             }
 
-            /** @noinspection PhpUnusedLocalVariableInspection */
             $lockRecursive = true;
             self::setValue($userGroup, 'fullObjectMembership', []);
 

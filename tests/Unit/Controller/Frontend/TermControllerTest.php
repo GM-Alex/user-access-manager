@@ -12,12 +12,18 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use UserAccessManager\Controller\Frontend\TermController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_Term;
+use WP_User;
 
 /**
  * Class TermControllerTest
@@ -52,6 +58,7 @@ class TermControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getTermArguments()
+     * @throws UserGroupTypeException
      */
     public function testGetTermArguments()
     {
@@ -85,18 +92,17 @@ class TermControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int    $termId
+     * @param int $termId
      * @param string $taxonomy
-     * @param string $name
-     * @param int    $count
-     * @param int    $parent
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\WP_Term
+     * @param null $name
+     * @param int $count
+     * @param int $parent
+     * @return MockObject|WP_Term
      */
-    private function getTerm($termId, $taxonomy = 'taxonomy', $name = null, $count = 0, $parent = 0)
+    private function getTerm(int $termId, $taxonomy = 'taxonomy', $name = null, $count = 0, $parent = 0)
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Term $term
+         * @var MockObject|WP_Term $term
          */
         $term = $this->getMockBuilder('\WP_Term')->getMock();
         $term->term_id = $termId;
@@ -118,13 +124,14 @@ class TermControllerTest extends UserAccessManagerTestCase
      * @covers ::processTerm()
      * @covers ::updateTermParent()
      * @covers ::getPostObjectHideConfig()
+     * @throws UserGroupTypeException
      */
     public function testShowTerm()
     {
         $wordpress = $this->getWordpress();
 
         /**
-         * @var \WP_User|\stdClass $user
+         * @var WP_User|stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->ID = 1;
@@ -193,12 +200,16 @@ class TermControllerTest extends UserAccessManagerTestCase
             ->method('getPostTypes')
             ->will($this->returnValue(['customPost' => 'customPost', 'post' => 'post', 'page' => 'page']));
 
+        $taxonomyTypes = ['someType', 'otherType'];
+
         $objectHandler->expects($this->exactly(5))
             ->method('getTerm')
-            ->will($this->returnCallback(function ($termId) {
+            ->will($this->returnCallback(function ($termId) use (&$taxonomyTypes){
                 if ($termId === 104) {
                     return false;
-                } elseif ($termId >= 105) {
+                } elseif ($termId === 105) {
+                    return $this->getTerm($termId, array_pop($taxonomyTypes), null, 0, ($termId - 1));
+                } elseif ($termId >= 106) {
                     return $this->getTerm($termId, 'taxonomy', null, 0, ($termId - 1));
                 }
 
@@ -245,7 +256,7 @@ class TermControllerTest extends UserAccessManagerTestCase
                     ]
                 ]
             ));
-        
+
         $userHandler = $this->getUserHandler();
 
         $userHandler->expects($this->once())
@@ -266,7 +277,7 @@ class TermControllerTest extends UserAccessManagerTestCase
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 13],
                 ['taxonomy', 107],
                 ['taxonomy', 106],
-                ['taxonomy', 105],
+                ['otherType', 105],
                 ['taxonomy', 105],
                 ['taxonomy', 10],
                 ['taxonomy', 11],
@@ -314,9 +325,9 @@ class TermControllerTest extends UserAccessManagerTestCase
         );
 
         /**
-         * @var \WP_Term $fakeTerm
+         * @var WP_Term $fakeTerm
          */
-        $fakeTerm = new \stdClass();
+        $fakeTerm = new stdClass();
         self::assertEquals($fakeTerm, $frontendTermController->showTerm($fakeTerm));
 
         $term = $this->getTerm(1);
@@ -333,7 +344,7 @@ class TermControllerTest extends UserAccessManagerTestCase
         self::assertEquals($this->getTerm(105, 'taxonomy', null, 0, 104), $frontendTermController->showTerm($term));
 
         $terms = [
-            1 => new \stdClass(),
+            1 => new stdClass(),
             0 => 0,
             10 => 10,
             11 => $this->getTerm(11),
@@ -344,7 +355,7 @@ class TermControllerTest extends UserAccessManagerTestCase
         ];
         self::assertEquals(
             [
-                1 => new \stdClass(),
+                1 => new stdClass(),
                 12 => $this->getTerm(12),
                 11 => $this->getTerm(11),
                 2 => $this->getTerm(2, 'taxonomy', null, 1),
@@ -357,14 +368,13 @@ class TermControllerTest extends UserAccessManagerTestCase
 
     /**
      * @param string $objectType
-     * @param string $objectId
-     * @param string $title
-     *
-     * @return \stdClass
+     * @param int|string $objectId
+     * @param null $title
+     * @return stdClass
      */
-    private function getItem($objectType, $objectId, $title = null)
+    private function getItem(string $objectType, $objectId, $title = null): stdClass
     {
-        $item = new \stdClass();
+        $item = new stdClass();
         $item->object = $objectType;
         $item->object_id = $objectId;
         $item->title = ($title === null) ? "title{$objectId}" : $title;
@@ -377,13 +387,14 @@ class TermControllerTest extends UserAccessManagerTestCase
      * @covers ::showCustomMenu()
      * @covers ::processPostMenuItem()
      * @covers ::processTermMenuItem()
+     * @throws UserGroupTypeException
      */
     public function testShowCustomMenu()
     {
         $wordpress = $this->getWordpress();
 
         /**
-         * @var \WP_User|\stdClass $user
+         * @var WP_User|stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->ID = 1;
@@ -459,6 +470,17 @@ class TermControllerTest extends UserAccessManagerTestCase
 
         $objectHandler = $this->getObjectHandler();
 
+        $objectHandler->expects($this->exactly(3))
+            ->method('isValidObjectType')
+            ->withConsecutive(
+                ['taxonomy'],
+                ['taxonomy'],
+                ['taxonomy']
+            )
+            ->will($this->returnCallback(function ($termType) {
+                return ($termType === 'taxonomy');
+            }));
+
         $objectHandler->expects($this->exactly(9))
             ->method('isPostType')
             ->withConsecutive(
@@ -486,7 +508,7 @@ class TermControllerTest extends UserAccessManagerTestCase
         $objectHandler->expects($this->once())
             ->method('getPostTypes')
             ->will($this->returnValue(['post' => 'post', 'page' => 'page', 'customPost' => 'customPost']));
-        
+
         $objectHandler->expects($this->exactly(4))
             ->method('getTerm')
             ->will($this->returnCallback(function ($termId) {
@@ -496,9 +518,9 @@ class TermControllerTest extends UserAccessManagerTestCase
 
                 return $this->getTerm($termId);
             }));
-        
+
         $objectMapHandler = $this->getObjectMapHandler();
-        
+
         $objectMapHandler->expects($this->exactly(2))
             ->method('getTermTreeMap')
             ->will($this->returnValue([]));

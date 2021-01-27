@@ -12,14 +12,19 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\UserGroup;
+
+use Exception;
 
 /**
  * Class UserGroupTypeException
  *
  * @package UserAccessManager\UserGroup
  */
-class UserGroupTypeException extends \Exception
+class UserGroupTypeException extends Exception
 {
 
 }

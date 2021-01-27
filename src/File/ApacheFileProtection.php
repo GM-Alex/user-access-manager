@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\File;
 
+use Exception;
 use UserAccessManager\Object\ObjectHandler;
 
 /**
@@ -27,10 +31,9 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
 
     /**
      * Returns the file types.
-     *
      * @return null|string
      */
-    private function getFileTypes()
+    private function getFileTypes(): ?string
     {
         $fileTypes = null;
         $lockedFileTypes = $this->mainConfig->getLockedFileType();
@@ -48,13 +51,12 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
 
     /**
      * Returns the directory match.
-     *
      * @return null|string
      */
-    protected function getDirectoryMatch()
+    protected function getDirectoryMatch(): ?string
     {
         if ($this->mainConfig->getLockedDirectoryType() === 'wordpress') {
-            return '^.*'.DIRECTORY_SEPARATOR.parent::getDirectoryMatch().'.*$';
+            return '^.*' . DIRECTORY_SEPARATOR . parent::getDirectoryMatch() . '.*$';
         }
 
         return parent::getDirectoryMatch();
@@ -62,10 +64,9 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
 
     /**
      * @param string $content
-     *
      * @return string
      */
-    private function applyFilters($content)
+    private function applyFilters(string $content): string
     {
         $fileTypes = $this->getFileTypes();
 
@@ -79,39 +80,35 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
 
     /**
      * Creates the file content if no permalinks are active.
-     *
      * @param string $directory
-     *
      * @return string
      */
-    private function getFileContent($directory)
+    private function getFileContent(string $directory): string
     {
         $areaName = 'WP-Files';
         // make .htaccess and .htpasswd
-        $content = "AuthType Basic"."\n";
-        $content .= "AuthName \"{$areaName}\""."\n";
-        $content .= "AuthUserFile {$directory}.htpasswd"."\n";
-        $content .= "require valid-user"."\n";
+        $content = "AuthType Basic" . "\n";
+        $content .= "AuthName \"{$areaName}\"" . "\n";
+        $content .= "AuthUserFile {$directory}.htpasswd" . "\n";
+        $content .= "require valid-user" . "\n";
 
         return $this->applyFilters($content);
     }
 
     /**
      * Creates the file content if permalinks are active.
-     *
-     * @param string $objectType
-     * @param bool   $isSubSite
-     *
+     * @param string|null $objectType
+     * @param bool|null $isSubSite
      * @return string
      */
-    private function getPermalinkFileContent($objectType, $isSubSite = false)
+    private function getPermalinkFileContent(?string $objectType, ?bool $isSubSite = false): string
     {
         if ($objectType === null) {
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
         }
 
         $homeRoot = parse_url($this->wordpress->getSiteUrl());
-        $homeRoot = (isset($homeRoot['path']) === true) ? '/'.trim($homeRoot['path'], '/\\').'/' : '/';
+        $homeRoot = (isset($homeRoot['path']) === true) ? '/' . trim($homeRoot['path'], '/\\') . '/' : '/';
 
         $content = "RewriteEngine On\n";
         $content .= "RewriteBase {$homeRoot}\n";
@@ -140,27 +137,24 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
 
     /**
      * Returns the htaccess file name with path.
-     *
      * @param null|string $directory
-     *
      * @return string
      */
-    public function getFileNameWithPath($directory = null)
+    public function getFileNameWithPath($directory = null): string
     {
-        return $directory.self::FILE_NAME;
+        return $directory . self::FILE_NAME;
     }
 
     /**
      * Generates the htaccess file.
-     *
      * @param string $directory
-     * @param string $objectType
-     *
+     * @param string|null $objectType
+     * @param string|null $absolutePath
      * @return bool
      */
-    public function create($directory, $objectType = null)
+    public function create(string $directory, ?string $objectType = null, ?string $absolutePath = null): bool
     {
-        $directory = rtrim($directory, '/').'/';
+        $directory = rtrim($directory, '/') . '/';
 
         if ($this->wordpress->gotModRewrite() === false) {
             $content = $this->getFileContent($directory);
@@ -178,7 +172,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         try {
             file_put_contents($fileWithPath, $content);
             return true;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             // Because file_put_contents can throw exceptions we use this try catch block
             // to return the success result instead of an exception
         }
@@ -188,12 +182,10 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
 
     /**
      * Deletes the htaccess files.
-     *
      * @param string $directory
-     *
      * @return bool
      */
-    public function delete($directory)
+    public function delete(string $directory): bool
     {
         return $this->deleteFiles($directory);
     }

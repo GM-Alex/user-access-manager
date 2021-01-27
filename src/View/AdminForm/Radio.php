@@ -14,8 +14,14 @@
  */
 
 /**
- * @var \UserAccessManager\Form\Radio $radio
+ * @var Radio $radio
  */
+
+use UserAccessManager\Form\Input;
+use UserAccessManager\Form\Radio;
+use UserAccessManager\Form\Select;
+use UserAccessManager\Form\Textarea;
+
 ?>
 <th scope="row"><?php echo $radio->getLabel(); ?></th>
 <td>
@@ -28,8 +34,8 @@
             (($rawValue === true) ? 'true' : 'false') : $rawValue;
 
         ?>
-        <label for="uam_<?php echo $radio->getId().'_'.$formValue; ?>">
-            <input id="uam_<?php echo $radio->getId().'_'.$formValue; ?>"
+        <label for="uam_<?php echo $radio->getId() . '_' . $formValue; ?>">
+            <input id="uam_<?php echo $radio->getId() . '_' . $formValue; ?>"
                    type="radio"
                    name="config_parameters[<?php echo $radio->getId(); ?>]"
                    value="<?php echo $formValue; ?>"
@@ -45,21 +51,21 @@
         $subElement = $possibleValue->getSubElement();
 
         if ($subElement !== null) {
-            if ($subElement instanceof \UserAccessManager\Form\Input) {
+            if ($subElement instanceof Input) {
                 ?>
                 <input id="uam_<?php echo $subElement->getId(); ?>"
                        name="config_parameters[<?php echo $subElement->getId(); ?>]"
                        value="<?php echo $subElement->getValue(); ?>"/>
                 <?php
-            } elseif ($subElement instanceof \UserAccessManager\Form\Textarea) {
+            } elseif ($subElement instanceof Textarea) {
                 ?>
                 <textarea id="uam_<?php echo $subElement->getId(); ?>"
                           style="width:100%;min-height:120px;"
                           name="config_parameters[<?php echo $subElement->getId(); ?>]"><?php
                             echo htmlentities($subElement->getValue());
-                ?></textarea>
+                            ?></textarea>
                 <?php
-            } elseif ($subElement instanceof \UserAccessManager\Form\Select) {
+            } elseif ($subElement instanceof Select) {
                 ?>
                 <select id="uam_<?php echo $subElement->getId(); ?>"
                         name="config_parameters[<?php echo $subElement->getId(); ?>]">
