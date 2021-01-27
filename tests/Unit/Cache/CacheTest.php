@@ -12,15 +12,18 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Cache;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Cache\FileSystemCacheProvider;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
  * Class CacheTest
- *
  * @package UserAccessManager\Tests\Unit\Cache
  * @coversDefaultClass \UserAccessManager\Cache\Cache
  */
@@ -28,10 +31,9 @@ class CacheTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
-     *
      * @return Cache
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): Cache
     {
         $cache = new Cache(
             $this->getWordpress(),
@@ -42,13 +44,17 @@ class CacheTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group  unit
+     * @group unit
      * @covers ::setActiveCacheProvider()
      * @covers ::getRegisteredCacheProviders()
+     * @covers ::getCacheProvider()
      */
     public function testSetActiveCacheProvider()
     {
         $fileSystemCacheProvider = $this->createMock(FileSystemCacheProvider::class);
+
+        $fileSystemCacheProvider->expects($this->once())
+            ->method('init');
         $fileSystemCacheProvider->expects($this->exactly(2))
             ->method('getId')
             ->will($this->returnValue('cacheProvider'));
@@ -59,7 +65,7 @@ class CacheTest extends UserAccessManagerTestCase
             ->with('uam_registered_cache_handlers', ['cacheProvider' => $fileSystemCacheProvider])
             ->will($this->returnValue(['cacheProvider' => $fileSystemCacheProvider]));
 
-        $cacheProviderFactory =$this->getCacheProviderFactory();
+        $cacheProviderFactory = $this->getCacheProviderFactory();
         $cacheProviderFactory->expects($this->exactly(2))
             ->method('createFileSystemCacheProvider')
             ->will($this->returnValue($fileSystemCacheProvider));
@@ -69,20 +75,19 @@ class CacheTest extends UserAccessManagerTestCase
             $cacheProviderFactory
         );
 
-        self::assertAttributeEmpty('cacheProvider', $cache);
+        self::assertEmpty($cache->getCacheProvider());
 
         $cache->setActiveCacheProvider('invalid');
-        self::assertAttributeEmpty('cacheProvider', $cache);
+        self::assertEmpty($cache->getCacheProvider());
 
         $cache->setActiveCacheProvider('cacheProvider');
-        self::assertAttributeEquals($fileSystemCacheProvider, 'cacheProvider', $cache);
+        self::assertEquals($fileSystemCacheProvider, $cache->getCacheProvider());
     }
 
     /**
-     * @group   unit
+     * @group unit
      * @depends testCanCreateInstance
-     * @covers  ::generateCacheKey()
-     *
+     * @covers ::generateCacheKey()
      * @param Cache $cache
      */
     public function testGenerateCacheKey(Cache $cache)
@@ -96,30 +101,36 @@ class CacheTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @depends testCanCreateInstance
-     * @covers  ::add()
-     *
-     * @param Cache $cache
-     *
-     * @return Cache
+     * @return MockObject|FileSystemCacheProvider
      */
-    public function testAdd(Cache $cache)
+    protected function getFileSystemCacheProvider()
     {
-        $cache->add('stringCacheKey', 'testValue');
-
-
-        $fileSystemCacheProvider = $this->createMock(FileSystemCacheProvider::class);
+        $fileSystemCacheProvider = parent::getFileSystemCacheProvider();
         $fileSystemCacheProvider->expects($this->any())
             ->method('getId')
             ->will($this->returnValue('cacheProvider'));
-        $fileSystemCacheProvider->expects($this->once())
-            ->method('add')
-            ->with('arrayCacheKey', ['testString', 'testString2']);
         $fileSystemCacheProvider->expects($this->any())
             ->method('get')
             ->with('onlyInCacheProvider')
             ->will($this->returnValue('cacheProviderValue'));
+
+        return $fileSystemCacheProvider;
+    }
+
+    /**
+     * @group unit
+     * @depends testCanCreateInstance
+     * @covers ::add()
+     * @param Cache $cache
+     * @return Cache
+     */
+    public function testAdd(Cache $cache): Cache
+    {
+        $cache->add('stringCacheKey', 'testValue');
+        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
+        $fileSystemCacheProvider->expects($this->once())
+            ->method('add')
+            ->with('arrayCacheKey', ['testString', 'testString2']);
         $fileSystemCacheProvider->expects($this->any())
             ->method('invalidate')
             ->with('arrayCacheKey');
@@ -130,7 +141,7 @@ class CacheTest extends UserAccessManagerTestCase
             ->with('uam_registered_cache_handlers', ['cacheProvider' => $fileSystemCacheProvider])
             ->will($this->returnValue(['cacheProvider' => $fileSystemCacheProvider]));
 
-        $cacheProviderFactory =$this->getCacheProviderFactory();
+        $cacheProviderFactory = $this->getCacheProviderFactory();
         $cacheProviderFactory->expects($this->any())
             ->method('createFileSystemCacheProvider')
             ->will($this->returnValue($fileSystemCacheProvider));
@@ -144,28 +155,21 @@ class CacheTest extends UserAccessManagerTestCase
         $cache->setActiveCacheProvider('cacheProvider');
         $cache->add('arrayCacheKey', ['testString', 'testString2']);
 
-        self::assertAttributeEquals(
-            [
-                'stringCacheKey' => 'testValue',
-                'arrayCacheKey' => ['testString', 'testString2']
-            ],
-            'cache',
-            $cache
-        );
+        self::assertEquals('testValue', $cache->get('stringCacheKey'));
+        self::assertEquals(['testString', 'testString2'], $cache->get('arrayCacheKey'));
 
         return $cache;
     }
 
     /**
-     * @group   unit
+     * @group unit
      * @depends testAdd
-     * @covers  ::get()
-     *
+     * @covers ::get()
      * @param Cache $cache
-     *
      * @return Cache
+     * @throws ReflectionException
      */
-    public function testGet($cache)
+    public function testGet(Cache $cache): Cache
     {
         $cache->setActiveCacheProvider('cacheProvider');
 
@@ -190,72 +194,72 @@ class CacheTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @depends testAdd
-     * @covers  ::invalidate()
-     *
-     * @param Cache $cache
+     * @group unit
+     * @covers ::invalidate()
+     * @throws ReflectionException
      */
-    public function testInvalidate(Cache $cache)
+    public function testInvalidate()
     {
+        $fileSystemCacheProvider = $this->getFileSystemCacheProvider();
+        $fileSystemCacheProvider->expects($this->exactly(1))
+            ->method('invalidate')
+            ->with('arrayCacheKey');
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->any())
+            ->method('applyFilters')
+            ->with('uam_registered_cache_handlers', ['cacheProvider' => $fileSystemCacheProvider])
+            ->will($this->returnValue(['cacheProvider' => $fileSystemCacheProvider]));
+
+        $cacheProviderFactory = $this->getCacheProviderFactory();
+        $cacheProviderFactory->expects($this->any())
+            ->method('createFileSystemCacheProvider')
+            ->will($this->returnValue($fileSystemCacheProvider));
+
+        $cache = new Cache(
+            $wordpress,
+            $cacheProviderFactory
+        );
+
         $cache->setActiveCacheProvider('cacheProvider');
 
+        $cache->add('stringCacheKey', 'testValue');
+        $cache->add('arrayCacheKey', ['testString', 'testString2']);
+
         $cache->invalidate('arrayCacheKey');
-        self::assertAttributeEquals(
-            [
-                'stringCacheKey' => 'testValue',
-                'onlyInCacheProvider' => 'cacheProviderValue',
-                'notSet' => null
-            ],
-            'cache',
-            $cache
-        );
+        self::assertEquals('testValue', $cache->get('stringCacheKey'));
+        self::assertEquals('cacheProviderValue', $cache->get('onlyInCacheProvider'));
 
         self::setValue($cache, 'cacheProvider', null);
         $cache->invalidate('notSet');
-        self::assertAttributeEquals(
-            ['stringCacheKey' => 'testValue', 'onlyInCacheProvider' => 'cacheProviderValue'],
-            'cache',
-            $cache
-        );
     }
 
     /**
-     * @group   unit
+     * @group unit
      * @depends testCanCreateInstance
-     * @covers  ::addToRuntimeCache()
-     *
+     * @covers ::addToRuntimeCache()
      * @param Cache $cache
-     *
      * @return Cache
      */
-    public function testAddToCache(Cache $cache)
+    public function testAddToCache(Cache $cache): Cache
     {
         $cache->addToRuntimeCache('stringCacheKey', 'testValue');
         $cache->addToRuntimeCache('arrayCacheKey', ['testString', 'testString2']);
 
-        self::assertAttributeEquals(
-            [
-                'stringCacheKey' => 'testValue',
-                'arrayCacheKey' => ['testString', 'testString2']
-            ],
-            'runtimeCache',
-            $cache
-        );
+        self::assertEquals('testValue', $cache->getFromRuntimeCache('stringCacheKey'));
+        self::assertEquals(['testString', 'testString2'], $cache->getFromRuntimeCache('arrayCacheKey'));
 
         return $cache;
     }
 
     /**
-     * @group   unit
+     * @group unit
      * @depends testAddToCache
-     * @covers  ::getFromRuntimeCache()
-     *
+     * @covers ::getFromRuntimeCache()
      * @param Cache $cache
-     *
      * @return Cache
      */
-    public function testGetFromCache($cache)
+    public function testGetFromCache(Cache $cache): Cache
     {
         self::assertEquals('testValue', $cache->getFromRuntimeCache('stringCacheKey'));
         self::assertEquals(
@@ -271,27 +275,15 @@ class CacheTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group   unit
-     * @depends testAddToCache
-     * @covers  ::flushCache()
-     *
+     * @group unit
+     * @depends testGetFromCache
+     * @covers ::flushCache()
      * @param Cache $cache
+     * @throws Exception
      */
-    public function testFlushCache($cache)
+    public function testFlushCache(Cache $cache)
     {
-        //TODO
-        self::assertAttributeEquals(
-            [
-                'stringCacheKey' => 'testValue',
-                'arrayCacheKey' => ['testString', 'testString2']
-            ],
-            'runtimeCache',
-            $cache
-        );
-
         $cache->flushCache();
-
-        self::assertAttributeEquals([], 'cache', $cache);
-        self::assertAttributeEquals([], 'runtimeCache', $cache);
+        self::assertEmpty($cache->get(random_bytes(10)));
     }
 }

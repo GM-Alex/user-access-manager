@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\Select;
 
 /**
@@ -22,7 +24,7 @@ use UserAccessManager\Form\Select;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\Select
  */
-class SelectTest extends \PHPUnit_Framework_TestCase
+class SelectTest extends TestCase
 {
     /**
      * @group unit

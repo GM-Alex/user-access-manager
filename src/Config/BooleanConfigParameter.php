@@ -12,7 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Config;
+
+use Exception;
 
 /**
  * Class BooleanConfigParameter
@@ -22,23 +27,19 @@ class BooleanConfigParameter extends ConfigParameter
 {
     /**
      * BooleanConfigParameter constructor.
-     *
      * @param string $id
-     * @param bool   $defaultValue
-     *
-     * @throws \Exception
+     * @param bool $defaultValue
+     * @throws Exception
      */
-    public function __construct($id, $defaultValue = false)
+    public function __construct(string $id, $defaultValue = false)
     {
         parent::__construct($id, $defaultValue);
     }
 
     /**
      * Legacy converter for legacy values.
-     *
-     * @param $value
-     *
-     * @return bool
+     * @param mixed $value
+     * @return bool|string
      */
     private function stringToBoolConverter($value)
     {
@@ -53,23 +54,20 @@ class BooleanConfigParameter extends ConfigParameter
 
     /**
      * Legacy wrapper for old config values.
-     *
      * @param mixed $value
      */
     public function setValue($value)
     {
-        $value = $this->stringToBoolConverter($value);
+        $value = (bool) $this->stringToBoolConverter($value);
         parent::setValue($value);
     }
 
     /**
      * Checks if the given value is bool.
-     *
      * @param mixed $value
-     *
      * @return bool
      */
-    public function isValidValue($value)
+    public function isValidValue($value): bool
     {
         return is_bool($value) === true;
     }

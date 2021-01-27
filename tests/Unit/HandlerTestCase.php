@@ -12,9 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
+use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Wrapper\Wordpress;
+use WP_User;
 
 /**
  * Class HandlerTestCase
@@ -24,7 +30,7 @@ use UserAccessManager\Object\ObjectHandler;
 abstract class HandlerTestCase extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Database\Database
+     * @return MockObject|Database
      */
     protected function getDatabase()
     {
@@ -42,15 +48,14 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @param array $capabilities
-     * @param int   $capExpects
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\WP_User
+     * @param array|null $capabilities
+     * @param int|null $capExpects
+     * @return MockObject|WP_User
      */
-    protected function getUser(array $capabilities = null, $capExpects = null)
+    protected function getUser(array $capabilities = null, ?int $capExpects = null)
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $user
+         * @var MockObject|stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')
             ->setMethods(['has_cap'])
@@ -73,17 +78,20 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @param array $capabilities
-     * @param int   $capExpects
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
+     * @param array|null $capabilities
+     * @param int|null $capExpects
+     * @param int|null $getUserExpects
+     * @return MockObject|Wordpress
      */
-    protected function getWordpressWithUser(array $capabilities = null, $capExpects = null)
-    {
+    protected function getWordpressWithUser(
+        ?array $capabilities = null,
+        ?int $capExpects = null,
+        ?int $getUserExpects = null
+    ) {
         $wordpress = $this->getWordpress();
 
         $user = $this->getUser($capabilities, $capExpects);
-        $wordpress->expects($this->any())
+        $wordpress->expects($getUserExpects !== null ? $this->exactly($getUserExpects) : $this->any())
             ->method('getCurrentUser')
             ->will($this->returnValue($user));
 
@@ -91,15 +99,19 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int $getPostsExpect
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
+     * @param int|null $getPostExpect
+     * @param int|null $isValidObjectTypeExpect
+     * @return MockObject|ObjectHandler
      */
-    protected function getObjectHandler($getPostsExpect = null)
+    protected function getObjectHandler(?int $getPostExpect = null, ?int $isValidObjectTypeExpect = null)
     {
         $objectHandler = parent::getObjectHandler();
 
-        $objectHandler->expects($this->any())
+        $objectHandler->expects(
+            $isValidObjectTypeExpect === null ?
+                $this->any() :
+                $this->exactly($isValidObjectTypeExpect)
+            )
             ->method('isValidObjectType')
             ->will($this->returnCallback(function ($objectType) {
                 return ($objectType === 'objectType'
@@ -113,8 +125,11 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
                 return ($objectType === 'postType');
             }));
 
-        $postExpects = ($getPostsExpect === null) ? $this->any() : $this->exactly($getPostsExpect);
-        $objectHandler->expects($postExpects)
+        $objectHandler->expects(
+            $getPostExpect === null ?
+                $this->any() :
+                $this->exactly($getPostExpect)
+            )
             ->method('getPost')
             ->will($this->returnCallback(function ($id) {
                 if ($id === -1) {
@@ -122,7 +137,7 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
                 }
 
                 /**
-                 * @var \stdClass $post
+                 * @var stdClass $post
                  */
                 $post = $this->getMockBuilder('\WP_Post')->getMock();
                 $post->ID = $id;

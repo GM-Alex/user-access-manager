@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 use UserAccessManager\Form\ValueTrait;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -26,7 +29,7 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 class ValueTraitTest extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ValueTrait
+     * @return MockObject|ValueTrait
      */
     private function getStub()
     {
@@ -36,6 +39,7 @@ class ValueTraitTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getValue()
+     * @throws ReflectionException
      */
     public function testGetGetValue()
     {

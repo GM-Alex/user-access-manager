@@ -1,7 +1,10 @@
 <?php
 /**
- * @var \UserAccessManager\Widget\LoginWidget $controller
+ * @var LoginWidget $controller
  */
+
+use UserAccessManager\Widget\LoginWidget;
+
 ?>
 <section class="widget">
     <?php

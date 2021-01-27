@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
 use UserAccessManager\Object\ObjectHandler;

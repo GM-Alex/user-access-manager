@@ -12,14 +12,19 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
-use UserAccessManager\Form\FormElement;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Form\Input;
 use UserAccessManager\Form\MultipleFormElementValue;
+use UserAccessManager\Form\Radio;
+use UserAccessManager\Form\Select;
+use UserAccessManager\Form\ValueSetFormElementValue;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -91,7 +96,7 @@ class FormHelperTest extends UserAccessManagerTestCase
         );
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|ConfigParameter $parameter
+         * @var MockObject|ConfigParameter $parameter
          */
         $parameter = $this->getMockForAbstractClass(
             ConfigParameter::class,
@@ -137,7 +142,7 @@ class FormHelperTest extends UserAccessManagerTestCase
 
         define('TXT_UAM_TEST', '%s %s');
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|ConfigParameter $parameter
+         * @var MockObject|ConfigParameter $parameter
          */
         $parameter = $this->getMockForAbstractClass(
             ConfigParameter::class,
@@ -162,8 +167,7 @@ class FormHelperTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::createMultipleFromElement()
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCreateMultipleFromElement()
     {
@@ -174,12 +178,9 @@ class FormHelperTest extends UserAccessManagerTestCase
 
         $formFactory = $this->getFormFactory();
 
-        $formFactory->expects($this->exactly(2))
+        $formFactory->expects($this->once())
             ->method('createInput')
-            ->will($this->onConsecutiveCalls(
-                $this->createMock(Input::class),
-                null
-            ));
+            ->will($this->returnValue($this->createMock(Input::class)));
 
         $formFactory->expects($this->exactly(2))
             ->method('createMultipleFormElementValue')
@@ -196,7 +197,7 @@ class FormHelperTest extends UserAccessManagerTestCase
             $formFactory
         );
 
-        $formHelper->createMultipleFromElement('value', 'label', $parameter);
+        $formHelper->createMultipleFromElement('value', 'label');
         $formHelper->createMultipleFromElement('value', 'label', $parameter);
     }
 
@@ -204,16 +205,20 @@ class FormHelperTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::convertConfigParameter()
      * @covers ::convertSelectionParameter()
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testConvertConfigParameter()
     {
+        $input = $this->createMock(Input::class);
         $formFactory = $this->getFormFactory();
         $formFactory->expects($this->exactly(2))
             ->method('createInput')
             ->with('stringId', 'stringValue', 'TXT_UAM_STRINGID', 'TXT_UAM_STRINGID_DESC')
-            ->will($this->onConsecutiveCalls('input', $this->createMock(FormElement::class)));
+            ->will($this->onConsecutiveCalls($input, $this->createMock(Input::class)));
+
+        $multipleFormElementValueYes = $this->createMock(MultipleFormElementValue::class);
+        $multipleFormElementValueNo = $this->createMock(MultipleFormElementValue::class);
+        $radioSecondSelection = $this->createMock(MultipleFormElementValue::class);
 
         $formFactory->expects($this->exactly(4))
             ->method('createMultipleFormElementValue')
@@ -224,32 +229,36 @@ class FormHelperTest extends UserAccessManagerTestCase
                 ['secondSelection', 'TXT_UAM_SELECTIONID_SECONDSELECTION']
             )
             ->will($this->onConsecutiveCalls(
-                'multipleFormElementValueYes',
-                'multipleFormElementValueNo',
+                $multipleFormElementValueYes,
+                $multipleFormElementValueNo,
                 $this->createMock(MultipleFormElementValue::class),
-                'radioSecondSelection'
+                $radioSecondSelection
             ));
 
+        $radio = $this->createMock(Radio::class);
         $formFactory->expects($this->exactly(2))
             ->method('createRadio')
             ->withConsecutive(
                 [
                     'booleanId',
-                    ['multipleFormElementValueYes', 'multipleFormElementValueNo'],
+                    [$multipleFormElementValueYes, $multipleFormElementValueNo],
                     'booleanValue',
                     'TXT_UAM_BOOLEANID',
                     'TXT_UAM_BOOLEANID_DESC'
                 ],
                 [
                     'selectionId',
-                    [$this->createMock(MultipleFormElementValue::class), 'radioSecondSelection'],
+                    [$this->createMock(MultipleFormElementValue::class), $radioSecondSelection],
                     'selectionValue',
                     'TXT_UAM_SELECTIONID',
                     'TXT_UAM_SELECTIONID_DESC'
                 ]
             )
-            ->will($this->returnValue('radio'));
+            ->will($this->returnValue($radio));
 
+        $firstValueSetFromElementValue = $this->createMock(ValueSetFormElementValue::class);
+        $secondValueSetFromElementValue = $this->createMock(ValueSetFormElementValue::class);
+        $select = $this->createMock(Select::class);
         $formFactory->expects($this->exactly(2))
             ->method('createValueSetFromElementValue')
             ->withConsecutive(
@@ -257,20 +266,20 @@ class FormHelperTest extends UserAccessManagerTestCase
                 ['secondSelection', 'TXT_UAM_SELECTIONID_SECONDSELECTION']
             )
             ->will($this->onConsecutiveCalls(
-                'firstValueSetFromElementValue',
-                'secondValueSetFromElementValue'
+                $firstValueSetFromElementValue,
+                $secondValueSetFromElementValue
             ));
 
         $formFactory->expects($this->once())
             ->method('createSelect')
             ->with(
                 'selectionId',
-                ['firstValueSetFromElementValue', 'secondValueSetFromElementValue'],
+                [$firstValueSetFromElementValue, $secondValueSetFromElementValue],
                 'selectionValue',
                 'TXT_UAM_SELECTIONID',
                 'TXT_UAM_SELECTIONID_DESC'
             )
-            ->will($this->returnValue('select'));
+            ->will($this->returnValue($select));
 
         $formHelper = new FormHelper(
             $this->getPhp(),
@@ -280,7 +289,7 @@ class FormHelperTest extends UserAccessManagerTestCase
         );
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|ConfigParameter $genericParameter
+         * @var MockObject|ConfigParameter $genericParameter
          */
         $genericParameter = $this->getMockForAbstractClass(
             ConfigParameter::class,
@@ -295,20 +304,20 @@ class FormHelperTest extends UserAccessManagerTestCase
         self::assertNull($formHelper->convertConfigParameter($genericParameter));
 
         $stringParameter = $this->getConfigParameter('string');
-        self::assertEquals('input', $formHelper->convertConfigParameter($stringParameter));
+        self::assertEquals($input, $formHelper->convertConfigParameter($stringParameter));
 
         $booleanParameter = $this->getConfigParameter('boolean');
-        self::assertEquals('radio', $formHelper->convertConfigParameter($booleanParameter));
+        self::assertEquals($radio, $formHelper->convertConfigParameter($booleanParameter));
 
         $selectionParameter = $this->getConfigParameter('selection');
         $selectionParameter->expects($this->exactly(2))
             ->method('getSelections')
             ->will($this->returnValue(['firstSelection', 'secondSelection']));
 
-        self::assertEquals('select', $formHelper->convertConfigParameter($selectionParameter));
+        self::assertEquals($select, $formHelper->convertConfigParameter($selectionParameter));
 
         self::assertEquals(
-            'radio',
+            $radio,
             $formHelper->convertConfigParameter($selectionParameter, null, ['firstSelection' => $stringParameter])
         );
     }
@@ -316,8 +325,7 @@ class FormHelperTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getSettingsForm()
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetSettingsFrom()
     {
@@ -342,14 +350,16 @@ class FormHelperTest extends UserAccessManagerTestCase
         $formInputOne = $this->createMock(Input::class);
         $formInputTwo = $this->createMock(Input::class);
         $formInputThree = $this->createMock(Input::class);
+        $radioInput = $this->createMock(Radio::class);
 
         $form = $this->createMock('\UserAccessManager\Form\Form');
-        $form->expects($this->exactly(3))
+        $form->expects($this->exactly(4))
             ->method('addElement')
             ->withConsecutive(
                 [$formInputOne],
                 [$formInputTwo],
-                [$formInputThree]
+                [$formInputThree],
+                [$radioInput]
             );
 
         $formFactory = $this->getFormFactory();
@@ -366,7 +376,38 @@ class FormHelperTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(
                 $formInputOne,
-                $formInputTwo
+                $formInputTwo,
+                $formInputOne
+            ));
+
+
+        $multipleFormElementValueOne = $this->createMock(MultipleFormElementValue::class);
+        $multipleFormElementValueTwo = $this->createMock(MultipleFormElementValue::class);
+
+        $formFactory->expects($this->once())
+            ->method('createRadio')
+            ->withConsecutive(
+                [
+                    'selectionFiveId',
+                    [$multipleFormElementValueOne, $multipleFormElementValueTwo],
+                    'selectionFiveValue',
+                    'TXT_UAM_SELECTIONFIVEID',
+                    'TXT_UAM_SELECTIONFIVEID_DESC'
+                ]
+            )
+            ->will($this->onConsecutiveCalls(
+                $radioInput
+            ));
+
+        $formFactory->expects($this->exactly(2))
+            ->method('createMultipleFormElementValue')
+            ->withConsecutive(
+                ['a', 'TXT_UAM_SELECTIONFIVEID_A'],
+                ['b', 'TXT_UAM_SELECTIONFIVEID_B']
+            )
+            ->will($this->onConsecutiveCalls(
+                $multipleFormElementValueOne,
+                $multipleFormElementValueTwo
             ));
 
         $formHelper = new FormHelper(
@@ -396,8 +437,7 @@ class FormHelperTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getSettingsFormByConfig()
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetSettingsFormByConfig()
     {

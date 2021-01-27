@@ -12,7 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Config;
+
+use Exception;
 
 /**
  * Class SelectionConfigParameter
@@ -28,14 +33,12 @@ class SelectionConfigParameter extends ConfigParameter
 
     /**
      * SelectionConfigParameter constructor.
-     *
      * @param string $id
-     * @param mixed  $defaultValue
-     * @param array  $selections
-     *
-     * @throws \Exception
+     * @param mixed $defaultValue
+     * @param array $selections
+     * @throws Exception
      */
-    public function __construct($id, $defaultValue, array $selections)
+    public function __construct(string $id, $defaultValue, array $selections)
     {
         $this->selections = $selections;
 
@@ -44,12 +47,10 @@ class SelectionConfigParameter extends ConfigParameter
 
     /**
      * Checks if the value is part of the selection.
-     *
      * @param mixed $value
-     *
      * @return bool
      */
-    public function isValidValue($value)
+    public function isValidValue($value): bool
     {
         $map = array_flip($this->selections);
         return (isset($map[$value]) === true);
@@ -57,10 +58,9 @@ class SelectionConfigParameter extends ConfigParameter
 
     /**
      * Returns the available selections.
-     *
      * @return array
      */
-    public function getSelections()
+    public function getSelections(): array
     {
         return $this->selections;
     }

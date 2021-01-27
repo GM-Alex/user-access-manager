@@ -12,10 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Database;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\Wrapper\Wordpress;
+use wpdb;
 
 /**
  * Class DatabaseTest
@@ -27,22 +31,20 @@ class DatabaseTest extends UserAccessManagerTestCase
 {
     /**
      * @param array $methods
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\wpdb
+     * @return MockObject|wpdb
      */
     private function getWpDatabase(array $methods = [])
     {
-        return $this->getMockBuilder('\wpdb')
+        return $this->getMockBuilder(wpdb::class)
             ->setMethods($methods)
             ->getMock();
     }
 
     /**
-     * @param \PHPUnit_Framework_MockObject_MockObject $wpDatabase
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Wrapper\Wordpress
+     * @param MockObject $wpDatabase
+     * @return MockObject|Wordpress
      */
-    private function getWrapperWithWpDatabase($wpDatabase)
+    private function getWrapperWithWpDatabase(MockObject $wpDatabase)
     {
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
@@ -81,7 +83,7 @@ class DatabaseTest extends UserAccessManagerTestCase
      */
     public function testGetUserGroupTable()
     {
-        $simpleWpDatabase = new \stdClass();
+        $simpleWpDatabase = $this->createMock(wpdb::class);
         $simpleWpDatabase->prefix = 'wp_';
 
         $wordpress = $this->getWordpress();
@@ -119,11 +121,11 @@ class DatabaseTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(2))
             ->method('dbDelta')
             ->withConsecutive(['', true], ['query', false])
-            ->will($this->onConsecutiveCalls('firstReturn', 'secondReturn'));
+            ->will($this->onConsecutiveCalls(['firstReturn'], ['secondReturn']));
 
         $database = new Database($wordpress);
-        self::assertEquals('firstReturn', $database->dbDelta());
-        self::assertEquals('secondReturn', $database->dbDelta('query', false));
+        self::assertEquals(['firstReturn'], $database->dbDelta());
+        self::assertEquals(['secondReturn'], $database->dbDelta('query', false));
     }
 
     /**
@@ -184,13 +186,13 @@ class DatabaseTest extends UserAccessManagerTestCase
             'getColumn' => [
                 'get_col',
                 [[null, 0], ['query', 10]],
-                ['firstReturn', 'secondReturn'],
+                [['firstReturn'], ['secondReturn']],
                 [[], ['query', 10]]
             ],
             'getRow' => [
                 'get_row',
                 [[null, OBJECT, 0], ['query', 'testObject', 10]],
-                ['firstReturn', 'secondReturn'],
+                [['firstReturn'], ['secondReturn']],
                 [[], ['query', 'testObject', 10]]
             ],
             'getVariable' => [

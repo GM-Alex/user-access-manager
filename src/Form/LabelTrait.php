@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Form;
 
 /**
@@ -16,7 +19,7 @@ trait LabelTrait
     /**
      * @return null|string
      */
-    public function getLabel()
+    public function getLabel(): ?string
     {
         return $this->label;
     }

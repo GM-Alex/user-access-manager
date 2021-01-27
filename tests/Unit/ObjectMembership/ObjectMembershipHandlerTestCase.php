@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
@@ -27,7 +29,7 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
 abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
+     * @return MockObject|ObjectHandler
      */
     protected function getObjectHandler()
     {
@@ -43,7 +45,7 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMapHandler
+     * @return MockObject|ObjectMapHandler
      */
     protected function getObjectMapHandler()
     {
@@ -102,13 +104,12 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
     }
 
     /**
-     * @param array       $withIsObjectMember
-     * @param array       $withIsObjectAssignedToGroup
-     * @param array       $falseIds
+     * @param array $withIsObjectMember
+     * @param array $withIsObjectAssignedToGroup
+     * @param array $falseIds
      * @param null|string $fromDate
      * @param null|string $toDate
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup
+     * @return MockObject|AbstractUserGroup
      */
     protected function getMembershipUserGroup(
         array $withIsObjectMember,
@@ -116,9 +117,10 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
         array $falseIds,
         $fromDate = null,
         $toDate = null
-    ) {
+    )
+    {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup $userGroup
+         * @var MockObject|AbstractUserGroup $userGroup
          */
         $userGroup = $this->createMock(AbstractUserGroup::class);
 

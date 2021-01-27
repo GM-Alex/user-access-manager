@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Database;
 
 use UserAccessManager\Database\Database;
@@ -54,11 +57,10 @@ class DatabaseHandler
 
     /**
      * DatabaseHandler constructor.
-     *
-     * @param Wordpress             $wordpress
-     * @param Database              $database
+     * @param Wordpress $wordpress
+     * @param Database $database
      * @param DatabaseObjectFactory $databaseObjectFactory
-     * @param UpdateFactory         $updateFactory
+     * @param UpdateFactory $updateFactory
      */
     public function __construct(
         Wordpress $wordpress,
@@ -74,12 +76,10 @@ class DatabaseHandler
 
     /**
      * Checks if the table exists.
-     *
      * @param string $table
-     *
      * @return bool
      */
-    private function tableExists($table)
+    private function tableExists(string $table): bool
     {
         $dbTable = $this->database->getVariable("SHOW TABLES LIKE '{$table}'");
 
@@ -88,20 +88,19 @@ class DatabaseHandler
 
     /**
      * Adds a table.
-     *
      * @param Table $table
      */
     private function addTable(Table $table)
     {
-        $this->database->dbDelta((string)$table);
+        $this->database->dbDelta((string) $table);
     }
 
     /**
      * Returns all tables.
-     *
      * @return Table[]
+     * @throws MissingColumnsException
      */
-    private function getTables()
+    private function getTables(): array
     {
         $charsetCollate = $this->database->getCharset();
         $tables = [];
@@ -138,6 +137,7 @@ class DatabaseHandler
 
     /**
      * Adds the tables to the database.
+     * @throws MissingColumnsException
      */
     public function install()
     {
@@ -152,15 +152,13 @@ class DatabaseHandler
 
     /**
      * Returns the existing columns for a table.
-     *
      * @param Table $table
-     *
      * @return Column[]
      */
-    private function getExistingColumns(Table $table)
+    private function getExistingColumns(Table $table): array
     {
         $query = "SHOW COLUMNS FROM `{$table->getName()}`;";
-        $existingRawColumns = (array)$this->database->getResults($query);
+        $existingRawColumns = (array) $this->database->getResults($query);
         $existingColumns = [];
 
         foreach ($existingRawColumns as $existingRawColumn) {
@@ -179,7 +177,6 @@ class DatabaseHandler
 
     /**
      * Add corrupted columns to the information array if the are some.
-     *
      * @param Table $table
      * @param array $information
      */
@@ -196,7 +193,7 @@ class DatabaseHandler
             $existingColumn = $existingColumns[$column->getName()];
             unset($existingColumns[$column->getName()]);
 
-            if ((string)$column !== (string)$existingColumn) {
+            if ((string) $column !== (string) $existingColumn) {
                 $information[self::MODIFIED_COLUMNS][] = [$table, $column];
                 continue;
             }
@@ -209,10 +206,10 @@ class DatabaseHandler
 
     /**
      * Returns corrupted database information.
-     *
      * @return array
+     * @throws MissingColumnsException
      */
-    public function getCorruptedDatabaseInformation()
+    public function getCorruptedDatabaseInformation(): array
     {
         $information = [
             self::MISSING_TABLES => [],
@@ -235,51 +232,44 @@ class DatabaseHandler
 
     /**
      * Adds a new column.
-     *
-     * @param Table  $table
+     * @param Table $table
      * @param Column $column
-     *
      * @return bool
      */
-    private function addColumn(Table $table, Column $column)
+    private function addColumn(Table $table, Column $column): bool
     {
         return $this->database->query("ALTER TABLE `{$table->getName()}` ADD $column;") !== false;
     }
 
     /**
      * Modify an existing column.
-     *
-     * @param Table  $table
+     * @param Table $table
      * @param Column $column
-     *
      * @return bool
      */
-    private function modifyColumn(Table $table, Column $column)
+    private function modifyColumn(Table $table, Column $column): bool
     {
         return $this->database->query("ALTER TABLE `{$table->getName()}` MODIFY $column;") !== false;
     }
 
     /**
      * Drops an existing column.
-     *
-     * @param Table  $table
+     * @param Table $table
      * @param Column $column
-     *
      * @return bool
      */
-    private function dropColumn(Table $table, Column $column)
+    private function dropColumn(Table $table, Column $column): bool
     {
         return $this->database->query("ALTER TABLE `{$table->getName()}` DROP `{$column->getName()}`;") !== false;
     }
 
     /**
      * Repairs a corrupt database.
-     *
      * @param array $information
-     *
      * @return bool
+     * @throws MissingColumnsException
      */
-    public function repairDatabase(array $information = [])
+    public function repairDatabase(array $information = []): bool
     {
         $success = true;
         $information = ($information === []) ? $this->getCorruptedDatabaseInformation() : $information;
@@ -305,16 +295,15 @@ class DatabaseHandler
 
     /**
      * Returns all sites where the user access manager is active.
-     *
      * @return array
      */
-    private function getActivePluginSites()
+    private function getActivePluginSites(): array
     {
         $activeSites = [];
 
         foreach ($this->wordpress->getSites() as $site) {
             $this->wordpress->switchToBlog($site->blog_id);
-            $plugins = (array)$this->wordpress->getOption('active_plugins', []);
+            $plugins = (array) $this->wordpress->getOption('active_plugins', []);
             $pluginsMap = array_flip($plugins);
 
             if (isset($pluginsMap['user-access-manager/user-access-manager.php']) === true) {
@@ -329,14 +318,13 @@ class DatabaseHandler
 
     /**
      * Checks if a database update is necessary.
-     *
      * @return bool
      */
-    public function isDatabaseUpdateNecessary()
+    public function isDatabaseUpdateNecessary(): bool
     {
         if ($this->wordpress->isSuperAdmin() === true) {
             foreach ($this->getActivePluginSites() as $siteId) {
-                $table = $this->database->getBlogPrefix($siteId).'options';
+                $table = $this->database->getBlogPrefix($siteId) . 'options';
                 $select = "SELECT option_value FROM {$table} WHERE option_name = '%s' LIMIT 1";
                 $select = $this->database->prepare($select, 'uam_db_version');
                 $currentDbVersion = $this->database->getVariable($select);
@@ -355,10 +343,9 @@ class DatabaseHandler
 
     /**
      * Creates a database backup.
-     *
      * @return bool
      */
-    public function backupDatabase()
+    public function backupDatabase(): bool
     {
         $currentDbVersion = $this->wordpress->getOption('uam_db_version');
 
@@ -388,18 +375,17 @@ class DatabaseHandler
 
     /**
      * Returns the version for which a backup was created.
-     *
      * @return array
      */
-    public function getBackups()
+    public function getBackups(): array
     {
         $versions = [];
-        $tables = (array)$this->database->getColumn(
+        $tables = (array) $this->database->getColumn(
             "SHOW TABLES LIKE '{$this->database->getPrefix()}uam_%'"
         );
 
         foreach ($tables as $table) {
-            if (preg_match('/.*\_([0-9\-]+)/i', $table, $matches) === 1) {
+            if (preg_match('/.*_([0-9\-]+)/i', $table, $matches) === 1) {
                 $version = str_replace('-', '.', $matches[1]);
                 $versions[$version] = $version;
             }
@@ -410,12 +396,10 @@ class DatabaseHandler
 
     /**
      * Returns the backup tables for the given version.
-     *
      * @param string $version
-     *
      * @return array
      */
-    private function getBackupTables($version)
+    private function getBackupTables(string $version): array
     {
         $backupTables = [];
         $tables = [
@@ -426,7 +410,7 @@ class DatabaseHandler
         $versionForDb = str_replace('.', '-', $version);
 
         foreach ($tables as $table) {
-            $backupTable = (string)$this->database->getVariable(
+            $backupTable = (string) $this->database->getVariable(
                 "SHOW TABLES LIKE '{$table}_{$versionForDb}'"
             );
 
@@ -440,12 +424,10 @@ class DatabaseHandler
 
     /**
      * Reverts the database to the given version.
-     *
      * @param string $version
-     *
      * @return bool
      */
-    public function revertDatabase($version)
+    public function revertDatabase(string $version): bool
     {
         $success = true;
         $tables = $this->getBackupTables($version);
@@ -466,12 +448,10 @@ class DatabaseHandler
 
     /**
      * Deletes the given database backup.
-     *
      * @param string $version
-     *
      * @return bool
      */
-    public function deleteBackup($version)
+    public function deleteBackup(string $version): bool
     {
         $success = true;
         $tables = $this->getBackupTables($version);
@@ -486,10 +466,9 @@ class DatabaseHandler
 
     /**
      * Returns the ordered updates.
-     *
      * @return UpdateInterface[]
      */
-    private function getOrderedDatabaseUpdates()
+    private function getOrderedDatabaseUpdates(): array
     {
         $rawUpdates = $this->updateFactory->getDatabaseUpdates();
         $updates = [];
@@ -504,10 +483,9 @@ class DatabaseHandler
 
     /**
      * Updates the database.
-     *
      * @return bool
      */
-    public function updateDatabase()
+    public function updateDatabase(): bool
     {
         $currentDbVersion = $this->wordpress->getOption('uam_db_version');
 
@@ -532,6 +510,7 @@ class DatabaseHandler
 
     /**
      * Removes the tables.
+     * @throws MissingColumnsException
      */
     public function removeTables()
     {

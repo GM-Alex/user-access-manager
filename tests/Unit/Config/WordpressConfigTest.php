@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
+use ReflectionException;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -56,6 +58,7 @@ class WordpressConfigTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::isPermalinksActive()
+     * @throws ReflectionException
      */
     public function testIsPermalinksActive()
     {
@@ -171,7 +174,7 @@ class WordpressConfigTest extends UserAccessManagerTestCase
         $wordpressConfig = new WordpressConfig($wordpress, 'baseFile');
 
         self::assertEquals(
-            'pluginDir'.DIRECTORY_SEPARATOR.'pluginBasename'.DIRECTORY_SEPARATOR,
+            'pluginDir' . DIRECTORY_SEPARATOR . 'pluginBasename' . DIRECTORY_SEPARATOR,
             $wordpressConfig->getRealPath()
         );
     }

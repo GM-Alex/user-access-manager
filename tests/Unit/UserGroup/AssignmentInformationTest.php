@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\UserGroup\AssignmentInformation;
 
 /**
@@ -22,30 +24,29 @@ use UserAccessManager\UserGroup\AssignmentInformation;
  * @package UserAccessManager\Tests\Unit\UserGroup
  * @coversDefaultClass \UserAccessManager\UserGroup\AssignmentInformation
  */
-class AssignmentInformationTest extends \PHPUnit_Framework_TestCase
+class AssignmentInformationTest extends TestCase
 {
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return AssignmentInformation
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): AssignmentInformation
     {
         $assignmentInformation = new AssignmentInformation('type');
 
         self::assertInstanceOf(AssignmentInformation::class, $assignmentInformation);
-        self::assertAttributeEquals('type', 'type', $assignmentInformation);
-        self::assertAttributeEquals(null, 'fromDate', $assignmentInformation);
-        self::assertAttributeEquals(null, 'toDate', $assignmentInformation);
+        self::assertEquals('type', $assignmentInformation->getType());
+        self::assertEquals(null, $assignmentInformation->getFromDate());
+        self::assertEquals(null, $assignmentInformation->getToDate());
 
         $assignmentInformation = new AssignmentInformation('type', 'fromDate', 'toDate', ['membership']);
 
         self::assertInstanceOf(AssignmentInformation::class, $assignmentInformation);
-        self::assertAttributeEquals('type', 'type', $assignmentInformation);
-        self::assertAttributeEquals('fromDate', 'fromDate', $assignmentInformation);
-        self::assertAttributeEquals('toDate', 'toDate', $assignmentInformation);
-        self::assertAttributeEquals(['membership'], 'recursiveMembership', $assignmentInformation);
+        self::assertEquals('type', $assignmentInformation->getType());
+        self::assertEquals('fromDate', $assignmentInformation->getFromDate());
+        self::assertEquals('toDate', $assignmentInformation->getToDate());
+        self::assertEquals(['membership'], $assignmentInformation->getRecursiveMembership());
 
         return $assignmentInformation;
     }
@@ -58,7 +59,6 @@ class AssignmentInformationTest extends \PHPUnit_Framework_TestCase
      * @covers  ::getToDate()
      * @covers  ::getRecursiveMembership()
      * @covers  ::setRecursiveMembership()
-     *
      * @param AssignmentInformation $assignmentInformation
      */
     public function testSettersAndGetters(AssignmentInformation $assignmentInformation)
@@ -68,7 +68,7 @@ class AssignmentInformationTest extends \PHPUnit_Framework_TestCase
         self::assertEquals('toDate', $assignmentInformation->getToDate());
         self::assertEquals(['membership'], $assignmentInformation->getRecursiveMembership());
 
-        self::assertEquals($assignmentInformation, $assignmentInformation->setRecursiveMembership(['newMembership']));
+        $assignmentInformation->setRecursiveMembership(['newMembership']);
         self::assertEquals(['newMembership'], $assignmentInformation->getRecursiveMembership());
     }
 }

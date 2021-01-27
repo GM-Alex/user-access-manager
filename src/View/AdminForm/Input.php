@@ -14,8 +14,11 @@
  */
 
 /**
- * @var \UserAccessManager\Form\Input $input
+ * @var Input $input
  */
+
+use UserAccessManager\Form\Input;
+
 ?>
 <th scope="row">
     <label for="uam_<?php echo $input->getId(); ?>">

@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Config;
 
 use UserAccessManager\Wrapper\Wordpress;
@@ -27,7 +30,6 @@ class ConfigFactory
 
     /**
      * ConfigFactory constructor.
-     *
      * @param Wordpress $wordpress
      */
     public function __construct(Wordpress $wordpress)
@@ -37,12 +39,10 @@ class ConfigFactory
 
     /**
      * Returns a new configuration.
-     *
      * @param string $key
-     *
      * @return Config
      */
-    public function createConfig($key)
+    public function createConfig(string $key): Config
     {
         return new Config($this->wordpress, $key);
     }

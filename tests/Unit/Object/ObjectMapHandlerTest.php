@@ -12,11 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Object;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
@@ -42,15 +45,14 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int    $id
-     * @param int    $parentId
+     * @param int $id
+     * @param int $parentId
      * @param string $type
-     *
-     * @return \stdClass
+     * @return stdClass
      */
-    private function createTreeMapDbResultElement($id, $parentId = 0, $type = 'post')
+    private function createTreeMapDbResultElement(int $id, $parentId = 0, $type = 'post'): stdClass
     {
-        $element = new \stdClass();
+        $element = new stdClass();
         $element->id = $id;
         $element->type = $type;
         $element->parentId = $parentId;
@@ -62,10 +64,9 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
      * @param string $generalType
      * @param string $firstType
      * @param string $secondType
-     *
      * @return array
      */
-    private function getExpectedMapResult($generalType, $firstType = 'post', $secondType = 'page')
+    private function getExpectedMapResult(string $generalType, $firstType = 'post', $secondType = 'page'): array
     {
         $result = [
             ObjectMapHandler::TREE_MAP_CHILDREN => [
@@ -118,6 +119,7 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
      * @covers ::getTreeMap()
      * @covers ::getPostTreeMap()
      * @covers ::getTermTreeMap()
+     * @throws ReflectionException
      */
     public function testTreeMap()
     {
@@ -207,7 +209,7 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
 
         self::setValue($objectMapHandler, 'termTreeMap', null);
         self::assertEquals(['cachedTermTree'], $objectMapHandler->getTermTreeMap());
-        
+
         $map = [
             0 => [1 => 'post'],
             1 => [2 => 'post'],
@@ -233,15 +235,14 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int    $objectId
-     * @param int    $termId
+     * @param int $objectId
+     * @param int $termId
      * @param string $type
-     *
-     * @return \stdClass
+     * @return stdClass
      */
-    private function createTermMapDbResultElement($objectId, $termId, $type)
+    private function createTermMapDbResultElement(int $objectId, int $termId, string $type): stdClass
     {
-        $element = new \stdClass();
+        $element = new stdClass();
         $element->objectId = $objectId;
         $element->parentId = $termId;
         $element->type = $type;
@@ -253,6 +254,7 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getCachedMap()
      * @covers ::getTermPostMap()
+     * @throws ReflectionException
      */
     public function testGetTermPostMap()
     {
@@ -330,6 +332,7 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getCachedMap()
      * @covers ::getPostTermMap()
+     * @throws ReflectionException
      */
     public function testGetPostTermMap()
     {

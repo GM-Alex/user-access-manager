@@ -12,13 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup\Database;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use UserAccessManager\Setup\Database\Column;
 use UserAccessManager\Setup\Database\DatabaseHandler;
+use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Setup\Database\Table;
 use UserAccessManager\Setup\Update\UpdateInterface;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserAccessManager;
 
@@ -48,11 +52,10 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @param string $name
-     * @param array  $columns
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Table
+     * @param array $columns
+     * @return MockObject|Table
      */
-    private function getTable($name, array $columns = [])
+    private function getTable(string $name, array $columns = [])
     {
         $table = $this->createMock(Table::class);
         $table->expects($this->any())
@@ -73,10 +76,9 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
     /**
      * @param string $name
      * @param string $type
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Table
+     * @return MockObject|Table
      */
-    private function getColumn($name, $type)
+    private function getColumn(string $name, string $type)
     {
         $table = $this->createMock(Column::class);
         $table->expects($this->any())
@@ -96,6 +98,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
      * @covers ::getTables()
      * @covers ::addTable()
      * @covers ::tableExists()
+     * @throws MissingColumnsException
      */
     public function testInstall()
     {
@@ -175,15 +178,14 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @param int $number
-     *
      * @return array
      */
-    private function getDatabaseColumns($number)
+    private function getDatabaseColumns(int $number): array
     {
         $columns = [];
 
         for ($columnNumber = 1; $columnNumber <= $number; $columnNumber++) {
-            $column = new \stdClass();
+            $column = new stdClass();
             $column->Field = "field{$columnNumber}";
             $column->Type = "type{$columnNumber}";
             $column->Null = ($columnNumber === 1) ? 'YES' : '';
@@ -201,6 +203,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
      * @covers ::getCorruptedDatabaseInformation()
      * @covers ::addCorruptedRows()
      * @covers ::getExistingColumns()
+     * @throws MissingColumnsException
      */
     public function testGetCorruptedDatabaseInformation()
     {
@@ -299,6 +302,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
      * @covers ::addColumn()
      * @covers ::modifyColumn()
      * @covers ::dropColumn()
+     * @throws MissingColumnsException
      */
     public function testRepairDatabase()
     {
@@ -400,7 +404,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
                 $this->getSites(),
                 [],
                 $this->getSites(1),
-                $this->getSites(3)
+                $this->getSites()
             ));
 
         $wordpress->expects($this->exactly(6))
@@ -664,12 +668,11 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @param string $version
-     * @param bool   $executeUpdate
-     * @param bool   $success
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|UpdateInterface
+     * @param bool $executeUpdate
+     * @param bool $success
+     * @return MockObject|UpdateInterface
      */
-    private function getUpdate($version, $executeUpdate = false, $success = false)
+    private function getUpdate(string $version, $executeUpdate = false, $success = false)
     {
         $update = $this->createMock(UpdateInterface::class);
         $update->expects($this->any())
@@ -684,7 +687,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
 
         return $update;
     }
-    
+
     /**
      * @group  unit
      * @covers ::getOrderedDatabaseUpdates()
@@ -708,9 +711,9 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
             ->with('uam_db_version', UserAccessManager::DB_VERSION);
 
         $updatesWithError = [
-            $this->getUpdate(0),
-            $this->getUpdate(10, true),
-            $this->getUpdate(1, true, true),
+            $this->getUpdate('0'),
+            $this->getUpdate('10', true),
+            $this->getUpdate('1', true, true),
         ];
 
         $updateFactory = $this->getUpdateFactory();
@@ -720,8 +723,8 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
                 $updatesWithError,
                 $updatesWithError,
                 [
-                    $this->getUpdate(10, true, true),
-                    $this->getUpdate(1, true, true),
+                    $this->getUpdate('10', true, true),
+                    $this->getUpdate('1', true, true),
                 ]
             ));
 
@@ -737,11 +740,12 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         self::assertFalse($databaseHandler->updateDatabase());
         self::assertTrue($databaseHandler->updateDatabase());
     }
-    
+
     /**
      * @group  unit
      * @covers ::removeTables()
      * @covers ::getTables()
+     * @throws MissingColumnsException
      */
     public function testRemoveTables()
     {
@@ -787,7 +791,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
             $databaseObjectFactory,
             $this->getUpdateFactory()
         );
-        
+
         $databaseHandler->removeTables();
     }
 }

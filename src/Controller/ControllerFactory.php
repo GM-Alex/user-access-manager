@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Access\AccessHandler;
@@ -166,8 +169,7 @@ class ControllerFactory
 
     /**
      * ControllerFactory constructor.
-     *
-     * @param Php                        $php
+      * @param Php                        $php
      * @param Wordpress                  $wordpress
      * @param Database                   $database
      * @param WordpressConfig            $wordpressConfig
@@ -237,10 +239,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend controller.
-     *
-     * @return BackendController
+      * @return BackendController
      */
-    public function createBackendController()
+    public function createBackendController(): BackendController
     {
         return new BackendController(
             $this->php,
@@ -254,10 +255,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend about controller.
-     *
-     * @return AboutController
+      * @return AboutController
      */
-    public function createBackendAboutController()
+    public function createBackendAboutController(): AboutController
     {
         return new AboutController(
             $this->php,
@@ -268,10 +268,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend object controller.
-     *
-     * @return ObjectController
+      * @return ObjectController
      */
-    public function createBackendObjectController()
+    public function createBackendObjectController(): ObjectController
     {
         return new ObjectController(
             $this->php,
@@ -291,10 +290,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend cache controller.
-     *
-     * @return CacheController
+      * @return CacheController
      */
-    public function createBackendCacheController()
+    public function createBackendCacheController(): CacheController
     {
         return new CacheController(
             $this->cache
@@ -303,10 +301,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend post object controller.
-     *
-     * @return PostObjectController
+      * @return PostObjectController
      */
-    public function createBackendPostObjectController()
+    public function createBackendPostObjectController(): PostObjectController
     {
         return new PostObjectController(
             $this->php,
@@ -326,10 +323,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend term object controller.
-     *
-     * @return TermObjectController
+      * @return TermObjectController
      */
-    public function createBackendTermObjectController()
+    public function createBackendTermObjectController(): TermObjectController
     {
         return new TermObjectController(
             $this->php,
@@ -349,10 +345,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend user object controller.
-     *
-     * @return UserObjectController
+      * @return UserObjectController
      */
-    public function createBackendUserObjectController()
+    public function createBackendUserObjectController(): UserObjectController
     {
         return new UserObjectController(
             $this->php,
@@ -372,10 +367,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend dynamic group controller.
-     *
-     * @return DynamicGroupsController
+      * @return DynamicGroupsController
      */
-    public function createBackendDynamicGroupsController()
+    public function createBackendDynamicGroupsController(): DynamicGroupsController
     {
         return new DynamicGroupsController(
             $this->php,
@@ -395,10 +389,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend setup controller.
-     *
-     * @return SettingsController
+      * @return SettingsController
      */
-    public function createBackendSettingsController()
+    public function createBackendSettingsController(): SettingsController
     {
         return new SettingsController(
             $this->php,
@@ -414,10 +407,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend setup controller.
-     *
-     * @return SetupController
+      * @return SetupController
      */
-    public function createBackendSetupController()
+    public function createBackendSetupController(): SetupController
     {
         return new SetupController(
             $this->php,
@@ -430,10 +422,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend user group controller.
-     *
-     * @return UserGroupController
+      * @return UserGroupController
      */
-    public function createBackendUserGroupController()
+    public function createBackendUserGroupController(): UserGroupController
     {
         return new UserGroupController(
             $this->php,
@@ -447,10 +438,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend controller.
-     *
-     * @return FrontendController
+      * @return FrontendController
      */
-    public function createFrontendController()
+    public function createFrontendController(): FrontendController
     {
         return new FrontendController(
             $this->php,
@@ -463,10 +453,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend post controller.
-     *
-     * @return PostController
+      * @return PostController
      */
-    public function createFrontendPostController()
+    public function createFrontendPostController(): PostController
     {
         return new PostController(
             $this->php,
@@ -484,10 +473,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend redirect controller.
-     *
-     * @return RedirectController
+      * @return RedirectController
      */
-    public function createFrontendRedirectController()
+    public function createFrontendRedirectController(): RedirectController
     {
         return new RedirectController(
             $this->php,
@@ -506,10 +494,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend short code controller.
-     *
-     * @return ShortCodeController
+      * @return ShortCodeController
      */
-    public function createFrontendShortCodeController()
+    public function createFrontendShortCodeController(): ShortCodeController
     {
         return new ShortCodeController(
             $this->php,
@@ -521,10 +508,9 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend term controller.
-     *
-     * @return TermController
+      * @return TermController
      */
-    public function createFrontendTermController()
+    public function createFrontendTermController(): TermController
     {
         return new TermController(
             $this->php,

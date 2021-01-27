@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\Input;
 
 /**
@@ -22,7 +24,7 @@ use UserAccessManager\Form\Input;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\Input
  */
-class InputTest extends \PHPUnit_Framework_TestCase
+class InputTest extends TestCase
 {
     /**
      * @group unit

@@ -12,14 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 use UserAccessManager\Object\ObjectMapHandler;
+use UserAccessManager\ObjectMembership\ObjectMembershipWithMapHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
-use UserAccessManager\ObjectMembership\ObjectMembershipWithMapHandler;
 use UserAccessManager\UserGroup\UserGroup;
 
 /**
@@ -32,8 +35,8 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMembershipWithMapHandler
+     * @return MockObject|ObjectMembershipWithMapHandler
+     * @throws ReflectionException
      */
     private function getStub(AssignmentInformationFactory $assignmentInformationFactory)
     {
@@ -64,7 +67,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
                             'firstObjectId' => 'generalObjectType',
                             'secondObjectId' => 'generalObjectType'
                         ],
-                        'otherParentObjectId'  => ['otherObjectId' => 'generalObjectType'],
+                        'otherParentObjectId' => ['otherObjectId' => 'generalObjectType'],
                     ]
                 ]
             ]);
@@ -75,6 +78,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getMembershipByMap()
+     * @throws ReflectionException
      */
     public function testGetMembershipByMap()
     {
@@ -160,11 +164,12 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getFullObjectsByMap()
+     * @throws ReflectionException
      */
     public function testGetFullObjectsByMap()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup $userGroup
+         * @var MockObject|AbstractUserGroup $userGroup
          */
         $userGroup = $this->createMock(AbstractUserGroup::class);
 

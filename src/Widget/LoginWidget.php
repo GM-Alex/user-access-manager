@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Widget;
 
 use UserAccessManager\Config\WordpressConfig;
@@ -19,13 +22,14 @@ use UserAccessManager\Controller\BaseControllerTrait;
 use UserAccessManager\Controller\Frontend\LoginControllerTrait;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
+use WP_Widget;
 
 /**
  * Class LoginWidget
  *
  * @package UserAccessManager\Widget
  */
-class LoginWidget extends \WP_Widget
+class LoginWidget extends WP_Widget
 {
     use BaseControllerTrait;
     use LoginControllerTrait;
@@ -49,9 +53,8 @@ class LoginWidget extends \WP_Widget
 
     /**
      * LoginWidget constructor.
-     *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
+     * @param Php $php
+     * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
      */
     public function __construct(Php $php, Wordpress $wordpress, WordpressConfig $wordpressConfig)
@@ -71,7 +74,7 @@ class LoginWidget extends \WP_Widget
     /**
      * @return Php
      */
-    protected function getPhp()
+    protected function getPhp(): Php
     {
         return $this->php;
     }
@@ -79,7 +82,7 @@ class LoginWidget extends \WP_Widget
     /**
      * @return Wordpress
      */
-    protected function getWordpress()
+    protected function getWordpress(): Wordpress
     {
         return $this->wordpress;
     }
@@ -87,7 +90,7 @@ class LoginWidget extends \WP_Widget
     /**
      * @return WordpressConfig
      */
-    protected function getWordpressConfig()
+    protected function getWordpressConfig(): WordpressConfig
     {
         return $this->wordpressConfig;
     }

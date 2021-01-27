@@ -13,9 +13,15 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
+use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\AbstractUserGroup;
+
 /**
- * @var \UserAccessManager\Controller\Backend\ObjectController $controller
+ * @var ObjectController $controller
+ * @var AbstractUserGroup $userGroup
  */
+
 ?>
 <div class="uam_tooltip">
     <ul class="uam_group_info">
@@ -23,7 +29,7 @@
         $recursiveMembership = $controller->getRecursiveMembership($userGroup);
 
         foreach ($recursiveMembership as $recursiveObjectType => $objects) {
-            $typeKey = 'TXT_UAM_GROUP_TYPE_'.strtoupper($recursiveObjectType);
+            $typeKey = 'TXT_UAM_GROUP_TYPE_' . strtoupper($recursiveObjectType);
             $type = defined($typeKey) ? strtolower(constant($typeKey)) : $recursiveObjectType;
             ?>
             <li class="uam_group_info_head">
@@ -63,10 +69,10 @@
                 </li>
                 <li>
                     <?php
-                    $content = TXT_UAM_GROUP_ROLE.': ';
+                    $content = TXT_UAM_GROUP_ROLE . ': ';
                     $roleNames = $controller->getRoleNames();
                     $groupRoles = $userGroup->getAssignedObjectsByType(
-                        \UserAccessManager\Object\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                        ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                     );
 
                     if (count($groupRoles) > 0) {

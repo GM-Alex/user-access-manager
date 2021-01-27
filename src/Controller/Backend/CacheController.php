@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Cache\Cache;
@@ -31,7 +34,6 @@ class CacheController
 
     /**
      * CacheController constructor.
-     *
      * @param Cache $cache
      */
     public function __construct(Cache $cache)

@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\FormElement;
 
 /**
@@ -22,17 +25,16 @@ use UserAccessManager\Form\FormElement;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\FormElement
  */
-class FormElementTest extends \PHPUnit_Framework_TestCase
+class FormElementTest extends TestCase
 {
     /**
      * @param string $id
-     * @param mixed  $value
-     * @param string $label
-     * @param string $description
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|FormElement
+     * @param mixed $value
+     * @param null $label
+     * @param null $description
+     * @return MockObject|FormElement
      */
-    private function getStub($id, $value = null, $label = null, $description = null)
+    private function getStub(string $id, $value = null, $label = null, $description = null)
     {
         return $this->getMockForAbstractClass(
             FormElement::class,
@@ -43,7 +45,6 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return FormElement
      */
     public function testCanCreateInstance()
@@ -58,7 +59,6 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::getId()
      * @depends testCanCreateInstance
-     *
      * @param FormElement $formElement
      */
     public function testGetId(FormElement $formElement)
@@ -70,7 +70,6 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::getValue()
      * @depends testCanCreateInstance
-     *
      * @param FormElement $formElement
      */
     public function testGetValue(FormElement $formElement)
@@ -82,7 +81,6 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::getLabel()
      * @depends testCanCreateInstance
-     *
      * @param FormElement $formElement
      */
     public function testGetLabel(FormElement $formElement)
@@ -94,7 +92,6 @@ class FormElementTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::getDescription()
      * @depends testCanCreateInstance
-     *
      * @param FormElement $formElement
      */
     public function testGetDescription(FormElement $formElement)

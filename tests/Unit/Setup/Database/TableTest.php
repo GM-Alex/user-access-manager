@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup\Database;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Setup\Database\Column;
 use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Setup\Database\Table;
@@ -24,11 +26,12 @@ use UserAccessManager\Setup\Database\Table;
  * @package UserAccessManager\Tests\Unit\Setup\Database
  * @coversDefaultClass \UserAccessManager\Setup\Database\Table
  */
-class TableTest extends \PHPUnit_Framework_TestCase
+class TableTest extends TestCase
 {
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws MissingColumnsException
      */
     public function testCanCreateInstance()
     {
@@ -53,6 +56,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
      * @covers ::getName()
      * @covers ::getCharsetCollate()
      * @covers ::getColumns()
+     * @throws MissingColumnsException
      */
     public function testGetter()
     {
@@ -70,6 +74,7 @@ class TableTest extends \PHPUnit_Framework_TestCase
     /**
      * @group  unit
      * @covers ::__toString()
+     * @throws MissingColumnsException
      */
     public function testToString()
     {

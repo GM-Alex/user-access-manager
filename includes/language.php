@@ -14,7 +14,7 @@
  */
 
 // --- Error Messages ---
-define('TXT_UAM_PHP_VERSION_TO_LOW', __('Sorry you need at least PHP version 5.4 to use the User Access Manager. Your current PHP version is %s. See <a href="https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot">https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot</a> for more information.', 'user-access-manager'));
+define('TXT_UAM_PHP_VERSION_TO_LOW', __('Sorry you need at least PHP version 7.3 to use the User Access Manager. Your current PHP version is %s. See <a href="https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot">https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot</a> for more information.', 'user-access-manager'));
 define('TXT_UAM_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s.', 'user-access-manager'));
 /** @noinspection HtmlUnknownTarget */
 define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the User Access Manager. <a href="%s">Click here to proceed</a>', 'user-access-manager'));

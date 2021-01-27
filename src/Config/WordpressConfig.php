@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Config;
 
 use UserAccessManager\Wrapper\Wordpress;
@@ -45,11 +48,10 @@ class WordpressConfig
 
     /**
      * WordpressClass constructor.
-     *
      * @param Wordpress $wordpress
-     * @param string    $baseFile
+     * @param string $baseFile
      */
-    public function __construct(Wordpress $wordpress, $baseFile)
+    public function __construct(Wordpress $wordpress, string $baseFile)
     {
         $this->wordpress = $wordpress;
         $this->baseFile = $baseFile;
@@ -57,20 +59,18 @@ class WordpressConfig
 
     /**
      * Returns true if a user is at the admin panel.
-     *
      * @return bool
      */
-    public function atAdminPanel()
+    public function atAdminPanel(): bool
     {
         return $this->wordpress->isAdmin();
     }
 
     /**
      * Returns true if permalinks are active otherwise false.
-     *
      * @return bool
      */
-    public function isPermalinksActive()
+    public function isPermalinksActive(): ?bool
     {
         if ($this->isPermalinksActive === null) {
             $permalinkStructure = $this->wordpress->getOption('permalink_structure');
@@ -82,15 +82,14 @@ class WordpressConfig
 
     /**
      * Returns the upload directory.
-     *
      * @return null|string
      */
-    public function getUploadDirectory()
+    public function getUploadDirectory(): ?string
     {
         $wordpressUploadDir = $this->wordpress->getUploadDir();
 
         if (empty($wordpressUploadDir['error'])) {
-            return $wordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
+            return $wordpressUploadDir['basedir'] . DIRECTORY_SEPARATOR;
         }
 
         return null;
@@ -98,10 +97,9 @@ class WordpressConfig
 
     /**
      * Returns the full supported mine types.
-     *
      * @return array
      */
-    public function getMimeTypes()
+    public function getMimeTypes(): ?array
     {
         if ($this->mimeTypes === null) {
             $mimeTypes = $this->wordpress->getAllowedMimeTypes();
@@ -123,24 +121,22 @@ class WordpressConfig
 
     /**
      * Returns the module url path.
-     *
      * @return string
      */
-    public function getUrlPath()
+    public function getUrlPath(): string
     {
-        return $this->wordpress->pluginsUrl('', $this->baseFile).'/';
+        return $this->wordpress->pluginsUrl('', $this->baseFile) . '/';
     }
 
     /**
      * Returns the module real path.
-     *
      * @return string
      */
-    public function getRealPath()
+    public function getRealPath(): string
     {
         $dirName = dirname($this->baseFile);
 
-        return $this->wordpress->getPluginDir().DIRECTORY_SEPARATOR
-            .$this->wordpress->pluginBasename($dirName).DIRECTORY_SEPARATOR;
+        return $this->wordpress->getPluginDir() . DIRECTORY_SEPARATOR
+            . $this->wordpress->pluginBasename($dirName) . DIRECTORY_SEPARATOR;
     }
 }

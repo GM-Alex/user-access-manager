@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\File;
 
 use UserAccessManager\File\ApacheFileProtection;
@@ -38,7 +39,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -47,7 +48,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
@@ -201,13 +202,13 @@ class FileHandlerTest extends UserAccessManagerTestCase
         ]));
 
         $testDir = 'vfs://testDir/';
-        $notExistingFile = $testDir.'notExistingFile.txt';
+        $notExistingFile = $testDir . 'notExistingFile.txt';
 
         $fileHandler->getFile($notExistingFile, false);
 
-        $testFileOne = $testDir.'testFile.txt';
-        $testFileTwo = $testDir.'testFile2.txt';
-        $testFileThree = $testDir.'testFile3.pdf';
+        $testFileOne = $testDir . 'testFile.txt';
+        $testFileTwo = $testDir . 'testFile2.txt';
+        $testFileThree = $testDir . 'testFile3.pdf';
 
         echo 'output'; //Test output must be cleared by getFile method
         $fileHandler->getFile($testFileOne, false);
@@ -390,12 +391,12 @@ class FileHandlerTest extends UserAccessManagerTestCase
         ]));
 
         $testDir = 'vfs://testDir/';
-        $notExistingFile = $testDir.'notExistingFile.txt';
+        $notExistingFile = $testDir . 'notExistingFile.txt';
 
         $fileHandler->getFile($notExistingFile, false);
 
-        $testFileOne = $testDir.'testFile.txt';
-        $testFileTwo = $testDir.'testFile2.txt';
+        $testFileOne = $testDir . 'testFile.txt';
+        $testFileTwo = $testDir . 'testFile2.txt';
 
         $_SERVER['HTTP_RANGE'] = 'something=0-4';
         $fileHandler->getFile($testFileOne, false);
@@ -827,7 +828,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             $this->getFileProtectionFactory()
         );
 
-        self::assertFalse(file_exists($uploadDir.FileHandler::X_SEND_FILE_TEST_FILE));
+        self::assertFalse(file_exists($uploadDir . FileHandler::X_SEND_FILE_TEST_FILE));
         $fileHandler->deliverXSendFileTestFile();
         self::assertEquals(
             [
@@ -838,7 +839,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
         self::assertEquals(false, http_response_code());
-        self::assertTrue(file_exists($uploadDir.FileHandler::X_SEND_FILE_TEST_FILE));
+        self::assertTrue(file_exists($uploadDir . FileHandler::X_SEND_FILE_TEST_FILE));
     }
 
     /**
@@ -870,8 +871,8 @@ class FileHandlerTest extends UserAccessManagerTestCase
             $this->getFileProtectionFactory()
         );
 
-        self::assertTrue(file_exists($uploadDir.FileHandler::X_SEND_FILE_TEST_FILE));
+        self::assertTrue(file_exists($uploadDir . FileHandler::X_SEND_FILE_TEST_FILE));
         $fileHandler->removeXSendFileTestFile();
-        self::assertFalse(file_exists($uploadDir.FileHandler::X_SEND_FILE_TEST_FILE));
+        self::assertFalse(file_exists($uploadDir . FileHandler::X_SEND_FILE_TEST_FILE));
     }
 }

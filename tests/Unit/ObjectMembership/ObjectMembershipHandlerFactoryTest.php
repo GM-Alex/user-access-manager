@@ -12,14 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
-use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use Exception;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\ObjectMembership\PostMembershipHandler;
 use UserAccessManager\ObjectMembership\RoleMembershipHandler;
 use UserAccessManager\ObjectMembership\TermMembershipHandler;
 use UserAccessManager\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
  * Class ObjectMembershipHandlerFactoryTest
@@ -31,10 +33,9 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
-     *
      * @return ObjectMembershipHandlerFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): ObjectMembershipHandlerFactory
     {
         $objectMembershipHandlerFactory = new ObjectMembershipHandlerFactory(
             $this->getPhp(),
@@ -52,8 +53,8 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createRoleMembershipHandler()
-     *
      * @param ObjectMembershipHandlerFactory $objectMembershipHandlerFactory
+     * @throws Exception
      */
     public function testCreateRoleMembershipHandler(ObjectMembershipHandlerFactory $objectMembershipHandlerFactory)
     {
@@ -67,8 +68,8 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createPostMembershipHandler()
-     *
      * @param ObjectMembershipHandlerFactory $objectMembershipHandlerFactory
+     * @throws Exception
      */
     public function testCreatePostMembershipHandler(ObjectMembershipHandlerFactory $objectMembershipHandlerFactory)
     {
@@ -82,8 +83,8 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createTermMembershipHandler()
-     *
      * @param ObjectMembershipHandlerFactory $objectMembershipHandlerFactory
+     * @throws Exception
      */
     public function testCreateTermMembershipHandler(ObjectMembershipHandlerFactory $objectMembershipHandlerFactory)
     {
@@ -97,8 +98,8 @@ class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createUserMembershipHandler()
-     *
      * @param ObjectMembershipHandlerFactory $objectMembershipHandlerFactory
+     * @throws Exception
      */
     public function testCreateUserMembershipHandler(ObjectMembershipHandlerFactory $objectMembershipHandlerFactory)
     {

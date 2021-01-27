@@ -14,29 +14,32 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\Backend\ControllerTabNavigationTrait $controller
+ * @var ControllerTabNavigationTrait $controller
  */
+
+use UserAccessManager\Controller\Backend\ControllerTabNavigationTrait;
+
 ?>
-<h2 class="nav-tab-wrapper">
-    <?php
-    $currentGroupKey = $controller->getCurrentTabGroup();
-    $tabGroups = $controller->getTabGroups();
+    <h2 class="nav-tab-wrapper">
+        <?php
+        $currentGroupKey = $controller->getCurrentTabGroup();
+        $tabGroups = $controller->getTabGroups();
 
-    foreach ($tabGroups as $group => $defaultSection) {
-        $cssClass = 'nav-tab';
+        foreach ($tabGroups as $group => $defaultSection) {
+            $cssClass = 'nav-tab';
 
-        if ($currentGroupKey === $group) {
-            $cssClass .= ' nav-tab-active';
+            if ($currentGroupKey === $group) {
+                $cssClass .= ' nav-tab-active';
+            }
+            ?>
+            <a class="<?php echo $cssClass; ?>"
+               href="<?php echo $controller->getTabGroupLink($group); ?>">
+                <?php echo $controller->getGroupText($group); ?>
+            </a>
+            <?php
         }
         ?>
-        <a class="<?php  echo $cssClass; ?>"
-           href="<?php echo $controller->getTabGroupLink($group); ?>">
-            <?php echo $controller->getGroupText($group); ?>
-        </a>
-        <?php
-    }
-    ?>
-</h2>
+    </h2>
 <?php
 $sections = $controller->getSections();
 if (count($sections) > 1) {
@@ -48,7 +51,7 @@ if (count($sections) > 1) {
         <tr>
             <th>
                 <label for="uam_settings_group_section">
-                    <?php echo $controller->getGroupText($currentGroupKey.'_SECTION_SELECTION'); ?>
+                    <?php echo $controller->getGroupText($currentGroupKey . '_SECTION_SELECTION'); ?>
                 </label>
             </th>
             <td>
@@ -56,7 +59,7 @@ if (count($sections) > 1) {
                     <?php
                     foreach ($sections as $section) {
                         ?>
-                        <option value="<?php echo $section?>"
+                        <option value="<?php echo $section ?>"
                                 data-link="<?php
                                 echo $controller->getTabGroupSectionLink($currentGroupKey, $section);
                                 ?>"
@@ -66,7 +69,7 @@ if (count($sections) > 1) {
                             }
                             ?>><?php
                             echo $controller->getGroupSectionText($section);
-                            ?></option>
+?></option>
                         <?php
                     }
                     ?>

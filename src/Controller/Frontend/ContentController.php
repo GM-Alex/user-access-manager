@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\Access\AccessHandler;
@@ -60,8 +62,7 @@ abstract class ContentController extends Controller
 
     /**
      * ContentController constructor.
-     *
-     * @param Php              $php
+      * @param Php              $php
      * @param Wordpress        $wordpress
      * @param WordpressConfig  $wordpressConfig
      * @param MainConfig       $mainConfig
@@ -94,7 +95,7 @@ abstract class ContentController extends Controller
     /**
      * @return Wordpress
      */
-    protected function getWordpress()
+    protected function getWordpress(): Wordpress
     {
         return $this->wordpress;
     }
@@ -102,7 +103,7 @@ abstract class ContentController extends Controller
     /**
      * @return MainConfig
      */
-    protected function getMainConfig()
+    protected function getMainConfig(): MainConfig
     {
         return $this->mainConfig;
     }
@@ -110,7 +111,7 @@ abstract class ContentController extends Controller
     /**
      * @return Util
      */
-    protected function getUtil()
+    protected function getUtil(): Util
     {
         return $this->util;
     }
@@ -118,7 +119,7 @@ abstract class ContentController extends Controller
     /**
      * @return UserHandler
      */
-    protected function getUserHandler()
+    protected function getUserHandler(): UserHandler
     {
         return $this->userHandler;
     }
@@ -126,12 +127,12 @@ abstract class ContentController extends Controller
     /**
      * @return UserGroupHandler
      */
-    protected function getUserGroupHandler()
+    protected function getUserGroupHandler(): UserGroupHandler
     {
         return $this->userGroupHandler;
     }
 
-    protected function removePostFromList($postType)
+    protected function removePostFromList($postType): bool
     {
         return $this->mainConfig->hidePostType($postType) === true
             || $this->wordpressConfig->atAdminPanel() === true;

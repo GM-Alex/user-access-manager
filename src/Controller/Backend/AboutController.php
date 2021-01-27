@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Controller\Controller;
@@ -38,16 +41,15 @@ class AboutController extends Controller
 
     /**
      * Returns all the supporters.
-     *
      * @return array
      */
-    private function getAllSupporters()
+    private function getAllSupporters(): ?array
     {
         if ($this->supporters === null) {
             $realPath = rtrim($this->wordpressConfig->getRealPath(), DIRECTORY_SEPARATOR);
             $path = [$realPath, 'assets'];
-            $path = implode(DIRECTORY_SEPARATOR, $path).DIRECTORY_SEPARATOR;
-            $fileWithPath = $path.self::SUPPORTER_FILE;
+            $path = implode(DIRECTORY_SEPARATOR, $path) . DIRECTORY_SEPARATOR;
+            $fileWithPath = $path . self::SUPPORTER_FILE;
             $needsUpdate = is_file($fileWithPath) === false
                 || filemtime($fileWithPath) < $this->wordpress->currentTime('timestamp') - 24 * 60 * 60;
             $fileContent = ($needsUpdate === true) ? @file_get_contents(self::SUPPORTER_FILE_URL) : false;
@@ -66,10 +68,9 @@ class AboutController extends Controller
 
     /**
      * Returns the people which earn a special thanks.
-     *
      * @return array
      */
-    public function getSpecialThanks()
+    public function getSpecialThanks(): array
     {
         $supporters = $this->getAllSupporters();
         return isset($supporters['special-thanks']) === true ? $supporters['special-thanks'] : [];
@@ -77,10 +78,9 @@ class AboutController extends Controller
 
     /**
      * Returns the people which earn a special thanks.
-     *
      * @return array
      */
-    public function getTopSupporters()
+    public function getTopSupporters(): array
     {
         $supporters = $this->getAllSupporters();
         return isset($supporters['top-supporters']) === true ? $supporters['top-supporters'] : [];
@@ -88,10 +88,9 @@ class AboutController extends Controller
 
     /**
      * Returns the people which earn a special thanks.
-     *
      * @return array
      */
-    public function getSupporters()
+    public function getSupporters(): array
     {
         $supporters = $this->getAllSupporters();
         return isset($supporters['supporters']) === true ? $supporters['supporters'] : [];

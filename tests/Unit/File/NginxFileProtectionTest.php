@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\File;
 
 use UserAccessManager\File\NginxFileProtection;
@@ -36,7 +37,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -45,7 +46,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
@@ -81,7 +82,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
             $this->getUtil()
         );
 
-        self::assertEquals('ABSPATH'.NginxFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath());
+        self::assertEquals('ABSPATH' . NginxFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath());
     }
 
     /**
@@ -115,35 +116,35 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
             $mainConfig,
             $this->getUtil()
         );
-        $file = 'vfs://testDir/'.NginxFileProtection::FILE_NAME;
+        $file = 'vfs://testDir/' . NginxFileProtection::FILE_NAME;
 
         self::assertTrue($nginxFileProtection->create($testDir, null, $testDir));
         self::assertEquals(
             "location / {\n"
-            ."rewrite ^([^?]*)$ /index.php?uamfiletype=attachment&uamgetfile=$1 last;\n"
-            ."rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=attachment&uamgetfile=$1&$2 last;\n"
-            ."rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
-            ."}\n",
+            . "rewrite ^([^?]*)$ /index.php?uamfiletype=attachment&uamgetfile=$1 last;\n"
+            . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=attachment&uamgetfile=$1&$2 last;\n"
+            . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
+            . "}\n",
             file_get_contents($file)
         );
 
         self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
         self::assertEquals(
             "location ^/[0-9]{4}/[0-9]{2} {\n"
-            ."rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
-            ."rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
-            ."rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
-            ."}\n",
+            . "rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
+            . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
+            . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
+            . "}\n",
             file_get_contents($file)
         );
 
         self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
         self::assertEquals(
             "location custom {\n"
-            ."rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
-            ."rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
-            ."rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
-            ."}\n",
+            . "rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
+            . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
+            . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
+            . "}\n",
             file_get_contents($file)
         );
 
@@ -187,8 +188,8 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         ]));
 
         $testDir = 'vfs://testDir/';
-        $file = $testDir.NginxFileProtection::FILE_NAME;
-        $passwordFile = $testDir.NginxFileProtection::PASSWORD_FILE_NAME;
+        $file = $testDir . NginxFileProtection::FILE_NAME;
+        $passwordFile = $testDir . NginxFileProtection::PASSWORD_FILE_NAME;
 
         self::assertTrue(file_exists($file));
         self::assertTrue(file_exists($passwordFile));

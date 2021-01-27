@@ -14,14 +14,17 @@
  */
 
 /**
- * @var \UserAccessManager\Form\Select $select
+ * @var Select $select
  */
+
+use UserAccessManager\Form\Select;
+
 ?>
 <th scope="row">
     <label for="uam_<?php echo $select->getId(); ?>">
         <?php echo $select->getLabel(); ?>
     </label>
-    </th>
+</th>
 <td>
     <select id="uam_<?php echo $select->getId(); ?>"
             name="config_parameters[<?php echo $select->getId(); ?>]">

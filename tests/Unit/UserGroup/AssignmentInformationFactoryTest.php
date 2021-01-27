@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 
@@ -23,14 +25,13 @@ use UserAccessManager\UserGroup\AssignmentInformationFactory;
  * @package UserAccessManager\Tests\Unit\UserGroup
  * @coversDefaultClass \UserAccessManager\UserGroup\AssignmentInformationFactory
  */
-class AssignmentInformationFactoryTest extends \PHPUnit_Framework_TestCase
+class AssignmentInformationFactoryTest extends TestCase
 {
     /**
      * @group  unit
-     *
      * @return AssignmentInformationFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): AssignmentInformationFactory
     {
         $assignmentInformationFactory = new AssignmentInformationFactory();
         self::assertInstanceOf(AssignmentInformationFactory::class, $assignmentInformationFactory);
@@ -42,7 +43,6 @@ class AssignmentInformationFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createAssignmentInformation()
-     *
      * @param AssignmentInformationFactory $assignmentInformationFactory
      */
     public function testCreateAssignmentInformation(AssignmentInformationFactory $assignmentInformationFactory)

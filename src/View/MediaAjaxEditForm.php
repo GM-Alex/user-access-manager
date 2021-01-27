@@ -14,8 +14,12 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\Backend\ObjectController $controller
+ * @var ObjectController $controller
  */
+
+use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\UserGroup\UserGroup;
+
 $userGroups = $controller->getFilteredUserGroups();
 $controller->sortUserGroups($userGroups);
 $objectUserGroups = $controller->getObjectInformation()->getObjectUserGroups();
@@ -30,14 +34,14 @@ if (count($userGroups) > 0) {
         $objectId = $controller->getObjectInformation()->getObjectId();
 
         /**
-         * @var \UserAccessManager\UserGroup\UserGroup[] $userGroups
+         * @var UserGroup[] $userGroups
          */
         foreach ($userGroups as $userGroup) {
             $addition = '';
             $attributes = '';
 
             /**
-             * @var \UserAccessManager\UserGroup\UserGroup[] $objectUserGroups
+             * @var UserGroup[] $objectUserGroups
              */
             if (isset($objectUserGroups[$userGroup->getId()]) === true) {
                 $attributes .= 'checked="checked" ';
@@ -53,10 +57,10 @@ if (count($userGroups) > 0) {
                        id="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" <?php echo $attributes; ?>
                        value="<?php echo $userGroup->getId(); ?>"
                        name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][id]"; ?>"
-                data-="uam_user_groups"/>
+                       data-="uam_user_groups"/>
                 <label for="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" class="selectit"
                        style="display:inline;">
-                    <?php echo htmlentities($userGroup->getName()).$addition; ?>
+                    <?php echo htmlentities($userGroup->getName()) . $addition; ?>
                 </label>
                 <a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
                 <?php include 'GroupInfo.php'; ?>

@@ -1,0 +1,25 @@
+name: Tests
+on: [push]
+jobs:
+  tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+      - name: Install composer dependencies
+        run: composer install
+      - name: "Run php code sniffer"
+        run: ./vendor/bin/phpcs -p --standard=PSR2 ./src
+      - name: "Run PHPUnit unit test"
+        run: |
+          ./vendor/bin/phpunit --coverage-clover=coverage.clover
+          wget https://scrutinizer-ci.com/ocular.phar
+          php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+          rm ocular.phar
+      - name: "Run infection mutation tests"
+        run: ./vendor/bin/infection --threads=8

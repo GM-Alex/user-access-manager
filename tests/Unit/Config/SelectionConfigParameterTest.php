@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
+use Exception;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -28,17 +30,17 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::__construct()
-     *
      * @return SelectionConfigParameter
+     * @throws Exception
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): SelectionConfigParameter
     {
         $selectionConfigParameter = new SelectionConfigParameter('testId', 'default', ['default', 'second']);
 
         self::assertInstanceOf(SelectionConfigParameter::class, $selectionConfigParameter);
-        self::assertAttributeEquals('testId', 'id', $selectionConfigParameter);
-        self::assertAttributeEquals('default', 'defaultValue', $selectionConfigParameter);
-        self::assertAttributeEquals(['default', 'second'], 'selections', $selectionConfigParameter);
+        self::assertEquals('testId', $selectionConfigParameter->getId());
+        self::assertEquals('default', $selectionConfigParameter->getValue());
+        self::assertEquals(['default', 'second'], $selectionConfigParameter->getSelections());
 
         return $selectionConfigParameter;
     }
@@ -47,10 +49,9 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::isValidValue()
-     *
      * @param SelectionConfigParameter $selectionConfigParameter
      */
-    public function testIsValidValue($selectionConfigParameter)
+    public function testIsValidValue(SelectionConfigParameter $selectionConfigParameter)
     {
         self::assertTrue($selectionConfigParameter->isValidValue('default'));
         self::assertTrue($selectionConfigParameter->isValidValue('second'));
@@ -61,10 +62,9 @@ class SelectionConfigParameterTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::getSelections()
-     *
      * @param SelectionConfigParameter $selectionConfigParameter
      */
-    public function testGetSelections($selectionConfigParameter)
+    public function testGetSelections(SelectionConfigParameter $selectionConfigParameter)
     {
         self::assertEquals(['default', 'second'], $selectionConfigParameter->getSelections());
     }

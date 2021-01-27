@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Update;
 
+use Exception;
 use UserAccessManager\Setup\Database\DatabaseUpdate;
 
 /**
@@ -25,27 +29,26 @@ class DatabaseUpdate5 extends DatabaseUpdate
 {
     /**
      * Returns the version.
-     *
      * @return string
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         return '1.5.1';
     }
 
     /**
      * Executes the update.
-     *
      * @return bool
+     * @throws Exception
      */
-    public function update()
+    public function update(): bool
     {
         $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
         $query = "SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
             FROM {$dbAccessGroupToObject}
             WHERE general_object_type = ''";
 
-        $dbObjects = (array)$this->database->getResults($query);
+        $dbObjects = (array) $this->database->getResults($query);
         $success = true;
 
         foreach ($dbObjects as $dbObject) {

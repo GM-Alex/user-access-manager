@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\Access\AccessHandler;
@@ -19,6 +22,7 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -43,8 +47,7 @@ class FrontendController extends Controller
 
     /**
      * FrontendController constructor.
-     *
-     * @param Php             $php
+      * @param Php             $php
      * @param Wordpress       $wordpress
      * @param WordpressConfig $wordpressConfig
      * @param MainConfig      $mainConfig
@@ -93,14 +96,13 @@ class FrontendController extends Controller
 
     /**
      * The function for the get_ancestors filter.
-     *
-     * @param array  $ancestors
-     * @param int    $objectId
+      * @param array $ancestors
+     * @param int|string $objectId
      * @param string $objectType
-     *
-     * @return array
+      * @return array
+     * @throws UserGroupTypeException
      */
-    public function showAncestors($ancestors, $objectId, $objectType)
+    public function showAncestors(array $ancestors, $objectId, string $objectType): array
     {
         if ($this->mainConfig->lockRecursive() === true
             && $this->accessHandler->checkObjectAccess($objectType, $objectId) === false
@@ -124,16 +126,14 @@ class FrontendController extends Controller
 
     /**
      * Filter for Yoast SEO Plugin
-     *
-     * Hides the url from the site map if the user has no access
-     *
-     * @param string $url    The url to check
-     * @param string $type   The object type
+      * Hides the url from the site map if the user has no access
+      * @param string $url The url to check
+     * @param string $type The object type
      * @param object $object The object
-     *
-     * @return false|string
+      * @return false|string
+     * @throws UserGroupTypeException
      */
-    public function getWpSeoUrl($url, $type, $object)
+    public function getWpSeoUrl(string $url, string $type, object $object)
     {
         return ($this->accessHandler->checkObjectAccess($type, $object->ID) === true) ? $url : false;
     }

@@ -12,11 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
+use Exception;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\ObjectMembership\RoleMembershipHandler;
+use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use WP_Roles;
 
 /**
  * Class RoleObjectMembershipHandlerTest
@@ -29,6 +32,7 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws Exception
      */
     public function testCanCreateInstance()
     {
@@ -43,10 +47,11 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getObjectName()
+     * @throws Exception
      */
     public function testGetObjectName()
     {
-        $roles = new \stdClass();
+        $roles = $this->getMockBuilder(WP_Roles::class)->allowMockingUnknownTypes()->getMock();
         $roles->role_names = [1 => 'roleOne'];
 
         $wordpress = $this->getWordpress();
@@ -71,6 +76,7 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::isMember()
+     * @throws Exception
      */
     public function testIsMember()
     {
@@ -82,7 +88,7 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
                 [ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, 'secondObjectId']
             )
             ->will($this->returnCallback(function ($objectType, $objectId, &$assignmentInformation = null) {
-                $assignmentInformation = $this->getAssignmentInformation($objectType.'|'.$objectId);
+                $assignmentInformation = $this->getAssignmentInformation($objectType . '|' . $objectId);
                 return ($objectId === 'secondObjectId');
             }));
 
@@ -97,7 +103,7 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
 
         self::assertTrue($roleMembershipHandler->isMember($userGroup, true, 'secondObjectId', $assignmentInformation));
         self::assertEquals(
-            $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE.'|'.'secondObjectId'),
+            $this->getAssignmentInformation(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE . '|' . 'secondObjectId'),
             $assignmentInformation
         );
     }
@@ -105,6 +111,7 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getFullObjects()
+     * @throws Exception
      */
     public function testGetFullObjects()
     {

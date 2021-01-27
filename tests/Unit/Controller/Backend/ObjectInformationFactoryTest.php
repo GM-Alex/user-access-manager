@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Controller\Backend\ObjectInformation;
 use UserAccessManager\Controller\Backend\ObjectInformationFactory;
 
@@ -23,14 +25,13 @@ use UserAccessManager\Controller\Backend\ObjectInformationFactory;
  * @package UserAccessManager\Tests\Unit\Controller\Backend
  * @coversDefaultClass \UserAccessManager\Controller\Backend\ObjectInformationFactory
  */
-class ObjectInformationFactoryTest extends \PHPUnit_Framework_TestCase
+class ObjectInformationFactoryTest extends TestCase
 {
     /**
      * @group unit
-     *
      * @return ObjectInformationFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): ObjectInformationFactory
     {
         $objectInformationFactory = new ObjectInformationFactory();
 
@@ -43,7 +44,6 @@ class ObjectInformationFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createObjectInformation()
-     *
      * @param ObjectInformationFactory $objectInformationFactory
      */
     public function testCreateBackendController(ObjectInformationFactory $objectInformationFactory)

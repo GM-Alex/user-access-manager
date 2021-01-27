@@ -12,12 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 
 /**
  * Class UserObjectMembershipHandlerTest
@@ -30,6 +34,7 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws Exception
      */
     public function testCanCreateInstance()
     {
@@ -46,11 +51,12 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::getObjectName()
+     * @throws Exception
      */
     public function testGetObjectName()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $user
+         * @var MockObject|stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->display_name = 'userTwo';
@@ -78,21 +84,22 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     }
 
     /**
-     * @param array             $arrayFillWith
-     * @param int               $expectGetUsersTable
-     * @param int               $expectGetCapabilitiesTable
-     * @param int               $expectGetUser
+     * @param array $arrayFillWith
+     * @param int $expectGetUsersTable
+     * @param int $expectGetCapabilitiesTable
+     * @param int $expectGetUser
      * @param AbstractUserGroup $userGroup
-     *
      * @return UserMembershipHandler
+     * @throws Exception
      */
     private function getUserObjectMembershipHandler(
         array $arrayFillWith,
-        $expectGetUsersTable,
-        $expectGetCapabilitiesTable,
-        $expectGetUser,
+        int $expectGetUsersTable,
+        int $expectGetCapabilitiesTable,
+        int $expectGetUser,
         AbstractUserGroup $userGroup
-    ) {
+    ): UserMembershipHandler
+    {
         $php = $this->getPhp();
 
         $php->expects($this->exactly(count($arrayFillWith)))
@@ -113,25 +120,25 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             ->will($this->returnValue('capabilitiesTable'));
 
         /**
-         * @var \stdClass $firstUser
+         * @var stdClass $firstUser
          */
         $firstUser = $this->getMockBuilder('\WP_User')->getMock();
         $firstUser->capabilitiesTable = [1 => 1, 2 => 2];
 
         /**
-         * @var \stdClass $secondUser
+         * @var stdClass $secondUser
          */
         $secondUser = $this->getMockBuilder('\WP_User')->getMock();
         $secondUser->capabilitiesTable = 'invalid';
 
         /**
-         * @var \stdClass $thirdUser
+         * @var stdClass $thirdUser
          */
         $thirdUser = $this->getMockBuilder('\WP_User')->getMock();
         $thirdUser->capabilitiesTable = [1 => 1];
 
         /**
-         * @var \stdClass $fourthUser
+         * @var stdClass $fourthUser
          */
         $fourthUser = $this->getMockBuilder('\WP_User')->getMock();
         $fourthUser->capabilitiesTable = [];
@@ -171,6 +178,7 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::isMember()
+     * @throws Exception
      */
     public function testIsMember()
     {
@@ -267,15 +275,14 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
 
     /**
      * @param int[] $numbers
-     *
      * @return array
      */
-    private function generateUserReturn(array $numbers)
+    private function generateUserReturn(array $numbers): array
     {
         $returns = [];
 
         foreach ($numbers as $number) {
-            $return = new \stdClass();
+            $return = new stdClass();
             $return->ID = $number;
             $returns[] = $return;
         }
@@ -286,6 +293,7 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::getFullObjects()
+     * @throws Exception
      */
     public function testGetFullObjects()
     {
@@ -303,7 +311,7 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             ->will($this->returnValue($this->generateUserReturn([10 => 10, 1, 2, 3])));
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup $userGroup
+         * @var MockObject|AbstractUserGroup $userGroup
          */
         $userGroup = $this->createMock(AbstractUserGroup::class);
         $userGroup->expects($this->exactly(4))

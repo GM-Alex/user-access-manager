@@ -12,12 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Frontend;
 
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroupHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -31,39 +35,38 @@ trait AdminOutputControllerTrait
     /**
      * @return Wordpress
      */
-    abstract protected function getWordpress();
+    abstract protected function getWordpress(): Wordpress;
 
     /**
      * @return WordpressConfig
      */
-    abstract protected function getWordpressConfig();
+    abstract protected function getWordpressConfig(): WordpressConfig;
 
     /**
      * @return MainConfig
      */
-    abstract protected function getMainConfig();
+    abstract protected function getMainConfig(): MainConfig;
 
     /**
      * @return Util
      */
-    abstract protected function getUtil();
+    abstract protected function getUtil(): Util;
 
     /**
      * @return UserHandler
      */
-    abstract protected function getUserHandler();
+    abstract protected function getUserHandler(): UserHandler;
 
     /**
      * @return UserGroupHandler
      */
-    abstract protected function getUserGroupHandler();
+    abstract protected function getUserGroupHandler(): UserGroupHandler;
 
     /**
      * Returns true if the hint text should be shown.
-     *
      * @return bool
      */
-    private function showAdminHint()
+    private function showAdminHint(): bool
     {
         return $this->getWordpressConfig()->atAdminPanel() === false
             && $this->getMainConfig()->blogAdminHint() === true;
@@ -71,31 +74,28 @@ trait AdminOutputControllerTrait
 
     /**
      * Returns the admin hint.
-     *
-     * @param string  $objectType The object type.
-     * @param integer $objectId   The object id we want to check.
-     * @param string  $text       The text on which we want to append the hint.
-     *
+     * @param string $objectType The object type.
+     * @param int|string $objectId The object id we want to check.
+     * @param null $text The text on which we want to append the hint.
      * @return string
+     * @throws UserGroupTypeException
      */
-    public function adminOutput($objectType, $objectId, $text = null)
+    public function adminOutput(string $objectType, $objectId, $text = null): string
     {
-        $output = '';
-
         if ($this->showAdminHint() === true) {
             $hintText = $this->getMainConfig()->getBlogAdminHintText();
 
             if ($text !== null && $this->getUtil()->endsWith($text, $hintText) === true) {
-                return $output;
+                return '';
             }
 
             if ($this->getUserHandler()->userIsAdmin($this->getWordpress()->getCurrentUser()->ID) === true
                 && count($this->getUserGroupHandler()->getUserGroupsForObject($objectType, $objectId)) > 0
             ) {
-                $output .= $hintText;
+                return $hintText;
             }
         }
 
-        return $output;
+        return '';
     }
 }

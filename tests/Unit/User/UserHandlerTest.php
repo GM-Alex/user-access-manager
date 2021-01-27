@@ -12,11 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\User;
 
+use ReflectionException;
 use UserAccessManager\Tests\Unit\HandlerTestCase;
-use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\UserGroup;
 
 /**
  * Class UserHandlerTest
@@ -41,12 +43,13 @@ class UserHandlerTest extends HandlerTestCase
 
         self::assertInstanceOf(UserHandler::class, $userHandler);
     }
-    
+
     /**
      * @group  unit
      * @covers ::isIpInRange()
      * @covers ::calculateIp()
      * @covers ::getCalculatedRange()
+     * @throws ReflectionException
      */
     public function testIsIpInRange()
     {
@@ -76,7 +79,7 @@ class UserHandlerTest extends HandlerTestCase
         self::assertFalse(self::callMethod($userHandler, 'calculateIp', ['0:0:0:0:0:FFFF:0000']));
         self::assertEquals(
             '0000000000000000000000000000000000000000000000000000000000000000'
-            .'0000000000000000111111111111111100000000000000000000000100000000',
+            . '0000000000000000111111111111111100000000000000000000000100000000',
             self::callMethod($userHandler, 'calculateIp', ['0:0:0:0:0:FFFF:0000:0100'])
         );
 
@@ -101,7 +104,7 @@ class UserHandlerTest extends HandlerTestCase
         self::assertFalse($userHandler->isIpInRange('0:0:0:0:0:ffff:505:505', $ranges));
         self::assertFalse($userHandler->isIpInRange('0:0:0:0:0:ffff:808:808', $ranges));
     }
-    
+
     /**
      * @group  unit
      * @covers ::checkUserAccess()
@@ -109,7 +112,7 @@ class UserHandlerTest extends HandlerTestCase
      */
     public function testCheckUserAccess()
     {
-        $wordpress = $this->getWordpressWithUser(null, null);
+        $wordpress = $this->getWordpressWithUser();
         $wordpress->expects($this->exactly(3))
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(true, false, false));

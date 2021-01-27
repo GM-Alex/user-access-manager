@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Update;
 
 /**
@@ -24,10 +27,10 @@ interface UpdateInterface
     /**
      * @return string
      */
-    public function getVersion();
+    public function getVersion(): string;
 
     /**
      * @return bool
      */
-    public function update();
+    public function update(): bool;
 }

@@ -12,11 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
 use UserAccessManager\Controller\Backend\UserGroupController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_Roles;
 
 /**
  * Class UserGroupControllerTest
@@ -158,11 +161,11 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $userGroupController->getGroupSectionText(ObjectHandler::ATTACHMENT_OBJECT_TYPE)
         );
         self::assertEquals(
-            'postName ('.TXT_UAM_POST_TYPE.')',
+            'postName (' . TXT_UAM_POST_TYPE . ')',
             $userGroupController->getGroupSectionText(ObjectHandler::POST_OBJECT_TYPE)
         );
         self::assertEquals(
-            'categoryName ('.TXT_UAM_TAXONOMY_TYPE.')',
+            'categoryName (' . TXT_UAM_TAXONOMY_TYPE . ')',
             $userGroupController->getGroupSectionText('category')
         );
         self::assertEquals(
@@ -174,6 +177,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getUserGroup()
+     * @throws UserGroupTypeException
      */
     public function testGetUserGroup()
     {
@@ -243,6 +247,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getUserGroups()
+     * @throws UserGroupTypeException
      */
     public function testGetUserGroups()
     {
@@ -295,8 +300,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
      */
     public function testGetRoleNames()
     {
-        $roles = new \stdClass();
-        $roles->role_names = 'roleNames';
+        $roles = $this->getMockBuilder(WP_Roles::class)->allowMockingUnknownTypes()->getMock();
+        $roles->role_names = ['roleNames'];
 
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
@@ -312,16 +317,19 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
-        self::assertEquals('roleNames', $userGroupController->getRoleNames());
+        self::assertEquals(['roleNames'], $userGroupController->getRoleNames());
     }
 
     /**
      * @group  unit
      * @covers ::insertUpdateUserGroupAction()
+     * @throws UserGroupTypeException
      */
     public function testInsertUpdateUserGroupAction()
     {
-        $_GET[UserGroupController::INSERT_UPDATE_GROUP_NONCE.'Nonce'] = 'insertUpdateNonce';
+        unset($_GET);
+        unset($_POST);
+        $_GET[UserGroupController::INSERT_UPDATE_GROUP_NONCE . 'Nonce'] = 'insertUpdateNonce';
 
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->exactly(4))
@@ -388,8 +396,10 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
             $this->getFormHelper()
         );
 
+        $_POST['userGroupName'] = '  ';
+
         $userGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'updateMessage', $userGroupController);
+        self::assertEquals(TXT_UAM_GROUP_NAME_ERROR, $userGroupController->getUpdateMessage());
 
         $_POST['userGroupName'] = 'userGroupNameValue';
         $_POST['userGroupDescription'] = 'userGroupDescriptionValue';
@@ -399,24 +409,25 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $_POST['roles'] = ['roleOne', 'roleTwo'];
 
         $userGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_NAME_ERROR, 'updateMessage', $userGroupController);
+        self::assertEquals(TXT_UAM_GROUP_NAME_ERROR, $userGroupController->getUpdateMessage());
 
         $userGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_GROUP_ADDED, 'updateMessage', $userGroupController);
+        self::assertEquals(TXT_UAM_GROUP_ADDED, $userGroupController->getUpdateMessage());
 
         $_POST['userGroupId'] = 1;
 
         $userGroupController->insertUpdateUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_USER_GROUP_EDIT_SUCCESS, 'updateMessage', $userGroupController);
+        self::assertEquals(TXT_UAM_USER_GROUP_EDIT_SUCCESS, $userGroupController->getUpdateMessage());
     }
 
     /**
      * @group  unit
      * @covers ::deleteUserGroupAction()
+     * @throws UserGroupTypeException
      */
     public function testDeleteUserGroupAction()
     {
-        $_GET[UserGroupController::DELETE_GROUP_NONCE.'Nonce'] = UserGroupController::DELETE_GROUP_NONCE;
+        $_GET[UserGroupController::DELETE_GROUP_NONCE . 'Nonce'] = UserGroupController::DELETE_GROUP_NONCE;
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
             ->method('verifyNonce')
@@ -439,13 +450,14 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
 
         $_POST['delete'] = [1, 2];
         $userGroupController->deleteUserGroupAction();
-        self::assertAttributeEquals(TXT_UAM_DELETE_GROUP, 'updateMessage', $userGroupController);
+        self::assertEquals(TXT_UAM_DELETE_GROUP, $userGroupController->getUpdateMessage());
     }
 
     /**
      * @group  unit
      * @covers ::setDefaultUserGroupsAction()
      * @covers ::isDefaultTypeAdd()
+     * @throws UserGroupTypeException
      */
     public function testSetDefaultUserGroupsAction()
     {
@@ -523,7 +535,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         );
 
         $_POST = [
-            UserGroupController::SET_DEFAULT_USER_GROUPS_NONCE.'Nonce' =>
+            UserGroupController::SET_DEFAULT_USER_GROUPS_NONCE . 'Nonce' =>
                 UserGroupController::SET_DEFAULT_USER_GROUPS_NONCE,
             'tab_group_section' => 'objectType',
             UserGroupController::DEFAULT_USER_GROUPS_FORM_FIELD => [
@@ -534,10 +546,6 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         ];
         $userGroupController->setDefaultUserGroupsAction();
 
-        self::assertAttributeEquals(
-            TXT_UAM_SET_DEFAULT_USER_GROUP_SUCCESS,
-            'updateMessage',
-            $userGroupController
-        );
+        self::assertEquals(TXT_UAM_SET_DEFAULT_USER_GROUP_SUCCESS, $userGroupController->getUpdateMessage());
     }
 }

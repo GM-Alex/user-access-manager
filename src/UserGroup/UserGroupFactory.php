@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\UserGroup;
 
 use UserAccessManager\Config\MainConfig;
@@ -65,14 +68,13 @@ class UserGroupFactory
 
     /**
      * UserGroupFactory constructor.
-     *
-     * @param Php                            $php
-     * @param Wordpress                      $wordpress
-     * @param Database                       $database
-     * @param MainConfig                     $config
-     * @param Util                           $util
-     * @param ObjectHandler                  $objectHandler
-     * @param AssignmentInformationFactory   $assignmentInformationFactory
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param Database $database
+     * @param MainConfig $config
+     * @param Util $util
+     * @param ObjectHandler $objectHandler
+     * @param AssignmentInformationFactory $assignmentInformationFactory
      */
     public function __construct(
         Php $php,
@@ -94,12 +96,11 @@ class UserGroupFactory
 
     /**
      * Creates a new user group object.
-     *
      * @param null|string $id
-     *
      * @return UserGroup
+     * @throws UserGroupTypeException
      */
-    public function createUserGroup($id = null)
+    public function createUserGroup($id = null): UserGroup
     {
         return new UserGroup(
             $this->php,
@@ -115,13 +116,12 @@ class UserGroupFactory
 
     /**
      * Creates a new dynamic user group object.
-     *
      * @param string $type
-     * @param string $id
-     *
+     * @param int|string $id
      * @return DynamicUserGroup
+     * @throws UserGroupTypeException
      */
-    public function createDynamicUserGroup($type, $id)
+    public function createDynamicUserGroup(string $type, $id): DynamicUserGroup
     {
         return new DynamicUserGroup(
             $this->php,

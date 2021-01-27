@@ -12,7 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Wrapper;
+
+use Exception;
 
 /**
  * Class Php
@@ -22,104 +27,89 @@ namespace UserAccessManager\Wrapper;
 class Php
 {
     /**
-     * @see function_exists()
-     *
      * @param string $functionName
-     *
      * @return bool
+     * @see function_exists()
      */
-    public function functionExists($functionName)
+    public function functionExists(string $functionName): bool
     {
         return function_exists($functionName);
     }
 
     /**
-     * @see array_fill()
-     *
-     * @param int   $startIndex
-     * @param int   $numberOfElements
+     * @param int $startIndex
+     * @param int $numberOfElements
      * @param mixed $value
-     *
      * @return array
+     * @see array_fill()
      */
-    public function arrayFill($startIndex, $numberOfElements, $value)
+    public function arrayFill(int $startIndex, int $numberOfElements, $value): array
     {
         return array_fill($startIndex, $numberOfElements, $value);
     }
 
     /**
+     * @param int $length
+     * @param null|bool $strong
+     * @return false|string
      * @see openssl_random_pseudo_bytes()
-     *
-     * @param int  $length
-     * @param bool $strong
-     *
-     * @return string
      */
-    public function opensslRandomPseudoBytes($length, &$strong)
+    public function opensslRandomPseudoBytes(int $length, ?bool &$strong = false)
     {
         return openssl_random_pseudo_bytes($length, $strong);
     }
 
     /**
-     * @see unlink()
-     *
-     * @param string   $filename
-     * @param resource $context
-     *
+     * @param string $filename
+     * @param null $context
      * @return bool
+     * @see unlink()
      */
-    public function unlink($filename, $context = null)
+    public function unlink(string $filename, $context = null): bool
     {
         return ($context !== null) ? unlink($filename, $context) : unlink($filename);
     }
 
     /**
-     * @see ini_get()
-     *
      * @param string $variableName
-     *
-     * @return string
+     * @return int|string
+     * @see ini_get()
      */
-    public function iniGet($variableName)
+    public function iniGet(string $variableName)
     {
         return ini_get($variableName);
     }
 
     /**
-     * @see set_time_limit()
-     *
      * @param int $seconds
-     *
      * @return bool
+     * @see set_time_limit()
      */
-    public function setTimeLimit($seconds)
+    public function setTimeLimit(int $seconds): bool
     {
         return @set_time_limit($seconds);
     }
 
     /**
-     * @see fread()
-     *
      * @param resource $handle
-     * @param int      $length
-     *
+     * @param int $length
      * @return bool|string
+     * @see fread()
      */
-    public function fread($handle, $length)
+    public function fread($handle, int $length)
     {
         return fread($handle, $length);
     }
 
     /**
-     * @param mixed  $controller
+     * @param mixed $controller
      * @param string $file
-     *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function includeFile(&$controller, $file)
+    public function includeFile($controller, string $file)
     {
         if ($controller === null) {
-            throw new \Exception('Controller is required');
+            throw new Exception('Controller is required');
         }
 
         /** @noinspection PhpIncludeInspection */
@@ -135,80 +125,69 @@ class Php
     }
 
     /**
-     * @see file_put_contents()
-     *
      * @param string $filename
-     * @param mixed  $data
-     * @param int    $flags
-     * @param null   $context
-     *
+     * @param mixed $data
+     * @param int $flags
+     * @param null $context
      * @return bool|int
+     * @see file_put_contents()
      */
-    public function filePutContents($filename, $data, $flags = 0, $context = null)
+    public function filePutContents(string $filename, $data, $flags = 0, $context = null)
     {
         return file_put_contents($filename, $data, $flags, $context);
     }
 
     /**
-     * @see igbinary_serialize()
-     *
      * @param mixed $value
-     *
      * @return string
+     * @see igbinary_serialize()
      */
-    public function igbinarySerialize($value)
+    public function igbinarySerialize($value): string
     {
         /** @noinspection PhpUndefinedFunctionInspection */
         return igbinary_serialize($value);
     }
 
     /**
-     * @see igbinary_unserialize()
-     *
      * @param string $key
-     *
      * @return mixed
+     * @see igbinary_unserialize()
      */
-    public function igbinaryUnserialize($key)
+    public function igbinaryUnserialize(string $key)
     {
         /** @noinspection PhpUndefinedFunctionInspection */
         return igbinary_unserialize($key);
     }
 
     /**
-     * @see mkdir()
-     *
-     * @param string   $pathname
-     * @param int      $mode
-     * @param bool     $recursive
-     * @param resource $context
-     *
+     * @param string $pathname
+     * @param int $mode
+     * @param bool $recursive
+     * @param null $context
      * @return bool
+     * @see mkdir()
      */
-    public function mkdir($pathname, $mode = 0777, $recursive = false, $context = null)
+    public function mkdir(string $pathname, $mode = 0777, $recursive = false, $context = null): bool
     {
         return ($context !== null) ?
             mkdir($pathname, $mode, $recursive, $context) : mkdir($pathname, $mode, $recursive);
     }
 
     /**
-     * @see connection_status()
-     *
      * @return int
+     * @see connection_status()
      */
-    public function connectionStatus()
+    public function connectionStatus(): int
     {
         return connection_status();
     }
 
     /**
-     * @see fclose()
-     *
      * @param resource $handle
-     *
      * @return bool
+     * @see fclose()
      */
-    public function fClose($handle)
+    public function fClose($handle): bool
     {
         return fclose($handle);
     }

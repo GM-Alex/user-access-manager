@@ -12,7 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Form;
+
+use Exception;
 
 /**
  * Class MultipleFormElementValue
@@ -28,22 +33,21 @@ class MultipleFormElementValue extends ValueSetFormElementValue
 
     /**
      * @param FormElement $subElement
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function setSubElement(FormElement $subElement)
     {
         if ($subElement instanceof MultipleFormElement) {
-            throw new \Exception('Invalid form type for sub element.');
+            throw new Exception('Invalid form type for sub element.');
         }
 
         $this->subElement = $subElement;
     }
 
     /**
-     * @return FormElement
+     * @return FormElement|null
      */
-    public function getSubElement()
+    public function getSubElement(): ?FormElement
     {
         return $this->subElement;
     }

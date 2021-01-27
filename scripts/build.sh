@@ -20,7 +20,7 @@ fi
 npm install
 ${PLUGIN_ROOT}/node_modules/grunt-cli/bin/grunt
 
-EXCLUDES="${EXCLUDES}.gitkeep,README.md,.travis.yml,builds,phpunit.xml.dist,humbug.json.dist,tests,scripts,package.json,Gruntfile.js"
+EXCLUDES="${EXCLUDES}.gitkeep,README.md,.github,builds,phpunit.xml.dist,infection.json.dist,tests,scripts,package.json,Gruntfile.js"
 eval "rsync -av ${PLUGIN_ROOT}/* ${PLUGIN_BUILDS_PATH} --exclude={${EXCLUDES}}"
 
 composer --working-dir="${PLUGIN_BUILDS_PATH}" install --no-dev

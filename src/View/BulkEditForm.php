@@ -14,8 +14,11 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\Backend\ObjectController $controller
+ * @var ObjectController $controller
  */
+
+use UserAccessManager\Controller\Backend\ObjectController;
+
 ?>
 <table class="form-table">
     <tbody>
