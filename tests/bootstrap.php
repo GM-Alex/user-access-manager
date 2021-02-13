@@ -24,6 +24,10 @@ if (class_exists('\WP_Post_Type') === false) {
     class WP_Post_Type {}
 }
 
+if (class_exists('\wpdb') === false) {
+    class wpdb {}
+}
+
 if (class_exists('\WP_Widget') === false) {
     require_once __DIR__.'/../vendor/johnpbloch/wordpress-core/wp-includes/class-wp-widget.php';
 }
