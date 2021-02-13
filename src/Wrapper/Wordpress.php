@@ -202,11 +202,11 @@ class Wordpress
     }
 
     /**
-     * @param string $postType
+     * @param int|string $postType
      * @return null|WP_Post_Type
      * @see \get_post_type_object()
      */
-    public function getPostTypeObject(string $postType): ?WP_Post_Type
+    public function getPostTypeObject($postType): ?WP_Post_Type
     {
         return get_post_type_object($postType);
     }
@@ -234,9 +234,6 @@ class Wordpress
     public function dbDelta($queries = '', $execute = true): array
     {
         if (function_exists('\dbDelta') === false) {
-            /**
-             * @noinspection PhpIncludeInspection
-             */
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         }
 
@@ -245,10 +242,10 @@ class Wordpress
 
     /**
      * @param integer $blogId
-     * @return int|true
+     * @return int|string
      * @see \switch_to_blog()
      */
-    public function switchToBlog(int $blogId)
+    public function switchToBlog($blogId)
     {
         if (function_exists('\switch_to_blog') === true) {
             return switch_to_blog($blogId);
