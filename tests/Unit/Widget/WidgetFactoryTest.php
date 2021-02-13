@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Widget;
 
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
@@ -29,10 +30,9 @@ class WidgetFactoryTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return WidgetFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): WidgetFactory
     {
         $widgetFactory = new WidgetFactory(
             $this->getPhp(),
@@ -49,7 +49,6 @@ class WidgetFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createLoginWidget()
-     *
      * @param WidgetFactory $widgetFactory
      */
     public function testCreateLoginWidget(WidgetFactory $widgetFactory)

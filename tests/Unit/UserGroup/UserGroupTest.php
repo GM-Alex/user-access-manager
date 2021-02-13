@@ -12,11 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use Exception;
+use ReflectionException;
+use stdClass;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class UserGroupTest
@@ -29,6 +34,7 @@ class UserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws UserGroupTypeException
      */
     public function testCanCreateInstance()
     {
@@ -71,10 +77,10 @@ class UserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::load()
-     *
      * @return UserGroup
+     * @throws UserGroupTypeException
      */
-    public function testLoad()
+    public function testLoad(): UserGroup
     {
         $database = $this->getDatabase();
 
@@ -106,7 +112,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue('queryString'));
 
-        $dbUserGroup = new \stdClass();
+        $dbUserGroup = new stdClass();
         $dbUserGroup->groupname = 'groupName';
         $dbUserGroup->groupdesc = 'groupDesc';
         $dbUserGroup->read_access = 'readAccess';
@@ -129,20 +135,20 @@ class UserGroupTest extends UserAccessManagerTestCase
         );
 
         self::assertFalse($userGroup->load(1));
-        self::assertAttributeEquals(null, 'id', $userGroup);
-        self::assertAttributeEquals(null, 'name', $userGroup);
-        self::assertAttributeEquals(null, 'description', $userGroup);
-        self::assertAttributeEquals('group', 'readAccess', $userGroup);
-        self::assertAttributeEquals('group', 'writeAccess', $userGroup);
-        self::assertAttributeEquals(null, 'ipRange', $userGroup);
+        self::assertEquals(null, $userGroup->getId());
+        self::assertEquals(null, $userGroup->getName());
+        self::assertEquals(null, $userGroup->getDescription());
+        self::assertEquals('group', $userGroup->getReadAccess());
+        self::assertEquals('group', $userGroup->getWriteAccess());
+        self::assertEquals(null, $userGroup->getIpRange());
 
         self::assertTrue($userGroup->load(2));
-        self::assertAttributeEquals(2, 'id', $userGroup);
-        self::assertAttributeEquals('groupName', 'name', $userGroup);
-        self::assertAttributeEquals('groupDesc', 'description', $userGroup);
-        self::assertAttributeEquals('readAccess', 'readAccess', $userGroup);
-        self::assertAttributeEquals('writeAccess', 'writeAccess', $userGroup);
-        self::assertAttributeEquals('ipRange;ipRange2', 'ipRange', $userGroup);
+        self::assertEquals(2, $userGroup->getId());
+        self::assertEquals('groupName', $userGroup->getName());
+        self::assertEquals('groupDesc', $userGroup->getDescription());
+        self::assertEquals('readAccess', $userGroup->getReadAccess());
+        self::assertEquals('writeAccess', $userGroup->getWriteAccess());
+        self::assertEquals('ipRange;ipRange2', $userGroup->getIpRange());
 
         return $userGroup;
     }
@@ -162,7 +168,6 @@ class UserGroupTest extends UserAccessManagerTestCase
      * @covers  ::setReadAccess()
      * @covers  ::setWriteAccess()
      * @covers  ::setIpRange()
-     *
      * @param UserGroup $userGroup
      */
     public function testSimpleGetterSetter(UserGroup $userGroup)
@@ -176,24 +181,26 @@ class UserGroupTest extends UserAccessManagerTestCase
         self::assertEquals('ipRange;ipRange2', $userGroup->getIpRange());
 
         $userGroup->setName('groupNameNew');
-        self::assertAttributeEquals('groupNameNew', 'name', $userGroup);
+        self::assertEquals('groupNameNew', $userGroup->getName());
 
         $userGroup->setDescription('groupDescNew');
-        self::assertAttributeEquals('groupDescNew', 'description', $userGroup);
+        self::assertEquals('groupDescNew', $userGroup->getDescription());
 
         $userGroup->setReadAccess('readAccessNew');
-        self::assertAttributeEquals('readAccessNew', 'readAccess', $userGroup);
+        self::assertEquals('readAccessNew', $userGroup->getReadAccess());
 
         $userGroup->setWriteAccess('writeAccessNew');
-        self::assertAttributeEquals('writeAccessNew', 'writeAccess', $userGroup);
+        self::assertEquals('writeAccessNew', $userGroup->getWriteAccess());
 
         $userGroup->setIpRange(['ipRangeNew', 'ipRangeNew2']);
-        self::assertAttributeEquals('ipRangeNew;ipRangeNew2', 'ipRange', $userGroup);
+        self::assertEquals('ipRangeNew;ipRangeNew2', $userGroup->getIpRange());
     }
 
     /**
      * @group  unit
      * @covers ::save()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testSave()
     {
@@ -267,6 +274,8 @@ class UserGroupTest extends UserAccessManagerTestCase
      * @covers ::delete()
      * @covers ::removeObject()
      * @covers ::resetObjects()
+     * @throws Exception
+     * @throws UserGroupTypeException
      */
     public function testDelete()
     {
@@ -293,7 +302,7 @@ class UserGroupTest extends UserAccessManagerTestCase
         $objectHandler->expects($this->once())
             ->method('getGeneralObjectType')
             ->with('objectType')
-            ->will($this->returnValue(false));
+            ->will($this->returnValue(null));
 
         $userGroup = new UserGroup(
             $this->getPhp(),

@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup\Database;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Setup\Database\Column;
 
 /**
@@ -22,7 +24,7 @@ use UserAccessManager\Setup\Database\Column;
  * @package UserAccessManager\Tests\Unit\Setup\Database
  * @coversDefaultClass \UserAccessManager\Setup\Database\Column
  */
-class ColumnTest extends \PHPUnit_Framework_TestCase
+class ColumnTest extends TestCase
 {
     /**
      * @group  unit

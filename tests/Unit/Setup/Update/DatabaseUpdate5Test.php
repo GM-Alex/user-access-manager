@@ -12,10 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use Exception;
+use stdClass;
 use UserAccessManager\Setup\Update\DatabaseUpdate5;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
@@ -57,6 +60,7 @@ class DatabaseUpdate5Test extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::update()
+     * @throws Exception
      */
     public function testUpdate()
     {
@@ -66,7 +70,7 @@ class DatabaseUpdate5Test extends UserAccessManagerTestCase
             ->method('getUserGroupToObjectTable')
             ->will($this->returnValue('userGroupToObjectTable'));
 
-        $dbObject = new \stdClass();
+        $dbObject = new stdClass();
         $dbObject->objectId = 123;
         $dbObject->groupId = 321;
         $dbObject->objectType = 'customPostType';

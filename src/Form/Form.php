@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Form;
 
 /**
@@ -37,7 +40,7 @@ class Form
     /**
      * @return FormElement[]
      */
-    public function getElements()
+    public function getElements(): array
     {
         return $this->elements;
     }

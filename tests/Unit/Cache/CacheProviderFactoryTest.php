@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Cache;
 
 use UserAccessManager\Cache\CacheProviderFactory;
@@ -28,10 +29,9 @@ class CacheProviderFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
-     *
      * @return CacheProviderFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): CacheProviderFactory
     {
         $cacheProviderFactory = new CacheProviderFactory(
             $this->getPhp(),
@@ -50,7 +50,6 @@ class CacheProviderFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFileSystemCacheProvider()
-     *
      * @param CacheProviderFactory $cacheProviderFactory
      */
     public function testCreateFrom(CacheProviderFactory $cacheProviderFactory)

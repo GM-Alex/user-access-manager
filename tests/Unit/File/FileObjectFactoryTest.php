@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\File;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\File\FileObject;
 use UserAccessManager\File\FileObjectFactory;
 
@@ -23,14 +25,13 @@ use UserAccessManager\File\FileObjectFactory;
  * @package UserAccessManager\Tests\Unit\File
  * @coversDefaultClass \UserAccessManager\File\FileObjectFactory
  */
-class FileObjectFactoryTest extends \PHPUnit_Framework_TestCase
+class FileObjectFactoryTest extends TestCase
 {
     /**
      * @group  unit
-     *
      * @return FileObjectFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): FileObjectFactory
     {
         $fileObjectFactory = new FileObjectFactory();
 
@@ -43,7 +44,6 @@ class FileObjectFactoryTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFileObject()
-     *
      * @param FileObjectFactory $fileObjectFactory
      */
     public function testCreateApacheFileProtection(FileObjectFactory $fileObjectFactory)

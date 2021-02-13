@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Widget;
 
+use ReflectionException;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\Widget\LoginWidget;
 use Vfs\FileSystem;
@@ -36,7 +38,7 @@ class LoginWidgetTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -45,7 +47,7 @@ class LoginWidgetTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
@@ -53,6 +55,7 @@ class LoginWidgetTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws ReflectionException
      */
     public function testCanCreateInstance()
     {
@@ -63,23 +66,22 @@ class LoginWidgetTest extends UserAccessManagerTestCase
         );
 
         self::assertInstanceOf(LoginWidget::class, $loginWidget);
-        self::assertAttributeEquals($this->getPhp(), 'php', $loginWidget);
-        self::assertAttributeEquals($this->getWordpress(), 'wordpress', $loginWidget);
-        self::assertAttributeEquals($this->getWordpressConfig(), 'wordpressConfig', $loginWidget);
+        self::assertEquals($this->getPhp(), $this->callMethod($loginWidget, 'getPhp'));
+        self::assertEquals($this->getWordpress(), $this->callMethod($loginWidget, 'getWordpress'));
+        self::assertEquals($this->getWordpressConfig(), $this->callMethod($loginWidget, 'getWordpressConfig'));
 
-        self::assertAttributeEquals('uam_login_widget', 'id_base', $loginWidget);
-        self::assertAttributeEquals('UAM login widget|user-access-manager', 'name', $loginWidget);
-        self::assertAttributeEquals('widget_uam_login_widget', 'option_name', $loginWidget);
-        self::assertAttributeEquals(
+        self::assertEquals('uam_login_widget', $loginWidget->id_base);
+        self::assertEquals('UAM login widget|user-access-manager', $loginWidget->name);
+        self::assertEquals('widget_uam_login_widget', $loginWidget->option_name);
+        self::assertEquals(
             [
                 'classname' => 'widget_uam_login_widget',
                 'customize_selective_refresh' => false,
                 'description' => 'User Access Manager login widget for users.|user-access-manager'
             ],
-            'widget_options',
-            $loginWidget
+            $loginWidget->widget_options
         );
-        self::assertAttributeEquals(['id_base' => 'uam_login_widget'], 'control_options', $loginWidget);
+        self::assertEquals(['id_base' => 'uam_login_widget'], $loginWidget->control_options);
     }
 
     /**
@@ -87,6 +89,7 @@ class LoginWidgetTest extends UserAccessManagerTestCase
      * @covers ::getPhp()
      * @covers ::getWordpress()
      * @covers ::getWordpressConfig()
+     * @throws ReflectionException
      */
     public function testSimpleGetters()
     {
@@ -113,7 +116,7 @@ class LoginWidgetTest extends UserAccessManagerTestCase
         $rootDir = $this->root->get('/');
         $rootDir->add('root', new Directory([
             'src' => new Directory([
-                'View'  => new Directory([
+                'View' => new Directory([
                     'LoginWidget.php' => new File('<?php echo \'testContent\';')
                 ])
             ])

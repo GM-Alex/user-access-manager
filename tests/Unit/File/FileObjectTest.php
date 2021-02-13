@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\File;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\File\FileObject;
 
 /**
@@ -22,7 +24,7 @@ use UserAccessManager\File\FileObject;
  * @package UserAccessManager\Tests\Unit\File
  * @coversDefaultClass \UserAccessManager\File\FileObject
  */
-class FileObjectTest extends \PHPUnit_Framework_TestCase
+class FileObjectTest extends TestCase
 {
     /**
      * @group  unit

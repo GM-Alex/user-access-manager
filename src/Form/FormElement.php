@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Form;
 
 /**
@@ -36,13 +39,12 @@ abstract class FormElement
 
     /**
      * FormElement constructor.
-     *
-     * @param string      $id
-     * @param mixed|null  $value
+     * @param string $id
+     * @param mixed|null $value
      * @param string|null $label
      * @param string|null $description
      */
-    public function __construct($id, $value = null, $label = null, $description = null)
+    public function __construct(string $id, $value = null, $label = null, $description = null)
     {
         $this->id = $id;
         $this->value = $value;
@@ -53,7 +55,7 @@ abstract class FormElement
     /**
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
@@ -61,7 +63,7 @@ abstract class FormElement
     /**
      * @return null|string
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }

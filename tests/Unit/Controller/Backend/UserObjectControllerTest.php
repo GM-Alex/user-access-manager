@@ -12,11 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use ReflectionException;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class UserObjectControllerTest
@@ -79,6 +82,7 @@ class UserObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::addUserColumn()
+     * @throws UserGroupTypeException
      */
     public function testAddUserColumn()
     {
@@ -104,6 +108,8 @@ class UserObjectControllerTest extends ObjectControllerTestCase
      * @group  unit
      * @covers ::addUserColumn()
      * @covers ::showUserProfile()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testEditForm()
     {
@@ -130,7 +136,7 @@ class UserObjectControllerTest extends ObjectControllerTestCase
         $this->resetControllerObjectInformation($userObjectController);
 
         $expected = 'return!UserAccessManager\Controller\Backend\UserObjectController|'
-            .'vfs://root/src/View/UserColumn.php|uam_user_groups!';
+            . 'vfs://root/src/View/UserColumn.php|uam_user_groups!';
         self::assertEquals(
             $expected,
             $userObjectController->addUserColumn('return', ObjectController::COLUMN_NAME, 1)
@@ -149,7 +155,7 @@ class UserObjectControllerTest extends ObjectControllerTestCase
         );
         self::assertEquals(null, $userObjectController->getObjectInformation()->getObjectId());
         $expectedOutput = '!UserAccessManager\Controller\Backend\UserObjectController|'
-            .'vfs://root/src/View/UserProfileEditForm.php|uam_user_groups!';
+            . 'vfs://root/src/View/UserProfileEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($userObjectController);
 
         $_GET['user_id'] = 4;
@@ -160,7 +166,7 @@ class UserObjectControllerTest extends ObjectControllerTestCase
         );
         self::assertEquals(4, $userObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\UserObjectController|'
-            .'vfs://root/src/View/UserProfileEditForm.php|uam_user_groups!';
+            . 'vfs://root/src/View/UserProfileEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($userObjectController);
 
         self::expectOutputString($expectedOutput);
@@ -169,6 +175,7 @@ class UserObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::saveUserData()
+     * @throws UserGroupTypeException
      */
     public function testSaveUserData()
     {

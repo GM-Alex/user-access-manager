@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\File;
 
+use Exception;
 use UserAccessManager\Object\ObjectHandler;
 
 /**
@@ -27,15 +31,13 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
 
     /**
      * Returns the location.
-     *
      * @param string $directory
-     *
      * @return string
      */
-    protected function getLocation($directory)
+    protected function getLocation(string $directory): string
     {
         if ($this->mainConfig->getLockedDirectoryType() === 'wordpress') {
-            return "^{$directory}".$this->getDirectoryMatch();
+            return "^{$directory}" . $this->getDirectoryMatch();
         }
 
         $directoryMatch = $this->getDirectoryMatch();
@@ -44,14 +46,12 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
 
     /**
      * Creates the file content if permalinks are active.
-     *
      * @param string $absolutePath
      * @param string $directory
-     * @param string $objectType
-     *
+     * @param string|null $objectType
      * @return string
      */
-    private function getFileContent($absolutePath, $directory, $objectType)
+    private function getFileContent(string $absolutePath, string $directory, ?string $objectType): string
     {
         if ($objectType === null) {
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;
@@ -71,38 +71,34 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
 
     /**
      * Returns the nginx config file name with path.
-     *
      * @param string null|$directory
-     *
      * @return string
      */
-    public function getFileNameWithPath($directory = null)
+    public function getFileNameWithPath($directory = null): string
     {
-        return ABSPATH.self::FILE_NAME;
+        return ABSPATH . self::FILE_NAME;
     }
 
     /**
      * Generates the conf file.
-     *
      * @param string $directory
-     * @param string $objectType
-     * @param string $absolutePath
-     *
+     * @param string|null $objectType
+     * @param string|null $absolutePath
      * @return bool
      */
-    public function create($directory, $objectType = null, $absolutePath = ABSPATH)
+    public function create(string $directory, ?string $objectType = null, ?string $absolutePath = ABSPATH): bool
     {
-        $directory = rtrim($directory, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
-        $absolutePath = rtrim($absolutePath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+        $directory = rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $absolutePath = rtrim($absolutePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         $content = $this->getFileContent($absolutePath, $directory, $objectType);
 
         // save files
-        $fileWithPath = $absolutePath.self::FILE_NAME;
+        $fileWithPath = $absolutePath . self::FILE_NAME;
 
         try {
             file_put_contents($fileWithPath, $content);
             return true;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             // Because file_put_contents can throw exceptions we use this try catch block
             // to return the success result instead of an exception
         }
@@ -112,12 +108,10 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
 
     /**
      * Deletes the conf file.
-     *
      * @param string $directory
-     *
      * @return bool
      */
-    public function delete($directory)
+    public function delete(string $directory): bool
     {
         return $this->deleteFiles($directory);
     }

@@ -12,12 +12,16 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Form;
 
+use Exception;
 use UserAccessManager\Config\BooleanConfigParameter;
 use UserAccessManager\Config\Config;
-use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameter;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\SelectionConfigParameter;
 use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\Wrapper\Php;
@@ -52,10 +56,9 @@ class FormHelper
 
     /**
      * FormHelper constructor.
-     *
-     * @param Php         $php
-     * @param Wordpress   $wordpress
-     * @param MainConfig  $config
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param MainConfig $config
      * @param FormFactory $formFactory
      */
     public function __construct(
@@ -72,14 +75,12 @@ class FormHelper
 
     /**
      * Returns the right translation string.
-     *
      * @param string $ident
-     * @param bool   $description
-     * @param string $objectKey
-     *
+     * @param bool $description
+     * @param null $objectKey
      * @return mixed|string
      */
-    private function getObjectText($ident, $description = false, $objectKey = null)
+    private function getObjectText(string $ident, $description = false, $objectKey = null): string
     {
         $ident .= ($description === true) ? '_DESC' : '';
 
@@ -106,14 +107,13 @@ class FormHelper
 
     /**
      * @param string $key
-     * @param bool   $description
-     *
+     * @param bool $description
      * @return string
      */
-    public function getText($key, $description = false)
+    public function getText(string $key, $description = false): string
     {
         return $this->getObjectText(
-            'TXT_UAM_'.strtoupper($key).'_SETTING',
+            'TXT_UAM_' . strtoupper($key) . '_SETTING',
             $description,
             $key
         );
@@ -121,16 +121,14 @@ class FormHelper
 
     /**
      * Returns the label for the parameter.
-     *
      * @param ConfigParameter $configParameter
-     * @param bool            $description
-     * @param string          $objectKey
-     *
+     * @param bool $description
+     * @param string $objectKey
      * @return string
      */
-    public function getParameterText(ConfigParameter $configParameter, $description = false, $objectKey = null)
+    public function getParameterText(ConfigParameter $configParameter, $description = false, $objectKey = null): string
     {
-        $ident = 'TXT_UAM_'.strtoupper($configParameter->getId());
+        $ident = 'TXT_UAM_' . strtoupper($configParameter->getId());
 
         return $this->getObjectText(
             $ident,
@@ -141,17 +139,17 @@ class FormHelper
 
     /**
      * Creates a multiple form element.
-     *
-     * @param string          $value
-     * @param string          $label
-     * @param ConfigParameter $parameter
-     *
+     * @param string $value
+     * @param string $label
+     * @param ConfigParameter|null $parameter
      * @return MultipleFormElementValue
-     *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function createMultipleFromElement($value, $label, ConfigParameter $parameter = null)
-    {
+    public function createMultipleFromElement(
+        string $value,
+        string $label,
+        ?ConfigParameter $parameter = null
+    ): MultipleFormElementValue {
         $value = $this->formFactory->createMultipleFormElementValue($value, $label);
 
         if ($parameter !== null) {
@@ -167,12 +165,10 @@ class FormHelper
 
     /**
      * @param SelectionConfigParameter $configParameter
-     * @param null|string              $objectKey
-     * @param array                    $overwrittenValues
-     *
+     * @param null|string $objectKey
+     * @param array $overwrittenValues
      * @return mixed
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     private function convertSelectionParameter(
         SelectionConfigParameter $configParameter,
@@ -182,7 +178,7 @@ class FormHelper
         $values = [];
 
         foreach ($configParameter->getSelections() as $selection) {
-            $optionNameKey = 'TXT_UAM_'.strtoupper($configParameter->getId().'_'.$selection);
+            $optionNameKey = 'TXT_UAM_' . strtoupper($configParameter->getId() . '_' . $selection);
             $label = (defined($optionNameKey) === true) ? constant($optionNameKey) : $optionNameKey;
 
             if ($overwrittenValues === []) {
@@ -206,12 +202,10 @@ class FormHelper
 
     /**
      * @param ConfigParameter $configParameter
-     * @param null|string     $objectKey
-     * @param array           $overwrittenValues
-     *
+     * @param null|string $objectKey
+     * @param array $overwrittenValues
      * @return null|Input|Radio|Select
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function convertConfigParameter(
         ConfigParameter $configParameter,
@@ -246,15 +240,12 @@ class FormHelper
 
     /**
      * Returns the settings form for the given config parameters.
-     *
-     * @param array       $parameters
+     * @param array $parameters
      * @param string|null $objectKey
-     *
-     * @return \UserAccessManager\Form\Form
-     *
-     * @throws \Exception
+     * @return Form
+     * @throws Exception
      */
-    public function getSettingsForm(array $parameters, $objectKey = null)
+    public function getSettingsForm(array $parameters, $objectKey = null): Form
     {
         $configParameters = $this->config->getConfigParameters();
         $form = $this->formFactory->createFrom();
@@ -292,14 +283,11 @@ class FormHelper
 
     /**
      * Converts config parameters to a form.
-     *
      * @param Config $config
-     *
      * @return Form
-     *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getSettingsFormByConfig(Config $config)
+    public function getSettingsFormByConfig(Config $config): Form
     {
         $form = $this->formFactory->createFrom();
         $configParameters = $config->getConfigParameters();

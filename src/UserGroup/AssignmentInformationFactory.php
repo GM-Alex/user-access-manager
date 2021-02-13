@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\UserGroup;
 
 /**
@@ -23,12 +26,10 @@ class AssignmentInformationFactory
 {
     /**
      * Creates an AssignmentInformation object.
-     *
      * @param null|string $type
      * @param null|string $fromDate
      * @param null|string $toDate
-     * @param array       $recursiveMembership
-     *
+     * @param array $recursiveMembership
      * @return AssignmentInformation
      */
     public function createAssignmentInformation(
@@ -36,7 +37,7 @@ class AssignmentInformationFactory
         $fromDate = null,
         $toDate = null,
         array $recursiveMembership = []
-    ) {
+    ): AssignmentInformation {
         return new AssignmentInformation($type, $fromDate, $toDate, $recursiveMembership);
     }
 }

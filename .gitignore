@@ -1,8 +1,15 @@
 builds
 vendor
 tmp
-humbuglog.txt
-humbuglog.json
+.htaccess
 .htpasswd
 node_modules
 coverage.clover
+.phpunit.result.cache
+infection.txt
+serializeCacheKey.cache
+supporters.json
+uam.conf
+infection.json
+.htaccess
+.cache

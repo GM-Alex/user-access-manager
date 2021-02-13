@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Controller\Backend\ControllerTabNavigationTrait;
 
 /**
@@ -22,10 +25,10 @@ use UserAccessManager\Controller\Backend\ControllerTabNavigationTrait;
  * @package UserAccessManager\Tests\Unit\Controller\Backend
  * @coversDefaultClass \UserAccessManager\Controller\Backend\ControllerTabNavigationTrait
  */
-class ControllerTabNavigationTraitTest extends \PHPUnit_Framework_TestCase
+class ControllerTabNavigationTraitTest extends TestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ControllerTabNavigationTrait
+     * @return MockObject|ControllerTabNavigationTrait
      */
     private function getStub()
     {

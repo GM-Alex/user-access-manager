@@ -12,8 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Controller\BaseControllerTrait;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use Vfs\FileSystem;
@@ -36,7 +41,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -45,13 +50,13 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|BaseControllerTrait
+     * @return MockObject|BaseControllerTrait
      */
     private function getStub()
     {
@@ -76,13 +81,13 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
         self::assertEquals('default', $stub->getRequestParameter('invalid', 'default'));
         self::assertNull($stub->getRequestParameter('invalid'));
 
-        $_GET['objectParam'] = new \stdClass();
+        $_GET['objectParam'] = new stdClass();
         $_GET['arrayParam'] = [
             'normalKey' => '<script>alert(\'evil\\\Value\');</script>',
             '<script>alert(\'evilKey\');</script>' => 'normalValue',
             'array' => ['a' => '<script>alert(\'otherEvil\');</script>']
         ];
-        self::assertEquals(new \stdClass(), $stub->getRequestParameter('objectParam'));
+        self::assertEquals(new stdClass(), $stub->getRequestParameter('objectParam'));
         self::assertEquals(
             [
                 'normalKey' => '&lt;script&gt;alert(\'evil\Value\');&lt;/script&gt;',
@@ -110,6 +115,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
      * @group   unit
      * @covers  ::render()
      * @covers  ::getIncludeContents()
+     * @throws ReflectionException
      */
     public function testRender()
     {
@@ -119,7 +125,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
         $rootDir = $this->root->get('/');
         $rootDir->add('root', new Directory([
             'src' => new Directory([
-                'View'  => new Directory([
+                'View' => new Directory([
                     'TestView.php' => new File('<?php echo \'testContent\';')
                 ])
             ])
@@ -149,7 +155,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
             ->with($stub, 'vfs://root/src/View/TestView.php')
             ->will($this->returnCallback(function () use (&$throwException) {
                 if ($throwException === true) {
-                    throw new \Exception('Include file exception');
+                    throw new Exception('Include file exception');
                 }
 
                 echo 'testContent';
@@ -165,7 +171,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
 
         self::expectOutputString(
             'testContent'
-            .'Error on including content \'vfs://root/src/View/TestView.php\': Include file exception'
+            . 'Error on including content \'vfs://root/src/View/TestView.php\': Include file exception'
         );
     }
 }

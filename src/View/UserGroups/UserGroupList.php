@@ -14,7 +14,7 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\Backend\UserGroupController $controller
+ * @var UserGroupController $controller
  */
 
 /**
@@ -23,6 +23,10 @@
  *
  * @return string
  */
+
+use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Object\ObjectHandler;
+
 $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
     $isSorted = $controller->getRequestParameter('orderby') === $sortingParameter;
     $class = $isSorted === true ? 'sorted' : 'sortable';
@@ -72,7 +76,7 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
                     <strong>
                         <?php
                         $link = "?page={$currentAdminPage}&amp;uam_action=edit_user_group"
-                            ."&amp;userGroupId={$userGroup->getId()}";
+                            . "&amp;userGroupId={$userGroup->getId()}";
                         ?>
                         <a href="<?php echo $link; ?>">
                             <?php echo htmlentities($userGroup->getName()); ?>
@@ -104,7 +108,7 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
                     <?php
                     $roleNames = $controller->getRoleNames();
                     $groupRoles = $userGroup->getAssignedObjectsByType(
-                        \UserAccessManager\Object\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                        ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                     );
 
                     if (count($groupRoles) > 0) {

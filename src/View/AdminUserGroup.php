@@ -14,8 +14,11 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\Backend\UserGroupController $controller
+ * @var UserGroupController $controller
  */
+
+use UserAccessManager\Controller\Backend\UserGroupController;
+
 if ($controller->hasUpdateMessage() === true) {
     ?>
     <div class="updated">
@@ -26,7 +29,7 @@ if ($controller->hasUpdateMessage() === true) {
 
 $currentGroup = $controller->getCurrentTabGroup();
 $editUserGroup = $controller->getUserGroup()->getId() !== null;
-$userGroupOverview = $currentGroup === \UserAccessManager\Controller\Backend\UserGroupController::GROUP_USER_GROUPS;
+$userGroupOverview = $currentGroup === UserGroupController::GROUP_USER_GROUPS;
 $title = '';
 
 if ($editUserGroup === false) {

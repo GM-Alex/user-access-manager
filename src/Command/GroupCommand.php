@@ -13,21 +13,29 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
+
 namespace UserAccessManager\Command;
 
+use Exception;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\UserGroup\UserGroupHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\WordpressCli;
-use WP_CLI\CommandWithDBObject;
 use WP_CLI\ExitException;
+use WP_CLI\Formatter;
+use WP_CLI_Command;
 
 /**
  * Class GroupCommand
  *
  * @package UserAccessManager\Command
  */
-class GroupCommand extends CommandWithDBObject
+class GroupCommand extends WP_CLI_Command
 {
     const FORMATTER_PREFIX = 'uam_user_groups';
 
@@ -53,8 +61,7 @@ class GroupCommand extends CommandWithDBObject
 
     /**
      * ObjectCommand constructor.
-     *
-     * @param WordpressCli     $wordpressCli
+     * @param WordpressCli $wordpressCli
      * @param UserGroupHandler $userGroupHandler
      * @param UserGroupFactory $userGroupFactory
      */
@@ -66,16 +73,15 @@ class GroupCommand extends CommandWithDBObject
         $this->wordpressCli = $wordpressCli;
         $this->userGroupHandler = $userGroupHandler;
         $this->userGroupFactory = $userGroupFactory;
+        parent::__construct();
     }
 
     /**
      * Returns the formatter
-     *
      * @param $assocArguments
-     *
-     * @return \WP_CLI\Formatter
+     * @return Formatter
      */
-    private function getFormatter(&$assocArguments)
+    private function getFormatter(&$assocArguments): Formatter
     {
         return $this->wordpressCli->createFormatter(
             $assocArguments,
@@ -94,22 +100,17 @@ class GroupCommand extends CommandWithDBObject
 
     /**
      * list groups
-     *
      * ## OPTIONS
-     *
      * [--format=<format>]
      * : Accepted values: table, csv, json, count, ids. Default: table
-     *
      * ## EXAMPLES
-     *
      * wp uam groups list
-     *
      * @subcommand ls
-     *
      * @param array $arguments
      * @param array $assocArguments
-     *
      * @throws ExitException
+     * @throws UserGroupTypeException
+     * @throws Exception
      */
     public function ls(array $arguments, array $assocArguments)
     {
@@ -148,20 +149,15 @@ class GroupCommand extends CommandWithDBObject
 
     /**
      * delete groups
-     *
      * ## OPTIONS
      * <group_id>
      * : id of the group(s) to delete; accepts unlimited ids
-     *
      * ## EXAMPLES
-     *
      * wp uam groups del 3 5
-     *
      * @subcommand del
-     *
      * @param array $arguments
-     *
      * @throws ExitException
+     * @throws UserGroupTypeException
      */
     public function del(array $arguments)
     {
@@ -181,14 +177,12 @@ class GroupCommand extends CommandWithDBObject
 
     /**
      * Checks if the user group already exists.
-     *
      * @param $userGroupName
-     *
      * @return bool
-     *
      * @throws ExitException
+     * @throws UserGroupTypeException
      */
-    private function doesUserGroupExists($userGroupName)
+    private function doesUserGroupExists($userGroupName): bool
     {
         $userGroups = $this->userGroupHandler->getUserGroups();
 
@@ -207,33 +201,29 @@ class GroupCommand extends CommandWithDBObject
 
     /**
      * Returns the argument value.
-     *
-     * @param array  $arguments
+     * @param array $arguments
      * @param string $value
-     *
      * @return string
      */
-    private function getArgumentValue(array $arguments, $value)
+    private function getArgumentValue(array $arguments, string $value): string
     {
-        return (isset($arguments[$value]) === true) ? (string)$arguments[$value] : '';
+        return (isset($arguments[$value]) === true) ? (string) $arguments[$value] : '';
     }
 
     /**
      * Processes the access value.
-     *
-     * @param array  $arguments
+     * @param array $arguments
      * @param string $value
-     * @param bool   $porcelain
-     *
+     * @param bool $porcelain
      * @return string
      */
-    private function getAccessValue(array $arguments, $value, $porcelain)
+    private function getAccessValue(array $arguments, string $value, bool $porcelain): string
     {
         $accessValue = $this->getArgumentValue($arguments, $value);
 
         if (in_array($accessValue, self::$allowedAccessValues) === false) {
             if ($porcelain === true) {
-                $this->wordpressCli->line("setting {$value} to ".self::$allowedAccessValues[0]);
+                $this->wordpressCli->line("setting {$value} to " . self::$allowedAccessValues[0]);
             }
 
             $accessValue = self::$allowedAccessValues[0];
@@ -244,13 +234,13 @@ class GroupCommand extends CommandWithDBObject
 
     /**
      * Creates the user group.
-     *
      * @param string $userGroupName
-     * @param array  $assocArguments
-     *
-     * @return \UserAccessManager\UserGroup\UserGroup
+     * @param array $assocArguments
+     * @return UserGroup
+     * @throws UserGroupTypeException
+     * @throws Exception
      */
-    private function createUserGroup($userGroupName, array $assocArguments)
+    private function createUserGroup(string $userGroupName, array $assocArguments): UserGroup
     {
         $groupDescription = $this->getArgumentValue($assocArguments, 'desc');
         $ipRange = $this->getArgumentValue($assocArguments, 'ip_range');
@@ -283,17 +273,13 @@ class GroupCommand extends CommandWithDBObject
 
     /**
      * add group
-     *
      * ## OPTIONS
      * <group_name>
      * : the name of the new group
-     *
      * [--porcelain]
      * : Output just the new post id.
-     *
      * [--roles=<list>]
      * : comma separated list of group associated roles
-     *
      * [--<field>=<value>]
      * : Associative args for new UamUserGroup object
      * allowed fields and values are:
@@ -301,17 +287,13 @@ class GroupCommand extends CommandWithDBObject
      * read_access={group,all*},
      * write_access={group,all*},
      * ip_range="192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30"
-     *
      * *=default
-     *
      * ## EXAMPLES
-     *
      * wp uam groups add fighters --read_access=all
-     *
      * @param array $arguments
      * @param array $assocArguments
-     *
      * @throws ExitException
+     * @throws UserGroupTypeException
      */
     public function add(array $arguments, array $assocArguments)
     {

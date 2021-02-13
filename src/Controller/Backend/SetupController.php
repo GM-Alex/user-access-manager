@@ -12,11 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Database\Database;
+use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
@@ -54,12 +58,11 @@ class SetupController extends Controller
 
     /**
      * SetupController constructor.
-     *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
+     * @param Php $php
+     * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
-     * @param Database        $database
-     * @param SetupHandler    $setupHandler
+     * @param Database $database
+     * @param SetupHandler $setupHandler
      */
     public function __construct(
         Php $php,
@@ -75,20 +78,18 @@ class SetupController extends Controller
 
     /**
      * Returns if a database update is necessary.
-     *
      * @return bool
      */
-    public function isDatabaseUpdateNecessary()
+    public function isDatabaseUpdateNecessary(): bool
     {
         return $this->setupHandler->getDatabaseHandler()->isDatabaseUpdateNecessary();
     }
 
     /**
      * Checks if a network update is nessary.
-     *
      * @return bool
      */
-    public function showNetworkUpdate()
+    public function showNetworkUpdate(): bool
     {
         return $this->wordpress->isSuperAdmin() === true
             && defined('MULTISITE') === true && MULTISITE === true
@@ -97,10 +98,9 @@ class SetupController extends Controller
 
     /**
      * Returns the existing backups
-     *
      * @return array
      */
-    public function getBackups()
+    public function getBackups(): array
     {
         return $this->setupHandler->getDatabaseHandler()->getBackups();
     }
@@ -113,7 +113,7 @@ class SetupController extends Controller
         $success = true;
         $this->verifyNonce(self::SETUP_UPDATE_NONCE);
         $update = $this->getRequestParameter('uam_update_db');
-        $backup = (bool)$this->getRequestParameter('uam_backup_db', false);
+        $backup = (bool) $this->getRequestParameter('uam_backup_db', false);
 
         if ($update === self::UPDATE_BLOG || $update === self::UPDATE_NETWORK) {
             $currentBlogId = $this->database->getCurrentBlogId();
@@ -130,8 +130,8 @@ class SetupController extends Controller
                 $this->wordpress->restoreCurrentBlog();
             }
 
-                $message = $success === true ? TXT_UAM_UAM_DB_UPDATE_SUCCESS : TXT_UAM_UAM_DB_UPDATE_FAILURE;
-                $this->setUpdateMessage($message);
+            $message = $success === true ? TXT_UAM_UAM_DB_UPDATE_SUCCESS : TXT_UAM_UAM_DB_UPDATE_FAILURE;
+            $this->setUpdateMessage($message);
         }
     }
 
@@ -150,10 +150,10 @@ class SetupController extends Controller
 
     /**
      * Checks if the database is broken.
-     *
      * @return bool
+     * @throws MissingColumnsException
      */
-    public function isDatabaseBroken()
+    public function isDatabaseBroken(): bool
     {
         $information = $this->setupHandler->getDatabaseHandler()->getCorruptedDatabaseInformation();
 
@@ -170,6 +170,7 @@ class SetupController extends Controller
 
     /**
      * Repairs the database.
+     * @throws MissingColumnsException
      */
     public function repairDatabaseAction()
     {
@@ -203,6 +204,7 @@ class SetupController extends Controller
 
     /**
      * The reset action.
+     * @throws MissingColumnsException
      */
     public function resetUamAction()
     {

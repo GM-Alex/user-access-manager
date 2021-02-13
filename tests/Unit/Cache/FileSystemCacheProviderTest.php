@@ -12,9 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Cache;
 
+use Exception;
 use UserAccessManager\Cache\FileSystemCacheProvider;
+use UserAccessManager\Config\SelectionConfigParameter;
+use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
@@ -36,7 +40,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -45,7 +49,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
@@ -88,6 +92,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::init()
      * @covers ::getPath()
+     * @throws Exception
      */
     public function testInit()
     {
@@ -127,7 +132,6 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
         self::setValue($fileSystemCacheProvider, 'config', $config);
         $fileSystemCacheProvider->init();
-        self::assertAttributeEquals('vfs://path/cache/uam/', 'path', $fileSystemCacheProvider);
         self::assertTrue(is_dir('vfs://path/cache/uam/'));
         self::assertTrue(file_exists('vfs://path/cache/uam/.htaccess'));
         self::assertEquals('Deny from all', file_get_contents('vfs://path/cache/uam/.htaccess'));
@@ -137,6 +141,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getConfig()
+     * @throws Exception
      */
     public function testGetConfig()
     {
@@ -158,8 +163,8 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         $config->expects($this->exactly(2))
             ->method('setDefaultConfigParameters')
             ->with([
-                FileSystemCacheProvider::CONFIG_PATH => 'stringConfigParameter',
-                FileSystemCacheProvider::CONFIG_METHOD => 'selectionConfigParameter'
+                FileSystemCacheProvider::CONFIG_PATH => $this->createMock(StringConfigParameter::class),
+                FileSystemCacheProvider::CONFIG_METHOD => $this->createMock(SelectionConfigParameter::class)
             ]);
 
         $configFactory = $this->getConfigFactory();
@@ -171,12 +176,14 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
         $configParameterFactory = $this->getConfigParameterFactory();
 
+        $stringConfigParameter = $this->createMock(StringConfigParameter::class);
         $configParameterFactory->expects($this->exactly(2))
             ->method('createStringConfigParameter')
             ->with(FileSystemCacheProvider::CONFIG_PATH, '/homePath/cache/uam')
-            ->will($this->returnValue('stringConfigParameter'));
+            ->will($this->returnValue($stringConfigParameter));
 
 
+        $selectionConfigParameter = $this->createMock(SelectionConfigParameter::class);
         $configParameterFactory->expects($this->exactly(2))
             ->method('createSelectionConfigParameter')
             ->withConsecutive(
@@ -200,7 +207,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
                     ]
                 ]
             )
-            ->will($this->returnValue('selectionConfigParameter'));
+            ->will($this->returnValue($selectionConfigParameter));
 
         $fileSystemCacheProvider = new FileSystemCacheProvider(
             $php,
@@ -216,7 +223,6 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
         self::assertEquals($config, $fileSystemCacheProvider->getConfig());
 
         self::assertEquals($config, $fileSystemCacheProvider->getConfig());
-        self::assertAttributeEquals($config, 'config', $fileSystemCacheProvider);
     }
 
     /**
@@ -224,6 +230,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
      * @covers ::add()
      * @covers ::getCacheMethod()
      * @covers ::getCacheFile()
+     * @throws Exception
      */
     public function testAdd()
     {
@@ -303,6 +310,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
      * @covers ::get()
      * @covers ::getCacheMethod()
      * @covers ::getCacheFile()
+     * @throws Exception
      */
     public function testGet()
     {
@@ -380,6 +388,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
      * @covers ::invalidate()
      * @covers ::getCacheMethod()
      * @covers ::getCacheFile()
+     * @throws Exception
      */
     public function testInvalidate()
     {

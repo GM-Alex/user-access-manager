@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use Exception;
+use ReflectionException;
 use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\ObjectInformation;
@@ -25,6 +28,8 @@ use UserAccessManager\ObjectMembership\TermMembershipHandler;
 use UserAccessManager\ObjectMembership\UserMembershipHandler;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroupAssignmentException;
+use UserAccessManager\UserGroup\UserGroupTypeException;
+use WP_Roles;
 
 /**
  * Class ObjectControllerTest
@@ -61,10 +66,10 @@ class ObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::setObjectInformation()
-     *
      * @return ObjectController
+     * @throws ReflectionException
      */
-    public function testSetObjectInformation()
+    public function testSetObjectInformation(): ObjectController
     {
         $fullGroups = [
             1 => $this->getUserGroup(1),
@@ -128,7 +133,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
      * @group   unit
      * @covers  ::getObjectInformation()
      * @depends testSetObjectInformation
-     *
      * @param ObjectController $objectController
      */
     public function testGetObjectInformation(ObjectController $objectController)
@@ -146,6 +150,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::getFilteredUserGroups()
+     * @throws UserGroupTypeException
      */
     public function testGetFilteredUserGroups()
     {
@@ -198,7 +203,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectInformationFactory()
         );
 
-        $notLoggedInUserGroupId = DynamicUserGroup::USER_TYPE.'|'.DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
+        $notLoggedInUserGroupId = DynamicUserGroup::USER_TYPE . '|' . DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
         $userGroups = [
             1 => $this->getUserGroup(1, true, false, [''], 'none', 'none', [], [], 'A'),
             $notLoggedInUserGroupId => $this->getUserGroup(
@@ -255,6 +260,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::isCurrentUserAdmin()
+     * @throws ReflectionException
      */
     public function testIsCurrentUserAdmin()
     {
@@ -303,8 +309,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
      */
     public function testGetRoleNames()
     {
-        $roles = new \stdClass();
-        $roles->role_names = 'roleNames';
+        $roles = $this->getMockBuilder(WP_Roles::class)->allowMockingUnknownTypes()->getMock();
+        $roles->role_names = ['roleNames'];
 
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
@@ -326,7 +332,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectInformationFactory()
         );
 
-        self::assertEquals('roleNames', $objectController->getRoleNames());
+        self::assertEquals(['roleNames'], $objectController->getRoleNames());
     }
 
     /**
@@ -363,6 +369,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::getRecursiveMembership()
+     * @throws Exception
      */
     public function testGetRecursiveMembership()
     {
@@ -471,6 +478,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
      * @group  unit
      * @covers ::checkRightsToEditContent()
      * @covers ::dieOnNoAccess()
+     * @throws UserGroupTypeException
      */
     public function testCheckRightsToEditContent()
     {
@@ -539,6 +547,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
      * @group  unit
      * @covers ::saveObjectData()
      * @covers ::getAddRemoveGroups()
+     * @throws UserGroupTypeException
      */
     public function testSaveObjectData()
     {
@@ -590,7 +599,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
                 ['objectType', 1],
                 ['objectType', 1],
                 ['objectType', 1],
-                ['objectType', 'objectId'],
+                ['objectType', 'objectId', [4 => ['id' => 4]], [2 => 0, 3 => 1]],
                 ['objectType', 1, [], [1 => ['id' => 1], 2 => ['id' => 2]], []]
             )
             ->will($this->returnCallback(function () use (&$throwException) {
@@ -618,13 +627,13 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $objectController->saveObjectData('objectType', 1);
 
         $_POST[ObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME] = [
-            DynamicUserGroup::USER_TYPE.'|1' => [
-                'id' => DynamicUserGroup::USER_TYPE.'|1',
+            DynamicUserGroup::USER_TYPE . '|1' => [
+                'id' => DynamicUserGroup::USER_TYPE . '|1',
                 'fromDate' => ['date' => 'from', 'time' => 'Date'],
                 'toDate' => ['date' => 'to', 'time' => 'Date']
             ],
-            DynamicUserGroup::ROLE_TYPE.'|admin' => ['id' => DynamicUserGroup::ROLE_TYPE.'|admin'],
-            DynamicUserGroup::ROLE_TYPE.'|some' => ['id' => DynamicUserGroup::ROLE_TYPE.'|some'],
+            DynamicUserGroup::ROLE_TYPE . '|admin' => ['id' => DynamicUserGroup::ROLE_TYPE . '|admin'],
+            DynamicUserGroup::ROLE_TYPE . '|some' => ['id' => DynamicUserGroup::ROLE_TYPE . '|some'],
             'A|B' => ['id' => 'B|A'],
         ];
         $_POST[ObjectController::DEFAULT_GROUPS_FORM_NAME] = [
@@ -633,7 +642,11 @@ class ObjectControllerTest extends ObjectControllerTestCase
             100 => [],
             101 => ['id' => 100]
         ];
-        /** @noinspection PhpUnusedLocalVariableInspection */
+
+        if (defined('_SESSION')) {
+            unset($_SESSION[BackendController::UAM_ERRORS]);
+        }
+
         $throwException = true;
         $objectController->saveObjectData('objectType', 1);
 
@@ -641,7 +654,6 @@ class ObjectControllerTest extends ObjectControllerTestCase
             ['The following error occurred: User group assignment exception|user-access-manager'],
             $_SESSION[BackendController::UAM_ERRORS]
         );
-        /** @noinspection PhpUnusedLocalVariableInspection */
         $throwException = false;
 
         unset($_POST[ObjectController::DEFAULT_DYNAMIC_GROUPS_FORM_NAME]);
@@ -715,6 +727,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::getGroupColumn()
+     * @throws UserGroupTypeException
      */
     public function testAddColumn()
     {
@@ -741,6 +754,8 @@ class ObjectControllerTest extends ObjectControllerTestCase
      * @covers ::getGroupColumn()
      * @covers ::showGroupSelectionForm()
      * @covers ::getGroupsFormName()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testEditForm()
     {
@@ -761,7 +776,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         );
 
         $expected = '!UserAccessManager\Controller\Backend\ObjectController|'
-            .'vfs://root/src/View/ObjectColumn.php|uam_user_groups!';
+            . 'vfs://root/src/View/ObjectColumn.php|uam_user_groups!';
 
         self::assertEquals(
             $expected,
@@ -774,7 +789,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $return = $objectController->showGroupSelectionForm('objectType', 'objectId', 'otherForm');
         self::assertEquals(
             '!UserAccessManager\Controller\Backend\ObjectController|'
-            .'vfs://root/src/View/GroupSelectionForm.php|otherForm!',
+            . 'vfs://root/src/View/GroupSelectionForm.php|otherForm!',
             $return
         );
         self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
@@ -793,7 +808,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
         $return = $objectController->showGroupSelectionForm('objectType', 'objectId', null, $userGroups);
         self::assertEquals(
             '!UserAccessManager\Controller\Backend\ObjectController|'
-            .'vfs://root/src/View/GroupSelectionForm.php|uam_user_groups!',
+            . 'vfs://root/src/View/GroupSelectionForm.php|uam_user_groups!',
             $return
         );
         self::assertEquals('objectType', $objectController->getObjectInformation()->getObjectType());
@@ -811,6 +826,7 @@ class ObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::isNewObject()
+     * @throws Exception
      */
     public function testIsNewObject()
     {

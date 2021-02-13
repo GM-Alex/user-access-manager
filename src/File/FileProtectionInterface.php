@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\File;
 
 use UserAccessManager\Config\MainConfig;
@@ -29,12 +32,11 @@ interface FileProtectionInterface
 {
     /**
      * FileProtectionInterface constructor.
-     *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
+     * @param Php $php
+     * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
-     * @param MainConfig      $mainConfig
-     * @param Util            $util
+     * @param MainConfig $mainConfig
+     * @param Util $util
      */
     public function __construct(
         Php $php,
@@ -46,29 +48,24 @@ interface FileProtectionInterface
 
     /**
      * Returns the file with path.
-     *
      * @param null|string $directory
-     *
      * @return string
      */
-    public function getFileNameWithPath($directory = null);
+    public function getFileNameWithPath($directory = null): string;
 
     /**
      * Creates the file protection.
-     *
      * @param string $directory
-     * @param string $objectType
-     *
+     * @param string|null $objectType
+     * @param string|null $absolutePath
      * @return bool
      */
-    public function create($directory, $objectType = null);
+    public function create(string $directory, ?string $objectType = null, ?string $absolutePath = null): bool;
 
     /**
      * Deletes the file protection.
-     *
      * @param string $directory
-     *
      * @return bool
      */
-    public function delete($directory);
+    public function delete(string $directory): bool;
 }

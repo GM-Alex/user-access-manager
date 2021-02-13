@@ -12,12 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class UserGroupFactoryTest
@@ -30,10 +32,9 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return UserGroupFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): UserGroupFactory
     {
         $userGroupFactory = new UserGroupFactory(
             $this->getPhp(),
@@ -54,8 +55,8 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createUserGroup()
-     *
      * @param UserGroupFactory $userGroupFactory
+     * @throws UserGroupTypeException
      */
     public function testCreateUserGroup(UserGroupFactory $userGroupFactory)
     {
@@ -66,15 +67,15 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createDynamicUserGroup()
-     *
      * @param UserGroupFactory $userGroupFactory
+     * @throws UserGroupTypeException
      */
     public function testCreateDynamicUserGroup(UserGroupFactory $userGroupFactory)
     {
         $dynamicUserGroup = $userGroupFactory->createDynamicUserGroup('user', 'id');
         self::assertInstanceOf(DynamicUserGroup::class, $dynamicUserGroup);
 
-        self::assertAttributeEquals('id', 'id', $dynamicUserGroup);
-        self::assertAttributeEquals('user', 'type', $dynamicUserGroup);
+        self::assertEquals('user|id', $dynamicUserGroup->getId());
+        self::assertEquals('user', $dynamicUserGroup->getType());
     }
 }

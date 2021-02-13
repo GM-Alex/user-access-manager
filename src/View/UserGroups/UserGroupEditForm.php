@@ -14,8 +14,11 @@
  */
 
 /**
- * @var \UserAccessManager\Controller\Backend\UserGroupController $controller
+ * @var UserGroupController $controller
  */
+
+use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Object\ObjectHandler;
 
 $userGroup = $controller->getUserGroup();
 ?>
@@ -125,7 +128,7 @@ $userGroup = $controller->getUserGroup();
                 <ul class='uam_role'>
                     <?php
                     $groupRoles = $userGroup->getAssignedObjectsByType(
-                        \UserAccessManager\Object\ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
+                        ObjectHandler::GENERAL_ROLE_OBJECT_TYPE
                     );
                     $roleNames = $controller->getRoleNames();
 

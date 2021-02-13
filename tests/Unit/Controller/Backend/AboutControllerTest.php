@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use ReflectionException;
 use UserAccessManager\Controller\Backend\AboutController;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use VCR\VCR;
@@ -72,7 +74,7 @@ class AboutControllerTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -81,7 +83,7 @@ class AboutControllerTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
@@ -107,6 +109,7 @@ class AboutControllerTest extends UserAccessManagerTestCase
      * @covers ::getTopSupporters()
      * @covers ::getSupporters()
      * @runInSeparateProcess
+     * @throws ReflectionException
      */
     public function testGetSupporters()
     {
@@ -148,7 +151,6 @@ class AboutControllerTest extends UserAccessManagerTestCase
          */
         $jsonFile = $rootDir->get('root')->get('assets')->get('supporters.json');
 
-        /** @noinspection PhpUnusedLocalVariableInspection */
         $currentTime = $jsonFile->getDateCreated()->getTimestamp();
         $jsonFile->setContent('{}');
 
@@ -175,14 +177,12 @@ class AboutControllerTest extends UserAccessManagerTestCase
         self::assertEquals(['c', 'd'], $aboutController->getTopSupporters());
         self::assertEquals(['e', 'f'], $aboutController->getSupporters());
 
-        /** @noinspection PhpUnusedLocalVariableInspection */
         $currentTime = $jsonFile->getDateCreated()->getTimestamp() + 24 * 60 * 60;
         self::setValue($aboutController, 'supporters', null);
         self::assertEquals(['a', 'b'], $aboutController->getSpecialThanks());
         self::assertEquals(['c', 'd'], $aboutController->getTopSupporters());
         self::assertEquals(['e', 'f'], $aboutController->getSupporters());
 
-        /** @noinspection PhpUnusedLocalVariableInspection */
         $currentTime = $jsonFile->getDateCreated()->getTimestamp() + 24 * 60 * 60 + 1;
         self::setValue($aboutController, 'supporters', null);
         self::assertEquals($this->remoteSupporters, $aboutController->getSpecialThanks());

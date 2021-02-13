@@ -12,11 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Controller\Backend\ObjectController;
 use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\UserGroup;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class PostObjectControllerTest
@@ -79,6 +85,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::addPostColumn()
+     * @throws UserGroupTypeException
      */
     public function testAddPostColumn()
     {
@@ -106,6 +113,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
      * @covers ::editPostContent()
      * @covers ::addBulkAction()
      * @covers ::showMediaFile()
+     * @throws UserGroupTypeException
+     * @throws ReflectionException
      */
     public function testEditForm()
     {
@@ -141,18 +150,18 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         self::assertEquals('post', $postObjectController->getObjectInformation()->getObjectType());
         self::assertEquals(1, $postObjectController->getObjectInformation()->getObjectId());
         $expectedOutput = '!UserAccessManager\Controller\Backend\PostObjectController|'
-            .'vfs://root/src/View/ObjectColumn.php|uam_user_groups!';
+            . 'vfs://root/src/View/ObjectColumn.php|uam_user_groups!';
         $this->resetControllerObjectInformation($postObjectController);
 
         $postObjectController->editPostContent(null);
         self::assertEquals(null, $postObjectController->getObjectInformation()->getObjectType());
         self::assertEquals(null, $postObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\PostObjectController|'
-            .'vfs://root/src/View/PostEditForm.php|uam_user_groups!';
+            . 'vfs://root/src/View/PostEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($postObjectController);
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $post
+         * @var MockObject|stdClass $post
          */
         $post = $this->getMockBuilder('\WP_Post')->getMock();
         $post->ID = 1;
@@ -162,7 +171,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         self::assertEquals('post', $postObjectController->getObjectInformation()->getObjectType());
         self::assertEquals(1, $postObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\PostObjectController|'
-            .'vfs://root/src/View/PostEditForm.php|uam_user_groups!';
+            . 'vfs://root/src/View/PostEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($postObjectController);
 
         $postObjectController->addBulkAction('invalid');
@@ -175,7 +184,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
 
         $postObjectController->addBulkAction(ObjectController::COLUMN_NAME);
         $expectedOutput .= '!UserAccessManager\Controller\Backend\PostObjectController|'
-            .'vfs://root/src/View/BulkEditForm.php|uam_user_groups!';
+            . 'vfs://root/src/View/BulkEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($postObjectController);
 
         $return = $postObjectController->showMediaFile(['a' => 'b']);
@@ -188,7 +197,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
                     'editFrom' => '!UserAccessManager\Controller\Backend\PostObjectController|'
-                        .'vfs://root/src/View/MediaAjaxEditForm.php|uam_user_groups!'
+                        . 'vfs://root/src/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
             $return
@@ -205,7 +214,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
                     'editFrom' => '!UserAccessManager\Controller\Backend\PostObjectController|'
-                        .'vfs://root/src/View/MediaAjaxEditForm.php|uam_user_groups!'
+                        . 'vfs://root/src/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
             $return
@@ -223,7 +232,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
                     'label' => 'Set up user groups|user-access-manager',
                     'input' => 'editFrom',
                     'editFrom' => '!UserAccessManager\Controller\Backend\PostObjectController|'
-                        .'vfs://root/src/View/MediaAjaxEditForm.php|uam_user_groups!'
+                        . 'vfs://root/src/View/MediaAjaxEditForm.php|uam_user_groups!'
                 ]
             ],
             $return
@@ -242,6 +251,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
      * @covers ::savePostData()
      * @covers ::saveAttachmentData()
      * @covers ::saveAjaxAttachmentData()
+     * @throws UserGroupTypeException
      */
     public function testSaveObjectData()
     {
@@ -263,18 +273,17 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $postObjectController->savePostData(['ID' => 1]);
         $postObjectController->savePostData(['ID' => 2]);
         $postObjectController->savePostData(2);
-        $postObjectController->saveAttachmentData(['ID' => 3]);
+        self::assertEquals(['ID' => 3, 'title' => 'T'], $postObjectController->saveAttachmentData(['ID' => 3, 'title' => 'T']));
         $postObjectController->saveAttachmentData(['ID' => 3]);
         $postObjectController->saveAjaxAttachmentData();
     }
 
     /**
      * @param string $id
-     * @param string $isDefault
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+     * @param bool $isDefault
+     * @return MockObject|UserGroup
      */
-    private function getUserGroupWithDefault($id, $isDefault)
+    private function getUserGroupWithDefault(string $id, bool $isDefault)
     {
         $userGroups = $this->getUserGroup($id);
         $userGroups->expects($this->any())
@@ -287,6 +296,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
     /**
      * @group  unit
      * @covers ::addAttachment()
+     * @throws UserGroupTypeException
      */
     public function testAddAttachment()
     {
@@ -329,9 +339,6 @@ class PostObjectControllerTest extends ObjectControllerTestCase
                 ]
             );
 
-        /**
-         * @var PostObjectController $postObjectController
-         */
         $postObjectController = new PostObjectController(
             $this->getPhp(),
             $this->getWordpress(),
@@ -347,6 +354,8 @@ class PostObjectControllerTest extends ObjectControllerTestCase
             $this->getObjectInformationFactory()
         );
 
+        unset($_GET);
+        unset($_POST);
         $postObjectController->addAttachment(1);
     }
 

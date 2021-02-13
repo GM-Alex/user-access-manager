@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use UserAccessManager\Controller\Frontend\LoginControllerTrait;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -26,7 +29,7 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 class LoginControllerTraitTest extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|LoginControllerTrait
+     * @return MockObject|LoginControllerTrait
      */
     private function getStub()
     {
@@ -34,9 +37,9 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
     }
 
     /**
- * @group  unit
- * @covers ::getUserLogin()
- */
+     * @group  unit
+     * @covers ::getUserLogin()
+     */
     public function testGetUserLogin()
     {
         $wordpress = $this->getWordpress();
@@ -89,7 +92,7 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
     {
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $user
+         * @var MockObject|stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->display_name = 'displayName';

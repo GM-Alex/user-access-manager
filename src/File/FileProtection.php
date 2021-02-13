@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\File;
 
+use Exception;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Util\Util;
@@ -57,12 +61,11 @@ abstract class FileProtection
 
     /**
      * FileProtection constructor.
-     *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
+     * @param Php $php
+     * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
-     * @param MainConfig      $mainConfig
-     * @param Util            $util
+     * @param MainConfig $mainConfig
+     * @param Util $util
      */
     public function __construct(
         Php $php,
@@ -80,16 +83,15 @@ abstract class FileProtection
 
     /**
      * Returns the directory match.
-     *
      * @return null|string
      */
-    protected function getDirectoryMatch()
+    protected function getDirectoryMatch(): ?string
     {
         $directoryMatch = null;
         $lockedDirectoryType = $this->mainConfig->getLockedDirectoryType();
 
         if ($lockedDirectoryType === 'wordpress') {
-            $directoryMatch = '[0-9]{4}'.DIRECTORY_SEPARATOR.'[0-9]{2}';
+            $directoryMatch = '[0-9]{4}' . DIRECTORY_SEPARATOR . '[0-9]{2}';
         } elseif ($lockedDirectoryType === 'custom') {
             $directoryMatch = $this->mainConfig->getCustomLockedDirectories();
         }
@@ -99,12 +101,10 @@ abstract class FileProtection
 
     /**
      * Cleans up the file types.
-     *
      * @param string $fileTypes The file types which should be cleaned up.
-     *
      * @return string
      */
-    protected function cleanUpFileTypes($fileTypes)
+    protected function cleanUpFileTypes(string $fileTypes): string
     {
         $validFileTypes = [];
         $fileTypes = explode(',', $fileTypes);
@@ -123,29 +123,26 @@ abstract class FileProtection
 
     /**
      * Returns the password file name with the path.
-     *
-     * @param string $dir
-     *
+     * @param string|null $dir
      * @return null|string
      */
-    private function getDefaultPasswordFileWithPath($dir)
+    private function getDefaultPasswordFileWithPath(?string $dir): ?string
     {
         if ($dir === null) {
             $wordpressUploadDir = $this->wordpress->getUploadDir();
 
             if (empty($wordpressUploadDir['error']) === true) {
-                $dir = $wordpressUploadDir['basedir'].DIRECTORY_SEPARATOR;
+                $dir = $wordpressUploadDir['basedir'] . DIRECTORY_SEPARATOR;
             }
         }
 
-        return ($dir !== null) ? $dir.static::PASSWORD_FILE_NAME : null;
+        return ($dir !== null) ? $dir . static::PASSWORD_FILE_NAME : null;
     }
 
     /**
      * Creates a htpasswd file.
-     *
      * @param boolean $createNew Force to create new file.
-     * @param string  $dir        The destination directory.
+     * @param string $dir The destination directory.
      */
     public function createPasswordFile($createNew = false, $dir = null)
     {
@@ -161,7 +158,7 @@ abstract class FileProtection
                 try {
                     $randomPassword = $this->util->getRandomPassword();
                     $password = md5($randomPassword);
-                } catch (\Exception $exception) {
+                } catch (Exception $exception) {
                     // Do nothing
                 }
             }
@@ -178,22 +175,20 @@ abstract class FileProtection
 
     /**
      * Deletes the htaccess files.
-     *
      * @param string $directory
-     *
      * @return bool
      */
-    public function deleteFiles($directory)
+    public function deleteFiles(string $directory): bool
     {
         $success = true;
-        $directory = rtrim($directory, '/').'/';
-        $fileName = $directory.static::FILE_NAME;
+        $directory = rtrim($directory, '/') . '/';
+        $fileName = $directory . static::FILE_NAME;
 
         if (file_exists($fileName) === true) {
             $success = ($this->php->unlink($fileName) === true) && $success;
         }
 
-        $passwordFile = $directory.static::PASSWORD_FILE_NAME;
+        $passwordFile = $directory . static::PASSWORD_FILE_NAME;
 
         if (file_exists($passwordFile) === true) {
             $success = ($this->php->unlink($passwordFile) === true) && $success;

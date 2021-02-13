@@ -12,14 +12,21 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
-use PHPUnit_Extensions_Constraint_StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Controller\Frontend\RedirectController;
 use UserAccessManager\File\FileObject;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use Vfs\FileSystem;
+use WP_Post;
+use WP_Query;
 
 /**
  * Class RedirectControllerTest
@@ -37,7 +44,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -46,7 +53,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
@@ -77,6 +84,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getWordpress()
+     * @throws ReflectionException
      */
     public function testSimpleGetters()
     {
@@ -98,25 +106,25 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int    $id
+     * @param int $id
      * @param string $postType
-     * @param string $title
-     * @param string $content
-     * @param bool   $closed
+     * @param null $title
+     * @param null $content
+     * @param bool $closed
      * @param string $postMimeType
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\WP_Post
+     * @return MockObject|WP_Post
      */
     private function getPost(
-        $id,
+        int $id,
         $postType = 'post',
         $title = null,
         $content = null,
         $closed = false,
         $postMimeType = 'post/mime/type'
-    ) {
+    )
+    {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Post $post
+         * @var MockObject|WP_Post $post
          */
         $post = $this->getMockBuilder('\WP_Post')->getMock();
         $post->ID = $id;
@@ -203,6 +211,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getFile()
      * @covers ::getFileSettingsByType()
+     * @throws UserGroupTypeException
      */
     public function testGetFile()
     {
@@ -211,7 +220,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(7))
             ->method('getUploadDir')
             ->will($this->returnValue([
-                'basedir' => '/baseDirectory/file/pictures/',
+                'basedir' => ABSPATH . 'baseDirectory/file/pictures/',
                 'baseurl' => 'http://baseUrl/file/pictures/'
             ]));
 
@@ -308,7 +317,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(
                 ['file', false],
                 ['realPath/assets/gfx/noAccessPic.png', true],
-                ['/baseDirectory/file/pictures/url', false],
+                ['ABSPATHbaseDirectory/file/pictures/url', false],
                 ['customImage.jpg', true],
                 ['realPath/assets/gfx/noAccessPic.png', true]
             );
@@ -318,11 +327,11 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $fileObjectFactory->expects($this->exactly(5))
             ->method('createFileObject')
             ->withConsecutive(
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', false],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', true],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', false],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', true],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/baseDirectory/file/pictures/url', true]
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', false],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', true],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', false],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', true],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', true]
             )
             ->will($this->returnCallback(function ($id, $type, $file, $isImage) {
                 $fileObject = $this->createMock(FileObject::class);
@@ -377,15 +386,16 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::redirectUser()
      * @covers ::getRedirectUrlAndPermalink()
+     * @throws UserGroupTypeException
      */
     public function testRedirectUser()
     {
         $php = $this->getPhp();
-        $php->expects($this->exactly(3))
+        $php->expects($this->exactly(4))
             ->method('callExit');
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\WP_Query $wpQuery
+         * @var MockObject|WP_Query $wpQuery
          */
         $wpQuery = $this->getMockBuilder('\WP_Query')->setMethods(['get_posts'])->getMock();
         $wpQuery->expects($this->once())
@@ -415,9 +425,14 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->with($post)
             ->will($this->returnValue('PageLink'));
 
-        $wordpress->expects($this->exactly(3))
+        $wordpress->expects($this->exactly(4))
             ->method('wpRedirect')
-            ->withConsecutive(['guid'], ['RedirectCustomUrl'], ['HomeUrl']);
+            ->withConsecutive(['guid'], ['RedirectCustomUrl'], ['LoginUrl'], ['HomeUrl']);
+
+        $wordpress->expects($this->once())
+            ->method('wpLoginUrl')
+            ->with('requestUri')
+            ->will($this->returnValue('LoginUrl'));
 
         $config = $this->getMainConfig();
 
@@ -453,8 +468,8 @@ class RedirectControllerTest extends UserAccessManagerTestCase
                 'currentUrl',
                 'currentUrl',
                 'currentUrl',
-                'HomeUrl',
-                'currentUrl'
+                'LoginUrl',
+                'HomeUrl'
             ));
 
         $objectHandler = $this->getObjectHandler();
@@ -510,6 +525,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      * @covers ::redirect()
      * @covers ::extractObjectTypeAndId()
      * @covers ::getPostIdByName()
+     * @throws UserGroupTypeException
      */
     public function testRedirect()
     {
@@ -518,12 +534,15 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->once())
             ->method('getHomeUrl')
             ->with('/')
-            ->will($this->returnValue(null));
+            ->will($this->returnValue(''));
 
         $wordpress->expects($this->exactly(2))
             ->method('getPageByPath')
             ->with('pageNameValue')
-            ->will($this->onConsecutiveCalls(null, $this->getPost(2)));
+            ->will($this->onConsecutiveCalls('', $this->getPost(2)));
+
+        $wordpress->expects($this->exactly(1))
+            ->method('applyFilters');
 
         $wordpressConfig = $this->getWordpressConfig();
 
@@ -577,12 +596,12 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $accessHandler->expects($this->exactly(7))
             ->method('checkObjectAccess')
             ->withConsecutive(
-                [null, null],
+                ['', 0],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 'pValue'],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 'pageIdValue'],
                 [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 'catIdValue'],
                 [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 1],
-                [null, null],
+                ['', 0],
                 ['post', 2]
             )
             ->will($this->onConsecutiveCalls(
@@ -609,40 +628,40 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
-        $pageParams = new \stdClass();
+        $pageParams = new stdClass();
 
         $_GET['uamfiletype'] = 'fileType';
         $pageParams->query_vars = [];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         $pageParams->query_vars = [];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         $pageParams->query_vars = [];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         $pageParams->query_vars = ['p' => 'pValue'];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         unset($_GET['uamfiletype']);
         $_GET['uamgetfile'] = 'file';
         $pageParams->query_vars = ['page_id' => 'pageIdValue'];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         $pageParams->query_vars = ['cat_id' => 'catIdValue'];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         $pageParams->query_vars = ['name' => 'nameValue'];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         $pageParams->query_vars = ['pagename' => 'pageNameValue'];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         $pageParams->query_vars = ['pagename' => 'pageNameValue'];
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
 
         $_GET['uamfiletype'] = 'fileType';
-        self::assertEquals('header', $frontendRedirectController->redirect('header', $pageParams));
+        self::assertEquals(['headers'], $frontendRedirectController->redirect(['headers'], $pageParams));
     }
 
     /**
@@ -653,38 +672,39 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(2))
+        $wordpress->expects($this->exactly(3))
             ->method('getHomeUrl')
             ->with('/')
             ->will($this->returnValue('homeUrl'));
 
-        $wordpress->expects($this->exactly(6))
+        $wordpress->expects($this->exactly(7))
             ->method('isNginx')
-            ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false));
 
-        $wordpress->expects($this->exactly(5))
+        $wordpress->expects($this->exactly(6))
             ->method('gotModRewrite')
-            ->will($this->onConsecutiveCalls(true, false, false, false, false));
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false));
 
         $wordpressConfig = $this->getWordpressConfig();
 
         $mainConfig = $this->getMainConfig();
 
-        $mainConfig->expects($this->exactly(7))
+        $mainConfig->expects($this->exactly(8))
             ->method('lockFile')
-            ->will($this->onConsecutiveCalls(false, true, true, true, true, true, true));
+            ->will($this->onConsecutiveCalls(false, true, true, true, true, true, true, true));
 
-        $mainConfig->expects($this->exactly(3))
+        $mainConfig->expects($this->exactly(4))
             ->method('getLockedFiles')
-            ->will($this->onConsecutiveCalls('none', 'all', 'aaa,mime'));
+            ->will($this->onConsecutiveCalls('none', 'type', 'all', 'aaa,mime'));
 
         $objectHandler = $this->getObjectHandler();
 
-        $objectHandler->expects($this->exactly(4))
+        $objectHandler->expects($this->exactly(5))
             ->method('getPost')
             ->withConsecutive([1], [1], [1], [1])
             ->will($this->onConsecutiveCalls(
                 null,
+                $this->getPost(1, 'post', null, null, false, 'type'),
                 $this->getPost(1, 'post', null, null, false, 'type'),
                 $this->getPost(1),
                 $this->getPost(1)
@@ -709,6 +729,10 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         self::assertEquals('url', $frontendRedirectController->getFileUrl('url', 1));
         self::assertEquals('url', $frontendRedirectController->getFileUrl('url', 1));
         self::assertEquals('url', $frontendRedirectController->getFileUrl('url', 1));
+        self::assertEquals(
+            'homeUrl?uamfiletype=attachment&uamgetfile=url',
+            $frontendRedirectController->getFileUrl('url', 1)
+        );
         self::assertEquals(
             'homeUrl?uamfiletype=attachment&uamgetfile=url',
             $frontendRedirectController->getFileUrl('url', 1)

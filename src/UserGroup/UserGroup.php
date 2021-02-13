@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\UserGroup;
 
+use Exception;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
@@ -42,16 +46,14 @@ class UserGroup extends AbstractUserGroup
 
     /**
      * UserGroup constructor.
-     *
-     * @param Php                          $php
-     * @param Wordpress                    $wordpress
-     * @param Database                     $database
-     * @param MainConfig                   $config
-     * @param Util                         $util
-     * @param ObjectHandler                $objectHandler
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param Database $database
+     * @param MainConfig $config
+     * @param Util $util
+     * @param ObjectHandler $objectHandler
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param null|string                  $id
-     *
+     * @param null|string $id
      * @throws UserGroupTypeException
      */
     public function __construct(
@@ -75,13 +77,12 @@ class UserGroup extends AbstractUserGroup
         );
 
         if ($id !== null) {
-            $this->load((int)$id);
+            $this->load($id);
         }
     }
 
     /**
      * Returns the ip range.
-     *
      * @return array|string
      */
     public function getIpRange()
@@ -91,17 +92,15 @@ class UserGroup extends AbstractUserGroup
 
     /**
      * Returns the ip range as array
-     *
      * @return array
      */
-    public function getIpRangeArray()
+    public function getIpRangeArray(): array
     {
         return explode(';', $this->ipRange);
     }
 
     /**
      * Sets the ip range.
-     *
      * @param string|array $ipRange The new ip range.
      */
     public function setIpRange($ipRange)
@@ -111,12 +110,10 @@ class UserGroup extends AbstractUserGroup
 
     /**
      * Loads the user group.
-     *
-     * @param string $id
-     *
+     * @param int|string $id
      * @return bool
      */
-    public function load($id)
+    public function load($id): bool
     {
         $query = $this->database->prepare(
             "SELECT *
@@ -144,10 +141,9 @@ class UserGroup extends AbstractUserGroup
 
     /**
      * Saves the user group.
-     *
      * @return bool
      */
-    public function save()
+    public function save(): bool
     {
         if ($this->id === null) {
             $return = $this->database->insert(
@@ -162,7 +158,7 @@ class UserGroup extends AbstractUserGroup
             );
 
             if ($return !== false) {
-                $this->id = (string)$this->database->getLastInsertId();
+                $this->id = (string) $this->database->getLastInsertId();
             }
         } else {
             $return = $this->database->update(
@@ -183,10 +179,10 @@ class UserGroup extends AbstractUserGroup
 
     /**
      * Deletes the user group.
-     *
      * @return bool
+     * @throws Exception
      */
-    public function delete()
+    public function delete(): bool
     {
         if ($this->id === null) {
             return false;

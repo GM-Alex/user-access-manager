@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Util;
 
 use UserAccessManager\Wrapper\Wordpress;
@@ -30,7 +33,6 @@ class DateUtil
 
     /**
      * DateUtil constructor.
-     *
      * @param Wordpress $wordpress
      */
     public function __construct(Wordpress $wordpress)
@@ -40,60 +42,51 @@ class DateUtil
 
     /**
      * Formats the date to the wordpress default format.
-     *
      * @param string $date
-     *
      * @return string
      */
-    public function formatDate($date)
+    public function formatDate(string $date): string
     {
         return $this->wordpress->formatDate($date);
     }
 
     /**
      * Formats the date for the datetime input field.
-     *
-     * @param string $date
-     *
+     * @param string|null $date
      * @return string
      */
-    public function formatDateForDatetimeInput($date)
+    public function formatDateForDatetimeInput(?string $date): ?string
     {
-        return ($date !== null) ? strftime('%Y-%m-%dT%H:%M:%S', strtotime($date)) : $date;
+        return ($date !== null) ? strftime('%Y-%m-%dT%H:%M:%S', (int) strtotime($date)) : $date;
     }
 
     /**
      * Formats the date for the datetime input field.
-     *
-     * @param string $date
-     *
+     * @param null|string $date
      * @return string
      */
-    public function formatDateForDateInput($date)
+    public function formatDateForDateInput(?string $date): ?string
     {
-        return ($date !== null) ? strftime('%Y-%m-%d', strtotime($date)) : $date;
+        return ($date !== null) ? strftime('%Y-%m-%d', (int) strtotime($date)) : $date;
     }
 
     /**
      * Formats the date for the datetime input field.
-     *
-     * @param string $date
-     *
+     * @param null|string $date
      * @return string
      */
-    public function formatDateForTimeInput($date)
+    public function formatDateForTimeInput(?string $date): ?string
     {
-        return ($date !== null) ? strftime('%H:%M:%S', strtotime($date)) : $date;
+        return ($date !== null) ? strftime('%H:%M:%S', (int) strtotime($date)) : $date;
     }
 
     /**
-     * @param int $time
-     *
+     * @param int|null $time
      * @return null|string
      */
-    public function getDateFromTime($time)
+    public function getDateFromTime(?int $time): ?string
     {
-        if ($time !== null && (int)$time !== 0) {
+        if ($time !== null && $time !== 0) {
             $currentTime = $this->wordpress->currentTime('timestamp');
             return gmdate('Y-m-d H:i:s', $time + $currentTime);
         }

@@ -12,11 +12,15 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\ObjectMembership\TermMembershipHandler;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 
 /**
  * Class TermMembershipHandlerTest
@@ -29,6 +33,7 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
+     * @throws Exception
      */
     public function testCanCreateInstance()
     {
@@ -45,14 +50,15 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::getObjectName()
+     * @throws Exception
      */
     public function testGetObjectName()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $taxonomy
+         * @var MockObject|stdClass $taxonomy
          */
         $taxonomy = $this->getMockBuilder('\WP_Taxonomy')->getMock();
-        $taxonomy->labels = new \stdClass();
+        $taxonomy->labels = new stdClass();
         $taxonomy->labels->name = 'category';
 
         $wordpress = $this->getWordpress();
@@ -62,7 +68,7 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             ->will($this->onConsecutiveCalls(false, $taxonomy));
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $term
+         * @var MockObject|stdClass $term
          */
         $term = $this->getMockBuilder('\WP_Term')->getMock();
         $term->name = 'categoryThree';
@@ -97,6 +103,7 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::getHandledObjects()
+     * @throws Exception
      */
     public function testGetHandledObjects()
     {
@@ -125,20 +132,21 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
      * @group  unit
      * @covers ::isMember()
      * @covers ::getMap()
+     * @throws Exception
      */
     public function testIsMember()
     {
         $userGroup = $this->getMembershipUserGroup(
             [
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE , 3],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE , 1]
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 3],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1]
             ],
             [
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE , 1],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE , 2],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE , 3],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE , 4],
-                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE , 5]
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 1],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 2],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 3],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 4],
+                [ObjectHandler::GENERAL_TERM_OBJECT_TYPE, 5]
             ],
             [4, 5]
         );
@@ -192,11 +200,12 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
      * @group  unit
      * @covers ::getFullObjects()
      * @covers ::getMap()
+     * @throws Exception
      */
     public function testGetFullObjects()
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|AbstractUserGroup $userGroup
+         * @var MockObject|AbstractUserGroup $userGroup
          */
         $userGroup = $this->createMock(AbstractUserGroup::class);
 

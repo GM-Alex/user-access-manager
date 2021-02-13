@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\Form;
 use UserAccessManager\Form\FormElement;
 
@@ -23,14 +26,13 @@ use UserAccessManager\Form\FormElement;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\Form
  */
-class FormTest extends \PHPUnit_Framework_TestCase
+class FormTest extends TestCase
 {
     /**
      * @group unit
-     *
      * @return Form
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): Form
     {
         $form = new Form();
 
@@ -43,15 +45,13 @@ class FormTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::addElement()
      * @depends testCanCreateInstance
-     *
      * @param Form $form
-     *
      * @return Form
      */
-    public function testAddElement(Form $form)
+    public function testAddElement(Form $form): Form
     {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormElement $firstFormElement
+         * @var MockObject|FormElement $firstFormElement
          */
         $firstFormElement = $this->createMock(FormElement::class);
         $firstFormElement->expects($this->once())
@@ -59,7 +59,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('firstId'));
 
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Form\FormElement $secondFormElement
+         * @var MockObject|FormElement $secondFormElement
          */
         $secondFormElement = $this->createMock(FormElement::class);
         $secondFormElement->expects($this->once())
@@ -69,10 +69,9 @@ class FormTest extends \PHPUnit_Framework_TestCase
         $form->addElement($firstFormElement);
         $form->addElement($secondFormElement);
 
-        self::assertAttributeEquals(
+        self::assertEquals(
             ['firstId' => $firstFormElement, 'secondId' => $secondFormElement],
-            'elements',
-            $form
+            $form->getElements()
         );
 
         return $form;
@@ -81,13 +80,12 @@ class FormTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @covers  ::getElements()
-     * @depends testCanCreateInstance
-     *
+     * @depends testAddElement
      * @param Form $form
      */
     public function testGetElements(Form $form)
     {
         $elements = $form->getElements();
-        self::assertEquals(2, count($elements));
+        self::assertCount(2, $elements);
     }
 }

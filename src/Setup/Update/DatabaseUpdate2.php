@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Setup\Update;
 
 use UserAccessManager\Setup\Database\DatabaseUpdate;
@@ -25,20 +28,18 @@ class DatabaseUpdate2 extends DatabaseUpdate
 {
     /**
      * Returns the version.
-     *
      * @return string
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         return '1.2';
     }
 
     /**
      * Executes the update.
-     *
      * @return bool
      */
-    public function update()
+    public function update(): bool
     {
         $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
         $query = "ALTER TABLE `{$dbAccessGroupToObject}`

@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 
-if [[ -z "${TRAVIS}" ]]; then
-	echo "Script is only to be run by Travis CI" 1>&2
-	exit 1
-fi
-
-if [[ -z "${WP_ORG_PASSWORD}" ]]; then
+if [[ -z "${1}" ]]; then
 	echo "WordPress.org password not set" 1>&2
 	exit 1
 fi
 
-if [[ -z "${TRAVIS_TAG}" ]]; then
+WP_ORG_PASSWORD=${1}
+
+if [[ -z "${GITHUB_REF}" ]]; then
+	echo "Script is only to be run by github action" 1>&2
+	exit 1
+fi
+
+CURRENT_TAG=${GITHUB_REF##*/}
+
+if [[ -z "${CURRENT_TAG}" ]]; then
 	echo "Build must be a tag" 1>&2
 	exit 0
 fi
@@ -40,8 +44,8 @@ else
     exit 1
 fi
 
-if [[ ${VERSION} != ${TRAVIS_TAG} ]]; then
-    echo "Tag ${TRAVIS_TAG} version must match plugin version ${VERSION}."
+if [[ ${VERSION} != ${CURRENT_TAG} ]]; then
+    echo "Tag ${CURRENT_TAG} version must match plugin version ${VERSION}."
     exit 1
 fi
 
@@ -70,7 +74,6 @@ mkdir svn/trunk
 rsync -r -p ${PLUGIN}/* svn/trunk
 
 # Copy all the .svn folders from the checked out copy of trunk to the new trunk.
-# This is necessary as the Travis container runs Subversion 1.6 which has .svn dirs in every sub dir
 cd svn/trunk/
 TARGET=$(pwd)
 cd ../../svn-trunk/

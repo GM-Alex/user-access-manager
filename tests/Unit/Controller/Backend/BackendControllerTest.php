@@ -12,12 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
+use ReflectionException;
 use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\SetupController;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\UserAccessManager;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -38,7 +40,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -49,19 +51,21 @@ class BackendControllerTest extends UserAccessManagerTestCase
         $rootDir = $this->root->get('/');
         $rootDir->add('root', new Directory([
             'src' => new Directory([
-                'View'  => new Directory([
+                'View' => new Directory([
                     'AdminNotice.php' => new File('<?php echo \'AdminNotice\';')
                 ])
             ])
         ]));
+        parent::setUp();
     }
 
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     /**
@@ -85,10 +89,10 @@ class BackendControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showAdminNotice()
-     *
      * @return BackendController
+     * @throws ReflectionException
      */
-    public function testShowAdminNotice()
+    public function testShowAdminNotice(): BackendController
     {
         $php = $this->getPhp();
 
@@ -128,29 +132,29 @@ class BackendControllerTest extends UserAccessManagerTestCase
         $databaseUpdateMessage = sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup');
 
         $backendController->showAdminNotice();
-        self::assertAttributeEquals('', 'notice', $backendController);
+        self::assertEquals('', $backendController->getNotice());
 
         $_SESSION[BackendController::UAM_ERRORS] = ['errorOne', 'errorTwo'];
         $backendController->showAdminNotice();
-        self::assertAttributeEquals('errorOne<br>errorTwo', 'notice', $backendController);
+        self::assertEquals('errorOne<br>errorTwo', $backendController->getNotice());
         self::setValue($backendController, 'notice', '');
 
         unset($_SESSION[BackendController::UAM_ERRORS]);
         $_GET['uam_update_db'] = SetupController::UPDATE_BLOG;
         $backendController->showAdminNotice();
-        self::assertAttributeEquals('', 'notice', $backendController);
+        self::assertEquals('', $backendController->getNotice());
 
         $_GET['uam_update_db'] = SetupController::UPDATE_NETWORK;
         $backendController->showAdminNotice();
-        self::assertAttributeEquals('', 'notice', $backendController);
+        self::assertEquals('', $backendController->getNotice());
 
         unset($_GET['uam_update_db']);
         $backendController->showAdminNotice();
-        self::assertAttributeEquals($databaseUpdateMessage, 'notice', $backendController);
+        self::assertEquals($databaseUpdateMessage, $backendController->getNotice());
 
         $_SESSION[BackendController::UAM_ERRORS] = ['errorOne', 'errorTwo'];
         $backendController->showAdminNotice();
-        self::assertAttributeEquals('errorOne<br>errorTwo<br>'.$databaseUpdateMessage, 'notice', $backendController);
+        self::assertEquals('errorOne<br>errorTwo<br>' . $databaseUpdateMessage, $backendController->getNotice());
 
         self::expectOutputString('DatabaseNoticeDatabaseNoticeDatabaseNotice');
 
@@ -161,13 +165,12 @@ class BackendControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @covers  ::getNotice()
      * @depends testShowAdminNotice
-     *
      * @param BackendController $databaseNoticeBackendController
      */
     public function testGetNotice(BackendController $databaseNoticeBackendController)
     {
         self::assertEquals(
-            'errorOne<br>errorTwo<br>'.sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
+            'errorOne<br>errorTwo<br>' . sprintf(TXT_UAM_NEED_DATABASE_UPDATE, 'admin.php?page=uam_setup'),
             $databaseNoticeBackendController->getNotice()
         );
     }
@@ -189,7 +192,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
                 UserAccessManager::VERSION,
                 'screen'
             )
-            ->will($this->returnValue('a'));
+            ->will($this->returnValue(true));
 
         $wordpress->expects($this->exactly(3))
             ->method('registerScript')
@@ -201,7 +204,7 @@ class BackendControllerTest extends UserAccessManagerTestCase
                     UserAccessManager::VERSION
                 ],
                 [
-                BackendController::HANDLE_SCRIPT_TIME_INPUT,
+                    BackendController::HANDLE_SCRIPT_TIME_INPUT,
                     'url/assets/js/jquery.uam-time-input.js',
                     ['jquery'],
                     UserAccessManager::VERSION

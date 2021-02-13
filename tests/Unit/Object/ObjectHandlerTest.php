@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Object;
 
+use Exception;
+use stdClass;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
@@ -22,6 +25,7 @@ use UserAccessManager\ObjectMembership\RoleMembershipHandler;
 use UserAccessManager\ObjectMembership\TermMembershipHandler;
 use UserAccessManager\ObjectMembership\UserMembershipHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use WP_Post_Type;
 
 /**
  * Class ObjectHandlerTest
@@ -49,10 +53,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getPostTypes()
-     *
      * @return ObjectHandler
      */
-    public function testGetPostTypes()
+    public function testGetPostTypes(): ObjectHandler
     {
         $return = ['a' => 'a1', 'b' => 'b1'];
 
@@ -77,10 +80,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getTaxonomies()
-     *
      * @return ObjectHandler
      */
-    public function testGetTaxonomies()
+    public function testGetTaxonomies(): ObjectHandler
     {
         $return = ['a' => 'a1', 'b' => 'b1'];
 
@@ -108,7 +110,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     public function testGetUser()
     {
         /**
-         * @var \stdClass $user
+         * @var stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->id = 1;
@@ -138,7 +140,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     public function testGetPost()
     {
         /**
-         * @var \stdClass $post
+         * @var stdClass $post
          */
         $post = $this->getMockBuilder('\WP_Post')->getMock();
         $post->id = 1;
@@ -171,7 +173,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     public function testGetTerm()
     {
         /**
-         * @var \stdClass $term
+         * @var stdClass $term
          */
         $term = $this->getMockBuilder('\WP_Term')->getMock();
         $term->id = 1;
@@ -205,15 +207,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetPostTypes
      * @covers  ::registeredPostType()
-     *
      * @param ObjectHandler $objectHandler
-     *
      * @return ObjectHandler
      */
-    public function testRegisteredPostType(ObjectHandler $objectHandler)
+    public function testRegisteredPostType(ObjectHandler $objectHandler): ObjectHandler
     {
         /**
-         * @var \stdClass|\WP_Post_Type $arguments
+         * @var stdClass|WP_Post_Type $arguments
          */
         $arguments = $this->getMockBuilder('\WP_Post_Type')->getMock();
         $arguments->public = false;
@@ -224,17 +224,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         ];
 
         $objectHandler->registeredPostType('postType', $arguments);
-        self::assertAttributeEquals($expectedResult, 'postTypes', $objectHandler);
+        self::assertEquals($expectedResult, $objectHandler->getPostTypes());
 
         $arguments->public = true;
         $expectedResult['postType'] = 'postType';
 
         $objectHandler->registeredPostType('postType', $arguments);
-        self::assertAttributeEquals($expectedResult, 'postTypes', $objectHandler);
-        self::assertAttributeEquals(null, 'objectTypes', $objectHandler);
-        self::assertAttributeEquals(null, 'allObjectTypes', $objectHandler);
-        self::assertAttributeEquals(null, 'allObjectTypesMap', $objectHandler);
-        self::assertAttributeEquals([], 'validObjectTypes', $objectHandler);
+        self::assertEquals($expectedResult, $objectHandler->getPostTypes());
 
         return $objectHandler;
     }
@@ -243,12 +239,10 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetTaxonomies
      * @covers  ::registeredTaxonomy()
-     *
      * @param ObjectHandler $objectHandler
-     *
      * @return ObjectHandler
      */
-    public function testRegisteredTaxonomy(ObjectHandler $objectHandler)
+    public function testRegisteredTaxonomy(ObjectHandler $objectHandler): ObjectHandler
     {
         $arguments = ['public' => false];
         $expectedResult = [
@@ -257,17 +251,13 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         ];
 
         $objectHandler->registeredTaxonomy('taxonomy', 'objectType', $arguments);
-        self::assertAttributeEquals($expectedResult, 'taxonomies', $objectHandler);
+        self::assertEquals($expectedResult, $objectHandler->getTaxonomies());
 
         $arguments = ['public' => true];
         $expectedResult['taxonomy'] = 'taxonomy';
 
         $objectHandler->registeredTaxonomy('taxonomy', 'objectType', $arguments);
-        self::assertAttributeEquals($expectedResult, 'taxonomies', $objectHandler);
-        self::assertAttributeEquals(null, 'objectTypes', $objectHandler);
-        self::assertAttributeEquals(null, 'allObjectTypes', $objectHandler);
-        self::assertAttributeEquals(null, 'allObjectTypesMap', $objectHandler);
-        self::assertAttributeEquals([], 'validObjectTypes', $objectHandler);
+        self::assertEquals($expectedResult, $objectHandler->getTaxonomies());
 
         return $objectHandler;
     }
@@ -276,7 +266,6 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testRegisteredPostType
      * @covers  ::isPostType()
-     *
      * @param ObjectHandler $objectHandler
      */
     public function testIsPostType(ObjectHandler $objectHandler)
@@ -311,10 +300,9 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getObjectTypes()
-     *
      * @return ObjectHandler
      */
-    public function testGetObjectTypes()
+    public function testGetObjectTypes(): ObjectHandler
     {
         $taxonomiesReturn = ['a' => 'a1', 'b' => 'b1'];
 
@@ -356,10 +344,10 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @covers  ::getAllObjectTypes()
      * @covers  ::getAllObjectsTypesMap()
      * @covers  ::getObjectMembershipHandlers()
-     *
      * @return ObjectHandler
+     * @throws Exception
      */
-    public function testGetAllObjectTypes()
+    public function testGetAllObjectTypes(): ObjectHandler
     {
         $php = $this->getPhp();
         $php->expects($this->exactly(9))
@@ -457,8 +445,8 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetAllObjectTypes
      * @covers  ::getGeneralObjectType()
-     *
      * @param ObjectHandler $objectHandler
+     * @throws Exception
      */
     public function testGetGeneralObjectType(ObjectHandler $objectHandler)
     {
@@ -472,7 +460,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertEquals('post', $objectHandler->getGeneralObjectType('otherPost'));
         self::assertEquals('someObject', $objectHandler->getGeneralObjectType('someObject'));
         self::assertEquals('someObject', $objectHandler->getGeneralObjectType('otherSomeObject'));
-        
+
         self::assertNull($objectHandler->getGeneralObjectType('invalid'));
     }
 
@@ -480,8 +468,8 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetAllObjectTypes
      * @covers  ::isValidObjectType()
-     *
      * @param ObjectHandler $objectHandler
+     * @throws Exception
      */
     public function testIsValidObjectType(ObjectHandler $objectHandler)
     {
@@ -503,12 +491,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @depends testGetAllObjectTypes
      * @covers  ::getObjectMembershipHandlers()
      * @covers  ::getObjectMembershipHandler()
-     *
      * @param ObjectHandler $objectHandler
-     *
-     * @throws MissingObjectMembershipHandlerException
-     * @throws MissingObjectMembershipHandlerException
-     * @throws MissingObjectMembershipHandlerException
      * @throws MissingObjectMembershipHandlerException
      */
     public function testGetObjectMembershipHandler(ObjectHandler $objectHandler)
@@ -528,9 +511,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetAllObjectTypes
      * @covers  ::getObjectMembershipHandler()
-     *
      * @param ObjectHandler $objectHandler
-     *
      * @throws MissingObjectMembershipHandlerException
      */
     public function testGetObjectMembershipHandlerException(ObjectHandler $objectHandler)

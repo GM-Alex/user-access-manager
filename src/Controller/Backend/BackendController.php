@@ -12,14 +12,17 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\File\FileHandler;
 use UserAccessManager\Setup\SetupHandler;
-use UserAccessManager\UserAccessManager;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -30,11 +33,11 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class BackendController extends Controller
 {
-    const HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';
-    const HANDLE_SCRIPT_GROUP_SUGGEST = 'UserAccessManagerGroupSuggest';
-    const HANDLE_SCRIPT_TIME_INPUT = 'UserAccessManagerTimeInput';
-    const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
-    const UAM_ERRORS = 'UAM_ERRORS';
+    public const HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';
+    public const HANDLE_SCRIPT_GROUP_SUGGEST = 'UserAccessManagerGroupSuggest';
+    public const HANDLE_SCRIPT_TIME_INPUT = 'UserAccessManagerTimeInput';
+    public const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
+    public const UAM_ERRORS = 'UAM_ERRORS';
 
     /**
      * @var UserHandler
@@ -58,13 +61,12 @@ class BackendController extends Controller
 
     /**
      * BackendController constructor.
-     *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
+     * @param Php $php
+     * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
-     * @param UserHandler     $userHandler
-     * @param FileHandler     $fileHandler
-     * @param SetupHandler    $setupHandler
+     * @param UserHandler $userHandler
+     * @param FileHandler $fileHandler
+     * @param SetupHandler $setupHandler
      */
     public function __construct(
         Php $php,
@@ -103,10 +105,9 @@ class BackendController extends Controller
 
     /**
      * Returns the set notice.
-     *
      * @return string
      */
-    public function getNotice()
+    public function getNotice(): string
     {
         return $this->notice;
     }
@@ -120,7 +121,7 @@ class BackendController extends Controller
 
         $this->wordpress->registerStyle(
             self::HANDLE_STYLE_ADMIN,
-            $urlPath.'assets/css/uamAdmin.css',
+            $urlPath . 'assets/css/uamAdmin.css',
             [],
             UserAccessManager::VERSION,
             'screen'
@@ -128,21 +129,21 @@ class BackendController extends Controller
 
         $this->wordpress->registerScript(
             self::HANDLE_SCRIPT_GROUP_SUGGEST,
-            $urlPath.'assets/js/jquery.uam-group-suggest.js',
+            $urlPath . 'assets/js/jquery.uam-group-suggest.js',
             ['jquery'],
             UserAccessManager::VERSION
         );
 
         $this->wordpress->registerScript(
             self::HANDLE_SCRIPT_TIME_INPUT,
-            $urlPath.'assets/js/jquery.uam-time-input.js',
+            $urlPath . 'assets/js/jquery.uam-time-input.js',
             ['jquery'],
             UserAccessManager::VERSION
         );
 
         $this->wordpress->registerScript(
             self::HANDLE_SCRIPT_ADMIN,
-            $urlPath.'assets/js/functions.js',
+            $urlPath . 'assets/js/functions.js',
             ['jquery'],
             UserAccessManager::VERSION
         );

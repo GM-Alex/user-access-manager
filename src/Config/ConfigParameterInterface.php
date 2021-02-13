@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Config;
 
 /**
@@ -23,23 +26,19 @@ interface ConfigParameterInterface
 {
     /**
      * Validates the value.
-     *
      * @param mixed $value
-     *
      * @return bool
      */
-    public function isValidValue($value);
+    public function isValidValue($value): bool;
 
     /**
      * Sets the current value.
-     *
      * @param mixed $value
      */
     public function setValue($value);
 
     /**
      * Returns the current parameter value.
-     *
      * @return mixed
      */
     public function getValue();

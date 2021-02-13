@@ -12,7 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Form;
+
+use Exception;
 
 /**
  * Class MultipleFormElement
@@ -28,20 +33,18 @@ abstract class MultipleFormElement extends ValueSetFormElement
 
     /**
      * MultipleFormElement constructor.
-     *
-     * @param string                     $id
+     * @param string $id
      * @param MultipleFormElementValue[] $possibleValues
-     * @param mixed|null                 $value
-     * @param string|null                $label
-     * @param string|null                $description
-     *
-     * @throws \Exception
+     * @param mixed|null $value
+     * @param string|null $label
+     * @param string|null $description
+     * @throws Exception
      */
-    public function __construct($id, array $possibleValues, $value = null, $label = null, $description = null)
+    public function __construct(string $id, array $possibleValues, $value = null, $label = null, $description = null)
     {
         foreach ($possibleValues as $possibleValue) {
             if (($possibleValue instanceof MultipleFormElementValue) === false) {
-                throw new \Exception('Values must be MultipleFormElementValue objects');
+                throw new Exception('Values must be MultipleFormElementValue objects');
             }
         }
 
@@ -51,7 +54,7 @@ abstract class MultipleFormElement extends ValueSetFormElement
     /**
      * @return MultipleFormElementValue[]
      */
-    public function getPossibleValues()
+    public function getPossibleValues(): array
     {
         return $this->possibleValues;
     }

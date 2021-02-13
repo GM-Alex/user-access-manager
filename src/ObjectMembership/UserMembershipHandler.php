@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\ObjectMembership;
 
+use Exception;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
@@ -50,13 +54,11 @@ class UserMembershipHandler extends ObjectMembershipHandler
 
     /**
      * UserMembershipHandler constructor.
-     *
-     * @param AssignmentInformationFactory $assignmentInformationFactory
+      * @param AssignmentInformationFactory $assignmentInformationFactory
      * @param Php                          $php
      * @param Database                     $database
      * @param ObjectHandler                $objectHandler
-     *
-     * @throws \Exception
+      * @throws Exception
      */
     public function __construct(
         AssignmentInformationFactory $assignmentInformationFactory,
@@ -73,11 +75,9 @@ class UserMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Returns the object and type name.
-     *
-     * @param string $objectId
+      * @param int|string $objectId
      * @param string $typeName
-     *
-     * @return string
+      * @return int|string
      */
     public function getObjectName($objectId, &$typeName = '')
     {
@@ -88,16 +88,18 @@ class UserMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Checks if the user is a member of the user group.
-     *
-     * @param AbstractUserGroup          $userGroup
-     * @param bool                       $lockRecursive
-     * @param string                     $objectId
+      * @param AbstractUserGroup $userGroup
+     * @param bool $lockRecursive
+     * @param int|string $objectId
      * @param null|AssignmentInformation $assignmentInformation
-     *
-     * @return bool
+      * @return bool
      */
-    public function isMember(AbstractUserGroup $userGroup, $lockRecursive, $objectId, &$assignmentInformation = null)
-    {
+    public function isMember(
+        AbstractUserGroup $userGroup,
+        bool $lockRecursive,
+        $objectId,
+        ?AssignmentInformation &$assignmentInformation = null
+    ): bool {
         $assignmentInformation = null;
         $recursiveMembership = [];
         $user = $this->objectHandler->getUser($objectId);
@@ -141,18 +143,17 @@ class UserMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Returns the user role objects.
-     *
-     * @param AbstractUserGroup $userGroup
-     * @param bool              $lockRecursive
-     * @param null              $objectType
-     *
-     * @return array
+      * @param AbstractUserGroup $userGroup
+     * @param bool $lockRecursive
+     * @param null $objectType
+      * @return array
+     * @throws Exception
      */
-    public function getFullObjects(AbstractUserGroup $userGroup, $lockRecursive, $objectType = null)
+    public function getFullObjects(AbstractUserGroup $userGroup, bool $lockRecursive, $objectType = null): array
     {
         $users = [];
 
-        $databaseUsers = (array)$this->database->getResults(
+        $databaseUsers = (array) $this->database->getResults(
             "SELECT ID, user_nicename
                 FROM {$this->database->getUsersTable()}"
         );

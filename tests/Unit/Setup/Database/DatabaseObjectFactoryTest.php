@@ -12,10 +12,13 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup\Database;
 
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Setup\Database\Column;
 use UserAccessManager\Setup\Database\DatabaseObjectFactory;
+use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Setup\Database\Table;
 
 /**
@@ -24,14 +27,13 @@ use UserAccessManager\Setup\Database\Table;
  * @package UserAccessManager\Tests\Unit\Setup\Database
  * @coversDefaultClass \UserAccessManager\Setup\Database\DatabaseObjectFactory
  */
-class DatabaseObjectFactoryTest extends \PHPUnit_Framework_TestCase
+class DatabaseObjectFactoryTest extends TestCase
 {
     /**
      * @group  unit
-     *
      * @return DatabaseObjectFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): DatabaseObjectFactory
     {
         $databaseObjectFactory = new DatabaseObjectFactory();
 
@@ -44,8 +46,8 @@ class DatabaseObjectFactoryTest extends \PHPUnit_Framework_TestCase
      * @group  unit
      * @depends testCanCreateInstance
      * @covers ::createTable()
-     *
      * @param DatabaseObjectFactory $databaseObjectFactory
+     * @throws MissingColumnsException
      */
     public function testCreateTable(DatabaseObjectFactory $databaseObjectFactory)
     {
@@ -63,7 +65,6 @@ class DatabaseObjectFactoryTest extends \PHPUnit_Framework_TestCase
      * @group  unit
      * @depends testCanCreateInstance
      * @covers ::createColumn()
-     *
      * @param DatabaseObjectFactory $databaseObjectFactory
      */
     public function testCreateColumn(DatabaseObjectFactory $databaseObjectFactory)

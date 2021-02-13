@@ -12,8 +12,10 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\File;
 
+use stdClass;
 use UserAccessManager\File\ApacheFileProtection;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use Vfs\FileSystem;
@@ -36,7 +38,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -45,7 +47,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
@@ -82,7 +84,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         );
 
         self::assertEquals(ApacheFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath());
-        self::assertEquals('dir/'.ApacheFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath('dir/'));
+        self::assertEquals('dir/' . ApacheFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath('dir/'));
     }
 
     /**
@@ -107,7 +109,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, false, false, true, true, true, true));
 
         /**
-         * @var \stdClass $user
+         * @var stdClass $user
          */
         $user = $this->getMockBuilder('\WP_User')->getMock();
         $user->user_login = 'userLogin';
@@ -179,8 +181,8 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             $this->getUtil()
         );
 
-        $file = $testDir.'/'.ApacheFileProtection::FILE_NAME;
-        $passwordFile = $testDir.'/'.ApacheFileProtection::PASSWORD_FILE_NAME;
+        $file = $testDir . '/' . ApacheFileProtection::FILE_NAME;
+        $passwordFile = $testDir . '/' . ApacheFileProtection::PASSWORD_FILE_NAME;
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertTrue(file_exists($file));
@@ -197,68 +199,68 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<FilesMatch '\.(jpg)'>\n"
-            ."AuthType Basic\nAuthName \"WP-Files\"\n"
-            ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
-            ."</FilesMatch>\n",
+            . "AuthType Basic\nAuthName \"WP-Files\"\n"
+            . "AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
+            . "</FilesMatch>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<FilesMatch '^\.(jpg)'>"
-            ."\nAuthType Basic\nAuthName \"WP-Files\"\n"
-            ."AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
-            ."</FilesMatch>\n",
+            . "\nAuthType Basic\nAuthName \"WP-Files\"\n"
+            . "AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
+            . "</FilesMatch>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\n"
-            ."RewriteEngine On\n"
-            ."RewriteBase /path/\n"
-            ."RewriteRule ^index\.php$ - [L]\n"
-            ."RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
-            ."RewriteCond %{REQUEST_URI} ^.*/[0-9]{4}/[0-9]{2}.*$\n"
-            ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
-                ."/path/index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
-            ."</IfModule>\n",
+            . "RewriteEngine On\n"
+            . "RewriteBase /path/\n"
+            . "RewriteRule ^index\.php$ - [L]\n"
+            . "RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
+            . "RewriteCond %{REQUEST_URI} ^.*/[0-9]{4}/[0-9]{2}.*$\n"
+            . "RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
+            . "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
+            . "/path/index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"
+            . "RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
+            . "</IfModule>\n",
             file_get_contents($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir, 'objectType'));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\n"
-            ."<FilesMatch '\.(jpg)'>\n"
-            ."RewriteEngine On\n"
-            ."RewriteBase /path/\n"
-            ."RewriteRule ^index\.php$ - [L]\n"
-            ."RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
-            ."RewriteCond %{REQUEST_URI} customLockedDirectories\n"
-            ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
-                ."/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
-            ."</FilesMatch>\n"
-            ."</IfModule>\n",
+            . "<FilesMatch '\.(jpg)'>\n"
+            . "RewriteEngine On\n"
+            . "RewriteBase /path/\n"
+            . "RewriteRule ^index\.php$ - [L]\n"
+            . "RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
+            . "RewriteCond %{REQUEST_URI} customLockedDirectories\n"
+            . "RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
+            . "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
+            . "/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
+            . "RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
+            . "</FilesMatch>\n"
+            . "</IfModule>\n",
             file_get_contents($file)
         );
 
-        $secondFile = $secondTestDir.'/'.ApacheFileProtection::FILE_NAME;
+        $secondFile = $secondTestDir . '/' . ApacheFileProtection::FILE_NAME;
 
         self::assertTrue($apacheFileProtection->create($secondTestDir, 'objectType'));
         self::assertEquals(
             "<IfModule mod_rewrite.c>\n"
-            ."RewriteEngine On\n"
-            ."RewriteBase /path/\n"
-            ."RewriteRule ^index\.php$ - [L]\n"
-            ."RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
-            ."/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
-            ."RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
-            ."</IfModule>\n",
+            . "RewriteEngine On\n"
+            . "RewriteBase /path/\n"
+            . "RewriteRule ^index\.php$ - [L]\n"
+            . "RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=objectType&uamgetfile=$1 [QSA,L]\n"
+            . "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
+            . "/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
+            . "RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
+            . "</IfModule>\n",
             file_get_contents($secondFile)
         );
 
@@ -302,8 +304,8 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         ]));
 
         $testDir = 'vfs://testDir/';
-        $file = $testDir.ApacheFileProtection::FILE_NAME;
-        $passwordFile = $testDir.ApacheFileProtection::PASSWORD_FILE_NAME;
+        $file = $testDir . ApacheFileProtection::FILE_NAME;
+        $passwordFile = $testDir . ApacheFileProtection::PASSWORD_FILE_NAME;
 
         self::assertTrue(file_exists($file));
         self::assertTrue(file_exists($passwordFile));

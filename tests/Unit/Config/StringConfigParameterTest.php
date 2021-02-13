@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
 use UserAccessManager\Config\StringConfigParameter;
@@ -28,22 +29,21 @@ class StringConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return StringConfigParameter
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): StringConfigParameter
     {
         $stringConfigParameter = new StringConfigParameter('testId');
 
         self::assertInstanceOf(StringConfigParameter::class, $stringConfigParameter);
-        self::assertAttributeEquals('testId', 'id', $stringConfigParameter);
-        self::assertAttributeEquals('', 'defaultValue', $stringConfigParameter);
+        self::assertEquals('testId', $stringConfigParameter->getId());
+        self::assertEquals('', $stringConfigParameter->getValue());
 
         $stringConfigParameter = new StringConfigParameter('otherId', 'value');
 
         self::assertInstanceOf(StringConfigParameter::class, $stringConfigParameter);
-        self::assertAttributeEquals('otherId', 'id', $stringConfigParameter);
-        self::assertAttributeEquals('value', 'defaultValue', $stringConfigParameter);
+        self::assertEquals('otherId', $stringConfigParameter->getId());
+        self::assertEquals('value', $stringConfigParameter->getValue());
 
         return $stringConfigParameter;
     }
@@ -52,10 +52,9 @@ class StringConfigParameterTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::isValidValue()
-     *
      * @param StringConfigParameter $stringConfigParameter
      */
-    public function testIsValidValue($stringConfigParameter)
+    public function testIsValidValue(StringConfigParameter $stringConfigParameter)
     {
         self::assertTrue($stringConfigParameter->isValidValue('string'));
         self::assertFalse($stringConfigParameter->isValidValue(true));

@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\Controller\Backend;
 
+use Exception;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Form\FormHelper;
@@ -21,8 +25,11 @@ use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\UserGroup\UserGroupHandler;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
+use WP_Post_Type;
+use WP_Taxonomy;
 
 /**
  * Class UserGroupController
@@ -61,19 +68,18 @@ class UserGroupController extends Controller
     private $formHelper;
 
     /**
-     * @var \UserAccessManager\UserGroup\UserGroup
+     * @var UserGroup
      */
     private $userGroup = null;
 
     /**
      * UserGroupController constructor.
-     *
-     * @param Php              $php
-     * @param Wordpress        $wordpress
-     * @param WordpressConfig  $wordpressConfig
+     * @param Php $php
+     * @param Wordpress $wordpress
+     * @param WordpressConfig $wordpressConfig
      * @param UserGroupHandler $userGroupHandler
      * @param UserGroupFactory $userGroupFactory
-     * @param FormHelper       $formHelper
+     * @param FormHelper $formHelper
      */
     public function __construct(
         Php $php,
@@ -91,10 +97,9 @@ class UserGroupController extends Controller
 
     /**
      * Returns the tab groups.
-     *
      * @return array
      */
-    public function getTabGroups()
+    public function getTabGroups(): array
     {
         return [
             self::GROUP_USER_GROUPS => ['user_groups'],
@@ -108,24 +113,20 @@ class UserGroupController extends Controller
 
     /**
      * Returns the translated tag group name by the given key.
-     *
      * @param string $key
-     *
      * @return string
      */
-    public function getGroupText($key)
+    public function getGroupText(string $key): string
     {
         return $this->formHelper->getText($key);
     }
 
     /**
      * Returns the translated tag group section name by the given key.
-     *
      * @param string $key
-     *
      * @return string
      */
-    public function getGroupSectionText($key)
+    public function getGroupSectionText(string $key): string
     {
         $objects = $this->wordpress->getPostTypes(['public' => true], 'objects')
             + $this->wordpress->getTaxonomies(['public' => true], 'objects');
@@ -137,10 +138,10 @@ class UserGroupController extends Controller
         } elseif (isset($objects[$key]) === true) {
             $objectName = $objects[$key]->labels->name;
 
-            if ($objects[$key] instanceof \WP_Post_Type) {
-                $objectName .= ' ('.TXT_UAM_POST_TYPE.')';
-            } elseif ($objects[$key] instanceof \WP_Taxonomy) {
-                $objectName .= ' ('.TXT_UAM_TAXONOMY_TYPE.')';
+            if ($objects[$key] instanceof WP_Post_Type) {
+                $objectName .= ' (' . TXT_UAM_POST_TYPE . ')';
+            } elseif ($objects[$key] instanceof WP_Taxonomy) {
+                $objectName .= ' (' . TXT_UAM_TAXONOMY_TYPE . ')';
             }
         }
 
@@ -149,10 +150,10 @@ class UserGroupController extends Controller
 
     /**
      * Returns the a user group object.
-     *
-     * @return \UserAccessManager\UserGroup\UserGroup
+     * @return UserGroup
+     * @throws UserGroupTypeException
      */
-    public function getUserGroup()
+    public function getUserGroup(): UserGroup
     {
         if ($this->userGroup === null) {
             $userGroupId = $this->getRequestParameter('userGroupId');
@@ -164,12 +165,10 @@ class UserGroupController extends Controller
 
     /**
      * Returns the sort url.
-     *
      * @param string $sort
-     *
      * @return string
      */
-    public function getSortUrl($sort)
+    public function getSortUrl(string $sort): string
     {
         $requestUrl = $this->getRequestUrl();
         $requestUrl = preg_replace('/&amp;orderby[^&]*/i', '', $requestUrl);
@@ -181,26 +180,26 @@ class UserGroupController extends Controller
 
     /**
      * Returns all user groups.
-     *
-     * @return \UserAccessManager\UserGroup\UserGroup[]
+     * @return UserGroup[]
+     * @throws UserGroupTypeException
      */
-    public function getUserGroups()
+    public function getUserGroups(): array
     {
         $userGroups = $this->userGroupHandler->getUserGroups();
 
         $sort = $this->getRequestParameter('orderby');
 
         if ($sort !== null) {
-            $reverse = (string) $this->getRequestParameter('order') === 'desc' ? true : false;
+            $reverse = (string) $this->getRequestParameter('order') === 'desc';
 
             uasort(
                 $userGroups,
                 function (UserGroup $userGroupOne, UserGroup $userGroupTwo) use ($sort, $reverse) {
                     $values = ['', ''];
-                    $method = 'get'.ucfirst($sort);
+                    $method = 'get' . ucfirst($sort);
 
                     if (method_exists($userGroupOne, $method) === true) {
-                        $values = [(string)$userGroupOne->{$method}(), (string)$userGroupTwo->{$method}()];
+                        $values = [(string) $userGroupOne->{$method}(), (string) $userGroupTwo->{$method}()];
                         $values = ($reverse === true) ? array_reverse($values) : $values;
                     }
 
@@ -214,10 +213,9 @@ class UserGroupController extends Controller
 
     /**
      * Returns the wordpress role names.
-     *
      * @return array
      */
-    public function getRoleNames()
+    public function getRoleNames(): array
     {
         $roles = $this->wordpress->getRoles();
         return $roles->role_names;
@@ -225,6 +223,8 @@ class UserGroupController extends Controller
 
     /**
      * Action to insert or update a user group.
+     * @throws UserGroupTypeException
+     * @throws Exception
      */
     public function insertUpdateUserGroupAction()
     {
@@ -235,7 +235,7 @@ class UserGroupController extends Controller
         $userGroup = $this->userGroupFactory->createUserGroup($userGroupId);
 
         // Assign parameters
-        $groupName = $this->getRequestParameter('userGroupName');
+        $groupName = (string) $this->getRequestParameter('userGroupName');
 
         if (trim($groupName) === '') {
             $this->setUpdateMessage(TXT_UAM_GROUP_NAME_ERROR);
@@ -277,6 +277,7 @@ class UserGroupController extends Controller
 
     /**
      * Action to delete user groups.
+     * @throws UserGroupTypeException
      */
     public function deleteUserGroupAction()
     {
@@ -292,19 +293,21 @@ class UserGroupController extends Controller
 
     /**
      * Checks if the default user group type should be added.
-     *
-     * @param array       $defaultUserGroups
-     * @param string      $userGroupId
+     * @param array $defaultUserGroups
+     * @param string $userGroupId
      * @param null|string $fromTime
      * @param null|string $toTime
-     *
      * @return bool
      */
-    private function isDefaultTypeAdd(array $defaultUserGroups, $userGroupId, &$fromTime = null, &$toTime = null)
-    {
+    private function isDefaultTypeAdd(
+        array $defaultUserGroups,
+        string $userGroupId,
+        &$fromTime = null,
+        &$toTime = null
+    ): bool {
         $userGroupInfo = isset($defaultUserGroups[$userGroupId]) === true ? $defaultUserGroups[$userGroupId] : [];
 
-        if (isset($userGroupInfo['id']) === true && (string)$userGroupInfo['id'] === (string)$userGroupId) {
+        if (isset($userGroupInfo['id']) === true && (string) $userGroupInfo['id'] === (string) $userGroupId) {
             $fromTime = empty($userGroupInfo['fromTime']) === false ? $userGroupInfo['fromTime'] : null;
             $toTime = empty($userGroupInfo['toTime']) === false ? $userGroupInfo['toTime'] : null;
             return true;
@@ -315,6 +318,8 @@ class UserGroupController extends Controller
 
     /**
      * Action to set default user groups.
+     * @throws UserGroupTypeException
+     * @throws Exception
      */
     public function setDefaultUserGroupsAction()
     {

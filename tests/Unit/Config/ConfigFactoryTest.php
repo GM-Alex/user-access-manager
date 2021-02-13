@@ -12,6 +12,7 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
 use UserAccessManager\Config\Config;
@@ -29,10 +30,9 @@ class ConfigFactoryTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::__construct()
-     *
      * @return ConfigFactory
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): ConfigFactory
     {
         $configFactory = new ConfigFactory($this->getWordpress());
         self::assertInstanceOf(ConfigFactory::class, $configFactory);
@@ -44,7 +44,6 @@ class ConfigFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createConfig()
-     *
      * @param ConfigFactory $configFactory
      */
     public function testCreateApacheFileProtection(ConfigFactory $configFactory)

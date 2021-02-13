@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\File;
 
 use UserAccessManager\Config\MainConfig;
@@ -54,12 +57,11 @@ class FileProtectionFactory
 
     /**
      * FileProtectionFactory constructor.
-     *
-     * @param Php             $php
-     * @param Wordpress       $wordpress
+     * @param Php $php
+     * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
-     * @param MainConfig      $mainConfig
-     * @param Util            $util
+     * @param MainConfig $mainConfig
+     * @param Util $util
      */
     public function __construct(
         Php $php,
@@ -77,10 +79,9 @@ class FileProtectionFactory
 
     /**
      * Returns a new ApacheFileProtection object.
-     *
      * @return ApacheFileProtection
      */
-    public function createApacheFileProtection()
+    public function createApacheFileProtection(): ApacheFileProtection
     {
         return new ApacheFileProtection(
             $this->php,
@@ -93,10 +94,9 @@ class FileProtectionFactory
 
     /**
      * Returns a new NginxFileProtection object.
-     *
      * @return NginxFileProtection
      */
-    public function createNginxFileProtection()
+    public function createNginxFileProtection(): NginxFileProtection
     {
         return new NginxFileProtection(
             $this->php,

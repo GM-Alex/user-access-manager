@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager;
 
 use UserAccessManager\Access\AccessHandler;
@@ -32,7 +35,6 @@ use UserAccessManager\File\FileProtectionFactory;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Setup\SetupHandler;
-use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroupHandler;
@@ -48,7 +50,7 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserAccessManager
 {
-    const VERSION = '2.1.13';
+    const VERSION = '2.2.0';
     const DB_VERSION = '1.6.1';
 
     /**
@@ -95,11 +97,6 @@ class UserAccessManager
      * @var UserGroupHandler
      */
     private $userGroupHandler;
-
-    /**
-     * @var UserGroupAssignmentHandler
-     */
-    private $userGroupAssignmentHandler;
 
     /**
      * @var AccessHandler
@@ -163,8 +160,7 @@ class UserAccessManager
 
     /**
      * UserAccessManager constructor.
-     *
-     * @param Php                            $php
+      * @param Php                            $php
      * @param Wordpress                      $wordpress
      * @param Util                           $util
      * @param Cache                          $cache
@@ -237,7 +233,7 @@ class UserAccessManager
     /**
      * @return Php
      */
-    public function getPhp()
+    public function getPhp(): Php
     {
         return $this->php;
     }
@@ -245,7 +241,7 @@ class UserAccessManager
     /**
      * @return Wordpress
      */
-    public function getWordpress()
+    public function getWordpress(): Wordpress
     {
         return $this->wordpress;
     }
@@ -253,7 +249,7 @@ class UserAccessManager
     /**
      * @return Util
      */
-    public function getUtil()
+    public function getUtil(): Util
     {
         return $this->util;
     }
@@ -261,7 +257,7 @@ class UserAccessManager
     /**
      * @return Cache
      */
-    public function getCache()
+    public function getCache(): Cache
     {
         return $this->cache;
     }
@@ -269,7 +265,7 @@ class UserAccessManager
     /**
      * @return MainConfig
      */
-    public function getConfig()
+    public function getConfig(): MainConfig
     {
         return $this->config;
     }
@@ -277,7 +273,7 @@ class UserAccessManager
     /**
      * @return Database
      */
-    public function getDatabase()
+    public function getDatabase(): Database
     {
         return $this->database;
     }
@@ -285,7 +281,7 @@ class UserAccessManager
     /**
      * @return ObjectHandler
      */
-    public function getObjectHandler()
+    public function getObjectHandler(): ObjectHandler
     {
         return $this->objectHandler;
     }
@@ -293,7 +289,7 @@ class UserAccessManager
     /**
      * @return UserHandler
      */
-    public function getUserHandler()
+    public function getUserHandler(): UserHandler
     {
         return $this->userHandler;
     }
@@ -301,7 +297,7 @@ class UserAccessManager
     /**
      * @return UserGroupHandler
      */
-    public function getUserGroupHandler()
+    public function getUserGroupHandler(): UserGroupHandler
     {
         return $this->userGroupHandler;
     }
@@ -309,7 +305,7 @@ class UserAccessManager
     /**
      * @return AccessHandler
      */
-    public function getAccessHandler()
+    public function getAccessHandler(): AccessHandler
     {
         return $this->accessHandler;
     }
@@ -317,7 +313,7 @@ class UserAccessManager
     /**
      * @return FileHandler
      */
-    public function getFileHandler()
+    public function getFileHandler(): FileHandler
     {
         return $this->fileHandler;
     }
@@ -325,7 +321,7 @@ class UserAccessManager
     /**
      * @return SetupHandler
      */
-    public function getSetupHandler()
+    public function getSetupHandler(): SetupHandler
     {
         return $this->setupHandler;
     }
@@ -333,7 +329,7 @@ class UserAccessManager
     /**
      * @return UserGroupFactory
      */
-    public function getUserGroupFactory()
+    public function getUserGroupFactory(): UserGroupFactory
     {
         return $this->userGroupFactory;
     }
@@ -341,7 +337,7 @@ class UserAccessManager
     /**
      * @return ObjectMembershipHandlerFactory
      */
-    public function getObjectMembershipHandlerFactory()
+    public function getObjectMembershipHandlerFactory(): ObjectMembershipHandlerFactory
     {
         return $this->membershipHandlerFactory;
     }
@@ -349,7 +345,7 @@ class UserAccessManager
     /**
      * @return ControllerFactory
      */
-    public function getControllerFactory()
+    public function getControllerFactory(): ControllerFactory
     {
         return $this->controllerFactory;
     }
@@ -357,7 +353,7 @@ class UserAccessManager
     /**
      * @return WidgetFactory
      */
-    public function getWidgetFactory()
+    public function getWidgetFactory(): WidgetFactory
     {
         return $this->widgetFactory;
     }
@@ -365,7 +361,7 @@ class UserAccessManager
     /**
      * @return CacheProviderFactory
      */
-    public function getCacheProviderFactory()
+    public function getCacheProviderFactory(): CacheProviderFactory
     {
         return $this->cacheProviderFactory;
     }
@@ -373,7 +369,7 @@ class UserAccessManager
     /**
      * @return ConfigFactory
      */
-    public function getConfigFactory()
+    public function getConfigFactory(): ConfigFactory
     {
         return $this->configFactory;
     }
@@ -381,7 +377,7 @@ class UserAccessManager
     /**
      * @return ConfigParameterFactory
      */
-    public function getConfigParameterFactory()
+    public function getConfigParameterFactory(): ConfigParameterFactory
     {
         return $this->configParameterFactory;
     }
@@ -389,7 +385,7 @@ class UserAccessManager
     /**
      * @return FileProtectionFactory
      */
-    public function getFileProtectionFactory()
+    public function getFileProtectionFactory(): FileProtectionFactory
     {
         return $this->fileProtectionFactory;
     }
@@ -397,7 +393,7 @@ class UserAccessManager
     /**
      * @return FileObjectFactory
      */
-    public function getFileObjectFactory()
+    public function getFileObjectFactory(): FileObjectFactory
     {
         return $this->fileObjectFactory;
     }
@@ -475,8 +471,7 @@ class UserAccessManager
 
     /**
      * Adds the backend filters.
-     *
-     * @param DynamicGroupsController $dynamicGroupController
+      * @param DynamicGroupsController $dynamicGroupController
      * @param PostObjectController    $postObjectController
      * @param TermObjectController    $termObjectController
      * @param UserObjectController    $userObjectController
@@ -560,8 +555,7 @@ class UserAccessManager
 
     /**
      * Adds the admin filters.
-     *
-     * @param PostObjectController $postObjectController
+      * @param PostObjectController $postObjectController
      * @param TermObjectController $termObjectController
      * @param UserObjectController $userObjectController
      * @param array                $taxonomies
@@ -578,7 +572,7 @@ class UserAccessManager
         $this->wordpress->addFilter('manage_posts_columns', [$postObjectController, 'addPostColumnsHeader']);
         $this->wordpress->addFilter('manage_pages_columns', [$postObjectController, 'addPostColumnsHeader']);
 
-        $this->wordpress->addFilter('manage_users_columns', [$userObjectController, 'addUserColumnsHeader'], 10);
+        $this->wordpress->addFilter('manage_users_columns', [$userObjectController, 'addUserColumnsHeader']);
         $this->wordpress->addFilter(
             'manage_users_custom_column',
             [$userObjectController, 'addUserColumn'],
@@ -600,8 +594,7 @@ class UserAccessManager
 
     /**
      * Adds the admin meta boxes.
-     *
-     * @param PostObjectController $postObjectController
+      * @param PostObjectController $postObjectController
      */
     private function addAdminMetaBoxes(PostObjectController $postObjectController)
     {
@@ -625,6 +618,7 @@ class UserAccessManager
 
     /**
      * Register the admin actions and filters
+     * @throws UserGroup\UserGroupTypeException
      */
     public function registerAdminActionsAndFilters()
     {

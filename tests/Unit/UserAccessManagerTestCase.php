@@ -14,12 +14,18 @@
  */
 namespace UserAccessManager\Tests\Unit;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use ReflectionException;
+use stdClass;
 use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Cache\FileSystemCacheProvider;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigFactory;
+use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Config\ConfigParameterFactory;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
@@ -58,20 +64,35 @@ use UserAccessManager\Wrapper\WordpressCli;
 /**
  * Class UserAccessManagerTestCase
  */
-abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
+abstract class UserAccessManagerTestCase extends TestCase
 {
+    protected function setUp(): void
+    {
+        unset($_GET);
+        unset($_POST);
+        unset($_SESSION);
+        parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_GET);
+        unset($_POST);
+        unset($_SESSION);
+        parent::tearDown();
+    }
+
     /**
      * Calls a private or protected object method.
-     *
-     * @param object $object
+      * @param object $object
      * @param string $methodName
-     * @param array  $arguments
-     *
-     * @return mixed
+     * @param array $arguments
+      * @return mixed
+     * @throws ReflectionException
      */
-    public static function callMethod($object, $methodName, array $arguments = [])
+    public static function callMethod(object $object, string $methodName, array $arguments = [])
     {
-        $class = new \ReflectionClass($object);
+        $class = new ReflectionClass($object);
         $method = $class->getMethod($methodName);
         $method->setAccessible(true);
         return $method->invokeArgs($object, $arguments);
@@ -79,21 +100,21 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
     /**
      * Sets a private property
-     *
-     * @param object $object
+      * @param object $object
      * @param string $valueName
-     * @param mixed  $value
+     * @param mixed $value
+     * @throws ReflectionException
      */
-    public static function setValue($object, $valueName, $value)
+    public static function setValue(object $object, string $valueName, $value)
     {
-        $reflection = new \ReflectionClass($object);
+        $reflection = new ReflectionClass($object);
         $property = $reflection->getProperty($valueName);
         $property->setAccessible(true);
         $property->setValue($object, $value);
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Php
+     * @return MockObject|Php
      */
     protected function getPhp()
     {
@@ -101,7 +122,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Wordpress
+     * @return MockObject|Wordpress
      */
     protected function getWordpress()
     {
@@ -109,7 +130,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|WordpressCli
+     * @return MockObject|WordpressCli
      */
     protected function getWordpressCli()
     {
@@ -117,7 +138,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Config
+     * @return MockObject|Config
      */
     protected function getConfig()
     {
@@ -125,7 +146,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|WordpressConfig
+     * @return MockObject|WordpressConfig
      */
     protected function getWordpressConfig()
     {
@@ -134,7 +155,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|MainConfig
+     * @return MockObject|MainConfig
      */
     protected function getMainConfig()
     {
@@ -142,7 +163,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Database
+     * @return MockObject|Database
      */
     protected function getDatabase()
     {
@@ -150,7 +171,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|DatabaseHandler
+     * @return MockObject|DatabaseHandler
      */
     protected function getDatabaseHandler()
     {
@@ -158,7 +179,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|DatabaseObjectFactory
+     * @return MockObject|DatabaseObjectFactory
      */
     protected function getDatabaseObjectFactory()
     {
@@ -166,7 +187,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Util
+     * @return MockObject|Util
      */
     protected function getUtil()
     {
@@ -174,7 +195,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|DateUtil
+     * @return MockObject|DateUtil
      */
     protected function getDateUtil()
     {
@@ -182,7 +203,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Cache
+     * @return MockObject|Cache
      */
     protected function getCache()
     {
@@ -190,7 +211,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|CacheProviderFactory
+     * @return MockObject|CacheProviderFactory
      */
     protected function getCacheProviderFactory()
     {
@@ -198,7 +219,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigFactory
+     * @return MockObject|ConfigFactory
      */
     protected function getConfigFactory()
     {
@@ -206,7 +227,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|FileSystemCacheProvider
+     * @return MockObject|FileSystemCacheProvider
      */
     protected function getFileSystemCacheProvider()
     {
@@ -214,7 +235,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectHandler
+     * @return MockObject|ObjectHandler
      */
     protected function getObjectHandler()
     {
@@ -222,7 +243,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMapHandler
+     * @return MockObject|ObjectMapHandler
      */
     protected function getObjectMapHandler()
     {
@@ -230,7 +251,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|AccessHandler
+     * @return MockObject|AccessHandler
      */
     protected function getAccessHandler()
     {
@@ -238,7 +259,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|UserHandler
+     * @return MockObject|UserHandler
      */
     protected function getUserHandler()
     {
@@ -246,7 +267,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|UserGroupHandler
+     * @return MockObject|UserGroupHandler
      */
     protected function getUserGroupHandler()
     {
@@ -254,7 +275,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|SetupHandler
+     * @return MockObject|SetupHandler
      */
     protected function getSetupHandler()
     {
@@ -262,7 +283,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ControllerFactory
+     * @return MockObject|ControllerFactory
      */
     protected function getControllerFactory()
     {
@@ -270,7 +291,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|WidgetFactory
+     * @return MockObject|WidgetFactory
      */
     protected function getWidgetFactory()
     {
@@ -278,7 +299,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|FileHandler
+     * @return MockObject|FileHandler
      */
     protected function getFileHandler()
     {
@@ -286,7 +307,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|FileObjectFactory
+     * @return MockObject|FileObjectFactory
      */
     protected function getFileObjectFactory()
     {
@@ -294,7 +315,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|UserGroupFactory
+     * @return MockObject|UserGroupFactory
      */
     protected function getUserGroupFactory()
     {
@@ -302,7 +323,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|UserGroupAssignmentHandler
+     * @return MockObject|UserGroupAssignmentHandler
      */
     protected function getUserGroupAssignmentHandler()
     {
@@ -310,7 +331,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameterFactory
+     * @return MockObject|ConfigParameterFactory
      */
     protected function getConfigParameterFactory()
     {
@@ -318,7 +339,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|FileProtectionFactory
+     * @return MockObject|FileProtectionFactory
      */
     protected function getFileProtectionFactory()
     {
@@ -326,7 +347,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|FormFactory
+     * @return MockObject|FormFactory
      */
     protected function getFormFactory()
     {
@@ -334,7 +355,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|FormHelper
+     * @return MockObject|FormHelper
      */
     protected function getFormHelper()
     {
@@ -342,7 +363,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|UserAccessManager
+     * @return MockObject|UserAccessManager
      */
     protected function getUserAccessManager()
     {
@@ -350,7 +371,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectMembershipHandlerFactory
+     * @return MockObject|ObjectMembershipHandlerFactory
      */
     protected function getObjectMembershipHandlerFactory()
     {
@@ -358,7 +379,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|AssignmentInformationFactory
+     * @return MockObject|AssignmentInformationFactory
      */
     protected function getAssignmentInformationFactory()
     {
@@ -366,7 +387,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|UpdateFactory
+     * @return MockObject|UpdateFactory
      */
     protected function getUpdateFactory()
     {
@@ -374,7 +395,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ObjectInformationFactory
+     * @return MockObject|ObjectInformationFactory
      */
     protected function getObjectInformationFactory()
     {
@@ -382,7 +403,7 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|AssignmentInformationFactory
+     * @return MockObject|AssignmentInformationFactory
      */
     protected function getExtendedAssignmentInformationFactory()
     {
@@ -406,20 +427,19 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     /**
      * @param string $type
      * @param string $id
-     * @param bool   $deletable
-     * @param bool   $objectIsMember
-     * @param array  $ipRange
+     * @param bool $deletable
+     * @param bool $objectIsMember
+     * @param array $ipRange
      * @param string $readAccess
      * @param string $writeAccess
-     * @param array  $posts
-     * @param array  $terms
-     * @param null   $name
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @param array $posts
+     * @param array $terms
+     * @param null $name
+      * @return MockObject
      */
     private function getUserGroupType(
-        $type,
-        $id,
+        string $type,
+        string $id,
         $deletable = true,
         $objectIsMember = false,
         array $ipRange = [''],
@@ -428,7 +448,8 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
         array $posts = [],
         array $terms = [],
         $name = null
-    ) {
+    ): MockObject
+    {
         $userGroup = $this->createMock($type);
 
         $userGroup->expects($this->any())
@@ -498,27 +519,26 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
     /**
      * @param string $id
-     * @param bool   $deletable
-     * @param bool   $objectIsMember
-     * @param array  $ipRange
+     * @param bool $deletable
+     * @param bool $objectIsMember
+     * @param array $ipRange
      * @param string $readAccess
      * @param string $writeAccess
-     * @param array  $posts
-     * @param array  $terms
-     * @param string $name
-     *
-     * @return \UserAccessManager\UserGroup\UserGroup|\PHPUnit_Framework_MockObject_MockObject
+     * @param array $posts
+     * @param array $terms
+     * @param string|null $name
+      * @return MockObject|UserGroup
      */
     protected function getUserGroup(
-        $id,
-        $deletable = true,
-        $objectIsMember = false,
+        string $id,
+        bool $deletable = true,
+        bool $objectIsMember = false,
         array $ipRange = [''],
-        $readAccess = 'none',
-        $writeAccess = 'none',
+        string $readAccess = 'none',
+        string $writeAccess = 'none',
         array $posts = [],
         array $terms = [],
-        $name = null
+        ?string $name = null
     ) {
         return $this->getUserGroupType(
             UserGroup::class,
@@ -537,20 +557,19 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     /**
      * @param string $type
      * @param string $id
-     * @param bool   $deletable
-     * @param bool   $objectIsMember
-     * @param array  $ipRange
+     * @param bool $deletable
+     * @param bool $objectIsMember
+     * @param array $ipRange
      * @param string $readAccess
      * @param string $writeAccess
-     * @param array  $posts
-     * @param array  $terms
-     * @param string $name
-     *
-     * @return \UserAccessManager\UserGroup\UserGroup|\PHPUnit_Framework_MockObject_MockObject
+     * @param array $posts
+     * @param array $terms
+     * @param null $name
+      * @return UserGroup|MockObject
      */
     protected function getDynamicUserGroup(
-        $type,
-        $id,
+        string $type,
+        string $id,
         $deletable = true,
         $objectIsMember = false,
         array $ipRange = [''],
@@ -576,13 +595,11 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
     /**
      * Returns a config parameter mock.
-     *
-     * @param string $type
+      * @param string $type
      * @param string $postFix
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\Config\ConfigParameter
+      * @return MockObject|ConfigParameter
      */
-    protected function getConfigParameter($type, $postFix = '')
+    protected function getConfigParameter(string $type, $postFix = '')
     {
         $type = strtolower($type);
         $className = ucfirst($type).'ConfigParameter';
@@ -599,21 +616,20 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string $type
-     * @param string $fromDate
-     * @param string $toDate
-     * @param array  $recursiveMembership
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\AssignmentInformation|\stdClass
+     * @param string|null $type
+     * @param string|null $fromDate
+     * @param string|null $toDate
+     * @param array $recursiveMembership
+      * @return MockObject|AssignmentInformation|stdClass
      */
     protected function getAssignmentInformation(
-        $type,
-        $fromDate = null,
-        $toDate = null,
+        ?string $type,
+        ?string $fromDate = null,
+        ?string $toDate = null,
         array $recursiveMembership = []
     ) {
         /**
-         * @var \PHPUnit_Framework_MockObject_MockObject|\stdClass $assignmentInformation
+         * @var MockObject|stdClass $assignmentInformation
          */
         $assignmentInformation = $this->createMock(AssignmentInformation::class);
 
@@ -650,35 +666,33 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string      $name
+     * @param string $name
      * @param null|string $classType
-     *
-     * @return mixed
+     * @return stdClass|MockObject
      */
-    protected function createTypeObject($name, $classType = null)
+    protected function createTypeObject(string $name, ?string $classType = null)
     {
         if ($classType !== null) {
             $type = $this->getMockBuilder($classType)->getMock();
         } else {
-            $type = new \stdClass();
+            $type = new stdClass();
         }
 
-        $type->labels = new \stdClass();
+        $type->labels = new stdClass();
         $type->labels->name = $name;
 
         return $type;
     }
 
-    
+
     /**
      * @param string $class
      * @param string $type
-     * @param array  $falseIds
-     * @param array  $handledObjects
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @param array $falseIds
+     * @param array|null $handledObjects
+      * @return MockObject
      */
-    protected function getMembershipHandler($class, $type, array $falseIds, array $handledObjects = null)
+    protected function getMembershipHandler(string $class, string $type, array $falseIds, array $handledObjects = null): MockObject
     {
         $membershipHandler = $this->createMock($class);
 
@@ -784,16 +798,15 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
 
     /**
      * @param int $numberOfSites
-     *
-     * @return array
+      * @return array
      */
-    protected function getSites($numberOfSites = 3)
+    protected function getSites($numberOfSites = 3): array
     {
         $sites = [];
 
         for ($count = 1; $count <= $numberOfSites; $count++) {
             /**
-             * @var \stdClass $site
+             * @var stdClass $site
              */
             $site = $this->getMockBuilder('\WP_Site')->getMock();
             $site->blog_id = $count;
@@ -804,13 +817,12 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param int   $id
+     * @param int $id
      * @param array $withAdd
      * @param array $withRemove
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\UserAccessManager\UserGroup\UserGroup
+      * @return MockObject|UserGroup
      */
-    protected function getUserGroupWithAddDelete($id, array $withAdd = [], array $withRemove = [])
+    protected function getUserGroupWithAddDelete(int $id, array $withAdd = [], array $withRemove = [])
     {
         $userGroup = $this->getUserGroup($id);
 
@@ -834,10 +846,9 @@ abstract class UserAccessManagerTestCase extends \PHPUnit_Framework_TestCase
      * @param array $removeIds
      * @param array $with
      * @param array $additional
-     *
-     * @return array
+      * @return array
      */
-    protected function getUserGroupArray(array $addIds, array $removeIds = [], array $with = [], array $additional = [])
+    protected function getUserGroupArray(array $addIds, array $removeIds = [], array $with = [], array $additional = []): array
     {
         $groups = [];
 

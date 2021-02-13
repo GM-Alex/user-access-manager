@@ -12,6 +12,9 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
+declare(strict_types=1);
+
 namespace UserAccessManager\UserGroup;
 
 /**
@@ -43,11 +46,10 @@ class AssignmentInformation
 
     /**
      * AssignmentInformation constructor.
-     *
      * @param string $type
      * @param string $fromDate
      * @param string $toDate
-     * @param array  $recursiveMembership
+     * @param array $recursiveMembership
      */
     public function __construct($type = null, $fromDate = null, $toDate = null, array $recursiveMembership = [])
     {
@@ -60,7 +62,7 @@ class AssignmentInformation
     /**
      * @return string
      */
-    public function getType()
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -68,7 +70,7 @@ class AssignmentInformation
     /**
      * @return null|string
      */
-    public function getFromDate()
+    public function getFromDate(): ?string
     {
         return $this->fromDate;
     }
@@ -76,27 +78,23 @@ class AssignmentInformation
     /**
      * @return null|string
      */
-    public function getToDate()
+    public function getToDate(): ?string
     {
         return $this->toDate;
     }
 
     /**
      * @param array $recursiveMembership
-     *
-     * @return $this
      */
     public function setRecursiveMembership(array $recursiveMembership)
     {
         $this->recursiveMembership = $recursiveMembership;
-
-        return $this;
     }
 
     /**
      * @return array
      */
-    public function getRecursiveMembership()
+    public function getRecursiveMembership(): array
     {
         return $this->recursiveMembership;
     }

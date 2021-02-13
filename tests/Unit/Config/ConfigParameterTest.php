@@ -12,8 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 use UserAccessManager\Config\ConfigParameter;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -26,7 +30,7 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 class ConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameter
+     * @return MockObject|ConfigParameter
      */
     private function getStub()
     {
@@ -43,7 +47,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::__construct()
-     * @throws \Exception
+     * @throws Exception
      */
     public function testCanCreateInstance()
     {
@@ -51,13 +55,13 @@ class ConfigParameterTest extends UserAccessManagerTestCase
         $stub->expects($this->exactly(2))->method('isValidValue')->will($this->returnValue(true));
         $stub->__construct('testId');
 
-        self::assertAttributeEquals('testId', 'id', $stub);
-        self::assertAttributeEquals(null, 'defaultValue', $stub);
+        self::assertEquals('testId', $stub->getId());
+        self::assertEquals(null, $stub->getValue());
 
         $stub->__construct('otherId', 'defaultValue');
 
-        self::assertAttributeEquals('otherId', 'id', $stub);
-        self::assertAttributeEquals('defaultValue', 'defaultValue', $stub);
+        self::assertEquals('otherId', $stub->getId());
+        self::assertEquals('defaultValue', $stub->getValue());
 
         $stub = $this->getStub();
         $stub->expects($this->once())->method('isValidValue')->will($this->returnValue(false));
@@ -69,7 +73,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::getId()
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetId()
     {
@@ -83,6 +87,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::validateValue()
+     * @throws ReflectionException
      */
     public function testValidateValue()
     {
@@ -100,7 +105,6 @@ class ConfigParameterTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::setValue()
-     *
      * @return ConfigParameter
      */
     public function testSetValue()
@@ -112,7 +116,7 @@ class ConfigParameterTest extends UserAccessManagerTestCase
 
         $stub->setValue('testValue');
 
-        self::assertAttributeEquals('testValue', 'value', $stub);
+        self::assertEquals('testValue', $stub->getValue());
 
         return $stub;
     }
@@ -121,10 +125,9 @@ class ConfigParameterTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testSetValue
      * @covers  ::getValue()
-     *
      * @param ConfigParameter $stub
      */
-    public function testGetValue($stub)
+    public function testGetValue(ConfigParameter $stub)
     {
         self::assertEquals('testValue', $stub->getValue());
     }

@@ -23,6 +23,7 @@ use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
  * Class UserAccessManagerTest
@@ -36,7 +37,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::__construct()
      */
-    public function testCanCreateInstance()
+    public function testCanCreateInstance(): UserAccessManager
     {
         $userAccessManager = new UserAccessManager(
             $this->getPhp(),
@@ -132,8 +133,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      * @covers  ::getConfigParameterFactory()
      * @covers  ::getFileProtectionFactory()
      * @covers  ::getFileObjectFactory()
-     *
-     * @param UserAccessManager $userAccessManager
+      * @param UserAccessManager $userAccessManager
      */
     public function testSimpleGetters(UserAccessManager $userAccessManager)
     {
@@ -229,6 +229,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
      * @covers ::addAdminActions()
      * @covers ::addAdminFilters()
      * @covers ::addAdminMetaBoxes()
+     * @throws UserGroupTypeException
      */
     public function testRegisterAdminActionsAndFilters()
     {
@@ -402,7 +403,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(24))
             ->method('addAction');
 
-        $wordpress->expects($this->exactly(81))
+        $wordpress->expects($this->exactly(82))
             ->method('addFilter');
 
         $wordpress->expects($this->exactly(12))
@@ -411,7 +412,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $config = $this->getMainConfig();
         $config->expects($this->exactly(3))
             ->method('getRedirect')
-            ->will($this->onConsecutiveCalls(false, false, true));
+            ->will($this->onConsecutiveCalls('', '', 'redirect'));
 
         $userAccessManager = new UserAccessManager(
             $this->getPhp(),

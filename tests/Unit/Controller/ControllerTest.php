@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Controller;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionException;
 use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
@@ -37,7 +40,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * Setup virtual file system.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
@@ -46,13 +49,13 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * Tear down virtual file system.
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->root->unmount();
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|Controller
+     * @return MockObject|Controller
      */
     private function getStub()
     {
@@ -69,7 +72,6 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @group   unit
      * @covers  ::__construct()
-     *
      * @return Controller
      */
     public function testCanCreateInstance()
@@ -90,6 +92,7 @@ class ControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getPhp()
      * @covers ::getWordpressConfig()
+     * @throws ReflectionException
      */
     public function testSimpleGetters()
     {
@@ -154,6 +157,7 @@ class ControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::verifyNonce()
+     * @throws ReflectionException
      */
     public function testVerifyNonce()
     {
@@ -185,16 +189,15 @@ class ControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::setUpdateMessage()
-     *
      * @param Controller $stub
-     *
      * @return Controller
+     * @throws ReflectionException
      */
-    public function testSetUpdateMessage(Controller $stub)
+    public function testSetUpdateMessage(Controller $stub): Controller
     {
-        self::assertAttributeEquals(null, 'updateMessage', $stub);
+        self::assertEquals(null, $stub->getUpdateMessage());
         self::callMethod($stub, 'setUpdateMessage', ['updateMessage']);
-        self::assertAttributeEquals('updateMessage', 'updateMessage', $stub);
+        self::assertEquals('updateMessage', $stub->getUpdateMessage());
 
         return $stub;
     }
@@ -203,11 +206,15 @@ class ControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::addErrorMessage()
-     *
      * @param Controller $stub
+     * @throws ReflectionException
      */
     public function testAddErrorMessage(Controller $stub)
     {
+        if (defined('_SESSION')) {
+            unset($_SESSION[BackendController::UAM_ERRORS]);
+        }
+
         self::callMethod($stub, 'addErrorMessage', ['errorMessageOne']);
         self::callMethod($stub, 'addErrorMessage', ['errorMessageTwo']);
         self::assertEquals(['errorMessageOne', 'errorMessageTwo'], $_SESSION[BackendController::UAM_ERRORS]);
@@ -217,7 +224,6 @@ class ControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testSetUpdateMessage
      * @covers  ::getUpdateMessage()
-     *
      * @param Controller $stub
      */
     public function testGetUpdateMessage(Controller $stub)
@@ -229,7 +235,6 @@ class ControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testSetUpdateMessage
      * @covers  ::hasUpdateMessage()
-     *
      * @param Controller $stub
      */
     public function testHasUpdateMessage(Controller $stub)
@@ -251,6 +256,7 @@ class ControllerTest extends UserAccessManagerTestCase
      * @covers  ::render()
      * @covers  ::processAction()
      * @covers  ::getIncludeContents()
+     * @throws ReflectionException
      */
     public function testRender()
     {
@@ -260,7 +266,7 @@ class ControllerTest extends UserAccessManagerTestCase
         $rootDir = $this->root->get('/');
         $rootDir->add('root', new Directory([
             'src' => new Directory([
-                'View'  => new Directory([
+                'View' => new Directory([
                     'TestView.php' => new File('<?php echo \'testContent\';')
                 ])
             ])
@@ -289,6 +295,6 @@ class ControllerTest extends UserAccessManagerTestCase
         $_GET['uam_action'] = 'test';
         self::setValue($dummyController, 'template', 'TestView.php');
         $dummyController->render();
-        self::expectOutputString('testAction'.'testContent');
+        self::expectOutputString('testAction' . 'testContent');
     }
 }

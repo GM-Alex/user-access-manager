@@ -12,8 +12,11 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Form;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\FormElement;
 use UserAccessManager\Form\ValueSetFormElement;
 use UserAccessManager\Form\ValueSetFormElementValue;
@@ -24,18 +27,17 @@ use UserAccessManager\Form\ValueSetFormElementValue;
  * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\ValueSetFormElement
  */
-class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
+class ValueSetFormElementTest extends TestCase
 {
     /**
      * @param string $id
-     * @param array  $possibleValues
-     * @param mixed  $value
-     * @param string $label
-     * @param string $description
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ValueSetFormElement
+     * @param array $possibleValues
+     * @param mixed $value
+     * @param null $label
+     * @param null $description
+     * @return MockObject|ValueSetFormElement
      */
-    private function getStub($id, array $possibleValues, $value = null, $label = null, $description = null)
+    private function getStub(string $id, array $possibleValues, $value = null, $label = null, $description = null)
     {
         return $this->getMockForAbstractClass(
             ValueSetFormElement::class,
@@ -46,7 +48,6 @@ class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
     /**
      * @group   unit
      * @covers  ::__construct()
-     *
      * @return FormElement
      */
     public function testCanCreateInstance()
@@ -67,7 +68,6 @@ class ValueSetFormElementTest extends \PHPUnit_Framework_TestCase
      * @group   unit
      * @covers  ::getPossibleValues()
      * @depends testCanCreateInstance
-     *
      * @param ValueSetFormElement $valueSetFormElement
      */
     public function testGetPossibleValues(ValueSetFormElement $valueSetFormElement)

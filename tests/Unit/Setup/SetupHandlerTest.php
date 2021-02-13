@@ -12,10 +12,12 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Setup;
 
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Setup\Database\DatabaseHandler;
+use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -95,6 +97,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::install()
      * @covers ::runInstall()
+     * @throws MissingColumnsException
      */
     public function testInstall()
     {
@@ -184,6 +187,7 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::uninstall()
+     * @throws MissingColumnsException
      */
     public function testUninstall()
     {

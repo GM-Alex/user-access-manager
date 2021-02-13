@@ -12,10 +12,14 @@
  * @version   SVN: $id$
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
+
 namespace UserAccessManager\Tests\Unit\Config;
 
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigParameter;
+use UserAccessManager\Config\StringConfigParameter;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
@@ -29,11 +33,10 @@ class ConfigTest extends UserAccessManagerTestCase
     /**
      * @param string $type
      * @param string $postFix
-     * @param mixed  $expectedSetValue
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ConfigParameter
+     * @param null $expectedSetValue
+     * @return MockObject|ConfigParameter
      */
-    protected function getConfigParameter($type, $postFix = '', $expectedSetValue = null)
+    protected function getConfigParameter(string $type, $postFix = '', $expectedSetValue = null)
     {
         $configParameter = parent::getConfigParameter($type, $postFix);
 
@@ -95,24 +98,32 @@ class ConfigTest extends UserAccessManagerTestCase
      */
     public function testSetDefaultConfigParameters()
     {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getOption')
+            ->will($this->onConsecutiveCalls(
+                ['newOne' => 'newOne']
+            ));
+
         $config = new Config(
-            $this->getWordpress(),
+            $wordpress,
             'key'
         );
 
-        self::assertAttributeEquals([], 'defaultConfigParameters', $config);
-        $config->setDefaultConfigParameters(['newOne', 'newTwo']);
-        self::assertAttributeEquals(['newOne', 'newTwo'], 'defaultConfigParameters', $config);
+        $stringParameter = $this->createMock(StringConfigParameter::class);
+        self::assertEquals([], $config->getConfigParameters());
+        $config->flushConfigParameters();
+        $config->setDefaultConfigParameters(['newOne' => $stringParameter]);
+        self::assertEquals(['newOne' => $stringParameter], $config->getConfigParameters());
     }
 
     /**
      * @group  unit
      * @covers ::getDefaultConfigParameters()
      * @covers ::getConfigParameters()
-     *
      * @return Config
      */
-    public function testGetConfigParameters()
+    public function testGetConfigParameters(): Config
     {
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
@@ -129,7 +140,7 @@ class ConfigTest extends UserAccessManagerTestCase
 
         $optionKeys = array_keys([]);
         $testValues = array_map(function ($element) {
-            return $element.'|value';
+            return $element . '|value';
         }, $optionKeys);
 
         $options = array_combine($optionKeys, $testValues);
@@ -157,10 +168,10 @@ class ConfigTest extends UserAccessManagerTestCase
         $config->setDefaultConfigParameters($defaultValues);
         $parameters = $config->getConfigParameters();
 
-        self::assertEquals($parameters['bool_false']->getValue(), 'booleanfalseValue');
-        self::assertEquals($parameters['bool_true']->getValue(), 'booleantrueValue');
-        self::assertEquals($parameters['string']->getValue(), 'stringValue');
-        self::assertEquals($parameters['selection']->getValue(), 'selectionValue');
+        self::assertEquals('booleanfalseValue', $parameters['bool_false']->getValue());
+        self::assertEquals('booleantrueValue', $parameters['bool_true']->getValue());
+        self::assertEquals('stringValue', $parameters['string']->getValue());
+        self::assertEquals('selectionValue', $parameters['selection']->getValue());
 
         return $config;
     }
@@ -204,23 +215,20 @@ class ConfigTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetConfigParameters
      * @covers  ::flushConfigParameters()
-     *
      * @param Config $config
      */
     public function testFlushConfigParameters(Config $config)
     {
-        self::assertAttributeNotEmpty('configParameters', $config);
-        self::assertAttributeNotEquals([], 'defaultConfigParameters', $config);
+        self::assertNotEquals([], $config->getConfigParameters());
         $config->flushConfigParameters();
-        self::assertAttributeEquals(null, 'configParameters', $config);
-        self::assertAttributeEquals([], 'defaultConfigParameters', $config);
+        self::assertEquals([], $config->getConfigParameters());
     }
 
     /**
      * @group  unit
      * @covers ::getParameterValue()
      * @covers ::getParameterValueRaw()
-     * @throws \Exception
+     * @throws Exception
      */
     public function testGetParameterValue()
     {
