@@ -198,12 +198,12 @@ class UserGroupHandler
 
     /**
      * Deletes a user group.
-     * @param int $userGroupId
+     * @param string|int $userGroupId
      * @return bool
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    public function deleteUserGroup(int $userGroupId): bool
+    public function deleteUserGroup($userGroupId): bool
     {
         $userGroups = $this->getUserGroups();
 
