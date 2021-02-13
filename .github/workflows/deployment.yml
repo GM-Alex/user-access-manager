@@ -1,8 +1,7 @@
 name: Deployment
 on:
-  create:
-    tags:
-      - *
+  release:
+    types: [published]
 jobs:
   tests:
     name: Deploy to wordpress
