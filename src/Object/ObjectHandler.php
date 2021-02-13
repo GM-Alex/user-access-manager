@@ -219,10 +219,10 @@ class ObjectHandler
     /**
      * Adds an custom taxonomy.
      * @param string $taxonomy
-     * @param string $objectType
+     * @param array|string $objectType
      * @param array $arguments
      */
-    public function registeredTaxonomy(string $taxonomy, string $objectType, array $arguments)
+    public function registeredTaxonomy(string $taxonomy, $objectType, array $arguments)
     {
         if ((bool) $arguments['public'] === true) {
             $this->taxonomies = $this->getTaxonomies();
