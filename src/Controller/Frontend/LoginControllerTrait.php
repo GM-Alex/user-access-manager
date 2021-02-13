@@ -50,7 +50,7 @@ trait LoginControllerTrait
     public function getUserLogin(): string
     {
         $userLogin = $this->getRequestParameter('log');
-        return $this->getWordpress()->escHtml(stripslashes($userLogin));
+        return $this->getWordpress()->escHtml(stripslashes((string) $userLogin));
     }
 
     /**
