@@ -1,5 +1,5 @@
 # User Access Manager Plugin for Wordpress
-[![Build Status](https://travis-ci.org/GM-Alex/user-access-manager.svg)](https://travis-ci.org/GM-Alex/user-access-manager)
+![Tests](https://github.com/GM-Alex/user-access-manager/workflows/Tests/badge.svg)
 
 If you are a normal user please visit https://wordpress.org/plugins/user-access-manager/
 
