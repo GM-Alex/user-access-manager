@@ -373,10 +373,10 @@ class RedirectController extends Controller
     /**
      * Returns the url for a locked file.
      * @param string $url The base url.
-     * @param integer $id The _iId of the file.
+     * @param int|string $id The id of the file.
      * @return string
      */
-    public function getFileUrl(string $url, int $id): string
+    public function getFileUrl(string $url, $id): string
     {
         // Nginx always supports real urls so we need the new urls only
         // if we don't use nginx and mod_rewrite is disabled

@@ -109,10 +109,10 @@ class TermController extends ContentController
     /**
      * Returns all posts for the given term.
      * @param string $termType
-     * @param int $termId
+     * @param int|string $termId
      * @return array
      */
-    private function getAllPostForTerm(string $termType, int $termId): array
+    private function getAllPostForTerm(string $termType, $termId): array
     {
         $fullTerms = [$termId => $termType];
         $termTreeMap = $this->objectMapHandler->getTermTreeMap();
@@ -138,11 +138,11 @@ class TermController extends ContentController
     /**
      * Returns the post count for the term.
      * @param string $termType
-     * @param int $termId
+     * @param int|string $termId
      * @return int
      * @throws UserGroupTypeException
      */
-    private function getVisibleElementsCount(string $termType, int $termId): int
+    private function getVisibleElementsCount(string $termType, $termId): int
     {
         $key = $termType . '|' . $termId;
 

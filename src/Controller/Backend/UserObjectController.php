@@ -42,12 +42,11 @@ class UserObjectController extends ObjectController
      * The function for the manage_users_custom_column action.
      * @param null|string $return The normal return value.
      * @param string $columnName The column name.
-     * @param integer $id The id.
+     * @param int|string $id The id.
      * @return string|null
      * @throws UserGroupTypeException
-     * @throws UserGroupTypeException
      */
-    public function addUserColumn(?string $return, string $columnName, int $id): ?string
+    public function addUserColumn(?string $return, string $columnName, $id): ?string
     {
         if ($columnName === self::COLUMN_NAME) {
             $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $id);
@@ -71,11 +70,11 @@ class UserObjectController extends ObjectController
 
     /**
      * The function for the profile_update action.
-     * @param integer $userId The user id.
+     * @param int|string $userId The user id.
      * @throws UserGroupTypeException
      * @throws UserGroupTypeException
      */
-    public function saveUserData(int $userId)
+    public function saveUserData($userId)
     {
         $this->saveObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
     }
