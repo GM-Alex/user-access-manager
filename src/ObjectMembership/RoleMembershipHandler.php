@@ -43,9 +43,9 @@ class RoleMembershipHandler extends ObjectMembershipHandler
 
     /**
      * RoleMembershipHandler constructor.
-      * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param AssignmentInformationFactory $assignmentInformationFactory
      * @param Wordpress                    $wordpress
-      * @throws Exception
+     * @throws Exception
      */
     public function __construct(AssignmentInformationFactory $assignmentInformationFactory, Wordpress $wordpress)
     {
@@ -55,9 +55,9 @@ class RoleMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Returns the object and type name.
-      * @param int|string $objectId
+     * @param int|string $objectId
      * @param string $typeName
-      * @return int|string
+     * @return int|string
      */
     public function getObjectName($objectId, &$typeName = '')
     {
@@ -68,11 +68,11 @@ class RoleMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Checks if the role is a member of the user group.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param bool $lockRecursive
      * @param int|string $objectId
      * @param null|AssignmentInformation $assignmentInformation
-      * @return bool
+     * @return bool
      */
     public function isMember(
         AbstractUserGroup $userGroup,
@@ -92,10 +92,10 @@ class RoleMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Returns the full role objects.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param bool $lockRecursive
      * @param null $objectType
-      * @return array
+     * @return array
      */
     public function getFullObjects(AbstractUserGroup $userGroup, bool $lockRecursive, $objectType = null): array
     {

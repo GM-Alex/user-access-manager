@@ -54,11 +54,11 @@ class UserMembershipHandler extends ObjectMembershipHandler
 
     /**
      * UserMembershipHandler constructor.
-      * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param AssignmentInformationFactory $assignmentInformationFactory
      * @param Php                          $php
      * @param Database                     $database
      * @param ObjectHandler                $objectHandler
-      * @throws Exception
+     * @throws Exception
      */
     public function __construct(
         AssignmentInformationFactory $assignmentInformationFactory,
@@ -75,9 +75,9 @@ class UserMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Returns the object and type name.
-      * @param int|string $objectId
+     * @param int|string $objectId
      * @param string $typeName
-      * @return int|string
+     * @return int|string
      */
     public function getObjectName($objectId, &$typeName = '')
     {
@@ -88,11 +88,11 @@ class UserMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Checks if the user is a member of the user group.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param bool $lockRecursive
      * @param int|string $objectId
      * @param null|AssignmentInformation $assignmentInformation
-      * @return bool
+     * @return bool
      */
     public function isMember(
         AbstractUserGroup $userGroup,
@@ -143,10 +143,10 @@ class UserMembershipHandler extends ObjectMembershipHandler
 
     /**
      * Returns the user role objects.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param bool $lockRecursive
      * @param null $objectType
-      * @return array
+     * @return array
      * @throws Exception
      */
     public function getFullObjects(AbstractUserGroup $userGroup, bool $lockRecursive, $objectType = null): array

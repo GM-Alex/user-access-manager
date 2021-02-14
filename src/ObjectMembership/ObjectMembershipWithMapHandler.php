@@ -31,17 +31,17 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 {
     /**
      * Returns the map.
-      * @return array
+     * @return array
      */
     abstract protected function getMap(): array;
 
     /**
      * Uses a map function to resolve the recursive membership.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param bool $lockRecursive
      * @param int|string $objectId
      * @param null|AssignmentInformation $assignmentInformation
-      * @return bool
+     * @return bool
      * @throws Exception
      */
     protected function getMembershipByMap(
@@ -79,10 +79,10 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 
     /**
      * Returns the objects by the given type including the children.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param bool $lockRecursive
      * @param string $objectType
-      * @return array
+     * @return array
      * @throws Exception
      */
     protected function getFullObjectsByMap(AbstractUserGroup $userGroup, bool $lockRecursive, string $objectType): array

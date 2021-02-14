@@ -54,11 +54,11 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
 
     /**
      * PostMembershipHandler constructor.
-      * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param AssignmentInformationFactory $assignmentInformationFactory
      * @param Wordpress                    $wordpress
      * @param ObjectHandler                $objectHandler
      * @param ObjectMapHandler             $objectMapHandler
-      * @throws Exception
+     * @throws Exception
      */
     public function __construct(
         AssignmentInformationFactory $assignmentInformationFactory,
@@ -75,9 +75,9 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
 
     /**
      * Returns the object and type name.
-      * @param int|string $objectId
+     * @param int|string $objectId
      * @param string $typeName
-      * @return int|string
+     * @return int|string
      */
     public function getObjectName($objectId, &$typeName = '')
     {
@@ -94,7 +94,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
 
     /**
      * Returns the handled objects.
-      * @return array
+     * @return array
      */
     public function getHandledObjects(): array
     {
@@ -104,7 +104,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
 
     /**
      * Returns the map.
-      * @return array
+     * @return array
      */
     protected function getMap(): array
     {
@@ -113,7 +113,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
 
     /**
      * Assigns the recursive member ship by the group terms.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param int|string $objectId
      * @param array $recursiveMembership
      * @throws Exception
@@ -136,11 +136,11 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
 
     /**
      * Checks if the post is a member of the user group.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param bool $lockRecursive
      * @param int|string $objectId
      * @param null|AssignmentInformation $assignmentInformation
-      * @return bool
+     * @return bool
      * @throws Exception
      */
     public function isMember(
@@ -165,10 +165,10 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
 
     /**
      * Returns the full post objects.
-      * @param AbstractUserGroup $userGroup
+     * @param AbstractUserGroup $userGroup
      * @param bool $lockRecursive
      * @param null|string $objectType
-      * @return array
+     * @return array
      * @throws Exception
      */
     public function getFullObjects(AbstractUserGroup $userGroup, bool $lockRecursive, $objectType = null): array

@@ -45,7 +45,7 @@ trait BaseControllerTrait
 
     /**
      * Returns the current request url.
-      * @return string
+     * @return string
      */
     public function getRequestUrl(): string
     {
@@ -54,8 +54,8 @@ trait BaseControllerTrait
 
     /**
      * Sanitize the given value.
-      * @param mixed $value
-      * @return array|string
+     * @param mixed $value
+     * @return array|string
      */
     private function sanitizeValue($value)
     {
@@ -81,9 +81,9 @@ trait BaseControllerTrait
 
     /**
      * Returns the request parameter.
-      * @param string $name
+     * @param string $name
      * @param mixed $default
-      * @return mixed
+     * @return mixed
      */
     public function getRequestParameter(string $name, $default = null)
     {
@@ -98,8 +98,8 @@ trait BaseControllerTrait
 
     /**
      * Returns the content of the excluded php file.
-      * @param string $fileName The view file name
-      * @return string
+     * @param string $fileName The view file name
+     * @return string
      */
     protected function getIncludeContents(string $fileName): string
     {

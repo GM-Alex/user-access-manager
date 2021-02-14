@@ -58,7 +58,7 @@ abstract class Controller
 
     /**
      * Controller constructor.
-      * @param Php             $php
+     * @param Php             $php
      * @param Wordpress       $wordpress
      * @param WordpressConfig $wordpressConfig
      */
@@ -87,8 +87,8 @@ abstract class Controller
 
     /**
      * Returns the nonce field.
-      * @param string $name
-      * @return string
+     * @param string $name
+     * @return string
      */
     public function createNonceField(string $name): string
     {
@@ -97,8 +97,8 @@ abstract class Controller
 
     /**
      * Returns the nonce.
-      * @param string $name
-      * @return string
+     * @param string $name
+     * @return string
      */
     public function getNonce(string $name): string
     {
@@ -107,7 +107,7 @@ abstract class Controller
 
     /**
      * Verifies the nonce and terminates the application if the nonce is wrong.
-      * @param string $name
+     * @param string $name
      */
     protected function verifyNonce(string $name)
     {
@@ -120,7 +120,7 @@ abstract class Controller
 
     /**
      * Sets the update message.
-      * @param string $message
+     * @param string $message
      */
     protected function setUpdateMessage(string $message)
     {
@@ -129,7 +129,7 @@ abstract class Controller
 
     /**
      * Adds an error message.
-      * @param string $message
+     * @param string $message
      */
     protected function addErrorMessage(string $message)
     {
@@ -142,7 +142,7 @@ abstract class Controller
 
     /**
      * Returns the update message.
-      * @return string
+     * @return string
      */
     public function getUpdateMessage(): ?string
     {
@@ -151,7 +151,7 @@ abstract class Controller
 
     /**
      * Returns true if a update message is set.
-      * @return bool
+     * @return bool
      */
     public function hasUpdateMessage(): bool
     {
