@@ -169,7 +169,7 @@ class ControllerFactory
 
     /**
      * ControllerFactory constructor.
-      * @param Php                        $php
+     * @param Php                        $php
      * @param Wordpress                  $wordpress
      * @param Database                   $database
      * @param WordpressConfig            $wordpressConfig
@@ -239,7 +239,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend controller.
-      * @return BackendController
+     * @return BackendController
      */
     public function createBackendController(): BackendController
     {
@@ -255,7 +255,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend about controller.
-      * @return AboutController
+     * @return AboutController
      */
     public function createBackendAboutController(): AboutController
     {
@@ -268,7 +268,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend object controller.
-      * @return ObjectController
+     * @return ObjectController
      */
     public function createBackendObjectController(): ObjectController
     {
@@ -290,7 +290,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend cache controller.
-      * @return CacheController
+     * @return CacheController
      */
     public function createBackendCacheController(): CacheController
     {
@@ -301,7 +301,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend post object controller.
-      * @return PostObjectController
+     * @return PostObjectController
      */
     public function createBackendPostObjectController(): PostObjectController
     {
@@ -323,7 +323,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend term object controller.
-      * @return TermObjectController
+     * @return TermObjectController
      */
     public function createBackendTermObjectController(): TermObjectController
     {
@@ -345,7 +345,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend user object controller.
-      * @return UserObjectController
+     * @return UserObjectController
      */
     public function createBackendUserObjectController(): UserObjectController
     {
@@ -367,7 +367,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend dynamic group controller.
-      * @return DynamicGroupsController
+     * @return DynamicGroupsController
      */
     public function createBackendDynamicGroupsController(): DynamicGroupsController
     {
@@ -389,7 +389,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend setup controller.
-      * @return SettingsController
+     * @return SettingsController
      */
     public function createBackendSettingsController(): SettingsController
     {
@@ -407,7 +407,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend setup controller.
-      * @return SetupController
+     * @return SetupController
      */
     public function createBackendSetupController(): SetupController
     {
@@ -422,7 +422,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new backend user group controller.
-      * @return UserGroupController
+     * @return UserGroupController
      */
     public function createBackendUserGroupController(): UserGroupController
     {
@@ -438,7 +438,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend controller.
-      * @return FrontendController
+     * @return FrontendController
      */
     public function createFrontendController(): FrontendController
     {
@@ -453,7 +453,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend post controller.
-      * @return PostController
+     * @return PostController
      */
     public function createFrontendPostController(): PostController
     {
@@ -473,7 +473,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend redirect controller.
-      * @return RedirectController
+     * @return RedirectController
      */
     public function createFrontendRedirectController(): RedirectController
     {
@@ -494,7 +494,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend short code controller.
-      * @return ShortCodeController
+     * @return ShortCodeController
      */
     public function createFrontendShortCodeController(): ShortCodeController
     {
@@ -508,7 +508,7 @@ class ControllerFactory
 
     /**
      * Creates and returns a new frontend term controller.
-      * @return TermController
+     * @return TermController
      */
     public function createFrontendTermController(): TermController
     {

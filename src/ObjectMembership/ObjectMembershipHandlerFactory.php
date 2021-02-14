@@ -59,7 +59,7 @@ class ObjectMembershipHandlerFactory
 
     /**
      * MembershipHandlerFactory constructor.
-      * @param Php                          $php
+     * @param Php                          $php
      * @param Wordpress                    $wordpress
      * @param Database                     $database
      * @param ObjectMapHandler             $objectMapHandler
@@ -81,8 +81,8 @@ class ObjectMembershipHandlerFactory
 
     /**
      * Creates a PostMembershipHandler object.
-      * @param ObjectHandler $objectHandler
-      * @return PostMembershipHandler
+     * @param ObjectHandler $objectHandler
+     * @return PostMembershipHandler
      * @throws Exception
      */
     public function createPostMembershipHandler(ObjectHandler $objectHandler): PostMembershipHandler
@@ -97,7 +97,7 @@ class ObjectMembershipHandlerFactory
 
     /**
      * Creates a RoleMembershipHandler object.
-      * @return RoleMembershipHandler
+     * @return RoleMembershipHandler
      * @throws Exception
      */
     public function createRoleMembershipHandler(): RoleMembershipHandler
@@ -107,8 +107,8 @@ class ObjectMembershipHandlerFactory
 
     /**
      * Creates a TermMembershipHandler object.
-      * @param ObjectHandler $objectHandler
-      * @return TermMembershipHandler
+     * @param ObjectHandler $objectHandler
+     * @return TermMembershipHandler
      * @throws Exception
      */
     public function createTermMembershipHandler(ObjectHandler $objectHandler): TermMembershipHandler
@@ -123,8 +123,8 @@ class ObjectMembershipHandlerFactory
 
     /**
      * Creates an UserMembershipHandler object.
-      * @param ObjectHandler $objectHandler
-      * @return UserMembershipHandler
+     * @param ObjectHandler $objectHandler
+     * @return UserMembershipHandler
      * @throws Exception
      */
     public function createUserMembershipHandler(ObjectHandler $objectHandler): UserMembershipHandler

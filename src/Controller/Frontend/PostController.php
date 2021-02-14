@@ -300,14 +300,14 @@ class PostController extends ContentController
 
     /**
      * The function for the the_posts filter.
-     * @param array $showPosts The posts.
+     * @param null|array $showPosts The posts.
      * @return array
      * @throws UserGroupTypeException
      */
-    public function showPosts($showPosts = []): array
+    public function showPosts(?array $showPosts = []): ?array
     {
         if ($this->wordpress->isFeed() === false || $this->mainConfig->protectFeed() === true) {
-            $showPosts = $this->filterRawPosts($showPosts);
+            $showPosts = $this->filterRawPosts((array) $showPosts);
         }
 
         $this->restoreFilters();
@@ -323,7 +323,7 @@ class PostController extends ContentController
      */
     public function showPages($rawPages = []): array
     {
-        return $this->filterRawPosts($rawPages);
+        return $this->filterRawPosts((array) $rawPages);
     }
 
     /**
