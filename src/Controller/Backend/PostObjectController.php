@@ -43,10 +43,10 @@ class PostObjectController extends ObjectController
     /**
      * The function for the manage_users_custom_column action.
      * @param string $columnName The column name.
-     * @param integer $id The id.
+     * @param int|string $id The id.
      * @throws UserGroupTypeException
      */
-    public function addPostColumn(string $columnName, int $id)
+    public function addPostColumn(string $columnName, $id)
     {
         if ($columnName === self::COLUMN_NAME) {
             $post = $this->objectHandler->getPost($id);
@@ -154,9 +154,9 @@ class PostObjectController extends ObjectController
 
     /**
      * The function for the delete_post action.
-     * @param integer $postId The post id.
+     * @param int|string $postId The post id.
      */
-    public function removePostData(int $postId)
+    public function removePostData($postId)
     {
         $post = $this->objectHandler->getPost($postId);
         $this->removeObjectData($post->post_type, $postId);

@@ -559,7 +559,7 @@ abstract class AbstractUserGroup
      * Returns a single object.
      * @param string $objectType The object type.
      * @param int|string $objectId The id of the object which should be checked.
-     * @param null $assignmentInformation The assignment information
+     * @param null|AssignmentInformation $assignmentInformation The assignment information
      * @return bool
      * @throws Exception
      */
@@ -592,48 +592,48 @@ abstract class AbstractUserGroup
 
     /**
      * Checks if the role is a group member.
-     * @param string $roleId
+     * @param int|string $roleId
      * @param null $assignmentInformation
      * @return bool
      * @throws Exception
      */
-    public function isRoleMember(string $roleId, &$assignmentInformation = null): bool
+    public function isRoleMember($roleId, &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $roleId, $assignmentInformation);
     }
 
     /**
      * Checks if the user is a group member.
-     * @param int $userId The user id.
-     * @param null $assignmentInformation The assignment information.
+     * @param int|string $userId The user id.
+     * @param null|AssignmentInformation $assignmentInformation The assignment information.
      * @return bool
      * @throws Exception
      */
-    public function isUserMember(int $userId, &$assignmentInformation = null): bool
+    public function isUserMember($userId, &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId, $assignmentInformation);
     }
 
     /**
      * Checks if the term is a group member.
-     * @param int $termId
-     * @param null $assignmentInformation
+     * @param int|string $termId
+     * @param null|AssignmentInformation $assignmentInformation
      * @return bool
      * @throws Exception
      */
-    public function isTermMember(int $termId, &$assignmentInformation = null): bool
+    public function isTermMember($termId, &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $termId, $assignmentInformation);
     }
 
     /**
      * Checks if the post is a group member
-     * @param int $postId
-     * @param null $assignmentInformation
+     * @param int|string $postId
+     * @param null|AssignmentInformation $assignmentInformation
      * @return bool
      * @throws Exception
      */
-    public function isPostMember(int $postId, &$assignmentInformation = null): bool
+    public function isPostMember($postId, &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, $assignmentInformation);
     }
