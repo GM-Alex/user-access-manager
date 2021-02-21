@@ -89,11 +89,11 @@ class ShortCodeController extends Controller
 
     /**
      * Handles the public short code.
-      * @param array $attributes
+      * @param string|array $attributes
      * @param string $content
       * @return string
      */
-    public function publicShortCode(array $attributes, $content = ''): string
+    public function publicShortCode($attributes, $content = ''): string
     {
         return ($this->wordpress->isUserLoggedIn() === false) ? $this->wordpress->doShortCode($content) : '';
     }
