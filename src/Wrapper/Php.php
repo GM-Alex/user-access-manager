@@ -144,7 +144,6 @@ class Php
      */
     public function igbinarySerialize($value): string
     {
-        /** @noinspection PhpUndefinedFunctionInspection */
         return igbinary_serialize($value);
     }
 
@@ -155,7 +154,6 @@ class Php
      */
     public function igbinaryUnserialize(string $key)
     {
-        /** @noinspection PhpUndefinedFunctionInspection */
         return igbinary_unserialize($key);
     }
 

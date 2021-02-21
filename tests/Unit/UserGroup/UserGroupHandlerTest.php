@@ -370,7 +370,6 @@ class UserGroupHandlerTest extends HandlerTestCase
             4 => $this->getUserGroup(4)
         ];
 
-        self::setValue($userGroupHandler, 'filteredUserGroups', []);
         self::assertFalse($userGroupHandler->deleteUserGroup(10));
         self::assertFalse($userGroupHandler->deleteUserGroup(3));
 

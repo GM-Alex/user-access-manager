@@ -73,11 +73,6 @@ class UserGroupHandler
     private $dynamicUserGroups = null;
 
     /**
-     * @var null|UserGroup[]
-     */
-    private $filteredUserGroups = null;
-
-    /**
      * @var null|AbstractUserGroup[]
      */
     private $userGroupsForUser = null;
@@ -266,7 +261,7 @@ class UserGroupHandler
      */
     private function checkUserGroupAccess(UserGroup $userGroup): bool
     {
-        $userIp = isset($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['HTTP_X_REAL_IP'] : $_SERVER['REMOTE_ADDR'];
+        $userIp = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
 
         return $this->userHandler->isIpInRange($userIp, $userGroup->getIpRangeArray())
             || $this->wordpressConfig->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'

@@ -30,7 +30,6 @@ use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
-use WP_Post;
 use WP_Term;
 
 /**
