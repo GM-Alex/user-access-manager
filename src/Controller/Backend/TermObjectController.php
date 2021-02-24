@@ -41,13 +41,13 @@ class TermObjectController extends ObjectController
 
     /**
      * The function for the manage_categories_custom_column action.
-     * @param string $content Content for the column. Multiple filter calls are possible, so we need to append.
+     * @param string|null $content Content for the column. Multiple filter calls are possible, so we need to append.
      * @param string $columnName The column name.
      * @param int|string $id The id.
-     * @return string $content with content appended for self::COLUMN_NAME column
+     * @return string|null $content with content appended for self::COLUMN_NAME column
      * @throws UserGroupTypeException
      */
-    public function addTermColumn(string $content, string $columnName, $id): string
+    public function addTermColumn(?string $content, string $columnName, $id): ?string
     {
         if ($columnName === self::COLUMN_NAME) {
             $term = $this->objectHandler->getTerm($id);
