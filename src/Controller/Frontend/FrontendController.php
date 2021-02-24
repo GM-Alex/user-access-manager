@@ -126,14 +126,14 @@ class FrontendController extends Controller
 
     /**
      * Filter for Yoast SEO Plugin
-      * Hides the url from the site map if the user has no access
-      * @param string $url The url to check
+     * Hides the url from the site map if the user has no access
+     * @param string|array $url The url to check
      * @param string $type The object type
      * @param object $object The object
-      * @return false|string
+     * @return false|string
      * @throws UserGroupTypeException
      */
-    public function getWpSeoUrl(string $url, string $type, object $object)
+    public function getWpSeoUrl($url, string $type, object $object)
     {
         return ($this->accessHandler->checkObjectAccess($type, $object->ID) === true) ? $url : false;
     }

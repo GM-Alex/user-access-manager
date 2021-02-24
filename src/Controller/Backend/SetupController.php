@@ -195,7 +195,7 @@ class SetupController extends Controller
     public function deleteDatabaseBackupAction()
     {
         $this->verifyNonce(self::SETUP_DELETE_BACKUP_NONCE);
-        $version = $this->getRequestParameter('uam_delete_backup');
+        $version = (string) $this->getRequestParameter('uam_delete_backup');
 
         if ($this->setupHandler->getDatabaseHandler()->deleteBackup($version) === true) {
             $this->setUpdateMessage(TXT_UAM_DELETE_DATABASE_BACKUP_SUCCESS);
