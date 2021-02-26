@@ -1,0 +1,72 @@
+{
+  "timeout": 60,
+  "source": {
+    "directories": [
+      "src/Access",
+      "src/Cache",
+      "src/Command",
+      "src/Config",
+      "src/Controller",
+      "src/Database",
+      "src/File",
+      "src/Form",
+      "src/Object",
+      "src/ObjectMembership",
+      "src/Setup",
+      "src/User",
+      "src/UserGroup",
+      "src/Util",
+      "src/Widget"
+    ],
+    "excludes": [
+      "vendor",
+      "tests"
+    ]
+  },
+  "testFramework": "phpunit",
+  "bootstrap": "./tests/bootstrap.php",
+  "logs": {
+    "text": "infection.txt"
+  },
+  "mutators": {
+    "@default": true,
+    "@cast": false,
+    "@function_signature": false,
+    "MethodCallRemoval": {
+      "ignore": [
+        "UserAccessManager\\Command\\GroupCommand::__construct",
+        "UserAccessManager\\Command\\ObjectCommand::__construct"
+      ]
+    },
+    "IncrementInteger": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Backend\\ObjectController::sortUserGroups"
+      ]
+    },
+    "DecrementInteger": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Backend\\ObjectController::sortUserGroups"
+      ]
+    },
+    "UnwrapUcFirst": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Backend\\UserGroupController::getUserGroups"
+      ]
+    },
+    "FunctionCallRemoval": {
+      "ignore": [
+        "UserAccessManager\\Controller\\BaseControllerTrait::getIncludeContents"
+      ]
+    },
+    "UnwrapArrayMap": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Controller::processAction"
+      ]
+    },
+    "UnwrapStrReplace": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Frontend\\RedirectController::getFileSettingsByType"
+      ]
+    }
+  }
+}
