@@ -3,7 +3,7 @@
   "description": "User Access Manager plugin for Wordpress",
   "type": "wordpress-plugin",
   "license": "GPL-2.0",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "authors": [
     {
       "name": "Alexander Schneider",
@@ -19,7 +19,7 @@
     "adlawson/vfs": "^0.12",
     "infection/infection": "^0.15 || ^0.21",
     "squizlabs/php_codesniffer": "^3.5",
-    "johnpbloch/wordpress-core": "^5.6",
+    "johnpbloch/wordpress-core": "^5.7",
     "php-vcr/php-vcr": "^1.5"
   },
   "autoload": {

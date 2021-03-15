@@ -496,12 +496,12 @@ class PostController extends ContentController
 
     /**
      * The function for the edit_post_link filter.
-     * @param string $link The edit link.
+     * @param null|string $link The edit link.
      * @param int|string $postId The _iId of the post.
      * @return string
      * @throws UserGroupTypeException
      */
-    public function showEditLink(string $link, $postId): string
+    public function showEditLink(?string $link, $postId): string
     {
         if ($this->mainConfig->hideEditLinkOnNoAccess() === true
             && $this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, true) === false
