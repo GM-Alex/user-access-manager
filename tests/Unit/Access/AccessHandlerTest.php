@@ -102,6 +102,10 @@ class AccessHandlerTest extends HandlerTestCase
                 true
             ));
 
+        $wordpress->expects($this->exactly(2))
+            ->method('isUserMemberOfBlog')
+            ->will($this->returnValue(true));
+
         $mainConfig = $this->getMainConfig();
 
         $mainConfig->expects($this->exactly(7))

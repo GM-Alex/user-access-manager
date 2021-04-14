@@ -556,7 +556,7 @@ class Wordpress
             //So let's check if we are calling the ajax data for the frontend or backend
             //If the referer is an admin url we are requesting the data for the backend
             $adminUrl = get_admin_url();
-            return (substr((string) $_SERVER['HTTP_REFERER'], 0, strlen((string) $adminUrl)) === $adminUrl);
+            return (substr((string) ($_SERVER['HTTP_REFERER'] ?? ''), 0, strlen((string) $adminUrl)) === $adminUrl);
         }
 
         //No ajax request just use the normal function
@@ -1019,5 +1019,14 @@ class Wordpress
         }
 
         return got_mod_rewrite();
+    }
+
+    /**
+     * @return bool
+     * @see \is_user_member_of_blog()
+     */
+    public function isUserMemberOfBlog(): bool
+    {
+        return (bool) is_user_member_of_blog();
     }
 }
