@@ -37,7 +37,7 @@ jQuery(document).ready(function ($) {
             }
         };
 
-        $inputs.change(function () {
+        $inputs.on('change', function () {
             toggleElement(this);
         });
 
