@@ -528,6 +528,6 @@ class PostController extends ContentController
             }
         }
 
-        return $link;
+        return (string) $link;
     }
 }

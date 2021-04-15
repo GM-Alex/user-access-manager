@@ -23,6 +23,7 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
+use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\Wordpress;
@@ -179,10 +180,22 @@ class AccessHandler
             ) {
                 $access = true;
             } else {
+                $access = true;
                 $membership = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId);
-                $access = $membership === []
-                    || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== []
-                        && $this->wordpress->isUserMemberOfBlog();
+
+                if (count($membership) > 0) {
+                    $userGroupDiff = array_intersect_key(
+                        $membership,
+                        $this->getUserUserGroupsForObjectAccess($isAdmin)
+                    );
+                    $nonLoggedInGroupKey = DynamicUserGroup::USER_TYPE . '|'
+                        . DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
+
+                    $access = count($userGroupDiff) > 0 && (
+                            isset($userGroupDiff[$nonLoggedInGroupKey]) ||
+                            $this->wordpress->isUserMemberOfBlog()
+                        );
+                }
             }
 
             $this->objectAccess[$isAdmin][$objectType][$objectId] = $access;
