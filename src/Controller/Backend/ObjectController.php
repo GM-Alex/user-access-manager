@@ -45,7 +45,9 @@ use UserAccessManager\Wrapper\Wordpress;
 class ObjectController extends Controller
 {
     const COLUMN_NAME = 'uam_access';
+    const BULK_ADD = 'add';
     const BULK_REMOVE = 'remove';
+    const BULK_OVERWRITE = 'overwrite';
     const DEFAULT_GROUPS_FORM_NAME = 'uam_user_groups';
     const DEFAULT_DYNAMIC_GROUPS_FORM_NAME = 'uam_dynamic_user_groups';
     const UPDATE_GROUPS_FORM_NAME = 'uam_update_groups';
@@ -343,20 +345,27 @@ class ObjectController extends Controller
         ?array &$addUserGroups = [],
         ?array &$removeUserGroups = []
     ) {
-        if ($addUserGroups === null) {
-            $addUserGroups = (array) $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
-        }
-
+        $groupsToChange = (array) $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
         $filteredUserGroupsForObject = $this->userGroupHandler->getFilteredUserGroupsForObject(
             $objectType,
             $objectId
         );
+
+        $addUserGroups = $addUserGroups ?? $groupsToChange;
         $removeUserGroups = array_flip(array_keys($filteredUserGroupsForObject));
         $bulkType = $this->getRequestParameter('uam_bulk_type');
 
-        if ($bulkType === self::BULK_REMOVE) {
-            $removeUserGroups = $addUserGroups;
+        if ($bulkType === self::BULK_ADD) {
+            $addUserGroups = $groupsToChange;
+            $removeUserGroups = [];
+        } elseif ($bulkType === self::BULK_REMOVE) {
             $addUserGroups = [];
+            $removeUserGroups = array_filter(
+                $groupsToChange,
+                function (array $group) {
+                    return isset($group['id']);
+                }
+            );
         }
     }
 

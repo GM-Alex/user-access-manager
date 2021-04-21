@@ -1,6 +1,6 @@
 <?php
 /**
- * UserProfileEditForm.php
+ * BulkEditForm.php
  *
  * Shows the bulk edit form at the admin panel.
  *

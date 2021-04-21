@@ -102,7 +102,15 @@ class AccessHandlerTest extends HandlerTestCase
                 true
             ));
 
+        $wordpress->expects($this->exactly(3))
+            ->method('isUserLoggedIn')
+            ->will($this->onConsecutiveCalls(false, true, true));
+
         $wordpress->expects($this->exactly(2))
+            ->method('isMultiSite')
+            ->will($this->onConsecutiveCalls(false, true));
+
+        $wordpress->expects($this->exactly(1))
             ->method('isUserMemberOfBlog')
             ->will($this->returnValue(true));
 
