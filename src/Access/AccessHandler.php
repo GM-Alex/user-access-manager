@@ -180,21 +180,12 @@ class AccessHandler
             ) {
                 $access = true;
             } else {
-                $access = true;
                 $membership = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId);
+                $access = $membership === []
+                    || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [];
 
-                if (count($membership) > 0) {
-                    $userGroupDiff = array_intersect_key(
-                        $membership,
-                        $this->getUserUserGroupsForObjectAccess($isAdmin)
-                    );
-                    $nonLoggedInGroupKey = DynamicUserGroup::USER_TYPE . '|'
-                        . DynamicUserGroup::NOT_LOGGED_IN_USER_ID;
-
-                    $access = count($userGroupDiff) > 0 && (
-                            isset($userGroupDiff[$nonLoggedInGroupKey]) ||
-                            $this->wordpress->isUserMemberOfBlog()
-                        );
+                if ($access && $this->wordpress->isUserLoggedIn() && $this->wordpress->isMultiSite()) {
+                    $access = $this->wordpress->isUserMemberOfBlog();
                 }
             }
 

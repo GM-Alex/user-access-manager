@@ -308,11 +308,11 @@ class RedirectController extends Controller
 
     /**
      * Extracts the object type and id.
-     * @param object $pageParams
+     * @param mixed $pageParams
      * @param null|string $objectType
      * @param null|int|string $objectId
      */
-    private function extractObjectTypeAndId(object $pageParams, ?string &$objectType, ?string &$objectId)
+    private function extractObjectTypeAndId($pageParams, ?string &$objectType, ?string &$objectId)
     {
         $objectType = null;
         $objectId = null;
@@ -345,12 +345,12 @@ class RedirectController extends Controller
 
     /**
      * Redirects to a page or to content.
-     * @param array $headers The headers which are given from wordpress.
-     * @param object $pageParams The params of the current page.
+     * @param array|null $headers The headers which are given from wordpress.
+     * @param mixed $pageParams The params of the current page.
      * @return array
      * @throws UserGroupTypeException
      */
-    public function redirect(array $headers, object $pageParams): array
+    public function redirect(?array $headers, $pageParams): array
     {
         $fileUrl = $this->getRequestParameter('uamgetfile');
         $fileType = $this->getRequestParameter('uamfiletype');

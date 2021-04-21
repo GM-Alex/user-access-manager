@@ -75,6 +75,7 @@ class PostObjectController extends ObjectController
     public function addBulkAction($columnName)
     {
         if ($columnName === self::COLUMN_NAME) {
+            $this->getObjectInformation()->setObjectId(null);
             echo $this->getIncludeContents('BulkEditForm.php');
         }
     }
