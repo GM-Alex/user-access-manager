@@ -250,7 +250,7 @@ class PostController extends ContentController
      */
     private function processPost(WP_Post $post): ?WP_Post
     {
-        $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
+        $post->post_title .= $this->adminOutput((string) $post->post_type, $post->ID);
 
         if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false) {
             if ($this->removePostFromList($post->post_type) === true) {
