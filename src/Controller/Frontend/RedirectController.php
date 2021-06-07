@@ -347,10 +347,10 @@ class RedirectController extends Controller
      * Redirects to a page or to content.
      * @param array|null $headers The headers which are given from wordpress.
      * @param mixed $pageParams The params of the current page.
-     * @return array
+     * @return array|null
      * @throws UserGroupTypeException
      */
-    public function redirect(?array $headers, $pageParams): array
+    public function redirect(?array $headers, $pageParams): ?array
     {
         $fileUrl = $this->getRequestParameter('uamgetfile');
         $fileType = $this->getRequestParameter('uamfiletype');

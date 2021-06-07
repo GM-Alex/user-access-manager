@@ -232,7 +232,7 @@ class TermController extends ContentController
             return null;
         }
 
-        $term->name .= $this->adminOutput($term->taxonomy, $term->term_id, $term->name);
+        $term->name .= $this->adminOutput((string) $term->taxonomy, $term->term_id, $term->name);
         $term->count = $this->getVisibleElementsCount($term->taxonomy, $term->term_id);
         $isEmpty = $this->isCategoryEmpty($term);
 
@@ -328,7 +328,7 @@ class TermController extends ContentController
         $showItems = [];
 
         foreach ($items as $key => $item) {
-            $item->title .= $this->adminOutput($item->object, $item->object_id, $item->title);
+            $item->title .= $this->adminOutput((string) $item->object, $item->object_id, $item->title);
 
             if ($this->objectHandler->isPostType($item->object) === true) {
                 if ($this->processPostMenuItem($item) === false) {
