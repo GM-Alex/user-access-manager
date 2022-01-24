@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
-Tested up to: 5.7
-Stable tag: 2.2.15
+Tested up to: 5.9
+Stable tag: 2.2.16
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -58,6 +58,8 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.2.16      2022/01/25  Check compatibility for Wordpress 5.9.
 
     2.2.15      2021/06/07  Fix possible type issues.
 
