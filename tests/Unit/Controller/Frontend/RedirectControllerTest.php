@@ -146,17 +146,18 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(6))
+        $wordpress->expects($this->exactly(7))
             ->method('attachmentUrlToPostId')
             ->withConsecutive(
-                ['url/part'],
+                ['url/part.ext'],
+                ['url/part-scaled.ext'],
                 ['url/part'],
                 ['url-e123/part'],
                 ['url/part'],
                 ['url-e123/part'],
                 ['url/part.pdf']
             )
-            ->will($this->onConsecutiveCalls(0, 1, 2, 3, 4, 5, 1));
+            ->will($this->onConsecutiveCalls(0, 0, 1, 2, 3, 4, 5, 1));
 
         $cache = $this->getCache();
 
@@ -176,7 +177,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $cache->expects($this->exactly(6))
             ->method('addToRuntimeCache')
             ->withConsecutive(
-                [RedirectController::POST_URL_CACHE_KEY, ['url/part' => 0]],
+                [RedirectController::POST_URL_CACHE_KEY, ['url/part.ext' => 0]],
                 [RedirectController::POST_URL_CACHE_KEY, ['url/part' => 1]],
                 [RedirectController::POST_URL_CACHE_KEY, ['url-e123/part' => 2]],
                 [RedirectController::POST_URL_CACHE_KEY, ['url-123x321_z/part' => 3]],
@@ -198,7 +199,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             $this->getFileObjectFactory()
         );
 
-        self::assertEquals(0, $frontendRedirectController->getPostIdByUrl('url/part'));
+        self::assertEquals(0, $frontendRedirectController->getPostIdByUrl('url/part.ext'));
         self::assertEquals(1, $frontendRedirectController->getPostIdByUrl('url/part'));
         self::assertEquals(2, $frontendRedirectController->getPostIdByUrl('url-e123/part'));
         self::assertEquals(3, $frontendRedirectController->getPostIdByUrl('url-123x321_z/part'));
