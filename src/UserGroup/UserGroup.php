@@ -42,7 +42,7 @@ class UserGroup extends AbstractUserGroup
     /**
      * @var string
      */
-    protected $ipRange = null;
+    protected $ipRange = '';
 
     /**
      * UserGroup constructor.
@@ -83,7 +83,7 @@ class UserGroup extends AbstractUserGroup
 
     /**
      * Returns the ip range.
-     * @return array|string
+     * @return string
      */
     public function getIpRange()
     {
@@ -101,11 +101,11 @@ class UserGroup extends AbstractUserGroup
 
     /**
      * Sets the ip range.
-     * @param string|array $ipRange The new ip range.
+     * @param string|array|null $ipRange The new ip range.
      */
     public function setIpRange($ipRange)
     {
-        $this->ipRange = (is_array($ipRange) === true) ? implode(';', $ipRange) : $ipRange;
+        $this->ipRange = (is_array($ipRange) === true) ? implode(';', $ipRange) : ($ipRange ?? '');
     }
 
     /**
@@ -131,7 +131,7 @@ class UserGroup extends AbstractUserGroup
             $this->description = $dbUserGroup->groupdesc;
             $this->readAccess = $dbUserGroup->read_access;
             $this->writeAccess = $dbUserGroup->write_access;
-            $this->ipRange = $dbUserGroup->ip_range;
+            $this->setIpRange($dbUserGroup->ip_range);
 
             return true;
         }
