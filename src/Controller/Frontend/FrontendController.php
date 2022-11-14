@@ -137,4 +137,25 @@ class FrontendController extends Controller
     {
         return ($this->accessHandler->checkObjectAccess($type, $object->ID) === true) ? $url : false;
     }
+
+    /*
+     * Elementor
+     */
+
+    /**
+     * @param $content
+     * @return mixed
+     * @throws UserGroupTypeException
+     */
+    public function getElementorContent($content)
+    {
+        $this->wordpress->removeAction('elementor/frontend/the_content', [$this, 'getElementorContent']);
+        $post = $this->wordpress->getCurrentPost();
+
+        if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false) {
+            $content = htmlspecialchars_decode($this->mainConfig->getPostTypeContent($post->post_type));
+        }
+
+        return $content;
+    }
 }

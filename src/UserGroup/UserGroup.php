@@ -96,7 +96,7 @@ class UserGroup extends AbstractUserGroup
      */
     public function getIpRangeArray(): array
     {
-        return explode(';', $this->ipRange);
+        return explode(';', (string) $this->ipRange);
     }
 
     /**

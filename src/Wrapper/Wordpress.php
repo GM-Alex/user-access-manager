@@ -54,6 +54,7 @@ use function get_pages;
 use function get_post;
 use function get_post_type_object;
 use function get_post_types;
+use function get_queried_object_id;
 use function get_sites;
 use function get_taxonomies;
 use function get_taxonomy;
@@ -75,6 +76,7 @@ use function is_user_logged_in;
 use function plugin_basename;
 use function plugins_url;
 use function register_widget;
+use function remove_action;
 use function remove_filter;
 use function site_url;
 use function switch_to_blog;
@@ -297,6 +299,18 @@ class Wordpress
     public function addAction(string $tag, callable $functionToAdd, $priority = 10, $acceptedArguments = 1)
     {
         return add_action($tag, $functionToAdd, $priority, $acceptedArguments);
+    }
+
+    /**
+     * @param string $hookName
+     * @param callable $callback
+     * @param $priority
+     * @return bool
+     * @see \remove_action()
+     */
+    public function removeAction(string $hookName, callable $callback, $priority = 10)
+    {
+        return remove_action($hookName, $callback, $priority);
     }
 
     /**
@@ -552,7 +566,7 @@ class Wordpress
     public function isAdmin(): bool
     {
         //Ajax request are always identified as administrative interface page
-        if (wp_doing_ajax() === true) {
+        if (wp_doing_ajax() === true || defined('REST_REQUEST') && REST_REQUEST) {
             //So let's check if we are calling the ajax data for the frontend or backend
             //If the referer is an admin url we are requesting the data for the backend
             $adminUrl = get_admin_url();
@@ -1028,5 +1042,23 @@ class Wordpress
     public function isUserMemberOfBlog(): bool
     {
         return (bool) is_user_member_of_blog();
+    }
+
+    /**
+     * @return int
+     * @see \get_queried_object_id()
+     */
+    public function getQueriedObjectId(): int
+    {
+        return (int) get_queried_object_id();
+    }
+
+    /**
+     * @return WP_Post|array|null
+     */
+    public function getCurrentPost()
+    {
+        global $post;
+        return $post;
     }
 }

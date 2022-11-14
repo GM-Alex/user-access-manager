@@ -223,7 +223,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
 
         $fileHandler->getFile($testFileTwo, true);
         self::assertEquals('Test text2', self::getActualOutput());
@@ -237,7 +237,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
 
         $fileHandler->getFile($testFileThree, false);
         self::assertEquals('Test text3', self::getActualOutput());
@@ -251,7 +251,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
 
         $fileHandler->getFile($testFileOne, false);
         self::assertEquals('Test text', self::getActualOutput());
@@ -265,7 +265,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
 
         $fileHandler->getFile($testFileTwo, false);
         self::assertEquals('Test text2', self::getActualOutput());
@@ -279,7 +279,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
 
         $_SERVER['REQUEST_METHOD'] = 'something=0-4';
         $fileHandler->getFile($testFileOne, false);
@@ -295,7 +295,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             xdebug_get_headers()
         );
         self::expectOutputString('Test text2Test text');
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
 
         header_remove();
         $fileHandler->getFile($testFileOne, false);
@@ -309,7 +309,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
     }
 
     /**
@@ -411,7 +411,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
 
         unset($_SERVER['HTTP_RANGE']);
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -427,7 +427,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertEquals(200, http_response_code());
 
         $_SERVER['HTTP_RANGE'] = 'something=0-4';
         $_SERVER['REQUEST_METHOD'] = 'GET';

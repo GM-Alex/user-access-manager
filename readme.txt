@@ -3,8 +3,8 @@ Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
-Tested up to: 5.9
-Stable tag: 2.2.17
+Tested up to: 6.1
+Stable tag: 2.2.18
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
@@ -58,6 +58,13 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.2.18      2022/11/14  Fix issue with label id. Thanks to elbakkali
+                            Add elementor support. Thanks to JboyJW
+                            Fix possible issue with PHP 8. Thanks to ollycross
+                            Fix attachment issue.
+                            Fix tags issue.
+                            Make extra IP header configurable.
 
     2.2.17      2022/02/15  Fix issue with big picture handling. #350
 
@@ -456,7 +463,7 @@ See: [https://github.com/GM-Alex/user-access-manager/wiki/FAQ](https://github.co
 
 == Screenshots ==
 
-1. The group manger.
+1. The group manager.
 2. The setting screen
 3. The setup screen.
 4. Integration into post overview.

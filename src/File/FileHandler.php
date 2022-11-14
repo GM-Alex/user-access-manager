@@ -168,6 +168,7 @@ class FileHandler
      */
     private function deliverFile(string $file, bool $isInline)
     {
+        header("HTTP/1.1 200 OK");
         $downloadType = $this->mainConfig->getDownloadType();
 
         if ($downloadType === 'xsendfile') {
