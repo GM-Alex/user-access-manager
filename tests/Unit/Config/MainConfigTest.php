@@ -103,7 +103,8 @@ class MainConfigTest extends UserAccessManagerTestCase
                 . 'administrator|editor|author|contributor|subscriber',
             'active_cache_provider' => 'selection|active_cache_provider|none|none|one',
             'show_assigned_groups' => 'bool|show_assigned_groups|true',
-            'hide_edit_link_on_no_access' => 'bool|hide_edit_link_on_no_access|true'
+            'hide_edit_link_on_no_access' => 'bool|hide_edit_link_on_no_access|true',
+            'extra_ip_header' => 'string|extra_ip_header|HTTP_X_REAL_IP'
         ];
     }
 
@@ -247,7 +248,7 @@ class MainConfigTest extends UserAccessManagerTestCase
                 }
             ));
 
-        $configParameterFactory->expects($this->exactly(17))
+        $configParameterFactory->expects($this->exactly(18))
             ->method('createStringConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {

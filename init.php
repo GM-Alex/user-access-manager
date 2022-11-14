@@ -80,6 +80,7 @@ function initUserAccessManger()
     $userGroupHandler = new UserGroupHandler(
         $wordpress,
         $wordpressConfig,
+        $mainConfig,
         $database,
         $objectHandler,
         $userHandler,

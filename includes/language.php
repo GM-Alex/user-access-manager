@@ -172,6 +172,8 @@ define('TXT_UAM_SHOW_ASSIGNED_GROUPS', __('Show assigned groups', 'user-access-m
 define('TXT_UAM_SHOW_ASSIGNED_GROUPS_DESC', __('Show assigned groups next to the edit link', 'user-access-manager'));
 define('TXT_UAM_HIDE_EDIT_LINK_ON_NO_ACCESS', __('Hide edit link on no access', 'user-access-manager'));
 define('TXT_UAM_HIDE_EDIT_LINK_ON_NO_ACCESS_DESC', __('Hides the edit link if the user has no write access.', 'user-access-manager'));
+define('TXT_UAM_EXTRA_IP_HEADER', __('Extra IP header', 'user-access-manager'));
+define('TXT_UAM_EXTRA_IP_HEADER_DESC', __('Use this header for the user IP address if you are using a proxy. A valid value is for example HTTP_X_REAL_IP.', 'user-access-manager'));
 
 // --- Setting Page -> default values ---
 define('TXT_UAM_SETTING_DEFAULT_NO_RIGHTS', __('No rights!', 'user-access-manager'));

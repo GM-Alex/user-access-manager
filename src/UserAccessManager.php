@@ -50,7 +50,7 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class UserAccessManager
 {
-    const VERSION = '2.2.17';
+    const VERSION = '2.2.18';
     const DB_VERSION = '1.6.1';
 
     /**
@@ -692,6 +692,21 @@ class UserAccessManager
         $this->wordpress->addAction('wp_enqueue_scripts', [$frontendController, 'enqueueStylesAndScripts']);
         $this->wordpress->addFilter('get_ancestors', [$frontendController, 'showAncestors'], 20, 4);
         $this->wordpress->addFilter('wpseo_sitemap_entry', [$frontendController, 'getWpSeoUrl'], 1, 3);
+        $this->wordpress->addFilter(
+            'elementor/frontend/builder_content_data',
+            function ($data, $postId) use ($frontendController) {
+                if ($this->wordpress->getQueriedObjectId() === $postId) {
+                    $this->wordpress->addAction(
+                        'elementor/frontend/the_content',
+                        [$frontendController, 'getElementorContent']
+                    );
+                }
+
+                return $data;
+            },
+            10,
+            2
+        );
 
         // Post controller
         $frontendPostController = $this->controllerFactory->createFrontendPostController();

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace UserAccessManager\UserGroup;
 
 use Exception;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
@@ -41,6 +42,11 @@ class UserGroupHandler
      * @var WordpressConfig
      */
     private $wordpressConfig;
+
+    /**
+     * @var MainConfig
+     */
+    private $mainConfig;
 
     /**
      * @var Database
@@ -85,6 +91,7 @@ class UserGroupHandler
     public function __construct(
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
+        MainConfig $mainConfig,
         Database $database,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
@@ -92,6 +99,7 @@ class UserGroupHandler
     ) {
         $this->wordpress = $wordpress;
         $this->wordpressConfig = $wordpressConfig;
+        $this->mainConfig = $mainConfig;
         $this->database = $database;
         $this->objectHandler = $objectHandler;
         $this->userHandler = $userHandler;
@@ -261,7 +269,10 @@ class UserGroupHandler
      */
     private function checkUserGroupAccess(UserGroup $userGroup): bool
     {
-        $userIp = $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+        $extraIpHeader = $this->mainConfig->getExtraIpHeader();
+        $userIp = $extraIpHeader !== null ?
+            $_SERVER[$extraIpHeader] ?? ($_SERVER['REMOTE_ADDR'] ?? '') :
+            $_SERVER['REMOTE_ADDR'] ?? '';
 
         return $this->userHandler->isIpInRange($userIp, $userGroup->getIpRangeArray())
             || $this->wordpressConfig->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
@@ -295,7 +306,7 @@ class UserGroupHandler
 
     /**
      * Returns the user groups for the user.
-     * @return AbstractUserGroup[]
+     * @return AbstractUserGroup[]|null
      * @throws UserGroupTypeException
      */
     public function getUserGroupsForUser(): ?array

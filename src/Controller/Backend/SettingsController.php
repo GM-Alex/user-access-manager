@@ -453,7 +453,8 @@ class SettingsController extends Controller
             'blog_admin_hint',
             'blog_admin_hint_text',
             'show_assigned_groups',
-            'hide_edit_link_on_no_access'
+            'hide_edit_link_on_no_access',
+            'extra_ip_header'
         ];
 
         return $this->formHelper->getSettingsForm($parameters);

@@ -109,6 +109,9 @@ class MainConfig extends Config
         $id = 'hide_edit_link_on_no_access';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
+        $id = 'extra_ip_header';
+        $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id, 'HTTP_X_REAL_IP');
+
         $id = 'protect_feed';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
@@ -622,5 +625,13 @@ class MainConfig extends Config
     public function getActiveCacheProvider(): ?string
     {
         return $this->getParameterValue('active_cache_provider');
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getExtraIpHeader(): ?string
+    {
+        return $this->getParameterValue('extra_ip_header');
     }
 }

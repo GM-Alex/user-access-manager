@@ -43,6 +43,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         $userGroupHandler = new UserGroupHandler(
             $this->getWordpressWithUser(),
             $this->getWordpressConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -157,6 +158,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         $userGroupHandler = new UserGroupHandler(
             $this->getWordpressWithUser(),
             $this->getWordpressConfig(),
+            $this->getMainConfig(),
             $database,
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -238,6 +240,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         $userGroupHandler = new UserGroupHandler(
             $this->getWordpressWithUser(),
             $this->getWordpressConfig(),
+            $this->getMainConfig(),
             $database,
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -266,6 +269,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         $userGroupHandler = new UserGroupHandler(
             $this->getWordpressWithUser(),
             $this->getWordpressConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -299,6 +303,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         $userGroupHandler = new UserGroupHandler(
             $this->getWordpressWithUser(),
             $this->getWordpressConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -389,6 +394,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         $userGroupHandler = new UserGroupHandler(
             $this->getWordpressWithUser(),
             $this->getWordpressConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
@@ -524,9 +530,16 @@ class UserGroupHandlerTest extends HandlerTestCase
                 return $this->getDynamicUserGroup($type, $id);
             }));
 
+        $mainConfig = $this->getMainConfig();
+
+        $mainConfig->expects($this->exactly(7))
+            ->method('getExtraIpHeader')
+            ->willReturn('HTTP_X_REAL_IP');
+
         $userGroupHandler = new UserGroupHandler(
             $wordpress,
             $wordpressConfig,
+            $mainConfig,
             $this->getDatabase(),
             $this->getObjectHandler(),
             $userHandler,
@@ -600,6 +613,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         $userGroupHandler = new UserGroupHandler(
             $this->getWordpressWithUser(),
             $this->getWordpressConfig(),
+            $this->getMainConfig(),
             $this->getDatabase(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
