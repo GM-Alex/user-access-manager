@@ -4,13 +4,17 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
 Requires at least: 4.7
 Tested up to: 6.1
-Stable tag: 2.2.18
+Stable tag: 2.2.19
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
 == Description ==
 
 The “User Access Manager”-plugin for Wordpress allows you to manage the access of your content. This is useful if you need a member area, a private section at your blog or you want that other people can write at your blog but not everywhere. Including all post type (post, pages etc.), taxonomies (categories etc.) and files by creating user groups. Just assign the content you want to restrict und and your registered users which should have a access to a group. From now on the content is only accessible and writable for the specified group.
+
+<em>Try it out</em>
+
+You can try it out at TasteWP.com before install: [Try user access manager](https://demo.tastewp.com/user-access-manager?a=jlQ7F1va) (affiliate link)
 
 <em>Feature list</em>
 
@@ -58,6 +62,8 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.2.19      2022/11/18  Add try out link
 
     2.2.18      2022/11/14  Fix issue with label id. Thanks to elbakkali
                             Add elementor support. Thanks to JboyJW
