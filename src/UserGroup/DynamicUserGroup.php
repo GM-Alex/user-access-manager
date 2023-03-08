@@ -105,7 +105,8 @@ class DynamicUserGroup extends AbstractUserGroup
                 $this->name = TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS;
             } elseif ($this->type === self::USER_TYPE) {
                 $userData = $this->wordpress->getUserData($this->id);
-                $this->name = TXT_UAM_USER . ": {$userData->display_name} ($userData->user_login)";
+                $userName = $userData !== false ? "$userData->display_name ($userData->user_login)" : '';
+                $this->name = TXT_UAM_USER . ": $userName";
             } elseif ($this->type === self::ROLE_TYPE) {
                 $roles = $this->wordpress->getRoles()->roles;
                 $this->name = TXT_UAM_ROLE . ': ';
