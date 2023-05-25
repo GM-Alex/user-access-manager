@@ -20,6 +20,7 @@ namespace UserAccessManager\User;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
+use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Wrapper\Wordpress;
 use WP_User;
@@ -106,7 +107,7 @@ class UserHandler
     {
         $ipRange = explode('-', $ipRange);
         $rangeBegin = $ipRange[0];
-        $rangeEnd = isset($ipRange[1]) ? $ipRange[1] : $ipRange[0];
+        $rangeEnd = $ipRange[1] ?? $ipRange[0];
 
         return [
             $this->calculateIp($rangeBegin),
@@ -152,7 +153,7 @@ class UserHandler
             $capabilities = [];
         }
 
-        return (count($capabilities) > 0) ? array_keys($capabilities) : [UserGroup::NONE_ROLE];
+        return (count($capabilities) > 0) ? array_keys($capabilities) : [AbstractUserGroup::NONE_ROLE];
     }
 
     /**
@@ -173,7 +174,14 @@ class UserHandler
         $roles = $this->getUserRole($currentUser);
         $rolesMap = array_flip($roles);
 
-        $orderedRoles = [UserGroup::NONE_ROLE, 'subscriber', 'contributor', 'author', 'editor', 'administrator'];
+        $orderedRoles = [
+            AbstractUserGroup::NONE_ROLE,
+            'subscriber',
+            'contributor',
+            'author',
+            'editor',
+            'administrator'
+        ];
         $orderedRolesMap = array_flip($orderedRoles);
 
         $userRoles = array_intersect_key($orderedRolesMap, $rolesMap);

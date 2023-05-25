@@ -79,7 +79,7 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
                         $cleanGroupRoles = [];
 
                         foreach ($groupRoles as $key => $role) {
-                            $cleanGroupRoles[] = isset($roleNames[$key]) ? $roleNames[$key] : $key;
+                            $cleanGroupRoles[] = $roleNames[$key] ?? $key;
                         }
 
                         $content .= implode(', ', $cleanGroupRoles);

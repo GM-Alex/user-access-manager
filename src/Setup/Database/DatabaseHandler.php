@@ -109,7 +109,7 @@ class DatabaseHandler
             $this->database->getUserGroupTable(),
             $charsetCollate,
             [
-                $this->databaseObjectFactory->createColumn('ID', 'INT(11)', false, null, true, true),
+                $this->databaseObjectFactory->createColumn('ID', 'INT', false, null, true, true),
                 $this->databaseObjectFactory->createColumn('groupname', 'TINYTEXT'),
                 $this->databaseObjectFactory->createColumn('groupdesc', 'TEXT'),
                 $this->databaseObjectFactory->createColumn('read_access', 'TINYTEXT'),
@@ -195,7 +195,6 @@ class DatabaseHandler
 
             if ((string) $column !== (string) $existingColumn) {
                 $information[self::MODIFIED_COLUMNS][] = [$table, $column];
-                continue;
             }
         }
 

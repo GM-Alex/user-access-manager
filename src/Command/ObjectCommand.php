@@ -88,7 +88,7 @@ class ObjectCommand extends WP_CLI_Command
     private function getUserGroupIdAndType(array $namesMap, string $identifier, ?string &$type = '')
     {
         $type = (is_numeric($identifier) === true) ? 'id' : 'name';
-        return isset($namesMap[$identifier]) ? $namesMap[$identifier] : $identifier;
+        return $namesMap[$identifier] ?? $identifier;
     }
 
     /**

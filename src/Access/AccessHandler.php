@@ -23,7 +23,6 @@ use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
-use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\Wordpress;
@@ -140,11 +139,11 @@ class AccessHandler
 
     /**
      * Returns the user user groups filtered by the write access.
-     * @param null|bool $isAdmin If set we force the admin mode.
+     * @param bool|null $isAdmin If set we force the admin mode.
      * @return AbstractUserGroup[]
      * @throws UserGroupTypeException
      */
-    private function getUserUserGroupsForObjectAccess($isAdmin = null): array
+    private function getUserUserGroupsForObjectAccess(?bool $isAdmin = null): array
     {
         $userUserGroups = $this->userGroupHandler->getUserGroupsForUser();
 
@@ -169,7 +168,7 @@ class AccessHandler
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    public function checkObjectAccess(?string $objectType, $objectId, $isAdmin = null): bool
+    public function checkObjectAccess(?string $objectType, $objectId, ?bool $isAdmin = null): bool
     {
         $isAdmin = $this->isAdmin($isAdmin);
 

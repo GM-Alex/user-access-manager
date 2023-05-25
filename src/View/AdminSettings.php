@@ -46,7 +46,7 @@ if ($controller->hasUpdateMessage()) {
             <?php
             $currentSectionKey = $controller->getCurrentTabGroupSection();
             $groupForms = $controller->getCurrentGroupForms();
-            $form = isset($groupForms[$currentSectionKey]) ? $groupForms[$currentSectionKey] : reset($groupForms);
+            $form = $groupForms[$currentSectionKey] ?? reset($groupForms);
             $cssClass = ($currentGroupKey === 'post_types') ? " uam_settings_group_post_type $currentSectionKey" : '';
             $cssClass .= ($currentGroupKey === 'taxonomies') ? " uam_settings_group_taxonomies $currentSectionKey" : '';
             ?>

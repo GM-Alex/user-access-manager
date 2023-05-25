@@ -117,7 +117,7 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
                             <?php
                             foreach ($groupRoles as $key => $role) {
                                 ?>
-                                <li><?php echo isset($roleNames[$key]) ? $roleNames[$key] : $key; ?></li>
+                                <li><?php echo $roleNames[$key] ?? $key; ?></li>
                                 <?php
                             }
                             ?>

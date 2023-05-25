@@ -134,7 +134,8 @@ class Column
     public function __toString(): string
     {
         $nullConstraint = ($this->isNull) ? 'NULL' : 'NOT NULL';
-        $column = "`{$this->name}` {$this->type} {$nullConstraint}";
+        $type = $this->type === 'INT(11)' ? 'INT' : $this->type;
+        $column = "`{$this->name}` {$type} {$nullConstraint}";
 
         if ($this->default === null && $this->isNull) {
             $column .= ' DEFAULT NULL';

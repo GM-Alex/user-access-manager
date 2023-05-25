@@ -148,7 +148,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         $databaseObjectFactory->expects($this->exactly(13))
             ->method('createColumn')
             ->withConsecutive(
-                ['ID', 'INT(11)', false, null, true, true],
+                ['ID', 'INT', false, null, true, true],
                 ['groupname', 'TINYTEXT'],
                 ['groupdesc', 'TEXT'],
                 ['read_access', 'TINYTEXT'],
@@ -252,7 +252,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         $databaseObjectFactory->expects($this->exactly(16))
             ->method('createColumn')
             ->withConsecutive(
-                ['ID', 'INT(11)', false, null, true, true],
+                ['ID', 'INT', false, null, true, true],
                 ['groupname', 'TINYTEXT'],
                 ['groupdesc', 'TEXT'],
                 ['read_access', 'TINYTEXT'],

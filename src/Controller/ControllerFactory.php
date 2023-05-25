@@ -248,7 +248,6 @@ class ControllerFactory
             $this->wordpress,
             $this->wordpressConfig,
             $this->userHandler,
-            $this->fileHandler,
             $this->setupHandler
         );
     }

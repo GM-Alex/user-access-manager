@@ -130,9 +130,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         $content .= "RewriteRule ^(.*)\\?(.*)$ {$homeRoot}index.php?uamgetfile=$1&$2 [QSA,L]\n";
         $content = $this->applyFilters($content);
 
-        $content = "<IfModule mod_rewrite.c>\n$content</IfModule>\n";
-
-        return $content;
+        return "<IfModule mod_rewrite.c>\n$content</IfModule>\n";
     }
 
     /**
