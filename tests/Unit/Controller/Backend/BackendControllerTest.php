@@ -79,7 +79,6 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $this->getUserHandler(),
-            $this->getFileHandler(),
             $this->getSetupHandler()
         );
 
@@ -118,7 +117,6 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $wordpressConfig,
             $this->getUserHandler(),
-            $this->getFileHandler(),
             $setupHandler
         );
 
@@ -239,7 +237,6 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $wordpressConfig,
             $this->getUserHandler(),
-            $this->getFileHandler(),
             $this->getSetupHandler()
         );
 
@@ -290,7 +287,6 @@ class BackendControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getWordpressConfig(),
             $userHandler,
-            $this->getFileHandler(),
             $this->getSetupHandler()
         );
 

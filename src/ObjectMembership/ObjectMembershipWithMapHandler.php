@@ -55,8 +55,7 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 
         if ($lockRecursive === true) {
             $map = $this->getMap();
-            $generalMap = isset($map[ObjectMapHandler::TREE_MAP_PARENTS][$this->generalObjectType]) ?
-                $map[ObjectMapHandler::TREE_MAP_PARENTS][$this->generalObjectType] : [];
+            $generalMap = $map[ObjectMapHandler::TREE_MAP_PARENTS][$this->generalObjectType] ?? [];
 
             if (isset($generalMap[$objectId]) === true) {
                 foreach ($generalMap[$objectId] as $parentId => $type) {
@@ -91,8 +90,7 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
 
         if ($lockRecursive === true) {
             $map = $this->getMap();
-            $map = isset($map[ObjectMapHandler::TREE_MAP_CHILDREN][$objectType]) ?
-                $map[ObjectMapHandler::TREE_MAP_CHILDREN][$objectType] : [];
+            $map = $map[ObjectMapHandler::TREE_MAP_CHILDREN][$objectType] ?? [];
             $map = array_intersect_key($map, $objects);
 
             foreach ($map as $childrenIds) {

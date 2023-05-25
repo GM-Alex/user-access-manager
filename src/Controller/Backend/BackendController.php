@@ -45,11 +45,6 @@ class BackendController extends Controller
     private $userHandler;
 
     /**
-     * @var FileHandler
-     */
-    private $fileHandler;
-
-    /**
      * @var SetupHandler
      */
     private $setupHandler;
@@ -65,7 +60,6 @@ class BackendController extends Controller
      * @param Wordpress $wordpress
      * @param WordpressConfig $wordpressConfig
      * @param UserHandler $userHandler
-     * @param FileHandler $fileHandler
      * @param SetupHandler $setupHandler
      */
     public function __construct(
@@ -73,12 +67,10 @@ class BackendController extends Controller
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
         UserHandler $userHandler,
-        FileHandler $fileHandler,
         SetupHandler $setupHandler
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
         $this->userHandler = $userHandler;
-        $this->fileHandler = $fileHandler;
         $this->setupHandler = $setupHandler;
     }
 

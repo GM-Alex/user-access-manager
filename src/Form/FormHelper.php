@@ -256,7 +256,7 @@ class FormHelper
             if (is_array($parameter) === true) {
                 $overwrittenValues = array_map(
                     function ($parameterKey) use ($configParameters) {
-                        return isset($configParameters[$parameterKey]) ? $configParameters[$parameterKey] : null;
+                        return $configParameters[$parameterKey] ?? null;
                     },
                     $parameter
                 );

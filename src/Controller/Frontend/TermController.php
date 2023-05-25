@@ -309,7 +309,7 @@ class TermController extends ContentController
      * @return bool
      * @throws UserGroupTypeException
      */
-    private function processTermMenuItem(&$item): bool
+    private function processTermMenuItem($item): bool
     {
         $rawTerm = $this->objectHandler->getTerm($item->object_id);
         $term = $this->processTerm($rawTerm, $isEmpty);

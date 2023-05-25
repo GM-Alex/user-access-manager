@@ -63,9 +63,7 @@ class ControllerTest extends UserAccessManagerTestCase
             Controller::class,
             [],
             '',
-            false,
-            true,
-            true
+            false
         );
     }
 
