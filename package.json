@@ -1,6 +1,6 @@
 {
   "name": "user-access-manager",
-  "version": "2.2.21",
+  "version": "2.2.22",
   "description": "[![Build Status](https://travis-ci.org/GM-Alex/user-access-manager.svg)](https://travis-ci.org/GM-Alex/user-access-manager)",
   "main": "index.js",
   "directories": {
