@@ -15,7 +15,7 @@
 
 // --- Error Messages ---
 define('TXT_UAM_PHP_VERSION_TO_LOW', __('Sorry you need at least PHP version 7.2 to use the User Access Manager. Your current PHP version is %s. See <a href="https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot">https://github.com/GM-Alex/user-access-manager/wiki/Troubleshoot</a> for more information.', 'user-access-manager'));
-define('TXT_UAM_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least Wordpress version 3.0 to use the User Access Manager. Your current Wordpress version is %s.', 'user-access-manager'));
+define('TXT_UAM_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least WordPress version 3.0 to use the User Access Manager. Your current WordPress version is %s.', 'user-access-manager'));
 /** @noinspection HtmlUnknownTarget */
 define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the User Access Manager. <a href="%s">Click here to proceed</a>', 'user-access-manager'));
 define('TXT_UAM_ERROR', __('The following error occurred: %s', 'user-access-manager'));
@@ -44,7 +44,7 @@ define('TXT_UAM_DEFAULT_TITLE_DESC', __('Displayed text as title if user has no 
 define('TXT_UAM_HIDE_DEFAULT_TITLE', __('Hide title', 'user-access-manager'));
 define('TXT_UAM_HIDE_DEFAULT_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "Title" if user has no access.', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_CONTENT', __('Content', 'user-access-manager'));
-define('TXT_UAM_DEFAULT_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single %s, otherwise a link will shown.', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_CONTENT_DESC', __('Content displayed if user has no access. You can add a login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will be shown on single %s, otherwise a link will be shown.', 'user-access-manager'));
 define('TXT_UAM_HIDE_DEFAULT', __('Hide complete', 'user-access-manager'));
 define('TXT_UAM_HIDE_DEFAULT_DESC', __('Selecting "Yes" will hide %s if the user has no access.', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_COMMENT_CONTENT', __('Comment text', 'user-access-manager'));
@@ -54,7 +54,7 @@ define('TXT_UAM_HIDE_DEFAULT_COMMENT_DESC', __('Selecting "Yes" will show the te
 define('TXT_UAM_DEFAULT_COMMENTS_LOCKED', __('Lock comments', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_COMMENTS_LOCKED_DESC', __('Selecting "yes" allows users to comment even if the content is locked', 'user-access-manager'));
 define('TXT_UAM_SHOW_DEFAULT_CONTENT_BEFORE_MORE', __('Show content before &lt;!--more--&gt; tag', 'user-access-manager'));
-define('TXT_UAM_SHOW_DEFAULT_CONTENT_BEFORE_MORE_DESC', __('Shows the content before the &lt;!--more--&gt; tag and after that the defined text at "%s content". If no &lt;!--more--&gt; is set the defined text at "%s content" will shown.', 'user-access-manager')); //TODO
+define('TXT_UAM_SHOW_DEFAULT_CONTENT_BEFORE_MORE_DESC', __('Shows the content before the &lt;!--more--&gt; tag and after that the defined text at "%s content". If no &lt;!--more--&gt; is set the defined text at "%s content" will be shown.', 'user-access-manager')); //TODO
 define('TXT_UAM_OBJECT_USE_DEFAULT', __('Use default settings for %s', 'user-access-manager'));
 define('TXT_UAM_OBJECT_USE_DEFAULT_DESC', __('If selected the settings form the default type will be used.', 'user-access-manager'));
 define('TXT_UAM_OBJECT_SETTING', __('%s settings', 'user-access-manager'));
@@ -64,7 +64,7 @@ define('TXT_UAM_OBJECT_TITLE_DESC', __('Displayed text as %s title if user has n
 define('TXT_UAM_HIDE_OBJECT_TITLE', __('Hide %s title', 'user-access-manager'));
 define('TXT_UAM_HIDE_OBJECT_TITLE_DESC', __('Selecting "Yes" will show the text which is defined at "%s title" if user has no access.', 'user-access-manager'));
 define('TXT_UAM_OBJECT_CONTENT', __('%s content', 'user-access-manager'));
-define('TXT_UAM_OBJECT_CONTENT_DESC', __('Content displayed if user has no access. You can add an login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will shown on single %s, otherwise a link will shown.', 'user-access-manager'));
+define('TXT_UAM_OBJECT_CONTENT_DESC', __('Content displayed if user has no access. You can add a login-form by adding the keyword <strong>[LOGIN_FORM]</strong>. This form will be shown on single %s, otherwise a link will be shown.', 'user-access-manager'));
 define('TXT_UAM_HIDE_OBJECT', __('Hide complete %s', 'user-access-manager'));
 define('TXT_UAM_HIDE_OBJECT_DESC', __('Selecting "Yes" will hide %s if the user has no access.', 'user-access-manager'));
 define('TXT_UAM_OBJECT_COMMENT_CONTENT', __('%s comment text', 'user-access-manager'));
@@ -90,8 +90,8 @@ define('TXT_UAM_CUSTOM_FILE_HANDLING_FILE', __('Custom file handling file', 'use
 define('TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC', __('Edit this content if you are using the custom file handling file setting.', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style="color:red;">Note: If you activate this option the plugin will overwrite a \'.htaccess\' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a \'.htaccess\' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE', __('Locked directory type', 'user-access-manager'));
-define('TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC', __('"Wordpress" will only lock files handled by the wordpress media manager (recommended), "All" will lock all files at the upload directory, "Custom" will use a custom string.', 'user-access-manager'));
-define('TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS', __('Wordpress', 'user-access-manager'));
+define('TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC', __('"WordPress" will only lock files handled by the WordPress media manager (recommended), "All" will lock all files at the upload directory, "Custom" will use a custom string.', 'user-access-manager'));
+define('TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS', __('WordPress', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE_ALL', __('All', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE_CUSTOM', __('Custom', 'user-access-manager'));
 define('TXT_UAM_LOCK_FILE_TYPES', __('Locked file types', 'user-access-manager'));
@@ -167,7 +167,7 @@ define('TXT_UAM_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child po
 define('TXT_UAM_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));
 define('TXT_UAM_BLOG_ADMIN_HINT_TEXT_DESC', __('The text which will shown behind the post/page.', 'user-access-manager'));
 define('TXT_UAM_BLOG_ADMIN_HINT', __('Show admin hint at Posts', 'user-access-manager'));
-define('TXT_UAM_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behind the post/page to an logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_UAM_BLOG_ADMIN_HINT_TEXT));
+define('TXT_UAM_BLOG_ADMIN_HINT_DESC', sprintf(__('Selecting "Yes" will show the defined text at "%s" behind the post/page to a logged in admin to show him which posts/pages are locked if he visits his blog.', 'user-access-manager'), TXT_UAM_BLOG_ADMIN_HINT_TEXT));
 define('TXT_UAM_SHOW_ASSIGNED_GROUPS', __('Show assigned groups', 'user-access-manager'));
 define('TXT_UAM_SHOW_ASSIGNED_GROUPS_DESC', __('Show assigned groups next to the edit link', 'user-access-manager'));
 define('TXT_UAM_HIDE_EDIT_LINK_ON_NO_ACCESS', __('Hide edit link on no access', 'user-access-manager'));
