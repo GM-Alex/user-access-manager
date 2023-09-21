@@ -304,7 +304,7 @@ class Database
     {
         $charsetCollate = '';
 
-        $mySlqVersion = $this->getVariable('SELECT VERSION() as mysql_version');
+        $mySlqVersion = (string) $this->getVariable('SELECT VERSION() as mysql_version');
 
         if (version_compare($mySlqVersion, '4.1.0', '>=')) {
             if (!empty($this->wpDatabase->charset)) {

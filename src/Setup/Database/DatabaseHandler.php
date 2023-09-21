@@ -329,14 +329,14 @@ class DatabaseHandler
                 $currentDbVersion = $this->database->getVariable($select);
 
                 if ($currentDbVersion !== null
-                    && version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<') === true
+                    && version_compare((string) $currentDbVersion, UserAccessManager::DB_VERSION, '<') === true
                 ) {
                     return true;
                 }
             }
         }
 
-        $currentDbVersion = $this->wordpress->getOption('uam_db_version');
+        $currentDbVersion = (string) $this->wordpress->getOption('uam_db_version');
         return version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<');
     }
 
@@ -346,7 +346,7 @@ class DatabaseHandler
      */
     public function backupDatabase(): bool
     {
-        $currentDbVersion = $this->wordpress->getOption('uam_db_version');
+        $currentDbVersion = (string) $this->wordpress->getOption('uam_db_version');
 
         if (empty($currentDbVersion) === true
             || version_compare($currentDbVersion, '1.2', '<') === true
@@ -486,7 +486,7 @@ class DatabaseHandler
      */
     public function updateDatabase(): bool
     {
-        $currentDbVersion = $this->wordpress->getOption('uam_db_version');
+        $currentDbVersion = (string) $this->wordpress->getOption('uam_db_version');
 
         if (empty($currentDbVersion) === true) {
             return false;
