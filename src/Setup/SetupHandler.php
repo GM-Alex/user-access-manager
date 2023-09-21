@@ -139,7 +139,7 @@ class SetupHandler
      */
     public function update(): bool
     {
-        $uamVersion = $this->wordpress->getOption('uam_version', '0');
+        $uamVersion = (string) $this->wordpress->getOption('uam_version', '0');
 
         if (version_compare($uamVersion, '1.0', '<') === true) {
             $this->wordpress->deleteOption('allow_comments_locked');
