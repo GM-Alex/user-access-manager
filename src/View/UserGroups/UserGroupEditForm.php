@@ -38,7 +38,7 @@ $userGroup = $controller->getUserGroup();
         <tr class="form-field form-required">
             <th valign="top"><label for="userGroupName"><?php echo TXT_UAM_GROUP_NAME; ?></label></th>
             <td>
-                <input size="40" value="<?php echo htmlentities($userGroup->getName()); ?>"
+                <input size="40" value="<?php echo htmlentities($userGroup->getName() ?? ''); ?>"
                        id="userGroupName" name="userGroupName"/><br/>
                 <?php echo TXT_UAM_GROUP_NAME_DESC; ?>
             </td>
@@ -47,14 +47,14 @@ $userGroup = $controller->getUserGroup();
             <th valign="top"><label for="userGroupDescription"><?php echo TXT_UAM_GROUP_DESC; ?></label>
             </th>
             <td>
-                <input size="40" value="<?php echo htmlentities($userGroup->getDescription()); ?>"
+                <input size="40" value="<?php echo htmlentities($userGroup->getDescription() ?? ''); ?>"
                        id="userGroupDescription" name="userGroupDescription"/><br/>
                 <?php echo TXT_UAM_GROUP_DESC_DESC; ?>
             </td>
         </tr>
         <tr class="form-field form-required">
             <th valign="top"><label for="ipRange"><?php echo TXT_UAM_GROUP_IP_RANGE; ?></label></th>
-            <td><input size="40" value="<?php echo htmlentities($userGroup->getIpRange()); ?>"
+            <td><input size="40" value="<?php echo htmlentities($userGroup->getIpRange() ?? ''); ?>"
                        id="ipRange" name="ipRange"/><br/>
                 <?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?>
             </td>
