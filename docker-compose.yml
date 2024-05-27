@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+
+  mariadb:
+    image: mariadb:latest
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=wordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+    volumes:
+      - mariadb:/var/lib/mysql
+
+  wordpress:
+    image: erseco/alpine-wordpress:latest
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    ports:
+      - 8080:8080
+    environment:
+      WP_LANGUAGE: en_US
+      WP_ADMIN_USERNAME: admin
+      WP_ADMIN_PASSWORD: PLEASE_CHANGEME
+      WP_DEBUG: true
+      WP_SITE_URL: http://localhost:8080
+      POST_CONFIGURE_COMMANDS: |
+        echo "this is a test line 1"
+        echo "this is a test line 2"
+        if ! wp user get test1 --field=ID --quiet; then
+          wp user create test1 test1@example.com --role=subscriber --user_pass=test1
+        fi
+        if ! wp user get test2 --field=ID --quiet; then
+          wp user create test2 test2@example.com --role=subscriber --user_pass=test2
+        fi
+        wp plugin activate user-access-manager
+    volumes:
+      - wordpress:/var/www/html
+      - ./:/var/www/html/wp-content/plugins/user-access-manager
+
+
+volumes:
+  mariadb: null
+  wordpress: null
+
