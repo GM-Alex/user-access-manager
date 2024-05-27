@@ -79,11 +79,11 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
                             . "&amp;userGroupId={$userGroup->getId()}";
                         ?>
                         <a href="<?php echo $link; ?>">
-                            <?php echo htmlentities($userGroup->getName()); ?>
+                            <?php echo htmlentities($userGroup->getName() ?? '', ENT_QUOTES, 'UTF-8'); ?>
                         </a>
                     </strong>
                 </td>
-                <td><?php echo htmlentities($userGroup->getDescription()) ?></td>
+                <td><?php echo htmlentities($userGroup->getDescription() ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                 <td>
                     <?php
                     if ($userGroup->getReadAccess() === 'all') {
@@ -138,7 +138,7 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
                             <?php
                             foreach ($ipRanges as $ipRange) {
                                 ?>
-                                <li><?php echo htmlentities($ipRange); ?></li>
+                                <li><?php echo htmlentities($ipRange ?? '', ENT_QUOTES, 'UTF-8'); ?></li>
                                 <?php
                             }
                             ?>

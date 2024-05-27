@@ -56,7 +56,7 @@ use UserAccessManager\UserGroup\UserGroup;
                 <label for="defaultGroups-<?php echo $userGroup->getId(); ?>"
                        class="selectit"
                        style="display:inline;">
-                    <?php echo htmlentities($userGroup->getName()); ?>
+                    <?php echo htmlentities($userGroup->getName() ?? '', ENT_QUOTES, 'UTF-8'); ?>
                 </label>
                 <div class="uam_group_date_form">
                     <div>
