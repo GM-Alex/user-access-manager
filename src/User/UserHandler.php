@@ -38,7 +38,8 @@ class UserHandler
         private MainConfig $config,
         private Database $database,
         private ObjectHandler $objectHandler
-    ) {}
+    ) {
+    }
 
     private function calculateIp(string $ip): bool|string
     {

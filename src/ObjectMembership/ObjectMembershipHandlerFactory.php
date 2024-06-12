@@ -20,7 +20,8 @@ class ObjectMembershipHandlerFactory
         private Database $database,
         private ObjectMapHandler $objectMapHandler,
         private AssignmentInformationFactory $assignmentInformationFactory
-    ) {}
+    ) {
+    }
 
     /**
      * @throws Exception

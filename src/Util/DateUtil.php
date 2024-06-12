@@ -10,7 +10,8 @@ use UserAccessManager\Wrapper\Wordpress;
 class DateUtil
 {
     public function __construct(private Wordpress $wordpress)
-    {}
+    {
+    }
 
     public function formatDate(string $date): string
     {

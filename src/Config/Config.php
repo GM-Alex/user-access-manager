@@ -121,7 +121,8 @@ class Config
     {
         try {
             return $this->getParameterValueRaw($parameterName);
-        } catch (Exception) {}
+        } catch (Exception) {
+        }
 
         return null;
     }

@@ -24,7 +24,8 @@ class ObjectMapHandler
     public function __construct(
         private Database $database,
         private Cache $cache
-    ) {}
+    ) {
+    }
 
     /**
      * Resolves all tree map elements

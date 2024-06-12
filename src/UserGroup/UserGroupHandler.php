@@ -32,7 +32,8 @@ class UserGroupHandler
         private ObjectHandler $objectHandler,
         private UserHandler $userHandler,
         private UserGroupFactory $userGroupFactory
-    ) {}
+    ) {
+    }
 
     /**
      * @return null|UserGroup[]

@@ -31,7 +31,8 @@ class Column
         private mixed $default = null,
         private bool $isKey = false,
         private bool $isAutoIncrement = false
-    ) {}
+    ) {
+    }
 
     public function getName(): string
     {

@@ -11,7 +11,8 @@ class CacheController
 {
     public function __construct(
         private Cache $cache
-    ){}
+    ) {
+    }
 
     public function invalidateTermCache(): void
     {

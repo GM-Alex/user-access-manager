@@ -13,7 +13,6 @@ use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-
 class BackendController extends Controller
 {
     public const HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';

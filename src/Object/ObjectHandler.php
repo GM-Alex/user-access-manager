@@ -64,7 +64,8 @@ class ObjectHandler
         private Php $php,
         private Wordpress $wordpress,
         private ObjectMembershipHandlerFactory $membershipHandlerFactory
-    ) {}
+    ) {
+    }
 
     public function getPostTypes(): ?array
     {

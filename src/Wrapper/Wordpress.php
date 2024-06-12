@@ -419,8 +419,11 @@ class Wordpress
     /**
      * @see get_page_by_path
      */
-    public function getPageByPath(string $pagePath, string $output = OBJECT, string $postType = 'page'): array|WP_Post|null
-    {
+    public function getPageByPath(
+        string $pagePath,
+        string $output = OBJECT,
+        string $postType = 'page'
+    ): array|WP_Post|null {
         return get_page_by_path($pagePath, $output, $postType);
     }
 
@@ -537,8 +540,7 @@ class Wordpress
         string $context = 'advanced',
         string $priority = 'default',
         $callbackArguments = null
-    ): void
-    {
+    ): void {
         add_meta_box($id, $title, $callback, $screen, $context, $priority, $callbackArguments);
     }
 
@@ -553,8 +555,13 @@ class Wordpress
     /**
      * @see wp_register_style
      */
-    public function registerStyle(string $handle, string $source, array $depends = [], bool|string|null $version = false, string $media = 'all'): bool
-    {
+    public function registerStyle(
+        string $handle,
+        string $source,
+        array $depends = [],
+        bool|string|null $version = false,
+        string $media = 'all'
+    ): bool {
         return wp_register_style($handle, $source, $depends, $version, $media);
     }
 
@@ -574,8 +581,13 @@ class Wordpress
     /**
      * @see wp_enqueue_style
      */
-    public function enqueueStyle(string $handle, string $source = '', array $depends = [], bool|string|null $version = false, string $media = 'all'): void
-    {
+    public function enqueueStyle(
+        string $handle,
+        string $source = '',
+        array $depends = [],
+        bool|string|null $version = false,
+        string $media = 'all'
+    ): void {
         wp_enqueue_style($handle, $source, $depends, $version, $media);
     }
 

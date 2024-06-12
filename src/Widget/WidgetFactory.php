@@ -14,7 +14,8 @@ class WidgetFactory
         private Php $php,
         private Wordpress $wordpress,
         private WordpressConfig $wordpressConfig
-    ) {}
+    ) {
+    }
 
     public function createLoginWidget(): LoginWidget
     {

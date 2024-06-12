@@ -11,7 +11,8 @@ class FileObject
         private string $type,
         private string $file,
         private bool $isImage = false
-    ) {}
+    ) {
+    }
 
     public function getId(): int|string
     {

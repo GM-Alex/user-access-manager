@@ -14,7 +14,8 @@ class WordpressConfig
     public function __construct(
         private Wordpress $wordpress,
         private string $baseFile
-    ) {}
+    ) {
+    }
 
     public function atAdminPanel(): bool
     {

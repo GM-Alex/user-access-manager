@@ -6,12 +6,12 @@ namespace UserAccessManager\Config;
 
 use UserAccessManager\Wrapper\Wordpress;
 
-
 class ConfigFactory
 {
     public function __construct(
         private Wordpress $wordpress
-    ) {}
+    ) {
+    }
 
     public function createConfig(string $key): Config
     {

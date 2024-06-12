@@ -20,7 +20,8 @@ class FileHandler
         private WordpressConfig $wordpressConfig,
         private MainConfig $mainConfig,
         private FileProtectionFactory $fileProtectionFactory
-    ) {}
+    ) {
+    }
 
     private function clearBuffer(): void
     {

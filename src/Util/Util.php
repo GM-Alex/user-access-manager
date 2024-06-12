@@ -10,7 +10,8 @@ use UserAccessManager\Wrapper\Php;
 class Util
 {
     public function __construct(private Php $php)
-    {}
+    {
+    }
 
     public function startsWith(string $haystack, string $needle): bool
     {

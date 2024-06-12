@@ -19,7 +19,8 @@ class SetupHandler
         private DatabaseHandler $databaseHandler,
         private MainConfig $mainConfig,
         private FileHandler $fileHandler
-    ) {}
+    ) {
+    }
 
     public function getDatabaseHandler(): DatabaseHandler
     {

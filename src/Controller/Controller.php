@@ -42,7 +42,8 @@ abstract class Controller
         protected Php $php,
         protected Wordpress $wordpress,
         protected WordpressConfig $wordpressConfig
-    ) {}
+    ) {
+    }
 
     protected function getPhp(): Php
     {

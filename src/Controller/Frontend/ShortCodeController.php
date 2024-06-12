@@ -11,7 +11,6 @@ use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-
 class ShortCodeController extends Controller
 {
     use LoginControllerTrait;

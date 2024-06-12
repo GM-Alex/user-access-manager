@@ -11,7 +11,8 @@ class AssignmentInformation
         private ?string $fromDate = null,
         private ?string $toDate = null,
         private array $recursiveMembership = []
-    ) {}
+    ) {
+    }
 
     public function getType(): ?string
     {

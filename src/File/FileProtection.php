@@ -22,7 +22,8 @@ abstract class FileProtection
         protected WordpressConfig $wordpressConfig,
         protected MainConfig $mainConfig,
         protected Util $util
-    ) {}
+    ) {
+    }
 
     protected function getDirectoryMatch(): ?string
     {

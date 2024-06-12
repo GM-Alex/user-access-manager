@@ -15,7 +15,8 @@ class Cache
     public function __construct(
         private Wordpress $wordpress,
         private CacheProviderFactory $cacheProviderFactory
-    ) {}
+    ) {
+    }
 
     public function getCacheProvider(): ?CacheProviderInterface
     {

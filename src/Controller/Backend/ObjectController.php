@@ -186,7 +186,8 @@ class ObjectController extends Controller
                     $typeName = $membershipHandler->getGeneralObjectType();
                     $objectName = $membershipHandler->getObjectName($objectId, $typeName);
                     $recursiveMembership[$typeName][$objectId] = $objectName;
-                } catch (MissingObjectMembershipHandlerException) {}
+                } catch (MissingObjectMembershipHandlerException) {
+                }
             }
         }
 
@@ -310,7 +311,7 @@ class ObjectController extends Controller
     public function showGroupSelectionForm(
         string     $objectType,
         int|string $objectId,
-                   $formName = null,
+        $formName = null,
         array      $objectUserGroups = null
     ): string {
         $this->setObjectInformation($objectType, $objectId, $objectUserGroups);

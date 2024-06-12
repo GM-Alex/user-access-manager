@@ -12,7 +12,8 @@ class UpdateFactory
     public function __construct(
         protected Database $database,
         protected ObjectHandler $objectHandler
-    ) {}
+    ) {
+    }
 
     /**
      * @return UpdateInterface[]

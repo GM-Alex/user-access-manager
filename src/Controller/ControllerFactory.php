@@ -66,7 +66,8 @@ class ControllerFactory
         private FormFactory $formFactory,
         private FormHelper $formHelper,
         private ObjectInformationFactory $objectInformationFactory
-    ) {}
+    ) {
+    }
 
     public function createBackendController(): BackendController
     {

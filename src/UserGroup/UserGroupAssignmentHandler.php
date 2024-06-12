@@ -12,10 +12,11 @@ class UserGroupAssignmentHandler
 {
     public function __construct(
         protected DateUtil $dateUtil,
-        protected  UserHandler $userHandler,
+        protected UserHandler $userHandler,
         protected UserGroupHandler $userGroupHandler,
         protected UserGroupFactory $userGroupFactory
-    ) {}
+    ) {
+    }
 
     private function getDateParameter(array $data, string $name): ?string
     {
@@ -34,8 +35,7 @@ class UserGroupAssignmentHandler
         int|string $objectId,
         array      $addUserGroups,
         array      $removeUserGroups
-    ): void
-    {
+    ): void {
         foreach ($filteredUserGroups as $groupId => $userGroup) {
             if (isset($removeUserGroups[$groupId]) === true) {
                 $userGroup->removeObject($objectType, $objectId);
@@ -115,8 +115,7 @@ class UserGroupAssignmentHandler
         array $addUserGroups,
         array $removeUserGroups,
         array $addDynamicUserGroups
-    ): void
-    {
+    ): void {
         $filteredUserGroups = $this->userGroupHandler->getFilteredUserGroups();
         $this->setUserGroups($filteredUserGroups, $objectType, $objectId, $addUserGroups, $removeUserGroups);
 

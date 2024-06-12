@@ -22,7 +22,8 @@ class DatabaseHandler
         private Database $database,
         private DatabaseObjectFactory $databaseObjectFactory,
         private UpdateFactory $updateFactory
-    ) {}
+    ) {
+    }
 
     private function tableExists(string $table): bool
     {

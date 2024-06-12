@@ -21,7 +21,8 @@ class FormHelper
         private Wordpress $wordpress,
         private MainConfig $config,
         private FormFactory $formFactory
-    ) {}
+    ) {
+    }
 
     private function getObjectText(string $ident, bool $description = false, $objectKey = null): string
     {
@@ -57,8 +58,11 @@ class FormHelper
         );
     }
 
-    public function getParameterText(ConfigParameter $configParameter, bool $description = false, string $objectKey = null): string
-    {
+    public function getParameterText(
+        ConfigParameter $configParameter,
+        bool $description = false,
+        string $objectKey = null
+    ): string {
         $ident = 'TXT_UAM_' . strtoupper($configParameter->getId());
 
         return $this->getObjectText(
@@ -96,8 +100,7 @@ class FormHelper
         SelectionConfigParameter $configParameter,
         string $objectKey = null,
         array $overwrittenValues = []
-    ): mixed
-    {
+    ): mixed {
         $values = [];
 
         foreach ($configParameter->getSelections() as $selection) {

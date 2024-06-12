@@ -13,5 +13,6 @@ abstract class DatabaseUpdate implements UpdateInterface
     public function __construct(
         protected Database $database,
         protected ObjectHandler $objectHandler
-    ) {}
+    ) {
+    }
 }

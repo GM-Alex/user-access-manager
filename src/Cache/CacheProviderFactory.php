@@ -18,7 +18,8 @@ class CacheProviderFactory
         private Util $util,
         private ConfigFactory $configFactory,
         private ConfigParameterFactory $configParameterFactory
-    ) {}
+    ) {
+    }
 
     /**
      * Creates a FileSystemCacheProvider object.

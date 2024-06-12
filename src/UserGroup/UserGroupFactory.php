@@ -21,7 +21,8 @@ class UserGroupFactory
         private Util $util,
         private ObjectHandler $objectHandler,
         private AssignmentInformationFactory $assignmentInformationFactory
-    ) {}
+    ) {
+    }
 
     /**
      * @throws UserGroupTypeException

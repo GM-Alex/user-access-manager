@@ -18,7 +18,8 @@ class FileProtectionFactory
         private WordpressConfig $wordpressConfig,
         private MainConfig $mainConfig,
         private Util $util
-    ) {}
+    ) {
+    }
 
     public function createApacheFileProtection(): ApacheFileProtection
     {

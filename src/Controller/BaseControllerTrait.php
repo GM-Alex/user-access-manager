@@ -8,7 +8,6 @@ use Exception;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Wrapper\Php;
 
-
 trait BaseControllerTrait
 {
     abstract protected function getPhp(): Php;

@@ -28,7 +28,8 @@ class AccessHandler
         private ObjectHandler $objectHandler,
         private UserHandler $userHandler,
         private UserGroupHandler $userGroupHandler
-    ) {}
+    ) {
+    }
 
     private function hasAuthorAccess(string $objectType, int|string $objectId): bool
     {

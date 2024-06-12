@@ -32,7 +32,8 @@ class FileSystemCacheProvider implements CacheProviderInterface
         private Util $util,
         private ConfigFactory $configFactory,
         private ConfigParameterFactory $configParameterFactory
-    ) {}
+    ) {
+    }
 
     public function getId(): string
     {

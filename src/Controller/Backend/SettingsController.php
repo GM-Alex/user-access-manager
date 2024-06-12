@@ -286,7 +286,8 @@ class SettingsController extends Controller
             try {
                 $redirectCustomPageValue->setSubElement($formElement);
                 $values[] = $redirectCustomPageValue;
-            } catch (Exception) {}
+            } catch (Exception) {
+            }
         }
     }
 
@@ -314,7 +315,8 @@ class SettingsController extends Controller
                         TXT_UAM_REDIRECT_TO_URL,
                         $configParameters['redirect_custom_url']
                     );
-                } catch (Exception) {}
+                } catch (Exception) {
+                }
             }
 
             $configParameter = $configParameters['redirect'];
