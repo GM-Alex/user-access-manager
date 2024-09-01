@@ -11,7 +11,7 @@
     "grunt-pot": "^0.3.0"
   },
   "devDependencies": {
-    "grunt-cli": "^1.2.0"
+    "grunt-cli": "^1.5.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
