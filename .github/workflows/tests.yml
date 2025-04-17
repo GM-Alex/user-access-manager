@@ -10,7 +10,7 @@ jobs:
       - name: Setup php
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.2'
+          php-version: '7.3'
           tools: composer:v2
       - name: Install composer dependencies
         run: composer install
