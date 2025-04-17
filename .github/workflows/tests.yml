@@ -17,10 +17,6 @@ jobs:
       - name: "Run php code sniffer"
         run: ./vendor/bin/phpcs -p --standard=PSR2 ./src
       - name: "Run PHPUnit unit test"
-        run: |
-          ./vendor/bin/phpunit --coverage-clover=coverage.clover
-          wget https://scrutinizer-ci.com/ocular.phar
-          php ocular.phar code-coverage:upload --format=php-clover coverage.clover
-          rm ocular.phar
+        run: ./vendor/bin/phpunit --coverage-clover=coverage.clover
       - name: "Run infection mutation tests"
         run: ./vendor/bin/infection --configuration=infection-7.2.json.dist --threads=8
