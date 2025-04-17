@@ -63,7 +63,8 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
-    2.2.24      2024/02/24  Fix deprecated warnings
+    2.2.24      2025/04/17  Fix deprecated warnings
+                            Fixed problem with load_textdomain Thanks to Christian Ludwig (chludwig)
 
     2.2.23      2023/05/26  Fix typos
                             Fix version_compare
