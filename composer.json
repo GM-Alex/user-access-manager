@@ -3,7 +3,7 @@
   "description": "User Access Manager plugin for Wordpress",
   "type": "wordpress-plugin",
   "license": "GPL-2.0",
-  "version": "2.2.24",
+  "version": "2.2.25",
   "authors": [
     {
       "name": "Alexander Schneider",
