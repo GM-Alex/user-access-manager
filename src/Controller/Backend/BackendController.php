@@ -1,17 +1,4 @@
 <?php
-/**
- * BackendController.php
- *
- * The BackendController class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -19,18 +6,14 @@ namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
-use UserAccessManager\File\FileHandler;
+use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class BackendController
- *
- * @package UserAccessManager\Controller
- */
+
 class BackendController extends Controller
 {
     public const HANDLE_STYLE_ADMIN = 'UserAccessManagerAdmin';
@@ -39,45 +22,22 @@ class BackendController extends Controller
     public const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
     public const UAM_ERRORS = 'UAM_ERRORS';
 
-    /**
-     * @var UserHandler
-     */
-    private $userHandler;
+    private string $notice = '';
 
-    /**
-     * @var SetupHandler
-     */
-    private $setupHandler;
-
-    /**
-     * @var string
-     */
-    private $notice = '';
-
-    /**
-     * BackendController constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param UserHandler $userHandler
-     * @param SetupHandler $setupHandler
-     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
-        UserHandler $userHandler,
-        SetupHandler $setupHandler
+        private UserHandler $userHandler,
+        private SetupHandler $setupHandler
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->userHandler = $userHandler;
-        $this->setupHandler = $setupHandler;
     }
 
     /**
-     * Shows the admin notices.
+     * @throws MissingColumnsException
      */
-    public function showAdminNotice()
+    public function showAdminNotice(): void
     {
         $messages = isset($_SESSION[self::UAM_ERRORS]) === true ? $_SESSION[self::UAM_ERRORS] : [];
         $updateAction = $this->getRequestParameter('uam_update_db');
@@ -95,19 +55,12 @@ class BackendController extends Controller
         }
     }
 
-    /**
-     * Returns the set notice.
-     * @return string
-     */
     public function getNotice(): string
     {
         return $this->notice;
     }
 
-    /**
-     * Register styles and scripts with handle for admin panel.
-     */
-    private function registerStylesAndScripts()
+    private function registerStylesAndScripts(): void
     {
         $urlPath = $this->wordpressConfig->getUrlPath();
 
@@ -141,10 +94,7 @@ class BackendController extends Controller
         );
     }
 
-    /**
-     * The function for the admin_enqueue_scripts action for styles and scripts.
-     */
-    public function enqueueStylesAndScripts()
+    public function enqueueStylesAndScripts(): void
     {
         $this->registerStylesAndScripts();
         $this->wordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
@@ -153,12 +103,7 @@ class BackendController extends Controller
         $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
     }
 
-
-    /**
-     * The function for the wp_dashboard_setup action.
-     * Removes widgets to which a user should not have access.
-     */
-    public function setupAdminDashboard()
+    public function setupAdminDashboard(): void
     {
         if ($this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === false) {
             $metaBoxes = $this->wordpress->getMetaBoxes();

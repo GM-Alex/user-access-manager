@@ -50,7 +50,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.
@@ -262,7 +262,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      * @param $expectedTaxonomies
      * @return MockObject|Wordpress
      */
-    private function getWordpressWithPostTypesAndTaxonomies($expectedPostTypes, $expectedTaxonomies)
+    private function getWordpressWithPostTypesAndTaxonomies($expectedPostTypes, $expectedTaxonomies): MockObject|Wordpress
     {
         $wordpress = $this->getWordpress();
 

@@ -7,7 +7,7 @@ if (function_exists('__') === false) {
 }
 
 if (function_exists('wp_parse_args') === false) {
-    function wp_parse_str($string, &$array)
+    function wp_parse_str($string, &$array): void
     {
         parse_str($string, $array);
 

@@ -1,22 +1,10 @@
 <?php
-/**
- * Wordpress.php
- *
- * The Wordpress class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
 namespace UserAccessManager\Wrapper;
 
+use JetBrains\PhpStorm\NoReturn;
 use WP_Error;
 use WP_Hook;
 use WP_Post;
@@ -100,27 +88,14 @@ use function wp_registration_url;
 use function wp_upload_dir;
 use function wp_verify_nonce;
 
-/**
- * Class Wordpress
- *
- * @package UserAccessManager\Wrapper
- */
 class Wordpress
 {
-    /**
-     * Returns the database.
-     * @return wpdb
-     */
     public function getDatabase(): wpdb
     {
         global $wpdb;
         return $wpdb;
     }
 
-    /**
-     * Returns true if web server is nginx.
-     * @return bool
-     */
     public function isNginx(): bool
     {
         global $is_nginx;
@@ -128,9 +103,7 @@ class Wordpress
     }
 
     /**
-     * @param string $postType
-     * @return bool
-     * @see \is_post_type_hierarchical()
+     * @see is_post_type_hierarchical
      */
     public function isPostTypeHierarchical(string $postType): bool
     {
@@ -138,9 +111,7 @@ class Wordpress
     }
 
     /**
-     * @param string $taxonomy
-     * @return bool
-     * @see \is_taxonomy_hierarchical()
+     * @see is_taxonomy_hierarchical
      */
     public function isTaxonomyHierarchical(string $taxonomy): bool
     {
@@ -148,92 +119,74 @@ class Wordpress
     }
 
     /**
-     * @param int|string $id
-     * @return false|WP_User
-     * @see \get_userdata()
+     * @see get_userdata
      */
-    public function getUserData($id)
+    public function getUserData(int|string $id): WP_User|bool
     {
         return get_userdata($id);
     }
 
     /**
-     * @param string|array $arguments
-     * @param string $output
-     * @param string $operator
-     * @return array
-     * @see \get_post_types()
+     * @see get_post_types
      */
-    public function getPostTypes($arguments = [], $output = 'names', $operator = 'and'): array
-    {
+    public function getPostTypes(
+        array|string $arguments = [],
+        string $output = 'names',
+        string $operator = 'and'
+    ): array {
         return get_post_types($arguments, $output, $operator);
     }
 
     /**
-     * @param array $arguments
-     * @param string $output
-     * @param string $operator
-     * @return array
-     * @see \get_taxonomies()
+     * @return string[]|WP_Taxonomy[]
+     * @see get_taxonomies
      */
-    public function getTaxonomies(array $arguments = [], $output = 'names', $operator = 'and'): array
+    public function getTaxonomies(array $arguments = [], string $output = 'names', string $operator = 'and'): array
     {
         return get_taxonomies($arguments, $output, $operator);
     }
 
     /**
-     * @param string $taxonomy
-     * @return false|WP_Taxonomy
-     * @see \get_taxonomy()
+     * @see get_taxonomy
      */
-    public function getTaxonomy(string $taxonomy)
+    public function getTaxonomy(string $taxonomy): WP_Taxonomy|bool
     {
         return get_taxonomy($taxonomy);
     }
 
     /**
-     * @param int|string $id The post id.
-     * @param string $output
-     * @param string $filter
-     * @return WP_Post|array|null
-     * @see \get_post()
+     * @see get_post
      */
-    public function getPost($id, $output = OBJECT, $filter = 'raw')
+    public function getPost(int|string $id, string $output = OBJECT, string $filter = 'raw'): array|WP_Post|null
     {
         return get_post($id, $output, $filter);
     }
 
     /**
-     * @param int|string $postType
-     * @return null|WP_Post_Type
-     * @see \get_post_type_object()
+     * @see get_post_type_object
      */
-    public function getPostTypeObject($postType): ?WP_Post_Type
+    public function getPostTypeObject(int|string $postType): ?WP_Post_Type
     {
         return get_post_type_object($postType);
     }
 
     /**
-     * @param int|string $id
-     * @param string $taxonomy
-     * @param string $output
-     * @param string $filter
-     * @return array|null|WP_Error|WP_Term
-     * @see \get_term()
+     * @see get_term
      */
-    public function getTerm($id, string $taxonomy = '', string $output = OBJECT, string $filter = 'raw')
-    {
+    public function getTerm(
+        int|string $id,
+        string $taxonomy = '',
+        string $output = OBJECT,
+        string $filter = 'raw'
+    ): WP_Term|WP_Error|array|null {
         return get_term($id, $taxonomy, $output, $filter);
     }
 
 
     /**
-     * @param array|string $queries
-     * @param bool $execute
-     * @return array
-     * @see \dbDelta()
+     * @see dbDelta
      */
-    public function dbDelta($queries = '', $execute = true): array
+    public function dbDelta(array|string $queries = '', bool $execute = true): array
     {
         if (function_exists('\dbDelta') === false) {
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -243,11 +196,9 @@ class Wordpress
     }
 
     /**
-     * @param integer $blogId
-     * @return int|string
-     * @see \switch_to_blog()
+     * @see switch_to_blog
      */
-    public function switchToBlog($blogId)
+    public function switchToBlog(int $blogId): bool
     {
         if (function_exists('\switch_to_blog') === true) {
             return switch_to_blog($blogId);
@@ -257,7 +208,6 @@ class Wordpress
     }
 
     /**
-     * @return bool
      * @see \restore_current_blog()
      */
     public function restoreCurrentBlog(): bool
@@ -270,8 +220,7 @@ class Wordpress
     }
 
     /**
-     * @return bool
-     * @see \is_multisite()
+     * @see is_multisite
      */
     public function isMultiSite(): bool
     {
@@ -279,93 +228,75 @@ class Wordpress
     }
 
     /**
-     * @param string $tag
-     * @param mixed $arguments
-     * @see \do_action()
+     * @see do_action
      */
-    public function doAction(string $tag, $arguments = '')
+    public function doAction(string $tag, mixed $arguments = ''): void
     {
         do_action($tag, $arguments);
     }
 
     /**
-     * @param string $tag
-     * @param callable $functionToAdd
-     * @param int $priority
-     * @param int $acceptedArguments
-     * @return true
-     * @see \add_action()
+     * @see add_action
      */
-    public function addAction(string $tag, callable $functionToAdd, $priority = 10, $acceptedArguments = 1)
-    {
+    public function addAction(
+        string $tag,
+        callable $functionToAdd,
+        int $priority = 10,
+        int $acceptedArguments = 1
+    ): bool {
         return add_action($tag, $functionToAdd, $priority, $acceptedArguments);
     }
 
     /**
-     * @param string $hookName
-     * @param callable $callback
-     * @param $priority
-     * @return bool
-     * @see \remove_action()
+     * @see remove_action
      */
-    public function removeAction(string $hookName, callable $callback, $priority = 10)
+    public function removeAction(string $hookName, callable $callback, int $priority = 10): bool
     {
         return remove_action($hookName, $callback, $priority);
     }
 
     /**
-     * @param string $tag
-     * @param bool|callable $functionToCheck
-     * @return bool|false|int
-     * @see \has_filter()
+     * @see has_filter
      */
-    public function hasFilter(string $tag, $functionToCheck = false)
+    public function hasFilter(string $tag, callable|bool $functionToCheck = false): bool|int
     {
         return has_filter($tag, $functionToCheck);
     }
 
     /**
-     * @param string $tag
-     * @param callable $functionToAdd
-     * @param int $priority
-     * @param int $acceptedArguments
-     * @return true
-     * @see \add_filter()
+     * @see add_filter
      */
-    public function addFilter(string $tag, callable $functionToAdd, $priority = 10, $acceptedArguments = 1)
-    {
+    public function addFilter(
+        string $tag,
+        callable $functionToAdd,
+        int $priority = 10,
+        int $acceptedArguments = 1
+    ): bool {
         return add_filter($tag, $functionToAdd, $priority, $acceptedArguments);
     }
 
     /**
-     * @param string $tag
-     * @param callable $functionToRemove
-     * @param int $priority
-     * @return bool
-     * @see \remove_filter()
+     * @see remove_filter
      */
-    public function removeFilter(string $tag, callable $functionToRemove, $priority = 10): bool
+    public function removeFilter(string $tag, callable $functionToRemove, int $priority = 10): bool
     {
         return remove_filter($tag, $functionToRemove, $priority);
     }
 
     /**
-     * @param string $option
-     * @param mixed $value
-     * @param string $deprecated
-     * @param string|bool $autoload
-     * @return bool
-     * @see \add_option()
+     * @see add_option
      */
-    public function addOption(string $option, $value = '', $deprecated = '', $autoload = 'yes'): bool
-    {
+    public function addOption(
+        string $option,
+        mixed $value = '',
+        string $deprecated = '',
+        bool|string $autoload = 'yes'
+    ): bool {
         return add_option($option, $value, $deprecated, $autoload);
     }
 
     /**
-     * @param string $option
-     * @return bool
-     * @see \delete_option()
+     * @see delete_option
      */
     public function deleteOption(string $option): bool
     {
@@ -373,41 +304,31 @@ class Wordpress
     }
 
     /**
-     * @param string $option
-     * @param mixed $value
-     * @param string|bool $autoload
-     * @return bool
-     * @see \update_option()
+     * @see update_option
      */
-    public function updateOption(string $option, $value = '', $autoload = 'yes'): bool
+    public function updateOption(string $option, mixed $value = '', bool|string $autoload = 'yes'): bool
     {
         return update_option($option, $value, $autoload);
     }
 
     /**
-     * @param string $option
-     * @param mixed $default
-     * @return mixed
-     * @see \get_option()
+     * @see get_option
      */
-    public function getOption(string $option, $default = false)
+    public function getOption(string $option, mixed $default = false)
     {
         return get_option($option, $default);
     }
 
     /**
-     * @param int|bool $userId
-     * @return bool
-     * @see \is_super_admin()
+     * @see is_super_admin
      */
-    public function isSuperAdmin($userId = false): bool
+    public function isSuperAdmin(bool|int $userId = false): bool
     {
         return is_super_admin($userId);
     }
 
     /**
-     * @return WP_User
-     * @see \wp_get_current_user()
+     * @see wp_get_current_user
      */
     public function getCurrentUser(): WP_User
     {
@@ -419,52 +340,39 @@ class Wordpress
     }
 
     /**
-     * @param int|WP_User $user
-     * @return array
-     * @see \get_allowed_mime_types()
+     * @see get_allowed_mime_types
      */
-    public function getAllowedMimeTypes($user = null): array
+    public function getAllowedMimeTypes(WP_User|int $user = null): array
     {
         return get_allowed_mime_types($user);
     }
 
     /**
-     * @param string $time
-     * @param bool $createDir
-     * @param bool $refreshCache
-     * @return array
-     * @see \wp_upload_dir()
+     * @see wp_upload_dir
      */
-    public function getUploadDir($time = null, $createDir = true, $refreshCache = false): array
+    public function getUploadDir(string $time = null, bool $createDir = true, bool $refreshCache = false): array
     {
         return wp_upload_dir($time, $createDir, $refreshCache);
     }
 
     /**
-     * @param string $path
-     * @param null|string $scheme
-     * @return string
-     * @see \home_url()
+     * @see home_url
      */
-    public function getHomeUrl($path = '', $scheme = null): string
+    public function getHomeUrl(string $path = '', string $scheme = null): string
     {
         return home_url($path, $scheme);
     }
 
     /**
-     * @param string $path
-     * @param null|string $scheme
-     * @return string
-     * @see \site_url();
+     * @see site_url
      */
-    public function getSiteUrl($path = '', $scheme = null): string
+    public function getSiteUrl(string $path = '', string $scheme = null): string
     {
         return site_url($path, $scheme);
     }
 
     /**
-     * @return string
-     * @see \get_home_path()
+     * @see get_home_path
      */
     public function getHomePath(): string
     {
@@ -476,39 +384,32 @@ class Wordpress
     }
 
     /**
-     * @param array|string $list
-     * @return array
-     * @see \wp_parse_id_list()
+     * @see wp_parse_id_list
      */
-    public function parseIdList($list): array
+    public function parseIdList(array|string $list): array
     {
         return wp_parse_id_list($list);
     }
 
     /**
-     * @param string $message
-     * @param string $title
-     * @param array $arguments
-     * @see \wp_die()
+     * @see wp_die
      */
-    public function wpDie($message = '', $title = '', array $arguments = [])
+    #[NoReturn]
+    public function wpDie(string $message = '', string $title = '', array $arguments = []): void
     {
         wp_die($message, $title, $arguments);
     }
 
     /**
-     * @param string|array $feeds
-     * @return bool
-     * @see \is_feed()
+     * @see is_feed
      */
-    public function isFeed($feeds = ''): bool
+    public function isFeed(array|string $feeds = ''): bool
     {
         return is_feed($feeds);
     }
 
     /**
-     * @return bool
-     * @see \is_user_logged_in()
+     * @see is_user_logged_in
      */
     public function isUserLoggedIn(): bool
     {
@@ -516,43 +417,29 @@ class Wordpress
     }
 
     /**
-     * @param string $pagePath
-     * @param string $output
-     * @param string $postType
-     * @return array|null|WP_Post
-     * @see \get_page_by_path()
+     * @see get_page_by_path
      */
-    public function getPageByPath(string $pagePath, $output = OBJECT, $postType = 'page')
+    public function getPageByPath(string $pagePath, string $output = OBJECT, string $postType = 'page'): array|WP_Post|null
     {
         return get_page_by_path($pagePath, $output, $postType);
     }
 
     /**
-     * @param string $location
-     * @param int $status
-     * @return bool
-     * @see \wp_redirect()
+     * @see wp_redirect
      */
-    public function wpRedirect(string $location, $status = 302): bool
+    public function wpRedirect(string $location, int $status = 302): bool
     {
         return wp_redirect($location, $status);
     }
 
-    /**
-     * @param bool|int|WP_Post $post
-     * @param bool $leaveName
-     * @param bool $sample
-     * @return string The page permalink.
-     */
-    public function getPageLink($post = false, $leaveName = false, $sample = false): string
-    {
+    public function getPageLink(
+        bool|int|WP_Post $post = false,
+        bool $leaveName = false,
+        bool $sample = false
+    ): string {
         return get_page_link($post, $leaveName, $sample);
     }
 
-    /**
-     * Returns the wp_query object.
-     * @return WP_Query
-     */
     public function getWpQuery(): WP_Query
     {
         global $wp_query;
@@ -560,61 +447,50 @@ class Wordpress
     }
 
     /**
-     * @return bool
-     * @see \is_admin()
+     * @see is_admin
      */
     public function isAdmin(): bool
     {
-        //Ajax request are always identified as administrative interface page
+        //Ajax request are always identified as an administrative interface page
         if (wp_doing_ajax() === true || defined('REST_REQUEST') && REST_REQUEST) {
             //So let's check if we are calling the ajax data for the frontend or backend
             //If the referer is an admin url we are requesting the data for the backend
             $adminUrl = get_admin_url();
-            return (substr((string) ($_SERVER['HTTP_REFERER'] ?? ''), 0, strlen((string) $adminUrl)) === $adminUrl);
+            return str_starts_with((string)($_SERVER['HTTP_REFERER'] ?? ''), $adminUrl);
         }
 
-        //No ajax request just use the normal function
+        //No ajax request just uses the normal function
         return is_admin();
     }
 
     /**
-     * @param int|string $action
-     * @return string
-     * @see \wp_create_nonce()
+     * @see wp_create_nonce
      */
-    public function createNonce($action): string
+    public function createNonce(int|string $action): string
     {
         return wp_create_nonce($action);
     }
 
     /**
-     * @param int|string $action
-     * @param string $name
-     * @param bool $referrer
-     * @param bool $echo
-     * @return string
-     * @see \wp_nonce_field()
+     * @see wp_nonce_field
      */
-    public function getNonceField($action = -1, $name = '_wpnonce', $referrer = true, $echo = true): string
-    {
+    public function getNonceField(
+        int|string $action = -1,
+        string $name = '_wpnonce',
+        bool $referrer = true,
+        bool $echo = true
+    ): string {
         return wp_nonce_field($action, $name, $referrer, $echo);
     }
 
     /**
-     * @param string|null $nonce
-     * @param string|int $action
-     * @return false|int
-     * @see \wp_verify_nonce()
+     * @see wp_verify_nonce
      */
-    public function verifyNonce(?string $nonce, $action = -1)
+    public function verifyNonce(?string $nonce, int|string $action = -1): bool|int
     {
         return wp_verify_nonce($nonce, $action);
     }
 
-    /**
-     * Returns the wordpress roles.
-     * @return WP_Roles
-     */
     public function getRoles(): WP_Roles
     {
         global $wp_roles;
@@ -622,37 +498,22 @@ class Wordpress
     }
 
     /**
-     * @param string $pageTitle
-     * @param string $menuTitle
-     * @param string $capability
-     * @param string $menuSlug
-     * @param mixed $function
-     * @param string $iconUrl
-     * @param null $position
-     * @return string
-     * @see \add_menu_page()
+     * @see add_menu_page
      */
     public function addMenuPage(
         string $pageTitle,
         string $menuTitle,
         string $capability,
         string $menuSlug,
-        $function = '',
-        $iconUrl = '',
-        $position = null
+        mixed $function = '',
+        string $iconUrl = '',
+        int|float|null $position = null
     ): string {
         return add_menu_page($pageTitle, $menuTitle, $capability, $menuSlug, $function, $iconUrl, $position);
     }
 
     /**
-     * @param string $parentSlug
-     * @param string $pageTitle
-     * @param string $menuTitle
-     * @param string $capability
-     * @param string $menuSlug
-     * @param string|callable $function
-     * @return false|string
-     * @see \add_submenu_page()
+     * @see add_submenu_page
      */
     public function addSubMenuPage(
         string $parentSlug,
@@ -660,126 +521,91 @@ class Wordpress
         string $menuTitle,
         string $capability,
         string $menuSlug,
-        $function = ''
-    ) {
+        callable|string $function = ''
+    ): bool|string {
         return add_submenu_page($parentSlug, $pageTitle, $menuTitle, $capability, $menuSlug, $function);
     }
 
     /**
-     * @param string $id
-     * @param string $title
-     * @param callable $callback
-     * @param null $screen
-     * @param string $context
-     * @param string $priority
-     * @param null $callbackArguments
-     * @see \add_meta_box()
+     * @see add_meta_box
      */
     public function addMetaBox(
         string $id,
         string $title,
         callable $callback,
         $screen = null,
-        $context = 'advanced',
-        $priority = 'default',
+        string $context = 'advanced',
+        string $priority = 'default',
         $callbackArguments = null
-    ) {
+    ): void
+    {
         add_meta_box($id, $title, $callback, $screen, $context, $priority, $callbackArguments);
     }
 
     /**
-     * @param array|string $arguments
-     * @return array|false
-     * @see \get_pages()
+     * @see get_pages
      */
-    public function getPages($arguments)
+    public function getPages(array|string $arguments): bool|array
     {
         return get_pages($arguments);
     }
 
     /**
-     * @param string $handle
-     * @param string $source
-     * @param array $depends
-     * @param string|bool|null $version
-     * @param string $media
-     * @return bool
-     * @see \wp_register_style()
+     * @see wp_register_style
      */
-    public function registerStyle(string $handle, string $source, $depends = [], $version = false, $media = 'all'): bool
+    public function registerStyle(string $handle, string $source, array $depends = [], bool|string|null $version = false, string $media = 'all'): bool
     {
         return wp_register_style($handle, $source, $depends, $version, $media);
     }
 
     /**
-     * @param string $handle
-     * @param string $source
-     * @param array $depends
-     * @param string|bool|null $version
-     * @param bool $inFooter
-     * @return bool
-     * @see \wp_register_script()
+     * @see wp_register_script
      */
     public function registerScript(
-        string $handle,
-        string $source,
-        $depends = [],
-        $version = false,
-        $inFooter = false
+        string           $handle,
+        string           $source,
+        array            $depends = [],
+        bool|string|null $version = false,
+        bool             $inFooter = false
     ): bool {
         return wp_register_script($handle, $source, $depends, $version, $inFooter);
     }
 
     /**
-     * @param string $handle
-     * @param string $source
-     * @param array $depends
-     * @param string|bool|null $version
-     * @param string $media
-     * @see \wp_enqueue_style()
+     * @see wp_enqueue_style
      */
-    public function enqueueStyle(string $handle, $source = '', $depends = [], $version = false, $media = 'all')
+    public function enqueueStyle(string $handle, string $source = '', array $depends = [], bool|string|null $version = false, string $media = 'all'): void
     {
         wp_enqueue_style($handle, $source, $depends, $version, $media);
     }
 
     /**
-     * @param string $handle
-     * @param string $source
-     * @param array $depends
-     * @param string|bool|null $version
-     * @param bool $inFooter
-     * @see \wp_enqueue_script()
+     * @see wp_enqueue_script
      */
-    public function enqueueScript(string $handle, $source = '', $depends = [], $version = false, $inFooter = false)
-    {
+    public function enqueueScript(
+        string $handle,
+        string $source = '',
+        array $depends = [],
+        bool|string|null $version = false,
+        bool $inFooter = false
+    ): void {
         wp_enqueue_script($handle, $source, $depends, $version, $inFooter);
     }
 
-    /**
-     * Returns the wordpress meta boxes.
-     * @return array
-     */
     public function getMetaBoxes(): array
     {
         global $wp_meta_boxes;
         return $wp_meta_boxes;
     }
 
-    /**
-     * Sets the wordpress meta boxes.
-     * @param array $wpMetaBoxes
-     */
-    public function setMetaBoxes(array $wpMetaBoxes)
+    public function setMetaBoxes(array $wpMetaBoxes): void
     {
         global $wp_meta_boxes;
         $wp_meta_boxes = $wpMetaBoxes;
     }
 
     /**
-     * @param array $arguments
-     * @return array
-     * @see \get_sites()
+     * @see get_sites
      */
     public function getSites(array $arguments = []): array
     {
@@ -791,31 +617,23 @@ class Wordpress
     }
 
     /**
-     * @param string $tag
-     * @param mixed $value
-     * @return mixed
-     * @see \apply_filters()
+     * @see apply_filters()
      */
-    public function applyFilters(string $tag, $value)
+    public function applyFilters(string $tag, mixed $value): mixed
     {
         return call_user_func_array('\apply_filters', func_get_args());
     }
 
     /**
-     * @param string $show
-     * @param string $filter
-     * @return string
-     * @see \get_bloginfo()
+     * @see get_bloginfo
      */
-    public function getBlogInfo($show = '', $filter = 'raw'): string
+    public function getBlogInfo(string $show = '', string $filter = 'raw'): string
     {
         return get_bloginfo($show, $filter);
     }
 
     /**
-     * @param string $text
-     * @return string
-     * @see \esc_html()
+     * @see esc_html
      */
     public function escHtml(string $text): string
     {
@@ -823,27 +641,22 @@ class Wordpress
     }
 
     /**
-     * @param int|string|array $post
-     * @return bool
-     * @see \is_single()
+     * @see is_single
      */
-    public function isSingle($post = ''): bool
+    public function isSingle(int|array|string $post = ''): bool
     {
         return is_single($post);
     }
 
     /**
-     * @param int|string|array $page
-     * @return bool
-     * @see \is_page()
+     * @see is_page
      */
-    public function isPage($page = ''): bool
+    public function isPage(int|array|string $page = ''): bool
     {
         return is_page($page);
     }
 
     /**
-     * @return string
      * @see \WP_PLUGIN_DIR
      */
     public function getPluginDir(): string
@@ -852,40 +665,31 @@ class Wordpress
     }
 
     /**
-     * @param string $path
-     * @param string $plugin
-     * @return string
-     * @see \plugins_url()
+     * @see plugins_url
      */
-    public function pluginsUrl($path = '', $plugin = ''): string
+    public function pluginsUrl(string $path = '', string $plugin = ''): string
     {
         return plugins_url($path, $plugin);
     }
 
     /**
-     * @param $file
-     * @return string
-     * @see \plugin_basename()
+     * @see plugin_basename
      */
-    public function pluginBasename($file): string
+    public function pluginBasename(string $file): string
     {
         return plugin_basename($file);
     }
 
     /**
-     * @param int|WP_Post $post
-     * @return bool
-     * @see \wp_attachment_is_image()
+     * @see wp_attachment_is_image
      */
-    public function attachmentIsImage($post): bool
+    public function attachmentIsImage(int|WP_Post $post): bool
     {
         return wp_attachment_is_image($post);
     }
 
     /**
-     * @param string $capability
-     * @return bool
-     * @see \current_user_can()
+     * @see current_user_can
      */
     public function currentUserCan(string $capability): bool
     {
@@ -893,9 +697,7 @@ class Wordpress
     }
 
     /**
-     * @param array $arguments
-     * @return array
-     * @see \get_users()
+     * @see get_users
      */
     public function getUsers(array $arguments = []): array
     {
@@ -911,31 +713,20 @@ class Wordpress
         return $wp_filter;
     }
 
-    /**
-     * @param array $filters
-     */
-    public function setFilters(array $filters)
+    public function setFilters(array $filters): void
     {
         global $wp_filter;
         $wp_filter = $filters;
     }
 
     /**
-     * @param string $type
-     * @param int $gmt
-     * @return int|string
-     * @see \current_time()
+     * @see current_time
      */
-    public function currentTime(string $type, $gmt = 0)
+    public function currentTime(string $type, int $gmt = 0): int|string
     {
         return current_time($type, $gmt);
     }
 
-    /**
-     * Formats the date like wordpress does it.
-     * @param string $date
-     * @return string
-     */
     public function formatDate(string $date): string
     {
         $dateFormat = __('M j, Y @ H:i');
@@ -943,38 +734,31 @@ class Wordpress
     }
 
     /**
-     * @param mixed $widgetClass
-     * @see \register_widget()
+     * @see register_widget
      */
-    public function registerWidget($widgetClass)
+    public function registerWidget(mixed $widgetClass): void
     {
         register_widget($widgetClass);
     }
 
     /**
-     * @param string $redirect
-     * @param bool $forceReauth
-     * @return string
-     * @see \wp_login_url()
+     * @see wp_login_url
      */
-    public function wpLoginUrl($redirect = '', $forceReauth = false): string
+    public function wpLoginUrl(string $redirect = '', bool $forceReauth = false): string
     {
         return wp_login_url($redirect, $forceReauth);
     }
 
     /**
-     * @param string $redirect
-     * @return string
-     * @see \wp_logout_url()
+     * @see wp_logout_url
      */
-    public function wpLogoutUrl($redirect = ''): string
+    public function wpLogoutUrl(string $redirect = ''): string
     {
         return wp_logout_url($redirect);
     }
 
     /**
-     * @return string
-     * @see \wp_registration_url()
+     * @see wp_registration_url
      */
     public function wpRegistrationUrl(): string
     {
@@ -982,40 +766,31 @@ class Wordpress
     }
 
     /**
-     * @param string $redirect
-     * @return string
-     * @see \wp_lostpassword_url()
+     * @see wp_lostpassword_url
      */
-    public function wpLostPasswordUrl($redirect = ''): string
+    public function wpLostPasswordUrl(string $redirect = ''): string
     {
         return wp_lostpassword_url($redirect);
     }
 
     /**
-     * @param string $tag
-     * @param callable $function
-     * @see \add_shortcode()
+     * @see add_shortcode
      */
-    public function addShortCode(string $tag, callable $function)
+    public function addShortCode(string $tag, callable $function): void
     {
         add_shortcode($tag, $function);
     }
 
     /**
-     * @param string $content
-     * @param bool $ignoreHtml
-     * @return string
-     * @see \do_shortcode()
+     * @see do_shortcode
      */
-    public function doShortCode(string $content, $ignoreHtml = false): string
+    public function doShortCode(string $content, bool $ignoreHtml = false): string
     {
         return do_shortcode($content, $ignoreHtml);
     }
 
     /**
-     * @param string $url
-     * @return int
-     * @see \attachment_url_to_postid()
+     * @see attachment_url_to_postid
      */
     public function attachmentUrlToPostId(string $url): int
     {
@@ -1023,8 +798,7 @@ class Wordpress
     }
 
     /**
-     * @return bool
-     * @see \got_mod_rewrite()
+     * @see got_mod_rewrite
      */
     public function gotModRewrite(): bool
     {
@@ -1036,27 +810,22 @@ class Wordpress
     }
 
     /**
-     * @return bool
-     * @see \is_user_member_of_blog()
+     * @see is_user_member_of_blog()
      */
     public function isUserMemberOfBlog(): bool
     {
-        return (bool) is_user_member_of_blog();
+        return is_user_member_of_blog();
     }
 
     /**
-     * @return int
-     * @see \get_queried_object_id()
+     * @see get_queried_object_id
      */
     public function getQueriedObjectId(): int
     {
-        return (int) get_queried_object_id();
+        return get_queried_object_id();
     }
 
-    /**
-     * @return WP_Post|array|null
-     */
-    public function getCurrentPost()
+    public function getCurrentPost(): array|WP_Post|null
     {
         global $post;
         return $post;

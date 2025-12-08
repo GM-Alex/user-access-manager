@@ -30,11 +30,11 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 class ConfigParameterTest extends UserAccessManagerTestCase
 {
     /**
-     * @return MockObject|ConfigParameter
+     * @throws ReflectionException
      */
-    private function getStub()
+    private function getStub(): ConfigParameter|MockObject
     {
-        return $this->getMockForAbstractClass(
+        $stub = $this->getMockForAbstractClass(
             ConfigParameter::class,
             [],
             '',
@@ -42,6 +42,9 @@ class ConfigParameterTest extends UserAccessManagerTestCase
             true,
             true
         );
+
+        $this->setValue($stub, 'id', 'id');
+        return $stub;
     }
 
     /**

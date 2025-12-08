@@ -1,17 +1,4 @@
 <?php
-/**
- * Util.php
- *
- * The Util class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -20,70 +7,35 @@ namespace UserAccessManager\Util;
 use Exception;
 use UserAccessManager\Wrapper\Php;
 
-/**
- * Class Util
- *
- * @package UserAccessManager\Util
- */
 class Util
 {
-    /**
-     * @var Php
-     */
-    private $php;
+    public function __construct(private Php $php)
+    {}
 
-    /**
-     * Util constructor.
-     * @param Php $php
-     */
-    public function __construct(Php $php)
-    {
-        $this->php = $php;
-    }
-
-    /**
-     * Checks if a string starts with the given needle.
-     * @param string $haystack The haystack.
-     * @param string $needle The needle.
-     * @return bool
-     */
     public function startsWith(string $haystack, string $needle): bool
     {
-        return $needle === '' || strpos($haystack, $needle) === 0;
+        return $needle === '' || str_starts_with($haystack, $needle);
     }
 
-    /**
-     * Checks if a string ends with the given needle.
-     * @param string $haystack
-     * @param string $needle
-     * @return bool
-     */
     public function endsWith(string $haystack, string $needle): bool
     {
-        return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
+        return $needle === '' || str_ends_with($haystack, $needle);
     }
 
     /**
-     * Generates and returns a random password.
-     * @param int $length
-     * @return string
      * @throws Exception
      */
-    public function getRandomPassword($length = 32): string
+    public function getRandomPassword(int $length = 32): string
     {
         $bytes = $this->php->opensslRandomPseudoBytes($length + 1, $strong);
 
         if ($bytes !== false && $strong === true) {
             return substr(preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($bytes)), 0, $length);
-        } else {
-            throw new Exception('Unable to generate secure token from OpenSSL.');
         }
+
+        throw new Exception('Unable to generate secure token from OpenSSL.');
     }
 
-    /**
-     * Returns the current url.
-     * @return string
-     */
     public function getCurrentUrl(): string
     {
         if (isset($_SERVER['REQUEST_URI']) === false) {

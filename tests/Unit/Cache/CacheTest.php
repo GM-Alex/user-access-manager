@@ -103,7 +103,7 @@ class CacheTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|FileSystemCacheProvider
      */
-    protected function getFileSystemCacheProvider()
+    protected function getFileSystemCacheProvider(): MockObject|FileSystemCacheProvider
     {
         $fileSystemCacheProvider = parent::getFileSystemCacheProvider();
         $fileSystemCacheProvider->expects($this->any())

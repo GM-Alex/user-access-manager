@@ -188,8 +188,8 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
                 )]
             )
             ->will($this->onConsecutiveCalls(
-                'userGroupTable',
-                'ip_range',
+                1,
+                2,
                 true,
                 true,
                 true,

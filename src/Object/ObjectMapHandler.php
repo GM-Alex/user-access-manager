@@ -1,17 +1,4 @@
 <?php
-/**
- * ObjectMapHandler.php
- *
- * The ObjectMapHandler class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -20,63 +7,24 @@ namespace UserAccessManager\Object;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Database\Database;
 
-/**
- * Class ObjectMapHandler
- *
- * @package UserAccessManager\Object
- */
 class ObjectMapHandler
 {
-    const TREE_MAP_PARENTS = 'PARENT';
-    const TREE_MAP_CHILDREN = 'CHILDREN';
-    const POST_TREE_MAP_CACHE_KEY = 'uamPostTreeMap';
-    const TERM_TREE_MAP_CACHE_KEY = 'uamTermTreeMap';
-    const TERM_POST_MAP_CACHE_KEY = 'uamTermPostMap';
-    const POST_TERM_MAP_CACHE_KEY = 'uamPostTermMap';
+    public const TREE_MAP_PARENTS = 'PARENT';
+    public const TREE_MAP_CHILDREN = 'CHILDREN';
+    public const POST_TREE_MAP_CACHE_KEY = 'uamPostTreeMap';
+    public const TERM_TREE_MAP_CACHE_KEY = 'uamTermTreeMap';
+    public const TERM_POST_MAP_CACHE_KEY = 'uamTermPostMap';
+    public const POST_TERM_MAP_CACHE_KEY = 'uamPostTermMap';
 
-    /**
-     * @var Database
-     */
-    private $database;
+    private ?array $termPostMap = null;
+    private ?array $postTermMap = null;
+    private ?array $termTreeMap = null;
+    private ?array $postTreeMap = null;
 
-    /**
-     * @var Cache
-     */
-    private $cache;
-
-    /**
-     * @var null|array
-     */
-    private $termPostMap = null;
-
-    /**
-     * @var null|array
-     */
-    private $postTermMap = null;
-
-    /**
-     * @var null|array
-     */
-    private $termTreeMap = null;
-
-    /**
-     * @var null|array
-     */
-    private $postTreeMap = null;
-
-
-    /**
-     * ObjectMapHandler constructor.
-     * @param Database $database
-     * @param Cache $cache
-     */
     public function __construct(
-        Database $database,
-        Cache $cache
-    ) {
-        $this->database = $database;
-        $this->cache = $cache;
-    }
+        private Database $database,
+        private Cache $cache
+    ) {}
 
     /**
      * Resolves all tree map elements
@@ -101,12 +49,6 @@ class ObjectMapHandler
         return $map;
     }
 
-    /**
-     * Returns the tree map for the query.
-     * @param string $select
-     * @param string $generalType
-     * @return array
-     */
     private function getTreeMap(string $select, string $generalType): array
     {
         $treeMap = [
@@ -129,20 +71,13 @@ class ObjectMapHandler
         //Process elements
         foreach ($treeMap as $mapType => $mayTypeMap) {
             foreach ($mayTypeMap as $objectType => $map) {
-                $treeMap[$mapType][$objectType] = $this->processTreeMapElements($map);
+                $treeMap[$mapType][(string) $objectType] = $this->processTreeMapElements($map);
             }
         }
 
         return $treeMap;
     }
 
-    /**
-     * Checks if a cache key exists and returns the map.
-     * @param string $cacheKey
-     * @param string $generalType
-     * @param string $query
-     * @return array
-     */
     private function getCachedTreeMap(string $cacheKey, string $generalType, string $query): array
     {
         $map = $this->cache->get($cacheKey);
@@ -156,10 +91,6 @@ class ObjectMapHandler
         return $map;
     }
 
-    /**
-     * Returns the post tree map.
-     * @return array
-     */
     public function getPostTreeMap(): ?array
     {
         if ($this->postTreeMap === null) {
@@ -177,10 +108,6 @@ class ObjectMapHandler
         return $this->postTreeMap;
     }
 
-    /**
-     * Returns the term tree map.
-     * @return array
-     */
     public function getTermTreeMap(): ?array
     {
         if ($this->termTreeMap === null) {
@@ -198,12 +125,6 @@ class ObjectMapHandler
         return $this->termTreeMap;
     }
 
-    /**
-     * Returns the cached map.
-     * @param string $cacheKey
-     * @param string $query
-     * @return array
-     */
     private function getCachedMap(string $cacheKey, string $query): array
     {
         $map = $this->cache->get($cacheKey);
@@ -222,10 +143,6 @@ class ObjectMapHandler
         return $map;
     }
 
-    /**
-     * Returns the term post map.
-     * @return array
-     */
     public function getTermPostMap(): ?array
     {
         if ($this->termPostMap === null) {
@@ -243,10 +160,6 @@ class ObjectMapHandler
         return $this->termPostMap;
     }
 
-    /**
-     * Returns the post term map.
-     * @return array
-     */
     public function getPostTermMap(): ?array
     {
         if ($this->postTermMap === null) {

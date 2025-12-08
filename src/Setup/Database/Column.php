@@ -24,124 +24,56 @@ namespace UserAccessManager\Setup\Database;
  */
 class Column
 {
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @var int|string
-     */
-    private $default;
-
-    /**
-     * @var bool
-     */
-    private $isNull;
-
-    /**
-     * @var bool
-     */
-    private $isKey;
-
-    /**
-     * @var bool
-     */
-    private $isAutoIncrement;
-
-    /**
-     * Column constructor.
-     * @param string $name
-     * @param string $type
-     * @param bool $isNull
-     * @param mixed $default
-     * @param bool $isKey
-     * @param bool $isAutoIncrement
-     */
     public function __construct(
-        string $name,
-        string $type,
-        $isNull = false,
-        $default = null,
-        $isKey = false,
-        $isAutoIncrement = false
-    ) {
-        $this->name = $name;
-        $this->type = $type;
-        $this->isNull = $isNull;
-        $this->default = $default;
-        $this->isKey = $isKey;
-        $this->isAutoIncrement = $isAutoIncrement;
-    }
+        private string $name,
+        private string $type,
+        private bool $isNull = false,
+        private mixed $default = null,
+        private bool $isKey = false,
+        private bool $isAutoIncrement = false
+    ) {}
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @return int|string
-     */
-    public function getDefault()
+    public function getDefault(): int|string|null
     {
         return $this->default;
     }
 
-    /**
-     * @return bool
-     */
     public function isNull(): bool
     {
         return $this->isNull;
     }
 
-    /**
-     * @return bool
-     */
     public function isKey(): bool
     {
         return $this->isKey;
     }
 
-    /**
-     * @return bool
-     */
     public function isAutoIncrement(): bool
     {
         return $this->isAutoIncrement;
     }
 
-    /**
-     * Returns a mysql column string.
-     * @return string
-     */
     public function __toString(): string
     {
         $nullConstraint = ($this->isNull) ? 'NULL' : 'NOT NULL';
         $type = $this->type === 'INT(11)' ? 'INT' : $this->type;
-        $column = "`{$this->name}` {$type} {$nullConstraint}";
+        $column = "`$this->name` $type $nullConstraint";
 
         if ($this->default === null && $this->isNull) {
             $column .= ' DEFAULT NULL';
         } elseif ($this->default !== null) {
-            $defaultValue = is_numeric($this->default) === false ? "'{$this->default}'" : $this->default;
-            $column .= " DEFAULT {$defaultValue}";
+            $defaultValue = is_numeric($this->default) === false ? "'$this->default'" : $this->default;
+            $column .= " DEFAULT $defaultValue";
         }
 
         if ($this->isAutoIncrement) {

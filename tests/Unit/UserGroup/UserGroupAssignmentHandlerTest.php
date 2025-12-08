@@ -60,8 +60,8 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
         string $type,
         string $id,
         array $with,
-        $throwException = false
-    )
+        bool $throwException = false
+    ): UserGroup|MockObject
     {
         $dynamicUserGroup = parent::getDynamicUserGroup(
             $type,

@@ -53,7 +53,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @param Util $util
      * @param ObjectHandler $objectHandler
      * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param null|string $id
+     * @param string|null $id
      * @return MockObject|AbstractUserGroup
      * @throws ReflectionException
      */
@@ -65,8 +65,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         Util $util,
         ObjectHandler $objectHandler,
         AssignmentInformationFactory $assignmentInformationFactory,
-        $id = null
-    )
+        ?string $id = null
+    ): MockObject|AbstractUserGroup
     {
         $stub = $this->getMockForAbstractClass(
             AbstractUserGroup::class,
@@ -290,7 +290,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                     ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
                 ]
             )
-            ->will($this->onConsecutiveCalls(false, true));
+            ->will($this->onConsecutiveCalls(false, true, true, true, true, true));;
 
         $objectHandler = $this->getObjectHandler();
 
@@ -521,13 +521,13 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
 
         self::setValue($abstractUserGroup, 'assignedObjects', ['someValue']);
         $abstractUserGroup->setIgnoreDates(false);
-        self::assertEquals(false, $abstractUserGroup->getIgnoreDates());
+        self::assertFalse($abstractUserGroup->getIgnoreDates());
 
         $abstractUserGroup->setIgnoreDates(true);
-        self::assertEquals(true, $abstractUserGroup->getIgnoreDates());
+        self::assertTrue($abstractUserGroup->getIgnoreDates());
 
         $abstractUserGroup->setIgnoreDates(false);
-        self::assertEquals(false, $abstractUserGroup->getIgnoreDates());
+        self::assertFalse($abstractUserGroup->getIgnoreDates());
     }
 
     /**
@@ -766,7 +766,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|ObjectHandler
      */
-    private function getMembershipObjectHandler()
+    private function getMembershipObjectHandler(): ObjectHandler|MockObject
     {
         $objectHandler = $this->getObjectHandler();
         $objectHandler->expects($this->any())
@@ -833,16 +833,6 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     }
 
     /**
-     * Assertion helper for testIsMemberFunctions
-     * @param AbstractUserGroup $abstractUserGroup
-     * @param string|null $extraFunction
-     * @param string $objectType
-     * @param string $objectId
-     * @param bool $expectedReturn
-     * @param string $object
-     * @param null $fromDate
-     * @param null $toDate
-     * @param array $expectedRecursiveMembership
      * @throws Exception
      */
     private function memberFunctionAssertions(
@@ -851,12 +841,11 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         string $objectType,
         string $objectId,
         bool $expectedReturn,
-        $object = '',
-        $fromDate = null,
-        $toDate = null,
+        string $object = '',
+        string $fromDate = null,
+        string $toDate = null,
         array $expectedRecursiveMembership = []
-    )
-    {
+    ): void {
         if ($expectedReturn === true || count($expectedRecursiveMembership)) {
             $expectedAssignmentInformation = $this->getAssignmentInformation(
                 $object,

@@ -30,14 +30,11 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
  */
 class ConfigTest extends UserAccessManagerTestCase
 {
-    /**
-     * @param string $type
-     * @param string $postFix
-     * @param null $expectedSetValue
-     * @return MockObject|ConfigParameter
-     */
-    protected function getConfigParameter(string $type, $postFix = '', $expectedSetValue = null)
-    {
+    protected function getConfigParameter(
+        string $type,
+        string $postFix = '',
+        mixed $expectedSetValue = null
+    ): ConfigParameter|MockObject {
         $configParameter = parent::getConfigParameter($type, $postFix);
 
         if ($expectedSetValue !== null) {

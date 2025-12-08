@@ -1,22 +1,10 @@
 <?php
-/**
- * FrontendRedirectController.php
- *
- * The FrontendRedirectController class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
 namespace UserAccessManager\Controller\Frontend;
 
+use JetBrains\PhpStorm\NoReturn;
 use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
@@ -32,108 +20,33 @@ use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class FrontendRedirectController
- *
- * @package UserAccessManager\Controller
- */
 class RedirectController extends Controller
 {
     use LoginControllerTrait;
 
-    const POST_URL_CACHE_KEY = 'PostUrls';
+    public const POST_URL_CACHE_KEY = 'PostUrls';
 
-    /**
-     * @var MainConfig
-     */
-    private $mainConfig;
-
-    /**
-     * @var Database
-     */
-    private $database;
-
-    /**
-     * @var Cache
-     */
-    private $cache;
-
-    /**
-     * @var Util
-     */
-    private $util;
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
-     * @var AccessHandler
-     */
-    private $accessHandler;
-
-    /**
-     * @var FileHandler
-     */
-    private $fileHandler;
-
-    /**
-     * @var FileObjectFactory
-     */
-    private $fileObjectFactory;
-
-    /**
-     * RedirectController constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param MainConfig $mainConfig
-     * @param Database $database
-     * @param Util $util
-     * @param Cache $cache
-     * @param ObjectHandler $objectHandler
-     * @param AccessHandler $accessHandler
-     * @param FileHandler $fileHandler
-     * @param FileObjectFactory $fileObjectFactory
-     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
-        MainConfig $mainConfig,
-        Database $database,
-        Util $util,
-        Cache $cache,
-        ObjectHandler $objectHandler,
-        AccessHandler $accessHandler,
-        FileHandler $fileHandler,
-        FileObjectFactory $fileObjectFactory
+        private MainConfig $mainConfig,
+        private Database $database,
+        private Util $util,
+        private Cache $cache,
+        private ObjectHandler $objectHandler,
+        private AccessHandler $accessHandler,
+        private FileHandler $fileHandler,
+        private FileObjectFactory $fileObjectFactory
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->mainConfig = $mainConfig;
-        $this->database = $database;
-        $this->util = $util;
-        $this->cache = $cache;
-        $this->objectHandler = $objectHandler;
-        $this->accessHandler = $accessHandler;
-        $this->fileHandler = $fileHandler;
-        $this->fileObjectFactory = $fileObjectFactory;
     }
 
-    /**
-     * @return Wordpress
-     */
     protected function getWordpress(): Wordpress
     {
         return $this->wordpress;
     }
 
-    /**
-     * Returns the post by the given url.
-     * @param string $url The url of the post(attachment).
-     * @return int
-     */
     public function getPostIdByUrl(string $url): int
     {
         $postUrls = (array)$this->cache->getFromRuntimeCache(self::POST_URL_CACHE_KEY);
@@ -160,12 +73,6 @@ class RedirectController extends Controller
         return $postUrls[$url];
     }
 
-    /**
-     * Returns the file object by the given type and url.
-     * @param string $objectType The type of the requested file.
-     * @param string $objectUrl The file url.
-     * @return null|FileObject
-     */
     private function getFileSettingsByType(string $objectType, string $objectUrl): ?FileObject
     {
         $fileObject = null;
@@ -207,12 +114,9 @@ class RedirectController extends Controller
     }
 
     /**
-     * Delivers the content of the requested file.
-     * @param string $objectType The type of the requested file.
-     * @param string $objectUrl The file url.
      * @throws UserGroupTypeException
      */
-    public function getFile(string $objectType, string $objectUrl)
+    public function getFile(string $objectType, string $objectUrl): void
     {
         $fileObject = $this->getFileSettingsByType($objectType, $objectUrl);
 
@@ -237,11 +141,6 @@ class RedirectController extends Controller
         $this->fileHandler->getFile($file, $fileObject->isImage());
     }
 
-    /**
-     * Returns the redirect url and the permalink of the post if exists.
-     * @param null|string $permalink
-     * @return null|string
-     */
     private function getRedirectUrlAndPermalink(?string &$permalink): ?string
     {
         $permalink = null;
@@ -268,14 +167,12 @@ class RedirectController extends Controller
     }
 
     /**
-     * Redirects the user to his destination.
-     * @param bool $checkPosts
      * @throws UserGroupTypeException
      */
-    public function redirectUser($checkPosts = true)
+    public function redirectUser(bool $checkPosts = true): void
     {
         if ($checkPosts === true) {
-            $posts = (array)$this->wordpress->getWpQuery()->get_posts();
+            $posts = $this->wordpress->getWpQuery()->get_posts();
 
             foreach ($posts as $post) {
                 if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID)) {
@@ -293,11 +190,6 @@ class RedirectController extends Controller
         }
     }
 
-    /**
-     * Returns the post id by the post name.
-     * @param string $name
-     * @return int
-     */
     private function getPostIdByName(string $name): int
     {
         $postableTypes = implode('\',\'', $this->objectHandler->getPostTypes());
@@ -306,20 +198,14 @@ class RedirectController extends Controller
             "SELECT ID
                 FROM {$this->database->getPostsTable()}
                 WHERE post_name = %s
-                  AND post_type IN ('{$postableTypes}')",
+                  AND post_type IN ('$postableTypes')",
             $name
         );
 
         return (int) $this->database->getVariable($query);
     }
 
-    /**
-     * Extracts the object type and id.
-     * @param mixed $pageParams
-     * @param null|string $objectType
-     * @param null|int|string $objectId
-     */
-    private function extractObjectTypeAndId($pageParams, ?string &$objectType, ?string &$objectId)
+    private function extractObjectTypeAndId(mixed $pageParams, ?string &$objectType, int|string|null &$objectId): void
     {
         $objectType = null;
         $objectId = null;
@@ -351,13 +237,9 @@ class RedirectController extends Controller
     }
 
     /**
-     * Redirects to a page or to content.
-     * @param array|null $headers The headers which are given from wordpress.
-     * @param mixed $pageParams The params of the current page.
-     * @return array|null
      * @throws UserGroupTypeException
      */
-    public function redirect(?array $headers, $pageParams): ?array
+    public function redirect(?array $headers, mixed $pageParams): ?array
     {
         $fileUrl = $this->getRequestParameter('uamgetfile');
         $fileType = $this->getRequestParameter('uamfiletype');
@@ -377,13 +259,7 @@ class RedirectController extends Controller
         return $headers;
     }
 
-    /**
-     * Returns the url for a locked file.
-     * @param string $url The base url.
-     * @param int|string $id The id of the file.
-     * @return string
-     */
-    public function getFileUrl(string $url, $id): string
+    public function getFileUrl(string $url, int|string $id): string
     {
         // Nginx always supports real urls so we need the new urls only
         // if we don't use nginx and mod_rewrite is disabled
@@ -393,7 +269,7 @@ class RedirectController extends Controller
         ) {
             $post = $this->objectHandler->getPost($id);
 
-            if ($post !== null) {
+            if ($post !== false) {
                 $type = explode('/', $post->post_mime_type);
                 $type = $type[1] ?? $type[0];
 
@@ -409,12 +285,6 @@ class RedirectController extends Controller
         return $url;
     }
 
-    /**
-     * Caches the urls for the post for a later lookup.
-     * @param string $url The url of the post.
-     * @param object $post The post object.
-     * @return string
-     */
     public function cachePostLinks(string $url, object $post): string
     {
         $postUrls = (array) $this->cache->getFromRuntimeCache(self::POST_URL_CACHE_KEY);
@@ -423,10 +293,8 @@ class RedirectController extends Controller
         return $url;
     }
 
-    /**
-     * Tries to load the file via x send file
-     */
-    public function testXSendFile()
+    #[NoReturn]
+    public function testXSendFile(): void
     {
         $this->fileHandler->deliverXSendFileTestFile();
     }

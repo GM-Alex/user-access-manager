@@ -36,7 +36,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.
@@ -58,7 +58,7 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|BaseControllerTrait
      */
-    private function getStub()
+    private function getStub(): MockObject|BaseControllerTrait
     {
         return $this->getMockForTrait(BaseControllerTrait::class);
     }

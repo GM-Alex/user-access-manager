@@ -266,10 +266,11 @@ class PostObjectControllerTest extends ObjectControllerTestCase
                 ['post', 1],
                 ['attachment', 3],
                 ['attachment', 3],
-                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, null]
+                [ObjectHandler::GENERAL_POST_OBJECT_TYPE, 9]
             ]
         );
 
+        $_POST['id'] = 9;
         $postObjectController->savePostData(['ID' => 1]);
         $postObjectController->savePostData(['ID' => 2]);
         $postObjectController->savePostData(2);
@@ -283,7 +284,7 @@ class PostObjectControllerTest extends ObjectControllerTestCase
      * @param bool $isDefault
      * @return MockObject|UserGroup
      */
-    private function getUserGroupWithDefault(string $id, bool $isDefault)
+    private function getUserGroupWithDefault(string $id, bool $isDefault): UserGroup|MockObject
     {
         $userGroups = $this->getUserGroup($id);
         $userGroups->expects($this->any())

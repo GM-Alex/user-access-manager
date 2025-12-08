@@ -71,19 +71,6 @@ class UserGroupHandlerTest extends HandlerTestCase
         return $returns;
     }
 
-    /**
-     * @param string $id
-     * @param bool $deletable
-     * @param bool $objectIsMember
-     * @param array $ipRange
-     * @param string|null $readAccess
-     * @param string|null $writeAccess
-     * @param array $posts
-     * @param array $terms
-     * @param string|null $name
-     * @param array $setIgnoreDates
-     * @return MockObject|UserGroup
-     */
     protected function getUserGroup(
         string $id,
         bool $deletable = true,
@@ -95,8 +82,7 @@ class UserGroupHandlerTest extends HandlerTestCase
         array $terms = [],
         ?string $name = null,
         array $setIgnoreDates = []
-    )
-    {
+    ): UserGroup|MockObject {
         $userGroup = parent::getUserGroup(
             $id,
             $deletable,
@@ -128,9 +114,8 @@ class UserGroupHandlerTest extends HandlerTestCase
     }
 
     /**
-     * @group  unit
+     * @group unit
      * @covers ::getUserGroups()
-     * @return UserGroupHandler
      * @throws UserGroupTypeException
      */
     public function testGetUserGroups(): UserGroupHandler
@@ -365,7 +350,6 @@ class UserGroupHandlerTest extends HandlerTestCase
      * @covers  ::deleteUserGroup()
      * @param UserGroupHandler $userGroupHandler
      * @throws UserGroupTypeException
-     * @throws ReflectionException
      */
     public function testDeleteUserGroups(UserGroupHandler $userGroupHandler)
     {

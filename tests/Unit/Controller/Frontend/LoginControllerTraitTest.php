@@ -31,7 +31,7 @@ class LoginControllerTraitTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|LoginControllerTrait
      */
-    private function getStub()
+    private function getStub(): LoginControllerTrait|MockObject
     {
         return $this->getMockForTrait(LoginControllerTrait::class);
     }

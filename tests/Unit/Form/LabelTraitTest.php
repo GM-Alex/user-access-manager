@@ -31,7 +31,7 @@ class LabelTraitTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|LabelTrait
      */
-    private function getStub()
+    private function getStub(): MockObject|LabelTrait
     {
         return $this->getMockForTrait(LabelTrait::class);
     }

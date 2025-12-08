@@ -1,16 +1,19 @@
 === User Access Manager ===
 Contributors: GM_Alex
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=1947052
-Tags: admin, access, member area, members, member, member access, page, pages, post, posts, private, privacy, restrict, user, user access manager, user management
+Tags: member access, user access manager, user management, access
 Requires at least: 4.7
-Tested up to: 6.8
-Stable tag: 2.2.25
+Requires PHP: 8.0
+Tested up to: 6.9
+Stable tag: 2.3.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 With the "User Access Manager"-plugin you can manage the access to your posts, pages and files.
 
 == Description ==
 
-The “User Access Manager”-plugin for Wordpress allows you to manage the access of your content. This is useful if you need a member area, a private section at your blog or you want that other people can write at your blog but not everywhere. Including all post type (post, pages etc.), taxonomies (categories etc.) and files by creating user groups. Just assign the content you want to restrict und and your registered users which should have a access to a group. From now on the content is only accessible and writable for the specified group.
+The “User Access Manager”-plugin for WordPress allows you to manage the access of your content. This is useful if you need a member area, a private section at your blog, or you want that other people can write at your blog but not everywhere. Including all post type (post, pages etc.), taxonomies (categories etc.) and files by creating user groups. Just assign the content you want to restrict und and your registered users which should have access to a group. From now on the content is only accessible and writable for the specified group.
 
 <em>Try it out</em>
 
@@ -46,8 +49,8 @@ See [https://translate.wordpress.org/projects/wp-plugins/user-access-manager](ht
 The documentation can be found here: [https://github.com/GM-Alex/user-access-manager/wiki](https://github.com/GM-Alex/user-access-manager/wiki)
 Please report bugs and feature requests here: [https://github.com/GM-Alex/user-access-manager/issues](https://github.com/GM-Alex/user-access-manager/issues)
 If you are a developer and want to contribute please visit [https://github.com/GM-Alex/user-access-manager](https://github.com/GM-Alex/user-access-manager)
-For general questions, like how to setup, best practice and so on please use the support thread here (don't post issues here): [https://wordpress.org/support/plugin/user-access-manager](https://wordpress.org/support/plugin/user-access-manager)
-To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
+For general questions, like how to set up, best practice and so on please use the support thread here (don't post issues here): [https://wordpress.org/support/plugin/user-access-manager](https://wordpress.org/support/plugin/user-access-manager)
+To stay up-to-date follow me on Twitter: [GMAlex on Twitter](http://twitter.com/GM_Alex)
 
 
 == Installation ==
@@ -62,6 +65,10 @@ To stay up-to-date follow me on twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.3.0       2025/12/09  Require now PHP 8.0
+                            Remove strftime
+                            Fix some issues
 
     2.2.25      2025/04/22  Fixed problem with fix load_textdomain
 
@@ -88,7 +95,7 @@ Here you found the changes in each version.
 
     2.2.17      2022/02/15  Fix issue with big picture handling. #350
 
-    2.2.16      2022/01/25  Check compatibility for Wordpress 5.9.
+    2.2.16      2022/01/25  Check compatibility for WordPress 5.9.
 
     2.2.15      2021/06/07  Fix possible type issues.
 
@@ -96,18 +103,18 @@ Here you found the changes in each version.
                             Fix permission issue.
                             Fix redirect typing issue.
 
-    2.2.13      2021/04/15  Fix not logged in user handling.
+    2.2.13      2021/04/15  Fix not logged-in user handling.
                             Type fix for showEditLink.
 
     2.2.12      2021/04/14  Fix warning.
                             Fix jquery deprecation warning.
 
     2.2.11      2021/03/15  Type fix for showEditLink.
-                            Set compatibility tag for wordpress 5.7.
+                            Set compatibility tag for WordPress 5.7.
 
     2.2.10      2021/02/26  Lower minimum php version to 7.2.
 
-    2.2.9       2021/02/24  Type fixes for Yoast seo plugin.
+    2.2.9       2021/02/24  Type fixes for Yoast SEO plugin.
                             Fix some other type issues.
 
     2.2.8       2021/02/21  Some cleanup.
@@ -118,10 +125,10 @@ Here you found the changes in each version.
 
     2.2.6       2021/02/14  Fix more possible type errors.
 
-    2.2.5       2021/02/14  Fix more possible type errors if wordpress switches int to string.
+    2.2.5       2021/02/14  Fix more possible type errors if WordPress switches int to string.
 
     2.2.4       2021/02/13  Fix type error for user object controller.
-                            Fix type error for the wordpress wrapper.
+                            Fix type error for the WordPress wrapper.
 
     2.2.3       2021/02/13  Fix warning at settings page.
                             Fix type error for user group handler.
@@ -133,7 +140,7 @@ Here you found the changes in each version.
     2.2.0       2021/02/11  Improve and update code base.
                             Fix possible update bug.
 
-    2.1.12      2019/01/08  Fix multi site file handling issue. #222
+    2.1.12      2019/01/08  Fix multi-site file handling issue. #222
 
     2.1.11      2018/03/16  Fix missing got_mod_rewrite function. #212
                             Fix wrong media urls. #207
@@ -163,7 +170,7 @@ Here you found the changes in each version.
                             Add option to hide the edit page option if the user doesn't have the right to edit this page #174
 
     2.1.8       2017/11/07  Add getter for the user group handler fixes #160
-                            Fix multi site file handling issue #159
+                            Fix multi-site file handling issue #159
 
     2.1.7       2017/11/01  Improve database update prompt fixes #153
                             Fix user group selection not saved when adding a new user issue fixes #154
@@ -202,7 +209,7 @@ Here you found the changes in each version.
                             Optimize settings screen #61
                             Support of partial download #118
                             Add option to toggle visibility of assigned groups text next to the edit link #111
-                            Fix incorrectly retrieving of a ID for attachments/media #116
+                            Fix incorrectly retrieving of an ID for attachments/media #116
 
     2.0.13      2017/07/26  Add ipv6 support - Fix issue #97
                             Change "Hide Comments" logic - Fix issue #100
@@ -213,7 +220,7 @@ Here you found the changes in each version.
 
     2.0.12      2017/06/16  Fix media file group issue #74
                             Fix broken file includes / excludes
-                            Fix wordpress filter issue
+                            Fix WordPress filter issue
                             Fix access to own post #95
 
     2.0.11      2017/05/18  Fix FrontendController::postsPreQuery() expected to be a reference, value given error
@@ -235,7 +242,7 @@ Here you found the changes in each version.
                             Fix issue with asgaros from #66
 
     2.0.6       2017/04/28  Improve http error codes #24
-                            Fix wrong url on windows servers #53
+                            Fix wrong url on Windows servers #53
                             Fix missing install routine #51
 
     2.0.5       2017/04/27  Fix switch_to_blog issue
@@ -290,11 +297,11 @@ Here you found the changes in each version.
                             Fix Yoast SEO Plugin issue.
                             Some other small fixes.
 
-    1.2.7.4     2016/12/08  Fix some issues related to Wordpress 4.7
+    1.2.7.4     2016/12/08  Fix some issues related to WordPress 4.7
 
     1.2.7.3     2016/12/08  Fix empty category issue.
 
-    1.2.7.2     2016/12/07  Hot fix for Wordpress 4.7
+    1.2.7.2     2016/12/07  Hot fix for WordPress 4.7
 
     1.2.7.1     2016/12/04  Remove deprecated function get_currentuserinfo
 
@@ -345,7 +352,7 @@ Here you found the changes in each version.
     1.2.4.1     2013/05/06  Fix broken images issue.
                             Fix duplicated key issue.
                             Filter file types.
-                            Use wordpress mime types instead of the config array.
+                            Use WordPress mime types instead of the config array.
 
     1.2.4       2013/05/01  Fix add column issue.
                             Fix install bug.
@@ -385,7 +392,7 @@ Here you found the changes in each version.
                             Add hooks for login bar
                             Prepare for NextGEN Gallery extension
     
-    1.1.1.2     2010/09/29  Fix bug that a usergroup for a user wasn't saved
+    1.1.1.2     2010/09/29  Fix bug that an usergroup for a user wasn't saved
     
     1.1.1.1     2010/09/29  Fix T_DNUMBER bug
     
@@ -397,7 +404,7 @@ Here you found the changes in each version.
     1.1         2010/09/28  Add plugin api
                             Optimized code
                             Improve content filtering
-                            Fix bug that user groups can't removed from element
+                            Fix bug that user groups can't be removed from element
                             Fix empty category bug
                             Fix pre/next post bug
                             Fix login form bug
@@ -425,9 +432,9 @@ Here you found the changes in each version.
     1.0 Beta    2010/07/09  Complete rewrite
                             Some new options to improve the functions
     
-    0.9.1.4     2010/06/23  Hotfix for Wordpress 3.0
+    0.9.1.4     2010/06/23  Hotfix for WordPress 3.0
     
-    0.9.1.3     2009/07/17  Fix "header already send"-Problem with Wordpress 2.8.1
+    0.9.1.3     2009/07/17  Fix "header already send"-Problem with WordPress 2.8.1
                             Add option to set level with full access
     
     0.9.1.2     2009/03/29  Fix some path problems
@@ -466,7 +473,7 @@ Here you found the changes in each version.
     
     0.7 Beta    2009/01/05  Fix: Problems with media at posts
                             Fix: Many other small fixes
-                            Only support up to Wordpress 2.7
+                            Only support up to WordPress 2.7
                             Better integration
     
     0.62        2008/12/18  Fix: Fatal error: Only variables can

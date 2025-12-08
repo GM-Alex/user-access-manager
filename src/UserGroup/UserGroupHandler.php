@@ -1,17 +1,4 @@
 <?php
-/**
- * UserGroupHandler.php
- *
- * The UserGroupHandler class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -26,89 +13,29 @@ use UserAccessManager\User\UserHandler;
 use UserAccessManager\Wrapper\Wordpress;
 use WP_User;
 
-/**
- * Class UserGroupHandler
- *
- * @package UserAccessManager\UserGroup
- */
 class UserGroupHandler
 {
-    /**
-     * @var Wordpress
-     */
-    private $wordpress;
-
-    /**
-     * @var WordpressConfig
-     */
-    private $wordpressConfig;
-
-    /**
-     * @var MainConfig
-     */
-    private $mainConfig;
-
-    /**
-     * @var Database
-     */
-    private $database;
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
-     * @var UserHandler
-     */
-    private $userHandler;
-
-    /**
-     * @var UserGroupFactory
-     */
-    private $userGroupFactory;
-
-    /**
-     * @var null|UserGroup[]
-     */
-    private $userGroups = null;
-
-    /**
-     * @var null|DynamicUserGroup[]
-     */
-    private $dynamicUserGroups = null;
-
-    /**
-     * @var null|AbstractUserGroup[]
-     */
-    private $userGroupsForUser = null;
-
-    /**
-     * @var array
-     */
-    private $objectUserGroups = [];
+    /** @var null|UserGroup[] */
+    private ?array $userGroups = null;
+    /** @var null|DynamicUserGroup[] */
+    private ?array $dynamicUserGroups = null;
+    /** @var null|AbstractUserGroup[] */
+    private ?array $userGroupsForUser = null;
+    /** @var AbstractUserGroup[] */
+    private array $objectUserGroups = [];
 
     public function __construct(
-        Wordpress $wordpress,
-        WordpressConfig $wordpressConfig,
-        MainConfig $mainConfig,
-        Database $database,
-        ObjectHandler $objectHandler,
-        UserHandler $userHandler,
-        UserGroupFactory $userGroupFactory
-    ) {
-        $this->wordpress = $wordpress;
-        $this->wordpressConfig = $wordpressConfig;
-        $this->mainConfig = $mainConfig;
-        $this->database = $database;
-        $this->objectHandler = $objectHandler;
-        $this->userHandler = $userHandler;
-        $this->userGroupFactory = $userGroupFactory;
-    }
+        private Wordpress $wordpress,
+        private WordpressConfig $wordpressConfig,
+        private MainConfig $mainConfig,
+        private Database $database,
+        private ObjectHandler $objectHandler,
+        private UserHandler $userHandler,
+        private UserGroupFactory $userGroupFactory
+    ) {}
 
     /**
-     * Returns all user groups.
-     * @return UserGroup[]
+     * @return null|UserGroup[]
      * @throws UserGroupTypeException
      */
     public function getUserGroups(): ?array
@@ -129,7 +56,6 @@ class UserGroupHandler
     }
 
     /**
-     * Returns all dynamic user groups.
      * @return null|DynamicUserGroup[]
      * @throws UserGroupTypeException
      */
@@ -148,7 +74,7 @@ class UserGroupHandler
 
             $query = "SELECT group_id AS id, group_type AS type
                 FROM {$this->database->getUserGroupToObjectTable()}
-                WHERE group_type IN ('{$userGroupTypes}')
+                WHERE group_type IN ('$userGroupTypes')
                   GROUP BY group_type, group_id";
 
             $dynamicUserGroups = (array) $this->database->getResults($query);
@@ -167,8 +93,7 @@ class UserGroupHandler
     }
 
     /**
-     * Returns the full user groups
-     * @return AbstractUserGroup[]
+     * @return null|AbstractUserGroup[]
      * @throws UserGroupTypeException
      */
     public function getFullUserGroups(): ?array
@@ -177,7 +102,6 @@ class UserGroupHandler
     }
 
     /**
-     * Returns the user groups filtered by the user user groups.
      * @return AbstractUserGroup[]
      * @throws UserGroupTypeException
      */
@@ -189,24 +113,19 @@ class UserGroupHandler
     }
 
     /**
-     * Adds a user group.
-     * @param UserGroup $userGroup
      * @throws UserGroupTypeException
      */
-    public function addUserGroup(UserGroup $userGroup)
+    public function addUserGroup(UserGroup $userGroup): void
     {
         $this->getUserGroups();
         $this->userGroups[$userGroup->getId()] = $userGroup;
     }
 
     /**
-     * Deletes a user group.
-     * @param string|int $userGroupId
-     * @return bool
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    public function deleteUserGroup($userGroupId): bool
+    public function deleteUserGroup(int|string $userGroupId): bool
     {
         $userGroups = $this->getUserGroups();
 
@@ -222,15 +141,11 @@ class UserGroupHandler
     }
 
     /**
-     * Returns the user groups for the given object.
-     * @param string $objectType The object type.
-     * @param int|string $objectId The id of the object.
-     * @param bool $ignoreDates If true we ignore the dates for the object assignment.
      * @return AbstractUserGroup[]
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    public function getUserGroupsForObject(string $objectType, $objectId, bool $ignoreDates = false): array
+    public function getUserGroupsForObject(string $objectType, int|string $objectId, bool $ignoreDates = false): array
     {
         if ($this->objectHandler->isValidObjectType($objectType) === false) {
             return [];
@@ -254,19 +169,11 @@ class UserGroupHandler
         return $this->objectUserGroups[$ignoreDates][$objectType][$objectId];
     }
 
-    /**
-     * Unset the object user groups.
-     */
-    public function unsetUserGroupsForObject()
+    public function unsetUserGroupsForObject(): void
     {
         $this->objectUserGroups = [];
     }
 
-    /**
-     * Checks if the current user is in the ip range or if the user group is public.
-     * @param UserGroup $userGroup
-     * @return bool
-     */
     private function checkUserGroupAccess(UserGroup $userGroup): bool
     {
         $extraIpHeader = $this->mainConfig->getExtraIpHeader();
@@ -280,12 +187,9 @@ class UserGroupHandler
     }
 
     /**
-     * Assigns the dynamic user groups to the user user groups.
-     * @param WP_User $currentUser
-     * @param array $userGroupsForUser
      * @throws UserGroupTypeException
      */
-    private function assignDynamicUserGroupsForUser(WP_User $currentUser, array &$userGroupsForUser)
+    private function assignDynamicUserGroupsForUser(WP_User $currentUser, array &$userGroupsForUser): void
     {
         $userUserGroup = $this->userGroupFactory->createDynamicUserGroup(
             DynamicUserGroup::USER_TYPE,
@@ -305,7 +209,6 @@ class UserGroupHandler
     }
 
     /**
-     * Returns the user groups for the user.
      * @return AbstractUserGroup[]|null
      * @throws UserGroupTypeException
      */
@@ -340,15 +243,14 @@ class UserGroupHandler
     }
 
     /**
-     * Returns the user groups for the object filtered by the user user groups.
-     * @param string $objectType
-     * @param string|int $objectId
-     * @param bool $ignoreDates
      * @return AbstractUserGroup[]
      * @throws UserGroupTypeException
      */
-    public function getFilteredUserGroupsForObject(string $objectType, $objectId, bool $ignoreDates = false): array
-    {
+    public function getFilteredUserGroupsForObject(
+        string $objectType,
+        int|string $objectId,
+        bool $ignoreDates = false
+    ): array {
         $userGroups = $this->getUserGroupsForObject($objectType, $objectId, $ignoreDates);
         $userUserGroups = $this->getUserGroupsForUser() + $this->getDynamicUserGroups();
         return array_intersect_key($userGroups, $userUserGroups);
