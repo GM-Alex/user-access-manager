@@ -62,7 +62,7 @@ class TermController extends ContentController
         return $this->postObjectHideConfig;
     }
 
-    private function getAllPostForTerm(string $termType, int|string $termId): array
+    private function getAllPostForTerm(string $termType, int|string|null $termId): array
     {
         $fullTerms = [$termId => $termType];
         $termTreeMap = $this->objectMapHandler->getTermTreeMap();
@@ -88,7 +88,7 @@ class TermController extends ContentController
     /**
      * @throws UserGroupTypeException
      */
-    private function getVisibleElementsCount(string $termType, int|string $termId): int
+    private function getVisibleElementsCount(string $termType, int|string|null $termId): int
     {
         $key = $termType . '|' . $termId;
 

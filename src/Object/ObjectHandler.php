@@ -94,7 +94,7 @@ class ObjectHandler
         return $this->users[$id];
     }
 
-    public function getPost(int|string $id): bool|WP_Post
+    public function getPost(int|string|null $id): bool|WP_Post
     {
         if (isset($this->posts[$id]) === false) {
             $post = $this->wordpress->getPost($id);

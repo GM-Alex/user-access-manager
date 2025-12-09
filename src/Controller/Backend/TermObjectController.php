@@ -19,7 +19,7 @@ class TermObjectController extends ObjectController
     /**
      * @throws UserGroupTypeException
      */
-    public function addTermColumn(?string $content, string $columnName, int|string $id): ?string
+    public function addTermColumn(?string $content, string $columnName, int|string|null $id): ?string
     {
         if ($columnName === self::COLUMN_NAME) {
             $term = $this->objectHandler->getTerm($id);
@@ -54,7 +54,7 @@ class TermObjectController extends ObjectController
         $this->saveObjectData($objectType, $termId);
     }
 
-    public function removeTermData(int|string $termId): void
+    public function removeTermData(int|string|null $termId): void
     {
         $this->removeObjectData(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $termId);
     }

@@ -30,7 +30,7 @@ trait AdminOutputControllerTrait
     /**
      * @throws UserGroupTypeException
      */
-    public function adminOutput(string $objectType, int|string $objectId, $text = null): string
+    public function adminOutput(string $objectType, int|string|null $objectId, $text = null): string
     {
         if ($this->showAdminHint() === true) {
             $hintText = $this->getMainConfig()->getBlogAdminHintText();

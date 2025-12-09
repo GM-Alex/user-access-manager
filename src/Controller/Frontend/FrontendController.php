@@ -67,7 +67,7 @@ class FrontendController extends Controller
     /**
      * @throws UserGroupTypeException
      */
-    public function showAncestors(array $ancestors, int|string $objectId, string $objectType): array
+    public function showAncestors(array $ancestors, int|string|null $objectId, string $objectType): array
     {
         if ($this->mainConfig->lockRecursive() === true
             && $this->accessHandler->checkObjectAccess($objectType, $objectId) === false

@@ -352,7 +352,7 @@ abstract class AbstractUserGroup
      */
     public function isObjectMember(
         string $objectType,
-        int|string $objectId,
+        int|string|null $objectId,
         AssignmentInformation &$assignmentInformation = null
     ): bool {
         if (isset($this->objectMembership[$objectType][$objectId]) === false) {
@@ -412,7 +412,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function getRecursiveMembershipForObject(string $objectType, int|string $objectId): array
+    public function getRecursiveMembershipForObject(string $objectType, int|string|null $objectId): array
     {
         /**
          * @var AssignmentInformation $assignmentInformation
@@ -427,7 +427,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function isLockedRecursive(string $objectType, int|string $objectId): bool
+    public function isLockedRecursive(string $objectType, int|string|null $objectId): bool
     {
         /**
          * @var AssignmentInformation $assignmentInformation

@@ -197,7 +197,7 @@ class ObjectController extends Controller
     /**
      * @throws UserGroupTypeException
      */
-    private function dieOnNoAccess(string $objectType, int|string $objectId): void
+    private function dieOnNoAccess(string $objectType, int|string|null $objectId): void
     {
         if ($this->accessHandler->checkObjectAccess($objectType, $objectId) === false) {
             $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
@@ -231,7 +231,7 @@ class ObjectController extends Controller
      */
     private function getAddRemoveGroups(
         string $objectType,
-        int|string $objectId,
+        int|string|null $objectId,
         ?array &$addUserGroups = [],
         ?array &$removeUserGroups = []
     ): void {
@@ -264,7 +264,7 @@ class ObjectController extends Controller
      */
     public function saveObjectData(
         string $objectType,
-        int|string $objectId,
+        int|string|null $objectId,
         ?array $addUserGroups = null,
         bool $force = false
     ): void {
@@ -290,7 +290,7 @@ class ObjectController extends Controller
         }
     }
 
-    public function removeObjectData(string $objectType, int|string $id): void
+    public function removeObjectData(string $objectType, int|string|null $id): void
     {
         $this->database->delete(
             $this->database->getUserGroupToObjectTable(),
@@ -309,10 +309,10 @@ class ObjectController extends Controller
      * @throws UserGroupTypeException
      */
     public function showGroupSelectionForm(
-        string     $objectType,
-        int|string $objectId,
+        string $objectType,
+        int|string|null $objectId,
         $formName = null,
-        array      $objectUserGroups = null
+        array $objectUserGroups = null
     ): string {
         $this->setObjectInformation($objectType, $objectId, $objectUserGroups);
 
@@ -326,7 +326,7 @@ class ObjectController extends Controller
     /**
      * @throws UserGroupTypeException
      */
-    public function getGroupColumn(string $objectType, int|string $objectId): string
+    public function getGroupColumn(string $objectType, int|string|null $objectId): string
     {
         $this->setObjectInformation($objectType, $objectId);
         return $this->getIncludeContents('ObjectColumn.php');
