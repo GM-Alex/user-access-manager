@@ -153,7 +153,7 @@ class TermController extends ContentController
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    private function processTerm(bool|WP_Term|stdClass $term, bool &$isEmpty = null): WP_Term|stdClass|bool
+    private function processTerm(mixed $term, bool &$isEmpty = null): mixed
     {
         $isEmpty = false;
 
