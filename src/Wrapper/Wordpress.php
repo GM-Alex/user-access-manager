@@ -198,7 +198,7 @@ class Wordpress
     /**
      * @see switch_to_blog
      */
-    public function switchToBlog(int $blogId): bool
+    public function switchToBlog(int|string $blogId): bool
     {
         if (function_exists('\switch_to_blog') === true) {
             return switch_to_blog($blogId);
