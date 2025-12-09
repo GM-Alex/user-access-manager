@@ -141,6 +141,10 @@ class UserHandler
         $roles = $this->getUserRole($user);
         $rolesMap = array_flip($roles);
 
+        if( is_string($userId) ){
+            $userId = intval($userId);
+        }
+
         return (isset($rolesMap['administrator']) === true || $this->wordpress->isSuperAdmin($userId) === true);
     }
 }
