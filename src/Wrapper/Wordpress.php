@@ -322,7 +322,7 @@ class Wordpress
     /**
      * @see is_super_admin
      */
-    public function isSuperAdmin(bool|int $userId = false): bool
+    public function isSuperAdmin(bool|int|string $userId = false): bool
     {
         return is_super_admin($userId);
     }
@@ -342,7 +342,7 @@ class Wordpress
     /**
      * @see get_allowed_mime_types
      */
-    public function getAllowedMimeTypes(WP_User|int $user = null): array
+    public function getAllowedMimeTypes(WP_User|int|string $user = null): array
     {
         return get_allowed_mime_types($user);
     }
@@ -436,7 +436,7 @@ class Wordpress
     }
 
     public function getPageLink(
-        bool|int|WP_Post $post = false,
+        bool|int|string|WP_Post $post = false,
         bool $leaveName = false,
         bool $sample = false
     ): string {
