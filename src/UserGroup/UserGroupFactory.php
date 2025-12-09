@@ -27,7 +27,7 @@ class UserGroupFactory
     /**
      * @throws UserGroupTypeException
      */
-    public function createUserGroup(null|int|string $id = null): UserGroup
+    public function createUserGroup(int|string|null $id = null): UserGroup
     {
         return new UserGroup(
             $this->php,

@@ -157,7 +157,7 @@ class Wordpress
     /**
      * @see get_post
      */
-    public function getPost(int|string $id, string $output = OBJECT, string $filter = 'raw'): array|WP_Post|null
+    public function getPost(int|string|null $id, string $output = OBJECT, string $filter = 'raw'): array|WP_Post|null
     {
         return get_post($id, $output, $filter);
     }

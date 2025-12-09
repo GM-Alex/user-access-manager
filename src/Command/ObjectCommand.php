@@ -59,7 +59,7 @@ class ObjectCommand extends WP_CLI_Command
     private function getAddRemoveUserGroups(
         string $operation,
         string $objectType,
-        int|string $objectId,
+        int|string|null $objectId,
         array $userGroupIds,
         array $userGroups,
         ?array &$addUserGroups = [],

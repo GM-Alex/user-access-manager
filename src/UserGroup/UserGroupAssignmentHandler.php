@@ -30,12 +30,13 @@ class UserGroupAssignmentHandler
      * @throws Exception
      */
     private function setUserGroups(
-        array      $filteredUserGroups,
-        string     $objectType,
+        array $filteredUserGroups,
+        string $objectType,
         int|string $objectId,
-        array      $addUserGroups,
-        array      $removeUserGroups
+        array $addUserGroups,
+        array $removeUserGroups
     ): void {
+        /** @var UserGroup $userGroup */
         foreach ($filteredUserGroups as $groupId => $userGroup) {
             if (isset($removeUserGroups[$groupId]) === true) {
                 $userGroup->removeObject($objectType, $objectId);

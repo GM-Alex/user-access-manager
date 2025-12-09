@@ -240,7 +240,7 @@ class PostController extends ContentController
     /**
      * @throws UserGroupTypeException
      */
-    public function getAttachedFile(string $file, int|string $attachmentId): bool|string
+    public function getAttachedFile(string $file, int|string|null $attachmentId): bool|string
     {
         $isImage = (bool) preg_match('/(?i)\.(jpg|jpeg|jpe|png|gif)$/', $file);
 
@@ -374,7 +374,7 @@ class PostController extends ContentController
     /**
      * @throws UserGroupTypeException
      */
-    public function showEditLink(?string $link, int|string $postId): string
+    public function showEditLink(?string $link, int|string|null $postId): string
     {
         if ($this->mainConfig->hideEditLinkOnNoAccess() === true
             && $this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, true) === false

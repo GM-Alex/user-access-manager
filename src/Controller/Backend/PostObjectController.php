@@ -19,7 +19,7 @@ class PostObjectController extends ObjectController
     /**
      * @throws UserGroupTypeException
      */
-    public function addPostColumn(string $columnName, int|string $id): void
+    public function addPostColumn(string $columnName, int|string|null $id): void
     {
         if ($columnName === self::COLUMN_NAME) {
             $post = $this->objectHandler->getPost($id);
@@ -110,7 +110,7 @@ class PostObjectController extends ObjectController
         );
     }
 
-    public function removePostData(int|string $postId): void
+    public function removePostData(int|string|null $postId): void
     {
         $post = $this->objectHandler->getPost($postId);
         $this->removeObjectData($post->post_type, $postId);

@@ -18,7 +18,7 @@ class UserObjectController extends ObjectController
     /**
      * @throws UserGroupTypeException
      */
-    public function addUserColumn(?string $return, string $columnName, int|string $id): ?string
+    public function addUserColumn(?string $return, string $columnName, int|string|null $id): ?string
     {
         if ($columnName === self::COLUMN_NAME) {
             $this->setObjectInformation(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $id);
@@ -42,12 +42,12 @@ class UserObjectController extends ObjectController
     /**
      * @throws UserGroupTypeException
      */
-    public function saveUserData(int|string $userId): void
+    public function saveUserData(int|string|null $userId): void
     {
         $this->saveObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
     }
 
-    public function removeUserData(int|string $userId): void
+    public function removeUserData(int|string|null $userId): void
     {
         $this->removeObjectData(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId);
     }
