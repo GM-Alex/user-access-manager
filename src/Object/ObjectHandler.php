@@ -131,7 +131,7 @@ class ObjectHandler
         }
     }
 
-    public function registeredTaxonomy(string $taxonomy, array|string $objectType, array $arguments): void
+    public function registeredTaxonomy(string $taxonomy, array|string|null $objectType, array $arguments): void
     {
         if ((bool) $arguments['public'] === true) {
             $this->taxonomies = $this->getTaxonomies();
