@@ -4,22 +4,11 @@ declare(strict_types=1);
 
 namespace UserAccessManager\Form;
 
-/**
- * Trait valueTrait
- *
- * @package UserAccessManager\Form
- */
 trait ValueTrait
 {
-    /**
-     * @var mixed
-     */
-    protected $value;
+    protected mixed $value;
 
-    /**
-     * @return mixed|null
-     */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }

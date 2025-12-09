@@ -51,7 +51,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
         array $roles,
         array $ipRanges,
         ?int $saveExpected = null
-    )
+    ): UserGroup|MockObject
     {
         $userGroup = $this->getUserGroup(
             $id,

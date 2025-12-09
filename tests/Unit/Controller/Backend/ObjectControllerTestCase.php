@@ -40,7 +40,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.
@@ -62,7 +62,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     /**
      * @return MockObject|ObjectInformation
      */
-    protected function getObjectInformation()
+    protected function getObjectInformation(): MockObject|ObjectInformation
     {
         $objectInformation = $this->createMock(ObjectInformation::class);
 
@@ -129,7 +129,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     /**
      * @return MockObject|ObjectInformationFactory
      */
-    protected function getObjectInformationFactory()
+    protected function getObjectInformationFactory(): ObjectInformationFactory|MockObject
     {
         $objectInformationFactory = parent::getObjectInformationFactory();
         $objectInformationFactory->expects($this->once())
@@ -145,7 +145,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
      * @param string $userLogin
      * @return MockObject|stdClass
      */
-    protected function getUser(int $id, string $displayName, string $userLogin)
+    protected function getUser(int $id, string $displayName, string $userLogin): MockObject|stdClass
     {
         /**
          * @var MockObject|stdClass $user
@@ -161,7 +161,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
     /**
      * @return MockObject|ObjectHandler
      */
-    protected function getExtendedObjectHandler()
+    protected function getExtendedObjectHandler(): ObjectHandler|MockObject
     {
         /**
          * @var MockObject|stdClass $post
@@ -225,7 +225,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
      * @param array $expectedFilteredUserGroupsForObject
      * @return mixed
      */
-    protected function getTestSaveObjectDataPrototype(string $class, array $expectedFilteredUserGroupsForObject)
+    protected function getTestSaveObjectDataPrototype(string $class, array $expectedFilteredUserGroupsForObject): mixed
     {
         $userHandler = $this->getUserHandler();
         $userHandler->expects($this->any())
@@ -292,7 +292,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
      * @param array $groupsForObject
      * @return mixed
      */
-    protected function getTestEditFormPrototype(string $class, array $requestedFiles, array $groupsForObject)
+    protected function getTestEditFormPrototype(string $class, array $requestedFiles, array $groupsForObject): mixed
     {
         /**
          * @var Directory $rootDir
@@ -367,7 +367,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
      * @param ObjectController $objectController
      * @throws ReflectionException
      */
-    protected function resetControllerObjectInformation(ObjectController $objectController)
+    protected function resetControllerObjectInformation(ObjectController $objectController): void
     {
         self::setValue($objectController, 'objectInformation', $this->getObjectInformation());
     }
@@ -378,7 +378,7 @@ abstract class ObjectControllerTestCase extends UserAccessManagerTestCase
      * @param string $type
      * @return mixed
      */
-    protected function getTestRemoveObjectDataPrototype(string $class, string $id, string $type)
+    protected function getTestRemoveObjectDataPrototype(string $class, string $id, string $type): mixed
     {
         $database = $this->getDatabase();
         $database->expects($this->once())

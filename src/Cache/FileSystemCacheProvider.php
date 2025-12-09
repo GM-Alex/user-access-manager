@@ -1,17 +1,4 @@
 <?php
-/**
- * FileSystemCacheProvider.php
- *
- * The FileSystemCacheProvider interface file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -25,11 +12,6 @@ use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class FileSystemCacheProvider
- *
- * @package UserAccessManager\Cache
- */
 class FileSystemCacheProvider implements CacheProviderInterface
 {
     const ID = 'FileSystemCacheProvider';
@@ -41,75 +23,24 @@ class FileSystemCacheProvider implements CacheProviderInterface
     const METHOD_JSON = 'json';
     const METHOD_VAR_EXPORT = 'var_export';
 
-    /**
-     * @var Php
-     */
-    private $php;
+    private ?Config $config = null;
+    private ?string $path = null;
 
-    /**
-     * @var Wordpress
-     */
-    private $wordpress;
-
-    /**
-     * @var Util
-     */
-    private $util;
-
-    /**
-     * @var ConfigFactory
-     */
-    private $configFactory;
-
-    /**
-     * @var ConfigParameterFactory
-     */
-    private $configParameterFactory;
-
-    /**
-     * @var null|Config
-     */
-    private $config = null;
-
-    /**
-     * @var string
-     */
-    private $path = null;
-
-    /**
-     * FileSystemCacheProvider constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param Util $util
-     * @param ConfigFactory $configFactory
-     * @param ConfigParameterFactory $configParameterFactory
-     */
     public function __construct(
-        Php $php,
-        Wordpress $wordpress,
-        Util $util,
-        ConfigFactory $configFactory,
-        ConfigParameterFactory $configParameterFactory
+        private Php $php,
+        private Wordpress $wordpress,
+        private Util $util,
+        private ConfigFactory $configFactory,
+        private ConfigParameterFactory $configParameterFactory
     ) {
-        $this->php = $php;
-        $this->wordpress = $wordpress;
-        $this->util = $util;
-        $this->configFactory = $configFactory;
-        $this->configParameterFactory = $configParameterFactory;
     }
 
-    /**
-     * Returns the id.
-     * @return string
-     */
     public function getId(): string
     {
         return self::ID;
     }
 
     /**
-     * Returns the cache path.
-     * @return string
      * @throws Exception
      */
     private function getPath(): string
@@ -126,10 +57,9 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
-     * Initialise the caching path.
      * @throws Exception
      */
-    public function init()
+    public function init(): void
     {
         $path = $this->getPath();
 
@@ -145,8 +75,6 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
-     * Returns the cache config.
-     * @return Config
      * @throws Exception
      */
     public function getConfig(): Config
@@ -182,8 +110,6 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
-     * Returns the caching method.
-     * @return string|null
      * @throws Exception
      */
     private function getCacheMethod(): ?string
@@ -201,10 +127,6 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
-     * Returns the cache file name with path.
-     * @param string|null $method
-     * @param string $key
-     * @return string
      * @throws Exception
      */
     private function getCacheFile(?string $method, string $key): string
@@ -216,12 +138,9 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
-     * Adds a value to the cache.
-     * @param string $key
-     * @param mixed $value
      * @throws Exception
      */
-    public function add(string $key, $value)
+    public function add(string $key, mixed $value): void
     {
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);
@@ -242,12 +161,9 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
-     * Returns a value from the cache.
-     * @param string $key
-     * @return mixed
      * @throws Exception
      */
-    public function get(string $key)
+    public function get(string $key): mixed
     {
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);
@@ -261,7 +177,6 @@ class FileSystemCacheProvider implements CacheProviderInterface
                 return json_decode(file_get_contents($cacheFile), true);
             } elseif ($method === self::METHOD_VAR_EXPORT) {
                 $cachedValue = null;
-                /** @noinspection PhpIncludeInspection */
                 include($cacheFile);
                 return $cachedValue;
             }
@@ -271,11 +186,9 @@ class FileSystemCacheProvider implements CacheProviderInterface
     }
 
     /**
-     * Invalidates the cache.
-     * @param string $key
      * @throws Exception
      */
-    public function invalidate(string $key)
+    public function invalidate(string $key): void
     {
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpCastIsUnnecessaryInspection */
 /**
  * ObjectController.php
  *
@@ -44,114 +44,47 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class ObjectController extends Controller
 {
-    const COLUMN_NAME = 'uam_access';
-    const BULK_ADD = 'add';
-    const BULK_REMOVE = 'remove';
-    const BULK_OVERWRITE = 'overwrite';
-    const DEFAULT_GROUPS_FORM_NAME = 'uam_user_groups';
-    const DEFAULT_DYNAMIC_GROUPS_FORM_NAME = 'uam_dynamic_user_groups';
-    const UPDATE_GROUPS_FORM_NAME = 'uam_update_groups';
+    public const COLUMN_NAME = 'uam_access';
+    public const BULK_ADD = 'add';
+    public const BULK_REMOVE = 'remove';
+    public const BULK_OVERWRITE = 'overwrite';
+    public const DEFAULT_GROUPS_FORM_NAME = 'uam_user_groups';
+    public const DEFAULT_DYNAMIC_GROUPS_FORM_NAME = 'uam_dynamic_user_groups';
+    public const UPDATE_GROUPS_FORM_NAME = 'uam_update_groups';
 
-    /**
-     * @var MainConfig
-     */
-    protected $mainConfig;
-
-    /**
-     * @var Database
-     */
-    protected $database;
-
-    /**
-     * @var DateUtil
-     */
-    protected $dateUtil;
-
-    /**
-     * @var ObjectHandler
-     */
-    protected $objectHandler;
-
-    /**
-     * @var UserHandler
-     */
-    protected $userHandler;
-
-    /**
-     * @var UserGroupHandler
-     */
-    protected $userGroupHandler;
-
-    /**
-     * @var AccessHandler
-     */
-    protected $accessHandler;
-
-    /**
-     * @var UserGroupAssignmentHandler
-     */
-    protected $userGroupAssignmentHandler;
-
-    /**
-     * @var ObjectInformation
-     */
-    protected $objectInformation;
+    protected ObjectInformation $objectInformation;
 
     /**
      * @var null|string
      */
-    protected $groupsFromName = null;
+    protected ?string $groupsFromName = null;
 
-    /**
-     * ObjectController constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param MainConfig $mainConfig
-     * @param Database $database
-     * @param DateUtil $dateUtil
-     * @param ObjectHandler $objectHandler
-     * @param UserHandler $userHandler
-     * @param UserGroupHandler $userGroupHandler
-     * @param UserGroupAssignmentHandler $userGroupAssignmentHandler
-     * @param AccessHandler $accessHandler
-     * @param ObjectInformationFactory $objectInformationFactory
-     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
-        MainConfig $mainConfig,
-        Database $database,
-        DateUtil $dateUtil,
-        ObjectHandler $objectHandler,
-        UserHandler $userHandler,
-        UserGroupHandler $userGroupHandler,
-        UserGroupAssignmentHandler $userGroupAssignmentHandler,
-        AccessHandler $accessHandler,
+        protected MainConfig $mainConfig,
+        protected Database $database,
+        protected DateUtil $dateUtil,
+        protected ObjectHandler $objectHandler,
+        protected UserHandler $userHandler,
+        protected UserGroupHandler $userGroupHandler,
+        protected UserGroupAssignmentHandler $userGroupAssignmentHandler,
+        protected AccessHandler $accessHandler,
         ObjectInformationFactory $objectInformationFactory
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->mainConfig = $mainConfig;
-        $this->database = $database;
-        $this->dateUtil = $dateUtil;
-        $this->objectHandler = $objectHandler;
-        $this->userHandler = $userHandler;
-        $this->userGroupHandler = $userGroupHandler;
-        $this->userGroupAssignmentHandler = $userGroupAssignmentHandler;
-        $this->accessHandler = $accessHandler;
         $this->objectInformation = $objectInformationFactory->createObjectInformation();
     }
 
     /**
-     * Sets the current object type, the object id and the user groups.
-     * @param string $objectType
-     * @param int|string|null $objectId
-     * @param array|null $objectUserGroups
      * @throws UserGroupTypeException
      */
-    protected function setObjectInformation(string $objectType, $objectId, ?array $objectUserGroups = null)
-    {
+    protected function setObjectInformation(
+        string $objectType,
+        int|string|null $objectId,
+        ?array $objectUserGroups = null
+    ): void {
         $userGroupDiff = 0;
 
         if ($objectUserGroups === null && $objectId !== null) {
@@ -166,27 +99,18 @@ class ObjectController extends Controller
             ->setUserGroupDiff($userGroupDiff);
     }
 
-    /**
-     * Returns the object information.
-     * @return ObjectInformation
-     */
     public function getObjectInformation(): ObjectInformation
     {
         return $this->objectInformation;
     }
 
-    /**
-     * Returns the default groups form name.
-     * @return string
-     */
     public function getGroupsFormName(): string
     {
         return ($this->groupsFromName !== null) ? (string) $this->groupsFromName : self::DEFAULT_GROUPS_FORM_NAME;
     }
 
     /**
-     * Returns the filtered user groups.
-     * @return  AbstractUserGroup[]
+     * @return AbstractUserGroup[]
      * @throws UserGroupTypeException
      */
     public function getFilteredUserGroups(): array
@@ -194,11 +118,7 @@ class ObjectController extends Controller
         return $this->userGroupHandler->getFilteredUserGroups();
     }
 
-    /**
-     * Sorts the user groups.
-     * @param array $userGroups
-     */
-    public function sortUserGroups(array &$userGroups)
+    public function sortUserGroups(array &$userGroups): void
     {
         uasort(
             $userGroups,
@@ -219,19 +139,11 @@ class ObjectController extends Controller
         );
     }
 
-    /**
-     * Returns the date util.
-     * @return DateUtil
-     */
     public function getDateUtil(): DateUtil
     {
         return $this->dateUtil;
     }
 
-    /**
-     * Checks if the current user is an admin.
-     * @return bool
-     */
     public function isCurrentUserAdmin(): bool
     {
         if ($this->objectInformation->getObjectType() === ObjectHandler::GENERAL_USER_OBJECT_TYPE
@@ -243,30 +155,18 @@ class ObjectController extends Controller
         return false;
     }
 
-    /**
-     * Returns the wordpress role names.
-     * @return array
-     */
     public function getRoleNames(): array
     {
         $roles = $this->wordpress->getRoles();
         return $roles->role_names;
     }
 
-    /**
-     * Checks the user access.
-     * @return bool
-     */
     public function checkUserAccess(): bool
     {
         return $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY);
     }
 
     /**
-     * Returns the recursive object membership.
-     * @param AbstractUserGroup $userGroup
-     * @return array
-     * @throws Exception
      * @throws Exception
      */
     public function getRecursiveMembership(AbstractUserGroup $userGroup): array
@@ -279,15 +179,14 @@ class ObjectController extends Controller
         /**
          * @var AssignmentInformation[] $assignmentInformation
          */
-        foreach ($recursiveMembershipForObject as $recursiveType => $assignmentInformation) {
+        foreach ($recursiveMembershipForObject as $assignmentInformation) {
             foreach ($assignmentInformation as $objectId => $information) {
                 try {
                     $membershipHandler = $this->objectHandler->getObjectMembershipHandler($information->getType());
                     $typeName = $membershipHandler->getGeneralObjectType();
                     $objectName = $membershipHandler->getObjectName($objectId, $typeName);
                     $recursiveMembership[$typeName][$objectId] = $objectName;
-                } catch (MissingObjectMembershipHandlerException $exception) {
-                    // Do nothing
+                } catch (MissingObjectMembershipHandlerException) {
                 }
             }
         }
@@ -296,12 +195,9 @@ class ObjectController extends Controller
     }
 
     /**
-     * Checks the access and dies if the user has no access.
-     * @param string $objectType
-     * @param int|string $objectId
      * @throws UserGroupTypeException
      */
-    private function dieOnNoAccess(string $objectType, $objectId)
+    private function dieOnNoAccess(string $objectType, int|string $objectId): void
     {
         if ($this->accessHandler->checkObjectAccess($objectType, $objectId) === false) {
             $this->wordpress->wpDie(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
@@ -309,10 +205,9 @@ class ObjectController extends Controller
     }
 
     /**
-     * Shows the error if the user has no rights to edit the content.
      * @throws UserGroupTypeException
      */
-    public function checkRightsToEditContent()
+    public function checkRightsToEditContent(): void
     {
         $postIdParameter = $this->getRequestParameter('post', $this->getRequestParameter('attachment_id'));
 
@@ -332,19 +227,14 @@ class ObjectController extends Controller
     }
 
     /**
-     * Returns the user groups by reference which should be add and removed from the object.
-     * @param string $objectType
-     * @param int|string $objectId
-     * @param array|null $addUserGroups
-     * @param array|null $removeUserGroups
      * @throws UserGroupTypeException
      */
     private function getAddRemoveGroups(
         string $objectType,
-        $objectId,
+        int|string $objectId,
         ?array &$addUserGroups = [],
         ?array &$removeUserGroups = []
-    ) {
+    ): void {
         $groupsToChange = (array) $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME, []);
         $filteredUserGroupsForObject = $this->userGroupHandler->getFilteredUserGroupsForObject(
             $objectType,
@@ -370,15 +260,14 @@ class ObjectController extends Controller
     }
 
     /**
-     * Saves the object data to the database.
-     * @param string $objectType The object type.
-     * @param int|string|null $objectId The id of the object.
-     * @param array|null $addUserGroups The new user groups for the object.
-     * @param bool $force If true we force the assignment.
      * @throws UserGroupTypeException
      */
-    public function saveObjectData(string $objectType, $objectId, ?array $addUserGroups = null, $force = false)
-    {
+    public function saveObjectData(
+        string $objectType,
+        int|string $objectId,
+        ?array $addUserGroups = null,
+        bool $force = false
+    ): void {
         $isUpdateForm = (bool) $this->getRequestParameter(self::UPDATE_GROUPS_FORM_NAME, false) === true
             || $this->getRequestParameter('uam_bulk_type') !== null;
 
@@ -401,12 +290,7 @@ class ObjectController extends Controller
         }
     }
 
-    /**
-     * Removes the object data.
-     * @param string $objectType The object type.
-     * @param int|string $id The object id.
-     */
-    public function removeObjectData(string $objectType, $id)
+    public function removeObjectData(string $objectType, int|string $id): void
     {
         $this->database->delete(
             $this->database->getUserGroupToObjectTable(),
@@ -422,19 +306,13 @@ class ObjectController extends Controller
     }
 
     /**
-     * Returns the group selection form for pluggable objects.
-     * @param string $objectType The object type.
-     * @param int|string $objectId The id of the object.
-     * @param null $formName The formName.
-     * @param array|null $objectUserGroups If set we force this user groups for the object.
-     * @return string
      * @throws UserGroupTypeException
      */
     public function showGroupSelectionForm(
-        string $objectType,
-        $objectId,
+        string     $objectType,
+        int|string $objectId,
         $formName = null,
-        array $objectUserGroups = null
+        array      $objectUserGroups = null
     ): string {
         $this->setObjectInformation($objectType, $objectId, $objectUserGroups);
 
@@ -446,21 +324,15 @@ class ObjectController extends Controller
     }
 
     /**
-     * Returns the column for a pluggable object.
-     * @param string $objectType The object type.
-     * @param int|string $objectId The object id.
-     * @return string
      * @throws UserGroupTypeException
      */
-    public function getGroupColumn(string $objectType, $objectId): string
+    public function getGroupColumn(string $objectType, int|string $objectId): string
     {
         $this->setObjectInformation($objectType, $objectId);
         return $this->getIncludeContents('ObjectColumn.php');
     }
 
     /**
-     * Checks if the current object is a new object.
-     * @return bool
      * @throws Exception
      */
     public function isNewObject(): bool

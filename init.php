@@ -2,6 +2,8 @@
 //Classes
 use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Cache\Cache;
+use UserAccessManager\Command\GroupCommand;
+use UserAccessManager\Command\ObjectCommand;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\ConfigParameterFactory;
@@ -33,6 +35,7 @@ use UserAccessManager\Util\Util;
 use UserAccessManager\Util\DateUtil;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
+use UserAccessManager\Wrapper\WordpressCli;
 
 function initUserAccessManger()
 {
@@ -253,14 +256,14 @@ function initUserAccessManger()
 
     //Add the cli interface to the known commands
     if (defined('WP_CLI') === true && WP_CLI === true) {
-        $cliWrapper = new \UserAccessManager\Wrapper\WordpressCli();
+        $cliWrapper = new WordpressCli();
 
-        $groupCommand = new \UserAccessManager\Command\GroupCommand($cliWrapper, $userGroupHandler, $userGroupFactory);
-        $objectCommand = new \UserAccessManager\Command\ObjectCommand($cliWrapper, $userGroupHandler);
+        $groupCommand = new GroupCommand($cliWrapper, $userGroupHandler, $userGroupFactory);
+        $objectCommand = new ObjectCommand($cliWrapper, $userGroupHandler);
 
         try {
-            \WP_CLI::add_command('uam groups', $groupCommand);
-            \WP_CLI::add_command('uam objects', $objectCommand);
+            WP_CLI::add_command('uam groups', $groupCommand);
+            WP_CLI::add_command('uam objects', $objectCommand);
         } catch (Exception $exception) {
             // Do nothing
         }

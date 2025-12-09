@@ -39,7 +39,7 @@ class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
      */
     private function getStub(
         AssignmentInformationFactory $assignmentInformationFactory
-    )
+    ): ObjectMembershipHandler|MockObject
     {
         $stub = $this->getMockForAbstractClass(
             ObjectMembershipHandler::class,

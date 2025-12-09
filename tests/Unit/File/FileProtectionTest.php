@@ -41,7 +41,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.
@@ -74,7 +74,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
         WordpressConfig $wordpressConfig,
         MainConfig $mainConfig,
         Util $util
-    )
+    ): FileProtection|MockObject
     {
         return $this->getMockForAbstractClass(
             FileProtection::class,

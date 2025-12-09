@@ -10,7 +10,7 @@ jobs:
       - name: Setup php
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.0'
           tools: composer:v2
       - name: Install composer dependencies
         run: composer install
@@ -18,5 +18,7 @@ jobs:
         run: ./vendor/bin/phpcs -p --standard=PSR2 ./src
       - name: "Run PHPUnit unit test"
         run: ./vendor/bin/phpunit --coverage-clover=coverage.clover
+        env:
+          XDEBUG_MODE: coverage
       - name: "Run infection mutation tests"
         run: ./vendor/bin/infection --configuration=infection-7.2.json.dist --threads=8

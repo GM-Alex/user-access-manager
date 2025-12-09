@@ -1,17 +1,4 @@
 <?php
-/**
- * SetupController.php
- *
- * The SetupController class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -26,69 +13,36 @@ use UserAccessManager\UserAccessManager;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class SetupController
- *
- * @package UserAccessManager\Controller
- */
 class SetupController extends Controller
 {
-    const SETUP_UPDATE_NONCE = 'uamSetupUpdate';
-    const SETUP_REVERT_NONCE = 'uamSetupRevert';
-    const SETUP_REPAIR_NONCE = 'uamSetupRepair';
-    const SETUP_DELETE_BACKUP_NONCE = 'uamSetupDeleteBackup';
-    const SETUP_RESET_NONCE = 'uamSetupReset';
-    const UPDATE_BLOG = 'blog';
-    const UPDATE_NETWORK = 'network';
+    public const SETUP_UPDATE_NONCE = 'uamSetupUpdate';
+    public const SETUP_REVERT_NONCE = 'uamSetupRevert';
+    public const SETUP_REPAIR_NONCE = 'uamSetupRepair';
+    public const SETUP_DELETE_BACKUP_NONCE = 'uamSetupDeleteBackup';
+    public const SETUP_RESET_NONCE = 'uamSetupReset';
+    public const UPDATE_BLOG = 'blog';
+    public const UPDATE_NETWORK = 'network';
 
-    /**
-     * @var string
-     */
-    protected $template = 'AdminSetup.php';
+    protected ?string $template = 'AdminSetup.php';
 
-    /**
-     * @var SetupHandler
-     */
-    private $setupHandler;
-
-    /**
-     * @var Database
-     */
-    private $database;
-
-    /**
-     * SetupController constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param Database $database
-     * @param SetupHandler $setupHandler
-     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
-        Database $database,
-        SetupHandler $setupHandler
+        private Database $database,
+        private SetupHandler $setupHandler
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->database = $database;
-        $this->setupHandler = $setupHandler;
     }
 
     /**
-     * Returns if a database update is necessary.
-     * @return bool
+     * @throws MissingColumnsException
      */
     public function isDatabaseUpdateNecessary(): bool
     {
         return $this->setupHandler->getDatabaseHandler()->isDatabaseUpdateNecessary();
     }
 
-    /**
-     * Checks if a network update is nessary.
-     * @return bool
-     */
     public function showNetworkUpdate(): bool
     {
         return $this->wordpress->isSuperAdmin() === true
@@ -96,19 +50,12 @@ class SetupController extends Controller
             && defined('WP_ALLOW_MULTISITE') === true && WP_ALLOW_MULTISITE === true;
     }
 
-    /**
-     * Returns the existing backups
-     * @return array
-     */
     public function getBackups(): array
     {
         return $this->setupHandler->getDatabaseHandler()->getBackups();
     }
 
-    /**
-     * The database update action.
-     */
-    public function updateDatabaseAction()
+    public function updateDatabaseAction(): void
     {
         $success = true;
         $this->verifyNonce(self::SETUP_UPDATE_NONCE);
@@ -135,10 +82,7 @@ class SetupController extends Controller
         }
     }
 
-    /**
-     * Reverts the database to the given version.
-     */
-    public function revertDatabaseAction()
+    public function revertDatabaseAction(): void
     {
         $this->verifyNonce(self::SETUP_REVERT_NONCE);
         $version = $this->getRequestParameter('uam_revert_database');
@@ -149,8 +93,6 @@ class SetupController extends Controller
     }
 
     /**
-     * Checks if the database is broken.
-     * @return bool
      * @throws MissingColumnsException
      */
     public function isDatabaseBroken(): bool
@@ -169,10 +111,9 @@ class SetupController extends Controller
     }
 
     /**
-     * Repairs the database.
      * @throws MissingColumnsException
      */
-    public function repairDatabaseAction()
+    public function repairDatabaseAction(): void
     {
         $this->verifyNonce(self::SETUP_REPAIR_NONCE);
 
@@ -189,10 +130,7 @@ class SetupController extends Controller
         }
     }
 
-    /**
-     * Deletes the given database backup.
-     */
-    public function deleteDatabaseBackupAction()
+    public function deleteDatabaseBackupAction(): void
     {
         $this->verifyNonce(self::SETUP_DELETE_BACKUP_NONCE);
         $version = (string) $this->getRequestParameter('uam_delete_backup');
@@ -203,10 +141,9 @@ class SetupController extends Controller
     }
 
     /**
-     * The reset action.
      * @throws MissingColumnsException
      */
-    public function resetUamAction()
+    public function resetUamAction(): void
     {
         $this->verifyNonce(self::SETUP_RESET_NONCE);
         $reset = $this->getRequestParameter('uam_reset');

@@ -1,17 +1,4 @@
 <?php
-/**
- * FrontendPostController.php
- *
- * The FrontendPostController class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -35,52 +22,22 @@ use WP_Hook;
 use WP_Post;
 use WP_Query;
 
-/**
- * Class FrontendPostController
- *
- * @package UserAccessManager\Controller
- */
 class PostController extends ContentController
 {
-    /**
-     * @var Database
-     */
-    private $database;
+    private array $wordpressFilters = [];
+    private stdClass|array|null $cachedCounts = [];
 
-    /**
-     * @var array
-     */
-    private $wordpressFilters = [];
-
-    /**
-     * @var null|stdClass
-     */
-    private $cachedCounts = [];
-
-    /**
-     * PostController constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param MainConfig $mainConfig
-     * @param Database $database
-     * @param Util $util
-     * @param ObjectHandler $objectHandler
-     * @param UserHandler $userHandler
-     * @param UserGroupHandler $userGroupHandler
-     * @param AccessHandler $accessHandler
-     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
         MainConfig $mainConfig,
-        Database $database,
         Util $util,
         ObjectHandler $objectHandler,
         UserHandler $userHandler,
         UserGroupHandler $userGroupHandler,
-        AccessHandler $accessHandler
+        AccessHandler $accessHandler,
+        private Database $database
     ) {
         parent::__construct(
             $php,
@@ -93,23 +50,13 @@ class PostController extends ContentController
             $userGroupHandler,
             $accessHandler
         );
-        $this->database = $database;
     }
 
-    /**
-     * Return the wordpress filters.
-     * @return array
-     */
     public function getWordpressFilters(): array
     {
         return $this->wordpressFilters;
     }
 
-    /**
-     * Returns true if the filters are suppressed.
-     * @param WP_Query $wpQuery
-     * @return bool
-     */
     private function filtersSuppressed(WP_Query $wpQuery): bool
     {
         return isset($wpQuery->query_vars['suppress_filters']) === true
@@ -117,11 +64,9 @@ class PostController extends ContentController
     }
 
     /**
-     * Manipulates the wordpress query object to filter content.
-     * @param WP_Query $wpQuery The wordpress query object.
      * @throws UserGroupTypeException
      */
-    public function parseQuery(WP_Query $wpQuery)
+    public function parseQuery(WP_Query $wpQuery): void
     {
         if ($this->filtersSuppressed($wpQuery) === true) {
             $excludedPosts = $this->accessHandler->getExcludedPosts();
@@ -138,9 +83,7 @@ class PostController extends ContentController
     }
 
     /**
-     * Extracts the user access manager filters and returns true if it was successful.
      * @param WP_Hook[] $filters
-     * @return bool
      */
     private function extractOwnFilters(array $filters): bool
     {
@@ -160,14 +103,6 @@ class PostController extends ContentController
         return false;
     }
 
-    /**
-     * If filters are suppressed we still want to filter posts, so we have to turn the suppression off,
-     * remove all other filters than the ones from the user access manager and store them to restore
-     * them later.
-     * @param array|null $posts
-     * @param WP_Query $query
-     * @return null|array
-     */
     public function postsPreQuery(?array $posts, WP_Query $query): ?array
     {
         if ($this->filtersSuppressed($query) === true) {
@@ -189,10 +124,7 @@ class PostController extends ContentController
         return $posts;
     }
 
-    /**
-     * Restores the filters to normal.
-     */
-    private function restoreFilters()
+    private function restoreFilters(): void
     {
         if (count($this->wordpressFilters) > 0) {
             $filters = $this->wordpress->getFilters();
@@ -206,12 +138,7 @@ class PostController extends ContentController
         }
     }
 
-    /**
-     * Tries to get the post from the given mixed data.
-     * @param mixed $post
-     * @return false|WP_Post
-     */
-    private function getPost($post)
+    private function getPost(mixed $post): bool|WP_Post
     {
         if ($post instanceof WP_post) {
             return $post;
@@ -224,11 +151,6 @@ class PostController extends ContentController
         return false;
     }
 
-    /**
-     * Processes the post content and searches for the more tag.
-     * @param WP_Post $post
-     * @return string
-     */
     private function processPostContent(WP_Post $post): string
     {
         $uamPostContent = htmlspecialchars_decode($this->mainConfig->getPostTypeContent($post->post_type));
@@ -243,14 +165,11 @@ class PostController extends ContentController
     }
 
     /**
-     * Modifies the content of the post by the given settings.
-     * @param WP_Post $post The current post.
-     * @return null|WP_Post
      * @throws UserGroupTypeException
      */
     private function processPost(WP_Post $post): ?WP_Post
     {
-        $post->post_title .= $this->adminOutput((string) $post->post_type, $post->ID);
+        $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
 
         if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false) {
             if ($this->removePostFromList($post->post_type) === true) {
@@ -272,9 +191,6 @@ class PostController extends ContentController
     }
 
     /**
-     * Filters the raw posts.
-     * @param array $rawPosts
-     * @return array
      * @throws UserGroupTypeException
      */
     private function filterRawPosts(array $rawPosts): array
@@ -299,9 +215,6 @@ class PostController extends ContentController
     }
 
     /**
-     * The function for the the_posts filter.
-     * @param null|array $showPosts The posts.
-     * @return array
      * @throws UserGroupTypeException
      */
     public function showPosts(?array $showPosts = []): ?array
@@ -316,24 +229,18 @@ class PostController extends ContentController
     }
 
     /**
-     * The function for the get_pages filter.
      * @param WP_Post[] $rawPages The pages.
-     * @return array
      * @throws UserGroupTypeException
      */
-    public function showPages($rawPages = []): array
+    public function showPages(array $rawPages = []): array
     {
-        return $this->filterRawPosts((array) $rawPages);
+        return $this->filterRawPosts($rawPages);
     }
 
     /**
-     * Checks the access of the attached file.
-     * @param string $file
-     * @param int|string $attachmentId
-     * @return string|false
      * @throws UserGroupTypeException
      */
-    public function getAttachedFile(string $file, $attachmentId)
+    public function getAttachedFile(string $file, int|string $attachmentId): bool|string
     {
         $isImage = (bool) preg_match('/(?i)\.(jpg|jpeg|jpe|png|gif)$/', $file);
 
@@ -346,10 +253,6 @@ class PostController extends ContentController
     }
 
     /**
-     * Adds the excluded posts filter to the given query.
-     * @param string $query
-     * @param string $table
-     * @return string
      * @throws UserGroupTypeException
      */
     private function addQueryExcludedPostFilter(string $query, string $table): string
@@ -358,16 +261,13 @@ class PostController extends ContentController
 
         if ($excludedPosts !== []) {
             $excludedPostsStr = implode(', ', $excludedPosts);
-            $query .= " AND {$table}.ID NOT IN ($excludedPostsStr) ";
+            $query .= " AND $table.ID NOT IN ($excludedPostsStr) ";
         }
 
         return $query;
     }
 
     /**
-     * The function for the posts_where_paged filter.
-     * @param string $query The where sql statement.
-     * @return string
      * @throws UserGroupTypeException
      */
     public function showPostSql(string $query): string
@@ -376,10 +276,6 @@ class PostController extends ContentController
     }
 
     /**
-     * The function for the get_previous_post_where and
-     * the get_next_post_where filter.
-     * @param string $query The current sql string.
-     * @return string
      * @throws UserGroupTypeException
      */
     public function showNextPreviousPost(string $query): string
@@ -387,20 +283,13 @@ class PostController extends ContentController
         return $this->addQueryExcludedPostFilter($query, 'p');
     }
 
-    /**
-     * Returns the post count query.
-     * @param array $excludedPosts
-     * @param string $type
-     * @param string $perm
-     * @return string
-     */
     private function getPostCountQuery(array $excludedPosts, string $type, string $perm): string
     {
         $excludedPosts = implode('\', \'', $excludedPosts);
         $query = "SELECT post_status, COUNT(*) AS num_posts 
             FROM {$this->database->getPostsTable()} 
             WHERE post_type = %s
-              AND ID NOT IN ('{$excludedPosts}')";
+              AND ID NOT IN ('$excludedPosts')";
 
         if ('readable' === $perm
             && $this->wordpress->isUserLoggedIn() === true
@@ -419,11 +308,6 @@ class PostController extends ContentController
     }
 
     /**
-     * Function for the wp_count_posts filter.
-     * @param stdClass $counts
-     * @param string $type
-     * @param string $perm
-     * @return stdClass
      * @throws UserGroupTypeException
      */
     public function showPostCount(stdClass $counts, string $type, string $perm): stdClass
@@ -451,11 +335,6 @@ class PostController extends ContentController
         return $this->cachedCounts[$type];
     }
 
-    /**
-     * Checks if the post comment should be completely hidden.
-     * @param string $postType
-     * @return bool
-     */
     private function hidePostComment(string $postType): bool
     {
         return $this->mainConfig->lockPostTypeComments($postType) === true
@@ -464,12 +343,10 @@ class PostController extends ContentController
     }
 
     /**
-     * The function for the comments_array filter.
      * @param WP_Comment[] $comments The comments.
-     * @return array
      * @throws UserGroupTypeException
      */
-    public function showComment($comments = []): array
+    public function showComment(array $comments = []): array
     {
         $showComments = [];
 
@@ -495,13 +372,9 @@ class PostController extends ContentController
     }
 
     /**
-     * The function for the edit_post_link filter.
-     * @param null|string $link The edit link.
-     * @param int|string $postId The _iId of the post.
-     * @return string
      * @throws UserGroupTypeException
      */
-    public function showEditLink(?string $link, $postId): string
+    public function showEditLink(?string $link, int|string $postId): string
     {
         if ($this->mainConfig->hideEditLinkOnNoAccess() === true
             && $this->accessHandler->checkObjectAccess(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, true) === false

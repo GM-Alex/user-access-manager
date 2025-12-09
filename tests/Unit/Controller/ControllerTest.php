@@ -35,7 +35,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.
@@ -57,7 +57,7 @@ class ControllerTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|Controller
      */
-    private function getStub()
+    private function getStub(): Controller|MockObject
     {
         return $this->getMockForAbstractClass(
             Controller::class,

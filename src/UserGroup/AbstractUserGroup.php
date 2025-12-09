@@ -1,17 +1,4 @@
 <?php
-/**
- * AbstractUserGroup.php
- *
- * The AbstractUserGroup class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -26,240 +13,90 @@ use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class AbstractUserGroup
- *
- * @package UserAccessManager\UserGroup
- */
 abstract class AbstractUserGroup
 {
-    const NONE_ROLE = '_none-role_';
+    public const NONE_ROLE = '_none-role_';
+
+    protected ?string $type = null;
+    protected ?string $name = null;
+    protected ?string $description = null;
+    protected string $readAccess = 'group';
+    protected string $writeAccess = 'group';
+    protected bool $ignoreDates = false;
+    protected array $assignedObjects = [];
+    protected array $objectMembership = [];
+    protected array $fullObjectMembership = [];
+    protected ?array $defaultTypes = null;
 
     /**
-     * @var Php
-     */
-    protected $php;
-
-    /**
-     * @var Wordpress
-     */
-    protected $wordpress;
-
-    /**
-     * @var Database
-     */
-    protected $database;
-
-    /**
-     * @var MainConfig
-     */
-    protected $config;
-
-    /**
-     * @var Util
-     */
-    protected $util;
-
-    /**
-     * @var ObjectHandler
-     */
-    protected $objectHandler;
-
-    /**
-     * @var AssignmentInformationFactory
-     */
-    protected $assignmentInformationFactory;
-
-    /**
-     * @var string
-     */
-    protected $id = null;
-
-    /**
-     * @var string
-     */
-    protected $type = null;
-
-    /**
-     * @var string
-     */
-    protected $name = null;
-
-    /**
-     * @var string
-     */
-    protected $description = null;
-
-    /**
-     * @var string
-     */
-    protected $readAccess = 'group';
-
-    /**
-     * @var string
-     */
-    protected $writeAccess = 'group';
-
-    /**
-     * @var bool
-     */
-    protected $ignoreDates = false;
-
-    /**
-     * @var array
-     */
-    protected $assignedObjects = [];
-
-    /**
-     * @var array
-     */
-    protected $objectMembership = [];
-
-    /**
-     * @var array
-     */
-    protected $fullObjectMembership = [];
-
-    /**
-     * @var array|null
-     */
-    protected $defaultTypes = null;
-
-    /**
-     * AbstractUserGroup constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param Database $database
-     * @param MainConfig $config
-     * @param Util $util
-     * @param ObjectHandler $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param null|int|string $id
      * @throws UserGroupTypeException
      */
     public function __construct(
-        Php $php,
-        Wordpress $wordpress,
-        Database $database,
-        MainConfig $config,
-        Util $util,
-        ObjectHandler $objectHandler,
-        AssignmentInformationFactory $assignmentInformationFactory,
-        $id = null
+        protected Php $php,
+        protected Wordpress $wordpress,
+        protected Database $database,
+        protected MainConfig $config,
+        protected Util $util,
+        protected ObjectHandler $objectHandler,
+        protected AssignmentInformationFactory $assignmentInformationFactory,
+        protected int|string|null $id = null
     ) {
         if ($this->type === null) {
             throw new UserGroupTypeException('User group type must not null.');
         }
-
-        $this->php = $php;
-        $this->wordpress = $wordpress;
-        $this->database = $database;
-        $this->config = $config;
-        $this->util = $util;
-        $this->objectHandler = $objectHandler;
-        $this->assignmentInformationFactory = $assignmentInformationFactory;
-        $this->id = $id;
     }
 
-    /*
-     * Primary values.
-     */
-
-    /**
-     * Returns the group id.
-     * @return int|string|null
-     */
-    public function getId()
+    public function getId(): int|string|null
     {
         return $this->id;
     }
 
-    /**
-     * Returns the user group type.
-     * @return string
-     */
     public function getType(): ?string
     {
         return $this->type;
     }
 
-    /**
-     * Returns the group name.
-     * @return string
-     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * Sets the group name.
-     * @param string $name The new group name.
-     */
-    public function setName(string $name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * Returns the group description.
-     * @return string
-     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * Sets the group description.
-     * @param string $description The new group description.
-     */
-    public function setDescription(string $description)
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
 
-    /**
-     * Returns the read access.
-     * @return string
-     */
     public function getReadAccess(): string
     {
         return $this->readAccess;
     }
 
-    /**
-     * Sets the read access.
-     * @param string $readAccess The read access.
-     */
-    public function setReadAccess(string $readAccess)
+    public function setReadAccess(string $readAccess): void
     {
         $this->readAccess = $readAccess;
     }
 
-    /**
-     * Returns the write access.
-     * @return string
-     */
     public function getWriteAccess(): string
     {
         return $this->writeAccess;
     }
 
-    /**
-     * Sets the write access.
-     * @param string $writeAccess The write access.
-     */
-    public function setWriteAccess(string $writeAccess)
+    public function setWriteAccess(string $writeAccess): void
     {
         $this->writeAccess = $writeAccess;
     }
 
-    /**
-     * Sets the ignore dates flag.
-     * @param bool $ignoreDates
-     */
-    public function setIgnoreDates(bool $ignoreDates)
+    public function setIgnoreDates(bool $ignoreDates): void
     {
         if ($this->ignoreDates !== $ignoreDates) {
             $this->resetObjects();
@@ -268,19 +105,12 @@ abstract class AbstractUserGroup
         $this->ignoreDates = $ignoreDates;
     }
 
-    /**
-     * Return the ignore dates flag.
-     * @return bool
-     */
     public function getIgnoreDates(): bool
     {
         return $this->ignoreDates;
     }
 
-    /**
-     * Resets the objects
-     */
-    protected function resetObjects()
+    protected function resetObjects(): void
     {
         $this->assignedObjects = [];
         $this->objectMembership = [];
@@ -288,8 +118,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Deletes the user group.
-     * @return bool
      * @throws Exception
      */
     public function delete(): bool
@@ -304,15 +132,9 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Adds a object of the given type.
-     * @param string $objectType The object type.
-     * @param int|string $objectId The object id.
-     * @param null $fromDate From date.
-     * @param null $toDate To date.
-     * @return bool
      * @throws Exception
      */
-    public function addObject(string $objectType, $objectId, $fromDate = null, $toDate = null): bool
+    public function addObject(string $objectType, int|string $objectId, $fromDate = null, $toDate = null): bool
     {
         $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
 
@@ -353,14 +175,9 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Removes a object of the given type.
-     * @param string $objectType The object type.
-     * @param null $objectId The object id.
-     * @param bool $ignoreGeneralType
-     * @return bool
      * @throws Exception
      */
-    public function removeObject(string $objectType, $objectId = null, $ignoreGeneralType = false): bool
+    public function removeObject(string $objectType, $objectId = null, bool $ignoreGeneralType = false): bool
     {
         $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
 
@@ -385,7 +202,7 @@ abstract class AbstractUserGroup
         $query = "DELETE FROM {$this->database->getUserGroupToObjectTable()}
             WHERE group_id = %d
               AND group_type = '%s'
-              {$objectTypeQuery}";
+              $objectTypeQuery";
 
         if ($objectId !== null) {
             $query .= ' AND object_id = %d';
@@ -403,8 +220,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns the assigned objects.
-     * @param string $objectType The object type.
      * @return AssignmentInformation[]
      */
     public function getAssignedObjects(string $objectType): array
@@ -444,15 +259,13 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Marks the group as default for the object type.
-     * @param string $objectType
-     * @param null|int $fromTime
-     * @param null|int $toTime
-     * @return bool
      * @throws Exception
      */
-    public function addDefaultType(string $objectType, $fromTime = null, $toTime = null): bool
-    {
+    public function addDefaultType(
+        string $objectType,
+        int|string|null $fromTime = null,
+        int|string|null $toTime = null
+    ): bool {
         $fromDate = ($fromTime !== null) ? gmdate('Y-m-d H:i:s', $fromTime) : null;
         $toTime = ($toTime !== null && $toTime <= $fromTime) ? $fromTime + 1 : $toTime;
         $toDate = ($toTime !== null) ? gmdate('Y-m-d H:i:s', $toTime) : null;
@@ -461,9 +274,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Removes the group as default for object type.
-     * @param string $objectType
-     * @return bool
      * @throws Exception
      */
     public function removeDefaultType(string $objectType): bool
@@ -471,10 +281,6 @@ abstract class AbstractUserGroup
         return $this->removeObject($objectType, '', true);
     }
 
-    /**
-     * Returns the object type for which the user group is the default group.
-     * @return array
-     */
     public function getDefaultGroupForObjectTypes(): ?array
     {
         if ($this->defaultTypes === null) {
@@ -505,14 +311,7 @@ abstract class AbstractUserGroup
         return $this->defaultTypes;
     }
 
-    /**
-     * Checks if the group is the default one for the given object type.
-     * @param string $objectType
-     * @param null|int $fromTime
-     * @param null|int $toTime
-     * @return bool
-     */
-    public function isDefaultGroupForObjectType(string $objectType, &$fromTime = null, &$toTime = null): bool
+    public function isDefaultGroupForObjectType(string $objectType, int &$fromTime = null, int &$toTime = null): bool
     {
         $defaultGroupForObjectTypes = $this->getDefaultGroupForObjectTypes();
 
@@ -532,17 +331,10 @@ abstract class AbstractUserGroup
         return false;
     }
 
-    /**
-     * Checks if the object is assigned to the group.
-     * @param string $objectType The object type.
-     * @param int|string $objectId The object id.
-     * @param AssignmentInformation|null $assignmentInformation The assignment information object.
-     * @return bool
-     */
     public function isObjectAssignedToGroup(
         string $objectType,
-        $objectId,
-        &$assignmentInformation = null
+        int|string $objectId,
+        AssignmentInformation &$assignmentInformation = null
     ): bool {
         $assignmentInformation = null;
         $assignedObjects = $this->getAssignedObjects($objectType);
@@ -556,17 +348,12 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns a single object.
-     * @param string $objectType The object type.
-     * @param int|string $objectId The id of the object which should be checked.
-     * @param null|AssignmentInformation $assignmentInformation The assignment information
-     * @return bool
      * @throws Exception
      */
     public function isObjectMember(
         string $objectType,
-        $objectId,
-        &$assignmentInformation = null
+        int|string $objectId,
+        AssignmentInformation &$assignmentInformation = null
     ): bool {
         if (isset($this->objectMembership[$objectType][$objectId]) === false) {
             try {
@@ -576,7 +363,7 @@ abstract class AbstractUserGroup
                     $objectId,
                     $assignmentInformation
                 );
-            } catch (MissingObjectMembershipHandlerException $exception) {
+            } catch (MissingObjectMembershipHandlerException) {
                 $isMember = false;
             }
 
@@ -591,61 +378,41 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Checks if the role is a group member.
-     * @param int|string $roleId
-     * @param null $assignmentInformation
-     * @return bool
      * @throws Exception
      */
-    public function isRoleMember($roleId, &$assignmentInformation = null): bool
+    public function isRoleMember(int|string $roleId, ?AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $roleId, $assignmentInformation);
     }
 
     /**
-     * Checks if the user is a group member.
-     * @param int|string $userId The user id.
-     * @param null|AssignmentInformation $assignmentInformation The assignment information.
-     * @return bool
      * @throws Exception
      */
-    public function isUserMember($userId, &$assignmentInformation = null): bool
+    public function isUserMember(int|string $userId, AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId, $assignmentInformation);
     }
 
     /**
-     * Checks if the term is a group member.
-     * @param int|string $termId
-     * @param null|AssignmentInformation $assignmentInformation
-     * @return bool
      * @throws Exception
      */
-    public function isTermMember($termId, &$assignmentInformation = null): bool
+    public function isTermMember(int|string $termId, AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $termId, $assignmentInformation);
     }
 
     /**
-     * Checks if the post is a group member
-     * @param int|string $postId
-     * @param null|AssignmentInformation $assignmentInformation
-     * @return bool
      * @throws Exception
      */
-    public function isPostMember($postId, &$assignmentInformation = null): bool
+    public function isPostMember(int|string $postId, AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, $assignmentInformation);
     }
 
     /**
-     * Returns the recursive membership.
-     * @param string $objectType The object type.
-     * @param int|string $objectId The object id.
-     * @return array
      * @throws Exception
      */
-    public function getRecursiveMembershipForObject(string $objectType, $objectId): array
+    public function getRecursiveMembershipForObject(string $objectType, int|string $objectId): array
     {
         /**
          * @var AssignmentInformation $assignmentInformation
@@ -658,13 +425,9 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns true if the requested object is locked recursive.
-     * @param string $objectType The object type.
-     * @param int|string $objectId The object id.
-     * @return bool
      * @throws Exception
      */
-    public function isLockedRecursive(string $objectType, $objectId): bool
+    public function isLockedRecursive(string $objectType, int|string $objectId): bool
     {
         /**
          * @var AssignmentInformation $assignmentInformation
@@ -677,9 +440,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns all objects of the given type.
-     * @param string $objectType The object type.
-     * @return array
      * @throws Exception
      */
     public function getAssignedObjectsByType(string $objectType): array
@@ -692,7 +452,7 @@ abstract class AbstractUserGroup
                     $this->config->lockRecursive(),
                     ($objectType === $this->objectHandler->getGeneralObjectType($objectType)) ? null : $objectType
                 );
-            } catch (MissingObjectMembershipHandlerException $exception) {
+            } catch (MissingObjectMembershipHandlerException) {
                 $this->fullObjectMembership[$objectType] = [];
             }
         }
@@ -701,8 +461,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns the roles assigned to the group.
-     * @return array
      * @throws Exception
      */
     public function getFullRoles(): array
@@ -712,8 +470,6 @@ abstract class AbstractUserGroup
 
 
     /**
-     * Returns the users assigned to the group.
-     * @return array
      * @throws Exception
      */
     public function getFullUsers(): array
@@ -722,8 +478,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns the terms assigned to the group.
-     * @return array
      * @throws Exception
      */
     public function getFullTerms(): array
@@ -732,8 +486,6 @@ abstract class AbstractUserGroup
     }
 
     /**
-     * Returns the posts assigned to the group.
-     * @return array
      * @throws Exception
      */
     public function getFullPosts(): array

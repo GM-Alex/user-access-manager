@@ -1,17 +1,4 @@
 <?php
-/**
- * ConfigParameter.php
- *
- * The ConfigParameter class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -19,78 +6,44 @@ namespace UserAccessManager\Config;
 
 use Exception;
 
-/**
- * Class ConfigParameter
- *
- * @package UserAccessManager\Config
- */
 abstract class ConfigParameter implements ConfigParameterInterface
 {
-    /**
-     * @var string
-     */
-    protected $id;
+    protected mixed $defaultValue = null;
+    protected mixed $value = null;
 
     /**
-     * @var mixed
-     */
-    protected $defaultValue = null;
-
-    /**
-     * @var mixed
-     */
-    protected $value = null;
-
-    /**
-     * ConfigParameter constructor.
-     * @param string $id
-     * @param mixed $defaultValue
      * @throws Exception
      */
-    public function __construct(string $id, $defaultValue = null)
-    {
-        $this->id = $id;
-
+    public function __construct(
+        protected string $id,
+        mixed $defaultValue = null
+    ) {
         $this->validateValue($defaultValue);
         $this->defaultValue = $defaultValue;
     }
 
-    /**
-     * Returns the id.
-     * @return string
-     */
     public function getId(): string
     {
         return $this->id;
     }
 
     /**
-     * Checks the value type and throws an exception if the value isn't the required type.
-     * @param mixed $value
      * @throws Exception
      */
-    protected function validateValue($value)
+    protected function validateValue($value): void
     {
         if ($this->isValidValue($value) === false) {
-            throw new Exception("Wrong value '{$value}' type given for '{$this->id}'.'");
+            throw new Exception("Wrong value '$value' type given for '$this->id'.'");
         }
     }
 
-    /**
-     * Sets the current value.
-     * @param mixed $value
-     */
-    public function setValue($value)
+    public function setValue(mixed $value): void
     {
         $this->isValidValue($value);
         $this->value = $value;
     }
 
-    /**
-     * Returns the current parameter value.
-     * @return mixed
-     */
-    public function getValue()
+    public function getValue(): mixed
     {
         return ($this->value === null) ? $this->defaultValue : $this->value;
     }

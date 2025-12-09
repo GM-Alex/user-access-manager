@@ -12,10 +12,10 @@ use SebastianBergmann\Exporter\Exporter;
  */
 class StringMatchIgnoreWhitespace extends Constraint
 {
-    private $expected;
-    protected $exporter;
+    private mixed $expected;
+    protected Exporter $exporter;
 
-    public function __construct($expected)
+    public function __construct(mixed $expected)
     {
         $this->expected = $expected;
         $this->exporter = new Exporter();
@@ -26,9 +26,9 @@ class StringMatchIgnoreWhitespace extends Constraint
         return $this->normalize($this->expected) == $this->normalize($other);
     }
 
-    private function normalize(string $string)
+    private function normalize(string $string): array|string|null
     {
-        return preg_replace('#\&. #','', implode(' ', preg_split('/\s+/', trim($string))));
+        return preg_replace('#&. #','', implode(' ', preg_split('/\s+/', trim($string))));
     }
 
     public function toString(): string

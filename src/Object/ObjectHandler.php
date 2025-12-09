@@ -25,6 +25,7 @@ use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 use WP_Post;
 use WP_Post_Type;
+use WP_Taxonomy;
 use WP_Term;
 use WP_User;
 
@@ -35,100 +36,37 @@ use WP_User;
  */
 class ObjectHandler
 {
-    const GENERAL_ROLE_OBJECT_TYPE = '_role_';
-    const GENERAL_USER_OBJECT_TYPE = '_user_';
-    const GENERAL_POST_OBJECT_TYPE = '_post_';
-    const GENERAL_TERM_OBJECT_TYPE = '_term_';
-    const ATTACHMENT_OBJECT_TYPE = 'attachment';
-    const POST_OBJECT_TYPE = 'post';
-    const PAGE_OBJECT_TYPE = 'page';
-    const POST_FORMAT_TYPE = 'post_format';
+    public const GENERAL_ROLE_OBJECT_TYPE = '_role_';
+    public const GENERAL_USER_OBJECT_TYPE = '_user_';
+    public const GENERAL_POST_OBJECT_TYPE = '_post_';
+    public const GENERAL_TERM_OBJECT_TYPE = '_term_';
+    public const ATTACHMENT_OBJECT_TYPE = 'attachment';
+    public const POST_OBJECT_TYPE = 'post';
+    public const PAGE_OBJECT_TYPE = 'page';
+    public const POST_FORMAT_TYPE = 'post_format';
 
-    /**
-     * @var Php
-     */
-    private $php;
+    private ?array $postTypes = null;
+    /** @var WP_Taxonomy[] */
+    private ?array $taxonomies = null;
+    /** @var WP_User[] */
+    private ?array $users = null;
+    /** @var WP_Post[] */
+    private ?array $posts = null;
+    /** @var WP_Term[] */
+    private ?array $terms = null;
+    private ?array $objectMembershipHandlers = null;
+    private ?array $objectTypes = null;
+    private ?array $allObjectTypesMap = null;
+    private ?array $allObjectTypes = null;
+    private array $validObjectTypes = [];
 
-    /**
-     * @var Wordpress
-     */
-    private $wordpress;
-
-    /**
-     * @var ObjectMembershipHandlerFactory
-     */
-    private $membershipHandlerFactory;
-
-    /**
-     * @var null|array
-     */
-    private $postTypes = null;
-
-    /**
-     * @var null|array
-     */
-    private $taxonomies = null;
-
-    /**
-     * @var WP_User
-     */
-    private $users = null;
-
-    /**
-     * @var WP_Post[]
-     */
-    private $posts = null;
-
-    /**
-     * @var WP_Term[]
-     */
-    private $terms = null;
-
-    /**
-     * @var null|array
-     */
-    private $objectMembershipHandlers = null;
-
-    /**
-     * @var null|array
-     */
-    private $objectTypes = null;
-
-    /**
-     * @var null|array
-     */
-    private $allObjectTypesMap = null;
-
-    /**
-     * @var null|array
-     */
-    private $allObjectTypes = null;
-
-    /**
-     * @var array
-     */
-    private $validObjectTypes = [];
-
-    /**
-     * ObjectHandler constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
-     */
     public function __construct(
-        Php $php,
-        Wordpress $wordpress,
-        ObjectMembershipHandlerFactory $membershipHandlerFactory
+        private Php $php,
+        private Wordpress $wordpress,
+        private ObjectMembershipHandlerFactory $membershipHandlerFactory
     ) {
-        $this->php = $php;
-        $this->wordpress = $wordpress;
-        $this->membershipHandlerFactory = $membershipHandlerFactory;
     }
 
-    /**
-     * Returns all post types.
-     * @return array
-     */
     public function getPostTypes(): ?array
     {
         if ($this->postTypes === null) {
@@ -138,10 +76,6 @@ class ObjectHandler
         return $this->postTypes;
     }
 
-    /**
-     * Returns the taxonomies.
-     * @return array
-     */
     public function getTaxonomies(): ?array
     {
         if ($this->taxonomies === null) {
@@ -151,12 +85,7 @@ class ObjectHandler
         return $this->taxonomies;
     }
 
-    /**
-     * Returns a user.
-     * @param int|string $id The user id.
-     * @return WP_User|false
-     */
-    public function getUser($id)
+    public function getUser(int|string $id): WP_User|bool
     {
         if (isset($this->users[$id]) === false) {
             $this->users[$id] = $this->wordpress->getUserData($id);
@@ -165,12 +94,7 @@ class ObjectHandler
         return $this->users[$id];
     }
 
-    /**
-     * Returns a post.
-     * @param int|string $id The post id.
-     * @return WP_Post|false
-     */
-    public function getPost($id)
+    public function getPost(int|string $id): bool|WP_Post
     {
         if (isset($this->posts[$id]) === false) {
             $post = $this->wordpress->getPost($id);
@@ -180,13 +104,7 @@ class ObjectHandler
         return $this->posts[$id];
     }
 
-    /**
-     * Returns a term.
-     * @param int|string $id The term id.
-     * @param string $taxonomy The taxonomy.
-     * @return false|WP_Term
-     */
-    public function getTerm($id, $taxonomy = '')
+    public function getTerm(int|string $id, string $taxonomy = ''): WP_Term|bool
     {
         $fullId = $id . '|' . $taxonomy;
 
@@ -199,14 +117,11 @@ class ObjectHandler
     }
 
     /**
-     * Used for adding custom post types using the registered_post_type hook
      * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
-     * @param string $postType The string for the new post_type
-     * @param WP_Post_Type $arguments The array of arguments used to create the post_type
      */
-    public function registeredPostType(string $postType, WP_Post_Type $arguments)
+    public function registeredPostType(string $postType, WP_Post_Type $arguments): void
     {
-        if ((bool) $arguments->public === true) {
+        if ($arguments->public === true) {
             $this->postTypes = $this->getPostTypes();
             $this->postTypes[$postType] = $postType;
             $this->objectTypes = null;
@@ -216,13 +131,7 @@ class ObjectHandler
         }
     }
 
-    /**
-     * Adds an custom taxonomy.
-     * @param string $taxonomy
-     * @param array|string $objectType
-     * @param array $arguments
-     */
-    public function registeredTaxonomy(string $taxonomy, $objectType, array $arguments)
+    public function registeredTaxonomy(string $taxonomy, array|string|null $objectType, array $arguments): void
     {
         if ((bool) $arguments['public'] === true) {
             $this->taxonomies = $this->getTaxonomies();
@@ -234,32 +143,18 @@ class ObjectHandler
         }
     }
 
-    /**
-     * Checks if type is postable.
-     * @param string $type
-     * @return bool
-     */
     public function isPostType(string $type): bool
     {
         $postableTypes = $this->getPostTypes();
         return isset($postableTypes[$type]);
     }
 
-    /**
-     * Checks if the taxonomy is a valid one.
-     * @param string $taxonomy
-     * @return bool
-     */
     public function isTaxonomy(string $taxonomy): bool
     {
         $taxonomies = $this->getTaxonomies();
         return in_array($taxonomy, $taxonomies);
     }
 
-    /**
-     * Returns the predefined object types.
-     * @return array
-     */
     public function getObjectTypes(): ?array
     {
         if ($this->objectTypes === null) {
@@ -273,8 +168,6 @@ class ObjectHandler
     }
 
     /**
-     * Returns the object types map.
-     * @return array
      * @throws Exception
      */
     private function getAllObjectsTypesMap(): ?array
@@ -303,8 +196,6 @@ class ObjectHandler
     }
 
     /**
-     * Returns all objects types.
-     * @return array
      * @throws Exception
      */
     public function getAllObjectTypes(): ?array
@@ -318,9 +209,6 @@ class ObjectHandler
     }
 
     /**
-     * Returns the general object type.
-     * @param string|null $objectType
-     * @return string
      * @throws Exception
      */
     public function getGeneralObjectType(?string $objectType): ?string
@@ -330,9 +218,6 @@ class ObjectHandler
     }
 
     /**
-     * Checks if the object type is a valid one.
-     * @param string|null $objectType The object type to check.
-     * @return bool
      * @throws Exception
      */
     public function isValidObjectType(?string $objectType): bool
@@ -346,8 +231,6 @@ class ObjectHandler
     }
 
     /**
-     * Returns the object membership handlers.
-     * @return ObjectMembershipHandler[]
      * @throws Exception
      */
     private function getObjectMembershipHandlers(): ?array
@@ -377,9 +260,6 @@ class ObjectHandler
     }
 
     /**
-     * Returns the membership handler for the given object type.
-     * @param null|string $objectType
-     * @return ObjectMembershipHandler
      * @throws MissingObjectMembershipHandlerException
      * @throws Exception
      */
@@ -389,7 +269,7 @@ class ObjectHandler
         $generalObjectType = $this->getGeneralObjectType($objectType);
 
         if (isset($objectMembershipHandlers[$generalObjectType]) === false) {
-            throw new MissingObjectMembershipHandlerException("Missing membership handler for '{$objectType}'.");
+            throw new MissingObjectMembershipHandlerException("Missing membership handler for '$objectType'.");
         }
 
         return $objectMembershipHandlers[$generalObjectType];

@@ -30,7 +30,7 @@ class DatabaseUpdateTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|DatabaseUpdate
      */
-    private function getStub()
+    private function getStub(): DatabaseUpdate|MockObject
     {
         return $this->getMockForAbstractClass(
             DatabaseUpdate::class,

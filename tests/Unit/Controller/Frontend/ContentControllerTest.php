@@ -46,7 +46,7 @@ class ContentControllerTest extends UserAccessManagerTestCase
         UserHandler $userHandler,
         UserGroupHandler $userGroupHandler,
         AccessHandler $accessHandler
-    )
+    ): ContentController|MockObject
     {
         return $this->getMockForAbstractClass(
             ContentController::class,

@@ -32,7 +32,7 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
     /**
      * @return MockObject|Database
      */
-    protected function getDatabase()
+    protected function getDatabase(): Database|MockObject
     {
         $database = parent::getDatabase();
 
@@ -52,7 +52,7 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
      * @param int|null $capExpects
      * @return MockObject|WP_User
      */
-    protected function getUser(array $capabilities = null, ?int $capExpects = null)
+    protected function getUser(array $capabilities = null, ?int $capExpects = null): WP_User|MockObject|stdClass
     {
         /**
          * @var MockObject|stdClass $user
@@ -87,7 +87,8 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
         ?array $capabilities = null,
         ?int $capExpects = null,
         ?int $getUserExpects = null
-    ) {
+    ): MockObject|Wordpress
+    {
         $wordpress = $this->getWordpress();
 
         $user = $this->getUser($capabilities, $capExpects);
@@ -103,7 +104,7 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
      * @param int|null $isValidObjectTypeExpect
      * @return MockObject|ObjectHandler
      */
-    protected function getObjectHandler(?int $getPostExpect = null, ?int $isValidObjectTypeExpect = null)
+    protected function getObjectHandler(?int $getPostExpect = null, ?int $isValidObjectTypeExpect = null): ObjectHandler|MockObject
     {
         $objectHandler = parent::getObjectHandler();
 

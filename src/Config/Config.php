@@ -1,17 +1,4 @@
 <?php
-/**
- * Config.php
- *
- * The Config class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -20,57 +7,27 @@ namespace UserAccessManager\Config;
 use Exception;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class Config
- *
- * @package UserAccessManager\Config
- */
 class Config
 {
-    /**
-     * @var Wordpress
-     */
-    protected $wordpress;
-
-    /**
-     * @var string
-     */
-    protected $key;
-
-    /**
-     * @var array
-     */
-    protected $wpOptions = [];
-
+    protected string $key;
+    protected array $wpOptions = [];
     /**
      * @var ConfigParameter[]
      */
-    protected $defaultConfigParameters = [];
-
+    protected array $defaultConfigParameters = [];
     /**
      * @var null|ConfigParameter[]
      */
-    protected $configParameters = null;
+    protected ?array $configParameters = null;
 
-    /**
-     * Config constructor.
-     * @param Wordpress $wordpress
-     * @param string $key
-     */
     public function __construct(
-        Wordpress $wordpress,
+        private Wordpress $wordpress,
         string $key
     ) {
-        $this->wordpress = $wordpress;
         $this->key = $key;
     }
 
-    /**
-     * Returns the WordPress options.
-     * @param string $option
-     * @return mixed
-     */
-    public function getWpOption(string $option)
+    public function getWpOption(string $option): mixed
     {
         if (!isset($this->wpOptions[$option]) === true) {
             $this->wpOptions[$option] = $this->wordpress->getOption($option);
@@ -80,7 +37,6 @@ class Config
     }
 
     /**
-     * Returns the default parameters for the current config.
      * @return ConfigParameter[]
      */
     protected function getDefaultConfigParameters(): array
@@ -89,16 +45,14 @@ class Config
     }
 
     /**
-     * Sets the default config parameters
      * @param ConfigParameter[] $defaultConfigParameters
      */
-    public function setDefaultConfigParameters(array $defaultConfigParameters)
+    public function setDefaultConfigParameters(array $defaultConfigParameters): void
     {
         $this->defaultConfigParameters = $defaultConfigParameters;
     }
 
     /**
-     * Returns the current settings
      * @return ConfigParameter[]
      */
     public function getConfigParameters(): array
@@ -120,10 +74,9 @@ class Config
     }
 
     /**
-     * Sets the new config parameters and saves them to the database.
      * @param array $rawParameters
      */
-    public function setConfigParameters(array $rawParameters)
+    public function setConfigParameters(array $rawParameters): void
     {
         $configParameters = $this->getConfigParameters();
 
@@ -144,43 +97,33 @@ class Config
         $this->wordpress->updateOption($this->key, $simpleConfigParameters);
     }
 
-    /**
-     * Flushes the config parameters.
-     */
-    public function flushConfigParameters()
+    public function flushConfigParameters(): void
     {
         $this->defaultConfigParameters = [];
         $this->configParameters = null;
     }
 
     /**
-     * Returns the requested parameter value
-     * @param string $parameterName
-     * @return mixed
      * @throws Exception
      */
-    public function getParameterValueRaw(string $parameterName)
+    public function getParameterValueRaw(string $parameterName): mixed
     {
         $options = $this->getConfigParameters();
 
         if (isset($options[$parameterName]) === false) {
-            throw new Exception("Unknown config parameter '{$parameterName}'.");
+            throw new Exception("Unknown config parameter '$parameterName'.");
         }
 
         return $options[$parameterName]->getValue();
     }
 
-    /**
-     * Returns the requested parameter value but suppresses exceptions.
-     * @param string $parameterName
-     * @return mixed
-     */
-    public function getParameterValue(string $parameterName)
+    public function getParameterValue(string $parameterName): mixed
     {
         try {
             return $this->getParameterValueRaw($parameterName);
-        } catch (Exception $exception) {
-            return null;
+        } catch (Exception) {
         }
+
+        return null;
     }
 }

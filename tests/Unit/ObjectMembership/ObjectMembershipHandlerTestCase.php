@@ -31,7 +31,7 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
     /**
      * @return MockObject|ObjectHandler
      */
-    protected function getObjectHandler()
+    protected function getObjectHandler(): ObjectHandler|MockObject
     {
         $objectHandler = parent::getObjectHandler();
 
@@ -47,7 +47,7 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
     /**
      * @return MockObject|ObjectMapHandler
      */
-    protected function getObjectMapHandler()
+    protected function getObjectMapHandler(): MockObject|ObjectMapHandler
     {
         $objectMapHandler = parent::getObjectMapHandler();
 
@@ -107,17 +107,17 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
      * @param array $withIsObjectMember
      * @param array $withIsObjectAssignedToGroup
      * @param array $falseIds
-     * @param null|string $fromDate
-     * @param null|string $toDate
+     * @param string|null $fromDate
+     * @param string|null $toDate
      * @return MockObject|AbstractUserGroup
      */
     protected function getMembershipUserGroup(
-        array $withIsObjectMember,
-        array $withIsObjectAssignedToGroup,
-        array $falseIds,
-        $fromDate = null,
-        $toDate = null
-    )
+        array  $withIsObjectMember,
+        array  $withIsObjectAssignedToGroup,
+        array  $falseIds,
+        string $fromDate = null,
+        string $toDate = null
+    ): MockObject|AbstractUserGroup
     {
         /**
          * @var MockObject|AbstractUserGroup $userGroup
