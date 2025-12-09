@@ -33,46 +33,19 @@ use UserAccessManager\Wrapper\Wordpress;
  */
 class FrontendController extends Controller
 {
-    const HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
+    public const HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
 
-    /**
-     * @var MainConfig
-     */
-    private $mainConfig;
-
-    /**
-     * @var AccessHandler
-     */
-    private $accessHandler;
-
-    /**
-     * FrontendController constructor.
-      * @param Php             $php
-     * @param Wordpress       $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param MainConfig      $mainConfig
-     * @param AccessHandler   $userHandler
-     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
-        MainConfig $mainConfig,
-        AccessHandler $userHandler
+        private MainConfig $mainConfig,
+        private AccessHandler $accessHandler
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->mainConfig = $mainConfig;
-        $this->accessHandler = $userHandler;
     }
 
-    /**
-     * Functions for other content.
-     */
-
-    /**
-     * Register all other styles.
-     */
-    private function registerStylesAndScripts()
+    private function registerStylesAndScripts(): void
     {
         $urlPath = $this->wordpressConfig->getUrlPath();
 
@@ -85,24 +58,16 @@ class FrontendController extends Controller
         );
     }
 
-    /**
-     * The function for the wp_enqueue_scripts action.
-     */
-    public function enqueueStylesAndScripts()
+    public function enqueueStylesAndScripts(): void
     {
         $this->registerStylesAndScripts();
         $this->wordpress->enqueueStyle(self::HANDLE_STYLE_LOGIN_FORM);
     }
 
     /**
-     * The function for the get_ancestors filter.
-      * @param array $ancestors
-     * @param int|string $objectId
-     * @param string $objectType
-      * @return array
      * @throws UserGroupTypeException
      */
-    public function showAncestors(array $ancestors, $objectId, string $objectType): array
+    public function showAncestors(array $ancestors, int|string $objectId, string $objectType): array
     {
         if ($this->mainConfig->lockRecursive() === true
             && $this->accessHandler->checkObjectAccess($objectType, $objectId) === false
@@ -125,15 +90,9 @@ class FrontendController extends Controller
      */
 
     /**
-     * Filter for Yoast SEO Plugin
-     * Hides the url from the site map if the user has no access
-     * @param string|array $url The url to check
-     * @param string $type The object type
-     * @param object $object The object
-     * @return false|string
      * @throws UserGroupTypeException
      */
-    public function getWpSeoUrl($url, string $type, object $object)
+    public function getWpSeoUrl(array|string $url, string $type, object $object): bool|array|string
     {
         return ($this->accessHandler->checkObjectAccess($type, $object->ID) === true) ? $url : false;
     }
@@ -143,11 +102,9 @@ class FrontendController extends Controller
      */
 
     /**
-     * @param $content
-     * @return mixed
      * @throws UserGroupTypeException
      */
-    public function getElementorContent($content)
+    public function getElementorContent($content): mixed
     {
         $this->wordpress->removeAction('elementor/frontend/the_content', [$this, 'getElementorContent']);
         $post = $this->wordpress->getCurrentPost();

@@ -37,7 +37,7 @@ class MainConfigTest extends UserAccessManagerTestCase
     /**
      * @var array
      */
-    private $defaultValues;
+    private array $defaultValues;
 
     /**
      * Create default mocked objects.
@@ -111,7 +111,7 @@ class MainConfigTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|Cache
      */
-    protected function getCache()
+    protected function getCache(): Cache|MockObject
     {
         $cache = parent::getCache();
 
@@ -126,7 +126,7 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @param int $callExpectation
      * @return MockObject|ObjectHandler
      */
-    protected function getDefaultObjectHandler(int $callExpectation)
+    protected function getDefaultObjectHandler(int $callExpectation): ObjectHandler|MockObject
     {
         $objectHandler = $this->getObjectHandler();
 
@@ -142,10 +142,10 @@ class MainConfigTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param callable $closure
+     * @param callable|null $closure
      * @return MockObject|ConfigParameterFactory
      */
-    protected function getFactory($closure = null)
+    protected function getFactory(callable $closure = null): ConfigParameterFactory|MockObject
     {
         if ($closure === null) {
             $closure = function ($type) {
@@ -495,7 +495,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         self::assertEquals('post_title', $config->getPostTypeTitle('post'));
         self::assertEquals('post_content', $config->getPostTypeContent('post'));
         self::assertEquals('post_comment_content', $config->getPostTypeCommentContent('post'));
-        self::assertEquals(false, $config->showPostTypeContentBeforeMore('post'));
+        self::assertFalse($config->showPostTypeContentBeforeMore('post'));
     }
 
     /**

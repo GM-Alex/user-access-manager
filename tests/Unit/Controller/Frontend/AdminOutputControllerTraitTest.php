@@ -33,7 +33,7 @@ class AdminOutputControllerTraitTest extends UserAccessManagerTestCase
     /**
      * @return MockObject|AdminOutputControllerTrait
      */
-    private function getStub()
+    private function getStub(): AdminOutputControllerTrait|MockObject
     {
         return $this->getMockForTrait(AdminOutputControllerTrait::class);
     }

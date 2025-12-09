@@ -157,7 +157,7 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
             ->method('isTermMember')
             ->withConsecutive([3], [9], [3])
             ->will($this->returnCallback(function ($termId, &$assignmentInformation = null) {
-                if (in_array($termId, [9]) === true) {
+                if ($termId === 9) {
                     $assignmentInformation = null;
                     return false;
                 }

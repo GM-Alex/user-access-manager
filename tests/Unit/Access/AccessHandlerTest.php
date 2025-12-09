@@ -320,7 +320,7 @@ class AccessHandlerTest extends HandlerTestCase
             ->withConsecutive(['ownPostQuery'], ['invalid'])
             ->will($this->returnCallback(function ($query) {
                 if ($query === 'invalid') {
-                    return '';
+                    return null;
                 }
 
                 $post = new stdClass();

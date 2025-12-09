@@ -34,7 +34,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.
@@ -838,7 +838,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ],
             xdebug_get_headers()
         );
-        self::assertEquals(false, http_response_code());
+        self::assertFalse(http_response_code());
         self::assertTrue(file_exists($uploadDir . FileHandler::X_SEND_FILE_TEST_FILE));
     }
 

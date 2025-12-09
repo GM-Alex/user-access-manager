@@ -34,7 +34,7 @@ class AboutControllerTest extends UserAccessManagerTestCase
     /**
      * @var array
      */
-    private $remoteSupporters = [
+    private array $remoteSupporters = [
         'Luke Crouch',
         'Juan Rodriguez',
         'mkosel',
@@ -69,7 +69,7 @@ class AboutControllerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.

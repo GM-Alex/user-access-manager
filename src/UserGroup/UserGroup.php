@@ -1,17 +1,4 @@
 <?php
-/**
- * UserGroup.php
- *
- * The UserGroup class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -25,35 +12,14 @@ use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class UserGroup
- *
- * @package UserAccessManager\UserGroup
- */
 class UserGroup extends AbstractUserGroup
 {
     const USER_GROUP_TYPE = 'UserGroup';
 
-    /**
-     * @var string
-     */
-    protected $type = self::USER_GROUP_TYPE;
+    protected ?string $type = self::USER_GROUP_TYPE;
+    protected ?string $ipRange = null;
 
     /**
-     * @var string
-     */
-    protected $ipRange = null;
-
-    /**
-     * UserGroup constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param Database $database
-     * @param MainConfig $config
-     * @param Util $util
-     * @param ObjectHandler $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param null|string $id
      * @throws UserGroupTypeException
      */
     public function __construct(
@@ -64,7 +30,7 @@ class UserGroup extends AbstractUserGroup
         Util $util,
         ObjectHandler $objectHandler,
         AssignmentInformationFactory $assignmentInformationFactory,
-        $id = null
+        int|string|null $id = null
     ) {
         parent::__construct(
             $php,
@@ -81,39 +47,22 @@ class UserGroup extends AbstractUserGroup
         }
     }
 
-    /**
-     * Returns the ip range.
-     * @return array|string
-     */
-    public function getIpRange()
+    public function getIpRange(): array|string|null
     {
         return $this->ipRange;
     }
 
-    /**
-     * Returns the ip range as array
-     * @return array
-     */
     public function getIpRangeArray(): array
     {
         return explode(';', (string) $this->ipRange);
     }
 
-    /**
-     * Sets the ip range.
-     * @param string|array $ipRange The new ip range.
-     */
-    public function setIpRange($ipRange)
+    public function setIpRange(array|string $ipRange): void
     {
         $this->ipRange = (is_array($ipRange) === true) ? implode(';', $ipRange) : $ipRange;
     }
 
-    /**
-     * Loads the user group.
-     * @param int|string $id
-     * @return bool
-     */
-    public function load($id): bool
+    public function load(int|string $id): bool
     {
         $query = $this->database->prepare(
             "SELECT *
@@ -139,10 +88,6 @@ class UserGroup extends AbstractUserGroup
         return false;
     }
 
-    /**
-     * Saves the user group.
-     * @return bool
-     */
     public function save(): bool
     {
         if ($this->id === null) {
@@ -178,8 +123,6 @@ class UserGroup extends AbstractUserGroup
     }
 
     /**
-     * Deletes the user group.
-     * @return bool
      * @throws Exception
      */
     public function delete(): bool

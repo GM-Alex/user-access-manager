@@ -1,17 +1,4 @@
 <?php
-/**
- * UserAccessManager.php
- *
- * The UserAccessManager class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -21,8 +8,8 @@ use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Config\ConfigFactory;
-use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Controller\Backend\DynamicGroupsController;
 use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\TermObjectController;
@@ -35,364 +22,145 @@ use UserAccessManager\File\FileProtectionFactory;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Setup\SetupHandler;
-use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\User\UserHandler;
+use UserAccessManager\UserGroup\UserGroupFactory;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class UserAccessManager
- *
- * @package UserAccessManager
- */
 class UserAccessManager
 {
-    const VERSION = '2.2.25';
-    const DB_VERSION = '1.6.2';
+    public const VERSION = '2.3.0';
+    public const DB_VERSION = '1.6.2';
 
-    /**
-     * @var Php
-     */
-    private $php;
-
-    /**
-     * @var Wordpress
-     */
-    private $wordpress;
-
-    /**
-     * @var Util
-     */
-    private $util;
-
-    /**
-     * @var Cache
-     */
-    private $cache;
-
-    /**
-     * @var MainConfig
-     */
-    private $config;
-
-    /**
-     * @var Database
-     */
-    private $database;
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
-     * @var UserHandler
-     */
-    private $userHandler;
-
-    /**
-     * @var UserGroupHandler
-     */
-    private $userGroupHandler;
-
-    /**
-     * @var AccessHandler
-     */
-    private $accessHandler;
-
-    /**
-     * @var FileHandler
-     */
-    private $fileHandler;
-
-    /**
-     * @var SetupHandler
-     */
-    private $setupHandler;
-
-    /**
-     * @var UserGroupFactory
-     */
-    private $userGroupFactory;
-
-    /**
-     * @var ObjectMembershipHandlerFactory
-     */
-    private $membershipHandlerFactory;
-
-    /**
-     * @var ControllerFactory
-     */
-    private $controllerFactory;
-
-    /**
-     * @var WidgetFactory
-     */
-    private $widgetFactory;
-
-    /**
-     * @var CacheProviderFactory
-     */
-    private $cacheProviderFactory;
-
-    /**
-     * @var ConfigFactory
-     */
-    private $configFactory;
-
-    /**
-     * @var ConfigParameterFactory
-     */
-    private $configParameterFactory;
-
-    /**
-     * @var FileProtectionFactory
-     */
-    private $fileProtectionFactory;
-
-    /**
-     * @var FileObjectFactory
-     */
-    private $fileObjectFactory;
-
-    /**
-     * UserAccessManager constructor.
-      * @param Php                            $php
-     * @param Wordpress                      $wordpress
-     * @param Util                           $util
-     * @param Cache                          $cache
-     * @param MainConfig                     $config
-     * @param Database                       $database
-     * @param ObjectHandler                  $objectHandler
-     * @param UserHandler                    $userHandler
-     * @param UserGroupHandler               $userGroupHandler
-     * @param AccessHandler                  $accessHandler
-     * @param FileHandler                    $fileHandler
-     * @param SetupHandler                   $setupHandler
-     * @param UserGroupFactory               $userGroupFactory
-     * @param ObjectMembershipHandlerFactory $membershipHandlerFactory
-     * @param ControllerFactory              $controllerFactory
-     * @param WidgetFactory                  $widgetFactory
-     * @param CacheProviderFactory           $cacheProviderFactory
-     * @param ConfigFactory                  $configFactory
-     * @param ConfigParameterFactory         $configParameterFactory
-     * @param FileProtectionFactory          $fileProtectionFactory
-     * @param FileObjectFactory              $fileObjectFactory
-     */
     public function __construct(
-        Php $php,
-        Wordpress $wordpress,
-        Util $util,
-        Cache $cache,
-        MainConfig $config,
-        Database $database,
-        ObjectHandler $objectHandler,
-        UserHandler $userHandler,
-        UserGroupHandler $userGroupHandler,
-        AccessHandler $accessHandler,
-        FileHandler $fileHandler,
-        SetupHandler $setupHandler,
-        UserGroupFactory $userGroupFactory,
-        ObjectMembershipHandlerFactory $membershipHandlerFactory,
-        ControllerFactory $controllerFactory,
-        WidgetFactory $widgetFactory,
-        CacheProviderFactory $cacheProviderFactory,
-        ConfigFactory $configFactory,
-        ConfigParameterFactory $configParameterFactory,
-        FileProtectionFactory $fileProtectionFactory,
-        FileObjectFactory $fileObjectFactory
+        private Php $php,
+        private Wordpress $wordpress,
+        private Util $util,
+        private Cache $cache,
+        private MainConfig $config,
+        private Database $database,
+        private ObjectHandler $objectHandler,
+        private UserHandler $userHandler,
+        private UserGroupHandler $userGroupHandler,
+        private AccessHandler $accessHandler,
+        private FileHandler $fileHandler,
+        private SetupHandler $setupHandler,
+        private UserGroupFactory $userGroupFactory,
+        private ObjectMembershipHandlerFactory $membershipHandlerFactory,
+        private ControllerFactory $controllerFactory,
+        private WidgetFactory $widgetFactory,
+        private CacheProviderFactory $cacheProviderFactory,
+        private ConfigFactory $configFactory,
+        private ConfigParameterFactory $configParameterFactory,
+        private FileProtectionFactory $fileProtectionFactory,
+        private FileObjectFactory $fileObjectFactory
     ) {
-        $this->php = $php;
-        $this->wordpress = $wordpress;
-        $this->util = $util;
-        $this->cache = $cache;
-        $this->config = $config;
-        $this->database = $database;
-        $this->objectHandler = $objectHandler;
-        $this->userHandler = $userHandler;
-        $this->userGroupHandler = $userGroupHandler;
-        $this->accessHandler = $accessHandler;
-        $this->fileHandler = $fileHandler;
-        $this->setupHandler = $setupHandler;
-        $this->userGroupFactory = $userGroupFactory;
-        $this->membershipHandlerFactory = $membershipHandlerFactory;
-        $this->controllerFactory = $controllerFactory;
-        $this->widgetFactory = $widgetFactory;
-        $this->cacheProviderFactory = $cacheProviderFactory;
-        $this->configFactory = $configFactory;
-        $this->configParameterFactory = $configParameterFactory;
-        $this->fileProtectionFactory = $fileProtectionFactory;
-        $this->fileObjectFactory = $fileObjectFactory;
-
         $this->cache->setActiveCacheProvider($this->config->getActiveCacheProvider());
     }
 
-    /**
-     * @return Php
-     */
     public function getPhp(): Php
     {
         return $this->php;
     }
 
-    /**
-     * @return Wordpress
-     */
     public function getWordpress(): Wordpress
     {
         return $this->wordpress;
     }
 
-    /**
-     * @return Util
-     */
     public function getUtil(): Util
     {
         return $this->util;
     }
 
-    /**
-     * @return Cache
-     */
     public function getCache(): Cache
     {
         return $this->cache;
     }
 
-    /**
-     * @return MainConfig
-     */
     public function getConfig(): MainConfig
     {
         return $this->config;
     }
 
-    /**
-     * @return Database
-     */
     public function getDatabase(): Database
     {
         return $this->database;
     }
 
-    /**
-     * @return ObjectHandler
-     */
     public function getObjectHandler(): ObjectHandler
     {
         return $this->objectHandler;
     }
 
-    /**
-     * @return UserHandler
-     */
     public function getUserHandler(): UserHandler
     {
         return $this->userHandler;
     }
 
-    /**
-     * @return UserGroupHandler
-     */
     public function getUserGroupHandler(): UserGroupHandler
     {
         return $this->userGroupHandler;
     }
 
-    /**
-     * @return AccessHandler
-     */
     public function getAccessHandler(): AccessHandler
     {
         return $this->accessHandler;
     }
 
-    /**
-     * @return FileHandler
-     */
     public function getFileHandler(): FileHandler
     {
         return $this->fileHandler;
     }
 
-    /**
-     * @return SetupHandler
-     */
     public function getSetupHandler(): SetupHandler
     {
         return $this->setupHandler;
     }
 
-    /**
-     * @return UserGroupFactory
-     */
     public function getUserGroupFactory(): UserGroupFactory
     {
         return $this->userGroupFactory;
     }
 
-    /**
-     * @return ObjectMembershipHandlerFactory
-     */
     public function getObjectMembershipHandlerFactory(): ObjectMembershipHandlerFactory
     {
         return $this->membershipHandlerFactory;
     }
 
-    /**
-     * @return ControllerFactory
-     */
     public function getControllerFactory(): ControllerFactory
     {
         return $this->controllerFactory;
     }
 
-    /**
-     * @return WidgetFactory
-     */
     public function getWidgetFactory(): WidgetFactory
     {
         return $this->widgetFactory;
     }
 
-    /**
-     * @return CacheProviderFactory
-     */
     public function getCacheProviderFactory(): CacheProviderFactory
     {
         return $this->cacheProviderFactory;
     }
 
-    /**
-     * @return ConfigFactory
-     */
     public function getConfigFactory(): ConfigFactory
     {
         return $this->configFactory;
     }
 
-    /**
-     * @return ConfigParameterFactory
-     */
     public function getConfigParameterFactory(): ConfigParameterFactory
     {
         return $this->configParameterFactory;
     }
 
-    /**
-     * @return FileProtectionFactory
-     */
     public function getFileProtectionFactory(): FileProtectionFactory
     {
         return $this->fileProtectionFactory;
     }
 
-    /**
-     * @return FileObjectFactory
-     */
     public function getFileObjectFactory(): FileObjectFactory
     {
         return $this->fileObjectFactory;
@@ -401,14 +169,14 @@ class UserAccessManager
     /**
      * Resister the administration menu.
      */
-    public function registerAdminMenu()
+    public function registerAdminMenu(): void
     {
         if ($this->userHandler->checkUserAccess() === true) {
             //TODO
             /**
              * --- BOF ---
-             * Not the best way to handle full user access. Capabilities seems
-             * to be the right way, but it is way difficult.
+             * Not the best way to handle full user access. Capabilities seem
+             * to be the right way, but it is way challenging.
              */
             //Admin main menu
             $this->wordpress->addMenuPage(
@@ -469,21 +237,13 @@ class UserAccessManager
         }
     }
 
-    /**
-     * Adds the backend filters.
-      * @param DynamicGroupsController $dynamicGroupController
-     * @param PostObjectController    $postObjectController
-     * @param TermObjectController    $termObjectController
-     * @param UserObjectController    $userObjectController
-     * @param array                   $taxonomies
-     */
     private function addAdminActions(
         DynamicGroupsController $dynamicGroupController,
         PostObjectController $postObjectController,
         TermObjectController $termObjectController,
         UserObjectController $userObjectController,
         array $taxonomies
-    ) {
+    ): void {
         $this->wordpress->addAction(
             'manage_posts_custom_column',
             [$postObjectController, 'addPostColumn'],
@@ -553,19 +313,12 @@ class UserAccessManager
         );
     }
 
-    /**
-     * Adds the admin filters.
-      * @param PostObjectController $postObjectController
-     * @param TermObjectController $termObjectController
-     * @param UserObjectController $userObjectController
-     * @param array                $taxonomies
-     */
     private function addAdminFilters(
         PostObjectController $postObjectController,
         TermObjectController $termObjectController,
         UserObjectController $userObjectController,
         array $taxonomies
-    ) {
+    ): void {
         //The filter we use instead of add|edit_attachment action, reason see top
         $this->wordpress->addFilter('attachment_fields_to_save', [$postObjectController, 'saveAttachmentData']);
 
@@ -592,11 +345,7 @@ class UserAccessManager
         }
     }
 
-    /**
-     * Adds the admin meta boxes.
-      * @param PostObjectController $postObjectController
-     */
-    private function addAdminMetaBoxes(PostObjectController $postObjectController)
+    private function addAdminMetaBoxes(PostObjectController $postObjectController): void
     {
         $postTypes = $this->objectHandler->getPostTypes();
 
@@ -617,10 +366,9 @@ class UserAccessManager
     }
 
     /**
-     * Register the admin actions and filters
      * @throws UserGroup\UserGroupTypeException
      */
-    public function registerAdminActionsAndFilters()
+    public function registerAdminActionsAndFilters(): void
     {
         $backendController = $this->controllerFactory->createBackendController();
         $this->wordpress->addAction('admin_enqueue_scripts', [$backendController, 'enqueueStylesAndScripts']);
@@ -673,10 +421,7 @@ class UserAccessManager
         $objectController->checkRightsToEditContent();
     }
 
-    /**
-     * Adds the actions and filers.
-     */
-    public function addActionsAndFilters()
+    public function addActionsAndFilters(): void
     {
         //Actions
         $this->wordpress->addAction('admin_menu', [$this, 'registerAdminMenu']);

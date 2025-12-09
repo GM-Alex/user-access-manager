@@ -29,12 +29,12 @@ class FormElementTest extends TestCase
 {
     /**
      * @param string $id
-     * @param mixed $value
+     * @param mixed|null $value
      * @param null $label
      * @param null $description
      * @return MockObject|FormElement
      */
-    private function getStub(string $id, $value = null, $label = null, $description = null)
+    private function getStub(string $id, mixed $value = null, $label = null, $description = null): FormElement|MockObject
     {
         return $this->getMockForAbstractClass(
             FormElement::class,

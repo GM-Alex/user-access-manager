@@ -33,7 +33,7 @@ class DatabaseTest extends UserAccessManagerTestCase
      * @param array $methods
      * @return MockObject|wpdb
      */
-    private function getWpDatabase(array $methods = [])
+    private function getWpDatabase(array $methods = []): wpdb|MockObject
     {
         return $this->getMockBuilder(wpdb::class)
             ->setMethods($methods)
@@ -44,7 +44,7 @@ class DatabaseTest extends UserAccessManagerTestCase
      * @param MockObject $wpDatabase
      * @return MockObject|Wordpress
      */
-    private function getWrapperWithWpDatabase(MockObject $wpDatabase)
+    private function getWrapperWithWpDatabase(MockObject $wpDatabase): MockObject|Wordpress
     {
         $wordpress = $this->getWordpress();
         $wordpress->expects($this->once())
@@ -216,37 +216,37 @@ class DatabaseTest extends UserAccessManagerTestCase
             'query' => [
                 'query',
                 [['query']],
-                ['firstReturn'],
+                [true],
                 [['query']]
             ],
             'getResults' => [
                 'get_results',
                 [[null, OBJECT], ['query', 'testObject']],
-                ['firstReturn', 'secondReturn'],
+                [['firstReturn'], ['secondReturn']],
                 [[], ['query', 'testObject']]
             ],
             'insert' => [
                 'insert',
                 [['table', ['a'], null], ['table', ['b'], 'format']],
-                ['firstReturn', 'secondReturn'],
+                [true, true],
                 [['table', ['a']], ['table', ['b'], 'format']]
             ],
             'update' => [
                 'update',
                 [['table', ['a'], ['b'], null, null], ['table', ['c'], ['d'], 'format', 'where']],
-                ['firstReturn', 'secondReturn'],
+                [true, true],
                 [['table', ['a'], ['b']], ['table', ['c'], ['d'], 'format', 'where']]
             ],
             'replace' => [
                 'replace',
                 [['table', ['a'], null], ['table', ['b'], 'format']],
-                ['firstReturn', 'secondReturn'],
+                [true, true],
                 [['table', ['a']], ['table', ['b'], 'format']]
             ],
             'delete' => [
                 'delete',
                 [['table', ['a'], null], ['table', ['b'], 'where']],
-                ['firstReturn', 'secondReturn'],
+                [true, true],
                 [['table', ['a']], ['table', ['b'], 'where']]
             ]
         ];

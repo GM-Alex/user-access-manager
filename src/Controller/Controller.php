@@ -33,83 +33,39 @@ abstract class Controller
         render as traitRender;
     }
 
-    const ACTION_PARAMETER = 'uam_action';
-    const ACTION_SUFFIX = 'Action';
+    public const ACTION_PARAMETER = 'uam_action';
+    public const ACTION_SUFFIX = 'Action';
 
-    /**
-     * @var Php
-     */
-    protected $php;
+    protected ?string $updateMessage = null;
 
-    /**
-     * @var WordpressConfig
-     */
-    protected $wordpressConfig;
-
-    /**
-     * @var Wordpress
-     */
-    protected $wordpress;
-
-    /**
-     * @var string
-     */
-    protected $updateMessage = null;
-
-    /**
-     * Controller constructor.
-     * @param Php             $php
-     * @param Wordpress       $wordpress
-     * @param WordpressConfig $wordpressConfig
-     */
-    public function __construct(Php $php, Wordpress $wordpress, WordpressConfig $wordpressConfig)
-    {
-        $this->php = $php;
-        $this->wordpress = $wordpress;
-        $this->wordpressConfig = $wordpressConfig;
+    public function __construct(
+        protected Php $php,
+        protected Wordpress $wordpress,
+        protected WordpressConfig $wordpressConfig
+    ) {
     }
 
-    /**
-     * @return Php
-     */
     protected function getPhp(): Php
     {
         return $this->php;
     }
 
-    /**
-     * @return WordpressConfig
-     */
     protected function getWordpressConfig(): WordpressConfig
     {
         return $this->wordpressConfig;
     }
 
-    /**
-     * Returns the nonce field.
-     * @param string $name
-     * @return string
-     */
     public function createNonceField(string $name): string
     {
         return $this->wordpress->getNonceField($name, $name.'Nonce');
     }
 
-    /**
-     * Returns the nonce.
-     * @param string $name
-     * @return string
-     */
     public function getNonce(string $name): string
     {
         return $this->wordpress->createNonce($name);
     }
 
-    /**
-     * Verifies the nonce and terminates the application if the nonce is wrong.
-     * @param string $name
-     */
-    protected function verifyNonce(string $name)
+    protected function verifyNonce(string $name): void
     {
         $nonce = $this->getRequestParameter($name.'Nonce');
 
@@ -118,20 +74,12 @@ abstract class Controller
         }
     }
 
-    /**
-     * Sets the update message.
-     * @param string $message
-     */
-    protected function setUpdateMessage(string $message)
+    protected function setUpdateMessage(string $message): void
     {
         $this->updateMessage = $message;
     }
 
-    /**
-     * Adds an error message.
-     * @param string $message
-     */
-    protected function addErrorMessage(string $message)
+    protected function addErrorMessage(string $message): void
     {
         if (isset($_SESSION[BackendController::UAM_ERRORS]) === false) {
             $_SESSION[BackendController::UAM_ERRORS] = [];
@@ -140,28 +88,17 @@ abstract class Controller
         $_SESSION[BackendController::UAM_ERRORS][] = $message;
     }
 
-    /**
-     * Returns the update message.
-     * @return string
-     */
     public function getUpdateMessage(): ?string
     {
         return $this->updateMessage;
     }
 
-    /**
-     * Returns true if a update message is set.
-     * @return bool
-     */
     public function hasUpdateMessage(): bool
     {
         return $this->updateMessage !== null;
     }
 
-    /**
-     * Process the action.
-     */
-    protected function processAction()
+    protected function processAction(): void
     {
         $postAction = (string) $this->getRequestParameter(self::ACTION_PARAMETER);
         $postActionSplit = explode('_', $postAction);
@@ -174,10 +111,7 @@ abstract class Controller
         }
     }
 
-    /**
-     * Renders the given template
-     */
-    public function render()
+    public function render(): void
     {
         $this->processAction();
         $this->traitRender();

@@ -1,17 +1,4 @@
 <?php
-/**
- * Config.php
- *
- * The Config class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -22,31 +9,11 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class Config
- *
- * @package UserAccessManager\Config
- */
 class MainConfig extends Config
 {
-    const MAIN_CONFIG_KEY = 'uamAdminOptions';
-    const DEFAULT_TYPE = 'default';
-    const CACHE_PROVIDER_NONE = 'none';
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
-     * @var Cache
-     */
-    private $cache;
-
-    /**
-     * @var ConfigParameterFactory
-     */
-    protected $configParameterFactory;
+    public const MAIN_CONFIG_KEY = 'uamAdminOptions';
+    public const DEFAULT_TYPE = 'default';
+    public const CACHE_PROVIDER_NONE = 'none';
 
     /**
      * MainConfig constructor.
@@ -57,23 +24,17 @@ class MainConfig extends Config
      */
     public function __construct(
         Wordpress $wordpress,
-        ObjectHandler $objectHandler,
-        Cache $cache,
-        ConfigParameterFactory $configParameterFactory
+        private ObjectHandler $objectHandler,
+        private Cache $cache,
+        private ConfigParameterFactory $configParameterFactory
     ) {
-        $this->objectHandler = $objectHandler;
-        $this->cache = $cache;
-        $this->configParameterFactory = $configParameterFactory;
-
         parent::__construct($wordpress, self::MAIN_CONFIG_KEY);
     }
 
     /**
-     * Adds the default general config parameters to the config parameters.
-     * @param array $configParameters
      * @throws Exception
      */
-    private function addDefaultGeneralConfigParameters(array &$configParameters)
+    private function addDefaultGeneralConfigParameters(array &$configParameters): void
     {
         $id = 'redirect';
         $configParameters[$id] = $this->configParameterFactory->createSelectionConfigParameter(
@@ -131,11 +92,9 @@ class MainConfig extends Config
     }
 
     /**
-     * Adds the default post config parameters to the config parameters.
-     * @param array $configParameters
      * @throws Exception
      */
-    private function addDefaultPostConfigParameters(array &$configParameters)
+    private function addDefaultPostConfigParameters(array &$configParameters): void
     {
         $postTypes = $this->objectHandler->getPostTypes();
         array_unshift($postTypes, self::DEFAULT_TYPE);
@@ -150,7 +109,7 @@ class MainConfig extends Config
                 $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
             }
 
-            $id = "hide_{$postType}";
+            $id = "hide_$postType";
             $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
 
             $id = "hide_{$postType}_title";
@@ -186,11 +145,9 @@ class MainConfig extends Config
     }
 
     /**
-     * Adds the default taxonomy config parameters to the config parameters.
-     * @param array $configParameters
      * @throws Exception
      */
-    private function addDefaultTaxonomyConfigParameters(array &$configParameters)
+    private function addDefaultTaxonomyConfigParameters(array &$configParameters): void
     {
         $taxonomies = $this->objectHandler->getTaxonomies();
         array_unshift($taxonomies, self::DEFAULT_TYPE);
@@ -207,11 +164,9 @@ class MainConfig extends Config
     }
 
     /**
-     * Adds the default file config parameters to the config parameters.
-     * @param array $configParameters
      * @throws Exception
      */
-    private function addDefaultFileConfigParameters(array &$configParameters)
+    private function addDefaultFileConfigParameters(array &$configParameters): void
     {
         $id = 'lock_file';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
@@ -277,7 +232,6 @@ class MainConfig extends Config
     }
 
     /**
-     * Returns the default config parameters settings
      * @return ConfigParameter[]
      * @throws Exception
      */
@@ -300,12 +254,6 @@ class MainConfig extends Config
         return $this->defaultConfigParameters;
     }
 
-    /**
-     * Returns the object parameter name.
-     * @param string $objectType
-     * @param string $rawParameterName
-     * @return ConfigParameter|null
-     */
     private function getObjectParameter(string $objectType, string $rawParameterName): ?ConfigParameter
     {
         $options = $this->getConfigParameters();
@@ -321,315 +269,189 @@ class MainConfig extends Config
         return (isset($options[$parameterName]) === true) ? $options[$parameterName] : null;
     }
 
-    /**
-     * Returns the option value if the option exists otherwise true.
-     * @param string $objectType
-     * @param string $parameterName
-     * @return bool
-     */
     private function hideObject(string $objectType, string $parameterName): bool
     {
         $parameter = $this->getObjectParameter($objectType, $parameterName);
         return ($parameter !== null) ? $parameter->getValue() : true;
     }
 
-    /**
-     * Returns the option value if the option exists otherwise an empty string.
-     * @param string $objectType
-     * @param string $parameterName
-     * @return bool|string
-     */
-    private function getObjectContent(string $objectType, string $parameterName)
+    private function getObjectContent(string $objectType, string $parameterName): bool|string
     {
         $parameter = $this->getObjectParameter($objectType, $parameterName);
         return ($parameter !== null) ? $parameter->getValue() : '';
     }
 
-    /**
-     * @param string $postType
-     * @return bool
-     */
     public function hidePostType(string $postType): bool
     {
         return $this->hideObject($postType, 'hide_%s');
     }
 
-    /**
-     * @param string $postType
-     * @return bool
-     */
     public function hidePostTypeTitle(string $postType): bool
     {
         return $this->hideObject($postType, 'hide_%s_title');
     }
 
-    /**
-     * @param string $postType
-     * @return bool
-     */
     public function hidePostTypeComments(string $postType): bool
     {
         return $this->hideObject($postType, 'hide_%s_comment');
     }
 
-    /**
-     * @param string $postType
-     * @return bool
-     */
     public function lockPostTypeComments(string $postType): bool
     {
         return $this->hideObject($postType, '%s_comments_locked');
     }
 
-    /**
-     * @param string $postType
-     * @return string
-     */
     public function getPostTypeTitle(string $postType): string
     {
         return $this->getObjectContent($postType, '%s_title');
     }
 
-    /**
-     * @param string $postType
-     * @return string
-     */
     public function getPostTypeContent(string $postType): string
     {
         return $this->getObjectContent($postType, '%s_content');
     }
 
-    /**
-     * @param string $postType
-     * @return string
-     */
     public function getPostTypeCommentContent(string $postType): string
     {
         return $this->getObjectContent($postType, '%s_comment_content');
     }
 
-    /**
-     * @param string $postType
-     * @return bool
-     */
-    public function showPostTypeContentBeforeMore(string $postType)
+    public function showPostTypeContentBeforeMore(string $postType): bool
     {
         return (bool) $this->getObjectContent($postType, 'show_%s_content_before_more');
     }
 
-    /**
-     * @return string
-     */
     public function getRedirect(): ?string
     {
         return $this->getParameterValue('redirect');
     }
 
-    /**
-     * @return string
-     */
     public function getRedirectCustomPage(): ?string
     {
         return $this->getParameterValue('redirect_custom_page');
     }
 
-    /**
-     * @return string
-     */
     public function getRedirectCustomUrl(): ?string
     {
         return $this->getParameterValue('redirect_custom_url');
     }
 
-    /**
-     * @return bool
-     */
     public function lockRecursive(): bool
     {
         return (bool) $this->getParameterValue('lock_recursive');
     }
 
-    /**
-     * @return bool
-     */
     public function authorsHasAccessToOwn(): bool
     {
         return (bool) $this->getParameterValue('authors_has_access_to_own');
     }
 
-    /**
-     * @return bool
-     */
     public function authorsCanAddPostsToGroups(): bool
     {
         return (bool) $this->getParameterValue('authors_can_add_posts_to_groups');
     }
 
-    /**
-     * @return bool
-     */
     public function lockFile(): bool
     {
         return (bool) $this->getParameterValue('lock_file');
     }
 
-    /**
-     * @return string
-     */
     public function getInlineFiles(): ?string
     {
         return $this->getParameterValue('inline_files');
     }
 
-    /**
-     * @return string
-     */
     public function getNoAccessImageType(): ?string
     {
         return $this->getParameterValue('no_access_image_type');
     }
 
-    /**
-     * @return string
-     */
     public function getCustomNoAccessImage(): ?string
     {
         return $this->getParameterValue('custom_no_access_image');
     }
 
-    /**
-     * @return bool
-     */
     public function useCustomFileHandlingFile(): bool
     {
         return (bool) $this->getParameterValue('use_custom_file_handling_file');
     }
 
-    /**
-     * @return string
-     */
     public function getLockedDirectoryType(): ?string
     {
         return $this->getParameterValue('locked_directory_type');
     }
 
-    /**
-     * @return string
-     */
     public function getCustomLockedDirectories(): ?string
     {
         return $this->getParameterValue('custom_locked_directories');
     }
 
-    /**
-     * @return string
-     */
     public function getFilePassType(): ?string
     {
         return $this->getParameterValue('file_pass_type');
     }
 
-    /**
-     * @return string
-     */
     public function getDownloadType(): ?string
     {
         return $this->getParameterValue('download_type');
     }
 
-    /**
-     * @return string
-     */
     public function getLockedFileType(): ?string
     {
         return $this->getParameterValue('lock_file_types');
     }
 
-    /**
-     * @return string
-     */
     public function getLockedFiles(): ?string
     {
         return $this->getParameterValue('locked_file_types');
     }
 
-    /**
-     * @return string
-     */
     public function getNotLockedFiles(): ?string
     {
         return $this->getParameterValue('not_locked_file_types');
     }
 
-    /**
-     * @return bool
-     */
     public function blogAdminHint(): bool
     {
         return (bool) $this->getParameterValue('blog_admin_hint');
     }
 
-    /**
-     * @return string
-     */
     public function getBlogAdminHintText(): ?string
     {
         return $this->getParameterValue('blog_admin_hint_text');
     }
 
-    /**
-     * @return bool
-     */
     public function showAssignedGroups(): bool
     {
         return (bool) $this->getParameterValue('show_assigned_groups');
     }
 
-    /**
-     * @return bool
-     */
     public function hideEditLinkOnNoAccess(): bool
     {
         return (bool) $this->getParameterValue('hide_edit_link_on_no_access');
     }
 
-    /**
-     * @param string $taxonomy
-     * @return bool
-     */
     public function hideEmptyTaxonomy(string $taxonomy): bool
     {
         $parameter = $this->getObjectParameter($taxonomy, 'hide_empty_%s');
         return ($parameter !== null) ? $parameter->getValue() : false;
     }
 
-    /**
-     * @return bool
-     */
     public function protectFeed(): bool
     {
         return (bool) $this->getParameterValue('protect_feed');
     }
 
-    /**
-     * @return string
-     */
     public function getFullAccessRole(): ?string
     {
         return $this->getParameterValue('full_access_role');
     }
 
-    /**
-     * @return null|string
-     */
     public function getActiveCacheProvider(): ?string
     {
         return $this->getParameterValue('active_cache_provider');
     }
 
-    /**
-     * @return null|string
-     */
     public function getExtraIpHeader(): ?string
     {
         return $this->getParameterValue('extra_ip_header');

@@ -27,7 +27,7 @@ class DummyController extends Controller
     /**
      * Dummy action function.
      */
-    public function testAction()
+    public function testAction(): void
     {
         echo 'testAction';
     }

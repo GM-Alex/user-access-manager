@@ -39,7 +39,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.
@@ -106,22 +106,16 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param int $id
-     * @param string $postType
-     * @param null $title
-     * @param null $content
-     * @param bool $closed
-     * @param string $postMimeType
      * @return MockObject|WP_Post
      */
     private function getPost(
         int $id,
-        $postType = 'post',
-        $title = null,
-        $content = null,
-        $closed = false,
-        $postMimeType = 'post/mime/type'
-    )
+        ?string $postType = 'post',
+        ?string $title = null,
+        ?string $content = null,
+        bool $closed = false,
+        string $postMimeType = 'post/mime/type'
+    ): MockObject|WP_Post
     {
         /**
          * @var MockObject|WP_Post $post
@@ -237,7 +231,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
 
         $fileObject->expects($this->any())
             ->method('getId')
-            ->will($this->returnValue(1));
+            ->will($this->returnValue('1'));
 
         $fileObject->expects($this->any())
             ->method('getType')
@@ -540,7 +534,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $wordpress->expects($this->exactly(2))
             ->method('getPageByPath')
             ->with('pageNameValue')
-            ->will($this->onConsecutiveCalls('', $this->getPost(2)));
+            ->will($this->onConsecutiveCalls(null, $this->getPost(2)));
 
         $wordpress->expects($this->exactly(1))
             ->method('applyFilters');
@@ -704,7 +698,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->method('getPost')
             ->withConsecutive([1], [1], [1], [1])
             ->will($this->onConsecutiveCalls(
-                null,
+                false,
                 $this->getPost(1, 'post', null, null, false, 'type'),
                 $this->getPost(1, 'post', null, null, false, 'type'),
                 $this->getPost(1),

@@ -21,7 +21,7 @@ if ($controller->showLoginForm() === true) {
 } else {
     ?>
     <a class="uam_login_link" href="<?php echo $controller->getRedirectLoginUrl(); ?>">
-        <?php TXT_UAM_LOGIN_FORM_LOGIN; ?>
+        <?php echo TXT_UAM_LOGIN_FORM_LOGIN; ?>
     </a>
     <?php
 }

@@ -1,19 +1,5 @@
 <?php
 /**
- * UserGroupList.php
- *
- * Shows the user group edit list at the admin panel.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
-
-/**
  * @var UserGroupController $controller
  */
 
@@ -32,9 +18,9 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
     $class = $isSorted === true ? 'sorted' : 'sortable';
     $sortOrder = $isSorted === true ? $controller->getRequestParameter('order') : 'asc';
 
-    $inner = "<span>{$name}</span><span class=\"sorting-indicator\"></span>";
-    $link = "<a href=\"{$controller->getSortUrl($sortingParameter)}\" >{$inner}</a>";
-    return "<th scope=\"col\" class=\"{$class} {$sortOrder}\">{$link}</th>";
+    $inner = "<span>$name</span><span class=\"sorting-indicator\"></span>";
+    $link = "<a href=\"{$controller->getSortUrl($sortingParameter)}\" >$inner</a>";
+    return "<th scope=\"col\" class=\"$class $sortOrder\">$link</th>";
 }
 
 ?>
@@ -75,7 +61,7 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
                 <td>
                     <strong>
                         <?php
-                        $link = "?page={$currentAdminPage}&amp;uam_action=edit_user_group"
+                        $link = "?page=$currentAdminPage&amp;uam_action=edit_user_group"
                             . "&amp;userGroupId={$userGroup->getId()}";
                         ?>
                         <a href="<?php echo $link; ?>">

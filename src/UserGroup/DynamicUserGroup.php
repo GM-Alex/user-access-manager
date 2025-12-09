@@ -1,17 +1,4 @@
 <?php
-/**
- * DynamicUserGroup.php
- *
- * The DynamicUserGroup class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -25,33 +12,13 @@ use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class DynamicUserGroup
- *
- * @package UserAccessManager\UserGroup
- */
 class DynamicUserGroup extends AbstractUserGroup
 {
-    const USER_TYPE = 'user';
-    const ROLE_TYPE = 'role';
-    const NOT_LOGGED_IN_USER_ID = 0;
+    public const USER_TYPE = 'user';
+    public const ROLE_TYPE = 'role';
+    public const NOT_LOGGED_IN_USER_ID = 0;
 
     /**
-     * @var string
-     */
-    protected $type = null;
-
-    /**
-     * DynamicUserGroup constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param Database $database
-     * @param MainConfig $config
-     * @param Util $util
-     * @param ObjectHandler $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param string $type
-     * @param int|string $id
      * @throws UserGroupTypeException
      */
     public function __construct(
@@ -62,11 +29,9 @@ class DynamicUserGroup extends AbstractUserGroup
         Util $util,
         ObjectHandler $objectHandler,
         AssignmentInformationFactory $assignmentInformationFactory,
-        string $type,
-        $id
+        protected ?string $type,
+        int|string $id
     ) {
-        $this->type = $type;
-
         parent::__construct(
             $php,
             $wordpress,
@@ -78,24 +43,16 @@ class DynamicUserGroup extends AbstractUserGroup
             $id
         );
 
-        if ($type !== self::USER_TYPE && $type !== self::ROLE_TYPE) {
+        if ($this->type !== self::USER_TYPE && $this->type !== self::ROLE_TYPE) {
             throw new UserGroupTypeException('Invalid dynamic group type.');
         }
     }
 
-    /**
-     * Returns the dynamic user group id.
-     * @return string
-     */
     public function getId(): string
     {
         return $this->type . '|' . $this->id;
     }
 
-    /**
-     * Returns the dynamic group name.
-     * @return string
-     */
     public function getName(): string
     {
         if ($this->name === null) {
@@ -118,16 +75,10 @@ class DynamicUserGroup extends AbstractUserGroup
     }
 
     /**
-     * Checks if the user group is assigned to a user.
-     * @param string $objectType
-     * @param int|string $objectId
-     * @param null $fromDate
-     * @param null $toDate
-     * @return bool
      * @throws UserGroupAssignmentException
      * @throws Exception
      */
-    public function addObject(string $objectType, $objectId, $fromDate = null, $toDate = null): bool
+    public function addObject(string $objectType, int|string $objectId, $fromDate = null, $toDate = null): bool
     {
         if ($this->objectHandler->getGeneralObjectType($objectType) === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
             throw new UserGroupAssignmentException('Dynamic user groups can\'t be assigned to user.');

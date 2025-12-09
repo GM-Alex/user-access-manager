@@ -1,17 +1,4 @@
 <?php
-/**
- * UserGroupAssignmentHandler.php
- *
- * The UserGroupAssignmentHandler class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -21,58 +8,16 @@ use Exception;
 use UserAccessManager\User\UserHandler;
 use UserAccessManager\Util\DateUtil;
 
-/**
- * Class UserGroupAssignmentHandler
- *
- * @package UserAccessManager\UserGroup
- */
 class UserGroupAssignmentHandler
 {
-    /**
-     * @var DateUtil
-     */
-    protected $dateUtil;
-
-    /**
-     * @var UserHandler
-     */
-    protected $userHandler;
-
-    /**
-     * @var UserGroupHandler
-     */
-    protected $userGroupHandler;
-
-    /**
-     * @var UserGroupFactory
-     */
-    protected $userGroupFactory;
-
-    /**
-     * UserGroupAssignmentHandler constructor.
-     * @param DateUtil $dateUtil
-     * @param UserHandler $userHandler
-     * @param UserGroupHandler $userGroupHandler
-     * @param UserGroupFactory $userGroupFactory
-     */
     public function __construct(
-        DateUtil $dateUtil,
-        UserHandler $userHandler,
-        UserGroupHandler $userGroupHandler,
-        UserGroupFactory $userGroupFactory
+        protected DateUtil $dateUtil,
+        protected UserHandler $userHandler,
+        protected UserGroupHandler $userGroupHandler,
+        protected UserGroupFactory $userGroupFactory
     ) {
-        $this->dateUtil = $dateUtil;
-        $this->userHandler = $userHandler;
-        $this->userGroupHandler = $userGroupHandler;
-        $this->userGroupFactory = $userGroupFactory;
     }
 
-    /**
-     * Processes the date parameter.
-     * @param array $data
-     * @param string $name
-     * @return null|string
-     */
     private function getDateParameter(array $data, string $name): ?string
     {
         $isValid = isset($data[$name]['date']) === true && isset($data[$name]['time']) === true
@@ -82,21 +27,15 @@ class UserGroupAssignmentHandler
     }
 
     /**
-     * Updates the user groups for the given object.
-     * @param AbstractUserGroup[] $filteredUserGroups
-     * @param string $objectType
-     * @param int|string $objectId
-     * @param array $addUserGroups
-     * @param array $removeUserGroups
      * @throws Exception
      */
     private function setUserGroups(
-        array $filteredUserGroups,
-        string $objectType,
-        $objectId,
-        array $addUserGroups,
-        array $removeUserGroups
-    ) {
+        array      $filteredUserGroups,
+        string     $objectType,
+        int|string $objectId,
+        array      $addUserGroups,
+        array      $removeUserGroups
+    ): void {
         foreach ($filteredUserGroups as $groupId => $userGroup) {
             if (isset($removeUserGroups[$groupId]) === true) {
                 $userGroup->removeObject($objectType, $objectId);
@@ -116,14 +55,10 @@ class UserGroupAssignmentHandler
     }
 
     /**
-     * Sets the dynamic user groups for the given object.
-     * @param string $objectType
-     * @param int|string $objectId
-     * @param array $addDynamicUserGroups
      * @throws UserGroupAssignmentException
      * @throws UserGroupTypeException
      */
-    private function setDynamicGroups(string $objectType, $objectId, array $addDynamicUserGroups)
+    private function setDynamicGroups(string $objectType, int|string $objectId, array $addDynamicUserGroups): void
     {
         foreach ($addDynamicUserGroups as $dynamicUserGroupKey => $addDynamicUserGroup) {
             $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
@@ -147,14 +82,10 @@ class UserGroupAssignmentHandler
     }
 
     /**
-     * Sets the default user groups for the given object.
-     * @param AbstractUserGroup[] $filteredUserGroups
-     * @param string $objectType
-     * @param int|string $objectId
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    private function setDefaultGroups(array $filteredUserGroups, string $objectType, $objectId)
+    private function setDefaultGroups(array $filteredUserGroups, string $objectType, int|string $objectId): void
     {
         /**
          * @var UserGroup[] $userGroupsToCheck
@@ -174,23 +105,17 @@ class UserGroupAssignmentHandler
     }
 
     /**
-     * Saves the object data to the database.
-     * @param string $objectType
-     * @param int|string $objectId
-     * @param array $addUserGroups
-     * @param array $removeUserGroups
-     * @param array $addDynamicUserGroups
      * @throws UserGroupAssignmentException
      * @throws UserGroupTypeException
      * @throws Exception
      */
     public function assignObjectToUserGroups(
         string $objectType,
-        $objectId,
+        int|string $objectId,
         array $addUserGroups,
         array $removeUserGroups,
         array $addDynamicUserGroups
-    ) {
+    ): void {
         $filteredUserGroups = $this->userGroupHandler->getFilteredUserGroups();
         $this->setUserGroups($filteredUserGroups, $objectType, $objectId, $addUserGroups, $removeUserGroups);
 
