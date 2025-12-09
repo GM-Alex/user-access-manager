@@ -33,12 +33,12 @@ class MultipleFormElementTest extends TestCase
     /**
      * @param string $id
      * @param array $possibleValues
-     * @param mixed $value
+     * @param mixed|null $value
      * @param null $label
      * @param null $description
      * @return MockObject|MultipleFormElement
      */
-    private function getStub(string $id, array $possibleValues, $value = null, $label = null, $description = null)
+    private function getStub(string $id, array $possibleValues, mixed $value = null, $label = null, $description = null): MultipleFormElement|MockObject
     {
         return $this->getMockForAbstractClass(
             MultipleFormElement::class,

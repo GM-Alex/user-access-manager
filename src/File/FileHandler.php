@@ -1,87 +1,29 @@
 <?php
-/**
- * FileHandler.php
- *
- * The FileHandler class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
 namespace UserAccessManager\File;
 
+use JetBrains\PhpStorm\NoReturn;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class FileHandler
- *
- * @package UserAccessManager\FileHandler
- */
 class FileHandler
 {
-    const X_SEND_FILE_TEST_FILE = 'xSendFileTestFile';
+    public const X_SEND_FILE_TEST_FILE = 'xSendFileTestFile';
 
-    /**
-     * @var Php
-     */
-    private $php;
-
-    /**
-     * @var Wordpress
-     */
-    private $wordpress;
-
-    /**
-     * @var WordpressConfig
-     */
-    private $wordpressConfig;
-
-    /**
-     * @var MainConfig
-     */
-    private $mainConfig;
-
-    /**
-     * @var FileProtectionFactory
-     */
-    private $fileProtectionFactory;
-
-    /**
-     * FileHandler constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param MainConfig $mainConfig
-     * @param FileProtectionFactory $fileProtectionFactory
-     */
     public function __construct(
-        Php $php,
-        Wordpress $wordpress,
-        WordpressConfig $wordpressConfig,
-        MainConfig $mainConfig,
-        FileProtectionFactory $fileProtectionFactory
+        private Php $php,
+        private Wordpress $wordpress,
+        private WordpressConfig $wordpressConfig,
+        private MainConfig $mainConfig,
+        private FileProtectionFactory $fileProtectionFactory
     ) {
-        $this->php = $php;
-        $this->wordpress = $wordpress;
-        $this->wordpressConfig = $wordpressConfig;
-        $this->mainConfig = $mainConfig;
-        $this->fileProtectionFactory = $fileProtectionFactory;
     }
 
-    /**
-     * Clears the buffer.
-     */
-    private function clearBuffer()
+    private function clearBuffer(): void
     {
         //prevent '\n' / '0A'
         if ((int) $this->php->iniGet('output_buffering') === 0
@@ -93,11 +35,6 @@ class FileHandler
         flush();
     }
 
-    /**
-     * Returns the file mine type.
-     * @param string $file
-     * @return string
-     */
     private function getFileMineType(string $file): string
     {
         $fileName = basename($file);
@@ -128,12 +65,7 @@ class FileHandler
         return (string) $fileMimeType;
     }
 
-    /**
-     * Adds the default header.
-     * @param string $file
-     * @param bool $isInline
-     */
-    private function addDefaultHeader(string $file, bool $isInline)
+    private function addDefaultHeader(string $file, bool $isInline): void
     {
         $fileMimeType = $this->getFileMineType($file);
         $contentDisposition = ($isInline === true) ? 'inline' : 'attachment';
@@ -141,14 +73,10 @@ class FileHandler
 
         header('Content-Description: File Transfer');
         header('Content-Type: ' . $fileMimeType);
-        header("Content-Disposition: {$contentDisposition}; filename=\"{$baseName}\"");
+        header("Content-Disposition: $contentDisposition; filename=\"$baseName\"");
     }
 
-    /**
-     * Delivers the file via fopen.
-     * @param string $file
-     */
-    private function deliverFileViaFopen(string $file)
+    private function deliverFileViaFopen(string $file): void
     {
         $handler = fopen($file, 'r');
 
@@ -161,18 +89,13 @@ class FileHandler
         }
     }
 
-    /**
-     * Delivers the file.
-     * @param string $file
-     * @param bool $isInline
-     */
-    private function deliverFile(string $file, bool $isInline)
+    private function deliverFile(string $file, bool $isInline): void
     {
         header("HTTP/1.1 200 OK");
         $downloadType = $this->mainConfig->getDownloadType();
 
         if ($downloadType === 'xsendfile') {
-            header("X-Sendfile: {$file}");
+            header("X-Sendfile: $file");
         }
 
         $this->addDefaultHeader($file, $isInline);
@@ -190,14 +113,6 @@ class FileHandler
         }
     }
 
-    /**
-     * Sets the seek start and end.
-     * @param string $range
-     * @param int $fileSize
-     * @param int|null $seekStart
-     * @param int|null $seekEnd
-     * @return bool
-     */
     private function getSeekStartEnd(string $range, int $fileSize, ?int &$seekStart, ?int &$seekEnd): bool
     {
         //Figure out download piece from range (if set)
@@ -219,12 +134,7 @@ class FileHandler
         return $seekStart < $seekEnd;
     }
 
-    /**
-     * Reads the file partly.
-     * @param resource $fileHandler
-     * @param int $bytes
-     */
-    private function readFilePartly($fileHandler, int $bytes)
+    private function readFilePartly($fileHandler, int $bytes): void
     {
         $bytesLeft = $bytes;
         $bufferSize = 1024;
@@ -242,11 +152,6 @@ class FileHandler
         }
     }
 
-    /**
-     * Returns the http ranges.
-     * @param int $fileSize
-     * @return array
-     */
     private function getRanges(int $fileSize): array
     {
         $httpRange = explode('=', $_SERVER['HTTP_RANGE']);
@@ -269,14 +174,6 @@ class FileHandler
         return $ranges;
     }
 
-    /**
-     * Returns the extra contents.
-     * @param string $file
-     * @param array $ranges
-     * @param int|null $contentLength
-     * @param string|null $boundary
-     * @return array
-     */
     private function getExtraContents(string $file, array $ranges, ?int &$contentLength, ?string &$boundary): array
     {
         $contentLength = 0;
@@ -285,15 +182,15 @@ class FileHandler
         //More than one range is requested?
         if (count($ranges) > 1) {
             $boundary = 'g45d64df96bmdf4sdgh45hf5';
-            $fullBoundary = "\r\n--{$boundary}--\r\n";
+            $fullBoundary = "\r\n--$boundary--\r\n";
             $fileSize = filesize($file);
             $mineType = $this->getFileMineType($file);
 
             //compute content length
             foreach ($ranges as $index => $range) {
-                list($seekStart, $seekEnd) = $range;
+                [$seekStart, $seekEnd] = $range;
                 $extraContent = $fullBoundary;
-                $extraContent .= "Content-Type: {$mineType}\r\n";
+                $extraContent .= "Content-Type: $mineType\r\n";
                 $extraContent .= "Content-Range: bytes $seekStart-$seekEnd/$fileSize\r\n\r\n";
                 $extraContents[$index] = $extraContent;
                 $contentLength += strlen($extraContent) + ($seekEnd - $seekStart + 1);
@@ -306,12 +203,7 @@ class FileHandler
         return $extraContents;
     }
 
-    /**
-     * Delivers the file partial.
-     * @param string $file
-     * @param bool $isInline
-     */
-    private function deliverFilePartial(string $file, bool $isInline)
+    private function deliverFilePartial(string $file, bool $isInline): void
     {
         $fileSize = filesize($file);
         $ranges = $this->getRanges($fileSize);
@@ -325,14 +217,14 @@ class FileHandler
 
             if ($extraContents === []) {
                 $this->addDefaultHeader($file, $isInline);
-                list($seekStart, $seekEnd) = $ranges[0];
+                [$seekStart, $seekEnd] = $ranges[0];
                 $contentLength = ($seekEnd - $seekStart + 1);
-                header("Content-Range: bytes {$seekStart}-{$seekEnd}/{$fileSize}");
+                header("Content-Range: bytes $seekStart-$seekEnd/$fileSize");
             } else {
-                header("Content-Type: multipart/x-byteranges; boundary={$boundary}");
+                header("Content-Type: multipart/x-byteranges; boundary=$boundary");
             }
 
-            header("Content-Length: {$contentLength}");
+            header("Content-Length: $contentLength");
             $fileHandler = fopen($file, 'r');
 
             foreach ($ranges as $index => $range) {
@@ -340,7 +232,7 @@ class FileHandler
                     echo $extraContents[$index];
                 }
 
-                list($seekStart, $seekEnd) = $ranges[0];
+                [$seekStart, $seekEnd] = $ranges[0];
                 fseek($fileHandler, $seekStart);
                 $this->readFilePartly($fileHandler, $seekEnd - $seekStart + 1);
             }
@@ -355,11 +247,6 @@ class FileHandler
         }
     }
 
-    /**
-     * Checks if the file is an inline file
-     * @param string $file
-     * @return bool
-     */
     private function isInlineFile(string $file): bool
     {
         $inlineFiles = array_map('trim', explode(',', (string) $this->mainConfig->getInlineFiles()));
@@ -369,12 +256,8 @@ class FileHandler
         return isset($map[$extension]);
     }
 
-    /**
-     * Delivers the content of the requested file.
-     * @param string $file
-     * @param bool $isImage
-     */
-    public function getFile(string $file, bool $isImage)
+    #[NoReturn]
+    public function getFile(string $file, bool $isImage): void
     {
         //Deliver content
         if (file_exists($file) === true) {
@@ -399,10 +282,6 @@ class FileHandler
         }
     }
 
-    /**
-     * Returns the current file protection handler.
-     * @return FileProtectionInterface
-     */
     private function getCurrentFileProtectionHandler(): FileProtectionInterface
     {
         if ($this->wordpress->isNginx() === true) {
@@ -412,10 +291,6 @@ class FileHandler
         return $this->fileProtectionFactory->createApacheFileProtection();
     }
 
-    /**
-     * Returns the file protection file.
-     * @return string
-     */
     public function getFileProtectionFileName(): string
     {
         return $this->getCurrentFileProtectionHandler()->getFileNameWithPath(
@@ -423,13 +298,7 @@ class FileHandler
         );
     }
 
-    /**
-     * Creates a protection file.
-     * @param string $dir The destination directory.
-     * @param string $objectType The object type.
-     * @return false
-     */
-    public function createFileProtection($dir = null, $objectType = null): bool
+    public function createFileProtection(string $dir = null, string $objectType = null): bool
     {
         $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
@@ -440,12 +309,7 @@ class FileHandler
         return false;
     }
 
-    /**
-     * Deletes the protection files.
-     * @param string $dir The destination directory.
-     * @return false
-     */
-    public function deleteFileProtection($dir = null): bool
+    public function deleteFileProtection(string $dir = null): bool
     {
         $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
@@ -456,24 +320,19 @@ class FileHandler
         return false;
     }
 
-    /**
-     * Delivers a xsendfile test file.
-     */
-    public function deliverXSendFileTestFile()
+    #[NoReturn]
+    public function deliverXSendFileTestFile(): void
     {
         $file = $this->wordpressConfig->getUploadDirectory() . DIRECTORY_SEPARATOR . self::X_SEND_FILE_TEST_FILE;
         file_put_contents($file, 'success');
 
-        header("X-Sendfile: {$file}");
+        header("X-Sendfile: $file");
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($file) . '"');
         $this->php->callExit();
     }
 
-    /**
-     * Removes the xsendfile test file if exists.
-     */
-    public function removeXSendFileTestFile()
+    public function removeXSendFileTestFile(): void
     {
         $file = $this->wordpressConfig->getUploadDirectory() . DIRECTORY_SEPARATOR . self::X_SEND_FILE_TEST_FILE;
 

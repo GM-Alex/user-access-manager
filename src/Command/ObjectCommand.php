@@ -1,20 +1,4 @@
-<?php
-/**
- * ObjectsCommand.php
- *
- * The ObjectCommand class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @author    Nils Woetzel nils.woetzel@h-its.org
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace UserAccessManager\Command;
 
@@ -27,11 +11,6 @@ use UserAccessManager\Wrapper\WordpressCli;
 use WP_CLI\ExitException;
 use WP_CLI_Command;
 
-/**
- * Class ObjectCommand
- *
- * @package UserAccessManager\Command
- */
 class ObjectCommand extends WP_CLI_Command
 {
     const ACTION_ADD = 'add';
@@ -39,29 +18,19 @@ class ObjectCommand extends WP_CLI_Command
     const ACTION_REMOVE = 'remove';
 
     /**
-     * @var WordpressCli
-     */
-    private $wordpressCli;
-
-    /**
-     * @var UserGroupHandler
-     */
-    private $userGroupHandler;
-
-    /**
      * ObjectCommand constructor.
      * @param WordpressCli $wordpressCli
      * @param UserGroupHandler $userGroupHandler
      */
-    public function __construct(WordpressCli $wordpressCli, UserGroupHandler $userGroupHandler)
-    {
-        $this->wordpressCli = $wordpressCli;
-        $this->userGroupHandler = $userGroupHandler;
+    public function __construct(
+        private WordpressCli $wordpressCli,
+        private UserGroupHandler $userGroupHandler
+    ) {
         parent::__construct();
     }
 
     /**
-     * Converts the string to and associative array of index and group
+     * Converts the string to and associative an array of index and group
      * @param AbstractUserGroup[] $userGroups
      * @return array
      */
@@ -74,40 +43,23 @@ class ObjectCommand extends WP_CLI_Command
             $userGroups
         );
 
-        $userGroupNames = array_flip($userGroupNames);
-        return (is_array($userGroupNames) === true) ? $userGroupNames : [];
+        return array_flip($userGroupNames);
     }
 
-    /**
-     * Returns the user group id and the type of the id.
-     * @param array $namesMap
-     * @param string $identifier
-     * @param string|null $type
-     * @return int|string
-     */
-    private function getUserGroupIdAndType(array $namesMap, string $identifier, ?string &$type = '')
+    private function getUserGroupIdAndType(array $namesMap, string $identifier, ?string &$type = ''): int|string
     {
         $type = (is_numeric($identifier) === true) ? 'id' : 'name';
         return $namesMap[$identifier] ?? $identifier;
     }
 
     /**
-     * Returns the add and remove user groups by reference.
-     * @param string $operation
-     * @param string $objectType
-     * @param int|string $objectId
-     * @param array $userGroupIds
-     * @param AbstractUserGroup[] $userGroups
-     * @param array|null $addUserGroups
-     * @param array|null $removeUserGroups
-     * @return bool
      * @throws ExitException
      * @throws UserGroupTypeException
      */
     private function getAddRemoveUserGroups(
         string $operation,
         string $objectType,
-        $objectId,
+        int|string $objectId,
         array $userGroupIds,
         array $userGroups,
         ?array &$addUserGroups = [],
@@ -121,7 +73,7 @@ class ObjectCommand extends WP_CLI_Command
             $userGroupId = $this->getUserGroupIdAndType($namesMap, $identifier, $type);
 
             if (isset($userGroups[$userGroupId]) !== true) {
-                $this->wordpressCli->error("There is no group with the {$type}: {$identifier}");
+                $this->wordpressCli->error("There is no group with the $type: $identifier");
                 return false;
             }
 
@@ -142,14 +94,10 @@ class ObjectCommand extends WP_CLI_Command
     /**
      * update groups for an object
      * ## OPTIONS
-     * <operation>
-     * : 'add', 'remove' or 'update'
-     * <object_type>
-     * : 'page', 'post', 'user', 'role', 'category' or any other term type
-     * <object_id>
-     * : the id of the object (string for role)
-     * <user_groups>
-     * : comma separated list of group names or ids to add, remove of update to for the object
+     * <operation>: 'add', 'remove' or 'update'
+     * <object_type>: 'page', 'post', 'user', 'role', 'category' or any other term type
+     * <object_id>: the id of the object (string for role)
+     * <user_groups>: comma separated list of group names or ids to add, remove of update to for the object
      * ## EXAMPLES
      * wp uam object add    user     1      fighters,losers
      * wp uam object remove role     author fighters
@@ -160,7 +108,7 @@ class ObjectCommand extends WP_CLI_Command
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    public function __invoke(array $arguments, array $assocArguments)
+    public function __invoke(array $arguments, array $assocArguments): void
     {
         if (count($arguments) < 4) {
             $this->wordpressCli->error('<operation>, <object_type>, <object_id> and <user_groups> are required');
@@ -174,9 +122,9 @@ class ObjectCommand extends WP_CLI_Command
             self::ACTION_REMOVE => 'Successfully removed groups: %1$s from %2$s %3$s'
         ];
 
-        // check that operation is valid
+        // check that an operation is valid
         if (isset($messages[$operation]) === false) {
-            $this->wordpressCli->error("Operation is not valid: {$operation}");
+            $this->wordpressCli->error("Operation is not valid: $operation");
             return;
         }
 

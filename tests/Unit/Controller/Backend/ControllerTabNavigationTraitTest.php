@@ -30,7 +30,7 @@ class ControllerTabNavigationTraitTest extends TestCase
     /**
      * @return MockObject|ControllerTabNavigationTrait
      */
-    private function getStub()
+    private function getStub(): ControllerTabNavigationTrait|MockObject
     {
         $stub = $this->getMockForTrait(
             ControllerTabNavigationTrait::class,

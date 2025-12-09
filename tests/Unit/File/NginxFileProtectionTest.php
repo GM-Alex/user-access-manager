@@ -32,7 +32,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
     /**
      * @var FileSystem
      */
-    private $root;
+    private FileSystem $root;
 
     /**
      * Setup virtual file system.

@@ -21,7 +21,6 @@ use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
-use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\Wrapper\Wordpress;
 use WP_User;
 
@@ -32,53 +31,17 @@ use WP_User;
  */
 class UserHandler
 {
-    const MANAGE_USER_GROUPS_CAPABILITY = 'manage_user_groups';
+    public const MANAGE_USER_GROUPS_CAPABILITY = 'manage_user_groups';
 
-    /**
-     * @var Wordpress
-     */
-    private $wordpress;
-
-    /**
-     * @var MainConfig
-     */
-    private $config;
-
-    /**
-     * @var Database
-     */
-    private $database;
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
-     * The constructor
-     * @param Wordpress $wordpress
-     * @param MainConfig $config
-     * @param Database $database
-     * @param ObjectHandler $objectHandler
-     */
     public function __construct(
-        Wordpress $wordpress,
-        MainConfig $config,
-        Database $database,
-        ObjectHandler $objectHandler
+        private Wordpress $wordpress,
+        private MainConfig $config,
+        private Database $database,
+        private ObjectHandler $objectHandler
     ) {
-        $this->wordpress = $wordpress;
-        $this->config = $config;
-        $this->database = $database;
-        $this->objectHandler = $objectHandler;
     }
 
-    /**
-     * Converts the ip to an integer.
-     * @param string $ip
-     * @return string|false
-     */
-    private function calculateIp(string $ip)
+    private function calculateIp(string $ip): bool|string
     {
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
             return base_convert((string) ip2long($ip), 10, 2);
@@ -98,11 +61,6 @@ class UserHandler
         return $binaryIp;
     }
 
-    /**
-     * Calculates the ip range.
-     * @param string $ipRange
-     * @return array
-     */
     private function getCalculatedRange(string $ipRange): array
     {
         $ipRange = explode('-', $ipRange);
@@ -115,12 +73,6 @@ class UserHandler
         ];
     }
 
-    /**
-     * Checks if the given ip matches with the range.
-     * @param string $currentIp The ip of the current user.
-     * @param array $ipRanges The ip ranges.
-     * @return bool
-     */
     public function isIpInRange(string $currentIp, array $ipRanges): bool
     {
         $currentIp = $this->calculateIp($currentIp);
@@ -140,12 +92,7 @@ class UserHandler
         return false;
     }
 
-    /**
-     * Return the role of the user.
-     * @param WP_User|false $user The user.
-     * @return array
-     */
-    public function getUserRole($user): array
+    public function getUserRole(WP_User|bool $user): array
     {
         if ($user instanceof WP_User && isset($user->{$this->database->getPrefix() . 'capabilities'}) === true) {
             $capabilities = (array) $user->{$this->database->getPrefix() . 'capabilities'};
@@ -156,12 +103,7 @@ class UserHandler
         return (count($capabilities) > 0) ? array_keys($capabilities) : [AbstractUserGroup::NONE_ROLE];
     }
 
-    /**
-     * Checks the user access by user level.
-     * @param bool|string $allowedCapability If set check also for the capability.
-     * @return bool
-     */
-    public function checkUserAccess($allowedCapability = false): bool
+    public function checkUserAccess(bool|string $allowedCapability = false): bool
     {
         $currentUser = $this->wordpress->getCurrentUser();
 
@@ -193,12 +135,7 @@ class UserHandler
         );
     }
 
-    /**
-     * Checks if the user is an admin user
-     * @param int|string $userId The user id.
-     * @return bool
-     */
-    public function userIsAdmin($userId): bool
+    public function userIsAdmin(int|string $userId): bool
     {
         $user = $this->objectHandler->getUser($userId);
         $roles = $this->getUserRole($user);

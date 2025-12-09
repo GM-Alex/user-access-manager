@@ -38,7 +38,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
      * @return MockObject|ObjectMembershipWithMapHandler
      * @throws ReflectionException
      */
-    private function getStub(AssignmentInformationFactory $assignmentInformationFactory)
+    private function getStub(AssignmentInformationFactory $assignmentInformationFactory): MockObject|ObjectMembershipWithMapHandler
     {
         $stub = $this->getMockForAbstractClass(
             ObjectMembershipWithMapHandler::class,
@@ -88,10 +88,13 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
             ->method('getId')
             ->will($this->returnValue(1));
 
+        $assignmentInformationMock = $this->createMock(AssignmentInformation::class);
         $returnCallback = $this->returnCallback(
-            function ($generalObjectType, $objectId, &$assignmentInformation) {
-                $assignmentInformation = ($objectId === 'parentObjectId') ? 'rmInfo' : null;
-                return ($objectId === 'objectIdFalse' || $objectId === 'parentObjectIdFalse') ? false : true;
+            function ($generalObjectType, $objectId, &$assignmentInformation) use ($assignmentInformationMock) {
+                $assignmentInformation = ($objectId === 'parentObjectId')
+                    ? $assignmentInformationMock
+                    : null;
+                return !($objectId === 'objectIdFalse' || $objectId === 'parentObjectIdFalse');
             }
         );
 
@@ -146,7 +149,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
         );
         self::assertTrue($result);
         self::assertEquals(
-            ['generalObjectType' => ['parentObjectId' => 'rmInfo']],
+            ['generalObjectType' => ['parentObjectId' => $assignmentInformationMock]],
             $assignmentInformation->getRecursiveMembership()
         );
 

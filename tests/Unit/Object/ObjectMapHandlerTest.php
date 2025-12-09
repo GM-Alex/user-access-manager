@@ -50,7 +50,7 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
      * @param string $type
      * @return stdClass
      */
-    private function createTreeMapDbResultElement(int $id, $parentId = 0, $type = 'post'): stdClass
+    private function createTreeMapDbResultElement(int $id, int $parentId = 0, string $type = 'post'): stdClass
     {
         $element = new stdClass();
         $element->id = $id;
@@ -66,7 +66,7 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
      * @param string $secondType
      * @return array
      */
-    private function getExpectedMapResult(string $generalType, $firstType = 'post', $secondType = 'page'): array
+    private function getExpectedMapResult(string $generalType, string $firstType = 'post', string $secondType = 'page'): array
     {
         $result = [
             ObjectMapHandler::TREE_MAP_CHILDREN => [

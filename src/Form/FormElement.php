@@ -27,42 +27,21 @@ abstract class FormElement
     use ValueTrait;
     use LabelTrait;
 
-    /**
-     * @var string
-     */
-    protected $id;
-
-    /**
-     * @var string
-     */
-    protected $description;
-
-    /**
-     * FormElement constructor.
-     * @param string $id
-     * @param mixed|null $value
-     * @param string|null $label
-     * @param string|null $description
-     */
-    public function __construct(string $id, $value = null, $label = null, $description = null)
-    {
-        $this->id = $id;
+    public function __construct(
+        protected string $id,
+        mixed $value = null,
+        ?string $label = null,
+        protected ?string $description = null
+    ) {
         $this->value = $value;
         $this->label = $label;
-        $this->description = $description;
     }
 
-    /**
-     * @return string
-     */
     public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * @return null|string
-     */
     public function getDescription(): ?string
     {
         return $this->description;

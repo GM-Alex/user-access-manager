@@ -1,17 +1,4 @@
 <?php
-/**
- * SettingsController.php
- *
- * The SettingsController class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -37,79 +24,31 @@ class SettingsController extends Controller
 {
     use ControllerTabNavigationTrait;
 
-    const GROUP_POST_TYPES = 'post_types';
-    const GROUP_TAXONOMIES = 'taxonomies';
-    const GROUP_FILES = 'file';
-    const SECTION_FILES = 'file';
-    const GROUP_AUTHOR = 'author';
-    const SECTION_AUTHOR = 'author';
-    const GROUP_CACHE = 'cache';
-    const GROUP_OTHER = 'other';
-    const SECTION_OTHER = 'other';
+    public const GROUP_POST_TYPES = 'post_types';
+    public const GROUP_TAXONOMIES = 'taxonomies';
+    public const GROUP_FILES = 'file';
+    public const SECTION_FILES = 'file';
+    public const GROUP_AUTHOR = 'author';
+    public const SECTION_AUTHOR = 'author';
+    public const GROUP_CACHE = 'cache';
+    public const GROUP_OTHER = 'other';
+    public const SECTION_OTHER = 'other';
 
-    /**
-     * @var MainConfig
-     */
-    private $mainConfig;
+    protected ?string $template = 'AdminSettings.php';
 
-    /**
-     * @var string
-     */
-    protected $template = 'AdminSettings.php';
-
-    /**
-     * @var Cache
-     */
-    private $cache;
-
-    /**
-     * @var FileHandler
-     */
-    private $fileHandler;
-
-    /**
-     * @var FormFactory
-     */
-    private $formFactory;
-
-    /**
-     * @var FormHelper
-     */
-    private $formHelper;
-
-    /**
-     * SettingsController constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param WordpressConfig $wordpressConfig
-     * @param MainConfig $mainConfig
-     * @param Cache $cache
-     * @param FileHandler $fileHandler
-     * @param FormFactory $formFactory
-     * @param FormHelper $formHelper
-     */
     public function __construct(
         Php $php,
         Wordpress $wordpress,
         WordpressConfig $wordpressConfig,
-        MainConfig $mainConfig,
-        Cache $cache,
-        FileHandler $fileHandler,
-        FormFactory $formFactory,
-        FormHelper $formHelper
+        private MainConfig $mainConfig,
+        private Cache $cache,
+        private FileHandler $fileHandler,
+        private FormFactory $formFactory,
+        private FormHelper $formHelper
     ) {
         parent::__construct($php, $wordpress, $wordpressConfig);
-        $this->mainConfig = $mainConfig;
-        $this->cache = $cache;
-        $this->fileHandler = $fileHandler;
-        $this->formFactory = $formFactory;
-        $this->formHelper = $formHelper;
     }
 
-    /**
-     * Returns the tab groups.
-     * @return array
-     */
     public function getTabGroups(): array
     {
         $activeCacheProvider = $this->mainConfig->getActiveCacheProvider();
@@ -136,10 +75,7 @@ class SettingsController extends Controller
         ];
     }
 
-    /**
-     * Returns the pages.
-     * @return array
-     */
+
     private function getPages(): array
     {
         $pages = $this->wordpress->getPages('sort_column=menu_order');
@@ -147,7 +83,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the post types as object.
      * @return WP_Post_Type[]
      */
     private function getPostTypes(): array
@@ -156,7 +91,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the taxonomies as objects.
      * @return WP_Taxonomy[]
      */
     private function getTaxonomies(): array
@@ -164,40 +98,22 @@ class SettingsController extends Controller
         return $this->wordpress->getTaxonomies(['public' => true], 'objects');
     }
 
-    /**
-     * @param string $key
-     * @param bool $description
-     * @return string
-     */
-    public function getText(string $key, $description = false): string
+    public function getText(string $key, bool $description = false): string
     {
         return $this->formHelper->getText($key, $description);
     }
 
-    /**
-     * @param string $key
-     * @return string
-     */
     public function getGroupText(string $key): string
     {
         return $this->getText($key);
     }
 
-    /**
-     * @param string $key
-     * @return string
-     */
     public function getGroupSectionText(string $key): string
     {
         return ($key === MainConfig::DEFAULT_TYPE) ?
             TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT : $this->getObjectName($key);
     }
 
-    /**
-     * Returns the object name.
-     * @param string $objectKey
-     * @return string
-     */
     public function getObjectName(string $objectKey): string
     {
         $objects = $this->wordpress->getPostTypes(['public' => true], 'objects')
@@ -207,12 +123,9 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the post settings form.
-     * @param string $postType
-     * @return Form
      * @throws Exception
      */
-    private function getPostSettingsForm($postType = MainConfig::DEFAULT_TYPE): Form
+    private function getPostSettingsForm(string $postType = MainConfig::DEFAULT_TYPE): Form
     {
         $textarea = null;
         $configParameters = $this->mainConfig->getConfigParameters();
@@ -229,7 +142,7 @@ class SettingsController extends Controller
 
         $parameters = ($postType !== MainConfig::DEFAULT_TYPE) ? ["{$postType}_use_default"] : [];
         $parameters = array_merge($parameters, [
-            "hide_{$postType}",
+            "hide_$postType",
             "hide_{$postType}_title",
             "{$postType}_title",
             $textarea,
@@ -243,25 +156,18 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the taxonomy settings form.
-     * @param string $taxonomy
-     * @return Form
      * @throws Exception
      */
-    private function getTaxonomySettingsForm($taxonomy = MainConfig::DEFAULT_TYPE): Form
+    private function getTaxonomySettingsForm(string $taxonomy = MainConfig::DEFAULT_TYPE): Form
     {
         $parameters = ($taxonomy !== MainConfig::DEFAULT_TYPE) ? ["{$taxonomy}_use_default"] : [];
         $parameters = array_merge($parameters, [
-            "hide_empty_{$taxonomy}"
+            "hide_empty_$taxonomy"
         ]);
 
         return $this->formHelper->getSettingsForm($parameters, $taxonomy);
     }
 
-    /**
-     * Checks if x send file is available.
-     * @return bool
-     */
     private function isXSendFileAvailable(): bool
     {
         $content = @file_get_contents($this->wordpress->getSiteUrl() . '?testXSendFile');
@@ -270,11 +176,7 @@ class SettingsController extends Controller
         return ($content === 'success');
     }
 
-    /**
-     * Disables the xSendFileOption
-     * @param Form $form
-     */
-    private function disableXSendFileOption(Form $form)
+    private function disableXSendFileOption(Form $form): void
     {
         $formElements = $form->getElements();
 
@@ -289,12 +191,7 @@ class SettingsController extends Controller
         }
     }
 
-    /**
-     * Adds the lock file types config parameter to the parameters.
-     * @param array $configParameters
-     * @param array $parameters
-     */
-    private function addLockFileTypes(array $configParameters, array &$parameters)
+    private function addLockFileTypes(array $configParameters, array &$parameters): void
     {
         if (isset($configParameters['lock_file_types']) === true
             && $this->wordpress->isNginx() === false
@@ -311,8 +208,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the files settings form.
-     * @return Form
      * @throws Exception
      */
     private function getFilesSettingsForm(): Form
@@ -350,8 +245,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the author settings form.
-     * @return Form
      * @throws Exception
      */
     private function getAuthorSettingsForm(): Form
@@ -365,12 +258,7 @@ class SettingsController extends Controller
         return $this->formHelper->getSettingsForm($parameters);
     }
 
-    /**
-     * Adds the custom page redirect from element.
-     * @param array $configParameters
-     * @param array $values
-     */
-    private function addCustomPageRedirectFormElement(array $configParameters, array &$values)
+    private function addCustomPageRedirectFormElement(array $configParameters, array &$values): void
     {
         if (isset($configParameters['redirect_custom_page']) === true) {
             $redirectCustomPage = $configParameters['redirect_custom_page'];
@@ -398,15 +286,12 @@ class SettingsController extends Controller
             try {
                 $redirectCustomPageValue->setSubElement($formElement);
                 $values[] = $redirectCustomPageValue;
-            } catch (Exception $exception) {
-                // Do Nothing
+            } catch (Exception) {
             }
         }
     }
 
     /**
-     * Returns the author settings form.
-     * @return Form
      * @throws Exception
      */
     private function getOtherSettingsForm(): Form
@@ -430,8 +315,7 @@ class SettingsController extends Controller
                         TXT_UAM_REDIRECT_TO_URL,
                         $configParameters['redirect_custom_url']
                     );
-                } catch (Exception $exception) {
-                    // Do nothing.
+                } catch (Exception) {
                 }
             }
 
@@ -460,13 +344,6 @@ class SettingsController extends Controller
         return $this->formHelper->getSettingsForm($parameters);
     }
 
-    /**
-     * Returns the full settings from.
-     * @param array $types
-     * @param array $ignoredTypes
-     * @param Callable $formFunction
-     * @return array
-     */
     private function getFullSettingsFrom(array $types, array $ignoredTypes, callable $formFunction): array
     {
         $groupForms = [];
@@ -484,8 +361,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the full taxonomy post forms.
-     * @return array
      * @throws Exception
      */
     private function getFullPostSettingsForm(): array
@@ -500,8 +375,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the full taxonomy settings forms.
-     * @return array
      * @throws Exception
      */
     private function getFullTaxonomySettingsForm(): array
@@ -516,8 +389,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the full cache providers froms.
-     * @return array
      * @throws Exception
      */
     private function getFullCacheProvidersForm(): array
@@ -536,7 +407,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Returns the current settings form.
      * @return Form[]
      */
     public function getCurrentGroupForms(): array
@@ -575,11 +445,7 @@ class SettingsController extends Controller
         return [];
     }
 
-    /**
-     * Updates the file handling file.
-     * @param array $configParameters
-     */
-    private function updateFileProtectionFile(array $configParameters)
+    private function updateFileProtectionFile(array $configParameters): void
     {
         $key = 'custom_file_handling_file';
         $customFileHandlingFile = isset($configParameters[$key]) === true ? $configParameters[$key] : null;
@@ -599,10 +465,7 @@ class SettingsController extends Controller
         }
     }
 
-    /**
-     * Update settings action.
-     */
-    public function updateSettingsAction()
+    public function updateSettingsAction(): void
     {
         $this->verifyNonce('uamUpdateSettings');
         $group = $this->getCurrentTabGroup();
@@ -625,11 +488,6 @@ class SettingsController extends Controller
         $this->setUpdateMessage(TXT_UAM_UPDATE_SETTINGS);
     }
 
-    /**
-     * Checks if the group is a post type.
-     * @param string $key
-     * @return bool
-     */
     public function isPostTypeGroup(string $key): bool
     {
         $postTypes = $this->getPostTypes();

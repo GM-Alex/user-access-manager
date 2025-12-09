@@ -48,12 +48,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $this->getMainConfig(),
-            $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getDatabase()
         );
 
         self::assertInstanceOf(PostController::class, $frontendPostController);
@@ -77,12 +77,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $this->getMainConfig(),
-            $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getDatabase()
         );
 
         /**
@@ -167,12 +167,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getWordpressConfig(),
             $this->getMainConfig(),
-            $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getDatabase()
         );
 
         /**
@@ -233,12 +233,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getWordpressConfig(),
             $this->getMainConfig(),
-            $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getDatabase()
         );
 
         $this->callMethod($frontendPostController, 'restoreFilters');
@@ -257,13 +257,13 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @return MockObject|WP_Post
      */
     private function getPost(
-        int $id,
-        $postType = 'post',
-        $title = null,
-        $content = null,
-        $closed = false,
-        $postMimeType = 'post/mime/type'
-    )
+        int    $id,
+        string $postType = 'post',
+               $title = null,
+               $content = null,
+        bool   $closed = false,
+        string $postMimeType = 'post/mime/type'
+    ): MockObject|WP_Post
     {
         /**
          * @var MockObject|WP_Post $post
@@ -374,12 +374,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $wordpressConfig,
             $mainConfig,
-            $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getDatabase()
         );
 
         $posts = [
@@ -507,12 +507,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $wordpressConfig,
             $mainConfig,
-            $this->getDatabase(),
             $this->getUtil(),
             $objectHandler,
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getDatabase()
         );
 
         $stdClassPost = new stdClass();
@@ -590,12 +590,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $config,
-            $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getDatabase()
         );
 
         self::assertEquals('testFile.gif', $frontendPostController->getAttachedFile('testFile.gif', 1));
@@ -629,12 +629,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $this->getMainConfig(),
-            $database,
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $database
         );
 
         self::assertEquals('query', $frontendPostController->showPostSql('query'));
@@ -779,12 +779,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $wordpress,
             $this->getWordpressConfig(),
             $this->getMainConfig(),
-            $database,
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $database
         );
 
         $cachedResult = new stdClass();
@@ -855,7 +855,7 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @param null $content
      * @return MockObject|WP_Comment
      */
-    private function getComment(int $postId, $content = null)
+    private function getComment(int $postId, $content = null): MockObject|WP_Comment
     {
         /**
          * @var MockObject|WP_Comment $comment
@@ -938,12 +938,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $wordpressConfig,
             $mainConfig,
-            $this->getDatabase(),
             $this->getUtil(),
             $objectHandler,
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getDatabase()
         );
 
         $comments = [
@@ -989,12 +989,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $this->getMainConfig(),
-            $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getDatabase()
         );
 
         self::assertEquals('query', $frontendPostController->showNextPreviousPost('query'));
@@ -1049,12 +1049,12 @@ class PostControllerTest extends UserAccessManagerTestCase
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $mainConfig,
-            $this->getDatabase(),
             $this->getUtil(),
             $this->getObjectHandler(),
             $this->getUserHandler(),
             $userGroupHandler,
-            $accessHandler
+            $accessHandler,
+            $this->getDatabase()
         );
 
         self::assertEquals('link', $frontendPostController->showEditLink('link', 1));

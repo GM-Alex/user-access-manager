@@ -39,20 +39,20 @@ use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
+use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Setup\Database\DatabaseHandler;
 use UserAccessManager\Setup\Database\DatabaseObjectFactory;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\Setup\Update\UpdateFactory;
+use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\DynamicUserGroup;
-use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
-use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\Util\DateUtil;
 use UserAccessManager\Util\Util;
@@ -90,7 +90,7 @@ abstract class UserAccessManagerTestCase extends TestCase
       * @return mixed
      * @throws ReflectionException
      */
-    public static function callMethod(object $object, string $methodName, array $arguments = [])
+    public static function callMethod(object $object, string $methodName, array $arguments = []): mixed
     {
         $class = new ReflectionClass($object);
         $method = $class->getMethod($methodName);
@@ -105,7 +105,7 @@ abstract class UserAccessManagerTestCase extends TestCase
      * @param mixed $value
      * @throws ReflectionException
      */
-    public static function setValue(object $object, string $valueName, $value)
+    public static function setValue(object $object, string $valueName, mixed $value): void
     {
         $reflection = new ReflectionClass($object);
         $property = $reflection->getProperty($valueName);
@@ -116,7 +116,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|Php
      */
-    protected function getPhp()
+    protected function getPhp(): MockObject|Php
     {
         return $this->createMock(Php::class);
     }
@@ -124,7 +124,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|Wordpress
      */
-    protected function getWordpress()
+    protected function getWordpress(): MockObject|Wordpress
     {
         return $this->createMock(Wordpress::class);
     }
@@ -132,7 +132,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|WordpressCli
      */
-    protected function getWordpressCli()
+    protected function getWordpressCli(): MockObject|WordpressCli
     {
         return $this->createMock(WordpressCli::class);
     }
@@ -140,7 +140,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|Config
      */
-    protected function getConfig()
+    protected function getConfig(): Config|MockObject
     {
         return $this->createMock(Config::class);
     }
@@ -148,7 +148,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|WordpressConfig
      */
-    protected function getWordpressConfig()
+    protected function getWordpressConfig(): MockObject|WordpressConfig
     {
         return $this->createMock(WordpressConfig::class);
     }
@@ -157,7 +157,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|MainConfig
      */
-    protected function getMainConfig()
+    protected function getMainConfig(): MockObject|MainConfig
     {
         return $this->createMock(MainConfig::class);
     }
@@ -165,7 +165,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|Database
      */
-    protected function getDatabase()
+    protected function getDatabase(): Database|MockObject
     {
         return $this->createMock(Database::class);
     }
@@ -173,7 +173,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|DatabaseHandler
      */
-    protected function getDatabaseHandler()
+    protected function getDatabaseHandler(): DatabaseHandler|MockObject
     {
         return $this->createMock(DatabaseHandler::class);
     }
@@ -181,7 +181,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|DatabaseObjectFactory
      */
-    protected function getDatabaseObjectFactory()
+    protected function getDatabaseObjectFactory(): DatabaseObjectFactory|MockObject
     {
         return $this->createMock(DatabaseObjectFactory::class);
     }
@@ -189,7 +189,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|Util
      */
-    protected function getUtil()
+    protected function getUtil(): MockObject|Util
     {
         return $this->createMock(Util::class);
     }
@@ -197,7 +197,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|DateUtil
      */
-    protected function getDateUtil()
+    protected function getDateUtil(): MockObject|DateUtil
     {
         return $this->createMock(DateUtil::class);
     }
@@ -205,7 +205,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|Cache
      */
-    protected function getCache()
+    protected function getCache(): Cache|MockObject
     {
         return $this->createMock(Cache::class);
     }
@@ -213,7 +213,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|CacheProviderFactory
      */
-    protected function getCacheProviderFactory()
+    protected function getCacheProviderFactory(): MockObject|CacheProviderFactory
     {
         return $this->createMock(CacheProviderFactory::class);
     }
@@ -221,7 +221,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|ConfigFactory
      */
-    protected function getConfigFactory()
+    protected function getConfigFactory(): MockObject|ConfigFactory
     {
         return $this->createMock(ConfigFactory::class);
     }
@@ -229,7 +229,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|FileSystemCacheProvider
      */
-    protected function getFileSystemCacheProvider()
+    protected function getFileSystemCacheProvider(): MockObject|FileSystemCacheProvider
     {
         return $this->createMock(FileSystemCacheProvider::class);
     }
@@ -237,7 +237,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|ObjectHandler
      */
-    protected function getObjectHandler()
+    protected function getObjectHandler(): ObjectHandler|MockObject
     {
         return $this->createMock(ObjectHandler::class);
     }
@@ -245,7 +245,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|ObjectMapHandler
      */
-    protected function getObjectMapHandler()
+    protected function getObjectMapHandler(): MockObject|ObjectMapHandler
     {
         return $this->createMock(ObjectMapHandler::class);
     }
@@ -253,7 +253,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|AccessHandler
      */
-    protected function getAccessHandler()
+    protected function getAccessHandler(): MockObject|AccessHandler
     {
         return $this->createMock(AccessHandler::class);
     }
@@ -261,7 +261,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|UserHandler
      */
-    protected function getUserHandler()
+    protected function getUserHandler(): UserHandler|MockObject
     {
         return $this->createMock(UserHandler::class);
     }
@@ -269,7 +269,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|UserGroupHandler
      */
-    protected function getUserGroupHandler()
+    protected function getUserGroupHandler(): UserGroupHandler|MockObject
     {
         return $this->createMock(UserGroupHandler::class);
     }
@@ -277,7 +277,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|SetupHandler
      */
-    protected function getSetupHandler()
+    protected function getSetupHandler(): MockObject|SetupHandler
     {
         return $this->createMock(SetupHandler::class);
     }
@@ -285,7 +285,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|ControllerFactory
      */
-    protected function getControllerFactory()
+    protected function getControllerFactory(): ControllerFactory|MockObject
     {
         return $this->createMock(ControllerFactory::class);
     }
@@ -293,7 +293,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|WidgetFactory
      */
-    protected function getWidgetFactory()
+    protected function getWidgetFactory(): MockObject|WidgetFactory
     {
         return $this->createMock(WidgetFactory::class);
     }
@@ -301,7 +301,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|FileHandler
      */
-    protected function getFileHandler()
+    protected function getFileHandler(): MockObject|FileHandler
     {
         return $this->createMock(FileHandler::class);
     }
@@ -309,7 +309,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|FileObjectFactory
      */
-    protected function getFileObjectFactory()
+    protected function getFileObjectFactory(): MockObject|FileObjectFactory
     {
         return $this->createMock(FileObjectFactory::class);
     }
@@ -317,7 +317,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|UserGroupFactory
      */
-    protected function getUserGroupFactory()
+    protected function getUserGroupFactory(): MockObject|UserGroupFactory
     {
         return $this->createMock(UserGroupFactory::class);
     }
@@ -325,7 +325,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|UserGroupAssignmentHandler
      */
-    protected function getUserGroupAssignmentHandler()
+    protected function getUserGroupAssignmentHandler(): UserGroupAssignmentHandler|MockObject
     {
         return $this->createMock(UserGroupAssignmentHandler::class);
     }
@@ -333,7 +333,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|ConfigParameterFactory
      */
-    protected function getConfigParameterFactory()
+    protected function getConfigParameterFactory(): ConfigParameterFactory|MockObject
     {
         return $this->createMock(ConfigParameterFactory::class);
     }
@@ -341,7 +341,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|FileProtectionFactory
      */
-    protected function getFileProtectionFactory()
+    protected function getFileProtectionFactory(): FileProtectionFactory|MockObject
     {
         return $this->createMock(FileProtectionFactory::class);
     }
@@ -349,7 +349,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|FormFactory
      */
-    protected function getFormFactory()
+    protected function getFormFactory(): FormFactory|MockObject
     {
         return $this->createMock(FormFactory::class);
     }
@@ -357,7 +357,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|FormHelper
      */
-    protected function getFormHelper()
+    protected function getFormHelper(): FormHelper|MockObject
     {
         return $this->createMock(FormHelper::class);
     }
@@ -365,7 +365,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|UserAccessManager
      */
-    protected function getUserAccessManager()
+    protected function getUserAccessManager(): UserAccessManager|MockObject
     {
         return $this->createMock(UserAccessManager::class);
     }
@@ -373,7 +373,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|ObjectMembershipHandlerFactory
      */
-    protected function getObjectMembershipHandlerFactory()
+    protected function getObjectMembershipHandlerFactory(): ObjectMembershipHandlerFactory|MockObject
     {
         return $this->createMock(ObjectMembershipHandlerFactory::class);
     }
@@ -381,7 +381,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|AssignmentInformationFactory
      */
-    protected function getAssignmentInformationFactory()
+    protected function getAssignmentInformationFactory(): MockObject|AssignmentInformationFactory
     {
         return $this->createMock(AssignmentInformationFactory::class);
     }
@@ -389,7 +389,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|UpdateFactory
      */
-    protected function getUpdateFactory()
+    protected function getUpdateFactory(): UpdateFactory|MockObject
     {
         return $this->createMock(UpdateFactory::class);
     }
@@ -397,7 +397,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|ObjectInformationFactory
      */
-    protected function getObjectInformationFactory()
+    protected function getObjectInformationFactory(): ObjectInformationFactory|MockObject
     {
         return $this->createMock(ObjectInformationFactory::class);
     }
@@ -405,7 +405,7 @@ abstract class UserAccessManagerTestCase extends TestCase
     /**
      * @return MockObject|AssignmentInformationFactory
      */
-    protected function getExtendedAssignmentInformationFactory()
+    protected function getExtendedAssignmentInformationFactory(): MockObject|AssignmentInformationFactory
     {
         $assignmentInformationFactory = $this->getAssignmentInformationFactory();
         $assignmentInformationFactory->expects($this->any())
@@ -440,14 +440,14 @@ abstract class UserAccessManagerTestCase extends TestCase
     private function getUserGroupType(
         string $type,
         string $id,
-        $deletable = true,
-        $objectIsMember = false,
-        array $ipRange = [''],
-        $readAccess = 'none',
-        $writeAccess = 'none',
-        array $posts = [],
-        array $terms = [],
-        $name = null
+        bool   $deletable = true,
+        bool   $objectIsMember = false,
+        array  $ipRange = [''],
+        string $readAccess = 'none',
+        string $writeAccess = 'none',
+        array  $posts = [],
+        array  $terms = [],
+               $name = null
     ): MockObject
     {
         $userGroup = $this->createMock($type);
@@ -539,7 +539,8 @@ abstract class UserAccessManagerTestCase extends TestCase
         array $posts = [],
         array $terms = [],
         ?string $name = null
-    ) {
+    ): UserGroup|MockObject
+    {
         return $this->getUserGroupType(
             UserGroup::class,
             $id,
@@ -570,15 +571,16 @@ abstract class UserAccessManagerTestCase extends TestCase
     protected function getDynamicUserGroup(
         string $type,
         string $id,
-        $deletable = true,
-        $objectIsMember = false,
-        array $ipRange = [''],
-        $readAccess = 'none',
-        $writeAccess = 'none',
-        array $posts = [],
-        array $terms = [],
-        $name = null
-    ) {
+        bool   $deletable = true,
+        bool   $objectIsMember = false,
+        array  $ipRange = [''],
+        string $readAccess = 'none',
+        string $writeAccess = 'none',
+        array  $posts = [],
+        array  $terms = [],
+               $name = null
+    ): UserGroup|MockObject
+    {
         return $this->getUserGroupType(
             DynamicUserGroup::class,
             $type.'|'.$id,
@@ -599,7 +601,7 @@ abstract class UserAccessManagerTestCase extends TestCase
      * @param string $postFix
       * @return MockObject|ConfigParameter
      */
-    protected function getConfigParameter(string $type, $postFix = '')
+    protected function getConfigParameter(string $type, string $postFix = ''): ConfigParameter|MockObject
     {
         $type = strtolower($type);
         $className = ucfirst($type).'ConfigParameter';
@@ -627,7 +629,8 @@ abstract class UserAccessManagerTestCase extends TestCase
         ?string $fromDate = null,
         ?string $toDate = null,
         array $recursiveMembership = []
-    ) {
+    ): MockObject|AssignmentInformation|stdClass
+    {
         /**
          * @var MockObject|stdClass $assignmentInformation
          */
@@ -670,7 +673,7 @@ abstract class UserAccessManagerTestCase extends TestCase
      * @param null|string $classType
      * @return stdClass|MockObject
      */
-    protected function createTypeObject(string $name, ?string $classType = null)
+    protected function createTypeObject(string $name, ?string $classType = null): MockObject|stdClass
     {
         if ($classType !== null) {
             $type = $this->getMockBuilder($classType)->getMock();
@@ -800,7 +803,7 @@ abstract class UserAccessManagerTestCase extends TestCase
      * @param int $numberOfSites
       * @return array
      */
-    protected function getSites($numberOfSites = 3): array
+    protected function getSites(int $numberOfSites = 3): array
     {
         $sites = [];
 
@@ -822,7 +825,7 @@ abstract class UserAccessManagerTestCase extends TestCase
      * @param array $withRemove
       * @return MockObject|UserGroup
      */
-    protected function getUserGroupWithAddDelete(int $id, array $withAdd = [], array $withRemove = [])
+    protected function getUserGroupWithAddDelete(int $id, array $withAdd = [], array $withRemove = []): UserGroup|MockObject
     {
         $userGroup = $this->getUserGroup($id);
 

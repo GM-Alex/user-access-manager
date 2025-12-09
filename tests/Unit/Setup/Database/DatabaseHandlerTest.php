@@ -55,7 +55,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
      * @param array $columns
      * @return MockObject|Table
      */
-    private function getTable(string $name, array $columns = [])
+    private function getTable(string $name, array $columns = []): Table|MockObject
     {
         $table = $this->createMock(Table::class);
         $table->expects($this->any())
@@ -78,7 +78,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
      * @param string $type
      * @return MockObject|Table
      */
-    private function getColumn(string $name, string $type)
+    private function getColumn(string $name, string $type): Table|MockObject
     {
         $table = $this->createMock(Column::class);
         $table->expects($this->any())
@@ -672,7 +672,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
      * @param bool $success
      * @return MockObject|UpdateInterface
      */
-    private function getUpdate(string $version, $executeUpdate = false, $success = false)
+    private function getUpdate(string $version, bool $executeUpdate = false, bool $success = false): MockObject|UpdateInterface
     {
         $update = $this->createMock(UpdateInterface::class);
         $update->expects($this->any())

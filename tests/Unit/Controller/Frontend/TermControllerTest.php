@@ -46,10 +46,10 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMapHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $this->getAccessHandler()
+            $this->getAccessHandler(),
+            $this->getObjectMapHandler()
         );
 
         self::assertInstanceOf(TermController::class, $frontendTermController);
@@ -81,10 +81,10 @@ class TermControllerTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getObjectMapHandler(),
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
-            $accessHandler
+            $accessHandler,
+            $this->getObjectMapHandler()
         );
 
         self::assertEquals(['exclude' => [1, 3]], $frontendTermController->getTermArguments([]));
@@ -99,7 +99,7 @@ class TermControllerTest extends UserAccessManagerTestCase
      * @param int $parent
      * @return MockObject|WP_Term
      */
-    private function getTerm(int $termId, $taxonomy = 'taxonomy', $name = null, $count = 0, $parent = 0)
+    private function getTerm(int $termId, string $taxonomy = 'taxonomy', $name = null, int $count = 0, int $parent = 0): WP_Term|MockObject
     {
         /**
          * @var MockObject|WP_Term $term
@@ -318,10 +318,10 @@ class TermControllerTest extends UserAccessManagerTestCase
             $mainConfig,
             $util,
             $objectHandler,
-            $objectMapHandler,
             $userHandler,
             $userGroupHandler,
-            $accessHandler
+            $accessHandler,
+            $objectMapHandler
         );
 
         /**
@@ -372,7 +372,7 @@ class TermControllerTest extends UserAccessManagerTestCase
      * @param null $title
      * @return stdClass
      */
-    private function getItem(string $objectType, $objectId, $title = null): stdClass
+    private function getItem(string $objectType, int|string $objectId, $title = null): stdClass
     {
         $item = new stdClass();
         $item->object = $objectType;
@@ -573,10 +573,10 @@ class TermControllerTest extends UserAccessManagerTestCase
             $mainConfig,
             $util,
             $objectHandler,
-            $objectMapHandler,
             $userHandler,
             $userGroupHandler,
-            $accessHandler
+            $accessHandler,
+            $objectMapHandler
         );
 
         $items = [

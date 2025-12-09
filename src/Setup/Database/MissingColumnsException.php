@@ -6,12 +6,6 @@ namespace UserAccessManager\Setup\Database;
 
 use Exception;
 
-/**
- * Class MissingColumnsException
- *
- * @package UserAccessManager\Setup\Database
- */
 class MissingColumnsException extends Exception
 {
-
 }

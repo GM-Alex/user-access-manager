@@ -1,36 +1,20 @@
 <?php
-/**
- * DynamicGroupsController.php
- *
- * The DynamicGroupsController class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
 namespace UserAccessManager\Controller\Backend;
 
+use JetBrains\PhpStorm\NoReturn;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use WP_Role;
 
-/**
- * Class DynamicGroupsController
- *
- * @package UserAccessManager\Controller\Backend
- */
 class DynamicGroupsController extends ObjectController
 {
     /**
      * Returns the dynamic user groups for the ajax request.
      */
-    public function getDynamicGroupsForAjax()
+    #[NoReturn]
+    public function getDynamicGroupsForAjax(): void
     {
         if ($this->checkUserAccess() === false) {
             echo json_encode([]);
@@ -50,7 +34,7 @@ class DynamicGroupsController extends ObjectController
             function ($element) {
                 return [
                     'id' => $element->ID,
-                    'name' => TXT_UAM_USER . ": {$element->display_name} ($element->user_login)",
+                    'name' => TXT_UAM_USER . ": $element->display_name ($element->user_login)",
                     'type' => DynamicUserGroup::USER_TYPE
                 ];
             },
@@ -63,7 +47,7 @@ class DynamicGroupsController extends ObjectController
         $roles = $this->wordpress->getRoles()->roles;
 
         foreach ($roles as $key => $role) {
-            if (strpos(strtolower($role['name']), strtolower($search)) !== false) {
+            if (str_contains(strtolower($role['name']), strtolower($search))) {
                 $matches[] = [
                     'id' => $key,
                     'name' => TXT_UAM_ROLE . ': ' . $role['name'],

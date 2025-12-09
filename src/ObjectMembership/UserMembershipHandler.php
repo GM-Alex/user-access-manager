@@ -1,17 +1,4 @@
 <?php
-/**
- * UserMembershipHandler.php
- *
- * The UserMembershipHandler class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -25,79 +12,30 @@ use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\Wrapper\Php;
 
-/**
- * Class UserMembershipHandler
- *
- * @package UserAccessManager\UserGroup
- */
 class UserMembershipHandler extends ObjectMembershipHandler
 {
-    /**
-     * @var string
-     */
-    protected $generalObjectType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
+    protected ?string $generalObjectType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
 
-    /**
-     * @var Php
-     */
-    private $php;
-
-    /**
-     * @var ObjectHandler
-     */
-    private $objectHandler;
-
-    /**
-     * @var Database
-     */
-    private $database;
-
-    /**
-     * UserMembershipHandler constructor.
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @param Php                          $php
-     * @param Database                     $database
-     * @param ObjectHandler                $objectHandler
-     * @throws Exception
-     */
     public function __construct(
         AssignmentInformationFactory $assignmentInformationFactory,
-        Php $php,
-        Database $database,
-        ObjectHandler $objectHandler
+        private Php $php,
+        private Database $database,
+        private ObjectHandler $objectHandler
     ) {
         parent::__construct($assignmentInformationFactory);
-
-        $this->php = $php;
-        $this->database = $database;
-        $this->objectHandler = $objectHandler;
     }
 
-    /**
-     * Returns the object and type name.
-     * @param int|string $objectId
-     * @param string $typeName
-     * @return int|string
-     */
-    public function getObjectName($objectId, &$typeName = '')
+    public function getObjectName(int|string $objectId, string &$typeName = ''): int|string
     {
         $typeName = $this->generalObjectType;
         $user = $this->objectHandler->getUser($objectId);
         return ($user !== false) ? $user->display_name : $objectId;
     }
 
-    /**
-     * Checks if the user is a member of the user group.
-     * @param AbstractUserGroup $userGroup
-     * @param bool $lockRecursive
-     * @param int|string $objectId
-     * @param null|AssignmentInformation $assignmentInformation
-     * @return bool
-     */
     public function isMember(
         AbstractUserGroup $userGroup,
         bool $lockRecursive,
-        $objectId,
+        int|string $objectId,
         ?AssignmentInformation &$assignmentInformation = null
     ): bool {
         $assignmentInformation = null;
@@ -142,11 +80,6 @@ class UserMembershipHandler extends ObjectMembershipHandler
     }
 
     /**
-     * Returns the user role objects.
-     * @param AbstractUserGroup $userGroup
-     * @param bool $lockRecursive
-     * @param null $objectType
-     * @return array
      * @throws Exception
      */
     public function getFullObjects(AbstractUserGroup $userGroup, bool $lockRecursive, $objectType = null): array
