@@ -380,7 +380,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function isRoleMember(int|string $roleId, ?AssignmentInformation &$assignmentInformation = null): bool
+    public function isRoleMember(int|string|null $roleId, ?AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, $roleId, $assignmentInformation);
     }
@@ -388,7 +388,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function isUserMember(int|string $userId, AssignmentInformation &$assignmentInformation = null): bool
+    public function isUserMember(int|string|null $userId, AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId, $assignmentInformation);
     }
@@ -396,7 +396,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function isTermMember(int|string $termId, AssignmentInformation &$assignmentInformation = null): bool
+    public function isTermMember(int|string|null $termId, AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $termId, $assignmentInformation);
     }
@@ -404,7 +404,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function isPostMember(int|string $postId, AssignmentInformation &$assignmentInformation = null): bool
+    public function isPostMember(int|string|null $postId, AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, $assignmentInformation);
     }

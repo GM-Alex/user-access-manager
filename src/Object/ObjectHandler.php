@@ -104,7 +104,7 @@ class ObjectHandler
         return $this->posts[$id];
     }
 
-    public function getTerm(int|string $id, string $taxonomy = ''): WP_Term|bool
+    public function getTerm(int|string|null $id, string $taxonomy = ''): WP_Term|bool
     {
         $fullId = $id . '|' . $taxonomy;
 
