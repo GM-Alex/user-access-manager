@@ -130,7 +130,7 @@ class Wordpress
      * @see get_post_types
      */
     public function getPostTypes(
-        array|string $arguments = [],
+        array|string|int $arguments = [],
         string $output = 'names',
         string $operator = 'and'
     ): array {
@@ -386,7 +386,7 @@ class Wordpress
     /**
      * @see wp_parse_id_list
      */
-    public function parseIdList(array|string $list): array
+    public function parseIdList(array|string|int $list): array
     {
         return wp_parse_id_list($list);
     }
@@ -403,7 +403,7 @@ class Wordpress
     /**
      * @see is_feed
      */
-    public function isFeed(array|string $feeds = ''): bool
+    public function isFeed(array|string|int $feeds = ''): bool
     {
         return is_feed($feeds);
     }
@@ -547,7 +547,7 @@ class Wordpress
     /**
      * @see get_pages
      */
-    public function getPages(array|string $arguments): bool|array
+    public function getPages(array|string|int $arguments): bool|array
     {
         return get_pages($arguments);
     }
@@ -569,11 +569,11 @@ class Wordpress
      * @see wp_register_script
      */
     public function registerScript(
-        string           $handle,
-        string           $source,
-        array            $depends = [],
+        string $handle,
+        string $source,
+        array $depends = [],
         bool|string|null $version = false,
-        bool             $inFooter = false
+        bool $inFooter = false
     ): bool {
         return wp_register_script($handle, $source, $depends, $version, $inFooter);
     }
@@ -655,7 +655,7 @@ class Wordpress
     /**
      * @see is_single
      */
-    public function isSingle(int|array|string $post = ''): bool
+    public function isSingle(array|string|int $post = ''): bool
     {
         return is_single($post);
     }
@@ -663,7 +663,7 @@ class Wordpress
     /**
      * @see is_page
      */
-    public function isPage(int|array|string $page = ''): bool
+    public function isPage(array|string|int $page = ''): bool
     {
         return is_page($page);
     }
