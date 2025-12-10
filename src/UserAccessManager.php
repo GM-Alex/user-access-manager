@@ -32,7 +32,7 @@ use UserAccessManager\Wrapper\Wordpress;
 
 class UserAccessManager
 {
-    public const VERSION = '2.3.4';
+    public const VERSION = '2.3.5';
     public const DB_VERSION = '1.6.2';
 
     public function __construct(

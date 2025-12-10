@@ -85,7 +85,7 @@ class ObjectHandler
         return $this->taxonomies;
     }
 
-    public function getUser(int|string $id): WP_User|bool
+    public function getUser(int|string|null $id): WP_User|bool
     {
         if (isset($this->users[$id]) === false) {
             $this->users[$id] = $this->wordpress->getUserData($id);

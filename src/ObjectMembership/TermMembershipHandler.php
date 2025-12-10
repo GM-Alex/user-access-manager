@@ -25,7 +25,7 @@ class TermMembershipHandler extends ObjectMembershipWithMapHandler
         parent::__construct($assignmentInformationFactory);
     }
 
-    public function getObjectName(int|string $objectId, string &$typeName = ''): int|string
+    public function getObjectName(int|string|null $objectId, string &$typeName = ''): int|string
     {
         $term = $this->objectHandler->getTerm($objectId);
 
@@ -55,7 +55,7 @@ class TermMembershipHandler extends ObjectMembershipWithMapHandler
     public function isMember(
         AbstractUserGroup $userGroup,
         bool $lockRecursive,
-        int|string $objectId,
+        int|string|null $objectId,
         ?AssignmentInformation &$assignmentInformation = null
     ): bool {
         return $this->getMembershipByMap($userGroup, $lockRecursive, $objectId, $assignmentInformation);

@@ -25,7 +25,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
         parent::__construct($assignmentInformationFactory);
     }
 
-    public function getObjectName(int|string $objectId, string &$typeName = ''): int|string
+    public function getObjectName(int|string|null $objectId, string &$typeName = ''): int|string
     {
         $post = $this->objectHandler->getPost($objectId);
 
@@ -54,7 +54,7 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
      */
     private function assignRecursiveMembershipByTerm(
         AbstractUserGroup $userGroup,
-        int|string $objectId,
+        int|string|null $objectId,
         array &$recursiveMembership
     ): void {
         $postTermMap = $this->objectMapHandler->getPostTermMap();
@@ -72,9 +72,9 @@ class PostMembershipHandler extends ObjectMembershipWithMapHandler
      * @throws Exception
      */
     public function isMember(
-        AbstractUserGroup      $userGroup,
-        bool                   $lockRecursive,
-        int|string             $objectId,
+        AbstractUserGroup $userGroup,
+        bool $lockRecursive,
+        int|string|null $objectId,
         ?AssignmentInformation &$assignmentInformation = null
     ): bool {
         $isMember = $this->getMembershipByMap($userGroup, $lockRecursive, $objectId, $assignmentInformation);

@@ -24,7 +24,7 @@ abstract class ObjectMembershipHandler
         }
     }
 
-    abstract public function getObjectName(int|string $objectId, string &$typeName = ''): int|string;
+    abstract public function getObjectName(int|string|null $objectId, string &$typeName = ''): int|string;
 
     public function getGeneralObjectType(): string
     {
@@ -81,7 +81,7 @@ abstract class ObjectMembershipHandler
     abstract public function isMember(
         AbstractUserGroup $userGroup,
         bool $lockRecursive,
-        int|string $objectId,
+        int|string|null $objectId,
         ?AssignmentInformation &$assignmentInformation = null
     ): bool;
 

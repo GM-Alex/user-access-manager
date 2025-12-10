@@ -121,7 +121,7 @@ class Wordpress
     /**
      * @see get_userdata
      */
-    public function getUserData(int|string $id): WP_User|bool
+    public function getUserData(int|string|null $id): WP_User|bool
     {
         return get_userdata($id);
     }

@@ -25,7 +25,7 @@ class RoleMembershipHandler extends ObjectMembershipHandler
         parent::__construct($assignmentInformationFactory);
     }
 
-    public function getObjectName(int|string $objectId, string &$typeName = ''): int|string
+    public function getObjectName(int|string|null $objectId, string &$typeName = ''): int|string
     {
         $typeName = $this->generalObjectType;
         $roles = $this->wordpress->getRoles()->role_names;
@@ -35,7 +35,7 @@ class RoleMembershipHandler extends ObjectMembershipHandler
     public function isMember(
         AbstractUserGroup $userGroup,
         bool $lockRecursive,
-        int|string $objectId,
+        int|string|null $objectId,
         ?AssignmentInformation &$assignmentInformation = null
     ): bool {
         $isMember = $userGroup->isObjectAssignedToGroup(
