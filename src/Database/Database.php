@@ -118,7 +118,7 @@ class Database
     /**
      * @see wpdb::get_blog_prefix
      */
-    public function getBlogPrefix(int $blogId = null): string
+    public function getBlogPrefix(int|string|null $blogId = null): string
     {
         return $this->wpDatabase->get_blog_prefix($blogId);
     }

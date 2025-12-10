@@ -198,7 +198,7 @@ class Wordpress
     /**
      * @see switch_to_blog
      */
-    public function switchToBlog(int|string $blogId): bool
+    public function switchToBlog(int|string|null $blogId): bool
     {
         if (function_exists('\switch_to_blog') === true) {
             return switch_to_blog($blogId);
@@ -322,7 +322,7 @@ class Wordpress
     /**
      * @see is_super_admin
      */
-    public function isSuperAdmin(bool|int|string $userId = false): bool
+    public function isSuperAdmin(bool|int|string|null $userId = false): bool
     {
         return is_super_admin($userId);
     }

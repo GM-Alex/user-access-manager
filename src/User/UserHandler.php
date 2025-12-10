@@ -135,7 +135,7 @@ class UserHandler
         );
     }
 
-    public function userIsAdmin(int|string $userId): bool
+    public function userIsAdmin(int|string|null $userId): bool
     {
         $user = $this->objectHandler->getUser($userId);
         $roles = $this->getUserRole($user);

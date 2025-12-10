@@ -69,7 +69,7 @@ class PostObjectController extends ObjectController
     /**
      * @throws UserGroupTypeException
      */
-    public function addAttachment(int $postId): void
+    public function addAttachment(int|string|null $postId): void
     {
         $post = $this->objectHandler->getPost($postId);
         $postType = $post->post_type;

@@ -5,7 +5,7 @@ Tags: member access, user access manager, user management, access
 Requires at least: 4.7
 Requires PHP: 8.0
 Tested up to: 6.9
-Stable tag: 2.3.5
+Stable tag: 2.3.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,8 @@ To stay up-to-date follow me on Twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.3.6       2025/12/10  Improve type compatibility again...
 
     2.3.5       2025/12/10  Improve type compatibility again...
 

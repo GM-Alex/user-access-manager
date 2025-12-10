@@ -259,7 +259,7 @@ class RedirectController extends Controller
         return $headers;
     }
 
-    public function getFileUrl(string $url, int|string $id): string
+    public function getFileUrl(string $url, int|string|null $id): string
     {
         // Nginx always supports real urls so we need the new urls only
         // if we don't use nginx and mod_rewrite is disabled
