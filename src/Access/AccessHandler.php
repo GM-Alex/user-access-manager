@@ -31,7 +31,7 @@ class AccessHandler
     ) {
     }
 
-    private function hasAuthorAccess(string $objectType, int|string $objectId): bool
+    private function hasAuthorAccess(string $objectType, int|string|null $objectId): bool
     {
         if ($this->mainConfig->authorsHasAccessToOwn() === true
             && $this->objectHandler->isPostType($objectType)

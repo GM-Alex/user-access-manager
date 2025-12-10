@@ -366,13 +366,7 @@ class TermControllerTest extends UserAccessManagerTestCase
         );
     }
 
-    /**
-     * @param string $objectType
-     * @param int|string $objectId
-     * @param null $title
-     * @return stdClass
-     */
-    private function getItem(string $objectType, int|string $objectId, $title = null): stdClass
+    private function getItem(string $objectType, int|string|null $objectId, $title = null): stdClass
     {
         $item = new stdClass();
         $item->object = $objectType;

@@ -47,7 +47,7 @@ class Php
     /**
      * @see ini_get()
      */
-    public function iniGet(string $variableName): int|string
+    public function iniGet(string $variableName): int|string|false
     {
         return ini_get($variableName);
     }
@@ -63,7 +63,7 @@ class Php
     /**
      * @see fread()
      */
-    public function fread($handle, int $length): bool|string
+    public function fread($handle, int $length): false|string
     {
         return fread($handle, $length);
     }
@@ -92,7 +92,7 @@ class Php
     /**
      * @see file_put_contents()
      */
-    public function filePutContents(string $filename, mixed $data, int $flags = 0, $context = null): bool|int
+    public function filePutContents(string $filename, mixed $data, int $flags = 0, $context = null): false|int
     {
         return file_put_contents($filename, $data, $flags, $context);
     }
@@ -100,7 +100,7 @@ class Php
     /**
      * @see igbinary_serialize()
      */
-    public function igbinarySerialize(mixed $value): string
+    public function igbinarySerialize(mixed $value): ?string
     {
         return igbinary_serialize($value);
     }
@@ -118,8 +118,9 @@ class Php
      */
     public function mkdir(string $pathname, int $mode = 0777, bool $recursive = false, $context = null): bool
     {
-        return ($context !== null) ?
-            mkdir($pathname, $mode, $recursive, $context) : mkdir($pathname, $mode, $recursive);
+        return ($context !== null)
+            ? mkdir($pathname, $mode, $recursive, $context)
+            : mkdir($pathname, $mode, $recursive);
     }
 
     /**

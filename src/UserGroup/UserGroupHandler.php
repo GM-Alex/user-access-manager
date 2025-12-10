@@ -146,8 +146,11 @@ class UserGroupHandler
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    public function getUserGroupsForObject(string $objectType, int|string $objectId, bool $ignoreDates = false): array
-    {
+    public function getUserGroupsForObject(
+        string $objectType,
+        int|string|null $objectId,
+        bool $ignoreDates = false
+    ): array {
         if ($this->objectHandler->isValidObjectType($objectType) === false) {
             return [];
         }
@@ -249,7 +252,7 @@ class UserGroupHandler
      */
     public function getFilteredUserGroupsForObject(
         string $objectType,
-        int|string $objectId,
+        int|string|null $objectId,
         bool $ignoreDates = false
     ): array {
         $userGroups = $this->getUserGroupsForObject($objectType, $objectId, $ignoreDates);

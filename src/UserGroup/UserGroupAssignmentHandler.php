@@ -32,7 +32,7 @@ class UserGroupAssignmentHandler
     private function setUserGroups(
         array $filteredUserGroups,
         string $objectType,
-        int|string $objectId,
+        int|string|null $objectId,
         array $addUserGroups,
         array $removeUserGroups
     ): void {
@@ -59,7 +59,7 @@ class UserGroupAssignmentHandler
      * @throws UserGroupAssignmentException
      * @throws UserGroupTypeException
      */
-    private function setDynamicGroups(string $objectType, int|string $objectId, array $addDynamicUserGroups): void
+    private function setDynamicGroups(string $objectType, int|string|null $objectId, array $addDynamicUserGroups): void
     {
         foreach ($addDynamicUserGroups as $dynamicUserGroupKey => $addDynamicUserGroup) {
             $dynamicUserGroupData = explode('|', $dynamicUserGroupKey);
@@ -86,7 +86,7 @@ class UserGroupAssignmentHandler
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    private function setDefaultGroups(array $filteredUserGroups, string $objectType, int|string $objectId): void
+    private function setDefaultGroups(array $filteredUserGroups, string $objectType, int|string|null $objectId): void
     {
         /**
          * @var UserGroup[] $userGroupsToCheck
@@ -112,7 +112,7 @@ class UserGroupAssignmentHandler
      */
     public function assignObjectToUserGroups(
         string $objectType,
-        int|string $objectId,
+        int|string|null $objectId,
         array $addUserGroups,
         array $removeUserGroups,
         array $addDynamicUserGroups

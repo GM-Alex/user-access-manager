@@ -134,7 +134,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function addObject(string $objectType, int|string $objectId, $fromDate = null, $toDate = null): bool
+    public function addObject(string $objectType, int|string|null $objectId, $fromDate = null, $toDate = null): bool
     {
         $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
 
@@ -333,7 +333,7 @@ abstract class AbstractUserGroup
 
     public function isObjectAssignedToGroup(
         string $objectType,
-        int|string $objectId,
+        int|string|null $objectId,
         AssignmentInformation &$assignmentInformation = null
     ): bool {
         $assignmentInformation = null;

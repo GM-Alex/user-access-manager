@@ -23,7 +23,7 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
     protected function getMembershipByMap(
         AbstractUserGroup $userGroup,
         bool $lockRecursive,
-        int|string $objectId,
+        int|string|null $objectId,
         AssignmentInformation &$assignmentInformation = null
     ): bool {
         // Reset value to prevent errors
