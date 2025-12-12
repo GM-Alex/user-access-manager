@@ -255,7 +255,10 @@ function initUserAccessManger()
     $userAccessManager->addActionsAndFilters();
 
     //Add the cli interface to the known commands
-    if (defined('WP_CLI') === true && WP_CLI === true) {
+    if (defined('WP_CLI') === true
+        && WP_CLI === true
+        && class_exists('WP_CLI_Command')
+    ) {
         $cliWrapper = new WordpressCli();
 
         $groupCommand = new GroupCommand($cliWrapper, $userGroupHandler, $userGroupFactory);

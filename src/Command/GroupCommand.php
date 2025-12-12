@@ -26,7 +26,6 @@ class GroupCommand extends WP_CLI_Command
         private UserGroupHandler $userGroupHandler,
         private UserGroupFactory $userGroupFactory
     ) {
-        parent::__construct();
     }
 
     /**
