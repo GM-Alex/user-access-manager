@@ -26,7 +26,6 @@ class ObjectCommand extends WP_CLI_Command
         private WordpressCli $wordpressCli,
         private UserGroupHandler $userGroupHandler
     ) {
-        parent::__construct();
     }
 
     /**
