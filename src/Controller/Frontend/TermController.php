@@ -181,7 +181,7 @@ class TermController extends ContentController
     /**
      * @throws UserGroupTypeException
      */
-    public function showTerm(WP_Term|stdClass $term): WP_Term|stdClass|bool
+    public function showTerm(mixed $term): mixed
     {
         return $this->processTerm($term);
     }
