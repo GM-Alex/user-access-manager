@@ -157,8 +157,11 @@ class Wordpress
     /**
      * @see get_post
      */
-    public function getPost(int|string|null $id, string $output = OBJECT, string $filter = 'raw'): array|WP_Post|null
-    {
+    public function getPost(
+        int|string|null $id,
+        string $output = OBJECT,
+        string $filter = 'raw'
+    ): WP_Post|array|bool|null {
         return get_post($id, $output, $filter);
     }
 
@@ -178,7 +181,7 @@ class Wordpress
         string $taxonomy = '',
         string $output = OBJECT,
         string $filter = 'raw'
-    ): WP_Term|WP_Error|array|null {
+    ): WP_Term|WP_Error|array|bool|null {
         return get_term($id, $taxonomy, $output, $filter);
     }
 
