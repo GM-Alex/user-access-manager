@@ -54,8 +54,12 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
             ?>
             <tr class="alternate" id="group-<?php echo $userGroup->getId(); ?>">
                 <th class="check-column">
-                    <label>
-                        <input type="checkbox" value="<?php echo $userGroup->getId(); ?>" name="delete[]"/>
+                    <input id="uam-bulk-select"
+                           type="checkbox"
+                           value="<?php echo $userGroup->getId(); ?>"
+                           name="delete[]"/>
+                    <label for="uam-bulk-select">
+                        <span class="screen-reader-text"><?php echo TXT_UAM_DELETE; ?></span>
                     </label>
                 </th>
                 <td>

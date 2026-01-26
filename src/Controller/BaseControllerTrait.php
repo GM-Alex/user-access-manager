@@ -16,7 +16,7 @@ trait BaseControllerTrait
 
     public function getRequestUrl(): string
     {
-        return htmlentities($_SERVER['REQUEST_URI']);
+        return htmlentities($_SERVER['REQUEST_URI'], ENT_NOQUOTES);
     }
 
     private function sanitizeValue(mixed $value): mixed
@@ -33,9 +33,9 @@ trait BaseControllerTrait
 
             $value = $newValue;
         } elseif (is_string($value) === true) {
-            $value = preg_replace('/[\\\\]+(["|\'])/', '$1', $value);
+            $value = preg_replace('/\\+(["|\'])/', '$1', $value);
             $value = stripslashes($value);
-            $value = htmlspecialchars($value);
+            $value = htmlspecialchars($value, ENT_NOQUOTES);
         }
 
         return $value;
