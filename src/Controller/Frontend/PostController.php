@@ -27,6 +27,8 @@ class PostController extends ContentController
     private array $wordpressFilters = [];
     private stdClass|array|null $cachedCounts = [];
 
+    private array $posts = [];
+
     public function __construct(
         Php $php,
         Wordpress $wordpress,
@@ -167,13 +169,13 @@ class PostController extends ContentController
     /**
      * @throws UserGroupTypeException
      */
-    private function processPost(WP_Post $post): ?WP_Post
+    private function processPost(WP_Post $post): WP_Post|bool
     {
         $post->post_title .= $this->adminOutput($post->post_type, $post->ID);
 
         if ($this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === false) {
             if ($this->removePostFromList($post->post_type) === true) {
-                return null;
+                return false;
             }
 
             $post->post_content = $this->processPostContent($post);
@@ -193,6 +195,15 @@ class PostController extends ContentController
     /**
      * @throws UserGroupTypeException
      */
+    private function getProcessedPost(WP_Post $post): ?WP_Post
+    {
+        $post = $this->posts[$post->post_type . '|' . $post->ID] ??= $this->processPost($post);
+        return $post === false ? null : $post;
+    }
+
+    /**
+     * @throws UserGroupTypeException
+     */
     private function filterRawPosts(array $rawPosts): array
     {
         $filteredPosts = [];
@@ -201,7 +212,7 @@ class PostController extends ContentController
             $post = $this->getPost($rawPost);
 
             if ($post !== false) {
-                $post = $this->processPost($post);
+                $post = $this->getProcessedPost($post);
 
                 if ($post !== null) {
                     $filteredPosts[] = $post;

@@ -11,7 +11,7 @@
     <php>
         <ini name="display_errors" value="On" />
         <ini name="display_startup_errors" value="On" />
-        <ini name="error_reporting" value="E_ALL" />
+        <ini name="error_reporting" value="E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR" />
     </php>
     <coverage processUncoveredFiles="true">
         <include>

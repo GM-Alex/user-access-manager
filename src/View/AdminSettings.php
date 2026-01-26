@@ -87,7 +87,7 @@ if ($controller->hasUpdateMessage()) {
                 </tbody>
             </table>
             <div class="submit">
-                <input type="submit" value="<?php echo TXT_UAM_UPDATE_SETTING; ?>"/>
+                <input type="submit" class="button-primary" value="<?php echo TXT_UAM_UPDATE_SETTING; ?>"/>
             </div>
         </form>
     </div>

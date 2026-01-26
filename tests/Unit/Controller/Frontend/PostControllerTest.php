@@ -343,17 +343,17 @@ class PostControllerTest extends UserAccessManagerTestCase
         $accessHandler->expects($this->exactly(11))
             ->method('checkObjectAccess')
             ->withConsecutive(
-                ['post', 1],
-                ['post', 2],
-                ['other', 3],
-                ['post', 4],
-                ['post', 1],
-                ['post', 2],
-                ['other', 3],
-                ['post', 4],
-                ['post', 1],
-                ['page', 2],
-                ['other', 3]
+                ['post', 5],
+                ['post', 6],
+                ['other', 7],
+                ['post', 8],
+                ['post', 9],
+                ['post', 10],
+                ['other', 11],
+                ['post', 12],
+                ['post', 13],
+                ['page', 14],
+                ['other', 15]
             )
             ->will($this->onConsecutiveCalls(
                 false,
@@ -389,21 +389,36 @@ class PostControllerTest extends UserAccessManagerTestCase
             4 => $this->getPost(4)
         ];
 
+        $posts2 = [
+            5 => $this->getPost(5),
+            6 => $this->getPost(6),
+            7 => $this->getPost(7, 'other'),
+            8 => $this->getPost(8)
+        ];
+
+        $posts3 = [
+            9 => $this->getPost(9),
+            10 => $this->getPost(10),
+            11 => $this->getPost(11, 'other'),
+            12 => $this->getPost(12)
+        ];
+
         $pages = [
-            1 => $this->getPost(1),
-            2 => $this->getPost(2, 'page'),
-            3 => $this->getPost(3, 'other')
+            13 => $this->getPost(13),
+            14 => $this->getPost(14, 'page'),
+            15 => $this->getPost(15, 'other')
         ];
 
 
         self::assertEquals($posts, $frontendPostController->showPosts($posts));
-        self::assertEquals([$this->getPost(2)], $frontendPostController->showPosts($posts));
-        self::assertEquals([$this->getPost(1), $this->getPost(2)], $frontendPostController->showPosts($posts));
+        self::assertEquals([$this->getPost(6)], $frontendPostController->showPosts($posts2));
+        self::assertEquals([$this->getPost(9), $this->getPost(10)], $frontendPostController->showPosts($posts3));
         self::setValue($frontendPostController, 'wordpressFilters', ['a' => 'b']);
         self::assertEquals([], $frontendPostController->showPosts());
         self::setValue($frontendPostController, 'wordpressFilters', []);
         self::assertEquals([], $frontendPostController->showPages());
-        self::assertEquals([$this->getPost(2, 'page')], $frontendPostController->showPages($pages));
+        self::assertEquals([$this->getPost(14, 'page')], $frontendPostController->showPages($pages));
+        self::assertEquals([$this->getPost(14, 'page')], $frontendPostController->showPages($pages));
     }
 
     /**
@@ -478,9 +493,9 @@ class PostControllerTest extends UserAccessManagerTestCase
 
         $objectHandler->expects($this->exactly(4))
             ->method('getPost')
-            ->withConsecutive([1], [2], [5], [5])
+            ->withConsecutive([1], [2], [5], [9])
             ->will($this->returnCallback(function ($postId) {
-                if ($postId === 5) {
+                if ($postId === 5 || $postId === 9) {
                     return false;
                 }
 
@@ -496,9 +511,9 @@ class PostControllerTest extends UserAccessManagerTestCase
                 ['post', 2],
                 ['other', 3],
                 ['post', 4],
-                ['page', 1],
-                ['post', 2],
-                ['other', 3]
+                ['page', 6],
+                ['post', 7],
+                ['other', 8]
             )
             ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false));
 
@@ -531,10 +546,10 @@ class PostControllerTest extends UserAccessManagerTestCase
         ];
 
         $pages = [
-            1 => $this->getPost(1, 'page'),
-            2 => $this->getPost(2),
-            3 => $this->getPost(3, 'other'),
-            5 => 5
+            6 => $this->getPost(6, 'page'),
+            7 => $this->getPost(7),
+            8 => $this->getPost(8, 'other'),
+            9 => 9
         ];
 
 
@@ -551,10 +566,10 @@ class PostControllerTest extends UserAccessManagerTestCase
         );
         self::assertEquals(
             [
-                $this->getPost(1, 'page', 'postTitle', 'postContent', true),
-                $this->getPost(2, 'post', null, 'postContent'),
-                $this->getPost(3, 'other', 'postTitle', 'postContent'),
-                5
+                $this->getPost(6, 'page', 'postTitle', 'postContent', true),
+                $this->getPost(7, 'post', null, 'postContent'),
+                $this->getPost(8, 'other', 'postTitle', 'postContent'),
+                9
             ],
             $frontendPostController->showPages($pages)
         );
