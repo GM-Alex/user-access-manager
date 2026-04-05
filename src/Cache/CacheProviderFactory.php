@@ -34,4 +34,15 @@ class CacheProviderFactory
             $this->configParameterFactory
         );
     }
+
+    /**
+     * Creates a RedisCacheProvider object.
+     */
+    public function createRedisCacheProvider(): RedisCacheProvider
+    {
+        return new RedisCacheProvider(
+            $this->configFactory,
+            $this->configParameterFactory
+        );
+    }
 }
