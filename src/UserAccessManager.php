@@ -512,6 +512,7 @@ class UserAccessManager
         $this->wordpress->addFilter('clean_object_term_cache', [$backendCacheController, 'invalidateTermCache']);
         $this->wordpress->addFilter('clean_post_cache', [$backendCacheController, 'invalidatePostCache']);
         $this->wordpress->addFilter('clean_attachment_cache', [$backendCacheController, 'invalidatePostCache']);
+        $this->wordpress->addAction('uam_user_group_changed', [$backendCacheController, 'invalidateUserGroupCaches']);
 
         // Widgets
         $this->wordpress->addAction('widgets_init', function () {

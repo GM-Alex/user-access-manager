@@ -118,6 +118,31 @@ abstract class AbstractUserGroup
     }
 
     /**
+     * Pre-populates the in-memory assignment cache for a given object type.
+     *
+     * Called by UserGroupHandler::preloadGroupAssignments() after it fetches all
+     * direct assignments in a single batch query. When getAssignedObjects() is
+     * called afterwards it finds the cache already populated and skips its own
+     * per-group DB query.
+     *
+     * @param array<int|string, object> $rows Raw result rows from the batch query,
+     *                                        keyed by object_id.
+     */
+    public function preloadAssignedObjects(string $objectType, array $rows): void
+    {
+        $this->assignedObjects[$objectType] = [];
+
+        foreach ($rows as $objectId => $row) {
+            $this->assignedObjects[$objectType][$objectId] =
+                $this->assignmentInformationFactory->createAssignmentInformation(
+                    $row->objectType,
+                    $row->fromDate,
+                    $row->toDate
+                );
+        }
+    }
+
+    /**
      * @throws Exception
      */
     public function delete(): bool

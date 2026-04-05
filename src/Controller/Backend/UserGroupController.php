@@ -193,6 +193,7 @@ class UserGroupController extends Controller
             }
 
             $this->userGroupHandler->addUserGroup($userGroup);
+            $this->wordpress->doAction('uam_user_group_changed');
         }
     }
 
@@ -208,6 +209,7 @@ class UserGroupController extends Controller
             $this->userGroupHandler->deleteUserGroup($id);
         }
 
+        $this->wordpress->doAction('uam_user_group_changed');
         $this->setUpdateMessage(TXT_UAM_DELETE_GROUP);
     }
 

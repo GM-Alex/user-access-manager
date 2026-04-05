@@ -87,7 +87,8 @@ function initUserAccessManger()
         $database,
         $objectHandler,
         $userHandler,
-        $userGroupFactory
+        $userGroupFactory,
+        $cache
     );
     $accessHandler = new AccessHandler(
         $wordpress,
@@ -95,7 +96,8 @@ function initUserAccessManger()
         $database,
         $objectHandler,
         $userHandler,
-        $userGroupHandler
+        $userGroupHandler,
+        $cache
     );
     $fileProtectionFactory = new FileProtectionFactory(
         $php,
