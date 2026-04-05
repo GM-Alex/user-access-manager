@@ -110,6 +110,7 @@ define('TXT_UAM_INLINE_FILES_DESC', __('These files (comma separated) will be sh
 define('TXT_UAM_DOWNLOAD_TYPE_NORMAL', __('Normal', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_FOPEN', __('fopen', 'user-access-manager'));
 define('TXT_UAM_DOWNLOAD_TYPE_XSENDFILE', __('XSendfile', 'user-access-manager'));
+define('TXT_UAM_DOWNLOAD_TYPE_XACCELREDIRECT', __('X-Accel-Redirect', 'user-access-manager'));
 
 // --- Setting Page -> editor settings ---
 define('TXT_UAM_AUTHOR_SETTING', __('Authors settings', 'user-access-manager'));

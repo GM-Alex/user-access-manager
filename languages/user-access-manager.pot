@@ -410,6 +410,10 @@ msgstr ""
 msgid "XSendfile"
 msgstr ""
 
+#: includes/language.php:113
+msgid "X-Accel-Redirect"
+msgstr ""
+
 #: includes/language.php:115
 msgid "Authors settings"
 msgstr ""

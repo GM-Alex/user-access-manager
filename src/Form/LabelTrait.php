@@ -12,4 +12,9 @@ trait LabelTrait
     {
         return $this->label;
     }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
+    }
 }
