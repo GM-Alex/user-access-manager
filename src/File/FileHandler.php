@@ -96,7 +96,9 @@ class FileHandler
 
         if ($downloadType === 'xsendfile') {
             if ($this->wordpress->isNginx()) {
-                $uri = str_replace(rtrim(ABSPATH, '/'), '', $file);
+                // Use /uam-files/ prefix so the internal redirect goes to a dedicated
+                // internal location that bypasses UAM's rewrite rules, avoiding a loop.
+                $uri = '/uam-files' . str_replace(rtrim(ABSPATH, '/'), '', $file);
                 header("X-Accel-Redirect: $uri");
             } else {
                 header("X-Sendfile: $file");
