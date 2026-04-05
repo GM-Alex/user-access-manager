@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UserAccessManager\Access;
 
 use Exception;
+use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
@@ -27,8 +28,24 @@ class AccessHandler
         private Database $database,
         private ObjectHandler $objectHandler,
         private UserHandler $userHandler,
-        private UserGroupHandler $userGroupHandler
+        private UserGroupHandler $userGroupHandler,
+        private Cache $cache
     ) {
+    }
+
+    /**
+     * Builds a cache key for a specific access decision.
+     *
+     * The key encodes the user ID, admin flag, object type and object ID so
+     * that results for different users and objects are stored independently.
+     */
+    private function buildAccessCacheKey(
+        int $userId,
+        bool $isAdmin,
+        ?string $objectType,
+        int|string|null $objectId
+    ): string {
+        return 'uam_access_' . $userId . '_' . (int) $isAdmin . '_' . $objectType . '_' . $objectId;
     }
 
     private function hasAuthorAccess(string $objectType, int|string|null $objectId): bool
@@ -77,22 +94,33 @@ class AccessHandler
         $isAdmin = $this->isAdmin($isAdmin);
 
         if (isset($this->objectAccess[$isAdmin][$objectType][$objectId]) === false) {
-            if ($this->objectHandler->isValidObjectType($objectType) === false
-                || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true
-                || $this->hasAuthorAccess($objectType, $objectId) === true
-            ) {
-                $access = true;
+            $userId = $this->wordpress->getCurrentUser()->ID;
+            $cacheKey = $this->buildAccessCacheKey($userId, $isAdmin, $objectType, $objectId);
+            $cached = $this->cache->get($cacheKey);
+
+            if ($cached !== null) {
+                // Warm the in-memory cache from the persistent cache so subsequent
+                // calls within the same request do not hit the cache provider again.
+                $this->objectAccess[$isAdmin][$objectType][$objectId] = (bool) $cached;
             } else {
-                $membership = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId);
-                $access = $membership === []
-                    || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [];
+                if ($this->objectHandler->isValidObjectType($objectType) === false
+                    || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true
+                    || $this->hasAuthorAccess($objectType, $objectId) === true
+                ) {
+                    $access = true;
+                } else {
+                    $membership = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId);
+                    $access = $membership === []
+                        || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [];
 
-                if ($access && $this->wordpress->isUserLoggedIn() && $this->wordpress->isMultiSite()) {
-                    $access = $this->wordpress->isUserMemberOfBlog();
+                    if ($access && $this->wordpress->isUserLoggedIn() && $this->wordpress->isMultiSite()) {
+                        $access = $this->wordpress->isUserMemberOfBlog();
+                    }
                 }
-            }
 
-            $this->objectAccess[$isAdmin][$objectType][$objectId] = $access;
+                $this->objectAccess[$isAdmin][$objectType][$objectId] = $access;
+                $this->cache->add($cacheKey, $access);
+            }
         }
 
         return $this->objectAccess[$isAdmin][$objectType][$objectId];
