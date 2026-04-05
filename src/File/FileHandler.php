@@ -95,7 +95,12 @@ class FileHandler
         $downloadType = $this->mainConfig->getDownloadType();
 
         if ($downloadType === 'xsendfile') {
-            header("X-Sendfile: $file");
+            if ($this->wordpress->isNginx()) {
+                $uri = str_replace(rtrim(ABSPATH, '/'), '', $file);
+                header("X-Accel-Redirect: $uri");
+            } else {
+                header("X-Sendfile: $file");
+            }
         }
 
         $this->addDefaultHeader($file, $isInline);

@@ -150,6 +150,12 @@ define('TXT_UAM_FS_CACHE_METHOD_SERIALIZE', __('PHP serialize', 'user-access-man
 define('TXT_UAM_FS_CACHE_METHOD_IGBINARY', __('PHP igbinary (igbinary required)', 'user-access-manager'));
 define('TXT_UAM_FS_CACHE_METHOD_JSON', __('Json', 'user-access-manager'));
 define('TXT_UAM_FS_CACHE_METHOD_VAR_EXPORT', __('PHP var_export', 'user-access-manager'));
+define('TXT_UAM_REDISCACHEPROVIDER_SETTING', __('Redis cache', 'user-access-manager'));
+define('TXT_UAM_REDISCACHEPROVIDER_SETTING_DESC', __('This cache uses the WordPress object cache API with a persistent Redis backend.', 'user-access-manager'));
+define('TXT_UAM_REDIS_PREFIX', __('Key prefix', 'user-access-manager'));
+define('TXT_UAM_REDIS_PREFIX_DESC', __('Prefix added to every cache key to avoid collisions with other plugins.', 'user-access-manager'));
+define('TXT_UAM_REDIS_TTL', __('TTL (seconds)', 'user-access-manager'));
+define('TXT_UAM_REDIS_TTL_DESC', __('Cache entry expiration time in seconds. Use 0 for no expiration.', 'user-access-manager'));
 
 // --- Setting Page -> other settings ---
 define('TXT_UAM_OTHER_SETTING', __('Other settings', 'user-access-manager'));

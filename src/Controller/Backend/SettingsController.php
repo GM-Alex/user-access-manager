@@ -170,6 +170,11 @@ class SettingsController extends Controller
 
     private function isXSendFileAvailable(): bool
     {
+        // On nginx, X-Accel-Redirect is always available — no HTTP test needed.
+        if ($this->wordpress->isNginx()) {
+            return true;
+        }
+
         $content = @file_get_contents($this->wordpress->getSiteUrl() . '?testXSendFile');
         $this->fileHandler->removeXSendFileTestFile();
 
@@ -193,15 +198,15 @@ class SettingsController extends Controller
 
     private function addLockFileTypes(array $configParameters, array &$parameters): void
     {
-        if (isset($configParameters['lock_file_types']) === true
-            && $this->wordpress->isNginx() === false
-        ) {
+        if (isset($configParameters['lock_file_types']) === true) {
             $parameters['lock_file_types'] = [
                 'selected' => 'locked_file_types',
                 'not_selected' => 'not_locked_file_types'
             ];
 
-            if ($this->wordpress->gotModRewrite() === false) {
+            if ($this->wordpress->isNginx() === false
+                && $this->wordpress->gotModRewrite() === false
+            ) {
                 $parameters[] = 'file_pass_type';
             }
         }
