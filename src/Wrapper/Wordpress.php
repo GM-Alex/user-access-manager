@@ -103,6 +103,22 @@ class Wordpress
     }
 
     /**
+     * @see wp_using_ext_object_cache
+     */
+    public function isUsingExtObjectCache(): bool
+    {
+        return function_exists('wp_using_ext_object_cache') && wp_using_ext_object_cache() === true;
+    }
+
+    /**
+     * @see apache_get_modules
+     */
+    public function isApacheModuleLoaded(string $module): bool
+    {
+        return function_exists('apache_get_modules') && in_array($module, apache_get_modules(), true);
+    }
+
+    /**
      * @see is_post_type_hierarchical
      */
     public function isPostTypeHierarchical(string $postType): bool

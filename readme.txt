@@ -67,6 +67,7 @@ Here you found the changes in each version.
     Version     Date        Changes
 
     2.3.12      2026/05/20  Fix deprecation warning
+                            Add redis cache provider, improve nginx file handling and fix author access. Thanks to Erik Franzén
 
     2.3.11      2026/01/23  Improve performance
                             Improve styling

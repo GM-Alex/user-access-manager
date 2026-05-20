@@ -37,9 +37,13 @@ class AccessHandler
             && $this->objectHandler->isPostType($objectType)
         ) {
             $post = $this->objectHandler->getPost($objectId);
+
+            if ($post === false) {
+                return false;
+            }
+
             $currentUserId = $this->wordpress->getCurrentUser()->ID;
-            return $post !== false
-                && $currentUserId !== 0
+            return $currentUserId !== 0
                 && $currentUserId === (int) $post->post_author;
         }
 

@@ -123,7 +123,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
         );
 
         self::assertNull(self::callMethod($stub, 'getDirectoryMatch'));
-        self::assertEquals('[0-9]{4}' . DIRECTORY_SEPARATOR . '[0-9]{2}', self::callMethod($stub, 'getDirectoryMatch'));
+        self::assertEquals('\d{4}' . DIRECTORY_SEPARATOR . '\d{2}', self::callMethod($stub, 'getDirectoryMatch'));
         self::assertEquals('customLockedDirectories', self::callMethod($stub, 'getDirectoryMatch'));
     }
 

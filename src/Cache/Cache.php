@@ -86,7 +86,7 @@ class Cache
         $fileSystemCacheProvider = $this->cacheProviderFactory->createFileSystemCacheProvider();
         $providers = [$fileSystemCacheProvider->getId() => $fileSystemCacheProvider];
 
-        if (wp_using_ext_object_cache() === true) {
+        if ($this->wordpress->isUsingExtObjectCache() === true) {
             $redisCacheProvider = $this->cacheProviderFactory->createRedisCacheProvider();
             $providers[$redisCacheProvider->getId()] = $redisCacheProvider;
         }

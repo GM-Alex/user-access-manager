@@ -181,17 +181,6 @@ class SettingsController extends Controller
         return ($content === 'success');
     }
 
-    /**
-     * Configures the xsendfile option in the download-type selector based on the
-     * current web server:
-     *
-     * - nginx: renames the option to "X-Accel-Redirect" and keeps it enabled,
-     *   because X-Accel-Redirect is always available on nginx without any extra
-     *   module.
-     * - Apache (or other): runs the HTTP round-trip test to verify that
-     *   mod_xsendfile is installed. If the test fails the option is marked
-     *   disabled so the admin cannot select a method that will not work.
-     */
     private function configureXSendFileOption(Form $form): void
     {
         $formElements = $form->getElements();

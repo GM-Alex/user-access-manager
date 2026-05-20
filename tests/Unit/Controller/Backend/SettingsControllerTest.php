@@ -300,7 +300,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
      * @covers ::getFilesSettingsForm()
      * @covers ::addLockFileTypes()
      * @covers ::isXSendFileAvailable()
-     * @covers ::disableXSendFileOption()
+     * @covers ::configureXSendFileOption()
      * @covers ::getAuthorSettingsForm()
      * @covers ::getOtherSettingsForm()
      * @covers ::addCustomPageRedirectFormElement()
@@ -310,9 +310,18 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     {
         $wordpress = $this->getWordpressWithPostTypesAndTaxonomies(12, 12);
 
-        $wordpress->expects($this->exactly(4))
+        $wordpress->expects($this->exactly(13))
             ->method('isNginx')
-            ->will($this->onConsecutiveCalls(true, false, false, false));
+            ->will($this->onConsecutiveCalls(
+                // File form 1 (nginx case): addLockFileTypes, configureXSendFileOption.
+                true, true,
+                // File forms 2-4 (apache case): addLockFileTypes, configureXSendFileOption, isXSendFileAvailable.
+                false, false, false,
+                false, false, false,
+                false, false, false,
+                // File form 5 (apache, no lock_file_types): configureXSendFileOption, isXSendFileAvailable.
+                false, false
+            ));
 
         $pages = [];
 
@@ -331,7 +340,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->with('sort_column=menu_order')
             ->will($this->returnValue($pages));
 
-        $wordpress->expects($this->exactly(5))
+        $wordpress->expects($this->exactly(4))
             ->method('getSiteUrl')
             ->will($this->returnValue('https://localhost'));
 
@@ -536,14 +545,17 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $xSendFileValue = $this->createMock(ValueSetFormElementValue::class);
         $xSendFileValue->expects($this->exactly(4))
             ->method('markDisabled');
+        $xSendFileValue->expects($this->once())
+            ->method('setLabel')
+            ->with(TXT_UAM_DOWNLOAD_TYPE_XACCELREDIRECT);
 
         $downloadTypeElement = $this->createMock(ValueSetFormElement::class);
-        $downloadTypeElement->expects($this->exactly(4))
+        $downloadTypeElement->expects($this->exactly(5))
             ->method('getPossibleValues')
             ->will($this->returnValue(['xsendfile' => $xSendFileValue]));
 
         $fileFrom = $this->createMock(Form::class);
-        $fileFrom->expects($this->exactly(4))
+        $fileFrom->expects($this->exactly(5))
             ->method('getElements')
             ->will($this->returnValue(['download_type' => $downloadTypeElement]));
 
@@ -632,7 +644,11 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'no_access_image_type' => ['custom' => 'custom_no_access_image'],
                         'use_custom_file_handling_file',
                         $customFileHandlingFile,
-                        'locked_directory_type' => ['custom' => 'custom_locked_directories']
+                        'locked_directory_type' => ['custom' => 'custom_locked_directories'],
+                        'lock_file_types' => [
+                            'selected' => 'locked_file_types',
+                            'not_selected' => 'not_locked_file_types'
+                        ]
                     ]
                 ],
                 [
@@ -768,7 +784,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
 
         $fileHandler = $this->getFileHandler();
 
-        $fileHandler->expects($this->exactly(5))
+        $fileHandler->expects($this->exactly(4))
             ->method('removeXSendFileTestFile');
 
         /**
