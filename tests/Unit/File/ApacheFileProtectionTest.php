@@ -221,7 +221,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             . "RewriteBase /path/\n"
             . "RewriteRule ^index\.php$ - [L]\n"
             . "RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*\n"
-            . "RewriteCond %{REQUEST_URI} ^.*/[0-9]{4}/[0-9]{2}.*$\n"
+            . "RewriteCond %{REQUEST_URI} ^.*/\d{4}/\d{2}.*$\n"
             . "RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
             . "RewriteRule ^(.*)\\?(((?!uamfiletype).)*)$ "
             . "/path/index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"

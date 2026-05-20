@@ -311,7 +311,7 @@ abstract class AbstractUserGroup
         return $this->defaultTypes;
     }
 
-    public function isDefaultGroupForObjectType(string $objectType, int &$fromTime = null, int &$toTime = null): bool
+    public function isDefaultGroupForObjectType(string $objectType, ?int &$fromTime = null, ?int &$toTime = null): bool
     {
         $defaultGroupForObjectTypes = $this->getDefaultGroupForObjectTypes();
 
@@ -334,7 +334,7 @@ abstract class AbstractUserGroup
     public function isObjectAssignedToGroup(
         string $objectType,
         int|string|null $objectId,
-        AssignmentInformation &$assignmentInformation = null
+        ?AssignmentInformation &$assignmentInformation = null
     ): bool {
         $assignmentInformation = null;
         $assignedObjects = $this->getAssignedObjects($objectType);
@@ -353,7 +353,7 @@ abstract class AbstractUserGroup
     public function isObjectMember(
         string $objectType,
         int|string|null $objectId,
-        AssignmentInformation &$assignmentInformation = null
+        ?AssignmentInformation &$assignmentInformation = null
     ): bool {
         if (isset($this->objectMembership[$objectType][$objectId]) === false) {
             try {
@@ -388,7 +388,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function isUserMember(int|string|null $userId, AssignmentInformation &$assignmentInformation = null): bool
+    public function isUserMember(int|string|null $userId, ?AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_USER_OBJECT_TYPE, $userId, $assignmentInformation);
     }
@@ -396,7 +396,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function isTermMember(int|string|null $termId, AssignmentInformation &$assignmentInformation = null): bool
+    public function isTermMember(int|string|null $termId, ?AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_TERM_OBJECT_TYPE, $termId, $assignmentInformation);
     }
@@ -404,7 +404,7 @@ abstract class AbstractUserGroup
     /**
      * @throws Exception
      */
-    public function isPostMember(int|string|null $postId, AssignmentInformation &$assignmentInformation = null): bool
+    public function isPostMember(int|string|null $postId, ?AssignmentInformation &$assignmentInformation = null): bool
     {
         return $this->isObjectMember(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $postId, $assignmentInformation);
     }

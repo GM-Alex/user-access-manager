@@ -94,7 +94,7 @@ class Database
     /**
      * @see wpdb::get_col
      */
-    public function getColumn(string $query = null, int $column = 0): array
+    public function getColumn(?string $query = null, int $column = 0): array
     {
         return $this->wpDatabase->get_col($query, $column);
     }
@@ -102,7 +102,7 @@ class Database
     /**
      * @see wpdb::get_row
      */
-    public function getRow(string $query = null, string $output = OBJECT, int $row = 0): object|array|null
+    public function getRow(?string $query = null, string $output = OBJECT, int $row = 0): object|array|null
     {
         return $this->wpDatabase->get_row($query, $output, $row);
     }
@@ -110,7 +110,7 @@ class Database
     /**
      * @see wpdb::get_var
      */
-    public function getVariable(string $query = null, int $column = 0, int $row = 0): int|string|null
+    public function getVariable(?string $query = null, int $column = 0, int $row = 0): int|string|null
     {
         return $this->wpDatabase->get_var($query, $column, $row);
     }
@@ -142,7 +142,7 @@ class Database
     /**
      * @see wpdb::get_results
      */
-    public function getResults(string $query = null, string $output = OBJECT): object|array|null
+    public function getResults(?string $query = null, string $output = OBJECT): object|array|null
     {
         return $this->wpDatabase->get_results($query, $output);
     }

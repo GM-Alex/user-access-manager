@@ -31,7 +31,7 @@ abstract class FileProtection
         $lockedDirectoryType = $this->mainConfig->getLockedDirectoryType();
 
         if ($lockedDirectoryType === 'wordpress') {
-            $directoryMatch = '[0-9]{4}' . DIRECTORY_SEPARATOR . '[0-9]{2}';
+            $directoryMatch = '\d{4}' . DIRECTORY_SEPARATOR . '\d{2}';
         } elseif ($lockedDirectoryType === 'custom') {
             $directoryMatch = $this->mainConfig->getCustomLockedDirectories();
         }
@@ -69,7 +69,7 @@ abstract class FileProtection
         return ($dir !== null) ? $dir . static::PASSWORD_FILE_NAME : null;
     }
 
-    public function createPasswordFile(bool $createNew = false, string $dir = null): void
+    public function createPasswordFile(bool $createNew = false, ?string $dir = null): void
     {
         $file = $this->getDefaultPasswordFileWithPath($dir);
 

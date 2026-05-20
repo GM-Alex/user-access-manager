@@ -40,7 +40,7 @@ class WordpressCli
      */
     public function createFormatter(
         array &$assocArguments,
-        array $fields = null,
+        ?array $fields = null,
         bool|string $prefix = false
     ): Formatter {
         return new Formatter($assocArguments, $fields, $prefix);

@@ -52,7 +52,7 @@ abstract class HandlerTestCase extends UserAccessManagerTestCase
      * @param int|null $capExpects
      * @return MockObject|WP_User
      */
-    protected function getUser(array $capabilities = null, ?int $capExpects = null): WP_User|MockObject|stdClass
+    protected function getUser(?array $capabilities = null, ?int $capExpects = null): WP_User|MockObject|stdClass
     {
         /**
          * @var MockObject|stdClass $user

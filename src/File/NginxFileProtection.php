@@ -29,7 +29,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
 
         $location = $this->getLocation(str_replace($absolutePath, '/', $directory));
 
-        $content = "location $location {\n";
+        $content = "location ~ \"$location\" {\n";
         $content .= "rewrite ^([^?]*)$ /index.php?uamfiletype=$objectType&uamgetfile=$1 last;\n";
         $content .= "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ ";
         $content .= "/index.php?uamfiletype=$objectType&uamgetfile=$1&$2 last;\n";
@@ -39,7 +39,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         return $content;
     }
 
-    public function getFileNameWithPath(string $directory = null): string
+    public function getFileNameWithPath(?string $directory = null): string
     {
         return ABSPATH . self::FILE_NAME;
     }

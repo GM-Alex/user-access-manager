@@ -214,8 +214,8 @@ class UserGroupController extends Controller
     private function isDefaultTypeAdd(
         array $defaultUserGroups,
         string $userGroupId,
-        string &$fromTime = null,
-        string &$toTime = null
+        ?string &$fromTime = null,
+        ?string &$toTime = null
     ): bool {
         $userGroupInfo = isset($defaultUserGroups[$userGroupId]) === true ? $defaultUserGroups[$userGroupId] : [];
 

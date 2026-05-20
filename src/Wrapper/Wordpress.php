@@ -103,6 +103,22 @@ class Wordpress
     }
 
     /**
+     * @see wp_using_ext_object_cache
+     */
+    public function isUsingExtObjectCache(): bool
+    {
+        return function_exists('wp_using_ext_object_cache') && wp_using_ext_object_cache() === true;
+    }
+
+    /**
+     * @see apache_get_modules
+     */
+    public function isApacheModuleLoaded(string $module): bool
+    {
+        return function_exists('apache_get_modules') && in_array($module, apache_get_modules(), true);
+    }
+
+    /**
      * @see is_post_type_hierarchical
      */
     public function isPostTypeHierarchical(string $postType): bool
@@ -345,7 +361,7 @@ class Wordpress
     /**
      * @see get_allowed_mime_types
      */
-    public function getAllowedMimeTypes(WP_User|int|string $user = null): array
+    public function getAllowedMimeTypes(WP_User|int|string|null $user = null): array
     {
         return get_allowed_mime_types($user);
     }
@@ -353,7 +369,7 @@ class Wordpress
     /**
      * @see wp_upload_dir
      */
-    public function getUploadDir(string $time = null, bool $createDir = true, bool $refreshCache = false): array
+    public function getUploadDir(?string $time = null, bool $createDir = true, bool $refreshCache = false): array
     {
         return wp_upload_dir($time, $createDir, $refreshCache);
     }
@@ -361,7 +377,7 @@ class Wordpress
     /**
      * @see home_url
      */
-    public function getHomeUrl(string $path = '', string $scheme = null): string
+    public function getHomeUrl(string $path = '', ?string $scheme = null): string
     {
         return home_url($path, $scheme);
     }
@@ -369,7 +385,7 @@ class Wordpress
     /**
      * @see site_url
      */
-    public function getSiteUrl(string $path = '', string $scheme = null): string
+    public function getSiteUrl(string $path = '', ?string $scheme = null): string
     {
         return site_url($path, $scheme);
     }

@@ -95,7 +95,18 @@ class FileHandler
         $downloadType = $this->mainConfig->getDownloadType();
 
         if ($downloadType === 'xsendfile') {
-            header("X-Sendfile: $file");
+            if ($this->wordpress->isNginx()) {
+                // Use /uam-files/ prefix so the internal redirect goes to a dedicated
+                // internal location that bypasses UAM's rewrite rules, avoiding a loop.
+                $uri = '/uam-files' . str_replace(rtrim(ABSPATH, '/'), '', $file);
+                header("X-Accel-Redirect: $uri");
+            } elseif ($this->wordpress->isApacheModuleLoaded('mod_xsendfile')) {
+                header("X-Sendfile: $file");
+            } else {
+                // mod_xsendfile is not available — fall back to fopen so the file
+                // is still delivered rather than sending an empty response.
+                $downloadType = 'fopen';
+            }
         }
 
         $this->addDefaultHeader($file, $isInline);
@@ -298,7 +309,7 @@ class FileHandler
         );
     }
 
-    public function createFileProtection(string $dir = null, string $objectType = null): bool
+    public function createFileProtection(?string $dir = null, ?string $objectType = null): bool
     {
         $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
@@ -309,7 +320,7 @@ class FileHandler
         return false;
     }
 
-    public function deleteFileProtection(string $dir = null): bool
+    public function deleteFileProtection(?string $dir = null): bool
     {
         $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 

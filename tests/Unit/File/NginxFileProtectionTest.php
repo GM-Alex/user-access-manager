@@ -120,7 +120,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
 
         self::assertTrue($nginxFileProtection->create($testDir, null, $testDir));
         self::assertEquals(
-            "location / {\n"
+            "location ~ \"/\" {\n"
             . "rewrite ^([^?]*)$ /index.php?uamfiletype=attachment&uamgetfile=$1 last;\n"
             . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=attachment&uamgetfile=$1&$2 last;\n"
             . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
@@ -130,7 +130,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
 
         self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
         self::assertEquals(
-            "location ^/[0-9]{4}/[0-9]{2} {\n"
+            "location ~ \"^/\d{4}/\d{2}\" {\n"
             . "rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
             . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
             . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
@@ -140,7 +140,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
 
         self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
         self::assertEquals(
-            "location custom {\n"
+            "location ~ \"custom\" {\n"
             . "rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
             . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
             . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"

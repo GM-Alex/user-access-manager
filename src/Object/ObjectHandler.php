@@ -49,11 +49,11 @@ class ObjectHandler
     /** @var WP_Taxonomy[] */
     private ?array $taxonomies = null;
     /** @var WP_User[] */
-    private ?array $users = null;
+    private array $users = [];
     /** @var WP_Post[] */
-    private ?array $posts = null;
+    private array $posts = [];
     /** @var WP_Term[] */
-    private ?array $terms = null;
+    private array $terms = [];
     private ?array $objectMembershipHandlers = null;
     private ?array $objectTypes = null;
     private ?array $allObjectTypesMap = null;

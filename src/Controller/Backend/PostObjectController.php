@@ -119,7 +119,7 @@ class PostObjectController extends ObjectController
     /**
      * @throws UserGroupTypeException
      */
-    public function showMediaFile(array $formFields, WP_Post $post = null): array
+    public function showMediaFile(array $formFields, ?WP_Post $post = null): array
     {
         if ($this->getRequestParameter('action') !== 'edit') {
             $attachmentId = $this->getRequestParameter('attachment_id');
