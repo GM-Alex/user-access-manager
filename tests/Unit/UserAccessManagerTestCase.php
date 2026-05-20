@@ -695,7 +695,7 @@ abstract class UserAccessManagerTestCase extends TestCase
      * @param array|null $handledObjects
       * @return MockObject
      */
-    protected function getMembershipHandler(string $class, string $type, array $falseIds, array $handledObjects = null): MockObject
+    protected function getMembershipHandler(string $class, string $type, array $falseIds, ?array $handledObjects = null): MockObject
     {
         $membershipHandler = $this->createMock($class);
 

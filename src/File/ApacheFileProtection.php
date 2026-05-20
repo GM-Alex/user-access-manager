@@ -92,7 +92,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         return "<IfModule mod_rewrite.c>\n$content</IfModule>\n";
     }
 
-    public function getFileNameWithPath(string $directory = null): string
+    public function getFileNameWithPath(?string $directory = null): string
     {
         return $directory . self::FILE_NAME;
     }

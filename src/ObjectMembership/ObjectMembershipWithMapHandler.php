@@ -24,7 +24,7 @@ abstract class ObjectMembershipWithMapHandler extends ObjectMembershipHandler
         AbstractUserGroup $userGroup,
         bool $lockRecursive,
         int|string|null $objectId,
-        AssignmentInformation &$assignmentInformation = null
+        ?AssignmentInformation &$assignmentInformation = null
     ): bool {
         // Reset value to prevent errors
         $recursiveMembership = [];

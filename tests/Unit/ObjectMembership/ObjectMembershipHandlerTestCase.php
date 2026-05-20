@@ -115,8 +115,8 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
         array  $withIsObjectMember,
         array  $withIsObjectAssignedToGroup,
         array  $falseIds,
-        string $fromDate = null,
-        string $toDate = null
+        ?string $fromDate = null,
+        ?string $toDate = null
     ): MockObject|AbstractUserGroup
     {
         /**

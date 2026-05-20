@@ -842,8 +842,8 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         string $objectId,
         bool $expectedReturn,
         string $object = '',
-        string $fromDate = null,
-        string $toDate = null,
+        ?string $fromDate = null,
+        ?string $toDate = null,
         array $expectedRecursiveMembership = []
     ): void {
         if ($expectedReturn === true || count($expectedRecursiveMembership)) {

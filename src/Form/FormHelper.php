@@ -61,7 +61,7 @@ class FormHelper
     public function getParameterText(
         ConfigParameter $configParameter,
         bool $description = false,
-        string $objectKey = null
+        ?string $objectKey = null
     ): string {
         $ident = 'TXT_UAM_' . strtoupper($configParameter->getId());
 
@@ -98,7 +98,7 @@ class FormHelper
      */
     private function convertSelectionParameter(
         SelectionConfigParameter $configParameter,
-        string $objectKey = null,
+        ?string $objectKey = null,
         array $overwrittenValues = []
     ): mixed {
         $values = [];
@@ -131,7 +131,7 @@ class FormHelper
      */
     public function convertConfigParameter(
         ConfigParameter $configParameter,
-        string $objectKey = null,
+        ?string $objectKey = null,
         array $overwrittenValues = []
     ): Input|Radio|Select|null {
         if (($configParameter instanceof StringConfigParameter) === true) {
@@ -162,7 +162,7 @@ class FormHelper
     /**
      * @throws Exception
      */
-    public function getSettingsForm(array $parameters, string $objectKey = null): Form
+    public function getSettingsForm(array $parameters, ?string $objectKey = null): Form
     {
         $configParameters = $this->config->getConfigParameters();
         $form = $this->formFactory->createFrom();

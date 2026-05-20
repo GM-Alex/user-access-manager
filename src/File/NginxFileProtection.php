@@ -39,7 +39,7 @@ class NginxFileProtection extends FileProtection implements FileProtectionInterf
         return $content;
     }
 
-    public function getFileNameWithPath(string $directory = null): string
+    public function getFileNameWithPath(?string $directory = null): string
     {
         return ABSPATH . self::FILE_NAME;
     }

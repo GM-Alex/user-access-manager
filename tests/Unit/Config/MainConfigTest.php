@@ -145,7 +145,7 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @param callable|null $closure
      * @return MockObject|ConfigParameterFactory
      */
-    protected function getFactory(callable $closure = null): ConfigParameterFactory|MockObject
+    protected function getFactory(?callable $closure = null): ConfigParameterFactory|MockObject
     {
         if ($closure === null) {
             $closure = function ($type) {

@@ -34,7 +34,7 @@ class ObjectMapHandler
      * @param array $processed
      * @return array
      */
-    private function processTreeMapElements(array &$map, array $subMap = null, array &$processed = []): array
+    private function processTreeMapElements(array &$map, ?array $subMap = null, array &$processed = []): array
     {
         $processMap = ($subMap === null) ? $map : $subMap;
 

@@ -20,7 +20,7 @@ interface FileProtectionInterface
         Util $util
     );
 
-    public function getFileNameWithPath(string $directory = null): string;
+    public function getFileNameWithPath(?string $directory = null): string;
     public function create(string $directory, ?string $objectType = null, ?string $absolutePath = null): bool;
     public function delete(string $directory): bool;
 }

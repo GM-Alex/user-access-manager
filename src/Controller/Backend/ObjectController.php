@@ -312,7 +312,7 @@ class ObjectController extends Controller
         string $objectType,
         int|string|null $objectId,
         $formName = null,
-        array $objectUserGroups = null
+        ?array $objectUserGroups = null
     ): string {
         $this->setObjectInformation($objectType, $objectId, $objectUserGroups);
 

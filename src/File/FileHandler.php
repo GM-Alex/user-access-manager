@@ -323,7 +323,7 @@ class FileHandler
         );
     }
 
-    public function createFileProtection(string $dir = null, string $objectType = null): bool
+    public function createFileProtection(?string $dir = null, ?string $objectType = null): bool
     {
         $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
@@ -334,7 +334,7 @@ class FileHandler
         return false;
     }
 
-    public function deleteFileProtection(string $dir = null): bool
+    public function deleteFileProtection(?string $dir = null): bool
     {
         $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
 
