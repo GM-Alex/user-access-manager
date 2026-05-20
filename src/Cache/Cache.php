@@ -84,10 +84,13 @@ class Cache
     public function getRegisteredCacheProviders(): array
     {
         $fileSystemCacheProvider = $this->cacheProviderFactory->createFileSystemCacheProvider();
+        $providers = [$fileSystemCacheProvider->getId() => $fileSystemCacheProvider];
 
-        return $this->wordpress->applyFilters(
-            'uam_registered_cache_handlers',
-            [$fileSystemCacheProvider->getId() => $fileSystemCacheProvider]
-        );
+        if (wp_using_ext_object_cache() === true) {
+            $redisCacheProvider = $this->cacheProviderFactory->createRedisCacheProvider();
+            $providers[$redisCacheProvider->getId()] = $redisCacheProvider;
+        }
+
+        return $this->wordpress->applyFilters('uam_registered_cache_handlers', $providers);
     }
 }

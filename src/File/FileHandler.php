@@ -89,13 +89,38 @@ class FileHandler
         }
     }
 
+    /**
+     * Returns true when Apache's mod_xsendfile module is loaded.
+     *
+     * Used as a runtime guard so that file delivery falls back to fopen when
+     * the admin has selected "X-Sendfile" but the module is not present (e.g.
+     * after a server migration). The check is cheap — apache_get_modules() is
+     * a built-in PHP function available whenever PHP runs under Apache.
+     */
+    private function isApacheXSendFileAvailable(): bool
+    {
+        return $this->php->functionExists('apache_get_modules')
+            && in_array('mod_xsendfile', apache_get_modules(), true);
+    }
+
     private function deliverFile(string $file, bool $isInline): void
     {
         header("HTTP/1.1 200 OK");
         $downloadType = $this->mainConfig->getDownloadType();
 
         if ($downloadType === 'xsendfile') {
-            header("X-Sendfile: $file");
+            if ($this->wordpress->isNginx()) {
+                // Use /uam-files/ prefix so the internal redirect goes to a dedicated
+                // internal location that bypasses UAM's rewrite rules, avoiding a loop.
+                $uri = '/uam-files' . str_replace(rtrim(ABSPATH, '/'), '', $file);
+                header("X-Accel-Redirect: $uri");
+            } elseif ($this->isApacheXSendFileAvailable()) {
+                header("X-Sendfile: $file");
+            } else {
+                // mod_xsendfile is not available — fall back to fopen so the file
+                // is still delivered rather than sending an empty response.
+                $downloadType = 'fopen';
+            }
         }
 
         $this->addDefaultHeader($file, $isInline);

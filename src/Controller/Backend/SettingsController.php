@@ -170,38 +170,63 @@ class SettingsController extends Controller
 
     private function isXSendFileAvailable(): bool
     {
+        // On nginx, X-Accel-Redirect is always available — no HTTP test needed.
+        if ($this->wordpress->isNginx()) {
+            return true;
+        }
+
         $content = @file_get_contents($this->wordpress->getSiteUrl() . '?testXSendFile');
         $this->fileHandler->removeXSendFileTestFile();
 
         return ($content === 'success');
     }
 
-    private function disableXSendFileOption(Form $form): void
+    /**
+     * Configures the xsendfile option in the download-type selector based on the
+     * current web server:
+     *
+     * - nginx: renames the option to "X-Accel-Redirect" and keeps it enabled,
+     *   because X-Accel-Redirect is always available on nginx without any extra
+     *   module.
+     * - Apache (or other): runs the HTTP round-trip test to verify that
+     *   mod_xsendfile is installed. If the test fails the option is marked
+     *   disabled so the admin cannot select a method that will not work.
+     */
+    private function configureXSendFileOption(Form $form): void
     {
         $formElements = $form->getElements();
 
-        if (isset($formElements['download_type']) === true) {
-            /** @var ValueSetFormElement $downloadType */
-            $downloadType = $formElements['download_type'];
-            $possibleValues = $downloadType->getPossibleValues();
+        if (isset($formElements['download_type']) === false) {
+            return;
+        }
 
-            if (isset($possibleValues['xsendfile']) === true) {
-                $possibleValues['xsendfile']->markDisabled();
-            }
+        /** @var ValueSetFormElement $downloadType */
+        $downloadType = $formElements['download_type'];
+        $possibleValues = $downloadType->getPossibleValues();
+
+        if (isset($possibleValues['xsendfile']) === false) {
+            return;
+        }
+
+        if ($this->wordpress->isNginx() === true) {
+            // X-Accel-Redirect is always available on nginx — just relabel the option.
+            $possibleValues['xsendfile']->setLabel(TXT_UAM_DOWNLOAD_TYPE_XACCELREDIRECT);
+        } elseif ($this->isXSendFileAvailable() === false) {
+            $possibleValues['xsendfile']->markDisabled();
         }
     }
 
     private function addLockFileTypes(array $configParameters, array &$parameters): void
     {
-        if (isset($configParameters['lock_file_types']) === true
-            && $this->wordpress->isNginx() === false
-        ) {
+        if (isset($configParameters['lock_file_types']) === true) {
             $parameters['lock_file_types'] = [
                 'selected' => 'locked_file_types',
                 'not_selected' => 'not_locked_file_types'
             ];
 
-            if ($this->wordpress->gotModRewrite() === false) {
+            if ($this->wordpress->isNginx() === false
+                && $this->wordpress->gotModRewrite() === false
+            ) {
                 $parameters[] = 'file_pass_type';
             }
         }
@@ -237,9 +262,7 @@ class SettingsController extends Controller
 
         $form = $this->formHelper->getSettingsForm($parameters);
 
-        if ($this->isXSendFileAvailable() === false) {
-            $this->disableXSendFileOption($form);
-        }
+        $this->configureXSendFileOption($form);
 
         return $form;
     }
