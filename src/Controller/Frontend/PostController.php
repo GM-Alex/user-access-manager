@@ -17,6 +17,7 @@ use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
+use WeakMap;
 use WP_Comment;
 use WP_Hook;
 use WP_Post;
@@ -27,7 +28,7 @@ class PostController extends ContentController
     private array $wordpressFilters = [];
     private stdClass|array|null $cachedCounts = [];
 
-    private array $posts = [];
+    private WeakMap $posts;
 
     public function __construct(
         Php $php,
@@ -52,6 +53,8 @@ class PostController extends ContentController
             $userGroupHandler,
             $accessHandler
         );
+
+        $this->posts = new WeakMap();
     }
 
     public function getWordpressFilters(): array
@@ -197,7 +200,7 @@ class PostController extends ContentController
      */
     private function getProcessedPost(WP_Post $post): ?WP_Post
     {
-        $post = $this->posts[$post->post_type . '|' . $post->ID] ??= $this->processPost($post);
+        $post = $this->posts[$post] ??= $this->processPost($post);
         return $post === false ? null : $post;
     }
 
@@ -271,7 +274,7 @@ class PostController extends ContentController
         $excludedPosts = $this->accessHandler->getExcludedPosts();
 
         if ($excludedPosts !== []) {
-            $excludedPostsStr = implode(', ', $excludedPosts);
+            $excludedPostsStr = implode(', ', array_map('intval', $excludedPosts));
             $query .= " AND $table.ID NOT IN ($excludedPostsStr) ";
         }
 
@@ -296,11 +299,11 @@ class PostController extends ContentController
 
     private function getPostCountQuery(array $excludedPosts, string $type, string $perm): string
     {
-        $excludedPosts = implode('\', \'', $excludedPosts);
-        $query = "SELECT post_status, COUNT(*) AS num_posts 
-            FROM {$this->database->getPostsTable()} 
+        $excludedPosts = implode(', ', array_map('intval', $excludedPosts));
+        $query = "SELECT post_status, COUNT(*) AS num_posts
+            FROM {$this->database->getPostsTable()}
             WHERE post_type = %s
-              AND ID NOT IN ('$excludedPosts')";
+              AND ID NOT IN ($excludedPosts)";
 
         if ('readable' === $perm
             && $this->wordpress->isUserLoggedIn() === true
