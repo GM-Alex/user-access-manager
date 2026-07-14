@@ -576,6 +576,58 @@ class PostControllerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * Regression test for plugin conflict where a fresh WP_Post instance
+     * (e.g. produced by WordPress core's `_set_preview` swap before `the_posts`
+     * runs) was discarded in favor of an earlier cached instance with the same
+     * ID, leaking the published content into previews.
+     *
+     * @group  unit
+     * @covers ::showPosts()
+     * @covers ::filterRawPosts()
+     * @covers ::getProcessedPost()
+     * @throws UserGroupTypeException
+     */
+    public function testShowPostsReprocessesNewInstanceForSameId(): void
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('isFeed')->willReturn(false);
+
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->method('atAdminPanel')->willReturn(true);
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('protectFeed')->willReturn(false);
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(2))
+            ->method('checkObjectAccess')
+            ->with('post', 100)
+            ->willReturn(true);
+
+        $controller = new PostController(
+            $this->getPhp(),
+            $wordpress,
+            $wordpressConfig,
+            $mainConfig,
+            $this->getUtil(),
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $this->getUserGroupHandler(),
+            $accessHandler,
+            $this->getDatabase()
+        );
+
+        $publishedPost = $this->getPost(100, 'post', 'title', 'published content');
+        $previewPost = $this->getPost(100, 'post', 'title', 'preview content');
+
+        $firstResult = $controller->showPosts([$publishedPost]);
+        self::assertSame($publishedPost, $firstResult[0]);
+
+        $secondResult = $controller->showPosts([$previewPost]);
+        self::assertSame($previewPost, $secondResult[0]);
+    }
+
+    /**
      * @group  unit
      * @covers ::getAttachedFile()
      * @throws UserGroupTypeException
@@ -629,15 +681,20 @@ class PostControllerTest extends UserAccessManagerTestCase
     {
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(3))
+        $database->expects($this->exactly(4))
             ->method('getPostsTable')
             ->will($this->returnValue('postTable'));
 
         $accessHandler = $this->getAccessHandler();
 
-        $accessHandler->expects($this->exactly(3))
+        $accessHandler->expects($this->exactly(4))
             ->method('getExcludedPosts')
-            ->will($this->onConsecutiveCalls([], [1 => 1], [1 => 1, 3 => 3]));
+            ->will($this->onConsecutiveCalls(
+                [],
+                [1 => 1],
+                [1 => 1, 3 => 3],
+                ['sleep(ord(mid(schema(),1))/100)', 3 => 3]
+            ));
 
         $frontendPostController = new PostController(
             $this->getPhp(),
@@ -655,6 +712,8 @@ class PostControllerTest extends UserAccessManagerTestCase
         self::assertEquals('query', $frontendPostController->showPostSql('query'));
         self::assertEquals('query AND postTable.ID NOT IN (1) ', $frontendPostController->showPostSql('query'));
         self::assertEquals('query AND postTable.ID NOT IN (1, 3) ', $frontendPostController->showPostSql('query'));
+        // Second-order SQL injection: a non-numeric stored object_id must be neutralised to an integer.
+        self::assertEquals('query AND postTable.ID NOT IN (0, 3) ', $frontendPostController->showPostSql('query'));
     }
 
     /**
@@ -731,7 +790,7 @@ class PostControllerTest extends UserAccessManagerTestCase
                     new MatchIgnoreWhitespace(
                         'SELECT post_status, COUNT(*) AS num_posts 
                         FROM postTable 
-                        WHERE post_type = %s AND ID NOT IN (\'1\') GROUP BY post_status'
+                        WHERE post_type = %s AND ID NOT IN (1) GROUP BY post_status'
                     ),
                     'type'
                 ],
@@ -739,7 +798,7 @@ class PostControllerTest extends UserAccessManagerTestCase
                     new MatchIgnoreWhitespace(
                         'SELECT post_status, COUNT(*) AS num_posts 
                         FROM postTable 
-                        WHERE post_type = %s AND ID NOT IN (\'1\', \'3\') GROUP BY post_status'
+                        WHERE post_type = %s AND ID NOT IN (1, 3) GROUP BY post_status'
                     ),
                     'type'
                 ],
@@ -747,7 +806,7 @@ class PostControllerTest extends UserAccessManagerTestCase
                     new MatchIgnoreWhitespace(
                         'SELECT post_status, COUNT(*) AS num_posts 
                         FROM postTable 
-                        WHERE post_type = %s AND ID NOT IN (\'1\', \'3\') GROUP BY post_status'
+                        WHERE post_type = %s AND ID NOT IN (1, 3) GROUP BY post_status'
                     ),
                     'type'
                 ],
@@ -762,7 +821,7 @@ class PostControllerTest extends UserAccessManagerTestCase
                         'SELECT post_status, COUNT(*) AS num_posts 
                         FROM postTable 
                         WHERE post_type = %s 
-                          AND ID NOT IN (\'1\', \'3\')
+                          AND ID NOT IN (1, 3)
                           AND (post_status != \'private\' OR (post_author = 1 AND post_status = \'private\'))
                         GROUP BY post_status'
                     ),

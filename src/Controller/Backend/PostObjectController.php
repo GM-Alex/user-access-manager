@@ -100,7 +100,7 @@ class PostObjectController extends ObjectController
      */
     public function saveAjaxAttachmentData(): void
     {
-        $attachmentId = $this->getRequestParameter('id');
+        $attachmentId = (int) $this->getRequestParameter('id');
         $userGroups = $this->getRequestParameter(self::DEFAULT_GROUPS_FORM_NAME);
 
         $this->saveObjectData(
