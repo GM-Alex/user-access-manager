@@ -445,7 +445,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                 $customFileHandlingFile
             ));
 
-        $createMultipleFormElementValueReturn = array_fill(0, 7, $this->createMultipleFormElementValue());
+        $createMultipleFormElementValueReturn = array_fill(0, 9, $this->createMultipleFormElementValue());
         $exceptionElement = $this->createMultipleFormElementValue();
         $exceptionElement->expects($this->once())
             ->method('setSubElement')
@@ -454,16 +454,18 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             }));
         $createMultipleFormElementValueReturn[] = $exceptionElement;
 
-        $formFactory->expects($this->exactly(8))
+        $formFactory->expects($this->exactly(10))
             ->method('createMultipleFormElementValue')
             ->withConsecutive(
                 ['false', TXT_UAM_NO],
                 ['blog', TXT_UAM_REDIRECT_TO_BLOG],
                 ['login', TXT_UAM_REDIRECT_TO_LOGIN],
+                ['origin', TXT_UAM_REDIRECT_TO_ORIGIN],
                 ['custom_page', TXT_UAM_REDIRECT_TO_PAGE],
                 ['false', TXT_UAM_NO],
                 ['blog', TXT_UAM_REDIRECT_TO_BLOG],
                 ['login', TXT_UAM_REDIRECT_TO_LOGIN],
+                ['origin', TXT_UAM_REDIRECT_TO_ORIGIN],
                 ['custom_page', TXT_UAM_REDIRECT_TO_PAGE]
             )
             ->will($this->onConsecutiveCalls(...$createMultipleFormElementValueReturn));
@@ -471,6 +473,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $redirectOne = [
             'selectionId',
             [
+                $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
@@ -485,6 +488,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         $redirectTwo = [
             'selectionId',
             [
+                $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue(),
                 $this->createMultipleFormElementValue()

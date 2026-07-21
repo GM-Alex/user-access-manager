@@ -400,7 +400,7 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
             ->method('createBackendCacheController');
 
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(24))
+        $wordpress->expects($this->exactly(27))
             ->method('addAction');
 
         $wordpress->expects($this->exactly(85))

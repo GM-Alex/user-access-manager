@@ -32,7 +32,7 @@ use UserAccessManager\Wrapper\Wordpress;
 
 class UserAccessManager
 {
-    public const VERSION = '2.3.13';
+    public const VERSION = '2.3.14';
     public const DB_VERSION = '1.6.2';
 
     public function __construct(
@@ -469,6 +469,22 @@ class UserAccessManager
         $this->wordpress->addFilter('parse_query', [$frontendPostController, 'parseQuery']);
         $this->wordpress->addFilter('getarchives_where', [$frontendPostController, 'showPostSql']);
         $this->wordpress->addFilter('wp_count_posts', [$frontendPostController, 'showPostCount'], 10, 3);
+
+        // Registered on rest_api_init so that all REST-enabled post types are known.
+        $this->wordpress->addAction('rest_api_init', function () use ($frontendPostController) {
+            foreach ((array) $this->objectHandler->getPostTypes() as $postType) {
+                $this->wordpress->addFilter(
+                    "rest_prepare_$postType",
+                    [$frontendPostController, 'restrictRestResponse'],
+                    10,
+                    3
+                );
+                $this->wordpress->addFilter(
+                    "rest_{$postType}_query",
+                    [$frontendPostController, 'excludeRestrictedPostsFromRestQuery']
+                );
+            }
+        });
 
         // Short code controller
         $frontendShortCodeController = $this->controllerFactory->createFrontendShortCodeController();

@@ -315,7 +315,8 @@ class SettingsController extends Controller
             $values = [
                 $this->formFactory->createMultipleFormElementValue('false', TXT_UAM_NO),
                 $this->formFactory->createMultipleFormElementValue('blog', TXT_UAM_REDIRECT_TO_BLOG),
-                $this->formFactory->createMultipleFormElementValue('login', TXT_UAM_REDIRECT_TO_LOGIN)
+                $this->formFactory->createMultipleFormElementValue('login', TXT_UAM_REDIRECT_TO_LOGIN),
+                $this->formFactory->createMultipleFormElementValue('origin', TXT_UAM_REDIRECT_TO_ORIGIN)
             ];
 
             $this->addCustomPageRedirectFormElement($configParameters, $values);
