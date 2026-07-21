@@ -22,6 +22,8 @@ use WP_Comment;
 use WP_Hook;
 use WP_Post;
 use WP_Query;
+use WP_REST_Request;
+use WP_REST_Response;
 
 class PostController extends ContentController
 {
@@ -68,6 +70,11 @@ class PostController extends ContentController
             && $wpQuery->query_vars['suppress_filters'] === true;
     }
 
+    private function addExcludedPosts(mixed $postsNotIn, array $excludedPosts): array
+    {
+        return array_unique(array_merge((array) $postsNotIn, $excludedPosts));
+    }
+
     /**
      * @throws UserGroupTypeException
      */
@@ -77,11 +84,9 @@ class PostController extends ContentController
             $excludedPosts = $this->accessHandler->getExcludedPosts();
 
             if ($excludedPosts !== []) {
-                $postsNotIn = (isset($wpQuery->query_vars['post__not_in']) === true) ?
-                    $wpQuery->query_vars['post__not_in'] : [];
-
-                $wpQuery->query_vars['post__not_in'] = array_unique(
-                    array_merge($postsNotIn, $excludedPosts)
+                $wpQuery->query_vars['post__not_in'] = $this->addExcludedPosts(
+                    $wpQuery->query_vars['post__not_in'] ?? [],
+                    $excludedPosts
                 );
             }
         }
@@ -249,6 +254,90 @@ class PostController extends ContentController
     public function showPages(array $rawPages = []): array
     {
         return $this->filterRawPosts($rawPages);
+    }
+
+    private function isSingleObjectRestRequest(mixed $request, WP_Post $post): bool
+    {
+        return $request instanceof WP_REST_Request
+            && $request->get_param('id') !== null
+            && (int) $request->get_param('id') === (int) $post->ID;
+    }
+
+    private function setRestField(array &$data, string $field, string $value): void
+    {
+        if (array_key_exists($field, $data) === false) {
+            return;
+        }
+
+        if (is_array($data[$field]) === true) {
+            if (array_key_exists('rendered', $data[$field]) === true) {
+                $data[$field]['rendered'] = $value;
+            }
+
+            if (array_key_exists('raw', $data[$field]) === true) {
+                $data[$field]['raw'] = $value;
+            }
+
+            if (array_key_exists('protected', $data[$field]) === true) {
+                $data[$field]['protected'] = false;
+            }
+        } else {
+            $data[$field] = $value;
+        }
+    }
+
+    /**
+     * The_posts / posts_where_paged never run for REST single-item requests,
+     * which resolve through get_post() directly, so access is enforced here too.
+     *
+     * @throws UserGroupTypeException
+     */
+    public function restrictRestResponse(mixed $response, mixed $post = null, mixed $request = null): mixed
+    {
+        if (($response instanceof WP_REST_Response) === false
+            || ($post instanceof WP_Post) === false
+            || $this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === true
+        ) {
+            return $response;
+        }
+
+        if ($this->removePostFromList($post->post_type) === true
+            && $this->isSingleObjectRestRequest($request, $post) === true
+        ) {
+            return $this->wordpress->getWpError(
+                'uam_rest_access_denied',
+                TXT_UAM_REST_ACCESS_DENIED,
+                ['status' => $this->wordpress->isUserLoggedIn() === true ? 403 : 401]
+            );
+        }
+
+        $restrictedContent = $this->processPostContent($post);
+        $data = (array) $response->get_data();
+
+        $this->setRestField($data, 'content', $restrictedContent);
+        $this->setRestField($data, 'excerpt', $restrictedContent);
+
+        if ($this->mainConfig->hidePostTypeTitle($post->post_type) === true) {
+            $this->setRestField($data, 'title', $this->mainConfig->getPostTypeTitle($post->post_type));
+        }
+
+        $response->set_data($data);
+
+        return $response;
+    }
+
+    /**
+     * @throws UserGroupTypeException
+     */
+    public function excludeRestrictedPostsFromRestQuery(array $queryArgs): array
+    {
+        $excludedPosts = $this->accessHandler->getExcludedPosts();
+
+        if ($excludedPosts !== []) {
+            $queryArgs['post__not_in'] = $this->addExcludedPosts($queryArgs['post__not_in'] ?? [], $excludedPosts);
+        }
+
+        return $queryArgs;
     }
 
     /**

@@ -28,6 +28,54 @@ if (class_exists('\wpdb') === false) {
     class wpdb {}
 }
 
+if (class_exists('\WP_Error') === false) {
+    class WP_Error
+    {
+        public function __construct($code = '', $message = '', $data = '')
+        {
+        }
+    }
+}
+
+if (class_exists('\WP_REST_Response') === false) {
+    class WP_REST_Response
+    {
+        private $data;
+
+        public function __construct($data = null)
+        {
+            $this->data = $data;
+        }
+
+        public function get_data()
+        {
+            return $this->data;
+        }
+
+        public function set_data($data): void
+        {
+            $this->data = $data;
+        }
+    }
+}
+
+if (class_exists('\WP_REST_Request') === false) {
+    class WP_REST_Request
+    {
+        private $params;
+
+        public function __construct(array $params = [])
+        {
+            $this->params = $params;
+        }
+
+        public function get_param($key)
+        {
+            return $this->params[$key] ?? null;
+        }
+    }
+}
+
 if (class_exists('\WP_Widget') === false) {
     require_once __DIR__.'/../vendor/johnpbloch/wordpress-core/wp-includes/class-wp-widget.php';
 }

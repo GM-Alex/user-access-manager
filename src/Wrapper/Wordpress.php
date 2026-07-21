@@ -295,6 +295,14 @@ class Wordpress
     }
 
     /**
+     * @see WP_Error
+     */
+    public function getWpError(string|int $code = '', string $message = '', mixed $data = ''): WP_Error
+    {
+        return new WP_Error($code, $message, $data);
+    }
+
+    /**
      * @see remove_filter
      */
     public function removeFilter(string $tag, callable $functionToRemove, int $priority = 10): bool
@@ -452,6 +460,14 @@ class Wordpress
     public function wpRedirect(string $location, int $status = 302): bool
     {
         return wp_redirect($location, $status);
+    }
+
+    /**
+     * @see wp_get_referer
+     */
+    public function getReferer(): string|false
+    {
+        return wp_get_referer();
     }
 
     public function getPageLink(

@@ -19,6 +19,7 @@ define('TXT_UAM_WORDPRESS_VERSION_TO_LOW', __('Sorry you need at least WordPress
 /** @noinspection HtmlUnknownTarget */
 define('TXT_UAM_NEED_DATABASE_UPDATE', __('Please update the database of the User Access Manager. <a href="%s">Click here to proceed</a>', 'user-access-manager'));
 define('TXT_UAM_ERROR', __('The following error occurred: %s', 'user-access-manager'));
+define('TXT_UAM_REST_ACCESS_DENIED', __('Sorry, you are not allowed to access this content.', 'user-access-manager'));
 
 // --- Multiple use ---
 define('TXT_UAM_ALL', __('All', 'user-access-manager'));
@@ -169,6 +170,7 @@ define('TXT_UAM_REDIRECT_TO_BLOG', __('To blog start page', 'user-access-manager
 define('TXT_UAM_REDIRECT_TO_LOGIN', __('To login page (wp-admin)', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_PAGE', __('Custom page: ', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_URL', __('Custom URL: ', 'user-access-manager'));
+define('TXT_UAM_REDIRECT_TO_ORIGIN', __('To origin page (the page the user came from)', 'user-access-manager'));
 define('TXT_UAM_LOCK_RECURSIVE', __('Lock recursive', 'user-access-manager'));
 define('TXT_UAM_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to "No" could result in display errors relating to the hierarchy.', 'user-access-manager'));
 define('TXT_UAM_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));

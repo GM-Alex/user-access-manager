@@ -159,6 +159,9 @@ class RedirectController extends Controller
             $url = $this->mainConfig->getRedirectCustomUrl();
         } elseif ($redirect === 'login') {
             $url = $this->getLoginUrl();
+        } elseif ($redirect === 'origin') {
+            $referer = $this->wordpress->getReferer();
+            $url = $referer !== false ? $referer : $this->wordpress->getHomeUrl('/');
         } else {
             $url = $this->wordpress->getHomeUrl('/');
         }

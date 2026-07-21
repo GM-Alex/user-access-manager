@@ -517,6 +517,61 @@ class RedirectControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers ::redirectUser()
+     * @covers ::getRedirectUrlAndPermalink()
+     * @throws UserGroupTypeException
+     */
+    public function testRedirectUserToOrigin()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->exactly(2))
+            ->method('callExit');
+
+        $wordpress = $this->getWordpress();
+
+        $wordpress->expects($this->exactly(2))
+            ->method('getReferer')
+            ->will($this->onConsecutiveCalls('RefererUrl', false));
+
+        $wordpress->expects($this->once())
+            ->method('getHomeUrl')
+            ->with('/')
+            ->will($this->returnValue('HomeUrl'));
+
+        $wordpress->expects($this->exactly(2))
+            ->method('wpRedirect')
+            ->withConsecutive(['RefererUrl'], ['HomeUrl']);
+
+        $config = $this->getMainConfig();
+        $config->expects($this->exactly(2))
+            ->method('getRedirect')
+            ->will($this->returnValue('origin'));
+
+        $util = $this->getUtil();
+        $util->expects($this->exactly(2))
+            ->method('getCurrentUrl')
+            ->will($this->returnValue('currentUrl'));
+
+        $frontendRedirectController = new RedirectController(
+            $php,
+            $wordpress,
+            $this->getWordpressConfig(),
+            $config,
+            $this->getDatabase(),
+            $util,
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
+        $frontendRedirectController->redirectUser(false);
+        $frontendRedirectController->redirectUser(false);
+    }
+
+    /**
+     * @group  unit
      * @covers ::redirect()
      * @covers ::extractObjectTypeAndId()
      * @covers ::getPostIdByName()
