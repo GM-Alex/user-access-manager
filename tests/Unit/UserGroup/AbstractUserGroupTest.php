@@ -353,6 +353,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertFalse($abstractUserGroup->addObject('notValidObjectType', 321));
         self::assertFalse($abstractUserGroup->addObject('objectType', 321));
         self::assertTrue($abstractUserGroup->addObject('objectType', 321, 'fromDate', 'toDate'));
+        self::assertEquals([], self::getValue($abstractUserGroup, 'assignedObjects'));
+        self::assertEquals([], self::getValue($abstractUserGroup, 'objectMembership'));
+        self::assertEquals([], self::getValue($abstractUserGroup, 'fullObjectMembership'));
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType'));
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType', 1, 2));
         self::assertTrue($abstractUserGroup->addDefaultType('defaultObjectType', 1, 0));
@@ -494,8 +497,12 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::assertFalse($abstractUserGroup->removeObject('invalidObjectType'));
 
         self::assertFalse($abstractUserGroup->removeObject('objectType'));
+        // A failed removal must not reset the cached objects.
+        self::assertEquals([1 => 1], self::getValue($abstractUserGroup, 'assignedObjects'));
 
         self::assertTrue($abstractUserGroup->removeObject('objectType'));
+        // A successful removal resets the cached objects.
+        self::assertEquals([], self::getValue($abstractUserGroup, 'assignedObjects'));
 
         self::assertTrue($abstractUserGroup->removeObject('objectType', 1));
         self::assertTrue($abstractUserGroup->removeDefaultType('defaultObjectType'));

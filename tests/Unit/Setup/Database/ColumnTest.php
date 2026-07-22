@@ -66,6 +66,13 @@ class ColumnTest extends TestCase
         self::assertEquals('columnDefault', $column->getDefault());
         self::assertTrue($column->isKey());
         self::assertTrue($column->isAutoIncrement());
+
+        $columnWithDefaults = new Column('columnName', 'columnType');
+
+        self::assertNull($columnWithDefaults->getDefault());
+        self::assertFalse($columnWithDefaults->isNull());
+        self::assertFalse($columnWithDefaults->isKey());
+        self::assertFalse($columnWithDefaults->isAutoIncrement());
     }
 
     /**

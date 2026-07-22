@@ -32,7 +32,7 @@ class FileHandler
             ob_clean();
         }
 
-        flush();
+        $this->php->flush();
     }
 
     private function getFileMineType(string $file): string
@@ -53,7 +53,7 @@ class FileHandler
         if ($this->php->functionExists('finfo_open') === true) {
             $fileInfo = finfo_open(FILEINFO_MIME);
             $fileMimeType = finfo_file($fileInfo, $file);
-            finfo_close($fileInfo);
+            $this->php->fInfoClose($fileInfo);
         } elseif ($this->php->functionExists('mime_content_type')) {
             $fileMimeType = mime_content_type($file);
         } elseif (isset($mimeTypes[$fileExt]) === true) {
@@ -71,9 +71,9 @@ class FileHandler
         $contentDisposition = ($isInline === true) ? 'inline' : 'attachment';
         $baseName = str_replace(' ', '_', basename($file));
 
-        header('Content-Description: File Transfer');
-        header('Content-Type: ' . $fileMimeType);
-        header("Content-Disposition: $contentDisposition; filename=\"$baseName\"");
+        $this->php->header('Content-Description: File Transfer');
+        $this->php->header('Content-Type: ' . $fileMimeType);
+        $this->php->header("Content-Disposition: $contentDisposition; filename=\"$baseName\"");
     }
 
     private function deliverFileViaFopen(string $file): void
@@ -91,7 +91,7 @@ class FileHandler
 
     private function deliverFile(string $file, bool $isInline): void
     {
-        header("HTTP/1.1 200 OK");
+        $this->php->header("HTTP/1.1 200 OK");
         $downloadType = $this->mainConfig->getDownloadType();
 
         if ($downloadType === 'xsendfile') {
@@ -99,9 +99,9 @@ class FileHandler
                 // Use /uam-files/ prefix so the internal redirect goes to a dedicated
                 // internal location that bypasses UAM's rewrite rules, avoiding a loop.
                 $uri = '/uam-files' . str_replace(rtrim(ABSPATH, '/'), '', $file);
-                header("X-Accel-Redirect: $uri");
+                $this->php->header("X-Accel-Redirect: $uri");
             } elseif ($this->wordpress->isApacheModuleLoaded('mod_xsendfile')) {
-                header("X-Sendfile: $file");
+                $this->php->header("X-Sendfile: $file");
             } else {
                 // mod_xsendfile is not available — fall back to fopen so the file
                 // is still delivered rather than sending an empty response.
@@ -112,8 +112,8 @@ class FileHandler
         $this->addDefaultHeader($file, $isInline);
 
         if ($downloadType !== 'xsendfile') {
-            header('Content-Transfer-Encoding: binary');
-            header('Content-Length: ' . filesize($file));
+            $this->php->header('Content-Transfer-Encoding: binary');
+            $this->php->header('Content-Length: ' . filesize($file));
             $this->clearBuffer();
 
             if ($downloadType === 'fopen') {
@@ -222,20 +222,20 @@ class FileHandler
         if ($ranges !== []) {
             $extraContents = $this->getExtraContents($file, $ranges, $contentLength, $boundary);
 
-            header('HTTP/1.1 206 Partial Content');
-            header('Content-Transfer-Encoding: binary');
-            header('Accept-Ranges: bytes');
+            $this->php->header('HTTP/1.1 206 Partial Content');
+            $this->php->header('Content-Transfer-Encoding: binary');
+            $this->php->header('Accept-Ranges: bytes');
 
             if ($extraContents === []) {
                 $this->addDefaultHeader($file, $isInline);
                 [$seekStart, $seekEnd] = $ranges[0];
                 $contentLength = ($seekEnd - $seekStart + 1);
-                header("Content-Range: bytes $seekStart-$seekEnd/$fileSize");
+                $this->php->header("Content-Range: bytes $seekStart-$seekEnd/$fileSize");
             } else {
-                header("Content-Type: multipart/x-byteranges; boundary=$boundary");
+                $this->php->header("Content-Type: multipart/x-byteranges; boundary=$boundary");
             }
 
-            header("Content-Length: $contentLength");
+            $this->php->header("Content-Length: $contentLength");
             $fileHandler = fopen($file, 'r');
 
             foreach ($ranges as $index => $range) {
@@ -244,7 +244,7 @@ class FileHandler
                 }
 
                 [$seekStart, $seekEnd] = $ranges[0];
-                fseek($fileHandler, $seekStart);
+                $this->php->fseek($fileHandler, $seekStart);
                 $this->readFilePartly($fileHandler, $seekEnd - $seekStart + 1);
             }
 
@@ -253,8 +253,8 @@ class FileHandler
                 $this->clearBuffer();
             }
         } else {
-            header('HTTP/1.1 416 Requested Range Not Satisfiable');
-            header("Content-Range: */$fileSize");
+            $this->php->header('HTTP/1.1 416 Requested Range Not Satisfiable');
+            $this->php->header("Content-Range: */$fileSize");
         }
     }
 
@@ -337,9 +337,9 @@ class FileHandler
         $file = $this->wordpressConfig->getUploadDirectory() . DIRECTORY_SEPARATOR . self::X_SEND_FILE_TEST_FILE;
         file_put_contents($file, 'success');
 
-        header("X-Sendfile: $file");
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+        $this->php->header("X-Sendfile: $file");
+        $this->php->header('Content-Type: application/octet-stream');
+        $this->php->header('Content-Disposition: attachment; filename="' . basename($file) . '"');
         $this->php->callExit();
     }
 
@@ -347,8 +347,8 @@ class FileHandler
     {
         $file = $this->wordpressConfig->getUploadDirectory() . DIRECTORY_SEPARATOR . self::X_SEND_FILE_TEST_FILE;
 
-        if (file_exists($file) === true) {
-            unlink($file);
+        if ($this->php->isFile($file) === true) {
+            $this->php->unlink($file);
         }
     }
 }

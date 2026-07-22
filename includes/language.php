@@ -171,6 +171,8 @@ define('TXT_UAM_REDIRECT_TO_LOGIN', __('To login page (wp-admin)', 'user-access-
 define('TXT_UAM_REDIRECT_TO_PAGE', __('Custom page: ', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_URL', __('Custom URL: ', 'user-access-manager'));
 define('TXT_UAM_REDIRECT_TO_ORIGIN', __('To origin page (the page the user came from)', 'user-access-manager'));
+define('TXT_UAM_APPEND_REDIRECT_TO_PARAMETER', __('Append requested URL to the redirect', 'user-access-manager'));
+define('TXT_UAM_APPEND_REDIRECT_TO_PARAMETER_DESC', __('Selecting "Yes" will append the originally requested URL as "redirect_to" parameter to the redirect URL, so that a custom login page can send the user back to it after the login.', 'user-access-manager'));
 define('TXT_UAM_LOCK_RECURSIVE', __('Lock recursive', 'user-access-manager'));
 define('TXT_UAM_LOCK_RECURSIVE_DESC', __('Selecting "Yes" will lock all child posts/pages of a post/page if a user has no access to the parent page. Note: Setting this option to "No" could result in display errors relating to the hierarchy.', 'user-access-manager'));
 define('TXT_UAM_BLOG_ADMIN_HINT_TEXT', __('Admin hint text', 'user-access-manager'));

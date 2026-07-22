@@ -681,10 +681,51 @@ class ObjectControllerTest extends ObjectControllerTestCase
             'uam_bulk_type' => ObjectController::BULK_REMOVE,
             ObjectController::DEFAULT_GROUPS_FORM_NAME => [
                 1 => ['id' => 1],
-                2 => ['id' => 2]
+                2 => ['id' => 2],
+                // A group without an id must be filtered out of the groups to remove.
+                3 => ['noId' => 3]
             ]
         ];
         $objectController->saveObjectData('objectType', 1);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::saveObjectData()
+     * @covers ::getAddRemoveGroups()
+     * @throws UserGroupTypeException
+     */
+    public function testSaveObjectDataUsesProvidedAddUserGroups()
+    {
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->once())
+            ->method('getFilteredUserGroupsForObject')
+            ->with('objectType', 1)
+            ->will($this->returnValue([]));
+
+        $userGroupAssignmentHandler = $this->getUserGroupAssignmentHandler();
+        $userGroupAssignmentHandler->expects($this->once())
+            ->method('assignObjectToUserGroups')
+            ->with('objectType', 1, [4 => ['id' => 4]], [], []);
+
+        $objectController = new ObjectController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getDateUtil(),
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $userGroupHandler,
+            $userGroupAssignmentHandler,
+            $this->getAccessHandler(),
+            $this->getObjectInformationFactory()
+        );
+
+        $_POST = [];
+        // The explicitly provided groups must be used, not the (empty) request groups.
+        $objectController->saveObjectData('objectType', 1, [4 => ['id' => 4]], true);
     }
 
     /**

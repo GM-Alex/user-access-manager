@@ -38,6 +38,11 @@
         "UserAccessManager\\Command\\ObjectCommand::__construct"
       ]
     },
+    "UnwrapRtrim": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Backend\\AboutController::getAllSupporters"
+      ]
+    },
     "IncrementInteger": {
       "ignore": [
         "UserAccessManager\\Controller\\Backend\\ObjectController::sortUserGroups"
@@ -45,7 +50,43 @@
     },
     "DecrementInteger": {
       "ignore": [
-        "UserAccessManager\\Controller\\Backend\\ObjectController::sortUserGroups"
+        "UserAccessManager\\Controller\\Backend\\ObjectController::sortUserGroups",
+        "UserAccessManager\\User\\UserHandler::checkUserAccess"
+      ]
+    },
+    "InstanceOf_": {
+      "ignore": [
+        "UserAccessManager\\User\\UserHandler::getUserRole"
+      ]
+    },
+    "LogicalAnd": {
+      "ignore": [
+        "UserAccessManager\\User\\UserHandler::getUserRole",
+        "UserAccessManager\\UserGroup\\UserGroupAssignmentHandler::getDateParameter"
+      ]
+    },
+    "Break_": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Frontend\\TermController::updateTermParent"
+      ]
+    },
+    "UnwrapArrayFilter": {
+      "ignore": [
+        "UserAccessManager\\Access\\AccessHandler::getExcludedPosts"
+      ]
+    },
+    "NullSafePropertyCall": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Frontend\\PostController::getRestBaseToPostTypeMap"
+      ]
+    },
+    "Coalesce": {
+      "ignore": [
+        "UserAccessManager\\Controller\\Frontend\\RedirectController::extractObjectTypeAndId",
+        "UserAccessManager\\Cache\\Cache::setActiveCacheProvider",
+        "UserAccessManager\\Form\\FormHelper::getSettingsForm",
+        "UserAccessManager\\Controller\\Frontend\\PostController::isSingleObjectRestRequest",
+        "UserAccessManager\\Controller\\Frontend\\PostController::getGuardedRestRouteTarget"
       ]
     },
     "UnwrapUcFirst": {

@@ -18,9 +18,9 @@ class BooleanConfigParameter extends ConfigParameter
 
     private function valueToBoolConverter(mixed $value): mixed
     {
-        if (in_array($value, [1, '1', 'true'])) {
+        if (in_array($value, [1, '1', 'true'], true)) {
             $value = true;
-        } elseif (in_array($value, [0, '0', 'false'])) {
+        } elseif (in_array($value, [0, '0', 'false'], true)) {
             $value = false;
         }
 

@@ -21,14 +21,14 @@ class AboutController extends Controller
             $path = [$realPath, 'assets'];
             $path = implode(DIRECTORY_SEPARATOR, $path) . DIRECTORY_SEPARATOR;
             $fileWithPath = $path . self::SUPPORTER_FILE;
-            $needsUpdate = is_file($fileWithPath) === false
-                || filemtime($fileWithPath) < $this->wordpress->currentTime('timestamp') - 24 * 60 * 60;
-            $fileContent = ($needsUpdate === true) ? @file_get_contents(self::SUPPORTER_FILE_URL) : false;
+            $needsUpdate = $this->php->isFile($fileWithPath) === false
+                || $this->php->fileMTime($fileWithPath) < $this->wordpress->currentTime('timestamp') - 24 * 60 * 60;
+            $fileContent = ($needsUpdate === true) ? $this->php->fileGetContents(self::SUPPORTER_FILE_URL) : false;
 
             if ($fileContent !== false) {
-                file_put_contents($fileWithPath, $fileContent);
-            } elseif (is_file($fileWithPath) === true) {
-                $fileContent = file_get_contents($fileWithPath);
+                $this->php->filePutContents($fileWithPath, $fileContent);
+            } elseif ($this->php->isFile($fileWithPath) === true) {
+                $fileContent = $this->php->fileGetContents($fileWithPath);
             }
 
             $this->supporters = (is_string($fileContent) === true) ? json_decode($fileContent, true) : [];

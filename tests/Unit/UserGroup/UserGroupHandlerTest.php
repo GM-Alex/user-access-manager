@@ -317,7 +317,11 @@ class UserGroupHandlerTest extends HandlerTestCase
         unset($userUserGroups[4]);
         unset($userUserGroups[6]);
 
-        self::setValue($userGroupHandler, 'userGroupsForUser', $userUserGroups);
+        $userGroupsForUser = $userUserGroups;
+        // A user group that is not among the full user groups must be filtered out.
+        $userGroupsForUser[99] = $this->getUserGroup(99);
+
+        self::setValue($userGroupHandler, 'userGroupsForUser', $userGroupsForUser);
         self::assertEquals($userUserGroups, $userGroupHandler->getFilteredUserGroups());
     }
 
@@ -342,6 +346,47 @@ class UserGroupHandlerTest extends HandlerTestCase
         self::assertEquals($expected, $userGroupHandler->getUserGroups());
 
         return $userGroupHandler;
+    }
+
+    /**
+     * @group  unit
+     * @covers ::addUserGroup()
+     * @throws UserGroupTypeException
+     */
+    public function testAddUserGroupLoadsExistingGroupsBeforeAdding()
+    {
+        $database = $this->getDatabase();
+        $database->expects($this->once())
+            ->method('getUserGroupTable')
+            ->will($this->returnValue('userGroupTable'));
+
+        $existingGroup = new stdClass();
+        $existingGroup->ID = 1;
+        $database->expects($this->once())
+            ->method('getResults')
+            ->will($this->returnValue([$existingGroup]));
+
+        $loadedGroup = $this->getUserGroup('1');
+        $userGroupFactory = $this->getUserGroupFactory();
+        $userGroupFactory->expects($this->once())
+            ->method('createUserGroup')
+            ->with(1)
+            ->will($this->returnValue($loadedGroup));
+
+        $userGroupHandler = new UserGroupHandler(
+            $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $database,
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $userGroupFactory
+        );
+
+        $addedGroup = $this->getUserGroup('4');
+        $userGroupHandler->addUserGroup($addedGroup);
+
+        self::assertEquals(['1' => $loadedGroup, '4' => $addedGroup], $userGroupHandler->getUserGroups());
     }
 
     /**
@@ -644,5 +689,39 @@ class UserGroupHandlerTest extends HandlerTestCase
         ];
 
         self::assertEquals($expected, $userGroupHandler->getFilteredUserGroupsForObject('objectType', 1));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::checkUserGroupAccess()
+     * @throws ReflectionException
+     */
+    public function testCheckUserGroupAccessUsesRemoteAddr()
+    {
+        $userGroup = $this->createMock(UserGroup::class);
+        $userGroup->method('getIpRangeArray')->will($this->returnValue(['5.6.7.8']));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('getExtraIpHeader')->will($this->returnValue(null));
+
+        $userHandler = $this->getUserHandler();
+        $userHandler->expects($this->once())
+            ->method('isIpInRange')
+            ->with('5.6.7.8', ['5.6.7.8'])
+            ->will($this->returnValue(true));
+
+        $userGroupHandler = new UserGroupHandler(
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $userHandler,
+            $this->getUserGroupFactory()
+        );
+
+        // With no extra ip header the remote address is used for the range check.
+        $_SERVER['REMOTE_ADDR'] = '5.6.7.8';
+        self::assertTrue(self::callMethod($userGroupHandler, 'checkUserGroupAccess', [$userGroup]));
     }
 }

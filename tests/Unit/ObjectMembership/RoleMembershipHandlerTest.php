@@ -36,12 +36,18 @@ class RoleMembershipHandlerTest extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
+        $assignmentInformationFactory = $this->getAssignmentInformationFactory();
         $roleMembershipHandler = new RoleMembershipHandler(
-            $this->getAssignmentInformationFactory(),
+            $assignmentInformationFactory,
             $this->getWordpress()
         );
 
         self::assertInstanceOf(RoleMembershipHandler::class, $roleMembershipHandler);
+        // The parent constructor must initialise the inherited factory property.
+        self::assertSame(
+            $assignmentInformationFactory,
+            self::getValue($roleMembershipHandler, 'assignmentInformationFactory')
+        );
     }
 
     /**

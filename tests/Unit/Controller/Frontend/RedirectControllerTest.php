@@ -274,7 +274,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $cache->expects($this->exactly(7))
             ->method('getFromRuntimeCache')
             ->with(RedirectController::POST_URL_CACHE_KEY)
-            ->will($this->returnValue(['http://baseUrl/file/pictures/url' => 1]));
+            ->will($this->returnValue(['http://baseUrl/file/pictures/foo/url' => 1]));
 
         $objectHandler = $this->getObjectHandler();
 
@@ -312,7 +312,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(
                 ['file', false],
                 ['realPath/assets/gfx/noAccessPic.png', true],
-                ['ABSPATHbaseDirectory/file/pictures/url', false],
+                [ABSPATH . 'baseDirectory/file/pictures/foo/url', false],
                 ['customImage.jpg', true],
                 ['realPath/assets/gfx/noAccessPic.png', true]
             );
@@ -322,11 +322,11 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $fileObjectFactory->expects($this->exactly(5))
             ->method('createFileObject')
             ->withConsecutive(
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', false],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', true],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', false],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', true],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'ABSPATHbaseDirectory/file/pictures/url', true]
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', false],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', true],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', false],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', true],
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', true]
             )
             ->will($this->returnCallback(function ($id, $type, $file, $isImage) {
                 $fileObject = $this->createMock(FileObject::class);
@@ -368,13 +368,13 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController->getFile('customType', 'url');
         $_GET['uamextra'] = 'extra';
         $frontendRedirectController->getFile('customType', 'url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 'url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
     }
 
     /**
@@ -511,6 +511,60 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $frontendRedirectController->redirectUser(false);
         $frontendRedirectController->redirectUser(false);
         $frontendRedirectController->redirectUser(false);
+        $frontendRedirectController->redirectUser(false);
+        $frontendRedirectController->redirectUser(false);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::redirectUser()
+     * @throws UserGroupTypeException
+     */
+    public function testRedirectUserAppendsRequestedUrlAsRedirectToParameter()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->exactly(2))
+            ->method('callExit');
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('getHomeUrl')
+            ->with('/')
+            ->will($this->returnValue('HomeUrl'));
+
+        $wordpress->expects($this->once())
+            ->method('addQueryArg')
+            ->with(['redirect_to' => 'currentUrl'], 'HomeUrl')
+            ->will($this->returnValue('HomeUrl?redirect_to=currentUrl'));
+
+        $wordpress->expects($this->exactly(2))
+            ->method('wpRedirect')
+            ->withConsecutive(['HomeUrl?redirect_to=currentUrl'], ['HomeUrl']);
+
+        $config = $this->getMainConfig();
+        $config->expects($this->exactly(2))
+            ->method('appendRedirectToParameter')
+            ->will($this->onConsecutiveCalls(true, false));
+
+        $util = $this->getUtil();
+        $util->expects($this->exactly(2))
+            ->method('getCurrentUrl')
+            ->will($this->returnValue('currentUrl'));
+
+        $frontendRedirectController = new RedirectController(
+            $php,
+            $wordpress,
+            $this->getWordpressConfig(),
+            $config,
+            $this->getDatabase(),
+            $util,
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getFileObjectFactory()
+        );
+
         $frontendRedirectController->redirectUser(false);
         $frontendRedirectController->redirectUser(false);
     }

@@ -53,6 +53,14 @@ class Php
     }
 
     /**
+     * @see header()
+     */
+    public function header(string $header, bool $replace = true, int $responseCode = 0): void
+    {
+        header($header, $replace, $responseCode);
+    }
+
+    /**
      * @see set_time_limit()
      */
     public function setTimeLimit(int $seconds): bool
@@ -98,6 +106,30 @@ class Php
     }
 
     /**
+     * @see is_file()
+     */
+    public function isFile(string $filename): bool
+    {
+        return is_file($filename);
+    }
+
+    /**
+     * @see filemtime()
+     */
+    public function fileMTime(string $filename): int|false
+    {
+        return filemtime($filename);
+    }
+
+    /**
+     * @see file_get_contents()
+     */
+    public function fileGetContents(string $filename): string|false
+    {
+        return @file_get_contents($filename);
+    }
+
+    /**
      * @see igbinary_serialize()
      */
     public function igbinarySerialize(mixed $value): ?string
@@ -137,5 +169,29 @@ class Php
     public function fClose($handle): bool
     {
         return fclose($handle);
+    }
+
+    /**
+     * @see fseek()
+     */
+    public function fseek($handle, int $offset, int $whence = SEEK_SET): int
+    {
+        return fseek($handle, $offset, $whence);
+    }
+
+    /**
+     * @see flush()
+     */
+    public function flush(): void
+    {
+        flush();
+    }
+
+    /**
+     * @see finfo_close()
+     */
+    public function fInfoClose($fileInfo): bool
+    {
+        return finfo_close($fileInfo);
     }
 }

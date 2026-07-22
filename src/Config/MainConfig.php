@@ -49,6 +49,9 @@ class MainConfig extends Config
         $id = 'redirect_custom_url';
         $configParameters[$id] = $this->configParameterFactory->createStringConfigParameter($id);
 
+        $id = 'append_redirect_to_parameter';
+        $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id);
+
         $id = 'lock_recursive';
         $configParameters[$id] = $this->configParameterFactory->createBooleanConfigParameter($id, true);
 
@@ -334,6 +337,11 @@ class MainConfig extends Config
     public function getRedirectCustomUrl(): ?string
     {
         return $this->getParameterValue('redirect_custom_url');
+    }
+
+    public function appendRedirectToParameter(): bool
+    {
+        return (bool) $this->getParameterValue('append_redirect_to_parameter');
     }
 
     public function lockRecursive(): bool

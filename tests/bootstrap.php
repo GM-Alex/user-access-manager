@@ -1,6 +1,5 @@
 <?php
 
-use VCR\VCR;
 use function WP_CLI\Utils\load_dependencies;
 
 ini_set('memory_limit', '-1');
@@ -62,16 +61,41 @@ if (class_exists('\WP_REST_Response') === false) {
 if (class_exists('\WP_REST_Request') === false) {
     class WP_REST_Request
     {
-        private $params;
+        private array $params = [];
+        private array $urlParams = [];
 
-        public function __construct(array $params = [])
+        public function __construct(private string $method = '', private string $route = '')
         {
-            $this->params = $params;
         }
 
-        public function get_param($key)
+        public function set_param(string $key, $value): void
         {
-            return $this->params[$key] ?? null;
+            $this->params[$key] = $value;
+        }
+
+        public function get_param(string $key)
+        {
+            return $this->params[$key] ?? $this->urlParams[$key] ?? null;
+        }
+
+        public function set_url_params(array $params): void
+        {
+            $this->urlParams = $params;
+        }
+
+        public function get_url_params(): array
+        {
+            return $this->urlParams;
+        }
+
+        public function get_method(): string
+        {
+            return $this->method;
+        }
+
+        public function get_route(): string
+        {
+            return $this->route;
         }
     }
 }
@@ -90,5 +114,3 @@ include WP_CLI_ROOT . '/php/class-wp-cli.php';
 include WP_CLI_ROOT . '/php/class-wp-cli-command.php';
 
 load_dependencies();
-
-VCR::configure()->setCassettePath(__DIR__.'/fixtures/vcr');

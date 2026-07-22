@@ -120,6 +120,7 @@ class FormHelperTest extends UserAccessManagerTestCase
         self::assertEquals('TEST', $formHelper->getText('group_key'));
         self::assertEquals('TEST_DESC', $formHelper->getText('group_key', true));
 
+        self::assertEquals('TEST_ID', $formHelper->getParameterText($parameter));
         self::assertEquals('TEST_ID', $formHelper->getParameterText($parameter, false, 'group_key'));
         self::assertEquals('TEST_ID_DESC', $formHelper->getParameterText($parameter, true, 'group_key'));
 

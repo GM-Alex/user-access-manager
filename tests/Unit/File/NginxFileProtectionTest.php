@@ -16,6 +16,7 @@
 namespace UserAccessManager\Tests\Unit\File;
 
 use UserAccessManager\File\NginxFileProtection;
+use UserAccessManager\Tests\ThrowingStreamWrapper;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
@@ -82,7 +83,7 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
             $this->getUtil()
         );
 
-        self::assertEquals('ABSPATH' . NginxFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath());
+        self::assertEquals(ABSPATH . NginxFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath());
     }
 
     /**
@@ -149,6 +150,67 @@ class NginxFileProtectionTest extends UserAccessManagerTestCase
         );
 
         self::assertFalse($nginxFileProtection->create('invalid', 'invalid'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getFileContent()
+     */
+    public function testCreateNormalizesTrailingSeparators()
+    {
+        $rootDir = $this->root->get('/');
+        $rootDir->add('base', new Directory([
+            'deep' => new Directory()
+        ]));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('getLockedDirectoryType')->will($this->returnValue('all'));
+
+        $nginxFileProtection = new NginxFileProtection(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $this->getUtil()
+        );
+
+        // The trailing separators on both paths must be normalised to a single one.
+        self::assertTrue($nginxFileProtection->create('vfs://base/deep/', 'objectType', 'vfs://base/'));
+        self::assertStringContainsString(
+            'location ~ "/deep/"',
+            file_get_contents('vfs://base/uam.conf')
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     */
+    public function testCreateReturnsFalseWhenWritingThrows()
+    {
+        ThrowingStreamWrapper::register();
+
+        try {
+            $mainConfig = $this->getMainConfig();
+            $mainConfig->method('getLockedDirectoryType')->will($this->returnValue('all'));
+
+            $nginxFileProtection = new NginxFileProtection(
+                $this->getPhp(),
+                $this->getWordpress(),
+                $this->getWordpressConfig(),
+                $mainConfig,
+                $this->getUtil()
+            );
+
+            self::assertFalse($nginxFileProtection->create(
+                ThrowingStreamWrapper::PROTOCOL . '://dir/',
+                'objectType',
+                ThrowingStreamWrapper::PROTOCOL . '://dir/'
+            ));
+        } finally {
+            ThrowingStreamWrapper::unregister();
+        }
     }
 
     /**

@@ -33,5 +33,5 @@ if (function_exists('wp_parse_args') === false) {
 }
 
 define('OBJECT', 'OBJECT');
-define('ABSPATH', 'ABSPATH');
+define('ABSPATH', 'ABSPATH/');
 define('ARRAY_A', 'ARRAY_A');

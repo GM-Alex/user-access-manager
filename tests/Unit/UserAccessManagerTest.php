@@ -21,6 +21,7 @@ use UserAccessManager\Controller\Backend\PostObjectController;
 use UserAccessManager\Controller\Backend\TermObjectController;
 use UserAccessManager\Controller\Backend\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;
+use UserAccessManager\Controller\Frontend\PostController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroupTypeException;
@@ -441,5 +442,96 @@ class UserAccessManagerTest extends UserAccessManagerTestCase
         $userAccessManager->addActionsAndFilters();
         $userAccessManager->addActionsAndFilters();
         $userAccessManager->addActionsAndFilters();
+    }
+
+    /**
+     * @group  unit
+     * @covers ::addActionsAndFilters()
+     */
+    public function testAddActionsAndFiltersRegistersRestFiltersOnRestApiInit()
+    {
+        $frontendPostController = $this->createMock(PostController::class);
+
+        $controllerFactory = $this->getControllerFactory();
+        $controllerFactory->expects($this->once())
+            ->method('createFrontendPostController')
+            ->will($this->returnValue($frontendPostController));
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->once())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['post' => 'post', 'page' => 'page']));
+
+        $restApiInitCallback = null;
+        $registeredFilters = [];
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->any())
+            ->method('addAction')
+            ->will($this->returnCallback(
+                function (string $tag, callable $callback) use (&$restApiInitCallback) {
+                    if ($tag === 'rest_api_init') {
+                        $restApiInitCallback = $callback;
+                    }
+
+                    return true;
+                }
+            ));
+        $wordpress->expects($this->any())
+            ->method('addFilter')
+            ->will($this->returnCallback(
+                function (
+                    string $tag,
+                    callable $callback,
+                    int $priority = 10,
+                    int $acceptedArguments = 1
+                ) use (&$registeredFilters) {
+                    $registeredFilters[] = [$tag, $callback, $priority, $acceptedArguments];
+
+                    return true;
+                }
+            ));
+
+        $userAccessManager = new UserAccessManager(
+            $this->getPhp(),
+            $wordpress,
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $objectHandler,
+            $this->getUserHandler(),
+            $this->getUserGroupHandler(),
+            $this->getAccessHandler(),
+            $this->getFileHandler(),
+            $this->getSetupHandler(),
+            $this->getUserGroupFactory(),
+            $this->getObjectMembershipHandlerFactory(),
+            $controllerFactory,
+            $this->getWidgetFactory(),
+            $this->getCacheProviderFactory(),
+            $this->getConfigFactory(),
+            $this->getConfigParameterFactory(),
+            $this->getFileProtectionFactory(),
+            $this->getFileObjectFactory()
+        );
+
+        $userAccessManager->addActionsAndFilters();
+
+        self::assertIsCallable($restApiInitCallback);
+
+        $registeredFilters = [];
+        $restApiInitCallback();
+
+        self::assertEquals(
+            [
+                ['rest_pre_dispatch', [$frontendPostController, 'restrictRestRequest'], 1, 3],
+                ['rest_prepare_post', [$frontendPostController, 'restrictRestResponse'], 10, 3],
+                ['rest_post_query', [$frontendPostController, 'excludeRestrictedPostsFromRestQuery'], 10, 1],
+                ['rest_prepare_page', [$frontendPostController, 'restrictRestResponse'], 10, 3],
+                ['rest_page_query', [$frontendPostController, 'excludeRestrictedPostsFromRestQuery'], 10, 1]
+            ],
+            $registeredFilters
+        );
     }
 }

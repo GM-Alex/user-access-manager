@@ -25,6 +25,7 @@ class RedirectController extends Controller
     use LoginControllerTrait;
 
     public const POST_URL_CACHE_KEY = 'PostUrls';
+    public const REDIRECT_TO_PARAMETER = 'redirect_to';
 
     public function __construct(
         Php $php,
@@ -188,6 +189,10 @@ class RedirectController extends Controller
         $currentUrl = $this->util->getCurrentUrl();
 
         if ($url !== null && $url !== $currentUrl && $permalink !== $currentUrl) {
+            if ($this->mainConfig->appendRedirectToParameter() === true) {
+                $url = $this->wordpress->addQueryArg([self::REDIRECT_TO_PARAMETER => $currentUrl], $url);
+            }
+
             $this->wordpress->wpRedirect($url);
             $this->php->callExit();
         }

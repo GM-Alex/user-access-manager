@@ -175,7 +175,7 @@ class SettingsController extends Controller
             return true;
         }
 
-        $content = @file_get_contents($this->wordpress->getSiteUrl() . '?testXSendFile');
+        $content = $this->php->fileGetContents($this->wordpress->getSiteUrl() . '?testXSendFile');
         $this->fileHandler->removeXSendFileTestFile();
 
         return ($content === 'success');
@@ -347,6 +347,7 @@ class SettingsController extends Controller
             'lock_recursive',
             'protect_feed',
             $redirect,
+            'append_redirect_to_parameter',
             'blog_admin_hint',
             'blog_admin_hint_text',
             'show_assigned_groups',

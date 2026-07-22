@@ -240,9 +240,10 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         $validColumn = $this->getColumn('field1', 'TYPE1');
         $modifiedColumn = $this->getColumn('field2', 'MODIFIED_TYPE');
         $missingColumn = $this->getColumn('additionalColumn', 'SOME_TYPE');
+        // The missing column is followed by a modified one, so a break instead of continue is caught.
         $existingTable = $this->getTable(
             'userGroupToObjectTable',
-            [$validColumn, $modifiedColumn, $missingColumn]
+            [$validColumn, $missingColumn, $modifiedColumn]
         );
 
         $databaseObjectFactory->expects($this->exactly(2))
@@ -292,6 +293,93 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         self::assertSame(
             $expectedInformation[DatabaseHandler::MODIFIED_COLUMNS],
             $result[DatabaseHandler::MODIFIED_COLUMNS]
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::isDatabaseUpdateNecessary()
+     * @throws MissingColumnsException
+     */
+    public function testIsDatabaseUpdateNecessaryReReadsVersionAfterInstall()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('isSuperAdmin')->will($this->returnValue(false));
+        // The version is empty, so install runs and the version is read again.
+        $wordpress->expects($this->exactly(2))
+            ->method('getOption')
+            ->with('uam_db_version')
+            ->will($this->onConsecutiveCalls('', '2.0'));
+        // install() must run, which registers the current database version.
+        $wordpress->expects($this->once())
+            ->method('addOption')
+            ->with('uam_db_version', UserAccessManager::DB_VERSION);
+
+        $database = $this->getDatabase();
+        $database->method('getCharset')->will($this->returnValue('charset'));
+        $database->method('getUserGroupTable')->will($this->returnValue('firstTable'));
+        $database->method('getUserGroupToObjectTable')->will($this->returnValue('secondTable'));
+        $database->method('getVariable')->will($this->onConsecutiveCalls('firstTable', 'secondTable'));
+
+        $databaseObjectFactory = $this->getDatabaseObjectFactory();
+        $databaseObjectFactory->method('createColumn')->will($this->returnValue($this->createMock(Column::class)));
+        $databaseObjectFactory->method('createTable')->will($this->onConsecutiveCalls(
+            $this->getTable('firstTable'),
+            $this->getTable('secondTable')
+        ));
+
+        $databaseHandler = new DatabaseHandler(
+            $wordpress,
+            $database,
+            $databaseObjectFactory,
+            $this->getUpdateFactory()
+        );
+
+        self::assertFalse($databaseHandler->isDatabaseUpdateNecessary());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getCorruptedDatabaseInformation()
+     * @throws MissingColumnsException
+     */
+    public function testGetCorruptedDatabaseInformationAlwaysContainsAllKeys()
+    {
+        $database = $this->getDatabase();
+        $database->method('getCharset')->will($this->returnValue('charset'));
+        $database->method('getUserGroupTable')->will($this->returnValue('firstTable'));
+        $database->method('getUserGroupToObjectTable')->will($this->returnValue('secondTable'));
+        // Both tables exist (getVariable returns the looked up name), so none is reported missing.
+        $database->method('getVariable')->will($this->onConsecutiveCalls('firstTable', 'secondTable'));
+        $database->method('getResults')->will($this->returnValue($this->getDatabaseColumns(1)));
+
+        $databaseObjectFactory = $this->getDatabaseObjectFactory();
+        $databaseObjectFactory->method('createColumn')->will($this->returnCallback(
+            function ($field, $type) {
+                return $this->getColumn($field, $type);
+            }
+        ));
+        // getExistingColumns upper cases the type, so the schema column has to match that.
+        $databaseObjectFactory->method('createTable')->will($this->onConsecutiveCalls(
+            $this->getTable('firstTable', [$this->getColumn('field1', 'TYPE1')]),
+            $this->getTable('secondTable', [$this->getColumn('field1', 'TYPE1')])
+        ));
+
+        $databaseHandler = new DatabaseHandler(
+            $this->getWordpress(),
+            $database,
+            $databaseObjectFactory,
+            $this->getUpdateFactory()
+        );
+
+        self::assertEquals(
+            [
+                DatabaseHandler::MISSING_TABLES => [],
+                DatabaseHandler::MISSING_COLUMNS => [],
+                DatabaseHandler::MODIFIED_COLUMNS => [],
+                DatabaseHandler::EXTRA_COLUMNS => []
+            ],
+            $databaseHandler->getCorruptedDatabaseInformation()
         );
     }
 
@@ -411,6 +499,11 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
             ->method('isSuperAdmin')
             ->will($this->onConsecutiveCalls(false, false, true, true, true, true));
 
+        // Each iterated site must be switched to and restored.
+        $wordpress->expects($this->exactly(7))
+            ->method('switchToBlog');
+        $wordpress->expects($this->exactly(7))
+            ->method('restoreCurrentBlog');
 
         $wordpress->expects($this->exactly(11))
             ->method('getOption')
@@ -739,6 +832,36 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
         self::assertFalse($databaseHandler->updateDatabase());
         self::assertFalse($databaseHandler->updateDatabase());
         self::assertTrue($databaseHandler->updateDatabase());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getOrderedDatabaseUpdates()
+     * @throws ReflectionException
+     */
+    public function testGetOrderedDatabaseUpdates()
+    {
+        $updateFactory = $this->getUpdateFactory();
+        $updateFactory->expects($this->once())
+            ->method('getDatabaseUpdates')
+            ->will($this->returnValue([
+                $this->getUpdate('10'),
+                $this->getUpdate('1'),
+                $this->getUpdate('2')
+            ]));
+
+        $databaseHandler = new DatabaseHandler(
+            $this->getWordpress(),
+            $this->getDatabase(),
+            $this->getDatabaseObjectFactory(),
+            $updateFactory
+        );
+
+        // Updates must be ordered by version (version_compare), not by insertion order.
+        self::assertSame(
+            [1, 2, 10],
+            array_keys(self::callMethod($databaseHandler, 'getOrderedDatabaseUpdates'))
+        );
     }
 
     /**
