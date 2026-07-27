@@ -27,18 +27,4 @@ class CacheController
         $this->cache->invalidate(ObjectMapHandler::POST_TERM_MAP_CACHE_KEY);
         $this->cache->invalidate(ObjectMapHandler::POST_TREE_MAP_CACHE_KEY);
     }
-
-    /**
-     * Flushes all UAM caches when a user group is created, updated, or deleted.
-     *
-     * Group changes affect access decisions and user group memberships across
-     * the entire site. Rather than trying to selectively invalidate individual
-     * cache entries — which would require tracking every user and object
-     * combination — we flush the full cache. This is safe because the cache
-     * is rebuilt on the next request.
-     */
-    public function invalidateUserGroupCaches(): void
-    {
-        $this->cache->flushCache();
-    }
 }
