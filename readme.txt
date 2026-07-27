@@ -66,6 +66,9 @@ Here you found the changes in each version.
 
     Version     Date        Changes
 
+    2.3.16      2026/07/27  Improve performance by loading the object assignments of all user groups with one query
+                            Thanks to Erik Franzén for the initial idea
+
     2.3.15      2026/07/22  Fix REST API bypass for clients without an admin referer, like the official WordPress app
                             Deny REST write requests to objects the user has no access to
                             Deny REST requests for revisions and autosaves of restricted objects

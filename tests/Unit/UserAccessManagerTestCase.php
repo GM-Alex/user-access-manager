@@ -48,6 +48,7 @@ use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
+use UserAccessManager\UserGroup\AssignedObjectsLoader;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
@@ -399,6 +400,14 @@ abstract class UserAccessManagerTestCase extends TestCase
     protected function getAssignmentInformationFactory(): MockObject|AssignmentInformationFactory
     {
         return $this->createMock(AssignmentInformationFactory::class);
+    }
+
+    /**
+     * @return MockObject|AssignedObjectsLoader
+     */
+    protected function getAssignedObjectsLoader(): MockObject|AssignedObjectsLoader
+    {
+        return $this->createMock(AssignedObjectsLoader::class);
     }
 
     /**
