@@ -28,7 +28,7 @@ class DynamicUserGroup extends AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
-        AssignmentInformationFactory $assignmentInformationFactory,
+        AssignedObjectsLoader $assignedObjectsLoader,
         protected ?string $type,
         int|string $id
     ) {
@@ -39,7 +39,7 @@ class DynamicUserGroup extends AbstractUserGroup
             $config,
             $util,
             $objectHandler,
-            $assignmentInformationFactory,
+            $assignedObjectsLoader,
             $id
         );
 

@@ -29,7 +29,7 @@ class UserGroup extends AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
-        AssignmentInformationFactory $assignmentInformationFactory,
+        AssignedObjectsLoader $assignedObjectsLoader,
         int|string|null $id = null
     ) {
         parent::__construct(
@@ -39,7 +39,7 @@ class UserGroup extends AbstractUserGroup
             $config,
             $util,
             $objectHandler,
-            $assignmentInformationFactory
+            $assignedObjectsLoader
         );
 
         if ($id !== null) {

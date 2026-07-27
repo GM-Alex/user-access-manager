@@ -20,7 +20,7 @@ class UserGroupFactory
         private MainConfig $config,
         private Util $util,
         private ObjectHandler $objectHandler,
-        private AssignmentInformationFactory $assignmentInformationFactory
+        private AssignedObjectsLoader $assignedObjectsLoader
     ) {
     }
 
@@ -36,7 +36,7 @@ class UserGroupFactory
             $this->config,
             $this->util,
             $this->objectHandler,
-            $this->assignmentInformationFactory,
+            $this->assignedObjectsLoader,
             $id
         );
     }
@@ -53,7 +53,7 @@ class UserGroupFactory
             $this->config,
             $this->util,
             $this->objectHandler,
-            $this->assignmentInformationFactory,
+            $this->assignedObjectsLoader,
             $type,
             $id
         );
