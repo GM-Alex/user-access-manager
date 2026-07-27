@@ -122,22 +122,28 @@ class UserGroupHandlerTest extends HandlerTestCase
     {
         $database = $this->getDatabase();
 
-        $query = 'SELECT ID FROM getUserGroupTable';
+        $query = 'SELECT * FROM getUserGroupTable';
+        $databaseUserGroups = $this->generateReturn(3);
 
         $database->expects($this->once())
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace($query)]
             )
-            ->will($this->returnValue($this->generateReturn(3)));
+            ->will($this->returnValue($databaseUserGroups));
 
         $userGroupFactory = $this->getUserGroupFactory();
 
+        // The groups must be created from the already fetched rows, without loading themselves again.
         $userGroupFactory->expects($this->exactly(3))
-            ->method('createUserGroup')
-            ->withConsecutive([1], [2], [3])
-            ->will($this->returnCallback(function ($id) {
-                return $this->getUserGroup($id, !($id === 3));
+            ->method('createUserGroupFromDatabaseRow')
+            ->withConsecutive(
+                [$databaseUserGroups[0]],
+                [$databaseUserGroups[1]],
+                [$databaseUserGroups[2]]
+            )
+            ->will($this->returnCallback(function ($databaseUserGroup) {
+                return $this->getUserGroup((string) $databaseUserGroup->ID, !($databaseUserGroup->ID === 3));
             }));
 
         $userGroupHandler = new UserGroupHandler(
@@ -369,8 +375,8 @@ class UserGroupHandlerTest extends HandlerTestCase
         $loadedGroup = $this->getUserGroup('1');
         $userGroupFactory = $this->getUserGroupFactory();
         $userGroupFactory->expects($this->once())
-            ->method('createUserGroup')
-            ->with(1)
+            ->method('createUserGroupFromDatabaseRow')
+            ->with($existingGroup)
             ->will($this->returnValue($loadedGroup));
 
         $userGroupHandler = new UserGroupHandler(

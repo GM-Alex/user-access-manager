@@ -44,6 +44,17 @@ class UserGroupFactory
     /**
      * @throws UserGroupTypeException
      */
+    public function createUserGroupFromDatabaseRow(object $databaseUserGroup): UserGroup
+    {
+        $userGroup = $this->createUserGroup();
+        $userGroup->assignDatabaseValues($databaseUserGroup);
+
+        return $userGroup;
+    }
+
+    /**
+     * @throws UserGroupTypeException
+     */
     public function createDynamicUserGroup(string $type, int|string $id): DynamicUserGroup
     {
         return new DynamicUserGroup(

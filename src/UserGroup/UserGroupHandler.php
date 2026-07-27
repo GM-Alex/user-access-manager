@@ -44,12 +44,12 @@ class UserGroupHandler
         if ($this->userGroups === null) {
             $this->userGroups = [];
 
-            $query = "SELECT ID FROM {$this->database->getUserGroupTable()}";
-            $userGroups = (array) $this->database->getResults($query);
+            $query = "SELECT * FROM {$this->database->getUserGroupTable()}";
+            $databaseUserGroups = (array) $this->database->getResults($query);
 
-            foreach ($userGroups as $userGroup) {
-                $group = $this->userGroupFactory->createUserGroup($userGroup->ID);
-                $this->userGroups[$group->getId()] = $group;
+            foreach ($databaseUserGroups as $databaseUserGroup) {
+                $userGroup = $this->userGroupFactory->createUserGroupFromDatabaseRow($databaseUserGroup);
+                $this->userGroups[$userGroup->getId()] = $userGroup;
             }
         }
 

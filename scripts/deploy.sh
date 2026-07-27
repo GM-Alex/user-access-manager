@@ -49,6 +49,11 @@ if [[ ${VERSION} != ${CURRENT_TAG} ]]; then
     exit 1
 fi
 
+if [[ ${VERSION} != ${STABLE_VERSION} ]]; then
+    echo "Stable tag ${STABLE_VERSION} must match plugin version ${VERSION}. Run grunt to take it over."
+    exit 1
+fi
+
 # Check if the tag exists for the version we are building
 TAG=$(svn ls "https://plugins.svn.wordpress.org/${PLUGIN}/tags/${VERSION}")
 ERROR=$?

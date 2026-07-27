@@ -77,6 +77,7 @@ class UserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::load()
+     * @covers ::assignDatabaseValues()
      * @return UserGroup
      * @throws UserGroupTypeException
      */
@@ -113,6 +114,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->returnValue('queryString'));
 
         $dbUserGroup = new stdClass();
+        $dbUserGroup->ID = 2;
         $dbUserGroup->groupname = 'groupName';
         $dbUserGroup->groupdesc = 'groupDesc';
         $dbUserGroup->read_access = 'readAccess';

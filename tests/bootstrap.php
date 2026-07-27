@@ -15,6 +15,7 @@ if (!defined('$_SESSION')) {
 }
 
 require_once __DIR__.'/defines.php';
+require_once __DIR__.'/../includes/version.php';
 $vendorDir = __DIR__.'/../vendor';
 require_once $vendorDir . '/autoload.php';
 require_once __DIR__.'/../includes/language.php';
