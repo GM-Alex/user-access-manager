@@ -171,4 +171,50 @@ class FrontendControllerTest extends UserAccessManagerTestCase
         self::assertEquals('url', $frontendController->getWpSeoUrl('url', 'type', $object));
         self::assertFalse($frontendController->getWpSeoUrl('url', 'type', $object));
     }
+
+    /**
+     * @group  unit
+     * @covers ::getElementorContent()
+     * @throws UserGroupTypeException
+     */
+    public function testGetElementorContent()
+    {
+        $post = $this->getMockBuilder('\WP_Post')->getMock();
+        $post->ID = 1;
+        $post->post_type = 'type';
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(2))
+            ->method('getCurrentPost')
+            ->will($this->returnValue($post));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(2))
+            ->method('checkObjectAccess')
+            ->with('type', 1)
+            ->will($this->onConsecutiveCalls(true, false));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->once())
+            ->method('getPostTypeContent')
+            ->with('type')
+            ->will($this->returnValue('restricted &amp; content'));
+
+        $frontendController = new FrontendController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $accessHandler
+        );
+
+        $wordpress->expects($this->exactly(2))
+            ->method('removeAction')
+            ->with('elementor/frontend/the_content', [$frontendController, 'getElementorContent']);
+
+        // Access granted -> content is returned unchanged.
+        self::assertEquals('original', $frontendController->getElementorContent('original'));
+        // Access denied -> the restricted content is returned html-decoded.
+        self::assertEquals('restricted & content', $frontendController->getElementorContent('original'));
+    }
 }

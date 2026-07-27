@@ -106,7 +106,7 @@ class PostObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
         $objectHandler = $this->getObjectHandler();
         $objectHandler->expects($this->once())
             ->method('getPostTypes')
-            ->will($this->returnValue(['post' => 'post', 'page' => 'page']));
+            ->will($this->returnValue(['post' => 'Posts', 'page' => 'Pages']));
 
         $postMembershipHandler = new PostMembershipHandler(
             $this->getAssignmentInformationFactory(),

@@ -205,6 +205,37 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group   unit
+     * @covers  ::getTerm()
+     */
+    public function testGetTermCacheKey()
+    {
+        $term = $this->getMockBuilder('\WP_Term')->getMock();
+
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getTerm')->will($this->returnCallback(
+            function ($id, $taxonomy) use ($term) {
+                // Only these exact (id, taxonomy) pairs resolve to a term.
+                $resolved = ['10|x' => true, '1|02' => true];
+                return isset($resolved[$id . '|' . $taxonomy]) === true ? $term : null;
+            }
+        ));
+
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $this->getObjectMembershipHandlerFactory()
+        );
+
+        // Distinct (id, taxonomy) pairs must not collide in the term cache.
+        self::assertEquals($term, $objectHandler->getTerm(10, 'x'));
+        self::assertFalse($objectHandler->getTerm(20, 'x'));  // same taxonomy, different id
+        self::assertFalse($objectHandler->getTerm(10, 'y'));  // same id, different taxonomy
+        self::assertEquals($term, $objectHandler->getTerm(1, '02'));
+        self::assertFalse($objectHandler->getTerm(10, '2'));  // '1|02' must not collapse into '10|2'
+    }
+
+    /**
+     * @group   unit
      * @depends testGetPostTypes
      * @covers  ::registeredPostType()
      * @param ObjectHandler $objectHandler

@@ -60,7 +60,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         return $this->applyFilters($content);
     }
 
-    private function getPermalinkFileContent(?string $objectType, ?bool $isSubSite = false): string
+    private function getPermalinkFileContent(?string $objectType, ?bool $isSubSite): string
     {
         if ($objectType === null) {
             $objectType = ObjectHandler::ATTACHMENT_OBJECT_TYPE;

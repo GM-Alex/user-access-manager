@@ -35,6 +35,41 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
+     * @covers ::setDefaultGroups()
+     * @throws ReflectionException
+     */
+    public function testSetDefaultGroupsSkipsAlreadyFilteredGroups()
+    {
+        $filteredGroup = $this->createMock(UserGroup::class);
+        $filteredGroup->expects($this->never())
+            ->method('isDefaultGroupForObjectType');
+
+        $checkedGroup = $this->createMock(UserGroup::class);
+        $checkedGroup->expects($this->once())
+            ->method('isDefaultGroupForObjectType')
+            ->will($this->returnValue(false));
+
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->expects($this->once())
+            ->method('getFullUserGroups')
+            ->will($this->returnValue([1 => $filteredGroup, 2 => $checkedGroup]));
+
+        $assignmentHandler = new UserGroupAssignmentHandler(
+            $this->getDateUtil(),
+            $this->getUserHandler(),
+            $userGroupHandler,
+            $this->getUserGroupFactory()
+        );
+
+        self::callMethod(
+            $assignmentHandler,
+            'setDefaultGroups',
+            [[1 => $filteredGroup], 'objectType', 'objectId']
+        );
+    }
+
+    /**
+     * @group  unit
      * @covers ::__construct()
      */
     public function testCanCreateInstance()

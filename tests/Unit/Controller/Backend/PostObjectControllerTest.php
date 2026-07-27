@@ -182,7 +182,9 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         $expectedOutput .= '';
         $this->resetControllerObjectInformation($postObjectController);
 
+        $postObjectController->getObjectInformation()->setObjectId(5);
         $postObjectController->addBulkAction(ObjectController::COLUMN_NAME);
+        self::assertNull($postObjectController->getObjectInformation()->getObjectId());
         $expectedOutput .= '!UserAccessManager\Controller\Backend\PostObjectController|'
             . 'vfs://root/src/View/BulkEditForm.php|uam_user_groups!';
         $this->resetControllerObjectInformation($postObjectController);

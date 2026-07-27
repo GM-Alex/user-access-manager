@@ -287,7 +287,7 @@ class DatabaseHandler
         );
 
         foreach ($tables as $table) {
-            if (preg_match('/.*_([0-9\-]+)/i', $table, $matches) === 1) {
+            if (preg_match('/.*_([0-9\-]+)/', $table, $matches) === 1) {
                 $version = str_replace('-', '.', $matches[1]);
                 $versions[$version] = $version;
             }

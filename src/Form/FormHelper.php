@@ -24,7 +24,7 @@ class FormHelper
     ) {
     }
 
-    private function getObjectText(string $ident, bool $description = false, $objectKey = null): string
+    private function getObjectText(string $ident, bool $description, $objectKey = null): string
     {
         $ident .= ($description === true) ? '_DESC' : '';
 

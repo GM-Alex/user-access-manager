@@ -50,5 +50,6 @@ class FileObjectFactoryTest extends TestCase
     {
         $fileObject = $fileObjectFactory->createFileObject('id', 'type', 'file');
         self::assertInstanceOf(FileObject::class, $fileObject);
+        self::assertFalse($fileObject->isImage());
     }
 }

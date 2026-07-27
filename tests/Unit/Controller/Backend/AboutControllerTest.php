@@ -18,10 +18,6 @@ namespace UserAccessManager\Tests\Unit\Controller\Backend;
 use ReflectionException;
 use UserAccessManager\Controller\Backend\AboutController;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
-use VCR\VCR;
-use Vfs\FileSystem;
-use Vfs\Node\Directory;
-use Vfs\Node\File;
 
 /**
  * Class AdminAboutControllerTest
@@ -32,64 +28,8 @@ use Vfs\Node\File;
 class AboutControllerTest extends UserAccessManagerTestCase
 {
     /**
-     * @var array
-     */
-    private array $remoteSupporters = [
-        'Luke Crouch',
-        'Juan Rodriguez',
-        'mkosel',
-        'Jan',
-        'GeorgWP',
-        'Ron Harding',
-        'Zina',
-        'Erik Franz&eacute;n',
-        'Ivan Marevic',
-        'J&uuml;rgen Wiesenbauer',
-        'Patric Schwarz',
-        'Mark LeRoy',
-        'Huska',
-        'macbidule',
-        'Helmut',
-        '-sCo-',
-        'Hadi Mostafapour',
-        'Diego Valobra',
-        'PoleeK',
-        'Konsult',
-        'Mesut Soylu',
-        'ranwaldo',
-        'Robert Egger',
-        'akiko.pusu',
-        'r3d pill',
-        'michel.weimerskirch',
-        'arjenbreur',
-        'jpr105',
-        'nwoetzel (https://github.com/nwoetzel)'
-    ];
-
-    /**
-     * @var FileSystem
-     */
-    private FileSystem $root;
-
-    /**
-     * Setup virtual file system.
-     */
-    protected function setUp(): void
-    {
-        $this->root = FileSystem::factory('vfs://');
-        $this->root->mount();
-    }
-
-    /**
-     * Tear down virtual file system.
-     */
-    protected function tearDown(): void
-    {
-        $this->root->unmount();
-    }
-
-    /**
      * @group unit
+     * @covers ::__construct()
      */
     public function testCanCreateInstance()
     {
@@ -108,88 +48,115 @@ class AboutControllerTest extends UserAccessManagerTestCase
      * @covers ::getSpecialThanks()
      * @covers ::getTopSupporters()
      * @covers ::getSupporters()
-     * @runInSeparateProcess
      * @throws ReflectionException
      */
     public function testGetSupporters()
     {
-        VCR::turnOn();
+        $fileWithPath = '/var/uam/assets/' . AboutController::SUPPORTER_FILE;
 
+        $isFile = false;
+        $fileMTime = 0;
         $currentTime = 0;
+        $remoteContent = false;
+        $localContent = false;
+        $writtenContent = null;
+
+        $php = $this->getPhp();
+        $php->method('isFile')->will($this->returnCallback(
+            function ($file) use (&$isFile, $fileWithPath) {
+                self::assertSame($fileWithPath, $file);
+                return $isFile;
+            }
+        ));
+        $php->method('fileMTime')->will($this->returnCallback(
+            function ($file) use (&$fileMTime, $fileWithPath) {
+                self::assertSame($fileWithPath, $file);
+                return $fileMTime;
+            }
+        ));
+        $php->method('fileGetContents')->will($this->returnCallback(
+            function ($file) use (&$remoteContent, &$localContent, $fileWithPath) {
+                if ($file === AboutController::SUPPORTER_FILE_URL) {
+                    return $remoteContent;
+                }
+
+                self::assertSame($fileWithPath, $file);
+                return $localContent;
+            }
+        ));
+        $php->method('filePutContents')->will($this->returnCallback(
+            function ($file, $data) use (&$writtenContent, $fileWithPath) {
+                self::assertSame($fileWithPath, $file);
+                $writtenContent = $data;
+                return strlen((string) $data);
+            }
+        ));
 
         $wordpress = $this->getWordpress();
-        $wordpress->expects($this->exactly(5))
-            ->method('currentTime')
-            ->will($this->returnCallback(function () use (&$currentTime) {
+        $wordpress->method('currentTime')->will($this->returnCallback(
+            function ($type) use (&$currentTime) {
+                self::assertSame('timestamp', $type);
                 return $currentTime;
-            }));
+            }
+        ));
 
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->exactly(6))
-            ->method('getRealPath')
-            ->will($this->returnValue('vfs://root/'));
+        $wordpressConfig->method('getRealPath')->will($this->returnValue('/var/uam/'));
 
-        $aboutController = new AboutController(
-            $this->getPhp(),
-            $wordpress,
-            $wordpressConfig
-        );
+        $aboutController = new AboutController($php, $wordpress, $wordpressConfig);
 
-        /**
-         * @var Directory $rootDir
-         */
-        $rootDir = $this->root->get('/');
-        $rootDir->add('root', new Directory([
-            'assets' => new Directory()
-        ]));
+        $load = function () use ($aboutController) {
+            self::setValue($aboutController, 'supporters', null);
+            return [
+                $aboutController->getSpecialThanks(),
+                $aboutController->getTopSupporters(),
+                $aboutController->getSupporters()
+            ];
+        };
 
-        VCR::insertCassette('getSupporters');
-        self::assertEquals($this->remoteSupporters, $aboutController->getSpecialThanks());
+        $fullJson = '{"special-thanks":["a","b"],"top-supporters":["c","d"],"supporters":["e","f"]}';
+        $localJson = '{"special-thanks":["g"],"top-supporters":["h"],"supporters":["i"]}';
 
-        /**
-         * @var File $jsonFile
-         */
-        $jsonFile = $rootDir->get('root')->get('assets')->get('supporters.json');
+        // Missing file -> fetch from the remote URL, persist it locally and decode it.
+        $isFile = false;
+        $remoteContent = $fullJson;
+        $writtenContent = null;
+        self::assertSame([['a', 'b'], ['c', 'd'], ['e', 'f']], $load());
+        self::assertSame($fullJson, $writtenContent);
 
-        $currentTime = $jsonFile->getDateCreated()->getTimestamp();
-        $jsonFile->setContent('{}');
+        // Existing, exactly at the update threshold (fresh) -> read the local file.
+        $isFile = true;
+        $fileMTime = 100000;
+        $currentTime = 100000 + 24 * 60 * 60;
+        $remoteContent = '{"special-thanks":["remote"]}';
+        $localContent = $localJson;
+        $writtenContent = null;
+        self::assertSame([['g'], ['h'], ['i']], $load());
+        self::assertNull($writtenContent);
 
-        self::setValue($aboutController, 'supporters', null);
-        self::assertEquals([], $aboutController->getSpecialThanks());
-        self::assertEquals([], $aboutController->getTopSupporters());
-        self::assertEquals([], $aboutController->getSupporters());
+        // Existing, fresh by less than an hour -> still the local file (kills threshold decrease).
+        $currentTime = 1000000;
+        $fileMTime = $currentTime - (24 * 60 * 60 - 720);
+        self::assertSame([['g'], ['h'], ['i']], $load());
+        self::assertNull($writtenContent);
 
-        $jsonFile->setContent(
-            '{
-            "special-thanks": ["a", "b"],
-            "top-supporters": ["c", "d"],
-            "supporters": ["e", "f"]
-            }'
-        );
+        // Existing, stale by 10 minutes past a day -> refetch remote (kills threshold increase).
+        $fileMTime = $currentTime - (24 * 60 * 60 + 600);
+        $remoteContent = $fullJson;
+        self::assertSame([['a', 'b'], ['c', 'd'], ['e', 'f']], $load());
+        self::assertSame($fullJson, $writtenContent);
 
-        self::setValue($aboutController, 'supporters', null);
-        self::assertEquals(['a', 'b'], $aboutController->getSpecialThanks());
-        self::assertEquals(['c', 'd'], $aboutController->getTopSupporters());
-        self::assertEquals(['e', 'f'], $aboutController->getSupporters());
+        // Stale, remote fetch fails, but the local file exists -> read the local file.
+        $writtenContent = null;
+        $remoteContent = false;
+        $localContent = $localJson;
+        self::assertSame([['g'], ['h'], ['i']], $load());
+        self::assertNull($writtenContent);
 
-        self::setValue($aboutController, 'supporters', null);
-        self::assertEquals(['a', 'b'], $aboutController->getSpecialThanks());
-        self::assertEquals(['c', 'd'], $aboutController->getTopSupporters());
-        self::assertEquals(['e', 'f'], $aboutController->getSupporters());
-
-        $currentTime = $jsonFile->getDateCreated()->getTimestamp() + 24 * 60 * 60;
-        self::setValue($aboutController, 'supporters', null);
-        self::assertEquals(['a', 'b'], $aboutController->getSpecialThanks());
-        self::assertEquals(['c', 'd'], $aboutController->getTopSupporters());
-        self::assertEquals(['e', 'f'], $aboutController->getSupporters());
-
-        $currentTime = $jsonFile->getDateCreated()->getTimestamp() + 24 * 60 * 60 + 1;
-        self::setValue($aboutController, 'supporters', null);
-        self::assertEquals($this->remoteSupporters, $aboutController->getSpecialThanks());
-        self::assertEquals([], $aboutController->getTopSupporters());
-        self::assertEquals([], $aboutController->getSupporters());
-
-        VCR::eject();
-        VCR::turnOff();
+        // Missing file and remote fetch fails -> no supporters at all.
+        $isFile = false;
+        $remoteContent = false;
+        self::assertSame([[], [], []], $load());
+        self::assertNull($writtenContent);
     }
 }

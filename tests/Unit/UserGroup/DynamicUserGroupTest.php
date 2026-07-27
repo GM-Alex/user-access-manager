@@ -176,6 +176,34 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers ::getName()
+     * @throws UserGroupTypeException
+     */
+    public function testGetNameForUnknownUser()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('getUserData')
+            ->with(1)
+            ->will($this->returnValue(false));
+
+        $dynamicUserGroup = new DynamicUserGroup(
+            $this->getPhp(),
+            $wordpress,
+            $this->getDatabase(),
+            $this->getMainConfig(),
+            $this->getUtil(),
+            $this->getObjectHandler(),
+            $this->getAssignmentInformationFactory(),
+            DynamicUserGroup::USER_TYPE,
+            1
+        );
+
+        self::assertEquals(TXT_UAM_USER . ': ', $dynamicUserGroup->getName());
+    }
+
+    /**
+     * @group  unit
      * @covers ::addObject()
      * @throws UserGroupAssignmentException
      * @throws UserGroupTypeException

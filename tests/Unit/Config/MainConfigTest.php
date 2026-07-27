@@ -79,6 +79,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'redirect' => 'selection|redirect|false|false|blog|login|custom_page|custom_url|origin',
             'redirect_custom_page' => 'string|redirect_custom_page|',
             'redirect_custom_url' => 'string|redirect_custom_url|',
+            'append_redirect_to_parameter' => 'bool|append_redirect_to_parameter|false',
             'lock_recursive' => 'bool|lock_recursive|true',
             'authors_has_access_to_own' => 'bool|authors_has_access_to_own|true',
             'authors_can_add_posts_to_groups' => 'bool|authors_can_add_posts_to_groups|false',
@@ -225,7 +226,7 @@ class MainConfigTest extends UserAccessManagerTestCase
         $objectHandler = $this->getDefaultObjectHandler(2);
 
         $configParameterFactory = $this->getConfigParameterFactory();
-        $configParameterFactory->expects($this->exactly(29))
+        $configParameterFactory->expects($this->exactly(30))
             ->method('createBooleanConfigParameter')
             ->will($this->returnCallback(
                 function ($id, $value) {
@@ -525,6 +526,7 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::protectFeed
      * @covers ::getFullAccessRole
      * @covers ::getActiveCacheProvider
+     * @covers ::appendRedirectToParameter
      */
     public function testSimpleGetters()
     {
@@ -532,6 +534,7 @@ class MainConfigTest extends UserAccessManagerTestCase
             'getRedirect' => 'redirect',
             'getRedirectCustomPage' => 'redirect_custom_page',
             'getRedirectCustomUrl' => 'redirect_custom_url',
+            'appendRedirectToParameter' => false,
             'lockRecursive' => false,
             'authorsHasAccessToOwn' => false,
             'authorsCanAddPostsToGroups' => false,

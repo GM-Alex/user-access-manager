@@ -110,7 +110,7 @@ class TermObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
         $objectHandler = $this->getObjectHandler();
         $objectHandler->expects($this->once())
             ->method('getTaxonomies')
-            ->will($this->returnValue(['category' => 'category']));
+            ->will($this->returnValue(['category' => 'Categories']));
 
         $termMembershipHandler = new TermMembershipHandler(
             $this->getAssignmentInformationFactory(),

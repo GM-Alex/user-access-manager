@@ -88,7 +88,60 @@ class TermControllerTest extends UserAccessManagerTestCase
         );
 
         self::assertEquals(['exclude' => [1, 3]], $frontendTermController->getTermArguments([]));
-        self::assertEquals(['exclude' => [3, 4, 1]], $frontendTermController->getTermArguments(['exclude' => '3,4']));
+        self::assertEquals(
+            ['exclude' => [3, 4, 1], 'number' => 5],
+            $frontendTermController->getTermArguments(['exclude' => '3,4', 'number' => 5])
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getVisibleElementsCount()
+     * @covers ::getAllPostForTerm()
+     * @covers ::getPostObjectHideConfig()
+     * @throws UserGroupTypeException
+     * @throws \ReflectionException
+     */
+    public function testGetVisibleElementsCountCacheKey()
+    {
+        $objectMapHandler = $this->getObjectMapHandler();
+        $objectMapHandler->method('getTermTreeMap')->will($this->returnValue([
+            ObjectMapHandler::TREE_MAP_CHILDREN => ['cat' => [1 => [11 => 'cat']]]
+        ]));
+        $objectMapHandler->method('getTermPostMap')->will($this->returnValue([
+            1 => [101 => 'post'],
+            11 => [111 => 'post', 112 => 'post'],
+            2 => [201 => 'post'],
+            12 => [1201 => 'post', 1202 => 'post']
+        ]));
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('getPostTypes')->will($this->returnValue(['post' => 'post']));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('hidePostType')->with('post')->will($this->returnValue(false));
+
+        $frontendTermController = new TermController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $this->getUtil(),
+            $objectHandler,
+            $this->getUserHandler(),
+            $this->getUserGroupHandler(),
+            $this->getAccessHandler(),
+            $objectMapHandler
+        );
+
+        // Distinct (taxonomy, termId) pairs must not collide in the cache: 'cat|1'
+        // includes the child term 11, while 'cat|2' and 'tag|1' do not.
+        self::assertSame(3, self::callMethod($frontendTermController, 'getVisibleElementsCount', ['cat', 1]));
+        self::assertSame(1, self::callMethod($frontendTermController, 'getVisibleElementsCount', ['cat', 2]));
+        self::assertSame(1, self::callMethod($frontendTermController, 'getVisibleElementsCount', ['tag', 1]));
+        // The separator must stay between type and id: 'cat|12' must not collapse into 'cat1|2'.
+        self::assertSame(2, self::callMethod($frontendTermController, 'getVisibleElementsCount', ['cat', 12]));
+        self::assertSame(1, self::callMethod($frontendTermController, 'getVisibleElementsCount', ['cat1', 2]));
     }
 
     /**
@@ -112,6 +165,41 @@ class TermControllerTest extends UserAccessManagerTestCase
         $term->parent = $parent;
 
         return $term;
+    }
+
+    /**
+     * @group  unit
+     * @covers ::showTerms()
+     * @covers ::processTerm()
+     * @throws UserGroupTypeException
+     */
+    public function testShowTermsRemovesInaccessibleTerm()
+    {
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('isValidObjectType')
+            ->with('taxonomy')
+            ->will($this->returnValue(true));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->method('checkObjectAccess')
+            ->with('taxonomy', 1)
+            ->will($this->returnValue(false));
+
+        $frontendTermController = new TermController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getUtil(),
+            $objectHandler,
+            $this->getUserHandler(),
+            $this->getUserGroupHandler(),
+            $accessHandler,
+            $this->getObjectMapHandler()
+        );
+
+        // The term is not accessible, so it is removed even when it is not empty.
+        self::assertEquals([], $frontendTermController->showTerms([$this->getTerm(1)]));
     }
 
     /**

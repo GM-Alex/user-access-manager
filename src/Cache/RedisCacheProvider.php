@@ -8,6 +8,7 @@ use Exception;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigFactory;
 use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Wrapper\Wordpress;
 
 class RedisCacheProvider implements CacheProviderInterface
 {
@@ -21,6 +22,7 @@ class RedisCacheProvider implements CacheProviderInterface
     private ?Config $config = null;
 
     public function __construct(
+        private Wordpress $wordpress,
         private ConfigFactory $configFactory,
         private ConfigParameterFactory $configParameterFactory
     ) {
@@ -78,12 +80,12 @@ class RedisCacheProvider implements CacheProviderInterface
 
     public function add(string $key, mixed $value): void
     {
-        wp_cache_set($this->buildKey($key), $value, self::ID, $this->getTtl());
+        $this->wordpress->wpCacheSet($this->buildKey($key), $value, self::ID, $this->getTtl());
     }
 
     public function get(string $key): mixed
     {
-        $value = wp_cache_get($this->buildKey($key), self::ID);
+        $value = $this->wordpress->wpCacheGet($this->buildKey($key), self::ID);
 
         // wp_cache_get returns false on a miss; normalize to null per interface contract.
         return ($value === false) ? null : $value;
@@ -91,6 +93,6 @@ class RedisCacheProvider implements CacheProviderInterface
 
     public function invalidate(string $key): void
     {
-        wp_cache_delete($this->buildKey($key), self::ID);
+        $this->wordpress->wpCacheDelete($this->buildKey($key), self::ID);
     }
 }

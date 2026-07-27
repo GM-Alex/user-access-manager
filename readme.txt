@@ -5,7 +5,7 @@ Tags: member access, user access manager, user management, access
 Requires at least: 4.7
 Requires PHP: 8.0
 Tested up to: 7.0
-Stable tag: 2.3.14
+Stable tag: 2.3.15
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,11 @@ To stay up-to-date follow me on Twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.3.15      2026/07/22  Fix REST API bypass for clients without an admin referer, like the official WordPress app
+                            Deny REST write requests to objects the user has no access to
+                            Deny REST requests for revisions and autosaves of restricted objects
+                            Add option to append the requested URL as "redirect_to" parameter to the redirect
 
     2.3.14      2026/07/21  Fix REST API content restriction bypass exposing restricted posts to unauthenticated users
                             Add "Redirect to origin" option

@@ -114,6 +114,21 @@ abstract class UserAccessManagerTestCase extends TestCase
     }
 
     /**
+     * @param object $object
+     * @param string $valueName
+     * @return mixed
+     * @throws ReflectionException
+     */
+    public static function getValue(object $object, string $valueName): mixed
+    {
+        $reflection = new ReflectionClass($object);
+        $property = $reflection->getProperty($valueName);
+        $property->setAccessible(true);
+
+        return $property->getValue($object);
+    }
+
+    /**
      * @return MockObject|Php
      */
     protected function getPhp(): MockObject|Php

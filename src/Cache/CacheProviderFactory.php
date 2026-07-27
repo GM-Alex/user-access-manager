@@ -41,6 +41,7 @@ class CacheProviderFactory
     public function createRedisCacheProvider(): RedisCacheProvider
     {
         return new RedisCacheProvider(
+            $this->wordpress,
             $this->configFactory,
             $this->configParameterFactory
         );

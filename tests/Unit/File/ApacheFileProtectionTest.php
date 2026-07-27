@@ -17,6 +17,7 @@ namespace UserAccessManager\Tests\Unit\File;
 
 use stdClass;
 use UserAccessManager\File\ApacheFileProtection;
+use UserAccessManager\Tests\ThrowingStreamWrapper;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
@@ -265,6 +266,79 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         );
 
         self::assertFalse($apacheFileProtection->create('invalid', 'invalid'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getPermalinkFileContent()
+     */
+    public function testCreateForDirectoryContainingButNotEndingInSites()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getSiteUrl')->will($this->returnValue('http://www.test.com/path'));
+        $wordpress->method('gotModRewrite')->will($this->returnValue(true));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('getLockedDirectoryType')->will($this->returnValue('all'));
+        $mainConfig->method('getLockedFileType')->will($this->returnValue(null));
+
+        $rootDir = $this->root->get('/');
+        $rootDir->add('base', new Directory([
+            'sites' => new Directory([
+                '2' => new Directory([
+                    'deep' => new Directory()
+                ])
+            ])
+        ]));
+
+        $apacheFileProtection = new ApacheFileProtection(
+            $this->getPhp(),
+            $wordpress,
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $this->getUtil()
+        );
+
+        // The directory contains "/sites/2/" but does not end with it, so it is not a sub site.
+        self::assertTrue($apacheFileProtection->create('vfs://base/sites/2/deep/', 'objectType'));
+        self::assertStringContainsString(
+            'RewriteCond %{REQUEST_URI} !.*\/sites\/[0-9]+\/.*',
+            file_get_contents('vfs://base/sites/2/deep/' . ApacheFileProtection::FILE_NAME)
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     */
+    public function testCreateReturnsFalseWhenWritingThrows()
+    {
+        ThrowingStreamWrapper::register();
+
+        try {
+            $wordpress = $this->getWordpress();
+            $wordpress->method('getSiteUrl')->will($this->returnValue('http://www.test.com/path'));
+            $wordpress->method('gotModRewrite')->will($this->returnValue(true));
+
+            $mainConfig = $this->getMainConfig();
+            $mainConfig->method('getLockedDirectoryType')->will($this->returnValue('all'));
+            $mainConfig->method('getLockedFileType')->will($this->returnValue(null));
+
+            $apacheFileProtection = new ApacheFileProtection(
+                $this->getPhp(),
+                $wordpress,
+                $this->getWordpressConfig(),
+                $mainConfig,
+                $this->getUtil()
+            );
+
+            self::assertFalse(
+                $apacheFileProtection->create(ThrowingStreamWrapper::PROTOCOL . '://dir/', 'objectType')
+            );
+        } finally {
+            ThrowingStreamWrapper::unregister();
+        }
     }
 
     /**

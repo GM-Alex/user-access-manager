@@ -34,7 +34,6 @@ use UserAccessManager\Form\ValueSetFormElementValue;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\Wrapper\Wordpress;
-use VCR\VCR;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -726,6 +725,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_recursive',
                         'protect_feed',
                         $redirectRadio,
+                        'append_redirect_to_parameter',
                         'blog_admin_hint',
                         'blog_admin_hint_text',
                         'show_assigned_groups',
@@ -738,6 +738,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
                         'lock_recursive',
                         'protect_feed',
                         $redirectRadio,
+                        'append_redirect_to_parameter',
                         'blog_admin_hint',
                         'blog_admin_hint_text',
                         'show_assigned_groups',
@@ -808,8 +809,14 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             unset($_SESSION[BackendController::UAM_ERRORS]);
         }
 
+        $php = $this->getPhp();
+        $php->expects($this->exactly(4))
+            ->method('fileGetContents')
+            ->with('https://localhost?testXSendFile')
+            ->will($this->returnValue('failure'));
+
         $settingController = new SettingsController(
-            $this->getPhp(),
+            $php,
             $wordpress,
             $this->getWordpressConfig(),
             $mainConfig,
@@ -837,21 +844,14 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             $settingController->getCurrentGroupForms()
         );
 
-        VCR::turnOn();
-        VCR::insertCassette('testXSendFileSuccess');
         $_GET['tab_group'] = SettingsController::GROUP_FILES;
         self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
-        VCR::eject();
-
-        VCR::insertCassette('testXSendFileFailure');
         self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
         self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
         self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
 
         unset($configValues['lock_file_types']);
         self::assertEquals(['file' => $fileFrom], $settingController->getCurrentGroupForms());
-        VCR::eject();
-        VCR::turnOff();
 
         $_GET['tab_group'] = SettingsController::GROUP_AUTHOR;
         self::assertEquals(['author' => $authorForm], $settingController->getCurrentGroupForms());
@@ -1005,5 +1005,32 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         self::assertTrue($settingController->isPostTypeGroup(ObjectHandler::POST_OBJECT_TYPE));
         self::assertTrue($settingController->isPostTypeGroup(ObjectHandler::PAGE_OBJECT_TYPE));
         self::assertFalse($settingController->isPostTypeGroup('something'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::isXSendFileAvailable()
+     * @throws ReflectionException
+     */
+    public function testIsXSendFileAvailableOnNginx()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('isNginx')
+            ->will($this->returnValue(true));
+
+        $settingController = new SettingsController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getCache(),
+            $this->getFileHandler(),
+            $this->getFormFactory(),
+            $this->getFormHelper()
+        );
+
+        // On nginx X-Accel-Redirect is always available; no HTTP test is performed.
+        self::assertTrue(self::callMethod($settingController, 'isXSendFileAvailable'));
     }
 }

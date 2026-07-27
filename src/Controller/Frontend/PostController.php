@@ -19,6 +19,7 @@ use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 use WeakMap;
 use WP_Comment;
+use WP_Error;
 use WP_Hook;
 use WP_Post;
 use WP_Query;
@@ -27,8 +28,11 @@ use WP_REST_Response;
 
 class PostController extends ContentController
 {
+    private const REST_OBJECT_ROUTE_PATTERN = '#^/[^/]+/v\d+/([^/]+)/(\d+)(?:/(\w+))?#';
+
     private array $wordpressFilters = [];
     private stdClass|array|null $cachedCounts = [];
+    private ?array $restBaseToPostTypeMap = null;
 
     private WeakMap $posts;
 
@@ -256,11 +260,20 @@ class PostController extends ContentController
         return $this->filterRawPosts($rawPages);
     }
 
+    private function getRestAccessDeniedError(): WP_Error
+    {
+        return $this->wordpress->getWpError(
+            'uam_rest_access_denied',
+            TXT_UAM_REST_ACCESS_DENIED,
+            ['status' => $this->wordpress->isUserLoggedIn() === true ? 403 : 401]
+        );
+    }
+
     private function isSingleObjectRestRequest(mixed $request, WP_Post $post): bool
     {
-        return $request instanceof WP_REST_Request
-            && $request->get_param('id') !== null
-            && (int) $request->get_param('id') === (int) $post->ID;
+        $routeId = $request instanceof WP_REST_Request ? ($request->get_url_params()['id'] ?? null) : null;
+
+        return $routeId !== null && (int) $routeId === (int) $post->ID;
     }
 
     private function setRestField(array &$data, string $field, string $value): void
@@ -269,27 +282,22 @@ class PostController extends ContentController
             return;
         }
 
-        if (is_array($data[$field]) === true) {
-            if (array_key_exists('rendered', $data[$field]) === true) {
-                $data[$field]['rendered'] = $value;
-            }
-
-            if (array_key_exists('raw', $data[$field]) === true) {
-                $data[$field]['raw'] = $value;
-            }
-
-            if (array_key_exists('protected', $data[$field]) === true) {
-                $data[$field]['protected'] = false;
-            }
-        } else {
+        if (is_array($data[$field]) === false) {
             $data[$field] = $value;
+
+            return;
+        }
+
+        $restrictedValues = ['rendered' => $value, 'raw' => $value, 'protected' => false];
+
+        foreach ($restrictedValues as $key => $restrictedValue) {
+            if (array_key_exists($key, $data[$field]) === true) {
+                $data[$field][$key] = $restrictedValue;
+            }
         }
     }
 
     /**
-     * The_posts / posts_where_paged never run for REST single-item requests,
-     * which resolve through get_post() directly, so access is enforced here too.
-     *
      * @throws UserGroupTypeException
      */
     public function restrictRestResponse(mixed $response, mixed $post = null, mixed $request = null): mixed
@@ -304,11 +312,7 @@ class PostController extends ContentController
         if ($this->removePostFromList($post->post_type) === true
             && $this->isSingleObjectRestRequest($request, $post) === true
         ) {
-            return $this->wordpress->getWpError(
-                'uam_rest_access_denied',
-                TXT_UAM_REST_ACCESS_DENIED,
-                ['status' => $this->wordpress->isUserLoggedIn() === true ? 403 : 401]
-            );
+            return $this->getRestAccessDeniedError();
         }
 
         $restrictedContent = $this->processPostContent($post);
@@ -338,6 +342,72 @@ class PostController extends ContentController
         }
 
         return $queryArgs;
+    }
+
+    private function getRestBaseToPostTypeMap(): array
+    {
+        if ($this->restBaseToPostTypeMap !== null) {
+            return $this->restBaseToPostTypeMap;
+        }
+
+        $this->restBaseToPostTypeMap = [];
+
+        foreach ((array) $this->objectHandler->getPostTypes() as $postType) {
+            $restBase = $this->wordpress->getPostTypeObject($postType)?->rest_base;
+            $this->restBaseToPostTypeMap[empty($restBase) === true ? $postType : $restBase] = $postType;
+        }
+
+        return $this->restBaseToPostTypeMap;
+    }
+
+    /**
+     * @return array{0: string, 1: int}|null
+     */
+    private function getGuardedRestRouteTarget(WP_REST_Request $request): ?array
+    {
+        if (preg_match(self::REST_OBJECT_ROUTE_PATTERN, (string) $request->get_route(), $matches) !== 1) {
+            return null;
+        }
+
+        $isSubResourceRoute = ($matches[3] ?? '') !== '';
+        $isReadingRequest = in_array(
+            strtoupper((string) $request->get_method()),
+            Wordpress::REST_READING_METHODS,
+            true
+        );
+
+        if ($isReadingRequest === true && $isSubResourceRoute === false) {
+            return null;
+        }
+
+        $postType = $this->getRestBaseToPostTypeMap()[$matches[1]] ?? null;
+
+        return $postType === null ? null : [$postType, (int) $matches[2]];
+    }
+
+    /**
+     * @throws UserGroupTypeException
+     */
+    public function restrictRestRequest(mixed $result, mixed $server = null, mixed $request = null): mixed
+    {
+        if (($request instanceof WP_REST_Request) === false) {
+            return $result;
+        }
+
+        $routeTarget = $this->getGuardedRestRouteTarget($request);
+
+        $this->wordpress->setRestRequestContext(
+            $routeTarget !== null || $request->get_param('context') === 'edit'
+        );
+
+        if ($result !== null
+            || $routeTarget === null
+            || $this->accessHandler->checkObjectAccess($routeTarget[0], $routeTarget[1], true) === true
+        ) {
+            return $result;
+        }
+
+        return $this->getRestAccessDeniedError();
     }
 
     /**

@@ -58,19 +58,17 @@ class BooleanConfigParameterTest extends UserAccessManagerTestCase
      */
     public function testStringToBoolConverter(BooleanConfigParameter $booleanConfigParameter)
     {
-        self::assertTrue(
-            self::callMethod($booleanConfigParameter, 'valueToBoolConverter', [1])
-        );
+        // Each accepted literal must be converted individually (strict comparison),
+        // so no entry of the conversion tables can be dropped without breaking a case.
+        self::assertSame(true, self::callMethod($booleanConfigParameter, 'valueToBoolConverter', [1]));
+        self::assertSame(true, self::callMethod($booleanConfigParameter, 'valueToBoolConverter', ['1']));
+        self::assertSame(true, self::callMethod($booleanConfigParameter, 'valueToBoolConverter', ['true']));
 
-        self::assertTrue(
-            self::callMethod($booleanConfigParameter, 'valueToBoolConverter', ['true'])
-        );
+        self::assertSame(false, self::callMethod($booleanConfigParameter, 'valueToBoolConverter', [0]));
+        self::assertSame(false, self::callMethod($booleanConfigParameter, 'valueToBoolConverter', ['0']));
+        self::assertSame(false, self::callMethod($booleanConfigParameter, 'valueToBoolConverter', ['false']));
 
-        self::assertFalse(
-            self::callMethod($booleanConfigParameter, 'valueToBoolConverter', ['false'])
-        );
-
-        self::assertEquals(
+        self::assertSame(
             'Test',
             self::callMethod($booleanConfigParameter, 'valueToBoolConverter', ['Test'])
         );

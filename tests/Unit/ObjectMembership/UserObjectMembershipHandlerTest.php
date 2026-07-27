@@ -123,7 +123,8 @@ class UserObjectMembershipHandlerTest extends ObjectMembershipHandlerTestCase
          * @var stdClass $firstUser
          */
         $firstUser = $this->getMockBuilder('\WP_User')->getMock();
-        $firstUser->capabilitiesTable = [1 => 1, 2 => 2];
+        // The capability values differ from their keys so that only the role keys can match.
+        $firstUser->capabilitiesTable = [1 => 0, 2 => 0];
 
         /**
          * @var stdClass $secondUser

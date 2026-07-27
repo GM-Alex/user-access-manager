@@ -195,6 +195,51 @@ class AccessHandlerTest extends HandlerTestCase
 
     /**
      * @group  unit
+     * @covers ::checkObjectAccess()
+     * @covers ::hasAuthorAccess()
+     * @throws UserGroupTypeException
+     */
+    public function testCheckObjectAccessDoesNotGrantAuthorAccessToGuests()
+    {
+        $user = $this->getMockBuilder('\WP_User')->getMock();
+        $user->ID = 0;
+
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getCurrentUser')->will($this->returnValue($user));
+        $wordpress->method('isAdmin')->will($this->returnValue(false));
+        $wordpress->method('isUserLoggedIn')->will($this->returnValue(false));
+        $wordpress->method('applyFilters')->will($this->returnCallback(
+            function ($tag, $userGroups) {
+                return $userGroups;
+            }
+        ));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('authorsHasAccessToOwn')->will($this->returnValue(true));
+
+        $userHandler = $this->getUserHandler();
+        $userHandler->method('checkUserAccess')->will($this->returnValue(false));
+
+        $userGroupHandler = $this->getUserGroupHandler();
+        $userGroupHandler->method('getUserGroupsForObject')
+            ->will($this->returnValue([1 => $this->getUserGroup(1)]));
+        $userGroupHandler->method('getUserGroupsForUser')->will($this->returnValue([]));
+
+        $accessHandler = new AccessHandler(
+            $wordpress,
+            $mainConfig,
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $userHandler,
+            $userGroupHandler
+        );
+
+        // The guest (id 0) and an unowned post (author 0) must not grant author access.
+        self::assertFalse($accessHandler->checkObjectAccess('postType', 0));
+    }
+
+    /**
+     * @group  unit
      * @covers ::getExcludedTerms()
      * @covers ::getExcludedObjects()
      * @throws UserGroupTypeException

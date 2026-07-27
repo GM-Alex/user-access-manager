@@ -60,6 +60,10 @@ class ValueSetFormElementTest extends TestCase
 
         $stub = $this->getStub('id', [$possibleValue], 'value', 'label', 'description');
         self::assertInstanceOf(ValueSetFormElement::class, $stub);
+        self::assertEquals('id', $stub->getId());
+        self::assertEquals('value', $stub->getValue());
+        self::assertEquals('label', $stub->getLabel());
+        self::assertEquals('description', $stub->getDescription());
 
         return $stub;
     }

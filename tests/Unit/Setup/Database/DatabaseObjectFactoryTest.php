@@ -69,9 +69,12 @@ class DatabaseObjectFactoryTest extends TestCase
      */
     public function testCreateColumn(DatabaseObjectFactory $databaseObjectFactory)
     {
-        self::assertInstanceOf(
-            Column::class,
-            $databaseObjectFactory->createColumn('columnName', 'columnType')
-        );
+        $column = $databaseObjectFactory->createColumn('columnName', 'columnType');
+
+        self::assertInstanceOf(Column::class, $column);
+        self::assertNull($column->getDefault());
+        self::assertFalse($column->isNull());
+        self::assertFalse($column->isKey());
+        self::assertFalse($column->isAutoIncrement());
     }
 }

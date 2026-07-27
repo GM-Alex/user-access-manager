@@ -185,7 +185,8 @@ class UtilTest extends UserAccessManagerTestCase
         $_SERVER['REQUEST_URI'] = null;
         $_SERVER['PHP_SELF'] = '/phpSelf';
         $_SERVER['HTTPS'] = 'on';
-        $_SERVER['SERVER_PROTOCOL'] = 'http';
+        // Upper case protocol must be lower cased for the scheme.
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP';
         $_SERVER['SERVER_PORT'] = '88';
 
         self::assertEquals('https://serverName:88/phpSelf', $util->getCurrentUrl());

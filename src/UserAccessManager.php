@@ -32,7 +32,7 @@ use UserAccessManager\Wrapper\Wordpress;
 
 class UserAccessManager
 {
-    public const VERSION = '2.3.14';
+    public const VERSION = '2.3.15';
     public const DB_VERSION = '1.6.2';
 
     public function __construct(
@@ -470,8 +470,15 @@ class UserAccessManager
         $this->wordpress->addFilter('getarchives_where', [$frontendPostController, 'showPostSql']);
         $this->wordpress->addFilter('wp_count_posts', [$frontendPostController, 'showPostCount'], 10, 3);
 
-        // Registered on rest_api_init so that all REST-enabled post types are known.
         $this->wordpress->addAction('rest_api_init', function () use ($frontendPostController) {
+            //Runs first, so that no access check caches the context before the guard.
+            $this->wordpress->addFilter(
+                'rest_pre_dispatch',
+                [$frontendPostController, 'restrictRestRequest'],
+                1,
+                3
+            );
+
             foreach ((array) $this->objectHandler->getPostTypes() as $postType) {
                 $this->wordpress->addFilter(
                     "rest_prepare_$postType",

@@ -235,6 +235,30 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * @group  unit
+     * @covers ::getTreeMap()
+     * @throws ReflectionException
+     */
+    public function testGetTreeMapWithoutResults()
+    {
+        $database = $this->getDatabase();
+        $database->expects($this->once())
+            ->method('getResults')
+            ->with('emptySelect')
+            ->will($this->returnValue([]));
+
+        $objectMapHandler = new ObjectMapHandler($database, $this->getCache());
+
+        self::assertEquals(
+            [
+                ObjectMapHandler::TREE_MAP_CHILDREN => ['generalType' => []],
+                ObjectMapHandler::TREE_MAP_PARENTS => ['generalType' => []]
+            ],
+            self::callMethod($objectMapHandler, 'getTreeMap', ['emptySelect', 'generalType'])
+        );
+    }
+
+    /**
      * @param int $objectId
      * @param int $termId
      * @param string $type

@@ -20,6 +20,7 @@ use function add_filter;
 use function add_menu_page;
 use function add_meta_box;
 use function add_option;
+use function add_query_arg;
 use function add_shortcode;
 use function add_submenu_page;
 use function attachment_url_to_postid;
@@ -90,6 +91,11 @@ use function wp_verify_nonce;
 
 class Wordpress
 {
+    public const REST_READING_METHODS = ['GET', 'HEAD'];
+
+    private bool $restRequestDispatched = false;
+    private bool $editingRestRequestDetected = false;
+
     public function getDatabase(): wpdb
     {
         global $wpdb;
@@ -347,6 +353,30 @@ class Wordpress
     }
 
     /**
+     * @see wp_cache_set
+     */
+    public function wpCacheSet(string $key, mixed $data, string $group = '', int $expire = 0): bool
+    {
+        return wp_cache_set($key, $data, $group, $expire);
+    }
+
+    /**
+     * @see wp_cache_get
+     */
+    public function wpCacheGet(string $key, string $group = ''): mixed
+    {
+        return wp_cache_get($key, $group);
+    }
+
+    /**
+     * @see wp_cache_delete
+     */
+    public function wpCacheDelete(string $key, string $group = ''): bool
+    {
+        return wp_cache_delete($key, $group);
+    }
+
+    /**
      * @see is_super_admin
      */
     public function isSuperAdmin(bool|int|string|null $userId = false): bool
@@ -396,6 +426,14 @@ class Wordpress
     public function getSiteUrl(string $path = '', ?string $scheme = null): string
     {
         return site_url($path, $scheme);
+    }
+
+    /**
+     * @see add_query_arg
+     */
+    public function addQueryArg(array $arguments, string $url): string
+    {
+        return add_query_arg($arguments, $url);
     }
 
     /**
@@ -484,17 +522,50 @@ class Wordpress
         return $wp_query;
     }
 
+    public function isRestRequest(): bool
+    {
+        return defined('REST_REQUEST') === true && REST_REQUEST === true;
+    }
+
+    public function setRestRequestContext(bool $isEditingRequest): void
+    {
+        $this->restRequestDispatched = true;
+        //Nested requests, like the ones for embedded objects, must not lower the context again.
+        $this->editingRestRequestDetected = $this->editingRestRequestDetected || $isEditingRequest;
+    }
+
+    private function isReadingRestMethod(string $method): bool
+    {
+        return in_array(strtoupper($method), self::REST_READING_METHODS, true);
+    }
+
+    private function isEditingRestRequest(): bool
+    {
+        if ($this->isRestRequest() === false) {
+            return false;
+        }
+
+        if ($this->restRequestDispatched === true) {
+            return $this->editingRestRequestDetected;
+        }
+
+        //Undispatched requests only expose the raw data, so an editing request is assumed.
+        return $this->isReadingRestMethod((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) === false
+            || ($_REQUEST['context'] ?? '') === 'edit';
+    }
+
     /**
      * @see is_admin
      */
     public function isAdmin(): bool
     {
         //Ajax request are always identified as an administrative interface page
-        if (wp_doing_ajax() === true || defined('REST_REQUEST') && REST_REQUEST) {
+        if (wp_doing_ajax() === true || $this->isRestRequest() === true) {
             //So let's check if we are calling the ajax data for the frontend or backend
             //If the referer is an admin url we are requesting the data for the backend
             $adminUrl = get_admin_url();
-            return str_starts_with((string)($_SERVER['HTTP_REFERER'] ?? ''), $adminUrl);
+            return str_starts_with((string)($_SERVER['HTTP_REFERER'] ?? ''), $adminUrl)
+                || $this->isEditingRestRequest() === true;
         }
 
         //No ajax request just uses the normal function

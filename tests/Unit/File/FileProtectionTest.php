@@ -150,7 +150,7 @@ class FileProtectionTest extends UserAccessManagerTestCase
             $this->getUtil()
         );
 
-        self::assertEquals('a|c', self::callMethod($stub, 'cleanUpFileTypes', ['a,c']));
+        self::assertEquals('a|c', self::callMethod($stub, 'cleanUpFileTypes', [' a , c ']));
         self::assertEquals('b', self::callMethod($stub, 'cleanUpFileTypes', ['b,f']));
     }
 
@@ -278,36 +278,52 @@ class FileProtectionTest extends UserAccessManagerTestCase
      */
     public function testDeleteFiles()
     {
+        $testDir = 'vfs://testDir/';
+        $fileName = 'testFile.conf';
+        $file = $testDir . $fileName;
+        $passwordFile = $testDir . FileProtection::PASSWORD_FILE_NAME;
+
         $php = $this->getPhp();
         $php->expects($this->exactly(6))
             ->method('unlink')
+            ->withConsecutive(
+                [$file],
+                [$passwordFile],
+                [$file],
+                [$passwordFile],
+                [$file],
+                [$passwordFile]
+            )
             ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
 
-        $stub = $this->getStub(
+        // Concrete subclass with a real FILE_NAME so the path building is exercised
+        // (the abstract base defines FILE_NAME as null).
+        $stub = new class (
             $php,
             $this->getWordpress(),
             $this->getWordpressConfig(),
             $this->getMainConfig(),
             $this->getUtil()
-        );
+        ) extends FileProtection {
+            public const FILE_NAME = 'testFile.conf';
+        };
 
         /**
          * @var Directory $rootDir
          */
         $rootDir = $this->root->get('/');
         $rootDir->add('testDir', new Directory([
-            FileProtection::FILE_NAME => new File('htaccess'),
+            $fileName => new File('config'),
             FileProtection::PASSWORD_FILE_NAME => new File('password')
         ]));
 
-        $testDir = 'vfs://testDir/';
-        $file = $testDir . FileProtection::FILE_NAME;
-        $passwordFile = $testDir . FileProtection::PASSWORD_FILE_NAME;
-
         self::assertTrue(file_exists($file));
         self::assertTrue(file_exists($passwordFile));
+        // A trailing slash on the directory exercises the rtrim/path building.
         self::assertTrue($stub->deleteFiles($testDir));
         self::assertFalse($stub->deleteFiles($testDir));
         self::assertFalse($stub->deleteFiles($testDir));
+        // No protection files present -> the initial success value is returned.
+        self::assertTrue($stub->deleteFiles('vfs://missingDir/'));
     }
 }
