@@ -26,7 +26,9 @@ class UpdateFactory
             new DatabaseUpdate3($this->database, $this->objectHandler),
             new DatabaseUpdate4($this->database, $this->objectHandler),
             new DatabaseUpdate5($this->database, $this->objectHandler),
-            new DatabaseUpdate6($this->database, $this->objectHandler)
+            new DatabaseUpdate6($this->database, $this->objectHandler),
+            new DatabaseUpdate7($this->database, $this->objectHandler),
+            new DatabaseUpdate8($this->database, $this->objectHandler)
         ];
     }
 }

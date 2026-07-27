@@ -21,6 +21,8 @@ use UserAccessManager\Setup\Update\DatabaseUpdate3;
 use UserAccessManager\Setup\Update\DatabaseUpdate4;
 use UserAccessManager\Setup\Update\DatabaseUpdate5;
 use UserAccessManager\Setup\Update\DatabaseUpdate6;
+use UserAccessManager\Setup\Update\DatabaseUpdate7;
+use UserAccessManager\Setup\Update\DatabaseUpdate8;
 use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
@@ -65,5 +67,7 @@ class UpdateFactoryTest extends UserAccessManagerTestCase
         self::assertInstanceOf(DatabaseUpdate4::class, $updates[3]);
         self::assertInstanceOf(DatabaseUpdate5::class, $updates[4]);
         self::assertInstanceOf(DatabaseUpdate6::class, $updates[5]);
+        self::assertInstanceOf(DatabaseUpdate7::class, $updates[6]);
+        self::assertInstanceOf(DatabaseUpdate8::class, $updates[7]);
     }
 }

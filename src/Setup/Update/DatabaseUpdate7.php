@@ -17,7 +17,7 @@ class DatabaseUpdate7 extends DatabaseUpdate
     {
         $userGroupTable = $this->database->getUserGroupTable();
         $alterQuery = "ALTER TABLE {$userGroupTable}
-            MODIFY ID INT NOT NULL";
+            MODIFY ID INT NOT NULL AUTO_INCREMENT";
 
         return $this->database->query($alterQuery) !== false;
     }

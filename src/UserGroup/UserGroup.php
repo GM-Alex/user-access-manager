@@ -72,20 +72,28 @@ class UserGroup extends AbstractUserGroup
             $id
         );
 
-        $dbUserGroup = $this->database->getRow($query);
+        $databaseUserGroup = $this->database->getRow($query);
 
-        if ($dbUserGroup !== null) {
-            $this->id = $id;
-            $this->name = $dbUserGroup->groupname;
-            $this->description = $dbUserGroup->groupdesc;
-            $this->readAccess = $dbUserGroup->read_access;
-            $this->writeAccess = $dbUserGroup->write_access;
-            $this->ipRange = $dbUserGroup->ip_range;
+        if ($databaseUserGroup !== null) {
+            $this->assignDatabaseValues($databaseUserGroup);
 
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Takes over the values of an already fetched row, so the group does not need to load itself.
+     */
+    public function assignDatabaseValues(object $databaseUserGroup): void
+    {
+        $this->id = $databaseUserGroup->ID;
+        $this->name = $databaseUserGroup->groupname;
+        $this->description = $databaseUserGroup->groupdesc;
+        $this->readAccess = $databaseUserGroup->read_access;
+        $this->writeAccess = $databaseUserGroup->write_access;
+        $this->ipRange = $databaseUserGroup->ip_range;
     }
 
     public function save(): bool

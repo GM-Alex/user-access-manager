@@ -1,8 +1,8 @@
 <?php
 /**
- * DatabaseUpdate7Test.php
+ * DatabaseUpdate8Test.php
  *
- * The DatabaseUpdate7Test unit test class file.
+ * The DatabaseUpdate8Test unit test class file.
  *
  * PHP versions 5
  *
@@ -15,17 +15,17 @@
 
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
-use UserAccessManager\Setup\Update\DatabaseUpdate7;
+use UserAccessManager\Setup\Update\DatabaseUpdate8;
 use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class DatabaseUpdate7Test
+ * Class DatabaseUpdate8Test
  *
  * @package UserAccessManager\Tests\Unit\Setup\Update
- * @coversDefaultClass \UserAccessManager\Setup\Update\DatabaseUpdate7
+ * @coversDefaultClass \UserAccessManager\Setup\Update\DatabaseUpdate8
  */
-class DatabaseUpdate7Test extends UserAccessManagerTestCase
+class DatabaseUpdate8Test extends UserAccessManagerTestCase
 {
     /**
      * @group  unit
@@ -33,12 +33,12 @@ class DatabaseUpdate7Test extends UserAccessManagerTestCase
      */
     public function testCanCreateInstance()
     {
-        $update = new DatabaseUpdate7(
+        $update = new DatabaseUpdate8(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
 
-        self::assertInstanceOf(DatabaseUpdate7::class, $update);
+        self::assertInstanceOf(DatabaseUpdate8::class, $update);
     }
 
     /**
@@ -47,27 +47,27 @@ class DatabaseUpdate7Test extends UserAccessManagerTestCase
      */
     public function testGetVersion()
     {
-        $update = new DatabaseUpdate7(
+        $update = new DatabaseUpdate8(
             $this->getDatabase(),
             $this->getObjectHandler()
         );
 
-        self::assertEquals('1.6.2', $update->getVersion());
+        self::assertEquals('1.6.3', $update->getVersion());
     }
 
     /**
      * @group  unit
-     * @covers ::update()
+     * @covers \UserAccessManager\Setup\Update\DatabaseUpdate7::update()
      */
-    public function testUpdate()
+    public function testUpdateRepeatsTheUpdateOfItsParent()
     {
         $database = $this->getDatabase();
 
-        $database->expects($this->exactly(2))
+        $database->expects($this->once())
             ->method('getUserGroupTable')
             ->will($this->returnValue('userGroupTable'));
 
-        $database->expects($this->exactly(2))
+        $database->expects($this->once())
             ->method('query')
             ->with(
                 new MatchIgnoreWhitespace(
@@ -75,12 +75,10 @@ class DatabaseUpdate7Test extends UserAccessManagerTestCase
                     MODIFY ID INT NOT NULL AUTO_INCREMENT'
                 )
             )
-            ->will($this->onConsecutiveCalls(false, 5));
+            ->will($this->returnValue(5));
 
-        $update = new DatabaseUpdate7($database, $this->getObjectHandler());
+        $update = new DatabaseUpdate8($database, $this->getObjectHandler());
 
-        // query() returning false must yield false, any other result must yield true.
-        self::assertFalse($update->update());
         self::assertTrue($update->update());
     }
 }
