@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace UserAccessManager\Setup\Update;
 
 /**
- * Repeats the update of the user group table id column.
- *
- * DatabaseUpdate7 was never registered, so installations that already carry its database version never ran it.
+ * Repeats DatabaseUpdate7, which was never registered and so never ran.
  */
 class DatabaseUpdate8 extends DatabaseUpdate7
 {

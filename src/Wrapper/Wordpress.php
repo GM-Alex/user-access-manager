@@ -559,16 +559,15 @@ class Wordpress
      */
     public function isAdmin(): bool
     {
-        //Ajax request are always identified as an administrative interface page
-        if (wp_doing_ajax() === true || $this->isRestRequest() === true) {
-            //So let's check if we are calling the ajax data for the frontend or backend
-            //If the referer is an admin url we are requesting the data for the backend
-            $adminUrl = get_admin_url();
-            return str_starts_with((string)($_SERVER['HTTP_REFERER'] ?? ''), $adminUrl)
-                || $this->isEditingRestRequest() === true;
+        if ($this->isRestRequest() === true) {
+            return $this->isEditingRestRequest();
         }
 
-        //No ajax request just uses the normal function
+        if (wp_doing_ajax() === true) {
+            return is_user_logged_in() === true
+                && str_starts_with((string)($_SERVER['HTTP_REFERER'] ?? ''), get_admin_url());
+        }
+
         return is_admin();
     }
 

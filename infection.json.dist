@@ -86,8 +86,7 @@
         "UserAccessManager\\Controller\\Frontend\\RedirectController::extractObjectTypeAndId",
         "UserAccessManager\\Cache\\Cache::setActiveCacheProvider",
         "UserAccessManager\\Form\\FormHelper::getSettingsForm",
-        "UserAccessManager\\Controller\\Frontend\\PostController::isSingleObjectRestRequest",
-        "UserAccessManager\\Controller\\Frontend\\PostController::getGuardedRestRouteTarget"
+        "UserAccessManager\\Controller\\Frontend\\PostController::getRestRouteTarget"
       ]
     },
     "UnwrapUcFirst": {

@@ -1254,15 +1254,30 @@ class PostControllerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::restrictRestResponse()
-     * @covers ::isSingleObjectRestRequest()
+     * @covers ::restrictRestRequest()
+     * @covers ::hasRestRouteAccess()
+     * @covers ::isEditingRestRoute()
+     * @covers ::getRestRouteTarget()
+     * @covers ::isReadingRestRequest()
+     * @covers ::getRestBaseToPostTypeMap()
+     * @covers ::getRestAccessDeniedError()
      * @throws UserGroupTypeException
      */
-    public function testRestrictRestResponseDeniesAccessToHiddenSingleObject()
+    public function testRestrictRestRequestDeniesHiddenSingleObjectReads()
     {
         $error = new WP_Error();
 
+        $postTypeObject = $this->createMock(WP_Post_Type::class);
+        $postTypeObject->rest_base = 'posts';
+
         $wordpress = $this->getWordpress();
+        $wordpress->expects($this->exactly(3))
+            ->method('setRestRequestContext')
+            ->with(false);
+        $wordpress->expects($this->once())
+            ->method('getPostTypeObject')
+            ->with('post')
+            ->will($this->returnValue($postTypeObject));
         $wordpress->expects($this->once())
             ->method('isUserLoggedIn')
             ->will($this->returnValue(false));
@@ -1271,39 +1286,51 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->with('uam_rest_access_denied', TXT_UAM_REST_ACCESS_DENIED, ['status' => 401])
             ->will($this->returnValue($error));
 
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->expects($this->once())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['post' => 'post']));
+
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->any())
+            ->method('atAdminPanel')
+            ->will($this->returnValue(false));
+
         $mainConfig = $this->getMainConfig();
-        $mainConfig->expects($this->once())
+        $mainConfig->expects($this->exactly(3))
             ->method('hidePostType')
             ->with('post')
-            ->will($this->returnValue(true));
+            ->will($this->onConsecutiveCalls(true, true, false));
 
         $accessHandler = $this->getAccessHandler();
-        $accessHandler->expects($this->once())
+        $accessHandler->expects($this->exactly(2))
             ->method('checkObjectAccess')
             ->with('post', 2)
-            ->will($this->returnValue(false));
+            ->will($this->onConsecutiveCalls(false, true));
 
         $frontendPostController = new PostController(
             $this->getPhp(),
             $wordpress,
-            $this->getWordpressConfig(),
+            $wordpressConfig,
             $mainConfig,
             $this->getUtil(),
-            $this->getObjectHandler(),
+            $objectHandler,
             $this->getUserHandler(),
             $this->getUserGroupHandler(),
             $accessHandler,
             $this->getDatabase()
         );
 
-        self::assertSame(
-            $error,
-            $frontendPostController->restrictRestResponse(
-                $this->getRestResponse([]),
-                $this->getPost(2),
-                $this->getRestRequest(2)
-            )
-        );
+        $readingRequest = $this->getRestRequest(2, 'GET', '/wp/v2/posts/2');
+
+        // hidden, no access
+        self::assertSame($error, $frontendPostController->restrictRestRequest(null, null, $readingRequest));
+
+        // hidden, access granted
+        self::assertNull($frontendPostController->restrictRestRequest(null, null, $readingRequest));
+
+        // not hidden
+        self::assertNull($frontendPostController->restrictRestRequest(null, null, $readingRequest));
     }
 
     /**
@@ -1316,15 +1343,8 @@ class PostControllerTest extends UserAccessManagerTestCase
     public function testRestrictRestResponseRestrictsContent()
     {
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->once())
-            ->method('atAdminPanel')
-            ->will($this->returnValue(false));
 
         $mainConfig = $this->getMainConfig();
-        $mainConfig->expects($this->once())
-            ->method('hidePostType')
-            ->with('post')
-            ->will($this->returnValue(false));
         $mainConfig->expects($this->once())
             ->method('getPostTypeContent')
             ->with('post')
@@ -1436,10 +1456,6 @@ class PostControllerTest extends UserAccessManagerTestCase
     {
         $mainConfig = $this->getMainConfig();
         $mainConfig->expects($this->once())
-            ->method('hidePostType')
-            ->with('post')
-            ->will($this->returnValue(false));
-        $mainConfig->expects($this->once())
             ->method('getPostTypeContent')
             ->with('post')
             ->will($this->returnValue('restricted'));
@@ -1453,9 +1469,6 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->will($this->returnValue(false));
 
         $wordpressConfig = $this->getWordpressConfig();
-        $wordpressConfig->expects($this->once())
-            ->method('atAdminPanel')
-            ->will($this->returnValue(false));
 
         $accessHandler = $this->getAccessHandler();
         $accessHandler->expects($this->once())
@@ -1491,7 +1504,10 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::restrictRestRequest()
-     * @covers ::getGuardedRestRouteTarget()
+     * @covers ::hasRestRouteAccess()
+     * @covers ::isEditingRestRoute()
+     * @covers ::getRestRouteTarget()
+     * @covers ::isReadingRestRequest()
      * @covers ::getRestBaseToPostTypeMap()
      * @throws UserGroupTypeException
      */
@@ -1560,7 +1576,10 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::restrictRestRequest()
-     * @covers ::getGuardedRestRouteTarget()
+     * @covers ::hasRestRouteAccess()
+     * @covers ::isEditingRestRoute()
+     * @covers ::getRestRouteTarget()
+     * @covers ::isReadingRestRequest()
      * @covers ::getRestBaseToPostTypeMap()
      * @covers ::getRestAccessDeniedError()
      * @throws UserGroupTypeException
@@ -1624,39 +1643,32 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::restrictRestResponse()
-     * @covers ::isSingleObjectRestRequest()
      * @throws UserGroupTypeException
      */
-    public function testRestrictRestResponseSingleObjectDetection()
+    public function testRestrictRestResponseNeverReturnsAnError()
     {
-        $error = new WP_Error();
-
-        $wordpress = $this->getWordpress();
-        $wordpress->expects($this->once())
-            ->method('isUserLoggedIn')
-            ->will($this->returnValue(true));
-        $wordpress->expects($this->once())
-            ->method('getWpError')
-            ->with('uam_rest_access_denied', TXT_UAM_REST_ACCESS_DENIED, ['status' => 403])
-            ->will($this->returnValue($error));
-
         $mainConfig = $this->getMainConfig();
         $mainConfig->expects($this->exactly(4))
-            ->method('hidePostType')
-            ->with('post')
-            ->will($this->returnValue(true));
-        $mainConfig->expects($this->exactly(3))
             ->method('getPostTypeContent')
             ->with('post')
             ->will($this->returnValue('restricted'));
-        $mainConfig->expects($this->exactly(3))
+        $mainConfig->expects($this->exactly(4))
             ->method('showPostTypeContentBeforeMore')
             ->with('post')
             ->will($this->returnValue(false));
-        $mainConfig->expects($this->exactly(3))
+        $mainConfig->expects($this->exactly(4))
             ->method('hidePostTypeTitle')
             ->with('post')
             ->will($this->returnValue(false));
+        $mainConfig->expects($this->any())
+            ->method('hidePostType')
+            ->with('post')
+            ->will($this->returnValue(true));
+
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->expects($this->any())
+            ->method('atAdminPanel')
+            ->will($this->returnValue(true));
 
         $accessHandler = $this->getAccessHandler();
         $accessHandler->expects($this->exactly(4))
@@ -1666,8 +1678,8 @@ class PostControllerTest extends UserAccessManagerTestCase
 
         $frontendPostController = new PostController(
             $this->getPhp(),
-            $wordpress,
-            $this->getWordpressConfig(),
+            $this->getWordpress(),
+            $wordpressConfig,
             $mainConfig,
             $this->getUtil(),
             $this->getObjectHandler(),
@@ -1678,32 +1690,14 @@ class PostControllerTest extends UserAccessManagerTestCase
         );
 
         $post = $this->getPost(2);
+        $requests = [$this->getRestRequest(2), $this->getRestRequest(999), $this->getRestRequest(null), null];
 
-        // Single-item request for the requested object -> access denied (403 as logged in).
-        self::assertSame(
-            $error,
-            $frontendPostController->restrictRestResponse($this->getRestResponse([]), $post, $this->getRestRequest(2))
-        );
+        foreach ($requests as $request) {
+            $response = $this->getRestResponse(['content' => ['rendered' => 'secret']]);
+            $result = $frontendPostController->restrictRestResponse($response, $post, $request);
 
-        // Request id does not match the object -> collection context -> strip only.
-        $responseOtherId = $this->getRestResponse(['content' => ['rendered' => 'secret']]);
-        self::assertSame(
-            $responseOtherId,
-            $frontendPostController->restrictRestResponse($responseOtherId, $post, $this->getRestRequest(999))
-        );
-
-        // Request without an id (collection) -> strip only.
-        $responseNoId = $this->getRestResponse(['content' => ['rendered' => 'secret']]);
-        self::assertSame(
-            $responseNoId,
-            $frontendPostController->restrictRestResponse($responseNoId, $post, $this->getRestRequest(null))
-        );
-
-        // No request object at all -> strip only.
-        $responseNoRequest = $this->getRestResponse(['content' => ['rendered' => 'secret']]);
-        self::assertSame(
-            $responseNoRequest,
-            $frontendPostController->restrictRestResponse($responseNoRequest, $post, null)
-        );
+            self::assertSame($response, $result);
+            self::assertEquals(['content' => ['rendered' => 'restricted']], $result->get_data());
+        }
     }
 }

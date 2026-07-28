@@ -269,13 +269,6 @@ class PostController extends ContentController
         );
     }
 
-    private function isSingleObjectRestRequest(mixed $request, WP_Post $post): bool
-    {
-        $routeId = $request instanceof WP_REST_Request ? ($request->get_url_params()['id'] ?? null) : null;
-
-        return $routeId !== null && (int) $routeId === (int) $post->ID;
-    }
-
     private function setRestField(array &$data, string $field, string $value): void
     {
         if (array_key_exists($field, $data) === false) {
@@ -307,12 +300,6 @@ class PostController extends ContentController
             || $this->accessHandler->checkObjectAccess($post->post_type, $post->ID) === true
         ) {
             return $response;
-        }
-
-        if ($this->removePostFromList($post->post_type) === true
-            && $this->isSingleObjectRestRequest($request, $post) === true
-        ) {
-            return $this->getRestAccessDeniedError();
         }
 
         $restrictedContent = $this->processPostContent($post);
@@ -361,28 +348,44 @@ class PostController extends ContentController
     }
 
     /**
-     * @return array{0: string, 1: int}|null
+     * @return null|array{type: string, id: int, addressesSubResource: bool}
      */
-    private function getGuardedRestRouteTarget(WP_REST_Request $request): ?array
+    private function getRestRouteTarget(WP_REST_Request $request): ?array
     {
         if (preg_match(self::REST_OBJECT_ROUTE_PATTERN, (string) $request->get_route(), $matches) !== 1) {
             return null;
         }
 
-        $isSubResourceRoute = ($matches[3] ?? '') !== '';
-        $isReadingRequest = in_array(
-            strtoupper((string) $request->get_method()),
-            Wordpress::REST_READING_METHODS,
-            true
-        );
-
-        if ($isReadingRequest === true && $isSubResourceRoute === false) {
-            return null;
-        }
-
         $postType = $this->getRestBaseToPostTypeMap()[$matches[1]] ?? null;
 
-        return $postType === null ? null : [$postType, (int) $matches[2]];
+        return $postType === null ? null : [
+            'type' => $postType,
+            'id' => (int) $matches[2],
+            'addressesSubResource' => ($matches[3] ?? '') !== ''
+        ];
+    }
+
+    private function isReadingRestRequest(WP_REST_Request $request): bool
+    {
+        return in_array(strtoupper((string) $request->get_method()), Wordpress::REST_READING_METHODS, true);
+    }
+
+    private function isEditingRestRoute(bool $addressesSubResource, WP_REST_Request $request): bool
+    {
+        return $this->isReadingRestRequest($request) === false || $addressesSubResource === true;
+    }
+
+    /**
+     * @throws UserGroupTypeException
+     */
+    private function hasRestRouteAccess(string $objectType, int $objectId, bool $isEditingRoute): bool
+    {
+        if ($isEditingRoute === true) {
+            return $this->accessHandler->checkObjectAccess($objectType, $objectId, true);
+        }
+
+        return $this->removePostFromList($objectType) === false
+            || $this->accessHandler->checkObjectAccess($objectType, $objectId);
     }
 
     /**
@@ -394,20 +397,22 @@ class PostController extends ContentController
             return $result;
         }
 
-        $routeTarget = $this->getGuardedRestRouteTarget($request);
+        $routeTarget = $this->getRestRouteTarget($request);
+        $isEditingRoute = $routeTarget !== null
+            && $this->isEditingRestRoute($routeTarget['addressesSubResource'], $request);
 
         $this->wordpress->setRestRequestContext(
-            $routeTarget !== null || $request->get_param('context') === 'edit'
+            $isEditingRoute === true || $request->get_param('context') === 'edit'
         );
 
-        if ($result !== null
-            || $routeTarget === null
-            || $this->accessHandler->checkObjectAccess($routeTarget[0], $routeTarget[1], true) === true
-        ) {
+        if ($result !== null || $routeTarget === null) {
             return $result;
         }
 
-        return $this->getRestAccessDeniedError();
+        ['type' => $type, 'id' => $id] = $routeTarget;
+
+        return $this->hasRestRouteAccess($type, $id, $isEditingRoute) === true ?
+            $result : $this->getRestAccessDeniedError();
     }
 
     /**

@@ -3,10 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Reads the plugin version from the plugin header, the only place where the version is maintained.
- *
- * Everything else derives from it: UserAccessManager::VERSION through this constant, the stable tag in the
- * readme through the grunt version task, and the deployed version through scripts/deploy.sh.
+ * Reads the plugin version from the plugin header, the only place where it is maintained.
  */
 
 if (defined('UAM_VERSION') === false) {

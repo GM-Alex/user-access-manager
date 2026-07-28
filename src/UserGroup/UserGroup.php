@@ -83,9 +83,6 @@ class UserGroup extends AbstractUserGroup
         return false;
     }
 
-    /**
-     * Takes over the values of an already fetched row, so the group does not need to load itself.
-     */
     public function assignDatabaseValues(object $databaseUserGroup): void
     {
         $this->id = $databaseUserGroup->ID;
