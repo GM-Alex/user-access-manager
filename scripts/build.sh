@@ -17,10 +17,11 @@ if [[ ${EXCLUDES} != '' ]]; then
     EXCLUDES="${EXCLUDES},"
 fi
 
-npm install
-${PLUGIN_ROOT}/node_modules/grunt-cli/bin/grunt
+"${PLUGIN_ROOT}/scripts/version.sh"
+"${PLUGIN_ROOT}/vendor/bin/wp" i18n make-pot "${PLUGIN_ROOT}" "${PLUGIN_ROOT}/languages/${PLUGIN}.pot" \
+    --slug="${PLUGIN}" --exclude=vendor,tests,builds,scripts,tmp --allow-root
 
-EXCLUDES="${EXCLUDES}.gitkeep,README.md,.github,builds,phpunit.xml.dist,infection.json.dist,tests,scripts,package.json,Gruntfile.js"
+EXCLUDES="${EXCLUDES}.gitkeep,README.md,.github,builds,phpunit.xml.dist,infection.json.dist,tests,scripts"
 eval "rsync -av ${PLUGIN_ROOT}/* ${PLUGIN_BUILDS_PATH} --exclude={${EXCLUDES}}"
 
 composer --working-dir="${PLUGIN_BUILDS_PATH}" install --no-dev

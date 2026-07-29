@@ -109,9 +109,17 @@ if (!defined('WP_CLI_ROOT')) {
     define('WP_CLI_ROOT', $vendorDir . '/wp-cli/wp-cli');
 }
 
-include WP_CLI_ROOT . '/php/utils.php';
-include WP_CLI_ROOT . '/php/dispatcher.php';
-include WP_CLI_ROOT . '/php/class-wp-cli.php';
-include WP_CLI_ROOT . '/php/class-wp-cli-command.php';
+$wpCliIncludes = [
+    'php/utils.php' => 'WP_CLI\Utils\load_dependencies',
+    'php/dispatcher.php' => 'WP_CLI\Dispatcher\CommandFactory',
+    'php/class-wp-cli.php' => 'WP_CLI',
+    'php/class-wp-cli-command.php' => 'WP_CLI_Command'
+];
+
+foreach ($wpCliIncludes as $wpCliInclude => $provided) {
+    if (function_exists($provided) === false && class_exists($provided) === false) {
+        include WP_CLI_ROOT . '/' . $wpCliInclude;
+    }
+}
 
 load_dependencies();

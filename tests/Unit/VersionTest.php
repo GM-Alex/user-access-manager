@@ -63,19 +63,14 @@ class VersionTest extends UserAccessManagerTestCase
     /**
      * @group unit
      */
-    public function testTheVersionIsNotRepeatedInThePackageDefinitions()
+    public function testTheVersionIsNotRepeatedInThePackageDefinition()
     {
-        foreach (['composer.json', 'package.json', 'package-lock.json'] as $packageDefinition) {
-            $content = json_decode(
-                (string) file_get_contents($this->getPluginRoot() . '/' . $packageDefinition),
-                true
-            );
+        $content = json_decode((string) file_get_contents($this->getPluginRoot() . '/composer.json'), true);
 
-            self::assertArrayNotHasKey(
-                'version',
-                $content,
-                "$packageDefinition must not repeat the version, it belongs into the plugin header."
-            );
-        }
+        self::assertArrayNotHasKey(
+            'version',
+            $content,
+            'composer.json must not repeat the version, it belongs into the plugin header.'
+        );
     }
 }

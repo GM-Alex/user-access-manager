@@ -50,7 +50,7 @@ if [[ ${VERSION} != ${CURRENT_TAG} ]]; then
 fi
 
 if [[ ${VERSION} != ${STABLE_VERSION} ]]; then
-    echo "Stable tag ${STABLE_VERSION} must match plugin version ${VERSION}. Run grunt to take it over."
+    echo "Stable tag ${STABLE_VERSION} must match plugin version ${VERSION}. Run scripts/version.sh."
     exit 1
 fi
 
