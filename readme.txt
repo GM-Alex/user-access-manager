@@ -71,6 +71,7 @@ Here you found the changes in each version.
                             Fix the never executed database update of the user group table id column
                             Fix a fatal error on rest requests for hidden objects. Thanks to Erwan Le Rousseau (WPScan)
                             Do not derive the admin panel context from the referer header anymore
+                            Fix an unauthenticated arbitrary file read through path traversal in the file delivery
 
     2.3.15      2026/07/22  Fix REST API bypass for clients without an admin referer, like the official WordPress app
                             Deny REST write requests to objects the user has no access to

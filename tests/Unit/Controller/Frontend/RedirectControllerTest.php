@@ -202,48 +202,27 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         self::assertEquals(1, $frontendRedirectController->getPostIdByUrl('url/part'));
     }
 
+    private const UPLOAD_DIRS = [
+        'basedir' => ABSPATH . 'baseDirectory/file/pictures',
+        'baseurl' => 'http://baseUrl/file/pictures'
+    ];
+    private const ATTACHMENT_FILE = ABSPATH . 'baseDirectory/file/pictures/foo/picture.png';
+
     /**
      * @group  unit
      * @covers ::getFile()
      * @covers ::getFileSettingsByType()
      * @throws UserGroupTypeException
      */
-    public function testGetFile()
+    public function testGetFileWithCustomType()
     {
         $wordpress = $this->getWordpress();
 
-        $wordpress->expects($this->exactly(7))
-            ->method('getUploadDir')
-            ->will($this->returnValue([
-                'basedir' => ABSPATH . 'baseDirectory/file/pictures/',
-                'baseurl' => 'http://baseUrl/file/pictures/'
-            ]));
-
-        $wordpress->expects($this->exactly(5))
-            ->method('attachmentIsImage')
-            ->will($this->onConsecutiveCalls(false, true, false, true, true));
-
-        $wordpress->expects($this->once())
-            ->method('wpDie')
-            ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
-
         $fileObject = $this->createMock(FileObject::class);
-
-        $fileObject->expects($this->any())
-            ->method('getId')
-            ->will($this->returnValue('1'));
-
-        $fileObject->expects($this->any())
-            ->method('getType')
-            ->will($this->returnValue('type'));
-
-        $fileObject->expects($this->any())
-            ->method('getFile')
-            ->will($this->returnValue('file'));
-
-        $fileObject->expects($this->any())
-            ->method('isImage')
-            ->will($this->returnValue(false));
+        $fileObject->method('getId')->will($this->returnValue('1'));
+        $fileObject->method('getType')->will($this->returnValue('type'));
+        $fileObject->method('getFile')->will($this->returnValue('file'));
+        $fileObject->method('isImage')->will($this->returnValue(false));
 
         $wordpress->expects($this->exactly(2))
             ->method('applyFilters')
@@ -253,106 +232,80 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(null, $fileObject));
 
-        $wordpressConfig = $this->getWordpressConfig();
-
-        $wordpressConfig->expects($this->exactly(2))
-            ->method('getRealPath')
-            ->will($this->returnValue('realPath/'));
-
-        $mainConfig = $this->getMainConfig();
-
-        $mainConfig->expects($this->exactly(3))
-            ->method('getNoAccessImageType')
-            ->will($this->onConsecutiveCalls('default', 'custom', 'default'));
-
-        $mainConfig->expects($this->once())
-            ->method('getCustomNoAccessImage')
-            ->will($this->returnValue('customImage.jpg'));
-
-        $cache = $this->getCache();
-
-        $cache->expects($this->exactly(7))
-            ->method('getFromRuntimeCache')
-            ->with(RedirectController::POST_URL_CACHE_KEY)
-            ->will($this->returnValue(['http://baseUrl/file/pictures/foo/url' => 1]));
-
-        $objectHandler = $this->getObjectHandler();
-
-        $objectHandler->expects($this->exactly(7))
-            ->method('getPost')
-            ->withConsecutive([1], [1], [1], [1], [1], [1], [1])
-            ->will($this->onConsecutiveCalls(
-                false,
-                $this->getPost(1),
-                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
-                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
-                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
-                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE),
-                $this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE)
-            ));
-
         $accessHandler = $this->getAccessHandler();
-
-        $accessHandler->expects($this->exactly(6))
+        $accessHandler->expects($this->once())
             ->method('checkObjectAccess')
-            ->withConsecutive(
-                ['type', 1],
-                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
-                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
-                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
-                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1],
-                [ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1]
-            )
-            ->will($this->onConsecutiveCalls(true, false, false, true, false, false));
+            ->with('type', 1)
+            ->will($this->returnValue(true));
 
         $fileHandler = $this->getFileHandler();
-
-        $fileHandler->expects($this->exactly(5))
+        $fileHandler->expects($this->once())
             ->method('getFile')
-            ->withConsecutive(
-                ['file', false],
-                ['realPath/assets/gfx/noAccessPic.png', true],
-                [ABSPATH . 'baseDirectory/file/pictures/foo/url', false],
-                ['customImage.jpg', true],
-                ['realPath/assets/gfx/noAccessPic.png', true]
-            );
+            ->with('file', false);
+
+        $frontendRedirectController = new RedirectController(
+            $this->getPhp(),
+            $wordpress,
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $this->getCache(),
+            $this->getObjectHandler(),
+            $accessHandler,
+            $fileHandler,
+            $this->getFileObjectFactory()
+        );
+
+        $frontendRedirectController->getFile('customType', 'url');
+        $_GET['uamextra'] = 'extra';
+        $frontendRedirectController->getFile('customType', 'url');
+    }
+
+    /**
+     * Prepares the collaborators so that an attachment url resolves to attachment 1 and its stored file.
+     */
+    private function getAttachmentRedirectController(
+        MockObject $accessHandler,
+        MockObject $fileHandler,
+        MockObject $mainConfig,
+        bool $isImage
+    ): RedirectController {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getUploadDir')->will($this->returnValue(self::UPLOAD_DIRS));
+        $wordpress->method('attachmentUrlToPostId')
+            ->with('http://baseUrl/file/pictures/foo/picture.png')
+            ->will($this->returnValue(1));
+        $wordpress->method('getAttachedFile')->with(1)->will($this->returnValue(self::ATTACHMENT_FILE));
+        $wordpress->method('attachmentIsImage')->with(1)->will($this->returnValue($isImage));
+
+        $php = $this->getPhp();
+        $php->method('realpath')->will($this->returnCallback(fn (string $path) => $path));
+
+        $wordpressConfig = $this->getWordpressConfig();
+        $wordpressConfig->method('getRealPath')->will($this->returnValue('realPath/'));
+
+        $cache = $this->getCache();
+        $cache->method('getFromRuntimeCache')->will($this->returnValue(null));
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('getPost')->with(1)
+            ->will($this->returnValue($this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE)));
 
         $fileObjectFactory = $this->getFileObjectFactory();
-
-        $fileObjectFactory->expects($this->exactly(5))
-            ->method('createFileObject')
-            ->withConsecutive(
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', false],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', true],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', false],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', true],
-                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'baseDirectory/file/pictures/foo/url', true]
-            )
+        $fileObjectFactory->method('createFileObject')
             ->will($this->returnCallback(function ($id, $type, $file, $isImage) {
                 $fileObject = $this->createMock(FileObject::class);
-
-                $fileObject->expects($this->any())
-                    ->method('getId')
-                    ->will($this->returnValue($id));
-
-                $fileObject->expects($this->any())
-                    ->method('getType')
-                    ->will($this->returnValue($type));
-
-                $fileObject->expects($this->any())
-                    ->method('getFile')
-                    ->will($this->returnValue($file));
-
-                $fileObject->expects($this->any())
-                    ->method('isImage')
-                    ->will($this->returnValue($isImage));
+                $fileObject->method('getId')->will($this->returnValue($id));
+                $fileObject->method('getType')->will($this->returnValue($type));
+                $fileObject->method('getFile')->will($this->returnValue($file));
+                $fileObject->method('isImage')->will($this->returnValue($isImage));
 
                 return $fileObject;
             }));
 
-
-        $frontendRedirectController = new RedirectController(
-            $this->getPhp(),
+        return new RedirectController(
+            $php,
             $wordpress,
             $wordpressConfig,
             $mainConfig,
@@ -364,17 +317,260 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             $fileHandler,
             $fileObjectFactory
         );
+    }
 
-        $frontendRedirectController->getFile('customType', 'url');
-        $_GET['uamextra'] = 'extra';
-        $frontendRedirectController->getFile('customType', 'url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
-        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/url');
+    /**
+     * The delivered path comes from the resolved attachment, not from the request.
+     *
+     * @group  unit
+     * @covers ::getFile()
+     * @covers ::getFileSettingsByType()
+     * @covers ::getAttachmentFileObject()
+     * @covers ::isInsideUploadDirectory()
+     * @throws UserGroupTypeException
+     */
+    public function testGetFileDeliversTheAttachmentsOwnFile()
+    {
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->once())
+            ->method('checkObjectAccess')
+            ->with(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1)
+            ->will($this->returnValue(true));
+
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->once())
+            ->method('getFile')
+            ->with(self::ATTACHMENT_FILE, true);
+
+        $controller = $this->getAttachmentRedirectController(
+            $accessHandler,
+            $fileHandler,
+            $this->getMainConfig(),
+            true
+        );
+        $controller->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/picture.png');
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getFile()
+     * @covers ::getAttachmentFileObject()
+     * @throws UserGroupTypeException
+     */
+    public function testGetFileFallsBackToTheNoAccessImage()
+    {
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->exactly(2))
+            ->method('checkObjectAccess')
+            ->with(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1)
+            ->will($this->returnValue(false));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('getNoAccessImageType')->will($this->onConsecutiveCalls('default', 'custom'));
+        $mainConfig->method('getCustomNoAccessImage')->will($this->returnValue('customImage.jpg'));
+
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->exactly(2))
+            ->method('getFile')
+            ->withConsecutive(
+                ['realPath/assets/gfx/noAccessPic.png', true],
+                ['customImage.jpg', true]
+            );
+
+        $controller = $this->getAttachmentRedirectController($accessHandler, $fileHandler, $mainConfig, true);
+        $controller->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/picture.png');
+        $controller->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/picture.png');
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getFile()
+     * @throws UserGroupTypeException
+     */
+    public function testGetFileRefusesANonImageWithoutAccess()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getUploadDir')->will($this->returnValue(self::UPLOAD_DIRS));
+        $wordpress->method('attachmentUrlToPostId')->will($this->returnValue(1));
+        $wordpress->method('getAttachedFile')->with(1)->will($this->returnValue(self::ATTACHMENT_FILE));
+        $wordpress->method('attachmentIsImage')->with(1)->will($this->returnValue(false));
+        $wordpress->expects($this->once())
+            ->method('wpDie')
+            ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
+
+        $php = $this->getPhp();
+        $php->method('realpath')->will($this->returnCallback(fn (string $path) => $path));
+
+        $cache = $this->getCache();
+        $cache->method('getFromRuntimeCache')->will($this->returnValue(null));
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('getPost')->with(1)
+            ->will($this->returnValue($this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE)));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->method('checkObjectAccess')->will($this->returnValue(false));
+
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->never())->method('getFile');
+
+        $fileObjectFactory = $this->getFileObjectFactory();
+        $fileObjectFactory->method('createFileObject')
+            ->will($this->returnCallback(function ($id, $type, $file, $isImage) {
+                $fileObject = $this->createMock(FileObject::class);
+                $fileObject->method('getId')->will($this->returnValue($id));
+                $fileObject->method('getType')->will($this->returnValue($type));
+                $fileObject->method('getFile')->will($this->returnValue($file));
+                $fileObject->method('isImage')->will($this->returnValue($isImage));
+
+                return $fileObject;
+            }));
+
+        $frontendRedirectController = new RedirectController(
+            $php,
+            $wordpress,
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $cache,
+            $objectHandler,
+            $accessHandler,
+            $fileHandler,
+            $fileObjectFactory
+        );
+
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/picture.png');
+    }
+
+    private const UPLOAD_BASE_DIR = ABSPATH . 'baseDirectory/file/pictures';
+
+    /**
+     * @return array<string, array{int, string, string|false, string|false}>
+     */
+    public function attachmentRejectionProvider(): array
+    {
+        return [
+            'unresolvable url falls back to no attachment' => [0, 'post', self::ATTACHMENT_FILE, self::ATTACHMENT_FILE],
+            'resolved post is not an attachment' => [1, 'post', self::ATTACHMENT_FILE, self::ATTACHMENT_FILE],
+            'attachment has no stored file' => [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, false, false],
+            'stored file does not resolve' =>
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, self::ATTACHMENT_FILE, false],
+            'stored file is outside the uploads directory' =>
+                [1, ObjectHandler::ATTACHMENT_OBJECT_TYPE, ABSPATH . 'wp-config.php', ABSPATH . 'wp-config.php'],
+            'stored file only shares the uploads prefix' =>
+                [
+                    1,
+                    ObjectHandler::ATTACHMENT_OBJECT_TYPE,
+                    self::UPLOAD_BASE_DIR . '-evil/x.png',
+                    self::UPLOAD_BASE_DIR . '-evil/x.png'
+                ]
+        ];
+    }
+
+    /**
+     * No attachment object, no unresolved, escaping or prefix-sharing path may reach the file handler.
+     *
+     * @group        unit
+     * @dataProvider attachmentRejectionProvider
+     * @covers ::getFile()
+     * @covers ::getAttachmentFileObject()
+     * @covers ::isInsideUploadDirectory()
+     * @throws UserGroupTypeException
+     */
+    public function testGetFileRejectsInvalidAttachments(int $postId, string $postType, $attachedFile, $realFile)
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getUploadDir')->will($this->returnValue(self::UPLOAD_DIRS));
+        $wordpress->method('attachmentUrlToPostId')->will($this->returnValue($postId));
+        $wordpress->method('getAttachedFile')->will($this->returnValue($attachedFile));
+
+        $php = $this->getPhp();
+        $php->method('realpath')->will($this->returnCallback(function (string $path) use ($attachedFile, $realFile) {
+            return $path === $attachedFile ? $realFile : $path;
+        }));
+
+        $cache = $this->getCache();
+        $cache->method('getFromRuntimeCache')->will($this->returnValue(null));
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('getPost')
+            ->will($this->returnValue($this->getPost(max($postId, 1), $postType)));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->never())->method('checkObjectAccess');
+
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->never())->method('getFile');
+
+        $frontendRedirectController = new RedirectController(
+            $php,
+            $wordpress,
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $cache,
+            $objectHandler,
+            $accessHandler,
+            $fileHandler,
+            $this->getFileObjectFactory()
+        );
+
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/x.png');
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getFile()
+     * @covers ::getAttachmentFileObject()
+     * @covers ::isInsideUploadDirectory()
+     * @throws UserGroupTypeException
+     */
+    public function testGetFileRejectsWhenTheUploadDirectoryDoesNotResolve()
+    {
+        // An absolute file path so a missing base directory can not degrade the containment check into a
+        // plain "starts with a slash" test.
+        $attachedFile = DIRECTORY_SEPARATOR . 'real' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'x.png';
+
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getUploadDir')->will($this->returnValue(self::UPLOAD_DIRS));
+        $wordpress->method('attachmentUrlToPostId')->will($this->returnValue(1));
+        $wordpress->method('getAttachedFile')->will($this->returnValue($attachedFile));
+
+        $php = $this->getPhp();
+        $php->method('realpath')->will($this->returnCallback(function (string $path) {
+            return $path === self::UPLOAD_DIRS['basedir'] ? false : $path;
+        }));
+
+        $cache = $this->getCache();
+        $cache->method('getFromRuntimeCache')->will($this->returnValue(null));
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('getPost')
+            ->will($this->returnValue($this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE)));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->never())->method('checkObjectAccess');
+
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->never())->method('getFile');
+
+        $frontendRedirectController = new RedirectController(
+            $php,
+            $wordpress,
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $cache,
+            $objectHandler,
+            $accessHandler,
+            $fileHandler,
+            $this->getFileObjectFactory()
+        );
+
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/x.png');
     }
 
     /**

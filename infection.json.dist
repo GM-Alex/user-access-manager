@@ -106,7 +106,7 @@
     },
     "UnwrapStrReplace": {
       "ignore": [
-        "UserAccessManager\\Controller\\Frontend\\RedirectController::getFileSettingsByType"
+        "UserAccessManager\\Controller\\Frontend\\RedirectController::normalizeAttachmentUrl"
       ]
     }
   },
