@@ -45,7 +45,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         self::assertInstanceOf(UserGroup::class, $userGroup);
@@ -67,7 +67,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getAssignmentInformationFactory(),
+            $this->getAssignedObjectsLoader(),
             1
         );
 
@@ -77,6 +77,7 @@ class UserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::load()
+     * @covers ::assignDatabaseValues()
      * @return UserGroup
      * @throws UserGroupTypeException
      */
@@ -113,6 +114,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->returnValue('queryString'));
 
         $dbUserGroup = new stdClass();
+        $dbUserGroup->ID = 2;
         $dbUserGroup->groupname = 'groupName';
         $dbUserGroup->groupdesc = 'groupDesc';
         $dbUserGroup->read_access = 'readAccess';
@@ -131,7 +133,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         self::assertFalse($userGroup->load(1));
@@ -250,7 +252,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         $userGroup->setName('groupName');
@@ -311,7 +313,7 @@ class UserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler,
-            $this->getAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         self::assertFalse($userGroup->delete());

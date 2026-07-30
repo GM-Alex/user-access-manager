@@ -26,6 +26,7 @@ use UserAccessManager\Setup\Database\DatabaseHandler;
 use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\UserAccessManager;
+use UserAccessManager\UserGroup\AssignedObjectsLoader;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroupAssignmentHandler;
 use UserAccessManager\UserGroup\UserGroupFactory;
@@ -64,7 +65,7 @@ function initUserAccessManger()
     $fileObjectFactory = new FileObjectFactory();
     $formFactory = new FormFactory();
     $formHelper = new FormHelper($php, $wordpress, $mainConfig, $formFactory);
-
+    $assignedObjectsLoader = new AssignedObjectsLoader($wordpress, $database, $assignmentInformationFactory);
     $userGroupFactory = new UserGroupFactory(
         $php,
         $wordpress,
@@ -72,7 +73,7 @@ function initUserAccessManger()
         $mainConfig,
         $util,
         $objectHandler,
-        $assignmentInformationFactory
+        $assignedObjectsLoader
     );
     $userHandler = new UserHandler(
         $wordpress,

@@ -15,6 +15,7 @@
 
 namespace UserAccessManager\Tests\Unit\UserGroup;
 
+use stdClass;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
@@ -43,7 +44,7 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         self::assertInstanceOf(UserGroupFactory::class, $userGroupFactory);
@@ -61,6 +62,34 @@ class UserGroupFactoryTest extends UserAccessManagerTestCase
     public function testCreateUserGroup(UserGroupFactory $userGroupFactory)
     {
         self::assertInstanceOf(UserGroup::class, $userGroupFactory->createUserGroup());
+    }
+
+    /**
+     * @group   unit
+     * @depends testCanCreateInstance
+     * @covers  ::createUserGroupFromDatabaseRow()
+     * @param UserGroupFactory $userGroupFactory
+     * @throws UserGroupTypeException
+     */
+    public function testCreateUserGroupFromDatabaseRow(UserGroupFactory $userGroupFactory)
+    {
+        $databaseUserGroup = new stdClass();
+        $databaseUserGroup->ID = 3;
+        $databaseUserGroup->groupname = 'groupName';
+        $databaseUserGroup->groupdesc = 'groupDesc';
+        $databaseUserGroup->read_access = 'readAccess';
+        $databaseUserGroup->write_access = 'writeAccess';
+        $databaseUserGroup->ip_range = 'ipRange';
+
+        $userGroup = $userGroupFactory->createUserGroupFromDatabaseRow($databaseUserGroup);
+
+        self::assertInstanceOf(UserGroup::class, $userGroup);
+        self::assertEquals(3, $userGroup->getId());
+        self::assertEquals('groupName', $userGroup->getName());
+        self::assertEquals('groupDesc', $userGroup->getDescription());
+        self::assertEquals('readAccess', $userGroup->getReadAccess());
+        self::assertEquals('writeAccess', $userGroup->getWriteAccess());
+        self::assertEquals('ipRange', $userGroup->getIpRange());
     }
 
     /**

@@ -31,7 +31,7 @@ use UserAccessManager\ObjectMembership\UserMembershipHandler;
 use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AbstractUserGroup;
-use UserAccessManager\UserGroup\AssignmentInformationFactory;
+use UserAccessManager\UserGroup\AssignedObjectsLoader;
 use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
@@ -52,7 +52,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @param MainConfig $config
      * @param Util $util
      * @param ObjectHandler $objectHandler
-     * @param AssignmentInformationFactory $assignmentInformationFactory
+     * @param AssignedObjectsLoader $assignedObjectsLoader
      * @param string|null $id
      * @return MockObject|AbstractUserGroup
      * @throws ReflectionException
@@ -64,7 +64,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
-        AssignmentInformationFactory $assignmentInformationFactory,
+        AssignedObjectsLoader $assignedObjectsLoader,
         ?string $id = null
     ): MockObject|AbstractUserGroup
     {
@@ -81,7 +81,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         self::setValue($stub, 'config', $config);
         self::setValue($stub, 'util', $util);
         self::setValue($stub, 'objectHandler', $objectHandler);
-        self::setValue($stub, 'assignmentInformationFactory', $assignmentInformationFactory);
+        self::setValue($stub, 'assignedObjectsLoader', $assignedObjectsLoader);
         self::setValue($stub, 'id', $id);
 
         return $stub;
@@ -102,7 +102,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         self::setValue($abstractUserGroup, 'type', 'type');
@@ -113,7 +113,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         self::assertInstanceOf(AbstractUserGroup::class, $abstractUserGroup);
@@ -135,7 +135,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 $this->getMainConfig(),
                 $this->getUtil(),
                 $this->getObjectHandler(),
-                $this->getExtendedAssignmentInformationFactory()
+                $this->getAssignedObjectsLoader()
             ]
         );
     }
@@ -163,7 +163,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory(),
+            $this->getAssignedObjectsLoader(),
             2
         );
 
@@ -197,6 +197,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::addObject()
      * @covers ::resetObjects()
+     * @covers ::resetObjectsAfterAssignmentChange()
      * @covers ::addDefaultType()
      * @throws Exception
      */
@@ -332,6 +333,12 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             )
             ->will($this->onConsecutiveCalls(false, true, true, true, true, true, true));
 
+        $assignedObjectsLoader = $this->getAssignedObjectsLoader();
+
+        // Every successful assignment must invalidate the objects loaded for all user groups.
+        $assignedObjectsLoader->expects($this->exactly(5))
+            ->method('flush');
+
         $abstractUserGroup = $this->getStub(
             $this->getPhp(),
             $this->getWordpress(),
@@ -339,7 +346,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler,
-            $this->getExtendedAssignmentInformationFactory()
+            $assignedObjectsLoader
         );
 
         self::setValue($abstractUserGroup, 'id', 123);
@@ -367,6 +374,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      * @covers ::delete()
      * @covers ::removeObject()
      * @covers ::resetObjects()
+     * @covers ::resetObjectsAfterAssignmentChange()
      * @covers ::removeDefaultType()
      * @throws Exception
      */
@@ -471,6 +479,12 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                 return ($type === 'objectType' || $type === 'defaultObjectType');
             }));
 
+        $assignedObjectsLoader = $this->getAssignedObjectsLoader();
+
+        // Every successful removal must invalidate the objects loaded for all user groups.
+        $assignedObjectsLoader->expects($this->exactly(4))
+            ->method('flush');
+
         $abstractUserGroup = $this->getStub(
             $this->getPhp(),
             $this->getWordpress(),
@@ -478,7 +492,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $objectHandler,
-            $this->getExtendedAssignmentInformationFactory(),
+            $assignedObjectsLoader,
             123
         );
 
@@ -523,7 +537,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         self::setValue($abstractUserGroup, 'assignedObjects', ['someValue']);
@@ -569,94 +583,46 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
      */
     public function testAssignedObject()
     {
-        $wordpress = $this->getWordpress();
+        $assignedObjects = [
+            1 => $this->getAssignmentInformation('objectType'),
+            2 => $this->getAssignmentInformation('objectType'),
+            3 => $this->getAssignmentInformation('objectType')
+        ];
 
-        $wordpress->expects($this->exactly(3))
-            ->method('currentTime')
-            ->with('mysql')
-            ->will($this->returnValue('time'));
+        $assignedObjectsLoader = $this->getAssignedObjectsLoader();
 
-        $database = $this->getDatabase();
-
-        $database->expects($this->exactly(4))
-            ->method('getUserGroupToObjectTable')
-            ->will($this->returnValue('userGroupToObjectTable'));
-
-        $queryWithoutDates = 'SELECT object_id AS id,
-              object_type AS objectType,
-              from_date AS fromDate,
-              to_date AS toDate
-            FROM userGroupToObjectTable
-            WHERE group_id = \'%s\'
-              AND group_type = \'%s\'
-              AND object_id != \'\'
-              AND (general_object_type = \'%s\' OR object_type = \'%s\')';
-
-        $query = $queryWithoutDates . ' AND (from_date IS NULL OR from_date <= \'%s\')
-              AND (to_date IS NULL OR to_date >= \'%s\')';
-
-        $database->expects($this->exactly(4))
-            ->method('prepare')
+        $assignedObjectsLoader->expects($this->exactly(4))
+            ->method('getAssignedObjects')
             ->withConsecutive(
-                [
-                    new MatchIgnoreWhitespace($query),
-                    [123, null, 'noResultObjectType', 'noResultObjectType', 'time', 'time']
-                ],
-                [new MatchIgnoreWhitespace($query), [123, null, 'objectType', 'objectType', 'time', 'time']],
-                [new MatchIgnoreWhitespace($query), [123, null, 'something', 'something', 'time', 'time']],
-                [new MatchIgnoreWhitespace($queryWithoutDates), [123, null, 'objectType', 'objectType']]
+                ['type', 123, 'noResultObjectType', false],
+                ['type', 123, 'objectType', false],
+                ['type', 123, 'something', false],
+                ['type', 123, 'objectType', true]
             )
-            ->will($this->onConsecutiveCalls(
-                'nonResultPreparedQuery',
-                'preparedQuery',
-                'nonResultSomethingPreparedQuery',
-                'nonResultPreparedQuery'
-            ));
-
-        $database->expects($this->exactly(4))
-            ->method('getResults')
-            ->withConsecutive(
-                ['nonResultPreparedQuery'],
-                ['preparedQuery'],
-                ['nonResultSomethingPreparedQuery'],
-                ['nonResultPreparedQuery']
-            )
-            ->will($this->onConsecutiveCalls(null, $this->generateReturn(3, 'objectType'), null));
+            ->will($this->onConsecutiveCalls([], $assignedObjects, [], []));
 
         $abstractUserGroup = $this->getStub(
             $this->getPhp(),
-            $wordpress,
-            $database,
+            $this->getWordpress(),
+            $this->getDatabase(),
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory()
+            $assignedObjectsLoader
         );
 
         self::setValue($abstractUserGroup, 'id', 123);
+        self::setValue($abstractUserGroup, 'type', 'type');
 
         $result = self::callMethod($abstractUserGroup, 'getAssignedObjects', ['noResultObjectType']);
         self::assertEquals([], $result);
 
         $result = self::callMethod($abstractUserGroup, 'getAssignedObjects', ['objectType']);
-        self::assertEquals(
-            [
-                1 => $this->getAssignmentInformation('objectType'),
-                2 => $this->getAssignmentInformation('objectType'),
-                3 => $this->getAssignmentInformation('objectType')
-            ],
-            $result
-        );
+        self::assertEquals($assignedObjects, $result);
 
+        // The already loaded objects must not be requested from the loader again.
         $result = self::callMethod($abstractUserGroup, 'getAssignedObjects', ['objectType']);
-        self::assertEquals(
-            [
-                1 => $this->getAssignmentInformation('objectType'),
-                2 => $this->getAssignmentInformation('objectType'),
-                3 => $this->getAssignmentInformation('objectType')
-            ],
-            $result
-        );
+        self::assertEquals($assignedObjects, $result);
 
         $result = self::callMethod($abstractUserGroup, 'isObjectAssignedToGroup', ['objectType', 1]);
         self::assertTrue($result);
@@ -722,7 +688,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $this->getMainConfig(),
             $this->getUtil(),
             $this->getObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         self::setValue($abstractUserGroup, 'id', 'groupId');
@@ -932,7 +898,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $config,
             $this->getUtil(),
             $this->getMembershipObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         $this->memberFunctionAssertions($userGroup, 'isRoleMember', 'role', 1, true, 'role', 'fromDate', 'toDate');
@@ -1018,7 +984,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             $config,
             $this->getUtil(),
             $this->getMembershipObjectHandler(),
-            $this->getExtendedAssignmentInformationFactory()
+            $this->getAssignedObjectsLoader()
         );
 
         $objectTypes = [

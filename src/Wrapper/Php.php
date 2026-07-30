@@ -130,6 +130,14 @@ class Php
     }
 
     /**
+     * @see realpath()
+     */
+    public function realpath(string $path): string|false
+    {
+        return realpath($path);
+    }
+
+    /**
      * @see igbinary_serialize()
      */
     public function igbinarySerialize(mixed $value): ?string

@@ -38,7 +38,7 @@ abstract class AbstractUserGroup
         protected MainConfig $config,
         protected Util $util,
         protected ObjectHandler $objectHandler,
-        protected AssignmentInformationFactory $assignmentInformationFactory,
+        protected AssignedObjectsLoader $assignedObjectsLoader,
         protected int|string|null $id = null
     ) {
         if ($this->type === null) {
@@ -117,6 +117,12 @@ abstract class AbstractUserGroup
         $this->fullObjectMembership = [];
     }
 
+    private function resetObjectsAfterAssignmentChange(): void
+    {
+        $this->assignedObjectsLoader->flush();
+        $this->resetObjects();
+    }
+
     /**
      * @throws Exception
      */
@@ -167,7 +173,7 @@ abstract class AbstractUserGroup
         );
 
         if ($return !== false) {
-            $this->resetObjects();
+            $this->resetObjectsAfterAssignmentChange();
             return true;
         }
 
@@ -213,7 +219,7 @@ abstract class AbstractUserGroup
         $success = ($this->database->query($query) !== false);
 
         if ($success === true) {
-            $this->resetObjects();
+            $this->resetObjectsAfterAssignmentChange();
         }
 
         return $success;
@@ -225,34 +231,12 @@ abstract class AbstractUserGroup
     public function getAssignedObjects(string $objectType): array
     {
         if (isset($this->assignedObjects[$objectType]) === false) {
-            $query = "SELECT object_id AS id, object_type AS objectType, from_date AS fromDate, to_date AS toDate
-                FROM {$this->database->getUserGroupToObjectTable()}
-                WHERE group_id = '%s'
-                  AND group_type = '%s'
-                  AND object_id != ''
-                  AND (general_object_type = '%s' OR object_type = '%s')";
-
-            $parameters = [
-                $this->id,
+            $this->assignedObjects[$objectType] = $this->assignedObjectsLoader->getAssignedObjects(
                 $this->type,
+                $this->id,
                 $objectType,
-                $objectType
-            ];
-
-            if ($this->ignoreDates === false) {
-                $query .= " AND (from_date IS NULL OR from_date <= '%s') AND (to_date IS NULL OR to_date >= '%s')";
-                $time = $this->wordpress->currentTime('mysql');
-                $parameters = array_merge($parameters, [$time, $time]);
-            }
-
-            $query = $this->database->prepare($query, $parameters);
-            $results = (array) $this->database->getResults($query);
-            $this->assignedObjects[$objectType] = [];
-
-            foreach ($results as $result) {
-                $this->assignedObjects[$objectType][$result->id] = $this->assignmentInformationFactory
-                    ->createAssignmentInformation($result->objectType, $result->fromDate, $result->toDate);
-            }
+                $this->ignoreDates
+            );
         }
 
         return $this->assignedObjects[$objectType];

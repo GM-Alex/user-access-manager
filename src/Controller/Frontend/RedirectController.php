@@ -74,44 +74,70 @@ class RedirectController extends Controller
         return $postUrls[$url];
     }
 
-    private function getFileSettingsByType(string $objectType, string $objectUrl): ?FileObject
+    private function normalizeAttachmentUrl(array $uploadDirs, string $objectUrl): string
     {
-        $fileObject = null;
+        $uploadDir = str_replace(ABSPATH, '/', $uploadDirs['basedir']);
+        $regex = '/.*' . str_replace('/', '\/', $uploadDir) . '\//i';
+        $cleanObjectUrl = preg_replace($regex, '', $objectUrl);
+        $uploadUrl = str_replace('/files', $uploadDir, $uploadDirs['baseurl']);
 
-        if ($objectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
-            $uploadDirs = $this->wordpress->getUploadDir();
-            $uploadDir = str_replace(ABSPATH, '/', $uploadDirs['basedir']);
-            $regex = '/.*' . str_replace('/', '\/', $uploadDir) . '\//i';
-            $cleanObjectUrl = preg_replace($regex, '', $objectUrl);
-            $uploadUrl = str_replace('/files', $uploadDir, $uploadDirs['baseurl']);
-            $objectUrl = rtrim($uploadUrl, '/') . '/' . ltrim($cleanObjectUrl, '/');
+        return rtrim($uploadUrl, '/') . '/' . ltrim($cleanObjectUrl, '/');
+    }
 
-            $post = $this->objectHandler->getPost($this->getPostIdByUrl($objectUrl));
-            $postType = $post->post_type ?? '';
+    private function getAttachmentFileObject(string $objectUrl): ?FileObject
+    {
+        $uploadDirs = $this->wordpress->getUploadDir();
+        $postId = $this->getPostIdByUrl($this->normalizeAttachmentUrl($uploadDirs, $objectUrl));
 
-            if ($postType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
-                $multiPath = str_replace('/files', $uploadDir, $uploadDirs['baseurl']);
-
-                $fileObject = $this->fileObjectFactory->createFileObject(
-                    $post->ID,
-                    $objectType,
-                    $uploadDirs['basedir'] . str_replace($multiPath, '', $objectUrl),
-                    $this->wordpress->attachmentIsImage($post->ID)
-                );
-            }
-        } else {
-            $extraParameter = $this->getRequestParameter('uamextra');
-
-            $fileObject = $this->wordpress->applyFilters(
-                'uam_get_file_settings_by_type',
-                $fileObject,
-                $objectType,
-                $objectUrl,
-                $extraParameter
-            );
+        if ($postId < 1) {
+            return null;
         }
 
-        return $fileObject;
+        $post = $this->objectHandler->getPost($postId);
+
+        if (($post->post_type ?? '') !== ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+            return null;
+        }
+
+        $file = $this->wordpress->getAttachedFile($post->ID);
+
+        if ($file === false || $this->isInsideUploadDirectory($file, $uploadDirs['basedir']) === false) {
+            return null;
+        }
+
+        return $this->fileObjectFactory->createFileObject(
+            $post->ID,
+            ObjectHandler::ATTACHMENT_OBJECT_TYPE,
+            $file,
+            $this->wordpress->attachmentIsImage($post->ID)
+        );
+    }
+
+    private function isInsideUploadDirectory(string $file, string $uploadBaseDir): bool
+    {
+        $realFile = $this->php->realpath($file);
+        $realUploadBaseDir = $this->php->realpath($uploadBaseDir);
+
+        return $realFile !== false
+            && $realUploadBaseDir !== false
+            && str_starts_with($realFile, $realUploadBaseDir . DIRECTORY_SEPARATOR);
+    }
+
+    private function getFileSettingsByType(string $objectType, string $objectUrl): ?FileObject
+    {
+        if ($objectType === ObjectHandler::ATTACHMENT_OBJECT_TYPE) {
+            return $this->getAttachmentFileObject($objectUrl);
+        }
+
+        $extraParameter = $this->getRequestParameter('uamextra');
+
+        return $this->wordpress->applyFilters(
+            'uam_get_file_settings_by_type',
+            null,
+            $objectType,
+            $objectUrl,
+            $extraParameter
+        );
     }
 
     /**

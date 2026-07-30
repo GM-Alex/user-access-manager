@@ -20,7 +20,7 @@ class UserGroupFactory
         private MainConfig $config,
         private Util $util,
         private ObjectHandler $objectHandler,
-        private AssignmentInformationFactory $assignmentInformationFactory
+        private AssignedObjectsLoader $assignedObjectsLoader
     ) {
     }
 
@@ -36,9 +36,20 @@ class UserGroupFactory
             $this->config,
             $this->util,
             $this->objectHandler,
-            $this->assignmentInformationFactory,
+            $this->assignedObjectsLoader,
             $id
         );
+    }
+
+    /**
+     * @throws UserGroupTypeException
+     */
+    public function createUserGroupFromDatabaseRow(object $databaseUserGroup): UserGroup
+    {
+        $userGroup = $this->createUserGroup();
+        $userGroup->assignDatabaseValues($databaseUserGroup);
+
+        return $userGroup;
     }
 
     /**
@@ -53,7 +64,7 @@ class UserGroupFactory
             $this->config,
             $this->util,
             $this->objectHandler,
-            $this->assignmentInformationFactory,
+            $this->assignedObjectsLoader,
             $type,
             $id
         );

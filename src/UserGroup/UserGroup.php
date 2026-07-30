@@ -29,7 +29,7 @@ class UserGroup extends AbstractUserGroup
         MainConfig $config,
         Util $util,
         ObjectHandler $objectHandler,
-        AssignmentInformationFactory $assignmentInformationFactory,
+        AssignedObjectsLoader $assignedObjectsLoader,
         int|string|null $id = null
     ) {
         parent::__construct(
@@ -39,7 +39,7 @@ class UserGroup extends AbstractUserGroup
             $config,
             $util,
             $objectHandler,
-            $assignmentInformationFactory
+            $assignedObjectsLoader
         );
 
         if ($id !== null) {
@@ -72,20 +72,25 @@ class UserGroup extends AbstractUserGroup
             $id
         );
 
-        $dbUserGroup = $this->database->getRow($query);
+        $databaseUserGroup = $this->database->getRow($query);
 
-        if ($dbUserGroup !== null) {
-            $this->id = $id;
-            $this->name = $dbUserGroup->groupname;
-            $this->description = $dbUserGroup->groupdesc;
-            $this->readAccess = $dbUserGroup->read_access;
-            $this->writeAccess = $dbUserGroup->write_access;
-            $this->ipRange = $dbUserGroup->ip_range;
+        if ($databaseUserGroup !== null) {
+            $this->assignDatabaseValues($databaseUserGroup);
 
             return true;
         }
 
         return false;
+    }
+
+    public function assignDatabaseValues(object $databaseUserGroup): void
+    {
+        $this->id = $databaseUserGroup->ID;
+        $this->name = $databaseUserGroup->groupname;
+        $this->description = $databaseUserGroup->groupdesc;
+        $this->readAccess = $databaseUserGroup->read_access;
+        $this->writeAccess = $databaseUserGroup->write_access;
+        $this->ipRange = $databaseUserGroup->ip_range;
     }
 
     public function save(): bool
