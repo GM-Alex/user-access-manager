@@ -202,9 +202,10 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         self::assertEquals(1, $frontendRedirectController->getPostIdByUrl('url/part'));
     }
 
+    // The trailing slash on the base url makes the rtrim in normalizeAttachmentUrl observable.
     private const UPLOAD_DIRS = [
         'basedir' => ABSPATH . 'baseDirectory/file/pictures',
-        'baseurl' => 'http://baseUrl/file/pictures'
+        'baseurl' => 'http://baseUrl/file/pictures/'
     ];
     private const ATTACHMENT_FILE = ABSPATH . 'baseDirectory/file/pictures/foo/picture.png';
 
@@ -326,6 +327,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      * @covers ::getFile()
      * @covers ::getFileSettingsByType()
      * @covers ::getAttachmentFileObject()
+     * @covers ::normalizeAttachmentUrl()
      * @covers ::isInsideUploadDirectory()
      * @throws UserGroupTypeException
      */
@@ -355,6 +357,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getFile()
      * @covers ::getAttachmentFileObject()
+     * @covers ::normalizeAttachmentUrl()
      * @throws UserGroupTypeException
      */
     public function testGetFileFallsBackToTheNoAccessImage()
@@ -475,6 +478,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      * @dataProvider attachmentRejectionProvider
      * @covers ::getFile()
      * @covers ::getAttachmentFileObject()
+     * @covers ::normalizeAttachmentUrl()
      * @covers ::isInsideUploadDirectory()
      * @throws UserGroupTypeException
      */
@@ -524,6 +528,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getFile()
      * @covers ::getAttachmentFileObject()
+     * @covers ::normalizeAttachmentUrl()
      * @covers ::isInsideUploadDirectory()
      * @throws UserGroupTypeException
      */
