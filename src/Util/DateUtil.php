@@ -27,16 +27,6 @@ class DateUtil
         return $this->formatDateWith($date, 'Y-m-d\TH:i:s');
     }
 
-    public function formatDateForDateInput(?string $date): ?string
-    {
-        return $this->formatDateWith($date, 'Y-m-d');
-    }
-
-    public function formatDateForTimeInput(?string $date): ?string
-    {
-        return $this->formatDateWith($date, 'H:i:s');
-    }
-
     public function getDateFromTime(?int $time): ?string
     {
         if ($time === null || $time === 0) {

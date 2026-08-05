@@ -34,5 +34,5 @@ use UserAccessManager\Form\Element\Select;
         ?>
     </select>
     <br/>
-    <p><?php echo $select->getDescription(); ?></p>
+    <p class="description"><?php echo $select->getDescription(); ?></p>
 </td>

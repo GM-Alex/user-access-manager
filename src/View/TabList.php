@@ -71,9 +71,13 @@ if (count($sections) > 1) {
                             echo $controller->getGroupSectionText($section);
 ?></option>
                         <?php
+
                     }
                     ?>
                 </select>
+                <p class="description">
+                    <?php echo $controller->getGroupText($currentGroupKey . '_SECTION_SELECTION', true); ?>
+                </p>
             </td>
         </tr>
         </tbody>

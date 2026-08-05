@@ -29,12 +29,13 @@ if (count($objectUserGroups) > 0) {
         foreach ($objectUserGroups as $userGroup) {
             ?>
             <li>
-                <a class="uam_group_info_link">
-                    <?php echo htmlentities($userGroup->getName()); ?>
-                </a>
-                <?php
-                include 'GroupInfo.php';
-                ?>
+                <span class="uam_flyout">
+                    <button type="button"
+                            class="uam_group_info_link uam_flyout_toggle button-link"
+                            aria-expanded="false"
+                            aria-haspopup="true"><?php echo htmlentities($userGroup->getName()); ?></button>
+                <?php include 'GroupInfo.php'; ?>
+                </span>
             </li>
             <?php
         }

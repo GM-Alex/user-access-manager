@@ -103,10 +103,10 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
     {
         $formHelper = $this->getFormHelper();
 
-        $formHelper->expects($this->exactly(2))
+        $formHelper->expects($this->exactly(3))
             ->method('getText')
-            ->withConsecutive(['keyOne'], ['keyTwo'])
-            ->will($this->onConsecutiveCalls('valueOne', 'valueTwo'));
+            ->withConsecutive(['keyOne', false], ['keyTwo', false], ['keyThree', true])
+            ->will($this->onConsecutiveCalls('valueOne', 'valueTwo', 'valueThree'));
 
         $userGroupController = new UserGroupController(
             $this->getPhp(),
@@ -119,6 +119,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
 
         self::assertEquals('valueOne', $userGroupController->getGroupText('keyOne'));
         self::assertEquals('valueTwo', $userGroupController->getGroupText('keyTwo'));
+        self::assertEquals('valueThree', $userGroupController->getGroupText('keyThree', true));
     }
 
     /**

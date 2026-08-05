@@ -9,7 +9,7 @@
         var cache = [];				// cache MRU list
         var cacheSize = 0;			// size of cache in chars (bytes?)
 
-        $results.addClass(options.resultsClass).appendTo('body');
+        $results.addClass(options.resultsClass).hide().appendTo('body');
         resetPosition();
 
         $(window).on('load', resetPosition) // just in case user is changing size of page while loading
@@ -28,7 +28,8 @@
             var offset = $input.offset();
             $results.css({
                 top: (offset.top + input.offsetHeight) + 'px',
-                left: offset.left + 'px'
+                left: offset.left + 'px',
+                width: $input.outerWidth() + 'px'
             });
         }
 
@@ -147,6 +148,12 @@
                 }
             }
 
+            // Every match may already be assigned, which leaves nothing to show.
+            if (html === '') {
+                $results.hide();
+                return;
+            }
+
             $results.html(html).show();
 
             $results
@@ -162,20 +169,30 @@
                 });
         }
 
+        function escapeHtml(value) {
+            return $('<div>').text(value).html();
+        }
+
+        function escapeRegExp(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
         function parseResponse(response, q) {
             var items = [];
             var results = JSON.parse(response);
+            var pattern = new RegExp(escapeRegExp(escapeHtml(q)), 'ig');
 
             // parse returned data for non-empty items
             for (var i = 0; i < results.length; i++) {
                 var result = results[i];
 
                 if (result) {
-                    var element = '<span data-dg-id="' + result.id + '" data-dg-type="' + result.type + '" >';
-                    element += result.name.replace(
-                        new RegExp(q, 'ig'),
-                        function(q) {
-                            return '<span class="' + options.matchClass + '" >' + q + '</span>';
+                    var element = '<span data-dg-id="' + escapeHtml(result.id)
+                        + '" data-dg-type="' + escapeHtml(result.type) + '" >';
+                    element += escapeHtml(result.name).replace(
+                        pattern,
+                        function(match) {
+                            return '<span class="' + options.matchClass + '" >' + match + '</span>';
                         }
                     );
                     element += '</span>';
@@ -196,14 +213,17 @@
             return (!$currentResult.length) ? false :  $currentResult;
         }
 
-        function getDatetimeInput(formName, id, type) {
+        function getDatetimeInput(formName, id, type, label) {
+            var elementId = formName + '-' + id + '-' + type;
+
             var $label = $('<label>').attr({
-                "for": formName + '-' + 'id' + '-' + type
-            }).html(type);
+                "class": 'uam_date_label',
+                "for": elementId
+            }).text(label);
 
             var $input = $('<input>').attr({
                 "type": 'datetime-local',
-                "id": formName + '-' + 'id' + '-' + type,
+                "id": elementId,
                 "name": formName + '[' + id + '][' + type + ']'
             });
 
@@ -235,23 +255,41 @@
                     "class": 'selectit'
                 }).html($currentResult.html().replace(/(<([^>]+)>)/ig, ''));
 
-                var $dateButton = $('<span>').attr({
-                    "class": 'uam_group_date'
-                }).html('Setup time based group assignment');
+                var formId = formName + '-' + id + '-date-form';
+
+                var $dateButton = $('<button>').attr({
+                    "type": 'button',
+                    "class": 'uam_group_date uam_flyout_toggle button-link',
+                    "aria-expanded": 'false',
+                    "aria-haspopup": 'true',
+                    "aria-controls": formId,
+                    "data-empty-label": $input.data('date-label') || ''
+                }).text($input.data('date-label') || '');
 
                 var $dateContainer = $('<div>').attr({
-                    "class": 'uam_group_date_form'
+                    "class": 'uam_group_date_form uam_flyout_panel',
+                    "id": formId
                 });
 
-                $dateContainer.append(getDatetimeInput(formName, id, 'fromDate'))
-                    .append(getDatetimeInput(formName, id, 'toDate'));
+                var $clearButton = $('<button>').attr({
+                    "type": 'button',
+                    "class": 'uam_clear_dates button-link button-link-delete'
+                }).text($input.data('clear-label') || '');
+
+                $dateContainer
+                    .append(getDatetimeInput(formName, id, 'fromDate', $input.data('from-label') || ''))
+                    .append(getDatetimeInput(formName, id, 'toDate', $input.data('to-label') || ''))
+                    .append($('<p>').addClass('uam_group_date_actions').append($clearButton));
+
+                var $flyout = $('<span>').addClass('uam_flyout')
+                    .append($dateButton)
+                    .append($dateContainer);
 
                 var $element = $('<li>')
                     .append($elementInput)
                     .append('\n')
                     .append($elementLabel)
-                    .append($dateButton)
-                    .append($dateContainer);
+                    .append($flyout);
 
                 $list.append($element);
 
@@ -301,9 +339,9 @@
         options.source = source;
         options.delay = options.delay || 100;
         options.listClass = options.listClass || '.uam_group_selection';
-        options.resultsClass = options.resultsClass || 'ac_results';
-        options.selectClass = options.selectClass || 'ac_over';
-        options.matchClass = options.matchClass || 'ac_match';
+        options.resultsClass = options.resultsClass || 'uam_suggest_results';
+        options.selectClass = options.selectClass || 'uam_suggest_selected';
+        options.matchClass = options.matchClass || 'uam_suggest_match';
         options.minchars = options.minchars || 2;
         options.onSelect = options.onSelect || false;
         options.maxCacheSize = options.maxCacheSize || 65536;

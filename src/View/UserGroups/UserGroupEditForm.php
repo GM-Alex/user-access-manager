@@ -24,25 +24,25 @@ $userGroup = $controller->getUserGroup();
         <tr class="form-field form-required">
             <th valign="top"><label for="userGroupName"><?php echo TXT_UAM_GROUP_NAME; ?></label></th>
             <td>
-                <input size="40" value="<?php echo htmlentities($userGroup->getName() ?? ''); ?>"
+                <input size="40" type="text" value="<?php echo htmlentities($userGroup->getName() ?? ''); ?>"
                        id="userGroupName" name="userGroupName"/><br/>
-                <?php echo TXT_UAM_GROUP_NAME_DESC; ?>
+                <p class="description"><?php echo TXT_UAM_GROUP_NAME_DESC; ?></p>
             </td>
         </tr>
         <tr class="form-field form-required">
             <th valign="top"><label for="userGroupDescription"><?php echo TXT_UAM_GROUP_DESC; ?></label>
             </th>
             <td>
-                <input size="40" value="<?php echo htmlentities($userGroup->getDescription() ?? ''); ?>"
+                <input size="40" type="text" value="<?php echo htmlentities($userGroup->getDescription() ?? ''); ?>"
                        id="userGroupDescription" name="userGroupDescription"/><br/>
-                <?php echo TXT_UAM_GROUP_DESC_DESC; ?>
+                <p class="description"><?php echo TXT_UAM_GROUP_DESC_DESC; ?></p>
             </td>
         </tr>
         <tr class="form-field form-required">
             <th valign="top"><label for="ipRange"><?php echo TXT_UAM_GROUP_IP_RANGE; ?></label></th>
-            <td><input size="40" value="<?php echo htmlentities($userGroup->getIpRange() ?? ''); ?>"
+            <td><input size="40" type="text" value="<?php echo htmlentities($userGroup->getIpRange() ?? ''); ?>"
                        id="ipRange" name="ipRange"/><br/>
-                <?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?>
+                <p class="description"><?php echo TXT_UAM_GROUP_IP_RANGE_DESC; ?></p>
             </td>
         </tr>
         <tr class="form-field form-required">
@@ -69,7 +69,7 @@ $userGroup = $controller->getUserGroup();
                         <?php echo TXT_UAM_ALL_USERS ?>
                     </option>
                 </select><br/>
-                <?php echo TXT_UAM_GROUP_READ_ACCESS_DESC; ?>
+                <p class="description"><?php echo TXT_UAM_GROUP_READ_ACCESS_DESC; ?></p>
             </td>
         </tr>
         <tr class="form-field form-required">
@@ -105,7 +105,7 @@ $userGroup = $controller->getUserGroup();
                         <?php echo TXT_UAM_ALL_USERS ?>
                     </option>
                 </select><br/>
-                <?php echo TXT_UAM_GROUP_WRITE_ACCESS_DESC; ?>
+                <p class="description"><?php echo TXT_UAM_GROUP_WRITE_ACCESS_DESC; ?></p>
             </td>
         </tr>
         <tr>
@@ -138,6 +138,7 @@ $userGroup = $controller->getUserGroup();
                     }
                     ?>
                 </ul>
+                <p class="description"><?php echo TXT_UAM_GROUP_ROLE_DESC; ?></p>
             </td>
         </tr>
         </tbody>

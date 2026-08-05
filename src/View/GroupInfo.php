@@ -23,7 +23,7 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
  */
 
 ?>
-<div class="uam_tooltip">
+<div class="uam_tooltip uam_flyout_panel">
     <ul class="uam_group_info">
         <?php
         $recursiveMembership = $controller->getRecursiveMembership($userGroup);

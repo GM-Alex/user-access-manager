@@ -20,62 +20,66 @@ use UserAccessManager\Form\Element\Textarea;
             (($rawValue === true) ? 'true' : 'false') : $rawValue;
 
         ?>
-        <label for="uam_<?php echo $radio->getId() . '_' . $formValue; ?>">
-            <input id="uam_<?php echo $radio->getId() . '_' . $formValue; ?>"
-                   type="radio"
-                   name="config_parameters[<?php echo $radio->getId(); ?>]"
-                   value="<?php echo $formValue; ?>"
-                <?php
-                if ($radio->getValue() === $possibleValue->getValue()) {
-                    echo 'checked="checked"';
-                }
-                ?>
-            />
-            <?php echo $possibleValue->getLabel(); ?>
-        </label>&nbsp;&nbsp;&nbsp;
-        <?php
-        $subElement = $possibleValue->getSubElement();
-
-        if ($subElement !== null) {
-            if ($subElement instanceof Input) {
-                ?>
-                <input id="uam_<?php echo $subElement->getId(); ?>"
-                       name="config_parameters[<?php echo $subElement->getId(); ?>]"
-                       value="<?php echo $subElement->getValue(); ?>"/>
-                <?php
-            } elseif ($subElement instanceof Textarea) {
-                ?>
-                <textarea id="uam_<?php echo $subElement->getId(); ?>"
-                          style="width:100%;min-height:120px;"
-                          name="config_parameters[<?php echo $subElement->getId(); ?>]"><?php
-                            echo htmlentities($subElement->getValue());
-                            ?></textarea>
-                <?php
-            } elseif ($subElement instanceof Select) {
-                ?>
-                <select id="uam_<?php echo $subElement->getId(); ?>"
-                        name="config_parameters[<?php echo $subElement->getId(); ?>]">
+        <div class="uam_radio_option">
+            <label for="uam_<?php echo $radio->getId() . '_' . $formValue; ?>">
+                <input id="uam_<?php echo $radio->getId() . '_' . $formValue; ?>"
+                       type="radio"
+                       name="config_parameters[<?php echo $radio->getId(); ?>]"
+                       value="<?php echo $formValue; ?>"
                     <?php
-                    $subPossibleValues = $subElement->getPossibleValues();
-
-                    foreach ($subPossibleValues as $subPossibleValue) {
-                        ?>
-                        <option value="<?php echo $subPossibleValue->getValue(); ?>" <?php
-                        if ($subElement->getValue() === $subPossibleValue->getValue()) {
-                            echo 'selected="selected"';
-                        }
-                        ?> >
-                            <?php echo $subPossibleValue->getLabel(); ?>
-                        </option>
-                        <?php
+                    if ($radio->getValue() === $possibleValue->getValue()) {
+                        echo 'checked="checked"';
                     }
                     ?>
-                </select>
-                <?php
+                />
+                <?php echo $possibleValue->getLabel(); ?>
+            </label>
+            <?php
+            $subElement = $possibleValue->getSubElement();
+
+            if ($subElement !== null) {
+                if ($subElement instanceof Input) {
+                    ?>
+                    <input id="uam_<?php echo $subElement->getId(); ?>"
+                           type="text"
+                           name="config_parameters[<?php echo $subElement->getId(); ?>]"
+                           value="<?php echo $subElement->getValue(); ?>"/>
+                    <?php
+                } elseif ($subElement instanceof Textarea) {
+                    ?>
+                    <textarea id="uam_<?php echo $subElement->getId(); ?>"
+                              class="uam_textarea"
+                              name="config_parameters[<?php echo $subElement->getId(); ?>]"><?php
+                                echo htmlentities($subElement->getValue());
+                                ?></textarea>
+                    <?php
+                } elseif ($subElement instanceof Select) {
+                    ?>
+                    <select id="uam_<?php echo $subElement->getId(); ?>"
+                            name="config_parameters[<?php echo $subElement->getId(); ?>]">
+                        <?php
+                        $subPossibleValues = $subElement->getPossibleValues();
+
+                        foreach ($subPossibleValues as $subPossibleValue) {
+                            ?>
+                            <option value="<?php echo $subPossibleValue->getValue(); ?>" <?php
+                            if ($subElement->getValue() === $subPossibleValue->getValue()) {
+                                echo 'selected="selected"';
+                            }
+                            ?> >
+                                <?php echo $subPossibleValue->getLabel(); ?>
+                            </option>
+                            <?php
+                        }
+                        ?>
+                    </select>
+                    <?php
+                }
             }
-        }
+            ?>
+        </div>
+        <?php
     }
     ?>
-    <br/>
-    <p><?php echo $radio->getDescription(); ?></p>
+    <p class="description"><?php echo $radio->getDescription(); ?></p>
 </td>

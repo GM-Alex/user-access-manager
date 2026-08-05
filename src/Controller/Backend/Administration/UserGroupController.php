@@ -56,9 +56,9 @@ class UserGroupController extends Controller
         ];
     }
 
-    public function getGroupText(string $key): string
+    public function getGroupText(string $key, bool $description = false): string
     {
-        return $this->formHelper->getText($key);
+        return $this->formHelper->getText($key, $description);
     }
 
     public function getGroupSectionText(string $key): string

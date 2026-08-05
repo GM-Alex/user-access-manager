@@ -21,7 +21,7 @@ use UserAccessManager\Controller\Backend\Administration\UserGroupController;
 
 if ($controller->hasUpdateMessage() === true) {
     ?>
-    <div class="updated">
+    <div class="notice notice-success">
         <p><strong><?php echo $controller->getUpdateMessage(); ?></strong></p>
     </div>
     <?php
@@ -39,7 +39,7 @@ if ($editUserGroup === false) {
 }
 ?>
 <div class="wrap">
-    <h2><?php echo $title; ?></h2>
+    <h1 class="wp-heading-inline"><?php echo $title; ?></h1>
     <div class="uam_sidebar">
         <?php include 'InfoBox.php'; ?>
     </div>

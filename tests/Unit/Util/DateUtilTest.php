@@ -54,32 +54,6 @@ class DateUtilTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::formatDateForDateInput()
-     * @covers ::formatDateWith()
-     */
-    public function testFormatDateForDateInput()
-    {
-        $dateUtil = new DateUtil($this->getWordpress());
-
-        self::assertEquals(null, $dateUtil->formatDateForDateInput(null));
-        self::assertEquals('1970-01-01', $dateUtil->formatDateForDateInput(0));
-    }
-
-    /**
-     * @group  unit
-     * @covers ::formatDateForTimeInput()
-     * @covers ::formatDateWith()
-     */
-    public function testFormatDateForTimeInput()
-    {
-        $dateUtil = new DateUtil($this->getWordpress());
-
-        self::assertEquals(null, $dateUtil->formatDateForTimeInput(null));
-        self::assertEquals('00:00:00', $dateUtil->formatDateForTimeInput(0));
-    }
-
-    /**
-     * @group  unit
      * @covers ::getDateFromTime()
      */
     public function testGetDateFromTime()

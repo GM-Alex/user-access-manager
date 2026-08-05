@@ -67,6 +67,10 @@ Here you found the changes in each version.
     Version     Date        Changes
 
     2.3.18      2026/08/03  Fix the missing preview images of protected documents like PDFs in the media library
+                            Rework the backend forms and the group assignment UI
+                            Fix the assignment time being discarded for users and roles added by the group search
+                            Escape the names shown in the group search results
+
     2.3.17      2026/07/31  Fix a fatal type error in the switch_to_blog wrapper during the multisite database update
     2.3.16      2026/07/27  Improve performance by loading the object assignments of all user groups with one query
                             Improve performance by loading all user groups with one query instead of one per group

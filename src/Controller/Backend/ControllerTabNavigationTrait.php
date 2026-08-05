@@ -10,7 +10,7 @@ trait ControllerTabNavigationTrait
 
     abstract public function getRequestParameter(string $name, $default = null): mixed;
 
-    abstract public function getGroupText(string $key): string;
+    abstract public function getGroupText(string $key, bool $description = false): string;
 
     abstract public function getGroupSectionText(string $key): string;
 

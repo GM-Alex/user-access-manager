@@ -1,9 +1,115 @@
 jQuery(document).ready(function ($) {
-    jQuery('.uam_group_selection').on('click', '.uam_group_date', function () {
-        var $element = jQuery(this);
-        var $next = $element.next('.uam_group_date_form');
-        $next.toggle();
-        $element.hide();
+    /**
+     * Click triggered flyouts, modelled on the popovers WordPress uses for the
+     * publish date. Only one is open at a time; escape and outside clicks close
+     * it and return focus to the trigger it belongs to.
+     */
+    var flyoutIdCounter = 0;
+    var $openToggle = null;
+
+    var getPanel = function ($toggle) {
+        return $toggle.next('.uam_flyout_panel');
+    };
+
+    var positionPanel = function ($toggle, $panel) {
+        $panel.removeClass('uam_flyout_panel_above').css('left', 0);
+
+        var rect = $panel[0].getBoundingClientRect();
+        var overflowRight = rect.right - (window.innerWidth - 8);
+
+        if (overflowRight > 0) {
+            $panel.css('left', -overflowRight + 'px');
+        }
+
+        var left = $panel[0].getBoundingClientRect().left;
+
+        if (left < 8) {
+            $panel.css('left', (parseFloat($panel.css('left')) || 0) + (8 - left) + 'px');
+        }
+
+        // Flip above the trigger when there is no room below, the way the
+        // publish date popover does.
+        var panelRect = $panel[0].getBoundingClientRect();
+        var toggleTop = $toggle[0].getBoundingClientRect().top;
+
+        if (panelRect.bottom > window.innerHeight - 8 && toggleTop > panelRect.height + 8) {
+            $panel.addClass('uam_flyout_panel_above');
+        }
+    };
+
+    var closeFlyout = function (returnFocus) {
+        if ($openToggle === null) {
+            return;
+        }
+
+        getPanel($openToggle).hide();
+        $openToggle.attr('aria-expanded', 'false');
+
+        if (returnFocus === true) {
+            $openToggle.trigger('focus');
+        }
+
+        $openToggle = null;
+    };
+
+    var openFlyout = function ($toggle) {
+        var $panel = getPanel($toggle);
+
+        if ($panel.length === 0) {
+            return;
+        }
+
+        if (!$panel.attr('id')) {
+            flyoutIdCounter++;
+            $panel.attr('id', 'uam_flyout_panel_' + flyoutIdCounter);
+        }
+
+        $toggle.attr('aria-controls', $panel.attr('id'));
+        $toggle.attr('aria-expanded', 'true');
+        $panel.show();
+        positionPanel($toggle, $panel);
+        $openToggle = $toggle;
+    };
+
+    jQuery(document).on('click', '.uam_flyout_toggle', function (event) {
+        var $toggle = jQuery(this);
+        var wasOpen = $toggle.attr('aria-expanded') === 'true';
+
+        event.preventDefault();
+        event.stopPropagation();
+        closeFlyout(false);
+
+        if (wasOpen === false) {
+            openFlyout($toggle);
+        }
+    });
+
+    // Clearing both fields removes the time restriction on save, because an
+    // empty value makes the server store no date at all.
+    jQuery(document).on('click', '.uam_clear_dates', function () {
+        var $panel = jQuery(this).closest('.uam_flyout_panel');
+        var $toggle = $panel.prev('.uam_flyout_toggle');
+        var emptyLabel = $toggle.data('empty-label');
+
+        $panel.find('input').val('');
+
+        if (emptyLabel) {
+            $toggle.text(emptyLabel);
+        }
+
+        closeFlyout(true);
+    });
+
+    jQuery(document).on('click', function (event) {
+        if ($openToggle !== null && jQuery(event.target).closest('.uam_flyout_panel').length === 0) {
+            closeFlyout(false);
+        }
+    });
+
+    jQuery(document).on('keydown', function (event) {
+        if (event.key === 'Escape' && $openToggle !== null) {
+            closeFlyout(true);
+        }
     });
 
     //Functions for the setting page

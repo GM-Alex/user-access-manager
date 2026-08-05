@@ -126,12 +126,13 @@ class SettingsControllerTest extends UserAccessManagerTestCase
     public function testGetText()
     {
         $formHelper = $this->getFormHelper();
-        $formHelper->expects($this->exactly(3))
+        $formHelper->expects($this->exactly(4))
             ->method('getText')
             ->withConsecutive(
                 ['firstKey', false],
                 ['secondKey', true],
-                ['firstKey', false]
+                ['firstKey', false],
+                ['thirdKey', true]
             )
             ->will($this->returnValue('text'));
 
@@ -149,6 +150,7 @@ class SettingsControllerTest extends UserAccessManagerTestCase
         self::assertEquals('text', $settingController->getText('firstKey'));
         self::assertEquals('text', $settingController->getText('secondKey', true));
         self::assertEquals('text', $settingController->getGroupText('firstKey'));
+        self::assertEquals('text', $settingController->getGroupText('thirdKey', true));
     }
 
     /**

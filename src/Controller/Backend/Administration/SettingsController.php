@@ -104,9 +104,9 @@ class SettingsController extends Controller
         return $this->formHelper->getText($key, $description);
     }
 
-    public function getGroupText(string $key): string
+    public function getGroupText(string $key, bool $description = false): string
     {
-        return $this->getText($key);
+        return $this->getText($key, $description);
     }
 
     public function getGroupSectionText(string $key): string

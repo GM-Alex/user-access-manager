@@ -13,10 +13,10 @@ use UserAccessManager\Form\Element\Textarea;
 </th>
 <td>
     <textarea id="uam_<?php echo $textarea->getId(); ?>"
-              style="width:100%;min-height:120px;"
+              class="uam_textarea"
               name="config_parameters[<?php echo $textarea->getId(); ?>]"><?php
                 echo $textarea->getValue();
                 ?></textarea>
     <br/>
-    <p><?php echo $textarea->getDescription(); ?></p>
+    <p class="description"><?php echo $textarea->getDescription(); ?></p>
 </td>

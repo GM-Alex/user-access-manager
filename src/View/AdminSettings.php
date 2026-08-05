@@ -27,14 +27,14 @@ use UserAccessManager\Form\Element\Textarea;
 
 if ($controller->hasUpdateMessage()) {
     ?>
-    <div class="updated">
+    <div class="notice notice-success">
         <p><strong><?php echo $controller->getUpdateMessage(); ?></strong></p>
     </div>
     <?php
 }
 ?>
 <div class="wrap">
-    <h2><?php echo TXT_UAM_SETTINGS; ?></h2>
+    <h1 class="wp-heading-inline"><?php echo TXT_UAM_SETTINGS; ?></h1>
     <div class="uam_sidebar">
         <?php include 'InfoBox.php'; ?>
     </div>

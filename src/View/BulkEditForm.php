@@ -35,14 +35,17 @@ use UserAccessManager\Controller\Backend\ObjectMembership\ObjectController;
                 </li>
                 <li>
                     <input type="radio" id="bulk_remove" value="remove" name="uam_bulk_type"/>
-                    <label for="bulk_remove" class="selectit" style="display:inline;">Remove</label>
+                    <label for="bulk_remove" class="selectit"
+                           style="display:inline;"><?php echo TXT_UAM_REMOVE; ?></label>
 
                 </li>
                 <li>
                     <input type="radio" id="bulk_overwrite" value="overwrite" name="uam_bulk_type"/>
-                    <label for="bulk_overwrite" class="selectit" style="display:inline;">Overwrite</label>
+                    <label for="bulk_overwrite" class="selectit"
+                           style="display:inline;"><?php echo TXT_UAM_OVERWRITE; ?></label>
                 </li>
             </ul>
+            <p class="description"><?php echo TXT_UAM_BULK_TYPE_DESC; ?></p>
         </td>
         <td>
             <?php

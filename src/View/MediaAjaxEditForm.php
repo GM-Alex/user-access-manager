@@ -63,8 +63,13 @@ if (count($userGroups) > 0) {
                        style="display:inline;">
                     <?php echo htmlentities($userGroup->getName()) . $addition; ?>
                 </label>
-                <a class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</a>
-                <?php include 'GroupInfo.php'; ?>
+                <span class="uam_flyout">
+                    <button type="button"
+                            class="uam_group_info_link uam_flyout_toggle button-link"
+                            aria-expanded="false"
+                            aria-haspopup="true"><?php echo TXT_UAM_INFO; ?></button>
+                    <?php include 'GroupInfo.php'; ?>
+                </span>
             </li>
             <?php
         }

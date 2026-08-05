@@ -17,4 +17,4 @@
  * @var UserAccessManager\Controller\Backend\BackendController $controller
  */
 ?>
-<div id="message" class="error"><p><strong><?php echo $controller->getNotice() ?></strong></p></div>
+<div class="notice notice-error"><p><strong><?php echo $controller->getNotice() ?></strong></p></div>
