@@ -81,7 +81,7 @@ class TermControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getVisibleElementsCount()
-     * @covers ::getAllPostForTerm()
+     * @covers ::getAllPostsForTerm()
      * @covers ::getPostObjectHideConfig()
      * @throws UserGroupTypeException
      * @throws \ReflectionException
@@ -197,7 +197,7 @@ class TermControllerTest extends UserAccessManagerTestCase
      * @covers ::showTerms()
      * @covers ::getVisibleElementsCount()
      * @covers ::isCategoryEmpty()
-     * @covers ::getAllPostForTerm()
+     * @covers ::getAllPostsForTerm()
      * @covers ::processTerm()
      * @covers ::updateTermParent()
      * @covers ::getPostObjectHideConfig()

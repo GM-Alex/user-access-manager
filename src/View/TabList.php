@@ -71,7 +71,6 @@ if (count($sections) > 1) {
                             echo $controller->getGroupSectionText($section);
 ?></option>
                         <?php
-
                     }
                     ?>
                 </select>

@@ -41,17 +41,17 @@
     },
     "UnwrapRtrim": {
       "ignore": [
-        "UserAccessManager\\Controller\\Backend\\AboutController::getAllSupporters"
+        "UserAccessManager\\Controller\\Backend\\Administration\\AboutController::getAllSupporters"
       ]
     },
     "IncrementInteger": {
       "ignore": [
-        "UserAccessManager\\Controller\\Backend\\ObjectController::sortUserGroups"
+        "UserAccessManager\\Controller\\Backend\\ObjectMembership\\ObjectController::sortUserGroups"
       ]
     },
     "DecrementInteger": {
       "ignore": [
-        "UserAccessManager\\Controller\\Backend\\ObjectController::sortUserGroups",
+        "UserAccessManager\\Controller\\Backend\\ObjectMembership\\ObjectController::sortUserGroups",
         "UserAccessManager\\User\\UserHandler::checkUserAccess"
       ]
     },
@@ -62,13 +62,12 @@
     },
     "LogicalAnd": {
       "ignore": [
-        "UserAccessManager\\User\\UserHandler::getUserRole",
-        "UserAccessManager\\UserGroup\\UserGroupAssignmentHandler::getDateParameter"
+        "UserAccessManager\\User\\UserHandler::getUserRole"
       ]
     },
     "Break_": {
       "ignore": [
-        "UserAccessManager\\Controller\\Frontend\\TermController::updateTermParent"
+        "UserAccessManager\\Controller\\Frontend\\Content\\TermController::updateTermParent"
       ]
     },
     "UnwrapArrayFilter": {
@@ -78,7 +77,7 @@
     },
     "NullSafePropertyCall": {
       "ignore": [
-        "UserAccessManager\\Controller\\Frontend\\PostController::getRestBaseToPostTypeMap"
+        "UserAccessManager\\Controller\\Frontend\\Content\\PostController::getRestBaseToPostTypeMap"
       ]
     },
     "Coalesce": {
@@ -86,12 +85,12 @@
         "UserAccessManager\\Controller\\Frontend\\RedirectController::extractObjectTypeAndId",
         "UserAccessManager\\Cache\\Cache::setActiveCacheProvider",
         "UserAccessManager\\Form\\FormHelper::getSettingsForm",
-        "UserAccessManager\\Controller\\Frontend\\PostController::getRestRouteTarget"
+        "UserAccessManager\\Controller\\Frontend\\Content\\PostController::getRestRouteTarget"
       ]
     },
     "UnwrapUcFirst": {
       "ignore": [
-        "UserAccessManager\\Controller\\Backend\\UserGroupController::getUserGroups"
+        "UserAccessManager\\Controller\\Backend\\Administration\\UserGroupController::getUserGroups"
       ]
     },
     "FunctionCallRemoval": {
