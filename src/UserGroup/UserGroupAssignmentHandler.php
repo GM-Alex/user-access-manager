@@ -20,10 +20,10 @@ class UserGroupAssignmentHandler
 
     private function getDateParameter(array $data, string $name): ?string
     {
-        $isValid = isset($data[$name]['date']) === true && isset($data[$name]['time']) === true
-            && (string) $data[$name]['date'] !== '' && (string) $data[$name]['time'] !== '';
+        $date = (string) ($data[$name]['date'] ?? '');
+        $time = (string) ($data[$name]['time'] ?? '');
 
-        return ($isValid === true) ? ((string) $data[$name]['date']) . 'T' . $data[$name]['time'] : null;
+        return ($date !== '' && $time !== '') ? $date . 'T' . $time : null;
     }
 
     /**

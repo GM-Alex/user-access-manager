@@ -5,15 +5,21 @@ declare(strict_types=1);
 namespace UserAccessManager\Form;
 
 use Exception;
+use UserAccessManager\Form\Element\Input;
+use UserAccessManager\Form\Element\MultipleFormElementValue;
+use UserAccessManager\Form\Element\Radio;
+use UserAccessManager\Form\Element\Select;
+use UserAccessManager\Form\Element\Textarea;
+use UserAccessManager\Form\Element\ValueSetFormElementValue;
 
 class FormFactory
 {
-    public function createFrom(): Form
+    public function createForm(): Form
     {
         return new Form();
     }
 
-    public function createValueSetFromElementValue(mixed $value, string $label): ValueSetFormElementValue
+    public function createValueSetFormElementValue(mixed $value, string $label): ValueSetFormElementValue
     {
         return new ValueSetFormElementValue($value, $label);
     }

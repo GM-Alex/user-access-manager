@@ -36,70 +36,90 @@ class UserGroupHandler
     }
 
     /**
-     * @return null|UserGroup[]
+     * @return UserGroup[]
      * @throws UserGroupTypeException
      */
-    public function getUserGroups(): ?array
+    public function getUserGroups(): array
     {
-        if ($this->userGroups === null) {
-            $this->userGroups = [];
-
-            $query = "SELECT * FROM {$this->database->getUserGroupTable()}";
-            $databaseUserGroups = (array) $this->database->getResults($query);
-
-            foreach ($databaseUserGroups as $databaseUserGroup) {
-                $userGroup = $this->userGroupFactory->createUserGroupFromDatabaseRow($databaseUserGroup);
-                $this->userGroups[$userGroup->getId()] = $userGroup;
-            }
-        }
-
-        return $this->userGroups;
+        return $this->userGroups ??= $this->loadUserGroups();
     }
 
     /**
-     * @return null|DynamicUserGroup[]
+     * @return UserGroup[]
      * @throws UserGroupTypeException
      */
-    public function getDynamicUserGroups(): ?array
+    private function loadUserGroups(): array
     {
-        if ($this->dynamicUserGroups === null) {
-            $this->dynamicUserGroups = [];
+        $query = "SELECT * FROM {$this->database->getUserGroupTable()}";
+        $userGroups = [];
 
-            $notLoggedInUserGroup = $this->userGroupFactory->createDynamicUserGroup(
-                DynamicUserGroup::USER_TYPE,
-                DynamicUserGroup::NOT_LOGGED_IN_USER_ID
-            );
-            $this->dynamicUserGroups[$notLoggedInUserGroup->getId()] = $notLoggedInUserGroup;
+        foreach ((array) $this->database->getResults($query) as $databaseUserGroup) {
+            $userGroup = $this->userGroupFactory->createUserGroupFromDatabaseRow($databaseUserGroup);
+            $userGroups[$userGroup->getId()] = $userGroup;
+        }
 
-            $userGroupTypes = implode('\', \'', [DynamicUserGroup::ROLE_TYPE, DynamicUserGroup::USER_TYPE]);
+        return $userGroups;
+    }
 
-            $query = "SELECT group_id AS id, group_type AS type
+    /**
+     * @return DynamicUserGroup[]
+     * @throws UserGroupTypeException
+     */
+    public function getDynamicUserGroups(): array
+    {
+        return $this->dynamicUserGroups ??= $this->loadDynamicUserGroups();
+    }
+
+    /**
+     * @return DynamicUserGroup[]
+     * @throws UserGroupTypeException
+     */
+    private function loadDynamicUserGroups(): array
+    {
+        $notLoggedInUserGroup = $this->userGroupFactory->createDynamicUserGroup(
+            DynamicUserGroup::USER_TYPE,
+            DynamicUserGroup::NOT_LOGGED_IN_USER_ID
+        );
+        $dynamicUserGroups = [$notLoggedInUserGroup->getId() => $notLoggedInUserGroup];
+
+        $userGroupTypes = implode('\', \'', [DynamicUserGroup::ROLE_TYPE, DynamicUserGroup::USER_TYPE]);
+
+        $query = "SELECT group_id AS id, group_type AS type
                 FROM {$this->database->getUserGroupToObjectTable()}
                 WHERE group_type IN ('$userGroupTypes')
                   GROUP BY group_type, group_id";
 
-            $dynamicUserGroups = (array) $this->database->getResults($query);
+        foreach ((array) $this->database->getResults($query) as $databaseUserGroup) {
+            $userGroup = $this->userGroupFactory->createDynamicUserGroup(
+                $databaseUserGroup->type,
+                $databaseUserGroup->id
+            );
 
-            foreach ($dynamicUserGroups as $dynamicUserGroup) {
-                $group = $this->userGroupFactory->createDynamicUserGroup(
-                    $dynamicUserGroup->type,
-                    $dynamicUserGroup->id
-                );
-
-                $this->dynamicUserGroups[$group->getId()] = $group;
-            }
+            $dynamicUserGroups[$userGroup->getId()] = $userGroup;
         }
 
-        return $this->dynamicUserGroups;
+        return $dynamicUserGroups;
     }
 
     /**
-     * @return null|AbstractUserGroup[]
+     * @return AbstractUserGroup[]
      * @throws UserGroupTypeException
      */
-    public function getFullUserGroups(): ?array
+    public function getFullUserGroups(): array
     {
         return $this->getUserGroups() + $this->getDynamicUserGroups();
+    }
+
+    /**
+     * Reduces the given user groups to those the current user is allowed to see.
+     *
+     * @param AbstractUserGroup[] $userGroups
+     * @return AbstractUserGroup[]
+     * @throws UserGroupTypeException
+     */
+    private function filterByUserGroupsOfUser(array $userGroups): array
+    {
+        return array_intersect_key($userGroups, $this->getUserGroupsForUser() + $this->getDynamicUserGroups());
     }
 
     /**
@@ -108,9 +128,7 @@ class UserGroupHandler
      */
     public function getFilteredUserGroups(): array
     {
-        $userGroups = $this->getFullUserGroups();
-        $userUserGroups = $this->getUserGroupsForUser() + $this->getDynamicUserGroups();
-        return array_intersect_key($userGroups, $userUserGroups);
+        return $this->filterByUserGroupsOfUser($this->getFullUserGroups());
     }
 
     /**
@@ -130,15 +148,13 @@ class UserGroupHandler
     {
         $userGroups = $this->getUserGroups();
 
-        if (isset($userGroups[$userGroupId])
-            && $userGroups[$userGroupId]->delete() === true
-        ) {
-            unset($this->userGroups[$userGroupId]);
-
-            return true;
+        if (isset($userGroups[$userGroupId]) === false || $userGroups[$userGroupId]->delete() === false) {
+            return false;
         }
 
-        return false;
+        unset($this->userGroups[$userGroupId]);
+
+        return true;
     }
 
     /**
@@ -157,9 +173,8 @@ class UserGroupHandler
 
         if (isset($this->objectUserGroups[$ignoreDates][$objectType][$objectId]) === false) {
             $objectUserGroups = [];
-            $userGroups = $this->getFullUserGroups();
 
-            foreach ($userGroups as $userGroup) {
+            foreach ($this->getFullUserGroups() as $userGroup) {
                 $userGroup->setIgnoreDates($ignoreDates);
 
                 if ($userGroup->isObjectMember($objectType, $objectId) === true) {
@@ -178,19 +193,23 @@ class UserGroupHandler
         $this->objectUserGroups = [];
     }
 
-    private function checkUserGroupAccess(UserGroup $userGroup): bool
+    private function getUserIp(): string
     {
         $extraIpHeader = $this->mainConfig->getExtraIpHeader();
-        $userIp = $extraIpHeader !== null ?
-            $_SERVER[$extraIpHeader] ?? ($_SERVER['REMOTE_ADDR'] ?? '') :
-            $_SERVER['REMOTE_ADDR'] ?? '';
 
-        return $this->userHandler->isIpInRange($userIp, $userGroup->getIpRangeArray())
+        return ($extraIpHeader !== null && isset($_SERVER[$extraIpHeader]) === true) ?
+            (string) $_SERVER[$extraIpHeader] : (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+    }
+
+    private function checkUserGroupAccess(UserGroup $userGroup): bool
+    {
+        return $this->userHandler->isIpInRange($this->getUserIp(), $userGroup->getIpRangeArray())
             || $this->wordpressConfig->atAdminPanel() === false && $userGroup->getReadAccess() === 'all'
             || $this->wordpressConfig->atAdminPanel() === true && $userGroup->getWriteAccess() === 'all';
     }
 
     /**
+     * @param AbstractUserGroup[] $userGroupsForUser
      * @throws UserGroupTypeException
      */
     private function assignDynamicUserGroupsForUser(WP_User $currentUser, array &$userGroupsForUser): void
@@ -200,50 +219,49 @@ class UserGroupHandler
             $currentUser->ID
         );
         $userGroupsForUser[$userUserGroup->getId()] = $userUserGroup;
-        $roles = $this->userHandler->getUserRole($currentUser);
 
-        foreach ($roles as $role) {
-            $group = $this->userGroupFactory->createDynamicUserGroup(
-                DynamicUserGroup::ROLE_TYPE,
-                $role
-            );
-
-            $userGroupsForUser[$group->getId()] = $group;
+        foreach ($this->userHandler->getUserRole($currentUser) as $role) {
+            $roleUserGroup = $this->userGroupFactory->createDynamicUserGroup(DynamicUserGroup::ROLE_TYPE, $role);
+            $userGroupsForUser[$roleUserGroup->getId()] = $roleUserGroup;
         }
     }
 
     /**
-     * @return AbstractUserGroup[]|null
+     * @return AbstractUserGroup[]
      * @throws UserGroupTypeException
      */
-    public function getUserGroupsForUser(): ?array
+    public function getUserGroupsForUser(): array
     {
         if ($this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true) {
             return $this->getUserGroups();
         }
 
-        if ($this->userGroupsForUser === null) {
-            $currentUser = $this->wordpress->getCurrentUser();
-            $userGroupsForUser = $this->getUserGroupsForObject(
-                ObjectHandler::GENERAL_USER_OBJECT_TYPE,
-                $currentUser->ID
-            );
+        return $this->userGroupsForUser ??= $this->loadUserGroupsForUser();
+    }
 
-            $this->assignDynamicUserGroupsForUser($currentUser, $userGroupsForUser);
-            $userGroups = $this->getUserGroups();
+    /**
+     * @return AbstractUserGroup[]
+     * @throws UserGroupTypeException
+     */
+    private function loadUserGroupsForUser(): array
+    {
+        $currentUser = $this->wordpress->getCurrentUser();
+        $userGroupsForUser = $this->getUserGroupsForObject(
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE,
+            $currentUser->ID
+        );
 
-            foreach ($userGroups as $userGroup) {
-                if (isset($userGroupsForUser[$userGroup->getId()]) === false
-                    && $this->checkUserGroupAccess($userGroup) === true
-                ) {
-                    $userGroupsForUser[$userGroup->getId()] = $userGroup;
-                }
+        $this->assignDynamicUserGroupsForUser($currentUser, $userGroupsForUser);
+
+        foreach ($this->getUserGroups() as $userGroup) {
+            if (isset($userGroupsForUser[$userGroup->getId()]) === false
+                && $this->checkUserGroupAccess($userGroup) === true
+            ) {
+                $userGroupsForUser[$userGroup->getId()] = $userGroup;
             }
-
-            $this->userGroupsForUser = $userGroupsForUser;
         }
 
-        return $this->userGroupsForUser;
+        return $userGroupsForUser;
     }
 
     /**
@@ -255,8 +273,6 @@ class UserGroupHandler
         int|string|null $objectId,
         bool $ignoreDates = false
     ): array {
-        $userGroups = $this->getUserGroupsForObject($objectType, $objectId, $ignoreDates);
-        $userUserGroups = $this->getUserGroupsForUser() + $this->getDynamicUserGroups();
-        return array_intersect_key($userGroups, $userUserGroups);
+        return $this->filterByUserGroupsOfUser($this->getUserGroupsForObject($objectType, $objectId, $ignoreDates));
     }
 }

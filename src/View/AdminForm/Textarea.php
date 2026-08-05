@@ -3,7 +3,7 @@
  * @var Textarea $textarea
  */
 
-use UserAccessManager\Form\Textarea;
+use UserAccessManager\Form\Element\Textarea;
 
 ?>
 <th scope="row">

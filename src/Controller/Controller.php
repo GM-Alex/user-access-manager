@@ -1,32 +1,13 @@
 <?php
-/**
- * Controller.php
- *
- * The Controller class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
 namespace UserAccessManager\Controller;
 
 use UserAccessManager\Config\WordpressConfig;
-use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class Controller
- *
- * @package UserAccessManager\Controller
- */
 abstract class Controller
 {
     use BaseControllerTrait {
@@ -35,6 +16,7 @@ abstract class Controller
 
     public const ACTION_PARAMETER = 'uam_action';
     public const ACTION_SUFFIX = 'Action';
+    public const UAM_ERRORS = 'UAM_ERRORS';
 
     protected ?string $updateMessage = null;
 
@@ -81,11 +63,11 @@ abstract class Controller
 
     protected function addErrorMessage(string $message): void
     {
-        if (isset($_SESSION[BackendController::UAM_ERRORS]) === false) {
-            $_SESSION[BackendController::UAM_ERRORS] = [];
+        if (isset($_SESSION[self::UAM_ERRORS]) === false) {
+            $_SESSION[self::UAM_ERRORS] = [];
         }
 
-        $_SESSION[BackendController::UAM_ERRORS][] = $message;
+        $_SESSION[self::UAM_ERRORS][] = $message;
     }
 
     public function getUpdateMessage(): ?string
@@ -98,13 +80,16 @@ abstract class Controller
         return $this->updateMessage !== null;
     }
 
+    private function toCamelCase(string $snakeCaseName): string
+    {
+        $words = explode('_', $snakeCaseName);
+        return array_shift($words).implode('', array_map('ucfirst', $words));
+    }
+
     protected function processAction(): void
     {
-        $postAction = (string) $this->getRequestParameter(self::ACTION_PARAMETER);
-        $postActionSplit = explode('_', $postAction);
-        $postAction = array_shift($postActionSplit);
-        $postAction .= implode('', array_map('ucfirst', $postActionSplit));
-        $actionMethod = $postAction.self::ACTION_SUFFIX;
+        $requestedAction = (string) $this->getRequestParameter(self::ACTION_PARAMETER);
+        $actionMethod = $this->toCamelCase($requestedAction).self::ACTION_SUFFIX;
 
         if (method_exists($this, $actionMethod) === true) {
             $this->{$actionMethod}();

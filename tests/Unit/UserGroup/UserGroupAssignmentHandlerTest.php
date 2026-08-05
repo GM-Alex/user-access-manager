@@ -85,10 +85,6 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param string $type
-     * @param string $id
-     * @param array $with
-     * @param bool $throwException
      * @return MockObject|UserGroup
      */
     private function getDynamicUserGroupWithAdd(
@@ -96,12 +92,8 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
         string $id,
         array $with,
         bool $throwException = false
-    ): UserGroup|MockObject
-    {
-        $dynamicUserGroup = parent::getDynamicUserGroup(
-            $type,
-            $id
-        );
+    ): UserGroup|MockObject {
+        $dynamicUserGroup = parent::getDynamicUserGroup($type, $id);
 
         $dynamicUserGroup->expects($this->once())
             ->method('addObject')

@@ -3,10 +3,10 @@
  * @var Radio $radio
  */
 
-use UserAccessManager\Form\Input;
-use UserAccessManager\Form\Radio;
-use UserAccessManager\Form\Select;
-use UserAccessManager\Form\Textarea;
+use UserAccessManager\Form\Element\Input;
+use UserAccessManager\Form\Element\Radio;
+use UserAccessManager\Form\Element\Select;
+use UserAccessManager\Form\Element\Textarea;
 
 ?>
 <th scope="row"><?php echo $radio->getLabel(); ?></th>

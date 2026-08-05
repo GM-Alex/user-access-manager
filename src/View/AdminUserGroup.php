@@ -17,7 +17,7 @@
  * @var UserGroupController $controller
  */
 
-use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Controller\Backend\Administration\UserGroupController;
 
 if ($controller->hasUpdateMessage() === true) {
     ?>

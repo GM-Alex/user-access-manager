@@ -7,18 +7,14 @@ namespace UserAccessManager\UserGroup;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\Util\Util;
-use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 class UserGroupFactory
 {
     public function __construct(
-        private Php $php,
         private Wordpress $wordpress,
         private Database $database,
         private MainConfig $config,
-        private Util $util,
         private ObjectHandler $objectHandler,
         private AssignedObjectsLoader $assignedObjectsLoader
     ) {
@@ -30,11 +26,9 @@ class UserGroupFactory
     public function createUserGroup(int|string|null $id = null): UserGroup
     {
         return new UserGroup(
-            $this->php,
             $this->wordpress,
             $this->database,
             $this->config,
-            $this->util,
             $this->objectHandler,
             $this->assignedObjectsLoader,
             $id
@@ -58,11 +52,9 @@ class UserGroupFactory
     public function createDynamicUserGroup(string $type, int|string $id): DynamicUserGroup
     {
         return new DynamicUserGroup(
-            $this->php,
             $this->wordpress,
             $this->database,
             $this->config,
-            $this->util,
             $this->objectHandler,
             $this->assignedObjectsLoader,
             $type,

@@ -39,11 +39,9 @@ class UserGroupTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $userGroup = new UserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader()
         );
@@ -61,11 +59,9 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->method('getRow');
 
         $userGroup = new UserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader(),
             1
@@ -127,11 +123,9 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(null, $dbUserGroup));
 
         $userGroup = new UserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader()
         );
@@ -246,11 +240,9 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls(false, true));
 
         $userGroup = new UserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader()
         );
@@ -307,11 +299,9 @@ class UserGroupTest extends UserAccessManagerTestCase
             ->will($this->returnValue(null));
 
         $userGroup = new UserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getMainConfig(),
-            $this->getUtil(),
             $objectHandler,
             $this->getAssignedObjectsLoader()
         );

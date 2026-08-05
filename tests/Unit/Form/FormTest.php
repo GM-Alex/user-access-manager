@@ -1,36 +1,19 @@
 <?php
-/**
- * FormTest.php
- *
- * The FormTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Form;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use UserAccessManager\Form\Form;
-use UserAccessManager\Form\FormElement;
+use UserAccessManager\Form\Element\FormElement;
 
 /**
- * Class FormTest
- *
- * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\Form
  */
 class FormTest extends TestCase
 {
     /**
      * @group unit
-     * @return Form
      */
     public function testCanCreateInstance(): Form
     {
@@ -45,8 +28,6 @@ class FormTest extends TestCase
      * @group   unit
      * @covers  ::addElement()
      * @depends testCanCreateInstance
-     * @param Form $form
-     * @return Form
      */
     public function testAddElement(Form $form): Form
     {
@@ -81,7 +62,6 @@ class FormTest extends TestCase
      * @group   unit
      * @covers  ::getElements()
      * @depends testAddElement
-     * @param Form $form
      */
     public function testGetElements(Form $form)
     {

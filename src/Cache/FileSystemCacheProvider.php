@@ -7,21 +7,21 @@ namespace UserAccessManager\Cache;
 use Exception;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigFactory;
-use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 class FileSystemCacheProvider implements CacheProviderInterface
 {
-    const ID = 'FileSystemCacheProvider';
-    const CONFIG_KEY = 'uam_file_system_cache_provider';
-    const CONFIG_PATH = 'fs_cache_path';
-    const CONFIG_METHOD = 'fs_cache_method';
-    const METHOD_SERIALIZE = 'serialize';
-    const METHOD_IGBINARY = 'igbinary';
-    const METHOD_JSON = 'json';
-    const METHOD_VAR_EXPORT = 'var_export';
+    public const ID = 'FileSystemCacheProvider';
+    public const CONFIG_KEY = 'uam_file_system_cache_provider';
+    public const CONFIG_PATH = 'fs_cache_path';
+    public const CONFIG_METHOD = 'fs_cache_method';
+    public const METHOD_SERIALIZE = 'serialize';
+    public const METHOD_IGBINARY = 'igbinary';
+    public const METHOD_JSON = 'json';
+    public const METHOD_VAR_EXPORT = 'var_export';
 
     private ?Config $config = null;
     private ?string $path = null;
@@ -145,19 +145,25 @@ class FileSystemCacheProvider implements CacheProviderInterface
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);
 
-        if ($method === self::METHOD_SERIALIZE) {
-            $this->php->filePutContents($cacheFile, base64_encode(serialize($value)), LOCK_EX);
-        } elseif ($method === self::METHOD_IGBINARY) {
-            $this->php->filePutContents($cacheFile, $this->php->igbinarySerialize($value), LOCK_EX);
-        } elseif ($method === self::METHOD_JSON) {
-            $this->php->filePutContents($cacheFile, json_encode($value), LOCK_EX);
-        } elseif ($method === self::METHOD_VAR_EXPORT) {
-            $this->php->filePutContents(
-                $cacheFile,
-                "<?php\n\$cachedValue = " . var_export($value, true) . ';',
-                LOCK_EX
-            );
+        $content = match ($method) {
+            self::METHOD_SERIALIZE => base64_encode(serialize($value)),
+            self::METHOD_IGBINARY => $this->php->igbinarySerialize($value),
+            self::METHOD_JSON => json_encode($value),
+            self::METHOD_VAR_EXPORT => "<?php\n\$cachedValue = " . var_export($value, true) . ';',
+            default => null
+        };
+
+        if ($content !== null) {
+            $this->php->filePutContents($cacheFile, $content, LOCK_EX);
         }
+    }
+
+    private function includeCachedValue(string $cacheFile): mixed
+    {
+        $cachedValue = null;
+        include($cacheFile);
+
+        return $cachedValue;
     }
 
     /**
@@ -168,21 +174,17 @@ class FileSystemCacheProvider implements CacheProviderInterface
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);
 
-        if ((file_exists($cacheFile) === true)) {
-            if ($method === self::METHOD_SERIALIZE) {
-                return unserialize(base64_decode(file_get_contents($cacheFile)));
-            } elseif ($method === self::METHOD_IGBINARY) {
-                return $this->php->igbinaryUnserialize(file_get_contents($cacheFile));
-            } elseif ($method === self::METHOD_JSON) {
-                return json_decode(file_get_contents($cacheFile), true);
-            } elseif ($method === self::METHOD_VAR_EXPORT) {
-                $cachedValue = null;
-                include($cacheFile);
-                return $cachedValue;
-            }
+        if (file_exists($cacheFile) === false) {
+            return null;
         }
 
-        return null;
+        return match ($method) {
+            self::METHOD_SERIALIZE => unserialize(base64_decode(file_get_contents($cacheFile))),
+            self::METHOD_IGBINARY => $this->php->igbinaryUnserialize(file_get_contents($cacheFile)),
+            self::METHOD_JSON => json_decode(file_get_contents($cacheFile), true),
+            self::METHOD_VAR_EXPORT => $this->includeCachedValue($cacheFile),
+            default => null
+        };
     }
 
     /**
@@ -193,7 +195,7 @@ class FileSystemCacheProvider implements CacheProviderInterface
         $method = $this->getCacheMethod();
         $cacheFile = $this->getCacheFile($method, $key);
 
-        if ((file_exists($cacheFile) === true)) {
+        if (file_exists($cacheFile) === true) {
             unlink($cacheFile);
         }
     }

@@ -17,7 +17,7 @@
  * @var AboutController $controller
  */
 
-use UserAccessManager\Controller\Backend\AboutController;
+use UserAccessManager\Controller\Backend\Administration\AboutController;
 
 ?>
 <div class="wrap">

@@ -28,9 +28,7 @@ class AssignedObjectsLoader
         string $objectType,
         bool $ignoreDates
     ): array {
-        if (isset($this->assignedObjects[$objectType][$ignoreDates]) === false) {
-            $this->assignedObjects[$objectType][$ignoreDates] = $this->loadAssignedObjects($objectType, $ignoreDates);
-        }
+        $this->assignedObjects[$objectType][$ignoreDates] ??= $this->loadAssignedObjects($objectType, $ignoreDates);
 
         return $this->assignedObjects[$objectType][$ignoreDates][$userGroupType][$userGroupId] ?? [];
     }
@@ -62,11 +60,9 @@ class AssignedObjectsLoader
             $parameters = array_merge($parameters, [$time, $time]);
         }
 
-        $query = $this->database->prepare($query, $parameters);
-        $results = (array) $this->database->getResults($query);
         $assignedObjects = [];
 
-        foreach ($results as $result) {
+        foreach ((array) $this->database->getResults($this->database->prepare($query, $parameters)) as $result) {
             $assignedObjects[$result->groupType][$result->groupId][$result->id] = $this->assignmentInformationFactory
                 ->createAssignmentInformation($result->objectType, $result->fromDate, $result->toDate);
         }

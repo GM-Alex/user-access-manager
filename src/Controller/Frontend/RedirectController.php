@@ -10,10 +10,11 @@ use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\Controller;
+use UserAccessManager\Controller\Frontend\Authentication\LoginControllerTrait;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
-use UserAccessManager\File\FileObject;
-use UserAccessManager\File\FileObjectFactory;
+use UserAccessManager\File\Delivery\FileObject;
+use UserAccessManager\File\Delivery\FileObjectFactory;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Util\Util;
@@ -84,10 +85,49 @@ class RedirectController extends Controller
         return rtrim($uploadUrl, '/') . '/' . ltrim($cleanObjectUrl, '/');
     }
 
+    private function isRegisteredSize(int $attachmentId, string $fileName): bool
+    {
+        $metaData = $this->wordpress->getAttachmentMetadata($attachmentId);
+        $sizes = is_array($metaData) === true ? (array) ($metaData['sizes'] ?? []) : [];
+
+        return in_array($fileName, array_column($sizes, 'file'), true);
+    }
+
+    /**
+     * Returns the file the request asks for and tells through $isImage whether it can be shown as image.
+     * A requested generated size is only used if it is registered at the attachment and stored inside the
+     * upload directory, so no arbitrary and no missing file becomes reachable. Generated sizes are always
+     * images, also for documents like PDFs, where they are the preview images shown in the media library.
+     */
+    private function getAttachmentFile(
+        int $attachmentId,
+        string $attachedFile,
+        string $requestedUrl,
+        string $uploadBaseDir,
+        ?bool &$isImage
+    ): string {
+        $requestedFileName = basename((string) parse_url($requestedUrl, PHP_URL_PATH));
+        $sizeFile = dirname($attachedFile) . DIRECTORY_SEPARATOR . $requestedFileName;
+
+        if ($requestedFileName !== basename($attachedFile)
+            && $this->isRegisteredSize($attachmentId, $requestedFileName) === true
+            && $this->isInsideUploadDirectory($sizeFile, $uploadBaseDir) === true
+        ) {
+            $isImage = true;
+
+            return $sizeFile;
+        }
+
+        $isImage = $this->wordpress->attachmentIsImage($attachmentId);
+
+        return $attachedFile;
+    }
+
     private function getAttachmentFileObject(string $objectUrl): ?FileObject
     {
         $uploadDirs = $this->wordpress->getUploadDir();
-        $postId = $this->getPostIdByUrl($this->normalizeAttachmentUrl($uploadDirs, $objectUrl));
+        $requestedUrl = $this->normalizeAttachmentUrl($uploadDirs, $objectUrl);
+        $postId = $this->getPostIdByUrl($requestedUrl);
 
         if ($postId < 1) {
             return null;
@@ -99,17 +139,27 @@ class RedirectController extends Controller
             return null;
         }
 
-        $file = $this->wordpress->getAttachedFile($post->ID);
+        $attachedFile = $this->wordpress->getAttachedFile($post->ID);
 
-        if ($file === false || $this->isInsideUploadDirectory($file, $uploadDirs['basedir']) === false) {
+        if ($attachedFile === false
+            || $this->isInsideUploadDirectory($attachedFile, $uploadDirs['basedir']) === false
+        ) {
             return null;
         }
+
+        $file = $this->getAttachmentFile(
+            $post->ID,
+            $attachedFile,
+            $requestedUrl,
+            $uploadDirs['basedir'],
+            $isImage
+        );
 
         return $this->fileObjectFactory->createFileObject(
             $post->ID,
             ObjectHandler::ATTACHMENT_OBJECT_TYPE,
             $file,
-            $this->wordpress->attachmentIsImage($post->ID)
+            $isImage
         );
     }
 

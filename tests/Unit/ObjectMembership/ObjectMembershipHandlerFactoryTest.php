@@ -1,32 +1,16 @@
 <?php
-/**
- * ObjectMembershipHandlerFactoryTest.php
- *
- * The ObjectMembershipHandlerFactoryTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
 use Exception;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
-use UserAccessManager\ObjectMembership\PostMembershipHandler;
-use UserAccessManager\ObjectMembership\RoleMembershipHandler;
-use UserAccessManager\ObjectMembership\TermMembershipHandler;
-use UserAccessManager\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\UserMembershipHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class ObjectMembershipHandlerFactoryTest
- *
- * @package UserAccessManager\Tests\Unit\ObjectMembership
  * @coversDefaultClass \UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory
  */
 class ObjectMembershipHandlerFactoryTest extends UserAccessManagerTestCase

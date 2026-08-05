@@ -22,19 +22,17 @@ use stdClass;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
+use UserAccessManager\ObjectMembership\Exception\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
-use UserAccessManager\ObjectMembership\PostMembershipHandler;
-use UserAccessManager\ObjectMembership\RoleMembershipHandler;
-use UserAccessManager\ObjectMembership\TermMembershipHandler;
-use UserAccessManager\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\UserMembershipHandler;
 use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignedObjectsLoader;
 use UserAccessManager\UserGroup\UserGroupTypeException;
-use UserAccessManager\Util\Util;
-use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 /**
@@ -46,28 +44,17 @@ use UserAccessManager\Wrapper\Wordpress;
 class AbstractUserGroupTest extends UserAccessManagerTestCase
 {
     /**
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param Database $database
-     * @param MainConfig $config
-     * @param Util $util
-     * @param ObjectHandler $objectHandler
-     * @param AssignedObjectsLoader $assignedObjectsLoader
-     * @param string|null $id
      * @return MockObject|AbstractUserGroup
      * @throws ReflectionException
      */
     private function getStub(
-        Php $php,
         Wordpress $wordpress,
         Database $database,
         MainConfig $config,
-        Util $util,
         ObjectHandler $objectHandler,
         AssignedObjectsLoader $assignedObjectsLoader,
         ?string $id = null
-    ): MockObject|AbstractUserGroup
-    {
+    ): MockObject|AbstractUserGroup {
         $stub = $this->getMockForAbstractClass(
             AbstractUserGroup::class,
             [],
@@ -75,11 +62,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             false
         );
 
-        self::setValue($stub, 'php', $php);
         self::setValue($stub, 'wordpress', $wordpress);
         self::setValue($stub, 'database', $database);
         self::setValue($stub, 'config', $config);
-        self::setValue($stub, 'util', $util);
         self::setValue($stub, 'objectHandler', $objectHandler);
         self::setValue($stub, 'assignedObjectsLoader', $assignedObjectsLoader);
         self::setValue($stub, 'id', $id);
@@ -96,22 +81,18 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $abstractUserGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader()
         );
 
         self::setValue($abstractUserGroup, 'type', 'type');
         $abstractUserGroup->__construct(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader()
         );
@@ -129,11 +110,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
         $this->getMockForAbstractClass(
             AbstractUserGroup::class,
             [
-                $this->getPhp(),
                 $this->getWordpress(),
                 $this->getDatabase(),
                 $this->getMainConfig(),
-                $this->getUtil(),
                 $this->getObjectHandler(),
                 $this->getAssignedObjectsLoader()
             ]
@@ -157,11 +136,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     public function testSimpleGetterSetter()
     {
         $abstractUserGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader(),
             2
@@ -291,7 +268,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
                     ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
                 ]
             )
-            ->will($this->onConsecutiveCalls(false, true, true, true, true, true));;
+            ->will($this->onConsecutiveCalls(false, true, true, true, true, true));
 
         $objectHandler = $this->getObjectHandler();
 
@@ -340,11 +317,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             ->method('flush');
 
         $abstractUserGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getMainConfig(),
-            $this->getUtil(),
             $objectHandler,
             $assignedObjectsLoader
         );
@@ -486,11 +461,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             ->method('flush');
 
         $abstractUserGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getMainConfig(),
-            $this->getUtil(),
             $objectHandler,
             $assignedObjectsLoader,
             123
@@ -531,11 +504,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     public function testSetIgnoreDates()
     {
         $abstractUserGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader()
         );
@@ -602,11 +573,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             ->will($this->onConsecutiveCalls([], $assignedObjects, [], []));
 
         $abstractUserGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $assignedObjectsLoader
         );
@@ -682,11 +651,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             )));
 
         $abstractUserGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $database,
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader()
         );
@@ -892,11 +859,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             }));
 
         $userGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $config,
-            $this->getUtil(),
             $this->getMembershipObjectHandler(),
             $this->getAssignedObjectsLoader()
         );
@@ -978,11 +943,9 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             }));
 
         $userGroup = $this->getStub(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $config,
-            $this->getUtil(),
             $this->getMembershipObjectHandler(),
             $this->getAssignedObjectsLoader()
         );

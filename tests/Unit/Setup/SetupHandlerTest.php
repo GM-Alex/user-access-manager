@@ -1,17 +1,4 @@
 <?php
-/**
- * SetupHandlerTest.php
- *
- * The SetupHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Setup;
 
@@ -22,9 +9,6 @@ use UserAccessManager\Setup\SetupHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class SetupHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\Setup
  * @coversDefaultClass \UserAccessManager\Setup\SetupHandler
  */
 class SetupHandlerTest extends UserAccessManagerTestCase
@@ -96,7 +80,6 @@ class SetupHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::install()
-     * @covers ::runInstall()
      * @throws MissingColumnsException
      */
     public function testInstall()

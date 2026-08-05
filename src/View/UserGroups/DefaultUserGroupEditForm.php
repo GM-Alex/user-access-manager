@@ -3,7 +3,7 @@
  * @var UserGroupController $controller
  */
 
-use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Controller\Backend\Administration\UserGroupController;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;

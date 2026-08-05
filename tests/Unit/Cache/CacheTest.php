@@ -31,7 +31,6 @@ class CacheTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
-     * @return Cache
      */
     public function testCanCreateInstance(): Cache
     {
@@ -88,7 +87,6 @@ class CacheTest extends UserAccessManagerTestCase
      * @group unit
      * @depends testCanCreateInstance
      * @covers ::generateCacheKey()
-     * @param Cache $cache
      */
     public function testGenerateCacheKey(Cache $cache)
     {
@@ -100,9 +98,6 @@ class CacheTest extends UserAccessManagerTestCase
         self::assertEquals('preFix|cacheKey|postFix', $key);
     }
 
-    /**
-     * @return MockObject|FileSystemCacheProvider
-     */
     protected function getFileSystemCacheProvider(): MockObject|FileSystemCacheProvider
     {
         $fileSystemCacheProvider = parent::getFileSystemCacheProvider();
@@ -121,8 +116,6 @@ class CacheTest extends UserAccessManagerTestCase
      * @group unit
      * @depends testCanCreateInstance
      * @covers ::add()
-     * @param Cache $cache
-     * @return Cache
      */
     public function testAdd(Cache $cache): Cache
     {
@@ -165,8 +158,6 @@ class CacheTest extends UserAccessManagerTestCase
      * @group unit
      * @depends testAdd
      * @covers ::get()
-     * @param Cache $cache
-     * @return Cache
      * @throws ReflectionException
      */
     public function testGet(Cache $cache): Cache
@@ -238,8 +229,6 @@ class CacheTest extends UserAccessManagerTestCase
      * @group unit
      * @depends testCanCreateInstance
      * @covers ::addToRuntimeCache()
-     * @param Cache $cache
-     * @return Cache
      */
     public function testAddToCache(Cache $cache): Cache
     {
@@ -256,8 +245,6 @@ class CacheTest extends UserAccessManagerTestCase
      * @group unit
      * @depends testAddToCache
      * @covers ::getFromRuntimeCache()
-     * @param Cache $cache
-     * @return Cache
      */
     public function testGetFromCache(Cache $cache): Cache
     {
@@ -278,7 +265,6 @@ class CacheTest extends UserAccessManagerTestCase
      * @group unit
      * @depends testGetFromCache
      * @covers ::flushCache()
-     * @param Cache $cache
      * @throws Exception
      */
     public function testFlushCache(Cache $cache)

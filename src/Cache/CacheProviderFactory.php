@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace UserAccessManager\Cache;
 
 use UserAccessManager\Config\ConfigFactory;
-use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
 use UserAccessManager\Util\Util;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
@@ -21,9 +21,6 @@ class CacheProviderFactory
     ) {
     }
 
-    /**
-     * Creates a FileSystemCacheProvider object.
-     */
     public function createFileSystemCacheProvider(): FileSystemCacheProvider
     {
         return new FileSystemCacheProvider(
@@ -35,9 +32,6 @@ class CacheProviderFactory
         );
     }
 
-    /**
-     * Creates a RedisCacheProvider object.
-     */
     public function createRedisCacheProvider(): RedisCacheProvider
     {
         return new RedisCacheProvider(

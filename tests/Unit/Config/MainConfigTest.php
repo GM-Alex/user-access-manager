@@ -1,35 +1,19 @@
 <?php
-/**
- * MainConfigTest.php
- *
- * The MainConfigTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Config;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\BooleanConfigParameter;
-use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\BooleanConfigParameter;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
 use UserAccessManager\Config\MainConfig;
-use UserAccessManager\Config\SelectionConfigParameter;
-use UserAccessManager\Config\StringConfigParameter;
+use UserAccessManager\Config\Parameter\SelectionConfigParameter;
+use UserAccessManager\Config\Parameter\StringConfigParameter;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class ConfigTest
- *
- * @package UserAccessManager\Tests\Unit\Config
  * @coversDefaultClass \UserAccessManager\Config\MainConfig
  */
 class MainConfigTest extends UserAccessManagerTestCase
@@ -39,9 +23,6 @@ class MainConfigTest extends UserAccessManagerTestCase
      */
     private array $defaultValues;
 
-    /**
-     * Create default mocked objects.
-     */
     protected function setUp(): void
     {
         $this->defaultValues = [
@@ -109,9 +90,6 @@ class MainConfigTest extends UserAccessManagerTestCase
         ];
     }
 
-    /**
-     * @return MockObject|Cache
-     */
     protected function getCache(): Cache|MockObject
     {
         $cache = parent::getCache();
@@ -123,10 +101,6 @@ class MainConfigTest extends UserAccessManagerTestCase
         return $cache;
     }
 
-    /**
-     * @param int $callExpectation
-     * @return MockObject|ObjectHandler
-     */
     protected function getDefaultObjectHandler(int $callExpectation): ObjectHandler|MockObject
     {
         $objectHandler = $this->getObjectHandler();
@@ -142,10 +116,6 @@ class MainConfigTest extends UserAccessManagerTestCase
         return $objectHandler;
     }
 
-    /**
-     * @param callable|null $closure
-     * @return MockObject|ConfigParameterFactory
-     */
     protected function getFactory(?callable $closure = null): ConfigParameterFactory|MockObject
     {
         if ($closure === null) {
@@ -213,7 +183,6 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @covers ::addDefaultPostConfigParameters()
      * @covers ::addDefaultTaxonomyConfigParameters()
      * @covers ::addDefaultFileConfigParameters()
-     * @return MainConfig
      */
     public function testGetDefaultConfigParameters(): MainConfig
     {

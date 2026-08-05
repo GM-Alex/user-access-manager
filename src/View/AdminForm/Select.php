@@ -3,7 +3,7 @@
  * @var Select $select
  */
 
-use UserAccessManager\Form\Select;
+use UserAccessManager\Form\Element\Select;
 
 ?>
 <th scope="row">

@@ -19,7 +19,7 @@ class AccessHandler
     private ?array $excludedTerms = null;
     private ?array $excludedPosts = null;
     private array $objectAccess = [];
-    private ?array $noneHiddenPostTypes = null;
+    private ?array $visiblePostTypes = null;
 
     public function __construct(
         private Wordpress $wordpress,
@@ -31,23 +31,28 @@ class AccessHandler
     ) {
     }
 
+    private function canManageUserGroups(): bool
+    {
+        return $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true;
+    }
+
     private function hasAuthorAccess(string $objectType, int|string|null $objectId): bool
     {
-        if ($this->mainConfig->authorsHasAccessToOwn() === true
-            && $this->objectHandler->isPostType($objectType)
+        if ($this->mainConfig->authorsHasAccessToOwn() !== true
+            || $this->objectHandler->isPostType($objectType) === false
         ) {
-            $post = $this->objectHandler->getPost($objectId);
-
-            if ($post === false) {
-                return false;
-            }
-
-            $currentUserId = $this->wordpress->getCurrentUser()->ID;
-            return $currentUserId !== 0
-                && $currentUserId === (int) $post->post_author;
+            return false;
         }
 
-        return false;
+        $post = $this->objectHandler->getPost($objectId);
+
+        if ($post === false) {
+            return false;
+        }
+
+        $currentUserId = $this->wordpress->getCurrentUser()->ID;
+
+        return $currentUserId !== 0 && $currentUserId === (int) $post->post_author;
     }
 
     private function isAdmin(?bool $isAdmin): bool
@@ -65,13 +70,35 @@ class AccessHandler
         if ($this->isAdmin($isAdmin) === true) {
             $userUserGroups = array_filter(
                 $userUserGroups,
-                function (AbstractUserGroup $userGroup) {
-                    return $userGroup->getWriteAccess() !== 'none';
-                }
+                fn(AbstractUserGroup $userGroup) => $userGroup->getWriteAccess() !== 'none'
             );
         }
 
         return $this->wordpress->applyFilters('uam_get_user_user_groups_for_object_access', $userUserGroups, $isAdmin);
+    }
+
+    /**
+     * @throws UserGroupTypeException
+     * @throws Exception
+     */
+    private function resolveObjectAccess(?string $objectType, int|string|null $objectId, bool $isAdmin): bool
+    {
+        if ($this->objectHandler->isValidObjectType($objectType) === false
+            || $this->canManageUserGroups() === true
+            || $this->hasAuthorAccess($objectType, $objectId) === true
+        ) {
+            return true;
+        }
+
+        $membership = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId);
+        $access = $membership === []
+            || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [];
+
+        if ($access === true && $this->wordpress->isUserLoggedIn() && $this->wordpress->isMultiSite()) {
+            return $this->wordpress->isUserMemberOfBlog();
+        }
+
+        return $access;
     }
 
     /**
@@ -83,56 +110,41 @@ class AccessHandler
         $isAdmin = $this->isAdmin($isAdmin);
 
         if (isset($this->objectAccess[$isAdmin][$objectType][$objectId]) === false) {
-            if ($this->objectHandler->isValidObjectType($objectType) === false
-                || $this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY) === true
-                || $this->hasAuthorAccess($objectType, $objectId) === true
-            ) {
-                $access = true;
-            } else {
-                $membership = $this->userGroupHandler->getUserGroupsForObject($objectType, $objectId);
-                $access = $membership === []
-                    || array_intersect_key($membership, $this->getUserUserGroupsForObjectAccess($isAdmin)) !== [];
-
-                if ($access && $this->wordpress->isUserLoggedIn() && $this->wordpress->isMultiSite()) {
-                    $access = $this->wordpress->isUserMemberOfBlog();
-                }
-            }
-
-            $this->objectAccess[$isAdmin][$objectType][$objectId] = $access;
+            $this->objectAccess[$isAdmin][$objectType][$objectId] = $this->resolveObjectAccess(
+                $objectType,
+                $objectId,
+                $isAdmin
+            );
         }
 
         return $this->objectAccess[$isAdmin][$objectType][$objectId];
     }
 
     /**
+     * $ignoredObjectTypes is matched against the assigned object type (the array value), not the object id.
+     *
      * @throws UserGroupTypeException
      * @throws Exception
      */
-    private function getExcludedObjects(string $type, array $filterTypesMap = []): array
+    private function getExcludedObjects(string $type, array $ignoredObjectTypes = []): array
     {
         $excludedObjects = [];
-        $userGroups = $this->userGroupHandler->getFullUserGroups();
 
-        foreach ($userGroups as $userGroup) {
+        foreach ($this->userGroupHandler->getFullUserGroups() as $userGroup) {
             $excludedObjects += $userGroup->getAssignedObjectsByType($type);
         }
 
-        $userUserGroups = $this->userGroupHandler->getUserGroupsForUser();
-
-        foreach ($userUserGroups as $userGroup) {
+        foreach ($this->userGroupHandler->getUserGroupsForUser() as $userGroup) {
             $excludedObjects = array_diff_key($excludedObjects, $userGroup->getAssignedObjectsByType($type));
         }
 
-        if ($filterTypesMap !== []) {
-            $excludedObjects = array_filter(
-                $excludedObjects,
-                function ($element) use ($filterTypesMap) {
-                    return isset($filterTypesMap[$element]) === false;
-                }
-            );
-        }
+        $excludedObjects = array_filter(
+            $excludedObjects,
+            fn($objectType) => isset($ignoredObjectTypes[$objectType]) === false
+        );
 
         $objectIds = array_keys($excludedObjects);
+
         return array_combine($objectIds, $objectIds);
     }
 
@@ -141,34 +153,43 @@ class AccessHandler
      */
     public function getExcludedTerms(): ?array
     {
-        if ($this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY)) {
+        if ($this->canManageUserGroups() === true) {
             $this->excludedTerms = [];
-        }
-
-        if ($this->excludedTerms === null) {
+        } elseif ($this->excludedTerms === null) {
             $this->excludedTerms = $this->getExcludedObjects(ObjectHandler::GENERAL_TERM_OBJECT_TYPE);
         }
 
         return $this->excludedTerms;
     }
 
-    private function getNoneHiddenPostTypes(): ?array
+    private function getVisiblePostTypes(): array
     {
-        if ($this->noneHiddenPostTypes === null) {
-            $this->noneHiddenPostTypes = [];
+        if ($this->visiblePostTypes !== null) {
+            return $this->visiblePostTypes;
+        }
 
-            if ($this->wordpress->isAdmin() === false) {
-                $postTypes = $this->objectHandler->getPostTypes();
+        $this->visiblePostTypes = [];
 
-                foreach ($postTypes as $postType) {
-                    if ($this->mainConfig->hidePostType($postType) === false) {
-                        $this->noneHiddenPostTypes[$postType] = $postType;
-                    }
+        if ($this->wordpress->isAdmin() === false) {
+            foreach ($this->objectHandler->getPostTypes() as $postType) {
+                if ($this->mainConfig->hidePostType($postType) === false) {
+                    $this->visiblePostTypes[$postType] = $postType;
                 }
             }
         }
 
-        return $this->noneHiddenPostTypes;
+        return $this->visiblePostTypes;
+    }
+
+    private function getOwnPostIds(): array
+    {
+        $query = $this->database->prepare(
+            "SELECT ID FROM {$this->database->getPostsTable()}
+            WHERE post_author = %d",
+            $this->wordpress->getCurrentUser()->ID
+        );
+
+        return array_column((array) $this->database->getResults($query), 'ID', 'ID');
     }
 
     /**
@@ -176,37 +197,17 @@ class AccessHandler
      */
     public function getExcludedPosts(): ?array
     {
-        if ($this->userHandler->checkUserAccess(UserHandler::MANAGE_USER_GROUPS_CAPABILITY)) {
+        if ($this->canManageUserGroups() === true) {
             $this->excludedPosts = [];
-        }
+        } elseif ($this->excludedPosts === null) {
+            $excludedPosts = $this->getExcludedObjects(
+                ObjectHandler::GENERAL_POST_OBJECT_TYPE,
+                $this->getVisiblePostTypes()
+            );
 
-        if ($this->excludedPosts === null) {
-            $noneHiddenPostTypes = $this->getNoneHiddenPostTypes();
-            $excludedPosts = $this->getExcludedObjects(ObjectHandler::GENERAL_POST_OBJECT_TYPE, $noneHiddenPostTypes);
-
-            if ($this->mainConfig->authorsHasAccessToOwn() === true) {
-                $query = $this->database->prepare(
-                    "SELECT ID FROM {$this->database->getPostsTable()}
-                    WHERE post_author = %d",
-                    $this->wordpress->getCurrentUser()->ID
-                );
-
-                $ownPosts = array_filter(
-                    (array) $this->database->getResults($query),
-                    function ($ownPost) {
-                        return isset($ownPost->ID);
-                    }
-                );
-                $ownPostIds = [];
-
-                foreach ($ownPosts as $ownPost) {
-                    $ownPostIds[$ownPost->ID] = $ownPost->ID;
-                }
-
-                $excludedPosts = array_diff_key($excludedPosts, $ownPostIds);
-            }
-
-            $this->excludedPosts = $excludedPosts;
+            $this->excludedPosts = ($this->mainConfig->authorsHasAccessToOwn() === true)
+                ? array_diff_key($excludedPosts, $this->getOwnPostIds())
+                : $excludedPosts;
         }
 
         return $this->excludedPosts;

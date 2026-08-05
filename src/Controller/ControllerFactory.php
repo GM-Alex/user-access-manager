@@ -8,26 +8,26 @@ use UserAccessManager\Access\AccessHandler;
 use UserAccessManager\Cache\Cache;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
-use UserAccessManager\Controller\Backend\AboutController;
+use UserAccessManager\Controller\Backend\Administration\AboutController;
 use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\CacheController;
-use UserAccessManager\Controller\Backend\DynamicGroupsController;
-use UserAccessManager\Controller\Backend\ObjectController;
-use UserAccessManager\Controller\Backend\ObjectInformationFactory;
-use UserAccessManager\Controller\Backend\PostObjectController;
-use UserAccessManager\Controller\Backend\SettingsController;
-use UserAccessManager\Controller\Backend\SetupController;
-use UserAccessManager\Controller\Backend\TermObjectController;
-use UserAccessManager\Controller\Backend\UserGroupController;
-use UserAccessManager\Controller\Backend\UserObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\DynamicGroupsController;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectInformationFactory;
+use UserAccessManager\Controller\Backend\ObjectMembership\PostObjectController;
+use UserAccessManager\Controller\Backend\Administration\SettingsController;
+use UserAccessManager\Controller\Backend\Administration\SetupController;
+use UserAccessManager\Controller\Backend\ObjectMembership\TermObjectController;
+use UserAccessManager\Controller\Backend\Administration\UserGroupController;
+use UserAccessManager\Controller\Backend\ObjectMembership\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;
-use UserAccessManager\Controller\Frontend\PostController;
+use UserAccessManager\Controller\Frontend\Content\PostController;
 use UserAccessManager\Controller\Frontend\RedirectController;
-use UserAccessManager\Controller\Frontend\ShortCodeController;
-use UserAccessManager\Controller\Frontend\TermController;
+use UserAccessManager\Controller\Frontend\Authentication\ShortCodeController;
+use UserAccessManager\Controller\Frontend\Content\TermController;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
-use UserAccessManager\File\FileObjectFactory;
+use UserAccessManager\File\Delivery\FileObjectFactory;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
@@ -89,9 +89,14 @@ class ControllerFactory
         );
     }
 
-    public function createBackendObjectController(): ObjectController
+    /**
+     * @template TController of ObjectController
+     * @param class-string<TController> $controllerClass
+     * @return TController
+     */
+    private function createObjectController(string $controllerClass): ObjectController
     {
-        return new ObjectController(
+        return new $controllerClass(
             $this->php,
             $this->wordpress,
             $this->wordpressConfig,
@@ -105,85 +110,36 @@ class ControllerFactory
             $this->accessHandler,
             $this->objectInformationFactory
         );
+    }
+
+    public function createBackendObjectController(): ObjectController
+    {
+        return $this->createObjectController(ObjectController::class);
     }
 
     public function createBackendCacheController(): CacheController
     {
-        return new CacheController(
-            $this->cache
-        );
+        return new CacheController($this->cache);
     }
 
     public function createBackendPostObjectController(): PostObjectController
     {
-        return new PostObjectController(
-            $this->php,
-            $this->wordpress,
-            $this->wordpressConfig,
-            $this->mainConfig,
-            $this->database,
-            $this->dateUtil,
-            $this->objectHandler,
-            $this->userHandler,
-            $this->userGroupHandler,
-            $this->userGroupAssignmentHandler,
-            $this->accessHandler,
-            $this->objectInformationFactory
-        );
+        return $this->createObjectController(PostObjectController::class);
     }
 
     public function createBackendTermObjectController(): TermObjectController
     {
-        return new TermObjectController(
-            $this->php,
-            $this->wordpress,
-            $this->wordpressConfig,
-            $this->mainConfig,
-            $this->database,
-            $this->dateUtil,
-            $this->objectHandler,
-            $this->userHandler,
-            $this->userGroupHandler,
-            $this->userGroupAssignmentHandler,
-            $this->accessHandler,
-            $this->objectInformationFactory
-        );
+        return $this->createObjectController(TermObjectController::class);
     }
 
     public function createBackendUserObjectController(): UserObjectController
     {
-        return new UserObjectController(
-            $this->php,
-            $this->wordpress,
-            $this->wordpressConfig,
-            $this->mainConfig,
-            $this->database,
-            $this->dateUtil,
-            $this->objectHandler,
-            $this->userHandler,
-            $this->userGroupHandler,
-            $this->userGroupAssignmentHandler,
-            $this->accessHandler,
-            $this->objectInformationFactory
-        );
+        return $this->createObjectController(UserObjectController::class);
     }
 
     public function createBackendDynamicGroupsController(): DynamicGroupsController
     {
-        return new DynamicGroupsController(
-            $this->php,
-            $this->wordpress,
-            $this->wordpressConfig,
-            $this->mainConfig,
-            $this->database,
-            $this->dateUtil,
-            $this->objectHandler,
-            $this->userHandler,
-            $this->userGroupHandler,
-            $this->userGroupAssignmentHandler,
-            $this->accessHandler,
-            $this->objectInformationFactory
-        );
+        return $this->createObjectController(DynamicGroupsController::class);
     }
 
     public function createBackendSettingsController(): SettingsController

@@ -14,7 +14,7 @@ class Table
         private string $charsetCollate,
         private array $columns
     ) {
-        if (count($this->columns) <= 0) {
+        if ($this->columns === []) {
             throw new MissingColumnsException('The table needs at least one column.');
         }
     }
@@ -40,20 +40,14 @@ class Table
     public function __toString(): string
     {
         $columns = implode(', ', $this->columns);
-        $primaryKeys = [];
+        $primaryKeys = array_map(
+            static fn(Column $column) => "`{$column->getName()}`",
+            array_filter($this->columns, static fn(Column $column) => $column->isKey() === true)
+        );
 
-        foreach ($this->columns as $column) {
-            if ($column->isKey() === true) {
-                $primaryKeys[] = "`{$column->getName()}`";
-            }
-        }
-
-        $primaryKeysQuery = '';
-
-        if ($primaryKeys !== []) {
-            $primaryKeysQuery = implode(', ', $primaryKeys);
-            $primaryKeysQuery = ", PRIMARY KEY ($primaryKeysQuery)";
-        }
+        $primaryKeysQuery = $primaryKeys === []
+            ? ''
+            : ', PRIMARY KEY (' . implode(', ', $primaryKeys) . ')';
 
         return "CREATE TABLE `$this->name` (
                 $columns{$primaryKeysQuery}

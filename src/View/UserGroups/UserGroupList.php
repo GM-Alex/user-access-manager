@@ -10,7 +10,7 @@
  * @return string
  */
 
-use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Controller\Backend\Administration\UserGroupController;
 use UserAccessManager\Object\ObjectHandler;
 
 $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {

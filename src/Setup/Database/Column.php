@@ -1,27 +1,9 @@
 <?php
-/**
- * Column.php
- *
- * The Column class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
 namespace UserAccessManager\Setup\Database;
 
-/**
- * Class Column
- *
- * @package UserAccessManager\Setup\Database
- */
 class Column
 {
     public function __construct(
@@ -67,6 +49,7 @@ class Column
     public function __toString(): string
     {
         $nullConstraint = ($this->isNull) ? 'NULL' : 'NOT NULL';
+        // MySQL reports a declared INT as INT(11); normalise so schema comparison sees no difference.
         $type = $this->type === 'INT(11)' ? 'INT' : $this->type;
         $column = "`$this->name` $type $nullConstraint";
 

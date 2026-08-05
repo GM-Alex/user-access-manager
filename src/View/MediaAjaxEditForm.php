@@ -17,7 +17,7 @@
  * @var ObjectController $controller
  */
 
-use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectController;
 use UserAccessManager\UserGroup\UserGroup;
 
 $userGroups = $controller->getFilteredUserGroups();

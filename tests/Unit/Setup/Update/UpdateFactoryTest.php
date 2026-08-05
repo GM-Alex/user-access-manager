@@ -1,17 +1,4 @@
 <?php
-/**
- * UpdateFactoryTest.php
- *
- * The UpdateFactoryTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Setup\Update;
 
@@ -27,9 +14,6 @@ use UserAccessManager\Setup\Update\UpdateFactory;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class UpdateFactoryTest
- *
- * @package UserAccessManager\Tests\Unit\Setup\Update
  * @coversDefaultClass \UserAccessManager\Setup\Update\UpdateFactory
  */
 class UpdateFactoryTest extends UserAccessManagerTestCase

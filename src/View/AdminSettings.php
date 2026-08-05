@@ -13,12 +13,12 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-use UserAccessManager\Controller\Backend\SettingsController;
+use UserAccessManager\Controller\Backend\Administration\SettingsController;
 use UserAccessManager\Form\Form;
-use UserAccessManager\Form\Input;
-use UserAccessManager\Form\Radio;
-use UserAccessManager\Form\Select;
-use UserAccessManager\Form\Textarea;
+use UserAccessManager\Form\Element\Input;
+use UserAccessManager\Form\Element\Radio;
+use UserAccessManager\Form\Element\Select;
+use UserAccessManager\Form\Element\Textarea;
 
 /**
  * @var SettingsController $controller

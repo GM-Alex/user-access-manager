@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace UserAccessManager\Setup\Update;
 
 use Exception;
-use UserAccessManager\Setup\Database\DatabaseUpdate;
 
 class DatabaseUpdate5 extends DatabaseUpdate
 {

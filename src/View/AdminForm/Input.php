@@ -3,7 +3,7 @@
  * @var Input $input
  */
 
-use UserAccessManager\Form\Input;
+use UserAccessManager\Form\Element\Input;
 
 ?>
 <th scope="row">

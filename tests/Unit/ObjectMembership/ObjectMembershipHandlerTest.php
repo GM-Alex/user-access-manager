@@ -1,46 +1,27 @@
 <?php
-/**
- * ObjectMembershipHandlerTest.php
- *
- * The ObjectMembershipHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
-use UserAccessManager\ObjectMembership\MissingObjectTypeException;
+use UserAccessManager\ObjectMembership\Exception\MissingObjectTypeException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
 
 /**
- * Class ObjectMembershipHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\ObjectMembership
  * @coversDefaultClass \UserAccessManager\ObjectMembership\ObjectMembershipHandler
  */
 class ObjectMembershipHandlerTest extends UserAccessManagerTestCase
 {
     /**
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @return MockObject|ObjectMembershipHandler
      * @throws ReflectionException
      */
     private function getStub(
         AssignmentInformationFactory $assignmentInformationFactory
-    ): ObjectMembershipHandler|MockObject
-    {
+    ): ObjectMembershipHandler|MockObject {
         $stub = $this->getMockForAbstractClass(
             ObjectMembershipHandler::class,
             [],

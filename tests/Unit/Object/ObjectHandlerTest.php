@@ -1,36 +1,20 @@
 <?php
-/**
- * ObjectHandlerTest.php
- *
- * The ObjectHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Object;
 
 use Exception;
 use stdClass;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
+use UserAccessManager\ObjectMembership\Exception\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
-use UserAccessManager\ObjectMembership\PostMembershipHandler;
-use UserAccessManager\ObjectMembership\RoleMembershipHandler;
-use UserAccessManager\ObjectMembership\TermMembershipHandler;
-use UserAccessManager\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\UserMembershipHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use WP_Post_Type;
 
 /**
- * Class ObjectHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\Object
  * @coversDefaultClass \UserAccessManager\Object\ObjectHandler
  */
 class ObjectHandlerTest extends UserAccessManagerTestCase

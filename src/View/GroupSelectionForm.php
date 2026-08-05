@@ -13,7 +13,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\DynamicUserGroup;

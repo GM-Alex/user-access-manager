@@ -1,17 +1,4 @@
 <?php
-/**
- * ObjectMapHandlerTest.php
- *
- * The ObjectMapHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Object;
 
@@ -23,9 +10,6 @@ use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class ObjectMapHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\Object
  * @coversDefaultClass \UserAccessManager\Object\ObjectMapHandler
  */
 class ObjectMapHandlerTest extends UserAccessManagerTestCase
@@ -44,12 +28,6 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
         self::assertInstanceOf(ObjectMapHandler::class, $objectMapHandler);
     }
 
-    /**
-     * @param int $id
-     * @param int $parentId
-     * @param string $type
-     * @return stdClass
-     */
     private function createTreeMapDbResultElement(int $id, int $parentId = 0, string $type = 'post'): stdClass
     {
         $element = new stdClass();
@@ -60,14 +38,11 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
         return $element;
     }
 
-    /**
-     * @param string $generalType
-     * @param string $firstType
-     * @param string $secondType
-     * @return array
-     */
-    private function getExpectedMapResult(string $generalType, string $firstType = 'post', string $secondType = 'page'): array
-    {
+    private function getExpectedMapResult(
+        string $generalType,
+        string $firstType = 'post',
+        string $secondType = 'page'
+    ): array {
         $result = [
             ObjectMapHandler::TREE_MAP_CHILDREN => [
                 $firstType => [

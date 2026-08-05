@@ -17,9 +17,14 @@ namespace UserAccessManager\Tests\Unit\Cache;
 
 use Exception;
 use UserAccessManager\Cache\FileSystemCacheProvider;
-use UserAccessManager\Config\SelectionConfigParameter;
-use UserAccessManager\Config\StringConfigParameter;
+use UserAccessManager\Config\ConfigFactory;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\SelectionConfigParameter;
+use UserAccessManager\Config\Parameter\StringConfigParameter;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
+use UserAccessManager\Wrapper\Wordpress;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -32,26 +37,33 @@ use Vfs\Node\File;
  */
 class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 {
-    /**
-     * @var FileSystem
-     */
     private FileSystem $root;
 
-    /**
-     * Setup virtual file system.
-     */
     protected function setUp(): void
     {
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
     }
 
-    /**
-     * Tear down virtual file system.
-     */
     protected function tearDown(): void
     {
         $this->root->unmount();
+    }
+
+    private function createFileSystemCacheProvider(
+        ?Php $php = null,
+        ?Wordpress $wordpress = null,
+        ?Util $util = null,
+        ?ConfigFactory $configFactory = null,
+        ?ConfigParameterFactory $configParameterFactory = null
+    ): FileSystemCacheProvider {
+        return new FileSystemCacheProvider(
+            $php ?? $this->getPhp(),
+            $wordpress ?? $this->getWordpress(),
+            $util ?? $this->getUtil(),
+            $configFactory ?? $this->getConfigFactory(),
+            $configParameterFactory ?? $this->getConfigParameterFactory()
+        );
     }
 
     /**
@@ -77,13 +89,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
      */
     public function testGetId()
     {
-        $fileSystemCacheProvider = new FileSystemCacheProvider(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getUtil(),
-            $this->getConfigFactory(),
-            $this->getConfigParameterFactory()
-        );
+        $fileSystemCacheProvider = $this->createFileSystemCacheProvider();
 
         self::assertEquals(FileSystemCacheProvider::ID, $fileSystemCacheProvider->getId());
     }
@@ -116,13 +122,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
             ->with('vfs://path/cache/uam', DIRECTORY_SEPARATOR)
             ->will($this->returnValue(false));
 
-        $fileSystemCacheProvider = new FileSystemCacheProvider(
-            $php,
-            $this->getWordpress(),
-            $util,
-            $this->getConfigFactory(),
-            $this->getConfigParameterFactory()
-        );
+        $fileSystemCacheProvider = $this->createFileSystemCacheProvider($php, util: $util);
 
         $config = $this->getConfig();
         $config->expects($this->once())
@@ -209,12 +209,11 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue($selectionConfigParameter));
 
-        $fileSystemCacheProvider = new FileSystemCacheProvider(
+        $fileSystemCacheProvider = $this->createFileSystemCacheProvider(
             $php,
             $wordpress,
-            $this->getUtil(),
-            $configFactory,
-            $configParameterFactory
+            configFactory: $configFactory,
+            configParameterFactory: $configParameterFactory
         );
 
         self::assertEquals($config, $fileSystemCacheProvider->getConfig());
@@ -273,13 +272,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
                 FileSystemCacheProvider::METHOD_IGBINARY
             ));
 
-        $fileSystemCacheProvider = new FileSystemCacheProvider(
-            $php,
-            $this->getWordpress(),
-            $this->getUtil(),
-            $this->getConfigFactory(),
-            $this->getConfigParameterFactory()
-        );
+        $fileSystemCacheProvider = $this->createFileSystemCacheProvider($php);
 
         self::setValue($fileSystemCacheProvider, 'config', $config);
         self::setValue($fileSystemCacheProvider, 'path', 'vfs://path/');
@@ -356,13 +349,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
                 FileSystemCacheProvider::METHOD_VAR_EXPORT
             ));
 
-        $fileSystemCacheProvider = new FileSystemCacheProvider(
-            $php,
-            $this->getWordpress(),
-            $this->getUtil(),
-            $this->getConfigFactory(),
-            $this->getConfigParameterFactory()
-        );
+        $fileSystemCacheProvider = $this->createFileSystemCacheProvider($php);
 
         self::setValue($fileSystemCacheProvider, 'config', $config);
         self::setValue($fileSystemCacheProvider, 'path', 'vfs://path/');
@@ -401,13 +388,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
                 FileSystemCacheProvider::METHOD_VAR_EXPORT
             ));
 
-        $fileSystemCacheProvider = new FileSystemCacheProvider(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getUtil(),
-            $this->getConfigFactory(),
-            $this->getConfigParameterFactory()
-        );
+        $fileSystemCacheProvider = $this->createFileSystemCacheProvider();
 
         self::setValue($fileSystemCacheProvider, 'config', $config);
         self::setValue($fileSystemCacheProvider, 'path', '/tmp/');

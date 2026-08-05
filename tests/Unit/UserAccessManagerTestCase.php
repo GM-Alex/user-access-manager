@@ -25,16 +25,16 @@ use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Cache\FileSystemCacheProvider;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigFactory;
-use UserAccessManager\Config\ConfigParameter;
-use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\ConfigParameter;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
-use UserAccessManager\Controller\Backend\ObjectInformationFactory;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectInformationFactory;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
-use UserAccessManager\File\FileObjectFactory;
-use UserAccessManager\File\FileProtectionFactory;
+use UserAccessManager\File\Delivery\FileObjectFactory;
+use UserAccessManager\File\Protection\FileProtectionFactory;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
@@ -630,7 +630,7 @@ abstract class UserAccessManagerTestCase extends TestCase
         $type = strtolower($type);
         $className = ucfirst($type).'ConfigParameter';
 
-        $parameter = $this->createMock("\UserAccessManager\Config\\{$className}");
+        $parameter = $this->createMock("\UserAccessManager\Config\Parameter\\{$className}");
         $parameter->expects($this->any())
             ->method('getId')
             ->will($this->returnValue("{$type}{$postFix}Id"));

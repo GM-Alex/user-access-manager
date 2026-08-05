@@ -1,43 +1,27 @@
 <?php
-/**
- * ControllerFactoryTest.php
- *
- * The ControllerFactoryTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Controller;
 
-use UserAccessManager\Controller\Backend\AboutController;
+use UserAccessManager\Controller\Backend\Administration\AboutController;
 use UserAccessManager\Controller\Backend\BackendController;
 use UserAccessManager\Controller\Backend\CacheController;
-use UserAccessManager\Controller\Backend\DynamicGroupsController;
-use UserAccessManager\Controller\Backend\ObjectController;
-use UserAccessManager\Controller\Backend\PostObjectController;
-use UserAccessManager\Controller\Backend\SettingsController;
-use UserAccessManager\Controller\Backend\SetupController;
-use UserAccessManager\Controller\Backend\TermObjectController;
-use UserAccessManager\Controller\Backend\UserGroupController;
-use UserAccessManager\Controller\Backend\UserObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\DynamicGroupsController;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\PostObjectController;
+use UserAccessManager\Controller\Backend\Administration\SettingsController;
+use UserAccessManager\Controller\Backend\Administration\SetupController;
+use UserAccessManager\Controller\Backend\ObjectMembership\TermObjectController;
+use UserAccessManager\Controller\Backend\Administration\UserGroupController;
+use UserAccessManager\Controller\Backend\ObjectMembership\UserObjectController;
 use UserAccessManager\Controller\ControllerFactory;
 use UserAccessManager\Controller\Frontend\FrontendController;
-use UserAccessManager\Controller\Frontend\PostController;
+use UserAccessManager\Controller\Frontend\Content\PostController;
 use UserAccessManager\Controller\Frontend\RedirectController;
-use UserAccessManager\Controller\Frontend\ShortCodeController;
-use UserAccessManager\Controller\Frontend\TermController;
+use UserAccessManager\Controller\Frontend\Authentication\ShortCodeController;
+use UserAccessManager\Controller\Frontend\Content\TermController;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class ControllerFactoryTest
- *
- * @package UserAccessManager\Tests\Unit\Controller
  * @coversDefaultClass \UserAccessManager\Controller\ControllerFactory
  */
 class ControllerFactoryTest extends UserAccessManagerTestCase

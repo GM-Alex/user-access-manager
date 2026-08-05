@@ -29,11 +29,9 @@ class Cache
         $this->cacheProvider?->init();
     }
 
-    public function generateCacheKey(): string
+    public function generateCacheKey(...$keyParts): string
     {
-        $arguments = func_get_args();
-
-        return implode('|', $arguments);
+        return implode('|', $keyParts);
     }
 
     public function add(string $key, mixed $value): void
@@ -45,7 +43,7 @@ class Cache
     public function get(string $key): mixed
     {
         if (isset($this->cache[$key]) === false) {
-            $this->cache[$key] = ($this->cacheProvider !== null) ? $this->cacheProvider->get($key) : null;
+            $this->cache[$key] = $this->cacheProvider?->get($key);
         }
 
         return $this->cache[$key];
@@ -64,13 +62,8 @@ class Cache
 
     public function getFromRuntimeCache(string $key): mixed
     {
-        if (isset($this->runtimeCache[$key]) === true) {
-            return $this->runtimeCache[$key];
-        }
-
-        return null;
+        return $this->runtimeCache[$key] ?? null;
     }
-
 
     public function flushCache(): void
     {

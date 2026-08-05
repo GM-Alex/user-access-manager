@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UserAccessManager\ObjectMembership;
 
 use Exception;
+use UserAccessManager\ObjectMembership\Exception\MissingObjectTypeException;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;
@@ -38,8 +39,7 @@ abstract class ObjectMembershipHandler
 
     public function handlesObject(mixed $objectType): bool
     {
-        $objectTypes = $this->getHandledObjects();
-        return isset($objectTypes[$objectType]);
+        return isset($this->getHandledObjects()[$objectType]);
     }
 
     protected function assignRecursiveMembership(
@@ -68,13 +68,9 @@ abstract class ObjectMembershipHandler
 
     protected function getSimpleAssignedObjects(AbstractUserGroup $userGroup, string $objectType): array
     {
-        $objects = $userGroup->getAssignedObjects($objectType);
-
         return array_map(
-            function (AssignmentInformation $element) {
-                return $element->getType();
-            },
-            $objects
+            fn(AssignmentInformation $assignmentInformation) => $assignmentInformation->getType(),
+            $userGroup->getAssignedObjects($objectType)
         );
     }
 

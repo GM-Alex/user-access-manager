@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace UserAccessManager\Form;
 
+use UserAccessManager\Form\Element\FormElement;
+
 class Form
 {
     /**

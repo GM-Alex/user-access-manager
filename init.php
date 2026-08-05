@@ -6,16 +6,16 @@ use UserAccessManager\Command\GroupCommand;
 use UserAccessManager\Command\ObjectCommand;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\ConfigFactory;
-use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Cache\CacheProviderFactory;
 use UserAccessManager\Controller\ControllerFactory;
-use UserAccessManager\Controller\Backend\ObjectInformationFactory;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectInformationFactory;
 use UserAccessManager\Widget\WidgetFactory;
 use UserAccessManager\Database\Database;
 use UserAccessManager\File\FileHandler;
-use UserAccessManager\File\FileObjectFactory;
-use UserAccessManager\File\FileProtectionFactory;
+use UserAccessManager\File\Delivery\FileObjectFactory;
+use UserAccessManager\File\Protection\FileProtectionFactory;
 use UserAccessManager\Form\FormFactory;
 use UserAccessManager\Form\FormHelper;
 use UserAccessManager\Object\ObjectHandler;
@@ -67,11 +67,9 @@ function initUserAccessManger()
     $formHelper = new FormHelper($php, $wordpress, $mainConfig, $formFactory);
     $assignedObjectsLoader = new AssignedObjectsLoader($wordpress, $database, $assignmentInformationFactory);
     $userGroupFactory = new UserGroupFactory(
-        $php,
         $wordpress,
         $database,
         $mainConfig,
-        $util,
         $objectHandler,
         $assignedObjectsLoader
     );

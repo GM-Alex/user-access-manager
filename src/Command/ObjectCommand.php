@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace UserAccessManager\Command;
 
 use Exception;
 use UserAccessManager\UserGroup\AbstractUserGroup;
-use UserAccessManager\UserGroup\UserGroup;
 use UserAccessManager\UserGroup\UserGroupHandler;
 use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\WordpressCli;
@@ -13,15 +14,16 @@ use WP_CLI_Command;
 
 class ObjectCommand extends WP_CLI_Command
 {
-    const ACTION_ADD = 'add';
-    const ACTION_UPDATE = 'update';
-    const ACTION_REMOVE = 'remove';
+    public const ACTION_ADD = 'add';
+    public const ACTION_UPDATE = 'update';
+    public const ACTION_REMOVE = 'remove';
 
-    /**
-     * ObjectCommand constructor.
-     * @param WordpressCli $wordpressCli
-     * @param UserGroupHandler $userGroupHandler
-     */
+    private const SUCCESS_MESSAGES = [
+        self::ACTION_ADD => 'Groups %1$s successfully added to %2$s %3$s',
+        self::ACTION_UPDATE => 'Successfully updated %2$s %3$s with groups %1$s',
+        self::ACTION_REMOVE => 'Successfully removed groups: %1$s from %2$s %3$s'
+    ];
+
     public function __construct(
         private WordpressCli $wordpressCli,
         private UserGroupHandler $userGroupHandler
@@ -29,20 +31,15 @@ class ObjectCommand extends WP_CLI_Command
     }
 
     /**
-     * Converts the string to and associative an array of index and group
      * @param AbstractUserGroup[] $userGroups
-     * @return array
+     * @return array<string, int|string> group name to group id
      */
     private function getUserGroupNameMap(array $userGroups): array
     {
-        $userGroupNames = array_map(
-            function (UserGroup $userGroup) {
-                return $userGroup->getName();
-            },
+        return array_flip(array_map(
+            fn(AbstractUserGroup $userGroup) => $userGroup->getName(),
             $userGroups
-        );
-
-        return array_flip($userGroupNames);
+        ));
     }
 
     private function getUserGroupIdAndType(array $namesMap, string $identifier, ?string &$type = ''): int|string
@@ -67,7 +64,6 @@ class ObjectCommand extends WP_CLI_Command
         $addUserGroups = [];
         $namesMap = $this->getUserGroupNameMap($userGroups);
 
-        // find the UserGroup object for the ids or strings given on the commandline
         foreach ($userGroupIds as $identifier) {
             $userGroupId = $this->getUserGroupIdAndType($namesMap, $identifier, $type);
 
@@ -115,14 +111,8 @@ class ObjectCommand extends WP_CLI_Command
         }
 
         $operation = $arguments[0];
-        $messages = [
-            self::ACTION_ADD => 'Groups %1$s successfully added to %2$s %3$s',
-            self::ACTION_UPDATE => 'Successfully updated %2$s %3$s with groups %1$s',
-            self::ACTION_REMOVE => 'Successfully removed groups: %1$s from %2$s %3$s'
-        ];
 
-        // check that an operation is valid
-        if (isset($messages[$operation]) === false) {
+        if (isset(self::SUCCESS_MESSAGES[$operation]) === false) {
             $this->wordpressCli->error("Operation is not valid: $operation");
             return;
         }
@@ -159,7 +149,7 @@ class ObjectCommand extends WP_CLI_Command
         }
 
         $this->wordpressCli->success(
-            sprintf($messages[$operation], implode(', ', $userGroupIds), $objectType, $objectId)
+            sprintf(self::SUCCESS_MESSAGES[$operation], implode(', ', $userGroupIds), $objectType, $objectId)
         );
     }
 }

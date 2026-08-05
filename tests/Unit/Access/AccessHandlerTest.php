@@ -1,17 +1,4 @@
 <?php
-/**
- * AccessHandlerTest.php
- *
- * The AccessHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Access;
 
@@ -23,9 +10,6 @@ use UserAccessManager\Tests\Unit\HandlerTestCase;
 use UserAccessManager\UserGroup\UserGroupTypeException;
 
 /**
- * Class AccessHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\Access
  * @coversDefaultClass \UserAccessManager\Access\AccessHandler
  */
 class AccessHandlerTest extends HandlerTestCase
@@ -51,8 +35,10 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::checkObjectAccess()
+     * @covers ::resolveObjectAccess()
      * @covers ::isAdmin()
      * @covers ::hasAuthorAccess()
+     * @covers ::canManageUserGroups()
      * @covers ::getUserUserGroupsForObjectAccess()
      * @throws UserGroupTypeException
      * @throws ReflectionException
@@ -196,6 +182,7 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::checkObjectAccess()
+     * @covers ::resolveObjectAccess()
      * @covers ::hasAuthorAccess()
      * @throws UserGroupTypeException
      */
@@ -241,6 +228,7 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getExcludedTerms()
+     * @covers ::canManageUserGroups()
      * @covers ::getExcludedObjects()
      * @throws UserGroupTypeException
      */
@@ -298,7 +286,9 @@ class AccessHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getExcludedPosts()
-     * @covers ::getNoneHiddenPostTypes()
+     * @covers ::getVisiblePostTypes()
+     * @covers ::getOwnPostIds()
+     * @covers ::canManageUserGroups()
      * @covers ::getExcludedObjects()
      * @throws UserGroupTypeException
      * @throws ReflectionException
@@ -371,7 +361,6 @@ class AccessHandlerTest extends HandlerTestCase
                 $post = new stdClass();
                 $post->ID = 4;
 
-                // Don't return an array to check type cast
                 return [$post];
             }));
 
@@ -418,11 +407,11 @@ class AccessHandlerTest extends HandlerTestCase
 
         self::assertEquals([4 => 4, 6 => 6], $accessHandler->getExcludedPosts());
 
-        self::setValue($accessHandler, 'noneHiddenPostTypes', null);
+        self::setValue($accessHandler, 'visiblePostTypes', null);
         self::setValue($accessHandler, 'excludedPosts', null);
         self::assertEquals([2 => 2, 4 => 4, 6 => 6], $accessHandler->getExcludedPosts());
 
-        self::setValue($accessHandler, 'noneHiddenPostTypes', null);
+        self::setValue($accessHandler, 'visiblePostTypes', null);
         self::setValue($accessHandler, 'excludedPosts', null);
         self::assertEquals([6 => 6], $accessHandler->getExcludedPosts());
         self::setValue($accessHandler, 'excludedPosts', null);

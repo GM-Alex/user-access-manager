@@ -1,17 +1,4 @@
 <?php
-/**
- * DateUtilTest.php
- *
- * The DateUtilTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Util;
 
@@ -19,9 +6,6 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\Util\DateUtil;
 
 /**
- * Class DateUtilTest
- *
- * @package UserAccessManager\Tests\Unit\Util
  * @coversDefaultClass \UserAccessManager\Util\DateUtil
  */
 class DateUtilTest extends UserAccessManagerTestCase
@@ -58,6 +42,7 @@ class DateUtilTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::formatDateForDatetimeInput()
+     * @covers ::formatDateWith()
      */
     public function testFormatDateForDatetimeInput()
     {
@@ -70,24 +55,26 @@ class DateUtilTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::formatDateForDateInput()
+     * @covers ::formatDateWith()
      */
     public function testFormatDateForDateInput()
     {
         $dateUtil = new DateUtil($this->getWordpress());
 
-        self::assertEquals(null, $dateUtil->formatDateForDatetimeInput(null));
+        self::assertEquals(null, $dateUtil->formatDateForDateInput(null));
         self::assertEquals('1970-01-01', $dateUtil->formatDateForDateInput(0));
     }
 
     /**
      * @group  unit
      * @covers ::formatDateForTimeInput()
+     * @covers ::formatDateWith()
      */
     public function testFormatDateForTimeInput()
     {
         $dateUtil = new DateUtil($this->getWordpress());
 
-        self::assertEquals(null, $dateUtil->formatDateForDatetimeInput(null));
+        self::assertEquals(null, $dateUtil->formatDateForTimeInput(null));
         self::assertEquals('00:00:00', $dateUtil->formatDateForTimeInput(0));
     }
 

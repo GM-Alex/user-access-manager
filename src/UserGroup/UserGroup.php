@@ -8,8 +8,6 @@ use Exception;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\Util\Util;
-use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 class UserGroup extends AbstractUserGroup
@@ -23,31 +21,21 @@ class UserGroup extends AbstractUserGroup
      * @throws UserGroupTypeException
      */
     public function __construct(
-        Php $php,
         Wordpress $wordpress,
         Database $database,
         MainConfig $config,
-        Util $util,
         ObjectHandler $objectHandler,
         AssignedObjectsLoader $assignedObjectsLoader,
         int|string|null $id = null
     ) {
-        parent::__construct(
-            $php,
-            $wordpress,
-            $database,
-            $config,
-            $util,
-            $objectHandler,
-            $assignedObjectsLoader
-        );
+        parent::__construct($wordpress, $database, $config, $objectHandler, $assignedObjectsLoader);
 
         if ($id !== null) {
             $this->load($id);
         }
     }
 
-    public function getIpRange(): array|string|null
+    public function getIpRange(): ?string
     {
         return $this->ipRange;
     }
@@ -74,13 +62,13 @@ class UserGroup extends AbstractUserGroup
 
         $databaseUserGroup = $this->database->getRow($query);
 
-        if ($databaseUserGroup !== null) {
-            $this->assignDatabaseValues($databaseUserGroup);
-
-            return true;
+        if ($databaseUserGroup === null) {
+            return false;
         }
 
-        return false;
+        $this->assignDatabaseValues($databaseUserGroup);
+
+        return true;
     }
 
     public function assignDatabaseValues(object $databaseUserGroup): void
@@ -95,36 +83,31 @@ class UserGroup extends AbstractUserGroup
 
     public function save(): bool
     {
-        if ($this->id === null) {
-            $return = $this->database->insert(
-                $this->database->getUserGroupTable(),
-                [
-                    'groupname' => $this->name,
-                    'groupdesc' => $this->description,
-                    'read_access' => $this->readAccess,
-                    'write_access' => $this->writeAccess,
-                    'ip_range' => $this->ipRange
-                ]
-            );
+        $columns = [
+            'groupname' => $this->name,
+            'groupdesc' => $this->description,
+            'read_access' => $this->readAccess,
+            'write_access' => $this->writeAccess,
+            'ip_range' => $this->ipRange
+        ];
 
-            if ($return !== false) {
-                $this->id = (string) $this->database->getLastInsertId();
-            }
-        } else {
-            $return = $this->database->update(
+        if ($this->id !== null) {
+            return $this->database->update(
                 $this->database->getUserGroupTable(),
-                [
-                    'groupname' => $this->name,
-                    'groupdesc' => $this->description,
-                    'read_access' => $this->readAccess,
-                    'write_access' => $this->writeAccess,
-                    'ip_range' => $this->ipRange
-                ],
+                $columns,
                 ['ID' => $this->id]
-            );
+            ) !== false;
         }
 
-        return ($return !== false);
+        $return = $this->database->insert($this->database->getUserGroupTable(), $columns);
+
+        if ($return === false) {
+            return false;
+        }
+
+        $this->id = (string) $this->database->getLastInsertId();
+
+        return true;
     }
 
     /**
@@ -136,15 +119,11 @@ class UserGroup extends AbstractUserGroup
             return false;
         }
 
-        $success = $this->database->delete(
+        $deleted = $this->database->delete(
             $this->database->getUserGroupTable(),
             ['ID' => $this->id]
         );
 
-        if ($success !== false) {
-            $success = parent::delete();
-        }
-
-        return $success;
+        return ($deleted !== false) && parent::delete();
     }
 }
