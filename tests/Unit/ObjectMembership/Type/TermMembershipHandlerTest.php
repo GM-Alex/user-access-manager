@@ -88,6 +88,7 @@ class TermMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::getHandledObjects()
+     * @covers \UserAccessManager\ObjectMembership\ObjectMembershipWithMapHandler::getHandledObjectsIncluding()
      * @throws Exception
      */
     public function testGetHandledObjects()

@@ -661,6 +661,7 @@ class PostControllerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::showPostSql()
      * @covers ::addQueryExcludedPostFilter()
+     * @covers ::toIdList()
      * @throws UserGroupTypeException
      */
     public function testShowPostSql()
@@ -1118,6 +1119,7 @@ class PostControllerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::showEditLink()
+     * @covers ::getAssignedGroupsHint()
      * @throws UserGroupTypeException
      */
     public function testShowEditLink()

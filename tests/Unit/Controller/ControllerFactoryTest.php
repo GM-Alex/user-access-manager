@@ -94,6 +94,7 @@ class ControllerFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createBackendObjectController()
+     * @covers ::createObjectController()
      * @param ControllerFactory $controllerFactory
      */
     public function testCreateBackendObjectController(ControllerFactory $controllerFactory)

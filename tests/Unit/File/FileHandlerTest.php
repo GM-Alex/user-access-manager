@@ -40,6 +40,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
     }
@@ -47,6 +48,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     /**
@@ -105,10 +107,12 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getFile()
+     * @covers ::isRangeRequest()
      * @covers ::isInlineFile()
      * @covers ::getFileMimeType()
      * @covers ::clearBuffer()
      * @covers ::deliverFile()
+     * @covers ::addXSendFileHeader()
      * @covers ::addDefaultHeader()
      * @covers ::deliverFileViaFopen()
      * @runInSeparateProcess
@@ -1077,6 +1081,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::deliverXSendFileTestFile()
+     * @covers ::getXSendFileTestFilePath()
      * @runInSeparateProcess
      */
     public function testDeliverXSendFileTestFile()

@@ -41,6 +41,7 @@ class FormHelperTest extends UserAccessManagerTestCase
      * @covers  ::getText()
      * @covers  ::getParameterText()
      * @covers  ::getObjectText()
+     * @covers ::getPublicObject()
      */
     public function testGetText()
     {
@@ -190,6 +191,7 @@ class FormHelperTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::convertConfigParameter()
      * @covers ::convertSelectionParameter()
+     * @covers ::resolveTextConstant()
      * @throws Exception
      */
     public function testConvertConfigParameter()
@@ -310,6 +312,7 @@ class FormHelperTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getSettingsForm()
+     * @covers ::addConvertedParameter()
      * @throws Exception
      */
     public function testGetSettingsFrom()

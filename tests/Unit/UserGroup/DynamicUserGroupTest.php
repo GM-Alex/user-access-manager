@@ -104,6 +104,8 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getName()
+     * @covers ::createUserName()
+     * @covers ::createRoleName()
      * @throws UserGroupTypeException
      * @throws ReflectionException
      */

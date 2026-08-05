@@ -157,6 +157,8 @@ class UserMembershipHandlerTest extends ObjectMembershipHandlerTestCase
     /**
      * @group  unit
      * @covers ::isMember()
+     * @covers ::getRecursiveRoleMembership()
+     * @covers ::getUserCapabilities()
      * @throws Exception
      */
     public function testIsMember()

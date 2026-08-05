@@ -41,6 +41,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
     }
@@ -48,6 +49,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     private function createFileSystemCacheProvider(
@@ -301,6 +303,7 @@ class FileSystemCacheProviderTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::get()
+     * @covers ::includeCachedValue()
      * @covers ::getCacheMethod()
      * @covers ::getCacheFile()
      * @throws Exception

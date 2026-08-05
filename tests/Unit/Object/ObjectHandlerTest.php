@@ -222,6 +222,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetPostTypes
      * @covers  ::registeredPostType()
+     * @covers ::resetDerivedObjectTypeCaches()
      * @param ObjectHandler $objectHandler
      * @return ObjectHandler
      */

@@ -550,6 +550,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::backupDatabase()
+     * @covers ::getTableNames()
      */
     public function testBackup()
     {

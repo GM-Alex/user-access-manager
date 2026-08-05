@@ -116,6 +116,7 @@ class UserGroupHandlerTest extends HandlerTestCase
     /**
      * @group unit
      * @covers ::getUserGroups()
+     * @covers ::loadUserGroups()
      * @throws UserGroupTypeException
      */
     public function testGetUserGroups(): UserGroupHandler
@@ -190,6 +191,7 @@ class UserGroupHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getDynamicUserGroups()
+     * @covers ::loadDynamicUserGroups()
      * @throws UserGroupTypeException
      */
     public function testGetDynamicUserGroups()
@@ -286,6 +288,7 @@ class UserGroupHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getFilteredUserGroups()
+     * @covers ::filterByUserGroupsOfUser()
      * @throws UserGroupTypeException
      * @throws ReflectionException
      */
@@ -506,8 +509,10 @@ class UserGroupHandlerTest extends HandlerTestCase
     /**
      * @group  unit
      * @covers ::getUserGroupsForUser()
+     * @covers ::loadUserGroupsForUser()
      * @covers ::assignDynamicUserGroupsForUser()
      * @covers ::checkUserGroupAccess()
+     * @covers ::getUserIp()
      * @throws UserGroupTypeException
      * @throws ReflectionException
      */

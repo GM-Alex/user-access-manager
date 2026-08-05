@@ -40,6 +40,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
     }
@@ -47,6 +48,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     private function createApacheFileProtection(

@@ -25,6 +25,7 @@ class MainConfigTest extends UserAccessManagerTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->defaultValues = [
             'hide_default' => 'bool|hide_default|false',
             'hide_default_title' => 'bool|hide_default_title|false',
@@ -180,6 +181,9 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getDefaultConfigParameters()
      * @covers ::addDefaultGeneralConfigParameters()
+     * @covers ::addString()
+     * @covers ::addSelection()
+     * @covers ::addBoolean()
      * @covers ::addDefaultPostConfigParameters()
      * @covers ::addDefaultTaxonomyConfigParameters()
      * @covers ::addDefaultFileConfigParameters()

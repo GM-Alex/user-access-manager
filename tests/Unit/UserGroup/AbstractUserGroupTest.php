@@ -173,6 +173,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::addObject()
+     * @covers ::getAssignableGeneralObjectType()
      * @covers ::resetObjects()
      * @covers ::resetObjectsAfterAssignmentChange()
      * @covers ::addDefaultType()
@@ -615,6 +616,7 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getDefaultGroupForObjectTypes()
+     * @covers ::loadDefaultGroupForObjectTypes()
      * @return AbstractUserGroup
      * @throws ReflectionException
      */

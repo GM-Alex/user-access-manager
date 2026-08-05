@@ -24,6 +24,7 @@ class LoginWidgetTest extends UserAccessManagerTestCase
      */
     protected function setUp(): void
     {
+        parent::setUp();
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
     }
@@ -34,6 +35,7 @@ class LoginWidgetTest extends UserAccessManagerTestCase
     protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     /**

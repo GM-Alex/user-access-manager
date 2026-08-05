@@ -61,6 +61,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getMembershipByMap()
+     * @covers ::getRecursiveMembershipByMap()
      * @throws ReflectionException
      */
     public function testGetMembershipByMap()
