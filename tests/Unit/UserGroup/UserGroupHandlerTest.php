@@ -251,6 +251,60 @@ class UserGroupHandlerTest extends HandlerTestCase
     }
 
     /**
+     * The not logged in group is seeded rather than read from the database, so
+     * it has to be there even when nothing is assigned to it.
+     *
+     * @group  unit
+     * @covers ::getDynamicUserGroups()
+     * @covers ::loadDynamicUserGroups()
+     * @throws UserGroupTypeException
+     */
+    public function testGetDynamicUserGroupsAlwaysContainsTheNotLoggedInGroup()
+    {
+        $userGroupFactory = $this->getUserGroupFactory();
+
+        $userGroupFactory->expects($this->exactly(2))
+            ->method('createDynamicUserGroup')
+            ->withConsecutive(
+                [DynamicUserGroup::USER_TYPE, DynamicUserGroup::NOT_LOGGED_IN_USER_ID],
+                [DynamicUserGroup::ROLE_TYPE, 'administrator']
+            )
+            ->will($this->returnCallback(function ($type, $id) {
+                return $this->getDynamicUserGroup($type, $id);
+            }));
+
+        $database = $this->getDatabase();
+
+        $database->expects($this->once())
+            ->method('getUserGroupToObjectTable')
+            ->will($this->returnValue('userGroupToObjectTable'));
+
+        $database->expects($this->once())
+            ->method('getResults')
+            ->will($this->returnValue($this->getQueryResult([
+                [DynamicUserGroup::ROLE_TYPE, 'administrator']
+            ])));
+
+        $userGroupHandler = new UserGroupHandler(
+            $this->getWordpressWithUser(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $database,
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $userGroupFactory
+        );
+
+        $dynamicUserGroups = $userGroupHandler->getDynamicUserGroups();
+
+        self::assertArrayHasKey(
+            DynamicUserGroup::USER_TYPE . '|' . DynamicUserGroup::NOT_LOGGED_IN_USER_ID,
+            $dynamicUserGroups
+        );
+        self::assertCount(2, $dynamicUserGroups);
+    }
+
+    /**
      * @group  unit
      * @covers ::getFullUserGroups()
      * @throws UserGroupTypeException

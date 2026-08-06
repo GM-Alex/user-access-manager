@@ -176,6 +176,10 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'On'
             ));
 
+        $php->method('fInfoOpen')->will($this->returnValue('fileInfo'));
+        $php->method('fInfoFile')->will($this->returnValue('text/plain; charset=us-ascii'));
+        $php->method('mimeContentType')->will($this->returnValue('text/plain'));
+
         $php->expects($this->exactly(4))
             ->method('setTimeLimit')
             ->with(30);
@@ -413,6 +417,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getFile()
      * @covers ::deliverFile()
+     * @covers ::addXSendFileHeader()
      */
     public function testGetFileViaNginxXSendFile()
     {
@@ -482,6 +487,9 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('functionExists')
             ->with('finfo_open')
             ->will($this->returnValue(true));
+
+        $php->method('fInfoOpen')->will($this->returnValue('fileInfo'));
+        $php->method('fInfoFile')->will($this->returnValue('text/plain; charset=us-ascii'));
 
         $php->expects($this->exactly(8))
             ->method('fread')
@@ -879,6 +887,8 @@ class FileHandlerTest extends UserAccessManagerTestCase
         // The opened finfo resource must be closed again.
         $php->expects($this->once())
             ->method('fInfoClose');
+        $php->method('fInfoOpen')->will($this->returnValue('fileInfo'));
+        $php->method('fInfoFile')->will($this->returnValue('text/plain'));
 
         $fileHandler = $this->createFileHandler($php);
 
@@ -895,9 +905,50 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ['vfs://extraContentsDir/testFile.txt', [[1, 2], [3, 4]], &$contentLength, &$boundary]
         );
 
+        // Each part starts with the boundary, then names the type and only then
+        // the range it carries. Clients read the parts in exactly that order.
         self::assertCount(3, $extraContents);
-        self::assertStringContainsString('Content-Range: bytes 1-2/9', $extraContents[0]);
-        self::assertStringContainsString('Content-Range: bytes 3-4/9', $extraContents[1]);
+        self::assertSame(
+            "\r\n--g45d64df96bmdf4sdgh45hf5--\r\n"
+            . "Content-Type: text/plain\r\n"
+            . "Content-Range: bytes 1-2/9\r\n\r\n",
+            $extraContents[0]
+        );
+        self::assertSame(
+            "\r\n--g45d64df96bmdf4sdgh45hf5--\r\n"
+            . "Content-Type: text/plain\r\n"
+            . "Content-Range: bytes 3-4/9\r\n\r\n",
+            $extraContents[1]
+        );
+    }
+
+    /**
+     * Without nginx and without mod_xsendfile there is no header to send, and the
+     * caller has to learn that so it can fall back to reading the file itself.
+     *
+     * @group  unit
+     * @covers ::addXSendFileHeader()
+     * @throws ReflectionException
+     */
+    public function testAddXSendFileHeaderWithoutAnySupportingServer()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->never())->method('header');
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('isNginx')
+            ->will($this->returnValue(false));
+        $wordpress->expects($this->once())
+            ->method('isApacheModuleLoaded')
+            ->with('mod_xsendfile')
+            ->will($this->returnValue(false));
+
+        $fileHandler = $this->createFileHandler($php, $wordpress);
+
+        self::assertFalse(
+            self::callMethod($fileHandler, 'addXSendFileHeader', ['vfs://testDir/testFile.txt'])
+        );
     }
 
     /**

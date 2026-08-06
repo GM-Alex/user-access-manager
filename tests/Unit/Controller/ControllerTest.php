@@ -282,4 +282,51 @@ class ControllerTest extends UserAccessManagerTestCase
         $dummyController->render();
         self::expectOutputString('testAction' . 'testContent');
     }
+
+    /**
+     * A snake case action must reach the camel case method, which only holds if
+     * the first word stays lower case and every following word is capitalised.
+     *
+     * @group   unit
+     * @covers  ::processAction()
+     * @covers  ::toCamelCase()
+     * @throws ReflectionException
+     */
+    public function testProcessActionConvertsSnakeCaseToCamelCase()
+    {
+        $dummyController = new DummyController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig()
+        );
+
+        $_GET['uam_action'] = 'multi_word_test';
+        self::callMethod($dummyController, 'processAction');
+        self::expectOutputString('multiWordTestAction');
+    }
+
+    /**
+     * Asserted on the conversion itself rather than through the dispatch, because
+     * PHP resolves method names case insensitively and would still find the
+     * method if the capitalisation were wrong.
+     *
+     * @group   unit
+     * @covers  ::toCamelCase()
+     * @throws ReflectionException
+     */
+    public function testToCamelCase()
+    {
+        $dummyController = new DummyController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig()
+        );
+
+        self::assertSame('single', self::callMethod($dummyController, 'toCamelCase', ['single']));
+        self::assertSame('twoWords', self::callMethod($dummyController, 'toCamelCase', ['two_words']));
+        self::assertSame(
+            'multiWordTest',
+            self::callMethod($dummyController, 'toCamelCase', ['multi_word_test'])
+        );
+    }
 }

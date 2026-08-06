@@ -10,4 +10,9 @@ class DummyController extends Controller
     {
         echo 'testAction';
     }
+
+    public function multiWordTestAction(): void
+    {
+        echo 'multiWordTestAction';
+    }
 }

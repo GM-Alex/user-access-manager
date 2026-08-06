@@ -79,7 +79,8 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
         $roles->roles = [
             'admin' => ['name' => 'Administrator'],
             'editor' => ['name' => 'Editor'],
-            'search' => ['name' => 'Search']
+            'search' => ['name' => 'Search'],
+            'seasonal' => ['name' => 'Seasonal']
         ];
 
         $wordpress->expects($this->once())
@@ -117,7 +118,8 @@ class DynamicGroupsControllerTest extends ObjectControllerTestCase
             '['
             . '{"id":1,"name":"User|user-access-manager: firstUser (firstUserLogin)","type":"user"},'
             . '{"id":2,"name":"User|user-access-manager: secondUser (secondUserLogin)","type":"user"},'
-            . '{"id":"search","name":"Role|user-access-manager: Search","type":"role"}'
+            . '{"id":"search","name":"Role|user-access-manager: Search","type":"role"}' . ','
+            . '{"id":"seasonal","name":"Role|user-access-manager: Seasonal","type":"role"}'
             . '][]'
         );
     }

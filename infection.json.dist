@@ -70,6 +70,12 @@
         "UserAccessManager\\Controller\\Frontend\\Content\\TermController::updateTermParent"
       ]
     },
+    "ArrayOneItem": {
+      "ignore": [
+        "UserAccessManager\\File\\FileHandler::getExtraContents",
+        "UserAccessManager\\ObjectMembership\\ObjectMembershipWithMapHandler::getRecursiveMembershipByMap"
+      ]
+    },
     "UnwrapArrayFilter": {
       "ignore": [
         "UserAccessManager\\Access\\AccessHandler::getExcludedPosts"
@@ -85,7 +91,16 @@
         "UserAccessManager\\Controller\\Frontend\\RedirectController::extractObjectTypeAndId",
         "UserAccessManager\\Cache\\Cache::setActiveCacheProvider",
         "UserAccessManager\\Form\\FormHelper::getSettingsForm",
-        "UserAccessManager\\Controller\\Frontend\\Content\\PostController::getRestRouteTarget"
+        "UserAccessManager\\Controller\\Frontend\\Content\\PostController::getRestRouteTarget",
+        "UserAccessManager\\Cache\\Cache::getFromRuntimeCache",
+        "UserAccessManager\\Config\\MainConfig::getObjectParameter",
+        "UserAccessManager\\Controller\\Backend\\Administration\\SettingsController::getObjectName",
+        "UserAccessManager\\Controller\\Backend\\Administration\\SettingsController::updateFileProtectionFile",
+        "UserAccessManager\\Form\\FormHelper::getPublicObject",
+        "UserAccessManager\\Form\\FormHelper::convertSelectionParameter",
+        "UserAccessManager\\Object\\ObjectHandler::getGeneralObjectType",
+        "UserAccessManager\\ObjectMembership\\Type\\PostMembershipHandler::getFullObjects",
+        "UserAccessManager\\UserGroup\\AbstractUserGroup::isObjectAssignedToGroup"
       ]
     },
     "UnwrapUcFirst": {

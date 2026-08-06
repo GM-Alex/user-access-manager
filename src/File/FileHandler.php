@@ -45,11 +45,11 @@ class FileHandler
 
         // The deprecated mime_content_type() is only kept as a fallback for installations without fileinfo.
         if ($this->php->functionExists('finfo_open') === true) {
-            $fileInfo = finfo_open(FILEINFO_MIME);
-            $fileMimeType = finfo_file($fileInfo, $file);
+            $fileInfo = $this->php->fInfoOpen(FILEINFO_MIME);
+            $fileMimeType = $this->php->fInfoFile($fileInfo, $file);
             $this->php->fInfoClose($fileInfo);
         } elseif ($this->php->functionExists('mime_content_type')) {
-            $fileMimeType = mime_content_type($file);
+            $fileMimeType = $this->php->mimeContentType($file);
         } else {
             $fileMimeType = $mimeTypes[$fileExtension] ?? 'application/octet-stream';
         }

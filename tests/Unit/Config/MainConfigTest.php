@@ -442,6 +442,52 @@ class MainConfigTest extends UserAccessManagerTestCase
     }
 
     /**
+     * Covers the branches the object parameter lookup only reaches with a
+     * configured value: the "use default" parameter is consulted just when the
+     * object has its own entry, and a configured value has to be handed back
+     * instead of the fallback.
+     *
+     * @group  unit
+     * @covers ::getObjectParameter()
+     * @covers ::hideObject()
+     * @covers ::getObjectContent()
+     * @covers ::hideEmptyTaxonomy()
+     * @throws ReflectionException
+     */
+    public function testObjectParameterWithoutUseDefaultParameter()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->any())
+            ->method('getOption')
+            ->will($this->returnValue(null));
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $this->getConfigParameterFactory()
+        );
+
+        $trueParameter = $this->createMock(BooleanConfigParameter::class);
+        $trueParameter->expects($this->any())->method('getValue')->will($this->returnValue(true));
+
+        // No "post_use_default" entry, so the null safe call on it has to hold.
+        self::setValue($config, 'configParameters', [
+            'hide_post' => $trueParameter,
+            'hide_empty_category' => $trueParameter
+        ]);
+
+        self::assertTrue(self::callMethod($config, 'hideObject', ['post', 'hide_%s']));
+        self::assertTrue($config->hideEmptyTaxonomy('category'));
+
+        // Nothing configured at all, so the null safe call on the missing
+        // parameter has to hold as well.
+        self::setValue($config, 'configParameters', []);
+
+        self::assertSame('', self::callMethod($config, 'getObjectContent', ['post', 'content_%s']));
+    }
+
+    /**
      * @group  unit
      * @covers ::getPostTypeTitle()
      * @covers ::getPostTypeContent()

@@ -241,9 +241,10 @@ class PostObjectControllerTest extends ObjectControllerTestCase
         );
         $this->resetControllerObjectInformation($postObjectController);
 
+        // While editing, every form field has to be handed back untouched.
         $_GET['action'] = 'edit';
-        $return = $postObjectController->showMediaFile(['a' => 'b'], $post);
-        self::assertEquals(['a' => 'b'], $return);
+        $return = $postObjectController->showMediaFile(['a' => 'b', 'c' => 'd'], $post);
+        self::assertEquals(['a' => 'b', 'c' => 'd'], $return);
 
         self::expectOutputString($expectedOutput);
     }

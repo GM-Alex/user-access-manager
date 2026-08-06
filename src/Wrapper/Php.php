@@ -196,10 +196,34 @@ class Php
     }
 
     /**
+     * @see finfo_open()
+     */
+    public function fInfoOpen(int $flags)
+    {
+        return finfo_open($flags);
+    }
+
+    /**
+     * @see finfo_file()
+     */
+    public function fInfoFile($fileInfo, string $file)
+    {
+        return finfo_file($fileInfo, $file);
+    }
+
+    /**
      * @see finfo_close()
      */
     public function fInfoClose($fileInfo): bool
     {
         return finfo_close($fileInfo);
+    }
+
+    /**
+     * @see mime_content_type()
+     */
+    public function mimeContentType(string $file)
+    {
+        return mime_content_type($file);
     }
 }

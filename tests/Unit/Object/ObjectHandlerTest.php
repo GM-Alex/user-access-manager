@@ -252,6 +252,47 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * Registering an object type has to drop the derived caches, otherwise the
+     * merged object type lists keep serving the state from before the call.
+     *
+     * @group   unit
+     * @covers  ::registeredPostType()
+     * @covers  ::registeredTaxonomy()
+     * @covers  ::resetDerivedObjectTypeCaches()
+     */
+    public function testRegisteringAnObjectTypeResetsTheDerivedCaches()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->any())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['c' => 'c1']));
+        $wordpress->expects($this->any())
+            ->method('getTaxonomies')
+            ->will($this->returnValue(['a' => 'a1']));
+
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $this->getObjectMembershipHandlerFactory()
+        );
+
+        self::assertEquals(['c' => 'c1', 'a' => 'a1'], $objectHandler->getObjectTypes());
+
+        /**
+         * @var stdClass|WP_Post_Type $postTypeArguments
+         */
+        $postTypeArguments = $this->getMockBuilder('\WP_Post_Type')->getMock();
+        $postTypeArguments->public = true;
+        $objectHandler->registeredPostType('newPostType', $postTypeArguments);
+
+        self::assertArrayHasKey('newPostType', $objectHandler->getObjectTypes());
+
+        $objectHandler->registeredTaxonomy('newTaxonomy', 'objectType', ['public' => true]);
+
+        self::assertArrayHasKey('newTaxonomy', $objectHandler->getObjectTypes());
+    }
+
+    /**
      * @group   unit
      * @depends testGetTaxonomies
      * @covers  ::registeredTaxonomy()

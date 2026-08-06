@@ -95,7 +95,9 @@ class TermControllerTest extends UserAccessManagerTestCase
         $objectMapHandler->method('getTermPostMap')->will($this->returnValue([
             1 => [101 => 'post'],
             11 => [111 => 'post', 112 => 'post'],
-            2 => [201 => 'post'],
+            // 202 has a post type that is not registered, so it has no entry in the
+            // hide config and must fall back to being treated as hidden.
+            2 => [201 => 'post', 202 => 'unregisteredPostType'],
             12 => [1201 => 'post', 1202 => 'post']
         ]));
 
