@@ -1,17 +1,4 @@
 <?php
-/**
- * GroupCommandTest.php
- *
- * The GroupCommandTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Command;
 
@@ -24,24 +11,10 @@ use UserAccessManager\UserGroup\UserGroupTypeException;
 use WP_CLI\ExitException;
 
 /**
- * Class GroupCommandTest
- *
- * @package UserAccessManager\Tests\Unit\Command
  * @coversDefaultClass \UserAccessManager\Command\GroupCommand
  */
 class GroupCommandTest extends UserAccessManagerTestCase
 {
-    /**
-     * @param string $id
-     * @param string $name
-     * @param string $description
-     * @param string $readAccess
-     * @param string $writeAccess
-     * @param array $roles
-     * @param array $ipRanges
-     * @param int|null $saveExpected
-     * @return MockObject|UserGroup
-     */
     private function getExtendedUserGroup(
         string $id,
         string $name,
@@ -51,8 +24,7 @@ class GroupCommandTest extends UserAccessManagerTestCase
         array $roles,
         array $ipRanges,
         ?int $saveExpected = null
-    ): UserGroup|MockObject
-    {
+    ): UserGroup|MockObject {
         $userGroup = $this->getUserGroup(
             $id,
             true,
@@ -62,8 +34,8 @@ class GroupCommandTest extends UserAccessManagerTestCase
             $writeAccess,
             [],
             [],
-            $name)
-        ;
+            $name
+        );
 
         $userGroup->expects($this->any())
             ->method('getDescription')
@@ -253,7 +225,8 @@ class GroupCommandTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::add()
-     * @covers ::doesUserGroupExists()
+     * @covers ::isUserGroupNameAvailable()
+     * @covers ::assignRoles()
      * @covers ::createUserGroup()
      * @covers ::getArgumentValue()
      * @covers ::getAccessValue()

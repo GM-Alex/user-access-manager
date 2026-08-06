@@ -7,17 +7,17 @@ namespace UserAccessManager\Cache;
 use Exception;
 use UserAccessManager\Config\Config;
 use UserAccessManager\Config\ConfigFactory;
-use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
 use UserAccessManager\Wrapper\Wordpress;
 
 class RedisCacheProvider implements CacheProviderInterface
 {
-    const ID = 'RedisCacheProvider';
-    const CONFIG_KEY = 'uam_redis_cache_provider';
-    const CONFIG_PREFIX = 'redis_prefix';
-    const CONFIG_TTL = 'redis_ttl';
-    const DEFAULT_PREFIX = 'uam_cache';
-    const DEFAULT_TTL = 0;
+    public const ID = 'RedisCacheProvider';
+    public const CONFIG_KEY = 'uam_redis_cache_provider';
+    public const CONFIG_PREFIX = 'redis_prefix';
+    public const CONFIG_TTL = 'redis_ttl';
+    public const DEFAULT_PREFIX = 'uam_cache';
+    public const DEFAULT_TTL = 0;
 
     private ?Config $config = null;
 

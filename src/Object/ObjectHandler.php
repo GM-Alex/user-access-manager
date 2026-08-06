@@ -1,24 +1,11 @@
 <?php
-/**
- * ObjectHandler.php
- *
- * The ObjectHandler class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
 namespace UserAccessManager\Object;
 
 use Exception;
-use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
+use UserAccessManager\ObjectMembership\Exception\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandlerFactory;
 use UserAccessManager\Wrapper\Php;
@@ -29,11 +16,6 @@ use WP_Taxonomy;
 use WP_Term;
 use WP_User;
 
-/**
- * Class ObjectHandler
- *
- * @package UserAccessManager\ObjectHandler
- */
 class ObjectHandler
 {
     public const GENERAL_ROLE_OBJECT_TYPE = '_role_';
@@ -67,7 +49,7 @@ class ObjectHandler
     ) {
     }
 
-    public function getPostTypes(): ?array
+    public function getPostTypes(): array
     {
         if ($this->postTypes === null) {
             $this->postTypes = $this->wordpress->getPostTypes(['public' => true]);
@@ -76,7 +58,7 @@ class ObjectHandler
         return $this->postTypes;
     }
 
-    public function getTaxonomies(): ?array
+    public function getTaxonomies(): array
     {
         if ($this->taxonomies === null) {
             $this->taxonomies = $this->wordpress->getTaxonomies(['public' => true]);
@@ -116,6 +98,14 @@ class ObjectHandler
         return $this->terms[$fullId];
     }
 
+    private function resetDerivedObjectTypeCaches(): void
+    {
+        $this->objectTypes = null;
+        $this->allObjectTypes = null;
+        $this->allObjectTypesMap = null;
+        $this->validObjectTypes = [];
+    }
+
     /**
      * @see http://wordpress.org/support/topic/modifying-post-type-using-the-registered_post_type-hook
      */
@@ -124,10 +114,7 @@ class ObjectHandler
         if ($arguments->public === true) {
             $this->postTypes = $this->getPostTypes();
             $this->postTypes[$postType] = $postType;
-            $this->objectTypes = null;
-            $this->allObjectTypes = null;
-            $this->allObjectTypesMap = null;
-            $this->validObjectTypes = [];
+            $this->resetDerivedObjectTypeCaches();
         }
     }
 
@@ -136,26 +123,21 @@ class ObjectHandler
         if ((bool) $arguments['public'] === true) {
             $this->taxonomies = $this->getTaxonomies();
             $this->taxonomies[$taxonomy] = $taxonomy;
-            $this->objectTypes = null;
-            $this->allObjectTypes = null;
-            $this->allObjectTypesMap = null;
-            $this->validObjectTypes = [];
+            $this->resetDerivedObjectTypeCaches();
         }
     }
 
     public function isPostType(string $type): bool
     {
-        $postableTypes = $this->getPostTypes();
-        return isset($postableTypes[$type]);
+        return isset($this->getPostTypes()[$type]);
     }
 
     public function isTaxonomy(string $taxonomy): bool
     {
-        $taxonomies = $this->getTaxonomies();
-        return in_array($taxonomy, $taxonomies);
+        return in_array($taxonomy, $this->getTaxonomies());
     }
 
-    public function getObjectTypes(): ?array
+    public function getObjectTypes(): array
     {
         if ($this->objectTypes === null) {
             $this->objectTypes = array_merge(
@@ -170,25 +152,22 @@ class ObjectHandler
     /**
      * @throws Exception
      */
-    private function getAllObjectsTypesMap(): ?array
+    private function getAllObjectsTypesMap(): array
     {
         if ($this->allObjectTypesMap === null) {
             $this->allObjectTypesMap = [];
-            $objectHandlers = $this->getObjectMembershipHandlers();
 
-            foreach ($objectHandlers as $objectHandler) {
-                $handledObjects = $objectHandler->getHandledObjects();
+            foreach ($this->getObjectMembershipHandlers() as $membershipHandler) {
+                $handledObjects = $membershipHandler->getHandledObjects();
 
                 if ($handledObjects === []) {
                     continue;
                 }
 
-                $handledObjectsMap = array_combine(
+                $this->allObjectTypesMap = array_merge($this->allObjectTypesMap, array_combine(
                     $handledObjects,
-                    $this->php->arrayFill(0, count($handledObjects), $objectHandler->getGeneralObjectType())
-                );
-
-                $this->allObjectTypesMap = array_merge($this->allObjectTypesMap, $handledObjectsMap);
+                    $this->php->arrayFill(0, count($handledObjects), $membershipHandler->getGeneralObjectType())
+                ));
             }
         }
 
@@ -198,7 +177,7 @@ class ObjectHandler
     /**
      * @throws Exception
      */
-    public function getAllObjectTypes(): ?array
+    public function getAllObjectTypes(): array
     {
         if ($this->allObjectTypes === null) {
             $objectTypes = array_keys($this->getAllObjectsTypesMap());
@@ -213,8 +192,7 @@ class ObjectHandler
      */
     public function getGeneralObjectType(?string $objectType): ?string
     {
-        $objectsTypeMap = $this->getAllObjectsTypesMap();
-        return (isset($objectsTypeMap[$objectType]) === true) ? $objectsTypeMap[$objectType] : null;
+        return $this->getAllObjectsTypesMap()[$objectType] ?? null;
     }
 
     /**
@@ -223,36 +201,35 @@ class ObjectHandler
     public function isValidObjectType(?string $objectType): bool
     {
         if (isset($this->validObjectTypes[$objectType]) === false) {
-            $objectTypesMap = $this->getAllObjectTypes();
-            $this->validObjectTypes[$objectType] = isset($objectTypesMap[$objectType]);
+            $this->validObjectTypes[$objectType] = isset($this->getAllObjectTypes()[$objectType]);
         }
 
         return $this->validObjectTypes[$objectType];
     }
 
     /**
+     * @return ObjectMembershipHandler[]
      * @throws Exception
      */
-    private function getObjectMembershipHandlers(): ?array
+    private function getObjectMembershipHandlers(): array
     {
         if ($this->objectMembershipHandlers === null) {
-            $factory = $this->membershipHandlerFactory;
+            $handlersByGeneralObjectType = [];
 
-            $roleMembershipHandler = $factory->createRoleMembershipHandler();
-            $userMembershipHandler = $factory->createUserMembershipHandler($this);
-            $termMembershipHandler = $factory->createTermMembershipHandler($this);
-            $postMembershipHandler = $factory->createPostMembershipHandler($this);
+            foreach ([
+                $this->membershipHandlerFactory->createRoleMembershipHandler(),
+                $this->membershipHandlerFactory->createUserMembershipHandler($this),
+                $this->membershipHandlerFactory->createTermMembershipHandler($this),
+                $this->membershipHandlerFactory->createPostMembershipHandler($this)
+            ] as $membershipHandler) {
+                $handlersByGeneralObjectType[$membershipHandler->getGeneralObjectType()] = $membershipHandler;
+            }
 
-            $this->objectMembershipHandlers = [
-                $roleMembershipHandler->getGeneralObjectType() => $roleMembershipHandler,
-                $userMembershipHandler->getGeneralObjectType() => $userMembershipHandler,
-                $termMembershipHandler->getGeneralObjectType() => $termMembershipHandler,
-                $postMembershipHandler->getGeneralObjectType() => $postMembershipHandler
-            ];
-
+            // Published before the filter runs, so a callback that re-enters does not rebuild the handlers.
+            $this->objectMembershipHandlers = $handlersByGeneralObjectType;
             $this->objectMembershipHandlers = $this->wordpress->applyFilters(
                 'uam_register_object_membership_handler',
-                $this->objectMembershipHandlers
+                $handlersByGeneralObjectType
             );
         }
 

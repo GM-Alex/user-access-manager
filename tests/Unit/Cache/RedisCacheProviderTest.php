@@ -17,8 +17,11 @@ namespace UserAccessManager\Tests\Unit\Cache;
 
 use Exception;
 use UserAccessManager\Cache\RedisCacheProvider;
-use UserAccessManager\Config\StringConfigParameter;
+use UserAccessManager\Config\ConfigFactory;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\StringConfigParameter;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\Wrapper\Wordpress;
 
 /**
  * Class RedisCacheProviderTest
@@ -28,6 +31,18 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
  */
 class RedisCacheProviderTest extends UserAccessManagerTestCase
 {
+    private function createRedisCacheProvider(
+        ?Wordpress $wordpress = null,
+        ?ConfigFactory $configFactory = null,
+        ?ConfigParameterFactory $configParameterFactory = null
+    ): RedisCacheProvider {
+        return new RedisCacheProvider(
+            $wordpress ?? $this->getWordpress(),
+            $configFactory ?? $this->getConfigFactory(),
+            $configParameterFactory ?? $this->getConfigParameterFactory()
+        );
+    }
+
     /**
      * @group  unit
      * @covers ::__construct()
@@ -77,10 +92,9 @@ class RedisCacheProviderTest extends UserAccessManagerTestCase
             )
             ->will($this->returnValue($this->createMock(StringConfigParameter::class)));
 
-        $redisCacheProvider = new RedisCacheProvider(
-            $this->getWordpress(),
-            $configFactory,
-            $configParameterFactory
+        $redisCacheProvider = $this->createRedisCacheProvider(
+            configFactory: $configFactory,
+            configParameterFactory: $configParameterFactory
         );
 
         // The second call must return the cached config without recreating it.
@@ -111,11 +125,7 @@ class RedisCacheProviderTest extends UserAccessManagerTestCase
             ->method('wpCacheDelete')
             ->with('uam_cache|myKey', 'RedisCacheProvider');
 
-        $redisCacheProvider = new RedisCacheProvider(
-            $wordpress,
-            $this->getConfigFactory(),
-            $this->getConfigParameterFactory()
-        );
+        $redisCacheProvider = $this->createRedisCacheProvider($wordpress);
 
         $redisCacheProvider->add('myKey', 'myValue');
         self::assertEquals('myValue', $redisCacheProvider->get('myKey'));
@@ -152,7 +162,7 @@ class RedisCacheProviderTest extends UserAccessManagerTestCase
             ->method('wpCacheSet')
             ->with('myPrefix|myKey', 'myValue', 'RedisCacheProvider', 42);
 
-        $redisCacheProvider = new RedisCacheProvider($wordpress, $configFactory, $configParameterFactory);
+        $redisCacheProvider = $this->createRedisCacheProvider($wordpress, $configFactory, $configParameterFactory);
 
         $redisCacheProvider->getConfig();
         $redisCacheProvider->add('myKey', 'myValue');

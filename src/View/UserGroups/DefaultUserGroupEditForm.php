@@ -3,7 +3,7 @@
  * @var UserGroupController $controller
  */
 
-use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Controller\Backend\Administration\UserGroupController;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\DynamicUserGroup;
 use UserAccessManager\UserGroup\UserGroup;
@@ -46,25 +46,30 @@ use UserAccessManager\UserGroup\UserGroup;
                 </label>
                 <div class="uam_group_date_form">
                     <div>
-                        <label for="defaultGroups-<?php echo $userGroup->getId(); ?>-fromTime">
+                        <label class="uam_date_label"
+                               for="defaultGroups-<?php echo $userGroup->getId(); ?>-fromTime">
                             <?php echo TXT_UAM_GROUP_FROM_TIME; ?>
                         </label>
                         <input id="defaultGroups-<?php echo $userGroup->getId(); ?>-fromTime"
+                               type="text"
                                name="default_user_groups[<?php echo $userGroup->getId(); ?>][fromTime]"
                                class="uam_time_input"
                                value="<?php echo $fromTime; ?>"
                                placeholder="ddd-hh:mm:ss"/>
                     </div>
                     <div>
-                        <label for="defaultGroups-<?php echo $userGroup->getId(); ?>-toTime">
+                        <label class="uam_date_label"
+                               for="defaultGroups-<?php echo $userGroup->getId(); ?>-toTime">
                             <?php echo TXT_UAM_GROUP_TO_TIME; ?>
                         </label>
                         <input id="defaultGroups-<?php echo $userGroup->getId(); ?>-toTime"
+                               type="text"
                                name="default_user_groups[<?php echo $userGroup->getId(); ?>][toTime]"
                                class="uam_time_input"
                                value="<?php echo $toTime; ?>"
                                placeholder="ddd-hh:mm:ss"/>
                     </div>
+                    <p class="description"><?php echo TXT_UAM_DEFAULT_GROUP_TIME_DESCRIPTION; ?></p>
                 </div>
             </li>
             <?php

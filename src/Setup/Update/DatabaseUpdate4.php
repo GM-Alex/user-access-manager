@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace UserAccessManager\Setup\Update;
 
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\Setup\Database\DatabaseUpdate;
 
 class DatabaseUpdate4 extends DatabaseUpdate
 {
@@ -22,41 +21,21 @@ class DatabaseUpdate4 extends DatabaseUpdate
 
         $success = $this->database->query($alterQuery) !== false;
 
-        // Update post entries
-        $generalPostType = ObjectHandler::GENERAL_POST_OBJECT_TYPE;
-
-        $query = "UPDATE {$dbAccessGroupToObject}
-            SET general_object_type = '$generalPostType'
-            WHERE object_type IN ('post', 'page', 'attachment')";
-
-        $success = $success && $this->database->query($query) !== false;
-
-        // Update role entries
-        $generalRoleType = ObjectHandler::GENERAL_ROLE_OBJECT_TYPE;
-
-        $query = "UPDATE {$dbAccessGroupToObject}
-            SET general_object_type = '$generalRoleType'
-            WHERE object_type = 'role'";
-
-        $success = $success && $this->database->query($query) !== false;
-
-        // Update user entries
-        $generalUserType = ObjectHandler::GENERAL_USER_OBJECT_TYPE;
-
-        $query = "UPDATE {$dbAccessGroupToObject}
-            SET general_object_type = '$generalUserType'
-            WHERE object_type = 'user'";
-
-        $success = $success && $this->database->query($query) !== false;
-
-        // Update term entries
         $generalTermType = ObjectHandler::GENERAL_TERM_OBJECT_TYPE;
+        $objectTypeConditions = [
+            ObjectHandler::GENERAL_POST_OBJECT_TYPE => "object_type IN ('post', 'page', 'attachment')",
+            ObjectHandler::GENERAL_ROLE_OBJECT_TYPE => "object_type = 'role'",
+            ObjectHandler::GENERAL_USER_OBJECT_TYPE => "object_type = 'user'",
+            $generalTermType => "object_type = 'term'"
+        ];
 
-        $query = "UPDATE {$dbAccessGroupToObject}
-            SET general_object_type = '$generalTermType'
-            WHERE object_type = 'term'";
+        foreach ($objectTypeConditions as $generalObjectType => $condition) {
+            $query = "UPDATE {$dbAccessGroupToObject}
+                SET general_object_type = '$generalObjectType'
+                WHERE $condition";
 
-        $success = $success && $this->database->query($query) !== false;
+            $success = $success && $this->database->query($query) !== false;
+        }
 
         $query = "UPDATE $dbAccessGroupToObject AS gto
             LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt 

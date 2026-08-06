@@ -1,36 +1,20 @@
 <?php
-/**
- * ObjectHandlerTest.php
- *
- * The ObjectHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Object;
 
 use Exception;
 use stdClass;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
+use UserAccessManager\ObjectMembership\Exception\MissingObjectMembershipHandlerException;
 use UserAccessManager\ObjectMembership\ObjectMembershipHandler;
-use UserAccessManager\ObjectMembership\PostMembershipHandler;
-use UserAccessManager\ObjectMembership\RoleMembershipHandler;
-use UserAccessManager\ObjectMembership\TermMembershipHandler;
-use UserAccessManager\ObjectMembership\UserMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\UserMembershipHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use WP_Post_Type;
 
 /**
- * Class ObjectHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\Object
  * @coversDefaultClass \UserAccessManager\Object\ObjectHandler
  */
 class ObjectHandlerTest extends UserAccessManagerTestCase
@@ -238,6 +222,7 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetPostTypes
      * @covers  ::registeredPostType()
+     * @covers ::resetDerivedObjectTypeCaches()
      * @param ObjectHandler $objectHandler
      * @return ObjectHandler
      */
@@ -264,6 +249,47 @@ class ObjectHandlerTest extends UserAccessManagerTestCase
         self::assertEquals($expectedResult, $objectHandler->getPostTypes());
 
         return $objectHandler;
+    }
+
+    /**
+     * Registering an object type has to drop the derived caches, otherwise the
+     * merged object type lists keep serving the state from before the call.
+     *
+     * @group   unit
+     * @covers  ::registeredPostType()
+     * @covers  ::registeredTaxonomy()
+     * @covers  ::resetDerivedObjectTypeCaches()
+     */
+    public function testRegisteringAnObjectTypeResetsTheDerivedCaches()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->any())
+            ->method('getPostTypes')
+            ->will($this->returnValue(['c' => 'c1']));
+        $wordpress->expects($this->any())
+            ->method('getTaxonomies')
+            ->will($this->returnValue(['a' => 'a1']));
+
+        $objectHandler = new ObjectHandler(
+            $this->getPhp(),
+            $wordpress,
+            $this->getObjectMembershipHandlerFactory()
+        );
+
+        self::assertEquals(['c' => 'c1', 'a' => 'a1'], $objectHandler->getObjectTypes());
+
+        /**
+         * @var stdClass|WP_Post_Type $postTypeArguments
+         */
+        $postTypeArguments = $this->getMockBuilder('\WP_Post_Type')->getMock();
+        $postTypeArguments->public = true;
+        $objectHandler->registeredPostType('newPostType', $postTypeArguments);
+
+        self::assertArrayHasKey('newPostType', $objectHandler->getObjectTypes());
+
+        $objectHandler->registeredTaxonomy('newTaxonomy', 'objectType', ['public' => true]);
+
+        self::assertArrayHasKey('newTaxonomy', $objectHandler->getObjectTypes());
     }
 
     /**

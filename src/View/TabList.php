@@ -74,6 +74,9 @@ if (count($sections) > 1) {
                     }
                     ?>
                 </select>
+                <p class="description">
+                    <?php echo $controller->getGroupText($currentGroupKey . '_SECTION_SELECTION', true); ?>
+                </p>
             </td>
         </tr>
         </tbody>

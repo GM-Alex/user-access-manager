@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace UserAccessManager\Setup\Update;
 
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\Setup\Database\DatabaseUpdate;
 
 class DatabaseUpdate3 extends DatabaseUpdate
 {

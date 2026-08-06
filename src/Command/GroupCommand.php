@@ -17,9 +17,10 @@ use WP_CLI_Command;
 
 class GroupCommand extends WP_CLI_Command
 {
-    const FORMATTER_PREFIX = 'uam_user_groups';
+    public const FORMATTER_PREFIX = 'uam_user_groups';
 
-    private static array $allowedAccessValues = ['group', 'all'];
+    private const ALLOWED_ACCESS_VALUES = ['group', 'all'];
+    private const DEFAULT_ACCESS_VALUE = self::ALLOWED_ACCESS_VALUES[0];
 
     public function __construct(
         private WordpressCli $wordpressCli,
@@ -28,12 +29,7 @@ class GroupCommand extends WP_CLI_Command
     ) {
     }
 
-    /**
-     * Returns the formatter
-     * @param $assocArguments
-     * @return Formatter
-     */
-    private function getFormatter(&$assocArguments): Formatter
+    private function getFormatter(array &$assocArguments): Formatter
     {
         return $this->wordpressCli->createFormatter(
             $assocArguments,
@@ -88,12 +84,11 @@ class GroupCommand extends WP_CLI_Command
                     ',',
                     array_keys($userGroup->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE))
                 ),
-                'ip_range' => $userGroup->getIpRange() !== null ? $userGroup->getIpRange() : ''
+                'ip_range' => $userGroup->getIpRange() ?? ''
             ];
         }
 
-        $formatter = $this->getFormatter($assocArguments);
-        $formatter->display_items($groups);
+        $this->getFormatter($assocArguments)->display_items($groups);
     }
 
     /**
@@ -123,17 +118,13 @@ class GroupCommand extends WP_CLI_Command
     }
 
     /**
-     * Checks if the user group already exists.
-     * @param mixed $userGroupName
-     * @return bool
+     * Reports the conflicting group and returns false when the name is already taken.
      * @throws ExitException
      * @throws UserGroupTypeException
      */
-    private function doesUserGroupExists(mixed $userGroupName): bool
+    private function isUserGroupNameAvailable(mixed $userGroupName): bool
     {
-        $userGroups = $this->userGroupHandler->getUserGroups();
-
-        foreach ($userGroups as $userGroup) {
+        foreach ($this->userGroupHandler->getUserGroups() as $userGroup) {
             if ($userGroup->getName() === $userGroupName) {
                 $this->wordpressCli->error(
                     "Group with the same name '$userGroupName' already exists: {$userGroup->getId()}"
@@ -146,34 +137,42 @@ class GroupCommand extends WP_CLI_Command
         return true;
     }
 
-    /**
-     * Returns the argument value.
-     */
-    private function getArgumentValue(array $arguments, string $value): string
+    private function getArgumentValue(array $arguments, string $name): string
     {
-        return (isset($arguments[$value]) === true) ? (string) $arguments[$value] : '';
+        return isset($arguments[$name]) ? (string) $arguments[$name] : '';
     }
 
     /**
-     * Processes the access value.
+     * @throws ExitException
      */
-    private function getAccessValue(array $arguments, string $value, bool $porcelain): string
+    private function getAccessValue(array $arguments, string $name, bool $porcelain): string
     {
-        $accessValue = $this->getArgumentValue($arguments, $value);
+        $accessValue = $this->getArgumentValue($arguments, $name);
 
-        if (in_array($accessValue, self::$allowedAccessValues) === false) {
-            if ($porcelain === true) {
-                $this->wordpressCli->line("setting $value to " . self::$allowedAccessValues[0]);
-            }
-
-            $accessValue = self::$allowedAccessValues[0];
+        if (in_array($accessValue, self::ALLOWED_ACCESS_VALUES) === true) {
+            return $accessValue;
         }
 
-        return $accessValue;
+        if ($porcelain === true) {
+            $this->wordpressCli->line("setting $name to " . self::DEFAULT_ACCESS_VALUE);
+        }
+
+        return self::DEFAULT_ACCESS_VALUE;
     }
 
     /**
-     * Creates the user group.
+     * @throws UserGroupTypeException
+     */
+    private function assignRoles(UserGroup $userGroup, string $commaSeparatedRoles): void
+    {
+        $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
+
+        foreach (explode(',', $commaSeparatedRoles) as $role) {
+            $userGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($role));
+        }
+    }
+
+    /**
      * @throws UserGroupTypeException
      * @throws Exception
      */
@@ -192,15 +191,8 @@ class GroupCommand extends WP_CLI_Command
         $userGroup->setReadAccess($readAccess);
         $userGroup->setWriteAccess($writeAccess);
 
-        // add roles
         if (isset($assocArguments['roles']) === true) {
-            $roles = explode(',', $assocArguments['roles']);
-
-            $userGroup->removeObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
-
-            foreach ($roles as $role) {
-                $userGroup->addObject(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE, trim($role));
-            }
+            $this->assignRoles($userGroup, $assocArguments['roles']);
         }
 
         $userGroup->save();
@@ -235,7 +227,7 @@ class GroupCommand extends WP_CLI_Command
 
         $userGroupName = $arguments[0];
 
-        if ($this->doesUserGroupExists($userGroupName) === false) {
+        if ($this->isUserGroupNameAvailable($userGroupName) === false) {
             return;
         }
 

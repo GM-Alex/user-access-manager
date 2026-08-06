@@ -15,13 +15,13 @@
 namespace UserAccessManager\Tests\Unit;
 
 use UserAccessManager\Controller\Backend\BackendController;
-use UserAccessManager\Controller\Backend\DynamicGroupsController;
-use UserAccessManager\Controller\Backend\ObjectController;
-use UserAccessManager\Controller\Backend\PostObjectController;
-use UserAccessManager\Controller\Backend\TermObjectController;
-use UserAccessManager\Controller\Backend\UserObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\DynamicGroupsController;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\PostObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\TermObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\UserObjectController;
 use UserAccessManager\Controller\Frontend\FrontendController;
-use UserAccessManager\Controller\Frontend\PostController;
+use UserAccessManager\Controller\Frontend\Content\PostController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserAccessManager;
 use UserAccessManager\UserGroup\UserGroupTypeException;

@@ -46,26 +46,17 @@ class SetupHandler
     /**
      * @throws MissingColumnsException
      */
-    private function runInstall(): void
-    {
-        $this->databaseHandler->install();
-    }
-
-    /**
-     * @throws MissingColumnsException
-     */
     public function install(bool $networkWide = false): void
     {
-        if ($networkWide === true) {
-            $blogIds = $this->getBlogIds();
+        if ($networkWide === false) {
+            $this->databaseHandler->install();
+            return;
+        }
 
-            foreach ($blogIds as $blogId) {
-                $this->wordpress->switchToBlog($blogId);
-                $this->runInstall();
-                $this->wordpress->restoreCurrentBlog();
-            }
-        } else {
-            $this->runInstall();
+        foreach ($this->getBlogIds() as $blogId) {
+            $this->wordpress->switchToBlog($blogId);
+            $this->databaseHandler->install();
+            $this->wordpress->restoreCurrentBlog();
         }
     }
 

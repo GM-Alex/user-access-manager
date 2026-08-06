@@ -17,7 +17,7 @@ namespace UserAccessManager\Tests\Unit\Controller\Backend;
 
 use ReflectionException;
 use UserAccessManager\Controller\Backend\BackendController;
-use UserAccessManager\Controller\Backend\SetupController;
+use UserAccessManager\Controller\Backend\Administration\SetupController;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserAccessManager;
 use Vfs\FileSystem;

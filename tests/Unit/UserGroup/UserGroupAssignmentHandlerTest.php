@@ -85,10 +85,6 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @param string $type
-     * @param string $id
-     * @param array $with
-     * @param bool $throwException
      * @return MockObject|UserGroup
      */
     private function getDynamicUserGroupWithAdd(
@@ -96,12 +92,8 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
         string $id,
         array $with,
         bool $throwException = false
-    ): UserGroup|MockObject
-    {
-        $dynamicUserGroup = parent::getDynamicUserGroup(
-            $type,
-            $id
-        );
+    ): UserGroup|MockObject {
+        $dynamicUserGroup = parent::getDynamicUserGroup($type, $id);
 
         $dynamicUserGroup->expects($this->once())
             ->method('addObject')
@@ -132,49 +124,14 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
         );
 
         self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'someName']));
-        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'name']));
-        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name'], 'name']));
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => 'dateValue']], 'name']
-            )
-        );
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['time' => 'timeValue']], 'name']
-            )
-        );
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => '', 'time' => '']], 'name']
-            )
-        );
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => 'dateValue', 'time' => '']], 'name']
-            )
-        );
-        self::assertNull(
-            self::callMethod(
-                $objectController,
-                'getDateParameter',
-                [['name' => ['date' => '', 'time' => 'timeValue']], 'name']
-            )
-        );
+        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name' => ''], 'name']));
+        self::assertNull(self::callMethod($objectController, 'getDateParameter', [['name' => null], 'name']));
         self::assertEquals(
-            'dateValueTtimeValue',
+            '2021-02-03T04:05:06',
             self::callMethod(
                 $objectController,
                 'getDateParameter',
-                [['name' => ['date' => 'dateValue', 'time' => 'timeValue']], 'name']
+                [['name' => '2021-02-03T04:05:06'], 'name']
             )
         );
     }
@@ -289,8 +246,8 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
         );
 
         $addUserGroups = [
-            1 => ['id' => 1, 'fromDate' => ['date' => 1, 'time' => 2], 'toDate' => ['date' => 'to', 'time' => 'Date']],
-            3 => ['id' => 3, 'fromDate' => ['date' => 1, 'time' => 2], 'toDate' => ['date' => 'to', 'time' => 'Date']],
+            1 => ['id' => 1, 'fromDate' => '1T2', 'toDate' => 'toTDate'],
+            3 => ['id' => 3, 'fromDate' => '1T2', 'toDate' => 'toTDate'],
             100 => [],
             101 => ['id' => 100]
         ];
@@ -298,8 +255,8 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
         $dynamicUserGroups = [
             DynamicUserGroup::USER_TYPE . '|1' => [
                 'id' => DynamicUserGroup::USER_TYPE . '|1',
-                'fromDate' => ['date' => 'from', 'time' => 'Date'],
-                'toDate' => ['date' => 'to', 'time' => 'Date']
+                'fromDate' => 'fromTDate',
+                'toDate' => 'toTDate'
             ],
             DynamicUserGroup::ROLE_TYPE . '|admin' => ['id' => DynamicUserGroup::ROLE_TYPE . '|admin'],
             'A|B' => ['id' => 'B|A'],
@@ -339,8 +296,8 @@ class UserGroupAssignmentHandlerTest extends UserAccessManagerTestCase
         );
 
         $addUserGroups = [
-            1 => ['id' => 1, 'formDate' => ['date' => '', 'time' => ''], 'toDate' => ['date' => 23, 'time' => 4]],
-            2 => ['id' => 2, 'formDate' => ['date' => '', 'time' => ''], 'toDate' => ['date' => 23, 'time' => 4]]
+            1 => ['id' => 1, 'fromDate' => '', 'toDate' => '23T4'],
+            2 => ['id' => 2, 'fromDate' => '', 'toDate' => '23T4']
         ];
         $removeUserGroups = [2 => 2, 3 => 3, 4 => 4];
         $objectController->assignObjectToUserGroups(

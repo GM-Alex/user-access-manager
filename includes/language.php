@@ -36,6 +36,7 @@ define('TXT_UAM_SETTINGS_GROUP_SECTION_DEFAULT', __('Default', 'user-access-mana
 
 // --- Setting Page -> object settings ---
 define('TXT_UAM_POST_TYPES_SECTION_SELECTION_SETTING', __('Object type', 'user-access-manager'));
+define('TXT_UAM_POST_TYPES_SECTION_SELECTION_SETTING_DESC', __('Choose which post type the settings below apply to. Each post type is configured separately.', 'user-access-manager'));
 define('TXT_UAM_POST_TYPES_SETTING', __('Post type settings', 'user-access-manager'));
 define('TXT_UAM_TAXONOMIES_SETTING', __('Taxonomies settings', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_SETTING', __('Default settings', 'user-access-manager'));
@@ -89,7 +90,7 @@ define('TXT_UAM_USE_CUSTOM_FILE_HANDLING_FILE', __('Use custom file handling fil
 define('TXT_UAM_USE_CUSTOM_FILE_HANDLING_FILE_DESC', __('Selecting "Yes" will allow you to use your own config file.', 'user-access-manager'));
 define('TXT_UAM_CUSTOM_FILE_HANDLING_FILE', __('Custom file handling file', 'user-access-manager'));
 define('TXT_UAM_CUSTOM_FILE_HANDLING_FILE_DESC', __('Edit this content if you are using the custom file handling file setting.', 'user-access-manager'));
-define('TXT_UAM_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files. <br/><strong style="color:red;">Note: If you activate this option the plugin will overwrite a \'.htaccess\' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a \'.htaccess\' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>', 'user-access-manager'));
+define('TXT_UAM_LOCK_FILE_DESC', __('If you select "Yes" all files will locked by a .htaccess file and only users with access can download files. <br/><strong class="uam_note">Note: If you activate this option the plugin will overwrite a \'.htaccess\' file at the upload folder, if you use already one to protect your files. Also if you have no permalinks activated your upload dir will protect by a \'.htaccess\' with a random password and all old media files insert in a previous post/page will not work anymore. You have to update your posts/pages (not necessary if you have permalinks activated).</strong>', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE', __('Locked directory type', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE_DESC', __('"WordPress" will only lock files handled by the WordPress media manager (recommended), "All" will lock all files at the upload directory, "Custom" will use a custom string.', 'user-access-manager'));
 define('TXT_UAM_LOCKED_DIRECTORY_TYPE_WORDPRESS', __('WordPress', 'user-access-manager'));
@@ -130,6 +131,7 @@ define('TXT_UAM_FULL_ACCESS_ROLE_SUBSCRIBER', __('Subscriber', 'user-access-mana
 
 // --- Settings Page -> taxonomies ---
 define('TXT_UAM_TAXONOMIES_SECTION_SELECTION_SETTING', __('Object type', 'user-access-manager'));
+define('TXT_UAM_TAXONOMIES_SECTION_SELECTION_SETTING_DESC', __('Choose which taxonomy the settings below apply to. Each taxonomy is configured separately.', 'user-access-manager'));
 define('TXT_UAM_TAXONOMY_SETTING', __('Taxonomy settings', 'user-access-manager'));
 define('TXT_UAM_TAXONOMY_SETTING_DESC', __('Set up the behaviour if a taxonomy is locked', 'user-access-manager'));
 define('TXT_UAM_HIDE_EMPTY_DEFAULT', __('Hide empty', 'user-access-manager'));
@@ -139,6 +141,7 @@ define('TXT_UAM_HIDE_EMPTY_OBJECT_DESC', __('Selecting "Yes" will hide empty %s 
 
 // --- Settings Page -> cache ---
 define('TXT_UAM_CACHE_SECTION_SELECTION_SETTING', __('Active caching method', 'user-access-manager'));
+define('TXT_UAM_CACHE_SECTION_SELECTION_SETTING_DESC', __('Selects the caching method the plugin uses. Changing it takes effect immediately, the settings below belong to the selected method.', 'user-access-manager'));
 define('TXT_UAM_CACHE_SETTING', __('Cache settings', 'user-access-manager'));
 define('TXT_UAM_NONE_SETTING', __('Cache deactivated', 'user-access-manager'));
 define('TXT_UAM_NONE_SETTING_DESC', __('The cache is currently deactivated.', 'user-access-manager'));
@@ -200,6 +203,7 @@ define('TXT_UAM_UPDATE_SETTINGS', __('Settings updated.', 'user-access-manager')
 define('TXT_UAM_MANAGE_GROUP', __('Manage user groups', 'user-access-manager'));
 define('TXT_UAM_USER_GROUPS_SETTING', __('User groups', 'user-access-manager'));
 define('TXT_UAM_GROUP_ROLE', __('Role affiliation', 'user-access-manager'));
+define('TXT_UAM_GROUP_ROLE_DESC', __('Every user with one of the selected roles automatically belongs to this group, without being added to it individually. Administrators are not listed because they always have full access.', 'user-access-manager'));
 define('TXT_UAM_NAME', __('Name', 'user-access-manager'));
 define('TXT_UAM_DESCRIPTION', __('Description', 'user-access-manager'));
 define('TXT_UAM_READ_ACCESS', __('Read access', 'user-access-manager'));
@@ -207,6 +211,9 @@ define('TXT_UAM_WRITE_ACCESS', __('Write access', 'user-access-manager'));
 define('TXT_UAM_DELETE', __('Delete', 'user-access-manager'));
 define('TXT_UAM_UPDATE_GROUP', __('Update group', 'user-access-manager'));
 define('TXT_UAM_ADD', __('Add', 'user-access-manager'));
+define('TXT_UAM_REMOVE', __('Remove', 'user-access-manager'));
+define('TXT_UAM_OVERWRITE', __('Overwrite', 'user-access-manager'));
+define('TXT_UAM_BULK_TYPE_DESC', __('"Add" assigns the selected groups in addition to the ones the content already has, "Remove" takes only the selected groups away, and "Overwrite" replaces all existing groups with the selection.', 'user-access-manager'));
 define('TXT_UAM_ADD_GROUP', __('Add user group', 'user-access-manager'));
 define('TXT_UAM_EDIT_GROUP', __('Edit user group', 'user-access-manager'));
 define('TXT_UAM_GROUP_NAME', __('User group name', 'user-access-manager'));
@@ -216,9 +223,9 @@ define('TXT_UAM_GROUP_DESC_DESC', __('The description of the group.', 'user-acce
 define('TXT_UAM_GROUP_IP_RANGE', __('IP range', 'user-access-manager'));
 define('TXT_UAM_GROUP_IP_RANGE_DESC', __('Type in the IP ranges of users which are join these groups by their IP address without login. Set ranges like "BEGIN"-"END", separate ranges by using ";", single IPs are also allowed. Example: 192.168.0.1-192.168.0.10;192.168.0.20-192.168.0.30', 'user-access-manager'));
 define('TXT_UAM_GROUP_READ_ACCESS', __('Read access', 'user-access-manager'));
-define('TXT_UAM_GROUP_READ_ACCESS_DESC', __('The read access.', 'user-access-manager'));
+define('TXT_UAM_GROUP_READ_ACCESS_DESC', __('Controls who may see content locked by this group on the site. "Only group users" limits it to members of the group, "All users" makes the content readable by everyone.', 'user-access-manager'));
 define('TXT_UAM_GROUP_WRITE_ACCESS', __('Write access', 'user-access-manager'));
-define('TXT_UAM_GROUP_WRITE_ACCESS_DESC', __('The write access.', 'user-access-manager'));
+define('TXT_UAM_GROUP_WRITE_ACCESS_DESC', __('Controls who may edit content locked by this group in the admin area. "Only group users" limits editing to members, "All users" allows everyone, "None" means this group never grants editing rights.', 'user-access-manager'));
 define('TXT_UAM_GROUP_ADDED', __('Group was added successfully.', 'user-access-manager'));
 define('TXT_UAM_GROUP_NAME_ERROR', __('Group name can not be empty.', 'user-access-manager'));
 define('TXT_UAM_DELETE_GROUP', __('Group(s) was deleted successfully.', 'user-access-manager'));
@@ -226,6 +233,7 @@ define('TXT_UAM_USER_GROUP_EDIT_SUCCESS', __('User group edit successfully.', 'u
 define('TXT_UAM_IP_RANGE', __('IP range', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_USER_GROUPS_SETTING', __('Default user groups', 'user-access-manager'));
 define('TXT_UAM_DEFAULT_USER_GROUPS_SECTION_SELECTION_SETTING', __('Default user groups for object type', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_USER_GROUPS_SECTION_SELECTION_SETTING_DESC', __('Choose the object type whose default groups you want to edit. New content of that type is assigned the groups selected below.', 'user-access-manager'));
 define('TXT_UAM_UPDATE_DEFAULT_USER_GROUPS', __('Update default user groups', 'user-access-manager'));
 define('TXT_UAM_SET_DEFAULT_USER_GROUP_SUCCESS', __('Default user groups updated', 'user-access-manager'));
 define('TXT_UAM_POST_TYPE', __('Post Type', 'user-access-manager'));
@@ -252,8 +260,8 @@ define('TXT_UAM_REPAIR_DATABASE', __('Repair the database', 'user-access-manager
 define('TXT_UAM_REPAIR_DATABASE_DESCRIPTION', __('Try to repair the database.', 'user-access-manager'));
 define('TXT_UAM_REPAIR_DATABASE_REPAIR_NOW', __('repair now', 'user-access-manager'));
 define('TXT_UAM_REPAIR_DATABASE_SUCCESS', __('Database repair successfull', 'user-access-manager'));
-define('TXT_UAM_DATABASE_BROKEN', __('<b style="color:red;">Your UAM database seems broken. You should try to repair it.</b>', 'user-access-manager'));
-define('TXT_UAM_DATABASE_OK', __('<b style="color:green;">Your UAM database seems to be in good condition.</b>', 'user-access-manager'));
+define('TXT_UAM_DATABASE_BROKEN', __('Your UAM database seems broken. You should try to repair it.', 'user-access-manager'));
+define('TXT_UAM_DATABASE_OK', __('Your UAM database seems to be in good condition.', 'user-access-manager'));
 define('TXT_UAM_REVERT_DATABASE', __('Revert the database', 'user-access-manager'));
 define('TXT_UAM_REVERT_DATABASE_DESCRIPTION', __('Choose a backup to revert the database to this user access manager database version. <b>Note: The user access manager database version differs from the user access manager version.</b>', 'user-access-manager'));
 define('TXT_UAM_REVERT_DATABASE_REVERT_NOW', __('revert now', 'user-access-manager'));
@@ -337,8 +345,10 @@ define('TXT_UAM_LOGIN_FORM_REMEMBER_ME', __('Remember me', 'user-access-manager'
 
 // --- User group ---
 define('TXT_UAM_GROUP_ASSIGNMENT_TIME', __('Setup time based group assignment', 'user-access-manager'));
+define('TXT_UAM_GROUP_REMOVE_ASSIGNMENT_TIME', __('Remove time based assignment', 'user-access-manager'));
 define('TXT_UAM_GROUP_FROM_DATE', __('From', 'user-access-manager'));
 define('TXT_UAM_GROUP_TO_DATE', __('To', 'user-access-manager'));
+define('TXT_UAM_DEFAULT_GROUP_TIME_DESCRIPTION', __('Optional. A time span counted from the moment the content is created, in the format days-hours:minutes:seconds. Leave both fields empty to assign the group permanently.', 'user-access-manager'));
 define('TXT_UAM_GROUP_FROM_TIME', __('From', 'user-access-manager'));
 define('TXT_UAM_GROUP_TO_TIME', __('To', 'user-access-manager'));
 
@@ -348,6 +358,8 @@ define('TXT_UAM_USER', __('User', 'user-access-manager'));
 define('TXT_UAM_ROLE', __('Role', 'user-access-manager'));
 define('TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS', __('Not logged in users', 'user-access-manager'));
 define('TXT_UAM_ADD_DYNAMIC_GROUP', __('Add dynamic groups', 'user-access-manager'));
+define('TXT_UAM_ADD_DYNAMIC_GROUP_PLACEHOLDER', __('Search for a user or a role…', 'user-access-manager'));
+define('TXT_UAM_ADD_DYNAMIC_GROUP_DESCRIPTION', __('Start typing to assign a single user or a whole role to this content, without creating a user group for them first. At least two characters are needed.', 'user-access-manager'));
 
 // --- Login widget ---
 define('TXT_UAM_LOGIN_WIDGET_TITLE', __('UAM login widget', 'user-access-manager'));

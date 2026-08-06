@@ -10,7 +10,7 @@
  * @return string
  */
 
-use UserAccessManager\Controller\Backend\UserGroupController;
+use UserAccessManager\Controller\Backend\Administration\UserGroupController;
 use UserAccessManager\Object\ObjectHandler;
 
 $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
@@ -34,7 +34,7 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
         </div>
         <br class="clear"/>
     </div>
-    <table class="widefat">
+    <table class="wp-list-table widefat fixed striped">
         <thead>
         <tr class="thead">
             <th scope="col"></th>
@@ -52,7 +52,7 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
         $userGroups = $controller->getUserGroups();
         foreach ($userGroups as $userGroup) {
             ?>
-            <tr class="alternate" id="group-<?php echo $userGroup->getId(); ?>">
+            <tr id="group-<?php echo $userGroup->getId(); ?>">
                 <th class="check-column">
                     <input id="uam-bulk-select"
                            type="checkbox"

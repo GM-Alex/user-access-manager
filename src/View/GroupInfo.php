@@ -13,7 +13,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 
@@ -23,7 +23,7 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
  */
 
 ?>
-<div class="uam_tooltip">
+<div class="uam_tooltip uam_flyout_panel">
     <ul class="uam_group_info">
         <?php
         $recursiveMembership = $controller->getRecursiveMembership($userGroup);

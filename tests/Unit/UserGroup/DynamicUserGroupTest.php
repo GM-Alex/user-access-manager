@@ -42,11 +42,9 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $dynamicUserGroup = new DynamicUserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader(),
             DynamicUserGroup::USER_TYPE,
@@ -58,11 +56,9 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
         self::assertEquals(DynamicUserGroup::USER_TYPE, $dynamicUserGroup->getType());
 
         $dynamicUserGroup = new DynamicUserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader(),
             DynamicUserGroup::ROLE_TYPE,
@@ -75,11 +71,9 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
 
         self::expectException(UserGroupTypeException::class);
         new DynamicUserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader(),
             'someThing',
@@ -95,11 +89,9 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
     public function testGetId()
     {
         $dynamicUserGroup = new DynamicUserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader(),
             DynamicUserGroup::ROLE_TYPE,
@@ -112,6 +104,8 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getName()
+     * @covers ::createUserName()
+     * @covers ::createRoleName()
      * @throws UserGroupTypeException
      * @throws ReflectionException
      */
@@ -145,11 +139,9 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             ->will($this->returnValue($roles));
 
         $dynamicUserGroup = new DynamicUserGroup(
-            $this->getPhp(),
             $wordpress,
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader(),
             DynamicUserGroup::USER_TYPE,
@@ -188,11 +180,9 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             ->will($this->returnValue(false));
 
         $dynamicUserGroup = new DynamicUserGroup(
-            $this->getPhp(),
             $wordpress,
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $this->getObjectHandler(),
             $this->getAssignedObjectsLoader(),
             DynamicUserGroup::USER_TYPE,
@@ -218,11 +208,9 @@ class DynamicUserGroupTest extends UserAccessManagerTestCase
             }));
 
         $dynamicUserGroup = new DynamicUserGroup(
-            $this->getPhp(),
             $this->getWordpress(),
             $this->getDatabase(),
             $this->getMainConfig(),
-            $this->getUtil(),
             $objectHandler,
             $this->getAssignedObjectsLoader(),
             DynamicUserGroup::USER_TYPE,

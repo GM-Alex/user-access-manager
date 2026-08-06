@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace UserAccessManager\Setup\Update;
 
-use UserAccessManager\Setup\Database\DatabaseUpdate;
-
 class DatabaseUpdate1 extends DatabaseUpdate
 {
     public function getVersion(): string
@@ -36,45 +34,42 @@ class DatabaseUpdate1 extends DatabaseUpdate
         return $success;
     }
 
-    private function getObjectSelectQuery(
-        string $objectType,
-        string $userGroupToPost,
-        string $userGroupToCategory,
-        string $userGroupToUser,
-        string $userGroupToRole
-    ): ?string {
-        $addition = '';
-
+    /**
+     * @param string[] $legacyTables Legacy per-object-type tables, keyed by object type.
+     */
+    private function getObjectSelectQuery(string $objectType, array $legacyTables): ?string
+    {
         if ($this->objectHandler->isPostType($objectType) === true) {
-            $dbIdName = 'post_id';
-            $database = $userGroupToPost . ', ' . $this->database->getPostsTable();
-            $addition = " WHERE post_id = ID AND post_type = '$objectType'";
-        } elseif ($objectType === 'category') {
-            $dbIdName = 'category_id';
-            $database = $userGroupToCategory;
-        } elseif ($objectType === 'user') {
-            $dbIdName = 'user_id';
-            $database = $userGroupToUser;
-        } elseif ($objectType === 'role') {
-            $dbIdName = 'role_name';
-            $database = $userGroupToRole;
-        } else {
+            $source = $legacyTables['post'] . ', ' . $this->database->getPostsTable();
+
+            return "SELECT post_id AS id, group_id AS groupId FROM $source"
+                . " WHERE post_id = ID AND post_type = '$objectType'";
+        }
+
+        $idColumns = [
+            'category' => 'category_id',
+            'user' => 'user_id',
+            'role' => 'role_name'
+        ];
+
+        if (isset($idColumns[$objectType]) === false) {
             return null;
         }
 
-        return "SELECT $dbIdName AS id, group_id AS groupId FROM $database $addition";
+        return "SELECT {$idColumns[$objectType]} AS id, group_id AS groupId FROM {$legacyTables[$objectType]}";
     }
 
     private function updateToUserGroupToObjectTableUpdate(): bool
     {
         $prefix = $this->database->getPrefix();
-
         $charsetCollate = $this->database->getCharset();
         $userGroupToObject = $prefix . 'uam_accessgroup_to_object';
-        $userGroupToPost = $prefix . 'uam_accessgroup_to_post';
-        $userGroupToUser = $prefix . 'uam_accessgroup_to_user';
-        $userGroupToCategory = $prefix . 'uam_accessgroup_to_category';
-        $userGroupToRole = $prefix . 'uam_accessgroup_to_role';
+        $legacyTables = [
+            'post' => $prefix . 'uam_accessgroup_to_post',
+            'user' => $prefix . 'uam_accessgroup_to_user',
+            'category' => $prefix . 'uam_accessgroup_to_category',
+            'role' => $prefix . 'uam_accessgroup_to_role'
+        ];
 
         $alterQuery = "ALTER TABLE '$userGroupToObject'
             CHANGE 'object_id' 'object_id' VARCHAR(64) $charsetCollate";
@@ -84,16 +79,8 @@ class DatabaseUpdate1 extends DatabaseUpdate
             return false;
         }
 
-        $objectTypes = $this->objectHandler->getObjectTypes();
-
-        foreach ($objectTypes as $objectType) {
-            $query = $this->getObjectSelectQuery(
-                $objectType,
-                $userGroupToPost,
-                $userGroupToCategory,
-                $userGroupToUser,
-                $userGroupToRole
-            );
+        foreach ($this->objectHandler->getObjectTypes() as $objectType) {
+            $query = $this->getObjectSelectQuery($objectType, $legacyTables);
 
             if ($query === null) {
                 continue;
@@ -119,10 +106,7 @@ class DatabaseUpdate1 extends DatabaseUpdate
             }
         }
 
-        $dropQuery = "DROP TABLE $userGroupToPost,
-            $userGroupToUser,
-            $userGroupToCategory,
-            $userGroupToRole";
+        $dropQuery = 'DROP TABLE ' . implode(', ', $legacyTables);
 
         return $success && $this->database->query($dropQuery) !== false;
     }

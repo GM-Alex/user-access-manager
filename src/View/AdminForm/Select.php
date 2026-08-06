@@ -3,7 +3,7 @@
  * @var Select $select
  */
 
-use UserAccessManager\Form\Select;
+use UserAccessManager\Form\Element\Select;
 
 ?>
 <th scope="row">
@@ -34,5 +34,5 @@ use UserAccessManager\Form\Select;
         ?>
     </select>
     <br/>
-    <p><?php echo $select->getDescription(); ?></p>
+    <p class="description"><?php echo $select->getDescription(); ?></p>
 </td>

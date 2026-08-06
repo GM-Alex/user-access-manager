@@ -15,10 +15,15 @@
 
 namespace UserAccessManager\Tests\Unit\File;
 
-use UserAccessManager\File\ApacheFileProtection;
+use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
+use UserAccessManager\File\Protection\ApacheFileProtection;
 use UserAccessManager\File\FileHandler;
-use UserAccessManager\File\NginxFileProtection;
+use UserAccessManager\File\Protection\FileProtectionFactory;
+use UserAccessManager\File\Protection\NginxFileProtection;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\Wrapper\Php;
+use UserAccessManager\Wrapper\Wordpress;
 use Vfs\FileSystem;
 use Vfs\Node\Directory;
 use Vfs\Node\File;
@@ -31,26 +36,19 @@ use Vfs\Node\File;
  */
 class FileHandlerTest extends UserAccessManagerTestCase
 {
-    /**
-     * @var FileSystem
-     */
     private FileSystem $root;
 
-    /**
-     * Setup virtual file system.
-     */
     protected function setUp(): void
     {
+        parent::setUp();
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
     }
 
-    /**
-     * Tear down virtual file system.
-     */
     protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     /**
@@ -58,10 +56,6 @@ class FileHandlerTest extends UserAccessManagerTestCase
      * xdebug_get_headers(): case-insensitive in-place replacement per header name,
      * while status lines feed the response code instead of the header list. This
      * keeps the assertions independent of the SAPI and the xdebug mode.
-     *
-     * @param MockObject $php
-     * @param array $capturedHeaders
-     * @param bool|int $responseCode
      */
     private function captureHeaders($php, array &$capturedHeaders, &$responseCode): void
     {
@@ -75,6 +69,22 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 $capturedHeaders[strtolower(explode(':', $header)[0])] = $header;
             }
         ));
+    }
+
+    private function createFileHandler(
+        ?Php $php = null,
+        ?Wordpress $wordpress = null,
+        ?WordpressConfig $wordpressConfig = null,
+        ?MainConfig $mainConfig = null,
+        ?FileProtectionFactory $fileProtectionFactory = null
+    ): FileHandler {
+        return new FileHandler(
+            $php ?? $this->getPhp(),
+            $wordpress ?? $this->getWordpress(),
+            $wordpressConfig ?? $this->getWordpressConfig(),
+            $mainConfig ?? $this->getMainConfig(),
+            $fileProtectionFactory ?? $this->getFileProtectionFactory()
+        );
     }
 
     /**
@@ -97,10 +107,12 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getFile()
+     * @covers ::isRangeRequest()
      * @covers ::isInlineFile()
-     * @covers ::getFileMineType()
+     * @covers ::getFileMimeType()
      * @covers ::clearBuffer()
      * @covers ::deliverFile()
+     * @covers ::addXSendFileHeader()
      * @covers ::addDefaultHeader()
      * @covers ::deliverFileViaFopen()
      * @runInSeparateProcess
@@ -164,6 +176,10 @@ class FileHandlerTest extends UserAccessManagerTestCase
                 'On'
             ));
 
+        $php->method('fInfoOpen')->will($this->returnValue('fileInfo'));
+        $php->method('fInfoFile')->will($this->returnValue('text/plain; charset=us-ascii'));
+        $php->method('mimeContentType')->will($this->returnValue('text/plain'));
+
         $php->expects($this->exactly(4))
             ->method('setTimeLimit')
             ->with(30);
@@ -215,13 +231,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('getInlineFiles')
             ->will($this->returnValue('pdf ,some'));
 
-        $fileHandler = new FileHandler(
-            $php,
-            $wordpress,
-            $wordpressConfig,
-            $mainConfig,
-            $this->getFileProtectionFactory()
-        );
+        $fileHandler = $this->createFileHandler($php, $wordpress, $wordpressConfig, $mainConfig);
 
         /**
          * @var Directory $rootDir
@@ -346,7 +356,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getFile()
-     * @covers ::getFileMineType()
+     * @covers ::getFileMimeType()
      * @covers ::addDefaultHeader()
      * @covers ::deliverFile()
      */
@@ -375,12 +385,10 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $mainConfig->method('getDownloadType')->will($this->returnValue('fopen'));
         $mainConfig->method('getInlineFiles')->will($this->returnValue(''));
 
-        $fileHandler = new FileHandler(
+        $fileHandler = $this->createFileHandler(
             $php,
-            $this->getWordpress(),
-            $wordpressConfig,
-            $mainConfig,
-            $this->getFileProtectionFactory()
+            wordpressConfig: $wordpressConfig,
+            mainConfig: $mainConfig
         );
 
         /**
@@ -409,6 +417,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getFile()
      * @covers ::deliverFile()
+     * @covers ::addXSendFileHeader()
      */
     public function testGetFileViaNginxXSendFile()
     {
@@ -434,13 +443,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $mainConfig->method('getDownloadType')->will($this->returnValue('xsendfile'));
         $mainConfig->method('getInlineFiles')->will($this->returnValue(''));
 
-        $fileHandler = new FileHandler(
-            $php,
-            $wordpress,
-            $wordpressConfig,
-            $mainConfig,
-            $this->getFileProtectionFactory()
-        );
+        $fileHandler = $this->createFileHandler($php, $wordpress, $wordpressConfig, $mainConfig);
 
         /**
          * @var Directory $rootDir
@@ -468,7 +471,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getFile()
-     * @covers ::getFileMineType()
+     * @covers ::getFileMimeType()
      * @covers ::clearBuffer()
      * @covers ::deliverFilePartial()
      * @covers ::getRanges()
@@ -484,6 +487,9 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('functionExists')
             ->with('finfo_open')
             ->will($this->returnValue(true));
+
+        $php->method('fInfoOpen')->will($this->returnValue('fileInfo'));
+        $php->method('fInfoFile')->will($this->returnValue('text/plain; charset=us-ascii'));
 
         $php->expects($this->exactly(8))
             ->method('fread')
@@ -530,12 +536,10 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('getDownloadType')
             ->will($this->returnValue(null));
 
-        $fileHandler = new FileHandler(
+        $fileHandler = $this->createFileHandler(
             $php,
-            $this->getWordpress(),
-            $wordpressConfig,
-            $mainConfig,
-            $this->getFileProtectionFactory()
+            wordpressConfig: $wordpressConfig,
+            mainConfig: $mainConfig
         );
 
         /**
@@ -796,13 +800,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $php->expects($this->once())
             ->method('flush');
 
-        $fileHandler = new FileHandler(
-            $php,
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getFileProtectionFactory()
-        );
+        $fileHandler = $this->createFileHandler($php);
 
         $fileHandler = self::callMethod(
             $fileHandler,
@@ -821,13 +819,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
      */
     public function testGetRangesStopsOnTheFirstInvalidRange()
     {
-        $fileHandler = new FileHandler(
-            $this->getPhp(),
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getFileProtectionFactory()
-        );
+        $fileHandler = $this->createFileHandler();
 
         $_SERVER['HTTP_RANGE'] = 'bytes=5-4,1-2';
         self::assertSame([], self::callMethod($fileHandler, 'getRanges', [9]));
@@ -856,19 +848,18 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $php->method('iniGet')->will($this->returnValue(1));
         $php->method('connectionStatus')->will($this->returnValue(0));
         $php->method('fread')->will($this->returnValue('chunk'));
-        // Each range must be seeked to before it is read.
-        $php->expects($this->atLeastOnce())->method('fseek');
+        $seekOffsets = [];
+        $php->method('fseek')->will($this->returnCallback(
+            function ($handle, int $offset) use (&$seekOffsets): int {
+                $seekOffsets[] = $offset;
+                return 0;
+            }
+        ));
 
         $wordpressConfig = $this->getWordpressConfig();
         $wordpressConfig->method('getMimeTypes')->will($this->returnValue(['txt' => 'textFile']));
 
-        $fileHandler = new FileHandler(
-            $php,
-            $this->getWordpress(),
-            $wordpressConfig,
-            $this->getMainConfig(),
-            $this->getFileProtectionFactory()
-        );
+        $fileHandler = $this->createFileHandler($php, wordpressConfig: $wordpressConfig);
 
         $_SERVER['HTTP_RANGE'] = 'bytes=1-2,3-4';
         self::callMethod($fileHandler, 'deliverFilePartial', ['vfs://partialDir/testFile.txt', false]);
@@ -877,6 +868,8 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $output = self::getActualOutput();
         self::assertStringContainsString('Content-Range: bytes 1-2/9', $output);
         self::assertStringContainsString('Content-Range: bytes 3-4/9', $output);
+        // Every part must stream its own range, not the first one twice.
+        self::assertSame([1, 3], $seekOffsets);
     }
 
     /**
@@ -894,14 +887,10 @@ class FileHandlerTest extends UserAccessManagerTestCase
         // The opened finfo resource must be closed again.
         $php->expects($this->once())
             ->method('fInfoClose');
+        $php->method('fInfoOpen')->will($this->returnValue('fileInfo'));
+        $php->method('fInfoFile')->will($this->returnValue('text/plain'));
 
-        $fileHandler = new FileHandler(
-            $php,
-            $this->getWordpress(),
-            $this->getWordpressConfig(),
-            $this->getMainConfig(),
-            $this->getFileProtectionFactory()
-        );
+        $fileHandler = $this->createFileHandler($php);
 
         $rootDir = $this->root->get('/');
         $rootDir->add('extraContentsDir', new Directory([
@@ -916,9 +905,50 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ['vfs://extraContentsDir/testFile.txt', [[1, 2], [3, 4]], &$contentLength, &$boundary]
         );
 
+        // Each part starts with the boundary, then names the type and only then
+        // the range it carries. Clients read the parts in exactly that order.
         self::assertCount(3, $extraContents);
-        self::assertStringContainsString('Content-Range: bytes 1-2/9', $extraContents[0]);
-        self::assertStringContainsString('Content-Range: bytes 3-4/9', $extraContents[1]);
+        self::assertSame(
+            "\r\n--g45d64df96bmdf4sdgh45hf5--\r\n"
+            . "Content-Type: text/plain\r\n"
+            . "Content-Range: bytes 1-2/9\r\n\r\n",
+            $extraContents[0]
+        );
+        self::assertSame(
+            "\r\n--g45d64df96bmdf4sdgh45hf5--\r\n"
+            . "Content-Type: text/plain\r\n"
+            . "Content-Range: bytes 3-4/9\r\n\r\n",
+            $extraContents[1]
+        );
+    }
+
+    /**
+     * Without nginx and without mod_xsendfile there is no header to send, and the
+     * caller has to learn that so it can fall back to reading the file itself.
+     *
+     * @group  unit
+     * @covers ::addXSendFileHeader()
+     * @throws ReflectionException
+     */
+    public function testAddXSendFileHeaderWithoutAnySupportingServer()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->never())->method('header');
+
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->once())
+            ->method('isNginx')
+            ->will($this->returnValue(false));
+        $wordpress->expects($this->once())
+            ->method('isApacheModuleLoaded')
+            ->with('mod_xsendfile')
+            ->will($this->returnValue(false));
+
+        $fileHandler = $this->createFileHandler($php, $wordpress);
+
+        self::assertFalse(
+            self::callMethod($fileHandler, 'addXSendFileHeader', ['vfs://testDir/testFile.txt'])
+        );
     }
 
     /**
@@ -959,12 +989,10 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('createNginxFileProtection')
             ->will($this->returnValue($nginxFileProtection));
 
-        $fileHandler = new FileHandler(
-            $this->getPhp(),
-            $wordpress,
-            $wordpressConfig,
-            $this->getMainConfig(),
-            $fileProtectionFactory
+        $fileHandler = $this->createFileHandler(
+            wordpress: $wordpress,
+            wordpressConfig: $wordpressConfig,
+            fileProtectionFactory: $fileProtectionFactory
         );
 
         self::assertEquals('apacheUploadDirectory', $fileHandler->getFileProtectionFileName());
@@ -1021,12 +1049,10 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('createNginxFileProtection')
             ->will($this->returnValue($nginxFileProtection));
 
-        $fileHandler = new FileHandler(
-            $this->getPhp(),
-            $wordpress,
-            $wordpressConfig,
-            $this->getMainConfig(),
-            $fileProtectionFactory
+        $fileHandler = $this->createFileHandler(
+            wordpress: $wordpress,
+            wordpressConfig: $wordpressConfig,
+            fileProtectionFactory: $fileProtectionFactory
         );
 
         self::assertFalse($fileHandler->createFileProtection());
@@ -1085,12 +1111,10 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('createNginxFileProtection')
             ->will($this->returnValue($nginxFileProtection));
 
-        $fileHandler = new FileHandler(
-            $this->getPhp(),
-            $wordpress,
-            $wordpressConfig,
-            $this->getMainConfig(),
-            $fileProtectionFactory
+        $fileHandler = $this->createFileHandler(
+            wordpress: $wordpress,
+            wordpressConfig: $wordpressConfig,
+            fileProtectionFactory: $fileProtectionFactory
         );
 
         self::assertFalse($fileHandler->deleteFileProtection());
@@ -1108,6 +1132,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::deliverXSendFileTestFile()
+     * @covers ::getXSendFileTestFilePath()
      * @runInSeparateProcess
      */
     public function testDeliverXSendFileTestFile()
@@ -1135,13 +1160,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('getUploadDirectory')
             ->will($this->returnValue($uploadDir));
 
-        $fileHandler = new FileHandler(
-            $php,
-            $this->getWordpress(),
-            $wordpressConfig,
-            $this->getMainConfig(),
-            $this->getFileProtectionFactory()
-        );
+        $fileHandler = $this->createFileHandler($php, wordpressConfig: $wordpressConfig);
 
         self::assertFalse(file_exists($uploadDir . FileHandler::X_SEND_FILE_TEST_FILE));
         $fileHandler->deliverXSendFileTestFile();
@@ -1181,13 +1200,7 @@ class FileHandlerTest extends UserAccessManagerTestCase
             ->method('unlink')
             ->with($expectedFile);
 
-        (new FileHandler(
-            $presentPhp,
-            $this->getWordpress(),
-            $presentConfig,
-            $this->getMainConfig(),
-            $this->getFileProtectionFactory()
-        ))->removeXSendFileTestFile();
+        $this->createFileHandler($presentPhp, wordpressConfig: $presentConfig)->removeXSendFileTestFile();
 
         // The test file is missing and nothing gets removed.
         $missingConfig = $this->getWordpressConfig();
@@ -1203,12 +1216,6 @@ class FileHandlerTest extends UserAccessManagerTestCase
         $missingPhp->expects($this->never())
             ->method('unlink');
 
-        (new FileHandler(
-            $missingPhp,
-            $this->getWordpress(),
-            $missingConfig,
-            $this->getMainConfig(),
-            $this->getFileProtectionFactory()
-        ))->removeXSendFileTestFile();
+        $this->createFileHandler($missingPhp, wordpressConfig: $missingConfig)->removeXSendFileTestFile();
     }
 }

@@ -8,9 +8,7 @@ use Exception;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\ObjectMembership\MissingObjectMembershipHandlerException;
-use UserAccessManager\Util\Util;
-use UserAccessManager\Wrapper\Php;
+use UserAccessManager\ObjectMembership\Exception\MissingObjectMembershipHandlerException;
 use UserAccessManager\Wrapper\Wordpress;
 
 abstract class AbstractUserGroup
@@ -32,11 +30,9 @@ abstract class AbstractUserGroup
      * @throws UserGroupTypeException
      */
     public function __construct(
-        protected Php $php,
         protected Wordpress $wordpress,
         protected Database $database,
         protected MainConfig $config,
-        protected Util $util,
         protected ObjectHandler $objectHandler,
         protected AssignedObjectsLoader $assignedObjectsLoader,
         protected int|string|null $id = null
@@ -124,13 +120,22 @@ abstract class AbstractUserGroup
     }
 
     /**
+     * Returns the general object type of an assignable object type, null if the object type can't be assigned.
+     */
+    private function getAssignableGeneralObjectType(string $objectType): ?string
+    {
+        $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
+
+        return ($generalObjectType !== null && $this->objectHandler->isValidObjectType($objectType) === true) ?
+            $generalObjectType : null;
+    }
+
+    /**
      * @throws Exception
      */
     public function delete(): bool
     {
-        $allObjectTypes = $this->objectHandler->getAllObjectTypes();
-
-        foreach ($allObjectTypes as $objectType) {
+        foreach ($this->objectHandler->getAllObjectTypes() as $objectType) {
             $this->removeObject($objectType);
         }
 
@@ -142,15 +147,13 @@ abstract class AbstractUserGroup
      */
     public function addObject(string $objectType, int|string|null $objectId, $fromDate = null, $toDate = null): bool
     {
-        $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
+        $generalObjectType = $this->getAssignableGeneralObjectType($objectType);
 
-        if ($generalObjectType === null
-            || $this->objectHandler->isValidObjectType($objectType) === false
-        ) {
+        if ($generalObjectType === null) {
             return false;
         }
 
-        $return = $this->database->replace(
+        $success = $this->database->replace(
             $this->database->getUserGroupToObjectTable(),
             [
                 'group_id' => $this->id,
@@ -161,23 +164,14 @@ abstract class AbstractUserGroup
                 'from_date' => $fromDate,
                 'to_date' => $toDate
             ],
-            [
-                '%s',
-                '%s',
-                '%s',
-                '%s',
-                '%s',
-                '%s',
-                '%s'
-            ]
-        );
+            ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
+        ) !== false;
 
-        if ($return !== false) {
+        if ($success === true) {
             $this->resetObjectsAfterAssignmentChange();
-            return true;
         }
 
-        return false;
+        return $success;
     }
 
     /**
@@ -185,11 +179,9 @@ abstract class AbstractUserGroup
      */
     public function removeObject(string $objectType, $objectId = null, bool $ignoreGeneralType = false): bool
     {
-        $generalObjectType = $this->objectHandler->getGeneralObjectType($objectType);
+        $generalObjectType = $this->getAssignableGeneralObjectType($objectType);
 
-        if ($generalObjectType === null
-            || $this->objectHandler->isValidObjectType($objectType) === false
-        ) {
+        if ($generalObjectType === null) {
             return false;
         }
 
@@ -215,8 +207,7 @@ abstract class AbstractUserGroup
             $values[] = $objectId;
         }
 
-        $query = $this->database->prepare($query, $values);
-        $success = ($this->database->query($query) !== false);
+        $success = $this->database->query($this->database->prepare($query, $values)) !== false;
 
         if ($success === true) {
             $this->resetObjectsAfterAssignmentChange();
@@ -230,16 +221,12 @@ abstract class AbstractUserGroup
      */
     public function getAssignedObjects(string $objectType): array
     {
-        if (isset($this->assignedObjects[$objectType]) === false) {
-            $this->assignedObjects[$objectType] = $this->assignedObjectsLoader->getAssignedObjects(
-                $this->type,
-                $this->id,
-                $objectType,
-                $this->ignoreDates
-            );
-        }
-
-        return $this->assignedObjects[$objectType];
+        return $this->assignedObjects[$objectType] ??= $this->assignedObjectsLoader->getAssignedObjects(
+            $this->type,
+            $this->id,
+            $objectType,
+            $this->ignoreDates
+        );
     }
 
     /**
@@ -265,54 +252,60 @@ abstract class AbstractUserGroup
         return $this->removeObject($objectType, '', true);
     }
 
-    public function getDefaultGroupForObjectTypes(): ?array
+    /**
+     * @return array<string, array{0: int|null, 1: int|null}> Time ranges keyed by the object type.
+     */
+    public function getDefaultGroupForObjectTypes(): array
     {
-        if ($this->defaultTypes === null) {
-            $this->defaultTypes = [];
+        return $this->defaultTypes ??= $this->loadDefaultGroupForObjectTypes();
+    }
 
-            $query = "SELECT object_type AS objectType, from_date AS fromDate, to_date AS toDate
+    /**
+     * @return array<string, array{0: int|null, 1: int|null}>
+     */
+    private function loadDefaultGroupForObjectTypes(): array
+    {
+        $query = $this->database->prepare(
+            "SELECT object_type AS objectType, from_date AS fromDate, to_date AS toDate
                 FROM {$this->database->getUserGroupToObjectTable()}
                 WHERE group_id = '%s'
                   AND group_type = '%s'
-                  AND object_id = ''";
-
-            $parameters = [
+                  AND object_id = ''",
+            [
                 $this->id,
                 $this->type
+            ]
+        );
+
+        $defaultTypes = [];
+
+        foreach ((array) $this->database->getResults($query) as $result) {
+            $defaultTypes[$result->objectType] = [
+                ($result->fromDate !== null) ? strtotime($result->fromDate) : null,
+                ($result->toDate !== null) ? strtotime($result->toDate) : null
             ];
-
-            $query = $this->database->prepare($query, $parameters);
-            $results = (array) $this->database->getResults($query);
-
-            foreach ($results as $result) {
-                $this->defaultTypes[$result->objectType] = [
-                    ($result->fromDate !== null) ? strtotime($result->fromDate) : null,
-                    ($result->toDate !== null) ? strtotime($result->toDate) : null
-                ];
-            }
         }
 
-        return $this->defaultTypes;
+        return $defaultTypes;
     }
 
     public function isDefaultGroupForObjectType(string $objectType, ?int &$fromTime = null, ?int &$toTime = null): bool
     {
         $defaultGroupForObjectTypes = $this->getDefaultGroupForObjectTypes();
 
-        // Reset reference values anyway
+        // The reference values have to be reset even when the group is no default group for the object type
         $fromTime = null;
         $toTime = null;
 
-        if (isset($defaultGroupForObjectTypes[$objectType])) {
-            $fromTime = $defaultGroupForObjectTypes[$objectType][0] !== null ?
-                (int) $defaultGroupForObjectTypes[$objectType][0] : null;
-            $toTime = $defaultGroupForObjectTypes[$objectType][1] !== null ?
-                (int) $defaultGroupForObjectTypes[$objectType][1] : null;
-
-            return true;
+        if (isset($defaultGroupForObjectTypes[$objectType]) === false) {
+            return false;
         }
 
-        return false;
+        [$fromTimestamp, $toTimestamp] = $defaultGroupForObjectTypes[$objectType];
+        $fromTime = ($fromTimestamp !== null) ? (int) $fromTimestamp : null;
+        $toTime = ($toTimestamp !== null) ? (int) $toTimestamp : null;
+
+        return true;
     }
 
     public function isObjectAssignedToGroup(
@@ -320,15 +313,9 @@ abstract class AbstractUserGroup
         int|string|null $objectId,
         ?AssignmentInformation &$assignmentInformation = null
     ): bool {
-        $assignmentInformation = null;
-        $assignedObjects = $this->getAssignedObjects($objectType);
+        $assignmentInformation = $this->getAssignedObjects($objectType)[$objectId] ?? null;
 
-        if (isset($assignedObjects[$objectId]) === true) {
-            $assignmentInformation = $assignedObjects[$objectId];
-            return true;
-        }
-
-        return false;
+        return $assignmentInformation !== null;
     }
 
     /**
@@ -351,14 +338,13 @@ abstract class AbstractUserGroup
                 $isMember = false;
             }
 
-            $this->objectMembership[$objectType][$objectId] = ($isMember === true) ?
-                $assignmentInformation : false;
+            $this->objectMembership[$objectType][$objectId] = ($isMember === true) ? $assignmentInformation : false;
         }
 
-        $assignmentInformation = ($this->objectMembership[$objectType][$objectId] instanceof AssignmentInformation) ?
-            $this->objectMembership[$objectType][$objectId] : null;
+        $membership = $this->objectMembership[$objectType][$objectId];
+        $assignmentInformation = ($membership instanceof AssignmentInformation) ? $membership : null;
 
-        return ($this->objectMembership[$objectType][$objectId] !== false);
+        return $membership !== false;
     }
 
     /**
@@ -413,14 +399,7 @@ abstract class AbstractUserGroup
      */
     public function isLockedRecursive(string $objectType, int|string|null $objectId): bool
     {
-        /**
-         * @var AssignmentInformation $assignmentInformation
-         */
-        if ($this->isObjectMember($objectType, $objectId, $assignmentInformation) === true) {
-            return (count($assignmentInformation->getRecursiveMembership()) > 0);
-        }
-
-        return false;
+        return count($this->getRecursiveMembershipForObject($objectType, $objectId)) > 0;
     }
 
     /**
@@ -430,8 +409,8 @@ abstract class AbstractUserGroup
     {
         if (isset($this->fullObjectMembership[$objectType]) === false) {
             try {
-                $handler = $this->objectHandler->getObjectMembershipHandler($objectType);
-                $this->fullObjectMembership[$objectType] = $handler->getFullObjects(
+                $membershipHandler = $this->objectHandler->getObjectMembershipHandler($objectType);
+                $this->fullObjectMembership[$objectType] = $membershipHandler->getFullObjects(
                     $this,
                     $this->config->lockRecursive(),
                     ($objectType === $this->objectHandler->getGeneralObjectType($objectType)) ? null : $objectType
@@ -451,7 +430,6 @@ abstract class AbstractUserGroup
     {
         return $this->getAssignedObjectsByType(ObjectHandler::GENERAL_ROLE_OBJECT_TYPE);
     }
-
 
     /**
      * @throws Exception

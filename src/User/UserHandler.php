@@ -1,17 +1,4 @@
 <?php
-/**
- * UserHandler.php
- *
- * The UserHandler class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -24,14 +11,18 @@ use UserAccessManager\UserGroup\AbstractUserGroup;
 use UserAccessManager\Wrapper\Wordpress;
 use WP_User;
 
-/**
- * Class UserHandler
- *
- * @package UserAccessManager\UserHandler
- */
 class UserHandler
 {
     public const MANAGE_USER_GROUPS_CAPABILITY = 'manage_user_groups';
+
+    private const ROLES_BY_ASCENDING_RIGHTS = [
+        AbstractUserGroup::NONE_ROLE,
+        'subscriber',
+        'contributor',
+        'author',
+        'editor',
+        'administrator'
+    ];
 
     public function __construct(
         private Wordpress $wordpress,
@@ -45,17 +36,16 @@ class UserHandler
     {
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
             return base_convert((string) ip2long($ip), 10, 2);
-        } elseif (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
+        }
+
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
             return false;
         }
 
-        $packedIp = inet_pton($ip);
-        $bits = 15; // 16 x 8 bit = 128bit (ipv6)
         $binaryIp = '';
 
-        while ($bits >= 0) {
-            $binaryIp = sprintf('%08b', (ord($packedIp[$bits]))) . $binaryIp;
-            $bits--;
+        foreach (str_split(inet_pton($ip)) as $byte) {
+            $binaryIp .= sprintf('%08b', ord($byte));
         }
 
         return $binaryIp;
@@ -63,29 +53,29 @@ class UserHandler
 
     private function getCalculatedRange(string $ipRange): array
     {
-        $ipRange = explode('-', $ipRange);
-        $rangeBegin = $ipRange[0];
-        $rangeEnd = $ipRange[1] ?? $ipRange[0];
+        $rangeBounds = explode('-', $ipRange);
 
         return [
-            $this->calculateIp($rangeBegin),
-            $this->calculateIp($rangeEnd)
+            $this->calculateIp($rangeBounds[0]),
+            $this->calculateIp($rangeBounds[1] ?? $rangeBounds[0])
         ];
     }
 
     public function isIpInRange(string $currentIp, array $ipRanges): bool
     {
-        $currentIp = $this->calculateIp($currentIp);
+        $calculatedCurrentIp = $this->calculateIp($currentIp);
 
-        if ($currentIp !== false) {
-            foreach ($ipRanges as $ipRange) {
-                $calculatedIpRange = $this->getCalculatedRange($ipRange);
+        if ($calculatedCurrentIp === false) {
+            return false;
+        }
 
-                if ($calculatedIpRange[0] !== false && $calculatedIpRange[1] !== false
-                    && $calculatedIpRange[0] <= $currentIp && $currentIp <= $calculatedIpRange[1]
-                ) {
-                    return true;
-                }
+        foreach ($ipRanges as $ipRange) {
+            [$rangeBegin, $rangeEnd] = $this->getCalculatedRange($ipRange);
+
+            if ($rangeBegin !== false && $rangeEnd !== false
+                && $rangeBegin <= $calculatedCurrentIp && $calculatedCurrentIp <= $rangeEnd
+            ) {
+                return true;
             }
         }
 
@@ -94,13 +84,17 @@ class UserHandler
 
     public function getUserRole(WP_User|bool $user): array
     {
-        if ($user instanceof WP_User && isset($user->{$this->database->getPrefix() . 'capabilities'}) === true) {
-            $capabilities = (array) $user->{$this->database->getPrefix() . 'capabilities'};
-        } else {
-            $capabilities = [];
-        }
+        $capabilitiesProperty = $this->database->getPrefix() . 'capabilities';
+        $capabilities = ($user instanceof WP_User && isset($user->{$capabilitiesProperty}) === true)
+            ? (array) $user->{$capabilitiesProperty}
+            : [];
 
-        return (count($capabilities) > 0) ? array_keys($capabilities) : [AbstractUserGroup::NONE_ROLE];
+        return ($capabilities !== []) ? array_keys($capabilities) : [AbstractUserGroup::NONE_ROLE];
+    }
+
+    private function getRolesMap(WP_User|bool $user): array
+    {
+        return array_flip($this->getUserRole($user));
     }
 
     public function checkUserAccess(bool|string $allowedCapability = false): bool
@@ -113,34 +107,21 @@ class UserHandler
             return true;
         }
 
-        $roles = $this->getUserRole($currentUser);
-        $rolesMap = array_flip($roles);
-
-        $orderedRoles = [
-            AbstractUserGroup::NONE_ROLE,
-            'subscriber',
-            'contributor',
-            'author',
-            'editor',
-            'administrator'
-        ];
-        $orderedRolesMap = array_flip($orderedRoles);
-
-        $userRoles = array_intersect_key($orderedRolesMap, $rolesMap);
-        $rightsLevel = (count($userRoles) > 0) ? end($userRoles) : -1;
+        $rolesMap = $this->getRolesMap($currentUser);
+        $rightsLevelByRole = array_flip(self::ROLES_BY_ASCENDING_RIGHTS);
+        $userRightsLevels = array_intersect_key($rightsLevelByRole, $rolesMap);
+        $rightsLevel = ($userRightsLevels !== []) ? end($userRightsLevels) : -1;
         $fullAccessRole = $this->config->getFullAccessRole();
 
-        return (isset($orderedRolesMap[$fullAccessRole]) === true && $rightsLevel >= $orderedRolesMap[$fullAccessRole]
-            || isset($rolesMap['administrator']) === true
-        );
+        return isset($rightsLevelByRole[$fullAccessRole]) === true
+            && $rightsLevel >= $rightsLevelByRole[$fullAccessRole]
+            || isset($rolesMap['administrator']) === true;
     }
 
     public function userIsAdmin(int|string|null $userId): bool
     {
-        $user = $this->objectHandler->getUser($userId);
-        $roles = $this->getUserRole($user);
-        $rolesMap = array_flip($roles);
+        $rolesMap = $this->getRolesMap($this->objectHandler->getUser($userId));
 
-        return (isset($rolesMap['administrator']) === true || $this->wordpress->isSuperAdmin($userId) === true);
+        return isset($rolesMap['administrator']) === true || $this->wordpress->isSuperAdmin($userId) === true;
     }
 }

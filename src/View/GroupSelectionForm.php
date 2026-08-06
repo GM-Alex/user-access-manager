@@ -13,7 +13,7 @@
  * @link      http://wordpress.org/extend/plugins/user-access-manager/
  */
 
-use UserAccessManager\Controller\Backend\ObjectController;
+use UserAccessManager\Controller\Backend\ObjectMembership\ObjectController;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\UserGroup\AssignmentInformation;
 use UserAccessManager\UserGroup\DynamicUserGroup;
@@ -74,9 +74,14 @@ use UserAccessManager\UserGroup\UserGroup;
                 <label for="<?php echo $groupsFormName; ?>-<?php echo $userGroup->getId(); ?>" class="selectit"
                        style="display:inline;">
                     <?php echo htmlentities($userGroup->getName()) . ($isLockedRecursive === true ? ' [LR]' : ''); ?>
-                    <span class="uam_group_info_link">(<?php echo TXT_UAM_INFO; ?>)</span>
-                    <?php include 'GroupInfo.php'; ?>
                 </label>
+                <span class="uam_flyout">
+                    <button type="button"
+                            class="uam_group_info_link uam_flyout_toggle button-link"
+                            aria-expanded="false"
+                            aria-haspopup="true"><?php echo TXT_UAM_INFO; ?></button>
+                    <?php include 'GroupInfo.php'; ?>
+                </span>
                 <?php
                 $dateText = TXT_UAM_GROUP_ASSIGNMENT_TIME;
 
@@ -92,37 +97,39 @@ use UserAccessManager\UserGroup\UserGroup;
                 if ($isLockedRecursive === false) {
                     $formPrefix = $groupsFormName . '-' . $userGroup->getId();
                     ?>
-                    <span class="uam_group_date"><?php echo $dateText; ?></span>
-                    <div class="uam_group_date_form">
+                    <span class="uam_flyout">
+                    <button type="button"
+                            class="uam_group_date uam_flyout_toggle button-link"
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                            data-empty-label="<?php echo htmlentities(TXT_UAM_GROUP_ASSIGNMENT_TIME); ?>"
+                            aria-controls="<?php echo $formPrefix; ?>-date-form"><?php echo $dateText; ?></button>
+                    <div class="uam_group_date_form uam_flyout_panel" id="<?php echo $formPrefix; ?>-date-form">
                         <div>
-                            <label class="uam_date_label" for="<?php echo $formPrefix; ?>-fromDate-date">
+                            <label class="uam_date_label" for="<?php echo $formPrefix; ?>-fromDate">
                                 <?php echo TXT_UAM_GROUP_FROM_DATE; ?>
                             </label>
-                            <input type="date"
-                                   id="<?php echo $formPrefix ?>-fromDate-date"
-                                   name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][fromDate][date]"; ?>"
-                                   value="<?php echo $dateUtil->formatDateForDateInput($fromDate); ?>"/>
-                            <label for="<?php echo $formPrefix; ?>-fromDate-time">@</label>
-                            <input type="time"
-                                   id="<?php echo $formPrefix; ?>-fromDate-time"
-                                   name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][fromDate][time]"; ?>"
-                                   value="<?php echo $dateUtil->formatDateForTimeInput($fromDate); ?>"/>
+                            <input type="datetime-local"
+                                   id="<?php echo $formPrefix; ?>-fromDate"
+                                   name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][fromDate]"; ?>"
+                                   value="<?php echo $dateUtil->formatDateForDatetimeInput($fromDate); ?>"/>
                         </div>
                         <div>
-                            <label class="uam_date_label" for="<?php echo $formPrefix; ?>-toDate-date">
+                            <label class="uam_date_label" for="<?php echo $formPrefix; ?>-toDate">
                                 <?php echo TXT_UAM_GROUP_TO_DATE; ?>
                             </label>
-                            <input type="date"
-                                   id="<?php echo $formPrefix ?>-toDate-date"
-                                   name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][toDate][date]"; ?>"
-                                   value="<?php echo $dateUtil->formatDateForDateInput($toDate); ?>"/>
-                            <label for="<?php echo $formPrefix; ?>-toDate-time">@</label>
-                            <input type="time"
-                                   id="<?php echo $formPrefix; ?>-toDate-time"
-                                   name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][toDate][time]"; ?>"
-                                   value="<?php echo $dateUtil->formatDateForTimeInput($toDate); ?>"/>
+                            <input type="datetime-local"
+                                   id="<?php echo $formPrefix; ?>-toDate"
+                                   name="<?php echo "{$groupsFormName}[{$userGroup->getId()}][toDate]"; ?>"
+                                   value="<?php echo $dateUtil->formatDateForDatetimeInput($toDate); ?>"/>
                         </div>
+                        <p class="uam_group_date_actions">
+                            <button type="button" class="uam_clear_dates button-link button-link-delete">
+                                <?php echo TXT_UAM_GROUP_REMOVE_ASSIGNMENT_TIME; ?>
+                            </button>
+                        </p>
                     </div>
+                    </span>
                     <?php
                 }
                 ?>
@@ -137,13 +144,21 @@ if ($controller->getObjectInformation()->getObjectType() !==
     && $controller->checkUserAccess() === true
 ) {
     ?>
-    <p>
-        <span><label for="uam_dynamic_groups"><?php echo TXT_UAM_ADD_DYNAMIC_GROUP; ?></label></span>
+    <div class="uam_dynamic_groups">
+        <label for="uam_dynamic_groups"><?php echo TXT_UAM_ADD_DYNAMIC_GROUP; ?></label>
         <input id="uam_dynamic_groups"
-               class="form-input-tip ui-autocomplete-input"
+               type="text"
                autocomplete="off"
                value=""
-               role="combobox">
-    </p>
+               placeholder="<?php echo htmlentities(TXT_UAM_ADD_DYNAMIC_GROUP_PLACEHOLDER); ?>"
+               aria-describedby="uam_dynamic_groups_description"
+               data-date-label="<?php echo htmlentities(TXT_UAM_GROUP_ASSIGNMENT_TIME); ?>"
+               data-from-label="<?php echo htmlentities(TXT_UAM_GROUP_FROM_DATE); ?>"
+               data-to-label="<?php echo htmlentities(TXT_UAM_GROUP_TO_DATE); ?>"
+               data-clear-label="<?php echo htmlentities(TXT_UAM_GROUP_REMOVE_ASSIGNMENT_TIME); ?>">
+        <p class="description" id="uam_dynamic_groups_description">
+            <?php echo TXT_UAM_ADD_DYNAMIC_GROUP_DESCRIPTION; ?>
+        </p>
+    </div>
     <?php
 }

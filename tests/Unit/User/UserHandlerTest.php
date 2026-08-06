@@ -1,17 +1,4 @@
 <?php
-/**
- * UserHandlerTest.php
- *
- * The UserHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\User;
 
@@ -21,9 +8,6 @@ use UserAccessManager\User\UserHandler;
 use UserAccessManager\UserGroup\UserGroup;
 
 /**
- * Class UserHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\UserHandler
  * @coversDefaultClass \UserAccessManager\User\UserHandler
  */
 class UserHandlerTest extends HandlerTestCase
@@ -109,6 +93,7 @@ class UserHandlerTest extends HandlerTestCase
      * @group  unit
      * @covers ::checkUserAccess()
      * @covers ::getUserRole()
+     * @covers ::getRolesMap()
      */
     public function testCheckUserAccess()
     {
@@ -232,6 +217,7 @@ class UserHandlerTest extends HandlerTestCase
      * @group  unit
      * @covers ::userIsAdmin()
      * @covers ::getUserRole()
+     * @covers ::getRolesMap()
      */
     public function testUserIsAdmin()
     {

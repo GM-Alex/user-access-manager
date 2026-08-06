@@ -1,17 +1,4 @@
 <?php
-/**
- * ControllerTest.php
- *
- * The ControllerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Controller;
 
@@ -25,9 +12,6 @@ use Vfs\Node\Directory;
 use Vfs\Node\File;
 
 /**
- * Class ControllerTest
- *
- * @package UserAccessManager\Tests\Unit\Controller
  * @coversDefaultClass \UserAccessManager\Controller\Controller
  */
 class ControllerTest extends UserAccessManagerTestCase
@@ -42,6 +26,7 @@ class ControllerTest extends UserAccessManagerTestCase
      */
     protected function setUp(): void
     {
+        parent::setUp();
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
     }
@@ -52,6 +37,7 @@ class ControllerTest extends UserAccessManagerTestCase
     protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     /**
@@ -253,6 +239,7 @@ class ControllerTest extends UserAccessManagerTestCase
      * @group   unit
      * @covers  ::render()
      * @covers  ::processAction()
+     * @covers ::toCamelCase()
      * @covers  ::getIncludeContents()
      * @throws ReflectionException
      */
@@ -294,5 +281,52 @@ class ControllerTest extends UserAccessManagerTestCase
         self::setValue($dummyController, 'template', 'TestView.php');
         $dummyController->render();
         self::expectOutputString('testAction' . 'testContent');
+    }
+
+    /**
+     * A snake case action must reach the camel case method, which only holds if
+     * the first word stays lower case and every following word is capitalised.
+     *
+     * @group   unit
+     * @covers  ::processAction()
+     * @covers  ::toCamelCase()
+     * @throws ReflectionException
+     */
+    public function testProcessActionConvertsSnakeCaseToCamelCase()
+    {
+        $dummyController = new DummyController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig()
+        );
+
+        $_GET['uam_action'] = 'multi_word_test';
+        self::callMethod($dummyController, 'processAction');
+        self::expectOutputString('multiWordTestAction');
+    }
+
+    /**
+     * Asserted on the conversion itself rather than through the dispatch, because
+     * PHP resolves method names case insensitively and would still find the
+     * method if the capitalisation were wrong.
+     *
+     * @group   unit
+     * @covers  ::toCamelCase()
+     * @throws ReflectionException
+     */
+    public function testToCamelCase()
+    {
+        $dummyController = new DummyController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig()
+        );
+
+        self::assertSame('single', self::callMethod($dummyController, 'toCamelCase', ['single']));
+        self::assertSame('twoWords', self::callMethod($dummyController, 'toCamelCase', ['two_words']));
+        self::assertSame(
+            'multiWordTest',
+            self::callMethod($dummyController, 'toCamelCase', ['multi_word_test'])
+        );
     }
 }

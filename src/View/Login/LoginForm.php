@@ -1,6 +1,6 @@
 <?php
 /**
- * @var UserAccessManager\Controller\Frontend\LoginControllerTrait $controller
+ * @var UserAccessManager\Controller\Frontend\Authentication\LoginControllerTrait $controller
  */
 if ($controller->isUserLoggedIn() === false) {
     ?>

@@ -8,8 +8,6 @@ use Exception;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Database\Database;
 use UserAccessManager\Object\ObjectHandler;
-use UserAccessManager\Util\Util;
-use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
 class DynamicUserGroup extends AbstractUserGroup
@@ -22,26 +20,15 @@ class DynamicUserGroup extends AbstractUserGroup
      * @throws UserGroupTypeException
      */
     public function __construct(
-        Php $php,
         Wordpress $wordpress,
         Database $database,
         MainConfig $config,
-        Util $util,
         ObjectHandler $objectHandler,
         AssignedObjectsLoader $assignedObjectsLoader,
         protected ?string $type,
         int|string $id
     ) {
-        parent::__construct(
-            $php,
-            $wordpress,
-            $database,
-            $config,
-            $util,
-            $objectHandler,
-            $assignedObjectsLoader,
-            $id
-        );
+        parent::__construct($wordpress, $database, $config, $objectHandler, $assignedObjectsLoader, $id);
 
         if ($this->type !== self::USER_TYPE && $this->type !== self::ROLE_TYPE) {
             throw new UserGroupTypeException('Invalid dynamic group type.');
@@ -55,23 +42,26 @@ class DynamicUserGroup extends AbstractUserGroup
 
     public function getName(): string
     {
-        if ($this->name === null) {
-            $this->name = '';
+        return $this->name ??= ($this->type === self::ROLE_TYPE) ? $this->createRoleName() : $this->createUserName();
+    }
 
-            if ($this->type === self::USER_TYPE && (int) $this->id === self::NOT_LOGGED_IN_USER_ID) {
-                $this->name = TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS;
-            } elseif ($this->type === self::USER_TYPE) {
-                $userData = $this->wordpress->getUserData($this->id);
-                $userName = $userData !== false ? "$userData->display_name ($userData->user_login)" : '';
-                $this->name = TXT_UAM_USER . ": $userName";
-            } elseif ($this->type === self::ROLE_TYPE) {
-                $roles = $this->wordpress->getRoles()->roles;
-                $this->name = TXT_UAM_ROLE . ': ';
-                $this->name .= (isset($roles[$this->id]['name']) === true) ? $roles[$this->id]['name'] : $this->id;
-            }
+    private function createRoleName(): string
+    {
+        $roles = $this->wordpress->getRoles()->roles;
+
+        return TXT_UAM_ROLE . ': ' . ($roles[$this->id]['name'] ?? $this->id);
+    }
+
+    private function createUserName(): string
+    {
+        if ((int) $this->id === self::NOT_LOGGED_IN_USER_ID) {
+            return TXT_UAM_ADD_DYNAMIC_NOT_LOGGED_IN_USERS;
         }
 
-        return $this->name;
+        $userData = $this->wordpress->getUserData($this->id);
+        $userName = ($userData !== false) ? "$userData->display_name ($userData->user_login)" : '';
+
+        return TXT_UAM_USER . ": $userName";
     }
 
     /**

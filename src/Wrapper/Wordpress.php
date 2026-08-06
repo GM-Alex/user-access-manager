@@ -77,6 +77,7 @@ use function wp_die;
 use function wp_doing_ajax;
 use function wp_enqueue_script;
 use function wp_enqueue_style;
+use function wp_get_attachment_metadata;
 use function wp_get_current_user;
 use function wp_login_url;
 use function wp_logout_url;
@@ -812,6 +813,16 @@ class Wordpress
     public function getAttachedFile(int $attachmentId): string|false
     {
         return get_attached_file($attachmentId);
+    }
+
+    /**
+     * The return value passes the wp_get_attachment_metadata filter, so any type can reach us.
+     *
+     * @see wp_get_attachment_metadata
+     */
+    public function getAttachmentMetadata(int $attachmentId): mixed
+    {
+        return wp_get_attachment_metadata($attachmentId);
     }
 
     /**

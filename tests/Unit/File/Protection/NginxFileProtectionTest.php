@@ -1,0 +1,246 @@
+<?php
+/**
+ * NginxFileProtectionTest.php
+ *
+ * The NginxFileProtectionTest unit test class file.
+ *
+ * PHP versions 5
+ *
+ * @author    Alexander Schneider <alexanderschneider85@gmail.com>
+ * @copyright 2008-2017 Alexander Schneider
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
+ * @version   SVN: $id$
+ * @link      http://wordpress.org/extend/plugins/user-access-manager/
+ */
+
+namespace UserAccessManager\Tests\Unit\File\Protection;
+
+use UserAccessManager\Config\MainConfig;
+use UserAccessManager\Config\WordpressConfig;
+use UserAccessManager\File\Protection\NginxFileProtection;
+use UserAccessManager\Tests\ThrowingStreamWrapper;
+use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
+use UserAccessManager\Util\Util;
+use UserAccessManager\Wrapper\Php;
+use UserAccessManager\Wrapper\Wordpress;
+use Vfs\FileSystem;
+use Vfs\Node\Directory;
+use Vfs\Node\File;
+
+/**
+ * Class NginxFileProtectionTest
+ *
+ * @package UserAccessManager\Tests\Unit\File
+ * @coversDefaultClass \UserAccessManager\File\Protection\NginxFileProtection
+ */
+class NginxFileProtectionTest extends UserAccessManagerTestCase
+{
+    private FileSystem $root;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->root = FileSystem::factory('vfs://');
+        $this->root->mount();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->root->unmount();
+        parent::tearDown();
+    }
+
+    private function createNginxFileProtection(
+        ?Php $php = null,
+        ?Wordpress $wordpress = null,
+        ?WordpressConfig $wordpressConfig = null,
+        ?MainConfig $mainConfig = null,
+        ?Util $util = null
+    ): NginxFileProtection {
+        return new NginxFileProtection(
+            $php ?? $this->getPhp(),
+            $wordpress ?? $this->getWordpress(),
+            $wordpressConfig ?? $this->getWordpressConfig(),
+            $mainConfig ?? $this->getMainConfig(),
+            $util ?? $this->getUtil()
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::__construct()
+     */
+    public function testCanCreateInstance()
+    {
+        $nginxFileProtection = new NginxFileProtection(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getUtil()
+        );
+
+        self::assertInstanceOf(NginxFileProtection::class, $nginxFileProtection);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::getFileNameWithPath()
+     */
+    public function testGetFileNameWithPath()
+    {
+        $nginxFileProtection = $this->createNginxFileProtection();
+
+        self::assertEquals(ABSPATH . NginxFileProtection::FILE_NAME, $nginxFileProtection->getFileNameWithPath());
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getFileContent()
+     * @covers ::getLocation()
+     */
+    public function testCreate()
+    {
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory());
+        $testDir = 'vfs://testDir';
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->exactly(8))
+            ->method('getLockedDirectoryType')
+            ->will($this->onConsecutiveCalls('all', 'all', 'wordpress', 'wordpress', 'custom', 'custom', 'all', 'all'));
+
+        $mainConfig->expects($this->once())
+            ->method('getCustomLockedDirectories')
+            ->will($this->returnValue('custom'));
+
+        $nginxFileProtection = $this->createNginxFileProtection(mainConfig: $mainConfig);
+        $file = 'vfs://testDir/' . NginxFileProtection::FILE_NAME;
+
+        self::assertTrue($nginxFileProtection->create($testDir, null, $testDir));
+        self::assertEquals(
+            "location ~ \"/\" {\n"
+            . "rewrite ^([^?]*)$ /index.php?uamfiletype=attachment&uamgetfile=$1 last;\n"
+            . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=attachment&uamgetfile=$1&$2 last;\n"
+            . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
+            . "}\n",
+            file_get_contents($file)
+        );
+
+        self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
+        self::assertEquals(
+            "location ~ \"^/\d{4}/\d{2}\" {\n"
+            . "rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
+            . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
+            . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
+            . "}\n",
+            file_get_contents($file)
+        );
+
+        self::assertTrue($nginxFileProtection->create($testDir, 'objectType', $testDir));
+        self::assertEquals(
+            "location ~ \"custom\" {\n"
+            . "rewrite ^([^?]*)$ /index.php?uamfiletype=objectType&uamgetfile=$1 last;\n"
+            . "rewrite ^(.*)\\?(((?!uamfiletype).)*)$ /index.php?uamfiletype=objectType&uamgetfile=$1&$2 last;\n"
+            . "rewrite ^(.*)\\?(.*)$ /index.php?uamgetfile=$1&$2 last;\n"
+            . "}\n",
+            file_get_contents($file)
+        );
+
+        self::assertFalse($nginxFileProtection->create('invalid', 'invalid'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getFileContent()
+     */
+    public function testCreateNormalizesTrailingSeparators()
+    {
+        $rootDir = $this->root->get('/');
+        $rootDir->add('base', new Directory([
+            'deep' => new Directory()
+        ]));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('getLockedDirectoryType')->will($this->returnValue('all'));
+
+        $nginxFileProtection = $this->createNginxFileProtection(mainConfig: $mainConfig);
+
+        // The trailing separators on both paths must be normalised to a single one.
+        self::assertTrue($nginxFileProtection->create('vfs://base/deep/', 'objectType', 'vfs://base/'));
+        self::assertStringContainsString(
+            'location ~ "/deep/"',
+            file_get_contents('vfs://base/uam.conf')
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     */
+    public function testCreateReturnsFalseWhenWritingThrows()
+    {
+        ThrowingStreamWrapper::register();
+
+        try {
+            $mainConfig = $this->getMainConfig();
+            $mainConfig->method('getLockedDirectoryType')->will($this->returnValue('all'));
+
+            $nginxFileProtection = $this->createNginxFileProtection(mainConfig: $mainConfig);
+
+            self::assertFalse($nginxFileProtection->create(
+                ThrowingStreamWrapper::PROTOCOL . '://dir/',
+                'objectType',
+                ThrowingStreamWrapper::PROTOCOL . '://dir/'
+            ));
+        } finally {
+            ThrowingStreamWrapper::unregister();
+        }
+    }
+
+    /**
+     * @group   unit
+     * @covers  ::delete()
+     */
+    public function testDelete()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->exactly(6))
+            ->method('unlink')
+            ->withConsecutive(
+                ['vfs://testDir/uam.conf'],
+                ['vfs://testDir/.htpasswd'],
+                ['vfs://testDir/uam.conf'],
+                ['vfs://testDir/.htpasswd'],
+                ['vfs://testDir/uam.conf'],
+                ['vfs://testDir/.htpasswd']
+            )
+            ->will($this->onConsecutiveCalls(true, true, true, false, false, true));
+
+        $nginxFileProtection = $this->createNginxFileProtection($php);
+
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory([
+            NginxFileProtection::FILE_NAME => new File('empty'),
+            NginxFileProtection::PASSWORD_FILE_NAME => new File('empty')
+        ]));
+
+        $testDir = 'vfs://testDir/';
+        $file = $testDir . NginxFileProtection::FILE_NAME;
+        $passwordFile = $testDir . NginxFileProtection::PASSWORD_FILE_NAME;
+
+        self::assertTrue(file_exists($file));
+        self::assertTrue(file_exists($passwordFile));
+        self::assertTrue($nginxFileProtection->delete($testDir));
+        self::assertFalse($nginxFileProtection->delete($testDir));
+        self::assertFalse($nginxFileProtection->delete($testDir));
+    }
+}

@@ -1,17 +1,4 @@
 <?php
-/**
- * UtilTest.php
- *
- * The UtilTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Util;
 
@@ -20,16 +7,13 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\Util\Util;
 
 /**
- * Class UtilTest
- *
- * @package UserAccessManager\Tests\Unit\Util
  * @coversDefaultClass \UserAccessManager\Util\Util
  */
 class UtilTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
-     * @return Util
+     * @covers ::__construct()
      */
     public function testCanCreateInstance(): Util
     {
@@ -44,7 +28,6 @@ class UtilTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::startsWith()
-     * @param Util $util
      */
     public function testStartsWith(Util $util)
     {
@@ -56,7 +39,6 @@ class UtilTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::endsWith()
-     * @param Util $util
      */
     public function testEndsWith(Util $util)
     {
@@ -122,8 +104,8 @@ class UtilTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group                    unit
-     * @covers                   ::getRandomPassword()
+     * @group  unit
+     * @covers ::getRandomPassword()
      * @throws Exception
      */
     public function testGetRandomPasswordException()
@@ -147,8 +129,8 @@ class UtilTest extends UserAccessManagerTestCase
     }
 
     /**
-     * @group                    unit
-     * @covers                   ::getRandomPassword()
+     * @group  unit
+     * @covers ::getRandomPassword()
      * @throws Exception
      */
     public function testSecondGetRandomPasswordSecondException()
@@ -175,7 +157,6 @@ class UtilTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::getCurrentUrl()
-     * @param Util $util
      */
     public function testGetCurrentUrl(Util $util)
     {

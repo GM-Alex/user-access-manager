@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace UserAccessManager\Setup\Update;
 
-use UserAccessManager\Setup\Database\DatabaseUpdate;
-
 class DatabaseUpdate2 extends DatabaseUpdate
 {
     public function getVersion(): string

@@ -63,12 +63,35 @@ ul.uam_group_selection > li > label {
     display: inline-block;
 }
 
-.uam_group_date {
-    font-size: 11px;
-    margin-left: 24px;
-    display: block;
+/* Matches the specificity of `.wp-core-ui .button-link`, which would
+   otherwise underline the assignment summary and make it read as a link. */
+.wp-core-ui .uam_group_date {
+    display: inline-block;
+    margin: 2px 0 2px 24px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    text-decoration: none;
     cursor: pointer;
-    font-weight: bold;
+}
+
+.wp-core-ui .uam_group_date:hover,
+.wp-core-ui .uam_group_date:focus {
+    text-decoration: underline;
+}
+
+.wp-core-ui .uam_group_date::after {
+    content: "\f347";
+    font-family: dashicons, sans-serif;
+    font-size: 16px;
+    line-height: 1;
+    vertical-align: middle;
+    margin-left: 2px;
+    text-decoration: none;
+}
+
+.wp-core-ui .uam_group_date[aria-expanded="true"]::after {
+    content: "\f343";
 }
 
 .uam_group_date_form {
@@ -76,18 +99,31 @@ ul.uam_group_selection > li > label {
     display: none;
 }
 
+.uam_group_date_form p.description {
+    max-width: 40em;
+}
+
+.uam_group_date_actions {
+    margin: 8px 0 0;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f1;
+}
+
 .uam_default_groups .uam_group_date_form {
     display: block;
 }
 
-.uam_group_date_form label {
-    width: 65px;
-    display: inline-block;
+.uam_group_date_form > div {
+    display: grid;
+    grid-template-columns: 65px minmax(0, 1fr);
+    align-items: center;
+    gap: 6px 8px;
+    margin-bottom: 6px;
+    max-width: 340px;
 }
 
 .uam_group_date_form input {
-    width: 160px;
-    font-size: 12px;
+    max-width: 100%;
 }
 
 @media (max-width: 782px) {
@@ -154,27 +190,134 @@ ul.uam_group_selection_ajax > li > input {
     vertical-align: middle;
 }
 
-.uam_tooltip {
-    z-index: 1000;
-    display: none;
-    min-width: 200px;
-    color: #000 !important;
-    background-color: #F9F9F9 !important;
-    padding: 4px 8px !important;
-    border: 1px solid #DFDFDF !important;
-    position: absolute;
+/* Flyouts. The panel is a sibling of its trigger and positioned against the
+   .uam_flyout wrapper; functions.js nudges it back into view near the edge. */
+.uam_flyout {
+    position: relative;
+    display: inline-block;
 }
 
-.uam_group_info_link:hover + .uam_tooltip {
-    display: block;
+.uam_flyout_panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100000;
+    min-width: 240px;
+    max-width: 340px;
+    margin-top: 4px;
+    text-align: left;
+    color: #2c3338 !important;
+    background-color: #fff !important;
+    padding: 12px !important;
+    border: 1px solid #c3c4c7 !important;
+    border-radius: 2px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.uam_flyout_panel_above {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 4px;
+}
+
+.uam_flyout .uam_group_date_form {
+    margin-left: 0;
 }
 
 #uam_dynamic_groups {
-    height: 28px;
+    vertical-align: middle;
     margin: 0 4px 0 0;
 }
 
 .uam_supporters {
     list-style: disc;
     padding-left: 20px;
+}
+
+.uam_dynamic_groups {
+    margin: 12px 0;
+}
+
+.uam_dynamic_groups > label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.uam_dynamic_groups > input {
+    width: 100%;
+}
+
+/* Suggestion list for the dynamic group search. Appended to <body> by the
+   suggest widget, so it cannot be nested under a plugin container. */
+ul.uam_suggest_results {
+    display: none;
+    position: absolute;
+    z-index: 100000;
+    box-sizing: border-box;
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 2px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+ul.uam_suggest_results li {
+    margin: 0;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+ul.uam_suggest_results li:not(:last-child) {
+    border-bottom: 1px solid #f0f0f1;
+}
+
+ul.uam_suggest_results li.uam_suggest_selected {
+    background: #2271b1;
+    color: #fff;
+}
+
+.uam_suggest_match {
+    font-weight: 600;
+}
+
+.uam_radio_option {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.uam_radio_option > label {
+    flex: 0 0 auto;
+}
+
+.uam_textarea {
+    width: 100%;
+    min-height: 120px;
+}
+
+.uam_note,
+.uam_danger_zone {
+    color: #b32d2e;
+}
+
+/* Keep radios, text fields and buttons on a shared centre line. */
+.uam_setup_form label,
+.uam_setup_form .button,
+.uam_setup_form input[type="text"],
+.uam_setup_form input[type="radio"],
+table[id^="uam_settings_group_"] td label,
+table[id^="uam_settings_group_"] td input,
+table[id^="uam_settings_group_"] td select {
+    vertical-align: middle;
 }

@@ -1,35 +1,19 @@
 <?php
-/**
- * MainConfigTest.php
- *
- * The MainConfigTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Config;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 use UserAccessManager\Cache\Cache;
-use UserAccessManager\Config\BooleanConfigParameter;
-use UserAccessManager\Config\ConfigParameterFactory;
+use UserAccessManager\Config\Parameter\BooleanConfigParameter;
+use UserAccessManager\Config\Parameter\ConfigParameterFactory;
 use UserAccessManager\Config\MainConfig;
-use UserAccessManager\Config\SelectionConfigParameter;
-use UserAccessManager\Config\StringConfigParameter;
+use UserAccessManager\Config\Parameter\SelectionConfigParameter;
+use UserAccessManager\Config\Parameter\StringConfigParameter;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class ConfigTest
- *
- * @package UserAccessManager\Tests\Unit\Config
  * @coversDefaultClass \UserAccessManager\Config\MainConfig
  */
 class MainConfigTest extends UserAccessManagerTestCase
@@ -39,11 +23,9 @@ class MainConfigTest extends UserAccessManagerTestCase
      */
     private array $defaultValues;
 
-    /**
-     * Create default mocked objects.
-     */
     protected function setUp(): void
     {
+        parent::setUp();
         $this->defaultValues = [
             'hide_default' => 'bool|hide_default|false',
             'hide_default_title' => 'bool|hide_default_title|false',
@@ -109,9 +91,6 @@ class MainConfigTest extends UserAccessManagerTestCase
         ];
     }
 
-    /**
-     * @return MockObject|Cache
-     */
     protected function getCache(): Cache|MockObject
     {
         $cache = parent::getCache();
@@ -123,10 +102,6 @@ class MainConfigTest extends UserAccessManagerTestCase
         return $cache;
     }
 
-    /**
-     * @param int $callExpectation
-     * @return MockObject|ObjectHandler
-     */
     protected function getDefaultObjectHandler(int $callExpectation): ObjectHandler|MockObject
     {
         $objectHandler = $this->getObjectHandler();
@@ -142,10 +117,6 @@ class MainConfigTest extends UserAccessManagerTestCase
         return $objectHandler;
     }
 
-    /**
-     * @param callable|null $closure
-     * @return MockObject|ConfigParameterFactory
-     */
     protected function getFactory(?callable $closure = null): ConfigParameterFactory|MockObject
     {
         if ($closure === null) {
@@ -210,10 +181,12 @@ class MainConfigTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getDefaultConfigParameters()
      * @covers ::addDefaultGeneralConfigParameters()
+     * @covers ::addString()
+     * @covers ::addSelection()
+     * @covers ::addBoolean()
      * @covers ::addDefaultPostConfigParameters()
      * @covers ::addDefaultTaxonomyConfigParameters()
      * @covers ::addDefaultFileConfigParameters()
-     * @return MainConfig
      */
     public function testGetDefaultConfigParameters(): MainConfig
     {
@@ -466,6 +439,52 @@ class MainConfigTest extends UserAccessManagerTestCase
 
         self::setValue($config, 'configParameters', []);
         self::assertFalse($config->hideEmptyTaxonomy('undefined'));
+    }
+
+    /**
+     * Covers the branches the object parameter lookup only reaches with a
+     * configured value: the "use default" parameter is consulted just when the
+     * object has its own entry, and a configured value has to be handed back
+     * instead of the fallback.
+     *
+     * @group  unit
+     * @covers ::getObjectParameter()
+     * @covers ::hideObject()
+     * @covers ::getObjectContent()
+     * @covers ::hideEmptyTaxonomy()
+     * @throws ReflectionException
+     */
+    public function testObjectParameterWithoutUseDefaultParameter()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->expects($this->any())
+            ->method('getOption')
+            ->will($this->returnValue(null));
+
+        $config = new MainConfig(
+            $wordpress,
+            $this->getObjectHandler(),
+            $this->getCache(),
+            $this->getConfigParameterFactory()
+        );
+
+        $trueParameter = $this->createMock(BooleanConfigParameter::class);
+        $trueParameter->expects($this->any())->method('getValue')->will($this->returnValue(true));
+
+        // No "post_use_default" entry, so the null safe call on it has to hold.
+        self::setValue($config, 'configParameters', [
+            'hide_post' => $trueParameter,
+            'hide_empty_category' => $trueParameter
+        ]);
+
+        self::assertTrue(self::callMethod($config, 'hideObject', ['post', 'hide_%s']));
+        self::assertTrue($config->hideEmptyTaxonomy('category'));
+
+        // Nothing configured at all, so the null safe call on the missing
+        // parameter has to hold as well.
+        self::setValue($config, 'configParameters', []);
+
+        self::assertSame('', self::callMethod($config, 'getObjectContent', ['post', 'content_%s']));
     }
 
     /**

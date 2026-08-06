@@ -29,7 +29,6 @@ class CacheProviderFactoryTest extends UserAccessManagerTestCase
 {
     /**
      * @group unit
-     * @return CacheProviderFactory
      */
     public function testCanCreateInstance(): CacheProviderFactory
     {
@@ -50,7 +49,6 @@ class CacheProviderFactoryTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testCanCreateInstance
      * @covers  ::createFileSystemCacheProvider()
-     * @param CacheProviderFactory $cacheProviderFactory
      */
     public function testCreateFrom(CacheProviderFactory $cacheProviderFactory)
     {

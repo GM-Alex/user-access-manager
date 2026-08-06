@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace UserAccessManager\Config;
 
 use Exception;
+use UserAccessManager\Config\Parameter\ConfigParameter;
 use UserAccessManager\Wrapper\Wordpress;
 
 class Config
 {
-    protected string $key;
     protected array $wpOptions = [];
     /**
      * @var ConfigParameter[]
@@ -22,14 +22,13 @@ class Config
 
     public function __construct(
         private Wordpress $wordpress,
-        string $key
+        protected string $key
     ) {
-        $this->key = $key;
     }
 
     public function getWpOption(string $option): mixed
     {
-        if (!isset($this->wpOptions[$option]) === true) {
+        if (isset($this->wpOptions[$option]) === false) {
             $this->wpOptions[$option] = $this->wordpress->getOption($option);
         }
 
@@ -57,25 +56,21 @@ class Config
      */
     public function getConfigParameters(): array
     {
-        if ($this->configParameters === null) {
-            $configParameters = $this->getDefaultConfigParameters();
-            $currentOptions = (array) $this->getWpOption($this->key);
-
-            foreach ($currentOptions as $key => $option) {
-                if (isset($configParameters[$key])) {
-                    $configParameters[$key]->setValue($option);
-                }
-            }
-
-            $this->configParameters = $configParameters;
+        if ($this->configParameters !== null) {
+            return $this->configParameters;
         }
 
-        return $this->configParameters;
+        $configParameters = $this->getDefaultConfigParameters();
+
+        foreach ((array) $this->getWpOption($this->key) as $key => $option) {
+            if (isset($configParameters[$key]) === true) {
+                $configParameters[$key]->setValue($option);
+            }
+        }
+
+        return $this->configParameters = $configParameters;
     }
 
-    /**
-     * @param array $rawParameters
-     */
     public function setConfigParameters(array $rawParameters): void
     {
         $configParameters = $this->getConfigParameters();
@@ -86,15 +81,13 @@ class Config
             }
         }
 
-        $this->configParameters = $configParameters;
-
-        $simpleConfigParameters = [];
+        $persistableValues = [];
 
         foreach ($configParameters as $parameter) {
-            $simpleConfigParameters[$parameter->getId()] = $parameter->getValue();
+            $persistableValues[$parameter->getId()] = $parameter->getValue();
         }
 
-        $this->wordpress->updateOption($this->key, $simpleConfigParameters);
+        $this->wordpress->updateOption($this->key, $persistableValues);
     }
 
     public function flushConfigParameters(): void
@@ -122,8 +115,7 @@ class Config
         try {
             return $this->getParameterValueRaw($parameterName);
         } catch (Exception) {
+            return null;
         }
-
-        return null;
     }
 }

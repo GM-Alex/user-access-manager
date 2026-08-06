@@ -1,17 +1,4 @@
 <?php
-/**
- * FrontendController.php
- *
- * The FrontendController class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 declare(strict_types=1);
 
@@ -26,11 +13,6 @@ use UserAccessManager\UserGroup\UserGroupTypeException;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
-/**
- * Class FrontendController
- *
- * @package UserAccessManager\Controller
- */
 class FrontendController extends Controller
 {
     public const HANDLE_STYLE_LOGIN_FORM = 'UserAccessManagerLoginForm';
@@ -45,22 +27,15 @@ class FrontendController extends Controller
         parent::__construct($php, $wordpress, $wordpressConfig);
     }
 
-    private function registerStylesAndScripts(): void
+    public function enqueueStylesAndScripts(): void
     {
-        $urlPath = $this->wordpressConfig->getUrlPath();
-
         $this->wordpress->registerStyle(
             self::HANDLE_STYLE_LOGIN_FORM,
-            $urlPath.'assets/css/uamLoginForm.css',
+            $this->wordpressConfig->getUrlPath().'assets/css/uamLoginForm.css',
             [],
             UserAccessManager::VERSION,
             'screen'
         );
-    }
-
-    public function enqueueStylesAndScripts(): void
-    {
-        $this->registerStylesAndScripts();
         $this->wordpress->enqueueStyle(self::HANDLE_STYLE_LOGIN_FORM);
     }
 
@@ -84,11 +59,6 @@ class FrontendController extends Controller
         return $ancestors;
     }
 
-
-    /*
-     * Functions for the redirection and files.
-     */
-
     /**
      * @throws UserGroupTypeException
      */
@@ -97,14 +67,10 @@ class FrontendController extends Controller
         return ($this->accessHandler->checkObjectAccess($type, $object->ID) === true) ? $url : false;
     }
 
-    /*
-     * Elementor
-     */
-
     /**
      * @throws UserGroupTypeException
      */
-    public function getElementorContent($content): mixed
+    public function getElementorContent(mixed $content): mixed
     {
         $this->wordpress->removeAction('elementor/frontend/the_content', [$this, 'getElementorContent']);
         $post = $this->wordpress->getCurrentPost();

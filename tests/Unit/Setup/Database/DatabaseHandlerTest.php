@@ -1,17 +1,4 @@
 <?php
-/**
- * DatabaseHandlerTest.php
- *
- * The DatabaseHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Setup\Database;
 
@@ -27,9 +14,6 @@ use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserAccessManager;
 
 /**
- * Class DatabaseHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\Setup\Database
  * @coversDefaultClass \UserAccessManager\Setup\Database\DatabaseHandler
  */
 class DatabaseHandlerTest extends UserAccessManagerTestCase
@@ -387,9 +371,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::repairDatabase()
      * @covers ::addTable()
-     * @covers ::addColumn()
-     * @covers ::modifyColumn()
-     * @covers ::dropColumn()
+     * @covers ::alterTable()
      * @throws MissingColumnsException
      */
     public function testRepairDatabase()
@@ -480,6 +462,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::isDatabaseUpdateNecessary()
+     * @covers ::hasSiteWithOutdatedDatabase()
      * @covers ::getActivePluginSites()
      */
     public function testIsDatabaseUpdateNecessary()
@@ -567,6 +550,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::backupDatabase()
+     * @covers ::getTableNames()
      */
     public function testBackup()
     {

@@ -7,6 +7,8 @@ namespace UserAccessManager\File;
 use JetBrains\PhpStorm\NoReturn;
 use UserAccessManager\Config\MainConfig;
 use UserAccessManager\Config\WordpressConfig;
+use UserAccessManager\File\Protection\FileProtectionFactory;
+use UserAccessManager\File\Protection\FileProtectionInterface;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -35,31 +37,21 @@ class FileHandler
         $this->php->flush();
     }
 
-    private function getFileMineType(string $file): string
+    private function getFileMimeType(string $file): string
     {
-        $fileName = basename($file);
-
-        /*
-         * This only for compatibility
-         * mime_content_type has been deprecated as the PECL extension file info
-         * provides the same functionality (and more) in a much cleaner way.
-         */
-        $explodedFileName = explode('.', $fileName);
-        $lastElement = array_pop($explodedFileName);
-        $fileExt = strtolower($lastElement);
-
+        $explodedFileName = explode('.', basename($file));
+        $fileExtension = strtolower(array_pop($explodedFileName));
         $mimeTypes = $this->wordpressConfig->getMimeTypes();
 
+        // The deprecated mime_content_type() is only kept as a fallback for installations without fileinfo.
         if ($this->php->functionExists('finfo_open') === true) {
-            $fileInfo = finfo_open(FILEINFO_MIME);
-            $fileMimeType = finfo_file($fileInfo, $file);
+            $fileInfo = $this->php->fInfoOpen(FILEINFO_MIME);
+            $fileMimeType = $this->php->fInfoFile($fileInfo, $file);
             $this->php->fInfoClose($fileInfo);
         } elseif ($this->php->functionExists('mime_content_type')) {
-            $fileMimeType = mime_content_type($file);
-        } elseif (isset($mimeTypes[$fileExt]) === true) {
-            $fileMimeType = $mimeTypes[$fileExt];
+            $fileMimeType = $this->php->mimeContentType($file);
         } else {
-            $fileMimeType = 'application/octet-stream';
+            $fileMimeType = $mimeTypes[$fileExtension] ?? 'application/octet-stream';
         }
 
         return (string) $fileMimeType;
@@ -67,7 +59,7 @@ class FileHandler
 
     private function addDefaultHeader(string $file, bool $isInline): void
     {
-        $fileMimeType = $this->getFileMineType($file);
+        $fileMimeType = $this->getFileMimeType($file);
         $contentDisposition = ($isInline === true) ? 'inline' : 'attachment';
         $baseName = str_replace(' ', '_', basename($file));
 
@@ -89,44 +81,58 @@ class FileHandler
         }
     }
 
+    private function addXSendFileHeader(string $file): bool
+    {
+        if ($this->wordpress->isNginx()) {
+            // The /uam-files prefix targets a dedicated internal location that bypasses
+            // UAM's rewrite rules, which would otherwise make the redirect loop.
+            $uri = '/uam-files' . str_replace(rtrim(ABSPATH, '/'), '', $file);
+            $this->php->header("X-Accel-Redirect: $uri");
+
+            return true;
+        }
+
+        if ($this->wordpress->isApacheModuleLoaded('mod_xsendfile')) {
+            $this->php->header("X-Sendfile: $file");
+
+            return true;
+        }
+
+        return false;
+    }
+
     private function deliverFile(string $file, bool $isInline): void
     {
         $this->php->header("HTTP/1.1 200 OK");
         $downloadType = $this->mainConfig->getDownloadType();
 
-        if ($downloadType === 'xsendfile') {
-            if ($this->wordpress->isNginx()) {
-                // Use /uam-files/ prefix so the internal redirect goes to a dedicated
-                // internal location that bypasses UAM's rewrite rules, avoiding a loop.
-                $uri = '/uam-files' . str_replace(rtrim(ABSPATH, '/'), '', $file);
-                $this->php->header("X-Accel-Redirect: $uri");
-            } elseif ($this->wordpress->isApacheModuleLoaded('mod_xsendfile')) {
-                $this->php->header("X-Sendfile: $file");
-            } else {
-                // mod_xsendfile is not available — fall back to fopen so the file
-                // is still delivered rather than sending an empty response.
-                $downloadType = 'fopen';
-            }
+        if ($downloadType === 'xsendfile' && $this->addXSendFileHeader($file) === false) {
+            // Without server-side sending support the file still has to be delivered by PHP.
+            $downloadType = 'fopen';
         }
 
         $this->addDefaultHeader($file, $isInline);
 
-        if ($downloadType !== 'xsendfile') {
-            $this->php->header('Content-Transfer-Encoding: binary');
-            $this->php->header('Content-Length: ' . filesize($file));
-            $this->clearBuffer();
+        if ($downloadType === 'xsendfile') {
+            return;
+        }
 
-            if ($downloadType === 'fopen') {
-                $this->deliverFileViaFopen($file);
-            } else {
-                readfile($file);
-            }
+        $this->php->header('Content-Transfer-Encoding: binary');
+        $this->php->header('Content-Length: ' . filesize($file));
+        $this->clearBuffer();
+
+        if ($downloadType === 'fopen') {
+            $this->deliverFileViaFopen($file);
+        } else {
+            readfile($file);
         }
     }
 
-    private function getSeekStartEnd(string $range, int $fileSize, ?int &$seekStart, ?int &$seekEnd): bool
+    /**
+     * Returns the [start, end] byte offsets of a single HTTP range, or null if the range is invalid.
+     */
+    private function getSeekStartEnd(string $range, int $fileSize): ?array
     {
-        //Figure out download piece from range (if set)
         $seek = explode('-', $range);
         $seekStart = ($seek[0] !== '') ? abs((int) $seek[0]) : null;
         $seekEnd = (isset($seek[1]) === true && $seek[1] !== '') ? abs((int) $seek[1]) : null;
@@ -135,14 +141,11 @@ class FileHandler
         if ($seekStart === null) {
             $seekStart = $fileSize - $seekEnd;
             $seekEnd = $maxSize;
-        } elseif ($seekEnd === null) {
-            $seekEnd = $maxSize;
         }
 
-        //Start and end based on range (if set), else set defaults also check for invalid ranges.
-        $seekEnd = min($seekEnd, $maxSize);
+        $seekEnd = min($seekEnd ?? $maxSize, $maxSize);
 
-        return $seekStart < $seekEnd;
+        return ($seekStart < $seekEnd) ? [$seekStart, $seekEnd] : null;
     }
 
     private function readFilePartly($fileHandler, int $bytes): void
@@ -166,20 +169,21 @@ class FileHandler
     private function getRanges(int $fileSize): array
     {
         $httpRange = explode('=', $_SERVER['HTTP_RANGE']);
-        $originRanges = isset($httpRange[1]) === true ? $httpRange[1] : '';
-        $originRanges = explode(',', $originRanges);
-        $sizeUnit = $httpRange[0];
+
+        if ($httpRange[0] !== 'bytes') {
+            return [];
+        }
+
         $ranges = [];
 
-        if ($sizeUnit === 'bytes') {
-            foreach ($originRanges as $originRange) {
-                if ($this->getSeekStartEnd($originRange, $fileSize, $seekStart, $seekEnd) === false) {
-                    $ranges = [];
-                    break;
-                }
+        foreach (explode(',', $httpRange[1] ?? '') as $originRange) {
+            $range = $this->getSeekStartEnd($originRange, $fileSize);
 
-                $ranges[] = [$seekStart, $seekEnd];
+            if ($range === null) {
+                return [];
             }
+
+            $ranges[] = $range;
         }
 
         return $ranges;
@@ -190,26 +194,26 @@ class FileHandler
         $contentLength = 0;
         $extraContents = [];
 
-        //More than one range is requested?
-        if (count($ranges) > 1) {
-            $boundary = 'g45d64df96bmdf4sdgh45hf5';
-            $fullBoundary = "\r\n--$boundary--\r\n";
-            $fileSize = filesize($file);
-            $mineType = $this->getFileMineType($file);
-
-            //compute content length
-            foreach ($ranges as $index => $range) {
-                [$seekStart, $seekEnd] = $range;
-                $extraContent = $fullBoundary;
-                $extraContent .= "Content-Type: $mineType\r\n";
-                $extraContent .= "Content-Range: bytes $seekStart-$seekEnd/$fileSize\r\n\r\n";
-                $extraContents[$index] = $extraContent;
-                $contentLength += strlen($extraContent) + ($seekEnd - $seekStart + 1);
-            }
-
-            $contentLength += strlen($fullBoundary);
-            $extraContents[] = $fullBoundary;
+        if (count($ranges) <= 1) {
+            return $extraContents;
         }
+
+        $boundary = 'g45d64df96bmdf4sdgh45hf5';
+        $fullBoundary = "\r\n--$boundary--\r\n";
+        $fileSize = filesize($file);
+        $mimeType = $this->getFileMimeType($file);
+
+        foreach ($ranges as $index => $range) {
+            [$seekStart, $seekEnd] = $range;
+            $extraContent = $fullBoundary
+                . "Content-Type: $mimeType\r\n"
+                . "Content-Range: bytes $seekStart-$seekEnd/$fileSize\r\n\r\n";
+            $extraContents[$index] = $extraContent;
+            $contentLength += strlen($extraContent) + ($seekEnd - $seekStart + 1);
+        }
+
+        $contentLength += strlen($fullBoundary);
+        $extraContents[] = $fullBoundary;
 
         return $extraContents;
     }
@@ -219,42 +223,44 @@ class FileHandler
         $fileSize = filesize($file);
         $ranges = $this->getRanges($fileSize);
 
-        if ($ranges !== []) {
-            $extraContents = $this->getExtraContents($file, $ranges, $contentLength, $boundary);
-
-            $this->php->header('HTTP/1.1 206 Partial Content');
-            $this->php->header('Content-Transfer-Encoding: binary');
-            $this->php->header('Accept-Ranges: bytes');
-
-            if ($extraContents === []) {
-                $this->addDefaultHeader($file, $isInline);
-                [$seekStart, $seekEnd] = $ranges[0];
-                $contentLength = ($seekEnd - $seekStart + 1);
-                $this->php->header("Content-Range: bytes $seekStart-$seekEnd/$fileSize");
-            } else {
-                $this->php->header("Content-Type: multipart/x-byteranges; boundary=$boundary");
-            }
-
-            $this->php->header("Content-Length: $contentLength");
-            $fileHandler = fopen($file, 'r');
-
-            foreach ($ranges as $index => $range) {
-                if (isset($extraContents[$index]) === true) {
-                    echo $extraContents[$index];
-                }
-
-                [$seekStart, $seekEnd] = $ranges[0];
-                $this->php->fseek($fileHandler, $seekStart);
-                $this->readFilePartly($fileHandler, $seekEnd - $seekStart + 1);
-            }
-
-            if ($extraContents !== []) {
-                echo end($extraContents);
-                $this->clearBuffer();
-            }
-        } else {
+        if ($ranges === []) {
             $this->php->header('HTTP/1.1 416 Requested Range Not Satisfiable');
             $this->php->header("Content-Range: */$fileSize");
+
+            return;
+        }
+
+        $extraContents = $this->getExtraContents($file, $ranges, $contentLength, $boundary);
+
+        $this->php->header('HTTP/1.1 206 Partial Content');
+        $this->php->header('Content-Transfer-Encoding: binary');
+        $this->php->header('Accept-Ranges: bytes');
+
+        if ($extraContents === []) {
+            $this->addDefaultHeader($file, $isInline);
+            [$seekStart, $seekEnd] = $ranges[0];
+            $contentLength = ($seekEnd - $seekStart + 1);
+            $this->php->header("Content-Range: bytes $seekStart-$seekEnd/$fileSize");
+        } else {
+            $this->php->header("Content-Type: multipart/x-byteranges; boundary=$boundary");
+        }
+
+        $this->php->header("Content-Length: $contentLength");
+        $fileHandler = fopen($file, 'r');
+
+        foreach ($ranges as $index => $range) {
+            if (isset($extraContents[$index]) === true) {
+                echo $extraContents[$index];
+            }
+
+            [$seekStart, $seekEnd] = $range;
+            $this->php->fseek($fileHandler, $seekStart);
+            $this->readFilePartly($fileHandler, $seekEnd - $seekStart + 1);
+        }
+
+        if ($extraContents !== []) {
+            echo end($extraContents);
+            $this->clearBuffer();
         }
     }
 
@@ -267,30 +273,35 @@ class FileHandler
         return isset($map[$extension]);
     }
 
+    private function isRangeRequest(): bool
+    {
+        return isset($_SERVER['HTTP_RANGE']) === true
+            && isset($_SERVER['REQUEST_METHOD']) === true
+            && $_SERVER['REQUEST_METHOD'] === 'GET';
+    }
+
     #[NoReturn]
     public function getFile(string $file, bool $isImage): void
     {
-        //Deliver content
-        if (file_exists($file) === true) {
-            $isInline = $isImage === true || $this->isInlineFile($file) === true;
-
-            if (isset($_SERVER['HTTP_RANGE']) === true
-                && isset($_SERVER['REQUEST_METHOD']) === true
-                && $_SERVER['REQUEST_METHOD'] === 'GET'
-            ) {
-                $this->deliverFilePartial($file, $isInline);
-            } else {
-                $this->deliverFile($file, $isInline);
-            }
-
-            $this->php->callExit();
-        } else {
+        if (file_exists($file) === false) {
             $this->wordpress->wpDie(
                 TXT_UAM_FILE_NOT_FOUND_ERROR_MESSAGE,
                 TXT_UAM_FILE_NOT_FOUND_ERROR_TITLE,
                 ['response' => 404]
             );
+
+            return;
         }
+
+        $isInline = $isImage === true || $this->isInlineFile($file) === true;
+
+        if ($this->isRangeRequest() === true) {
+            $this->deliverFilePartial($file, $isInline);
+        } else {
+            $this->deliverFile($file, $isInline);
+        }
+
+        $this->php->callExit();
     }
 
     private function getCurrentFileProtectionHandler(): FileProtectionInterface
@@ -311,30 +322,29 @@ class FileHandler
 
     public function createFileProtection(?string $dir = null, ?string $objectType = null): bool
     {
-        $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
+        $directory = $dir ?? $this->wordpressConfig->getUploadDirectory();
 
-        if ($dir !== null) {
-            return $this->getCurrentFileProtectionHandler()->create($dir, $objectType);
-        }
-
-        return false;
+        return $directory !== null
+            && $this->getCurrentFileProtectionHandler()->create($directory, $objectType);
     }
 
     public function deleteFileProtection(?string $dir = null): bool
     {
-        $dir = ($dir === null) ? $this->wordpressConfig->getUploadDirectory() : $dir;
+        $directory = $dir ?? $this->wordpressConfig->getUploadDirectory();
 
-        if ($dir !== null) {
-            return $this->getCurrentFileProtectionHandler()->delete($dir);
-        }
+        return $directory !== null
+            && $this->getCurrentFileProtectionHandler()->delete($directory);
+    }
 
-        return false;
+    private function getXSendFileTestFilePath(): string
+    {
+        return $this->wordpressConfig->getUploadDirectory() . DIRECTORY_SEPARATOR . self::X_SEND_FILE_TEST_FILE;
     }
 
     #[NoReturn]
     public function deliverXSendFileTestFile(): void
     {
-        $file = $this->wordpressConfig->getUploadDirectory() . DIRECTORY_SEPARATOR . self::X_SEND_FILE_TEST_FILE;
+        $file = $this->getXSendFileTestFilePath();
         file_put_contents($file, 'success');
 
         $this->php->header("X-Sendfile: $file");
@@ -345,7 +355,7 @@ class FileHandler
 
     public function removeXSendFileTestFile(): void
     {
-        $file = $this->wordpressConfig->getUploadDirectory() . DIRECTORY_SEPARATOR . self::X_SEND_FILE_TEST_FILE;
+        $file = $this->getXSendFileTestFilePath();
 
         if ($this->php->isFile($file) === true) {
             $this->php->unlink($file);

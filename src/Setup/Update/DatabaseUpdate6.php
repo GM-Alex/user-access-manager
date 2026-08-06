@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace UserAccessManager\Setup\Update;
 
-use UserAccessManager\Setup\Database\DatabaseUpdate;
 use UserAccessManager\UserGroup\UserGroup;
 
 class DatabaseUpdate6 extends DatabaseUpdate

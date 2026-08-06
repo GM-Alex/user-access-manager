@@ -27,13 +27,6 @@ class ObjectMapHandler
     ) {
     }
 
-    /**
-     * Resolves all tree map elements
-     * @param array $map
-     * @param array|null $subMap
-     * @param array $processed
-     * @return array
-     */
     private function processTreeMapElements(array &$map, ?array $subMap = null, array &$processed = []): array
     {
         $processMap = ($subMap === null) ? $map : $subMap;
@@ -69,9 +62,8 @@ class ObjectMapHandler
             $treeMap[self::TREE_MAP_PARENTS][$result->type][$result->id][$result->parentId] = $result->type;
         }
 
-        //Process elements
-        foreach ($treeMap as $mapType => $mayTypeMap) {
-            foreach ($mayTypeMap as $objectType => $map) {
+        foreach ($treeMap as $mapType => $mapsByObjectType) {
+            foreach ($mapsByObjectType as $objectType => $map) {
                 $treeMap[$mapType][(string) $objectType] = $this->processTreeMapElements($map);
             }
         }
@@ -88,11 +80,10 @@ class ObjectMapHandler
             $this->cache->add($cacheKey, $map);
         }
 
-
         return $map;
     }
 
-    public function getPostTreeMap(): ?array
+    public function getPostTreeMap(): array
     {
         if ($this->postTreeMap === null) {
             $query = "SELECT ID AS id, post_parent AS parentId, post_type AS type 
@@ -109,7 +100,7 @@ class ObjectMapHandler
         return $this->postTreeMap;
     }
 
-    public function getTermTreeMap(): ?array
+    public function getTermTreeMap(): array
     {
         if ($this->termTreeMap === null) {
             $query = "SELECT term_id AS id, parent AS parentId, taxonomy AS type
@@ -144,7 +135,7 @@ class ObjectMapHandler
         return $map;
     }
 
-    public function getTermPostMap(): ?array
+    public function getTermPostMap(): array
     {
         if ($this->termPostMap === null) {
             $select = "
@@ -161,7 +152,7 @@ class ObjectMapHandler
         return $this->termPostMap;
     }
 
-    public function getPostTermMap(): ?array
+    public function getPostTermMap(): array
     {
         if ($this->postTermMap === null) {
             $select = "

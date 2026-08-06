@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace UserAccessManager\Controller\Backend;
 
-/**
- * Trait ControllerTabNavigationTrait
- *
- * @package UserAccessManager\Controller
- */
 trait ControllerTabNavigationTrait
 {
     abstract public function getRequestUrl(): string;
 
     abstract public function getRequestParameter(string $name, $default = null): mixed;
 
-    abstract public function getGroupText(string $key): string;
+    abstract public function getGroupText(string $key, bool $description = false): string;
 
     abstract public function getGroupSectionText(string $key): string;
 
@@ -32,24 +27,16 @@ trait ControllerTabNavigationTrait
     public function getSections(): array
     {
         $groups = $this->getTabGroups();
-        $group = $this->getCurrentTabGroup();
 
-        return isset($groups[$group]) === true ? $groups[$group] : [];
+        return $groups[$this->getCurrentTabGroup()] ?? [];
     }
 
     public function getCurrentTabGroupSection(): string
     {
         $groups = $this->getTabGroups();
-        $group = $this->getCurrentTabGroup();
+        $sections = $groups[$this->getCurrentTabGroup()] ?? reset($groups);
 
-        if (isset($groups[$group]) === true) {
-            $default = reset($groups[$group]);
-        } else {
-            $firstGroup = reset($groups);
-            $default = reset($firstGroup);
-        }
-
-        return (string) $this->getRequestParameter('tab_group_section', $default);
+        return (string) $this->getRequestParameter('tab_group_section', reset($sections));
     }
 
     public function getTabGroupLink(string $groupKey): string

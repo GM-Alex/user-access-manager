@@ -6,7 +6,7 @@ namespace UserAccessManager\Widget;
 
 use UserAccessManager\Config\WordpressConfig;
 use UserAccessManager\Controller\BaseControllerTrait;
-use UserAccessManager\Controller\Frontend\LoginControllerTrait;
+use UserAccessManager\Controller\Frontend\Authentication\LoginControllerTrait;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 use WP_Widget;
@@ -16,14 +16,8 @@ class LoginWidget extends WP_Widget
     use BaseControllerTrait;
     use LoginControllerTrait;
 
-    const WIDGET_ID = 'uam_login_widget';
+    public const WIDGET_ID = 'uam_login_widget';
 
-    /**
-     * LoginWidget constructor.
-     * @param Php $php
-     * @param Wordpress $wordpress
-     * @param WordpressConfig $wordpressConfig
-     */
     public function __construct(
         private Php $php,
         private Wordpress $wordpress,

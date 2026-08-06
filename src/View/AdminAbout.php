@@ -17,11 +17,11 @@
  * @var AboutController $controller
  */
 
-use UserAccessManager\Controller\Backend\AboutController;
+use UserAccessManager\Controller\Backend\Administration\AboutController;
 
 ?>
 <div class="wrap">
-    <h2><?php echo TXT_UAM_ABOUT; ?></h2>
+    <h1 class="wp-heading-inline"><?php echo TXT_UAM_ABOUT; ?></h1>
     <div id="poststuff">
         <div class="postbox">
             <h3 class="hndle"><?php echo TXT_UAM_HOW_TO_SUPPORT; ?></h3>

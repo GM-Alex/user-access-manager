@@ -6,6 +6,10 @@ namespace UserAccessManager\ObjectMembership;
 
 use Exception;
 use UserAccessManager\Database\Database;
+use UserAccessManager\ObjectMembership\Type\PostMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\RoleMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\TermMembershipHandler;
+use UserAccessManager\ObjectMembership\Type\UserMembershipHandler;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\UserGroup\AssignmentInformationFactory;

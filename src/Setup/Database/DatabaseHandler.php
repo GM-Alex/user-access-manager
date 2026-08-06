@@ -160,19 +160,9 @@ class DatabaseHandler
         return $information;
     }
 
-    private function addColumn(Table $table, Column $column): bool
+    private function alterTable(Table $table, string $alteration): bool
     {
-        return $this->database->query("ALTER TABLE `{$table->getName()}` ADD $column;") !== false;
-    }
-
-    private function modifyColumn(Table $table, Column $column): bool
-    {
-        return $this->database->query("ALTER TABLE `{$table->getName()}` MODIFY $column;") !== false;
-    }
-
-    private function dropColumn(Table $table, Column $column): bool
-    {
-        return $this->database->query("ALTER TABLE `{$table->getName()}` DROP `{$column->getName()}`;") !== false;
+        return $this->database->query("ALTER TABLE `{$table->getName()}` $alteration;") !== false;
     }
 
     /**
@@ -187,16 +177,16 @@ class DatabaseHandler
             $this->addTable($table);
         }
 
-        foreach ($information[self::MISSING_COLUMNS] as $columnInformation) {
-            $success = $success && $this->addColumn($columnInformation[0], $columnInformation[1]);
-        }
+        $alterationsByInformationKey = [
+            self::MISSING_COLUMNS => static fn(Column $column) => "ADD $column",
+            self::MODIFIED_COLUMNS => static fn(Column $column) => "MODIFY $column",
+            self::EXTRA_COLUMNS => static fn(Column $column) => "DROP `{$column->getName()}`"
+        ];
 
-        foreach ($information[self::MODIFIED_COLUMNS] as $columnInformation) {
-            $success = $success && $this->modifyColumn($columnInformation[0], $columnInformation[1]);
-        }
-
-        foreach ($information[self::EXTRA_COLUMNS] as $columnInformation) {
-            $success = $success && $this->dropColumn($columnInformation[0], $columnInformation[1]);
+        foreach ($alterationsByInformationKey as $informationKey => $buildAlteration) {
+            foreach ($information[$informationKey] as [$table, $column]) {
+                $success = $success && $this->alterTable($table, $buildAlteration($column));
+            }
         }
 
         return $success;
@@ -221,24 +211,31 @@ class DatabaseHandler
         return $activeSites;
     }
 
+    private function hasSiteWithOutdatedDatabase(): bool
+    {
+        foreach ($this->getActivePluginSites() as $siteId) {
+            $table = $this->database->getBlogPrefix($siteId) . 'options';
+            $select = "SELECT option_value FROM $table WHERE option_name = '%s' LIMIT 1";
+            $select = $this->database->prepare($select, 'uam_db_version');
+            $currentDbVersion = $this->database->getVariable($select);
+
+            if ($currentDbVersion !== null
+                && version_compare((string) $currentDbVersion, UserAccessManager::DB_VERSION, '<') === true
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * @throws MissingColumnsException
      */
     public function isDatabaseUpdateNecessary(): bool
     {
-        if ($this->wordpress->isSuperAdmin() === true) {
-            foreach ($this->getActivePluginSites() as $siteId) {
-                $table = $this->database->getBlogPrefix($siteId) . 'options';
-                $select = "SELECT option_value FROM $table WHERE option_name = '%s' LIMIT 1";
-                $select = $this->database->prepare($select, 'uam_db_version');
-                $currentDbVersion = $this->database->getVariable($select);
-
-                if ($currentDbVersion !== null
-                    && version_compare((string) $currentDbVersion, UserAccessManager::DB_VERSION, '<') === true
-                ) {
-                    return true;
-                }
-            }
+        if ($this->wordpress->isSuperAdmin() === true && $this->hasSiteWithOutdatedDatabase() === true) {
+            return true;
         }
 
         $currentDbVersion = (string) $this->wordpress->getOption('uam_db_version');
@@ -251,6 +248,17 @@ class DatabaseHandler
         return version_compare($currentDbVersion, UserAccessManager::DB_VERSION, '<');
     }
 
+    /**
+     * @return string[]
+     */
+    private function getTableNames(): array
+    {
+        return [
+            $this->database->getUserGroupTable(),
+            $this->database->getUserGroupToObjectTable()
+        ];
+    }
+
     public function backupDatabase(): bool
     {
         $currentDbVersion = (string) $this->wordpress->getOption('uam_db_version');
@@ -261,15 +269,10 @@ class DatabaseHandler
             return false;
         }
 
-        $tables = [
-            $this->database->getUserGroupTable(),
-            $this->database->getUserGroupToObjectTable()
-        ];
-
         $currentDbVersion = str_replace('.', '-', $currentDbVersion);
         $success = true;
 
-        foreach ($tables as $table) {
+        foreach ($this->getTableNames() as $table) {
             $createQuery = "CREATE TABLE `{$table}_$currentDbVersion` LIKE `$table`";
             $success = $success && ($this->database->query($createQuery) !== false);
             $insertQuery = "INSERT `{$table}_$currentDbVersion` SELECT * FROM `$table`";
@@ -299,14 +302,9 @@ class DatabaseHandler
     private function getBackupTables(string $version): array
     {
         $backupTables = [];
-        $tables = [
-            $this->database->getUserGroupTable(),
-            $this->database->getUserGroupToObjectTable()
-        ];
-
         $versionForDb = str_replace('.', '-', $version);
 
-        foreach ($tables as $table) {
+        foreach ($this->getTableNames() as $table) {
             $backupTable = (string) $this->database->getVariable(
                 "SHOW TABLES LIKE '{$table}_$versionForDb'"
             );

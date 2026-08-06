@@ -1,31 +1,15 @@
 <?php
-/**
- * ConfigTest.php
- *
- * The ConfigTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Config;
 
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use UserAccessManager\Config\Config;
-use UserAccessManager\Config\ConfigParameter;
-use UserAccessManager\Config\StringConfigParameter;
+use UserAccessManager\Config\Parameter\ConfigParameter;
+use UserAccessManager\Config\Parameter\StringConfigParameter;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class ConfigTest
- *
- * @package UserAccessManager\Tests\Unit\Config
  * @coversDefaultClass \UserAccessManager\Config\Config
  */
 class ConfigTest extends UserAccessManagerTestCase
@@ -118,7 +102,6 @@ class ConfigTest extends UserAccessManagerTestCase
      * @group  unit
      * @covers ::getDefaultConfigParameters()
      * @covers ::getConfigParameters()
-     * @return Config
      */
     public function testGetConfigParameters(): Config
     {
@@ -212,7 +195,6 @@ class ConfigTest extends UserAccessManagerTestCase
      * @group   unit
      * @depends testGetConfigParameters
      * @covers  ::flushConfigParameters()
-     * @param Config $config
      */
     public function testFlushConfigParameters(Config $config)
     {

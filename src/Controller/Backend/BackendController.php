@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UserAccessManager\Controller\Backend;
 
 use UserAccessManager\Config\WordpressConfig;
+use UserAccessManager\Controller\Backend\Administration\SetupController;
 use UserAccessManager\Controller\Controller;
 use UserAccessManager\Setup\Database\MissingColumnsException;
 use UserAccessManager\Setup\SetupHandler;
@@ -19,7 +20,12 @@ class BackendController extends Controller
     public const HANDLE_SCRIPT_GROUP_SUGGEST = 'UserAccessManagerGroupSuggest';
     public const HANDLE_SCRIPT_TIME_INPUT = 'UserAccessManagerTimeInput';
     public const HANDLE_SCRIPT_ADMIN = 'UserAccessManagerFunctions';
-    public const UAM_ERRORS = 'UAM_ERRORS';
+
+    private const ADMIN_SCRIPTS = [
+        self::HANDLE_SCRIPT_GROUP_SUGGEST => 'assets/js/jquery.uam-group-suggest.js',
+        self::HANDLE_SCRIPT_TIME_INPUT => 'assets/js/jquery.uam-time-input.js',
+        self::HANDLE_SCRIPT_ADMIN => 'assets/js/functions.js'
+    ];
 
     private string $notice = '';
 
@@ -38,7 +44,7 @@ class BackendController extends Controller
      */
     public function showAdminNotice(): void
     {
-        $messages = isset($_SESSION[self::UAM_ERRORS]) === true ? $_SESSION[self::UAM_ERRORS] : [];
+        $messages = $_SESSION[self::UAM_ERRORS] ?? [];
         $updateAction = $this->getRequestParameter('uam_update_db');
 
         if ($this->setupHandler->getDatabaseHandler()->isDatabaseUpdateNecessary() === true
@@ -71,35 +77,24 @@ class BackendController extends Controller
             'screen'
         );
 
-        $this->wordpress->registerScript(
-            self::HANDLE_SCRIPT_GROUP_SUGGEST,
-            $urlPath . 'assets/js/jquery.uam-group-suggest.js',
-            ['jquery'],
-            UserAccessManager::VERSION
-        );
-
-        $this->wordpress->registerScript(
-            self::HANDLE_SCRIPT_TIME_INPUT,
-            $urlPath . 'assets/js/jquery.uam-time-input.js',
-            ['jquery'],
-            UserAccessManager::VERSION
-        );
-
-        $this->wordpress->registerScript(
-            self::HANDLE_SCRIPT_ADMIN,
-            $urlPath . 'assets/js/functions.js',
-            ['jquery'],
-            UserAccessManager::VERSION
-        );
+        foreach (self::ADMIN_SCRIPTS as $handle => $scriptPath) {
+            $this->wordpress->registerScript(
+                $handle,
+                $urlPath . $scriptPath,
+                ['jquery'],
+                UserAccessManager::VERSION
+            );
+        }
     }
 
     public function enqueueStylesAndScripts(): void
     {
         $this->registerStylesAndScripts();
         $this->wordpress->enqueueStyle(self::HANDLE_STYLE_ADMIN);
-        $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_GROUP_SUGGEST);
-        $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_TIME_INPUT);
-        $this->wordpress->enqueueScript(self::HANDLE_SCRIPT_ADMIN);
+
+        foreach (array_keys(self::ADMIN_SCRIPTS) as $handle) {
+            $this->wordpress->enqueueScript($handle);
+        }
     }
 
     public function setupAdminDashboard(): void

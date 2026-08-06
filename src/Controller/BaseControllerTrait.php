@@ -10,9 +10,11 @@ use UserAccessManager\Wrapper\Php;
 
 trait BaseControllerTrait
 {
-    abstract protected function getPhp(): Php;
-    abstract protected function getWordpressConfig(): WordpressConfig;
     protected ?string $template = null;
+
+    abstract protected function getPhp(): Php;
+
+    abstract protected function getWordpressConfig(): WordpressConfig;
 
     public function getRequestUrl(): string
     {
@@ -21,21 +23,18 @@ trait BaseControllerTrait
 
     private function sanitizeValue(mixed $value): mixed
     {
-        if (is_object($value) === true) {
-            return $value;
-        } elseif (is_array($value) === true) {
-            $newValue = [];
+        if (is_array($value) === true) {
+            $sanitized = [];
 
             foreach ($value as $key => $arrayValue) {
-                $sanitizedKey = $this->sanitizeValue($key);
-                $newValue[$sanitizedKey] = $this->sanitizeValue($arrayValue);
+                $sanitized[$this->sanitizeValue($key)] = $this->sanitizeValue($arrayValue);
             }
 
-            $value = $newValue;
-        } elseif (is_string($value) === true) {
-            $value = preg_replace('/\\+(["|\'])/', '$1', $value);
-            $value = stripslashes($value);
-            $value = htmlspecialchars($value, ENT_NOQUOTES);
+            return $sanitized;
+        }
+
+        if (is_string($value) === true) {
+            return htmlspecialchars(stripslashes(preg_replace('/\\+(["|\'])/', '$1', $value)), ENT_NOQUOTES);
         }
 
         return $value;
@@ -54,23 +53,22 @@ trait BaseControllerTrait
 
     protected function getIncludeContents(string $fileName): string
     {
-        $contents = '';
         $realPath = rtrim($this->getWordpressConfig()->getRealPath(), DIRECTORY_SEPARATOR);
-        $path = [$realPath, 'src', 'View'];
-        $path = implode(DIRECTORY_SEPARATOR, $path).DIRECTORY_SEPARATOR;
-        $fileWithPath = $path.$fileName;
+        $fileWithPath = implode(DIRECTORY_SEPARATOR, [$realPath, 'src', 'View', $fileName]);
 
-        if (is_file($fileWithPath) === true) {
-            try {
-                ob_start();
-                $this->getPhp()->includeFile($this, $fileWithPath);
-                $contents = ob_get_contents();
-                ob_end_clean();
-            } catch (Exception $exception) {
-                $contents = "Error on including content '$fileWithPath': {$exception->getMessage()}";
-                ob_end_clean();
-            }
+        if (is_file($fileWithPath) === false) {
+            return '';
         }
+
+        try {
+            ob_start();
+            $this->getPhp()->includeFile($this, $fileWithPath);
+            $contents = ob_get_contents();
+        } catch (Exception $exception) {
+            $contents = "Error on including content '$fileWithPath': {$exception->getMessage()}";
+        }
+
+        ob_end_clean();
 
         return $contents;
     }

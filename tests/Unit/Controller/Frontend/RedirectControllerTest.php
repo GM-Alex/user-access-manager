@@ -1,17 +1,4 @@
 <?php
-/**
- * RedirectControllerTest.php
- *
- * The RedirectControllerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Controller\Frontend;
 
@@ -19,7 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 use stdClass;
 use UserAccessManager\Controller\Frontend\RedirectController;
-use UserAccessManager\File\FileObject;
+use UserAccessManager\File\Delivery\FileObject;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\StringMatchIgnoreWhitespace as MatchIgnoreWhitespace;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
@@ -29,9 +16,6 @@ use WP_Post;
 use WP_Query;
 
 /**
- * Class RedirectControllerTest
- *
- * @package UserAccessManager\Tests\Unit\Controller\Frontend
  * @coversDefaultClass \UserAccessManager\Controller\Frontend\RedirectController
  */
 class RedirectControllerTest extends UserAccessManagerTestCase
@@ -46,6 +30,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
      */
     protected function setUp(): void
     {
+        parent::setUp();
         $this->root = FileSystem::factory('vfs://');
         $this->root->mount();
     }
@@ -56,6 +41,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
     protected function tearDown(): void
     {
         $this->root->unmount();
+        parent::tearDown();
     }
 
     /**
@@ -115,8 +101,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         ?string $content = null,
         bool $closed = false,
         string $postMimeType = 'post/mime/type'
-    ): MockObject|WP_Post
-    {
+    ): MockObject|WP_Post {
         /**
          * @var MockObject|WP_Post $post
          */
@@ -208,6 +193,11 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         'baseurl' => 'http://baseUrl/file/pictures/'
     ];
     private const ATTACHMENT_FILE = ABSPATH . 'baseDirectory/file/pictures/foo/picture.png';
+    private const ATTACHMENT_URL = 'http://baseUrl/file/pictures/foo/picture.png';
+    private const DOCUMENT_FILE = ABSPATH . 'baseDirectory/file/pictures/foo/document.pdf';
+    private const DOCUMENT_URL = 'http://baseUrl/file/pictures/foo/document.pdf';
+    private const DOCUMENT_PREVIEW_FILE = ABSPATH . 'baseDirectory/file/pictures/foo/document-pdf-116x150.jpg';
+    private const DOCUMENT_META_DATA = ['sizes' => ['thumbnail' => ['file' => 'document-pdf-116x150.jpg']]];
 
     /**
      * @group  unit
@@ -270,18 +260,27 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         MockObject $accessHandler,
         MockObject $fileHandler,
         MockObject $mainConfig,
-        bool $isImage
+        bool $isImage,
+        string $attachmentUrl = self::ATTACHMENT_URL,
+        string $attachedFile = self::ATTACHMENT_FILE,
+        mixed $metaData = [],
+        array $missingFiles = []
     ): RedirectController {
         $wordpress = $this->getWordpress();
         $wordpress->method('getUploadDir')->will($this->returnValue(self::UPLOAD_DIRS));
         $wordpress->method('attachmentUrlToPostId')
-            ->with('http://baseUrl/file/pictures/foo/picture.png')
+            ->with($attachmentUrl)
             ->will($this->returnValue(1));
-        $wordpress->method('getAttachedFile')->with(1)->will($this->returnValue(self::ATTACHMENT_FILE));
+        $wordpress->method('getAttachedFile')->with(1)->will($this->returnValue($attachedFile));
         $wordpress->method('attachmentIsImage')->with(1)->will($this->returnValue($isImage));
+        $wordpress->method('getAttachmentMetadata')->with(1)->will($this->returnValue($metaData));
 
+        // Like the real realpath, missing files resolve to false and a trailing parent segment is resolved away.
         $php = $this->getPhp();
-        $php->method('realpath')->will($this->returnCallback(fn (string $path) => $path));
+        $php->method('realpath')->will($this->returnCallback(
+            fn (string $path) => in_array($path, $missingFiles, true) === true ?
+                false : preg_replace('/\/[^\/]+\/\.\.$/', '', $path)
+        ));
 
         $wordpressConfig = $this->getWordpressConfig();
         $wordpressConfig->method('getRealPath')->will($this->returnValue('realPath/'));
@@ -351,6 +350,84 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             true
         );
         $controller->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/picture.png');
+    }
+
+    /**
+     * @return array<string, array{string, string, bool, string, mixed, array}>
+     */
+    public function generatedSizeProvider(): array
+    {
+        return [
+            'registered size is delivered as image' => [
+                '/foo/document-pdf-116x150.jpg', self::DOCUMENT_PREVIEW_FILE, true,
+                self::DOCUMENT_URL, self::DOCUMENT_META_DATA, []
+            ],
+            'unknown size falls back to the document' => [
+                '/foo/document-pdf-1x1.jpg', self::DOCUMENT_FILE, false,
+                self::DOCUMENT_URL, self::DOCUMENT_META_DATA, []
+            ],
+            'size missing on disk falls back to the document' => [
+                '/foo/document-pdf-116x150.jpg', self::DOCUMENT_FILE, false,
+                self::DOCUMENT_URL, self::DOCUMENT_META_DATA, [self::DOCUMENT_PREVIEW_FILE]
+            ],
+            'size escaping the upload directory falls back to the document' => [
+                '/foo/..', self::DOCUMENT_FILE, false,
+                'http://baseUrl/file/pictures/foo/..', ['sizes' => ['thumbnail' => ['file' => '..']]], []
+            ],
+            'meta data filtered to a non array falls back to the document' => [
+                '/foo/document-pdf-116x150.jpg', self::DOCUMENT_FILE, false,
+                self::DOCUMENT_URL, 'filtered', []
+            ],
+            'meta data without usable sizes falls back to the document' => [
+                '/foo/document-pdf-116x150.jpg', self::DOCUMENT_FILE, false,
+                self::DOCUMENT_URL, ['sizes' => 'filtered'], []
+            ]
+        ];
+    }
+
+    /**
+     * The generated preview image of a document, like a PDF, is delivered as image instead of the document,
+     * but only if the requested size is registered at the attachment and stored inside the upload directory.
+     *
+     * @group        unit
+     * @dataProvider generatedSizeProvider
+     * @covers ::getFile()
+     * @covers ::getAttachmentFileObject()
+     * @covers ::getAttachmentFile()
+     * @covers ::isRegisteredSize()
+     * @covers ::isInsideUploadDirectory()
+     * @throws UserGroupTypeException
+     */
+    public function testGetFileDeliversOnlyRegisteredGeneratedSizeFiles(
+        string $requestedUrl,
+        string $expectedFile,
+        bool $expectedIsImage,
+        string $attachmentUrl,
+        mixed $metaData,
+        array $missingFiles
+    ) {
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->expects($this->once())
+            ->method('checkObjectAccess')
+            ->with(ObjectHandler::ATTACHMENT_OBJECT_TYPE, 1)
+            ->will($this->returnValue(true));
+
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->once())
+            ->method('getFile')
+            ->with($expectedFile, $expectedIsImage);
+
+        $controller = $this->getAttachmentRedirectController(
+            $accessHandler,
+            $fileHandler,
+            $this->getMainConfig(),
+            false,
+            $attachmentUrl,
+            self::DOCUMENT_FILE,
+            $metaData,
+            $missingFiles
+        );
+        $controller->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, $requestedUrl);
     }
 
     /**

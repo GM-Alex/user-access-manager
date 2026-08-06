@@ -1,17 +1,4 @@
 <?php
-/**
- * MembershipHandlerTestCase.php
- *
- * The MembershipHandlerTestCase unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
@@ -21,32 +8,25 @@ use UserAccessManager\Object\ObjectMapHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 use UserAccessManager\UserGroup\AbstractUserGroup;
 
-/**
- * Class MembershipHandlerTestCase
- *
- * @package UserAccessManager\Tests\Unit\ObjectMembership
- */
 abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
 {
-    /**
-     * @return MockObject|ObjectHandler
-     */
+    private const ASSIGNMENT_TYPE_BY_GENERAL_OBJECT_TYPE = [
+        ObjectHandler::GENERAL_POST_OBJECT_TYPE => 'post',
+        ObjectHandler::GENERAL_TERM_OBJECT_TYPE => 'term',
+        ObjectHandler::GENERAL_USER_OBJECT_TYPE => 'user'
+    ];
+
     protected function getObjectHandler(): ObjectHandler|MockObject
     {
         $objectHandler = parent::getObjectHandler();
 
         $objectHandler->expects($this->any())
             ->method('isPostType')
-            ->will($this->returnCallback(function ($objectType) {
-                return ($objectType === 'postObjectType');
-            }));
+            ->will($this->returnCallback(fn($objectType) => $objectType === 'postObjectType'));
 
         return $objectHandler;
     }
 
-    /**
-     * @return MockObject|ObjectMapHandler
-     */
     protected function getObjectMapHandler(): MockObject|ObjectMapHandler
     {
         $objectMapHandler = parent::getObjectMapHandler();
@@ -103,22 +83,13 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
         return $objectMapHandler;
     }
 
-    /**
-     * @param array $withIsObjectMember
-     * @param array $withIsObjectAssignedToGroup
-     * @param array $falseIds
-     * @param string|null $fromDate
-     * @param string|null $toDate
-     * @return MockObject|AbstractUserGroup
-     */
     protected function getMembershipUserGroup(
-        array  $withIsObjectMember,
-        array  $withIsObjectAssignedToGroup,
-        array  $falseIds,
+        array $withIsObjectMember,
+        array $withIsObjectAssignedToGroup,
+        array $falseIds,
         ?string $fromDate = null,
         ?string $toDate = null
-    ): MockObject|AbstractUserGroup
-    {
+    ): MockObject|AbstractUserGroup {
         /**
          * @var MockObject|AbstractUserGroup $userGroup
          */
@@ -139,15 +110,12 @@ abstract class ObjectMembershipHandlerTestCase extends UserAccessManagerTestCase
                     return false;
                 }
 
-                if ($objectType === ObjectHandler::GENERAL_POST_OBJECT_TYPE) {
-                    $objectType = 'post';
-                } elseif ($objectType === ObjectHandler::GENERAL_TERM_OBJECT_TYPE) {
-                    $objectType = 'term';
-                } elseif ($objectType === ObjectHandler::GENERAL_USER_OBJECT_TYPE) {
-                    $objectType = 'user';
-                }
+                $assignmentInformation = $this->getAssignmentInformation(
+                    self::ASSIGNMENT_TYPE_BY_GENERAL_OBJECT_TYPE[$objectType] ?? $objectType,
+                    $fromDate,
+                    $toDate
+                );
 
-                $assignmentInformation = $this->getAssignmentInformation($objectType, $fromDate, $toDate);
                 return true;
             }
         );

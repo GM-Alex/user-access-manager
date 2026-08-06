@@ -1,37 +1,21 @@
 <?php
-/**
- * FormHelperTest.php
- *
- * The FormHelperTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\Form;
 
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
-use UserAccessManager\Config\ConfigParameter;
-use UserAccessManager\Config\StringConfigParameter;
+use UserAccessManager\Config\Parameter\ConfigParameter;
+use UserAccessManager\Config\Parameter\StringConfigParameter;
 use UserAccessManager\Form\FormHelper;
-use UserAccessManager\Form\Input;
-use UserAccessManager\Form\MultipleFormElementValue;
-use UserAccessManager\Form\Radio;
-use UserAccessManager\Form\Select;
-use UserAccessManager\Form\ValueSetFormElementValue;
+use UserAccessManager\Form\Element\Input;
+use UserAccessManager\Form\Element\MultipleFormElementValue;
+use UserAccessManager\Form\Element\Radio;
+use UserAccessManager\Form\Element\Select;
+use UserAccessManager\Form\Element\ValueSetFormElementValue;
 use UserAccessManager\Object\ObjectHandler;
 use UserAccessManager\Tests\Unit\UserAccessManagerTestCase;
 
 /**
- * Class FormHelperTest
- *
- * @package UserAccessManager\Tests\Unit\Form
  * @coversDefaultClass \UserAccessManager\Form\FormHelper
  */
 class FormHelperTest extends UserAccessManagerTestCase
@@ -57,6 +41,7 @@ class FormHelperTest extends UserAccessManagerTestCase
      * @covers  ::getText()
      * @covers  ::getParameterText()
      * @covers  ::getObjectText()
+     * @covers ::getPublicObject()
      */
     public function testGetText()
     {
@@ -167,7 +152,7 @@ class FormHelperTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
-     * @covers ::createMultipleFromElement()
+     * @covers ::createMultipleFormElementValue()
      * @throws Exception
      */
     public function testCreateMultipleFromElement()
@@ -198,14 +183,15 @@ class FormHelperTest extends UserAccessManagerTestCase
             $formFactory
         );
 
-        $formHelper->createMultipleFromElement('value', 'label');
-        $formHelper->createMultipleFromElement('value', 'label', $parameter);
+        $formHelper->createMultipleFormElementValue('value', 'label');
+        $formHelper->createMultipleFormElementValue('value', 'label', $parameter);
     }
 
     /**
      * @group  unit
      * @covers ::convertConfigParameter()
      * @covers ::convertSelectionParameter()
+     * @covers ::resolveTextConstant()
      * @throws Exception
      */
     public function testConvertConfigParameter()
@@ -261,7 +247,7 @@ class FormHelperTest extends UserAccessManagerTestCase
         $secondValueSetFromElementValue = $this->createMock(ValueSetFormElementValue::class);
         $select = $this->createMock(Select::class);
         $formFactory->expects($this->exactly(2))
-            ->method('createValueSetFromElementValue')
+            ->method('createValueSetFormElementValue')
             ->withConsecutive(
                 ['firstSelection', 'TXT_UAM_SELECTIONID_FIRSTSELECTION'],
                 ['secondSelection', 'TXT_UAM_SELECTIONID_SECONDSELECTION']
@@ -326,6 +312,7 @@ class FormHelperTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getSettingsForm()
+     * @covers ::addConvertedParameter()
      * @throws Exception
      */
     public function testGetSettingsFrom()
@@ -365,7 +352,7 @@ class FormHelperTest extends UserAccessManagerTestCase
 
         $formFactory = $this->getFormFactory();
         $formFactory->expects($this->once())
-            ->method('createFrom')
+            ->method('createForm')
             ->will($this->returnValue($form));
 
         $formFactory->expects($this->exactly(3))
@@ -465,7 +452,7 @@ class FormHelperTest extends UserAccessManagerTestCase
 
         $formFactory = $this->getFormFactory();
         $formFactory->expects($this->once())
-            ->method('createFrom')
+            ->method('createForm')
             ->will($this->returnValue($form));
 
         $formFactory->expects($this->exactly(2))

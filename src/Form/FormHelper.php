@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace UserAccessManager\Form;
 
 use Exception;
-use UserAccessManager\Config\BooleanConfigParameter;
+use UserAccessManager\Config\Parameter\BooleanConfigParameter;
 use UserAccessManager\Config\Config;
-use UserAccessManager\Config\ConfigParameter;
+use UserAccessManager\Config\Parameter\ConfigParameter;
 use UserAccessManager\Config\MainConfig;
-use UserAccessManager\Config\SelectionConfigParameter;
-use UserAccessManager\Config\StringConfigParameter;
+use UserAccessManager\Config\Parameter\SelectionConfigParameter;
+use UserAccessManager\Config\Parameter\StringConfigParameter;
+use UserAccessManager\Form\Element\FormElement;
+use UserAccessManager\Form\Element\Input;
+use UserAccessManager\Form\Element\MultipleFormElementValue;
+use UserAccessManager\Form\Element\Radio;
+use UserAccessManager\Form\Element\Select;
 use UserAccessManager\Wrapper\Php;
 use UserAccessManager\Wrapper\Wordpress;
 
@@ -24,38 +29,41 @@ class FormHelper
     ) {
     }
 
-    private function getObjectText(string $ident, bool $description, $objectKey = null): string
+    private function resolveTextConstant(string $ident): string
+    {
+        return defined($ident) ? constant($ident) : $ident;
+    }
+
+    private function getPublicObject(string $objectKey): ?object
+    {
+        $objects = $this->wordpress->getPostTypes(['public' => true], 'objects')
+            + $this->wordpress->getTaxonomies(['public' => true], 'objects');
+
+        return $objects[$objectKey] ?? null;
+    }
+
+    private function getObjectText(string $ident, bool $description, ?string $objectKey = null): string
     {
         $ident .= ($description === true) ? '_DESC' : '';
+        $object = ($objectKey !== null) ? $this->getPublicObject($objectKey) : null;
 
-        if ($objectKey !== null) {
-            $objects = $this->wordpress->getPostTypes(['public' => true], 'objects')
-                + $this->wordpress->getTaxonomies(['public' => true], 'objects');
-
-            if (isset($objects[$objectKey]) === true) {
-                $ident = str_replace(strtoupper($objectKey), 'OBJECT', $ident);
-                $text = (defined($ident) === true) ? constant($ident) : $ident;
-                $count = substr_count($text, '%s');
-
-                if ($count > 0) {
-                    $arguments = $this->php->arrayFill(0, $count, $objects[$objectKey]->labels->name);
-                    $text = vsprintf($text, $arguments);
-                }
-
-                return $text;
-            }
+        if ($object === null) {
+            return $this->resolveTextConstant($ident);
         }
 
-        return (defined($ident) === true) ? constant($ident) : $ident;
+        $text = $this->resolveTextConstant(str_replace(strtoupper($objectKey), 'OBJECT', $ident));
+        $placeholderCount = substr_count($text, '%s');
+
+        if ($placeholderCount === 0) {
+            return $text;
+        }
+
+        return vsprintf($text, $this->php->arrayFill(0, $placeholderCount, $object->labels->name));
     }
 
     public function getText(string $key, bool $description = false): string
     {
-        return $this->getObjectText(
-            'TXT_UAM_' . strtoupper($key) . '_SETTING',
-            $description,
-            $key
-        );
+        return $this->getObjectText('TXT_UAM_' . strtoupper($key) . '_SETTING', $description, $key);
     }
 
     public function getParameterText(
@@ -63,34 +71,25 @@ class FormHelper
         bool $description = false,
         ?string $objectKey = null
     ): string {
-        $ident = 'TXT_UAM_' . strtoupper($configParameter->getId());
-
-        return $this->getObjectText(
-            $ident,
-            $description,
-            $objectKey
-        );
+        return $this->getObjectText('TXT_UAM_' . strtoupper($configParameter->getId()), $description, $objectKey);
     }
 
     /**
      * @throws Exception
      */
-    public function createMultipleFromElement(
+    public function createMultipleFormElementValue(
         string $value,
         string $label,
         ?ConfigParameter $parameter = null
     ): MultipleFormElementValue {
-        $value = $this->formFactory->createMultipleFormElementValue($value, $label);
+        $elementValue = $this->formFactory->createMultipleFormElementValue($value, $label);
+        $subElement = ($parameter !== null) ? $this->convertConfigParameter($parameter) : null;
 
-        if ($parameter !== null) {
-            $convertedParameter = $this->convertConfigParameter($parameter);
-
-            if ($convertedParameter !== null) {
-                $value->setSubElement($convertedParameter);
-            }
+        if ($subElement !== null) {
+            $elementValue->setSubElement($subElement);
         }
 
-        return $value;
+        return $elementValue;
     }
 
     /**
@@ -100,29 +99,39 @@ class FormHelper
         SelectionConfigParameter $configParameter,
         ?string $objectKey = null,
         array $overwrittenValues = []
-    ): mixed {
+    ): Select|Radio {
         $values = [];
 
         foreach ($configParameter->getSelections() as $selection) {
-            $optionNameKey = 'TXT_UAM_' . strtoupper($configParameter->getId() . '_' . $selection);
-            $label = (defined($optionNameKey) === true) ? constant($optionNameKey) : $optionNameKey;
+            $optionLabel = $this->resolveTextConstant(
+                'TXT_UAM_' . strtoupper($configParameter->getId() . '_' . $selection)
+            );
 
-            if ($overwrittenValues === []) {
-                $values[] = $this->formFactory->createValueSetFromElementValue($selection, $label);
-            } else {
-                $parameter = (isset($overwrittenValues[$selection]) === true) ? $overwrittenValues[$selection] : null;
-                $values[] = $this->createMultipleFromElement($selection, $label, $parameter);
-            }
+            $overwrittenValue = $overwrittenValues[$selection] ?? null;
+            $values[] = ($overwrittenValues === [])
+                ? $this->formFactory->createValueSetFormElementValue($selection, $optionLabel)
+                : $this->createMultipleFormElementValue($selection, $optionLabel, $overwrittenValue);
         }
 
-        $objectMethod = $overwrittenValues === [] ? 'createSelect' : 'createRadio';
+        $label = $this->getParameterText($configParameter, false, $objectKey);
+        $description = $this->getParameterText($configParameter, true, $objectKey);
 
-        return $this->formFactory->{$objectMethod}(
+        if ($overwrittenValues === []) {
+            return $this->formFactory->createSelect(
+                $configParameter->getId(),
+                $values,
+                $configParameter->getValue(),
+                $label,
+                $description
+            );
+        }
+
+        return $this->formFactory->createRadio(
             $configParameter->getId(),
             $values,
             $configParameter->getValue(),
-            $this->getParameterText($configParameter, false, $objectKey),
-            $this->getParameterText($configParameter, true, $objectKey)
+            $label,
+            $description
         );
     }
 
@@ -134,25 +143,29 @@ class FormHelper
         ?string $objectKey = null,
         array $overwrittenValues = []
     ): Input|Radio|Select|null {
-        if (($configParameter instanceof StringConfigParameter) === true) {
+        if ($configParameter instanceof StringConfigParameter) {
             return $this->formFactory->createInput(
                 $configParameter->getId(),
                 $configParameter->getValue(),
                 $this->getParameterText($configParameter, false, $objectKey),
                 $this->getParameterText($configParameter, true, $objectKey)
             );
-        } elseif (($configParameter instanceof BooleanConfigParameter) === true) {
-            $yes = $this->formFactory->createMultipleFormElementValue(true, TXT_UAM_YES);
-            $no = $this->formFactory->createMultipleFormElementValue(false, TXT_UAM_NO);
+        }
 
+        if ($configParameter instanceof BooleanConfigParameter) {
             return $this->formFactory->createRadio(
                 $configParameter->getId(),
-                [$yes, $no],
+                [
+                    $this->formFactory->createMultipleFormElementValue(true, TXT_UAM_YES),
+                    $this->formFactory->createMultipleFormElementValue(false, TXT_UAM_NO)
+                ],
                 $configParameter->getValue(),
                 $this->getParameterText($configParameter, false, $objectKey),
                 $this->getParameterText($configParameter, true, $objectKey)
             );
-        } elseif (($configParameter instanceof SelectionConfigParameter) === true) {
+        }
+
+        if ($configParameter instanceof SelectionConfigParameter) {
             return $this->convertSelectionParameter($configParameter, $objectKey, $overwrittenValues);
         }
 
@@ -162,35 +175,41 @@ class FormHelper
     /**
      * @throws Exception
      */
+    private function addConvertedParameter(
+        Form $form,
+        ConfigParameter $configParameter,
+        ?string $objectKey = null,
+        array $overwrittenValues = []
+    ): void {
+        $formElement = $this->convertConfigParameter($configParameter, $objectKey, $overwrittenValues);
+
+        if ($formElement !== null) {
+            $form->addElement($formElement);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
     public function getSettingsForm(array $parameters, ?string $objectKey = null): Form
     {
         $configParameters = $this->config->getConfigParameters();
-        $form = $this->formFactory->createFrom();
+        $form = $this->formFactory->createForm();
 
         foreach ($parameters as $key => $parameter) {
             $overwrittenValues = [];
 
             if (is_array($parameter) === true) {
                 $overwrittenValues = array_map(
-                    function ($parameterKey) use ($configParameters) {
-                        return $configParameters[$parameterKey] ?? null;
-                    },
+                    fn($parameterKey) => $configParameters[$parameterKey] ?? null,
                     $parameter
                 );
                 $parameter = $key;
             }
 
             if (is_string($parameter) === true && isset($configParameters[$parameter]) === true) {
-                $formElement = $this->convertConfigParameter(
-                    $configParameters[$parameter],
-                    $objectKey,
-                    $overwrittenValues
-                );
-
-                if ($formElement !== null) {
-                    $form->addElement($formElement);
-                }
-            } elseif (($parameter instanceof FormElement) === true) {
+                $this->addConvertedParameter($form, $configParameters[$parameter], $objectKey, $overwrittenValues);
+            } elseif ($parameter instanceof FormElement) {
                 $form->addElement($parameter);
             }
         }
@@ -203,15 +222,10 @@ class FormHelper
      */
     public function getSettingsFormByConfig(Config $config): Form
     {
-        $form = $this->formFactory->createFrom();
-        $configParameters = $config->getConfigParameters();
+        $form = $this->formFactory->createForm();
 
-        foreach ($configParameters as $configParameter) {
-            $formElement = $this->convertConfigParameter($configParameter);
-
-            if ($formElement !== null) {
-                $form->addElement($formElement);
-            }
+        foreach ($config->getConfigParameters() as $configParameter) {
+            $this->addConvertedParameter($form, $configParameter);
         }
 
         return $form;

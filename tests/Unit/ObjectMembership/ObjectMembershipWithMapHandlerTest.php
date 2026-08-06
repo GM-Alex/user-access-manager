@@ -1,17 +1,4 @@
 <?php
-/**
- * ObjectMembershipWithMapHandlerTest.php
- *
- * The ObjectMembershipWithMapHandlerTest unit test class file.
- *
- * PHP versions 5
- *
- * @author    Alexander Schneider <alexanderschneider85@gmail.com>
- * @copyright 2008-2017 Alexander Schneider
- * @license   http://www.gnu.org/licenses/gpl-2.0.html  GNU General Public License, version 2
- * @version   SVN: $id$
- * @link      http://wordpress.org/extend/plugins/user-access-manager/
- */
 
 namespace UserAccessManager\Tests\Unit\ObjectMembership;
 
@@ -26,20 +13,16 @@ use UserAccessManager\UserGroup\AssignmentInformationFactory;
 use UserAccessManager\UserGroup\UserGroup;
 
 /**
- * Class ObjectMembershipWithMapHandlerTest
- *
- * @package UserAccessManager\Tests\Unit\ObjectMembership
  * @coversDefaultClass \UserAccessManager\ObjectMembership\ObjectMembershipWithMapHandler
  */
 class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
 {
     /**
-     * @param AssignmentInformationFactory $assignmentInformationFactory
-     * @return MockObject|ObjectMembershipWithMapHandler
      * @throws ReflectionException
      */
-    private function getStub(AssignmentInformationFactory $assignmentInformationFactory): MockObject|ObjectMembershipWithMapHandler
-    {
+    private function getStub(
+        AssignmentInformationFactory $assignmentInformationFactory
+    ): MockObject|ObjectMembershipWithMapHandler {
         $stub = $this->getMockForAbstractClass(
             ObjectMembershipWithMapHandler::class,
             [],
@@ -78,6 +61,7 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::getMembershipByMap()
+     * @covers ::getRecursiveMembershipByMap()
      * @throws ReflectionException
      */
     public function testGetMembershipByMap()
@@ -183,7 +167,15 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
                 ['generalObjectType'],
                 ['someObjectType']
             )
-            ->will($this->returnValue(['parentObjectId' => $this->getAssignmentInformation('generalObjectType')]));
+            ->will($this->onConsecutiveCalls(
+                // The non recursive lookup has to hand back every assigned object.
+                [
+                    'parentObjectId' => $this->getAssignmentInformation('generalObjectType'),
+                    'otherParentObjectId' => $this->getAssignmentInformation('generalObjectType')
+                ],
+                ['parentObjectId' => $this->getAssignmentInformation('generalObjectType')],
+                ['parentObjectId' => $this->getAssignmentInformation('generalObjectType')]
+            ));
 
         $test = null;
         $userGroup->expects($this->exactly(2))
@@ -203,7 +195,13 @@ class ObjectMembershipWithMapHandlerTest extends UserAccessManagerTestCase
             'getFullObjectsByMap',
             [$userGroup, false, 'generalObjectType']
         );
-        self::assertEquals(['parentObjectId' => 'generalObjectType'], $result);
+        self::assertEquals(
+            [
+                'parentObjectId' => 'generalObjectType',
+                'otherParentObjectId' => 'generalObjectType'
+            ],
+            $result
+        );
 
         $result = self::callMethod(
             $objectMembershipWithMapHandler,
