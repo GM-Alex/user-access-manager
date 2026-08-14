@@ -4,8 +4,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: member access, user access manager, user management, access
 Requires at least: 4.7
 Requires PHP: 8.0
-Tested up to: 7.0
-Stable tag: 2.3.18
+Tested up to: 7.1
+Stable tag: 2.3.19
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,9 @@ To stay up-to-date follow me on Twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.3.19      2026/08/14  Fix a reflected cross site scripting issue in the backend request parameters
+                            Fix locked documents answering with a 404 page instead of the no rights page
 
     2.3.18      2026/08/03  Fix the missing preview images of protected documents like PDFs in the media library
                             Rework the backend forms and the group assignment UI
