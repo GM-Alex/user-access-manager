@@ -139,7 +139,10 @@ class RedirectController extends Controller
             return null;
         }
 
-        $attachedFile = $this->wordpress->getAttachedFile($post->ID);
+        // Unfiltered, because the plugin denies the path through the get_attached_file filter for
+        // users without access. Filtered it would hide the file from the access check below, which
+        // then could not answer the request with the no rights page any more.
+        $attachedFile = $this->wordpress->getAttachedFile($post->ID, true);
 
         if ($attachedFile === false
             || $this->isInsideUploadDirectory($attachedFile, $uploadDirs['basedir']) === false

@@ -810,9 +810,9 @@ class Wordpress
     /**
      * @see get_attached_file
      */
-    public function getAttachedFile(int $attachmentId): string|false
+    public function getAttachedFile(int $attachmentId, bool $unfiltered = false): string|false
     {
-        return get_attached_file($attachmentId);
+        return get_attached_file($attachmentId, $unfiltered);
     }
 
     /**
