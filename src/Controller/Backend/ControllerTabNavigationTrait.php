@@ -20,8 +20,10 @@ trait ControllerTabNavigationTrait
     {
         $groups = $this->getTabGroups();
         $keys = array_keys($groups);
+        $default = (string) reset($keys);
+        $group = (string) $this->getRequestParameter('tab_group', $default);
 
-        return (string) $this->getRequestParameter('tab_group', reset($keys));
+        return isset($groups[$group]) === true ? $group : $default;
     }
 
     public function getSections(): array
@@ -34,9 +36,11 @@ trait ControllerTabNavigationTrait
     public function getCurrentTabGroupSection(): string
     {
         $groups = $this->getTabGroups();
-        $sections = $groups[$this->getCurrentTabGroup()] ?? reset($groups);
+        $sections = (array) ($groups[$this->getCurrentTabGroup()] ?? reset($groups));
+        $default = (string) reset($sections);
+        $section = (string) $this->getRequestParameter('tab_group_section', $default);
 
-        return (string) $this->getRequestParameter('tab_group_section', reset($sections));
+        return in_array($section, $sections, true) === true ? $section : $default;
     }
 
     public function getTabGroupLink(string $groupKey): string

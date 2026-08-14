@@ -16,7 +16,7 @@ use UserAccessManager\Object\ObjectHandler;
 $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
     $isSorted = $controller->getRequestParameter('orderby') === $sortingParameter;
     $class = $isSorted === true ? 'sorted' : 'sortable';
-    $sortOrder = $isSorted === true ? $controller->getRequestParameter('order') : 'asc';
+    $sortOrder = ($isSorted === true && $controller->getRequestParameter('order') === 'desc') ? 'desc' : 'asc';
 
     $inner = "<span>$name</span><span class=\"sorting-indicator\"></span>";
     $link = "<a href=\"{$controller->getSortUrl($sortingParameter)}\" >$inner</a>";
@@ -48,7 +48,7 @@ $createHeaderColumn = function ($name, $sortingParameter) use ($controller) {
         </thead>
         <tbody>
         <?php
-        $currentAdminPage = $controller->getRequestParameter('page');
+        $currentAdminPage = urlencode((string) $controller->getRequestParameter('page'));
         $userGroups = $controller->getUserGroups();
         foreach ($userGroups as $userGroup) {
             ?>
