@@ -60,15 +60,32 @@ class ControllerTabNavigationTraitTest extends TestCase
     {
         $controllerTabNavigationTrait = $this->getStub();
 
+        $controllerTabNavigationTrait->expects($this->exactly(2))
+            ->method('getRequestParameter')
+            ->with('tab_group', 'groupOne')
+            ->will($this->onConsecutiveCalls('groupTwo', 'groupOne'));
+
+        self::assertEquals('groupTwo', $controllerTabNavigationTrait->getCurrentTabGroup());
+        self::assertEquals('groupOne', $controllerTabNavigationTrait->getCurrentTabGroup());
+    }
+
+    /**
+     * The group ends up in a css class and an element id, so anything which is not
+     * a known group has to fall back to the default instead of being reflected.
+     *
+     * @group  unit
+     * @covers ::getCurrentTabGroup()
+     */
+    public function testGetCurrentTabGroupFallsBackToTheDefaultForUnknownGroups()
+    {
+        $controllerTabNavigationTrait = $this->getStub();
+
         $controllerTabNavigationTrait->expects($this->once())
             ->method('getRequestParameter')
             ->with('tab_group', 'groupOne')
-            ->will($this->returnValue('requestParameter'));
+            ->will($this->returnValue('x&quot; onmouseover=alert(1) y=&quot;'));
 
-        self::assertEquals(
-            'requestParameter',
-            $controllerTabNavigationTrait->getCurrentTabGroup()
-        );
+        self::assertEquals('groupOne', $controllerTabNavigationTrait->getCurrentTabGroup());
     }
 
     /**
@@ -83,12 +100,15 @@ class ControllerTabNavigationTraitTest extends TestCase
             ->method('getRequestParameter')
             ->with('tab_group', 'groupOne')
             ->will($this->onConsecutiveCalls(
-                'requestParameter',
+                'unknownGroup',
                 'groupOne',
                 'groupTwo'
             ));
 
-        self::assertEquals([], $controllerTabNavigationTrait->getSections());
+        self::assertEquals(
+            ['groupOneSectionOne', 'groupOneSectionTwo', 'groupOneSectionThree'],
+            $controllerTabNavigationTrait->getSections()
+        );
         self::assertEquals(
             ['groupOneSectionOne', 'groupOneSectionTwo', 'groupOneSectionThree'],
             $controllerTabNavigationTrait->getSections()
@@ -116,19 +136,57 @@ class ControllerTabNavigationTraitTest extends TestCase
                 ['tab_group_section', 'groupTwoSectionOne']
             )
             ->will($this->onConsecutiveCalls(
-                'requestParameter',
-                'sectionRequestParameterOne',
+                'groupOne',
+                'groupOneSectionTwo',
                 'groupTwo',
-                'sectionRequestParameterTwo'
+                'groupTwoSectionTwo'
             ));
 
         self::assertEquals(
-            'sectionRequestParameterOne',
+            'groupOneSectionTwo',
             $controllerTabNavigationTrait->getCurrentTabGroupSection()
         );
 
         self::assertEquals(
-            'sectionRequestParameterTwo',
+            'groupTwoSectionTwo',
+            $controllerTabNavigationTrait->getCurrentTabGroupSection()
+        );
+    }
+
+    /**
+     * The section is reflected into an element id and a css class, so a section
+     * which does not belong to the current group has to fall back to the default.
+     *
+     * @group  unit
+     * @covers ::getCurrentTabGroupSection()
+     */
+    public function testGetCurrentTabGroupSectionFallsBackToTheDefaultForUnknownSections()
+    {
+        $controllerTabNavigationTrait = $this->getStub();
+
+        $controllerTabNavigationTrait->expects($this->exactly(4))
+            ->method('getRequestParameter')
+            ->withConsecutive(
+                ['tab_group', 'groupOne'],
+                ['tab_group_section', 'groupOneSectionOne'],
+                ['tab_group', 'groupOne'],
+                ['tab_group_section', 'groupOneSectionOne']
+            )
+            ->will($this->onConsecutiveCalls(
+                'groupOne',
+                'x&quot; onmouseover=alert(1) y=&quot;',
+                'groupOne',
+                // A section of a different group must not be accepted either.
+                'groupTwoSectionOne'
+            ));
+
+        self::assertEquals(
+            'groupOneSectionOne',
+            $controllerTabNavigationTrait->getCurrentTabGroupSection()
+        );
+
+        self::assertEquals(
+            'groupOneSectionOne',
             $controllerTabNavigationTrait->getCurrentTabGroupSection()
         );
     }

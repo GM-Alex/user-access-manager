@@ -52,8 +52,8 @@ if ($controller->hasUpdateMessage()) {
             ?>
             <h3><?php echo $controller->getText($currentSectionKey); ?></h3>
             <p><?php echo $controller->getText($currentSectionKey, true); ?></p>
-            <table id="uam_settings_group_<?php echo $currentSectionKey; ?>"
-                   class="form-table<?php echo $cssClass; ?>">
+            <table id="uam_settings_group_<?php echo htmlspecialchars($currentSectionKey, ENT_QUOTES); ?>"
+                   class="form-table<?php echo htmlspecialchars($cssClass, ENT_QUOTES); ?>">
                 <tbody>
                 <?php
                 if ($form instanceof Form) {

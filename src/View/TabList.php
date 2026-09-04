@@ -59,7 +59,7 @@ if (count($sections) > 1) {
                     <?php
                     foreach ($sections as $section) {
                         ?>
-                        <option value="<?php echo $section ?>"
+                        <option value="<?php echo htmlspecialchars($section, ENT_QUOTES); ?>"
                                 data-link="<?php
                                 echo $controller->getTabGroupSectionLink($currentGroupKey, $section);
                                 ?>"

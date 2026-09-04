@@ -271,7 +271,7 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $wordpress->method('attachmentUrlToPostId')
             ->with($attachmentUrl)
             ->will($this->returnValue(1));
-        $wordpress->method('getAttachedFile')->with(1)->will($this->returnValue($attachedFile));
+        $wordpress->method('getAttachedFile')->with(1, true)->will($this->returnValue($attachedFile));
         $wordpress->method('attachmentIsImage')->with(1)->will($this->returnValue($isImage));
         $wordpress->method('getAttachmentMetadata')->with(1)->will($this->returnValue($metaData));
 
@@ -472,8 +472,80 @@ class RedirectControllerTest extends UserAccessManagerTestCase
         $wordpress = $this->getWordpress();
         $wordpress->method('getUploadDir')->will($this->returnValue(self::UPLOAD_DIRS));
         $wordpress->method('attachmentUrlToPostId')->will($this->returnValue(1));
-        $wordpress->method('getAttachedFile')->with(1)->will($this->returnValue(self::ATTACHMENT_FILE));
+        $wordpress->method('getAttachedFile')->with(1, true)->will($this->returnValue(self::ATTACHMENT_FILE));
         $wordpress->method('attachmentIsImage')->with(1)->will($this->returnValue(false));
+        $wordpress->expects($this->once())
+            ->method('wpDie')
+            ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);
+
+        $php = $this->getPhp();
+        $php->method('realpath')->will($this->returnCallback(fn (string $path) => $path));
+
+        $cache = $this->getCache();
+        $cache->method('getFromRuntimeCache')->will($this->returnValue(null));
+
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('getPost')->with(1)
+            ->will($this->returnValue($this->getPost(1, ObjectHandler::ATTACHMENT_OBJECT_TYPE)));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->method('checkObjectAccess')->will($this->returnValue(false));
+
+        $fileHandler = $this->getFileHandler();
+        $fileHandler->expects($this->never())->method('getFile');
+
+        $fileObjectFactory = $this->getFileObjectFactory();
+        $fileObjectFactory->method('createFileObject')
+            ->will($this->returnCallback(function ($id, $type, $file, $isImage) {
+                $fileObject = $this->createMock(FileObject::class);
+                $fileObject->method('getId')->will($this->returnValue($id));
+                $fileObject->method('getType')->will($this->returnValue($type));
+                $fileObject->method('getFile')->will($this->returnValue($file));
+                $fileObject->method('isImage')->will($this->returnValue($isImage));
+
+                return $fileObject;
+            }));
+
+        $frontendRedirectController = new RedirectController(
+            $php,
+            $wordpress,
+            $this->getWordpressConfig(),
+            $this->getMainConfig(),
+            $this->getDatabase(),
+            $this->getUtil(),
+            $cache,
+            $objectHandler,
+            $accessHandler,
+            $fileHandler,
+            $fileObjectFactory
+        );
+
+        $frontendRedirectController->getFile(ObjectHandler::ATTACHMENT_OBJECT_TYPE, '/foo/picture.png');
+    }
+
+    /**
+     * The plugin denies the attached file of a locked document through the get_attached_file filter.
+     * Reading it filtered would leave the controller without a file and answer the request with a
+     * 404 page instead of the no rights page.
+     *
+     * @group  unit
+     * @covers ::getFile()
+     * @covers ::getAttachmentFileObject()
+     * @throws UserGroupTypeException
+     */
+    public function testGetFileReadsTheAttachedFileUnfiltered()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getUploadDir')->will($this->returnValue(self::UPLOAD_DIRS));
+        $wordpress->method('attachmentUrlToPostId')->will($this->returnValue(1));
+        $wordpress->method('attachmentIsImage')->with(1)->will($this->returnValue(false));
+
+        // Mirrors the plugin's own get_attached_file filter, which hides the file without access.
+        $wordpress->method('getAttachedFile')->will($this->returnCallback(
+            fn (int $attachmentId, bool $unfiltered = false) => ($unfiltered === true) ?
+                self::ATTACHMENT_FILE : false
+        ));
+
         $wordpress->expects($this->once())
             ->method('wpDie')
             ->with(TXT_UAM_NO_RIGHTS_MESSAGE, TXT_UAM_NO_RIGHTS_TITLE, ['response' => 403]);

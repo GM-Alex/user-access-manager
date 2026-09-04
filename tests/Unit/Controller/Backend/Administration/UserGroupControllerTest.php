@@ -492,21 +492,21 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
 
         $firstUserGroup->expects($this->once())
             ->method('addDefaultType')
-            ->with('objectType', 'fromTimeValue', null);
+            ->with(ObjectHandler::POST_OBJECT_TYPE, 'fromTimeValue', null);
 
         $firstUserGroup->expects($this->once())
             ->method('removeDefaultType')
-            ->with('objectType');
+            ->with(ObjectHandler::POST_OBJECT_TYPE);
 
         $secondUserGroup = $this->getUserGroup(2);
 
         $secondUserGroup->expects($this->once())
             ->method('addDefaultType')
-            ->with('objectType', null, 'toTimeValue');
+            ->with(ObjectHandler::POST_OBJECT_TYPE, null, 'toTimeValue');
 
         $secondUserGroup->expects($this->once())
             ->method('removeDefaultType')
-            ->with('objectType');
+            ->with(ObjectHandler::POST_OBJECT_TYPE);
 
         $thirdUserGroup = $this->getUserGroup(3);
 
@@ -515,7 +515,7 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
 
         $thirdUserGroup->expects($this->once())
             ->method('removeDefaultType')
-            ->with('objectType');
+            ->with(ObjectHandler::POST_OBJECT_TYPE);
 
         $userGroupHandler = $this->getUserGroupHandler();
 
@@ -539,7 +539,8 @@ class UserGroupControllerTest extends UserAccessManagerTestCase
         $_POST = [
             UserGroupController::SET_DEFAULT_USER_GROUPS_NONCE . 'Nonce' =>
                 UserGroupController::SET_DEFAULT_USER_GROUPS_NONCE,
-            'tab_group_section' => 'objectType',
+            'tab_group' => UserGroupController::GROUP_DEFAULT_USER_GROUPS,
+            'tab_group_section' => ObjectHandler::POST_OBJECT_TYPE,
             UserGroupController::DEFAULT_USER_GROUPS_FORM_FIELD => [
                 1 => ['id' => 1, 'fromTime' => 'fromTimeValue'],
                 2 => ['id' => 2, 'toTime' => 'toTimeValue'],

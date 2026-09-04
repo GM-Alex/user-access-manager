@@ -920,6 +920,11 @@ class SettingsControllerTest extends UserAccessManagerTestCase
             ->method('getConfig')
             ->will($this->returnValue($config));
 
+        // The id has to match the registration key, otherwise the provider is no valid tab section.
+        $cacheProvider->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue('cacheProviderId'));
+
         $cache = $this->getCache();
         $cache->expects($this->exactly(11))
             ->method('getRegisteredCacheProviders')

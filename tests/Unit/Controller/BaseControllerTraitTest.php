@@ -76,11 +76,37 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
         self::assertEquals(new stdClass(), $stub->getRequestParameter('objectParam'));
         self::assertEquals(
             [
-                'normalKey' => '&lt;script&gt;alert(\'evil\Value\');&lt;/script&gt;',
-                '&lt;script&gt;alert(\'evilKey\');&lt;/script&gt;' => 'normalValue',
-                'array' => ['a' => '&lt;script&gt;alert(\'otherEvil\');&lt;/script&gt;']
+                'normalKey' => '&lt;script&gt;alert(&#039;evil\Value&#039;);&lt;/script&gt;',
+                '&lt;script&gt;alert(&#039;evilKey&#039;);&lt;/script&gt;' => 'normalValue',
+                'array' => ['a' => '&lt;script&gt;alert(&#039;otherEvil&#039;);&lt;/script&gt;']
             ],
             $stub->getRequestParameter('arrayParam')
+        );
+    }
+
+    /**
+     * Quotes have to be encoded, otherwise a reflected parameter can break out of
+     * the surrounding html attribute and add an event handler to the element.
+     *
+     * @group  unit
+     * @covers ::getRequestParameter()
+     * @covers ::sanitizeValue()
+     */
+    public function testGetRequestParameterEncodesQuotes()
+    {
+        $stub = $this->getStub();
+
+        // WordPress adds the slashes to the request values, so the payload arrives escaped.
+        $_GET['attributeBreakout'] = 'x\\" onmouseover=alert(document.domain) y=\\"';
+        $_GET['singleQuoted'] = 'x\\\' onmouseover=alert(document.domain) y=\\\'';
+
+        self::assertEquals(
+            'x&quot; onmouseover=alert(document.domain) y=&quot;',
+            $stub->getRequestParameter('attributeBreakout')
+        );
+        self::assertEquals(
+            'x&#039; onmouseover=alert(document.domain) y=&#039;',
+            $stub->getRequestParameter('singleQuoted')
         );
     }
 
@@ -94,7 +120,22 @@ class BaseControllerTraitTest extends UserAccessManagerTestCase
 
         $_SERVER['REQUEST_URI'] = 'https://test.domain?id=<a href=\'evil\'>evil</a>';
 
-        self::assertEquals('https://test.domain?id=&lt;a href=\'evil\'&gt;evil&lt;/a&gt;', $stub->getRequestUrl());
+        self::assertEquals(
+            'https://test.domain?id=&lt;a href=&#039;evil&#039;&gt;evil&lt;/a&gt;',
+            $stub->getRequestUrl()
+        );
+
+        // The url is echoed into action and href attributes, so quotes must not survive.
+        $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=uam_settings&x=" onmouseover=alert(1) y="';
+
+        self::assertEquals(
+            '/wp-admin/admin.php?page=uam_settings&amp;x=&quot; onmouseover=alert(1) y=&quot;',
+            $stub->getRequestUrl()
+        );
+
+        unset($_SERVER['REQUEST_URI']);
+
+        self::assertEquals('', $stub->getRequestUrl());
     }
 
     /**
