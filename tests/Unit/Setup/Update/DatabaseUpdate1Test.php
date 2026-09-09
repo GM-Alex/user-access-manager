@@ -45,6 +45,7 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
      * @covers ::update()
      * @covers ::updateToUserGroupTableUpdate()
      * @covers ::updateToUserGroupToObjectTableUpdate()
+     * @covers ::getMigratableObjectTypes()
      * @covers ::getObjectSelectQuery()
      */
     public function testUpdate()
@@ -58,9 +59,10 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
             ->method('getPrefix')
             ->will($this->returnValue('prefix_'));
 
+        // The real value carries no DEFAULT, that would make it a table option.
         $database->expects($this->exactly(3))
-            ->method('getCharset')
-            ->will($this->returnValue('CHARSET testCharset'));
+            ->method('getColumnCharset')
+            ->will($this->returnValue('CHARACTER SET testCharset COLLATE testCollate'));
 
         $database->expects($this->exactly(2))
             ->method('getPostsTable')
@@ -94,7 +96,7 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
                     'object_id' => 321,
                     'object_type' => 'post'
                 ],
-                ['%d', '%d', '%s']
+                ['%s', '%s', '%s']
             )
             ->will($this->onConsecutiveCalls(true, false));
 
@@ -102,7 +104,7 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
         $firstDbObject->groupId = 123;
         $firstDbObject->id = 321;
 
-        $database->expects($this->exactly(5))
+        $database->expects($this->exactly(7))
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
@@ -124,9 +126,15 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
                     'SELECT `post_id` AS `id`, `group_id` AS `groupId`
                     FROM `prefix_uam_accessgroup_to_post`, `postsTable` WHERE `post_id` = `ID`
                     AND `post_type` = \'post\''
+                )],
+                [new MatchIgnoreWhitespace(
+                    'SELECT `user_id` AS `id`, `group_id` AS `groupId` FROM `prefix_uam_accessgroup_to_user`'
+                )],
+                [new MatchIgnoreWhitespace(
+                    'SELECT `role_name` AS `id`, `group_id` AS `groupId` FROM `prefix_uam_accessgroup_to_role`'
                 )]
             )
-            ->will($this->onConsecutiveCalls([$firstDbObject], [], [], [], [$firstDbObject]));
+            ->will($this->onConsecutiveCalls([$firstDbObject], [], [], [], [$firstDbObject], [], []));
 
         $database->expects($this->exactly(9))
             ->method('query')
@@ -145,17 +153,17 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
                 )],
                 [new MatchIgnoreWhitespace(
                     'ALTER TABLE `prefix_uam_accessgroup_to_object`
-                    CHANGE `object_id` `object_id` VARCHAR(64) CHARSET testCharset'
+                    CHANGE `object_id` `object_id` VARCHAR(64) CHARACTER SET testCharset COLLATE testCollate'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'DROP TABLE `prefix_uam_accessgroup_to_post`,
+                    'DROP TABLE IF EXISTS `prefix_uam_accessgroup_to_post`,
                     `prefix_uam_accessgroup_to_user`,
                     `prefix_uam_accessgroup_to_category`,
                     `prefix_uam_accessgroup_to_role`'
                 )],
                 [new MatchIgnoreWhitespace(
                     'ALTER TABLE `prefix_uam_accessgroup_to_object`
-                    CHANGE `object_id` `object_id` VARCHAR(64) CHARSET testCharset'
+                    CHANGE `object_id` `object_id` VARCHAR(64) CHARACTER SET testCharset COLLATE testCollate'
                 )],
                 [new MatchIgnoreWhitespace(
                     'ALTER TABLE `userGroupTable`
@@ -168,7 +176,7 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
                 )],
                 [new MatchIgnoreWhitespace(
                     'ALTER TABLE `prefix_uam_accessgroup_to_object`
-                    CHANGE `object_id` `object_id` VARCHAR(64) CHARSET testCharset'
+                    CHANGE `object_id` `object_id` VARCHAR(64) CHARACTER SET testCharset COLLATE testCollate'
                 )]
             )
             ->will($this->onConsecutiveCalls(
@@ -189,7 +197,7 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
         $objectHandler->expects($this->exactly(2))
             ->method('getObjectTypes')
             ->will($this->onConsecutiveCalls(
-                ['post', 'nothing', 'category', 'nothing', 'user', 'nothing', 'role', 'nothing'],
+                ['post', 'nothing', 'category', 'nothing'],
                 ['post']
             ));
 
@@ -201,12 +209,12 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
                 ['category'],
                 ['nothing'],
                 ['user'],
-                ['nothing'],
                 ['role'],
-                ['nothing'],
-                ['post']
+                ['post'],
+                ['user'],
+                ['role']
             )
-            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, false, false, true));
+            ->will($this->onConsecutiveCalls(true, false, false, false, false, false, true, false, false));
 
         $update = new DatabaseUpdate1($database, $objectHandler);
         self::assertTrue($update->update());

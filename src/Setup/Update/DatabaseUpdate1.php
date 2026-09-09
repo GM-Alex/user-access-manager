@@ -60,10 +60,22 @@ class DatabaseUpdate1 extends DatabaseUpdate
             FROM `{$legacyTables[$objectType]}`";
     }
 
+    /**
+     * The object types whose assignments the legacy tables can hold. getObjectTypes() only
+     * knows post types and taxonomies, so the user and role types have to be added for
+     * their own legacy tables, whose rows would otherwise be dropped unmigrated.
+     *
+     * @return string[]
+     */
+    private function getMigratableObjectTypes(): array
+    {
+        return array_merge($this->objectHandler->getObjectTypes(), ['user', 'role']);
+    }
+
     private function updateToUserGroupToObjectTableUpdate(): bool
     {
         $prefix = $this->database->getPrefix();
-        $charsetCollate = $this->database->getCharset();
+        $charsetCollate = $this->database->getColumnCharset();
         $userGroupToObject = $prefix . 'uam_accessgroup_to_object';
         $legacyTables = [
             'post' => $prefix . 'uam_accessgroup_to_post',
@@ -80,7 +92,7 @@ class DatabaseUpdate1 extends DatabaseUpdate
             return false;
         }
 
-        foreach ($this->objectHandler->getObjectTypes() as $objectType) {
+        foreach ($this->getMigratableObjectTypes() as $objectType) {
             $query = $this->getObjectSelectQuery($objectType, $legacyTables);
 
             if ($query === null) {
@@ -97,9 +109,10 @@ class DatabaseUpdate1 extends DatabaseUpdate
                         'object_id' => $dbObject->id,
                         'object_type' => $objectType
                     ],
+                    // All three are strings, roles carry their name as the object id.
                     [
-                        '%d',
-                        '%d',
+                        '%s',
+                        '%s',
                         '%s'
                     ]
                 );
@@ -107,7 +120,7 @@ class DatabaseUpdate1 extends DatabaseUpdate
             }
         }
 
-        $dropQuery = 'DROP TABLE `' . implode('`, `', $legacyTables) . '`';
+        $dropQuery = 'DROP TABLE IF EXISTS `' . implode('`, `', $legacyTables) . '`';
 
         return $success && $this->database->query($dropQuery) !== false;
     }
