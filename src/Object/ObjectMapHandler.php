@@ -86,9 +86,9 @@ class ObjectMapHandler
     public function getPostTreeMap(): array
     {
         if ($this->postTreeMap === null) {
-            $query = "SELECT ID AS id, post_parent AS parentId, post_type AS type 
-                FROM {$this->database->getPostsTable()}
-                WHERE post_parent != 0 AND post_type != 'revision'";
+            $query = "SELECT `ID` AS `id`, `post_parent` AS `parentId`, `post_type` AS `type`
+                FROM `{$this->database->getPostsTable()}`
+                WHERE `post_parent` != 0 AND `post_type` != 'revision'";
 
             $this->postTreeMap = $this->getCachedTreeMap(
                 self::POST_TREE_MAP_CACHE_KEY,
@@ -103,9 +103,9 @@ class ObjectMapHandler
     public function getTermTreeMap(): array
     {
         if ($this->termTreeMap === null) {
-            $query = "SELECT term_id AS id, parent AS parentId, taxonomy AS type
-                FROM {$this->database->getTermTaxonomyTable()}
-                WHERE parent != 0";
+            $query = "SELECT `term_id` AS `id`, `parent` AS `parentId`, `taxonomy` AS `type`
+                FROM `{$this->database->getTermTaxonomyTable()}`
+                WHERE `parent` != 0";
 
             $this->termTreeMap = $this->getCachedTreeMap(
                 self::TERM_TREE_MAP_CACHE_KEY,
@@ -139,12 +139,12 @@ class ObjectMapHandler
     {
         if ($this->termPostMap === null) {
             $select = "
-                SELECT tr.object_id AS objectId, tt.term_id AS parentId, p.post_type AS type
-                FROM {$this->database->getTermRelationshipsTable()} AS tr
-                  LEFT JOIN {$this->database->getPostsTable()} AS p
-                   ON (tr.object_id = p.ID)
-                  LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
-                    ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
+                SELECT `tr`.`object_id` AS `objectId`, `tt`.`term_id` AS `parentId`, `p`.`post_type` AS `type`
+                FROM `{$this->database->getTermRelationshipsTable()}` AS `tr`
+                  LEFT JOIN `{$this->database->getPostsTable()}` AS `p`
+                   ON (`tr`.`object_id` = `p`.`ID`)
+                  LEFT JOIN `{$this->database->getTermTaxonomyTable()}` AS `tt`
+                    ON (`tr`.`term_taxonomy_id` = `tt`.`term_taxonomy_id`)";
 
             $this->termPostMap = $this->getCachedMap(self::TERM_POST_MAP_CACHE_KEY, $select);
         }
@@ -156,10 +156,10 @@ class ObjectMapHandler
     {
         if ($this->postTermMap === null) {
             $select = "
-                SELECT tr.object_id AS parentId, tt.term_id AS objectId, tt.taxonomy AS type
-                FROM {$this->database->getTermRelationshipsTable()} AS tr 
-                  LEFT JOIN {$this->database->getTermTaxonomyTable()} AS tt
-                    ON (tr.term_taxonomy_id = tt.term_taxonomy_id)";
+                SELECT `tr`.`object_id` AS `parentId`, `tt`.`term_id` AS `objectId`, `tt`.`taxonomy` AS `type`
+                FROM `{$this->database->getTermRelationshipsTable()}` AS `tr`
+                  LEFT JOIN `{$this->database->getTermTaxonomyTable()}` AS `tt`
+                    ON (`tr`.`term_taxonomy_id` = `tt`.`term_taxonomy_id`)";
 
             $this->postTermMap = $this->getCachedMap(self::POST_TERM_MAP_CACHE_KEY, $select);
         }

@@ -282,10 +282,10 @@ class RedirectController extends Controller
         $postableTypes = implode('\',\'', $this->objectHandler->getPostTypes());
 
         $query = $this->database->prepare(
-            "SELECT ID
-                FROM {$this->database->getPostsTable()}
-                WHERE post_name = %s
-                  AND post_type IN ('$postableTypes')",
+            "SELECT `ID`
+                FROM `{$this->database->getPostsTable()}`
+                WHERE `post_name` = %s
+                  AND `post_type` IN ('$postableTypes')",
             $name
         );
 

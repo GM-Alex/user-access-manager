@@ -70,10 +70,10 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
             ->method('getVariable')
             ->withConsecutive(
                 ['SHOW TABLES LIKE \'userGroupTable\''],
-                ['SHOW columns FROM userGroupTable LIKE \'ip_range\''],
+                ['SHOW COLUMNS FROM `userGroupTable` LIKE \'ip_range\''],
                 ['SHOW TABLES LIKE \'userGroupTable\''],
                 ['SHOW TABLES LIKE \'userGroupTable\''],
-                ['SHOW columns FROM userGroupTable LIKE \'ip_range\''],
+                ['SHOW COLUMNS FROM `userGroupTable` LIKE \'ip_range\''],
                 ['SHOW TABLES LIKE \'userGroupTable\'']
             )
             ->will($this->onConsecutiveCalls(
@@ -106,24 +106,24 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
-                    'SELECT post_id AS id, group_id AS groupId
-                    FROM prefix_uam_accessgroup_to_post, postsTable WHERE post_id = ID
-                    AND post_type = \'post\''
+                    'SELECT `post_id` AS `id`, `group_id` AS `groupId`
+                    FROM `prefix_uam_accessgroup_to_post`, `postsTable` WHERE `post_id` = `ID`
+                    AND `post_type` = \'post\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT category_id AS id, group_id AS groupId
-                    FROM prefix_uam_accessgroup_to_category'
+                    'SELECT `category_id` AS `id`, `group_id` AS `groupId`
+                    FROM `prefix_uam_accessgroup_to_category`'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT user_id AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_user'
+                    'SELECT `user_id` AS `id`, `group_id` AS `groupId` FROM `prefix_uam_accessgroup_to_user`'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT role_name AS id, group_id AS groupId FROM prefix_uam_accessgroup_to_role'
+                    'SELECT `role_name` AS `id`, `group_id` AS `groupId` FROM `prefix_uam_accessgroup_to_role`'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT post_id AS id, group_id AS groupId
-                    FROM prefix_uam_accessgroup_to_post, postsTable WHERE post_id = ID
-                    AND post_type = \'post\''
+                    'SELECT `post_id` AS `id`, `group_id` AS `groupId`
+                    FROM `prefix_uam_accessgroup_to_post`, `postsTable` WHERE `post_id` = `ID`
+                    AND `post_type` = \'post\''
                 )]
             )
             ->will($this->onConsecutiveCalls([$firstDbObject], [], [], [], [$firstDbObject]));
@@ -132,43 +132,43 @@ class DatabaseUpdate1Test extends UserAccessManagerTestCase
             ->method('query')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupTable
-                    ADD read_access TINYTEXT NOT NULL DEFAULT \'\', 
-                    ADD write_access TINYTEXT NOT NULL DEFAULT \'\', 
-                    ADD ip_range MEDIUMTEXT NULL DEFAULT \'\''
+                    'ALTER TABLE `userGroupTable`
+                    ADD `read_access` TINYTEXT NOT NULL DEFAULT \'\', 
+                    ADD `write_access` TINYTEXT NOT NULL DEFAULT \'\', 
+                    ADD `ip_range` MEDIUMTEXT NULL DEFAULT \'\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupTable SET read_access = \'group\', write_access = \'group\''
+                    'UPDATE `userGroupTable` SET `read_access` = \'group\', `write_access` = \'group\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupTable ADD ip_range MEDIUMTEXT NULL DEFAULT \'\''
+                    'ALTER TABLE `userGroupTable` ADD `ip_range` MEDIUMTEXT NULL DEFAULT \'\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\'
-                    CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
+                    'ALTER TABLE `prefix_uam_accessgroup_to_object`
+                    CHANGE `object_id` `object_id` VARCHAR(64) CHARSET testCharset'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'DROP TABLE prefix_uam_accessgroup_to_post,
-                    prefix_uam_accessgroup_to_user,
-                    prefix_uam_accessgroup_to_category,
-                    prefix_uam_accessgroup_to_role'
+                    'DROP TABLE `prefix_uam_accessgroup_to_post`,
+                    `prefix_uam_accessgroup_to_user`,
+                    `prefix_uam_accessgroup_to_category`,
+                    `prefix_uam_accessgroup_to_role`'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\'
-                    CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
+                    'ALTER TABLE `prefix_uam_accessgroup_to_object`
+                    CHANGE `object_id` `object_id` VARCHAR(64) CHARSET testCharset'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupTable
-                    ADD read_access TINYTEXT NOT NULL DEFAULT \'\', 
-                    ADD write_access TINYTEXT NOT NULL DEFAULT \'\', 
-                    ADD ip_range MEDIUMTEXT NULL DEFAULT \'\''
+                    'ALTER TABLE `userGroupTable`
+                    ADD `read_access` TINYTEXT NOT NULL DEFAULT \'\', 
+                    ADD `write_access` TINYTEXT NOT NULL DEFAULT \'\', 
+                    ADD `ip_range` MEDIUMTEXT NULL DEFAULT \'\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupTable SET read_access = \'group\', write_access = \'group\''
+                    'UPDATE `userGroupTable` SET `read_access` = \'group\', `write_access` = \'group\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE \'prefix_uam_accessgroup_to_object\'
-                    CHANGE \'object_id\' \'object_id\' VARCHAR(64) CHARSET testCharset'
+                    'ALTER TABLE `prefix_uam_accessgroup_to_object`
+                    CHANGE `object_id` `object_id` VARCHAR(64) CHARSET testCharset'
                 )]
             )
             ->will($this->onConsecutiveCalls(

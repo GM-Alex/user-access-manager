@@ -14,8 +14,8 @@ class DatabaseUpdate7 extends DatabaseUpdate
     public function update(): bool
     {
         $userGroupTable = $this->database->getUserGroupTable();
-        $alterQuery = "ALTER TABLE {$userGroupTable}
-            MODIFY ID INT NOT NULL AUTO_INCREMENT";
+        $alterQuery = "ALTER TABLE `{$userGroupTable}`
+            MODIFY `ID` INT NOT NULL AUTO_INCREMENT";
 
         return $this->database->query($alterQuery) !== false;
     }

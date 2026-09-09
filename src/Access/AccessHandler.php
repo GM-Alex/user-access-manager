@@ -184,8 +184,8 @@ class AccessHandler
     private function getOwnPostIds(): array
     {
         $query = $this->database->prepare(
-            "SELECT ID FROM {$this->database->getPostsTable()}
-            WHERE post_author = %d",
+            "SELECT `ID` FROM `{$this->database->getPostsTable()}`
+            WHERE `post_author` = %d",
             $this->wordpress->getCurrentUser()->ID
         );
 

@@ -91,8 +91,8 @@ class UserGroupTest extends UserAccessManagerTestCase
                 [
                     new MatchIgnoreWhitespace(
                         'SELECT *
-                            FROM userGroupTable
-                            WHERE ID = %d
+                            FROM `userGroupTable`
+                            WHERE `ID` = %d
                             LIMIT 1'
                     ),
                     1
@@ -100,8 +100,8 @@ class UserGroupTest extends UserAccessManagerTestCase
                 [
                     new MatchIgnoreWhitespace(
                         'SELECT *
-                        FROM userGroupTable
-                        WHERE ID = %d
+                        FROM `userGroupTable`
+                        WHERE `ID` = %d
                         LIMIT 1'
                     ),
                     2

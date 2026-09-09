@@ -123,7 +123,7 @@ class UserGroupHandlerTest extends HandlerTestCase
     {
         $database = $this->getDatabase();
 
-        $query = 'SELECT * FROM getUserGroupTable';
+        $query = 'SELECT * FROM `getUserGroupTable`';
         $databaseUserGroups = $this->generateReturn(3);
 
         $database->expects($this->once())
@@ -219,10 +219,10 @@ class UserGroupHandlerTest extends HandlerTestCase
         $database->expects($this->once())
             ->method('getResults')
             ->with(new MatchIgnoreWhitespace(
-                'SELECT group_id AS id, group_type AS type
-                FROM userGroupToObjectTable
-                WHERE group_type IN (\'role\', \'user\')
-                GROUP BY group_type, group_id'
+                'SELECT `group_id` AS `id`, `group_type` AS `type`
+                FROM `userGroupToObjectTable`
+                WHERE `group_type` IN (\'role\', \'user\')
+                GROUP BY `group_type`, `group_id`'
             ))
             ->will($this->returnValue($this->getQueryResult([
                 [DynamicUserGroup::USER_TYPE, 0],

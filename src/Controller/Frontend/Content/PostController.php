@@ -466,10 +466,10 @@ class PostController extends ContentController
 
     private function getPostCountQuery(array $excludedPosts, string $type, string $perm): string
     {
-        $query = "SELECT post_status, COUNT(*) AS num_posts
-            FROM {$this->database->getPostsTable()}
-            WHERE post_type = %s
-              AND ID NOT IN ({$this->toIdList($excludedPosts)})";
+        $query = "SELECT `post_status`, COUNT(*) AS `num_posts`
+            FROM `{$this->database->getPostsTable()}`
+            WHERE `post_type` = %s
+              AND `ID` NOT IN ({$this->toIdList($excludedPosts)})";
 
         if ('readable' === $perm
             && $this->wordpress->isUserLoggedIn() === true
@@ -478,12 +478,12 @@ class PostController extends ContentController
             ) === false
         ) {
             $query .= $this->database->prepare(
-                ' AND (post_status != \'private\' OR (post_author = %d AND post_status = \'private\'))',
+                ' AND (`post_status` != \'private\' OR (`post_author` = %d AND `post_status` = \'private\'))',
                 $this->wordpress->getCurrentUser()->ID
             );
         }
 
-        $query .= ' GROUP BY post_status';
+        $query .= ' GROUP BY `post_status`';
         return $query;
     }
 

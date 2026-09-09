@@ -1020,10 +1020,10 @@ class RedirectControllerTest extends UserAccessManagerTestCase
             ->method('prepare')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SELECT ID
-                    FROM postTable
-                    WHERE post_name = %s
-                    AND post_type IN (\'post\',\'page\',\'other\')'
+                    'SELECT `ID`
+                    FROM `postTable`
+                    WHERE `post_name` = %s
+                    AND `post_type` IN (\'post\',\'page\',\'other\')'
                 ),
                 'nameValue'
             )

@@ -63,9 +63,9 @@ class DatabaseUpdate5Test extends UserAccessManagerTestCase
             ->method('getResults')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
-                    FROM userGroupToObjectTable
-                    WHERE general_object_type = \'\''
+                    'SELECT `object_id` AS `objectId`, `object_type` AS `objectType`, `group_id` AS `groupId`
+                    FROM `userGroupToObjectTable`
+                    WHERE `general_object_type` = \'\''
                 )
             )
             ->will($this->returnValue([$dbObject, $dbObject]));

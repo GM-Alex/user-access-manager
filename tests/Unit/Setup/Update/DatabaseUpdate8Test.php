@@ -55,8 +55,8 @@ class DatabaseUpdate8Test extends UserAccessManagerTestCase
             ->method('query')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupTable
-                    MODIFY ID INT NOT NULL AUTO_INCREMENT'
+                    'ALTER TABLE `userGroupTable`
+                    MODIFY `ID` INT NOT NULL AUTO_INCREMENT'
                 )
             )
             ->will($this->returnValue(5));
