@@ -43,11 +43,11 @@ class AssignedObjectsLoader
      */
     private function loadAssignedObjects(string $objectType, bool $ignoreDates): array
     {
-        $query = "SELECT group_id AS groupId, group_type AS groupType, object_id AS id,
-                object_type AS objectType, from_date AS fromDate, to_date AS toDate
-            FROM {$this->database->getUserGroupToObjectTable()}
-            WHERE object_id != ''
-              AND (general_object_type = '%s' OR object_type = '%s')";
+        $query = "SELECT `group_id` AS `groupId`, `group_type` AS `groupType`, `object_id` AS `id`,
+                `object_type` AS `objectType`, `from_date` AS `fromDate`, `to_date` AS `toDate`
+            FROM `{$this->database->getUserGroupToObjectTable()}`
+            WHERE `object_id` != ''
+              AND (`general_object_type` = '%s' OR `object_type` = '%s')";
 
         $parameters = [
             $objectType,
@@ -55,7 +55,7 @@ class AssignedObjectsLoader
         ];
 
         if ($ignoreDates === false) {
-            $query .= " AND (from_date IS NULL OR from_date <= '%s') AND (to_date IS NULL OR to_date >= '%s')";
+            $query .= " AND (`from_date` IS NULL OR `from_date` <= '%s') AND (`to_date` IS NULL OR `to_date` >= '%s')";
             $time = $this->wordpress->currentTime('mysql');
             $parameters = array_merge($parameters, [$time, $time]);
         }

@@ -524,7 +524,7 @@ class DatabaseHandlerTest extends UserAccessManagerTestCase
 
         $database->expects($this->exactly(5))
             ->method('prepare')
-            ->with('SELECT option_value FROM prefix_options WHERE option_name = \'%s\' LIMIT 1', 'uam_db_version')
+            ->with('SELECT `option_value` FROM `prefix_options` WHERE `option_name` = \'%s\' LIMIT 1', 'uam_db_version')
             ->will($this->returnValue('preparedStatement'));
 
         $database->expects($this->exactly(5))

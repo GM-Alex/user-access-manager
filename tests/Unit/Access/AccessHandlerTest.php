@@ -342,9 +342,9 @@ class AccessHandlerTest extends HandlerTestCase
             ->method('prepare')
             ->with(
                 new MatchIgnoreWhitespace(
-                    "SELECT ID
-                    FROM postTable
-                    WHERE post_author = %d"
+                    "SELECT `ID`
+                    FROM `postTable`
+                    WHERE `post_author` = %d"
                 ),
                 1
             )

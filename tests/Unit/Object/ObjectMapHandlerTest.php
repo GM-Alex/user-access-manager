@@ -139,14 +139,14 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
             ->method('getResults')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
-                    'SELECT ID AS id, post_parent AS parentId, post_type AS type 
-                    FROM postTable
-                    WHERE post_parent != 0 AND post_type != \'revision\''
+                    'SELECT `ID` AS `id`, `post_parent` AS `parentId`, `post_type` AS `type` 
+                    FROM `postTable`
+                    WHERE `post_parent` != 0 AND `post_type` != \'revision\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'SELECT term_id AS id, parent AS parentId, taxonomy AS type
-                    FROM termTaxonomyTable
-                    WHERE parent != 0'
+                    'SELECT `term_id` AS `id`, `parent` AS `parentId`, `taxonomy` AS `type`
+                    FROM `termTaxonomyTable`
+                    WHERE `parent` != 0'
                 )]
             )->will($this->onConsecutiveCalls($postResult, $termResult));
 
@@ -294,10 +294,10 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
             ->method('getResults')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SELECT tr.object_id AS objectId, tt.term_id AS parentId, p.post_type AS type
-                    FROM termRelationshipsTable AS tr 
-                    LEFT JOIN postTable AS p ON (tr.object_id = p.ID)
-                    LEFT JOIN termTaxonomyTable AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
+                    'SELECT `tr`.`object_id` AS `objectId`, `tt`.`term_id` AS `parentId`, `p`.`post_type` AS `type`
+                    FROM `termRelationshipsTable` AS `tr` 
+                    LEFT JOIN `postTable` AS `p` ON (`tr`.`object_id` = `p`.`ID`)
+                    LEFT JOIN `termTaxonomyTable` AS `tt` ON (`tr`.`term_taxonomy_id` = `tt`.`term_taxonomy_id`)'
                 )
             )->will($this->returnValue($databaseResult));
 
@@ -371,9 +371,9 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
             ->method('getResults')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SELECT tr.object_id AS parentId, tt.term_id AS objectId, tt.taxonomy AS type
-                    FROM termRelationshipsTable AS tr 
-                    LEFT JOIN termTaxonomyTable AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)'
+                    'SELECT `tr`.`object_id` AS `parentId`, `tt`.`term_id` AS `objectId`, `tt`.`taxonomy` AS `type`
+                    FROM `termRelationshipsTable` AS `tr` 
+                    LEFT JOIN `termTaxonomyTable` AS `tt` ON (`tr`.`term_taxonomy_id` = `tt`.`term_taxonomy_id`)'
                 )
             )->will($this->returnValue($databaseResult));
 

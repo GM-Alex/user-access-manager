@@ -19,9 +19,9 @@ class DatabaseUpdate5 extends DatabaseUpdate
     public function update(): bool
     {
         $dbAccessGroupToObject = $this->database->getUserGroupToObjectTable();
-        $query = "SELECT object_id AS objectId, object_type AS objectType, group_id AS groupId
-            FROM {$dbAccessGroupToObject}
-            WHERE general_object_type = ''";
+        $query = "SELECT `object_id` AS `objectId`, `object_type` AS `objectType`, `group_id` AS `groupId`
+            FROM `{$dbAccessGroupToObject}`
+            WHERE `general_object_type` = ''";
 
         $dbObjects = (array) $this->database->getResults($query);
         $success = true;

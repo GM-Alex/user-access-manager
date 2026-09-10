@@ -59,35 +59,35 @@ class DatabaseUpdate4Test extends UserAccessManagerTestCase
             ->method('query')
             ->withConsecutive(
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupToObjectTable
-                    ADD general_object_type VARCHAR(64) NOT NULL AFTER object_id'
+                    'ALTER TABLE `userGroupToObjectTable`
+                    ADD `general_object_type` VARCHAR(64) NOT NULL AFTER `object_id`'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable
-                    SET general_object_type = \'_post_\'
-                    WHERE object_type IN (\'post\', \'page\', \'attachment\')'
+                    'UPDATE `userGroupToObjectTable`
+                    SET `general_object_type` = \'_post_\'
+                    WHERE `object_type` IN (\'post\', \'page\', \'attachment\')'
                 )],
                 [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable
-                    SET general_object_type = \'_role_\'
-                    WHERE object_type = \'role\''
+                    'UPDATE `userGroupToObjectTable`
+                    SET `general_object_type` = \'_role_\'
+                    WHERE `object_type` = \'role\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable
-                    SET general_object_type = \'_user_\'
-                    WHERE object_type = \'user\''
+                    'UPDATE `userGroupToObjectTable`
+                    SET `general_object_type` = \'_user_\'
+                    WHERE `object_type` = \'user\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable
-                    SET general_object_type = \'_term_\'
-                    WHERE object_type = \'term\''
+                    'UPDATE `userGroupToObjectTable`
+                    SET `general_object_type` = \'_term_\'
+                    WHERE `object_type` = \'term\''
                 )],
                 [new MatchIgnoreWhitespace(
-                    'UPDATE userGroupToObjectTable AS gto
-                    LEFT JOIN termTaxonomyTable AS tt 
-                      ON gto.object_id = tt.term_id
-                    SET gto.object_type = tt.taxonomy
-                    WHERE gto.general_object_type = \'_term_\''
+                    'UPDATE `userGroupToObjectTable` AS `gto`
+                    LEFT JOIN `termTaxonomyTable` AS `tt` 
+                      ON `gto`.`object_id` = `tt`.`term_id`
+                    SET `gto`.`object_type` = `tt`.`taxonomy`
+                    WHERE `gto`.`general_object_type` = \'_term_\''
                 )]
             )
             ->will($this->returnValue(true));

@@ -367,48 +367,48 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             ->withConsecutive(
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                        WHERE group_id = %d
-                          AND group_type = \'%s\'
-                          AND (object_type = \'%s\' OR general_object_type = \'%s\')'
+                        'DELETE FROM `userGroupToObjectTable`
+                        WHERE `group_id` = %d
+                          AND `group_type` = \'%s\'
+                          AND (`object_type` = \'%s\' OR `general_object_type` = \'%s\')'
                     ),
                     [123, 'type', 'objectType', 'objectType']
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                        WHERE group_id = %d
-                          AND group_type = \'%s\'
-                          AND (object_type = \'%s\' OR general_object_type = \'%s\')'
+                        'DELETE FROM `userGroupToObjectTable`
+                        WHERE `group_id` = %d
+                          AND `group_type` = \'%s\'
+                          AND (`object_type` = \'%s\' OR `general_object_type` = \'%s\')'
                     ),
                     [123, 'type', 'objectType', 'objectType']
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                            WHERE group_id = %d
-                              AND group_type = \'%s\'
-                              AND (object_type = \'%s\' OR general_object_type = \'%s\')'
+                        'DELETE FROM `userGroupToObjectTable`
+                            WHERE `group_id` = %d
+                              AND `group_type` = \'%s\'
+                              AND (`object_type` = \'%s\' OR `general_object_type` = \'%s\')'
                     ),
                     [123, 'type', 'objectType', 'objectType']
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                            WHERE group_id = %d
-                              AND group_type = \'%s\'
-                              AND (object_type = \'%s\' OR general_object_type = \'%s\')
-                              AND object_id = %d'
+                        'DELETE FROM `userGroupToObjectTable`
+                            WHERE `group_id` = %d
+                              AND `group_type` = \'%s\'
+                              AND (`object_type` = \'%s\' OR `general_object_type` = \'%s\')
+                              AND `object_id` = %d'
                     ),
                     [123, 'type', 'objectType', 'objectType', 1]
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'DELETE FROM userGroupToObjectTable
-                            WHERE group_id = %d
-                              AND group_type = \'%s\'
-                              AND object_type = \'%s\'
-                              AND object_id = %d'
+                        'DELETE FROM `userGroupToObjectTable`
+                            WHERE `group_id` = %d
+                              AND `group_type` = \'%s\'
+                              AND `object_type` = \'%s\'
+                              AND `object_id` = %d'
                     ),
                     [123, 'type', 'defaultObjectType', '']
                 ]
@@ -632,11 +632,11 @@ class AbstractUserGroupTest extends UserAccessManagerTestCase
             ->method('prepare')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SELECT object_type AS objectType, from_date AS fromDate, to_date AS toDate
-                    FROM userGroupToObjectTable
-                    WHERE group_id = \'%s\'
-                      AND group_type = \'%s\'
-                      AND object_id = \'\''
+                    'SELECT `object_type` AS `objectType`, `from_date` AS `fromDate`, `to_date` AS `toDate`
+                    FROM `userGroupToObjectTable`
+                    WHERE `group_id` = \'%s\'
+                      AND `group_type` = \'%s\'
+                      AND `object_id` = \'\''
                 ),
                 ['groupId', 'groupType']
             )

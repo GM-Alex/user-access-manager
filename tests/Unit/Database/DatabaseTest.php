@@ -300,4 +300,52 @@ class DatabaseTest extends UserAccessManagerTestCase
         $database = new Database($wordpress);
         self::assertEquals(' COLLATE testCollate', $database->getCharset());
     }
+
+    /**
+     * A column definition takes the charset without the DEFAULT keyword, which belongs
+     * to the table options.
+     *
+     * @group  unit
+     * @covers ::getColumnCharset()
+     * @covers ::getCharsetCollate()
+     */
+    public function testGetColumnCharset()
+    {
+        $wpDatabase = $this->getWpDatabase(['get_var']);
+        $wpDatabase->charset = 'testCharset';
+        $wpDatabase->collate = 'testCollate';
+        $wpDatabase->expects($this->once())
+            ->method('get_var')
+            ->with('SELECT VERSION() as mysql_version')
+            ->will($this->returnValue('4.0.0'));
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+
+        self::assertEquals('', $database->getColumnCharset());
+
+        $wpDatabase = $this->getWpDatabase(['get_var']);
+        $wpDatabase->expects($this->exactly(4))
+            ->method('get_var')
+            ->with('SELECT VERSION() as mysql_version')
+            ->will($this->returnValue('4.1.0'));
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+
+        self::assertEquals('', $database->getColumnCharset());
+
+        $wpDatabase->charset = 'testCharset';
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+        self::assertEquals('CHARACTER SET testCharset', $database->getColumnCharset());
+
+        $wpDatabase->collate = 'testCollate';
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+        self::assertEquals('CHARACTER SET testCharset COLLATE testCollate', $database->getColumnCharset());
+
+        $wpDatabase->charset = null;
+        $wordpress = $this->getWrapperWithWpDatabase($wpDatabase);
+        $database = new Database($wordpress);
+        self::assertEquals(' COLLATE testCollate', $database->getColumnCharset());
+    }
 }

@@ -278,7 +278,7 @@ class UserMembershipHandlerTest extends ObjectMembershipHandlerTestCase
      */
     public function testGetFullObjects()
     {
-        $query = "SELECT ID, user_nicename FROM usersTable";
+        $query = "SELECT `ID`, `user_nicename` FROM `usersTable`";
 
         $database = $this->getDatabase();
 

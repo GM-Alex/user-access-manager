@@ -13,3 +13,4 @@ uam.conf
 infection.json
 .htaccess
 .cache
+.DS_Store

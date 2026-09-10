@@ -775,42 +775,42 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->withConsecutive(
                 [
                     new MatchIgnoreWhitespace(
-                        'SELECT post_status, COUNT(*) AS num_posts 
-                        FROM postTable 
-                        WHERE post_type = %s AND ID NOT IN (1) GROUP BY post_status'
+                        'SELECT `post_status`, COUNT(*) AS `num_posts`
+                        FROM `postTable`
+                        WHERE `post_type` = %s AND `ID` NOT IN (1) GROUP BY `post_status`'
                     ),
                     'type'
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'SELECT post_status, COUNT(*) AS num_posts 
-                        FROM postTable 
-                        WHERE post_type = %s AND ID NOT IN (1, 3) GROUP BY post_status'
+                        'SELECT `post_status`, COUNT(*) AS `num_posts`
+                        FROM `postTable`
+                        WHERE `post_type` = %s AND `ID` NOT IN (1, 3) GROUP BY `post_status`'
                     ),
                     'type'
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'SELECT post_status, COUNT(*) AS num_posts 
-                        FROM postTable 
-                        WHERE post_type = %s AND ID NOT IN (1, 3) GROUP BY post_status'
+                        'SELECT `post_status`, COUNT(*) AS `num_posts`
+                        FROM `postTable`
+                        WHERE `post_type` = %s AND `ID` NOT IN (1, 3) GROUP BY `post_status`'
                     ),
                     'type'
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'AND (post_status != \'private\' OR (post_author = %d AND post_status = \'private\'))'
+                        'AND (`post_status` != \'private\' OR (`post_author` = %d AND `post_status` = \'private\'))'
                     ),
                     1
                 ],
                 [
                     new MatchIgnoreWhitespace(
-                        'SELECT post_status, COUNT(*) AS num_posts 
-                        FROM postTable 
-                        WHERE post_type = %s 
-                          AND ID NOT IN (1, 3)
-                          AND (post_status != \'private\' OR (post_author = 1 AND post_status = \'private\'))
-                        GROUP BY post_status'
+                        'SELECT `post_status`, COUNT(*) AS `num_posts` 
+                        FROM `postTable` 
+                        WHERE `post_type` = %s 
+                          AND `ID` NOT IN (1, 3)
+                          AND (`post_status` != \'private\' OR (`post_author` = 1 AND `post_status` = \'private\'))
+                        GROUP BY `post_status`'
                     ),
                     'type'
                 ]
@@ -819,7 +819,7 @@ class PostControllerTest extends UserAccessManagerTestCase
                 'preparedQuery',
                 'preparedQuery',
                 'preparedQuery',
-                ' AND (post_status != \'private\' OR (post_author = 1 AND post_status = \'private\')) ',
+                ' AND (`post_status` != \'private\' OR (`post_author` = 1 AND `post_status` = \'private\')) ',
                 'preparedQuery'
             ));
 
@@ -927,9 +927,9 @@ class PostControllerTest extends UserAccessManagerTestCase
             ->method('prepare')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SELECT post_status, COUNT(*) AS num_posts
-                    FROM postTable
-                    WHERE post_type = %s AND ID NOT IN (1, 2) GROUP BY post_status'
+                    'SELECT `post_status`, COUNT(*) AS `num_posts`
+                    FROM `postTable`
+                    WHERE `post_type` = %s AND `ID` NOT IN (1, 2) GROUP BY `post_status`'
                 ),
                 'type'
             )

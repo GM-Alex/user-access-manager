@@ -56,21 +56,21 @@ class DatabaseUpdate6Test extends UserAccessManagerTestCase
             ->method('getVariable')
             ->with(
                 new MatchIgnoreWhitespace(
-                    'SHOW COLUMNS FROM userGroupToObjectTable
+                    'SHOW COLUMNS FROM `userGroupToObjectTable`
                     LIKE \'group_type\''
                 )
             )
             ->will($this->onConsecutiveCalls('', '', '', 'group_type'));
 
-        $alterTableAddQuery = 'ALTER TABLE userGroupToObjectTable
-            ADD group_type VARCHAR(32) NOT NULL AFTER group_id,
-            ADD from_date DATETIME NULL DEFAULT NULL,
-            ADD to_date DATETIME NULL DEFAULT NULL,
-            MODIFY group_id VARCHAR(32) NOT NULL,
-            MODIFY object_id VARCHAR(32) NOT NULL,
-            MODIFY object_type VARCHAR(32) NOT NULL,
+        $alterTableAddQuery = 'ALTER TABLE `userGroupToObjectTable`
+            ADD `group_type` VARCHAR(32) NOT NULL AFTER `group_id`,
+            ADD `from_date` DATETIME NULL DEFAULT NULL,
+            ADD `to_date` DATETIME NULL DEFAULT NULL,
+            MODIFY `group_id` VARCHAR(32) NOT NULL,
+            MODIFY `object_id` VARCHAR(32) NOT NULL,
+            MODIFY `object_type` VARCHAR(32) NOT NULL,
             DROP PRIMARY KEY,
-            ADD PRIMARY KEY (object_id, object_type, group_id, group_type)';
+            ADD PRIMARY KEY (`object_id`, `object_type`, `group_id`, `group_type`)';
 
         $database->expects($this->exactly(4))
             ->method('query')
@@ -79,11 +79,11 @@ class DatabaseUpdate6Test extends UserAccessManagerTestCase
                 [new MatchIgnoreWhitespace($alterTableAddQuery)],
                 [new MatchIgnoreWhitespace($alterTableAddQuery)],
                 [new MatchIgnoreWhitespace(
-                    'ALTER TABLE userGroupToObjectTable
-                    MODIFY group_type VARCHAR(32) NOT NULL,
-                    MODIFY group_id VARCHAR(32) NOT NULL,
-                    MODIFY object_id VARCHAR(32) NOT NULL,
-                    MODIFY object_type VARCHAR(32) NOT NULL'
+                    'ALTER TABLE `userGroupToObjectTable`
+                    MODIFY `group_type` VARCHAR(32) NOT NULL,
+                    MODIFY `group_id` VARCHAR(32) NOT NULL,
+                    MODIFY `object_id` VARCHAR(32) NOT NULL,
+                    MODIFY `object_type` VARCHAR(32) NOT NULL'
                 )]
             )
             ->will($this->onConsecutiveCalls(false, true, true, true));

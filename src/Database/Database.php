@@ -147,6 +147,20 @@ class Database
 
     public function getCharset(): string
     {
+        return $this->getCharsetCollate('DEFAULT ');
+    }
+
+    /**
+     * The charset clause for a column definition. It carries no DEFAULT, because that
+     * makes it a table option, which a column definition does not accept.
+     */
+    public function getColumnCharset(): string
+    {
+        return $this->getCharsetCollate('');
+    }
+
+    private function getCharsetCollate(string $charsetPrefix): string
+    {
         $mySqlVersion = (string) $this->getVariable('SELECT VERSION() as mysql_version');
 
         if (version_compare($mySqlVersion, '4.1.0', '<')) {
@@ -156,7 +170,7 @@ class Database
         $charsetCollate = '';
 
         if (!empty($this->wpDatabase->charset)) {
-            $charsetCollate = "DEFAULT CHARACTER SET {$this->wpDatabase->charset}";
+            $charsetCollate = "{$charsetPrefix}CHARACTER SET {$this->wpDatabase->charset}";
         }
 
         if (!empty($this->wpDatabase->collate)) {

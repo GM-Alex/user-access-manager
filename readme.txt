@@ -5,7 +5,7 @@ Tags: member access, user access manager, user management, access
 Requires at least: 4.7
 Requires PHP: 8.0
 Tested up to: 7.1
-Stable tag: 2.3.19
+Stable tag: 2.3.20
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,11 @@ To stay up-to-date follow me on Twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.3.20      2026/09/09  Fix the queries failing on MariaDB 12.3, which turned to_date into a reserved word
+                            Quote the table and column names in all queries
+                            Fix the database update to version 1.0, which failed and left the group assignments unmigrated
+                            Migrate the user and role assignments in that update instead of dropping them with their tables
 
     2.3.19      2026/08/14  Fix a reflected cross site scripting issue in the backend request parameters
                             Fix locked documents answering with a 404 page instead of the no rights page

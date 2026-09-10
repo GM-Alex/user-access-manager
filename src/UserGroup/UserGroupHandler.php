@@ -50,7 +50,7 @@ class UserGroupHandler
      */
     private function loadUserGroups(): array
     {
-        $query = "SELECT * FROM {$this->database->getUserGroupTable()}";
+        $query = "SELECT * FROM `{$this->database->getUserGroupTable()}`";
         $userGroups = [];
 
         foreach ((array) $this->database->getResults($query) as $databaseUserGroup) {
@@ -84,10 +84,10 @@ class UserGroupHandler
 
         $userGroupTypes = implode('\', \'', [DynamicUserGroup::ROLE_TYPE, DynamicUserGroup::USER_TYPE]);
 
-        $query = "SELECT group_id AS id, group_type AS type
-                FROM {$this->database->getUserGroupToObjectTable()}
-                WHERE group_type IN ('$userGroupTypes')
-                  GROUP BY group_type, group_id";
+        $query = "SELECT `group_id` AS `id`, `group_type` AS `type`
+                FROM `{$this->database->getUserGroupToObjectTable()}`
+                WHERE `group_type` IN ('$userGroupTypes')
+                  GROUP BY `group_type`, `group_id`";
 
         foreach ((array) $this->database->getResults($query) as $databaseUserGroup) {
             $userGroup = $this->userGroupFactory->createDynamicUserGroup(

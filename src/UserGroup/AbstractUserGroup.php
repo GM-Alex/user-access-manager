@@ -185,7 +185,7 @@ abstract class AbstractUserGroup
             return false;
         }
 
-        $objectTypeQuery = " AND object_type = '%s' ";
+        $objectTypeQuery = " AND `object_type` = '%s' ";
         $values = [
             $this->id,
             $this->type,
@@ -193,17 +193,17 @@ abstract class AbstractUserGroup
         ];
 
         if ($ignoreGeneralType === false) {
-            $objectTypeQuery = " AND (object_type = '%s' OR general_object_type = '%s') ";
+            $objectTypeQuery = " AND (`object_type` = '%s' OR `general_object_type` = '%s') ";
             $values[] = $generalObjectType;
         }
 
-        $query = "DELETE FROM {$this->database->getUserGroupToObjectTable()}
-            WHERE group_id = %d
-              AND group_type = '%s'
+        $query = "DELETE FROM `{$this->database->getUserGroupToObjectTable()}`
+            WHERE `group_id` = %d
+              AND `group_type` = '%s'
               $objectTypeQuery";
 
         if ($objectId !== null) {
-            $query .= ' AND object_id = %d';
+            $query .= ' AND `object_id` = %d';
             $values[] = $objectId;
         }
 
@@ -266,11 +266,11 @@ abstract class AbstractUserGroup
     private function loadDefaultGroupForObjectTypes(): array
     {
         $query = $this->database->prepare(
-            "SELECT object_type AS objectType, from_date AS fromDate, to_date AS toDate
-                FROM {$this->database->getUserGroupToObjectTable()}
-                WHERE group_id = '%s'
-                  AND group_type = '%s'
-                  AND object_id = ''",
+            "SELECT `object_type` AS `objectType`, `from_date` AS `fromDate`, `to_date` AS `toDate`
+                FROM `{$this->database->getUserGroupToObjectTable()}`
+                WHERE `group_id` = '%s'
+                  AND `group_type` = '%s'
+                  AND `object_id` = ''",
             [
                 $this->id,
                 $this->type

@@ -215,7 +215,7 @@ class DatabaseHandler
     {
         foreach ($this->getActivePluginSites() as $siteId) {
             $table = $this->database->getBlogPrefix($siteId) . 'options';
-            $select = "SELECT option_value FROM $table WHERE option_name = '%s' LIMIT 1";
+            $select = "SELECT `option_value` FROM `$table` WHERE `option_name` = '%s' LIMIT 1";
             $select = $this->database->prepare($select, 'uam_db_version');
             $currentDbVersion = $this->database->getVariable($select);
 

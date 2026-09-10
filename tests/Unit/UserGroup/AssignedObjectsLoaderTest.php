@@ -28,18 +28,18 @@ use UserAccessManager\UserGroup\AssignedObjectsLoader;
  */
 class AssignedObjectsLoaderTest extends UserAccessManagerTestCase
 {
-    private const QUERY_WITHOUT_DATES = 'SELECT group_id AS groupId,
-              group_type AS groupType,
-              object_id AS id,
-              object_type AS objectType,
-              from_date AS fromDate,
-              to_date AS toDate
-            FROM userGroupToObjectTable
-            WHERE object_id != \'\'
-              AND (general_object_type = \'%s\' OR object_type = \'%s\')';
+    private const QUERY_WITHOUT_DATES = 'SELECT `group_id` AS `groupId`,
+              `group_type` AS `groupType`,
+              `object_id` AS `id`,
+              `object_type` AS `objectType`,
+              `from_date` AS `fromDate`,
+              `to_date` AS `toDate`
+            FROM `userGroupToObjectTable`
+            WHERE `object_id` != \'\'
+              AND (`general_object_type` = \'%s\' OR `object_type` = \'%s\')';
 
-    private const QUERY_WITH_DATES = self::QUERY_WITHOUT_DATES . ' AND (from_date IS NULL OR from_date <= \'%s\')
-              AND (to_date IS NULL OR to_date >= \'%s\')';
+    private const QUERY_WITH_DATES = self::QUERY_WITHOUT_DATES . ' AND (`from_date` IS NULL OR `from_date` <= \'%s\')
+              AND (`to_date` IS NULL OR `to_date` >= \'%s\')';
 
     /**
      * @param string $groupId

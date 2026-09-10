@@ -104,8 +104,8 @@ class UserMembershipHandler extends ObjectMembershipHandler
         $users = [];
 
         $databaseUsers = (array) $this->database->getResults(
-            "SELECT ID, user_nicename
-                FROM {$this->database->getUsersTable()}"
+            "SELECT `ID`, `user_nicename`
+                FROM `{$this->database->getUsersTable()}`"
         );
 
         foreach ($databaseUsers as $user) {

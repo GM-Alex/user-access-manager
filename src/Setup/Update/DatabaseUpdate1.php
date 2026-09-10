@@ -13,21 +13,21 @@ class DatabaseUpdate1 extends DatabaseUpdate
 
     private function updateToUserGroupTableUpdate(string $userGroupTable): bool
     {
-        $alterQuery = "ALTER TABLE {$userGroupTable}
-            ADD read_access TINYTEXT NOT NULL DEFAULT '', 
-            ADD write_access TINYTEXT NOT NULL DEFAULT '', 
-            ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+        $alterQuery = "ALTER TABLE `{$userGroupTable}`
+            ADD `read_access` TINYTEXT NOT NULL DEFAULT '',
+            ADD `write_access` TINYTEXT NOT NULL DEFAULT '',
+            ADD `ip_range` MEDIUMTEXT NULL DEFAULT ''";
 
         $this->database->query($alterQuery);
 
-        $updateQuery = "UPDATE $userGroupTable SET read_access = 'group', write_access = 'group'";
+        $updateQuery = "UPDATE `$userGroupTable` SET `read_access` = 'group', `write_access` = 'group'";
         $success = $this->database->query($updateQuery) !== false;
 
-        $selectQuery = "SHOW columns FROM $userGroupTable LIKE 'ip_range'";
+        $selectQuery = "SHOW COLUMNS FROM `$userGroupTable` LIKE 'ip_range'";
         $dbIpRange = (string) $this->database->getVariable($selectQuery);
 
         if ($dbIpRange !== 'ip_range') {
-            $alterQuery = "ALTER TABLE $userGroupTable ADD ip_range MEDIUMTEXT NULL DEFAULT ''";
+            $alterQuery = "ALTER TABLE `$userGroupTable` ADD `ip_range` MEDIUMTEXT NULL DEFAULT ''";
             $success = $this->database->query($alterQuery) !== false;
         }
 
@@ -40,10 +40,10 @@ class DatabaseUpdate1 extends DatabaseUpdate
     private function getObjectSelectQuery(string $objectType, array $legacyTables): ?string
     {
         if ($this->objectHandler->isPostType($objectType) === true) {
-            $source = $legacyTables['post'] . ', ' . $this->database->getPostsTable();
+            $source = '`' . $legacyTables['post'] . '`, `' . $this->database->getPostsTable() . '`';
 
-            return "SELECT post_id AS id, group_id AS groupId FROM $source"
-                . " WHERE post_id = ID AND post_type = '$objectType'";
+            return "SELECT `post_id` AS `id`, `group_id` AS `groupId` FROM $source"
+                . " WHERE `post_id` = `ID` AND `post_type` = '$objectType'";
         }
 
         $idColumns = [
@@ -56,13 +56,26 @@ class DatabaseUpdate1 extends DatabaseUpdate
             return null;
         }
 
-        return "SELECT {$idColumns[$objectType]} AS id, group_id AS groupId FROM {$legacyTables[$objectType]}";
+        return "SELECT `{$idColumns[$objectType]}` AS `id`, `group_id` AS `groupId`
+            FROM `{$legacyTables[$objectType]}`";
+    }
+
+    /**
+     * The object types whose assignments the legacy tables can hold. getObjectTypes() only
+     * knows post types and taxonomies, so the user and role types have to be added for
+     * their own legacy tables, whose rows would otherwise be dropped unmigrated.
+     *
+     * @return string[]
+     */
+    private function getMigratableObjectTypes(): array
+    {
+        return array_merge($this->objectHandler->getObjectTypes(), ['user', 'role']);
     }
 
     private function updateToUserGroupToObjectTableUpdate(): bool
     {
         $prefix = $this->database->getPrefix();
-        $charsetCollate = $this->database->getCharset();
+        $charsetCollate = $this->database->getColumnCharset();
         $userGroupToObject = $prefix . 'uam_accessgroup_to_object';
         $legacyTables = [
             'post' => $prefix . 'uam_accessgroup_to_post',
@@ -71,15 +84,15 @@ class DatabaseUpdate1 extends DatabaseUpdate
             'role' => $prefix . 'uam_accessgroup_to_role'
         ];
 
-        $alterQuery = "ALTER TABLE '$userGroupToObject'
-            CHANGE 'object_id' 'object_id' VARCHAR(64) $charsetCollate";
+        $alterQuery = "ALTER TABLE `$userGroupToObject`
+            CHANGE `object_id` `object_id` VARCHAR(64) $charsetCollate";
         $success = $this->database->query($alterQuery) !== false;
 
         if ($success === false) {
             return false;
         }
 
-        foreach ($this->objectHandler->getObjectTypes() as $objectType) {
+        foreach ($this->getMigratableObjectTypes() as $objectType) {
             $query = $this->getObjectSelectQuery($objectType, $legacyTables);
 
             if ($query === null) {
@@ -96,9 +109,10 @@ class DatabaseUpdate1 extends DatabaseUpdate
                         'object_id' => $dbObject->id,
                         'object_type' => $objectType
                     ],
+                    // All three are strings, roles carry their name as the object id.
                     [
-                        '%d',
-                        '%d',
+                        '%s',
+                        '%s',
                         '%s'
                     ]
                 );
@@ -106,7 +120,7 @@ class DatabaseUpdate1 extends DatabaseUpdate
             }
         }
 
-        $dropQuery = 'DROP TABLE ' . implode(', ', $legacyTables);
+        $dropQuery = 'DROP TABLE IF EXISTS `' . implode('`, `', $legacyTables) . '`';
 
         return $success && $this->database->query($dropQuery) !== false;
     }

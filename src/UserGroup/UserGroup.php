@@ -54,8 +54,8 @@ class UserGroup extends AbstractUserGroup
     {
         $query = $this->database->prepare(
             "SELECT *
-            FROM {$this->database->getUserGroupTable()}
-            WHERE ID = %d
+            FROM `{$this->database->getUserGroupTable()}`
+            WHERE `ID` = %d
             LIMIT 1",
             $id
         );
