@@ -119,7 +119,7 @@ class ControllerFactory
 
     public function createBackendCacheController(): CacheController
     {
-        return new CacheController($this->cache);
+        return new CacheController($this->cache, $this->objectMapHandler);
     }
 
     public function createBackendPostObjectController(): PostObjectController

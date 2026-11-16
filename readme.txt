@@ -5,7 +5,7 @@ Tags: member access, user access manager, user management, access
 Requires at least: 4.7
 Requires PHP: 8.0
 Tested up to: 7.1
-Stable tag: 2.3.20
+Stable tag: 2.3.21
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,11 @@ To stay up-to-date follow me on Twitter: [GMAlex on Twitter](http://twitter.com/
 Here you found the changes in each version.
 
     Version     Date        Changes
+
+    2.3.21      2026/11/16  Fix the deprecation warnings on PHP 8.5 caused by a null array offset
+                            Keep the rules of other plugins when writing the .htaccess at the upload directory
+                            Stop modifying the cached term objects of WordPress while filtering the term access
+                            Drop the already loaded object maps when the cache gets invalidated
 
     2.3.20      2026/09/09  Fix the queries failing on MariaDB 12.3, which turned to_date into a reserved word
                             Quote the table and column names in all queries

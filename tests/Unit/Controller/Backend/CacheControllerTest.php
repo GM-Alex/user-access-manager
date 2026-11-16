@@ -34,7 +34,8 @@ class CacheControllerTest extends UserAccessManagerTestCase
     public function testCanCreateInstance()
     {
         $cacheController = new CacheController(
-            $this->getCache()
+            $this->getCache(),
+            $this->getObjectMapHandler()
         );
 
         self::assertInstanceOf(CacheController::class, $cacheController);
@@ -59,8 +60,14 @@ class CacheControllerTest extends UserAccessManagerTestCase
                 [ObjectMapHandler::POST_TREE_MAP_CACHE_KEY]
             );
 
+        // Invalidating the cache alone leaves the maps already loaded for this request.
+        $objectMapHandler = $this->getObjectMapHandler();
+        $objectMapHandler->expects($this->exactly(2))
+            ->method('flushMaps');
+
         $objectController = new CacheController(
-            $cache
+            $cache,
+            $objectMapHandler
         );
 
         $objectController->invalidateTermCache();

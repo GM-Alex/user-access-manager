@@ -10,6 +10,9 @@ use UserAccessManager\Object\ObjectHandler;
 class ApacheFileProtection extends FileProtection implements FileProtectionInterface
 {
     public const FILE_NAME = '.htaccess';
+    private const MARKER_START = '# BEGIN User Access Manager';
+    private const MARKER_END = '# END User Access Manager';
+    private const AUTH_NAME_LINE = 'AuthName "WP-Files"';
 
     private function getFileTypes(): ?string
     {
@@ -54,7 +57,7 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
     {
         return $this->applyFilters(
             "AuthType Basic\n"
-            . "AuthName \"WP-Files\"\n"
+            . self::AUTH_NAME_LINE . "\n"
             . "AuthUserFile {$directory}.htpasswd\n"
             . "require valid-user\n"
         );
@@ -97,22 +100,66 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
         return $directory . self::FILE_NAME;
     }
 
+    // Versions before the markers wrote the whole file, recognisable by these two rules.
+    private function isOwnLegacyContent(string $content): bool
+    {
+        return str_contains($content, 'uamgetfile=')
+            || str_contains($content, self::AUTH_NAME_LINE);
+    }
+
+    private function getMarkedBlock(string $content): string
+    {
+        return self::MARKER_START . "\n" . $content . self::MARKER_END . "\n";
+    }
+
+    // Everything but the own blocks, so rules of other plugins survive a rewrite.
+    private function getForeignContent(string $file): string
+    {
+        if (is_file($file) === false) {
+            return '';
+        }
+
+        $content = (string) file_get_contents($file);
+        $start = strpos($content, self::MARKER_START);
+
+        if ($start === false) {
+            return ($this->isOwnLegacyContent($content) === true) ? '' : $content;
+        }
+
+        while ($start !== false) {
+            $end = strpos($content, self::MARKER_END, $start);
+            $behind = ($end === false) ? '' : ltrim(substr($content, $end + strlen(self::MARKER_END)), "\n");
+            $content = substr($content, 0, $start) . $behind;
+            $start = strpos($content, self::MARKER_START);
+        }
+
+        return $content;
+    }
+
     public function create(string $directory, ?string $objectType = null, ?string $absolutePath = null): bool
     {
         $directory = rtrim($directory, '/') . '/';
+        $file = $this->getFileNameWithPath($directory);
 
         if ($this->wordpress->gotModRewrite() === false) {
-            $content = $this->getFileContent($directory);
+            // A foreign "Require all granted" would join the own one in an implicit
+            // RequireAny and grant access, so this mode keeps the file to itself.
             $this->createPasswordFile(true, $directory);
+            $content = $this->getMarkedBlock($this->getFileContent($directory));
         } else {
-            $content = $this->getPermalinkFileContent(
+            // The own rules end in [L] and have to be reached before a foreign rule
+            // delivers the file, while RewriteEngine is a per directory switch whose
+            // last occurrence wins, so a foreign "Off" is answered by the closing block.
+            $content = $this->getMarkedBlock($this->getPermalinkFileContent(
                 $objectType,
                 preg_match('/.*\/sites\/[0-9]+\/$/', $directory) !== 0
-            );
+            ))
+                . $this->getForeignContent($file)
+                . $this->getMarkedBlock("<IfModule mod_rewrite.c>\nRewriteEngine On\n</IfModule>\n");
         }
 
         try {
-            return file_put_contents($this->getFileNameWithPath($directory), $content) !== false;
+            return file_put_contents($file, $content) !== false;
         } catch (Exception) {
             // file_put_contents may throw, but callers expect a boolean success result.
         }
@@ -122,6 +169,21 @@ class ApacheFileProtection extends FileProtection implements FileProtectionInter
 
     public function delete(string $directory): bool
     {
-        return $this->deleteFiles($directory);
+        $directory = rtrim($directory, '/') . '/';
+        $file = $this->getFileNameWithPath($directory);
+        $foreignContent = $this->getForeignContent($file);
+
+        if (trim($foreignContent) === '') {
+            return $this->deleteFiles($directory);
+        }
+
+        $success = $this->php->filePutContents($file, $foreignContent) !== false;
+        $passwordFile = $directory . self::PASSWORD_FILE_NAME;
+
+        if (is_file($passwordFile) === true) {
+            $success = ($this->php->unlink($passwordFile) === true) && $success;
+        }
+
+        return $success;
     }
 }

@@ -140,7 +140,7 @@ class AccessHandler
 
         $excludedObjects = array_filter(
             $excludedObjects,
-            fn($objectType) => isset($ignoredObjectTypes[$objectType]) === false
+            fn(?string $objectType) => isset($ignoredObjectTypes[(string) $objectType]) === false
         );
 
         $objectIds = array_keys($excludedObjects);

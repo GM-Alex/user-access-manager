@@ -284,6 +284,62 @@ class AccessHandlerTest extends HandlerTestCase
     }
 
     /**
+     * An assignment can carry no object type, which PHP 8.5 deprecates as an array offset.
+     *
+     * @group  unit
+     * @covers ::getExcludedPosts()
+     * @covers ::getExcludedObjects()
+     * @throws UserGroupTypeException
+     */
+    public function testGetExcludedObjectsWithoutAnAssignedObjectType()
+    {
+        $userGroupHandler = $this->getUserGroupHandler();
+
+        $userGroupHandler->expects($this->once())
+            ->method('getFullUserGroups')
+            ->will($this->returnValue([
+                $this->getUserGroup(0, true, false, [''], 'none', 'none', [1 => null, 2 => 'post'])
+            ]));
+
+        $userGroupHandler->expects($this->once())
+            ->method('getUserGroupsForUser')
+            ->will($this->returnValue([]));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->expects($this->once())
+            ->method('authorsHasAccessToOwn')
+            ->will($this->returnValue(false));
+
+        $accessHandler = new AccessHandler(
+            $this->getWordpressWithUser(),
+            $mainConfig,
+            $this->getDatabase(),
+            $this->getObjectHandler(),
+            $this->getUserHandler(),
+            $userGroupHandler
+        );
+
+        $deprecations = [];
+        set_error_handler(
+            function (int $errorNumber, string $message) use (&$deprecations) {
+                $deprecations[] = $message;
+                return true;
+            },
+            E_DEPRECATED
+        );
+
+        try {
+            $excludedPosts = $accessHandler->getExcludedPosts();
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertSame([], $deprecations);
+        // The object stays excluded, an unknown type matches no visible post type.
+        self::assertEquals([1 => 1, 2 => 2], $excludedPosts);
+    }
+
+    /**
      * @group  unit
      * @covers ::getExcludedPosts()
      * @covers ::getVisiblePostTypes()
