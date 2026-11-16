@@ -194,6 +194,96 @@ class TermControllerTest extends UserAccessManagerTestCase
     }
 
     /**
+     * WordPress hands out the instance from its object cache, so the term must come
+     * back as a changed copy while the original stays as it was.
+     *
+     * @group  unit
+     * @covers ::showTerms()
+     * @covers ::processTerm()
+     * @throws UserGroupTypeException
+     */
+    public function testShowTermsDoesNotChangeThePassedTerm()
+    {
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('isValidObjectType')->will($this->returnValue(true));
+        $objectHandler->method('getPostTypes')->will($this->returnValue([]));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->method('checkObjectAccess')->will($this->returnValue(true));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('lockRecursive')->will($this->returnValue(true));
+        $mainConfig->method('hideEmptyTaxonomy')->will($this->returnValue(false));
+
+        $objectMapHandler = $this->getObjectMapHandler();
+        $objectMapHandler->method('getTermTreeMap')->will($this->returnValue([]));
+        $objectMapHandler->method('getTermPostMap')->will($this->returnValue([]));
+
+        $frontendTermController = new TermController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $this->getUtil(),
+            $objectHandler,
+            $this->getUserHandler(),
+            $this->getUserGroupHandler(),
+            $accessHandler,
+            $objectMapHandler
+        );
+
+        $term = $this->getTerm(1, 'taxonomy', 'name1', 7);
+        $result = $frontendTermController->showTerms([$term]);
+
+        self::assertCount(1, $result);
+        // The original keeps its count, the returned copy carries the visible one.
+        self::assertSame(7, $term->count);
+        self::assertNotSame($term, $result[0]);
+        self::assertSame(0, $result[0]->count);
+    }
+
+    /**
+     * A list of ids has to stay a list of ids.
+     *
+     * @group  unit
+     * @covers ::showTerms()
+     * @throws UserGroupTypeException
+     */
+    public function testShowTermsKeepsIdsForAnIdList()
+    {
+        $objectHandler = $this->getObjectHandler();
+        $objectHandler->method('isValidObjectType')->will($this->returnValue(true));
+        $objectHandler->method('getPostTypes')->will($this->returnValue([]));
+        $objectHandler->method('getTerm')->with(1)->will($this->returnValue($this->getTerm(1)));
+
+        $accessHandler = $this->getAccessHandler();
+        $accessHandler->method('checkObjectAccess')->will($this->returnValue(true));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('lockRecursive')->will($this->returnValue(true));
+        $mainConfig->method('hideEmptyTaxonomy')->will($this->returnValue(false));
+
+        $objectMapHandler = $this->getObjectMapHandler();
+        $objectMapHandler->method('getTermTreeMap')->will($this->returnValue([]));
+        $objectMapHandler->method('getTermPostMap')->will($this->returnValue([]));
+
+        $frontendTermController = new TermController(
+            $this->getPhp(),
+            $this->getWordpress(),
+            $this->getWordpressConfig(),
+            $mainConfig,
+            $this->getUtil(),
+            $objectHandler,
+            $this->getUserHandler(),
+            $this->getUserGroupHandler(),
+            $accessHandler,
+            $objectMapHandler
+        );
+
+        self::assertSame([1], $frontendTermController->showTerms([1]));
+    }
+
+    /**
      * @group  unit
      * @covers ::showTerm()
      * @covers ::showTerms()

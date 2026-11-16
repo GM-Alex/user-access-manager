@@ -27,6 +27,15 @@ class ObjectMapHandler
     ) {
     }
 
+    // An invalidated cache is not enough, an already loaded map is still served from the property.
+    public function flushMaps(): void
+    {
+        $this->termPostMap = null;
+        $this->postTermMap = null;
+        $this->termTreeMap = null;
+        $this->postTreeMap = null;
+    }
+
     private function processTreeMapElements(array &$map, ?array $subMap = null, array &$processed = []): array
     {
         $processMap = ($subMap === null) ? $map : $subMap;

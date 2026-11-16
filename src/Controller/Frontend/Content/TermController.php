@@ -160,6 +160,8 @@ class TermController extends ContentController
             return false;
         }
 
+        // WordPress hands out the instance from its object cache, it must not be changed in place.
+        $term = clone $term;
         $term->name .= $this->adminOutput((string) $term->taxonomy, $term->term_id, $term->name);
         $term->count = $this->getVisibleElementsCount($term->taxonomy, $term->term_id);
         $isEmpty = $this->isCategoryEmpty($term);
@@ -186,7 +188,9 @@ class TermController extends ContentController
     public function showTerms(array $terms = []): array
     {
         foreach ($terms as $key => $term) {
-            if (is_numeric($term) === true) {
+            $isTermId = is_numeric($term);
+
+            if ($isTermId === true) {
                 if ((int) $term === 0) {
                     unset($terms[$key]);
                     continue;
@@ -199,6 +203,12 @@ class TermController extends ContentController
 
             if ($term === false || $isEmpty === true) {
                 unset($terms[$key]);
+                continue;
+            }
+
+            // The processed copy replaces the original, while a list of ids keeps its ids.
+            if ($isTermId === false) {
+                $terms[$key] = $term;
             }
         }
 

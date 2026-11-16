@@ -36,6 +36,12 @@ use Vfs\Node\File;
  */
 class ApacheFileProtectionTest extends UserAccessManagerTestCase
 {
+    private const OWN_BLOCK = "# BEGIN User Access Manager\nRewriteRule ^a$ b [L]\n# END User Access Manager\n";
+    private const FOREIGN_BLOCK = "# BEGIN Other Plugin\nRewriteRule ^x$ y [L]\n# END Other Plugin\n";
+    private const REWRITE_GUARD = "# BEGIN User Access Manager\n"
+        . "<IfModule mod_rewrite.c>\nRewriteEngine On\n</IfModule>\n"
+        . "# END User Access Manager\n";
+
     private FileSystem $root;
 
     protected function setUp(): void
@@ -49,6 +55,48 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     {
         $this->root->unmount();
         parent::tearDown();
+    }
+
+    private function getOwnBlock(string $file): string
+    {
+        $content = (string) file_get_contents($file);
+        $start = "# BEGIN User Access Manager\n";
+        $end = "# END User Access Manager\n";
+
+        self::assertStringStartsWith($start, $content);
+        self::assertStringEndsWith($end, $content);
+
+        $endPosition = (int) strpos($content, $end);
+
+        return substr($content, strlen($start), $endPosition - strlen($start));
+    }
+
+    private function addTestDirectory(string $fileContent, bool $withPasswordFile = false): void
+    {
+        $files = [ApacheFileProtection::FILE_NAME => new File($fileContent)];
+
+        if ($withPasswordFile === true) {
+            $files[ApacheFileProtection::PASSWORD_FILE_NAME] = new File('password');
+        }
+
+        /**
+         * @var Directory $rootDir
+         */
+        $rootDir = $this->root->get('/');
+        $rootDir->add('testDir', new Directory($files));
+    }
+
+    private function createApacheFileProtectionWithPermalinks(): ApacheFileProtection
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('getSiteUrl')->will($this->returnValue('http://www.test.com/path'));
+        $wordpress->method('gotModRewrite')->will($this->returnValue(true));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('getLockedFileType')->will($this->returnValue('all'));
+        $mainConfig->method('getLockedDirectoryType')->will($this->returnValue('all'));
+
+        return $this->createApacheFileProtection(wordpress: $wordpress, mainConfig: $mainConfig);
     }
 
     private function createApacheFileProtection(
@@ -199,7 +247,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         self::assertTrue(file_exists($passwordFile));
         self::assertEquals(
             "AuthType Basic\nAuthName \"WP-Files\"\nAuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n",
-            file_get_contents($file)
+            $this->getOwnBlock($file)
         );
         self::assertEquals(
             "userLogin:userPass\n",
@@ -212,7 +260,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             . "AuthType Basic\nAuthName \"WP-Files\"\n"
             . "AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
             . "</FilesMatch>\n",
-            file_get_contents($file)
+            $this->getOwnBlock($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
@@ -221,7 +269,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             . "\nAuthType Basic\nAuthName \"WP-Files\"\n"
             . "AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
             . "</FilesMatch>\n",
-            file_get_contents($file)
+            $this->getOwnBlock($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir));
@@ -237,7 +285,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             . "/path/index.php?uamfiletype=attachment&uamgetfile=$1&$2 [QSA,L]\n"
             . "RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
             . "</IfModule>\n",
-            file_get_contents($file)
+            $this->getOwnBlock($file)
         );
 
         self::assertTrue($apacheFileProtection->create($testDir, 'objectType'));
@@ -255,7 +303,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             . "RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
             . "</FilesMatch>\n"
             . "</IfModule>\n",
-            file_get_contents($file)
+            $this->getOwnBlock($file)
         );
 
         $secondFile = $secondTestDir . '/' . ApacheFileProtection::FILE_NAME;
@@ -271,7 +319,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
             . "/path/index.php?uamfiletype=objectType&uamgetfile=$1&$2 [QSA,L]\n"
             . "RewriteRule ^(.*)\\?(.*)$ /path/index.php?uamgetfile=$1&$2 [QSA,L]\n"
             . "</IfModule>\n",
-            file_get_contents($secondFile)
+            $this->getOwnBlock($secondFile)
         );
 
         self::assertFalse($apacheFileProtection->create('invalid', 'invalid'));
@@ -280,6 +328,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::create()
+     * @covers ::getMarkedBlock()
      * @covers ::getPermalinkFileContent()
      */
     public function testCreateForDirectoryContainingButNotEndingInSites()
@@ -314,6 +363,7 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
     /**
      * @group  unit
      * @covers ::create()
+     * @covers ::getMarkedBlock()
      */
     public function testCreateReturnsFalseWhenWritingThrows()
     {
@@ -366,8 +416,9 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
          * @var Directory $rootDir
          */
         $rootDir = $this->root->get('/');
+        // Content of a version that wrote the whole file, so the file is the own one.
         $rootDir->add('testDir', new Directory([
-            ApacheFileProtection::FILE_NAME => new File('htaccess'),
+            ApacheFileProtection::FILE_NAME => new File('RewriteRule ^([^?]*)$ /index.php?uamgetfile=$1 [QSA,L]'),
             ApacheFileProtection::PASSWORD_FILE_NAME => new File('password')
         ]));
 
@@ -380,5 +431,268 @@ class ApacheFileProtectionTest extends UserAccessManagerTestCase
         self::assertTrue($apacheFileProtection->delete($testDir));
         self::assertFalse($apacheFileProtection->delete($testDir));
         self::assertFalse($apacheFileProtection->delete($testDir));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::delete()
+     * @covers ::getForeignContent()
+     * @covers ::isOwnLegacyContent()
+     */
+    public function testDeleteKeepsForeignContent()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->once())
+            ->method('filePutContents')
+            ->with('vfs://testDir/.htaccess', self::FOREIGN_BLOCK)
+            ->will($this->returnValue(strlen(self::FOREIGN_BLOCK)));
+
+        $php->expects($this->once())
+            ->method('unlink')
+            ->with('vfs://testDir/.htpasswd')
+            ->will($this->returnValue(true));
+
+        $this->addTestDirectory(self::OWN_BLOCK . self::FOREIGN_BLOCK, true);
+
+        self::assertTrue($this->createApacheFileProtection($php)->delete('vfs://testDir/'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::delete()
+     * @covers ::getForeignContent()
+     * @covers ::isOwnLegacyContent()
+     */
+    public function testDeleteKeepsAFileWithoutOwnContent()
+    {
+        $foreignContent = "RewriteRule ^foo$ bar [L]\n";
+
+        $php = $this->getPhp();
+        $php->expects($this->once())
+            ->method('filePutContents')
+            ->with('vfs://testDir/.htaccess', $foreignContent)
+            ->will($this->returnValue(false));
+
+        $php->expects($this->never())
+            ->method('unlink');
+
+        $this->addTestDirectory($foreignContent);
+
+        self::assertFalse($this->createApacheFileProtection($php)->delete('vfs://testDir/'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getMarkedBlock()
+     * @covers ::getForeignContent()
+     * @covers ::isOwnLegacyContent()
+     */
+    public function testCreateKeepsForeignContentBehindTheOwnBlock()
+    {
+        $this->addTestDirectory(self::FOREIGN_BLOCK);
+        $apacheFileProtection = $this->createApacheFileProtectionWithPermalinks();
+        $file = 'vfs://testDir/' . ApacheFileProtection::FILE_NAME;
+
+        self::assertTrue($apacheFileProtection->create('vfs://testDir'));
+
+        $content = (string) file_get_contents($file);
+        self::assertStringStartsWith("# BEGIN User Access Manager\n", $content);
+        self::assertStringEndsWith(self::FOREIGN_BLOCK . self::REWRITE_GUARD, $content);
+        self::assertStringContainsString('uamgetfile', $content);
+        // The own rules end in [L] and have to be reached before the foreign ones.
+        self::assertLessThan(
+            strpos($content, '# BEGIN Other Plugin'),
+            strpos($content, '# END User Access Manager')
+        );
+
+        self::assertTrue($apacheFileProtection->create('vfs://testDir'));
+        // The rules and the guard, not a third one stacked on top.
+        self::assertSame(2, substr_count((string) file_get_contents($file), '# BEGIN User Access Manager'));
+        self::assertStringEndsWith(
+            self::FOREIGN_BLOCK . self::REWRITE_GUARD,
+            (string) file_get_contents($file)
+        );
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getMarkedBlock()
+     * @covers ::getForeignContent()
+     */
+    public function testCreateKeepsForeignContentFromBothSidesOfTheOwnBlock()
+    {
+        $this->addTestDirectory("# BEFORE\n" . self::OWN_BLOCK . "\n# AFTER\n");
+
+        self::assertTrue($this->createApacheFileProtectionWithPermalinks()->create('vfs://testDir'));
+
+        $content = (string) file_get_contents('vfs://testDir/' . ApacheFileProtection::FILE_NAME);
+
+        self::assertStringStartsWith("# BEGIN User Access Manager\n", $content);
+        // Both sides are kept, and the blank line behind the old block is dropped.
+        self::assertStringEndsWith("# BEFORE\n# AFTER\n" . self::REWRITE_GUARD, $content);
+        self::assertSame(2, substr_count($content, '# BEGIN User Access Manager'));
+        self::assertStringNotContainsString('RewriteRule ^a$ b [L]', $content);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getMarkedBlock()
+     * @covers ::getForeignContent()
+     */
+    public function testCreateDropsATruncatedOwnBlock()
+    {
+        $this->addTestDirectory("# KEPT\n# BEGIN User Access Manager\nRewriteRule ^cut$ off [L]\n");
+
+        self::assertTrue($this->createApacheFileProtectionWithPermalinks()->create('vfs://testDir'));
+
+        $content = (string) file_get_contents('vfs://testDir/' . ApacheFileProtection::FILE_NAME);
+
+        self::assertStringEndsWith("# KEPT\n" . self::REWRITE_GUARD, $content);
+        self::assertStringNotContainsString('RewriteRule ^cut$ off [L]', $content);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::delete()
+     * @covers ::getForeignContent()
+     */
+    public function testDeleteRemovesAFileLeftWithWhitespaceOnly()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->never())
+            ->method('filePutContents');
+
+        $php->expects($this->exactly(2))
+            ->method('unlink')
+            ->withConsecutive(['vfs://testDir/.htaccess'], ['vfs://testDir/.htpasswd'])
+            ->will($this->returnValue(true));
+
+        // Whitespace left behind the removed block does not count as foreign content.
+        $this->addTestDirectory(self::OWN_BLOCK . "\n  \n", true);
+
+        self::assertTrue($this->createApacheFileProtection($php)->delete('vfs://testDir/'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::delete()
+     */
+    public function testDeleteFailsWhenThePasswordFileRemains()
+    {
+        $php = $this->getPhp();
+        $php->expects($this->once())
+            ->method('filePutContents')
+            ->will($this->returnValue(strlen(self::FOREIGN_BLOCK)));
+
+        $php->expects($this->once())
+            ->method('unlink')
+            ->with('vfs://testDir/.htpasswd')
+            ->will($this->returnValue(false));
+
+        $this->addTestDirectory(self::OWN_BLOCK . self::FOREIGN_BLOCK, true);
+
+        self::assertFalse($this->createApacheFileProtection($php)->delete('vfs://testDir/'));
+    }
+
+    /**
+     * Without mod_rewrite the protection rests on "require valid-user". A foreign
+     * "Require all granted" would join it in an implicit RequireAny and grant access,
+     * so no foreign content is carried over in that mode.
+     *
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getMarkedBlock()
+     */
+    public function testCreateDropsForeignContentWithoutModRewrite()
+    {
+        $wordpress = $this->getWordpress();
+        $wordpress->method('gotModRewrite')->will($this->returnValue(false));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('getLockedFileType')->will($this->returnValue('all'));
+
+        $this->addTestDirectory("Require all granted\n" . self::FOREIGN_BLOCK);
+
+        $apacheFileProtection = $this->createApacheFileProtection(
+            wordpress: $wordpress,
+            mainConfig: $mainConfig
+        );
+
+        self::assertTrue($apacheFileProtection->create('vfs://testDir'));
+
+        $content = (string) file_get_contents('vfs://testDir/' . ApacheFileProtection::FILE_NAME);
+
+        self::assertStringNotContainsString('Require all granted', $content);
+        self::assertStringNotContainsString('# BEGIN Other Plugin', $content);
+        self::assertStringEndsWith("# END User Access Manager\n", $content);
+        self::assertStringContainsString('require valid-user', $content);
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getMarkedBlock()
+     * @covers ::getForeignContent()
+     * @covers ::isOwnLegacyContent()
+     */
+    public function testCreateReplacesContentWrittenWithoutMarkers()
+    {
+        $this->addTestDirectory(
+            "# legacy own rules\n"
+            . "<IfModule mod_rewrite.c>\n"
+            . "RewriteRule ^([^?]*)$ /path/index.php?uamfiletype=attachment&uamgetfile=$1 [QSA,L]\n"
+            . "</IfModule>\n"
+        );
+
+        self::assertTrue($this->createApacheFileProtectionWithPermalinks()->create('vfs://testDir'));
+
+        $content = (string) file_get_contents('vfs://testDir/' . ApacheFileProtection::FILE_NAME);
+        self::assertStringEndsWith(self::REWRITE_GUARD, $content);
+        // Replaced, not carried along as foreign content.
+        self::assertStringNotContainsString('# legacy own rules', $content);
+        self::assertSame(2, substr_count($content, '<IfModule mod_rewrite.c>'));
+    }
+
+    /**
+     * @group  unit
+     * @covers ::create()
+     * @covers ::getMarkedBlock()
+     * @covers ::getForeignContent()
+     * @covers ::isOwnLegacyContent()
+     */
+    public function testCreateReplacesContentWrittenWithoutMarkersAndWithoutModRewrite()
+    {
+        $this->addTestDirectory(
+            "AuthType Basic\nAuthName \"WP-Files\"\n"
+            . "AuthUserFile vfs://testDir/.htpasswd\nrequire valid-user\n"
+        );
+
+        /**
+         * @var stdClass $user
+         */
+        $user = $this->getMockBuilder('\WP_User')->getMock();
+        $user->user_login = 'userLogin';
+        $user->user_pass = 'userPass';
+
+        $wordpress = $this->getWordpress();
+        $wordpress->method('gotModRewrite')->will($this->returnValue(false));
+        $wordpress->method('getCurrentUser')->will($this->returnValue($user));
+
+        $mainConfig = $this->getMainConfig();
+        $mainConfig->method('getLockedFileType')->will($this->returnValue('all'));
+
+        $apacheFileProtection = $this->createApacheFileProtection(
+            wordpress: $wordpress,
+            mainConfig: $mainConfig
+        );
+
+        self::assertTrue($apacheFileProtection->create('vfs://testDir'));
+
+        $content = (string) file_get_contents('vfs://testDir/' . ApacheFileProtection::FILE_NAME);
+        self::assertStringEndsWith("# END User Access Manager\n", $content);
+        self::assertSame(1, substr_count($content, 'AuthName "WP-Files"'));
     }
 }

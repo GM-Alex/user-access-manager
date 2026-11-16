@@ -89,6 +89,33 @@ class ObjectMapHandlerTest extends UserAccessManagerTestCase
 
     /**
      * @group  unit
+     * @covers ::flushMaps()
+     */
+    public function testFlushMapsDropsTheLoadedMaps()
+    {
+        $database = $this->getDatabase();
+        $database->method('getPostsTable')->will($this->returnValue('postTable'));
+
+        // Once per load, so the second load after the flush has to query again.
+        $database->expects($this->exactly(2))
+            ->method('getResults')
+            ->will($this->returnValue([]));
+
+        $cache = $this->getCache();
+        $cache->method('get')->will($this->returnValue(null));
+
+        $objectMapHandler = new ObjectMapHandler($database, $cache);
+
+        $objectMapHandler->getPostTreeMap();
+        $objectMapHandler->getPostTreeMap();
+
+        $objectMapHandler->flushMaps();
+
+        $objectMapHandler->getPostTreeMap();
+    }
+
+    /**
+     * @group  unit
      * @covers ::processTreeMapElements()
      * @covers ::getCachedTreeMap()
      * @covers ::getTreeMap()

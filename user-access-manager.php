@@ -3,7 +3,7 @@
  * Plugin Name: User Access Manager
  * Plugin URI: https://wordpress.org/plugins/user-access-manager/
  * Author URI: https://twitter.com/GM_Alex
- * Version: 2.3.20
+ * Version: 2.3.21
  * Requires PHP: 8.0
  * Author: Alexander Schneider
  * Description: Manage the access to your posts, pages, categories and files.
@@ -41,7 +41,7 @@ function initUam() {
     //--- Check requirements ---
 
     //Check php version
-    if (version_compare((string)phpversion(), '7.2') === -1) {
+    if (version_compare((string)phpversion(), '8.0') === -1) {
         add_action(
             'admin_notices',
             function () {
@@ -57,7 +57,7 @@ function initUam() {
     //Check WordPress version
     global $wp_version;
 
-    if (version_compare((string)$wp_version, '4.6') === -1) {
+    if (version_compare((string)$wp_version, '4.7') === -1) {
         add_action(
             'admin_notices',
             function () use ($wp_version) {
